@@ -80,8 +80,6 @@ const legalDiagonals = () => [...document.querySelectorAll('[data-fourpoint="dia
 test('the graph starts in four-point mode on the unit square: D = 0, one degree-4 vertex, both diagonals legal, the not-unique note', () => {
     const graph = new Observed();
     mount(graph);
-    expect(optionText(exampleSelect(), 'pizzeria')).toBeUndefined();
-    expect(named(graph, 'voronoi-query-links')).toHaveLength(0);
     expect(graph.mode).toBe('four-point');
     expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.square.points);
     expect(graph.presets()).toBe(DEGENERATE_PRESET_KEY);

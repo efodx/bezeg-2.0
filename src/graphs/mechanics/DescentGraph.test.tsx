@@ -119,7 +119,6 @@ describe('mount and the drawing, per mode', () => {
         expect(d.times.line).toBeCloseTo(LINE_TIME, 6);
         expect(readout('time-cycloid')).toBe('1,003 s');
         expect(readout('time-line')).toBe('1,189 s');
-        expect(go(graph, d.tEnd)).toBe(true);
         expect(readout('winner')).toBe(t('descent_graph_name_cycloid'));
         expect(readout('line-slower')).toBe(`${((LINE_TIME / CYCLOID_TIME - 1) * 100).toFixed(1).replace('.', ',')} %`);
         expect(readout('end')).toBe('(3,14; 2) m');
@@ -143,13 +142,15 @@ describe('mount and the drawing, per mode', () => {
         }
     });
 
-    test('the race names each track and its computed time on the board, and marks the computed end', () => {
+    test('the race names each track and its computed time on the board; the winner and the computed end too', () => {
         const {graph} = mountGraph();
         const texts = captionTexts(graph);
         expect(texts).toContain(t('descent_graph_cap_time_row', {value0: t('descent_graph_name_cycloid'), value1: '1,003 s'}));
         expect(texts).toContain(t('descent_graph_cap_time_row', {value0: t('descent_graph_name_line'), value1: '1,189 s'}));
+        expect(texts).toContain(t('descent_graph_cap_winner', {value0: t('descent_graph_name_cycloid')}));
         expect(texts).toContain(t('descent_graph_cap_end_computed', {value0: '3,14', value1: '2'}));
         expect(texts).toContain(t('descent_graph_cap_units', {value0: '9,81'}));
+        for (const name of ['line', 'arc', 'cycloid'] as const) expect(texts).toContain(t(`descent_graph_name_${name}`));
         // the start and end tags are point names, typeset
         expect(texts).toEqual(expect.arrayContaining(['$$A$$', '$$B$$']));
     });
@@ -439,72 +440,6 @@ describe('typed input and dragging', () => {
 });
 
 describe('playback and the time', () => {
-    test('the first-arrival result is anchored to B and disappears when the race rewinds', () => {
-        const {graph} = mountGraph();
-        const race = graph.derived() as RaceDerived;
-        const first = Math.min(...Object.values(race.times));
-        const result = 'Prvi prihod · Cikloida, 1,003 s';
-        const expectHidden = () => {
-            expect(captionTexts(graph)).not.toContain(result);
-            expect(readout('winner')).toBeUndefined();
-            expect(readout('line-slower')).toBeUndefined();
-            expect(status()).not.toContain('Najhitrejša');
-        };
-        expectHidden();
-        expect(go(graph, first - 1e-10)).toBe(true);
-        expectHidden();
-        expect(go(graph, first)).toBe(true);
-        const finish = probes(graph).find(o => o.elType === 'text' && o.plaintext === result && visible(o));
-        expect(finish).toBeDefined();
-        expect((race.end[0] - finish!.X!()) * graph.liveBoard().unitX).toBeCloseTo(12, 6);
-        expect((finish!.Y!() + race.end[1]) * graph.liveBoard().unitY).toBeCloseTo(18, 6);
-        expect(readout('winner')).toBe('Cikloida');
-        expect(status()).toContain('1,003 s');
-        expect(go(graph, first - 1e-10)).toBe(true);
-        expectHidden();
-        expect(visible(finish!)).toBe(false);
-    });
-
-    test('playback crosses the first arrival silently, and a preset with a longer descent moves the threshold', () => {
-        const {graph} = mountGraph();
-        const result = 'Prvi prihod · Cikloida, 1,003 s';
-        enter(label('radius'), '3');
-        const preset = graph.exportPreset();
-        enter(label('radius'), '1');
-        expect(go(graph, 1)).toBe(true);
-        press(t('play'));
-        graph.clock.tick(0);
-        expect(captionTexts(graph)).not.toContain(result);
-        graph.clock.tick(10);
-        expect(graph.playing).toBe(true);
-        expect(live()).toBe('');
-        expect(captionTexts(graph)).toContain(result);
-        press(t('pause'));
-        expect(live()).toContain('1,003 s');
-        act(() => { graph.importPreset(preset); });
-        expect(graph.time).toBe(1.01);
-        expect(graph.state.radius).toBe(3);
-        expect(captionTexts(graph)).not.toContain(result);
-        expect(readout('winner')).toBeUndefined();
-        expect(go(graph, (graph.derived() as RaceDerived).times.cycloid)).toBe(true);
-        expect(captionTexts(graph)).toContain('Prvi prihod · Cikloida, 1,7373 s');
-    });
-
-    test('the moving race beads match three different track symbols and other modes use circles', () => {
-        const {graph} = mountGraph();
-        const beads = () => probes(graph).filter(o => o.elType === 'point' && o.evalVisProp('size') === 5 && visible(o));
-        expect(go(graph, 0.6)).toBe(true);
-        expect(beads().map(o => o.evalVisProp('face'))).toEqual(['[]', '^', 'o']);
-        expect(captionTexts(graph)).toEqual(expect.arrayContaining(['■ Premica', '▲ Krožni lok', '● Cikloida']));
-        for (const mode of ['track', 'tautochrone'] as const) {
-            chooseMode(mode);
-            expect(beads().length).toBeGreaterThan(0);
-            expect(beads().every(o => o.evalVisProp('face') === 'o')).toBe(true);
-            expect(go(graph, graph.derived().tEnd)).toBe(true);
-            expect(captionTexts(graph).join(' ')).not.toMatch(/[■▲●]|Prvi prihod/);
-        }
-    });
-
     test('play advances the time by the frame delta (at most 100 ms), pause stops it, no frame is pending after', () => {
         const {graph} = mountGraph();
         press(t('play'));
@@ -770,7 +705,7 @@ describe('ownership, rebuild and the derived data', () => {
         expect(label(-1)).not.toBe('');
         const race = deriveDescent(DEFAULT_DESCENT_STATE) as RaceDerived;
         const name = (probes(graph).filter(o => o.elType === 'text') as unknown as Array<Probe & {X(): number; Y(): number}>)
-            .find(o => visible(o) && o.plaintext === `▲ ${t('descent_graph_name_arc')}`)!;
+            .find(o => o.plaintext === t('descent_graph_name_arc'))!;
         expect(name.Y()).toBeLessThan(-race.arcCentre);
         expect(name.X()).toBeGreaterThan(1);
         chooseMode('track');
@@ -833,13 +768,12 @@ describe('ownership, rebuild and the derived data', () => {
 describe('language', () => {
     test('switching the language renames the board, the labels, the captions, the status and the readout, with a decimal point in English', () => {
         const {graph} = mountGraph();
-        go(graph, 1.01);
+        go(graph, 0.5);
         act(() => setLanguage('en'));
         expect(document.querySelector(`[aria-label="${t('descent_graph_board_label')}"]`)).not.toBeNull();
         expect(screen.getByLabelText(t('descent_graph_mode_label'))).toBeTruthy();
         expect(captionTexts(graph)).toContain(t('descent_graph_cap_time_row', {value0: 'Cycloid', value1: '1.003 s'}));
-        expect(captionTexts(graph)).toContain('First to finish · Cycloid, 1.003 s');
-        expect(status()).toMatch(/^Time 1\.01 s\./);
+        expect(status()).toMatch(/^Time 0\.5 s\./);
         expect(readout('time-cycloid')).toBe('1.003 s');
         expect(labelOf('time-cycloid')).toBe('Descent time: Cycloid (computed)');
         expect(captionTexts(graph).join(' ') + status() + document.querySelector('[data-readout="time-cycloid"]')!.textContent).not.toMatch(/\d,\d/);

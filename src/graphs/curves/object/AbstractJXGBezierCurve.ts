@@ -4,7 +4,6 @@ import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {Point} from "../../../bezeg/api/point/point";
 import {elevate} from "../../../bezeg/impl/kernels/bezier-kernels";
 import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
-import type {PointAttributes} from "jsxgraph";
 
 export interface BezierCurveAttributes extends PointControlledCurveAttributes {
     allowSubdivision: boolean,
@@ -43,8 +42,6 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     protected subdivisionResultConsumer?: (curve: this) => void;
     private decasteljauT: number = 0.5;
     private decasteljauSegments: JXG.Segment[] = [];
-    private decasteljauResultPoint?: JXG.Point;
-    private decasteljauResultStyle?: PointAttributes;
     private elevationPoints: JXG.Point[] = [];
     private elevationSegments: JXG.Segment[] = [];
     private showingElevatePoints: boolean = false;
@@ -71,7 +68,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     override addPoint(x: number, y: number) {
         super.addPoint(x, y);
         this.rebuildElevatePoints();
-        if (this.decasteljauSegments.length !== 0 || (this.decasteljauResultStyle && this.showingDecasteljauScheme)) {
+        if (this.decasteljauSegments.length !== 0) {
             this.generateLineSegments();
         }
         if (this.isShowingControlPolygon()) {
@@ -82,7 +79,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     override removePoint(i: number) {
         super.removePoint(i);
         this.rebuildElevatePoints();
-        if (this.decasteljauSegments.length !== 0 || (this.decasteljauResultStyle && this.showingDecasteljauScheme)) {
+        if (this.decasteljauSegments.length !== 0) {
             this.generateLineSegments();
         }
         if (!this.showingDecasteljauScheme) {
@@ -119,26 +116,14 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     }
 
     showDecasteljauScheme() {
-        const count = this.pointControlledCurve.getPoints().length;
-        if (this.lastDecasteljauN !== count && (count > 1 || (count === 1 && this.decasteljauResultStyle))) {
-            this.lastDecasteljauN = count;
+        if ((this.getCurve().getPoints().length > 1) && this.lastDecasteljauN !== this.pointControlledCurve.getPoints().length) {
+            this.lastDecasteljauN = this.pointControlledCurve.getPoints().length;
             this.generateLineSegments();
         } else {
             this.decasteljauElements().forEach(el => el.show());
             this.showControlPolygonInternal();
         }
         this.showingDecasteljauScheme = true;
-    }
-
-    /** Apply a route's result style to the existing point and to subsequent construction rebuilds. */
-    setDecasteljauResultStyle(style: PointAttributes): void {
-        this.decasteljauResultStyle = style;
-        if (this.decasteljauResultPoint) {
-            this.decasteljauResultPoint.setAttribute(style);
-            this.decasteljauResultPoint.hasPoint = () => false;
-        } else if (this.showingDecasteljauScheme) {
-            this.showDecasteljauScheme();
-        }
     }
 
     override exportState(): JXGBezierCurveState {
@@ -165,8 +150,6 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         }
         this.decasteljauPoints = [];
         this.decasteljauSegments = [];
-        this.decasteljauResultPoint = undefined;
-        this.decasteljauResultStyle = undefined;
         this.elevationPoints = [];
         this.elevationSegments = [];
         this.showingElevatePoints = false;
@@ -236,7 +219,6 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         this.board.removeObject(this.decasteljauElements());
         this.decasteljauSegments = [];
         this.decasteljauPoints = [];
-        this.decasteljauResultPoint = undefined;
         const n = this.pointControlledCurve.getPoints().length;
         const compactLabels = () => this.board.canvasWidth < 480;
         this.showControlPolygonInternal();
@@ -268,14 +250,10 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         }
         const drawingPoint = this.board?.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].X(), () => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].Y()], {
             ...this.styles.point.result(n - 1, 0, n, compactLabels),
-            ...this.decasteljauResultStyle,
-            name: () => n > 1 && this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${0}^${n - 1}$$` : ""
+            name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${0}^${n - 1}$$` : ""
         });
 
         if (drawingPoint instanceof JXG.Point) {
-            // The result marker is a drawing aid. Its enlarged face must leave point editing available underneath.
-            if (this.decasteljauResultStyle) drawingPoint.hasPoint = () => false;
-            this.decasteljauResultPoint = drawingPoint;
             this.decasteljauPoints.push(drawingPoint);
         }
         this.jxgPoints.forEach((point, i) => point.setAttribute({name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$`}));

@@ -23,9 +23,6 @@ export const VORONOI_MAX_POINTS = TRIANGULATION_MAX_POINTS;
 /** The B2/B4 example: the seven points (grid units). */
 export const VORONOI_EXAMPLE: PointSetModel = TRIANGULATION_EXAMPLE_POINTS;
 export const VORONOI_EXAMPLE_POINTS: readonly GridPoint[] = VORONOI_EXAMPLE.points;
-export const PIZZERIA_EXAMPLE: PointSetModel = Object.freeze({
-    mode: "points", points: [{x: 0, y: 0}, {x: 8, y: 0}], closed: false, gridStepExponent: 0,
-});
 
 /** A query point, exact, in grid units: each coordinate is an integer or `num/den` text. */
 export interface VoronoiQuery {
@@ -35,7 +32,6 @@ export interface VoronoiQuery {
 
 /** The query point a fresh scene starts with: inside the cell of the example's sixth site (index 5, "P6"). */
 export const VORONOI_DEFAULT_QUERY: VoronoiQuery = Object.freeze({x: "4", y: "2"});
-export const PIZZERIA_QUERY: VoronoiQuery = Object.freeze({x: "3", y: "1"});
 
 const validQuery = (value: unknown): boolean =>
     isRecord(value) && Object.keys(value).length === 2
@@ -55,12 +51,11 @@ export function voronoiPresetCollection(key: string = VORONOI_PRESET_KEY): Prese
         key,
         checkGraphState(graphState: unknown): Message | undefined {
             if (!isRecord(graphState)) return message("invalid_state");
-            const {cellSite, construction, query, mode, example, ...rest} = graphState;
+            const {cellSite, construction, query, mode, ...rest} = graphState;
             if (mode !== undefined && !isVoronoiMode(mode)) return message("deg_invalid_mode");
             if (cellSite !== undefined && cellSite !== null && !Number.isInteger(cellSite)) return message("vor_invalid_state");
             if (construction !== undefined && !(typeof construction === "number" && Number.isInteger(construction) && construction >= 0)) return message("vor_invalid_state");
             if (query !== undefined && !validQuery(query)) return message("vor_invalid_state");
-            if (example !== undefined && (key !== VORONOI_PRESET_KEY || example !== "pizzeria")) return message("vor_invalid_example");
             return base.checkGraphState?.(rest);
         },
         check(data: unknown): PresetDataCheck<PointSetModel> {
@@ -106,23 +101,6 @@ const modeField: PointSetExtraField = {
     name: "mode", fallback: "sites",
     parse: value => isVoronoiMode(value) ? value : undefined,
 };
-const exampleField: PointSetExtraField = {
-    name: "example", fallback: null, resetOnBareImport: true,
-    parse: value => value === "pizzeria" ? value : undefined,
-};
-
-const voronoiFields = [cellSiteField, constructionField, queryField, modeField];
-
-function settleVoronoiFields(model: PointSetModel, values: PointSetExtras): PointSetExtras {
-    const sites = model.points.length;
-    const site = storedSite(values.cellSite, sites);
-    return {
-        cellSite: site,
-        construction: site === null ? 0 : storedCount(values.construction, sites - 1),
-        query: storedQuery(values.query),
-        mode: values.mode === "four-point" && sites === FOUR_POINT_SITES ? "four-point" : "sites",
-    };
-}
 
 /**
  * The Voronoi graphs' declared scene fields beyond `initialized`, `model` and `overlays`, as `voronoiPresetCollection` permits
@@ -133,18 +111,16 @@ function settleVoronoiFields(model: PointSetModel, values: PointSetExtras): Poin
  * exactly `FOUR_POINT_SITES` sites (backward compatibility: a four-point Preset with another count loads in `sites` mode). A bare
  * data import resets the site, the count and the query and keeps the mode (`resetOnBareImport`).
  */
-export const degeneratePersistenceExtension: PointSetExtension = Object.freeze({
-    fields: voronoiFields,
-    settle: settleVoronoiFields,
-});
-
-/** The pizzeria context is optional in ordinary diagrams. Absent fields in older Presets keep the abstract example. */
 export const voronoiPersistenceExtension: PointSetExtension = Object.freeze({
-    fields: [...voronoiFields, exampleField],
+    fields: [cellSiteField, constructionField, queryField, modeField],
     settle(model: PointSetModel, values: PointSetExtras): PointSetExtras {
+        const sites = model.points.length;
+        const site = storedSite(values.cellSite, sites);
         return {
-            ...settleVoronoiFields(model, values),
-            ...(values.example === "pizzeria" ? {example: values.example} : {}),
+            cellSite: site,
+            construction: site === null ? 0 : storedCount(values.construction, sites - 1),
+            query: storedQuery(values.query),
+            mode: values.mode === "four-point" && sites === FOUR_POINT_SITES ? "four-point" : "sites",
         };
     },
 });
