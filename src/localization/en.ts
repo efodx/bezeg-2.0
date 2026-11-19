@@ -5940,7 +5940,7 @@ export const en: Record<keyof typeof sl, string> = {
     "epicycle_example_blossom": "Elderflower blossom",
     "epicycle_issue_outline": "The outline must be one of: {value0}. Choose one of them or correct the value in the file.",
     "epicycle_issue_fixed_outline": "The outline is fixed, so its end points and control points cannot be edited.",
-    "epicycle_outline_fixed_help": "The outline is fixed and cannot be edited; you can change the number of circles N.",
+    "epicycle_outline_fixed_help": "The outline is fixed and cannot be edited; you can change the trace detail (N).",
     "epicycle_n_label": "Trace detail (N)",
     "epicycle_term_count": "Terms: {value0} (frequencies −{value1} to {value1}, including the constant)",
     "epicycle_play_instruction": "Press Play and follow the tip of the chain.",

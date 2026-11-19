@@ -5939,7 +5939,7 @@ export const sl = {
     "epicycle_example_blossom": "Bezgov cvet",
     "epicycle_issue_outline": "Obris mora biti eden od: {value0}. Izberi enega od teh obrisov ali popravi vrednost v datoteki.",
     "epicycle_issue_fixed_outline": "Obris je določen vnaprej, zato njegovih krajišč in kontrolnih točk ni mogoče urejati.",
-    "epicycle_outline_fixed_help": "Obris je določen vnaprej in ga ni mogoče urejati; spremeniš lahko število krogov N.",
+    "epicycle_outline_fixed_help": "Obris je določen vnaprej in ga ni mogoče urejati; spremeniš lahko podrobnost sledi (N).",
     "epicycle_n_label": "Podrobnost sledi (N)",
     "epicycle_term_count": "Členov: {value0} (frekvence od −{value1} do {value1}, vključno s konstanto)",
     "epicycle_play_instruction": "Pritisni Predvajaj in sledi konici verige.",
