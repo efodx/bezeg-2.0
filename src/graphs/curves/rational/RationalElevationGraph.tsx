@@ -11,6 +11,8 @@ import {rationalElevationPresetCollection} from "./collections";
 
 class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
 
+    protected override workspaceConstructionFirst() { return true; }
+
     /** The curve operations stay disabled on every imported curve; the adapter attributes are not in its DTO. */
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();

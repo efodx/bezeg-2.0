@@ -10,6 +10,8 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {rationalExtrapolationPresetCollection} from "./collections";
 
 class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
+    protected override workspaceConstructionFirst() { return true; }
+
     override initialize() {
         super.initialize();
         this.prepareExtrapolationCurve();
