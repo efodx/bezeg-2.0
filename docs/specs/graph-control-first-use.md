@@ -106,6 +106,8 @@ We opened the published site in a clean Edge/Chromium browser, default Slovenian
 
 ## Rollout
 
+The [catalogue implementation plans](../tasks/graph-control-first-use/README.md) give a first task, control grouping and acceptance check for each of the 138 registered Demonstrations.
+
 | Order | Work | Acceptance |
 | --- | --- | --- |
 | 1 · Epicycles | Move existing playback first, distinguish cutoff from term count, and compare the circle and diamond using the existing chooser. | From a fresh desktop or phone visit, run the trace with the graph visible. Scrub manually in Edit, select the diamond, compare two cutoff values and find the coefficient table and exact point entry. Verify graph-adjacent manual time separately before adopting the phone variation below. |
