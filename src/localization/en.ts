@@ -206,6 +206,7 @@ export const en: Record<keyof typeof sl, string> = {
     "representation": "Representation",
     "point_visibility": "Point visibility",
     "parameter_alpha": "Parameter α",
+    "parameter_alpha_point_spacing_help": "Changes the spacing of the marked points along the curve; their number stays the same.",
     "select_curve_for_scheme": "Select a curve to show its de Casteljau scheme.",
     "offset_parameters_hint": "Turn on curve offsets under Display to set their number and distance here.",
     "point_labels": "Point labels",

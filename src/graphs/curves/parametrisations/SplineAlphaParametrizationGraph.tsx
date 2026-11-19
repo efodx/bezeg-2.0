@@ -102,8 +102,11 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
 
+    /** Construction first: α leads, the sample count follows (graph-control first use, param plan). */
+    protected override workspaceConstructionFirst() { return true; }
+
     override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat(this.alphaParamSlider(), this.numberOfPointsSlider()) : [];
+        return this.state.initialized ? [this.alphaParamSlider(), this.numberOfPointsSlider()].concat(super.getGraphCommands()) : [];
     }
 
     setAlpha(alpha: number) {

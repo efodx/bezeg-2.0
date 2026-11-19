@@ -60,11 +60,11 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         return t("compare_weighted_and_uniform_parametrization_of_the_ph_curve");
     }
 
-    /** The sampling group precedes the hodograph board so the parameter choice is reached first. */
-    protected override workspaceBeforeHodograph(): React.ReactNode {
-        return <div className="inspector-group">
-            <h3>{t("parametrization")}</h3>{this.paramField()}
-        </div>;
+    /** Construction first: the parametrization chooser leads, then the sample count and, for the weighted method, α. */
+    protected override workspaceConstructionFirst() { return true; }
+
+    override getGraphCommands(): JSX.Element[] {
+        return this.state.initialized ? [this.paramField()].concat(super.getGraphCommands()) : [];
     }
 
     protected override onStateChange(prevState: Readonly<UniformParamBezierCurveGraphStates>) {

@@ -205,6 +205,7 @@ export const sl = {
     "representation": "Predstavitev",
     "point_visibility": "Vidnost točk",
     "parameter_alpha": "Parameter α",
+    "parameter_alpha_point_spacing_help": "Spremeni razmik med označenimi točkami vzdolž krivulje; njihovo število ostane enako.",
     "select_curve_for_scheme": "Izberi krivuljo, da prikažeš njeno De Casteljaujevo shemo.",
     "offset_parameters_hint": "Vklopi odmike krivulje v zavihku Prikaz, da tukaj nastaviš njihovo število in razdaljo.",
     "point_labels": "Oznake točk",

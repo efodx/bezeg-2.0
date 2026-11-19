@@ -119,8 +119,11 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
 
     alphaParam: (t: number) => number = (t: number) => alphaParameterization(this.state.alpha, t);
 
+    /** Construction first: α leads, the sample count follows (graph-control first use, param plan). */
+    protected override workspaceConstructionFirst() { return true; }
+
     override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat(this.alphaParamSlider(), this.numberOfPointsSlider()) : [];
+        return this.state.initialized ? [this.alphaParamSlider(), this.numberOfPointsSlider()].concat(super.getGraphCommands()) : [];
     }
 
     setAlpha(alpha: number) {
@@ -132,7 +135,7 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
     }
 
     alphaParamSlider() {
-        return <div><Slider min={PARAMETERIZATION_ALPHA_MIN} max={PARAMETERIZATION_ALPHA_MAX} value={this.state.alpha} customText={t("parameter_alpha")}
+        return <div><Slider min={PARAMETERIZATION_ALPHA_MIN} max={PARAMETERIZATION_ALPHA_MAX} value={this.state.alpha} customText={t("parameter_alpha")} help={t("parameter_alpha_point_spacing_help")}
                             onChange={(alpha) => this.setAlpha(alpha)}/></div>;
     }
 
