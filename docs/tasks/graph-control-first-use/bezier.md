@@ -23,8 +23,8 @@ Start with the De Casteljau pilot. Several routes inherit point editing from the
 **Pilot.** [Audited](../../specs/graph-control-first-use.md#sample-and-visual-evidence) · [Open graph](https://efodx.github.io/bezeg-2.0/bezier/decasteljau) · [DecasteljauGraph](../../../src/graphs/curves/bezier/DecasteljauGraph.tsx)
 
 - **First task.** Lead with Play and the position slider so the first move constructs a point.
-- **Other controls.** Group speed and exact point coordinates separately. Opt into the ordering on this route.
-- **Acceptance.** From the initial curve, Play advances the construction without selecting it. Scrubbing lands on the corresponding point.
+- **Other controls.** Group speed and exact point coordinates separately. Opt into the ordering on this route. The construction group stays first while a curve is selected, and the selected-curve operations follow it.
+- **Acceptance.** From the initial curve, Play advances the construction without selecting it. Scrubbing lands on the corresponding point. After selecting the curve, Play and the parameter slider are still present and work.
 
 <a id="decasteljau-alternative"></a>
 
@@ -33,7 +33,7 @@ Start with the De Casteljau pilot. Several routes inherit point editing from the
 Source-planned · [Open graph](https://efodx.github.io/bezeg-2.0/bezier/decasteljau2) · [DecasteljauGraph2](../../../src/graphs/curves/bezier/DecasteljauGraph2.tsx)
 
 - **First task.** Put the interpolation parameter first. Slide from one end toward the middle and follow the point between the component curves.
-- **Other controls.** Group curve selection and exact point setup after the construction.
+- **Other controls.** Group curve selection and exact point setup after the construction. Use the same opt-in, so the parameter stays first while a curve is selected.
 - **Acceptance.** At two parameter values the component-curve points and their interpolated point agree with the displayed construction.
 
 <a id="affine"></a>

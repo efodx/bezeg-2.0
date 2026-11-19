@@ -153,8 +153,8 @@ Source-planned · [Open graph](https://efodx.github.io/bezeg-2.0/analysis/fourie
 **Pilot.** [Audited](../../specs/graph-control-first-use.md#sample-and-visual-evidence) · [Open graph](https://efodx.github.io/bezeg-2.0/analysis/epicycles) · [EpicycleGraph](../../../src/graphs/functions/EpicycleGraph.tsx)
 
 - **First task.** Move shared Play/Pause and manual time first in Edit. Use the shape chooser to compare the existing circle with a diamond.
-- **Other controls.** Group parametrization, exact coordinates and coefficient/error details. Keep the cutoff's exact input and derived term count together.
-- **Acceptance.** With the diamond selected, compare N = 1 and 5 at its corners. Preserve the default circle, single playback owner, lesson locks and manual reduced-motion path.
+- **Other controls.** Group parametrization, exact coordinates and coefficient/error details. Keep the cutoff's exact input and derived term count together. Rewrite `prompt_epicycles` to lead with Play and use the new cutoff name. Rename only the Epicycles keys, not the identical `fourier_decay_n_label` ([architecture](../../specs/graph-control-first-use.md#fit-with-the-current-architecture)).
+- **Acceptance.** With the diamond selected, compare N = 1 and 5 at its corners. Preserve the default circle, single playback owner, lesson locks and manual reduced-motion path. On a phone, scrubbing beside the board is out of scope for this pilot.
 
 <a id="fixed-point"></a>
 

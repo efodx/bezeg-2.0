@@ -63,5 +63,5 @@ Source-planned · [Open graph](https://efodx.github.io/bezeg-2.0/probability/cor
 **Pilot.** [Audited](../../specs/graph-control-first-use.md#sample-and-visual-evidence) · [Open graph](https://efodx.github.io/bezeg-2.0/probability/simulation) · [SimulationGraph](../../../src/graphs/random/SimulationGraph.tsx)
 
 - **First task.** On the Galton board, lead with experiment and ball count so the visitor can compare the observed histogram with its prediction.
-- **Other controls.** Put reproducibility under seed settings. Show the stored second seed only for an eligible mode with comparison on. Group timing with playback.
-- **Acceptance.** At a fixed seed, changing the count updates the histogram and deviation. Restoring the original settings reproduces the run, including the second seed when enabled.
+- **Other controls.** Make the count a `CountSetter` whose −/+ buttons step through 1–2–5 values, with a typed exact field. Put the seed, comparison and second seed in a visible “Seeds” group, not a closed disclosure, because lessons tell students to type into the field Generator seed. Show the stored second seed only for an eligible mode with comparison on. Group timing with playback.
+- **Acceptance.** At a fixed seed, pressing − on the count (1000 → 500) updates the histogram and deviation. Restoring the original settings reproduces the run, including the second seed when enabled. The randomness lessons' seed steps still find their field.
