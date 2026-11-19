@@ -23,7 +23,7 @@ type Run = BaseGraph<BaseGraphState> & {
     jxgCurves: Array<{setAttributes(attributes: object): void}>;
 };
 
-function mountRun(key: 'decasteljau' | 'decasteljau-alternative' | 'bezier') {
+function mountRun(key: 'decasteljau' | 'decasteljau-alternative' | 'bezier' | 'elevation') {
     let time = 0;
     let pending: FrameRequestCallback[] = [];
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { pending.push(callback); return pending.length; });
@@ -125,5 +125,19 @@ describe('an ordinary Bezier graph', () => {
         expect(screen.queryAllByText(t('construction')).filter(element => element.closest('.tools'))).toEqual([]);
         expect(screen.getAllByText(t('control_points')).length).toBeGreaterThan(0);
         expect(screen.getAllByRole('button').length).toBeGreaterThan(3);
+    });
+});
+
+describe('a non-structured curve graph with commands but no opt-in', () => {
+    test('Elevation keeps its commands under the graph-commands heading and swaps them for the selected-curve area', () => {
+        const {graph} = mountRun('elevation');
+        const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('.tools'));
+        expect(inEdit(t('graph_commands')).length).toBe(1);
+        expect(inEdit(t('construction'))).toEqual([]);
+        graph.jxgCurves[0].setAttributes({allowElevation: true});
+        act(() => graph.editing.select(graph.jxgCurves[0]));
+        expect(inEdit(t('selected_curve_25')).length).toBe(1);
+        expect(inEdit(t('graph_commands'))).toEqual([]);
+        expect(inEdit(t('construction'))).toEqual([]);
     });
 });
