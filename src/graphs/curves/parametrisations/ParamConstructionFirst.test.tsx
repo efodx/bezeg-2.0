@@ -24,7 +24,7 @@ type Run = BaseGraph<BaseGraphState> & {
 type Key = 'spline-parameterization' | 'weighted-parameterization' | 'uniform-parameterization';
 
 const mount = (key: Key) => mountGraph(graphFactories[key]()).graph as Run;
-const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('.tools'));
+const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('#inspector-edit'));
 const firstCard = () => (screen.getAllByText(t('construction')).find(element => element.closest('.tools')))!.closest('.tools') as HTMLElement;
 const select = (graph: Run) => act(() => graph.editing.select(graph.jxgCurves[0]));
 const slider = (name: string) => screen.getByRole('slider', {name});

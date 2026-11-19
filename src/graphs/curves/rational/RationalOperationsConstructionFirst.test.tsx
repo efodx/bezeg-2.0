@@ -24,7 +24,7 @@ type Run = BaseGraph<BaseGraphState> & {editing: {select(curve: unknown): void};
 type Key = 'rational-decasteljau' | 'rational-elevation' | 'rational-extrapolation' | 'rational-subdivision';
 
 const mount = (key: Key) => mountGraph(graphFactories[key]()).graph as Run;
-const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('.tools'));
+const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('#inspector-edit'));
 const firstCard = () => (screen.getAllByText(t('construction')).find(element => element.closest('.tools')))!.closest('.tools') as HTMLElement;
 const select = (graph: Run) => {
     graph.jxgCurves[0].setAttributes({allowElevation: true});

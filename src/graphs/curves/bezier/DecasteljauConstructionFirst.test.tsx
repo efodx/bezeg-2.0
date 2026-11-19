@@ -130,9 +130,9 @@ describe.each(['decasteljau', 'decasteljau-alternative'] as const)('%s construct
 describe('an ordinary Bezier graph', () => {
     test('has no construction group; selecting a curve shows the point editor and curve operations', () => {
         const {graph} = mountRun('bezier');
-        expect(screen.queryAllByText(t('construction')).filter(element => element.closest('.tools'))).toEqual([]);
+        expect(screen.queryAllByText(t('construction')).filter(element => element.closest('#inspector-edit'))).toEqual([]);
         act(() => graph.editing.select(graph.jxgCurves[0]));
-        expect(screen.queryAllByText(t('construction')).filter(element => element.closest('.tools'))).toEqual([]);
+        expect(screen.queryAllByText(t('construction')).filter(element => element.closest('#inspector-edit'))).toEqual([]);
         expect(screen.getAllByText(t('control_points')).length).toBeGreaterThan(0);
         expect(screen.getAllByRole('button').length).toBeGreaterThan(3);
     });
@@ -141,7 +141,7 @@ describe('an ordinary Bezier graph', () => {
 describe('a non-structured curve graph with commands but no opt-in', () => {
     test('A graph with commands and no opt-in keeps its commands under the graph-commands heading and swaps them for the selected-curve area', () => {
         const {graph} = mountRun('no-opt-in');
-        const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('.tools'));
+        const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('#inspector-edit'));
         expect(inEdit(t('graph_commands')).length).toBe(1);
         expect(inEdit(t('construction'))).toEqual([]);
         graph.jxgCurves[0].setAttributes({allowElevation: true});
