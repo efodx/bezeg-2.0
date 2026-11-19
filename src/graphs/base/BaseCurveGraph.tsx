@@ -168,6 +168,23 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     protected workspaceTypedPoints() { return false; }
     /** The points that list shows: the curve's draggable points. Boards with derived points (splines) override it. */
     protected typedPointsOf(curve: EditableCurve): readonly Point[] { return curve.getCurve().getPoints(); }
+    /**
+     * Opt-in, construction first (graph-control first use, decision 2026-11-19): the graph's own commands (`getGraphCommands`)
+     * render as the first Edit group, before curve selection and typed coordinates, and stay in place while a curve is
+     * selected; the selected-curve operations follow below them. Without it, selecting a curve swaps the commands for those
+     * operations (`getGraphCommandsArea`).
+     */
+    protected workspaceConstructionFirst() { return false; }
+    private workspaceConstructionGroup(): React.ReactNode {
+        if (!this.workspaceConstructionFirst()) { return null; }
+        const commands = this.getGraphCommands();
+        return commands.length > 0 ? <Commands commands={commands} title={t("construction")}/> : null;
+    }
+    /** The rest of the commands area: with the opt-in only the selected-curve operations, which the construction group does not hold. */
+    private workspaceCommandsAfterConstruction(): React.ReactNode {
+        if (!this.workspaceConstructionFirst()) { return this.getGraphCommandsArea(); }
+        return this.state.curveSelected ? this.getSelectableCurveArea() : null;
+    }
     private workspaceCurveSelection(): React.ReactNode {
         const selectableCurves = this.jxgCurves.filter(curve => curve.getAttributes().selectable !== false);
         if (selectableCurves.length === 0) { return null; }
@@ -228,16 +245,18 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     protected override workspaceEdit(): React.ReactNode {
         if (!this.workspaceUsesStructuredEditing()) {
             const typed = this.workspaceTypedPoints() ? this.getSelectedCurve() ?? this.jxgCurves[0] : undefined;
-            return <>{this.workspaceCurveSelection()}
+            return <>{this.workspaceConstructionGroup()}
+                {this.workspaceCurveSelection()}
                 {typed && <CurvePointControls key={`points-${this.jxgCurves.indexOf(typed)}-${this.replacementRevision}`}
                     points={() => this.typedPointsOf(typed)} curveNumber={this.listedCurveNumber(typed)} boards={() => [this.board]} onEdit={(_, to) => this.afterTypedPointEdit(to)}/>}
-                {super.workspaceEdit()}</>;
+                {this.workspaceCommandsAfterConstruction()}</>;
         }
         const selected = this.getSelectedCurve();
         const mode = this.state.selectedCurveOption;
         const hints = [t("a_selected_curve_moves_scales_or_rotates_from_its_frame_clear_the_selection_to_move_a_single_point"),
             t("click_an_empty_part_of_the_graph_to_add_a_point_to_the_selected_curve"), t("click_a_control_point_of_the_selected_curve_to_delete_it")];
         return <>
+            {this.workspaceConstructionGroup()}
             {this.workspaceCurveSelection()}
             {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={`${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
             {selected && this.workspacePointEditing() && <CurvePointControls key={`points-${this.jxgCurves.indexOf(selected)}-${this.replacementRevision}`}
