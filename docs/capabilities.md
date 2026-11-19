@@ -27,6 +27,7 @@ The catalog publishes its reviewed poster set and 136 silent four-second WebM cl
 | Bézier | `/bezier/subdivision` | Repeated subdivision (`SubdivisionGraph`) |
 | Bézier | `/bezier/extrapolation` | Extrapolation (`ExtrapolationGraph`) |
 | Bézier | `/bezier/elevation` | Degree elevation (`ElevationGraph`) |
+| Curve geometry | `/curve-geometry/descent` | Race three beads down a straight line, a circular arc and a cycloid. Their shapes identify the tracks. Crossing the first arrival reveals the winning track and its computed time at the finish. Scrubbing back clears the result. |
 | Rational | `/rational/base` | Rational Bézier curve (`RationalBezierCurveGraph`) |
 | Rational | `/rational/rational-decasteljau` | Rational De Casteljau construction |
 | Rational | `/rational/rational-elevation` | Rational degree elevation |
@@ -84,7 +85,7 @@ The catalog publishes its reviewed poster set and 136 silent four-second WebM cl
 | Computational geometry | `/compgeo/ear-clipping` | Ear clipping, three-colouring and the art gallery bound (`EarClippingGraph`) |
 | Computational geometry | `/compgeo/point-set-triangulation` | Triangulating a point set: triangle list, edge flips and angle readout (`TriangulationGraph`) |
 | Computational geometry | `/compgeo/delaunay` | Delaunay triangulation by Lawson flips with the incircle test and circumcircle overlay (`DelaunayGraph`) |
-| Computational geometry | `/compgeo/voronoi` | Voronoi diagram of sites: exact vertices, step-by-step cell construction by bisectors, query point and the Delaunay duality overlay (`VoronoiGraph`) |
+| Computational geometry | `/compgeo/voronoi` | Voronoi diagram with exact vertices, bisector construction and the Delaunay dual. Move the query or choose an in-range vertex to see a link to every nearest site. The optional pizzeria example lets a customer compare shops by straight-line distance. |
 | Computational geometry | `/compgeo/voronoi-degenerate` | Degenerate sites: a four-point mode with the exact incircle readout, cocircular and collinear examples (`DegenerateSitesGraph`) |
 | Computational geometry | `/compgeo/fortune` | Fortune's algorithm (`FortuneGraph`, at most 12 sites A, B, C, ...): a horizontal sweep line steps through the exact event trace, one step per group of events at the same position, with Next step, Play/Pause (stopped by default) and Reset. Each step shows the beach line (drawn approximately as one curve), breakpoints, the half-edges traced so far, scheduled circles (solid) and cancelled circles (dashed, false alarms), the exact sweep height, vertices found of expected, the event queue (cancelled entries struck through and named in text) and a live-region announcement of the beach line. Dragging a site recomputes the trace and keeps the step; the clip box follows the visible view like the Voronoi graph; the finished diagram is drawn by the Voronoi drawing. Examples: A-D, without D, collinear, four cocircular, 12 random sites. Reset view restores the run's box. Guided lesson C5 `fortune` (seven steps, SL and EN), opened from the chapter section `sweep-algorithms#fortune`; the triangulation chapter's Voronoi section links back to it. |
 | Computational geometry | `/compgeo/interval-sweep` | Sweep over intervals: overlapping pairs and maximum depth (`IntervalSweepGraph`) |
@@ -162,7 +163,7 @@ Bounds below describe the UI rather than validated mathematical input domains. S
 | --- | --- |
 | Bernstein | Displayed degree 0–5, initially 1; stacked-area switch. Internal `n` counts basis functions, displayed degree is `n − 1`. |
 | General polynomial Bézier | Editable points; eligible selected curves offer subdivision/shrink parameters 0–1, extrapolation 1–1.5, De Casteljau parameter 0–1, and degree elevation. |
-| De Casteljau | Parameter 0–1, animation switch, speed 0–1, and whole-curve visibility; recursive interpolation and traced curve portion. |
+| De Casteljau | Scrub or play the parameter from 0 to 1. A two-tone mark follows the last interpolation point at the end of the growing trace. The speed control and whole-curve switch support comparison. |
 | Alternative De Casteljau | Parameter/animation/speed controls and two curves from overlapping control-point subsets, which follow the live control points, joined by the segment whose point at t traces the curve. |
 | Affine transformations | Translations ±0.5 units, scaling ×1.2 or ×0.8, rotations ±18°, and reflection about X/Y. |
 | Single subdivision | Parameter 0.01–0.99, construction visibility, and action splitting the first curve into two pieces. |
