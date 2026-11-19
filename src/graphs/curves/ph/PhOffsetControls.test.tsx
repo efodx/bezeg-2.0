@@ -96,15 +96,15 @@ describe('PH graph placement', () => {
         expect(screen.queryByRole('slider')).toBeNull();
     });
 
-    test('uniform parametrization: the parameter group precedes the offset group in Edit', () => {
+    // The parameter group is the construction-first group, rendered by the base Edit (mocked out here); its place before the
+    // offset group is checked on the real graph in parametrisations/ParamConstructionFirst.test.tsx.
+    test('uniform parametrization: the parameter controls are graph commands and the offset group stays in Edit', () => {
         const curve = fakePhCurve({offsets: true});
         const graph = phGraph(UniformParamBezierCurveGraph.prototype, {isAlphaParam: true, alpha: 0.5, numberOfPoints: 10}, curve);
-        render(<>{graph.workspaceEdit()}</>);
-        const parametrization = screen.getByRole('heading', {name: t('parametrization')});
-        const offsets = screen.getByRole('heading', {name: t('curve_offsets')});
-        expect(parametrization.compareDocumentPosition(offsets) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        render(<>{graph.getGraphCommands()}{graph.workspaceEdit()}</>);
         expect(screen.getByRole('combobox', {name: t('choose_parametrization')})).toBeInTheDocument();
         expect(screen.getByRole('slider', {name: t('parameter_alpha')})).toBeInTheDocument();
+        expect(screen.queryByRole('heading', {name: t('parametrization')})).toBeNull();
         expect(screen.getByRole('group', {name: t('number_of_offsets')})).toBeInTheDocument();
     });
 });
