@@ -1,12 +1,12 @@
 import type {PointSetModel} from "../../compgeo/pointSetModel";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {degenerateCollection, DEGENERATE_EXAMPLES, DEGENERATE_PRESET_KEY, degenerateExampleModel} from "./degenerateSitesPresets";
-import type {VoronoiExampleId} from "./VoronoiControls";
+import type {DegenerateExampleId, VoronoiExampleId} from "./VoronoiControls";
 import {matchingExample} from "./ExampleSelect";
 import {VoronoiGraph} from "./VoronoiGraph";
-import type {VoronoiMode} from "./voronoiPresetCollection";
+import {degeneratePersistenceExtension, type VoronoiMode} from "./voronoiPresetCollection";
 
-const EXAMPLE_IDS: readonly VoronoiExampleId[] = ["square", "trapezoid", "near", "collinear"];
+const EXAMPLE_IDS: readonly DegenerateExampleId[] = ["square", "trapezoid", "near", "collinear"];
 
 /**
  * Degenerate sites (task 20, spec B5): the Voronoi graph that starts in four-point mode on the unit square, with the mode
@@ -34,6 +34,14 @@ export class DegenerateSitesGraph extends VoronoiGraph {
         return true;
     }
 
+    protected override supportsQueryCues(): boolean {
+        return false;
+    }
+
+    protected override persistenceExtension() {
+        return degeneratePersistenceExtension;
+    }
+
     protected override exampleIds(): readonly VoronoiExampleId[] {
         return EXAMPLE_IDS;
     }
@@ -44,6 +52,7 @@ export class DegenerateSitesGraph extends VoronoiGraph {
 
     /** An example replaces the sites and sets the mode its Preset names (the collinear example is in `sites` mode). */
     protected override loadExample(id: VoronoiExampleId): void {
+        if (id === "abstract" || id === "pizzeria") return;
         const graphState = {initialized: true, mode: DEGENERATE_EXAMPLES[id].mode};
         this.importPreset({id: DEGENERATE_PRESET_KEY, graphState, data: degenerateExampleModel(id)});
     }

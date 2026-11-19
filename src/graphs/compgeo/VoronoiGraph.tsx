@@ -27,9 +27,11 @@ import {TracePlayback} from "../base/tracePlayback";
 import {followedGridBox, visibleGridBox} from "./followBox";
 import {matchingExample} from "./ExampleSelect";
 import {clipToBox, createVoronoiDrawing, frame, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
+import {createPizzeriaMarks, createQueryLinks} from "./voronoiQueryDrawing";
 import {
-    FOUR_POINT_SITES, isVoronoiMode, storedCount, storedMode, storedQuery, storedSite, VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE,
-    VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection, voronoiPersistenceExtension,
+    FOUR_POINT_SITES, isVoronoiMode, PIZZERIA_EXAMPLE, PIZZERIA_QUERY, storedCount, storedMode, storedQuery, storedSite,
+    VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, VORONOI_PRESET_KEY,
+    voronoiCollection, voronoiPersistenceExtension,
     type VoronoiMode, type VoronoiQuery,
 } from "./voronoiPresetCollection";
 
@@ -43,6 +45,8 @@ export interface VoronoiGraphState extends PointSetGraphState {
     query: VoronoiQuery;
     /** `sites` (any number of sites, the default) or `four-point` (exactly four sites with the incircle readout). */
     mode: VoronoiMode;
+    /** The optional pizzeria context sticks as the query and shops move. */
+    example?: "pizzeria";
 }
 
 /** A move of the query point by the arrow buttons, in grid units, and the grid it snaps to when dragged. */
@@ -79,8 +83,8 @@ interface Derived {
  * the points clears the chosen site and the count.
  *
  * Query point: a draggable point (snapped to quarters of a grid unit) with a numeric alternative and arrow moves; the panel
- * names the nearest site from `nearestSites`, every tied site when it lies on a bisector, and the cell of the first of
- * them is highlighted. It is not a site and does not count against the point limit.
+ * names the nearest site from `nearestSites` and every tied site when it lies on a bisector. In the ordinary diagram,
+ * only a unique nearest site highlights its cell. The query does not count against the point limit.
  *
  * Ownership: the drawing handle, the construction objects and the query point are disposed with the figure scene and before
  * the board is freed.
@@ -103,6 +107,9 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private constructionObjects: JXG.GeometryElement[] = [];
     private constructionDrawnFor?: {points: readonly GridPoint[]; site: number | null; count: number; scale: number; box?: RationalBox};
     private queryPoint?: JXG.Point;
+    private queryLinks?: JXG.Curve;
+    private pizzeriaMarks?: JXG.Curve;
+    private queryResult?: {source: unknown; sites: readonly GridPoint[]; nearest: readonly number[]};
     private inQuerySnap = false;
     /** Playback of the cell construction: Next step, Play and Reset move the bisector count; the count stays in the scene store. */
     private playback: TracePlayback;
@@ -198,8 +205,14 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     }
 
     /** Every site at the least distance from the query point, ascending (more than one when it lies on a bisector). */
-    queryNearest(): number[] {
-        return nearestSites(this.model.points, this.query);
+    queryNearest(): readonly number[] {
+        const source = "query" in this.state ? this.state.query : undefined;
+        const sites = this.model.points;
+        const result = this.queryResult;
+        if (result?.sites === sites && result.source === source) return result.nearest;
+        const nearest = nearestSites(sites, this.query);
+        this.queryResult = {source, sites, nearest};
+        return nearest;
     }
 
     /** The region left after the shown bisectors of the chosen site, clipped to the view box; empty when none is chosen. */
@@ -311,13 +324,15 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
 
     playPauseConstruction(): void { if (this.playback.isPlaying) this.playback.pause(); else this.playback.play(); }
 
-    /** Places the query point at an exact position (grid units). False, and nothing changes, beyond the coordinate limit. */
-    setQueryPoint(point: RationalPoint): boolean {
+    private queryPositionInRange(point: RationalPoint): boolean {
         const limit = Rational.fromInt(this.coordinateLimit);
         const inRange = (v: Rational) => v.compare(limit) <= 0 && v.compare(limit.neg()) >= 0;
-        if (!inRange(point.x) || !inRange(point.y)) {
-            return false;
-        }
+        return inRange(point.x) && inRange(point.y);
+    }
+
+    /** Places the query point at an exact position (grid units). False, and nothing changes, beyond the coordinate limit. */
+    setQueryPoint(point: RationalPoint): boolean {
+        if (!this.queryPositionInRange(point)) return false;
         this.setState(this.patch({query: {x: point.x.format(), y: point.y.format()}}));
         this.requestRender();
         return true;
@@ -421,6 +436,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
 
     /** Restores the example, the overlay off, no selection, the starting query point and the default mode (C2). */
     resetExample(): void {
+        if (this.pizzeria) {
+            this.loadExample("pizzeria");
+            return;
+        }
         this.importPresetData(serializePointSetModel(this.exampleModel()));
         this.selectedTriangleValue = undefined;
         this.modeRefused = false;
@@ -560,7 +579,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     protected override syncScene(): void {
         super.syncScene();
         if (!this.graphSession?.isAlive || !this.hasBoard) return;
-        const changed = [this.syncDiagram(), this.syncConstruction(), this.syncQuery()];
+        const changed = [this.syncDiagram(), this.syncConstruction(), this.syncQuery(), this.syncQueryCues()];
         if (changed.some(Boolean)) this.boardUpdate();
     }
 
@@ -579,7 +598,8 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         const scale = 2 ** this.model.gridStepExponent;
         if (!diagram || !box || !this.overlayShown("diagram")) return this.disposeDiagram();
         if (this.drawing && this.drawing.scale !== scale) this.disposeDiagram();
-        const highlight = this.queryNearest()[0];
+        const nearest = this.queryNearest();
+        const highlight = nearest.length > 1 && this.supportsQueryCues() ? undefined : nearest[0];
         const drawn = this.drawnFor;
         if (this.drawing && drawn?.points === points && drawn.highlight === highlight && drawn.box === box && this.diagramObjectsAlive()) return false;
         this.drawing ??= {handle: createVoronoiDrawing(this.board, scale), scale};
@@ -678,6 +698,31 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         return true;
     }
 
+    /** These two curves reuse their paths on board updates and never participate in hit testing. */
+    private syncQueryCues(): boolean {
+        const point = this.queryPoint;
+        const dualShown = this.overlayShown("delaunay") && this.delaunay();
+        const links = point && this.supportsQueryCues() && this.mode === "sites" && this.overlayShown("diagram")
+            && !dualShown && this.cellSite === null && this.diagram();
+        const marks = point && this.pizzeria;
+        const alive = (curve: JXG.Curve | undefined) => curve && (this.board.objectsList as unknown[]).includes(curve);
+        const oldLinks = this.queryLinks;
+        const oldMarks = this.pizzeriaMarks;
+        if (links) {
+            if (!alive(oldLinks)) this.queryLinks = createQueryLinks(this.board, point, () => this.model, () => this.queryNearest());
+        } else {
+            if (oldLinks) this.removeOwned([oldLinks]);
+            this.queryLinks = undefined;
+        }
+        if (marks) {
+            if (!alive(oldMarks)) this.pizzeriaMarks = createPizzeriaMarks(this.board, point, () => this.model);
+        } else {
+            if (oldMarks) this.removeOwned([oldMarks]);
+            this.pizzeriaMarks = undefined;
+        }
+        return this.queryLinks !== oldLinks || this.pizzeriaMarks !== oldMarks;
+    }
+
     /**
      * Capture-only: the query point and the followed drawing box are in grid units, so they scale with the sites and stay where they
      * were on the board; the box is kept for the current view, because measuring it again at the finer step rounds it differently and redraws the outer cells.
@@ -731,8 +776,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         this.removeOwned(this.constructionObjects);
         this.constructionObjects = [];
         this.constructionDrawnFor = undefined;
-        if (this.queryPoint) this.removeOwned([this.queryPoint]);
+        this.removeOwned([this.queryPoint, this.queryLinks, this.pizzeriaMarks].filter(object => object !== undefined));
         this.queryPoint = undefined;
+        this.queryLinks = undefined;
+        this.pizzeriaMarks = undefined;
     }
 
     /** The handle must go before the board is freed: disposing removes its objects from that board. */
@@ -759,7 +806,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     }
 
     protected override sceneGraphState(): PointSetGraphState {
-        const state: VoronoiGraphState = {...super.sceneGraphState(), cellSite: this.cellSite, construction: this.construction, query: this.queryText, mode: this.mode};
+        const state: VoronoiGraphState = {
+            ...super.sceneGraphState(), cellSite: this.cellSite, construction: this.construction, query: this.queryText, mode: this.mode,
+            ...(this.pizzeria ? {example: "pizzeria"} : {}),
+        };
         return state;
     }
 
@@ -779,6 +829,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         constructPlayPause: () => this.playPauseConstruction(),
         setQuery: (x, y) => { this.setQueryPoint(new RationalPoint(Rational.of(Math.round(x * QUERY_SNAP), QUERY_SNAP), Rational.of(Math.round(y * QUERY_SNAP), QUERY_SNAP))); },
         moveQuery: (dx, dy) => { this.moveQuery(dx, dy); },
+        queryAtVertex: index => {
+            const point = this.diagram()?.vertices[index]?.point;
+            if (point) this.setQueryPoint(point);
+        },
         selectTriangle: index => this.selectTriangle(index),
         setMode: mode => { this.setMode(mode); },
         loadExample: id => this.loadExample(id),
@@ -789,18 +843,30 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         return false;
     }
 
-    /** The named examples the panel offers (none here); a subclass lists them and loads one by id. */
+    protected supportsQueryCues(): boolean {
+        return true;
+    }
+
+    private get pizzeria(): boolean {
+        return this.supportsQueryCues() && "example" in this.state && this.state.example === "pizzeria";
+    }
+
+    /** Named examples for the ordinary diagram. The degenerate route supplies its own. */
     protected exampleIds(): readonly VoronoiExampleId[] {
-        return [];
+        return ["abstract", "pizzeria"];
     }
 
-    /** The named example the sites show now, or undefined for a custom set (none here). */
+    /** The pizzeria context continues to identify edited shops and their customer. */
     protected currentExampleId(): VoronoiExampleId | undefined {
-        return undefined;
+        return this.pizzeria ? "pizzeria" : matchingExample(this.model, [{id: "abstract", ...this.exampleModel()}]);
     }
 
-    protected loadExample(_id: VoronoiExampleId): void {
-        // no examples in the base graph
+    protected loadExample(id: VoronoiExampleId): void {
+        if (id !== "abstract" && id !== "pizzeria") return;
+        const pizzeria = id === "pizzeria";
+        const graphState = pizzeria ? {initialized: true, example: id, query: PIZZERIA_QUERY} : undefined;
+        this.importPreset({id: VORONOI_PRESET_KEY, graphState, data: pizzeria ? PIZZERIA_EXAMPLE : this.exampleModel()});
+        this.fitToVisiblePoints();
     }
 
     protected override showsModeToggle(): boolean {
@@ -814,11 +880,13 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     /** Whether the scene already is what Reset example restores: the example's sites, no triangle or cell chosen, the starting query point and mode, and every overlay at the value `overlays: {}` yields (its initial one). */
     private atExample(): boolean {
         const query = this.queryText;
+        const defaultQuery = this.pizzeria ? PIZZERIA_QUERY : VORONOI_DEFAULT_QUERY;
+        const model = this.pizzeria ? PIZZERIA_EXAMPLE : this.exampleModel();
         const initial = this.getInitialState().overlays;
-        return matchingExample(this.model, [{id: "example", ...this.exampleModel()}]) !== undefined
+        return matchingExample(this.model, [{id: "example", ...model}]) !== undefined
             && this.overlayIds().every(id => this.overlayShown(id) === (initial[id] === true))
             && this.cellSite === null && this.construction === 0 && this.selectedTriangleValue === undefined && this.mode === this.defaultMode()
-            && query.x === VORONOI_DEFAULT_QUERY.x && query.y === VORONOI_DEFAULT_QUERY.y;
+            && query.x === defaultQuery.x && query.y === defaultQuery.y;
     }
 
     private status(): VoronoiStatus {
@@ -855,7 +923,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
             collinear: tri === undefined,
             fourPoint: this.mode === "four-point" ? fourPointReadout(points, diagram) : undefined,
             counts: {sites: points.length, vertices: diagram.vertices.length, finite: dual.finite.length, rays, lines, bounded, unbounded: points.length - bounded},
-            vertices: diagram.vertices.map(v => ({x: v.point.x.format(), y: v.point.y.format(), sites: v.sites})),
+            vertices: diagram.vertices.map(v => ({
+                x: v.point.x.format(), y: v.point.y.format(), sites: v.sites,
+                queryable: this.supportsQueryCues() && this.mode === "sites" && this.queryPositionInRange(v.point),
+            })),
             cellSite: site,
             construction: site === null ? undefined : {count, total: order.length, other: count > 0 ? order[count - 1] : undefined, done: order.length > 0 && count === order.length},
             triangles: tri?.triangles ?? [],

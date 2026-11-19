@@ -13,14 +13,15 @@ import {useStatusReadout} from "../base/controls/useStatusReadout";
 import type {FourPointReadout} from "./degenerateSites";
 import type {VoronoiMode} from "./voronoiPresetCollection";
 
-/** The named examples of the degenerate-sites graph. */
-export type VoronoiExampleId = "square" | "trapezoid" | "near" | "collinear";
+export type DegenerateExampleId = "square" | "trapezoid" | "near" | "collinear";
+export type VoronoiExampleId = "abstract" | "pizzeria" | DegenerateExampleId;
 const EXAMPLE_LABEL = {
+    abstract: "vor_example_abstract", pizzeria: "vor_example_pizzeria",
     square: "deg_example_square", trapezoid: "deg_example_trapezoid", near: "deg_example_near", collinear: "deg_example_collinear",
 } as const;
 
 export interface VoronoiControlActions {
-    /** Restores the B4 example, the overlay off, no selection (C2). */
+    /** Restores the chosen example, with the dual overlay off and no selection. */
     resetExample(): void;
     /** Chooses the site whose cell is constructed, or null for none; the construction count returns to 0. */
     selectSite(site: number | null): void;
@@ -32,6 +33,8 @@ export interface VoronoiControlActions {
     setQuery(x: number, y: number): void;
     /** Moves the query point by a step in grid units. */
     moveQuery(dx: number, dy: number): void;
+    /** Places the query point at the exact vertex of the current diagram. */
+    queryAtVertex(index: number): void;
     selectTriangle(index: number | undefined): void;
     /** Switches between `sites` and `four-point` mode; refused (with a message) unless there are exactly four sites for the latter. */
     setMode(mode: VoronoiMode): void;
@@ -45,7 +48,7 @@ export interface VoronoiStatus {
     refusal?: {kind: "few"} | {kind: "duplicate"; sites: readonly [number, number]};
     collinear: boolean;
     counts: {sites: number; vertices: number; finite: number; rays: number; lines: number; bounded: number; unbounded: number};
-    vertices: readonly {x: string; y: string; sites: readonly number[]}[];
+    vertices: readonly {x: string; y: string; sites: readonly number[]; queryable: boolean}[];
     cellSite: number | null;
     construction?: {count: number; total: number; other?: number; done: boolean};
     query: {x: string; y: string; value: readonly [number, number]; nearest: readonly number[]};
@@ -64,7 +67,7 @@ export interface VoronoiStatus {
     /** The scene already is what Reset example restores (the button is unavailable then). */
     atExample: boolean;
     examples: readonly VoronoiExampleId[];
-    /** The example the sites show now, or undefined once they are custom. */
+    /** The pizzeria context, the example the sites match, or undefined for an abstract custom set. */
     exampleId?: VoronoiExampleId;
     /** The four-point readout: set in four-point mode while there are exactly four distinct sites. */
     fourPoint?: FourPointReadout;
@@ -114,8 +117,8 @@ function fourPointText(t: ReturnType<typeof useT>, status: VoronoiStatus) {
     return {incircle, vertices, diagonals, verdict};
 }
 
-/** The mode switch and the named examples of the degenerate-sites graph. */
-function DegenerateModes(props: VoronoiControlsProps) {
+/** The named examples and, on the degenerate route, the mode switch. */
+function VoronoiExamples(props: VoronoiControlsProps) {
     const t = useT();
     const {status, actions} = props;
     if (!status.modeSwitch && status.examples.length === 0) return null;
@@ -126,8 +129,10 @@ function DegenerateModes(props: VoronoiControlsProps) {
                           options={[{value: "sites", text: t("deg_mode_sites")}, {value: "four-point", text: t("deg_mode_four")}]}/>
             {status.modeRefused && <p className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
         </>}
-        {status.examples.length > 0 && <ExampleSelect<VoronoiExampleId> label={t("deg_example_group")} current={status.exampleId} onChoose={actions.loadExample}
-                                                                         options={status.examples.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}/>}
+        {status.examples.length > 0 && <ExampleSelect<VoronoiExampleId>
+            label={t("deg_example_group")} current={status.exampleId} onChoose={actions.loadExample}
+            options={status.examples.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}
+            help={status.exampleId === "pizzeria" ? t("vor_pizzeria_distance") : undefined}/>}
     </div>;
 }
 
@@ -162,12 +167,15 @@ export function VoronoiControls(props: VoronoiControlsProps) {
         ? refusal.kind === "few" ? t("vor_refused_few") : t("vor_refused_duplicate", {value0: refusal.sites[0] + 1, value1: refusal.sites[1] + 1})
         : undefined;
     const nearest = status.query.nearest;
-    const queryText = refusal ? undefined : nearest.length === 1
-        ? t("vor_query_nearest", {value0: nearest[0] + 1})
-        : t("vor_query_tie", {value0: siteList(nearest)});
+    const pizzeria = status.exampleId === "pizzeria";
+    const queryAt = t(pizzeria ? "vor_customer_at" : "vor_query_at", {value0: status.query.x, value1: status.query.y});
+    const hasAnswer = pizzeria ? nearest.length > 0 : !refusal;
+    const queryText = !hasAnswer ? undefined : nearest.length === 1
+        ? t(pizzeria ? "vor_pizzeria_nearest" : "vor_query_nearest", {value0: nearest[0] + 1})
+        : t(pizzeria ? "vor_pizzeria_tie" : "vor_query_tie", {value0: siteList(nearest)});
     const selectedVertex = status.selectedVertex;
     const vertexText = vertexTextOf(t, selectedVertex);
-    const queryAnswer = refusal ? undefined : `${t("vor_query_at", {value0: status.query.x, value1: status.query.y})} ${queryText}`;
+    const queryAnswer = queryText && `${queryAt} ${queryText}`;
     const stepText = !construction || status.cellSite === null ? t("vor_construct_none")
         : construction.count === 0 ? t("vor_construct_start", {value0: status.cellSite + 1, value1: construction.total})
         : construction.done ? t("vor_construct_done", {value0: status.cellSite + 1, value1: construction.count})
@@ -182,11 +190,26 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const backUnavailable = !construction || construction.count <= 0;
     const liveReadout = useStatusReadout([overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer,
         ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" "), true);
+    const queryControls = <div className="inspector-group">
+        {/* A single-point list: no add or remove. Values are quarters of a grid unit, so the field grid keeps them exact. */}
+        <PointListInput title={t(pizzeria ? "vor_customer_group" : "vor_query_group")} points={[status.query.value]} pointLabel={() => "q"}
+                        min={-status.coordinateLimit} max={status.coordinateLimit} grid={0.25} decimals={2}
+                        onCommit={(_, [x, y]) => { actions.setQuery(x, y); }}/>
+        <div className={CONTROL_ROW_FILL} role="group" aria-label={t(pizzeria ? "vor_customer_move_group" : "vor_query_move_group")}>
+            <button type="button" data-action="query-left" onClick={() => actions.moveQuery(-1, 0)}>{t("vor_query_left")}</button>
+            <button type="button" data-action="query-right" onClick={() => actions.moveQuery(1, 0)}>{t("vor_query_right")}</button>
+            <button type="button" data-action="query-up" onClick={() => actions.moveQuery(0, 1)}>{t("vor_query_up")}</button>
+            <button type="button" data-action="query-down" onClick={() => actions.moveQuery(0, -1)}>{t("vor_query_down")}</button>
+        </div>
+        <p className="inspector-help" data-voronoi="query-at">{queryAt}</p>
+        {queryText && <p className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
+    </div>;
     return <>
-        <DegenerateModes status={status} actions={actions}/>
+        <VoronoiExamples status={status} actions={actions}/>
         <div className="inspector-group">
             <ResetExampleButton atExample={status.atExample} onReset={actions.resetExample}/>
         </div>
+        {pizzeria && queryControls}
         <div className="inspector-group" data-voronoi-status="">
             {refusalText && <p className="inspector-help" role="alert" data-voronoi="refusal">{refusalText}</p>}
             {status.collinear && !refusal && <p className="inspector-help" data-voronoi="collinear">{t("vor_collinear_note")}</p>}
@@ -210,9 +233,15 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 {id: "unbounded", value: t("vor_count_unbounded", {value0: counts.unbounded})},
             ]}/>}
             {!refusal && status.diagramShown && status.vertices.length > 0 && <ul aria-label={t("vor_vertices_label")} data-voronoi="vertices">
-                {status.vertices.map((vertex, index) => (
-                    <li key={index} data-vertex={index}>{t("vor_vertex_item", {value0: index + 1, value1: vertex.x, value2: vertex.y, value3: siteList(vertex.sites)})}</li>
-                ))}
+                {status.vertices.map((vertex, index) => {
+                    const location = {value0: index + 1, value1: vertex.x, value2: vertex.y};
+                    const description = t("vor_vertex_item", {...location, value3: siteList(vertex.sites)});
+                    const action = t(pizzeria ? "vor_vertex_move_customer" : "vor_vertex_move_query", location);
+                    return <li key={index} data-vertex={index}>
+                        {vertex.queryable ? <button type="button" className="btn text-start" aria-label={action} title={action}
+                                                    onClick={() => actions.queryAtVertex(index)}>{description}</button> : description}
+                    </li>;
+                })}
             </ul>}
         </div>
         {!refusal && <div className="inspector-group">
@@ -232,20 +261,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             </PlaybackButtons>
             <p className="inspector-help" data-voronoi="construction">{stepText}</p>
         </div>}
-        <div className="inspector-group">
-            {/* A single-point list: no add or remove. Values are quarters of a grid unit, so the field grid keeps them exact. */}
-            <PointListInput title={t("vor_query_group")} points={[status.query.value]} pointLabel={() => "q"}
-                            min={-status.coordinateLimit} max={status.coordinateLimit} grid={0.25} decimals={2}
-                            onCommit={(_, [x, y]) => { actions.setQuery(x, y); }}/>
-            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("vor_query_move_group")}>
-                <button type="button" data-action="query-left" onClick={() => actions.moveQuery(-1, 0)}>{t("vor_query_left")}</button>
-                <button type="button" data-action="query-right" onClick={() => actions.moveQuery(1, 0)}>{t("vor_query_right")}</button>
-                <button type="button" data-action="query-up" onClick={() => actions.moveQuery(0, 1)}>{t("vor_query_up")}</button>
-                <button type="button" data-action="query-down" onClick={() => actions.moveQuery(0, -1)}>{t("vor_query_down")}</button>
-            </div>
-            <p className="inspector-help" data-voronoi="query-at">{t("vor_query_at", {value0: status.query.x, value1: status.query.y})}</p>
-            {queryText && <p className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
-        </div>
+        {!pizzeria && queryControls}
         <LiveReadout readout={liveReadout} muted={playing} dataAttribute="voronoi-live"/>
     </>;
 }
