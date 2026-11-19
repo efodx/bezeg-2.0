@@ -74,7 +74,7 @@ describe.each(['decasteljau', 'decasteljau-alternative'] as const)('%s construct
 
     test('Play advances the parameter without a selected curve', () => {
         const {graph, frames, running} = mountRun(key);
-        expect(graph.state.curveSelected).toBeFalsy();
+        expect(screen.queryByText(t('selected_curve_25'))).toBeNull();
         const start = graph.parameter;
         act(() => { fireEvent.click(play()); });
         frames(3);
