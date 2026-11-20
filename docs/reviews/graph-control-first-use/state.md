@@ -8,7 +8,18 @@
 - **Epicycles time slider label.** “Čas t (del obhoda)” / “Time t (fraction of a turn)” runs 0–6.28 (`EpicycleGraph.tsx:609`, radians). It predates this stream. Proposed fix: relabel the slider in radians, or scale it to 0–1. This is a small follow-up in lane E's file.
 - **Parametrization sample count.** On the three param routes, “Število točk” is a `Slider`; [the controls catalogue](../../controls.md) prescribes `CountSetter` for a count. Changing it is more than a reorder, so it was left. Should it become a `CountSetter` (route behaviour and the weighted recipe stay; only the control changes)?
 - **Affine reflection axis (found by smoke, predates this stream).** The affine buttons “Zrcali čez os X/Y” (detail “os x”/“os y”) mirror the curve about the horizontal/vertical line through the control points' centroid, not the coordinate axis (`abstract-point-controlled-curve.ts` `flip`; its test agrees). Is the centroid intended, with the label changed to say so, or should the reflection be about the axis itself? Not changed.
-- The daily scheduled run on 2026-11-19 passed. Hosted CI failed at 13dff3fa and 9a726e31 on the stale Epicycles manifest; repaired by the recapture `e46e2e5a` (pushed 20:41 UTC; check `just ci e46e2e5a`).
+- The daily scheduled run on 2026-11-19 passed. Hosted CI failed at 13dff3fa and 9a726e31 on the stale Epicycles manifest; repaired by the recapture `e46e2e5a` (CI green), and green again at `4397c03b`.
+
+## Decisions taken without the owner (this run)
+
+On 2026-11-20 the owner authorised this run to continue without confirmation: decide, mark the decision here, and leave open questions for the end, stopping only for something blocking that cannot easily be reverted. Each entry gives the decision, the alternative and how to revert it.
+
+- **D1. Split rational.md across two workers.** Slice A takes the four operation routes, slice B takes rational, farin and circle. The alternative was one worker for all seven. Process only; nothing to revert.
+- **D2. `rational` keeps selection first.** `getGraphCommands()` is empty there, and the weight editor is a selected-curve control, so it exists only after a curve is selected. The stream allows this. A test pins the order selection → typed points → weights (`RationalCurvesConstructionFirst.test.tsx`). The alternative would be a point-and-weight editor that needs no selection: new UI, not a reorder.
+- **D3. `farin` keeps its Farin-points switch in Display.** The plan's first task is "turn on the Farin points", but that switch is a Display toggle, and `demonstrationControlPlacement.test.tsx:93` pins it there. I did not move it across tabs. The alternative would be an Edit shortcut for the switch. Batch 5 (rational/farin-points) can revisit this.
+- **D4. Circle count keeps the label "Število krivulj".** The plan says "number of arcs" and the control says "number of curves". No relabel was made, so the preview recipe and lesson text stay intact. Open question: should it read "Število lokov" / "Number of arcs"?
+- **D5. rational-decasteljau and rational-subdivision needed no change.** They inherit the opt-in from the Bezier `DecasteljauGraph` and `SubdivisionGraph1`. New tests only.
+- **D6. Test scope fix (`881e68ab`).** The construction-first "later heading" checks now take every heading in `#inspector-edit`, not only `.tools` cards. Before this, they never looked at curve selection, hodograph or offsets. All 14 order tests fail when construction is rendered after selection.
 - **Overlap with graph-character** (unchanged): its implementation lives on `codex/graph-character-pilots`, not master. If it returns to master, it owns De Casteljau's board drawing and this stream owns `getGraphCommands`/Edit. The Voronoi and descent batches go after its slices.
 
 ## Accepted work
@@ -37,8 +48,7 @@ The bezier-family smoke at ced593df (Haiku, desktop and phone, sl, plus English 
 
 ## Remaining steps, in order
 
-1. **Wave 3, batch 1 (curve opt-in, the remaining 15 routes)**, family by family, with one worker per family slice. The bezier.md and param.md families are done:
-   - rational.md: rational-subdivision, rational-elevation, rational-decasteljau, circle, rational-extrapolation, farin, rational
+1. **Wave 3, batch 1 (curve opt-in, the remaining 15 routes)**, family by family, with one worker per family slice. The bezier.md, param.md and rational.md families are done (rational: `c14a0ae1` elevation/extrapolation opt in, `08955104` circle opts in; decisions D2–D6). Rational smoke passed on elevation, extrapolation and circle in sl/en, desktop and phone, with a keyboard check on the circle count (`.command-logs/gcfu-smoke-rational/`). Fresh visit on desktop: elevation y842→437, extrapolation y912→507 (now in view), circle y817→455. Side note: a selected circle arc shows the shared rational “Ekstrapoliraj” operation; this predates the batch and was not investigated. Remaining:
    - spline.md: spline-g1, spline-g1-symmetric, spline-cn
    - ph.md: ph-cubic, ph-quintic
 
