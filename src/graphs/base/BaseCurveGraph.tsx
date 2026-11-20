@@ -195,7 +195,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     private workspacePointEntryDisclosure(): React.ReactNode {
         if (!this.workspacePointEntryWithoutSelection() || !this.workspacePointEditing() || this.jxgCurves.length !== 1 || this.getSelectedCurve()) { return null; }
         const curve = this.jxgCurves[0];
-        return <InspectorDisclosure title={t("point_coordinates_keyboard_editing")}>{this.structuredPointControls(curve)}</InspectorDisclosure>;
+        return <InspectorDisclosure title={t("curve_point_entry_summary")}>{this.structuredPointControls(curve)}</InspectorDisclosure>;
     }
     private structuredPointControls(curve: EditableCurve): React.ReactNode {
         return <CurvePointControls key={`points-${this.jxgCurves.indexOf(curve)}-${this.replacementRevision}`}

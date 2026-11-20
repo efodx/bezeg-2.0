@@ -5960,6 +5960,7 @@ export const en: Record<keyof typeof sl, string> = {
     "epicycle_time_label": "Time t (rad)",
     "epicycle_playback_help": "Playback is stopped by default; one turn takes about 10 s. Any edit of the curve or of N stops it.",
     "epicycle_handles_summary": "End points and control points (keyboard)",
+    "curve_point_entry_summary": "Keyboard point entry",
     "epicycle_handles_help": "You can also drag the points on the graph. Moving an end point also moves its two neighbouring control points.",
     "epicycle_vertex_name": "End point {value0}",
     "epicycle_vertices_title": "End points",

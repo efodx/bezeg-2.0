@@ -5959,6 +5959,7 @@ export const sl = {
     "epicycle_time_label": "Čas t (rad)",
     "epicycle_playback_help": "Predvajanje je privzeto ustavljeno; en obhod traja približno 10 s. Vsak popravek krivulje ali N ga ustavi.",
     "epicycle_handles_summary": "Krajišča in kontrolne točke (tipkovnica)",
+    "curve_point_entry_summary": "Vnos točk s tipkovnico",
     "epicycle_handles_help": "Točke lahko vlečeš tudi na grafu. Premik krajišča premakne tudi njegovi sosednji kontrolni točki.",
     "epicycle_vertex_name": "Krajišče {value0}",
     "epicycle_vertices_title": "Krajišča",

@@ -34,7 +34,7 @@ describe('bezier: point entry without a selection', () => {
         const first = editor().firstElementChild as HTMLElement;
         expect(first.tagName).toBe('DETAILS');
         expect(first.hasAttribute('open')).toBe(false);
-        expect(first.querySelector('summary')!.textContent).toBe(t('point_coordinates_keyboard_editing'));
+        expect(first.querySelector('summary')!.textContent).toBe(t('curve_point_entry_summary'));
         expect(xFields()).toHaveLength(4);
     });
 
