@@ -328,7 +328,7 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         const netB = this.bNet();
         return <>
             {this.unavailableNotice()}
-            <JoinModeControls mode={this.mode()} alpha={this.alpha()} joinV={this.state.joinV ?? DEFAULT_JOIN_V}
+            <JoinModeControls mode={this.mode()} alpha={this.alpha()} joinV={this.state.joinV ?? DEFAULT_JOIN_V} report={this.joinReport()}
                               onMode={mode => this.setJoinContinuity(mode)} onAlpha={alpha => this.setJoinAlpha(alpha)} onJoinV={v => this.setJoinV(v)}/>
             <JoinReportPanel report={this.joinReport()}/>
             <JoinScenesControls scenes={joinStartingScenes} current={this.joinSceneIndex()} onUse={index => this.useJoinScene(index)}/>

@@ -5303,6 +5303,8 @@ export const en: Record<keyof typeof sl, string> = {
     "patch_join_mode_c1": "C1 (the derivatives across the boundary are equal)",
     "patch_join_mode_g1": "G1 (the tangent planes coincide)",
     "patch_join_mode_help": "The join is the boundary u = 1 of patch A and the boundary u = 0 of patch B. In C0 the first row of patch B's points is derived from A, in C1 and G1 the first two rows. Derived points are drawn but cannot be moved; every move of an A point or change of degree recomputes them.",
+    "patch_join_mode_satisfied": "The join already satisfies C1, so the patches did not move. Move a point of patch A along the boundary to see the condition keep B in place.",
+    "patch_join_mode_kept": "The points of patch B are free now, but the join still satisfies C1, so the patches did not move. Move a point of patch B along the boundary to break the join.",
     "patch_join_alpha": "Ratio α",
     "patch_join_alpha_help": "In a G1 join, patch B's derivative S_u at the boundary is α times patch A's derivative S_u (α between 0.25 and 4). At α = 1 the join is C1.",
     "patch_join_alpha_disabled": "The ratio α is available only for a G1 join.",

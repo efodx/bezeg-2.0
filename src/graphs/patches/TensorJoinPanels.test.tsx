@@ -48,6 +48,28 @@ const sceneSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join
 const useScene = (id: string) => fireEvent.change(sceneSelect(), {target: {value: String(joinStartingScenes.findIndex(scene => scene.id === id))}});
 const degreeGroup = () => document.querySelector(".patch-join-degree")!.textContent!;
 
+describe("a mode that the pair already satisfies says so", () => {
+    const modeNote = () => document.querySelector('[data-patch-note="join-mode"]')?.textContent;
+    const netsOf = (graph: TensorJoinGraph) => JSON.stringify([graph.state.net, graph.bNet()]);
+
+    it("leaves the nets alone when loosening from C1 and says why", () => {
+        const {graph} = mount();
+        const before = netsOf(graph);
+        expect(graph.joinReport()).toMatchObject({c1: true, derivativeGap: 0});
+        for (const next of ["none", "c0", "c1"] as const) {
+            act(() => graph.setJoinContinuity(next));
+            expect(netsOf(graph)).toBe(before);
+            expect(modeNote()).toBe(t(next === "c1" ? "patch_join_mode_satisfied" : "patch_join_mode_kept"));
+        }
+    });
+
+    it("has no note in G1, where the mode moves B", () => {
+        const {graph} = mount();
+        act(() => graph.setJoinContinuity("g1"));
+        expect(modeNote()).toBeUndefined();
+    });
+});
+
 describe("mode select and the report", () => {
     it("starts C1 and the report says so", () => {
         const {graph} = mount();

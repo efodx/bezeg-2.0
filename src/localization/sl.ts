@@ -5302,6 +5302,8 @@ export const sl = {
     "patch_join_mode_c1": "C1 (odvoda čez rob sta enaka)",
     "patch_join_mode_g1": "G1 (tangentni ravnini sovpadata)",
     "patch_join_mode_help": "Stik je rob u = 1 krpe A in rob u = 0 krpe B. Pri C0 je prva vrstica točk krpe B izpeljana iz A, pri C1 in G1 prvi dve. Izpeljane točke so narisane, ne pa premakljive; vsak premik točke krpe A ali sprememba stopnje jih sproti preračuna.",
+    "patch_join_mode_satisfied": "Stik že izpolnjuje C1, zato se krpi nista premaknili. Premakni točko krpe A ob robu, da vidiš, kako pogoj prilagodi krpo B.",
+    "patch_join_mode_kept": "Točke krpe B so zdaj proste, stik pa še vedno izpolnjuje C1, zato se krpi nista premaknili. Premakni točko krpe B ob robu, da stik pokvariš.",
     "patch_join_alpha": "Razmerje α",
     "patch_join_alpha_help": "Pri stiku G1 je odvod S_u krpe B ob robu α-kratnik odvoda S_u krpe A (α med 0,25 in 4). Pri α = 1 je stik C1.",
     "patch_join_alpha_disabled": "Razmerje α je na voljo samo pri stiku G1.",

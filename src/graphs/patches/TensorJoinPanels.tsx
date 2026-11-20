@@ -51,8 +51,8 @@ export function JoinCapstonePanel({onBack}: {onBack: () => void}) {
  * The "Join" group of Uredi: the continuity mode, the ratio `alpha` (usable only in G1, with the reason stated otherwise)
  * and the `v` of the boundary point where the two cross-boundary arrows are drawn.
  */
-export function JoinModeControls({mode, alpha, joinV, onMode, onAlpha, onJoinV}: {
-    mode: JoinContinuity; alpha: number; joinV: number;
+export function JoinModeControls({mode, alpha, joinV, report, onMode, onAlpha, onJoinV}: {
+    mode: JoinContinuity; alpha: number; joinV: number; report: JoinReport;
     onMode: (mode: JoinContinuity) => void; onAlpha: (alpha: number) => void; onJoinV: (v: number) => void;
 }) {
     const t = useT();
@@ -61,9 +61,12 @@ export function JoinModeControls({mode, alpha, joinV, onMode, onAlpha, onJoinV}:
         {value: "c1", text: t("patch_join_mode_c1")}, {value: "g1", text: t("patch_join_mode_g1")},
     ];
     const g1 = mode === "g1";
+    // Loosening a pair that already is C1 moves nothing; the panel says so instead of leaving the board looking unresponsive.
+    const modeNote = !g1 && joinReportCase(report) === "c1" ? t(mode === "c1" ? "patch_join_mode_satisfied" : "patch_join_mode_kept") : undefined;
     return <div className="inspector-group patch-join-controls"><h3>{t("patch_join_heading")}</h3>
         <ChoiceSelect label={t("patch_join_mode")} value={mode} options={options} help={t("patch_join_mode_help")}
                       onChange={next => onMode(next === "c0" || next === "c1" || next === "g1" ? next : "none")}/>
+        {modeNote && <ReadoutHelp hooks={{"data-patch-note": "join-mode"}}>{modeNote}</ReadoutHelp>}
         <Slider customText={t("patch_join_alpha")} min={JOIN_ALPHA_RANGE.min} max={JOIN_ALPHA_RANGE.max} step={0.05} value={alpha}
                 unavailableReason={g1 ? undefined : t("patch_join_alpha_disabled")} help={t("patch_join_alpha_help")}
                 onChange={onAlpha}/>
