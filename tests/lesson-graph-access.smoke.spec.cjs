@@ -3,8 +3,11 @@ const h = require('./lesson-smoke-helpers.cjs');
 
 h.failOnRuntimeErrors();
 
+// Tools are hidden (visibility: hidden) while the docked card is read at 701 px and wider (ADR 0061), so readouts are
+// read from DOM text, whitespace-normalised the way rendered text was, instead of innerText.
+const domText = element => element.textContent.replace(/\s+/g, ' ').trim();
 const BASE = '/bezeg-2.0';
-const readout = (page, id) => page.locator(`[data-readout="${id}"] dd`).innerText();
+const readout = (page, id) => page.locator(`[data-readout="${id}"] dd`).evaluate(domText);
 const boundStatuses = page => page.locator('[data-taylor-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-taylor-status')));
 
 async function boardSnapshot(page) {
@@ -50,10 +53,15 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     await h.settle(page);
     await reachTaylorLagrangeObservation(page);
     const observationProgress = await h.progress(page);
+    // The docked card takes the tools' column while it is read (ADR 0061): the tools are hidden, not dimmed.
+    const inspectorVisibility = () => page.locator('.workspace-inspector').evaluate(element => getComputedStyle(element).visibility);
+    expect(await inspectorVisibility(), 'the tools are hidden while the docked card is read at desktop width').toBe('hidden');
     const beforeHide = await boardSnapshot(page);
 
     await h.hideButton(page).click();
     await expect(h.lessonPanel(page)).toHaveCount(0);
+    expect(await inspectorVisibility(), 'Hide brings the tools back').toBe('visible');
+    await expect(page.locator('[data-readout="degree"] dd'), 'a tool readout is visible after Hide').toBeVisible();
     await expect(page.locator('section.workspace-graph')).not.toHaveAttribute('data-lesson-locked', 'true');
     const reopen = h.reopenButton(page);
     await expect(reopen).toBeVisible();
@@ -101,6 +109,7 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     await expect(h.lessonPanel(page)).toBeVisible();
     await h.settle(page);
     await reachTaylorLagrangeObservation(page);
+    expect(await page.locator('.workspace-inspector').evaluate(element => getComputedStyle(element).visibility), 'at 390 px the tools stay visible below the card while it is read').toBe('visible');
 
     // Enlarge rem-based lesson copy without changing the emulated device viewport.
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
@@ -108,21 +117,30 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     await h.noHorizontalOverflow(page);
     const panel = h.lessonPanel(page);
     const reading = panel.locator('.guided-lesson-reading');
-    expect(await reading.evaluate(element => getComputedStyle(element).overflowY)).toBe('auto');
-    await reading.evaluate(element => { element.scrollTop = element.scrollHeight; });
-    expect(await reading.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+    // At 700 px and narrower the page scrolls, not the card (ADR 0061): the card is as long as its text and its
+    // controls stick to the top of the window.
+    expect(await reading.evaluate(element => element.scrollHeight > element.clientHeight + 1), 'the reading region does not scroll inside the card').toBe(false);
+    expect(await panel.evaluate(element => [getComputedStyle(element).overflowY, getComputedStyle(element).maxHeight])).toEqual(['visible', 'none']);
+    expect(await panel.locator('.guided-lesson-controls').evaluate(element => getComputedStyle(element).position)).toBe('sticky');
+    const cardTall = await panel.evaluate(element => element.getBoundingClientRect().height > innerHeight);
     const hide = h.hideButton(page);
-    await expect(hide).toBeVisible();
-    const actionFitsPanel = await hide.evaluate(button => {
-        const action = button.getBoundingClientRect();
-        const container = button.closest('.guided-lesson').getBoundingClientRect();
-        return action.top >= container.top && action.bottom <= container.bottom;
-    });
-    expect(actionFitsPanel, 'the visible minimize action fits within the bounded overlay').toBe(true);
-    const actionBox = await hide.boundingBox();
-    expect(actionBox.y).toBeGreaterThanOrEqual(0);
-    expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(844);
-    expect(await panel.evaluate(element => element.scrollTop), 'prose scroll belongs to the reading region').toBe(0);
+    // A card that fits the window has one position; a taller one is checked at its top, middle and bottom.
+    for (const fraction of cardTall ? [0, .5, 1] : [0]) {
+        await panel.evaluate((element, f) => {
+            const rect = element.getBoundingClientRect();
+            scrollTo(0, rect.top + scrollY + Math.max(0, rect.height - innerHeight) * f);
+        }, fraction);
+        await expect(hide).toBeVisible();
+        const actionBox = await hide.boundingBox();
+        expect(actionBox.y, `Hide stays in the window at card position ${fraction}`).toBeGreaterThanOrEqual(0);
+        expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(844);
+        expect(await hide.evaluate(button => {
+            const r = button.getBoundingClientRect();
+            return button.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
+        }), 'Hide is pointer reachable').toBe(true);
+    }
+    expect(await panel.evaluate(element => element.scrollTop), 'prose scroll belongs to the page, not the card').toBe(0);
+    await h.noHorizontalOverflow(page);
 
     await hide.click();
     await expect(panel).toHaveCount(0);
@@ -157,7 +175,15 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     await h.settle(page);
     const boardAfterPresentationReopen = await boardSnapshot(page);
     expect(boardAfterPresentationReopen.id).toBe(boardBeforePresentationReopen.id);
-    expect(boardAfterPresentationReopen.view).toEqual(boardBeforePresentationReopen.view);
+    // The docked card takes its column in Presentation, so the board is resized (ADR 0061): JSXGraph keeps the scene
+    // centred and to scale instead of keeping the identical bounding box.
+    const before = boardBeforePresentationReopen;
+    const after = boardAfterPresentationReopen;
+    const centre = ([left, top, right, bottom]) => [(left + right) / 2, (top + bottom) / 2];
+    expect(centre(after.view)[0], 'same view centre (x) after reopening in Presentation').toBeCloseTo(centre(before.view)[0], 3);
+    expect(centre(after.view)[1], 'same view centre (y) after reopening in Presentation').toBeCloseTo(centre(before.view)[1], 3);
+    expect((after.view[2] - after.view[0]) / after.size.width, 'same horizontal scale after reopening in Presentation').toBeCloseTo((before.view[2] - before.view[0]) / before.size.width, 3);
+    expect((after.view[1] - after.view[3]) / after.size.height, 'same vertical scale after reopening in Presentation').toBeCloseTo((before.view[1] - before.view[3]) / before.size.height, 3);
     await h.hideButton(page).click();
     await expect(reopen).toBeVisible();
 });

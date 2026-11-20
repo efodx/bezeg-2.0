@@ -251,11 +251,31 @@ module.exports = function registerExperienceChecks() {
                     expect(panelBackground.token, 'the approved shell panel role is defined').not.toBe('');
                     expect(panelBackground.tokenBackground, 'the approved shell panel role is opaque').toMatch(/^rgb\(/);
                     expect(panelBackground.panelBackground).toBe(panelBackground.tokenBackground);
-                    const scrollPort = await lessonScrollPort(panel);
+                    // One-column screens (700 px and narrower) scroll the page, not the card (ADR 0061): the card is as long
+                    // as its text and its controls stick to the top of the window. Two-column views keep the card's own scroll.
+                    const pageScroll = view.width <= 700;
+                    let cardTaller = false;
+                    if (pageScroll) {
+                        const contract = await panel.evaluate(el => ({
+                            panelOverflowY: getComputedStyle(el).overflowY,
+                            panelMaxHeight: getComputedStyle(el).maxHeight,
+                            readingScrolls: el.querySelector('.guided-lesson-reading').scrollHeight > el.querySelector('.guided-lesson-reading').clientHeight + 1,
+                            controlsPosition: getComputedStyle(el.querySelector('.guided-lesson-controls')).position,
+                            controlsTop: getComputedStyle(el.querySelector('.guided-lesson-controls')).top,
+                            height: el.getBoundingClientRect().height,
+                            windowHeight: innerHeight,
+                        }));
+                        expect(contract, 'at 700 px and narrower the card is as long as its text and the page scrolls').toMatchObject({panelOverflowY: 'visible', panelMaxHeight: 'none', readingScrolls: false});
+                        expect(contract.controlsPosition, 'the controls stick to the top of the window').toBe('sticky');
+                        expect(contract.controlsTop).toBe('0px');
+                        cardTaller = contract.height > contract.windowHeight;
+                        if (view.enlarged) expect(cardTaller, 'enlarged lesson text makes the card taller than the window').toBe(true);
+                    }
+                    const scrollPort = pageScroll ? null : await lessonScrollPort(panel);
                     const scrollRange = scrollPort ? await scrollPort.evaluate(el => el.scrollHeight - el.clientHeight) : 0;
-                    const scrollRequired = view.height <= 500 || view.enlarged;
+                    const scrollRequired = !pageScroll && (view.height <= 500 || view.enlarged);
                     if (scrollRequired) expect(scrollRange, 'short or enlarged lesson content has a real scroll range').toBeGreaterThan(1);
-                    if (scrollRange <= 1) {
+                    if (scrollRange <= 1 && !pageScroll) {
                         const fits = await panel.locator('.guided-lesson-reading').evaluate(el => el.scrollHeight <= el.clientHeight + 1);
                         expect(fits, 'lesson content fits when the viewport does not require scrolling').toBe(true);
                     }
@@ -264,7 +284,13 @@ module.exports = function registerExperienceChecks() {
                     const boardId = await page.locator('#jgbox').evaluate(el => Object.values(window.JXG.boards).find(b => b.containerObj === el).id);
                     const hide = h.hideButton(page);
                     const exit = panel.getByRole('button', {name: language === 'en' ? 'Exit example' : 'Končaj vodeni primer', exact: true});
-                    for (const [position, fraction] of (scrollRange > 1 ? [['top', 0], ['middle', .5], ['bottom', 1]] : [['top', 0]])) {
+                    for (const [position, fraction] of (scrollRange > 1 || cardTaller ? [['top', 0], ['middle', .5], ['bottom', 1]] : [['top', 0]])) {
+                        // Page scroll: put the card's top, middle and bottom part in the window.
+                        if (pageScroll) await panel.evaluate((el, f) => {
+                            const rect = el.getBoundingClientRect();
+                            scrollTo(0, rect.top + scrollY + Math.max(0, rect.height - innerHeight) * f);
+                        }, fraction);
+                        const scrollY = pageScroll ? await page.evaluate(() => scrollY) : 0;
                         if (scrollPort) await scrollPort.evaluate((el, f) => { el.scrollTop = (el.scrollHeight - el.clientHeight) * f; }, fraction);
                         const scrollTop = scrollPort ? await scrollPort.evaluate(el => el.scrollTop) : 0;
                         if (scrollRange > 1) expect(Math.round(scrollTop), `${position}: the chosen scroll owner moves to its requested rounded offset`).toBe(Math.round(scrollRange * fraction));
@@ -286,6 +312,7 @@ module.exports = function registerExperienceChecks() {
                         await expect(panel).toHaveCount(0);
                         await h.reopenButton(page).click();
                         await expect(panel).toBeVisible();
+                        if (pageScroll) expect(await page.evaluate(() => window.scrollY), `${position}: same-frame page scroll position survives hide and reopen`).toBe(scrollY);
                         if (scrollPort) expect(await scrollPort.evaluate(el => el.scrollTop), `${position}: same-frame scroll position survives hide and reopen`).toBe(scrollTop);
                         expect(await toolbarPosition(), `${position}: navigation stays anchored after hide and reopen`).toEqual(toolbarBeforeHide);
                         const overflow = await page.evaluate(() => {
@@ -332,17 +359,51 @@ module.exports = function registerExperienceChecks() {
                     expect(page.url()).toBe(originalUrl);
                     expect(await h.progress(page)).toBe(progress);
                     expect(await page.locator('#jgbox').evaluate(el => Object.values(window.JXG.boards).find(b => b.containerObj === el).id)).toBe(boardId);
+                    // The page keeps its scroll across frames and each frame has its own height, so on one-column views compare
+                    // the navigation with the card's top at the top of the window both times.
+                    const cardToTop = () => pageScroll ? panel.evaluate(el => { scrollTo(0, el.getBoundingClientRect().top + scrollY); }) : null;
+                    await cardToTop();
                     const beforeFrameChange = await toolbarPosition();
                     const outerBeforeFrameChange = await panel.evaluate(el => el.scrollTop);
                     const readingScrollsWithOuter = await panel.locator('.guided-lesson-reading').evaluate(el => getComputedStyle(el).overflowY === 'visible');
                     await h.nextButton(page).click();
                     await h.settle(page);
                     await expect(panel.locator('h3')).toBeInViewport();
+                    await cardToTop();
                     expect(await panel.locator('.guided-lesson-reading').evaluate(el => el.scrollTop), 'a new frame starts at the reading top').toBe(0);
                     expect(await panel.evaluate(el => el.scrollTop), 'only the outer reading scroll resets; enlarged control placement stays').toBe(readingScrollsWithOuter ? 0 : outerBeforeFrameChange);
                     expect(await toolbarPosition(), 'the toolbar stays anchored when the next frame starts').toEqual(beforeFrameChange);
                 });
             }
+        }
+        // ADR 0061 acceptance 1: the open card is docked beside or below the graph and never covers it.
+        for (const view of [
+            {width: 1440, height: 900}, {width: 1920, height: 1080}, {width: 1024, height: 768},
+            {width: 844, height: 390}, {width: 390, height: 844}, {width: 1920, height: 1080, presenting: true},
+        ]) {
+            test(`the open card does not cover the graph at ${view.width}x${view.height}${view.presenting ? ' in Presentation' : ''}`, async ({page}) => {
+                await page.setViewportSize({width: view.width, height: view.height});
+                await h.useLanguage(page, 'en');
+                await page.goto('/bezeg-2.0/analysis/taylor?learn=1&source=reading');
+                const panel = h.lessonPanel(page);
+                await expect(panel).toBeVisible();
+                if (view.presenting) await page.getByRole('button', {name: 'Presentation mode', exact: true}).click();
+                await h.settle(page);
+                const intersection = () => page.evaluate(() => {
+                    const card = document.querySelector('section.guided-lesson').getBoundingClientRect();
+                    const board = document.querySelector('#jgbox').getBoundingClientRect();
+                    const width = Math.min(card.right, board.right) - Math.max(card.left, board.left);
+                    const height = Math.min(card.bottom, board.bottom) - Math.max(card.top, board.top);
+                    const box = rect => [rect.left, rect.top, rect.right, rect.bottom].map(Math.round);
+                    return {overlaps: width > 1 && height > 1, card: box(card), board: box(board)};
+                });
+                const first = await intersection();
+                expect(first.overlaps, `first frame: card and #jgbox intersect ${JSON.stringify(first)}`).toBe(false);
+                await h.nextButton(page).click();
+                await h.settle(page);
+                const second = await intersection();
+                expect(second.overlaps, `after Next: card and #jgbox intersect ${JSON.stringify(second)}`).toBe(false);
+            });
         }
     });
 };

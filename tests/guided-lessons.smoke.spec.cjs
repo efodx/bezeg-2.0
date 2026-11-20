@@ -51,6 +51,9 @@ h.failOnRuntimeErrors();
 // Every test below owns its page and context and the preview server is stateless, so tests may run in parallel.
 test.describe.configure({mode: 'parallel'});
 
+// Tools are hidden (visibility: hidden) while the docked card is read at 701 px and wider (ADR 0061), so readouts are
+// read from DOM text, whitespace-normalised the way rendered text was, instead of innerText.
+const domText = element => element.textContent.replace(/\s+/g, ' ').trim();
 const BASE = '/bezeg-2.0';
 const rangeSlider = (page, max) => page.locator(`input[type="range"][max="${max}"]`).first();
 const near = (actual, expected, tolerance = 0.02) => Math.abs(actual - expected) <= tolerance;
@@ -507,7 +510,7 @@ const splineG1 = {
     minFrames: 12, // 2 + 3 + 3 + 2 + 2 frames
     setup: async page => {
         await expectDefaultPoints(page, 7);
-        await expect(page.getByText('Parameter b', {exact: true}).first(), 'sliders are labelled "Parameter b"').toBeVisible();
+        await expect(page.getByText('Parameter b', {exact: true}).first(), 'sliders are labelled "Parameter b"').toHaveText('Parameter b'); // attached with text: the tools are hidden while the card is read
         return {};
     },
     stepProbe: async (page, ctx, step, label) => {
@@ -569,7 +572,7 @@ const splineParameterization = {
 // ---------------------------------------------------------------- Linear function
 const linearField = (page, label) => page.getByLabel(label, {exact: true});
 // The equation is the board's and the inspector's most important readout; compare it without language-specific punctuation.
-const linearEquation = async page => (await page.locator('[data-readout="equation"] dd').innerText()).replace('−', '-').replace(',', '.');
+const linearEquation = async page => (await page.locator('[data-readout="equation"] dd').evaluate(domText)).replace('−', '-').replace(',', '.');
 // Per step: equation and the two draggable points (default scene, worked example, n = -2, k = -1/2, vertical line).
 const LINEAR_STEPS = [
     {equation: 'y = 2x + 1', points: [[0, 1], [2, 5]]},
@@ -616,7 +619,7 @@ const linear = {
 };
 
 // ---------------------------------------------------------------- Exponential function
-const exponentialReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const exponentialReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace('−', '-').replace(',', '.');
 // Per step: base a (readout and f(1)) and whether the dashed mirror graph is visible (default, doubling, a = 0.5, mirror, above the axis).
 const EXPONENTIAL_STEPS = [
     {a: '2', mirror: false}, {a: '2', mirror: false}, {a: '0.5', mirror: false}, {a: '2', mirror: true}, {a: '2', mirror: false},
@@ -644,9 +647,9 @@ const exponential = {
 };
 
 // ---------------------------------------------------------------- Trigonometric functions
-const trigReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+const trigReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(',', '.');
 // The range lists its two numbers (separated by ; or , depending on the language); tangent has none.
-const trigRange = async page => ((await page.locator('[data-readout="range"] dd').innerText()).replace(/−/g, '-').match(/-?\d+(?:[.,]\d+)?/g) || []).map(value => value.replace(',', '.'));
+const trigRange = async page => ((await page.locator('[data-readout="range"] dd').evaluate(domText)).replace(/−/g, '-').match(/-?\d+(?:[.,]\d+)?/g) || []).map(value => value.replace(',', '.'));
 // Per step: equation, period, phase shift (with exact multiples of pi), range and the number of visible graph curves
 // (midline + main graph; the reference graph and, for tan, the asymptotes add one). Steps: default, amplitude, vertical shift, frequency, phase (cosine as shifted sine), combined worked example, tangent.
 const TRIG_STEPS = [
@@ -683,7 +686,7 @@ const trigonometric = {
 };
 
 // ---------------------------------------------------------------- Continuity
-const continuityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const continuityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace('−', '-').replace(',', '.');
 // Per step: a, f(1) = left limit, right limit, jump and whether the function is continuous (default, jump example, condition, a = 3/2, slopes).
 const CONTINUITY_STEPS = [
     {a: 1, right: '2', jump: '1', continuous: false}, {a: 1, right: '2', jump: '1', continuous: false}, {a: 1, right: '2', jump: '1', continuous: false},
@@ -718,7 +721,7 @@ const continuity = {
 };
 
 // ---------------------------------------------------------------- Derivative
-const derivativeReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const derivativeReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace('−', '-').replace(',', '.');
 // Per step: h, the difference quotient, f'(1), the P and Q coordinates and the number of visible curves (the function plus, when shown, the tangent).
 // Steps: default, worked example h = 0.5, h = 0.1, h = -0.5 with the tangent, sin with h = 0.2 and the tangent.
 const DERIVATIVE_STEPS = [
@@ -753,7 +756,7 @@ const derivative = {
 };
 
 // ---------------------------------------------------------------- Definite integral
-const integralReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const integralReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace('−', '-').replace(',', '.');
 // Per step: n, h, the signed sum, the exact integral and the bound b. Steps: default (left), right, midpoint, n = 100, sin on [0, 2*pi] with 12 midpoint rectangles.
 const INTEGRAL_STEPS = [
     {n: '4', h: '0.5', sum: '1.75', exact: '2.6667', b: 2},
@@ -787,7 +790,7 @@ const definiteIntegral = {
 };
 
 // ---------------------------------------------------------------- Area between curves
-const areaReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const areaReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace('−', '-').replace(',', '.');
 const AREA_S = Math.sqrt(1.5);
 // Per step: the bounds a and b (as shown and as placed on the axis), the signed integral of g - f, the unsigned area and the shaded quantity of the mode.
 // Steps: between [1, 3], under g on [1, 3], the default bounds (intersections), [0, 4], [1, 3.5].
@@ -824,7 +827,7 @@ const areaBetween = {
 };
 
 // ---------------------------------------------------------------- Arc length
-const arcReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const arcReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace('−', '-').replace(',', '.');
 // Per step: n, the displayed endpoint b, the placed endpoint B (x = b, y = sin b), the polyline length, the arc length and their difference.
 // Steps: one chord, the default two chords, ten chords, a hundred chords, [0, 2*pi] with two chords.
 const ARC_STEPS = [
@@ -860,7 +863,7 @@ const arcLength = {
 };
 
 // ---------------------------------------------------------------- Bisection
-const bisectionReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace('−', '-').replace(',', '.');
+const bisectionReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace('−', '-').replace(',', '.');
 // Per step: the revealed step count, the midpoint (an em dash before the first reveal), f(m), the interval width and the example's endpoint a.
 // Steps: the bracket at step 0, one step, three steps, five steps, the sign step after three steps, the cubic at step 0 with a = -1.5.
 // The lesson shows the state after k revealed steps; the learner presses the graph's own Next step to reveal the next one.
@@ -921,7 +924,7 @@ const bisection = {
 };
 
 // ---------------------------------------------------------------- Mean value theorem
-const meanValueReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const meanValueReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const meanValueStatuses = page => page.locator('[data-mean-value-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-mean-value-status')));
 // Per step: the displayed a, b, c, the secant slope, the tangent slope and the slope difference, and the statuses on screen. At the corner (step 5)
 // the tangent slope and the difference are words ("ne obstaja" / "does not exist"), so only the language-independent status ids are checked there.
@@ -965,7 +968,7 @@ const meanValue = {
 };
 
 // ---------------------------------------------------------------- Accumulated integral
-const accumulationReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const accumulationReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const accumulationStatuses = page => page.locator('[data-accumulation-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-accumulation-status')));
 // Per step: the displayed a, x and f(x), the statuses on screen and, where the accumulation is shown, the signed integral and the tangent slope.
 // While the accumulation is hidden (every step except 2 and 6; the learner presses Show accumulation A after predicting) the readouts for A are
@@ -1008,7 +1011,7 @@ const accumulation = {
 };
 
 // ---------------------------------------------------------------- Darboux sums
-const darbouxReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const darbouxReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const darbouxStatuses = page => page.locator('[data-darboux-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-darboux-status')));
 // Per step: the displayed a, b, n, the exact integral, the statuses on screen and, where both sums are shown, L, U and the gap.
 // While the sums are hidden (steps 1, 4 and 6; the learner presses Show lower sum / Show upper sum after predicting) their readouts are
@@ -1052,7 +1055,7 @@ const darboux = {
 };
 
 // ---------------------------------------------------------------- Extrema
-const extremaReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const extremaReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 // The first number of a global-value readout ("0 pri x = 0" / "0 at x = 0"), language independent.
 const extremaGlobal = async (page, id) => (await extremaReadout(page, id)).split(' ')[0];
 const extremaStatuses = page => page.locator('[data-extrema-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-extrema-status')));
@@ -1098,7 +1101,7 @@ const extrema = {
 };
 
 // ---------------------------------------------------------------- Convexity
-const convexityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const convexityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const convexityStatuses = page => page.locator('[data-convexity-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-convexity-status')));
 // Per step: the displayed a, b and t, the statuses on screen and, where the second derivative is shown, the chord (and the tangent at step 3).
 // While it is hidden (steps 1, 4, 5 and 6; the learner presses Show second derivative after predicting) the verdict readouts are words
@@ -1140,7 +1143,7 @@ const convexity = {
 };
 
 // ---------------------------------------------------------------- Taylor approximation
-const taylorReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const taylorReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const taylorStatuses = page => page.locator('[data-taylor-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-taylor-status')));
 // Per step: the displayed center, degree, x and T_n(x), and the statuses on screen. While the bound is hidden (steps 1, 2, 4, 6 and 7; the learner
 // changes the degree or presses Show error bound after predicting) the bound readouts are words ("skrito" / "hidden"), so only the
@@ -1182,7 +1185,7 @@ const taylor = {
 };
 
 // ---------------------------------------------------------------- Sequence convergence
-const sequenceReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const sequenceReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const sequenceStatuses = page => page.locator('[data-sequence-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-sequence-status')));
 // Per step: the displayed number of shown terms, epsilon and N, the last shown term a_n on the board, and the statuses on screen. The lesson
 // shows every configuration with the certificate hidden (the learner presses Show certificate after predicting) except step 2, which explains
@@ -1222,7 +1225,7 @@ const sequence = {
 };
 
 // ---------------------------------------------------------------- Uniform convergence
-const uniformReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const uniformReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const uniformStatuses = page => page.locator('[data-uniform-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-uniform-status')));
 // Per step: the index n, the domain end r, the point x, the supremum readout, the point (x, f_n(x)) on the board and the statuses on screen. The lesson
 // shows every configuration with the supremum hidden (the learner presses Show supremum after predicting) except step 6, which explains the shared N.
@@ -1265,7 +1268,7 @@ const uniformConvergence = {
 };
 
 // ---------------------------------------------------------------- Complex multiplication
-const complexReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const complexReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const complexStatuses = page => page.locator('[data-complex-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-complex-status')));
 // Per step: z, w and the product readouts, the statuses on screen and the points on the board. The lesson shows every configuration with the product
 // hidden (the learner presses Show product after predicting) except step 6, which explains the reduction modulo 2 pi.
@@ -1304,7 +1307,7 @@ const complexMultiplication = {
 };
 
 // ---------------------------------------------------------------- Fixed-point iteration
-const fixedPointReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(/,/g, '.');
+const fixedPointReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const fixedPointStatuses = page => page.locator('[data-fixed-point-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-fixed-point-status')));
 // Per step: the displayed iteration step, the current iterate (six decimals), the threshold, the iterate on the board as a point (x_k, x_k), and the statuses
 // on screen. The lesson shows every configuration with the bound hidden (the learner presses Next step or Show error bound after predicting) except step 3,
@@ -2128,7 +2131,7 @@ const voronoiDegenerate = {
         } else if (step === 5) {
             await expect(page.locator('[data-voronoi="readout"] [data-readout="lines"]'), `degenerate lines readout at ${label}`).toContainText(/4/);
             await expect(page.locator('[data-voronoi="readout"] [data-readout="vertices"]'), `degenerate no vertices at ${label}`).toContainText(/0/);
-            await expect(page.locator('[data-voronoi="collinear"]'), `degenerate collinear message at ${label}`).toBeVisible();
+            await expect(page.locator('[data-voronoi="collinear"]'), `degenerate collinear message at ${label}`).toHaveText(/\S/); // attached with text: the tools are hidden while the card is read
             await expect(fourPoint, `degenerate four-point readout hidden for collinear sites at ${label}`).toHaveCount(0);
         } else {
             await expect(fourPoint.first(), `degenerate incircle readout at ${label}`).toContainText(DEGENERATE_INCIRCLE[step - 1]);
@@ -2260,7 +2263,7 @@ const interpolationHermite = {
 
 // Interpolation I2 (Runge): the readouts per lesson step 1..6 are [degree, grid maximum, place of the maximum or '' when not quoted]; the lesson quotes the grid maximum from step 3 on.
 const RUNGE_STEPS = [['6', '', ''], ['10', '', ''], ['10', '1.916', '0.9402'], ['10', '0.1092', ''], ['20', '59.82', ''], ['10', '1.916', '']];
-const rungeReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+const rungeReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(',', '.');
 const interpolationRunge = {
     id: 'interp-runge',
     path: `${BASE}/interpolation/runge`,
@@ -2277,7 +2280,7 @@ const interpolationRunge = {
 
 // Interpolation I4 (least squares): the sum-of-squares readout per lesson step 1..6 (the manual line y = 2, y = x + 1, the outlier line, the best line, the quadratic, the default); the number is language independent once the decimal comma is normalised.
 const LSQ_SUMS = ['5', '1', '8.7', '0.7', '0.45', '0.7'];
-const lsqReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+const lsqReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(',', '.');
 const interpolationLeastSquares = {
     id: 'interp-least-squares',
     path: `${BASE}/interpolation/least-squares`,
@@ -2562,7 +2565,7 @@ const projectiveThreeViews = {
 
 // Probability P1 (density and probability as area): the area-percent readout per lesson step 1..6 (the interval -4 to 4, the bounds -1.5 and 0.5, mu +- sigma, N(1; 1.5^2) with mu +- sigma, N(100; 15^2) with 85 and 130, the default); language independent once the decimal comma is normalised.
 const DENSITY_PERCENTS = ['99.99', '62.47', '68.27', '68.27', '81.86', '68.27'];
-const densityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+const densityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(',', '.');
 const probabilityDensity = {
     id: 'prob-density',
     path: `${BASE}/probability/density`,
