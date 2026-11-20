@@ -27,6 +27,7 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 
 /** Operands and the whole inversion circle (centre and radius up to 2) lie within 4 of the origin; a square of half-width 4.5 shows them. */
+const CIRCLE_HIDDEN_HELP_ID = "complex-recip-circle-hidden-help";
 const VIEW_HALF_WIDTH = 4.5;
 const BOARD_VIEW: BoundingBox = [-VIEW_HALF_WIDTH, VIEW_HALF_WIDTH, VIEW_HALF_WIDTH, -VIEW_HALF_WIDTH];
 const W_DASH = 2;
@@ -438,14 +439,14 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
             </div>
             <div className="inspector-group" data-complex-circle-fields={state.circleVisible ? "shown" : "hidden"}>
                 <PointListInput title={t("complex_recip_centre_title")} points={[[state.centreRe, state.centreIm]]}
-                                pointLabel={() => "c"} axisLabels={["Re", "Im"]}
+                                pointLabel={() => "c"} axisLabels={["Re", "Im"]} describedBy={state.circleVisible ? undefined : CIRCLE_HIDDEN_HELP_ID}
                                 min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
                                 onCommit={(_index, [re, im]) => this.ignoreOutOfDomain(() => this.setCentre(re, im))
                                     ? undefined : t("complex_coordinate_rejected_hint")}/>
-            </div>
-            <div className="inspector-group">
                 <Slider customText={t("complex_recip_radius_label")} value={state.radius} min={INVERSION_RADIUS_MIN} max={INVERSION_RADIUS_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
-                        rejectedHint={t("complex_recip_radius_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setRadius(next))}/>
+                        rejectedHint={t("complex_recip_radius_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setRadius(next))}
+                        describedBy={state.circleVisible ? undefined : CIRCLE_HIDDEN_HELP_ID}/>
+                {!state.circleVisible && <p className="inspector-help" id={CIRCLE_HIDDEN_HELP_ID}>{t("complex_recip_circle_hidden_help")}</p>}
                 <p className="inspector-help">{t("complex_recip_circle_help")}</p>
             </div>
         </>;

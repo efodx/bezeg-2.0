@@ -410,6 +410,31 @@ test('the lesson action registry handles the operand names and refuses the other
     expect(() => apply(graph, {kind: 'animation', animationId: 'sequence', command: 'next-step'} as LessonAction)).toThrow(UnsupportedLessonActionError);
 });
 
+const hiddenHelp = (graph: any) => (collect(graph.renderControls()).p ?? []).find((p: any) => p.props.id === 'complex-recip-circle-hidden-help');
+
+test('while the inversion circle is hidden one line under the c row and the radius names the button that shows it, and typed values still commit', () => {
+    const graph = makeGraph();
+    const line = hiddenHelp(graph);
+    expect(line.props.children).toBe('Krožnica inverzije je zdaj skrita; pokaže jo gumb Pokaži krožnico inverzije.');
+    const c = controls(graph);
+    expect(c.showCircle.props.children).toBe('Pokaži krožnico inverzije');
+    expect(c.found.PointListInput[1].props.describedBy).toBe(line.props.id);
+    expect(c.radius.props.describedBy).toBe(line.props.id);
+    // the c row and the radius are one group
+    const group = (collect(graph.renderControls()).div ?? []).find((d: any) => d.props['data-complex-circle-fields']);
+    expect(collect(group.props.children).Slider).toHaveLength(1);
+    expect(c.centreRe.props.onChange(1)).toBe(true);
+    c.radius.props.onChange(1.5);
+    expect(graph.model).toMatchObject({centreRe: 1, radius: 1.5});
+    setLanguage('en');
+    expect(hiddenHelp(graph).props.children).toBe('The inversion circle is hidden now; Show inversion circle reveals it.');
+    set(graph, {circleVisible: true});
+    expect(hiddenHelp(graph)).toBeUndefined();
+    expect(controls(graph).radius.props.describedBy).toBeUndefined();
+    graph.importPreset({id: 'stored', data: {...graph.exportPresetData(), circleVisible: false}});
+    expect(hiddenHelp(graph)).toBeDefined();
+});
+
 test('presets round-trip, a malformed preset explains itself and loads the default, and capture, restore and Reset bring back the model and the board', () => {
     const graph = makeGraph();
     set(graph, {example: 'division', zRe: -1.35, zIm: 1, wRe: 2, wIm: 0.65, reciprocalVisible: true, quotientVisible: true, circleVisible: true, centreRe: -0.5, centreIm: 0.25, radius: 0.75});
