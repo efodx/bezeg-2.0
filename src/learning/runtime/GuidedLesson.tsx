@@ -5,6 +5,7 @@ import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphC
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
+import {fitFormulaRows} from './formulaRows';
 import './GuidedLesson.css';
 import './GuidedLessonLayout.css';
 
@@ -45,6 +46,11 @@ function GripIcon() {
 }
 
 const ARROW_KEYS = 'ArrowUp ArrowDown ArrowLeft ArrowRight';
+
+export {fitFormulaRows};
+
+/** Replaces a formula row's source and typesets that row again. */
+const retypesetFormulaRow = (row: HTMLElement, tex: string) => typesetMath(row, () => row.isConnected, () => { row.textContent = tex; });
 
 export function GuidedLesson(props: {
     lesson: LessonDefinition;
@@ -108,24 +114,19 @@ export function GuidedLesson(props: {
     // The panel and the compact tab keep where the learner put them over the graph until another lesson starts.
     const panelDrag = useDraggableOffset(layerRef, lessonRef, overlayVisible, props.lesson);
     const [availablePanelHeight, setAvailablePanelHeight] = useState(480);
-    const [wideBoard, setWideBoard] = useState(false);
+    // A formula row wider than the card is set smaller until it fits; the card's width changes with the window.
     useLayoutEffect(() => {
-        const layer = layerRef.current;
         const panel = lessonRef.current;
-        if (!overlayVisible || !layer || !panel) return;
-        const update = () => {
-            const cardWidth = panel.getBoundingClientRect().width;
-            if (cardWidth <= 0) return;
-            const isWide = layer.clientWidth >= cardWidth * 2;
-            session.setGuidedLessonCardWidth(isWide ? cardWidth : 0);
-            setWideBoard(isWide);
-        };
-        update();
-        const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(update);
-        observer?.observe(layer);
-        observer?.observe(panel);
-        return () => observer?.disconnect();
-    }, [session, overlayVisible]);
+        if (!overlayVisible || !panel || typeof ResizeObserver === 'undefined') return undefined;
+        let width = panel.clientWidth;
+        const observer = new ResizeObserver(() => {
+            if (panel.clientWidth === width) return;
+            width = panel.clientWidth;
+            fitFormulaRows(panel, retypesetFormulaRow);
+        });
+        observer.observe(panel);
+        return () => observer.disconnect();
+    }, [overlayVisible]);
     useEffect(() => {
         const updateAvailableHeight = () => {
             const layer = layerRef.current;
@@ -161,6 +162,12 @@ export function GuidedLesson(props: {
         ? isComplete ? 'complete' : 'content'
         : 'explore';
     const onModeChange = props.onModeChange;
+
+    // On a phone or a short window the page is brought to the graph's top edge, so the board stays in view above
+    // (or beside) the card's first rows. The layer shares the graph's cell; without it the card itself is aligned.
+    const alignLessonInWindow = () => {
+        (layerRef.current ?? lessonRef.current)?.scrollIntoView?.({block: 'start'});
+    };
 
     const clearHandoffTimer = () => {
         if (handoffTimer.current !== undefined) {
@@ -357,7 +364,9 @@ export function GuidedLesson(props: {
             || ['\\(', '\\[', '$$', '\\begin{'].some(delimiter => textContent.includes(delimiter));
         if (!hasMath) return;
         let cancelled = false;
-        const typeset = typesetMath(element, () => !cancelled).catch(() => undefined);
+        const typeset = typesetMath(element, () => !cancelled).catch(() => undefined).then(() => {
+            if (!cancelled) fitFormulaRows(element, retypesetFormulaRow);
+        });
         latestTypeset.current = typeset;
         return () => { cancelled = true; };
     }, [language, overlayVisible, snapshot, startupError]);
@@ -391,7 +400,7 @@ export function GuidedLesson(props: {
             const panel = lessonRef.current.getBoundingClientRect();
             const navigationVisible = navigation && navigation.top >= Math.max(0, panel.top)
                 && navigation.bottom <= Math.min(window.innerHeight, panel.bottom);
-            if (!navigationVisible) lessonRef.current.scrollIntoView?.({block: 'start'});
+            if (!navigationVisible) alignLessonInWindow();
             frameNeedsScrollReset.current = false;
         }
     }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
@@ -423,7 +432,7 @@ export function GuidedLesson(props: {
                 }
             });
             if (frameNeedsScrollReset.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
-                lessonRef.current?.scrollIntoView?.({block: 'start'});
+                alignLessonInWindow();
                 frameNeedsScrollReset.current = false;
             } else if (hasSavedReadingPosition.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
                 window.scrollTo({top: readingPosition.current.page});
@@ -510,14 +519,14 @@ export function GuidedLesson(props: {
     const lessonHeading = <h2 id="guided-lesson-title" className="guided-lesson-title" title={lessonTitle}>{lessonTitle}</h2>;
 
     if (startupError) {
-        return <><div className="guided-lesson-layer"><section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content" aria-labelledby="guided-lesson-title">
+        return <><section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content guided-lesson-docked" aria-labelledby="guided-lesson-title">
             <div className="guided-lesson-heading">
                 {lessonHeading}
                 <div className="guided-lesson-utilities">{chapterReturnLink}{closeButton}</div>
             </div>
             {exitError && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
             <p role="alert">{t('guided_lesson_scene_error')} {startupError.message}</p>
-        </section></div>{exitDialog}</>;
+        </section>{exitDialog}</>;
     }
 
     const frameAction = frame.action;
@@ -550,17 +559,17 @@ export function GuidedLesson(props: {
         {t('guided_lesson_complete')}
     </CompletionHeading>;
     const sectionStyle = {...panelDrag.style, '--guided-lesson-max-height': `${availablePanelHeight}px`} as React.CSSProperties;
+    // The card's home is the tools column beside the graph (below the graph on one-column screens), so it never
+    // covers the board. It leaves that home only when the learner drags it.
+    const docked = !isMoved(panelDrag);
     return <>
-    <div ref={layerRef} className={`guided-lesson-layer${wideBoard ? ' guided-lesson-wide' : ''}`}>
-    {/* The visible graph around the panel is a pointer target for hiding the instructions;
-        keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
-    {overlayPhase === 'visible' && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
-    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
+    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
         <div className="guided-lesson-controls">
         <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag}>
             <button type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
                 aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
-            {pageHeadingHasLessonTitle ? completionHeading : lessonHeading}
+            {/* The page heading already names the lesson; the card then says what it is, so its first row is never bare. */}
+            {pageHeadingHasLessonTitle ? completionHeading || <span className="guided-lesson-title guided-lesson-kind">{t('guided_example')}</span> : lessonHeading}
             <div className="guided-lesson-utilities">{chapterReturnLink}{hideButton}{closeButton}</div>
         </div>
         {navigationToolbar}
@@ -571,11 +580,11 @@ export function GuidedLesson(props: {
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
             <h3>{localized(frame.title, language)}</h3>
             {frame.body && <p>{localized(frame.body, language)}</p>}
-            {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(formula, language)}</div>)}
+            {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index} data-tex={localized(formula, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(formula, language)}</div>)}
             {frame.kind === 'calculation' && frame.workedExample && <div className="guided-lesson-worked-example">
                 <h4>{localized(frame.workedExample.title, language)}</h4>
-                <div className="guided-lesson-notation" role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.calculation, language)}</div>
-                <div className="guided-lesson-notation" role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.result, language)}</div>
+                <div className="guided-lesson-notation" data-tex={localized(frame.workedExample.calculation, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.calculation, language)}</div>
+                <div className="guided-lesson-notation" data-tex={localized(frame.workedExample.result, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.result, language)}</div>
                 <p>{localized(frame.workedExample.check, language)}</p>
             </div>}
             {expectedObservations}
@@ -600,6 +609,10 @@ export function GuidedLesson(props: {
             </div>
         </footer>}
     </section>}
+    <div ref={layerRef} className="guided-lesson-layer">
+    {/* The graph is a pointer target for hiding the instructions;
+        keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
+    {overlayPhase === 'visible' && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
     {tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
         onClick={() => { if (!tabDrag.consumeDragClick()) showOverlay(); }} {...tabDrag.handleProps} aria-keyshortcuts={ARROW_KEYS}
         aria-label={`${lessonTitle}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>

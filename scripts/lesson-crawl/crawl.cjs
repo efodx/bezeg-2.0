@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Lesson bug crawler. Usage:
-//   node scripts/lesson-crawl/crawl.cjs --base http://localhost:4399 --out <dir> <chapterId>... [--only <substring>]
+//   node scripts/lesson-crawl/crawl.cjs --base http://localhost:4399 --out <dir> <chapterId>... [--only <substring>] [--frames-only]
 // For every `?example=` link (guided lessons and activities) on each chapter page it walks every frame, runs
 // mechanical checks, then after Finish sweeps the inspector controls for ones with no visible effect, measures
 // layout at the inspector's width, and screenshots the inspector once per graph route. Writes
@@ -15,6 +15,8 @@ const BASE = opt('--base') || 'http://localhost:4399';
 const OUT = opt('--out') || 'lesson-crawl-out';
 const ONLY = opt('--only');
 const SWEEP_LIMIT = Number(opt('--sweep-limit') || 60);
+// --frames-only walks the lesson frames and the phone check, without the inspector sweep (about 5 s per example).
+const FRAMES_ONLY = (i => i >= 0 && Boolean(args.splice(i, 1)))(args.indexOf('--frames-only'));
 const chapters = args;
 if (!chapters.length) { console.error('usage: crawl.cjs --base URL --out DIR <chapterId>...'); process.exit(2); }
 
@@ -245,6 +247,19 @@ async function crawlExample(browser, chapter, href, ctx) {
                 return names.filter(Boolean);
             }).catch(() => []);
             if (covered.length) add('panel-covers-graph', 'medium', frameLabel, `lesson panel covers ${covered.length} visible point(s)/label(s): ${covered.slice(0, 6).join(', ')}`);
+            // Card text that does not fit the card: a row cut at its right edge, or a formula row set smaller to fit.
+            const cardText = await page.evaluate(() => {
+                const panel = document.querySelector('section.guided-lesson'); if (!panel) return {cut: [], shrunk: []};
+                const cut = [], shrunk = [];
+                panel.querySelectorAll('.guided-lesson-notation, .guided-lesson-frame p, .guided-lesson-frame h3, .guided-lesson-title, .guided-lesson-worked-example h4').forEach(e => {
+                    const what = `${e.classList[0] || e.tagName.toLowerCase()} "${(e.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)}"`;
+                    if (e.scrollWidth > e.clientWidth + 1) cut.push(`${what} needs ${e.scrollWidth}px, has ${e.clientWidth}px${e.style.fontSize ? ` at ${e.style.fontSize}` : ''}`);
+                    else if (e.style.fontSize) shrunk.push(`${what} at ${e.style.fontSize}`);
+                });
+                return {cut, shrunk};
+            }).catch(() => ({cut: [], shrunk: []}));
+            if (cardText.cut.length) await flag('card-text-cut', 'medium', cardText.cut.slice(0, 4).join(' | '));
+            if (cardText.shrunk.length) add('card-formula-shrunk', 'low', frameLabel, cardText.shrunk.slice(0, 4).join(' | '));
             // One reviewer screenshot per example, from the 4th frame (or the 2nd for short lessons, decided at Finish).
             if (guard === 3 || (guard === 1 && !ctx.midShots[id])) { await page.waitForTimeout(600); ctx.midShots[id] = {frame: frameLabel, shot: await shot('mid')}; }  // let panel fade-in finish
             const next = page.locator('section.guided-lesson .guided-lesson-nav-next');
@@ -258,7 +273,7 @@ async function crawlExample(browser, chapter, href, ctx) {
             add('no-completion', 'medium', 'after-finish', 'completion message not shown after Finish');
         // Back walk sanity: one frame back from start is covered by the smoke suite; here only the inspector work.
         const firstForRoute = !ctx.routesSeen.has(route); ctx.routesSeen.add(route);
-        const sections = await page.$$eval('.inspector-tabs button[aria-controls]', bs => bs.map(b => b.getAttribute('aria-controls').replace('inspector-', '')));
+        const sections = FRAMES_ONLY ? [] : await page.$$eval('.inspector-tabs button[aria-controls]', bs => bs.map(b => b.getAttribute('aria-controls').replace('inspector-', '')));
         for (const sec of sections) {
             const tabBtn = page.locator(`.inspector-tabs button[aria-controls="inspector-${sec}"]`);
             await tabBtn.click().catch(() => {}); await page.waitForTimeout(250);

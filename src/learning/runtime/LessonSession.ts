@@ -14,7 +14,6 @@ export interface LessonSessionSnapshot {
 
 export class LessonSession {
     private checkpoint?: LessonSceneCheckpoint;
-    private guidedLessonCardWidth = 0;
     // Track whether lesson setup or exploration may have changed the graph from the checkpoint.
     private graphNeedsRestore = false;
     private currentSnapshot: LessonSessionSnapshot = {status: 'closed', stepIndex: 0, frameIndex: 0};
@@ -24,10 +23,6 @@ export class LessonSession {
 
     /** The current state; the same object until a transition changes it (useSyncExternalStore contract). */
     getSnapshot = (): LessonSessionSnapshot => this.currentSnapshot;
-
-    setGuidedLessonCardWidth(width: number): void {
-        this.guidedLessonCardWidth = width;
-    }
 
     snapshot() {
         return this.currentSnapshot;
@@ -211,10 +206,6 @@ export class LessonSession {
         try {
             if (restoreBeforeApply) this.capabilities.restoreState(this.checkpoint);
             actions.forEach(action => this.capabilities.apply(action));
-            if (this.guidedLessonCardWidth > 0 && actions.some(action => action.kind === 'prepared-scene'
-                && action.source === 'demonstration-default' && action.view === undefined)) {
-                this.capabilities.adjustGuidedLessonView?.(this.guidedLessonCardWidth);
-            }
             this.graphNeedsRestore = actions.length > 0;
         } catch (error) {
             // A failed scene must not leave half of a scene applied.

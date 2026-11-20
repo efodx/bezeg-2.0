@@ -1,17 +1,58 @@
-/* The lesson occupies the graph cell so the graph remains visible beneath it. */
+/* The reading card sits beside the graph, never on it (docs/adr/0061-lesson-card-docks-beside-the-graph.md).
+   While a lesson is open the tools column is wide enough to read in; it keeps that width when the card is hidden,
+   so the board is the same size for the whole lesson. */
 .demonstration-workspace.lesson-open {
+    --lesson-column: clamp(310px, 32.5%, 34rem);
+    grid-template-columns: minmax(0, 1fr) var(--lesson-column);
     grid-template-areas: "heading heading" "graph inspector" "learning learning";
 }
 
 .demonstration-workspace.is-presenting.lesson-open {
+    --lesson-column: clamp(330px, 32.5%, 34rem);
     grid-template-areas: "heading heading" "graph inspector";
+}
+
+/* Presentation can close the tools; the card still needs its column while it is shown. */
+.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson) {
+    grid-template-columns: minmax(0, 1fr) var(--lesson-column);
+    grid-template-areas: "heading heading" "graph inspector";
+}
+
+.demonstration-workspace.is-presenting.lesson-open:has(.workspace-inspector[hidden]):not(:has(> .guided-lesson)) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "heading" "graph";
+}
+
+/* The docked card takes the place of the tools, which are locked while it is read. A card the learner has dragged
+   away leaves them in view, dimmed. */
+.demonstration-workspace.lesson-content:has(> .guided-lesson-docked) .workspace-inspector {
+    visibility: hidden;
+}
+
+/* After the last frame the tools are live again: the closing card sits above them in the same column. */
+.demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson) {
+    grid-template-areas: "heading heading" "graph lesson" "graph inspector" "learning learning";
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson) {
+    grid-template-areas: "heading heading" "graph lesson" "graph inspector";
+    grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.demonstration-workspace.lesson-complete > .guided-lesson {
+    grid-area: lesson;
+}
+
+/* Presentation keeps flat frames. */
+.demonstration-workspace.is-presenting > .guided-lesson-docked {
+    border-color: #50617b;
+    box-shadow: none;
 }
 
 .demonstration-workspace.lesson-open.lesson-content .workspace-graph {
     pointer-events: none;
 }
-
-/* The opaque reading overlay separates lesson copy from the fully colored graph beneath it. */
 
 .demonstration-workspace.lesson-content .workspace-graph button {
     pointer-events: none;
@@ -31,7 +72,7 @@
     opacity: .7;
 }
 
-/* Keep the instruction panel above JSXGraph HTML labels while it is open. */
+/* Keep the closed tab and a card the learner has dragged over the graph above JSXGraph HTML labels. */
 .demonstration-workspace.lesson-open .workspace-graph {
     z-index: 0;
 }
@@ -40,32 +81,55 @@
     min-width: 0;
 }
 
-/* On wide boards the reading card's home leaves the graph's right half visible. */
-.guided-lesson-layer.guided-lesson-wide .guided-lesson {
-    justify-self: start;
-}
-
-@media (max-width: 1100px) {
-    .demonstration-workspace.lesson-open {
-        grid-template-areas: "heading heading" "graph inspector" "learning learning";
-    }
-}
-
 @media (max-width: 700px) {
-    .demonstration-workspace.lesson-open {
-        grid-template-areas: "heading" "graph" "learning" "inspector";
+    /* One column: the card follows the graph in the page and is as long as its text. */
+    .demonstration-workspace.lesson-open,
+    .demonstration-workspace.is-presenting.lesson-open,
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson),
+    .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
+    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson) {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "heading" "graph" "inspector";
+        grid-template-rows: none;
+    }
+
+    .demonstration-workspace.lesson-open:has(> .guided-lesson),
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson),
+    .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
+    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson) {
+        grid-template-areas: "heading" "graph" "lesson" "inspector";
+    }
+
+    .demonstration-workspace.lesson-open > .guided-lesson {
+        grid-area: lesson;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .demonstration-workspace.lesson-content:has(> .guided-lesson-docked) .workspace-inspector {
+        visibility: visible;
     }
 
     .demonstration-workspace.lesson-content .workspace-graph {
         pointer-events: none;
     }
 
-    /* The collapsed tab reaches about 30px into the graph cell here, over board captions; the board starts below it in every lesson mode. */
-    .demonstration-workspace.lesson-open .workspace-graph {
-        padding-top: 36px;
+    /* Pan and zoom are locked while the card is read; without their rows the board and the card's first rows share one screen. */
+    .demonstration-workspace.lesson-content .workspace-graph .workspace-navigation,
+    .demonstration-workspace.lesson-content .workspace-graph .workspace-gesture-hint {
+        display: none;
     }
 
-    .demonstration-workspace.is-presenting.lesson-open {
-        grid-template-areas: "heading" "graph" "inspector";
+    /* A graph with its own playback row fills the screen with its board; while the card is read the board keeps the
+       ordinary phone height, so the card's first rows stay on the first screen. */
+    .demonstration-workspace.lesson-content .workspace-graph[data-playback-filled] #jgbox {
+        height: 35vh !important;
+        min-height: 260px;
+    }
+
+    /* The collapsed tab reaches about 30px into the graph cell here, over board captions; the board starts below it
+       while the tab is shown. */
+    .demonstration-workspace.lesson-explore .workspace-graph {
+        padding-top: 36px;
     }
 }

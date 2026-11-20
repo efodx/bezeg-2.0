@@ -17,20 +17,23 @@
     cursor: pointer;
     pointer-events: auto;
 }
+/* The reading card is a sheet of the workspace: its home is the tools column beside the graph (the tools are locked
+   while it is read), so it never covers the board. GuidedLessonLayout.css places it; here it is as tall as its text,
+   up to the part of that column that is in the window. */
 .guided-lesson {
+    grid-area: inspector;
     position: relative;
     z-index: 3;
     align-self: start;
-    justify-self: center;
-    width: min(calc(100% - 24px), 34rem);
+    justify-self: stretch;
     height: auto;
     min-height: 0;
     min-width: 0;
-    max-height: min(var(--guided-lesson-max-height, 68vh), 68vh, 640px);
+    max-height: var(--guided-lesson-max-height, 68vh);
     box-sizing: border-box;
-    margin: 12px;
     padding: 4px 16px 12px;
-    border-radius: 12px;
+    border: 1px solid var(--bezeg-shell-rule, #d6dccb);
+    border-radius: 16px;
     background: var(--bezeg-shell-panel, #fffdf5);
     color: var(--bezeg-shell-ink, #19372f);
     display: flex;
@@ -39,7 +42,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     pointer-events: auto;
-    box-shadow: 0 1px 2px rgb(28 45 29 / 10%), 0 8px 24px rgb(28 45 29 / 12%);
+    box-shadow: var(--bezeg-shell-shadow-card, 0 18px 42px rgb(35 54 42 / 12%), 0 3px 10px rgb(35 54 42 / 5%));
     container-type: inline-size;
     transition: box-shadow .16s ease-out;
 }
@@ -80,9 +83,11 @@
 .guided-lesson-tab-expand { flex: none; }
 .guided-lesson:focus { outline:none; }
 .guided-lesson-controls { flex:none; min-width:0; }
-.guided-lesson-heading { display:flex; flex:0 0 auto; align-items:center; gap:0 4px; padding-top:2px; cursor:grab; touch-action:none; user-select:none; }
-.guided-lesson-title { flex:1 1 0; min-width:0; margin:0; font-size:.9375rem; font-weight:700; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.guided-lesson-utilities { display:flex; flex:none; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:2px; margin-left:auto; }
+/* The title is read whole: it wraps, and when it cannot share the row with the actions they move to a row of their own. */
+.guided-lesson-heading { display:flex; flex:0 0 auto; flex-wrap:wrap; align-items:center; gap:0 4px; padding-top:2px; cursor:grab; touch-action:none; user-select:none; }
+.guided-lesson-title { flex:1 1 auto; min-width:0; max-width:calc(100% - 32px); margin:0; padding-block:6px; font-size:.9375rem; font-weight:700; line-height:1.3; overflow-wrap:anywhere; text-wrap:balance; }
+.guided-lesson-kind { color:var(--bezeg-shell-ink-secondary, #526152); font-weight:600; }
+.guided-lesson-utilities { display:flex; flex:0 1 auto; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:2px; margin-left:auto; }
 .guided-lesson-heading p { margin:0; color:var(--bezeg-shell-ink-secondary, #526152); line-height:1.45; }
 .guided-lesson .guided-lesson-heading .guided-lesson-grip { display:grid; place-items:center; flex:none; width:28px; min-width:28px; margin-left:-6px; padding:0; border-color:transparent; background:transparent; color:#8a9a7a; cursor:grab; }
 .guided-lesson .guided-lesson-heading .guided-lesson-grip:hover { background:#f1f3e9; color:var(--bezeg-shell-ink, #19372f); }
@@ -124,7 +129,7 @@
 .guided-lesson-frame-label { display:block; color:var(--bezeg-shell-ink-secondary, #526152); font-size:12px; font-weight:500; }
 .guided-lesson-frame h3 { margin:0 0 6px; font-family: var(--bezeg-font-display); font-size:22px; font-weight:var(--bezeg-type-title-weight); letter-spacing:var(--bezeg-type-item-tracking); line-height:1.2; text-wrap:balance; overflow-wrap:anywhere; }
 .guided-lesson-frame p { margin:0 0 10px; line-height:1.55; }
-.guided-lesson-notation { margin:0 0 10px; padding:8px 12px; background:#f0f3e8; border-radius:6px; overflow-wrap:anywhere; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; }
+.guided-lesson-notation { margin:0 0 10px; padding:8px 12px; background:#f0f3e8; border-radius:6px; overflow-wrap:anywhere; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--bezeg-shell-scroll-thumb, #b9c2a8) transparent; }
 .guided-lesson-reading .guided-lesson-frame > :last-child, .guided-lesson-worked-example > :last-child { margin-bottom:0; }
 .guided-lesson-notation:focus-visible { outline:3px solid #577cc3; outline-offset:2px; }
 .guided-lesson-notation mjx-container[display="true"] { margin:0 !important; max-width:none; min-width:0; overflow:visible; }
@@ -171,21 +176,21 @@
     .guided-lesson-frame, .guided-lesson-exploration, .guided-lesson-handoff-opening, .guided-lesson-handoff-closing { animation:none; }
     .guided-lesson, .demonstration-workspace .guided-lesson-tab { transition:none; }
 }
-/* Stack the stable controls before the body at narrow panel widths. */
+/* In the tools column of a laptop screen the buttons give up a little width so progress and navigation share a row. */
 @container (max-width: 29rem) {
+    .guided-lesson .guided-lesson-navigation button { min-width:6em; }
+}
+/* Stack the stable controls before the body at narrow panel widths. */
+@container (max-width: 24.5rem) {
     .guided-lesson-toolbar { grid-template-columns:minmax(0, 1fr); }
     .guided-lesson-navigation { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); }
     .guided-lesson .guided-lesson-navigation button { min-width:0; overflow-wrap:anywhere; }
-}
-@container (max-width: 24rem) {
-    .guided-lesson-heading { flex-wrap:wrap; }
-    .guided-lesson-utilities { flex-basis:100%; }
 }
 @container (max-width: 17rem) {
     .guided-lesson .guided-lesson-navigation button { gap:0; padding-inline:6px; }
 }
 @media(max-width:700px), (max-height:520px) {
-    .guided-lesson { width:calc(100% - 20px); margin:10px; border-radius:8px; padding:4px 12px 0; }
+    .guided-lesson { padding:4px 12px 0; }
     .guided-lesson-reading { overflow-y:auto; min-height:0; }
     .guided-lesson-actions button { flex:1 1 42%; }
     .guided-lesson .guided-lesson-completion-actions { padding-bottom:12px; }

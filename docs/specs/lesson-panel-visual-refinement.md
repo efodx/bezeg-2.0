@@ -85,3 +85,21 @@ When the graph area is at least about twice the reading card’s desktop width, 
 
 - Keep the half-card pan up to three card widths of plot space. Taper it linearly to zero by four card widths so the lesson card and construction stay closer on ultrawide displays.
 - Measure the plot rather than the browser window. At desktop and ultrawide sizes, verify that only the guided pan changes and that the plot scale, card home and free-exploration view stay the same.
+
+## Docked beside the graph — 2026-11-20
+
+The lesson crawl ([triage](../reviews/lesson-bug-crawl/triage.md), sections 1 and 5) found the floating card over the board's upper part in nearly every lesson at 1440×900, formula rows cut at the card's edge and titles cut to one line. [ADR 0061](../adr/0061-lesson-card-docks-beside-the-graph.md) records the decision and its alternatives; this section is its acceptance. It supersedes "Opening placement on wide boards" and "Ultrawide spacing" above (the card's home and the view pan) and the one-line title of "Lean, movable overlay"; dragging, the tab hand-over, focus, Escape, exit and reading-position contracts stand.
+
+### Acceptance
+
+1. At 1440×900, 1920×1080, 1024×768, 844×390 and in Presentation, the open card's box does not intersect the board at its home position in any lesson frame. The crawler's `panel-covers-graph` count is zero over all chapters.
+2. While a lesson is open the tools column is `clamp(310px, 32.5%, 34rem)` wide in every lesson mode, so hiding and reopening the card does not resize the board. While the docked card is read the tools are hidden; a card dragged from its home leaves them dimmed in view; on the completion card they are live below it.
+3. At 700px and narrower the card follows the graph in the page at its natural height, the locked pan and zoom rows are not shown while it is read, a graph with a playback row keeps the ordinary phone board height while it is read, and the Next button is inside a 390×844 window on the first frame.
+4. The card's title wraps and is never cut. When the page heading carries the lesson title, the card's first row reads "Vodeni primer" / "Guided example".
+5. A display-formula row is never cut at the card's edge while it can be set at 72 % or more, or broken between statements, before an implication arrow or after a list comma. The crawler's `card-text-cut` findings list the rows that still scroll.
+6. Exit restores the pre-lesson view: the board returns to its width and JSXGraph keeps the scale and centre across both resizes.
+7. No route, Preset or stored data changes.
+
+### Verification evidence
+
+Recorded in [the stream's handoff note](../reviews/lesson-card-layout/handler-handoff-1.md).

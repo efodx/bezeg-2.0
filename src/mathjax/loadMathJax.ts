@@ -105,13 +105,18 @@ export function loadMathJax(): Promise<MathJaxApi> {
     return loading;
 }
 
-/** Loads MathJax on demand and typesets only while the owning surface is still active. */
+/**
+ * Loads MathJax on demand and typesets only while the owning surface is still active.
+ * `prepare` runs after the element's earlier typesetting is cleared, so it can replace the source to typeset.
+ */
 export async function typesetMath(
     element: HTMLElement,
     isActive: () => boolean = () => true,
+    prepare?: () => void,
 ): Promise<void> {
     const api = await loadMathJax();
     if (!isActive()) return;
     api.typesetClear?.([element]);
+    prepare?.();
     await api.typesetPromise?.([element]);
 }
