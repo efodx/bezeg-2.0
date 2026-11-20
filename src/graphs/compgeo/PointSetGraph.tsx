@@ -421,7 +421,6 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
 
-    /** The label of point `index`; a subclass renames its points (the Fortune graph calls its sites A, B, C, ...). */
     /** Hook: extra attributes for an endpoint's name label at creation (`point` yields the element once it exists). The default keeps the shared style. */
     protected endpointLabelStyle(_name: string, _point: () => JXG.Point | undefined): Record<string, unknown> {
         return {};
@@ -432,6 +431,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return {centre, attributes: {}};
     }
 
+    /** The label of point `index`; a subclass renames its points (the Fortune graph calls its sites A, B, C, ...). */
     protected pointName(index: number): string {
         return `P${index + 1}`;
     }

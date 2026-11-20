@@ -1,3 +1,4 @@
+import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
 import type {DisplaySettings} from "../../base/DisplaySettings";
 import {GraphStyles, settingsForBoard, stylesForBoard} from "../../styles/GraphStyles";
 import {Board, PointAttributes, SegmentAttributes} from "jsxgraph";
@@ -419,8 +420,10 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         if (!point || !frame) return [fallback[0], fallback[1]];
         const settings = this.displaySettings;
         const fontPx = settings.fontSize;
-        const token: unknown[] = [t, fontPx, settings.pointSize, settings.pointLabelsVisible, this.showingJxgPoints,
-            this.showingControlPolygon, ...this.jxgPoints.flatMap(p => [p.X(), p.Y(), shown(p)])];
+        // The curve's version covers changes that move no control point (weights, degree, parametrization); an unversioned curve places afresh.
+        const revision = versionOf(this.pointControlledCurve);
+        const token: unknown[] = [t, revision === VOLATILE ? {} : revision, point.X(), point.Y(), fontPx, settings.pointSize, settings.pointLabelsVisible,
+            this.showingJxgPoints, this.showingControlPolygon, ...this.jxgPoints.flatMap(p => [p.X(), p.Y(), shown(p)])];
         const anchor = frame.toPx(point.X(), point.Y());
         const boxes = this.evaluationLabels.boxes(this.board, token, () => {
             const size = nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);

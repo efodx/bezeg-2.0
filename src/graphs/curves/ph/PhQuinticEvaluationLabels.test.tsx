@@ -79,5 +79,7 @@ describe('the evaluation point of a quintic PH curve', () => {
         act(() => { mounted.curve.hideEvaluationPoint(); mounted.graph.board.update(); });
         const points = mounted.graph.board.objectsList as unknown as Placed[];
         expect(points.some(o => o.elType === 'point' && o.name?.startsWith('$$B('))).toBe(false);
+        // The memo is private; read it to see that hiding the point drops the placed boxes too.
+        expect((mounted.curve as unknown as {evaluationLabels: {cache?: unknown}}).evaluationLabels.cache).toBeUndefined();
     });
 });
