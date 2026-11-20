@@ -7,6 +7,8 @@ import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import RungeInterpolationGraph from '../functions/RungeInterpolationGraph';
 import SubdivisionCurveGraph from './subdivisionCurves/SubdivisionCurveGraph';
+import InterpolationGraph from './interpolation/InterpolationGraph';
+import LeastSquaresGraph from '../functions/LeastSquaresGraph';
 import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -45,5 +47,27 @@ describe.each(Object.keys(routes))('%s', key => {
         const {first, later} = plan[key];
         expect(at(first), names.join(' | ')).toBe(0);
         for (const label of later) expect(at(label), label()).toBeGreaterThan(0);
+    });
+});
+
+describe('exact point entry follows the first-task group', () => {
+    const at = (names: string[], label: string) => names.findIndex(name => name.startsWith(label));
+    const point = () => t('interp_point_name', {value0: 1});
+
+    test('lagrange: comparison toggles, then the points, then convention and count', () => {
+        mountGraph(new InterpolationGraph());
+        const names = editControls();
+        expect(at(names, point()), names.join(' | ')).toBeGreaterThanOrEqual(0);
+        expect(at(names, t('interp_show_bezier')), names.join(' | ')).toBeLessThan(at(names, point()));
+        expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_parameter_rule')));
+        expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_show_basis')));
+    });
+
+    test('least squares: residual display, then the points, then the manual line', () => {
+        mountGraph(new LeastSquaresGraph());
+        const names = editControls();
+        expect(at(names, point()), names.join(' | ')).toBeGreaterThanOrEqual(0);
+        expect(at(names, t('interp_lsq_show_squares')), names.join(' | ')).toBeLessThan(at(names, point()));
+        expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_lsq_manual_label')));
     });
 });

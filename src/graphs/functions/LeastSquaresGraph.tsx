@@ -259,10 +259,13 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
         const equations = view.fit.ok ? normalEquations(view.fit.fit) : undefined;
         return <>
             <div className="inspector-group">
-                <CountSetter label={t("interp_lsq_count_label")} n={state.points.length} min={LSQ_POINTS_MIN} max={LSQ_POINTS_MAX}
-                             onPlus={() => this.ignoreOutOfDomain(() => this.addPoint())} onMinus={() => this.ignoreOutOfDomain(() => this.removePoint())}/>
+                <OnOffSwitch checked={state.showSquares} label={t("interp_lsq_show_squares")} onChange={checked => this.setShowSquares(checked)}/>
+            </div>
+            <div className="inspector-group">
                 <PointListInput title={t("interp_point_list")} points={state.points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
                                 min={-LSQ_COORDINATE_LIMIT} max={LSQ_COORDINATE_LIMIT} onCommit={(index, value) => this.editPoint(index, value)}/>
+                <CountSetter label={t("interp_lsq_count_label")} n={state.points.length} min={LSQ_POINTS_MIN} max={LSQ_POINTS_MAX}
+                             onPlus={() => this.ignoreOutOfDomain(() => this.addPoint())} onMinus={() => this.ignoreOutOfDomain(() => this.removePoint())}/>
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.manualLine} label={t("interp_lsq_manual_label")} describedBy="interp-lsq-manual-help"
@@ -283,7 +286,6 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
                 {state.manualLine && <p className="inspector-help">{t("interp_lsq_degree_manual")}</p>}
             </div>
             <div className="inspector-group">
-                <OnOffSwitch checked={state.showSquares} label={t("interp_lsq_show_squares")} onChange={checked => this.setShowSquares(checked)}/>
                 <OnOffSwitch checked={state.showNormalEquations} label={t("interp_lsq_show_normal")} onChange={checked => this.setShowNormalEquations(checked)}/>
             </div>
             {state.showNormalEquations && <div className="inspector-group" data-lsq="normal-equations">

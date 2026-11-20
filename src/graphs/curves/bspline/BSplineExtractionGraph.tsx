@@ -260,13 +260,9 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         const options: { value: string, text: string }[] = INSERTION_EXAMPLE_IDS.map(id => ({value: id, text: t(id === 'quadratic' ? "bse_example_quadratic" : "bse_example_cubic")}));
         if (example === 'custom') options.push({value: 'custom', text: t("bse_example_custom")});
         return super.getGraphCommands().concat(
-            <div key="example"><ChoiceSelect label={t("bse_example")} value={example} options={options}
-                                             onChange={value => this.selectExample(value as InsertionExampleId)}/>
-                <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="reset" className="inspector-group">
                 <p className="inspector-help">{t("bse_help")}</p>
             </div>,
-            <div key="points"><BSplinePointList points={this.state.points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="pieces" className="inspector-group" role="group" aria-labelledby="bse-pieces-title">
                 <h3 id="bse-pieces-title">{t("bse_pieces_title")}</h3>
                 <p data-extraction-readout="count">{t("bse_count", {value0: pieces.length})}</p>
@@ -282,6 +278,10 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
                                 : null}</li>)}</ul>
                     : <p className="inspector-help">{t("bse_no_pieces")}</p>}
             </div>,
+            <div key="points"><BSplinePointList points={this.state.points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
+            <div key="example"><ChoiceSelect label={t("bse_example")} value={example} options={options}
+                                             onChange={value => this.selectExample(value as InsertionExampleId)}/>
+                <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );
     }

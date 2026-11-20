@@ -9,6 +9,8 @@ import BSplineBasisGraph from './bspline/BSplineBasisGraph';
 import DeBoorGraph from './bspline/DeBoorGraph';
 import BSplineInsertionGraph from './bspline/BSplineInsertionGraph';
 import BSplineBlossomGraph from './bspline/BSplineBlossomGraph';
+import BSplineExtractionGraph from './bspline/BSplineExtractionGraph';
+import {curvePointName} from '../base/CurvePointControls';
 import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -50,5 +52,16 @@ describe.each(Object.keys(routes))('%s', key => {
         const {first, later} = plan[key];
         expect(at(first), names.join(' | ')).toBe(0);
         for (const label of later) expect(at(label), label()).toBeGreaterThan(0);
+    });
+});
+
+describe('extraction: exact point entry follows the first task', () => {
+    test('the point entry comes before the example choice, the help-free groups and the knot editor', () => {
+        mountGraph(new BSplineExtractionGraph());
+        const names = editControls();
+        const at = (label: string) => names.findIndex(name => name.startsWith(label));
+        const point = at(curvePointName(undefined, 0));
+        expect(point, names.join(' | ')).toBeGreaterThanOrEqual(0);
+        expect(point, names.join(' | ')).toBeLessThan(at(t('bse_example')));
     });
 });

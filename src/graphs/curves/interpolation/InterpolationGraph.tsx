@@ -302,17 +302,17 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         const {points, parameterRule, showHull, showBezier, showBasis, t: position} = this.state;
         const lines = readoutLines(points, parameterRule, position, showBezier, currentLanguage());
         return super.getGraphCommands().concat(
+            <div key="hull"><OnOffSwitch checked={showHull} label={t("interp_show_hull")} onChange={checked => this.setShowHull(checked)}/></div>,
+            <div key="bezier"><OnOffSwitch checked={showBezier} label={t("interp_show_bezier")} onChange={checked => this.setShowBezier(checked)}/></div>,
+            <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
+                                              min={-INTERPOLATION_COORDINATE_LIMIT} max={INTERPOLATION_COORDINATE_LIMIT}
+                                              onCommit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
                                           onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
             <div key="count"><PointCollection label={t("interp_point_count")} count={points.length} min={INTERPOLATION_POINTS_MIN}
                                                  max={INTERPOLATION_POINTS_MAX} onAdd={() => { const refusal = this.addPoint(); return refusal && renderMessage(refusal); }}
                                                  removal={{kind: 'last', onRemove: () => this.removePoint()}}/></div>,
-            <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
-                                              min={-INTERPOLATION_COORDINATE_LIMIT} max={INTERPOLATION_COORDINATE_LIMIT}
-                                              onCommit={(index, value) => this.editPoint(index, value)}/></div>,
-            <div key="hull"><OnOffSwitch checked={showHull} label={t("interp_show_hull")} onChange={checked => this.setShowHull(checked)}/></div>,
-            <div key="bezier"><OnOffSwitch checked={showBezier} label={t("interp_show_bezier")} onChange={checked => this.setShowBezier(checked)}/></div>,
             <div key="basis"><OnOffSwitch checked={showBasis} label={t("interp_show_basis")} onChange={checked => this.setShowBasis(checked)}/></div>,
             ...(showBasis ? [<div key="basis-plot"><BasisPlot data={basisPlotData(points, parameterRule, position)} fontSize={this.displaySettings.fontSize}/></div>] : []),
             <div key="position"><Slider min={0} max={1} step={0.01} value={position} customText={t("interp_slider_position")}
