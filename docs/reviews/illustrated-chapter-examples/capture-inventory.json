@@ -2983,10 +2983,11 @@
       "id": "rational-curves.operations.farin",
       "demonstrationId": "farin",
       "path": "/bezeg-2.0/rational/farin-points?example=lesson.rational-curves.operations.farin",
-      "sceneFingerprint": "4c34b5acef297aea9a3ba537d95dde14257aaacf128caa83c02eb5890a1ea514",
+      "sceneFingerprint": "a377b7239399bebed920b3b31981192182cbd15930753f81011a789c9cefe02f",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"farin-weights\",\"source\":\"demonstration-default\"}",
-        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
+        "farin-points: {\"kind\":\"farin-points\",\"visible\":false}"
       ],
       "recipe": {
         "kind": "highlight",

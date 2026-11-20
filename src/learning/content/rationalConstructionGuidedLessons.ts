@@ -421,7 +421,7 @@ const farinLesson: GuidedLesson = {
             formulaIds: [],
             observationPrompt: text('Preberi uteži ob kontrolnih točkah in poišči točko z največjo utežjo.', 'Read the weights next to the control points and find the point with the largest weight.'),
             expectedObservations: [text('Ob točkah so vidne uteži \\(1,2,1,1\\); največja utež je pri drugi kontrolni točki, ki krivuljo vleče k sebi.', 'The weights \\(1,2,1,1\\) are shown next to the points; the largest weight is at the second control point, which pulls the curve toward it.')],
-            scene: scene('farin-weights', [{kind: 'curve-visibility', target: 'weights', visible: true}], 'Uteži so prikazane ob kontrolnih točkah; Farinove točke še niso.', 'The weights are shown next to the control points; the Farin points are not yet.'),
+            scene: scene('farin-weights', [{kind: 'curve-visibility', target: 'weights', visible: true}, {kind: 'farin-points', visible: false}], 'Uteži so prikazane ob kontrolnih točkah; Farinove točke še niso.', 'The weights are shown next to the control points; the Farin points are not yet.'),
         }),
         step({
             id: 'farin-show-points', order: 2,

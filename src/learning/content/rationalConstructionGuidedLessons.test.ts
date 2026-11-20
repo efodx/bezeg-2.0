@@ -73,6 +73,11 @@ test('keeps the rational construction lessons bounded, localized, and source-bac
     }
 });
 
+test('the Farin lesson hides the Farin points in step 1 instead of relying on the route default', () => {
+    const first = lessonFor('farin').steps[0].scene!.actions;
+    expect(first).toContainEqual({kind: 'farin-points', visible: false});
+});
+
 test('each lesson only uses the scene actions of its own graph, with valid values', () => {
     const actions = (id: string) => lessonFor(id).steps.flatMap(step => step.scene?.actions ?? []);
     const kinds = (id: string) => new Set(actions(id).map(action => action.kind === 'curve-visibility' ? `${action.kind}:${action.target}` : action.kind));
@@ -110,7 +115,7 @@ test('each lesson only uses the scene actions of its own graph, with valid value
         [t(0.5)], [t(0.25)], [], [t(0.5)], [t(0.25)], [t(0.75)], [t(0.5)],
     ]);
     expect(lessonFor('circle').steps.map(step => step.scene!.actions)).toEqual([[], [3], [4], [6], [12]].map(counts => counts.map(count => ({kind: 'circle-pieces', count}))));
-    expect(lessonFor('farin').steps.map(step => step.scene!.actions.length)).toEqual([1, 2, 2, 3, 4]);
+    expect(lessonFor('farin').steps.map(step => step.scene!.actions.length)).toEqual([2, 2, 2, 3, 4]);
 });
 
 describe('decasteljau-alternative', () => {

@@ -88,7 +88,7 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
                 "extrapolationT": 1.2,
                 "showingWeights": false,
                 "weightNumber": 1,
-                "showingFarinPoints": false
+                "showingFarinPoints": true
             }
         }]];
     }

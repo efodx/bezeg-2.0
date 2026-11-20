@@ -72,7 +72,7 @@ describe('scenes saved with graph-specific state', () => {
     test('farin: a Preset saved in standard form is shown with its stored weights, the entry keeps its effective weights', async () => {
         type Rational = BaseGraph<BaseGraphState> & {getFirstJxgCurve(): {inStandardForm(): boolean; getCurve(): {getEffectiveWeights(): number[]}}};
         const source = mountGraph(graphFactories.farin());
-        act(() => applyActions(source.graph, [{kind: 'rational-weights', weights: [1, 2, 3, 4]}, {kind: 'standard-form', enabled: true}]));
+        act(() => applyActions(source.graph, [{kind: 'farin-points', visible: false}, {kind: 'rational-weights', weights: [1, 2, 3, 4]}, {kind: 'standard-form', enabled: true}]));
         const stored = {...source.graph.exportPreset(), id: 'standard'};
         source.view.unmount();
         const storedWeights = (stored.data as Array<[string, {weights: number[]}]>)[0][1].weights;
@@ -80,7 +80,7 @@ describe('scenes saved with graph-specific state', () => {
 
         const mounted = mountGraph(graphFactories.farin());
         const graph = mounted.graph as Rational;
-        act(() => applyActions(graph, [{kind: 'rational-weights', weights: [2, 1, 1, 3]}, {kind: 'standard-form', enabled: true}]));
+        act(() => applyActions(graph, [{kind: 'farin-points', visible: false}, {kind: 'rational-weights', weights: [2, 1, 1, 3]}, {kind: 'standard-form', enabled: true}]));
         const shown: Array<{standardForm: boolean; weights: number[]}> = [];
         (capturePNGBlob as Mock).mockImplementation(async () => {
             const curve = graph.getFirstJxgCurve();

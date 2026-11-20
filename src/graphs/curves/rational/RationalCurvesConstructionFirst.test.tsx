@@ -111,11 +111,27 @@ describe('rational: selection first, then the weight', () => {
 });
 
 describe('farin: the switch stays in Display', () => {
+    test('a fresh visit shows the Farin points with the Display switch on; the control points drag and switching off restores the typed inputs', () => {
+        const graph = mount('farin');
+        const curve = graph.jxgCurves[0];
+        const locked = () => (graph as unknown as {inputsDisabled: boolean}).inputsDisabled;
+        act(() => { fireEvent.click(screen.getByRole('button', {name: t('display')})); });
+        expect(screen.getByRole('checkbox', {name: t('farin_points')})).toBeChecked();
+        expect(curve.isShowingFarinPoints()).toBe(true);
+        expect(curve.sliders.length).toBe(3);
+        expect(locked()).toBe(true);
+
+        const w0 = curve.getCurve().getEffectiveWeights().slice();
+        act(() => { curve.sliders[1].setValue(0.8); graph.boardUpdate(); });
+        expect(curve.getCurve().getEffectiveWeights()).not.toEqual(w0);
+        act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('farin_points')})); });
+        expect(curve.isShowingFarinPoints()).toBe(false);
+        expect(locked()).toBe(false);
+    });
+
     test('acceptance: changing the ratio of adjacent weights moves the Farin point on their edge and the curve', () => {
         const graph = mount('farin');
         const curve = graph.jxgCurves[0];
-        act(() => { fireEvent.click(screen.getByRole('button', {name: t('display')})); });
-        act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('farin_points')})); });
         expect(curve.isShowingFarinPoints()).toBe(true);
         const points = curve.getJxgPoints().map(xy);
         expect(curve.sliders.length).toBe(3);
