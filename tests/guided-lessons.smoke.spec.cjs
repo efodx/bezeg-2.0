@@ -1799,7 +1799,8 @@ const affinePilot = {
         if (AFFINE_STEPS[step]) await expectPointsNear(page, AFFINE_STEPS[step], `control points at ${label}`);
         const curves = (await boardStats(page)).curves;
         ctx.curves ??= curves; // unverified: curve count constant across transformations
-        expect(curves, `curve count stable at ${label}`).toBe(ctx.curves);
+        // From the first transformation on, the graph also owns two board curves of its reference (the dashed original curve and polygon).
+        expect(curves, `curve count stable at ${label}`).toBe(ctx.curves + (step > 1 ? 2 : 0));
     },
     ...polygonRestoreRow,
 };
