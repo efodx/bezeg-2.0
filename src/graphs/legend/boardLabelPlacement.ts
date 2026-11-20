@@ -16,6 +16,11 @@ export interface LabelItem {
     readonly h: number;
     /** Other anchors the text may take instead (a constraint name may sit anywhere along its line), tried after the first. */
     readonly alts?: ReadonlyArray<readonly [number, number]>;
+    /**
+     * The top left offset (dx, dy) from the anchor of the box this text had on the previous update. It is one more candidate with a rank bonus
+     * (`PREFER_BONUS`), so an animated text stays where it was until that spot is clearly worse than the best other one.
+     */
+    readonly prefer?: readonly [number, number];
 }
 
 export interface LayoutContext {
@@ -37,6 +42,8 @@ export interface LayoutContext {
 const MARKER_CLEAR_PX = 3;
 const RINGS = [0, 8, 16, 26];
 const MARGIN_PX = 4;
+/** The rank bonus of a preferred box: about a marker, a label, an axis strip or six line samples of extra cost before the text moves. */
+export const PREFER_BONUS = 24;
 
 const overlaps = (a: PxBox, b: PxBox): boolean => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
 
@@ -56,6 +63,10 @@ function candidates(item: LabelItem): Array<{box: PxBox; rank: number}> {
         at(ax + d, ay + d - 4); // down right
         at(ax - d - w, ay + d - 4); // down left
         at(ax - w / 2, ay + d); // down
+    }
+    if (item.prefer) {
+        const x0 = item.ax + item.prefer[0], y0 = item.ay + item.prefer[1];
+        out.push({box: {x0, y0, x1: x0 + w, y1: y0 + h}, rank: -PREFER_BONUS});
     }
     return out;
 }
