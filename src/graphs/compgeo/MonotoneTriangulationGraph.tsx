@@ -25,7 +25,6 @@ const CHAIN_COLOURS: Record<Chain, string> = {
     left: GraphPalette.constructionLevels[2], right: GraphPalette.constructionLevels[4],
 };
 /** A JSXGraph text, for the attributes its typings leave out. */
-interface Restyle {setAttribute(attributes: Record<string, unknown>): void}
 const CHAIN_LABEL_FONT = 14;
 
 /** Fills of the finished triangles, one per piece, cycled. */
@@ -134,21 +133,15 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
         return {items, markers, samples, blocks: [...(blocks ?? []), ...margin]};
     }
 
-    protected override syncScene(): void {
-        super.syncScene();
-        if (!this.hasBoard) return;
-        const board = this.board;
-        for (const element of board.objectsList as unknown as Array<JXG.GeometryElement & {X?: () => number; Y?: () => number; label?: JXG.Text}>) {
-            if (this.namesPlaced.has(element) || element.elType !== "point" || !/^P\d+$/.test(element.name) || !element.label) continue;
-            this.namesPlaced.add(element);
-            const name = element.name;
-            const label = element.label as unknown as Restyle;
-            label.setAttribute({anchorX: "middle", anchorY: "middle"});
-            label.setAttribute({offset: () => {
-                const frame = pxFrame(board);
-                return frame ? this.names.offset(this.placedNames()[name], frame.toPx(element.X!(), element.Y!()), [8, 8]) : [8, 8];
-            }});
-        }
+    /** The endpoint names are centred on their placed offset (see `placedNames`) instead of the shared default corner. */
+    protected override endpointLabelStyle(name: string, point: () => JXG.Point | undefined): Record<string, unknown> {
+        return {
+            anchorX: "middle", anchorY: "middle",
+            offset: () => {
+                const frame = pxFrame(this.board), element = point();
+                return frame && element ? this.names.offset(this.placedNames()[name], frame.toPx(element.X(), element.Y()), [8, 8]) : [8, 8];
+            },
+        };
     }
 
     protected override buildRun(vertices: readonly GridPoint[]): TriangulationRun {

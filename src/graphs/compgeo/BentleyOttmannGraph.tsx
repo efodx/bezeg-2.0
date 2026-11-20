@@ -26,7 +26,6 @@ import {parseHullStep} from "./hullTraceRun";
 export const BENTLEY_OTTMANN_STEP_INTERVAL_MS = 400;
 export type BentleyOttmannOverlayId = "sweep";
 /** A JSXGraph text, for the attributes its typings leave out. */
-interface Restyle {setAttribute(attributes: Record<string, unknown>): void}
 
 /** The saved configuration beyond the segments: the step index. Playback status is never state. */
 export interface BentleyOttmannGraphState extends PointSetGraphState {
@@ -200,40 +199,31 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
 
     /** The placed boxes of the endpoint names P_i and the segment names s_k, shared by the labels of one board state (boxes only, no board reference). */
     private readonly names = new PlacedLabels();
-    /** The label elements already given their placed position (weak: nothing here outlives the board's objects). */
-    private readonly namesPlaced = new WeakSet<object>();
 
-    protected override syncScene(): void {
-        super.syncScene();
-        if (!this.hasBoard) return;
-        const board = this.board;
-        const fontPx = this.nameFontPx();
-        const placed = (): Record<string, PxBox> => {
-            const shown = this.shownPoints();
-            return this.names.boxes(board, [shown.map(p => `${p.name}:${p.x},${p.y},${p.r}`).join(";"), fontPx()], frame => this.nameInput(frame, shown, fontPx()));
+    /** The names of one board state: the placed boxes of the shown points, keyed by their positions and the font. */
+    private placed(): Record<string, PxBox> {
+        const shown = this.shownPoints(), fontPx = this.nameFontPx();
+        return this.names.boxes(this.board, [shown.map(p => `${p.name}:${p.x},${p.y},${p.r}`).join(";"), fontPx()], frame => this.nameInput(frame, shown, fontPx()));
+    }
+
+    protected override endpointLabelStyle(name: string, point: () => JXG.Point | undefined): Record<string, unknown> {
+        return {
+            anchorX: "middle", anchorY: "middle",
+            offset: () => {
+                const frame = pxFrame(this.board), element = point();
+                return frame && element ? this.names.offset(this.placed()[name], frame.toPx(element.X(), element.Y()), [8, 8]) : [8, 8];
+            },
         };
-        for (const element of board.objectsList as unknown as Array<JXG.GeometryElement & {X?: () => number; Y?: () => number; label?: JXG.Text}>) {
-            if (this.namesPlaced.has(element)) continue;
-            const name = element.name;
-            if (element.elType === "point" && /^P\d+$/.test(name) && element.label) {
-                this.namesPlaced.add(element);
-                (element.label as unknown as Restyle).setAttribute({anchorX: "middle", anchorY: "middle"});
-                (element.label as unknown as Restyle).setAttribute({offset: () => {
-                    const frame = pxFrame(board);
-                    return frame ? this.names.offset(placed()[name], frame.toPx(element.X!(), element.Y!()), [8, 8]) : [8, 8];
-                }});
-            } else if (element.elType === "text" && /^s\d+$/.test(name)) {
-                this.namesPlaced.add(element);
-                const text = element as unknown as JXG.Text;
-                (text as unknown as Restyle).setAttribute({anchorX: "middle", anchorY: "middle"});
-                const centre = (axis: 0 | 1) => () => {
-                    const frame = pxFrame(board), box = placed()[name];
-                    if (!frame || !box) return axis === 0 ? element.X!() : element.Y!();
-                    return axis === 0 ? frame.left + (box.x0 + box.x1) / 2 / board.unitX : frame.top - (box.y0 + box.y1) / 2 / board.unitY;
-                };
-                (text as unknown as {addConstraint(c: unknown[]): void}).addConstraint([centre(0), centre(1)]);
-            }
-        }
+    }
+
+    /** A segment name sits at the centre of its placed box instead of on the segment. */
+    protected override segmentLabelStyle(name: string, centre: readonly [() => number, () => number]) {
+        const at = (axis: 0 | 1) => () => {
+            const frame = pxFrame(this.board), box = this.placed()[name];
+            if (!frame || !box) return centre[axis]();
+            return axis === 0 ? frame.left + (box.x0 + box.x1) / 2 / this.board.unitX : frame.top - (box.y0 + box.y1) / 2 / this.board.unitY;
+        };
+        return {centre: [at(0), at(1)] as const, attributes: {anchorX: "middle", anchorY: "middle"}};
     }
 
     private nameFontPx(): () => number {

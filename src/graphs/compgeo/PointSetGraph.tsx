@@ -422,6 +422,16 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     // ---- Overlays ------------------------------------------------------------------------------------------------
 
     /** The label of point `index`; a subclass renames its points (the Fortune graph calls its sites A, B, C, ...). */
+    /** Hook: extra attributes for an endpoint's name label at creation (`point` yields the element once it exists). The default keeps the shared style. */
+    protected endpointLabelStyle(_name: string, _point: () => JXG.Point | undefined): Record<string, unknown> {
+        return {};
+    }
+
+    /** Hook: extra attributes and the anchor functions (board units) of a segment's name `s_k` at creation; `centre` is the segment midpoint. */
+    protected segmentLabelStyle(_name: string, centre: readonly [() => number, () => number]): {centre: readonly [() => number, () => number]; attributes: Record<string, unknown>} {
+        return {centre, attributes: {}};
+    }
+
     protected pointName(index: number): string {
         return `P${index + 1}`;
     }
@@ -805,15 +815,17 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         const textStyle = (anchorX: "left" | "middle") => ({...labelStyle, anchorX, anchorY: "bottom", offset: [0, 0], visible: true, fixed: true, highlight: false, layer: 6});
         const points =model.points.map((gridPoint, i) => {
             const at = gridToBoard(gridPoint, scale);
+            const created: {point?: JXG.Point} = {};
             const point = board.create("point", [at.x, at.y], {
                 name: this.pointName(i), withLabel: true, size: () => this.selected === i ? 7 : 5, face: "o", showInfobox: false,
                 fillColor: () => this.selected === i ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === i ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === i ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
                 // The shared point-label attributes: MathJax, no parsing, display font size, placement and visibility.
-                label: labelStyle,
+                label: {...labelStyle, ...this.endpointLabelStyle(this.pointName(i), () => created.point)},
                 layer: 7,
             }) as JXG.Point;
+            created.point = point;
             // The element keeps its plain `name` (inspector, tests, capture); only the drawn label is typeset.
             point.label?.setText(pointSetLabelMath(this.pointName(i)));
             bindMovablePointCursor(point, board);
@@ -841,8 +853,9 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                     name: `seg${k + 1}`, withLabel: false, strokeColor: () => on() ? GraphPalette.selectedControlPoint : GraphPalette.primaryCurve,
                     strokeWidth: () => this.displaySettings.strokeWidth + (on() ? 2 : 0), highlight: false, fixed: true, layer: 5,
                 }) as JXG.GeometryElement);
-                labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, pointSetLabelMath(`s${k + 1}`)], {
-                    ...textStyle("left"), name: `s${k + 1}`,
+                const segmentLabel = this.segmentLabelStyle(`s${k + 1}`, [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2]);
+                labels.push(board.create("text", [...segmentLabel.centre, pointSetLabelMath(`s${k + 1}`)], {
+                    ...textStyle("left"), ...segmentLabel.attributes, name: `s${k + 1}`,
                 }) as JXG.GeometryElement);
             }
         }
