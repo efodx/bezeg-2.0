@@ -6,6 +6,7 @@ import {bezierPresetCollection} from "./collections";
 
 class BezierCurveGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     protected override workspaceUsesStructuredEditing() { return true; }
+    protected override workspacePointEntryWithoutSelection() { return true; }
 
     defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {

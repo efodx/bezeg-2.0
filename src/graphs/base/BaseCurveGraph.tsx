@@ -185,6 +185,24 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         if (!this.workspaceConstructionFirst()) { return this.getGraphCommandsArea(); }
         return this.state.curveSelected ? this.getSelectableCurveArea() : null;
     }
+    /**
+     * Opt-in, point entry without a selection (graph-control first use, batch 4), for boards with the structured list: with exactly one
+     * curve and none selected, that curve's typed point editor shows in a closed disclosure first in Edit (after the construction group).
+     * Selecting the curve moves the one editor to its usual place below. Boards with `workspaceTypedPoints` list their points already.
+     */
+    protected workspacePointEntryWithoutSelection() { return false; }
+    private workspacePointEntryDisclosure(): React.ReactNode {
+        if (!this.workspacePointEntryWithoutSelection() || !this.workspacePointEditing() || this.jxgCurves.length !== 1 || this.getSelectedCurve()) { return null; }
+        const curve = this.jxgCurves[0];
+        return <details className="inspector-group"><summary>{t("point_coordinates_keyboard_editing")}</summary>{this.structuredPointControls(curve)}</details>;
+    }
+    private structuredPointControls(curve: EditableCurve): React.ReactNode {
+        return <CurvePointControls key={`points-${this.jxgCurves.indexOf(curve)}-${this.replacementRevision}`}
+            points={() => curve.getCurve().getPoints()} curveNumber={this.listedCurveNumber(curve)} boards={() => [this.board]}
+            onEdit={(_, to) => this.afterTypedPointEdit(to)}
+            collection={{label: t("control_points"), onAdd: at => this.addTypedPoint(curve, at), onRemove: () => this.removePointAt(curve, -1),
+                onRemoveAt: index => this.removePointAt(curve, index)}}/>;
+    }
     /** Edit groups that read as one sequence with the curve selection (they render directly after it); none by default. */
     protected workspaceAfterCurveSelection(): React.ReactNode { return null; }
 
@@ -261,14 +279,11 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
             t("click_an_empty_part_of_the_graph_to_add_a_point_to_the_selected_curve"), t("click_a_control_point_of_the_selected_curve_to_delete_it")];
         return <>
             {this.workspaceConstructionGroup()}
+            {this.workspacePointEntryDisclosure()}
             {this.workspaceCurveSelection()}
             {this.workspaceAfterCurveSelection()}
             {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={`${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
-            {selected && this.workspacePointEditing() && <CurvePointControls key={`points-${this.jxgCurves.indexOf(selected)}-${this.replacementRevision}`}
-                points={() => selected.getCurve().getPoints()} curveNumber={this.listedCurveNumber(selected)} boards={() => [this.board]}
-                onEdit={(_, to) => this.afterTypedPointEdit(to)}
-                collection={{label: t("control_points"), onAdd: at => this.addTypedPoint(selected, at), onRemove: () => this.removePointAt(selected, -1),
-                    onRemoveAt: index => this.removePointAt(selected, index)}}/>}
+            {selected && this.workspacePointEditing() && this.structuredPointControls(selected)}
             {this.workspacePointEditing() && <RefusalNotice channel={this.pointRefusals}/>}
             <details className="inspector-group editing-mode"><summary>{t("editing_mode")}: {this.workspacePointEditing() ? [t('move'), t('add_point'), t('delete_point')][mode] : t('hodograph')}</summary>
                 {this.workspacePointEditing() ? <><div className="workspace-modes">
