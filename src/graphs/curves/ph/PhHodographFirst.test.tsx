@@ -2,7 +2,7 @@
  * PH family, first use (graph-control first use, wave 3 batch 1). The curve selection leads and the hodograph group follows it
  * directly, so selecting the curve and editing its hodograph read as one sequence; offsets and the other groups come after.
  */
-import {act, fireEvent, screen} from '@testing-library/react';
+import {act, fireEvent, screen, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
@@ -87,6 +87,33 @@ describe.each(['ph-cubic', 'ph-quintic'] as const)('%s: select, then edit the ho
         select(graph);
         expect(hodographHeading()).toBeTruthy();
         expect(JSON.stringify(at(curve.getCurve()))).toEqual(edited);
+    });
+});
+
+describe.each(['ph-cubic', 'ph-quintic', 'uniform-parameterization'] as const)('%s: offset parameters share one group', key => {
+    test('the offset count and the offset distance are adjacent controls in the same edit group, after the hodograph group', () => {
+        const graph = mount(key);
+        select(graph);
+        fireEvent.click(screen.getByRole('checkbox', {name: t('curve_offsets'), hidden: true}));
+        const count = inEdit(t('number_of_offsets'))[0];
+        const distance = inEdit(t('offset_distance_d'))[0];
+        const offsetGroup = group(count);
+        expect(offsetGroup).toBe(group(distance));
+        expect(offsetGroup.querySelector('h3')!.textContent).toBe(t('curve_offsets'));
+        follows(count, distance);
+        expect(offsetGroup.children[1].children).toHaveLength(2);
+        follows(group(hodographHeading()!), offsetGroup);
+    });
+});
+
+describe('cubic: the polygon angles and lengths are one control in one group', () => {
+    test('a single switch under polygon geometry drives the angles and lengths, outside the hodograph group', () => {
+        const graph = mount('ph-cubic');
+        select(graph);
+        const heading = screen.getAllByText(t('ph_curve_geometry')).find(element => element.tagName === 'H3')!;
+        expect(within(group(heading)).getAllByRole('checkbox', {hidden: true})).toHaveLength(1);
+        expect(within(group(heading)).getByText(t('control_polygon_geometry'))).toBeTruthy();
+        expect(group(hodographHeading()!).contains(heading)).toBe(false);
     });
 });
 
