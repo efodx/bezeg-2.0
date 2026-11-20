@@ -1,77 +1,77 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+    "dirty": true,
+    "inputs": "b17154cb95b3c8855495bf596b00d3be48f80a6c97a4fea66faf02e566496052",
+    "output": "d6e845e16eb5e6fbe5af542f0a508d4fd9963dbcfd6e61d138fdaf9c367c6586"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4421/bezeg-2.0/",
+    "stampRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+    "stampDirty": true,
+    "localOutputHash": "d6e845e16eb5e6fbe5af542f0a508d4fd9963dbcfd6e61d138fdaf9c367c6586",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-BBCuOcz2.js",
+        "url": "http://127.0.0.1:4421/bezeg-2.0/assets/index-BBCuOcz2.js",
+        "sha256": "e85d692b44f35dd6386f78848db792258892356aed948df7d60d1ebf3ad238f7",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4421/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-DHjp65VN.js",
+        "url": "http://127.0.0.1:4421/bezeg-2.0/assets/jsx-runtime-DHjp65VN.js",
+        "sha256": "3b892451ca61c15db6cd25cbcca34dc542d52a210e9f35deb622c1539bfd9269",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-C0TcWuIp.js",
+        "url": "http://127.0.0.1:4421/bezeg-2.0/assets/react-dom-C0TcWuIp.js",
+        "sha256": "94b71e68833f68c78c37cab3951bc6ba151ad80a632aeee3be5bd5b14f7cfc6e",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
-        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
+        "name": "index-Br85ZxwU.css",
+        "url": "http://127.0.0.1:4421/bezeg-2.0/assets/index-Br85ZxwU.css",
+        "sha256": "eb533b54edc6d07e49e645ac28930025fa3ffa32eb217f2afbb7170a50bf860b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4421/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "e3d26cd48f33a300ed92f3fef64a961ab41d916f79c325b482bc997d209a253c",
+    "inventory": "fea2f65b9f613a1681c47bdb17bddfc307a4b7033a8e6e13d0626bd290c79c9e",
     "entries": {
       "bezier-patches.curve-to-patch.patch-tensor": "dafba6720636fd09eae7283fd8a5b94221521e9c84415f36eefca0ba9774c436",
       "bezier-patches.bilinear-patch.patch-tensor": "2c0e10da9c9e5690705231f0d767e9945810af79d2d18ed02742763fe7971b95",
       "bezier-patches.control-net.patch-tensor": "de40479954f8924d2533367d47599e24cf43afbb79facb737b7d379306dc50a4",
       "bezier-patches.boundary-iso-curves.patch-tensor": "294cf48dd8d304d431249509911ae0e4909e440e1276da218dd551ee13aa6575",
-      "bezier-patches.tensor-decasteljau.patch-decasteljau": "b7e2e77efb082749db7c94b8f0f1bb00f91f5c37d5e8d35fa90e9d14984eede8",
-      "bezier-patches.properties.patch-tensor": "04ad5011e5f9c8a6b2d2cb324d72b37ada088765f2f530d9c2cf016ac1aadfba",
-      "bezier-patches.tensor-derivatives.patch-derivatives": "86b39c4a03c06eedb40ea45981e57645aef1f784eee37866100871ffaaaff165",
+      "bezier-patches.tensor-decasteljau.patch-decasteljau": "fa968f7f73d3b00853caf4339f064ed03494b8288408fb485bd1992c307e2fa2",
+      "bezier-patches.properties.patch-tensor": "7069af4779c01889e7042c0f5fd2ddd9fe375970a73286c5de4693bdc7ecd68e",
+      "bezier-patches.tensor-derivatives.patch-derivatives": "f2a96c3583e82c9e9ef5c7929a5d4a097a77b9fa103f9b15b81271c3f8235e2d",
       "bezier-patches.tensor-subdivision.patch-subdivision": "5b6f20ea09df8f8fa267b11d118506703a583aba8142e4db53c92bf5b874bf9b",
       "bezier-patches.tensor-joins.patch-joins": "d8121ddf8a377786da3af9c41ed717e7d41261c11b3b20be3fc91b60bb2b1a89",
       "bezier-patches.triangular-patches.patch-triangular": "6af46d830495ecb84d832060567758284b465990ffcaa19638b1ca94db130f0f",
       "bezier-patches.square-vs-triangular.patch-triangular": "f3029dd6988f077b11b67373c0108a74d3200a7f9860d5409a5171da520a7834"
     },
-    "presentation": "022e7f00a7d050ebe5f58ca4bf21a66e8b8f38ac379747e5bc21e8fb411cebd0",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "7170265618f40f379ca6326b9507e9d0712bb682123f897f3be4eb6e7f3b5d6c",
+    "buildOutput": "d6e845e16eb5e6fbe5af542f0a508d4fd9963dbcfd6e61d138fdaf9c367c6586",
+    "buildInputs": "b17154cb95b3c8855495bf596b00d3be48f80a6c97a4fea66faf02e566496052"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -485,7 +485,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -499,9 +499,9 @@
             ]
           },
           "meshBounds": {
-            "left": 266.949,
+            "left": 205.449,
             "top": 203.093,
-            "right": 724.164,
+            "right": 662.664,
             "bottom": 459.589,
             "inFrustum": true
           },
@@ -534,37 +534,37 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 269.421,
+              "x": 207.921,
               "y": 310.443,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 486.935,
+              "x": 425.435,
               "y": 218.427,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 381.553,
+              "x": 320.053,
               "y": 404.834,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 595.044,
+              "x": 533.544,
               "y": 220.633,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 518.175,
+              "x": 456.675,
               "y": 438.705,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 721.836,
+              "x": 660.336,
               "y": 296.761,
               "inFrustum": true
             }
@@ -594,8 +594,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -791,7 +791,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -805,9 +805,9 @@
             ]
           },
           "meshBounds": {
-            "left": 499,
+            "left": 437.5,
             "top": 112.822,
-            "right": 741.933,
+            "right": 680.433,
             "bottom": 358.105,
             "inFrustum": true
           },
@@ -840,25 +840,25 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 499,
+              "x": 437.5,
               "y": 303.5,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 593.246,
+              "x": 531.746,
               "y": 253.879,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 633.821,
+              "x": 572.321,
               "y": 358.104,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 741.933,
+              "x": 680.433,
               "y": 143.459,
               "inFrustum": true
             }
@@ -888,8 +888,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -1115,7 +1115,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -1129,9 +1129,9 @@
             ]
           },
           "meshBounds": {
-            "left": 263.397,
+            "left": 201.897,
             "top": 181.178,
-            "right": 727.507,
+            "right": 666.007,
             "bottom": 438.706,
             "inFrustum": true
           },
@@ -1164,55 +1164,55 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 269.421,
+              "x": 207.921,
               "y": 310.443,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 390.097,
+              "x": 328.597,
               "y": 259.393,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 486.935,
+              "x": 425.435,
               "y": 218.427,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 378.747,
+              "x": 317.247,
               "y": 366.814,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 499,
+              "x": 437.5,
               "y": 113.809,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 593.246,
+              "x": 531.746,
               "y": 253.879,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 518.175,
+              "x": 456.675,
               "y": 438.705,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 633.821,
+              "x": 572.321,
               "y": 358.104,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 721.836,
+              "x": 660.336,
               "y": 296.761,
               "inFrustum": true
             }
@@ -1242,8 +1242,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -1469,7 +1469,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -1483,9 +1483,9 @@
             ]
           },
           "meshBounds": {
-            "left": 263.397,
+            "left": 201.897,
             "top": 181.178,
-            "right": 727.507,
+            "right": 666.007,
             "bottom": 438.706,
             "inFrustum": true
           },
@@ -1518,55 +1518,55 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 269.421,
+              "x": 207.921,
               "y": 310.443,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 390.097,
+              "x": 328.597,
               "y": 259.393,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 486.935,
+              "x": 425.435,
               "y": 218.427,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 378.747,
+              "x": 317.247,
               "y": 366.814,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 499,
+              "x": 437.5,
               "y": 113.809,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 593.246,
+              "x": 531.746,
               "y": 253.879,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 518.175,
+              "x": 456.675,
               "y": 438.705,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 633.821,
+              "x": 572.321,
               "y": 358.104,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 721.836,
+              "x": 660.336,
               "y": 296.761,
               "inFrustum": true
             }
@@ -1596,8 +1596,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -1605,9 +1605,9 @@
       "id": "bezier-patches.tensor-decasteljau.patch-decasteljau",
       "demonstrationId": "patch-decasteljau",
       "path": "/bezeg-2.0/patches/decasteljau?example=lesson.bezier-patches.tensor-decasteljau.patch-decasteljau",
-      "sceneFingerprint": "88b2daf26d3e06041a75d4a74b8632f9be00ac184f54847460f6fd7a7aed3bd6",
+      "sceneFingerprint": "aadbf142f95fbb91cf0ef154634c8c63d325ca1cbf7a40d72de52af31e48f789",
       "actions": [
-        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"order-independence\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":15,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"order-independence\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":7,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}"
       ],
@@ -1625,7 +1625,7 @@
             "camera": {
               "az": 0.72,
               "el": 0.48,
-              "distance": 15,
+              "distance": 7,
               "target": [
                 0.5,
                 0.5,
@@ -1660,7 +1660,7 @@
           }
         }
       },
-      "recipeFingerprint": "73db87bcef73dfeef3685be09fee228c88c6c5b1657baace679f4e2d6a675ef4",
+      "recipeFingerprint": "653384c2645d31c21a26338276e456979aeb8c9afdc83744ae696f0a902629d3",
       "highlight": {
         "frame": "order-rows",
         "position": {
@@ -1669,8 +1669,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
-        "resultFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
+        "startFingerprint": "0d1f2b4c751b10c5c86782147c0dc637eae268da57128dc7f06a300b15c994b7",
+        "resultFingerprint": "0d1f2b4c751b10c5c86782147c0dc637eae268da57128dc7f06a300b15c994b7",
         "changedFromStart": false,
         "checks": [
           {
@@ -1696,7 +1696,7 @@
       "file": "bezier-patches.tensor-decasteljau.patch-decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "ca0861591637a23dea5b447131b52e3cd8549d60e4629b7ec2c1fa82ab41cb1a",
+      "sha256": "1ebe9df6edc6547466de1f8fc4c7bdcff9cfad25a9aa6de52bbd261e96a03549",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -1707,7 +1707,7 @@
         "camera": {
           "az": 0.72,
           "el": 0.48,
-          "distance": 15,
+          "distance": 7,
           "target": [
             0.5,
             0.5,
@@ -1715,10 +1715,10 @@
           ]
         },
         "meshBounds": {
-          "left": 192.724,
-          "top": 143.169,
-          "right": 227.184,
-          "bottom": 181.824,
+          "left": 174.101,
+          "top": 156.196,
+          "right": 245.507,
+          "bottom": 238.635,
           "inFrustum": true
         },
         "ownerIds": [
@@ -1750,56 +1750,56 @@
         "projectedControlPoints": [
           {
             "id": "p-0-0",
-            "x": 193.227,
-            "y": 172.677,
+            "x": 176.204,
+            "y": 215.99,
             "inFrustum": true
           },
           {
             "id": "p-0-1",
-            "x": 201.248,
-            "y": 167.758,
+            "x": 192.726,
+            "y": 204.524,
             "inFrustum": true
           },
           {
             "id": "p-0-2",
-            "x": 208.946,
-            "y": 163.037,
+            "x": 207.959,
+            "y": 193.952,
             "inFrustum": true
           },
           {
             "id": "p-1-0",
-            "x": 202.016,
-            "y": 177.165,
+            "x": 193.6,
+            "y": 226.876,
             "inFrustum": true
           },
           {
             "id": "p-1-1",
             "x": 210,
-            "y": 82.419,
+            "y": 19.777,
             "inFrustum": true
           },
           {
             "id": "p-1-2",
-            "x": 217.657,
-            "y": 167.167,
+            "x": 225.075,
+            "y": 203.178,
             "inFrustum": true
           },
           {
             "id": "p-2-0",
-            "x": 211.14,
-            "y": 181.824,
+            "x": 212.391,
+            "y": 238.634,
             "inFrustum": true
           },
           {
             "id": "p-2-1",
-            "x": 219.079,
-            "y": 176.525,
+            "x": 228.598,
+            "y": 225.3,
             "inFrustum": true
           },
           {
             "id": "p-2-2",
-            "x": 226.687,
-            "y": 171.449,
+            "x": 243.448,
+            "y": 213.082,
             "inFrustum": true
           }
         ],
@@ -1813,13 +1813,13 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
             "az": 0.72,
             "el": 0.48,
-            "distance": 15,
+            "distance": 7,
             "target": [
               0.5,
               0.5,
@@ -1827,10 +1827,10 @@
             ]
           },
           "meshBounds": {
-            "left": 458.669,
-            "top": 334.245,
-            "right": 539.118,
-            "bottom": 424.489,
+            "left": 353.69,
+            "top": 364.658,
+            "right": 520.394,
+            "bottom": 557.12,
             "inFrustum": true
           },
           "ownerIds": [
@@ -1862,56 +1862,56 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 459.842,
-              "y": 403.135,
+              "x": 358.6,
+              "y": 504.253,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 478.568,
-              "y": 391.651,
+              "x": 397.172,
+              "y": 477.484,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 496.539,
-              "y": 380.63,
+              "x": 432.736,
+              "y": 452.802,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 480.36,
-              "y": 413.611,
+              "x": 399.213,
+              "y": 529.668,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 499,
-              "y": 192.418,
+              "x": 437.5,
+              "y": 46.171,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 516.875,
-              "y": 390.271,
+              "x": 472.694,
+              "y": 474.342,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 501.663,
-              "y": 424.488,
+              "x": 443.081,
+              "y": 557.12,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 520.197,
-              "y": 412.119,
+              "x": 480.918,
+              "y": 525.989,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 537.957,
-              "y": 400.267,
+              "x": 515.587,
+              "y": 497.464,
               "inFrustum": true
             }
           ]
@@ -1932,8 +1932,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -1941,9 +1941,9 @@
       "id": "bezier-patches.properties.patch-tensor",
       "demonstrationId": "patch-tensor",
       "path": "/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.properties.patch-tensor",
-      "sceneFingerprint": "9737c27aa8f8998515c8fbe5b32dbc1e2f887a763772cbfba4b4c40dcd16b715",
+      "sceneFingerprint": "27469baf2e8973d09f5cb79d7219f98b2fb939e3d74ae311e81ac7f80e03547b",
       "actions": [
-        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hull-affine\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":15,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hull-affine\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":7,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"shading\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
@@ -1962,7 +1962,7 @@
             "camera": {
               "az": 0.72,
               "el": 0.48,
-              "distance": 15,
+              "distance": 7,
               "target": [
                 0.5,
                 0.5,
@@ -1997,7 +1997,7 @@
           }
         }
       },
-      "recipeFingerprint": "5007c09ed2ad73727c07cc836766db840f26cab17b1651787c656c0642f03ff7",
+      "recipeFingerprint": "f9ead4cd38f056e9030cf48b20a337c9f55cf09fbeccf6db8a562cf14a33fcaf",
       "highlight": {
         "frame": "hull",
         "position": {
@@ -2006,8 +2006,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
-        "resultFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
+        "startFingerprint": "0d1f2b4c751b10c5c86782147c0dc637eae268da57128dc7f06a300b15c994b7",
+        "resultFingerprint": "0d1f2b4c751b10c5c86782147c0dc637eae268da57128dc7f06a300b15c994b7",
         "changedFromStart": false,
         "checks": [
           {
@@ -2033,7 +2033,7 @@
       "file": "bezier-patches.properties.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "403dc2dd331b7574144d80d3a501848b42776f81add0a73b875eda0c6537a51b",
+      "sha256": "92cfc9af87ebffc7cad89a1b7c94912b0bd33e736be5e49680c46a30b90fd876",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -2044,7 +2044,7 @@
         "camera": {
           "az": 0.72,
           "el": 0.48,
-          "distance": 15,
+          "distance": 7,
           "target": [
             0.5,
             0.5,
@@ -2052,10 +2052,10 @@
           ]
         },
         "meshBounds": {
-          "left": 192.724,
-          "top": 143.169,
-          "right": 227.184,
-          "bottom": 181.824,
+          "left": 174.101,
+          "top": 156.196,
+          "right": 245.507,
+          "bottom": 238.635,
           "inFrustum": true
         },
         "ownerIds": [
@@ -2087,56 +2087,56 @@
         "projectedControlPoints": [
           {
             "id": "p-0-0",
-            "x": 193.227,
-            "y": 172.677,
+            "x": 176.204,
+            "y": 215.99,
             "inFrustum": true
           },
           {
             "id": "p-0-1",
-            "x": 201.248,
-            "y": 167.758,
+            "x": 192.726,
+            "y": 204.524,
             "inFrustum": true
           },
           {
             "id": "p-0-2",
-            "x": 208.946,
-            "y": 163.037,
+            "x": 207.959,
+            "y": 193.952,
             "inFrustum": true
           },
           {
             "id": "p-1-0",
-            "x": 202.016,
-            "y": 177.165,
+            "x": 193.6,
+            "y": 226.876,
             "inFrustum": true
           },
           {
             "id": "p-1-1",
             "x": 210,
-            "y": 82.419,
+            "y": 19.777,
             "inFrustum": true
           },
           {
             "id": "p-1-2",
-            "x": 217.657,
-            "y": 167.167,
+            "x": 225.075,
+            "y": 203.178,
             "inFrustum": true
           },
           {
             "id": "p-2-0",
-            "x": 211.14,
-            "y": 181.824,
+            "x": 212.391,
+            "y": 238.634,
             "inFrustum": true
           },
           {
             "id": "p-2-1",
-            "x": 219.079,
-            "y": 176.525,
+            "x": 228.598,
+            "y": 225.3,
             "inFrustum": true
           },
           {
             "id": "p-2-2",
-            "x": 226.687,
-            "y": 171.449,
+            "x": 243.448,
+            "y": 213.082,
             "inFrustum": true
           }
         ],
@@ -2144,9 +2144,9 @@
           {
             "id": "surface-point",
             "left": 218,
-            "top": 141.6484375,
+            "top": 164.8515625,
             "right": 270.875,
-            "bottom": 161.7265625
+            "bottom": 184.9296875
           }
         ]
       },
@@ -2158,13 +2158,13 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
             "az": 0.72,
             "el": 0.48,
-            "distance": 15,
+            "distance": 7,
             "target": [
               0.5,
               0.5,
@@ -2172,10 +2172,10 @@
             ]
           },
           "meshBounds": {
-            "left": 458.669,
-            "top": 334.245,
-            "right": 539.118,
-            "bottom": 424.489,
+            "left": 353.69,
+            "top": 364.658,
+            "right": 520.394,
+            "bottom": 557.12,
             "inFrustum": true
           },
           "ownerIds": [
@@ -2207,56 +2207,56 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 459.842,
-              "y": 403.135,
+              "x": 358.6,
+              "y": 504.253,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 478.568,
-              "y": 391.651,
+              "x": 397.172,
+              "y": 477.484,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 496.539,
-              "y": 380.63,
+              "x": 432.736,
+              "y": 452.802,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 480.36,
-              "y": 413.611,
+              "x": 399.213,
+              "y": 529.668,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 499,
-              "y": 192.418,
+              "x": 437.5,
+              "y": 46.171,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 516.875,
-              "y": 390.271,
+              "x": 472.694,
+              "y": 474.342,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 501.663,
-              "y": 424.488,
+              "x": 443.081,
+              "y": 557.12,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 520.197,
-              "y": 412.119,
+              "x": 480.918,
+              "y": 525.989,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 537.957,
-              "y": 400.267,
+              "x": 515.587,
+              "y": 497.464,
               "inFrustum": true
             }
           ]
@@ -2276,17 +2276,17 @@
           {
             "id": "surface-point",
             "left": 218,
-            "top": 141.6484375,
+            "top": 164.8515625,
             "right": 270.875,
-            "bottom": 161.7265625
+            "bottom": 184.9296875
           }
         ]
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -2294,9 +2294,9 @@
       "id": "bezier-patches.tensor-derivatives.patch-derivatives",
       "demonstrationId": "patch-derivatives",
       "path": "/bezeg-2.0/patches/derivatives?example=lesson.bezier-patches.tensor-derivatives.patch-derivatives",
-      "sceneFingerprint": "5f0c465a4ea1beb56f6c8ec09b0a76e79d7822403fdd3dc8a61a7350221b0d4e",
+      "sceneFingerprint": "9f18a0d815783b372f7d6de2282b64d16e539de5366b896a9170e3f8e89084d9",
       "actions": [
-        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"saddle-derivatives\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":1,\"n\":1,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":1}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":0.5}}}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"saddle-derivatives\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":1,\"n\":1,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":1}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":3.4,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":0.5}}}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"tangent-plane\",\"visible\":true}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"normal\",\"visible\":true}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"twist\",\"visible\":true}",
@@ -2316,7 +2316,7 @@
             "camera": {
               "az": 0.72,
               "el": 0.48,
-              "distance": 5.5,
+              "distance": 3.4,
               "target": [
                 0.5,
                 0.5,
@@ -2351,7 +2351,7 @@
           }
         }
       },
-      "recipeFingerprint": "7f002a0407358e9057684eb364aa43028268e39477d11b863b1d73b1d00c4f51",
+      "recipeFingerprint": "d57b2e72282648489ee8f671a6be28bf55799dc6bef9165d2eb239c0e2da565f",
       "highlight": {
         "frame": "partials",
         "position": {
@@ -2360,8 +2360,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "ac2d5f4cd6d30e1b1310580c856cd82dc6be4439782f78065dd76c4d1a07f591",
-        "resultFingerprint": "ac2d5f4cd6d30e1b1310580c856cd82dc6be4439782f78065dd76c4d1a07f591",
+        "startFingerprint": "d50280a70821a6d94beab0c2003c660864d80f57ed776c506c608a4ef4f41919",
+        "resultFingerprint": "d50280a70821a6d94beab0c2003c660864d80f57ed776c506c608a4ef4f41919",
         "changedFromStart": false,
         "checks": [
           {
@@ -2387,7 +2387,7 @@
       "file": "bezier-patches.tensor-derivatives.patch-derivatives.png",
       "width": 840,
       "height": 520,
-      "sha256": "e50a2248b0f1756e691af37a0db63688a97a1f5905805e7e493fcb8a6eca1e47",
+      "sha256": "53a4c3f38b2a606b82caadd779eb7410432ee4c5f3146288bf31d4c9df09ff8f",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -2398,7 +2398,7 @@
         "camera": {
           "az": 0.72,
           "el": 0.48,
-          "distance": 5.5,
+          "distance": 3.4,
           "target": [
             0.5,
             0.5,
@@ -2406,10 +2406,10 @@
           ]
         },
         "meshBounds": {
-          "left": 159.045,
-          "top": 80.727,
-          "right": 260.168,
-          "bottom": 186.897,
+          "left": 124.838,
+          "top": 53.462,
+          "right": 292.987,
+          "bottom": 226.658,
           "inFrustum": true
         },
         "ownerIds": [
@@ -2441,26 +2441,26 @@
         "projectedControlPoints": [
           {
             "id": "p-0-0",
-            "x": 163.181,
-            "y": 160.844,
+            "x": 135.793,
+            "y": 178.887,
             "inFrustum": true
           },
           {
             "id": "p-0-1",
-            "x": 207.255,
-            "y": 136.989,
+            "x": 205.901,
+            "y": 140.436,
             "inFrustum": true
           },
           {
             "id": "p-1-0",
-            "x": 213.418,
-            "y": 186.896,
+            "x": 215.806,
+            "y": 226.657,
             "inFrustum": true
           },
           {
             "id": "p-1-1",
-            "x": 260.168,
-            "y": 96.95,
+            "x": 292.987,
+            "y": 75.329,
             "inFrustum": true
           }
         ],
@@ -2468,37 +2468,37 @@
           {
             "id": "surface-point",
             "left": 218,
-            "top": 134.8515625,
+            "top": 143.7578125,
             "right": 270.875,
-            "bottom": 154.9296875
+            "bottom": 163.8359375
           },
           {
             "id": "deriv-su-label",
-            "left": 238.6875,
-            "top": 133.078125,
-            "right": 257.09375,
-            "bottom": 150.921875
+            "left": 252.390625,
+            "top": 140.875,
+            "right": 270.796875,
+            "bottom": 158.71875
           },
           {
             "id": "deriv-sv-label",
-            "left": 234.6875,
-            "top": 115.578125,
-            "right": 251.984375,
-            "bottom": 133.421875
+            "left": 244.1875,
+            "top": 112.375,
+            "right": 261.484375,
+            "bottom": 130.21875
           },
           {
             "id": "deriv-twist-label",
             "left": 218,
-            "top": 112.578125,
+            "top": 107.265625,
             "right": 242.609375,
-            "bottom": 130.421875
+            "bottom": 125.109375
           },
           {
             "id": "deriv-normal-label",
-            "left": 200.6875,
-            "top": 116.09375,
-            "right": 212.25,
-            "bottom": 132.09375
+            "left": 189.796875,
+            "top": 112.5,
+            "right": 201.359375,
+            "bottom": 128.5
           }
         ]
       },
@@ -2510,13 +2510,13 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
             "az": 0.72,
             "el": 0.48,
-            "distance": 5.5,
+            "distance": 3.4,
             "target": [
               0.5,
               0.5,
@@ -2524,10 +2524,10 @@
             ]
           },
           "meshBounds": {
-            "left": 380.041,
-            "top": 188.468,
-            "right": 616.123,
-            "bottom": 436.331,
+            "left": 238.68,
+            "top": 124.814,
+            "right": 631.243,
+            "bottom": 529.157,
             "inFrustum": true
           },
           "ownerIds": [
@@ -2559,26 +2559,26 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 389.696,
-              "y": 375.508,
+              "x": 264.255,
+              "y": 417.631,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 492.592,
-              "y": 319.816,
+              "x": 427.931,
+              "y": 327.865,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 506.979,
-              "y": 436.331,
+              "x": 451.054,
+              "y": 529.157,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 616.122,
-              "y": 226.341,
+              "x": 631.242,
+              "y": 175.865,
               "inFrustum": true
             }
           ]
@@ -2598,45 +2598,45 @@
           {
             "id": "surface-point",
             "left": 218,
-            "top": 134.8515625,
+            "top": 143.7578125,
             "right": 270.875,
-            "bottom": 154.9296875
+            "bottom": 163.8359375
           },
           {
             "id": "deriv-su-label",
-            "left": 238.6875,
-            "top": 133.078125,
-            "right": 257.09375,
-            "bottom": 150.921875
+            "left": 252.390625,
+            "top": 140.875,
+            "right": 270.796875,
+            "bottom": 158.71875
           },
           {
             "id": "deriv-sv-label",
-            "left": 234.6875,
-            "top": 115.578125,
-            "right": 251.984375,
-            "bottom": 133.421875
+            "left": 244.1875,
+            "top": 112.375,
+            "right": 261.484375,
+            "bottom": 130.21875
           },
           {
             "id": "deriv-twist-label",
             "left": 218,
-            "top": 112.578125,
+            "top": 107.265625,
             "right": 242.609375,
-            "bottom": 130.421875
+            "bottom": 125.109375
           },
           {
             "id": "deriv-normal-label",
-            "left": 200.6875,
-            "top": 116.09375,
-            "right": 212.25,
-            "bottom": 132.09375
+            "left": 189.796875,
+            "top": 112.5,
+            "right": 201.359375,
+            "bottom": 128.5
           }
         ]
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -2820,7 +2820,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -2834,9 +2834,9 @@
             ]
           },
           "meshBounds": {
-            "left": 380.041,
+            "left": 318.541,
             "top": 188.468,
-            "right": 616.123,
+            "right": 554.623,
             "bottom": 436.331,
             "inFrustum": true
           },
@@ -2906,8 +2906,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -3322,7 +3322,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -3336,9 +3336,9 @@
             ]
           },
           "meshBounds": {
-            "left": 367.034,
+            "left": 305.534,
             "top": 64.132,
-            "right": 628.942,
+            "right": 567.442,
             "bottom": 538.929,
             "inFrustum": true
           },
@@ -3393,193 +3393,193 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 598.239,
+              "x": 536.739,
               "y": 64.132,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 521.141,
+              "x": 459.641,
               "y": 69.642,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 444.073,
+              "x": 382.573,
               "y": 75.149,
               "inFrustum": true
             },
             {
               "id": "p-0-3",
-              "x": 367.034,
+              "x": 305.534,
               "y": 80.654,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 603.425,
+              "x": 541.925,
               "y": 141.625,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 521.596,
+              "x": 460.096,
               "y": 170.278,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 458.514,
+              "x": 397.014,
               "y": 174.77,
               "inFrustum": true
             },
             {
               "id": "p-1-3",
-              "x": 372.838,
+              "x": 311.338,
               "y": 158.058,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 608.583,
+              "x": 547.083,
               "y": 218.703,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 526.011,
+              "x": 464.511,
               "y": 233.491,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 463.067,
+              "x": 401.567,
               "y": 237.963,
               "inFrustum": true
             },
             {
               "id": "p-2-3",
-              "x": 378.61,
+              "x": 317.11,
               "y": 235.048,
               "inFrustum": true
             },
             {
               "id": "p-3-0",
-              "x": 613.713,
+              "x": 552.213,
               "y": 295.369,
               "inFrustum": true
             },
             {
               "id": "p-3-1",
-              "x": 537.231,
+              "x": 475.731,
               "y": 300.79,
               "inFrustum": true
             },
             {
               "id": "p-3-2",
-              "x": 460.777,
+              "x": 399.277,
               "y": 306.209,
               "inFrustum": true
             },
             {
               "id": "p-3-3",
-              "x": 384.352,
+              "x": 322.852,
               "y": 311.626,
               "inFrustum": true
             },
             {
               "id": "b-0-0",
-              "x": 613.713,
+              "x": 552.213,
               "y": 295.369,
               "inFrustum": true
             },
             {
               "id": "b-0-1",
-              "x": 537.231,
+              "x": 475.731,
               "y": 300.79,
               "inFrustum": true
             },
             {
               "id": "b-0-2",
-              "x": 460.777,
+              "x": 399.277,
               "y": 306.209,
               "inFrustum": true
             },
             {
               "id": "b-0-3",
-              "x": 384.352,
+              "x": 322.852,
               "y": 311.626,
               "inFrustum": true
             },
             {
               "id": "b-1-0",
-              "x": 618.817,
+              "x": 557.317,
               "y": 371.626,
               "inFrustum": true
             },
             {
               "id": "b-1-1",
-              "x": 534.782,
+              "x": 473.282,
               "y": 359.087,
               "inFrustum": true
             },
             {
               "id": "b-1-2",
-              "x": 472.112,
+              "x": 410.612,
               "y": 363.52,
               "inFrustum": true
             },
             {
               "id": "b-1-3",
-              "x": 390.063,
+              "x": 328.563,
               "y": 387.797,
               "inFrustum": true
             },
             {
               "id": "b-2-0",
-              "x": 623.893,
+              "x": 562.393,
               "y": 447.478,
               "inFrustum": true
             },
             {
               "id": "b-2-1",
-              "x": 539.138,
+              "x": 477.638,
               "y": 421.473,
               "inFrustum": true
             },
             {
               "id": "b-2-2",
-              "x": 476.605,
+              "x": 415.105,
               "y": 425.886,
               "inFrustum": true
             },
             {
               "id": "b-2-3",
-              "x": 395.743,
+              "x": 334.243,
               "y": 463.564,
               "inFrustum": true
             },
             {
               "id": "b-3-0",
-              "x": 628.942,
+              "x": 567.442,
               "y": 522.928,
               "inFrustum": true
             },
             {
               "id": "b-3-1",
-              "x": 553.064,
+              "x": 491.564,
               "y": 528.264,
               "inFrustum": true
             },
             {
               "id": "b-3-2",
-              "x": 477.215,
+              "x": 415.715,
               "y": 533.597,
               "inFrustum": true
             },
             {
               "id": "b-3-3",
-              "x": 401.394,
+              "x": 339.894,
               "y": 538.928,
               "inFrustum": true
             }
@@ -3617,8 +3617,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -3850,7 +3850,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -3864,9 +3864,9 @@
             ]
           },
           "meshBounds": {
-            "left": 362.157,
+            "left": 300.657,
             "top": 107.538,
-            "right": 768.453,
+            "right": 706.953,
             "bottom": 507.878,
             "inFrustum": true
           },
@@ -3899,61 +3899,61 @@
           "projectedControlPoints": [
             {
               "id": "t-3-0-0",
-              "x": 609.684,
+              "x": 548.184,
               "y": 107.539,
               "inFrustum": true
             },
             {
               "id": "t-2-1-0",
-              "x": 580.753,
+              "x": 519.253,
               "y": 248.482,
               "inFrustum": true
             },
             {
               "id": "t-2-0-1",
-              "x": 525.261,
+              "x": 463.761,
               "y": 165.764,
               "inFrustum": true
             },
             {
               "id": "t-1-2-0",
-              "x": 553.402,
+              "x": 491.902,
               "y": 381.723,
               "inFrustum": true
             },
             {
               "id": "t-1-1-1",
-              "x": 499,
+              "x": 437.5,
               "y": 207.466,
               "inFrustum": true
             },
             {
               "id": "t-1-0-2",
-              "x": 442.774,
+              "x": 381.274,
               "y": 222.654,
               "inFrustum": true
             },
             {
               "id": "t-0-3-0",
-              "x": 527.506,
+              "x": 466.006,
               "y": 507.878,
               "inFrustum": true
             },
             {
               "id": "t-0-2-1",
-              "x": 474.159,
+              "x": 412.659,
               "y": 433.792,
               "inFrustum": true
             },
             {
               "id": "t-0-1-2",
-              "x": 419.071,
+              "x": 357.571,
               "y": 357.291,
               "inFrustum": true
             },
             {
               "id": "t-0-0-3",
-              "x": 362.158,
+              "x": 300.658,
               "y": 278.253,
               "inFrustum": true
             }
@@ -3983,8 +3983,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     },
@@ -4216,7 +4216,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 998,
+            "width": 875,
             "height": 607
           },
           "camera": {
@@ -4230,9 +4230,9 @@
             ]
           },
           "meshBounds": {
-            "left": 362.157,
+            "left": 300.657,
             "top": 107.538,
-            "right": 768.453,
+            "right": 706.953,
             "bottom": 507.878,
             "inFrustum": true
           },
@@ -4265,61 +4265,61 @@
           "projectedControlPoints": [
             {
               "id": "t-3-0-0",
-              "x": 609.684,
+              "x": 548.184,
               "y": 107.539,
               "inFrustum": true
             },
             {
               "id": "t-2-1-0",
-              "x": 580.753,
+              "x": 519.253,
               "y": 248.482,
               "inFrustum": true
             },
             {
               "id": "t-2-0-1",
-              "x": 525.261,
+              "x": 463.761,
               "y": 165.764,
               "inFrustum": true
             },
             {
               "id": "t-1-2-0",
-              "x": 553.402,
+              "x": 491.902,
               "y": 381.723,
               "inFrustum": true
             },
             {
               "id": "t-1-1-1",
-              "x": 499,
+              "x": 437.5,
               "y": 207.466,
               "inFrustum": true
             },
             {
               "id": "t-1-0-2",
-              "x": 442.774,
+              "x": 381.274,
               "y": 222.654,
               "inFrustum": true
             },
             {
               "id": "t-0-3-0",
-              "x": 527.506,
+              "x": 466.006,
               "y": 507.878,
               "inFrustum": true
             },
             {
               "id": "t-0-2-1",
-              "x": 474.159,
+              "x": 412.659,
               "y": 433.792,
               "inFrustum": true
             },
             {
               "id": "t-0-1-2",
-              "x": 419.071,
+              "x": 357.571,
               "y": 357.291,
               "inFrustum": true
             },
             {
               "id": "t-0-0-3",
-              "x": 362.158,
+              "x": 300.658,
               "y": 278.253,
               "inFrustum": true
             }
@@ -4349,8 +4349,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
+        "sourceRevision": "6259f76d7230cfebd1fa188e80f7bd58c8beb812",
         "pageErrors": []
       }
     }

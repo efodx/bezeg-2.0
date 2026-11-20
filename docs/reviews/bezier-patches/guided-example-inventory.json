@@ -588,9 +588,9 @@
       "id": "bezier-patches.tensor-decasteljau.patch-decasteljau",
       "demonstrationId": "patch-decasteljau",
       "path": "/bezeg-2.0/patches/decasteljau?example=lesson.bezier-patches.tensor-decasteljau.patch-decasteljau",
-      "sceneFingerprint": "88b2daf26d3e06041a75d4a74b8632f9be00ac184f54847460f6fd7a7aed3bd6",
+      "sceneFingerprint": "aadbf142f95fbb91cf0ef154634c8c63d325ca1cbf7a40d72de52af31e48f789",
       "actions": [
-        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"order-independence\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":15,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"order-independence\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":7,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}"
       ],
@@ -599,7 +599,7 @@
           "camera": {
             "az": 0.72,
             "el": 0.48,
-            "distance": 15,
+            "distance": 7,
             "target": [
               0.5,
               0.5,
@@ -641,7 +641,7 @@
               "camera": {
                 "az": 0.72,
                 "el": 0.48,
-                "distance": 15,
+                "distance": 7,
                 "target": [
                   0.5,
                   0.5,
@@ -691,7 +691,7 @@
             "camera": {
               "az": 0.72,
               "el": 0.48,
-              "distance": 15,
+              "distance": 7,
               "target": [
                 0.5,
                 0.5,
@@ -726,15 +726,15 @@
           }
         }
       },
-      "recipeFingerprint": "73db87bcef73dfeef3685be09fee228c88c6c5b1657baace679f4e2d6a675ef4"
+      "recipeFingerprint": "653384c2645d31c21a26338276e456979aeb8c9afdc83744ae696f0a902629d3"
     },
     {
       "id": "bezier-patches.properties.patch-tensor",
       "demonstrationId": "patch-tensor",
       "path": "/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.properties.patch-tensor",
-      "sceneFingerprint": "9737c27aa8f8998515c8fbe5b32dbc1e2f887a763772cbfba4b4c40dcd16b715",
+      "sceneFingerprint": "27469baf2e8973d09f5cb79d7219f98b2fb939e3d74ae311e81ac7f80e03547b",
       "actions": [
-        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hull-affine\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":15,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hull-affine\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":2,\"n\":2,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0.5,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0.5,\"y\":0,\"z\":0},{\"x\":0.5,\"y\":0.5,\"z\":4},{\"x\":0.5,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":0.5,\"z\":0},{\"x\":1,\"y\":1,\"z\":0}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":7,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":2}}}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"control-net\",\"visible\":true}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"shading\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
@@ -744,7 +744,7 @@
           "camera": {
             "az": 0.72,
             "el": 0.48,
-            "distance": 15,
+            "distance": 7,
             "target": [
               0.5,
               0.5,
@@ -786,7 +786,7 @@
               "camera": {
                 "az": 0.72,
                 "el": 0.48,
-                "distance": 15,
+                "distance": 7,
                 "target": [
                   0.5,
                   0.5,
@@ -828,11 +828,11 @@
               "camera": {
                 "az": 0.72,
                 "el": 0.48,
-                "distance": 5.5,
+                "distance": 4.1,
                 "target": [
                   0.5,
                   0.5,
-                  0.5
+                  0
                 ]
               },
               "owners": [
@@ -870,7 +870,7 @@
               "camera": {
                 "az": 0.72,
                 "el": 0.48,
-                "distance": 28,
+                "distance": 13.5,
                 "target": [
                   0.5,
                   0.5,
@@ -920,7 +920,7 @@
             "camera": {
               "az": 0.72,
               "el": 0.48,
-              "distance": 15,
+              "distance": 7,
               "target": [
                 0.5,
                 0.5,
@@ -955,15 +955,15 @@
           }
         }
       },
-      "recipeFingerprint": "5007c09ed2ad73727c07cc836766db840f26cab17b1651787c656c0642f03ff7"
+      "recipeFingerprint": "f9ead4cd38f056e9030cf48b20a337c9f55cf09fbeccf6db8a562cf14a33fcaf"
     },
     {
       "id": "bezier-patches.tensor-derivatives.patch-derivatives",
       "demonstrationId": "patch-derivatives",
       "path": "/bezeg-2.0/patches/derivatives?example=lesson.bezier-patches.tensor-derivatives.patch-derivatives",
-      "sceneFingerprint": "5f0c465a4ea1beb56f6c8ec09b0a76e79d7822403fdd3dc8a61a7350221b0d4e",
+      "sceneFingerprint": "9f18a0d815783b372f7d6de2282b64d16e539de5366b896a9170e3f8e89084d9",
       "actions": [
-        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"saddle-derivatives\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":1,\"n\":1,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":1}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":5.5,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":0.5}}}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"saddle-derivatives\",\"source\":\"lesson-patch-fixture\",\"patch\":{\"kind\":\"tensor\",\"m\":1,\"n\":1,\"net\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":1,\"y\":1,\"z\":1}]},\"view3d\":{\"az\":0.72,\"el\":0.48,\"distance\":3.4,\"target\":{\"x\":0.5,\"y\":0.5,\"z\":0.5}}}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"tangent-plane\",\"visible\":true}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"normal\",\"visible\":true}",
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"twist\",\"visible\":true}",
@@ -974,7 +974,7 @@
           "camera": {
             "az": 0.72,
             "el": 0.48,
-            "distance": 5.5,
+            "distance": 3.4,
             "target": [
               0.5,
               0.5,
@@ -1016,7 +1016,7 @@
               "camera": {
                 "az": 0.72,
                 "el": 0.48,
-                "distance": 5.5,
+                "distance": 3.4,
                 "target": [
                   0.5,
                   0.5,
@@ -1066,7 +1066,7 @@
             "camera": {
               "az": 0.72,
               "el": 0.48,
-              "distance": 5.5,
+              "distance": 3.4,
               "target": [
                 0.5,
                 0.5,
@@ -1101,7 +1101,7 @@
           }
         }
       },
-      "recipeFingerprint": "7f002a0407358e9057684eb364aa43028268e39477d11b863b1d73b1d00c4f51"
+      "recipeFingerprint": "d57b2e72282648489ee8f671a6be28bf55799dc6bef9165d2eb239c0e2da565f"
     },
     {
       "id": "bezier-patches.tensor-subdivision.patch-subdivision",
