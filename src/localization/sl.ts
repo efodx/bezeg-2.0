@@ -2441,6 +2441,7 @@ export const sl = {
     "playback_block_at_start": "Prikaz je že na začetku.",
     "playback_block_no_run": "Trenutni podatki ne dajo korakov.",
     "playback_block_reduced_motion": "Sistem je nastavljen na manj gibanja, zato predvajanje ni na voljo. Parameter premikajte z drsnikom.",
+    "playback_companion_summary": "Ročno: {value0}",
     "playback_block_reduced_motion_time": "Sistem je nastavljen na manj gibanja, zato predvajanje ni na voljo. Čas nastavite z drsnikom.",
     "playback_block_reduced_motion_step_slider": "Sistem je nastavljen na manj gibanja, zato predvajanje ni na voljo. Korak spusta nastavite z drsnikom.",
     "playback_block_reduced_motion_position": "Sistem je nastavljen na manj gibanja, zato predvajanje ni na voljo. Točko premikajte z drsnikom za lego točke.",

@@ -4,6 +4,7 @@ import {PlaybackSlotContext} from "../PlaybackSlotContext";
 import {useT} from "../../../localization";
 import {UnavailableButton} from "../../../inputs/UnavailableButton";
 import {PresetLockContext, playbackAllowed} from "../../context/react/PresetLockContext";
+import {InspectorDisclosure} from "../../../inputs/InspectorDisclosure";
 import "../../../inputs/ControlRow.css";
 
 /** Why a playback button is unavailable; see docs/specs/playback-button-reasons.md. */
@@ -63,6 +64,12 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
     readonly leading?: React.ReactNode;
     /** Further buttons of the same group, after the three. */
     readonly children?: React.ReactNode;
+    /**
+     * One live control for a run whose motion also needs manual scrubbing (a time or construction-parameter Slider). The graph owns its
+     * value and edits. It renders right after the group where the group sits, and inside a closed disclosure ("Ročno: label") under the
+     * playback row while the group is in the graph-adjacent slot; it is rendered once, never in both places.
+     */
+    readonly companion?: {readonly label: string; readonly children: React.ReactNode};
 }
 
 /**
@@ -71,7 +78,7 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
  * title, in its description, and in the status line once pressed.
  */
 export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, noRunReason, reducedMotionReason, describedBy, placement = "inspector", nextBlock, playBlock, resetBlock,
-                                    onNext, onPlayPause, onReset, leading, children}: PlaybackButtonsProps) {
+                                    onNext, onPlayPause, onReset, leading, children, companion}: PlaybackButtonsProps) {
     const t = useT();
     const slot = useContext(PlaybackSlotContext);
     // The workspace's one decision about user commands: while a lesson card owns the graph no user playback runs, wherever the group sits.
@@ -116,6 +123,21 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
         const element = group.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = locked;
     }, [locked, inSlot]);
+    // The companion's DOM is re-created when it moves between inspector and slot; focus inside it is restored to its first control.
+    const companionBox = useRef<HTMLDivElement>(null);
+    const companionFocused = useRef(false);
+    const companionInSlot = useRef(inSlot);
+    // Under the board the companion is outside the inspector's inert region too, so it follows the same lesson lock as the group.
+    useLayoutEffect(() => {
+        const element = companionBox.current as (HTMLElement & {inert?: boolean}) | null;
+        if (element && inSlot) element.inert = locked;
+    }, [locked, inSlot, companion !== undefined]);
+    useLayoutEffect(() => {
+        if (companionInSlot.current === inSlot) return;
+        companionInSlot.current = inSlot;
+        if (!companionFocused.current || (document.activeElement && document.activeElement !== document.body)) return;
+        companionBox.current?.querySelector<HTMLElement>("input, button, [tabindex]")?.focus();
+    }, [inSlot]);
     const [pressed, setPressed] = useState<PlaybackAction>();
     const reasons: Record<PlaybackBlock, string> = {
         'no-more-steps': t("playback_block_no_more_steps"),
@@ -154,5 +176,11 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
             {shownReason && <p className="inspector-help" data-playback-reason={locked ? "lesson" : shownBlock}>{shownReason}</p>}
         </div>
     </>;
-    return inSlot && slotElement ? createPortal(content, slotElement) : content;
+    const companionNode = companion && <div className="playback-companion" ref={companionBox}
+                                            onFocus={() => { companionFocused.current = true; }}
+                                            onBlur={event => { if (event.relatedTarget) companionFocused.current = false; }}>{companion.children}</div>;
+    if (inSlot && slotElement) {
+        return createPortal(<>{content}{companionNode && <InspectorDisclosure className="playback-companion-disclosure" title={t("playback_companion_summary", {value0: companion.label})}>{companionNode}</InspectorDisclosure>}</>, slotElement);
+    }
+    return <>{content}{companionNode}</>;
 }

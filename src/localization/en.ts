@@ -2442,6 +2442,7 @@ export const en: Record<keyof typeof sl, string> = {
     "playback_block_at_start": "Already at the start.",
     "playback_block_no_run": "The current input gives no steps.",
     "playback_block_reduced_motion": "The system is set to reduce motion, so playback is not available. Move the parameter with the slider.",
+    "playback_companion_summary": "Manual: {value0}",
     "playback_block_reduced_motion_time": "The system is set to reduce motion, so playback is not available. Set the time with the slider.",
     "playback_block_reduced_motion_step_slider": "The system is set to reduce motion, so playback is not available. Set the descent step with the slider.",
     "playback_block_reduced_motion_position": "The system is set to reduce motion, so playback is not available. Move the point with the point position slider.",
