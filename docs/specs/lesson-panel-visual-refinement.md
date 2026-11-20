@@ -103,3 +103,20 @@ The lesson crawl ([triage](../reviews/lesson-bug-crawl/triage.md), sections 1 an
 ### Verification evidence
 
 Recorded in the stream's handoff notes: [the decision and first measurements](../reviews/lesson-card-layout/handler-handoff-1.md), [the full crawl, reviews and smoke repair](../reviews/lesson-card-layout/handler-handoff-2.md) and [the final checks](../reviews/lesson-card-layout/handler-handoff-3.md).
+
+## Docking a moved card back — 2026-11-21
+
+The owner asked to make it easier to "dock" a dragged card back to its starting place. Before this, a moved card returned home only when it was dropped at exactly its home offset or when another lesson started. The owner chose all three aids offered: snapping near home, a double-click, and a return button.
+
+### Acceptance
+
+1. A card carried by its heading or grip snaps home when the pointer brings it within 48px of home, once it has been farther than that during the drag; a drag that starts at home can still set the card down nearer than 48px. The distance is read before the window clamp, so a card taller than the window (one column) also docks.
+2. While a moved card is carried, a dashed outline in the `rule`-green marks its home; it is never a pointer target and disappears when the card docks.
+3. A double-click on the heading row (not on its links or action buttons) and Home on the grip dock the card; arrow keys leave home freely and dock when they bring the card back within 48px.
+4. While the card is away from home, "Na mesto" / "Put back" ("Vrni navodila na njihovo mesto" / "Put the instructions back in their place") joins the utility row before Hide; it docks the card and its tab and moves focus to the grip.
+5. Docking also returns the closed tab to its home, so hiding a docked card leaves the tab at the graph's corner.
+6. A card away from home is stacked above the graph layer, so its buttons work where it lies over the graph. Before, a press on such a card reached the transparent catcher that hides the card when the graph is clicked.
+
+### Verification evidence
+
+`GuidedLesson.test.tsx` "a moved card docks back…" (seen failing on the old code); the runtime suite (397); typecheck and lint. Browser at 1440×900 and 390×844 against the production build: snap, outline, button and focus to the grip observed; screenshots `.shots/dock/` (untracked).

@@ -45,7 +45,7 @@ function GripIcon() {
     </svg>;
 }
 
-const ARROW_KEYS = 'ArrowUp ArrowDown ArrowLeft ArrowRight';
+const ARROW_KEYS = 'ArrowUp ArrowDown ArrowLeft ArrowRight Home';
 
 /** The width at which the workspace is one column and the card follows the graph in the page (GuidedLessonLayout.css). */
 const ONE_COLUMN_QUERY = '(max-width: 700px)';
@@ -96,6 +96,7 @@ export function GuidedLesson(props: {
     const lessonRef = useRef<HTMLElement>(null);
     const completionHeadingRef = useRef<HTMLHeadingElement>(null);
     const compactTabRef = useRef<HTMLButtonElement>(null);
+    const gripRef = useRef<HTMLButtonElement>(null);
     const readingRef = useRef<HTMLDivElement>(null);
     const readingPosition = useRef({panel: 0, outer: 0, page: 0});
     const frameNeedsScrollReset = useRef(true);
@@ -191,6 +192,11 @@ export function GuidedLesson(props: {
     // reopening opens the panel at the tab, so the instructions come back where they were put away.
     const handOverPlacement = (from: typeof panelDrag, to: typeof panelDrag) => {
         if (!isMoved(panelDrag) && !isMoved(tabDrag)) return;
+        // One that is back at its home brings the other home too.
+        if (!isMoved(from)) {
+            to.home();
+            return;
+        }
         const corner = from.topLeft();
         if (corner) to.moveTo(corner);
     };
@@ -527,6 +533,13 @@ export function GuidedLesson(props: {
 
     // Short visible labels keep the heading to one row; each stays contained in its full accessible name.
     const closeButton = <button type="button" className="guided-lesson-exit" aria-label={t('exit_lesson')} title={t('exit_lesson')} onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson_short')}</button>;
+    // Docking returns the card and its tab to their homes; the button leaves with the move, so focus goes to the grip.
+    const dockCard = () => {
+        panelDrag.home();
+        tabDrag.home();
+    };
+    const dockButton = <button type="button" className="guided-lesson-dock" aria-label={t('dock_lesson_instructions')} title={t('dock_lesson_instructions')}
+        onClick={() => { dockCard(); gripRef.current?.focus(); }}>{t('dock_lesson_short')}</button>;
     const hideButton = <button type="button" className="guided-lesson-hide" aria-label={t('hide_lesson_instructions')} title={t('hide_lesson_instructions')} onClick={hideOverlay}>{t('hide_lesson_short')}</button>;
     const exitDialog = exitRequested && <div className="guided-lesson-exit-backdrop"><div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="guided-lesson-exit-title" aria-describedby="guided-lesson-exit-message" className="guided-lesson-exit-dialog">
         <h2 id="guided-lesson-exit-title">{t('guided_lesson_exit_title')}</h2>
@@ -581,6 +594,10 @@ export function GuidedLesson(props: {
         if (event.target instanceof Element && event.target.closest('a, button:not(.guided-lesson-grip)')) return;
         panelPointerHandlers.onPointerDown(event);
     };
+    const dockOnDoubleClick = (event: React.MouseEvent<HTMLElement>) => {
+        if (event.target instanceof Element && event.target.closest('a, button:not(.guided-lesson-grip)')) return;
+        dockCard();
+    };
     // Back and Next sit beside the progress in the tools column. In one column they are the card's last row, after the
     // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
     const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
@@ -608,15 +625,21 @@ export function GuidedLesson(props: {
     // The card's home is the tools column beside the graph (below the graph on one-column screens), so it never
     // covers the board. It leaves that home only when the learner drags it.
     const docked = !isMoved(panelDrag);
+    // While the card is carried away from home, a dashed outline shows where it docks.
+    const homeSlot = panelDrag.dragHome && !docked && <div className="guided-lesson-home-slot" aria-hidden="true" style={{
+        left: panelDrag.dragHome.left, top: panelDrag.dragHome.top,
+        width: panelDrag.dragHome.right - panelDrag.dragHome.left, height: panelDrag.dragHome.bottom - panelDrag.dragHome.top,
+    }}/>;
     return <>
+    {homeSlot}
     {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
         <div className="guided-lesson-controls">
-        <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag}>
-            <button type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
+        <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag} onDoubleClick={dockOnDoubleClick}>
+            <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
                 aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
             {/* The page heading already names the lesson; the card then says what it is, so its first row is never bare. */}
             {pageHeadingHasLessonTitle ? completionHeading || <span className="guided-lesson-title guided-lesson-kind">{t('guided_example')}</span> : lessonHeading}
-            <div className="guided-lesson-utilities">{chapterReturnLink}{hideButton}{closeButton}</div>
+            <div className="guided-lesson-utilities">{chapterReturnLink}{!docked && dockButton}{hideButton}{closeButton}</div>
         </div>
         {navigationToolbar}
         </div>

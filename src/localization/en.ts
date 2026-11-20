@@ -2408,6 +2408,8 @@ export const en: Record<keyof typeof sl, string> = {
     "move_lesson_instructions": "Move instructions",
     "hide_lesson_short": "Hide",
     "exit_lesson_short": "Exit",
+    "dock_lesson_instructions": "Put the instructions back in their place",
+    "dock_lesson_short": "Put back",
     "back_to_instructions": "Back to the instructions",
     "continue_lesson": "Continue example",
     "move_lesson_prompt": "Move observation prompt",

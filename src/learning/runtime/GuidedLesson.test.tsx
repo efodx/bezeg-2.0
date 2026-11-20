@@ -869,6 +869,96 @@ test('the panel and the compact tab can each be moved over the graph without tri
     }
 });
 
+test('a moved card docks back by snapping, by double-click, by the Home key and by its put-back button', () => {
+    vi.stubGlobal('matchMedia', vi.fn((media: string) => ({matches: media.includes('prefers-reduced-motion'), media, addEventListener: vi.fn(), removeEventListener: vi.fn()})));
+    setLanguage('sl');
+    const translated = (element: Element, left: number, top: number, width: number, height: number) => {
+        const match = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/.exec((element as HTMLElement).style.transform);
+        return DOMRect.fromRect({x: left + Number(match?.[1] ?? 0), y: top + Number(match?.[2] ?? 0), width, height});
+    };
+    const previousSize = {width: window.innerWidth, height: window.innerHeight};
+    Object.assign(window, {innerWidth: 1000, innerHeight: 600});
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        if (this.classList.contains('guided-lesson-layer')) return DOMRect.fromRect({x: 0, y: 0, width: 1000, height: 600});
+        if (this.classList.contains('guided-lesson')) return translated(this, 100, 20, 500, 300);
+        if (this.classList.contains('guided-lesson-tab')) return translated(this, 8, 8, 220, 44);
+        return DOMRect.fromRect();
+    });
+    vi.stubGlobal('ResizeObserver', class {
+        readonly notify: () => void;
+        constructor(notify: () => void) { this.notify = notify; }
+        observe() { this.notify(); }
+        unobserve() {}
+        disconnect() {}
+    });
+    try {
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const panel = () => document.querySelector('.guided-lesson') as HTMLElement;
+        const heading = () => panel().querySelector('.guided-lesson-heading') as HTMLElement;
+        const slot = () => document.querySelector('.guided-lesson-home-slot') as HTMLElement | null;
+        const putBack = () => screen.queryByRole('button', {name: 'Vrni navodila na njihovo mesto'});
+        const drag = (id: number, from: [number, number], ...moves: [number, number][]) => {
+            fireEvent.pointerDown(heading(), {pointerId: id, isPrimary: true, button: 0, clientX: from[0], clientY: from[1]});
+            for (const [x, y] of moves) fireEvent.pointerMove(heading(), {pointerId: id, isPrimary: true, clientX: x, clientY: y});
+        };
+        const release = (id: number) => fireEvent.pointerUp(heading(), {pointerId: id, isPrimary: true});
+
+        expect(putBack()).not.toBeInTheDocument();
+        drag(1, [200, 30], [320, 90]);
+        release(1);
+        expect(panel().style.transform).toBe('translate(120px, 60px)');
+        expect(panel()).not.toHaveClass('guided-lesson-docked');
+        expect(putBack()).toBeInTheDocument();
+
+        // Carried back, the card shows its home outline and snaps home within 48 px of it.
+        drag(2, [320, 90], [300, 80]);
+        expect(panel().style.transform).toBe('translate(100px, 50px)');
+        expect(slot()).toHaveStyle({left: '100px', top: '20px', width: '500px', height: '300px'});
+        fireEvent.pointerMove(heading(), {pointerId: 2, isPrimary: true, clientX: 230, clientY: 50});
+        expect(panel().style.transform).toBe('');
+        expect(panel()).toHaveClass('guided-lesson-docked');
+        expect(slot()).not.toBeInTheDocument();
+        release(2);
+        expect(putBack()).not.toBeInTheDocument();
+
+        // A drag that starts at home can still set the card down near it; a double-click on the heading docks it.
+        drag(3, [200, 30], [230, 50]);
+        release(3);
+        expect(panel().style.transform).toBe('translate(30px, 20px)');
+        fireEvent.doubleClick(heading());
+        expect(panel().style.transform).toBe('');
+
+        // Arrow keys leave home freely, and dock again when they bring the card back within 48 px; Home docks at once.
+        const grip = screen.getByRole('button', {name: 'Premakni navodila'});
+        for (let i = 0; i < 4; i++) fireEvent.keyDown(grip, {key: 'ArrowRight'});
+        expect(panel().style.transform).toBe('translate(64px, 0px)');
+        fireEvent.keyDown(grip, {key: 'ArrowLeft'});
+        expect(panel().style.transform).toBe('');
+        fireEvent.keyDown(grip, {key: 'ArrowDown', shiftKey: true});
+        expect(panel().style.transform).toBe('translate(0px, 64px)');
+        fireEvent.keyDown(grip, {key: 'Home'});
+        expect(panel().style.transform).toBe('');
+
+        // The put-back button docks the card and its tab, and hands focus to the grip.
+        drag(4, [200, 30], [400, 130]);
+        release(4);
+        fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'}));
+        expect((document.querySelector('.guided-lesson-tab') as HTMLElement).style.transform).toBe('translate(292px, 112px)');
+        reopenWithTab();
+        expect(panel().style.transform).toBe('translate(200px, 100px)');
+        fireEvent.click(putBack()!);
+        expect(panel().style.transform).toBe('');
+        expect(screen.getByRole('button', {name: 'Premakni navodila'})).toHaveFocus();
+        fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'}));
+        expect((document.querySelector('.guided-lesson-tab') as HTMLElement).style.transform).toBe('');
+    } finally {
+        Object.assign(window, {innerWidth: previousSize.width, innerHeight: previousSize.height});
+        rect.mockRestore();
+        vi.unstubAllGlobals();
+        act(() => setLanguage('sl'));
+    }
+});
+
 test('a startup error stays visible and follows a language switch', () => {
     setLanguage('sl');
     const failing = capabilities();

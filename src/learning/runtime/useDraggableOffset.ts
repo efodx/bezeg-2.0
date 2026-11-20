@@ -21,6 +21,9 @@ interface ActiveDrag {
     base: Box;
     bounds: Box;
     moved: boolean;
+    // Snapping home starts once the element has been farther than the snap radius from home during this drag,
+    // so a drag that starts at home can leave it.
+    snapArmed: boolean;
 }
 
 const ORIGIN: DragOffset = {x: 0, y: 0};
@@ -29,11 +32,26 @@ const DRAG_THRESHOLD_PX = 5;
 const KEY_STEP_PX = 16;
 const KEY_STEP_LARGE_PX = 64;
 const EDGE_GAP_PX = 6;
+/** Within this distance of its home an element brought back by drag or arrow keys docks there. */
+export const SNAP_HOME_PX = 48;
 
 const measure = (element: Element): Box => {
     const {left, top, right, bottom} = element.getBoundingClientRect();
     return {left, top, right, bottom};
 };
+
+const distanceFromHome = (offset: DragOffset) => Math.hypot(offset.x, offset.y);
+
+/**
+ * The offset to apply after a move: home once an armed drag, or an arrow key moving towards home, brings the requested
+ * offset within the snap radius; otherwise the clamped offset. The request is read before clamping, because home is
+ * always a valid place even when the window clamp would keep a tall card from getting near it.
+ */
+export function snapHome(requested: DragOffset, clamped: DragOffset, previous: DragOffset, armed: boolean): DragOffset {
+    const distance = distanceFromHome(requested);
+    if (distance > SNAP_HOME_PX) return clamped;
+    return armed || distance < distanceFromHome(previous) ? ORIGIN : clamped;
+}
 
 const untranslated = (box: Box, offset: DragOffset): Box => ({
     left: box.left - offset.x, top: box.top - offset.y, right: box.right - offset.x, bottom: box.bottom - offset.y,
@@ -76,7 +94,8 @@ function measureGeometry(bounds: HTMLElement | null, element: HTMLElement | null
 export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, elementRef: RefObject<HTMLElement | null>, present: boolean, resetKey: unknown) {
     // The stored offset belongs to the reset key it was set under; a new key reads as the home placement.
     const [held, setHeld] = useState({key: resetKey, offset: ORIGIN});
-    const [dragging, setDragging] = useState(false);
+    // The element's home box in window coordinates while a drag that has passed the threshold is under way.
+    const [dragHome, setDragHome] = useState<Box | undefined>(undefined);
     const offset = held.key === resetKey ? held.offset : ORIGIN;
     const offsetRef = useRef(offset);
     const drag = useRef<ActiveDrag | null>(null);
@@ -152,7 +171,8 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
         if (event.button !== 0 || !event.isPrimary) return;
         const measured = geometry();
         if (!measured) return;
-        drag.current = {pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, startOffset: offsetRef.current, ...measured, moved: false};
+        drag.current = {pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, startOffset: offsetRef.current, ...measured, moved: false,
+            snapArmed: distanceFromHome(offsetRef.current) > SNAP_HOME_PX};
         event.currentTarget.setPointerCapture?.(event.pointerId);
     };
 
@@ -164,10 +184,13 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
         if (!active.moved) {
             if (Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
             active.moved = true;
-            setDragging(true);
+            setDragHome(active.base);
         }
         event.preventDefault();
-        apply(clampOffset({x: active.startOffset.x + dx, y: active.startOffset.y + dy}, active.base, active.bounds));
+        const requestedOffset = {x: active.startOffset.x + dx, y: active.startOffset.y + dy};
+        const next = clampOffset(requestedOffset, active.base, active.bounds);
+        if (distanceFromHome(next) > SNAP_HOME_PX) active.snapArmed = true;
+        apply(snapHome(requestedOffset, next, offsetRef.current, active.snapArmed));
     };
 
     const endDrag = (event: ReactPointerEvent<HTMLElement>) => {
@@ -176,17 +199,29 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
         drag.current = null;
         // The click that follows a drag release belongs to the drag, not to the handle's action.
         suppressClick.current = active.moved;
-        if (active.moved) setDragging(false);
+        if (active.moved) setDragHome(undefined);
+    };
+
+    /** Returns the element to its home placement and drops a position requested for its next mount. */
+    const home = () => {
+        requested.current = undefined;
+        apply(ORIGIN);
     };
 
     const onKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
+        if (event.key === 'Home' && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+            event.preventDefault();
+            home();
+            return;
+        }
         const step = event.shiftKey ? KEY_STEP_LARGE_PX : KEY_STEP_PX;
         const delta = {ArrowLeft: {x: -step, y: 0}, ArrowRight: {x: step, y: 0}, ArrowUp: {x: 0, y: -step}, ArrowDown: {x: 0, y: step}}[event.key];
         if (!delta || event.altKey || event.ctrlKey || event.metaKey) return;
         event.preventDefault();
         const measured = geometry();
         if (!measured) return;
-        apply(clampOffset({x: offsetRef.current.x + delta.x, y: offsetRef.current.y + delta.y}, measured.base, measured.bounds));
+        const requestedOffset = {x: offsetRef.current.x + delta.x, y: offsetRef.current.y + delta.y};
+        apply(snapHome(requestedOffset, clampOffset(requestedOffset, measured.base, measured.bounds), offsetRef.current, false));
     };
 
     /** Returns true once for the click that ends a drag, so the handle can skip its press action. */
@@ -198,11 +233,14 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
 
     return {
         offset,
-        dragging,
+        dragging: dragHome !== undefined,
+        /** The home box in window coordinates while the element is being dragged, to show where it docks. */
+        dragHome,
         style: offset.x === 0 && offset.y === 0 ? undefined : {transform: `translate(${offset.x}px, ${offset.y}px)`},
         handleProps: {onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerCancel: endDrag, onKeyDown},
         consumeDragClick,
         topLeft,
         moveTo,
+        home,
     };
 }

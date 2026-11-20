@@ -2407,6 +2407,8 @@ export const sl = {
     "move_lesson_instructions": "Premakni navodila",
     "hide_lesson_short": "Skrij",
     "exit_lesson_short": "Končaj",
+    "dock_lesson_instructions": "Vrni navodila na njihovo mesto",
+    "dock_lesson_short": "Na mesto",
     "back_to_instructions": "Nazaj na navodila",
     "continue_lesson": "Nadaljuj vodeni primer",
     "move_lesson_prompt": "Premakni opazovalni namig",
