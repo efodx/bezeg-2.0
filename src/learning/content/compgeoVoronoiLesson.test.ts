@@ -273,7 +273,7 @@ test('set-mode does what the mode control does: sites, points and chosen site st
         act(() => { capabilities.apply(ps('set-mode', {mode: 'sites'})); });
         act(() => { capabilities.apply(ps('set-points', {mode: 'points', points: [[0, 0], [1, 0], [2, 3]]})); });
         act(() => { capabilities.apply(ps('select-site', {site: 1})); });
-        act(() => { fireEvent.change(document.querySelector('select') as HTMLSelectElement, {target: {value: 'four-point'}}); });
+        act(() => { fireEvent.change(document.querySelectorAll('select')[1] as HTMLSelectElement /* the mode select follows the examples select */, {target: {value: 'four-point'}}); });
         expect(document.querySelector('[data-voronoi="mode-refused"]')).not.toBeNull();
         act(() => { capabilities.apply(ps('set-mode', {mode: 'sites'})); });
         expect(document.querySelector('[data-voronoi="mode-refused"]')).toBeNull();
