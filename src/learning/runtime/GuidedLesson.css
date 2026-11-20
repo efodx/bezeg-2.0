@@ -134,7 +134,7 @@
 .guided-lesson-notation { margin:0 0 10px; padding:8px 12px; background:#f0f3e8; border-radius:6px; overflow-wrap:anywhere; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--bezeg-shell-scroll-thumb, #b9c2a8) transparent; }
 .guided-lesson-reading .guided-lesson-frame > :last-child, .guided-lesson-worked-example > :last-child { margin-bottom:0; }
 .guided-lesson-prose-scroll { overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--bezeg-shell-scroll-thumb, #b9c2a8) transparent; }
-.guided-lesson-notation:focus-visible { outline:3px solid #577cc3; outline-offset:2px; }
+.guided-lesson-notation:focus-visible, .guided-lesson-prose-scroll:focus-visible { outline:3px solid #577cc3; outline-offset:2px; }
 .guided-lesson-notation mjx-container[display="true"] { margin:0 !important; max-width:none; min-width:0; overflow:visible; }
 .guided-lesson-frame, .guided-lesson-worked-example { min-width:0; max-width:100%; }
 .guided-lesson-notation + .guided-lesson-notation { margin-top:-2px; }
@@ -195,6 +195,8 @@
 @media(max-width:700px), (max-height:520px) {
     .guided-lesson { padding:4px 12px 0; }
     .guided-lesson-reading { overflow-y:auto; min-height:0; }
+    /* The heading and navigation are pinned here; text that keyboard focus brings into view stops below them. */
+    .guided-lesson-reading * { scroll-margin-top:calc(var(--guided-lesson-controls-height, 0px) + 8px); }
     .guided-lesson-actions button { flex:1 1 42%; }
     .guided-lesson .guided-lesson-completion-actions { padding-bottom:12px; }
     .guided-lesson-exit-dialog { padding:18px; }

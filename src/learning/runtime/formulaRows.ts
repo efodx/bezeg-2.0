@@ -211,7 +211,12 @@ function wideFormulas(element: HTMLElement): {count: number, wide: Set<number>} 
 async function fitProse(element: HTMLElement, retypeset?: (row: HTMLElement, tex: string) => Promise<unknown>) {
     const source = element.dataset.tex;
     forgetOtherSource(element);
-    const mark = () => element.classList.toggle(SCROLL_CLASS, wideFormulas(element).wide.size > 0);
+    // A paragraph that scrolls sideways is a keyboard stop, so its hidden part can be reached with the arrow keys.
+    const mark = () => {
+        const scrolls = element.classList.toggle(SCROLL_CLASS, wideFormulas(element).wide.size > 0);
+        if (scrolls) element.tabIndex = 0;
+        else element.removeAttribute('tabindex');
+    };
     const {count, wide} = wideFormulas(element);
     if (source === undefined || !retypeset || element.dataset.stackedFor === source || wide.size === 0) return mark();
     element.dataset.stackedFor = source;

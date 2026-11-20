@@ -103,6 +103,7 @@ describe('fitFormulaRows prose', () => {
         await vi.waitFor(() => expect(retypeset).toHaveBeenCalledTimes(1));
         expect(source()).toBe('\\(aaaa\\) \\({}=bbbb\\) \\({}=cccc\\) \\({}=dddd\\)');
         await vi.waitFor(() => expect(element.classList.contains('guided-lesson-prose-scroll')).toBe(false));
+        expect(element.hasAttribute('tabindex')).toBe(false);
     });
 
     test('a formula that fits stays whole', async () => {
@@ -116,6 +117,8 @@ describe('fitFormulaRows prose', () => {
         const {element, panel, retypeset} = paragraph('\\(aaaaaaaaaaaaaaaaaaaaaaaaaa\\)', 150);
         fitFormulaRows(panel, retypeset);
         await vi.waitFor(() => expect(element.classList.contains('guided-lesson-prose-scroll')).toBe(true));
+        // ...and is a keyboard stop, so the part past the edge can be reached without a pointer.
+        expect(element.tabIndex).toBe(0);
         expect(retypeset).not.toHaveBeenCalled();
     });
 });

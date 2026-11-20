@@ -127,6 +127,18 @@ export function GuidedLesson(props: {
         observer.observe(panel);
         return () => observer.disconnect();
     }, [overlayVisible]);
+    // On a phone and in a short window the card's heading and navigation stay pinned while its text scrolls. Their height
+    // is published so that text brought into view by keyboard focus stops below them (see `scroll-margin-top` in the CSS).
+    useLayoutEffect(() => {
+        const panel = lessonRef.current;
+        const controls = panel?.querySelector<HTMLElement>('.guided-lesson-controls');
+        if (!overlayVisible || !panel || !controls || typeof ResizeObserver === 'undefined') return undefined;
+        const publish = () => panel.style.setProperty('--guided-lesson-controls-height', `${controls.offsetHeight}px`);
+        publish();
+        const observer = new ResizeObserver(publish);
+        observer.observe(controls);
+        return () => observer.disconnect();
+    }, [overlayVisible]);
     useEffect(() => {
         const updateAvailableHeight = () => {
             const layer = layerRef.current;
