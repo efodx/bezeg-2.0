@@ -99,7 +99,11 @@ const fixedPointStyle = dynamicAttributes<PointAttributes>({
     highlightFillColor: GraphPalette.derivedPoint
 });
 
-function constructionLabel(settings: DisplaySettings, pointStyle: PointAttributes, level: number, pointIndex: number, pointCount: number, compactBoard: () => boolean): NonNullable<PointAttributes["label"]> {
+/** The offset (px, y up, from the point to the centre of its label) a board layout chose for the scheme point, or null for the fixed layout. */
+type PlacedOffset = (level: number, pointIndex: number) => readonly [number, number] | null;
+const NO_PLACEMENT: PlacedOffset = () => null;
+
+function constructionLabel(settings: DisplaySettings, pointStyle: PointAttributes, level: number, pointIndex: number, pointCount: number, compactBoard: () => boolean, placedOffset: PlacedOffset): NonNullable<PointAttributes["label"]> {
     const above = Math.abs(Math.trunc(level)) % 2 === 0;
     const distance = 0.55 + Math.floor(Math.abs(Math.trunc(level)) / 2) * 0.35;
     const layout = decasteljauLabelLayout(level, pointIndex, pointCount);
@@ -107,8 +111,10 @@ function constructionLabel(settings: DisplaySettings, pointStyle: PointAttribute
     return dynamicAttributes<NonNullable<PointAttributes["label"]>>({
         ...(pointStyle.label as object),
         anchorX: () => compactBoard() ? direction.anchorX : "middle",
-        anchorY: () => compactBoard() ? direction.anchorY : above ? "bottom" : "top",
+        anchorY: () => compactBoard() ? direction.anchorY : placedOffset(level, pointIndex) ? "middle" : above ? "bottom" : "top",
         offset: () => {
+            const placed = compactBoard() ? null : placedOffset(level, pointIndex);
+            if (placed) return [placed[0], placed[1]] as [number, number];
             if (compactBoard()) {
                 const compactDistance = settings.fontSize * (0.36 + layout.ring * 0.16);
                 return [direction.x * compactDistance, direction.y * compactDistance] as [number, number];
@@ -118,22 +124,22 @@ function constructionLabel(settings: DisplaySettings, pointStyle: PointAttribute
     });
 }
 
-function resultPointStyle(level: number, pointIndex = 0, pointCount = 1, compactBoard: () => boolean = () => false): PointAttributes {
+function resultPointStyle(level: number, pointIndex = 0, pointCount = 1, compactBoard: () => boolean = () => false, placedOffset: PlacedOffset = NO_PLACEMENT): PointAttributes {
     return dynamicAttributes<PointAttributes>({
         ...pointStyle,
         name: "",
         fillColor: GraphPalette.constructionAccent,
-        label: constructionLabel(settings, pointStyle, level, pointIndex, pointCount, compactBoard)
+        label: constructionLabel(settings, pointStyle, level, pointIndex, pointCount, compactBoard, placedOffset)
     });
 }
 
-function constructionPointStyle(level: number, pointIndex = 0, pointCount = 1, compactBoard: () => boolean = () => false): PointAttributes {
+function constructionPointStyle(level: number, pointIndex = 0, pointCount = 1, compactBoard: () => boolean = () => false, placedOffset: PlacedOffset = NO_PLACEMENT): PointAttributes {
     const color = constructionLevelColor(level);
     return dynamicAttributes<PointAttributes>({
         ...pointStyle,
         name: "",
         fillColor: color,
-        label: constructionLabel(settings, pointStyle, level, pointIndex, pointCount, compactBoard)
+        label: constructionLabel(settings, pointStyle, level, pointIndex, pointCount, compactBoard, placedOffset)
     });
 }
 

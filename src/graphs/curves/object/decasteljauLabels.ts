@@ -49,7 +49,7 @@ export interface SchemeLabelPlacement {
 
 /** Estimated label size when the board has not measured it yet (the default label measures about 22 x 26 px at the default font size). */
 export function estimatedSchemeLabelSize(fontSize: number): readonly [number, number] {
-    return [Math.round(fontSize * 0.9), Math.round(fontSize * 1.08)];
+    return [Math.round(fontSize * 1.1), Math.round(fontSize * 1.3)];
 }
 
 export function placeSchemeLabels(request: SchemeLabelRequest): Map<string, SchemeLabelPlacement> {

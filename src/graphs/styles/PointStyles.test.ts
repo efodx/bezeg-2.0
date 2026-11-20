@@ -29,6 +29,17 @@ test("compact De Casteljau labels fan the five-point default by construction lev
 });
 
 
+test("a placed De Casteljau label takes its offset from the board layout on wide boards only", () => {
+    const styles = stylesFor(new DisplaySettings());
+    const read = (compact: boolean, placed: readonly [number, number] | null) => {
+        const label = styles.point.construction(2, 1, 5, () => compact, () => placed).label as unknown as Record<string, () => unknown>;
+        return {anchorX: label.anchorX(), anchorY: label.anchorY(), offset: label.offset()};
+    };
+    expect(read(false, [5, -7])).toEqual({anchorX: "middle", anchorY: "middle", offset: [5, -7]});
+    expect(read(false, null).anchorY).toBe("bottom");
+    expect(read(true, [5, -7])).toEqual(read(true, null));
+});
+
 test("JSXGraph renders control-point fill and outline as separate colors", () => {
     const container = document.createElement("div");
     container.id = "point-style-renderer-regression";

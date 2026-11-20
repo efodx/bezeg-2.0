@@ -4,6 +4,13 @@ import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {Point} from "../../../bezeg/api/point/point";
 import {elevate} from "../../../bezeg/impl/kernels/bezier-kernels";
 import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
+import {sampleLine, type PxBox} from "../../legend/boardLabelPlacement";
+import {estimatedSchemeLabelSize, placeSchemeLabels, SCHEME_LABEL_MIN_BOARD_PX, type SchemeLabelPlacement, type SchemeLabelPoint} from "./decasteljauLabels";
+
+/** The curve is sampled at this many parameter steps as an obstacle for the scheme labels. */
+const CURVE_SAMPLE_COUNT = 48;
+/** A scheme label keeps its spot across parameter steps up to this size (the steps of an animation or a slider drag). */
+const SCHEME_LABEL_STICKY_DT = 0.1;
 
 export interface BezierCurveAttributes extends PointControlledCurveAttributes {
     allowSubdivision: boolean,
@@ -41,6 +48,8 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     showingDecasteljauPoints: boolean = false;
     protected subdivisionResultConsumer?: (curve: this) => void;
     private decasteljauT: number = 0.5;
+    private schemeLabelMemo?: {key: string; fixedKey: string; t: number; placed: ReadonlyMap<string, SchemeLabelPlacement>};
+    private schemeLabelFrom: ReadonlyMap<string, readonly [number, number]> = new Map();
     private decasteljauSegments: JXG.Segment[] = [];
     private elevationPoints: JXG.Point[] = [];
     private elevationSegments: JXG.Segment[] = [];
@@ -156,6 +165,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         this.subdivisionPoint = null;
         this.extrapolationPoint = null;
         this.cachedDecasteljauScheme = [];
+        this.resetSchemeLabels();
         this.cacheRevision = -1;
         this.lastDecasteljauN = -1;
         this.showingDecasteljauScheme = false;
@@ -217,6 +227,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
     generateLineSegments() {
         this.board.removeObject(this.decasteljauElements());
+        this.resetSchemeLabels();
         this.decasteljauSegments = [];
         this.decasteljauPoints = [];
         const n = this.pointControlledCurve.getPoints().length;
@@ -229,7 +240,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
                 if (i === 1) {
                     pp1 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].X(),
                         () => this.getDecasteljauScheme(this.decasteljauT)[r][i - 1].Y()], {
-                        ...this.styles.point.construction(r, i - 1, n, compactLabels),
+                        ...this.styles.point.construction(r, i - 1, n, compactLabels, this.schemeLabelOffset),
                         name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i - 1}^${r}$$` : ""
                     });
                 } else {
@@ -239,7 +250,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
                 pp2 = this.board.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[r][i].X(),
                     () => this.getDecasteljauScheme(this.decasteljauT)[r][i].Y()], {
-                    ...this.styles.point.construction(r, i, n, compactLabels),
+                    ...this.styles.point.construction(r, i, n, compactLabels, this.schemeLabelOffset),
                     name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^${r}$$` : ""
                 });
                 const segment = this.board!.create('segment', [pp1, pp2], this.styles.segment.construction(r, true));
@@ -249,7 +260,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
             }
         }
         const drawingPoint = this.board?.create('point', [() => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].X(), () => this.getDecasteljauScheme(this.decasteljauT)[n - 1][0].Y()], {
-            ...this.styles.point.result(n - 1, 0, n, compactLabels),
+            ...this.styles.point.result(n - 1, 0, n, compactLabels, this.schemeLabelOffset),
             name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${0}^${n - 1}$$` : ""
         });
 
@@ -258,6 +269,97 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         }
         this.jxgPoints.forEach((point, i) => point.setAttribute({name: () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$`}));
 
+    }
+
+    /** Forgets the memoised scheme label placement and the remembered label spots (the scheme elements are being rebuilt or disposed). */
+    private resetSchemeLabels() {
+        this.schemeLabelMemo = undefined;
+        this.schemeLabelFrom = new Map();
+    }
+
+    /** The label offset (px, y up) the shared placement chose for scheme point `p_index^level`; null on narrow boards or while the labels are hidden. */
+    private schemeLabelOffset = (level: number, index: number): readonly [number, number] | null => {
+        const placed = this.schemeLabelPlacement()?.get(`${level}-${index}`);
+        return placed ? placed.offset : null;
+    };
+
+    /** One placement per board state: the memo key is the board metrics, the control points, t, the font size and the measured label size. */
+    private schemeLabelPlacement(): ReadonlyMap<string, SchemeLabelPlacement> | undefined {
+        const board = this.board;
+        const width = board?.canvasWidth, height = board?.canvasHeight;
+        if (!(width >= SCHEME_LABEL_MIN_BOARD_PX) || !(height > 0) || !this.showingDecasteljauPoints || !this.showingDecasteljauScheme) return undefined;
+        const settings = this.displaySettings;
+        if (!settings.pointLabelsVisible) return undefined;
+        const t = this.decasteljauT;
+        const levels = this.getDecasteljauScheme(t);
+        if (levels.length < 2) return undefined;
+        const origin = board.origin.scrCoords, ux = board.unitX, uy = board.unitY;
+        const px = (p: Point): readonly [number, number] => [origin[1] + p.X() * ux, origin[2] - p.Y() * uy];
+        // JSXGraph measures a typeset label too tall (a 22 x 72 px box round a glyph about 26 px high), so the height is estimated; the width is measured when plausible.
+        const [estimatedW, h] = estimatedSchemeLabelSize(settings.fontSize);
+        const measuredW = this.decasteljauPoints.map(point => point.label?.size?.[0]).find((width): width is number => !!width && width > 1);
+        const w = measuredW && measuredW >= estimatedW * 0.6 && measuredW <= estimatedW * 2 ? measuredW : estimatedW;
+        // Only t changes between the frames of an animation: then a label keeps its spot (`prefer`). Any other change places the labels afresh.
+        const fixedKey = [width, height, origin[1], origin[2], ux, uy, settings.fontSize, w, h, levels[0].map(p => `${p.X()},${p.Y()}`).join(";")].join("|");
+        const key = `${fixedKey}|${t}`;
+        if (this.schemeLabelMemo?.key === key) return this.schemeLabelMemo.placed;
+        // A jump in t (a lesson action, a preset) places the labels afresh: the old spots belonged to another picture.
+        if (this.schemeLabelMemo?.fixedKey !== fixedKey || Math.abs(t - this.schemeLabelMemo.t) > SCHEME_LABEL_STICKY_DT) this.schemeLabelFrom = new Map();
+
+        const markerRadius = Number(this.jxgPoints[0]?.evalVisProp?.("size")) || 5;
+        const points: SchemeLabelPoint[] = [];
+        const markers: Array<readonly [number, number, number]> = [];
+        const samples: Array<readonly [number, number]> = [];
+        const toPx = (x: number, y: number): readonly [number, number] => [origin[1] + x * ux, origin[2] - y * uy];
+        levels.forEach((full, r) => {
+            // The scheme pads every level to the number of control points; level r has n - r points.
+            const level = full.slice(0, levels[0].length - r);
+            const coords = level.map(px);
+            coords.forEach(([x, y], index) => {
+                markers.push([x, y, markerRadius - 3]);
+                if (r > 0) points.push({id: `${r}-${index}`, level: r, index, x, y, w, h});
+            });
+            samples.push(...sampleLine(level.map(p => p.X()), level.map(p => p.Y()), toPx, width, height, 9, 200));
+        });
+        const curve = this.getCurve();
+        const curveX: number[] = [], curveY: number[] = [];
+        for (let k = 0; k <= CURVE_SAMPLE_COUNT; k++) {
+            const p = curve.eval(k / CURVE_SAMPLE_COUNT);
+            curveX.push(p.X());
+            curveY.push(p.Y());
+        }
+        samples.push(...sampleLine(curveX, curveY, toPx, width, height, 9, 400));
+
+        const occupied: PxBox[] = [];
+        for (const point of this.jxgPoints) {
+            const label = point.label;
+            if (!label || !label.evalVisProp("visible") || !label.size || !label.coords) continue;
+            const [, lx, ly] = label.coords.scrCoords;
+            const [lw, lh] = label.size;
+            if (![lx, ly, lw, lh].every(Number.isFinite) || lw <= 1) continue;
+            const x0 = label.getAnchorX() === "right" ? lx - lw : label.getAnchorX() === "middle" ? lx - lw / 2 : lx;
+            const y1 = label.getAnchorY() === "top" ? ly + lh : label.getAnchorY() === "middle" ? ly + lh / 2 : ly;
+            // The glyph is centred in the measured box (22 x 72 px round a glyph of 22 x 26 px).
+            const centre = y1 - lh / 2;
+            occupied.push({x0, y0: centre - h / 2, x1: x0 + lw, y1: centre + h / 2});
+        }
+        const strips: PxBox[] = [];
+        type Tick = {evalVisProp(name: string): unknown; plaintext?: string; coords?: {scrCoords: number[]}};
+        const axes = (board as unknown as {defaultAxes?: {x?: {defaultTicks?: {labels?: Tick[]}}; y?: {defaultTicks?: {labels?: Tick[]}}}}).defaultAxes;
+        for (const [axis, ticks] of [["x", axes?.x?.defaultTicks?.labels], ["y", axes?.y?.defaultTicks?.labels]] as const) {
+            for (const tick of ticks ?? []) {
+                const [, sx, sy] = tick.coords?.scrCoords ?? [];
+                if (!tick.evalVisProp("visible") || !Number.isFinite(sx) || !Number.isFinite(sy) || !tick.plaintext) continue;
+                const tw = tick.plaintext.length * 7 + 10, th = 20;
+                strips.push(axis === "x" ? {x0: sx - tw / 2, y0: sy, x1: sx + tw / 2, y1: sy + th} : {x0: sx - tw, y0: sy - th / 2, x1: sx, y1: sy + th / 2});
+            }
+        }
+        const placed = placeSchemeLabels({
+            width, height, points, markers, samples, strips, occupied, axisX: origin[1], axisY: origin[2], previous: this.schemeLabelFrom,
+        });
+        this.schemeLabelFrom = new Map([...placed].map(([id, value]) => [id, value.from]));
+        this.schemeLabelMemo = {key, fixedKey, t, placed};
+        return placed;
     }
 
     getDecasteljauScheme(t: number) {
