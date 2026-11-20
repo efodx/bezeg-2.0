@@ -45,11 +45,12 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
         </div>
         <PlaybackButtons placement="graph" groupLabel={t("animation_controls")} className="decasteljau-animation-actions" playing={playing}
                          {...playbackBlocks({atStart: props.status === "ready" && props.parameter === 0, atEnd: false, playing})}
-                         onPlayPause={playing ? props.onPause : props.onPlay} onReset={props.onStop}/>
-        <div className="decasteljau-animation-slider">
-            <Slider customText={t("animation_parameter")} min={0} max={1} value={props.parameter}
-                    onChange={props.onParameterChange}/>
-        </div>
+                         onPlayPause={playing ? props.onPause : props.onPlay} onReset={props.onStop}
+                         companion={{label: t("animation_parameter"), children:
+                             <div className="decasteljau-animation-slider">
+                                 <Slider customText={t("animation_parameter")} min={0} max={1} value={props.parameter}
+                                         onChange={props.onParameterChange}/>
+                             </div>}}/>
         <div className="decasteljau-animation-slider">
             <Slider customText={t("animation_speed")} min={0} max={1} value={props.speed}
                     onChange={props.onSpeedChange}/>

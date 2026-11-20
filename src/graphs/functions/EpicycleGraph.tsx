@@ -605,10 +605,11 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("epicycle_playback_group")} playing={graph.playing}
                          playBlock={!graph.playing && graph.reducedMotion() ? "reduced-motion" : undefined}
-                         onPlayPause={() => (graph.playing ? graph.pause() : graph.play())}/>
-        <Slider customText={text("epicycle_time_label")} min={0} max={6.28} step={0.01} value={Math.min(graph.time, 6.28)}
-                formatValue={value => formatNumber(value / TWO_PI, language, 2)}
-                onChange={(next: number) => { try { graph.setTime(next); } catch (error) { if (!(error instanceof DomainError)) throw error; } }}/>
+                         onPlayPause={() => (graph.playing ? graph.pause() : graph.play())}
+                         companion={{label: text("epicycle_time_label"), children:
+                             <Slider customText={text("epicycle_time_label")} min={0} max={6.28} step={0.01} value={Math.min(graph.time, 6.28)}
+                                     formatValue={value => formatNumber(value / TWO_PI, language, 2)}
+                                     onChange={(next: number) => { try { graph.setTime(next); } catch (error) { if (!(error instanceof DomainError)) throw error; } }}/>}}/>
         <p className="inspector-help">{text("epicycle_playback_help")}</p>
     </div>;
 }
