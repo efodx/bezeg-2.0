@@ -43,14 +43,16 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
     protected override workspaceUsesStructuredEditing() { return true; }
     protected override workspacePointEditing() { return false; }
     protected override workspaceDescription() { return t("explore_the_hodograph_offsets_and_their_geometry"); }
-    /** Edit groups that belong before the hodograph board (for example a parametrization choice); none by default. */
-    protected workspaceBeforeHodograph(): React.ReactNode { return null; }
-
-    protected override workspaceEdit(): React.ReactNode {
-        return <>{super.workspaceEdit()}{this.workspaceBeforeHodograph()}{this.getSelectedCurve() && <div className="inspector-group">
+    /** The hodograph follows the curve selection: select the curve, then edit its hodograph. */
+    protected override workspaceAfterCurveSelection(): React.ReactNode {
+        return this.getSelectedCurve() && <div className="inspector-group">
             <h3>{t("hodograph")}</h3><p>{t("drag_points_w0_and_w1_to_change_the_shape_of_the_ph_curve")}</p>
             <HodographInputbox key={`hodograph-${this.workspaceRevision}`} attach={host => this.attachHodograph(host)}/><CurvePointControls key={`hodograph-editor-${this.workspaceRevision}`} prefix="w" points={() => this.getFirstCurveAsPHBezierCurve().w}
-                boards={() => [this.board, this.hodographBoard]} onEdit={(_, to) => this.afterTypedHodographEdit(to)}/></div>}
+                boards={() => [this.board, this.hodographBoard]} onEdit={(_, to) => this.afterTypedHodographEdit(to)}/></div>;
+    }
+
+    protected override workspaceEdit(): React.ReactNode {
+        return <>{super.workspaceEdit()}
             {this.getFirstJxgCurveIfAny() && <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
                 <PhOffsetParameterControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}</>;
     }

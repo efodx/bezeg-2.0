@@ -185,6 +185,9 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         if (!this.workspaceConstructionFirst()) { return this.getGraphCommandsArea(); }
         return this.state.curveSelected ? this.getSelectableCurveArea() : null;
     }
+    /** Edit groups that read as one sequence with the curve selection (they render directly after it); none by default. */
+    protected workspaceAfterCurveSelection(): React.ReactNode { return null; }
+
     private workspaceCurveSelection(): React.ReactNode {
         const selectableCurves = this.jxgCurves.filter(curve => curve.getAttributes().selectable !== false);
         if (selectableCurves.length === 0) { return null; }
@@ -247,6 +250,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
             const typed = this.workspaceTypedPoints() ? this.getSelectedCurve() ?? this.jxgCurves[0] : undefined;
             return <>{this.workspaceConstructionGroup()}
                 {this.workspaceCurveSelection()}
+                {this.workspaceAfterCurveSelection()}
                 {typed && <CurvePointControls key={`points-${this.jxgCurves.indexOf(typed)}-${this.replacementRevision}`}
                     points={() => this.typedPointsOf(typed)} curveNumber={this.listedCurveNumber(typed)} boards={() => [this.board]} onEdit={(_, to) => this.afterTypedPointEdit(to)}/>}
                 {this.workspaceCommandsAfterConstruction()}</>;
@@ -258,6 +262,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         return <>
             {this.workspaceConstructionGroup()}
             {this.workspaceCurveSelection()}
+            {this.workspaceAfterCurveSelection()}
             {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={`${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
             {selected && this.workspacePointEditing() && <CurvePointControls key={`points-${this.jxgCurves.indexOf(selected)}-${this.replacementRevision}`}
                 points={() => selected.getCurve().getPoints()} curveNumber={this.listedCurveNumber(selected)} boards={() => [this.board]}
