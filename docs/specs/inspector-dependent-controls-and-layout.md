@@ -1,6 +1,6 @@
 # Inspector: dependent controls and layout at 310 px
 
-Status: in progress (lesson-card-layout stream, handler 4, 2026-11-20).
+Status: implemented (lesson-card-layout stream, handler 4, 2026-11-20). Before and after screenshots at 310 px: `.shots/insp/before/` and `.shots/insp/after/` (untracked).
 
 Source: sections 3 and 6 of the [lesson bug crawl triage](../reviews/lesson-bug-crawl/triage.md), assigned to this stream by the owner on 2026-11-20. Rules: [the controls catalogue](../controls.md), [shared graph controls](shared-graph-controls.md) (decision 13: an unavailable control states its reason), [DESIGN.md](../../DESIGN.md#graph-controls).
 
@@ -41,17 +41,17 @@ Shared controls (one owner):
 - **R2 `ChoiceSelect`.** The selected text counts as clipped only when it does not end before the dropdown arrow. The select's right padding already reserves the arrow, so the room is the client width minus the left padding minus the arrow (16 px) and its inset (8 px), not minus the right padding as well. The controls fixture's clipping check follows the same rule.
 - **R3 `PointListInput`.** The name column has a minimum width that holds a two-character name (O₁, p₀), so lists of one- and two-character names in one panel start their fields at the same x.
 - **R4 button rows.** In `.control-row--fill` and `.inspector-playback` the buttons of one row share one height.
-- **R5 `ValueListInput`.** The name column is as wide as its longest name; a name stays on one line.
+- **R5 `ValueListInput`.** The list has one name column, as wide as its longest name and shared by every row (subgrid); a name stays on one line.
 - **R6 `PointCollection`.** The row that holds the add-mode toggle stacks: Clear all and the toggle are each full width, each label on one line at 310 px.
-- **R7 curve picker.** Curve buttons sit in equal columns, every row starting at the left edge; "Prekliči izbiro" keeps its place after them.
+- **R7 curve picker.** Curve buttons sit in equal columns, every row starting at the left edge; "Prekliči izbiro" follows them over two columns, beside a single selected curve.
 - **R8 `CountSetter`.** The step-only readout is as wide as the typeable field, so stacked steppers share the position of their + button. The readout keeps its shaded look: it still says "not typeable".
-- **R10 Shrani.** The image export buttons use the same two-column row as the export/import pair, so the tab has the primary size and one secondary size.
+- **R10 Shrani.** The image export buttons use the same two-column row as the export/import pair, so every secondary button of the tab is one column wide or the full width. Their height follows their label: a fixed height copied from the two-line Slovenian export labels would be wrong in English.
 
 Routes:
 
-- **R1 complex-roots and complex-reciprocal.** While the test point (roots) or the inversion circle (reciprocal) is hidden, a line directly under its fields says that it is hidden and which button shows it; the line is linked to the fields (`aria-describedby`) where the control allows it, and goes when the object is shown. On reciprocal, c and r form one group so one line covers both. The clause about visibility leaves the unrelated help line. Rejected: revealing the object when a field is edited (it would break predict-then-reveal, and lesson scenes set z while it is hidden); hiding the fields (they are the keyboard path to set the point before revealing it, and the panel would jump).
+- **R1 complex-roots and complex-reciprocal.** (Keys `complex_roots_test_hidden_help`, `complex_recip_circle_hidden_help`.) While the test point (roots) or the inversion circle (reciprocal) is hidden, a line directly under its fields says that it is hidden and which button shows it; the line is linked to the fields (`aria-describedby`) where the control allows it, and goes when the object is shown. On reciprocal, c and r form one group so one line covers both. The clause about visibility leaves the unrelated help line. Rejected: revealing the object when a field is edited (it would break predict-then-reveal, and lesson scenes set z while it is hidden); hiding the fields (they are the keyboard path to set the point before revealing it, and the panel would jump).
 - **R11 complex-roots.** The reveal button reads "Pokaži točko z" / "Skrij točko z" (English "Show point z" / "Hide point z"): the row above it is already named "Preizkusna točka z". Every text that names the button follows (help, legend, lesson prose, tests, recipes).
-- **R9 linear function.** For a vertical line the reason is shown once, full width, under the k and n fields, and both fields are linked to it (`reasonShownElsewhere`, `describedBy`). The readout does not repeat the same sentence.
+- **R9 linear function.** For a vertical line (and for coinciding points) the reason is shown once, full width, under the k and n fields, and both fields are linked to it (`reasonShownElsewhere`, `describedBy`). The readout no longer carries the note: it was the same sentence a second time.
 - **R12 Simson.** The ε slider keeps the 12 px control gap from the slider above it.
 
 No stored preset field, route or lesson id changes. No new Slovenian term: the new lines reuse "skrita", "Pokaži …" and the names already on the panel.
@@ -68,7 +68,7 @@ No stored preset field, route or lesson id changes. No new Slovenian term: the n
 8. R7: on `/bezier/subdivision` after four subdivisions the 16 curve buttons form equal columns.
 9. R8: on `/bspline/deboor` and `/interpolation/least-squares` the + buttons of the two steppers have the same x.
 10. R9: on `/functions/linear` with P1 and P2 on one vertical line the reason appears once in the Edit tab, full width.
-11. R10: the Shrani tab shows two button sizes.
+11. R10: in the Shrani tab the SVG and PNG buttons have the width and the left edges of the export/import pair.
 12. R11: no button label in the Razkritja row of `/complex-roots` breaks inside a word at 310 px.
 13. R12: on `/simson-line` the ε label is 12 px below the slider above it.
 14. Nothing regresses at phone width: `just controls-fixture` passes, and the handler looks at a 310 px screenshot of every changed panel and a 390 px one of the shared controls.
