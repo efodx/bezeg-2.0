@@ -2,7 +2,7 @@
  * First task leads the Edit panel on the analysis routes (graph-control first use, batch 2): on a fresh desktop visit each route's
  * own first task is the first control of `#inspector-edit`, ahead of the setup the plan groups after it.
  */
-import {within} from '@testing-library/react';
+import {act, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
@@ -29,7 +29,6 @@ const routes: Record<string, Route> = {
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
     'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label')), labelled(t('fixed_point_x0_label'))]},
     'recursion-cobweb': {lead: button(t('next_step')), later: [labelled(t('recursion_graph_map_label')), labelled(t('recursion_graph_x_label'))]},
-    'solids': {lead: labelled(t('solids_graph_offset')), later: [labelled(t('solids_graph_mode')), labelled(t('solids_graph_solid'))]},
     'contour-map': {lead: labelled(t('levelsets_graph_level')), later: [labelled(t('levelsets_graph_mode')), labelled(t('levelsets_graph_fn'))]},
     'linear-program': {lead: labelled(t('levelsets_graph_lp_objective_p')), later: [labelled(t('levelsets_graph_lp_count'))]},
 };
@@ -48,6 +47,27 @@ describe.each(Object.keys(routes))('%s first task', id => {
         for (const control of controls.slice(0, controls.indexOf(first))) expect(group.contains(control)).toBe(true);
         for (const find of later) {
             expect(first.compareDocumentPosition(find(root)) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        }
+    });
+});
+
+describe('solids chooser', () => {
+    // The mode/solid chooser leads every mode, so it does not move; in section mode the plane offset is the next control after it.
+    test.each(['section', 'revolve', 'volume', 'stack'] as const)('leads the Edit panel in %s mode', mode => {
+        const graph = graphFactories['solids']() as unknown as {setMode(mode: string): void};
+        mountGraph(graph as never);
+        act(() => graph.setMode(mode));
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const controls = [...root.querySelectorAll<HTMLElement>(FOCUSABLE)];
+        const modeSelect = labelled(t('solids_graph_mode'))(root);
+        const solidSelect = labelled(t('solids_graph_solid'))(root);
+        expect(controls.slice(0, 2)).toEqual([modeSelect, solidSelect]);
+        if (mode === 'section') {
+            const offset = labelled(t('solids_graph_offset'))(root);
+            // A slider's own value box comes before its handle, so the controls between the chooser and the offset belong to the offset.
+            const slider = offset.closest('.slider-field') ?? offset.parentElement!;
+            for (const control of controls.slice(2, controls.indexOf(offset))) expect(slider.contains(control)).toBe(true);
+            expect(slider.contains(controls[2])).toBe(true);
         }
     });
 });

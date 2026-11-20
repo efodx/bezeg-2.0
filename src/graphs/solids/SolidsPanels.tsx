@@ -59,7 +59,8 @@ export function SolidsEditPanel({state, actions}: {state: SolidsPanelState; acti
                         rejectedHint={t('solids_graph_normal_zero')} onChange={value => actions.setNormal(index as 0 | 1 | 2, value)}/>)}
         </div>;
     return <>
-        {state.mode === 'section' ? <>{sectionPlane}{solidChoice}</> : solidChoice}
+        {solidChoice}
+        {sectionPlane}
         {state.mode === 'stack' && <div className="inspector-group"><h3>{t('solids_graph_stack_heading')}</h3>
             {failing ? <p className="inspector-help" data-solids-shear-reason="">{t('solids_graph_shear_unavailable')}</p>
                 : <Slider customText={t('solids_graph_shear')} min={SHEAR_RANGE.min / SHEAR_SCALE} max={SHEAR_RANGE.max / SHEAR_SCALE} step={1 / SHEAR_SCALE}
