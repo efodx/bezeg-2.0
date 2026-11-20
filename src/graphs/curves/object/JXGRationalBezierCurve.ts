@@ -256,6 +256,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
 
             const reactiveWeights: Array<() => number> = [];
             reactiveWeights.push(() => 1);
+            const untouchedBefore: Array<() => boolean> = [];
             for (let i = 0; i < weights.length - 1; i++) {
                 const startingRatio = weights[i + 1] / weights[i];
                 const p0 = points[i];
@@ -293,8 +294,15 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
                     });
                 this.sliders.push(slider);
                 bindMovablePointCursor(slider, this.board);
+                // Until this Farin point or an earlier one moves, the weight is the stored one (normalised to w₀ = 1):
+                // converting it to a slider position and back drifts in the last bits, so a saved Preset would not
+                // round-trip and every rebuild would move the weights a little.
+                const initialValue = slider.Value();
+                const exactWeight = weights[i + 1] / weights[0];
+                const untouched = (): boolean => Math.abs(slider.Value() - initialValue) < 1e-9 && (i === 0 || untouchedBefore[i - 1]());
+                untouchedBefore.push(untouched);
                 const ratio = () => slider.Value() / (1 - slider.Value());
-                const weight = () => reactiveWeights[i]() * ratio();
+                const weight = () => untouched() ? exactWeight : reactiveWeights[i]() * ratio();
                 reactiveWeights.push(weight);
             }
             this.pointControlledCurve.setReactiveWeights(reactiveWeights);
@@ -362,7 +370,9 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
     setWeight(w: number) {
         let newWeights = this.getCurve().getWeights().map(i => i);
         newWeights[this.weightNumber] = w;
-        this.getCurve().setWeights(newWeights);
+        // Farin points drive the weights while shown, so a plain write would be overridden; rebuild them around it.
+        if (this.showingFarinPoints) this.setEffectiveWeights(newWeights);
+        else this.getCurve().setWeights(newWeights);
         this.board.update();
     }
 

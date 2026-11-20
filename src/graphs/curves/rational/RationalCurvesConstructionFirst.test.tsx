@@ -129,6 +129,36 @@ describe('farin: the switch stays in Display', () => {
         expect(locked()).toBe(false);
     });
 
+    test('shown Farin points keep the stored weights exactly, across rebuilds, until a Farin point moves', () => {
+        const graph = mount('farin');
+        const curve = graph.jxgCurves[0];
+        expect(curve.isShowingFarinPoints()).toBe(true);
+        // Exact equality: a slider-position round trip drifts in the last bits (1.9999999999999947), which broke the Preset round trip.
+        expect(curve.getCurve().getEffectiveWeights()).toEqual([1, 2, 1, 1]);
+        const farin = () => screen.getByRole('checkbox', {name: t('farin_points')});
+        act(() => { fireEvent.click(screen.getByRole('button', {name: t('display')})); });
+        act(() => { fireEvent.click(farin()); });
+        act(() => { fireEvent.click(farin()); });
+        expect(curve.isShowingFarinPoints()).toBe(true);
+        expect(curve.getCurve().getEffectiveWeights()).toEqual([1, 2, 1, 1]);
+        act(() => { curve.sliders[2].setValue(0.75); graph.boardUpdate(); });
+        const moved = curve.getCurve().getEffectiveWeights();
+        expect(moved.slice(0, 3)).toEqual([1, 2, 1]);
+        expect(moved[3]).toBeCloseTo(3, 10);
+    });
+
+    test('the weight editor changes a weight while the Farin points are shown', () => {
+        const graph = mount('farin');
+        const curve = graph.jxgCurves[0];
+        expect(curve.isShowingFarinPoints()).toBe(true);
+        select(graph);
+        // The preset selects weight w₁.
+        act(() => { fireEvent.click(screen.getByRole('button', {name: t('increase_weight')})); });
+        expect(curve.getCurve().getEffectiveWeights()).toEqual([1, 2.25, 1, 1]);
+        expect(curve.isShowingFarinPoints()).toBe(true);
+        expect(curve.sliders.length).toBe(3);
+    });
+
     test('acceptance: changing the ratio of adjacent weights moves the Farin point on their edge and the curve', () => {
         const graph = mount('farin');
         const curve = graph.jxgCurves[0];
