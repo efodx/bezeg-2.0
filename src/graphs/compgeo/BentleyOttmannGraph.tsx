@@ -12,6 +12,8 @@ import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {PointSetStepDeclaration} from "./pointSetPersistence";
+import {nameBox, PlacedLabels, pxFrame, type PlacementInput, type PxFrame} from "../legend/pointNamePlacement";
+import type {LabelItem, PxBox} from "../legend/boardLabelPlacement";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {BentleyOttmannControlActions, BentleyOttmannControls, BentleyOttmannLists} from "./BentleyOttmannControls";
 import {BentleyOttmannRun, runBentleyOttmann} from "./bentleyOttmannRun";
@@ -23,6 +25,8 @@ import {parseHullStep} from "./hullTraceRun";
 /** Time between two playback steps (one step per trace event, never more). */
 export const BENTLEY_OTTMANN_STEP_INTERVAL_MS = 400;
 export type BentleyOttmannOverlayId = "sweep";
+/** A JSXGraph text, for the attributes its typings leave out. */
+interface Restyle {setAttribute(attributes: Record<string, unknown>): void}
 
 /** The saved configuration beyond the segments: the step index. Playback status is never state. */
 export interface BentleyOttmannGraphState extends PointSetGraphState {
@@ -182,12 +186,98 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
 
     protected override disposeFigureScene(): void {
         this.playback?.halt();
+        this.names.clear();
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
         this.playback?.halt();
+        this.names.clear();
         super.syncReplacedScene();
+    }
+
+    // ---- Names ---------------------------------------------------------------------------------------------------
+
+    /** The placed boxes of the endpoint names P_i and the segment names s_k, shared by the labels of one board state (boxes only, no board reference). */
+    private readonly names = new PlacedLabels();
+    /** The label elements already given their placed position (weak: nothing here outlives the board's objects). */
+    private readonly namesPlaced = new WeakSet<object>();
+
+    protected override syncScene(): void {
+        super.syncScene();
+        if (!this.hasBoard) return;
+        const board = this.board;
+        const fontPx = this.nameFontPx();
+        const placed = (): Record<string, PxBox> => {
+            const shown = this.shownPoints();
+            return this.names.boxes(board, [shown.map(p => `${p.name}:${p.x},${p.y},${p.r}`).join(";"), fontPx()], frame => this.nameInput(frame, shown, fontPx()));
+        };
+        for (const element of board.objectsList as unknown as Array<JXG.GeometryElement & {X?: () => number; Y?: () => number; label?: JXG.Text}>) {
+            if (this.namesPlaced.has(element)) continue;
+            const name = element.name;
+            if (element.elType === "point" && /^P\d+$/.test(name) && element.label) {
+                this.namesPlaced.add(element);
+                (element.label as unknown as Restyle).setAttribute({anchorX: "middle", anchorY: "middle"});
+                (element.label as unknown as Restyle).setAttribute({offset: () => {
+                    const frame = pxFrame(board);
+                    return frame ? this.names.offset(placed()[name], frame.toPx(element.X!(), element.Y!()), [8, 8]) : [8, 8];
+                }});
+            } else if (element.elType === "text" && /^s\d+$/.test(name)) {
+                this.namesPlaced.add(element);
+                const text = element as unknown as JXG.Text;
+                (text as unknown as Restyle).setAttribute({anchorX: "middle", anchorY: "middle"});
+                const centre = (axis: 0 | 1) => () => {
+                    const frame = pxFrame(board), box = placed()[name];
+                    if (!frame || !box) return axis === 0 ? element.X!() : element.Y!();
+                    return axis === 0 ? frame.left + (box.x0 + box.x1) / 2 / board.unitX : frame.top - (box.y0 + box.y1) / 2 / board.unitY;
+                };
+                (text as unknown as {addConstraint(c: unknown[]): void}).addConstraint([centre(0), centre(1)]);
+            }
+        }
+    }
+
+    private nameFontPx(): () => number {
+        const size = (this.styles.point.default.label as unknown as {fontSize?: number | (() => number)}).fontSize;
+        return () => typeof size === "function" ? size() : size ?? 15;
+    }
+
+    /** The drawn points: the endpoints and the sweep overlay's marks (centre in board units, radius in px). */
+    private shownPoints(): Array<{name: string; x: number; y: number; r: number}> {
+        return (this.board.objectsList as unknown as Array<JXG.GeometryElement & {X?: () => number; Y?: () => number; evalVisProp(name: string): unknown}>)
+            .filter(o => o.elType === "point" && o.X && o.Y && o.name !== "pending" && Boolean(o.evalVisProp("visible")))
+            .map(o => ({name: o.name, x: o.X!(), y: o.Y!(), r: Number(o.evalVisProp("size")) + 1 || 7}));
+    }
+
+    private nameInput(frame: PxFrame, shown: ReadonlyArray<{name: string; x: number; y: number; r: number}>, fontPx: number): PlacementInput {
+        const px = shown.map(p => ({...p, at: frame.toPx(p.x, p.y)}));
+        const markers = px.map(p => [p.at[0], p.at[1], Math.max(p.r, 7)] as const);
+        const ends = px.filter(p => /^P\d+$/.test(p.name)).sort((a, b) => Number(a.name.slice(1)) - Number(b.name.slice(1)));
+        const segments: Array<[readonly [number, number], readonly [number, number]]> = [];
+        for (let k = 0; 2 * k + 1 < ends.length; k++) segments.push([ends[2 * k].at, ends[2 * k + 1].at]);
+        const samples: Array<readonly [number, number]> = [];
+        for (const [a, b] of segments) {
+            const n = Math.max(1, Math.min(600, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 2)));
+            for (let i = 0; i <= n; i++) samples.push([a[0] + ((b[0] - a[0]) * i) / n, a[1] + ((b[1] - a[1]) * i) / n]);
+        }
+        const crossings: Array<readonly [number, number]> = [];
+        segments.forEach(([p, q], i) => segments.forEach(([r, u], j) => {
+            if (j <= i) return;
+            const d = (q[0] - p[0]) * (u[1] - r[1]) - (q[1] - p[1]) * (u[0] - r[0]);
+            if (d === 0) return;
+            const t = ((r[0] - p[0]) * (u[1] - r[1]) - (r[1] - p[1]) * (u[0] - r[0])) / d;
+            const w = ((r[0] - p[0]) * (q[1] - p[1]) - (r[1] - p[1]) * (q[0] - p[0])) / d;
+            if (t >= 0 && t <= 1 && w >= 0 && w <= 1) crossings.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
+        }));
+        const items: LabelItem[] = ends.map(p => ({id: p.name, ax: p.at[0], ay: p.at[1], ...nameBox(p.name, fontPx)}));
+        segments.forEach(([a, b], k) => {
+            const at = (f: number) => [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f] as const;
+            // The anchor farthest (up to 120 px) from every crossing with another segment first; a tie keeps the order 0,5, 0,3, 0,7, 0,2, 0,8.
+            const clear = (f: number) => Math.min(120, ...crossings.map(c => Math.hypot(c[0] - at(f)[0], c[1] - at(f)[1])));
+            const order = [0.5, 0.3, 0.7, 0.2, 0.8].map((f, i) => ({f, i, c: Math.round(clear(f) / 4)})).sort((x, y) => y.c - x.c || x.i - y.i);
+            const [first, ...rest] = order.map(o => at(o.f));
+            items.push({id: `s${k + 1}`, ax: first[0], ay: first[1], alts: rest, ...nameBox(`s${k + 1}`, fontPx)});
+        });
+        return {items, markers, samples};
     }
 
     // ---- Presets -------------------------------------------------------------------------------------------------
