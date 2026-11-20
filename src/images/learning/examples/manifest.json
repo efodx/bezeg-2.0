@@ -1,61 +1,61 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+  "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+    "revision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
     "dirty": false,
-    "inputs": "5b6483e3a1faa4b3121e652539a09b16b2e13dae2a24f3df11de26ea14f1d1d0",
-    "output": "56505118de998a4edcd65b9573e0ac6182437c7281d4ed94ccbae9e38bf1bb9a"
+    "inputs": "82934b0053b8eb84cbb10ad71da01632d15b20ea5f0bf4a8f831f28cd2b8346f",
+    "output": "0b195b18118b06e2b052e56913fcfc671db2838c6896777cd09d5e2d65c03b86"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
+    "stampRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
     "stampDirty": false,
-    "localOutputHash": "56505118de998a4edcd65b9573e0ac6182437c7281d4ed94ccbae9e38bf1bb9a",
+    "localOutputHash": "0b195b18118b06e2b052e56913fcfc671db2838c6896777cd09d5e2d65c03b86",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-awn1f_3n.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-awn1f_3n.js",
-        "sha256": "0b6b0a756da539e684270cc9abd37c1452830cfe451db12f45b7793130b635f2",
+        "name": "index-DX0u2Jna.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-DX0u2Jna.js",
+        "sha256": "8934072868b784bd2456498b6c51dda28177ac694be50c742cb12cd236f17e2b",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-DHjp65VN.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-DHjp65VN.js",
+        "sha256": "3b892451ca61c15db6cd25cbcca34dc542d52a210e9f35deb622c1539bfd9269",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-C0TcWuIp.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-C0TcWuIp.js",
+        "sha256": "94b71e68833f68c78c37cab3951bc6ba151ad80a632aeee3be5bd5b14f7cfc6e",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "5ce5fd5b7fa8dcd6d2bed9c2187fa7460803c8cd3a609b893cd29d49438c6168",
+    "inventory": "8dcfa54050b42df71a17e24462ec19accf383ccbb3f714362b7b3bbbeb85393c",
     "entries": {
       "analysis.convergence.fixed-point": "7faba2c2882c18dd394f6ba4f6d77face3db79ba9bf678a06fa3f9324407f467",
       "analysis.convergence.sequence": "7ea456025d65b71b531ff7331c8e4e43e6e0c6a0f86b622253df35bd19695431",
@@ -102,7 +102,7 @@
       "ph-curves.worked-length.ph-cubic-offset-length": "52283fa34dce7386fcff101a39db66ad3d25494943048b672ad9a86d67d2ec59",
       "rational-curves.homogeneous.rational-decasteljau": "2a2b62710f32b09ea1f42543106f5887f5df45aedbdf477b4d68a544d0c64d9a",
       "rational-curves.investigate-rational.rational-extrapolation": "087c4a0257b011907e4d03befe9fdc0c6f18bc26969c5c5afc6a321fbcb6684e",
-      "rational-curves.operations.farin": "9fa8d0a623a51cb6a08c7c829a3f62999731ae4e06afd7acc117367c867a93a2",
+      "rational-curves.operations.farin": "2fd63e3aa512f2f6f63ce24037d3ddf3fedc6b576c6578f1477fd3658e7275af",
       "rational-curves.operations.rational-elevation": "6e30f3ce9ba4a07f88e753abaef84c45f9ba1db9b6b687cea9e411ac3468f15b",
       "rational-curves.operations.rational-subdivision": "c1f7926b76f91067e8f363f2e38d3ceb57e9a52793782cfc53cbcd6cbc4ab6c7",
       "rational-curves.why-rational.rational-weight": "07586338fa668df25dd3ed5ef3ece88efec7ce90f93b3933f2969ebfa8a97334",
@@ -114,9 +114,9 @@
       "splines.piecewise.spline-cn": "0641c6a84cdab1c9271025f92290f6aded30ce4dba0c79f0c692f7c018d11dd0",
       "splines.worked-join.spline-c1.parabola-derivatives": "c23b4ed4a16b4741f2cfc427e2243f72a465cd39b2258c265130a630b0628813"
     },
-    "presentation": "2f3ec6a248f3993cefae21eb3ce9098987c0581153a5a3fc922895e043020b28",
-    "buildOutput": "56505118de998a4edcd65b9573e0ac6182437c7281d4ed94ccbae9e38bf1bb9a",
-    "buildInputs": "5b6483e3a1faa4b3121e652539a09b16b2e13dae2a24f3df11de26ea14f1d1d0"
+    "presentation": "b758573eecc327ea30b7fa7a7898b62e8ccaf66a5e58f6599e1bd9984b436f52",
+    "buildOutput": "0b195b18118b06e2b052e56913fcfc671db2838c6896777cd09d5e2d65c03b86",
+    "buildInputs": "82934b0053b8eb84cbb10ad71da01632d15b20ea5f0bf4a8f831f28cd2b8346f"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -999,8 +999,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -1205,8 +1205,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -1445,8 +1445,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -1671,8 +1671,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -1876,8 +1876,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -2188,8 +2188,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -2385,8 +2385,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -2614,8 +2614,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -2866,8 +2866,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -3082,8 +3082,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -3358,8 +3358,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -3574,8 +3574,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -3679,8 +3679,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -3971,8 +3971,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -4232,8 +4232,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -4363,8 +4363,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -4581,8 +4581,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -4810,8 +4810,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -5291,8 +5291,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -5590,8 +5590,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -5721,8 +5721,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -5913,8 +5913,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -6189,8 +6189,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -6355,8 +6355,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -6605,8 +6605,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -6878,8 +6878,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -7076,8 +7076,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -7334,8 +7334,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -7527,8 +7527,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -7687,8 +7687,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -7903,8 +7903,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -8212,8 +8212,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -8431,8 +8431,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -8745,8 +8745,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -9111,8 +9111,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -9355,8 +9355,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -9591,8 +9591,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -9873,8 +9873,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -10076,8 +10076,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -10340,8 +10340,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -10642,8 +10642,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -10910,8 +10910,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -11194,8 +11194,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -11424,8 +11424,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -11628,8 +11628,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -11637,10 +11637,11 @@
       "id": "rational-curves.operations.farin",
       "demonstrationId": "farin",
       "path": "/bezeg-2.0/rational/farin-points?example=lesson.rational-curves.operations.farin",
-      "sceneFingerprint": "4c34b5acef297aea9a3ba537d95dde14257aaacf128caa83c02eb5890a1ea514",
+      "sceneFingerprint": "a377b7239399bebed920b3b31981192182cbd15930753f81011a789c9cefe02f",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"farin-weights\",\"source\":\"demonstration-default\"}",
-        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
+        "farin-points: {\"kind\":\"farin-points\",\"visible\":false}"
       ],
       "recipe": {
         "kind": "highlight",
@@ -11742,10 +11743,10 @@
             "label": 20,
             "point": 4,
             "curve": 1,
-            "smartlabel": 4,
             "segment": 6,
             "slider": 3,
-            "text": 3
+            "text": 3,
+            "smartlabel": 4
           },
           "visiblePointCount": 4
         }
@@ -11847,8 +11848,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -12067,8 +12068,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -12369,8 +12370,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -12604,8 +12605,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -12756,8 +12757,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -12970,8 +12971,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -13247,8 +13248,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -13461,8 +13462,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -13677,8 +13678,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -13891,8 +13892,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     },
@@ -14007,8 +14008,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
-        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
         "pageErrors": []
       }
     }
