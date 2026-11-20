@@ -227,4 +227,3 @@ async function fitProse(element: HTMLElement, retypeset?: (row: HTMLElement, tex
     if (!element.isConnected || element.dataset.tex !== source) return;
     mark();
 }
-
