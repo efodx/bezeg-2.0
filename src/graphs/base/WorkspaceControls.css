@@ -171,7 +171,8 @@
 .workspace-inspector .tools .bool-field { --bool-field-min-height: 32px; --bool-field-pad: 0px; }
 .workspace-inspector .tools .btn { min-height: var(--bezeg-control-height); }
 .workspace-inspector .tools .count-setter-button { min-height: 44px; }
-.figure-export-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.figure-export-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.figure-export-actions > .btn { min-height: 49px; min-width: 0; } /* the height of the two-line export and import buttons above */
 .figure-batch { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 .figure-batch > span > .btn { width: 100%; }
 .workspace-inspector .tools .btn-group { gap: 4px; }
