@@ -439,7 +439,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         }
         this.requestRender();
         // A new board starts at the default view; a stored preset's own view is applied after the scene.
-        if (this.hasBoard) this.board.setBoundingBox(this.startingBox(this.board.container), true);
+        if (this.hasBoard) this.board.setBoundingBox(this.startingBox(this.board.container), this.equalAxisUnits);
         // No stored Preset (Reset, a deleted selection): the default scene, which follows the chosen example. A stored
         // Preset that omits its data starts from `persistedDefaultData()` instead (see `importFigurePresetData`).
         return this.applyFigurePreset(session, stored ?? {id: "", data: cloneLessonValue(this.defaultPreset())}, session.signal)
@@ -958,6 +958,10 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             showNavigation: false,
             defaultAxes: this.defaultAxesAttributes(),
         });
+        // JSXGraph widened that box to the canvas aspect, and it was made before the board had a size (which an initial view may read,
+        // a band under the axis). A graph whose axes mean different things starts at its exact box: a lesson captures the view of a
+        // new board before the scene frames it.
+        if (!this.equalAxisUnits) this.board.setBoundingBox(this.startingBox(container), false);
         // Tick labels use the language's decimal separator and are rebuilt only by a full update.
         session.registerCleanup(onLanguageChange(() => this.board?.fullUpdate()));
     }
@@ -1126,7 +1130,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     /** Shows the view a persisted Preset without `boardState` starts from: the graph's initial view, as a new board has it. */
     protected showInitialView(): void {
-        this.board.setBoundingBox(this.startingBox(this.board.container), true);
+        this.board.setBoundingBox(this.startingBox(this.board.container), this.equalAxisUnits);
     }
 
     /**

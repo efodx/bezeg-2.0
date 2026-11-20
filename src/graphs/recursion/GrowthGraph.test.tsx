@@ -592,6 +592,26 @@ describe('the view of a replaced scene', () => {
     });
 });
 
+describe('the view of a new board', () => {
+    class FirstViewGraph extends ObservedGraph {
+        firstView: number[] = [];
+        override initialize(): void {
+            this.firstView = this.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)));
+            super.initialize();
+        }
+    }
+
+    test('is the exact opening window before the scene frames it, not one widened to the canvas (a lesson captures it at its start)', () => {
+        const graph = new FirstViewGraph();
+        render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        const [left, , right] = graph.firstView;
+        // The default state draws 10 bars: x from -0.1 * 11 to 11.2, whatever the aspect of the canvas.
+        expect([left, right]).toEqual([-1.1, 11.2]);
+        // ... and it already has the band under the axis that the framed scene has.
+        expect(graph.firstView).toEqual(graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3))));
+    });
+});
+
 describe('the vertical axis title', () => {
     test('stands right of the vertical axis, where no tick label of any panel stands', () => {
         const {graph} = mountGraph();
