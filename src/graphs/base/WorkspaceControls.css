@@ -286,7 +286,8 @@
 }
 .decasteljau-animation-actions button span { color: var(--workspace-green); font-size: .9rem; line-height: 1; }
 .decasteljau-animation-actions button:disabled { opacity: .42; }
-.decasteljau-animation-slider + .decasteljau-animation-slider {
+.decasteljau-animation-slider + .decasteljau-animation-slider,
+.playback-companion + .decasteljau-animation-slider {
     padding-top: 10px;
     border-top: 1px solid var(--workspace-rule);
 }

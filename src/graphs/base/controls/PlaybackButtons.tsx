@@ -132,7 +132,8 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
     const hasCompanion = companion !== undefined;
     // Under the board the companion is outside the inspector's inert region too, so it follows the same lesson lock as the group.
     useLayoutEffect(() => {
-        const element = companionBox.current as (HTMLElement & {inert?: boolean}) | null;
+        // The whole disclosure, summary included, so the lock leaves no toggle behind.
+        const element = (companionBox.current?.closest("details") ?? companionBox.current) as (HTMLElement & {inert?: boolean}) | null;
         if (element && inSlot) element.inert = locked;
     }, [locked, inSlot, hasCompanion]);
     useLayoutEffect(() => {

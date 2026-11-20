@@ -5,6 +5,7 @@ import {afterEach, beforeEach, describe, expect, test, vi} from "vitest";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import {PlaybackButtons} from "./controls/PlaybackButtons";
 import {setLanguage} from "../../localization";
+import {PresetLockContext, policyOf} from "../context/react/PresetLockContext";
 
 function installMedia(initial: boolean) {
     const listeners = new Set<() => void>();
@@ -74,6 +75,17 @@ describe("playback companion control", () => {
         media.flip(false);
         media.flip(true);
         expect(slot(container).querySelector("details")!.open).toBe(true);
+    });
+
+    test("under a lesson card's lock the whole slot disclosure, summary included, is inert", () => {
+        installMedia(true);
+        const locked = (mode: "lesson-card" | "free") =>
+            workspace(<PresetLockContext.Provider value={policyOf(mode)}><Group/></PresetLockContext.Provider>);
+        const {container, rerender} = render(locked("lesson-card"));
+        const details = () => slot(container).querySelector("details") as HTMLElement & {inert?: boolean};
+        expect(details().inert).toBe(true);
+        rerender(locked("free"));
+        expect(details().inert).toBe(false);
     });
 
     test("a group without a companion adds no disclosure", () => {
