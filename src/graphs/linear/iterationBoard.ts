@@ -200,9 +200,11 @@ function placedTriangleName(ctx: IterationBoardContext): void {
             const samples: Array<readonly [number, number]> = [];
             for (const line of [closedPolyline(STABILITY_TRIANGLE), parabolaPolyline()]) samples.push(...sampleLine(line.x, line.y, toPx, frame.width, frame.height));
             samples.push(...lineSamples(frame, toPx(0, 0), toPx(1, 0)), ...lineSamples(frame, toPx(0, 0), toPx(0, 1)));
-            // The name starts at the middle of the top edge and may slide to the vertices.
-            const [ax, ay] = toPx(0, 1);
-            const alts = [toPx(-2, 1), toPx(2, 1), toPx(0, -1)];
+            // The name starts in the open space beside the left edge, above the axis numbers and under the parabola, where no line crosses
+            // it; every spot near the top edge has the edge or the parabola through the text. The edge's middle and the vertices are kept
+            // for a handle that takes that space.
+            const [ax, ay] = toPx(-1.9, 0.45);
+            const alts = [toPx(0, 1), toPx(-2, 1), toPx(2, 1), toPx(0, -1)];
             return {items: [{id: 'triangle', ax, ay, alts, ...size}], markers: [[hx, hy, ctx.markerSize()]], samples, blocks};
         }).triangle;
     };

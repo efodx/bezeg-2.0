@@ -94,7 +94,8 @@ export const distanceToBox = (b: PxBox, x: number, y: number): number => Math.hy
  * marker's edge wins over any farther one even when a thin stroke runs through it; only without such a spot does a name go farther, never past 40 px.
  * Never on another name, another marker, a tick label or a block. A box centre is nearer to its own marker than to any other (markers within 6 px of
  * it excepted); for two markers closer than 16 px each name first tries the side pointing away from the other. A name without a marker at its
- * anchor (a line's) tries its anchors in turn. Names are placed in the order given; one with no free spot keeps the nearest spot clear of names.
+ * anchor (a line's) tries its anchors in turn. Names are placed in the order given; one with no free spot keeps the nearest spot clear of names,
+ * off markers and on the fewest blocks and tick labels.
  */
 export function placeNames(input: PlacementInput, size: {readonly width: number; readonly height: number}, strips: readonly PxBox[]): Record<string, PxBox> {
     const out: Record<string, PxBox> = {};
@@ -122,7 +123,8 @@ export function placeNames(input: PlacementInput, size: {readonly width: number;
                 const [cx, cy] = [(c.x0 + c.x1) / 2, (c.y0 + c.y1) / 2];
                 if (Object.values(out).some(o => overlap(c, o))) continue;
                 const onMarker = others.some(([mx, my, mr]) => distanceToBox(c, mx, my) < mr);
-                const onBlock = (input.blocks ?? []).some(b => overlap(c, b)) || strips.some(b => overlap(c, b));
+                const blocked = (input.blocks ?? []).filter(b => overlap(c, b)).length + strips.filter(b => overlap(c, b)).length;
+                const onBlock = blocked > 0;
                 const centreDist = Math.hypot(cx - ax, cy - ay);
                 const nearer = rivals.every(([mx, my]) => Math.hypot(cx - mx, cy - my) > centreDist);
                 let samples = 0;
@@ -131,8 +133,9 @@ export function placeNames(input: PlacementInput, size: {readonly width: number;
                 const actual = distanceToBox(c, ax, ay) - radius;
                 const base = (actual <= 14 ? 0 : 1000 + actual * 10) + ai * 40 + samples * 0.5 + (toward > 0 ? 40 * toward : 0) + actual * 0.5 + k * 0.05;
                 if (onMarker || onBlock || !nearer) {
-                    // Not allowed, but the nearest such spot is kept in case nothing else is free.
-                    const c2 = base + 1e5 + (onMarker ? 1e4 : 0) + (onBlock ? 1e3 : 0);
+                    // Not allowed, but the nearest such spot is kept in case nothing else is free; among those, the one on the fewest
+                    // blocks and tick labels.
+                    const c2 = base + 1e5 + (onMarker ? 1e4 : 0) + blocked * 1e3;
                     if (c2 < fallbackCost) { fallbackCost = c2; fallback = c; }
                     continue;
                 }
