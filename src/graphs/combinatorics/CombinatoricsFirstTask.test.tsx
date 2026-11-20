@@ -1,6 +1,6 @@
 /**
- * Combinatorics routes, first task first (graph-control first use, batch 2): the route's own inputs lead the Edit panel on a
- * fresh visit; the view and example choosers follow them.
+ * Combinatorics routes, first task first (graph-control first use, batch 2): the view chooser stays first, the route's own
+ * inputs follow it directly and the example chooser is last.
  */
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
@@ -31,6 +31,8 @@ const checkOrder = (graph: BaseGraph<BaseGraphState>, first: Label, later: Label
     const names = editControls();
     const at = (label: Label) => names.findIndex(name => name.startsWith(label()));
     expect(at(first)).toBe(0);
+    expect(at(later[0]), 'the task inputs follow the view chooser directly').toBe(1);
+    expect(names.length - 1, 'the example chooser is last').toBe(at(later[later.length - 1]));
     let previous = 0;
     for (const label of later) {
         const index = at(label);
@@ -40,12 +42,12 @@ const checkOrder = (graph: BaseGraph<BaseGraphState>, first: Label, later: Label
 };
 
 const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label; later: Label[]}> = {
-    'lattice-paths': {make: () => new LatticePathGraph(), first: () => 'T, a',
-        later: [() => 'T, b', () => t('combinatorics_lattice_route_label'), () => t('combinatorics_lattice_page_label'), () => t('combinatorics_view_label'), () => t('combinatorics_example_label')]},
-    // n is a CountSetter: its own decrease button is the first control.
-    counting: {make: () => new CountingTreeGraph(), first: () => t('decrease_count'),
-        later: [() => t('combinatorics_counting_n_label'), () => t('combinatorics_counting_k_label'), () => t('combinatorics_counting_ordered'),
-            () => t('combinatorics_counting_repetition'), () => t('combinatorics_view_label'), () => t('combinatorics_example_label')]},
+    'lattice-paths': {make: () => new LatticePathGraph(), first: () => t('combinatorics_view_label'),
+        later: [() => 'T, a', () => 'T, b', () => t('combinatorics_lattice_route_label'), () => t('combinatorics_lattice_page_label'), () => t('combinatorics_example_label')]},
+    // The view chooser leads in every view; n is a CountSetter, so its own decrease button follows it.
+    counting: {make: () => new CountingTreeGraph(), first: () => t('combinatorics_view_label'),
+        later: [() => t('decrease_count'), () => t('combinatorics_counting_n_label'), () => t('combinatorics_counting_k_label'), () => t('combinatorics_counting_ordered'),
+            () => t('combinatorics_counting_repetition'), () => t('combinatorics_example_label')]},
 };
 
 describe.each(Object.keys(plan))('%s', key => {

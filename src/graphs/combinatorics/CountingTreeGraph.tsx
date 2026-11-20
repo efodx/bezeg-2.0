@@ -917,7 +917,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         const view = state.view;
         const current = this.exampleValue();
         const exampleOptions = EXAMPLES.filter(example => example.view === view).map(example => ({value: example.id, text: this.exampleName(example.id)}));
-        // The counting inputs lead the panel; the view and example choosers follow (graph-control first use).
+        // The view chooser stays first in every view so it never moves; the counting inputs follow it, the example chooser last.
         const selectors: JSX.Element[] = [
             <ChoiceSelect key="view" label={t("combinatorics_view_label")} value={view}
                           options={COUNTING_VIEWS.map(name => ({value: name, text: this.viewName(name)}))}
@@ -964,7 +964,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
                         onChange={value => this.editT(value)}/>,
             );
         }
-        return [...commands, ...selectors];
+        return [selectors[0], ...commands, selectors[1]];
     }
 
     protected override workspaceEdit(): React.ReactNode {
