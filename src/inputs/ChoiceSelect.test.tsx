@@ -58,6 +58,20 @@ describe('a selected text wider than the closed select', () => {
         expect(container.querySelector('[data-choice-full]')).toBeNull();
     });
 
+    test('the arrow room is the left padding plus 24 px: the right padding already reserves the arrow', () => {
+        const real = window.getComputedStyle.bind(window);
+        vi.spyOn(window, 'getComputedStyle').mockImplementation(element => {
+            const style = real(element);
+            return new Proxy(style, {get: (target, key) => key === 'paddingLeft' ? '8px' : key === 'paddingRight' ? '32px' : Reflect.get(target, key)});
+        });
+        width = 255; // room 223 (not 191): 44 characters (220 px) are drawn complete, 50 characters (250 px) are not
+        const fits = 'x'.repeat(44), cut = 'y'.repeat(50);
+        const {container, rerender} = render(<ChoiceSelect label="L" value="a" onChange={() => undefined} options={[{value: 'a', text: fits}, {value: 'b', text: cut}]}/>);
+        expect(container.querySelector('[data-choice-full]')).toBeNull();
+        rerender(<ChoiceSelect label="L" value="b" onChange={() => undefined} options={[{value: 'a', text: fits}, {value: 'b', text: cut}]}/>);
+        expect(container.querySelector('[data-choice-full]')).toHaveTextContent(cut);
+    });
+
     describe('with a ResizeObserver', () => {
         let callbacks: (() => void)[];
         let disconnect: () => void;

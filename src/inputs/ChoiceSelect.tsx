@@ -25,7 +25,8 @@ function selectedTextClipped(select: HTMLSelectElement): string | null {
     if (!shown || typeof canvas?.measureText !== 'function') return null; // no canvas (JSDOM stubs)
     const style = getComputedStyle(select);
     canvas.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    const room = select.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 24; // the dropdown arrow
+    // The right padding already reserves the arrow, and the text may run up to 24 px short of the right edge, clear of the arrow (measured: a 218 px text in a 255 px select is drawn complete).
+    const room = select.clientWidth - parseFloat(style.paddingLeft) - 24;
     return canvas.measureText(shown).width > room + 1 ? shown : null;
 }
 

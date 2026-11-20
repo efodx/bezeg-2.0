@@ -83,7 +83,7 @@ function findClipping() {
                 const style = getComputedStyle(el);
                 canvas.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
                 const shown = el.selectedOptions[0] ? el.selectedOptions[0].textContent : '';
-                const room = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 24; // the dropdown arrow
+                const room = el.clientWidth - parseFloat(style.paddingLeft) - 24; // same rule as ChoiceSelect: the text may run up to 24 px short of the right edge
                 // ChoiceSelect repeats a clipped selected text in full under the select; that line is measured as help text below.
                 const repeated = el.closest('form')?.querySelector('[data-choice-full]');
                 if (canvas.measureText(shown).width > room + 1 && !(repeated && visible(repeated) && repeated.textContent === shown)) fail(el, `selected text is clipped (${Math.round(canvas.measureText(shown).width)} > ${Math.round(room)})`);
