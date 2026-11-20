@@ -60,14 +60,6 @@ export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelSt
     const asShown = (value: string): CoonsShown => COONS_SHOWN.find(name => name === value) ?? "s";
     const asBoundary = (value: string): CoonsBoundaryName | undefined => COONS_BOUNDARY_NAMES.find(name => name === value);
     return <>
-        <div className="inspector-group"><h3>{t("coons_shown_heading")}</h3>
-            <ChoiceSelect label={t("coons_shown")} value={state.shown} options={shownOptions} help={t("coons_shown_help")}
-                          onChange={value => actions.setShown(asShown(value))}/>
-        </div>
-        <div className="inspector-group"><h3>{t("coons_corners_heading")}</h3>
-            <OnOffSwitch label={t("coons_linked_corners")} checked={state.linkedCorners} onChange={on => actions.setLinkedCorners(on)} describedBy={linkedHelpId}/>
-            <p id={linkedHelpId} className="inspector-help">{t("coons_linked_help")}</p>
-        </div>
         <div className="inspector-group"><h3>{t("coons_point_heading")}</h3>
             <PatchPointChooser noneText={t("patch_no_selection")} selection={selection && [selection.name, String(selection.index)]}
                                axes={[{label: t("coons_boundary"), options: COONS_BOUNDARY_NAMES.map(value => ({value, text: t(`coons_boundary_${value}`)}))},
@@ -81,6 +73,14 @@ export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelSt
                     {selection.shared && <ReadoutHelp hooks={{"data-patch-note": "corner-shared"}}>{t("coons_corner_shared")}</ReadoutHelp>}
                 </>
                 : <p className="inspector-help">{t("coons_select_help")}</p>}
+        </div>
+        <div className="inspector-group"><h3>{t("coons_shown_heading")}</h3>
+            <ChoiceSelect label={t("coons_shown")} value={state.shown} options={shownOptions} help={t("coons_shown_help")}
+                          onChange={value => actions.setShown(asShown(value))}/>
+        </div>
+        <div className="inspector-group"><h3>{t("coons_corners_heading")}</h3>
+            <OnOffSwitch label={t("coons_linked_corners")} checked={state.linkedCorners} onChange={on => actions.setLinkedCorners(on)} describedBy={linkedHelpId}/>
+            <p id={linkedHelpId} className="inspector-help">{t("coons_linked_help")}</p>
         </div>
     </>;
 }

@@ -377,7 +377,7 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions}/></>;
+        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} netFirst/></>;
     }
 
     // ---- Parameter-domain inset --------------------------------------------------------------------------------

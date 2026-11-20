@@ -3,6 +3,7 @@
  * patch and degrees (and, on the joins route, the example pairs) follow.
  */
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {act} from '@testing-library/react';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import {FakeSurfaceView} from './FakeSurfaceView';
@@ -10,6 +11,9 @@ import TensorDeCasteljauGraph from './TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './TensorDerivativesGraph';
 import TensorJoinGraph from './TensorJoinGraph';
 import TensorSubdivisionGraph from './TensorSubdivisionGraph';
+import TensorPatchGraph from './TensorPatchGraph';
+import TriangularPatchGraph from './TriangularPatchGraph';
+import CoonsPatchGraph from './CoonsPatchGraph';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -46,5 +50,44 @@ describe.each(Object.keys(plan))('%s', key => {
         const at = (label: Label) => names.findIndex(name => name.includes(label()));
         expect(at(plan[key].first), names.join(' | ')).toBe(0);
         for (const label of plan[key].later) expect(at(label), label()).toBeGreaterThan(0);
+    });
+});
+
+/** Batch 3: the routes whose first task is a net point lead with the point chooser and, once one is selected, its coordinates. */
+describe('net-point routes (batch 3)', () => {
+    const editor = () => document.querySelector('#inspector-edit .patch-point-editor');
+    const precedes = (a: Element | null, label: string) => {
+        const other = [...document.querySelectorAll('#inspector-edit .inspector-group')].find(group => group.querySelector('h3')?.textContent === label)!;
+        expect(a, 'editor shown').not.toBeNull();
+        expect(a!.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING, label).toBeTruthy();
+    };
+    test('patches/coons: the boundary-curve choice leads, shown surface and corners follow', () => {
+        const {graph} = mountGraph(new CoonsPatchGraph(options)) as unknown as {graph: CoonsPatchGraph};
+        const names = editControls();
+        expect(names[0], names.join(' | ')).toContain(t('coons_boundary'));
+        expect(names.findIndex(name => name.includes(t('coons_shown')))).toBeGreaterThan(0);
+        expect(names.findIndex(name => name.includes(t('coons_linked_corners')))).toBeGreaterThan(0);
+        act(() => graph.selectBoundaryPoint('c1', 2));
+        precedes(editor(), t('coons_shown_heading'));
+        precedes(editor(), t('coons_corners_heading'));
+    });
+    test('patches/triangular: the point indices lead, starting patch, degree and parameters follow', () => {
+        const {graph} = mountGraph(new TriangularPatchGraph(options)) as unknown as {graph: TriangularPatchGraph};
+        const names = editControls();
+        expect(names[0], names.join(' | ')).toContain(t('patch_triangular_index'));
+        for (const label of [t('patch_starting_heading'), t('patch_triangular_degree'), t('patch_parameter_u')]) expect(names.findIndex(name => name.includes(label)), label).toBeGreaterThan(0);
+        act(() => graph.selectIndex([2, 0, 1]));
+        precedes(editor(), t('patch_starting_heading'));
+        precedes(editor(), t('patch_degree_heading'));
+        precedes(editor(), t('patch_point_heading'));
+    });
+    test('patches/tensor: the control-point indices lead, starting patch, degrees and u, v follow', () => {
+        const {graph} = mountGraph(new TensorPatchGraph(options)) as unknown as {graph: TensorPatchGraph};
+        const names = editControls();
+        expect(names[0], names.join(' | ')).toContain(t('patch_index_i'));
+        for (const label of [t('patch_starting_heading'), t('patch_degree_u'), t('patch_parameter_u')]) expect(names.findIndex(name => name.includes(label)), label).toBeGreaterThan(0);
+        act(() => graph.selectIndex(1, 2));
+        precedes(editor(), t('patch_starting_heading'));
+        precedes(editor(), t('patch_point_heading'));
     });
 });

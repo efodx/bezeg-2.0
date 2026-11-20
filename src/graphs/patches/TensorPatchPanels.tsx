@@ -89,10 +89,10 @@ const startingPatchOptions = (patches: ReadonlyArray<Pick<DerivativesStartingPat
  * patch" select (the two tensor Presets unless the Demonstration offers more); a "custom" entry shows only while the net matches none
  * of them (`actions.startingPatchIndex`), and choosing the entry already shown does nothing. `pointLocked` is the reason the selected
  * point cannot be edited right now; it replaces the coordinate editor so that nothing is offered that does nothing. `pointFirst` leads
- * with the "Point on the patch" group (a Demonstration whose first task is the u and v pair) and keeps the setup groups after it.
+ * with the "Point on the patch" group (a Demonstration whose first task is the u and v pair) and keeps the setup groups after it. `netFirst` leads with the control-point chooser and, once a point is selected, its coordinates (a route whose first task is dragging a net point).
  */
-export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, pointFirst = false, startingPatches = defaultPatchPresets}: {
-    state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode; pointLocked?: string; pointFirst?: boolean;
+export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, pointFirst = false, netFirst = false, startingPatches = defaultPatchPresets}: {
+    state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode; pointLocked?: string; pointFirst?: boolean; netFirst?: boolean;
     startingPatches?: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>;
 }) {
     const t = useT();
@@ -126,10 +126,7 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
             <ParameterInset attach={actions.setInsetContainer} label={t("patch_parameter_inset_label")}/>
             <p className="inspector-help">{t("patch_parameter_inset_help")}</p>
         </div>;
-    return <>
-        {pointFirst && pointGroup}
-        {setup}
-        {!pointFirst && pointGroup}
+    const netGroups = <>
         <div className="inspector-group"><h3>{t("patch_control_point_heading")}</h3>
             <PatchPointChooser noneText={t("patch_no_selection")} selection={selection && [String(selection.i), String(selection.j)]}
                                axes={[{label: t("patch_index_i"), options: indexOptions(state.m)}, {label: t("patch_index_j"), options: indexOptions(state.n)}]}
@@ -146,6 +143,13 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
             id: "bernstein-weight", label: t("patch_bernstein_weight", {value0: subscriptDigits(selection.i), value1: subscriptDigits(selection.j)}),
             value: formatNumber(selection.weight, currentLanguage(), 4),
         }]} note={t("patch_bernstein_help")}/>}
+    </>;
+    return <>
+        {netFirst && netGroups}
+        {pointFirst && pointGroup}
+        {setup}
+        {!pointFirst && pointGroup}
+        {!netFirst && netGroups}
     </>;
 }
 
