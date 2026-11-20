@@ -24,6 +24,8 @@ import {RevealButton} from "../../inputs/RevealButton";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 
+const TEST_HIDDEN_HELP_ID = "complex-roots-test-hidden-help";
+
 /** w and the test point z lie within 2*sqrt(2) of the origin and the roots within 2^(3/4) of it; a square of half-width 3.4 shows them all. */
 const VIEW_HALF_WIDTH = 3.4;
 const BOARD_VIEW: BoundingBox = [-VIEW_HALF_WIDTH, VIEW_HALF_WIDTH, VIEW_HALF_WIDTH, -VIEW_HALF_WIDTH];
@@ -341,10 +343,11 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
             </div>
             <div className="inspector-group" data-complex-test-fields={state.testVisible ? "shown" : "hidden"}>
                 <PointListInput title={t("complex_roots_test_title")} points={[[state.zRe, state.zIm]]}
-                                pointLabel={() => "z"} axisLabels={["Re", "Im"]}
+                                pointLabel={() => "z"} axisLabels={["Re", "Im"]} describedBy={state.testVisible ? undefined : TEST_HIDDEN_HELP_ID}
                                 min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
                                 onCommit={(_index, [re, im]) => this.ignoreOutOfDomain(() => this.setTest(re, im))
                                     ? undefined : t("complex_coordinate_rejected_hint")}/>
+                {!state.testVisible && <p className="inspector-help" id={TEST_HIDDEN_HELP_ID}>{t("complex_roots_test_hidden_help")}</p>}
             </div>
         </>;
     }

@@ -284,6 +284,29 @@ test('the test point z is hidden until shown and its z^n is compared with w: a r
     expect(statusIds(graph)).toEqual([]);
 });
 
+const hiddenHelp = (graph: any) => (collect(graph.renderControls()).p ?? []).find((p: any) => p.props.id === 'complex-roots-test-hidden-help');
+
+test('while the test point z is hidden one line under the z row names the button that shows it, and a typed z still commits', () => {
+    const graph = makeGraph();
+    const line = hiddenHelp(graph);
+    expect(line.props.children).toBe('Točka z je zdaj skrita; pokaže jo gumb Pokaži točko z.');
+    expect(controls(graph).showTest.props.children).toBe('Pokaži točko z');
+    expect(controls(graph).found.PointListInput[1].props.describedBy).toBe(line.props.id);
+    expect(controls(graph).zRe.props.onChange(0.5)).toBe(true);
+    expect(graph.model.zRe).toBe(0.5);
+    expect(hiddenHelp(graph)).toBeDefined();
+    setLanguage('en');
+    expect(hiddenHelp(graph).props.children).toBe('The point z is hidden now; Show point z reveals it.');
+    set(graph, {testVisible: true});
+    expect(hiddenHelp(graph)).toBeUndefined();
+    expect(controls(graph).found.PointListInput[1].props.describedBy).toBeUndefined();
+    // Reset and a restored preset follow the visibility state
+    graph.importPreset({id: 'stored', data: {...graph.exportPresetData(), testVisible: false}});
+    expect(hiddenHelp(graph)).toBeDefined();
+    graph.importPreset({id: 'stored', data: {...graph.exportPresetData(), testVisible: true}});
+    expect(hiddenHelp(graph)).toBeUndefined();
+});
+
 test('the example choice sets w and n, keeps nothing hidden state alive, hides every reveal and ignores an unknown id', () => {
     const graph = makeGraph();
     set(graph, ALL);
@@ -474,7 +497,7 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     expect(caption(graph)[1]).toBe('roots: hidden');
     expect(rows(graph).roots).toBe('hidden');
     expect(controls(graph).showRoots.props.children).toBe('Show roots');
-    expect(controls(graph).showTest.props.children).toBe('Hide test point');
+    expect(controls(graph).showTest.props.children).toBe('Hide point z');
     expect(controls(graph).degree.props.label).toBe('Degree n');
     expect(controls(graph).select.props.options[0].text).toBe('w = 2i, n = 3');
     setLanguage('sl');
