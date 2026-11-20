@@ -23,8 +23,6 @@ const MATH_LEAK = /\\\(|\\\)|\\\[|\\\]|\$\$|\\frac|\\cdot|\\mathbf|\\sqrt|\\alph
 const BAD_TOKEN = /\b(NaN|undefined|null|Infinity|\[object Object\])\b/;
 const LOC_KEY = /\b[a-z][a-z0-9]*(?:[._][a-z0-9]+){2,}\b/;  // e.g. lesson.bezier.title or curve_display_label
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };
 
 async function settle(page) {
     try {
