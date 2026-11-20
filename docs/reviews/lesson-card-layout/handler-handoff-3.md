@@ -18,10 +18,20 @@ Read [handoff 1](handler-handoff-1.md) for the owner's objective and scope and [
 - Smoke on the tree rebased onto `origin/master`: the full `just smoke-built` run, 588 passed and 0 failed; `just check-changed` passed there too, and the script tests for the guided-example inventory (49 passed).
 - Screenshots for comparison are listed in handoff 2 under "Evidence"; the scratch directories (`.shots/`, `.crawl-*`) stay untracked.
 
+## Next slice: triage sections 3 and 6 (owner, 2026-11-20)
+
+The owner assigned [triage](../lesson-bug-crawl/triage.md) sections 3 (controls that silently depend on another control) and 6 (inspector layout at 310 px) to a new session of this stream, after the first report. The lesson-bug-crawl stream is complete ([its last note](../lesson-bug-crawl/handler-handoff-4.md)), so the files it kept are free.
+
+- Start with a blocker triage of the items ([item batches](../../tasks/feature-streams/README.md#item-batches)): open each route on current master at inspector width and mark it still present, already repaired or changed. The graph-control-first-use stream ([state](../graph-control-first-use/state.md)) changed many inspectors on 2026-11-20 and may still be running; read its state note for the routes and files it owns and leave those to it.
+- Section 3 is seven items on six routes: complex roots, complex reciprocal, projective three views, the rational Farin lesson, Fortune's Voronoi after the lesson and its Save tab, the PH curves Edit tab, orientation's add mode. The repair is the same kind each time: a control that does nothing in the current state says why or is not offered, by [the controls catalogue](../../controls.md) and [shared graph controls](../../specs/shared-graph-controls.md). New Slovenian text follows [choosing new terms](../../localization.md#choosing-new-terms).
+- Section 6 is layout at 310 px on about ten routes (truncated selects, clipped blocks, ragged button grids, wrapping labels, mixed stepper and button sizes). Prefer a repair in the shared control over one per route, and look at a 310 px screenshot of every changed panel before accepting it.
+- Use the impeccable skill as before (`~/.claude/skills/impeccable/SKILL.md`, then `reference/craft-floor.md` before a UI edit). Write a bounded spec with acceptance criteria under `docs/specs/` before implementation; the routes are separable, so workers can take them in parallel.
+- This worktree's preview on port 4421 and the crawler (`scripts/lesson-crawl/crawl.cjs`, whose full mode sweeps the inspector) are available. `just publish` refuses this checkout while the scratch directories are untracked: use `just publish --background`.
+
 ## Open
 
-1. Triage section 7 leftovers: label collisions (`.shots/visual-graph.md`). Rosettes and lattice paths keep their shared fixed frames, drag-the-track keeps its fixed frame.
-2. Triage sections 3 (controls that silently depend on another control) and 6 (inspector layout at 310 px). They came by relay from the lesson-bug-crawl handler, not from the owner; ask the owner before starting them.
+1. Triage section 7 leftovers, after the slice above: label collisions (`.shots/visual-graph.md`). Rosettes and lattice paths keep their shared fixed frames, drag-the-track keeps its fixed frame.
+2. Waiting for the owner, not to be started: the wording that tells the reader the tools are hidden while the docked card is read (see "For the owner").
 3. A full stop or comma after an inline formula can wrap alone onto the next line (seen in the beats lesson of waves, step 5). MathJax's inline container is an atomic inline, so the browser may break before the punctuation. Older than this stream; a repair would bind a formula to the punctuation that follows it when the card is typeset.
 4. The crawler reads only 1440×900 and the first phone frame; later phone frames and 1024×768 are covered by the smoke assertions, not by the crawl.
 
