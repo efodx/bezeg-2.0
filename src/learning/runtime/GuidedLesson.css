@@ -209,3 +209,12 @@
     .guided-lesson-reading { flex:0 0 auto; min-height:4.5rem; overflow:visible; }
     .guided-lesson-complete .guided-lesson-controls { position:static; margin:0; padding:0; }
 }
+/* One column: the text scrolls with the page and nothing pins to the top of the window. Back and Next are the card's
+   last row there (GuidedLesson.tsx moves them), and that row rests on the bottom edge of the window from the first
+   frame until the card ends, so it is within the thumb's reach and never jumps into place. */
+@media(max-width:700px) {
+    .guided-lesson-controls { position:static; margin:0; padding:0; }
+    .guided-lesson > .guided-lesson-navigation { position:sticky; bottom:0; z-index:1; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); margin:0 -12px; padding:8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); border-top:1px solid var(--bezeg-shell-rule, #d6dccb); border-radius:0 0 15px 15px; background:inherit; }
+    /* Text that keyboard focus brings into view stops above that row. */
+    .guided-lesson-reading * { scroll-margin-top:8px; scroll-margin-bottom:calc(var(--guided-lesson-navigation-height, 4rem) + 8px); }
+}

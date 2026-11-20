@@ -104,24 +104,11 @@
         grid-area: lesson;
         max-height: none;
         overflow: visible;
-        /* The pinned controls below carry the top padding; a second one pushed Next off the first screen under a
-           two-row command bar. */
-        padding-top: 0;
     }
 
-    /* Long text scrolls with the page. The card's heading and navigation stay at the top of the window meanwhile,
-       so Back, Next, Hide and Exit are always within reach. */
-    .demonstration-workspace.lesson-open > .guided-lesson .guided-lesson-controls {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-        margin: 0 -12px;
-        padding: 4px 12px 0;
-        border-radius: 15px 15px 0 0;
-        background: inherit;
-    }
-
-    /* Presentation's heading sticks to the same edge; with a card open it scrolls away and the card's controls stay. */
+    /* Long text scrolls with the page and nothing of the card pins to the top of the window; Back and Next rest on
+       its bottom edge (see the one-column rules in GuidedLesson.css). Presentation's heading sticks to the top of
+       the window; while a card is read it scrolls away, so the text keeps the screen. */
     .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson) .workspace-heading {
         position: static;
     }

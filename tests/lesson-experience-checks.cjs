@@ -252,7 +252,8 @@ module.exports = function registerExperienceChecks() {
                     expect(panelBackground.tokenBackground, 'the approved shell panel role is opaque').toMatch(/^rgb\(/);
                     expect(panelBackground.panelBackground).toBe(panelBackground.tokenBackground);
                     // One-column screens (700 px and narrower) scroll the page, not the card (ADR 0061): the card is as long
-                    // as its text and its controls stick to the top of the window. Two-column views keep the card's own scroll.
+                    // as its text, nothing of it pins to the top of the window, and Back and Next are its last row, resting on
+                    // the window's bottom edge. Two-column views keep the card's own scroll.
                     const pageScroll = view.width <= 700;
                     let cardTaller = false;
                     if (pageScroll) {
@@ -261,13 +262,13 @@ module.exports = function registerExperienceChecks() {
                             panelMaxHeight: getComputedStyle(el).maxHeight,
                             readingScrolls: el.querySelector('.guided-lesson-reading').scrollHeight > el.querySelector('.guided-lesson-reading').clientHeight + 1,
                             controlsPosition: getComputedStyle(el.querySelector('.guided-lesson-controls')).position,
-                            controlsTop: getComputedStyle(el.querySelector('.guided-lesson-controls')).top,
+                            lastRow: [el.lastElementChild.className, getComputedStyle(el.lastElementChild).position, getComputedStyle(el.lastElementChild).bottom],
                             height: el.getBoundingClientRect().height,
                             windowHeight: innerHeight,
                         }));
                         expect(contract, 'at 700 px and narrower the card is as long as its text and the page scrolls').toMatchObject({panelOverflowY: 'visible', panelMaxHeight: 'none', readingScrolls: false});
-                        expect(contract.controlsPosition, 'the controls stick to the top of the window').toBe('sticky');
-                        expect(contract.controlsTop).toBe('0px');
+                        expect(contract.controlsPosition, 'the heading scrolls with the page').toBe('static');
+                        expect(contract.lastRow, 'Back and Next are the last row and rest on the bottom of the window').toEqual(['guided-lesson-navigation', 'sticky', '0px']);
                         cardTaller = contract.height > contract.windowHeight;
                         if (view.enlarged) expect(cardTaller, 'enlarged lesson text makes the card taller than the window').toBe(true);
                     }
@@ -294,7 +295,10 @@ module.exports = function registerExperienceChecks() {
                         if (scrollPort) await scrollPort.evaluate((el, f) => { el.scrollTop = (el.scrollHeight - el.clientHeight) * f; }, fraction);
                         const scrollTop = scrollPort ? await scrollPort.evaluate(el => el.scrollTop) : 0;
                         if (scrollRange > 1) expect(Math.round(scrollTop), `${position}: the chosen scroll owner moves to its requested rounded offset`).toBe(Math.round(scrollRange * fraction));
-                        for (const control of [hide, exit, h.nextButton(page)]) {
+                        // On one-column screens Hide and Exit belong to the heading at the card's top; only Back and Next
+                        // stay in reach while the text is read further down.
+                        const headingScrolledAway = pageScroll && position !== 'top';
+                        for (const control of headingScrolledAway ? [h.nextButton(page)] : [hide, exit, h.nextButton(page)]) {
                             await expect(control).toBeVisible();
                             const box = await control.boundingBox();
                             expect(box.width).toBeGreaterThanOrEqual(44);
@@ -307,6 +311,8 @@ module.exports = function registerExperienceChecks() {
                                 return el.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
                             }), `${position}: action is pointer reachable`).toBe(true);
                         }
+                        // The hide and reopen round trip starts from Hide, so there it is checked at the card's top.
+                        if (headingScrolledAway) continue;
                         const toolbarBeforeHide = await toolbarPosition();
                         await hide.click();
                         await expect(panel).toHaveCount(0);
@@ -372,7 +378,10 @@ module.exports = function registerExperienceChecks() {
                     await cardToTop();
                     expect(await panel.locator('.guided-lesson-reading').evaluate(el => el.scrollTop), 'a new frame starts at the reading top').toBe(0);
                     expect(await panel.evaluate(el => el.scrollTop), 'only the outer reading scroll resets; enlarged control placement stays').toBe(readingScrollsWithOuter ? 0 : outerBeforeFrameChange);
-                    expect(await toolbarPosition(), 'the toolbar stays anchored when the next frame starts').toEqual(beforeFrameChange);
+                    // In one column the row follows the card's end when a frame is shorter than the window, so there the
+                    // check is that Next is still in the window.
+                    if (pageScroll) await expect(h.nextButton(page), 'Next stays in the window when the next frame starts').toBeInViewport();
+                    else expect(await toolbarPosition(), 'the toolbar stays anchored when the next frame starts').toEqual(beforeFrameChange);
                 });
             }
         }

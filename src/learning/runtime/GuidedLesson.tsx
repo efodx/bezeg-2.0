@@ -47,6 +47,24 @@ function GripIcon() {
 
 const ARROW_KEYS = 'ArrowUp ArrowDown ArrowLeft ArrowRight';
 
+/** The width at which the workspace is one column and the card follows the graph in the page (GuidedLessonLayout.css). */
+const ONE_COLUMN_QUERY = '(max-width: 700px)';
+
+/** Whether the card is read in one column, where Back and Next are its last row. The listener is removed on unmount. */
+function useOneColumn(): boolean {
+    const [matches, setMatches] = useState(() => typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+        && window.matchMedia(ONE_COLUMN_QUERY).matches);
+    useEffect(() => {
+        if (typeof window.matchMedia !== 'function') return undefined;
+        const query = window.matchMedia(ONE_COLUMN_QUERY);
+        const update = () => setMatches(query.matches);
+        update();
+        query.addEventListener('change', update);
+        return () => query.removeEventListener('change', update);
+    }, []);
+    return matches;
+}
+
 export {fitFormulaRows};
 
 /** Replaces a formula row's source and typesets that row again. */
@@ -109,6 +127,7 @@ export function GuidedLesson(props: {
     const frame = frames[Math.min(snapshot.frameIndex, frames.length - 1)];
     const isComplete = snapshot.status === 'complete';
     const isExploring = snapshot.status === 'explore';
+    const oneColumn = useOneColumn();
     const overlayVisible = overlayPhase !== 'hidden';
     const tabVisible = overlayPhase === 'closing' || overlayPhase === 'hidden';
     // The panel and the compact tab keep where the learner put them over the graph until another lesson starts.
@@ -127,18 +146,24 @@ export function GuidedLesson(props: {
         observer.observe(panel);
         return () => observer.disconnect();
     }, [overlayVisible]);
-    // On a phone and in a short window the card's heading and navigation stay pinned while its text scrolls. Their height
-    // is published so that text brought into view by keyboard focus stops below them (see `scroll-margin-top` in the CSS).
+    // In a short window the card's heading and navigation stay pinned above its scrolling text; on a one-column screen
+    // the navigation row rests on the bottom of the window instead. Both heights are published so that text brought
+    // into view by keyboard focus stops clear of them (see the scroll margins in the CSS).
     useLayoutEffect(() => {
         const panel = lessonRef.current;
         const controls = panel?.querySelector<HTMLElement>('.guided-lesson-controls');
         if (!overlayVisible || !panel || !controls || typeof ResizeObserver === 'undefined') return undefined;
-        const publish = () => panel.style.setProperty('--guided-lesson-controls-height', `${controls.offsetHeight}px`);
+        const navigation = panel.querySelector<HTMLElement>('.guided-lesson-navigation');
+        const publish = () => {
+            panel.style.setProperty('--guided-lesson-controls-height', `${controls.offsetHeight}px`);
+            if (navigation) panel.style.setProperty('--guided-lesson-navigation-height', `${navigation.offsetHeight}px`);
+        };
         publish();
         const observer = new ResizeObserver(publish);
         observer.observe(controls);
+        if (navigation) observer.observe(navigation);
         return () => observer.disconnect();
-    }, [overlayVisible]);
+    }, [overlayVisible, isComplete, oneColumn]);
     useEffect(() => {
         const updateAvailableHeight = () => {
             const layer = layerRef.current;
@@ -414,6 +439,12 @@ export function GuidedLesson(props: {
                 && navigation.bottom <= Math.min(window.innerHeight, panel.bottom);
             if (!navigationVisible) alignLessonInWindow();
             frameNeedsScrollReset.current = false;
+        } else if (navigated && readingRef.current && window.matchMedia?.('(max-width: 700px)').matches
+            && readingRef.current.getBoundingClientRect().top < 0) {
+            // On a one-column screen the text scrolls with the page while Back and Next rest on the bottom of the
+            // window. A reader who pressed one of them deep in the text starts the new frame from its beginning,
+            // with the graph it changed in view. A press with the start of the text in view moves nothing.
+            alignLessonInWindow();
         }
     }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
 
@@ -550,6 +581,16 @@ export function GuidedLesson(props: {
         if (event.target instanceof Element && event.target.closest('a, button:not(.guided-lesson-grip)')) return;
         panelPointerHandlers.onPointerDown(event);
     };
+    // Back and Next sit beside the progress in the tools column. In one column they are the card's last row, after the
+    // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
+    const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; refresh(() => session.back()); }}>
+                {t('guided_lesson_previous_frame_short')}
+            </button>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; refresh(() => session.next()); }}>
+                {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
+            </button>
+        </nav>;
     const navigationToolbar = !isComplete && <div className="guided-lesson-toolbar">
         <div className="guided-lesson-progress-group">
             <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
@@ -557,14 +598,7 @@ export function GuidedLesson(props: {
                 {t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}
             </div>
         </div>
-        <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; refresh(() => session.back()); }}>
-                {t('guided_lesson_previous_frame_short')}
-            </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; refresh(() => session.next()); }}>
-                {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
-            </button>
-        </nav>
+        {!oneColumn && navigation}
     </div>;
     const CompletionHeading = pageHeadingHasLessonTitle ? 'h2' : 'h3';
     const completionHeading = isComplete && <CompletionHeading ref={completionHeadingRef} tabIndex={-1} className="guided-lesson-completion-title">
@@ -620,6 +654,7 @@ export function GuidedLesson(props: {
                 <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>
             </div>
         </footer>}
+        {oneColumn && navigation}
     </section>}
     <div ref={layerRef} className="guided-lesson-layer">
     {/* The graph is a pointer target for hiding the instructions;

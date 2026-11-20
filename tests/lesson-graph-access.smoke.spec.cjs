@@ -107,6 +107,50 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     expect(new URL(page.url()).pathname).toBe(`${BASE}/analysis/taylor`);
 });
 
+test('on a phone Back and Next rest on the bottom of the window and a frame change deep in the text returns to the graph', async ({page}) => {
+    await h.useLanguage(page, 'sl');
+    await page.setViewportSize({width: 390, height: 844});
+    await page.goto(`${BASE}/analysis/taylor?learn=1`);
+    const panel = h.lessonPanel(page);
+    await expect(panel).toBeVisible();
+    await h.settle(page);
+    const next = h.nextButton(page);
+    const nextBottom = () => next.evaluate(button => Math.round(button.getBoundingClientRect().bottom));
+    await expect(next, 'Next is in the first screen').toBeInViewport({ratio: 1});
+    // The document order is the order on the screen: heading, text, then Back and Next.
+    expect(await panel.evaluate(element => [...element.querySelectorAll('.guided-lesson-heading, .guided-lesson-reading, .guided-lesson-navigation')].map(part => part.className.split(' ')[0])))
+        .toEqual(['guided-lesson-heading', 'guided-lesson-reading', 'guided-lesson-navigation']);
+    // While the card reaches below the window the row rests on the window's bottom edge.
+    expect(await panel.evaluate(element => element.getBoundingClientRect().bottom), 'the card reaches below the first screen').toBeGreaterThan(844);
+    const restingBottom = await nextBottom();
+    expect(restingBottom, 'the row rests on the bottom edge of the window').toBeGreaterThan(844 - 16);
+    await page.evaluate(() => scrollBy(0, 60));
+    expect(await nextBottom(), 'the row stays there while the text scrolls').toBe(restingBottom);
+    // Deep in the text nothing of the card is pinned to the top; Next is still in the window, at the card's end.
+    await panel.evaluate(element => scrollTo(0, element.getBoundingClientRect().top + scrollY + 240));
+    expect(await panel.locator('.guided-lesson-heading').evaluate(element => element.getBoundingClientRect().bottom), 'the heading scrolls away with the page').toBeLessThan(0);
+    expect(await panel.locator('.guided-lesson-reading').evaluate(element => element.getBoundingClientRect().top), 'the start of the text is above the window').toBeLessThan(0);
+    await expect(next).toBeInViewport({ratio: 1});
+    const progress = await h.progress(page);
+    await next.click();
+    await h.settle(page);
+    expect(await h.progress(page)).not.toBe(progress);
+    // The new frame starts with the graph it changed in view, and Next is back on the bottom edge.
+    expect(Math.abs(await page.locator('section.workspace-graph').evaluate(element => element.getBoundingClientRect().top)), 'the page returns to the graph').toBeLessThanOrEqual(1);
+    await expect(page.locator('#jgbox')).toBeInViewport({ratio: 1});
+    await expect(panel.locator('.guided-lesson-frame h3')).toBeInViewport();
+    expect(await nextBottom(), 'the row is on the bottom edge again').toBe(restingBottom);
+    // A frame change with the start of the text in view leaves the page where it is.
+    const offset = await page.evaluate(() => scrollY);
+    await next.click();
+    await h.settle(page);
+    expect(await page.evaluate(() => scrollY), 'no realignment when the frame start is in view').toBe(offset);
+    // Beside the graph the row is back in the toolbar, before the text.
+    await page.setViewportSize({width: 1440, height: 900});
+    await expect(panel.locator('.guided-lesson-toolbar .guided-lesson-navigation')).toHaveCount(1);
+    expect(await panel.locator('.guided-lesson-navigation').evaluate(element => getComputedStyle(element).position)).toBe('static');
+});
+
 test('lesson actions stay reachable at narrow size and 200% text in Presentation', async ({page}) => {
     await h.useLanguage(page, 'en');
     await page.setViewportSize({width: 390, height: 844});
@@ -123,28 +167,36 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     await h.noHorizontalOverflow(page);
     const panel = h.lessonPanel(page);
     const reading = panel.locator('.guided-lesson-reading');
-    // At 700 px and narrower the page scrolls, not the card (ADR 0061): the card is as long as its text and its
-    // controls stick to the top of the window.
+    // At 700 px and narrower the page scrolls, not the card (ADR 0061): the card is as long as its text, nothing of it
+    // pins to the top of the window, and Back and Next are its last row, resting on the window's bottom edge.
     expect(await reading.evaluate(element => element.scrollHeight > element.clientHeight + 1), 'the reading region does not scroll inside the card').toBe(false);
     expect(await panel.evaluate(element => [getComputedStyle(element).overflowY, getComputedStyle(element).maxHeight])).toEqual(['visible', 'none']);
-    expect(await panel.locator('.guided-lesson-controls').evaluate(element => getComputedStyle(element).position)).toBe('sticky');
+    expect(await panel.locator('.guided-lesson-controls').evaluate(element => getComputedStyle(element).position), 'the heading scrolls with the page').toBe('static');
+    expect(await panel.evaluate(element => {
+        const row = element.lastElementChild;
+        return [row.className, getComputedStyle(row).position, getComputedStyle(row).bottom];
+    }), 'Back and Next are the last row and rest on the bottom of the window').toEqual(['guided-lesson-navigation', 'sticky', '0px']);
     const cardTall = await panel.evaluate(element => element.getBoundingClientRect().height > innerHeight);
     const hide = h.hideButton(page);
-    // A card that fits the window has one position; a taller one is checked at its top, middle and bottom.
+    // A card that fits the window has one position; a taller one is checked at its top, middle and bottom. Next is in
+    // reach at each of them; Hide belongs to the heading at the card's top.
     for (const fraction of cardTall ? [0, .5, 1] : [0]) {
         await panel.evaluate((element, f) => {
             const rect = element.getBoundingClientRect();
             scrollTo(0, rect.top + scrollY + Math.max(0, rect.height - innerHeight) * f);
         }, fraction);
-        await expect(hide).toBeVisible();
-        const actionBox = await hide.boundingBox();
-        expect(actionBox.y, `Hide stays in the window at card position ${fraction}`).toBeGreaterThanOrEqual(0);
-        expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(844);
-        expect(await hide.evaluate(button => {
-            const r = button.getBoundingClientRect();
-            return button.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
-        }), 'Hide is pointer reachable').toBe(true);
+        for (const [name, action] of fraction === 0 ? [['Next', h.nextButton(page)], ['Hide', hide]] : [['Next', h.nextButton(page)]]) {
+            await expect(action).toBeVisible();
+            const actionBox = await action.boundingBox();
+            expect(actionBox.y, `${name} stays in the window at card position ${fraction}`).toBeGreaterThanOrEqual(0);
+            expect(actionBox.y + actionBox.height, `${name} stays in the window at card position ${fraction}`).toBeLessThanOrEqual(844);
+            expect(await action.evaluate(button => {
+                const r = button.getBoundingClientRect();
+                return button.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
+            }), `${name} is pointer reachable at card position ${fraction}`).toBe(true);
+        }
     }
+    if (cardTall) expect(await panel.locator('.guided-lesson-heading').evaluate(element => element.getBoundingClientRect().bottom), 'the heading has scrolled away at the card\'s end').toBeLessThan(0);
     expect(await panel.evaluate(element => element.scrollTop), 'prose scroll belongs to the page, not the card').toBe(0);
     await h.noHorizontalOverflow(page);
 
