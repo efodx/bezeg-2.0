@@ -197,20 +197,6 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 </ul>}
                 {four.verdict && <p className="inspector-help" data-fourpoint="verdict">{four.verdict}</p>}
             </div>}
-            {!refusal && status.diagramShown && <ReadoutList label={t("vor_readout_label")} hooks={{"data-voronoi": "readout"}} rows={[
-                {id: "sites", value: t("vor_count_sites", {value0: counts.sites})},
-                {id: "vertices", value: t("vor_count_vertices", {value0: counts.vertices})},
-                {id: "edges", value: t("vor_count_edges", {value0: counts.finite})},
-                {id: "rays", value: t("vor_count_rays", {value0: counts.rays})},
-                ...(counts.lines > 0 ? [{id: "lines", value: t("vor_count_lines", {value0: counts.lines})}] : []),
-                {id: "bounded", value: t("vor_count_bounded", {value0: counts.bounded})},
-                {id: "unbounded", value: t("vor_count_unbounded", {value0: counts.unbounded})},
-            ]}/>}
-            {!refusal && status.diagramShown && status.vertices.length > 0 && <ul aria-label={t("vor_vertices_label")} data-voronoi="vertices">
-                {status.vertices.map((vertex, index) => (
-                    <li key={index} data-vertex={index}>{t("vor_vertex_item", {value0: index + 1, value1: vertex.x, value2: vertex.y, value3: siteList(vertex.sites)})}</li>
-                ))}
-            </ul>}
         </div>
         {!refusal && <div className="inspector-group">
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("vor_sites_label")} data-voronoi="sites">
@@ -228,6 +214,23 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                                    onPress={() => actions.constructBack()}>{t("back")}</UnavailableButton>
             </PlaybackButtons>
             <p className="inspector-help" data-voronoi="construction">{stepText}</p>
+        </div>}
+        {/* The diagram's counts and vertices follow the cell construction, so the site choice that starts the first task leads the panel. */}
+        {!refusal && status.diagramShown && <div className="inspector-group" data-voronoi-diagram="">
+            <ReadoutList label={t("vor_readout_label")} hooks={{"data-voronoi": "readout"}} rows={[
+                {id: "sites", value: t("vor_count_sites", {value0: counts.sites})},
+                {id: "vertices", value: t("vor_count_vertices", {value0: counts.vertices})},
+                {id: "edges", value: t("vor_count_edges", {value0: counts.finite})},
+                {id: "rays", value: t("vor_count_rays", {value0: counts.rays})},
+                ...(counts.lines > 0 ? [{id: "lines", value: t("vor_count_lines", {value0: counts.lines})}] : []),
+                {id: "bounded", value: t("vor_count_bounded", {value0: counts.bounded})},
+                {id: "unbounded", value: t("vor_count_unbounded", {value0: counts.unbounded})},
+            ]}/>
+            {status.vertices.length > 0 && <ul aria-label={t("vor_vertices_label")} data-voronoi="vertices">
+                {status.vertices.map((vertex, index) => (
+                    <li key={index} data-vertex={index}>{t("vor_vertex_item", {value0: index + 1, value1: vertex.x, value2: vertex.y, value3: siteList(vertex.sites)})}</li>
+                ))}
+            </ul>}
         </div>}
         <div className="inspector-group">
             {/* A single-point list: no add or remove. Values are quarters of a grid unit, so the field grid keeps them exact. */}

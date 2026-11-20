@@ -44,6 +44,22 @@ describe.each(Object.keys(routes))('%s first task', id => {
     });
 });
 
+describe('voronoi readout placement', () => {
+    // The fresh-visit check found the counts and the vertex list above the site choice, pushing it below the fold at 310 px.
+    test('the diagram counts and vertex list follow the site choice and the cell construction', () => {
+        mountGraph(graphFactories['voronoi']());
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const sites = root.querySelector('[data-voronoi="sites"]')!;
+        const construction = root.querySelector('[data-voronoi="construction"]')!;
+        for (const name of ['readout', 'vertices']) {
+            const part = root.querySelector(`[data-voronoi="${name}"]`)!;
+            expect(part, name).not.toBeNull();
+            expect(sites.compareDocumentPosition(part) & Node.DOCUMENT_POSITION_FOLLOWING, name).toBeTruthy();
+            expect(construction.compareDocumentPosition(part) & Node.DOCUMENT_POSITION_FOLLOWING, name).toBeTruthy();
+        }
+    });
+});
+
 describe('hull-robustness view chooser', () => {
     // The Prikaz chooser leads both views, so it does not move; in the chain view Next step is the control right after it.
     test('leads the Edit panel in the chain and the Kettner views, with Next step second in the chain view', () => {
