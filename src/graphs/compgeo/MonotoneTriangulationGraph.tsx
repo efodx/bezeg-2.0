@@ -5,7 +5,7 @@ import type {GridPoint} from "../../compgeo/grid";
 import type {Chain} from "../../compgeo/sweep/monotoneTriangulation";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {currentLanguage} from "../../localization";
-import {nameBox, PlacedLabels, pxFrame, type PlacementInput, type PxFrame} from "../legend/pointNamePlacement";
+import {nameBox, PlacedLabels, pxFrame, tickStrips, type PlacementInput, type PxFrame} from "../legend/pointNamePlacement";
 import type {LabelItem, PxBox} from "../legend/boardLabelPlacement";
 import {GraphPalette} from "../styles/GraphPalette";
 import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
@@ -129,7 +129,9 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
             const {w, h} = nameBox(test.text, CHAIN_LABEL_FONT);
             blocks = [{x0: cx - w / 2, y0: cy, x1: cx + w / 2, y1: cy + h}];
         }
-        return {items, markers, samples, blocks};
+        // The axis numbers with a margin: a long chain label then keeps clear of them by a few px, not by the estimated box alone.
+        const margin = tickStrips(this.board).map(b => ({x0: b.x0 - 4, y0: b.y0 - 4, x1: b.x1 + 4, y1: b.y1 + 4}));
+        return {items, markers, samples, blocks: [...(blocks ?? []), ...margin]};
     }
 
     protected override syncScene(): void {
