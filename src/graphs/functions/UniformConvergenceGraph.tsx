@@ -343,6 +343,14 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         const language = currentLanguage();
         return <>
             <div className="inspector-group">
+                <Slider customText={t("uniform_x_label")} value={state.x} min={0} max={UNIFORM_R_MAX} step={UNIFORM_X_STEP}
+                        rejectedHint={t("uniform_x_rejected_hint", {value0: formatNumber(state.r, language)})}
+                        onChange={next => guardField(this.refusals, () => this.setX(next))}/>
+                <Slider customText={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP}
+                        rejectedHint={t("uniform_epsilon_rejected_hint", {value0: formatNumber(UNIFORM_EPSILON_MIN, language, 2), value1: formatNumber(UNIFORM_EPSILON_MAX, language, 2)})}
+                        onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
+            </div>
+            <div className="inspector-group">
                 <ChoiceSelect label={t("uniform_example_label")} value={state.example} help={t("uniform_example_help")}
                               options={UNIFORM_EXAMPLE_IDS.map(id => ({value: id, text: exampleFormula(id)}))}
                               onChange={next => this.guarded(() => this.setExample(next))}/>
@@ -353,12 +361,6 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
                             value0: formatNumber(UNIFORM_R_MIN, language), value1: formatNumber(UNIFORM_R_MAX, language), value2: formatNumber(state.x, language),
                         })}
                         onChange={next => guardField(this.refusals, () => this.setR(next))}/>
-                <Slider customText={t("uniform_x_label")} value={state.x} min={0} max={UNIFORM_R_MAX} step={UNIFORM_X_STEP}
-                        rejectedHint={t("uniform_x_rejected_hint", {value0: formatNumber(state.r, language)})}
-                        onChange={next => guardField(this.refusals, () => this.setX(next))}/>
-                <Slider customText={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP}
-                        rejectedHint={t("uniform_epsilon_rejected_hint", {value0: formatNumber(UNIFORM_EPSILON_MIN, language, 2), value1: formatNumber(UNIFORM_EPSILON_MAX, language, 2)})}
-                        onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
                 <p className="inspector-help">{t("uniform_fields_help")}</p>
             </div>
             <div className="inspector-group">

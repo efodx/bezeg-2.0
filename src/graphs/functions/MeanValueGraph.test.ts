@@ -86,7 +86,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputA, inputB, inputC] = found.Slider;
+    const [inputC, inputA, inputB] = found.Slider; // Edit order: the first task c leads, then the endpoints
     const toggle = revealButton(found, 'toggle-matches');
     if (!toggle) throw new Error('no toggle-matches reveal button');
     return {found, inputA, inputB, inputC, toggle};

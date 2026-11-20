@@ -43,22 +43,23 @@ export function SolidsEditPanel({state, actions}: {state: SolidsPanelState; acti
     const asSolid = (value: string): SolidId => MODE_SOLIDS[state.mode].find(solid => solid === value) ?? MODE_SOLIDS[state.mode][0];
     const axisOptions = AXES.filter(axis => axisAccepts(state.solid, axis)).map(value => ({value, text: t(`solids_graph_axis_${value}`)}));
     const failing = state.mode === 'stack' && stackPair(state.solid) === 'failing';
-    return <>
-        <div className="inspector-group"><h3>{t('solids_graph_heading')}</h3>
+    const solidChoice = <div className="inspector-group"><h3>{t('solids_graph_heading')}</h3>
             <ChoiceSelect label={t('solids_graph_mode')} value={state.mode} options={modeOptions} help={t(`solids_graph_mode_help_${state.mode}`)}
                           onChange={value => actions.setMode(asMode(value))}/>
             <ChoiceSelect label={t('solids_graph_solid')} value={state.solid} options={solidOptions} help={t('solids_graph_solid_help')}
                           onChange={value => actions.setSolid(asSolid(value))}/>
-        </div>
-        {state.mode === 'section' && <div className="inspector-group"><h3>{t('solids_graph_plane_heading')}</h3>
+        </div>;
+    const sectionPlane = state.mode === 'section' && <div className="inspector-group"><h3>{t('solids_graph_plane_heading')}</h3>
+            <Slider customText={t('solids_graph_offset')} min={OFFSET_RANGE.min / OFFSET_SCALE} max={OFFSET_RANGE.max / OFFSET_SCALE} step={1 / OFFSET_SCALE}
+                    grid={1 / OFFSET_SCALE} decimals={2} value={state.offset / OFFSET_SCALE}
+                    onChange={value => { actions.setOffset(Math.round(value * OFFSET_SCALE)); }}/>
             {NORMAL_LETTERS.map((letter, index) =>
                 <Slider key={letter} customText={t('solids_graph_normal', {value0: letter})} min={NORMAL_RANGE.min} max={NORMAL_RANGE.max} step={1} decimals={0}
                         value={state.normal[index]}
                         rejectedHint={t('solids_graph_normal_zero')} onChange={value => actions.setNormal(index as 0 | 1 | 2, value)}/>)}
-            <Slider customText={t('solids_graph_offset')} min={OFFSET_RANGE.min / OFFSET_SCALE} max={OFFSET_RANGE.max / OFFSET_SCALE} step={1 / OFFSET_SCALE}
-                    grid={1 / OFFSET_SCALE} decimals={2} value={state.offset / OFFSET_SCALE}
-                    onChange={value => { actions.setOffset(Math.round(value * OFFSET_SCALE)); }}/>
-        </div>}
+        </div>;
+    return <>
+        {state.mode === 'section' ? <>{sectionPlane}{solidChoice}</> : solidChoice}
         {state.mode === 'stack' && <div className="inspector-group"><h3>{t('solids_graph_stack_heading')}</h3>
             {failing ? <p className="inspector-help" data-solids-shear-reason="">{t('solids_graph_shear_unavailable')}</p>
                 : <Slider customText={t('solids_graph_shear')} min={SHEAR_RANGE.min / SHEAR_SCALE} max={SHEAR_RANGE.max / SHEAR_SCALE} step={1 / SHEAR_SCALE}

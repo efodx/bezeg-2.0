@@ -1274,7 +1274,9 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                                       onChange={value => this.setCircleAngle(value)}/>);
             }
         }
-        return commands;
+        // The first task leads: the level value and its contour, then the marked point; mode, function and overlay count follow.
+        const lead = ["level", "probe"];
+        return [...lead.flatMap(key => commands.filter(command => command.key === key)), ...commands.filter(command => !lead.includes(String(command.key)))];
     }
 
     protected override workspaceEdit(): React.ReactNode {

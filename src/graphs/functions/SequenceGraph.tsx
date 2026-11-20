@@ -355,11 +355,6 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
         const canAdvance = canAdvanceSequence(state);
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("sequence_example_label")} value={state.example} help={t("sequence_example_help")}
-                              options={SEQUENCE_EXAMPLE_IDS.map(id => ({value: id, text: exampleFormula(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
-            </div>
-            <div className="inspector-group">
                 <Slider customText={t("sequence_epsilon_label")} value={state.epsilon} min={SEQUENCE_EPSILON_MIN} max={SEQUENCE_EPSILON_MAX} step={SEQUENCE_EPSILON_STEP}
                         rejectedHint={t("sequence_epsilon_rejected_hint", {value0: formatNumber(SEQUENCE_EPSILON_MIN, language, 2), value1: formatNumber(SEQUENCE_EPSILON_MAX, language, 2)})}
                         onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
@@ -370,6 +365,11 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
                         rejectedHint={t("sequence_threshold_rejected_hint", {value0: SEQUENCE_THRESHOLD_MIN, value1: SEQUENCE_THRESHOLD_MAX})}
                         onChange={next => this.ignoreOutOfDomain(() => this.setThreshold(next))}/>
                 <p className="inspector-help">{t("sequence_fields_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("sequence_example_label")} value={state.example} help={t("sequence_example_help")}
+                              options={SEQUENCE_EXAMPLE_IDS.map(id => ({value: id, text: exampleFormula(id)}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
                 <PlaybackButtons placement="graph" groupLabel={t("sequence_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}

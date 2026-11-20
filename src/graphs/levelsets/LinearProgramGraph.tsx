@@ -839,7 +839,9 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
                          unavailableReason={this.flat() ? t("levelsets_graph_lp_sweep_reason") : undefined}
                          onChange={value => this.setSweep(value)}/>,
         );
-        return commands;
+        // The first task leads: the objective direction and the sweep that shows its supporting line; the constraints are problem setup.
+        const lead = ["p", "q", "sweep"];
+        return [...lead.flatMap(key => commands.filter(command => command.key === key)), ...commands.filter(command => !lead.includes(String(command.key)))];
     }
 
     protected override workspaceEdit(): React.ReactNode {

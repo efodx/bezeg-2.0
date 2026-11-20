@@ -323,6 +323,13 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const fixedCenter = example.centerMin === example.centerMax;
         return <>
             <div className="inspector-group">
+                <CountSetter label={t("taylor_degree_label")} n={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} help={t("taylor_degree_help")}
+                             rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
+                             onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
+                             onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
+                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/>
+            </div>
+            <div className="inspector-group">
                 <ChoiceSelect label={t("taylor_example_label")} value={state.example} help={t("taylor_example_help")}
                               options={TAYLOR_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.guarded(() => this.setExample(next))}/>
@@ -336,13 +343,6 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                         rejectedHint={t("taylor_x_rejected_hint", {value0: formatNumber(example.xMin, language), value1: formatNumber(example.xMax, language)})}
                         onChange={next => guardField(this.refusals, () => this.setX(next))}/>
                 <p className="inspector-help">{t("taylor_points_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <CountSetter label={t("taylor_degree_label")} n={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} help={t("taylor_degree_help")}
-                             rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
-                             onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
-                             onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
-                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/>
             </div>
         </>;
     }

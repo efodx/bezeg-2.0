@@ -85,7 +85,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputR, inputX, inputEpsilon] = found.Slider;
+    const [inputX, inputEpsilon, inputR] = found.Slider; // Edit order: point and tolerance lead, then the domain end
     const [setter] = found.CountSetter;
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     // n is a shared CountSetter: its typed path, its minus and its plus

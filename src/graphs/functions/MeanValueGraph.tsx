@@ -298,6 +298,11 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
         const {example, a, b, c} = this.model;
         return <>
             <div className="inspector-group">
+                <Slider customText={t("mean_value_c_label")} value={c} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("mean_value_c_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/>
+                <p className="inspector-help">{t("mean_value_order_help")}</p>
+            </div>
+            <div className="inspector-group">
                 <ChoiceSelect label={t("mean_value_example_label")} value={example} help={t("mean_value_example_help")}
                               options={MEAN_VALUE_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
@@ -307,9 +312,6 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
                              rejectedHint={t("mean_value_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
                 <Slider customText={t("mean_value_b_label")} value={b} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("mean_value_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
-                <Slider customText={t("mean_value_c_label")} value={c} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("mean_value_c_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/>
-                <p className="inspector-help">{t("mean_value_order_help")}</p>
             </div>
         </>;
     }

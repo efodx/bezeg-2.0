@@ -273,18 +273,6 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         const refinable = canRefine(n);
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("darboux_example_label")} value={example} help={t("darboux_example_help")}
-                              options={DARBOUX_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("darboux_a_label")} value={a} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("darboux_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("darboux_b_label")} value={b} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("darboux_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
-                <p className="inspector-help">{t("darboux_order_help")}</p>
-            </div>
-            <div className="inspector-group">
                 <CountSetter label={t("darboux_n_label")} n={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX}
                              rejectedHint={t("darboux_n_rejected_hint", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX})}
                              onPlus={() => guard(this.refusals, () => this.setCount(n + 1))}
@@ -296,6 +284,18 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                                        onPress={() => { guard(this.refusals, () => this.refinePartition()); }}>{t("darboux_refine")}</UnavailableButton>
                 </div>
                 <p id="darboux-refine-help" className="inspector-help">{t("darboux_refine_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("darboux_example_label")} value={example} help={t("darboux_example_help")}
+                              options={DARBOUX_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
+            </div>
+            <div className="inspector-group">
+                <Slider customText={t("darboux_a_label")} value={a} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("darboux_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
+                <Slider customText={t("darboux_b_label")} value={b} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("darboux_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
+                <p className="inspector-help">{t("darboux_order_help")}</p>
             </div>
         </>;
     }
