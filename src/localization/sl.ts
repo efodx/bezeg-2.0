@@ -5955,7 +5955,7 @@ export const sl = {
     "epicycle_param_help": "Enakomerna: vsak lok traja enako dolgo. Po dolžini tetiv: lok traja sorazmerno z razdaljo med svojima krajiščema.",
     "epicycle_chord_fallback": "Dve zaporedni krajišči sta enaki, zato parametrizacije po dolžini tetiv ni mogoče izračunati; uporabljena je enakomerna.",
     "epicycle_playback_group": "Predvajanje",
-    "epicycle_time_label": "Čas t (del obhoda)",
+    "epicycle_time_label": "Čas t (rad)",
     "epicycle_playback_help": "Predvajanje je privzeto ustavljeno; en obhod traja približno 10 s. Vsak popravek krivulje ali N ga ustavi.",
     "epicycle_handles_summary": "Krajišča in kontrolne točke (tipkovnica)",
     "epicycle_handles_help": "Točke lahko vlečeš tudi na grafu. Premik krajišča premakne tudi njegovi sosednji kontrolni točki.",

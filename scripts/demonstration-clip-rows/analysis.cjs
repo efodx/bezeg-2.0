@@ -30,7 +30,7 @@ module.exports = [
     {
         id: 'epicycles',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Čas t (del obhoda)', step: 0.01},
+        control: {kind: 'slider', label: 'Čas t (rad)', step: 0.01},
         // The poster is an outline subject (Primer select) at a fixed N (the recipe sets both). The vertex fields are hidden in the poster scene, an N sweep fails (a whole-number slider gives too few distinct frames below a 25 range and a pixel jump above it), so the time slider t carries the tip once half way round the trace and back: the learner can see where the tip leaves the subject's loop.
         path: [0, 3.14, 0],
         lessonQuote: 'Poišči mesto, kjer se sled in zanka najbolj razhajata, in oceni, ali je razlika vidna.',

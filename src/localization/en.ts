@@ -5956,7 +5956,7 @@ export const en: Record<keyof typeof sl, string> = {
     "epicycle_param_help": "Equal: every arc takes the same time. By chord length: an arc takes time proportional to the distance between its end points.",
     "epicycle_chord_fallback": "Two consecutive end points are equal, so the chord-length parametrization cannot be computed; the equal one is used.",
     "epicycle_playback_group": "Playback",
-    "epicycle_time_label": "Time t (fraction of a turn)",
+    "epicycle_time_label": "Time t (rad)",
     "epicycle_playback_help": "Playback is stopped by default; one turn takes about 10 s. Any edit of the curve or of N stops it.",
     "epicycle_handles_summary": "End points and control points (keyboard)",
     "epicycle_handles_help": "You can also drag the points on the graph. Moving an end point also moves its two neighbouring control points.",
