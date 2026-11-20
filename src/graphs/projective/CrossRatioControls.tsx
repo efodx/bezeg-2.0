@@ -53,10 +53,6 @@ export function CrossRatioControls(props: CrossRatioControlsProps) {
     }, [model]);
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <ChoiceSelect label={t("projective_k1_example_label")} value={model.example} options={exampleOptions}
-                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
-        </div>
-        <div className="inspector-group">
             <div data-projective-status={text.statusKind}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
                 {text.originalRatio && <p className="inspector-help" data-projective-line="original-ratio">{text.originalRatio}</p>}
@@ -78,6 +74,10 @@ export function CrossRatioControls(props: CrossRatioControlsProps) {
                             selected={selected === undefined || selected < 4 ? undefined : selected - 4}
                             onSelect={at => actions.select(at === undefined ? undefined : at + 4)}
                             onCommit={(at, [x, y]) => { actions.move(at + 4, x, y); }}/>
+        </div>
+        <div className="inspector-group">
+            <ChoiceSelect label={t("projective_k1_example_label")} value={model.example} options={exampleOptions}
+                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
         </div>
     </div>;
 }

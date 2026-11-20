@@ -99,7 +99,7 @@ export default class TensorDerivativesGraph extends TensorPatchGraph {
         const {net, u, v} = this.state;
         return <>
             {this.unavailableNotice()}
-            <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}
+            <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()} pointFirst
                                   pointExtra={<>
                                       <DerivativesCornerSelect u={u} v={v} onCorner={(cornerU, cornerV) => this.setParameters(cornerU, cornerV)}/>
                                       {/* Next to the controls that change it, not after the Bernstein readout. */}

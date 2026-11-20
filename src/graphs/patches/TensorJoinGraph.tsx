@@ -328,10 +328,10 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         const netB = this.bNet();
         return <>
             {this.unavailableNotice()}
-            <JoinScenesControls scenes={joinStartingScenes} current={this.joinSceneIndex()} onUse={index => this.useJoinScene(index)}/>
             <JoinModeControls mode={this.mode()} alpha={this.alpha()} joinV={this.state.joinV ?? DEFAULT_JOIN_V}
                               onMode={mode => this.setJoinContinuity(mode)} onAlpha={alpha => this.setJoinAlpha(alpha)} onJoinV={v => this.setJoinV(v)}/>
             <JoinReportPanel report={this.joinReport()}/>
+            <JoinScenesControls scenes={joinStartingScenes} current={this.joinSceneIndex()} onUse={index => this.useJoinScene(index)}/>
             <JoinBDegreeControls mode={this.mode()} mB={netB.length - 1} nB={netB[0].length - 1} onDegree={(direction, degree) => this.setBDegree(direction, degree)}/>
             <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}/>
             <JoinBPointControls netB={netB} isDerivedRow={row => this.isDerivedRow(row)} selected={this.selectedBIndex()} aSelected={this.selection() !== undefined}

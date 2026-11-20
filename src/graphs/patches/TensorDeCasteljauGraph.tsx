@@ -83,7 +83,7 @@ export default class TensorDeCasteljauGraph extends TensorPatchGraph {
     // ---- Panels ------------------------------------------------------------------------------------------------
 
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions}
+        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} pointFirst
             pointExtra={<DeCasteljauOrderControl order={this.state.decasteljauOrder ?? DEFAULT_ORDER} onChange={order => this.setDecasteljauOrder(order)}/>}/></>;
     }
 

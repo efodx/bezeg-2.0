@@ -389,14 +389,14 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
     private arcControls() {
         const kind = this.curveKind();
         return <div className="inspector-group">
-            <ChoiceSelect label={t("parametric_curve_label")} value={kind}
-                          options={ARC_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
-                          onChange={value => { if (isArcCurveKind(value) && value !== kind) this.setCurveKind(value); }}/>
             <p className="inspector-help">{t("arcparam_help")}</p>
             <Slider min={ARC_PIECES_MIN} max={ARC_PIECES_MAX} step={1} value={this.effectivePieces()} customText={t("arcparam_pieces")}
                     onChange={value => this.setArcPieces(Math.round(value))}/>
             <OnOffSwitch label={t("arcparam_equal_t_shown")} checked={this.effectiveEqualT()} onChange={checked => this.setArcEqualTShown(checked)}/>
             <OnOffSwitch label={t("arcparam_equal_arc_shown")} checked={this.effectiveEqualArc()} onChange={checked => this.setArcEqualArcShown(checked)}/>
+            <ChoiceSelect label={t("parametric_curve_label")} value={kind}
+                          options={ARC_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
+                          onChange={value => { if (isArcCurveKind(value) && value !== kind) this.setCurveKind(value); }}/>
             <ChoiceSelect label={t("arcparam_mover_mode")} value={this.effectiveMode()}
                           options={ARC_MOVER_MODES.map(value => ({value, text: value === 'arc' ? t("arcparam_mode_arc") : t("arcparam_mode_parameter")}))}
                           onChange={value => { if (isArcMoverMode(value)) this.setArcMoverMode(value); }}/>

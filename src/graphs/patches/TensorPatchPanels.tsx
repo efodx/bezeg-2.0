@@ -88,10 +88,11 @@ const startingPatchOptions = (patches: ReadonlyArray<Pick<DerivativesStartingPat
  * `pointExtra` is shown in the "Point on the patch" group, below the u and v sliders. `startingPatches` are the entries of the "Starting
  * patch" select (the two tensor Presets unless the Demonstration offers more); a "custom" entry shows only while the net matches none
  * of them (`actions.startingPatchIndex`), and choosing the entry already shown does nothing. `pointLocked` is the reason the selected
- * point cannot be edited right now; it replaces the coordinate editor so that nothing is offered that does nothing.
+ * point cannot be edited right now; it replaces the coordinate editor so that nothing is offered that does nothing. `pointFirst` leads
+ * with the "Point on the patch" group (a Demonstration whose first task is the u and v pair) and keeps the setup groups after it.
  */
-export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, startingPatches = defaultPatchPresets}: {
-    state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode; pointLocked?: string;
+export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, pointFirst = false, startingPatches = defaultPatchPresets}: {
+    state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode; pointLocked?: string; pointFirst?: boolean;
     startingPatches?: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>;
 }) {
     const t = useT();
@@ -101,7 +102,7 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
         if (!Number.isInteger(degree) || degree < MIN_DEGREE || degree > MAX_DEGREE) return false;
         actions.setDegree(direction, degree);
     };
-    return <>
+    const setup = <>
         <div className="inspector-group"><h3>{t("patch_starting_heading")}</h3>
             <ChoiceSelect label={t("patch_starting_heading")} value={shownPatch} options={startingPatchOptions(startingPatches, t, matching === undefined)}
                           onChange={value => { if (value !== shownPatch && value !== CUSTOM_PATCH) actions.useStartingPatch(Number(value)); }}/>
@@ -114,6 +115,8 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
                          onMinus={() => actions.setDegree("v", state.n - 1)} onPlus={() => actions.setDegree("v", state.n + 1)}
                          onSet={degree => typedDegree("v", degree)}/>
         </div>
+    </>;
+    const pointGroup =
         <div className="inspector-group"><h3>{t("patch_point_heading")}</h3>
             <Slider customText={t("patch_parameter_u")} min={0} max={1} step={0.01} value={state.u}
                     onChange={value => actions.setParameter("u", value)}/>
@@ -122,7 +125,11 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
             {pointExtra}
             <ParameterInset attach={actions.setInsetContainer} label={t("patch_parameter_inset_label")}/>
             <p className="inspector-help">{t("patch_parameter_inset_help")}</p>
-        </div>
+        </div>;
+    return <>
+        {pointFirst && pointGroup}
+        {setup}
+        {!pointFirst && pointGroup}
         <div className="inspector-group"><h3>{t("patch_control_point_heading")}</h3>
             <PatchPointChooser noneText={t("patch_no_selection")} selection={selection && [String(selection.i), String(selection.j)]}
                                axes={[{label: t("patch_index_i"), options: indexOptions(state.m)}, {label: t("patch_index_j"), options: indexOptions(state.n)}]}

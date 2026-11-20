@@ -82,12 +82,6 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
     const {rows, further} = readout.table;
     const liveReadout = useStatusReadout([stepText, status, count, ...(widest === null ? [] : [widest])].join("\n"));
     return <>
-        <div className="inspector-group" data-bezier-clipping="tolerance">
-            <ChoiceSelect label={t("bezierclipping_tolerance_label")} value={String(props.toleranceExponent)}
-                          options={CLIP_TOLERANCE_EXPONENTS.map(k => ({value: String(k), text: powerOfTenText(k), ariaLabel: t("bezierclipping_tolerance_option", {value0: k})}))}
-                          onChange={value => props.onTolerance(Number(value))}/>
-            <p className="inspector-help">{t("bezierclipping_tolerance_help")}</p>
-        </div>
         <div className="inspector-group">
             <PlaybackButtons placement="graph" groupLabel={t("bezierclipping_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
@@ -99,6 +93,12 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
             <p className="inspector-help" data-bezier-clipping="status" data-status={readout.status}>{status}</p>
             <p className="inspector-help" data-bezier-clipping="clips">{count}</p>
             {widest !== null && <p className="inspector-help" data-bezier-clipping="widest">{widest}</p>}
+        </div>
+        <div className="inspector-group" data-bezier-clipping="tolerance">
+            <ChoiceSelect label={t("bezierclipping_tolerance_label")} value={String(props.toleranceExponent)}
+                          options={CLIP_TOLERANCE_EXPONENTS.map(k => ({value: String(k), text: powerOfTenText(k), ariaLabel: t("bezierclipping_tolerance_option", {value0: k})}))}
+                          onChange={value => props.onTolerance(Number(value))}/>
+            <p className="inspector-help">{t("bezierclipping_tolerance_help")}</p>
         </div>
         <div className="inspector-group bezier-clipping-table">
             <ReadoutScrollTable label={t("bezierclipping_table_caption")}>
