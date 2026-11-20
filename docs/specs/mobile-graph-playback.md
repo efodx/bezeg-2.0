@@ -64,3 +64,7 @@ Use `$smoke-tester` and [the browser checklist](../smoke-tests.md) for affected 
 ## Implementation task
 
 [Keep demonstration playback beside the graph](../tasks/mobile-graph-playback/graph-adjacent-controls.md).
+
+## Implementation note: companion control (2026-11-20, owner decision O1)
+
+`PlaybackButtons` takes an optional `companion` (`{label, children}`): the graph's one existing time or parameter Slider, whose value and edits stay with the graph. It is rendered exactly once. Where the group sits in the inspector the companion follows it in place; when the group has claimed the phone slot, both render in the slot, the companion inside a closed `InspectorDisclosure` titled "Ročno: {label}" / "Manual: {label}" (`playback_companion_summary`). Because one `PlaybackButtons` instance decides the location, there is never a second slider in Edit. In the slot the companion is inert under a lesson lock, like the group. Focus in the slider is restored to its first control after a move across the breakpoint when nothing else holds focus (the open state of the disclosure is not preserved, it restarts closed). In Presentation the slot is inactive, so the slider stays in Edit, which Presentation already hides. Opted in: Epicycles (`EpicycleGraph.tsx`) and De Casteljau (`DecasteljauAnimationControls.tsx`); Bisection has none. Tests: `PlaybackCompanion.test.tsx`, `PlaybackRoutes.test.tsx`.
