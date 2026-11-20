@@ -106,6 +106,23 @@
         overflow: visible;
     }
 
+    /* Long text scrolls with the page. The card's heading and navigation stay at the top of the window meanwhile,
+       so Back, Next, Hide and Exit are always within reach. */
+    .demonstration-workspace.lesson-open > .guided-lesson .guided-lesson-controls {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        margin: 0 -12px;
+        padding: 4px 12px 0;
+        border-radius: 15px 15px 0 0;
+        background: inherit;
+    }
+
+    /* Presentation's heading sticks to the same edge; with a card open it scrolls away and the card's controls stay. */
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson) .workspace-heading {
+        position: static;
+    }
+
     .demonstration-workspace.lesson-content:has(> .guided-lesson-docked) .workspace-inspector {
         visibility: visible;
     }

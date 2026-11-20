@@ -6,7 +6,7 @@ status: accepted
 
 Agreed with the owner on 2026-10-09 as a refinement of the bounded Guided lesson plan. Guided lessons will use a graph-anchored overlay that keeps the graph visible, presents each conceptual step through bounded Explanation and Observation frames, and uses explicit transitions rather than a scrollable lesson document.
 
-The frame decision stands. The projection rationale below is historical. Current classroom teaching uses the free-exploration graph in Presentation mode. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
+The frame decision stands. The overlay's position does not: since 2026-11-20 the reading card docks beside the graph ([ADR 0061](0061-lesson-card-docks-beside-the-graph.md)), which revisits the rejected option "Keep the lesson as a grid panel" below with the card in the tools' column instead of a row above the graph. The projection rationale below is historical. Current classroom teaching uses the free-exploration graph in Presentation mode. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
 
 ## Decision
 
