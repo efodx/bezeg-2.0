@@ -7,6 +7,8 @@ import {placeLpLabels, type LabelItem, type PxBox} from "../../legend/boardLabel
 
 /** Boards narrower than this keep the fixed `decasteljauLabelLayout`. */
 export const SCHEME_LABEL_MIN_BOARD_PX = 480;
+/** The cost of one line sample in a label box: low, so a label stays next to its marker although a thin dashed line crosses the spot. */
+export const SCHEME_SAMPLE_COST = 1;
 
 export interface SchemeLabelPoint {
     readonly id: string;
@@ -57,7 +59,7 @@ export function placeSchemeLabels(request: SchemeLabelRequest): Map<string, Sche
     const items: LabelItem[] = ordered.map(p => ({id: p.id, ax: p.x, ay: p.y, w: p.w, h: p.h, prefer: request.previous?.get(p.id)}));
     const boxes = placeLpLabels(items, {
         width: request.width, height: request.height, markers: request.markers, samples: request.samples,
-        strips: request.strips, blocks: request.occupied, axisX: request.axisX, axisY: request.axisY,
+        strips: request.strips, blocks: request.occupied, axisX: request.axisX, axisY: request.axisY, sampleCost: SCHEME_SAMPLE_COST,
     });
     const out = new Map<string, SchemeLabelPlacement>();
     for (const p of ordered) {

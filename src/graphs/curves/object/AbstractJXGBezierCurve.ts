@@ -61,7 +61,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
     showingDecasteljauPoints: boolean = false;
     protected subdivisionResultConsumer?: (curve: this) => void;
     private decasteljauT: number = 0.5;
-    private schemeLabelMemo?: {key: string; fixedKey: string; t: number; placed: ReadonlyMap<string, SchemeLabelPlacement>};
+    private schemeLabelMemo?: {revision: number; volatileKey?: string; t: number; width: number; height: number; ox: number; oy: number; ux: number; uy: number; fontSize: number; w: number; h: number; placed: ReadonlyMap<string, SchemeLabelPlacement>};
     private schemeLabelFrom: ReadonlyMap<string, readonly [number, number]> = new Map();
     private decasteljauSegments: JXG.Segment[] = [];
     private elevationPoints: JXG.Point[] = [];
@@ -296,7 +296,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         return placed ? placed.offset : null;
     };
 
-    /** One placement per board state: the memo key is the board metrics, the control points, t, the font size and the measured label size. */
+    /** One placement per board state: the memo compares the curve version (a string key for a volatile curve), t, the board metrics, the font size and the measured label size. */
     private schemeLabelPlacement(): ReadonlyMap<string, SchemeLabelPlacement> | undefined {
         const board = this.board;
         const width = board?.canvasWidth, height = board?.canvasHeight;
@@ -304,35 +304,45 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         const settings = this.displaySettings;
         if (!settings.pointLabelsVisible) return undefined;
         const t = this.decasteljauT;
-        const levels = this.getDecasteljauScheme(t);
-        if (levels.length < 2) return undefined;
         const origin = board.origin.scrCoords, ux = board.unitX, uy = board.unitY;
-        const px = (p: Point): readonly [number, number] => [origin[1] + p.X() * ux, origin[2] - p.Y() * uy];
         // JSXGraph measures a typeset label too tall (a 22 x 72 px box round a glyph about 26 px high), so the height is estimated; the width is measured when plausible.
         const [estimatedW, h] = estimatedSchemeLabelSize(settings.fontSize);
-        const measuredW = this.decasteljauPoints.map(point => (point as unknown as SizedPoint).label?.size?.[0]).find((width): width is number => !!width && width > 1);
+        let measuredW: number | undefined;
+        for (const point of this.decasteljauPoints) {
+            const size = (point as unknown as SizedPoint).label?.size?.[0];
+            if (size && size > 1) { measuredW = size; break; }
+        }
         const w = measuredW && measuredW >= estimatedW * 0.6 && measuredW <= estimatedW * 2 ? measuredW : estimatedW;
-        // Only t changes between the frames of an animation: then a label keeps its spot (`prefer`). Any other change places the labels afresh.
-        const fixedKey = [width, height, origin[1], origin[2], ux, uy, settings.fontSize, w, h, levels[0].map(p => `${p.X()},${p.Y()}`).join(";")].join("|");
-        const key = `${fixedKey}|${t}`;
-        if (this.schemeLabelMemo?.key === key) return this.schemeLabelMemo.placed;
+        // The hit path compares numbers only. Only t changes between the frames of an animation: then a label keeps its spot (`prefer`); any other change places the labels afresh.
+        const revision = versionOf(this.pointControlledCurve);
+        const memo = this.schemeLabelMemo;
+        const sameFixed = memo !== undefined && revision !== VOLATILE && memo.revision === revision && memo.width === width && memo.height === height
+            && memo.ox === origin[1] && memo.oy === origin[2] && memo.ux === ux && memo.uy === uy && memo.fontSize === settings.fontSize && memo.w === w && memo.h === h;
+        if (sameFixed && memo.t === t) return memo.placed;
+        const levels = this.getDecasteljauScheme(t);
+        if (levels.length < 2) return undefined;
+        // A volatile curve has no version: its control points go into a string key.
+        const volatileKey = revision === VOLATILE ? [width, height, origin[1], origin[2], ux, uy, settings.fontSize, w, h, levels[0].map(p => `${p.X()},${p.Y()}`).join(";")].join("|") : undefined;
+        if (volatileKey !== undefined && memo?.volatileKey === volatileKey && memo.t === t) return memo.placed;
+        const fixed = sameFixed || (volatileKey !== undefined && memo?.volatileKey === volatileKey);
         // A jump in t (a lesson action, a preset) places the labels afresh: the old spots belonged to another picture.
-        if (this.schemeLabelMemo?.fixedKey !== fixedKey || Math.abs(t - this.schemeLabelMemo.t) > SCHEME_LABEL_STICKY_DT) this.schemeLabelFrom = new Map();
+        if (!fixed || Math.abs(t - memo!.t) > SCHEME_LABEL_STICKY_DT) this.schemeLabelFrom = new Map();
 
         const markerRadius = Number((this.jxgPoints[0] as unknown as SizedPoint | undefined)?.evalVisProp?.("size")) || 5;
         const points: SchemeLabelPoint[] = [];
         const markers: Array<readonly [number, number, number]> = [];
         const samples: Array<readonly [number, number]> = [];
         const toPx = (x: number, y: number): readonly [number, number] => [origin[1] + x * ux, origin[2] - y * uy];
+        const px = (p: Point): readonly [number, number] => toPx(p.X(), p.Y());
         levels.forEach((full, r) => {
             // The scheme pads every level to the number of control points; level r has n - r points.
             const level = full.slice(0, levels[0].length - r);
             const coords = level.map(px);
             coords.forEach(([x, y], index) => {
-                markers.push([x, y, markerRadius - 3]);
+                markers.push([x, y, markerRadius - 3]); // minus the 3 px the placement adds round a marker (MARKER_CLEAR_PX): the clear zone is the drawn radius, which the nearest ring (7 px) clears
                 if (r > 0) points.push({id: `${r}-${index}`, level: r, index, x, y, w, h});
             });
-            samples.push(...sampleLine(level.map(p => p.X()), level.map(p => p.Y()), toPx, width, height, 9, 200));
+            samples.push(...sampleLine(level.map(p => p.X()), level.map(p => p.Y()), toPx, width, height, 5, 400));
         });
         const curve = this.getCurve();
         const curveX: number[] = [], curveY: number[] = [];
@@ -341,7 +351,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
             curveX.push(p.X());
             curveY.push(p.Y());
         }
-        samples.push(...sampleLine(curveX, curveY, toPx, width, height, 9, 400));
+        samples.push(...sampleLine(curveX, curveY, toPx, width, height, 5, 800));
 
         const occupied: PxBox[] = [];
         for (const point of this.jxgPoints) {
@@ -371,7 +381,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
             width, height, points, markers, samples, strips, occupied, axisX: origin[1], axisY: origin[2], previous: this.schemeLabelFrom,
         });
         this.schemeLabelFrom = new Map([...placed].map(([id, value]) => [id, value.from]));
-        this.schemeLabelMemo = {key, fixedKey, t, placed};
+        this.schemeLabelMemo = {revision, volatileKey, t, width, height, ox: origin[1], oy: origin[2], ux, uy, fontSize: settings.fontSize, w, h, placed};
         return placed;
     }
 

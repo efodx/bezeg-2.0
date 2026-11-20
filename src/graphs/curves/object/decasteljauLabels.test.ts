@@ -15,7 +15,7 @@ function scheme(control: readonly Pt[], t: number): Pt[][] {
     return levels;
 }
 
-function request(control: readonly Pt[], t: number, previous?: SchemeLabelRequest["previous"]): SchemeLabelRequest {
+function request(control: readonly Pt[], t: number, previous?: SchemeLabelRequest["previous"], board = {width: 800, height: 500}): SchemeLabelRequest {
     const levels = scheme(control, t);
     const [w, h] = estimatedSchemeLabelSize(24);
     const points: SchemeLabelPoint[] = [];
@@ -23,14 +23,14 @@ function request(control: readonly Pt[], t: number, previous?: SchemeLabelReques
     const markers = levels.flat().map(p => [p[0], p[1], MARKER_R] as const);
     const identity = (x: number, y: number): Pt => [x, y];
     const samples: Pt[] = [];
-    for (const level of levels) samples.push(...sampleLine(level.map(p => p[0]), level.map(p => p[1]), identity, 800, 500));
+    for (const level of levels) samples.push(...sampleLine(level.map(p => p[0]), level.map(p => p[1]), identity, board.width, board.height));
     const curveX: number[] = [], curveY: number[] = [];
     for (let k = 0; k <= 40; k++) { const top = scheme(control, k / 40).at(-1)![0]; curveX.push(top[0]); curveY.push(top[1]); }
-    samples.push(...sampleLine(curveX, curveY, identity, 800, 500));
+    samples.push(...sampleLine(curveX, curveY, identity, board.width, board.height));
     // The control point labels (level 0) lie above their points, the way they are drawn.
     const occupied = control.map(p => ({x0: p[0] - 11, y0: p[1] - 40, x1: p[0] + 11, y1: p[1] - 14}));
     const strips: PxBox[] = [{x0: 380, y0: 440, x1: 396, y1: 454}, {x0: 396, y0: 250, x1: 410, y1: 264}];
-    return {width: 800, height: 500, points, markers, samples, strips, occupied, previous};
+    return {width: board.width, height: board.height, points, markers, samples, strips, occupied, previous};
 }
 
 const overlaps = (a: PxBox, b: PxBox) => a.x0 < b.x1 - 2 && a.x1 > b.x0 + 2 && a.y0 < b.y1 - 2 && a.y1 > b.y0 + 2;
@@ -88,5 +88,21 @@ describe("placeSchemeLabels", () => {
         const result = placed.get("3-0")!.box;
         const hits = req.samples.filter(([x, y]) => x >= result.x0 && x <= result.x1 && y >= result.y0 && y <= result.y1).length;
         expect(hits).toBeLessThanOrEqual(2);
+    });
+
+    it("keeps every label of the degree four lesson scene next to its own marker, also where a dashed line crosses the spot", () => {
+        // The lesson board: 875 x 594 px, x from about -7.3 to 7.3, origin at (433, 300), equal units.
+        const unit = 875 / 14.6;
+        const control = ([[-4, -3], [-3, 2], [0, 3], [3, 2], [4, -3]] as const).map(([x, y]) => [433 + x * unit, 300 - y * unit] as Pt);
+        const base = request(control, 0.5, undefined, {width: 875, height: 594});
+        // The markers as the curve passes them: a drawn radius of 5 px less the 3 px the placement adds (see schemeLabelPlacement).
+        const req = {...base, markers: base.markers.map(([x, y]) => [x, y, 2] as const), strips: [] as PxBox[], axisX: 433, axisY: 300};
+        const placed = placeSchemeLabels(req);
+        const gap = (b: PxBox, x: number, y: number) => Math.hypot(Math.max(b.x0 - x, 0, x - b.x1), Math.max(b.y0 - y, 0, y - b.y1));
+        for (const p of req.points) {
+            const own = gap(placed.get(p.id)!.box, p.x, p.y);
+            expect(own - 5, `${p.id} is far from its marker`).toBeLessThanOrEqual(16);
+            for (const q of req.points) if (q.id !== p.id) expect(own, `${p.id} is nearer to ${q.id}`).toBeLessThan(gap(placed.get(p.id)!.box, q.x, q.y));
+        }
     });
 });
