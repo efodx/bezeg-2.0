@@ -15,11 +15,17 @@ async function boardSnapshot(page) {
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
         if (!board) throw new Error('main board missing');
         const rect = container.getBoundingClientRect();
+        // JSXGraph pools axis tick labels: a board that was narrower for a while (the lesson column, ADR 0061) keeps the
+        // labels it made then, hidden. They are the axis's own, so the count is of everything else.
+        const tickLabels = new Set();
+        for (const object of Object.values(board.objects)) {
+            if (object.elType === 'ticks') for (const label of object.labels || []) if (label) tickLabels.add(label.id);
+        }
         return {
             id: board.id,
             view: board.getBoundingBox().map(value => Number(value.toFixed(6))),
             size: {width: Math.round(rect.width), height: Math.round(rect.height)},
-            objects: Object.keys(board.objects).length,
+            objects: Object.keys(board.objects).filter(id => !tickLabels.has(id)).length,
         };
     });
 }
