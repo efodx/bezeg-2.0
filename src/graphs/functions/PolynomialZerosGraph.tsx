@@ -286,12 +286,6 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
         ];
         const kRange = {value0: formatNumber(POLY_BOUNDS.k[0], currentLanguage()), value1: formatNumber(POLY_BOUNDS.k[1], currentLanguage())};
         return <>
-            <div className="inspector-group">
-                <ChoiceSelect label={t("polynomial_zeros_example_label")} value={current ?? "custom"} help={t("polynomial_zeros_example_help")}
-                              options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
-                <Slider customText={t("polynomial_zeros_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
-                             rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
-            </div>
             <ZeroListEditor zeros={state.zeros} maxDegree={MAX_POLY_DEGREE}
                             onMove={(index, next) => guardField(this.refusals, () => this.setZeroPosition(index, next))}
                             onMultiplicity={(index, next) => { guard(this.refusals, () => this.setMultiplicity(index, next)); }}
@@ -299,6 +293,12 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
                             onRemove={index => { guard(this.refusals, () => this.removeZero(index)); }}
                             onBlocked={reason => this.refusals.refuse(reason, true)}/>
             <ZeroListNoticeView store={this.notices} describe={zeroListNoticeText}/>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("polynomial_zeros_example_label")} value={current ?? "custom"} help={t("polynomial_zeros_example_help")}
+                              options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
+                <Slider customText={t("polynomial_zeros_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
+                             rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
+            </div>
             <div className="convexity-actions" role="group" aria-label={t("polynomial_zeros_actions_label")}>
                 <RevealButton action="toggle-derivative" revealed={state.derivativeVisible} showLabel={t("polynomial_zeros_derivative_show")} hideLabel={t("polynomial_zeros_derivative_hide")}
                               onToggle={() => this.setDerivativeVisible(!this.model.derivativeVisible)}/>

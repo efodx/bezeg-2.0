@@ -266,6 +266,16 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         const [x0Min, x0Max] = inverseX0Range(state.restriction, state.base);
         return <>
             <div className="inspector-group">
+                <Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
+            </div>
+            <div className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>
+                <RevealButton action="toggle-inverse" revealed={state.inverseVisible} showLabel={t("function_inverse_inverse_show")} hideLabel={t("function_inverse_inverse_hide")}
+                              onToggle={() => this.setInverseVisible(!this.model.inverseVisible)}/>
+                <RevealButton action="toggle-tangent" revealed={state.tangentVisible} showLabel={t("function_inverse_tangent_show")} hideLabel={t("function_inverse_tangent_hide")}
+                              onToggle={() => this.setTangentVisible(!this.model.tangentVisible)}/>
+            </div>
+            <div className="inspector-group">
                 <ChoiceSelect label={t("function_inverse_restriction_label")} value={state.restriction} help={t("function_inverse_restriction_help")}
                               options={INVERSE_RESTRICTION_IDS.map(id => ({value: id, text: t(RESTRICTION_KEYS[id])}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setRestriction(next))}/>
@@ -275,14 +285,6 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
                     <Slider customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
                                  rejectedHint={t("function_inverse_base_hint", {value0: formatNumber(INVERSE_BASE_MIN, language), value1: formatNumber(INVERSE_BASE_MAX, language)})}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>}
-                <Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
-            </div>
-            <div className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>
-                <RevealButton action="toggle-inverse" revealed={state.inverseVisible} showLabel={t("function_inverse_inverse_show")} hideLabel={t("function_inverse_inverse_hide")}
-                              onToggle={() => this.setInverseVisible(!this.model.inverseVisible)}/>
-                <RevealButton action="toggle-tangent" revealed={state.tangentVisible} showLabel={t("function_inverse_tangent_show")} hideLabel={t("function_inverse_tangent_hide")}
-                              onToggle={() => this.setTangentVisible(!this.model.tangentVisible)}/>
             </div>
         </>;
     }

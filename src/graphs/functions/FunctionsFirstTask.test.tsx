@@ -14,6 +14,8 @@ import DefiniteIntegralGraph from './DefiniteIntegralGraph';
 import AreaBetweenCurvesGraph from './AreaBetweenCurvesGraph';
 import ArcLengthGraph from './ArcLengthGraph';
 import WavesGraph from './WavesGraph';
+import FunctionInverseGraph from './FunctionInverseGraph';
+import PolynomialZerosGraph from './PolynomialZerosGraph';
 import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -32,6 +34,8 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
     'area-between': () => new AreaBetweenCurvesGraph(),
     'arc-length': () => new ArcLengthGraph(),
     waves: () => new WavesGraph(),
+    'function-inverse': () => new FunctionInverseGraph(),
+    'polynomial-zeros': () => new PolynomialZerosGraph(),
 };
 
 /** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it. */
@@ -45,6 +49,8 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     'area-between': {first: () => t('area_a_label'), later: [() => t('area_mode_label')]},
     'arc-length': {first: () => t('arc_n_label'), later: [() => t('arc_a_label'), () => t('arc_b_label')]},
     waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label'), () => t('waves_graph_a1_sum_label'), () => t('waves_graph_p1_label')]},
+    'function-inverse': {first: () => t('function_inverse_x0_label'), later: [() => 'action:toggle-inverse', () => 'action:toggle-tangent', () => t('function_inverse_restriction_label')]},
+    'polynomial-zeros': {first: () => t('zero_list_position_label', {value0: 1}), later: [() => t('zero_list_multiplicity_label', {value0: 1}), () => 'action:add-zero', () => t('polynomial_zeros_example_label'), () => t('polynomial_zeros_k_label'), () => 'action:toggle-derivative']},
 };
 
 /** The Edit panel's controls in document order, by accessible name. */
