@@ -506,20 +506,20 @@ export class HullRobustnessGraph extends HullTraceGraph {
         setCell: (i, j) => this.selectKettnerCell(i, j),
     };
 
-    /** Chain view: the view choice, the rule choices, the playback controls without the algorithm choice, and the readout. */
+    /** Chain view: the playback controls without the algorithm choice, the rule choices, the readout, then the view choice. */
     protected override hullControls(): React.ReactNode {
         const run = this.run();
         const step = this.step;
         const event = run.event(step);
         const hull = run.view(step).hull;
         return <>
-            <RobustnessModeSelect mode="chain" actions={this.choiceActions}/>
-            <ChainChoices pop={this.popRule} duplicates={this.duplicateRule} actions={this.choiceActions}/>
             <HullTraceControls algorithm="monotone-chain" step={step} length={run.length} playing={this.isPlaying} event={event}
                                points={this.model.points} gridStepExponent={this.model.gridStepExponent} totals={undefined}
                                actions={this.hullActions} fixedAlgorithm collinearKept={this.popRule === "right"}/>
+            <ChainChoices pop={this.popRule} duplicates={this.duplicateRule} actions={this.choiceActions}/>
             <ChainReadout pop={this.popRule} duplicates={this.duplicateRule} hull={hull} points={this.model.points}
                           gridStepExponent={this.model.gridStepExponent}/>
+            <RobustnessModeSelect mode="chain" actions={this.choiceActions}/>
         </>;
     }
 

@@ -85,10 +85,6 @@ export function EarClippingControls(props: EarClippingControlsProps) {
     const liveReadout = useStatusReadout(!traced ? "" : [reversedText, stepText, noteSentence, detail, trianglesText, countText, resultText].filter(Boolean).join(". "), true);
     return <>
         <div className="inspector-group">
-            <ExampleSelect label={t("earclip_example_group")} current={exampleId} onChoose={actions.loadExample}
-                           options={[{id: "example-1", text: t("earclip_example_1")}, {id: "example-2", text: t("earclip_example_2")}]}/>
-        </div>
-        <div className="inspector-group">
             <PlaybackButtons placement="graph" groupLabel={t("earclip_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({ready: traced, atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
@@ -114,6 +110,10 @@ export function EarClippingControls(props: EarClippingControlsProps) {
                         value0: summary.guardCount, value1: summary.guardVertices.map(v => `P${v + 1}`).join(", ")})}</li>
                 </ul>
             </>}
+        </div>
+        <div className="inspector-group">
+            <ExampleSelect label={t("earclip_example_group")} current={exampleId} onChoose={actions.loadExample}
+                           options={[{id: "example-1", text: t("earclip_example_1")}, {id: "example-2", text: t("earclip_example_2")}]}/>
         </div>
     </>;
 }

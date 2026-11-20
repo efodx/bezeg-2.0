@@ -136,10 +136,6 @@ export function DelaunayControls(props: DelaunayControlsProps) {
     const liveReadout = useStatusReadout(status || eventSentence ? [eventSentence, ...(status ? [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText] : [])].filter(Boolean).join(". ") : "", true);
     return <>
         <div className="inspector-group">
-            <ExampleSelect label={t("del_example_group")} current={exampleId} onChoose={actions.loadExample} options={[
-                {id: "quad", text: t("del_example_quad")}, {id: "seven", text: t("del_example_seven")}, {id: "square", text: t("del_example_square")}]}/>
-        </div>
-        <div className="inspector-group">
             <PlaybackButtons placement="graph" groupLabel={t("del_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({ready: traced, atStart: traced && status.step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
@@ -175,5 +171,9 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             {cocircularText && <p className="inspector-help" data-delaunay="cocircular">{cocircularText}</p>}
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="delaunay-live"/>
         </div>}
+        <div className="inspector-group">
+            <ExampleSelect label={t("del_example_group")} current={exampleId} onChoose={actions.loadExample} options={[
+                {id: "quad", text: t("del_example_quad")}, {id: "seven", text: t("del_example_seven")}, {id: "square", text: t("del_example_square")}]}/>
+        </div>
     </>;
 }
