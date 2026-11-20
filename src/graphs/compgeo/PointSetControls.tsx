@@ -51,6 +51,8 @@ export interface PointSetControlsProps {
     actions: PointSetControlActions;
     /** Whether the points/polygon choice is offered; a graph that only works on points hides it. Default true. */
     showModeToggle?: boolean;
+    /** Render the exact point rows before the overlay group (default: after it). */
+    pointsFirst?: boolean;
     /** False hides the closed-polygon checkbox for a graph that only works on closed polygons. */
     showClosedToggle?: boolean;
     /** True hides Add mode, Remove, Clear, the point count and the new-point form: the number of points is fixed. Default false. */
@@ -197,7 +199,7 @@ export function PointSetControls(props: PointSetControlsProps) {
     const modes: readonly PointSetMode[] = ["points", "polygon", ...props.allowsSegments === true ? ["segments" as const] : [], ...props.allowsIntervals === true ? ["intervals" as const] : []];
     const modeLabel = {points: "pointset_mode_points", polygon: "pointset_mode_polygon", segments: "pointset_mode_segments", intervals: "pointset_mode_intervals"} as const;
     const button = "btn btn-outline-secondary btn-sm";
-    return <div className="function-inspector pointset-inspector">
+    const settings = (
         <div className="inspector-group">
             {props.showModeToggle !== false && <ChoiceSelect label={t("pointset_mode_label")} value={model.mode}
                 options={modes.map(mode => ({value: mode, text: t(modeLabel[mode])}))} onChange={value => actions.setMode(value as PointSetMode)}/>}
@@ -207,6 +209,9 @@ export function PointSetControls(props: PointSetControlsProps) {
                 onChange={shown => actions.setOverlay(overlay.id, shown)}/>)}
             <p className="inspector-help">{t("pointset_grid_step", {value0: formatNumber(2 ** model.gridStepExponent, language, 8)})}</p>
         </div>
+    );
+    return <div className="function-inspector pointset-inspector">
+        {props.pointsFirst !== true && settings}
         <div className="inspector-group">
             {!fixed && !paired && <PointCollection label={t("pointset_collection_label")} count={model.points.length} min={0} max={props.pointLimit}
                 onAdd={at => { const refusal = actions.addPoint(at && {x: at[0], y: at[1]}); return refusal && textOf(refusal); }}
@@ -240,5 +245,6 @@ export function PointSetControls(props: PointSetControlsProps) {
                             min={-props.coordinateLimit} max={props.coordinateLimit} integer selected={selected} onSelect={actions.select}
                             onCommit={(i, [x, y]) => {actions.movePoint(i, {x, y});}}/>
         </div>}
+        {props.pointsFirst === true && settings}
     </div>;
 }

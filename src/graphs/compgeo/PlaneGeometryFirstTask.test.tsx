@@ -56,6 +56,36 @@ const exactEntryOrder: Record<string, Label[]> = {
     inversion: [() => t('inversion_radius_label'), () => 'X, x', () => t('inversion_example_label'), () => t('inversion_focus_label')],
 };
 
+/**
+ * Point-set routes: `pointsFirst` puts the exact point rows before the overlay checkboxes (graph-control first use, batch 4);
+ * a route that did not opt in keeps the overlays first. Scoped to `#inspector-edit`.
+ */
+const follows = (a: Element, b: Element) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+const editParts = (key: string) => {
+    mountGraph(allGraphFactories[key as keyof typeof allGraphFactories]());
+    const edit = document.querySelector('#inspector-edit')!;
+    const rows = edit.querySelector('.point-list')!;
+    const overlay = edit.querySelector('input[type="checkbox"]')!;
+    expect(rows, 'point rows').toBeTruthy();
+    expect(overlay, 'overlay checkbox').toBeTruthy();
+    return {first: edit.querySelector('.inspector-group')!, rows, overlay};
+};
+
+describe.each(['triangle-centres', 'euler-line'])('%s point rows', key => {
+    test('the first task leads, then the point rows, then the overlays', () => {
+        const {first, rows, overlay} = editParts(key);
+        expect(follows(first, rows)).toBe(true);
+        expect(follows(rows, overlay)).toBe(true);
+    });
+});
+
+describe('convex-hull point rows', () => {
+    test('a route that did not opt in keeps the overlays before the point rows', () => {
+        const {rows, overlay} = editParts('convex-hull');
+        expect(follows(overlay, rows)).toBe(true);
+    });
+});
+
 describe.each(Object.keys(exactEntryOrder))('%s', key => {
     test('the exact point entry directly follows the first task, before the examples', () => {
         mountGraph(allGraphFactories[key as keyof typeof allGraphFactories]());

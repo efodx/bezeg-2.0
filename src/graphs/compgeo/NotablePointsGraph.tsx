@@ -315,6 +315,10 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         return false;
     }
 
+    protected override pointsFirst(): boolean {
+        return true;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         const analysis = this.analysis();
         const outside = this.outsideView(analysis);

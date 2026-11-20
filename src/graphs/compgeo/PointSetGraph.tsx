@@ -985,8 +985,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return false;
     }
 
+    /** Whether the exact point rows precede the overlay group in the inspector (default: after it). */
+    protected pointsFirst(): boolean {
+        return false;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
-        return <PointSetControls showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} fixedCount={this.fixesPointCount()} allowsSegments={this.allowsSegments()} allowsIntervals={this.allowsIntervals()} pending={this.pending}
+        return <PointSetControls pointsFirst={this.pointsFirst()} showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} fixedCount={this.fixesPointCount()} allowsSegments={this.allowsSegments()} allowsIntervals={this.allowsIntervals()} pending={this.pending}
                                  segmentLimit={this.segmentLimit} intervalLimit={this.intervalLimit} pointLabel={this.pointLabel()} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
                                  pointLimit={this.pointLimit} coordinateLimit={this.coordinateLimit} simplicity={this.simplicity()}
                                  overlays={this.overlayIds().map(id => ({id, label: this.overlayLabel(id), shown: this.overlayShown(id)}))}
