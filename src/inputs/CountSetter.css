@@ -8,7 +8,7 @@
 /* Match the compact input's minimum width so right-aligned digits cannot slip under the plus button. */
 .count-setter-controls .number-input { width: max(6.5ch, 5.5em); flex-shrink: 0; }
 .count-setter-value {
-    display: inline-flex; align-items: center; justify-content: center; min-width: var(--bezeg-control-height); min-height: var(--bezeg-control-height); padding: 0 8px;
+    display: inline-flex; align-items: center; justify-content: center; width: max(6.5ch, 5.5em); flex-shrink: 0; box-sizing: border-box; min-height: var(--bezeg-control-height); padding: 0 8px;
     border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: var(--workspace-canvas-deep);
     color: var(--workspace-ink); font-variant-numeric: tabular-nums; font-weight: 700;
 }
