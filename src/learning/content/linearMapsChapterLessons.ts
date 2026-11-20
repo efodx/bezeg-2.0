@@ -438,7 +438,7 @@ export const linearMapCompositionLesson: LessonDefinition = {
     demonstrationId: 'linear-map',
     title: words('Sestavljanje preslikav in afine preslikave', 'Composition of maps and affine maps'),
     summary: words(
-        'Kadar preslikava \\(A\\) deluje prva in preslikava \\(B\\) druga, je kompozitum preslikava \\(P\\mapsto B(AP)\\), njena matrika pa je \\(BA\\). Lekcija sestavlja vrtež in zrcaljenje, nato zrcaljenji, doda vzporedni premik in središče vrtenja ter sledi Bézierjevi krivulji skozi tako afino preslikavo \\(T(P)=c+BA(P-c)+b\\). Na koncu poveže gumbe Demonstracije Afine Transformacije z izbiro središča.',
+        'Kadar preslikava \\(A\\) deluje prva in preslikava \\(B\\) druga, je kompozitum preslikava \\(P\\mapsto B(AP)\\), njena matrika pa je \\(BA\\). Lekcija sestavlja vrtež in zrcaljenje, nato zrcaljenji, doda vzporedni premik in središče vrtenja ter sledi Bézierjevi krivulji skozi tako afino preslikavo \\(T(P)=c+BA(P-c)+b\\). Na koncu poveže gumbe Demonstracije Afine transformacije z izbiro središča.',
         'When the map \\(A\\) acts first and the map \\(B\\) second, the composition is the map \\(P\\mapsto B(AP)\\) and its matrix is \\(BA\\). The lesson composes a rotation and a reflection, then two reflections, adds a translation and a centre of rotation, and follows a Bézier curve through such an affine map \\(T(P)=c+BA(P-c)+b\\). At the end it connects the buttons of the Affine transformations Demonstration to the choice of the centre.',
     ),
     steps: [
@@ -547,9 +547,9 @@ export const linearMapCompositionLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'comp-affine-link',
-            title: words('Gumbi Demonstracije Afine Transformacije', 'The buttons of the Affine transformations Demonstration'),
+            title: words('Gumbi Demonstracije Afine transformacije', 'The buttons of the Affine transformations Demonstration'),
             explanation: words(
-                'Demonstracija Afine Transformacije ima lekcijo »Afine transformacije Bézierjeve krivulje« (korak »Četrtinski obrat okoli središča«), ki isto krivuljo zavrti za četrtino obrata okoli njenega središča. Gumbi Demonstracije vrtijo po \\(18^\\circ\\); gumba za vrtenje in zrcaljenje delujeta okoli povprečja kontrolnih točk, gumb za merilo okoli središča pravokotnika, ki objame kontrolne točke; nobeden ne deluje okoli izhodišča. Rezultat gumbov se zato ujema s to lekcijo le, kadar je tukaj uporabljeno središče \\(c\\) enako njihovemu. Kontrolne točke so spet \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+                'Demonstracija Afine transformacije ima lekcijo »Afine transformacije Bézierjeve krivulje« (korak »Četrtinski obrat okoli središča«), ki isto krivuljo zavrti za četrtino obrata okoli njenega središča. Gumbi Demonstracije vrtijo po \\(18^\\circ\\); gumba za vrtenje in zrcaljenje delujeta okoli povprečja kontrolnih točk, gumb za merilo okoli središča pravokotnika, ki objame kontrolne točke; nobeden ne deluje okoli izhodišča. Rezultat gumbov se zato ujema s to lekcijo le, kadar je tukaj uporabljeno središče \\(c\\) enako njihovemu. Kontrolne točke so spet \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
                 'The Affine transformations Demonstration has the lesson "Affine transformations of a Bézier curve" (step "A quarter-turn about its centre"), which turns the same curve by a quarter turn about its centre. The buttons of the Demonstration turn by \\(18^\\circ\\); the buttons for turning and reflecting act about the mean of the control points, the button for scaling about the centre of the rectangle that bounds the control points; none acts about the origin. The result of the buttons therefore matches this lesson only when the centre \\(c\\) used here equals theirs. The control points are again \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
             ),
             prompt: words(
