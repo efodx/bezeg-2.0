@@ -1,4 +1,7 @@
-.value-list { display: grid; gap: .35rem; margin: 0; padding: 0; border: 0; }
+/* One name column for the whole list, as wide as its longest name ("Vrednost 10" stays on one line), shared by the rows through subgrid. */
+.value-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: .4rem; row-gap: .35rem; margin: 0; padding: 0; border: 0; }
+.value-list:has(> .value-list-row > [data-action="remove-value"]) { grid-template-columns: max-content minmax(0, 1fr) auto; }
+.value-list > * { grid-column: 1 / -1; }
 .value-list legend { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; padding: 0; margin-bottom: .2rem; }
-.value-list-row { display: grid; grid-template-columns: max-content minmax(0, 1fr) auto; gap: .4rem; align-items: start; }
+.value-list-row { display: grid; grid-template-columns: subgrid; align-items: start; }
 .value-list-index { color: var(--workspace-ink); font-weight: 700; padding-top: .35rem; }

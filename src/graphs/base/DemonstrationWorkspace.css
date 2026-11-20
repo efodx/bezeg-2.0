@@ -190,9 +190,9 @@
 .workspace-learning p { flex: 1; margin: 0; font-size: .9rem; }
 .workspace-learning button { flex-shrink: 0; font-size: .78rem; }
 .workspace-modes, .workspace-curve-picker { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
-/* The curve picker is a grid of equal columns, so sixteen curves make even rows; the clear button spans the last row. */
+/* The curve picker is a grid of equal columns, so sixteen curves make even rows; the clear button takes two columns after the last curve, beside it when the row has room. */
 .workspace-curve-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex-wrap: initial; }
-.workspace-curve-picker > button:not([aria-pressed]) { grid-column: 1 / -1; }
+.workspace-curve-picker > button:not([aria-pressed]) { grid-column: span 2; }
 .workspace-modes button { font-size: .84rem; }
 /* Board tools as a list of equal buttons: three labels do not fit one line at inspector width, and a ragged second line reads as an afterthought. */
 .editing-mode .workspace-modes, .workspace-view-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
