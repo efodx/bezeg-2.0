@@ -48,4 +48,4 @@ In the owner's scope (handoff 1 names section 7). Not started.
 
 ## Published
 
-This note goes out with the slice: `just publish --background --recipe runtime` from base ae52664f (a plain `just publish` refuses this checkout because of its untracked scratch files). The result is recorded in the commit that follows this one; until then, check `just publish --status` and `just ci`.
+`origin/master` is at 375564e8 (19 commits on ae52664f, pushed 2026-11-20 21:36 UTC through `just publish --background --recipe runtime`; a plain `just publish` refuses this checkout because of its untracked scratch files). CI run 44821798719 for 375564e8 succeeded in every job, deploy included. The two worker worktrees and their branches are removed. The preview on port 4421 serves this worktree's build of caf79bfc, and the before/after page is served from `.shots/insp/report/` on port 4422; both are published to the tailnet with `tailscale serve` (remove with `tailscale serve --http=<port> off` when no longer needed).
