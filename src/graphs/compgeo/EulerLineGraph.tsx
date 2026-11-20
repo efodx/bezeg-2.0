@@ -12,7 +12,7 @@ import {
     activeEulerExampleId, analyseEulerLine, EulerAnalysis, EulerExampleId, eulerExample, isEulerExampleId, NinePointKind,
 } from "../../compgeo/eulerLineModel";
 import {EULER_LINE_OVERLAY_IDS, EULER_POINT_COUNT, eulerLineCollection} from "./eulerLinePresetCollection";
-import {EulerLinePanel} from "./EulerLinePanel";
+import {EulerLinePanel, EulerLineExampleSelect} from "./EulerLinePanel";
 import {EULER_PLACE_IDS, EULER_PLACE_SYMBOL, EulerPlaceId, eulerChip} from "./eulerLineText";
 
 /**
@@ -316,14 +316,17 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
         return true;
     }
 
+    protected override beforeSettings(): React.ReactNode {
+        return <EulerLineExampleSelect exampleId={this.exampleId} onExample={id => this.loadExample(id)}/>;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         const analysis = this.analysis();
         const outside = this.outsideView(analysis);
         // What the inspector shows is what a later view change is compared with.
         this.outsideKey = [...outside].join(",");
         return <>
-            <EulerLinePanel analysis={analysis} exampleId={this.exampleId} outsideView={outside}
-                            onExample={id => this.loadExample(id)}/>
+            <EulerLinePanel analysis={analysis} outsideView={outside}/>
             {super.workspaceEdit()}
         </>;
     }

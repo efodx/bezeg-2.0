@@ -53,6 +53,8 @@ export interface PointSetControlsProps {
     showModeToggle?: boolean;
     /** Render the exact point rows before the overlay group (default: after it). */
     pointsFirst?: boolean;
+    /** Rendered after the point rows and before the settings group when `pointsFirst` is set. */
+    beforeSettings?: React.ReactNode;
     /** False hides the closed-polygon checkbox for a graph that only works on closed polygons. */
     showClosedToggle?: boolean;
     /** True hides Add mode, Remove, Clear, the point count and the new-point form: the number of points is fixed. Default false. */
@@ -245,6 +247,7 @@ export function PointSetControls(props: PointSetControlsProps) {
                             min={-props.coordinateLimit} max={props.coordinateLimit} integer selected={selected} onSelect={actions.select}
                             onCommit={(i, [x, y]) => {actions.movePoint(i, {x, y});}}/>
         </div>}
+        {props.pointsFirst === true && props.beforeSettings}
         {props.pointsFirst === true && settings}
     </div>;
 }

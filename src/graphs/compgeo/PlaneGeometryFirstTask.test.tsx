@@ -79,6 +79,20 @@ describe.each(['triangle-centres', 'euler-line'])('%s point rows', key => {
     });
 });
 
+describe.each([['triangle-centres', 'notable'], ['euler-line', 'euler']])('%s control order (D31)', (key, prefix) => {
+    test('readouts, point rows, the Primer chooser, then the settings group', () => {
+        const {rows, overlay} = editParts(key);
+        const edit = document.querySelector('#inspector-edit')!;
+        const readouts = edit.querySelector(`[data-${prefix}-state]`)!;
+        const primer = edit.querySelector(`[data-${prefix}-example]`)!;
+        const settings = overlay.closest('.inspector-group')!;
+        expect(primer, 'Primer chooser').toBeTruthy();
+        expect(follows(readouts, rows)).toBe(true);
+        expect(follows(rows, primer)).toBe(true);
+        expect(follows(primer, settings)).toBe(true);
+    });
+});
+
 describe('convex-hull point rows', () => {
     test('a route that did not opt in keeps the overlays before the point rows', () => {
         const {rows, overlay} = editParts('convex-hull');

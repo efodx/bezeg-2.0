@@ -9,14 +9,11 @@ import {notableTexts} from "./notablePointsText";
 
 export interface NotablePointsPanelProps {
     analysis: NotableAnalysis;
-    /** The example whose vertices are exactly the current ones; undefined for a custom triangle. */
-    exampleId: NotableExampleId | undefined;
     outsideView: ReadonlySet<CentreId>;
-    onExample(id: NotableExampleId): void;
 }
 
 /**
- * The readouts of the notable-points graph: example choice, classification chip, S, R, r, the centres with exact
+ * The readouts of the notable-points graph: classification chip, S, R, r, the centres with exact
  * fractions where they exist, the vertex list for non-pointer use. The chip is words, never
  * colour alone. The live region keeps its element mounted so changes are announced.
  */
@@ -31,12 +28,10 @@ export function NotablePointsPanel(props: NotablePointsPanelProps) {
     if (analysis.kind === "missing" || !texts) {
         return <div className="inspector-group" data-notable-state="missing">
             <p className="inspector-help pointset-status">{stateText}</p>
-            <ExampleSelect {...props}/>
             <LiveReadout readout={liveReadout} dataAttribute="notable-live"/>
         </div>;
     }
     return <div className="inspector-group notable-panel" data-notable-state={analysis.classification.kind === "degenerate" ? "degenerate" : analysis.classification.shape}>
-        <ExampleSelect {...props}/>
         <p className="inspector-help pointset-status" data-notable-chip>{texts.chip}</p>
         {texts.degenerateWhy && <p className="inspector-help" data-notable-degenerate>{texts.degenerateWhy}</p>}
         <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
@@ -55,7 +50,8 @@ export function NotablePointsPanel(props: NotablePointsPanelProps) {
     </div>;
 }
 
-function ExampleSelect(props: NotablePointsPanelProps) {
+/** The example chooser, placed by the graph after the point rows. */
+export function NotablePointsExampleSelect(props: {exampleId: NotableExampleId | undefined; onExample(id: NotableExampleId): void}) {
     const t = useT();
     const names: Readonly<Record<NotableExampleId, string>> = {
         default: t("notable_example_default"), obtuse: t("notable_example_obtuse"),

@@ -12,7 +12,7 @@ import {
     isNotableExampleId, NotableExampleId, notableExample,
 } from "../../compgeo/notablePointsModel";
 import {NOTABLE_POINT_COUNT, NOTABLE_POINTS_OVERLAY_IDS, notablePointsCollection} from "./notablePointsPresetCollection";
-import {NotablePointsPanel} from "./NotablePointsPanel";
+import {NotablePointsPanel, NotablePointsExampleSelect} from "./NotablePointsPanel";
 import {CENTRE_SYMBOL, notableTexts} from "./notablePointsText";
 
 /**
@@ -319,14 +319,17 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         return true;
     }
 
+    protected override beforeSettings(): React.ReactNode {
+        return <NotablePointsExampleSelect exampleId={this.exampleId} onExample={id => this.loadExample(id)}/>;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         const analysis = this.analysis();
         const outside = this.outsideView(analysis);
         // What the inspector shows is what a later view change is compared with.
         this.outsideKey = [...outside].join(",");
         return <>
-            <NotablePointsPanel analysis={analysis} exampleId={this.exampleId} outsideView={outside}
-                                onExample={id => this.loadExample(id)}/>
+            <NotablePointsPanel analysis={analysis} outsideView={outside}/>
             {super.workspaceEdit()}
         </>;
     }

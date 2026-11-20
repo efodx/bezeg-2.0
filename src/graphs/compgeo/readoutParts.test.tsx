@@ -34,7 +34,7 @@ test('Triangulation: its announcement is the one LiveReadout, not a hand-written
 });
 
 test('Notable points: the state chip is plain text and the LiveReadout carries the sentence', () => {
-    const view = render(<NotablePointsPanel analysis={{kind: 'missing', have: 1} as never} exampleId={undefined} outsideView={new Set()} onExample={noop}/>);
+    const view = render(<NotablePointsPanel analysis={{kind: 'missing', have: 1} as never} outsideView={new Set()}/>);
     const chip = view.container.querySelector('.pointset-status')!;
     expect(chip.getAttribute('role')).toBeNull();
     expect(view.container.querySelector('[data-notable-live]')!.textContent).toBe(chip.textContent + (chip.textContent!.endsWith('.') ? '' : '.'));

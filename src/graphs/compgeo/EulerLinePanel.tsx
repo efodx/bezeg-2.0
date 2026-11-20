@@ -9,14 +9,11 @@ import {EulerPlaceId, eulerChip, eulerTexts, eulerVertexTexts} from "./eulerLine
 
 export interface EulerLinePanelProps {
     analysis: EulerAnalysis;
-    /** The example whose vertices are exactly the current ones; undefined for a custom triangle. */
-    exampleId: EulerExampleId | undefined;
     outsideView: ReadonlySet<EulerPlaceId>;
-    onExample(id: EulerExampleId): void;
 }
 
 /**
- * The readouts of the Euler line graph: example choice, the line state in words, H, G, O, N as exact fractions, the
+ * The readouts of the Euler line graph: the line state in words, H, G, O, N as exact fractions, the
  * distances, the exact collinearity decision, the count of distinct nine points, the vertex list for non-pointer use and
  * the Show all control. State is words, never colour alone. The status paragraph keeps its element mounted (live region).
  */
@@ -32,13 +29,11 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
     if (analysis.kind === "missing") {
         return <div className="inspector-group" data-euler-state="missing">
             <p className="inspector-help pointset-status">{stateText}</p>
-            <ExampleSelect {...props}/>
             <LiveReadout readout={liveReadout} dataAttribute="euler-live"/>
         </div>;
     }
     if (analysis.kind === "degenerate") {
         return <div className="inspector-group euler-panel" data-euler-state="degenerate">
-            <ExampleSelect {...props}/>
             <p className="inspector-help pointset-status" data-euler-chip>{stateText}</p>
             <p className="inspector-help" data-euler-degenerate>{t("euler_degenerate_why")}</p>
             <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
@@ -50,7 +45,6 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
     }
     if (!texts) return null;
     return <div className="inspector-group euler-panel" data-euler-state={analysis.line === undefined ? "equilateral" : "line"}>
-        <ExampleSelect {...props}/>
         <p className="inspector-help pointset-status" data-euler-chip>{texts.chip}</p>
         {texts.equilateralNote && <p className="inspector-help" data-euler-equilateral>{texts.equilateralNote}</p>}
         <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
@@ -70,7 +64,8 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
     </div>;
 }
 
-function ExampleSelect(props: EulerLinePanelProps) {
+/** The example chooser, placed by the graph after the point rows. */
+export function EulerLineExampleSelect(props: {exampleId: EulerExampleId | undefined; onExample(id: EulerExampleId): void}) {
     const t = useT();
     const names: Readonly<Record<EulerExampleId, string>> = {
         default: t("euler_example_default"), right: t("euler_example_right"), isosceles: t("euler_example_isosceles"),
