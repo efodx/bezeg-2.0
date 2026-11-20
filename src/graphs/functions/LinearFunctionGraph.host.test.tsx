@@ -48,8 +48,20 @@ test('k and n are unavailable with the vertical-line reason, and a typed value i
     expect(model.x2).toBe(model.x1);
     for (const label of [/^Naklon k$/, /^Začetna vrednost n$/]) {
         expect(field(label)).toHaveAttribute('aria-disabled', 'true');
-        expect(field(label)).toHaveAttribute('title', expect.stringMatching(/Navpična premica ni graf funkcije/));
+        expect(field(label).getAttribute('aria-describedby')).toBeTruthy();
     }
     typeIn(/^Naklon k$/, 5);
     expect(graph.modelNow()).toEqual(model);
+});
+
+test('the vertical-line reason appears once, under the k and n fields, which both point to it', () => {
+    const graph = mount();
+    typeIn(/^P2, x$/, graph.modelNow().x1);
+    const reasons = screen.getAllByText(/Navpična premica ni graf funkcije/);
+    expect(reasons).toHaveLength(1);
+    expect(reasons[0].id).not.toBe('');
+    for (const label of [/^Naklon k$/, /^Začetna vrednost n$/]) {
+        expect(field(label).getAttribute('aria-describedby')).toContain(reasons[0].id);
+        expect(field(label)).not.toHaveAttribute('title');
+    }
 });

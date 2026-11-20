@@ -21,6 +21,8 @@ type CoordinateName = keyof LinearModel;
  * Linear function `y = kx + n` through two draggable points. The model is the two points; `k`, `n`, the equation and the
  * slope triangle are derived from it by `src/analysis/linear`. A vertical line (equal x) has no k and n.
  */
+const KN_REASON_ID = "linear-kn-reason";
+
 export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     private p1?: JXG.Point;
     private p2?: JXG.Point;
@@ -201,13 +203,14 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             </div>
             <div className="inspector-group">
                 <div className="function-points-grid">
-                    <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
+                    <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} unavailableReason={knReason} reasonShownElsewhere describedBy={knReason && KN_REASON_ID} step={LINEAR_SNAP_SIZE}
                                  min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({k: next}))}/>
-                    <NumberInput label={t("intercept_n_label")} value={hasKn ? line.n : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
+                    <NumberInput label={t("intercept_n_label")} value={hasKn ? line.n : undefined} unavailableReason={knReason} reasonShownElsewhere describedBy={knReason && KN_REASON_ID} step={LINEAR_SNAP_SIZE}
                                  min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
                 </div>
+                {knReason && <p className="inspector-help" id={KN_REASON_ID}>{knReason}</p>}
                 <p className="inspector-help">{t("linear_kn_help")}</p>
             </div>
         </>;
@@ -226,8 +229,8 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             {id: "dx", label: "Δx", value: number(triangle.dx)},
             {id: "dy", label: "Δy", value: number(triangle.dy)},
         ];
-        const note = line.kind === "vertical" ? t("linear_vertical_note") : line.kind === "degenerate" ? t("linear_degenerate_note") : undefined;
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={note}/>;
+        // the vertical and degenerate reasons are shown once, under the k and n fields
+        return <FunctionReadout title={t("function_readouts")} rows={rows}/>;
     }
 }
 

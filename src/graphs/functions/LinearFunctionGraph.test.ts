@@ -170,10 +170,12 @@ test('readouts never contain Infinity or NaN, including the vertical and coincid
     expect(text(rowsFor(0, 1, 2, 5))).toBe('y = 2x + 1|2|1|2|4');
     const vertical = rowsFor(1, -1, 1, 3);
     expect(text(vertical)).toBe('x = 1|ni določen|ni določen|0|4');
-    expect(graph.renderReadout().props.note).toMatch(/navpična/);
+    expect(graph.renderReadout().props.note).toBeUndefined(); // the reason is shown once, under the k and n fields
+    expect(JSON.stringify(graph.renderControls())).toMatch(/navpična/);
     const coincident = rowsFor(2, 2, 2, 2);
     expect(text(coincident)).toMatch(/^—\|ni določen\|ni določen\|0\|0$/);
-    expect(graph.renderReadout().props.note).toMatch(/sovpadata/);
+    expect(graph.renderReadout().props.note).toBeUndefined();
+    expect(JSON.stringify(graph.renderControls())).toMatch(/sovpadata/);
     for (const rows of [vertical, coincident]) expect(text(rows)).not.toMatch(/Infinity|NaN/);
     setLanguage('en');
     expect(text(rowsFor(0, 1, 2, 5)).split('|')[0]).toBe('y = 2x + 1');
