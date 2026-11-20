@@ -30,7 +30,8 @@ const closeVector = (actual: readonly number[], expected: readonly number[]) => 
     actual.forEach((value, i) => expect(value).toBeCloseTo(expected[i], 6));
 };
 function expectPatchInView(scene: FakeSurfaceView['last']): void {
-    for (const aspect of [390 / 844, 1440 / 900]) {
+    // The supported lesson board shapes: phone 364 x 295, desktop 875 x 594, Presentation 875 x 620 and 1308 x 620.
+    for (const aspect of [364 / 295, 875 / 594, 875 / 620, 1308 / 620]) {
         const viewport = {width: aspect * 1000, height: 1000};
         const coordinates = [
             ...scene.points.map(({xyz}) => xyz),

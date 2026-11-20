@@ -46,6 +46,12 @@ export function boundsOf(points: readonly Xyz[]): {min: Xyz; max: Xyz} {
 }
 
 /**
+ * The host aspect (width / height) the stored default cameras are fitted for. Every board is landscape, even a phone's
+ * (364 x 295 px, 1.23), so 1.2 keeps the whole net in view there and fills a desktop board's height.
+ */
+export const DEFAULT_FIT_ASPECT = 1.2;
+
+/**
  * Distance at which the bounding sphere of the box fits both the vertical and
  * horizontal field of view (narrow portrait aspect ratios are limited by the
  * horizontal field). Sphere fitting is orientation independent, so the whole

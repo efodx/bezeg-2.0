@@ -4,9 +4,13 @@ export type PatchEvaluationExampleSectionId = 'tensor-decasteljau' | 'properties
 
 const words = (sl: string, en: string) => ({sl, en});
 const point = (x: number, y: number, z: number): LessonPoint3 => ({x, y, z});
-const camera: LessonView3D = {az: 0.72, el: 0.48, distance: 5.5, target: point(0.5, 0.5, 0.5)};
-const deCasteljauCamera: LessonView3D = {...camera, distance: 15, target: point(0.5, 0.5, 2)};
-const affineImageCamera: LessonView3D = {...camera, distance: 28, target: point(0.5, 0.5, 5)};
+// Distances frame the whole net on a landscape board (aspect 1.2 or wider, as on a phone and on a desktop): the bounding
+// sphere of the net over the 38 degree vertical field (`fitDistance`, with its 8 % margin). The unit cube needs 2.9 (3.4 leaves
+// room for the tangent plane and normal); the 1 x 1 x 2 saddle 4.1; the 1 x 1 x 4 net 7.0; the 1 x 1 x 8 affine image 13.5.
+const camera: LessonView3D = {az: 0.72, el: 0.48, distance: 3.4, target: point(0.5, 0.5, 0.5)};
+const saddleCamera: LessonView3D = {...camera, distance: 4.1, target: point(0.5, 0.5, 0)};
+const deCasteljauCamera: LessonView3D = {...camera, distance: 7, target: point(0.5, 0.5, 2)};
+const affineImageCamera: LessonView3D = {...camera, distance: 13.5, target: point(0.5, 0.5, 5)};
 const frame = (id: string, kind: LessonFrame['kind'], title: LessonFrame['title'], body: LessonFrame['body'], prompt?: LessonFrame['prompt']): LessonFrame => ({
     id, kind, title, body, ...(prompt ? {prompt} : {}),
 });
@@ -57,7 +61,7 @@ const properties: LessonDefinition = {
             frame('hull', 'calculation', words('Ovojnica mreže', 'The net’s hull'), words('V mreži \\(3\\times3\\) je samo notranja višina \\(h_{11}=4\\). Višina krpe je \\(16u(1-u)v(1-v)\\), zato ostane med \\(0\\) in \\(1\\), čeprav kontrolna točka doseže \\(4\\). Krpa leži v konveksni ovojnici vseh devetih točk, a ovojnica ni sama krpa.', 'In the \\(3\\times3\\) net, only the interior height \\(h_{11}=4\\) is nonzero. The patch height is \\(16u(1-u)v(1-v)\\), so it stays between \\(0\\) and \\(1\\), although a control point reaches \\(4\\). The patch lies in the convex hull of all nine points, but the hull is not the patch.'), words('Primerjaj najvišjo kontrolno točko z označeno točko na krpi.', 'Compare the highest control point with the marked point on the patch.')),
             frame('affine', 'observation', words('Afina preslikava', 'An affine map'), words('Če vse višine preslikamo z \\(z\\mapsto2z+1\\), se izračunana višina središča spremeni iz \\(1\\) v \\(3\\). Razlog je, da se uteži krpe seštejejo v \\(1\\): preslikava kontrolnih točk in preslikava vsake točke krpe se ujemata.', 'If every height is mapped by \\(z\\mapsto2z+1\\), the computed midpoint height changes from \\(1\\) to \\(3\\). The patch weights sum to \\(1\\), so mapping the control points and mapping each patch point give the same result.')),
         ]},
-        {...scene('variation-counterexample', saddleFixture, 0.5, 0.5, [visibility('control-net'), visibility('shading')]), frames: [
+        {...scene('variation-counterexample', saddleFixture, 0.5, 0.5, [visibility('control-net'), visibility('shading')], saddleCamera), frames: [
             frame('variation', 'observation', words('Meja za krivulje odpove', 'The curve bound fails'), words('Ta bilinearna krpa je \\(S(u,v)=(u,v,(1-2u)(1-2v))\\). Navpična premica skozi \\((\\tfrac12,\\tfrac12)\\) seka krpo v \\((\\tfrac12,\\tfrac12,0)\\), kontrolno žično mrežo pa zgreši, ker so robovi mreže na \\(x=0\\), \\(x=1\\), \\(y=0\\) ali \\(y=1\\). Zato neposredna meja, ki bi štela presečišča s krpo in mrežo, tu ne velja.', 'This bilinear patch is \\(S(u,v)=(u,v,(1-2u)(1-2v))\\). The vertical line through \\((\\tfrac12,\\tfrac12)\\) intersects the patch at \\((\\tfrac12,\\tfrac12,0)\\), but misses the wire control net because its edges lie at \\(x=0\\), \\(x=1\\), \\(y=0\\), or \\(y=1\\). So the direct bound comparing line intersections with the patch and net fails here.'), words('Vključi mrežo in ploskev ter preveri, zakaj presečišča s krpo ni mogoče omejiti s številom presečišč z mrežo.', 'Show the net and patch. Check why the net’s intersection count cannot bound the patch’s count.')),
             frame('variation-scope', 'calculation', words('Kaj protiprimer pokaže', 'What the counterexample shows'), words('Protiprimer ovrže prav to neposredno pravilo za presečišča s premico in žično mrežo. Ne trdi, da so vse lastnosti zmanjševanja variacije v vseh oblikah napačne; tukaj zadostuje, da mreža zgreši premico, ki seka krpo.', 'The counterexample disproves this direct rule for line intersections with the wire net. It does not claim that every variation-diminishing statement fails in every form; here it is enough that the net misses a line which intersects the patch.')),
         ]},

@@ -256,7 +256,8 @@ describe("opening camera", () => {
     };
 
     it("a plain open frames the scene like resetView for the measured host, keeping the authored az/el", () => {
-        const restore = sizeHost(1200, 600);
+        // A narrow host (aspect 0.5): the stored Preset camera is fitted for a landscape board, so the two differ here.
+        const restore = sizeHost(600, 1200);
         try {
             const {graph, view} = mount();
             const opened = graph.state.camera;

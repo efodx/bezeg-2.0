@@ -11,7 +11,7 @@ import {
 } from "./coonsScene";
 import {coonsPresetCollection, type CoonsPatchDto, type CoonsPresetData} from "./coonsPresetCollection";
 import type {PatchCameraDto, Point3Dto} from "./patchDto";
-import {CAMERA_PRESETS, CameraPresetName, clamp, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
+import {CAMERA_PRESETS, CameraPresetName, clamp, DEFAULT_FIT_ASPECT, fitCameraTo, presetCamera} from "./surface-view/surfaceMath";
 import type {SurfaceCamera, SurfaceScene, Xyz} from "./surface-view/surfaceScene";
 
 export interface CoonsGraphState extends SurfaceGraphState {
@@ -27,10 +27,10 @@ export interface CoonsGraphState extends SurfaceGraphState {
     zMode: boolean;
 }
 
-/** The authored view, fitted to the default example like the other patch Presets (a 0.45 host aspect). */
+/** The authored view, fitted to the default example for a landscape host (`DEFAULT_FIT_ASPECT`), so the patch fills the board. */
 const AUTHORED_CAMERA: SurfaceCamera = {az: -0.9, el: 0.5, distance: 1, projection: "perspective", target: [0, 0, 0]};
 const fittedCamera = (b: CoonsBoundaryPoints): SurfaceCamera =>
-    fitCameraTo([...b.c0, ...b.c1, ...b.d0, ...b.d1], 0.45, AUTHORED_CAMERA);
+    fitCameraTo([...b.c0, ...b.c1, ...b.d0, ...b.d1], DEFAULT_FIT_ASPECT, AUTHORED_CAMERA);
 
 const xyz = ([x, y, z]: Point3Dto): Xyz => [x, y, z];
 const toCamera = (dto: PatchCameraDto): SurfaceCamera => ({az: dto.az, el: dto.el, distance: dto.distance, projection: dto.projection, target: xyz(dto.target)});
