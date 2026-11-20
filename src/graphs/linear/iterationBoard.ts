@@ -6,6 +6,8 @@ import {
     ARROW_LENGTH, DRAW_LIMIT, IterationView, lineThroughOrigin, orbitPolyline, parabolaPolyline, STABILITY_TRIANGLE, TRACE_DET_VIEW, TraceDetView,
 } from './iterationScene';
 import {ITERATE_STEP_MAX} from '../../linear/linearMapModel';
+import {lineSamples, nameBox, PlacedLabels, pxFrame} from '../legend/pointNamePlacement';
+import {sampleLine, type PxBox} from '../legend/boardLabelPlacement';
 import {closedPolyline, type LinearMapGraphMode, type Polyline} from './linearMapScene';
 
 /**
@@ -112,7 +114,7 @@ export function createIterationCurves(ctx: IterationBoardContext): void {
     polyline(() => closedPolyline([[left, 0], [0, 0], [0, top], [left, top]]), {...TRACE_DET_DRAWING.flow, strokeWidth: ctx.thin, visible: tracing});
     polyline(() => closedPolyline(STABILITY_TRIANGLE), {...TRACE_DET_DRAWING.triangle, strokeWidth: ctx.strokeWidth, visible: tracing});
     polyline(() => parabolaPolyline(), {...TRACE_DET_DRAWING.parabola, strokeWidth: ctx.strokeWidth, visible: tracing});
-    fixedText(0, 1.15, ctx.text.triangle, 'middle', 'bottom', ITERATION_COLORS.triangle);
+    placedTriangleName(ctx);
     // The label starts inside the quadrant, but never left of the board's live edge: a narrow board shows less than the quadrant.
     fixedText(() => Math.max(left + 0.3, board.getBoundingBox()[0] + 8 / board.unitX), top - 0.3, ctx.text.flow, 'left', 'top', ITERATION_COLORS.flow);
     fixedText(6.4, 8.5, ctx.text.parabola, 'left', 'top', ITERATION_COLORS.parabola);
@@ -172,4 +174,48 @@ function unitOf(ctx: IterationBoardContext): Vec2 | undefined {
     const p = run.points[Math.min(ctx.step(), run.steps)];
     const norm = Math.hypot(p[0], p[1]);
     return norm === 0 ? undefined : [p[0] / norm, p[1] / norm];
+}
+
+/** The text of the handle's label, which sits `above-right` of the handle (see `BaseFunctionGraph.pointLabel`, distance 1.1). */
+const HANDLE_LABEL_TEXT = '(τ, δ)';
+
+/**
+ * The name of the stability triangle. It leaves the top edge, where the handle's label "(τ, δ)", the parabola and the tick "2" meet it: its box
+ * is placed with the shared name layout (`placeNames`) among the handle and its label, the triangle, the parabola, the axes and the tick
+ * labels, and follows the handle while it is dragged. The memo holds boxes only, no board object.
+ */
+function placedTriangleName(ctx: IterationBoardContext): void {
+    const {board} = ctx;
+    const labels = new PlacedLabels();
+    const box = (): PxBox | undefined => {
+        const td = ctx.traceDet();
+        const fontPx = ctx.fontSize();
+        return labels.boxes(board, [td.tau, td.delta, fontPx, ctx.text.triangle()], frame => {
+            const toPx = frame.toPx;
+            const size = nameBox(ctx.text.triangle(), fontPx);
+            const [hx, hy] = toPx(td.tau, td.delta);
+            const handleLabel = nameBox(HANDLE_LABEL_TEXT, fontPx);
+            const labelBottom = hy - 0.55 * fontPx * 1.1;
+            const blocks: PxBox[] = [{x0: hx + 6.6 * 1.1, y0: labelBottom - handleLabel.h, x1: hx + 6.6 * 1.1 + handleLabel.w, y1: labelBottom}];
+            const samples: Array<readonly [number, number]> = [];
+            for (const line of [closedPolyline(STABILITY_TRIANGLE), parabolaPolyline()]) samples.push(...sampleLine(line.x, line.y, toPx, frame.width, frame.height));
+            samples.push(...lineSamples(frame, toPx(0, 0), toPx(1, 0)), ...lineSamples(frame, toPx(0, 0), toPx(0, 1)));
+            // The name starts at the middle of the top edge and may slide to the vertices.
+            const [ax, ay] = toPx(0, 1);
+            const alts = [toPx(-2, 1), toPx(2, 1), toPx(0, -1)];
+            return {items: [{id: 'triangle', ax, ay, alts, ...size}], markers: [[hx, hy, ctx.markerSize()]], samples, blocks};
+        }).triangle;
+    };
+    const centre = (pick: (b: PxBox) => number, fallback: number, axis: 'x' | 'y') => () => {
+        const frame = pxFrame(board);
+        const b = box();
+        if (!frame || !b) return fallback;
+        const [left, top] = board.getBoundingBox();
+        const px = pick(b);
+        return axis === 'x' ? left + px / board.unitX : top - px / board.unitY;
+    };
+    ctx.own(board.create('text', [centre(b => (b.x0 + b.x1) / 2, 0, 'x'), centre(b => (b.y0 + b.y1) / 2, 1.15, 'y'), ctx.text.triangle], {
+        fixed: true, highlight: false, anchorX: 'middle', anchorY: 'middle', fontSize: ctx.fontSize, strokeColor: ITERATION_COLORS.triangle,
+        visible: () => ctx.mode() === 'tracedet',
+    }));
 }
