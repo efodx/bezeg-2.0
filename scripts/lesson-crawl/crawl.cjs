@@ -254,7 +254,11 @@ async function crawlExample(browser, chapter, href, ctx) {
                 const cut = [], shrunk = [];
                 panel.querySelectorAll('.guided-lesson-notation, .guided-lesson-frame p, .guided-lesson-frame h3, .guided-lesson-title, .guided-lesson-worked-example h4').forEach(e => {
                     const what = `${e.classList[0] || e.tagName.toLowerCase()} "${(e.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)}"`;
-                    if (e.scrollWidth > e.clientWidth + 1) cut.push(`${what} needs ${e.scrollWidth}px, has ${e.clientWidth}px${e.style.fontSize ? ` at ${e.style.fontSize}` : ''}`);
+                    // Wrapping prose is not clipped, and its scroll width counts the hidden screen-reader copy of a formula:
+                    // there a formula is cut only when its own right edge lies outside the line.
+                    const formulas = getComputedStyle(e).overflowX === 'visible' ? [...e.querySelectorAll('mjx-container')] : [];
+                    const limit = e.getBoundingClientRect().right + 1;
+                    if (e.scrollWidth > e.clientWidth + 1 && (!formulas.length || formulas.some(f => f.getBoundingClientRect().right > limit))) cut.push(`${what} needs ${e.scrollWidth}px, has ${e.clientWidth}px${e.style.fontSize ? ` at ${e.style.fontSize}` : ''}`);
                     else if (e.style.fontSize) shrunk.push(`${what} at ${e.style.fontSize}`);
                 });
                 return {cut, shrunk};
