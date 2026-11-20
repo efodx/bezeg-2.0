@@ -45,6 +45,13 @@ class ObservedRootFindingGraph extends RootFindingGraph {
     playing() {
         return this.playback.isPlaying;
     }
+
+    /** Whether the point named `name` and its label are drawn (JSXGraph keeps the label of a hidden point unless the label has its own rule). */
+    shown(name: string) {
+        const point = Object.values(this.board.objects).find(object => (object as JXG.Point).name === name) as JXG.Point | undefined;
+        const visible = (element: unknown) => (element as {evalVisProp(name: string): boolean}).evalVisProp('visible');
+        return point === undefined ? undefined : {point: visible(point), label: visible(point.label)};
+    }
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
@@ -92,6 +99,15 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
     expect(graph.modelNow()).toEqual({method: 'secant', example: 'square-minus-two', x0: 0.5, x1: 2, step: 0});
     expect(screen.getByLabelText('Drugi začetni približek x₁, vrednost')).toBeInTheDocument();
     expect(statusId()).toBe('ready');
+});
+
+test('the label of the second start x1 is drawn only with its point, in the secant method', () => {
+    const graph = new ObservedRootFindingGraph(manualScheduler().scheduler);
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    expect(graph.shown('$$x_1$$')).toEqual({point: false, label: false});
+    expect(graph.shown('$$x_0$$')).toEqual({point: true, label: true});
+    act(() => { fireEvent.change(screen.getByLabelText('Metoda'), {target: {value: 'secant'}}); });
+    expect(graph.shown('$$x_1$$')).toEqual({point: true, label: true});
 });
 
 test('unmount leaves no timer and Play stops when the preset is replaced', () => {

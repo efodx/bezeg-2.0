@@ -575,11 +575,14 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
      */
     protected axisPoint(config: {
         x: number; name: string; placement: LabelPlacement; color?: string; min: number | (() => number); max: number | (() => number); step: number; write: (x: number) => void;
+        /** For a point that is sometimes hidden: the point and its label are shown only while this is true (JSXGraph keeps a label of a hidden point). */
+        visible?: () => boolean;
     }): JXG.Point {
         return this.slidingPoint({
             x: config.x, position: () => 0, min: config.min, max: config.max, step: config.step,
             attributes: {
-                ...this.styles.point.default, name: config.name, label: this.pointLabel(config.placement, 1.6),
+                ...this.styles.point.default, name: config.name, label: this.pointLabel(config.placement, 1.6, config.visible),
+                ...(config.visible === undefined ? {} : {visible: config.visible}),
                 ...(config.color === undefined ? {} : {fillColor: config.color, highlightFillColor: config.color}),
             },
             write: x => {

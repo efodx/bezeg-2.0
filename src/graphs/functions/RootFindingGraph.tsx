@@ -236,9 +236,8 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         const start = (which: RootFindingStart, name: string, placement: "below-left" | "below-right", visible: () => boolean) => {
             const point = this.axisPoint({
                 x: this.model[which], name, placement, color: GraphPalette.comparisonCurve, min: ROOT_START_MIN, max: ROOT_START_MAX, step: START_DRAG_STEP,
-                write: x => this.setStart(which, x),
+                write: x => this.setStart(which, x), visible,
             });
-            point.setAttribute({visible});
             this.startPoints[which] = point;
         };
         start("x0", "$$x_0$$", "below-left", () => true);
