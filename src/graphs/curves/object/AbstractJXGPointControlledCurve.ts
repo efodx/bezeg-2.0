@@ -192,8 +192,11 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         const jxgPoint = this.jxgPoints[i];
         if (point instanceof PointImpl) this.unbindEditableInputPoint(point);
         if (jxgPoint) {
-            this.board.removeObject(jxgPoint);
+            // Drop the hull and the array entry first: removeObject fires a board update, whose hull refresh
+            // would otherwise build a polygon over the point being removed.
+            this.hideHullInternal();
             this.jxgPoints.splice(i, 1);
+            this.board.removeObject(jxgPoint);
         }
         if (point) this.pointControlledCurve.removePoint(point);
         this.labelJxgPoints();
