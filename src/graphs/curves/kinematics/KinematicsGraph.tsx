@@ -1001,8 +1001,8 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            {this.getGraphCommandsArea()}
             <KinematicsPlayback graph={this}/>
+            {this.getGraphCommandsArea()}
             <KinematicsReadout graph={this}/>
         </>;
     }

@@ -1027,8 +1027,8 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            {this.getGraphCommandsArea()}
             <DescentPlayback graph={this}/>
+            {this.getGraphCommandsArea()}
             <DescentReadout graph={this}/>
         </>;
     }

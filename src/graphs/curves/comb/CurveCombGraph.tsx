@@ -275,14 +275,14 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
         const curve = this.getFirstCurve();
         const bs = kind === 'g1' && curve instanceof BezierSpline ? curve.getBs() : [];
         return <div className="inspector-group">
-            <ChoiceSelect label={t("parametric_curve_label")} value={kind}
-                          options={COMB_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
-                          onChange={value => { if (isCombCurveKind(value) && value !== kind) this.setCurveKind(value); }}/>
             <OnOffSwitch label={t("comb_shown")} checked={this.state.combShown} onChange={checked => this.setCombShown(checked)}/>
             <Slider min={COMB_GAIN_MIN} max={COMB_GAIN_MAX} step={0.05} value={this.effectiveGain()} customText={t("comb_gain")}
                     onChange={value => this.setCombGain(value)}/>
             <Slider min={COMB_MIN_COUNT} max={COMB_MAX_COUNT} step={1} value={this.effectiveCount()} customText={t("comb_count")}
                     onChange={value => this.setCombCount(Math.round(value))}/>
+            <ChoiceSelect label={t("parametric_curve_label")} value={kind}
+                          options={COMB_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
+                          onChange={value => { if (isCombCurveKind(value) && value !== kind) this.setCurveKind(value); }}/>
             {bs.map((b, i) => <div key={i}><Slider customText={`${t('spline_parameter_b')} ${i + 1}`} value={b}
                                                   min={G1_BETA_MIN} max={G1_BETA_MAX}
                                                   onChange={value => this.setBeta(i, value)}/></div>)}

@@ -237,10 +237,10 @@ class CurveEnvelopeGraph extends BaseBezierCurveGraph<CurveEnvelopeStates> {
 
     private envelopeControls() {
         return <div className="inspector-group">
-            <OnOffSwitch label={t("envelope_lines_shown")} checked={this.state.envelopeLinesShown !== false}
-                         onChange={checked => this.setEnvelopeLinesShown(checked)}/>
             <Slider min={ENVELOPE_LINES_MIN} max={ENVELOPE_LINES_MAX} step={1} value={this.effectiveCount()} customText={t("envelope_line_count")}
                     onChange={value => this.setEnvelopeLineCount(Math.round(value))}/>
+            <OnOffSwitch label={t("envelope_lines_shown")} checked={this.state.envelopeLinesShown !== false}
+                         onChange={checked => this.setEnvelopeLinesShown(checked)}/>
             <OnOffSwitch label={t("envelope_curve_shown")} checked={this.effectiveCurveShown()} onChange={checked => this.setEnvelopeCurveShown(checked)}/>
             <OnOffSwitch label={t("envelope_touch_shown")} checked={this.state.envelopeTouchShown !== false}
                          onChange={checked => this.setEnvelopeTouchShown(checked)}/>

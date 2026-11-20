@@ -315,12 +315,12 @@ class CurveOffsetGraph extends BaseCurveGraph<CurveOffsetStates> {
     private offsetControls() {
         const kind = this.curveKind();
         return <div className="inspector-group">
+            <Slider min={OFFSET_DISTANCE_MIN} max={OFFSET_DISTANCE_MAX} step={0.01} value={this.effectiveD()} customText={t("offset_distance")}
+                    onChange={value => this.setOffsetDistance(value)}/>
+            <OnOffSwitch label={t("offset_shown")} checked={this.effectiveShown()} onChange={checked => this.setOffsetShown(checked)}/>
             <ChoiceSelect label={t("parametric_curve_label")} value={kind}
                           options={OFFSET_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
                           onChange={value => { if (isOffsetCurveKind(value) && value !== kind) this.setCurveKind(value); }}/>
-            <OnOffSwitch label={t("offset_shown")} checked={this.effectiveShown()} onChange={checked => this.setOffsetShown(checked)}/>
-            <Slider min={OFFSET_DISTANCE_MIN} max={OFFSET_DISTANCE_MAX} step={0.01} value={this.effectiveD()} customText={t("offset_distance")}
-                    onChange={value => this.setOffsetDistance(value)}/>
             <p className="inspector-help">{t("offset_help")}</p>
             <p className="inspector-help">{t("offset_local_note")}</p>
             {this.effectiveShown() && <p className="inspector-help">{t("offset_readout_approx")}</p>}
