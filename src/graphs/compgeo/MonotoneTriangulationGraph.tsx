@@ -4,6 +4,9 @@ import {gridToBoard, PointSetModel} from "../../compgeo/pointSetModel";
 import type {GridPoint} from "../../compgeo/grid";
 import type {Chain} from "../../compgeo/sweep/monotoneTriangulation";
 import {PresetCollection} from "../base/presets/PresetCollection";
+import {currentLanguage} from "../../localization";
+import {nameBox, PlacedLabels, pxFrame, type PlacementInput, type PxFrame} from "../legend/pointNamePlacement";
+import type {LabelItem, PxBox} from "../legend/boardLabelPlacement";
 import {GraphPalette} from "../styles/GraphPalette";
 import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {matchingExample} from "./ExampleSelect";
@@ -21,6 +24,10 @@ const CHAIN_COLOURS: Record<Chain, string> = {
     top: GraphPalette.referenceCurve, bottom: GraphPalette.referenceCurve,
     left: GraphPalette.constructionLevels[2], right: GraphPalette.constructionLevels[4],
 };
+/** A JSXGraph text, for the attributes its typings leave out. */
+interface Restyle {setAttribute(attributes: Record<string, unknown>): void}
+const CHAIN_LABEL_FONT = 14;
+
 /** Fills of the finished triangles, one per piece, cycled. */
 const PIECE_FILLS = [
     GraphPalette.constructionLevels[1], GraphPalette.constructionLevels[2], GraphPalette.constructionLevels[4],
@@ -36,11 +43,110 @@ const PIECE_FILLS = [
  */
 export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
     private triMemo?: {points: PointSetModel["points"]; run: TriangulationRun};
+    /** The placed boxes of the chain labels and the vertex names, shared by the labels of one board state (boxes only, no board reference). */
+    private readonly names = new PlacedLabels();
+    /** The vertices whose chain label the last overlay drew (data only; replaced with every redraw, emptied with the scene). */
+    private chainNames: Array<{v: number; chain: Chain}> = [];
+    /** The point labels already given their placed position (weak: nothing here outlives the board's objects). */
+    private readonly namesPlaced = new WeakSet<object>();
 
     override run(): TriangulationRun {
         const points = this.model.points;
         if (this.triMemo?.points !== points) this.triMemo = {points, run: runMonotoneTriangulation(this.verticesForTrace())};
         return this.triMemo.run;
+    }
+
+    protected override disposeFigureScene(): void {
+        this.names.clear();
+        this.chainNames = [];
+        super.disposeFigureScene();
+    }
+
+    protected override syncReplacedScene(): void {
+        this.names.clear();
+        this.chainNames = [];
+        super.syncReplacedScene();
+    }
+
+    // ---- Names ---------------------------------------------------------------------------------------------------
+
+    /** The text of a vertex's chain label. */
+    private chainLabel(v: number, chain: Chain): string {
+        return `${vertexName(v)} ${chainText(t, chain)}`;
+    }
+
+    private nameFontPx(): number {
+        const size = (this.styles.point.default.label as unknown as {fontSize?: number | (() => number)}).fontSize;
+        return typeof size === "function" ? size() : size ?? 15;
+    }
+
+    /** The boxes (px) of the chain labels `c<v>` and the vertex names `P<n>`: chain labels first, then the names, beside their own marker. */
+    private placedNames(): Record<string, PxBox> {
+        const board = this.board;
+        type Shown = JXG.GeometryElement & {X?: () => number; Y?: () => number; evalVisProp(name: string): unknown; dataX?: number[]; dataY?: number[]; plaintext?: string};
+        const shown = (board.objectsList as unknown as Shown[]).filter(o => Boolean(o.evalVisProp("visible")));
+        const points = shown.filter(o => o.elType === "point" && o.X && o.Y && o.name !== "pending")
+            .map(o => ({x: o.X!(), y: o.Y!(), r: Number(o.evalVisProp("size")) + 1 || 7}));
+        const lines = shown.filter(o => o.elType === "curve" && o.name.startsWith("monotonetri-") && (o.dataX?.length ?? 0) >= 2 && (o.dataY?.length ?? 0) >= 2)
+            .map(o => ({a: [o.dataX![0], o.dataY![0]] as const, b: [o.dataX![1], o.dataY![1]] as const}));
+        const test = shown.find(o => o.elType === "text" && o.name === "monotonetri-test-label");
+        const testText = test?.plaintext ?? "";
+        const model = this.model;
+        const font = this.nameFontPx();
+        const token = [points.map(p => `${p.x},${p.y},${p.r}`).join(";"), lines.map(l => `${l.a}|${l.b}`).join(";"), test ? `${test.X!()},${test.Y!()},${testText}` : "",
+            model.points, model.gridStepExponent, this.chainNames.map(c => `${c.v}${c.chain}`).join(), currentLanguage(), font];
+        return this.names.boxes(board, token, frame => this.nameInput(frame, points, lines, test && test.X && test.Y ? {x: test.X(), y: test.Y(), text: testText} : undefined, font));
+    }
+
+    private nameInput(frame: PxFrame, points: ReadonlyArray<{x: number; y: number; r: number}>, lines: ReadonlyArray<{a: readonly [number, number]; b: readonly [number, number]}>,
+                      test: {x: number; y: number; text: string} | undefined, font: number): PlacementInput {
+        const exponent = this.model.gridStepExponent;
+        const vertices = this.model.points.map(p => { const c = gridToBoard(p, exponent); return frame.toPx(c.x, c.y); });
+        // One marker per place: the largest drawn there (the stack square, the ring, the chain marker, the vertex point).
+        const markers: Array<[number, number, number]> = [];
+        for (const p of points) {
+            const [x, y] = frame.toPx(p.x, p.y);
+            const same = markers.find(m => Math.hypot(m[0] - x, m[1] - y) < 1);
+            if (same) same[2] = Math.max(same[2], p.r); else markers.push([x, y, p.r]);
+        }
+        const samples: Array<readonly [number, number]> = [];
+        const along = (a: readonly [number, number], b: readonly [number, number]) => {
+            const n = Math.max(1, Math.min(800, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 2)));
+            for (let i = 0; i <= n; i++) samples.push([a[0] + ((b[0] - a[0]) * i) / n, a[1] + ((b[1] - a[1]) * i) / n]);
+        };
+        vertices.forEach((a, i) => along(a, vertices[(i + 1) % vertices.length]));
+        for (const l of lines) along(frame.toPx(l.a[0], l.a[1]), frame.toPx(l.b[0], l.b[1]));
+        const items: LabelItem[] = [];
+        for (const {v, chain} of this.chainNames) {
+            if (!vertices[v]) continue; // a label of a vertex the edit just removed
+            const box = nameBox(this.chainLabel(v, chain), CHAIN_LABEL_FONT);
+            items.push({id: `c${v}`, ax: vertices[v][0], ay: vertices[v][1], ...box});
+        }
+        vertices.forEach(([ax, ay], i) => items.push({id: `P${i + 1}`, ax, ay, ...nameBox(`P${i + 1}`, font)}));
+        let blocks: PxBox[] | undefined;
+        if (test) {
+            const [cx, cy] = frame.toPx(test.x, test.y);
+            const {w, h} = nameBox(test.text, CHAIN_LABEL_FONT);
+            blocks = [{x0: cx - w / 2, y0: cy, x1: cx + w / 2, y1: cy + h}];
+        }
+        return {items, markers, samples, blocks};
+    }
+
+    protected override syncScene(): void {
+        super.syncScene();
+        if (!this.hasBoard) return;
+        const board = this.board;
+        for (const element of board.objectsList as unknown as Array<JXG.GeometryElement & {X?: () => number; Y?: () => number; label?: JXG.Text}>) {
+            if (this.namesPlaced.has(element) || element.elType !== "point" || !/^P\d+$/.test(element.name) || !element.label) continue;
+            this.namesPlaced.add(element);
+            const name = element.name;
+            const label = element.label as unknown as Restyle;
+            label.setAttribute({anchorX: "middle", anchorY: "middle"});
+            label.setAttribute({offset: () => {
+                const frame = pxFrame(board);
+                return frame ? this.names.offset(this.placedNames()[name], frame.toPx(element.X!(), element.Y!()), [8, 8]) : [8, 8];
+            }});
+        }
     }
 
     protected override buildRun(vertices: readonly GridPoint[]): TriangulationRun {
@@ -62,6 +168,7 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
 
     /** The partition phase is task 16's drawing; the triangulation phase is drawn here. */
     protected override drawOverlay(id: MonotonePartitionOverlayId | "grid", model: PointSetModel): JXG.GeometryElement[] {
+        this.chainNames = [];
         const run = this.run();
         const piece = id === "grid" || run.refusal !== undefined || run.length === 0 ? null : run.pieceAt(this.step);
         const view = piece === null ? undefined : run.triangulationView(this.step);
@@ -76,7 +183,7 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
                 name, withLabel: false, highlight: false, fixed: true, showInfobox: false, ...attributes,
             }) as JXG.GeometryElement;
         };
-        const text = (name: string, x: number, y: number, content: string | (() => string), attributes: Record<string, unknown>) =>
+        const text = (name: string, x: number | (() => number), y: number | (() => number), content: string | (() => string), attributes: Record<string, unknown>) =>
             this.board.create("text", [x, y, content], {
                 name, fixed: true, highlight: false, display: "internal", fontSize: 14, strokeColor: GraphPalette.label, layer: 6, ...attributes,
             }) as JXG.GeometryElement;
@@ -150,7 +257,14 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
                 face: CHAIN_FACES[chain], size: 7, fillColor: CHAIN_COLOURS[chain], strokeColor: GraphPalette.selectedControlPointOutline,
                 strokeWidth: 1, layer: 6,
             }));
-            objects.push(text("monotonetri-chain-label", c.x, c.y, () => `${vertexName(v)} ${chainText(t, chain)}`, {anchorX: "left", anchorY: "bottom"}));
+            this.chainNames.push({v, chain});
+            // Placed beside its marker with the other names; the text sits at the centre of its box (before one exists, at the vertex).
+            const centre = (axis: 0 | 1) => () => {
+                const frame = pxFrame(this.board), box = this.placedNames()[`c${v}`];
+                if (!frame || !box) return axis === 0 ? c.x : c.y;
+                return axis === 0 ? frame.left + (box.x0 + box.x1) / 2 / this.board.unitX : frame.top - (box.y0 + box.y1) / 2 / this.board.unitY;
+            };
+            objects.push(text("monotonetri-chain-label", centre(0), centre(1), () => this.chainLabel(v, chain), {anchorX: "middle", anchorY: "middle"}));
         });
         // The current vertex: a ring around its marker.
         if (view.vertex !== null) {
