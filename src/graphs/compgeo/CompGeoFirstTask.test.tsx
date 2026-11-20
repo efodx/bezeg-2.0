@@ -23,6 +23,9 @@ const routes: Record<string, Route> = {
     'hull-robustness': {lead: button(t('next_step')), later: [labelled(t('hullrobust_pop_label')), labelled(t('hullrobust_mode_label'))]},
     'ear-clipping': {lead: button(t('next_step')), later: [labelled(t('earclip_example_group'))]},
     'delaunay': {lead: button(t('next_step')), later: [labelled(t('del_example_group'))]},
+    'point-set-triangulation': {lead: labelled(t('tri_edge_select')), later: [button(t('tri_flip')), labelled(t('pointset_overlay_grid'))]},
+    'voronoi': {lead: button(t('vor_site_item', {value0: 1})), later: [button(t('vor_construct_next')), button(t('reset_example')), labelled(t('pointset_overlay_grid'))]},
+    'voronoi-degenerate': {lead: labelled(t('deg_example_group')), later: [labelled(t('deg_mode_group')), button(t('vor_construct_next')), button(t('reset_example'))]},
 };
 
 describe.each(Object.keys(routes))('%s first task', id => {

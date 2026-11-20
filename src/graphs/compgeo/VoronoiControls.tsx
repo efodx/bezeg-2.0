@@ -120,14 +120,14 @@ function DegenerateModes(props: VoronoiControlsProps) {
     const {status, actions} = props;
     if (!status.modeSwitch && status.examples.length === 0) return null;
     return <div className="inspector-group">
+        {status.modeSwitch && <ReadoutHeading>{t("deg_title")}</ReadoutHeading>}
+        {status.examples.length > 0 && <ExampleSelect<VoronoiExampleId> label={t("deg_example_group")} current={status.exampleId} onChoose={actions.loadExample}
+                                                                         options={status.examples.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}/>}
         {status.modeSwitch && <>
-            <ReadoutHeading>{t("deg_title")}</ReadoutHeading>
             <ChoiceSelect label={t("deg_mode_group")} value={status.mode} onChange={mode => actions.setMode(mode === "four-point" ? "four-point" : "sites")}
                           options={[{value: "sites", text: t("deg_mode_sites")}, {value: "four-point", text: t("deg_mode_four")}]}/>
             {status.modeRefused && <p className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
         </>}
-        {status.examples.length > 0 && <ExampleSelect<VoronoiExampleId> label={t("deg_example_group")} current={status.exampleId} onChoose={actions.loadExample}
-                                                                         options={status.examples.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}/>}
     </div>;
 }
 
@@ -184,9 +184,6 @@ export function VoronoiControls(props: VoronoiControlsProps) {
         ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" "), true);
     return <>
         <DegenerateModes status={status} actions={actions}/>
-        <div className="inspector-group">
-            <ResetExampleButton atExample={status.atExample} onReset={actions.resetExample}/>
-        </div>
         <div className="inspector-group" data-voronoi-status="">
             {refusalText && <p className="inspector-help" role="alert" data-voronoi="refusal">{refusalText}</p>}
             {status.collinear && !refusal && <p className="inspector-help" data-voronoi="collinear">{t("vor_collinear_note")}</p>}
@@ -245,6 +242,9 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             </div>
             <p className="inspector-help" data-voronoi="query-at">{t("vor_query_at", {value0: status.query.x, value1: status.query.y})}</p>
             {queryText && <p className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
+        </div>
+        <div className="inspector-group">
+            <ResetExampleButton atExample={status.atExample} onReset={actions.resetExample}/>
         </div>
         <LiveReadout readout={liveReadout} muted={playing} dataAttribute="voronoi-live"/>
     </>;
