@@ -534,6 +534,8 @@ export const en: Record<keyof typeof sl, string> = {
     "affine_reflection": "Reflection",
     "affine_axis_y": "vertical line through the centre",
     "affine_axis_x": "horizontal line through the centre",
+    "affine_compare_title": "The same point, two ways",
+    "affine_compare_help": "The dashed curve is the original, and T is every transformation since. The ring on the curve marks the first point.",
     "increase_count": "Increase count",
     "current_count": "Current count: {value0}",
     "rational_weight_identity": "Curve {value0} · weight w{value1}",

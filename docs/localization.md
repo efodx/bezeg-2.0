@@ -34,6 +34,7 @@ The static document initially declares Slovenian, and runtime selection updates 
 | trk; zaznavanje trkov; kandidatni par | collision; collision detection; candidate pair (collision playground, [sources](specs/collision-playground.md#terms-settled-in-cp6-by-choosing-new-terms)) |
 | pometanje in obrezovanje; groba faza; natančna faza | sweep and prune; broad phase; narrow phase |
 | očrtani pravokotnik | bounding box (not *škatla*, which is the probability box) |
+| prvotna krivulja | original curve (the dashed reference of the affine route before any transformation; not *izhodiščna*, which reads as the origin; chosen by reuse of *prvoten*, no external source) |
 | subdivizija | subdivision |
 | zaporedna subdivizija | repeated subdivision |
 | ekstrapolacija | extrapolation |

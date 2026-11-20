@@ -533,6 +533,8 @@ export const sl = {
     "affine_reflection": "Zrcaljenje",
     "affine_axis_y": "navpična premica skozi središče",
     "affine_axis_x": "vodoravna premica skozi središče",
+    "affine_compare_title": "Ista točka na dva načina",
+    "affine_compare_help": "Črtkana je prvotna krivulja, T pa vsa preoblikovanja od nje. Krožec na krivulji kaže prvo točko.",
     "increase_count": "Povečaj število",
     "current_count": "Trenutno število: {value0}",
     "rational_weight_identity": "Krivulja {value0} · utež w{value1}",

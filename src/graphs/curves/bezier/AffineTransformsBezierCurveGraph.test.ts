@@ -6,8 +6,12 @@ test('owns affine guided actions and updates the board after each operation', ()
         scale: vi.fn(),
         rotate: vi.fn(),
         flip: vi.fn(),
+        getPoints: () => [{X: () => 0, Y: () => 0}, {X: () => 2, Y: () => 4}],
     };
     const graph = Object.create(AffineTransformBezierCurveGraph.prototype) as any;
+    graph.markLabels = {clear: vi.fn()};
+    graph.getFirstJxgCurve = vi.fn(() => undefined);
+    Object.defineProperty(graph, 'hasBoard', {value: false});
     graph.getFirstCurve = vi.fn(() => curve);
     graph.boardUpdate = vi.fn();
 
