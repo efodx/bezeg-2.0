@@ -21,6 +21,8 @@ import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {pointLabelMath} from "../styles/pointLabelMath";
+import {nameBox, PlacedLabels, pxFrame, type PlacementInput, type PxFrame} from "../legend/pointNamePlacement";
+import {sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
 /**
  * The five-point graph (K4 of projective-conics-lessons, ADR 0033): five draggable points A to E on the 1/5 grid, the unique conic through
@@ -88,6 +90,8 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
     private sceneCache?: {readonly model: FivePointModel; readonly scene: FivePointScene};
     private shownCache?: {readonly model: FivePointModel; readonly last: LastUnique; readonly value: ReturnType<typeof shownConic>};
     private polylineCache?: {readonly key: string; readonly value: {x: number[]; y: number[]}};
+    /** The pixel placement of the point names (LC-3); holds boxes only and is dropped with the drawn scene. */
+    private readonly labels = new PlacedLabels();
 
     get model(): FivePointModel {
         return this.state.model;
@@ -391,6 +395,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             if (present.length) this.board.removeObject(present);
         }
         this.drawn = undefined;
+        this.labels.clear();
     }
 
     /** The polyline of one conic, remembered for the last conic only (a drag changes it every step). */
@@ -415,7 +420,19 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             return arc && arc.status === "ok" ? arc : undefined;
         };
         // The shared point-label attributes (MathJax, no parsing, display font size, visibility); each element adds its own offset.
-        const label = {...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label};
+        const label = {...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label, anchorX: "middle", anchorY: "middle"};
+        const fontPx = () => (this.styles.point.namedLabel as unknown as {fontSize: () => number}).fontSize();
+        // The points by label id, for the pixel position a label is offset from.
+        const elements = new Map<string, JXG.Point>();
+        let ready = false; // the scene below is complete: the names are placed from it (before that a label keeps its fallback offset)
+        const placed = (): Record<string, PxBox> => !ready ? {} : this.labels.boxes(board, [this.model, this.state.lastUnique, this.extrapolation, currentLanguage(), fontPx(), this.selected],
+            frame => this.labelInput(frame, fontPx(), this.polyline.bind(this), describeFivePoint(this.scene(), false, t, currentLanguage()).weightBoard ?? ""));
+        /** The offset of a middle-anchored label: from its point's pixel position to the centre of its placed box. */
+        const offsetFor = (id: string, fallback: readonly [number, number]) => () => {
+            const point = elements.get(id);
+            const frame = pxFrame(board);
+            return point && frame ? this.labels.offset(placed()[id], frame.toPx(point.X(), point.Y()), fallback) : [fallback[0], fallback[1]];
+        };
         const curveOf = (fill: (curve: FillCurve) => void, attributes: Record<string, unknown>) => {
             const curve = add(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes}) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
             curve.updateDataArray = () => fill(curve);
@@ -491,10 +508,14 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         }
 
         // P1, the Farin points and the shoulder.
-        const createDerived = (name: string, at: () => readonly [number, number] | undefined, face: string, size: number) => add(board.create("point", [() => at()?.[0] ?? 0, () => at()?.[1] ?? 0], {
-            name, withLabel: true, size, face, fixed: true, showInfobox: false, fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline,
-            highlight: false, layer: 6, label: {...label, offset: [8, -12]}, visible: () => at() !== undefined,
-        }) as JXG.Point);
+        const createDerived = (name: string, at: () => readonly [number, number] | undefined, face: string, size: number) => {
+            const point = add(board.create("point", [() => at()?.[0] ?? 0, () => at()?.[1] ?? 0], {
+                name, withLabel: true, size, face, fixed: true, showInfobox: false, fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline,
+                highlight: false, layer: 6, label: {...label, offset: offsetFor(`d${name}`, [8, -12])}, visible: () => at() !== undefined,
+            }) as JXG.Point);
+            elements.set(`d${name}`, point);
+            return point;
+        };
         // The element keeps its plain `name`; only the drawn label is typeset.
         const derived = (name: string, at: () => readonly [number, number] | undefined, face: string, size: number) => {
             const point = createDerived(name, at, face, size);
@@ -519,9 +540,10 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
                 fillColor: () => this.selected === i ? GraphPalette.selectedControlPoint : isEnd(i) ? GraphPalette.constructionAccent : model().t === i ? GraphPalette.comparisonCurve : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === i ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === i ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
-                label: {...label, offset: [8, 8]}, layer: 7,
+                label: {...label, offset: offsetFor(`h${i}`, [8, 8])}, layer: 7,
             }) as JXG.Point);
             point.label?.setText(pointLabelMath(name));
+            elements.set(`h${i}`, point);
             point.on("down", () => {
                 this.selected = i;
                 this.requestRender();
@@ -536,7 +558,65 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         add(board.create("text", [-11.5, 9.6, () => describeFivePoint(this.scene(), false, t, currentLanguage()).weightBoard ?? ""], {
             fixed: true, highlight: false, strokeColor: GraphPalette.label, layer: 8, visible: () => okArc() !== undefined,
         }) as JXG.GeometryElement);
+        ready = true;
         return {points, all};
+    }
+
+    /**
+     * What the names of the board are placed from (px, y down): A to E first (the user looks at what they drag), then the derived points
+     * P₁, F₁, F₂ and S; the markers, the conic, its end tangents, control polygon and arc, and the weight readout a name must not cover.
+     */
+    private labelInput(frame: PxFrame, fontPx: number, polyline: (c: Conic) => {x: number[]; y: number[]}, weightText: string): PlacementInput {
+        const model = this.model;
+        const scene = this.scene();
+        const px = (x: number, y: number) => frame.toPx(x, y);
+        const items: LabelItem[] = [];
+        const markers: Array<readonly [number, number, number]> = [];
+        const samples: Array<readonly [number, number]> = [];
+        const blocks: PxBox[] = [];
+        const add = (id: string, name: string, [x, y]: readonly [number, number]) => { items.push({id, ax: x, ay: y, ...nameBox(name, fontPx)}); };
+        const isEnd = (i: number) => model.a === i || model.b === i;
+        const stroke = (xs: readonly number[], ys: readonly number[]) => samples.push(...sampleLine(xs, ys, px, frame.width, frame.height, 2, 1500));
+        FIVE_POINT_NAMES.forEach((name, i) => {
+            const at = px(coordinate(model.points[i].x), coordinate(model.points[i].y));
+            markers.push([...at, (this.selected === i ? 7 : isEnd(i) ? 6 : 5) + 2]);
+            add(`h${i}`, name, at);
+        });
+        const shown = this.shown();
+        if (shown) {
+            const data = polyline(shown.conic);
+            stroke(data.x, data.y);
+        }
+        const arc = scene.arc && scene.arc.status === "ok" ? scene.arc : undefined;
+        if (arc) {
+            const derived: Array<readonly [string, {x: number; y: number}, number]> = [
+                ["P₁", arc.controlPoints[1], 4], ["F₁", arc.farinPoints[0], 3], ["F₂", arc.farinPoints[1], 3], ["S", arc.shoulder, 4],
+            ];
+            const xs: number[] = [], ys: number[] = [];
+            for (let i = 0; i <= ARC_SAMPLES; i++) { const [x, y] = arcPoint(arc, i / ARC_SAMPLES); xs.push(x); ys.push(y); }
+            stroke(xs, ys);
+            stroke(arc.controlPoints.map(p => p.x), arc.controlPoints.map(p => p.y));
+            for (const end of [0, 2] as const) {
+                const p = arc.controlPoints[end], q = arc.controlPoints[1];
+                const length = Math.hypot(q.x - p.x, q.y - p.y);
+                if (length > 0) {
+                    const k = 80 / length;
+                    stroke([p.x - (q.x - p.x) * k, q.x + (q.x - p.x) * k], [p.y - (q.y - p.y) * k, q.y + (q.y - p.y) * k]);
+                }
+            }
+            for (const [name, p, size] of derived) {
+                markers.push([...px(p.x, p.y), size + 2]);
+                add(`d${name}`, name, px(p.x, p.y));
+            }
+            if (this.extrapolation) {
+                for (const piece of extrapolatedPieces(arc)) stroke(piece.x, piece.y);
+            }
+            if (weightText) {
+                const [x, y] = px(-11.5, 9.6);
+                blocks.push({x0: x, y0: y - 9, x1: x + weightText.length * 8, y1: y + 9});
+            }
+        }
+        return {items, markers, samples, blocks};
     }
 
     /** Removes this family's drawn objects; the next sync rebuilds them. */

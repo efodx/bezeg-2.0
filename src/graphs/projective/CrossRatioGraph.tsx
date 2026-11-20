@@ -19,6 +19,8 @@ import {crossRatioPresetCollection} from "./projectivePresetCollection";
 import {crossRatioPersistence} from "./projectivePersistence";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {pointLabelMath} from "../styles/pointLabelMath";
+import {anchorsAlong, lineSamples, nameBox, PlacedLabels, pxFrame, type PlacementInput, type PxFrame} from "../legend/pointNamePlacement";
+import {sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
 /**
  * The cross-ratio graph (K1 of projective-conics-lessons, ADR 0033). Two lines, a centre `O`, four points A-D on the first
@@ -46,6 +48,7 @@ export const READOUT_MIN_CANVAS_WIDTH = 640;
 /** Distance along a ray beyond the centre at which a ray to an ideal image is cut off. */
 const IDEAL_RAY_LENGTH = 14;
 const NAMES = ["A", "B", "C", "D"] as const;
+const HANDLE_NAMES = ["A", "B", "C", "D", "O", "M", "N"] as const;
 
 interface DrawnScene {
     readonly handles: readonly JXG.Point[];
@@ -58,6 +61,8 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
     private selected?: number;
     private nudged?: number;
     private sceneCache?: {readonly model: CrossRatioModel; readonly scene: CrossRatioScene};
+    /** The pixel placement of the point and line names (LC-2); holds boxes only and is dropped with the drawn scene. */
+    private readonly labels = new PlacedLabels();
 
     get model(): CrossRatioModel {
         return this.state.model;
@@ -294,6 +299,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             if (present.length) this.board.removeObject(present);
         }
         this.drawn = undefined;
+        this.labels.clear();
     }
 
     private createDrawn(): DrawnScene {
@@ -309,7 +315,22 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         }) as JXG.Point);
         const defined = () => this.scene().status === "ok";
         // The shared point-label attributes (MathJax, no parsing, display font size, visibility); the graph keeps its own placement.
-        const mathLabel = (own: object) => ({...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label, ...own});
+        const mathLabel = (own: object) => ({...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label, anchorX: "middle", anchorY: "middle", ...own});
+        const fontPx = () => (this.styles.point.namedLabel as unknown as {fontSize: () => number}).fontSize();
+        const wide = () => board.canvasWidth >= READOUT_MIN_CANVAS_WIDTH;
+        // The elements by label id, for the pixel position a label is offset from (set as each is created).
+        const elements = new Map<string, JXG.GeometryElement>();
+        let ready = false; // the scene below is complete: the names are placed from it (before that a label keeps its fallback offset)
+        const placed = (): Record<string, PxBox> => !ready ? {} : this.labels.boxes(board, [this.model, currentLanguage(), fontPx(), wide(), this.selected], frame => labelInput(frame));
+        /** The offset of a middle-anchored label: from its element's pixel position (a line's label anchor) to the centre of its placed box. */
+        const offsetFor = (id: string, fallback: readonly [number, number]) => () => {
+            const element = elements.get(id) as (JXG.GeometryElement & {X?: () => number; Y?: () => number; getLabelAnchor?: () => {scrCoords: number[]}}) | undefined;
+            const frame = pxFrame(board);
+            if (!element || !frame) return [fallback[0], fallback[1]];
+            const anchor: readonly [number, number] = element.elType === "point" && element.X && element.Y ? frame.toPx(element.X(), element.Y())
+                : [element.getLabelAnchor?.().scrCoords[1] ?? 0, element.getLabelAnchor?.().scrCoords[2] ?? 0];
+            return this.labels.offset(placed()[id], anchor, fallback);
+        };
         // The element keeps its plain `name`; only the drawn label is typeset.
         const typeset = <E extends JXG.GeometryElement>(element: E, name: string): E => {
             element.label?.setText(pointLabelMath(name));
@@ -319,21 +340,23 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
 
         // The two lines. The first is fixed at y = 0; the second passes through the draggable M and N.
         const first = [hidden(() => 0, () => 0), hidden(() => 1, () => 0)];
-        add(typeset(board.create("line", first, {
+        const lineP = add(typeset(board.create("line", first, {
             straightFirst: true, straightLast: true, strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth,
-            highlight: false, fixed: true, layer: 4, name: "p", withLabel: true, label: mathLabel({offset: [-24, 10]}),
+            highlight: false, fixed: true, layer: 4, name: "p", withLabel: true, label: mathLabel({offset: offsetFor("p", [-24, 10])}),
         }) as JXG.GeometryElement, "p"));
+        elements.set("p", lineP);
 
         const handles = Array.from({length: HANDLE_COUNT}, (_, i) => {
             const at = handlePosition(model(), i);
-            const names = ["A", "B", "C", "D", "O", "M", "N"];
+            const names = HANDLE_NAMES;
             const handle = add(typeset(board.create("point", [at.x, at.y], {
                 name: names[i], withLabel: true, size: () => this.selected === i ? 7 : 5, face: "o", showInfobox: false,
                 fillColor: () => this.selected === i ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === i ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === i ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
-                label: mathLabel({offset: [8, 8]}), layer: 7,
+                label: mathLabel({offset: offsetFor(`h${i}`, [8, 8])}), layer: 7,
             }) as JXG.Point, names[i]));
+            elements.set(`h${i}`, handle);
             handle.on("down", () => {
                 this.selected = i;
                 this.requestRender();
@@ -343,10 +366,11 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             handle.on("drag", () => this.dragHandle(i, handle));
             return handle;
         });
-        add(typeset(board.create("line", [handles[5], handles[6]], {
+        const lineQ = add(typeset(board.create("line", [handles[5], handles[6]], {
             straightFirst: true, straightLast: true, strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth,
-            highlight: false, fixed: true, layer: 4, name: "p′", withLabel: true, label: mathLabel({offset: [-24, 10]}),
+            highlight: false, fixed: true, layer: 4, name: "p′", withLabel: true, label: mathLabel({offset: offsetFor("q", [-24, 10])}),
         }) as JXG.GeometryElement, "p′"));
+        elements.set("q", lineQ);
 
         // Image i: the finite image, or the end of the ray toward an ideal one; direction unit is oriented along the ray.
         const unitOf = (i: number): readonly [number, number] | undefined => {
@@ -370,12 +394,13 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
                 strokeColor: GraphPalette.constructionAccent, strokeWidth: 1, dash: 2, highlight: false, fixed: true, layer: 3,
                 visible: () => defined() || this.scene().status === "coincident-points",
             }) as JXG.GeometryElement);
-            add(typeset(board.create("point", [() => imageAt(i, 0), () => imageAt(i, 1)], {
+            const image = add(typeset(board.create("point", [() => imageAt(i, 0), () => imageAt(i, 1)], {
                 name: `${NAMES[i]}′`, withLabel: true, size: 4, face: "o", fixed: true, showInfobox: false,
                 fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 6,
-                label: mathLabel({offset: [8, -12]}),
+                label: mathLabel({offset: offsetFor(`i${i}`, [8, -12])}),
                 visible: finite,
             }) as JXG.Point, `${NAMES[i]}′`));
+            elements.set(`i${i}`, image);
         }
 
         // The point at infinity: an arrow along the direction on the second line, with its own text label.
@@ -399,7 +424,6 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         // Text on the board: status and the exact cross-ratio, rebuilt from the scene and the language on every update.
         const readout = () => describeCrossRatio(this.scene(), t, currentLanguage());
         // On a narrow board the lines do not fit; the status region carries the same text, so they are left off the board.
-        const wide = () => board.canvasWidth >= READOUT_MIN_CANVAS_WIDTH;
         add(board.create("text", [-13.6, 8.3, () => readout().originalRatio ?? readout().status], {
             fixed: true, highlight: false, strokeColor: GraphPalette.label, anchorX: "left", layer: 9, visible: wide,
         }) as JXG.GeometryElement);
@@ -409,7 +433,64 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         add(board.create("text", [-13.6, 6.7, () => readout().limit ?? ""], {
             fixed: true, highlight: false, strokeColor: GraphPalette.warningText, anchorX: "left", layer: 9, visible: wide,
         }) as JXG.GeometryElement);
+        const labelInput = (frame: PxFrame): PlacementInput => {
+            const lines = wide() ? [readout().originalRatio ?? readout().status, readout().originalRatio ? readout().imageRatio ?? "" : "", readout().limit ?? ""] : [];
+            const index = this.scene().idealIndex;
+            const ideal = marker();
+            return this.labelInput(frame, fontPx(), imageAt, lines, ideal && index !== undefined ? {at: ideal.to, text: `${NAMES[index]}′ = ∞`} : undefined);
+        };
+        ready = true;
         return {handles, all};
+    }
+
+    /**
+     * What the names of the board are placed from (px, y down): the handles first (the user looks at what they drag), then the images and
+     * the names of the two lines; the markers, the lines and projection rays, and the texts a name must not cover.
+     */
+    private labelInput(frame: PxFrame, fontPx: number, imageAt: (i: number, axis: 0 | 1) => number, readouts: readonly string[],
+                       ideal: {readonly at: readonly [number, number]; readonly text: string} | undefined): PlacementInput {
+        const model = this.model;
+        const scene = this.scene();
+        const px = (x: number, y: number) => frame.toPx(x, y);
+        const items: LabelItem[] = [];
+        const markers: Array<readonly [number, number, number]> = [];
+        const samples: Array<readonly [number, number]> = [];
+        const blocks: PxBox[] = [];
+        const add = (id: string, name: string, anchors: ReadonlyArray<readonly [number, number]>) => {
+            const [first, ...rest] = anchors;
+            if (first) items.push({id, ax: first[0], ay: first[1], alts: rest, ...nameBox(name, fontPx)});
+        };
+        const handleAt = (i: number) => { const p = handlePosition(model, i); return px(p.x, p.y); };
+        for (const i of [4, 0, 1, 2, 3, 5, 6]) markers.push([...handleAt(i), (this.selected === i ? 7 : 5) + 2]);
+        const finite = (i: number) => scene.status === "ok" && scene.imageViews?.[i]?.kind === "finite";
+        for (let i = 0; i < 4; i++) {
+            if (finite(i)) markers.push([...px(imageAt(i, 0), imageAt(i, 1)), 6]);
+            if (scene.status === "ok" || scene.status === "coincident-points") {
+                samples.push(...sampleLine([model.centre.x, imageAt(i, 0)], [model.centre.y, imageAt(i, 1)], px, frame.width, frame.height, 2, 1500));
+            }
+        }
+        for (const i of [4, 0, 1, 2, 3]) add(`h${i}`, HANDLE_NAMES[i], [handleAt(i)]);
+        for (let i = 0; i < 4; i++) if (finite(i)) add(`i${i}`, `${NAMES[i]}′`, [px(imageAt(i, 0), imageAt(i, 1))]);
+        add("h5", "M", [handleAt(5)]);
+        add("h6", "N", [handleAt(6)]);
+        const [m, n] = model.line2;
+        const onP = lineSamples(frame, [0, 0], [1, 0]);
+        const onQ = lineSamples(frame, [m.x, m.y], [n.x, n.y]);
+        samples.push(...onP, ...onQ);
+        add("p", "p", anchorsAlong(onP));
+        add("q", "p′", anchorsAlong(onQ));
+        // The texts of the board that are not names: the ratio readout (wide boards) and the label of an image at infinity.
+        readouts.forEach((text, k) => {
+            if (!text) return;
+            const [x, y] = px(-13.6, 8.3 - 0.8 * k);
+            blocks.push({x0: x, y0: y - 9, x1: x + text.length * 8, y1: y + 9});
+        });
+        if (ideal) {
+            const [x, y] = px(ideal.at[0], ideal.at[1] + 0.4);
+            const w = ideal.text.length * fontPx * 0.62 + 8;
+            blocks.push({x0: x, y0: y - fontPx, x1: x + w, y1: y + 4});
+        }
+        return {items, markers, samples, blocks};
     }
 
     /** Removes this family's drawn objects; the next sync rebuilds them. */
