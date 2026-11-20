@@ -481,6 +481,8 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             onRemove={index => { guard(this.refusals, () => this.removeZero(part, index)); }}
             onBlocked={reason => this.refusals.refuse(reason, true)}/>);
         return <>
+            {lists}
+            <ZeroListNoticeView store={this.notices} describe={describeNotice}/>
             <div className="inspector-group">
                 <ChoiceSelect label={t("rational_function_example_label")} value={current ?? "custom"} help={t("rational_function_example_help")}
                               options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
@@ -490,8 +492,6 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
                         help={t("rational_function_probe_help")} rejectedHint={t("rational_function_probe_hint", probeRange)}
                         onChange={next => guardField(this.refusals, () => this.setProbe(next))}/>
             </div>
-            {lists}
-            <ZeroListNoticeView store={this.notices} describe={describeNotice}/>
         </>;
     }
 

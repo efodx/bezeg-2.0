@@ -258,20 +258,9 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         const rangeHint = (min: number, max: number) => ({value0: formatNumber(min, language), value1: formatNumber(max, language)});
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("series_example_label")} value={example ?? "custom"} help={t("series_example_help")}
-                              options={example === undefined ? [...options, {value: "custom", text: t("series_example_custom")}] : options}
-                              onChange={next => { if (next !== "custom") this.ignoreOutOfDomain(() => this.setExample(next)); }}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("series_a_label")} min={SERIES_A_MIN} max={SERIES_A_MAX} step={0.1} value={state.a}
-                        rejectedHint={t("series_a_rejected_hint", rangeHint(SERIES_A_MIN, SERIES_A_MAX))}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
                 <Slider customText={t("series_q_label")} min={SERIES_Q_MIN} max={SERIES_Q_MAX} step={0.05} value={state.q}
                         rejectedHint={t("series_q_rejected_hint", rangeHint(SERIES_Q_MIN, SERIES_Q_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setQ(next))}/>
-                <p className="inspector-help">{t("series_fields_help")}</p>
-            </div>
-            <div className="inspector-group">
                 <CountSetter label={t("series_terms_label")} n={state.terms} min={SERIES_TERMS_MIN} max={SERIES_TERMS_MAX}
                              rejectedHint={t("series_terms_rejected_hint", {value0: SERIES_TERMS_MIN, value1: SERIES_TERMS_MAX})}
                              onPlus={() => this.ignoreOutOfDomain(() => this.setTerms(state.terms + 1))}
@@ -279,16 +268,27 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
                              onSet={next => this.ignoreOutOfDomain(() => this.setTerms(next))}/>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("series_tolerance_label")} min={SERIES_TOLERANCE_MIN} max={SERIES_TOLERANCE_MAX} step={0.01} decimals={3} value={state.tolerance}
-                        rejectedHint={t("series_tolerance_rejected_hint", rangeHint(SERIES_TOLERANCE_MIN, SERIES_TOLERANCE_MAX))}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setTolerance(next))}/>
-            </div>
-            <div className="inspector-group">
                 <PlaybackButtons placement="graph" groupLabel={t("series_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.terms <= SERIES_TERMS_MIN, atEnd: !canAdvance, playing})}/>
                 <p className="inspector-help">{t("series_playback_note", {value0: SERIES_TERMS_MAX})}</p>
+            </div>
+            <div className="inspector-group">
+                <Slider customText={t("series_a_label")} min={SERIES_A_MIN} max={SERIES_A_MAX} step={0.1} value={state.a}
+                        rejectedHint={t("series_a_rejected_hint", rangeHint(SERIES_A_MIN, SERIES_A_MAX))}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
+                <p className="inspector-help">{t("series_fields_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <Slider customText={t("series_tolerance_label")} min={SERIES_TOLERANCE_MIN} max={SERIES_TOLERANCE_MAX} step={0.01} decimals={3} value={state.tolerance}
+                        rejectedHint={t("series_tolerance_rejected_hint", rangeHint(SERIES_TOLERANCE_MIN, SERIES_TOLERANCE_MAX))}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setTolerance(next))}/>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("series_example_label")} value={example ?? "custom"} help={t("series_example_help")}
+                              options={example === undefined ? [...options, {value: "custom", text: t("series_example_custom")}] : options}
+                              onChange={next => { if (next !== "custom") this.ignoreOutOfDomain(() => this.setExample(next)); }}/>
             </div>
         </>;
     }

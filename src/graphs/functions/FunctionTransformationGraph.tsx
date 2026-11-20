@@ -9,7 +9,7 @@ import {PlotPoint, plotPieces, SchoolFunction, TRANSFORM_BOUNDS} from "../../ana
 import {RuleStep} from "../../analysis/transformation";
 import {
     chooseTransformBase, DEFAULT_FUNCTION_TRANSFORMATION_MODEL, FunctionTransformationModel, moveTransformPoint, ruleStepsOf, setTransformParameter,
-    TRANSFORM_BASE_IDS, TRANSFORM_PARAMETERS, TRANSFORM_U_MAX, TRANSFORM_U_MIN, TRANSFORM_U_STEP, TransformBaseId, TransformParameter, trackedPointOf,
+    TRANSFORM_BASE_IDS, TRANSFORM_U_MAX, TRANSFORM_U_MIN, TRANSFORM_U_STEP, TransformBaseId, TransformParameter, trackedPointOf,
     transformBaseFunction, transformedFunctionOf,
 } from "../../analysis/functionTransformationModel";
 import {functionTransformationEditMessage, shiftedArgument, transformRuleText} from "./functionTransformationMessages";
@@ -31,6 +31,9 @@ const PRETTY_BASE: Readonly<Record<TransformBaseId, string>> = {
 
 /** Dash style (JSXGraph numbering) of the ghost: the base graph is dashed, so it differs from the transformed graph by pattern and not only by colour. */
 const GHOST_DASH = 2;
+
+/** Translations (c, d) lead: the first task is one translation of the base graph; the stretches follow. */
+const TRANSLATIONS_FIRST: readonly TransformParameter[] = ['c', 'd', 'a', 'b'];
 
 const LABEL_KEYS = {
     a: "function_transformation_a_label", b: "function_transformation_b_label", c: "function_transformation_c_label", d: "function_transformation_d_label",
@@ -219,12 +222,7 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         const hint = (min: number, max: number) => ({value0: formatNumber(min, currentLanguage()), value1: formatNumber(max, currentLanguage())});
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("function_transformation_base_label")} value={state.base} help={t("function_transformation_base_help")}
-                              options={TRANSFORM_BASE_IDS.map(id => ({value: id, text: `f(x) = ${PRETTY_BASE[id]}`}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
-            </div>
-            <div className="inspector-group">
-                {TRANSFORM_PARAMETERS.map(field => {
+                {TRANSLATIONS_FIRST.map(field => {
                     const [min, max] = TRANSFORM_BOUNDS[field];
                     return <Slider key={field} customText={t(LABEL_KEYS[field])} value={state[field]} min={min} max={max} step={FIELD_STEP} decimals={PRECISE}
                                         rejectedHint={field === "b" ? t("function_transformation_b_hint", hint(min, max)) : t("function_transformation_range_hint", hint(min, max))}
@@ -234,6 +232,11 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
                              decimals={PRECISE} rejectedHint={t("function_transformation_range_hint", hint(TRANSFORM_U_MIN, TRANSFORM_U_MAX))}
                              onChange={next => this.ignoreOutOfDomain(() => this.setU(next))}/>
                 <p className="inspector-help">{t("function_transformation_order_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("function_transformation_base_label")} value={state.base} help={t("function_transformation_base_help")}
+                              options={TRANSFORM_BASE_IDS.map(id => ({value: id, text: `f(x) = ${PRETTY_BASE[id]}`}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
             </div>
             <div className="convexity-actions" role="group" aria-label={t("function_transformation_actions_label")}>
                 <RevealButton action="toggle-ghost" revealed={state.ghostVisible} showLabel={t("function_transformation_ghost_show")} hideLabel={t("function_transformation_ghost_hide")}

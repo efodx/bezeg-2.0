@@ -280,7 +280,7 @@ test('controls: endpoint inputs and an n slider 1-100', () => {
     walk([graph.renderControls(), graph.renderReveals()]);
     expect(found.ChoiceSelect).toBeUndefined();
     expect(found.Slider).toHaveLength(3);
-    const [inputA, inputB] = found.Slider.slice(0, 2).map(node => node.props);
+    const [inputA, inputB] = found.Slider.slice(1, 3).map(node => node.props);
     expect([inputA.min, inputA.max, inputA.step, inputA.value, inputB.value]).toEqual([-7, 7, 0.01, 0, Math.PI]);
     inputA.onChange(-1.5);
     inputB.onChange(6.28);
@@ -290,7 +290,7 @@ test('controls: endpoint inputs and an n slider 1-100', () => {
     expect(graph.model.b).toBe(6.28);
 
     expect(found.Slider).toHaveLength(3);
-    const slider = found.Slider[2].props;
+    const slider = found.Slider[0].props;
     expect([slider.min, slider.max, slider.step, slider.value]).toEqual([1, 100, 1, 2]);
     expect(slider.formatValue).toBeUndefined(); // integer counts show the slider's integer number field
     slider.onChange(100);

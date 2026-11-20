@@ -186,11 +186,13 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         const {fn, a, b, n, method} = this.model;
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("integral_function_label")} value={fn} help={t("integral_function_help")}
-                              options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
+                <Slider customText={t("integral_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
             </div>
             <div className="inspector-group">
+                <ChoiceSelect label={t("integral_method_label")} value={method} help={t("integral_method_help")}
+                              options={SUM_METHODS.map(id => ({value: id, text: METHOD_LABELS[id]()}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setMethod(next))}/>
                 <Slider customText={t("integral_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
                 <Slider customText={t("integral_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
@@ -198,11 +200,9 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
                 <p className="inspector-help">{t("integral_bounds_help")}</p>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("integral_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
-                <ChoiceSelect label={t("integral_method_label")} value={method} help={t("integral_method_help")}
-                              options={SUM_METHODS.map(id => ({value: id, text: METHOD_LABELS[id]()}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setMethod(next))}/>
+                <ChoiceSelect label={t("integral_function_label")} value={fn} help={t("integral_function_help")}
+                              options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
         </>;
     }

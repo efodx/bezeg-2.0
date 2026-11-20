@@ -254,20 +254,15 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         const matchedReason = !state.bridge ? t("conic_weight_needs_bridge") : state.weight === null ? t("conic_weight_already_matched") : undefined;
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("conic_example_label")} value={example ?? "custom"} help={t("conic_example_help")}
-                              options={example === undefined ? [...options, {value: "custom", text: t("conic_example_custom")}] : options}
-                              onChange={next => { if (next !== "custom") this.ignoreOutOfDomain(() => this.setExample(next)); }}/>
-            </div>
-            <div className="inspector-group">
+                <Slider customText={t("conic_phi_label")} min={CONIC_PHI_MIN} max={CONIC_PHI_MAX} step={0.01} value={state.phi} decimals={2}
+                        rejectedHint={t("conic_phi_rejected_hint", rangeHint(CONIC_PHI_MIN, CONIC_PHI_MAX))}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setPhi(next))}/>
                 <Slider customText={t("conic_epsilon_label")} min={CONIC_EPSILON_MIN} max={CONIC_EPSILON_MAX} step={0.05} value={state.epsilon}
                         rejectedHint={t("conic_epsilon_rejected_hint", rangeHint(CONIC_EPSILON_MIN, CONIC_EPSILON_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
                 <Slider customText={t("conic_ell_label")} min={CONIC_ELL_MIN} max={CONIC_ELL_MAX} step={0.1} value={state.ell}
                         rejectedHint={t("conic_ell_rejected_hint", rangeHint(CONIC_ELL_MIN, CONIC_ELL_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setEll(next))}/>
-                <Slider customText={t("conic_phi_label")} min={CONIC_PHI_MIN} max={CONIC_PHI_MAX} step={0.01} value={state.phi} decimals={2}
-                        rejectedHint={t("conic_phi_rejected_hint", rangeHint(CONIC_PHI_MIN, CONIC_PHI_MAX))}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setPhi(next))}/>
                 <p className="inspector-help">{t("conic_fields_help")}</p>
             </div>
             <div className="inspector-group">
@@ -282,6 +277,11 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
                                        onPress={() => { if (this.ignoreOutOfDomain(() => this.setWeight(null))) this.refusals.clear(); }}>{t("conic_weight_set_matching")}</UnavailableButton>
                 </div>
                 <p className="inspector-help">{t("conic_weight_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("conic_example_label")} value={example ?? "custom"} help={t("conic_example_help")}
+                              options={example === undefined ? [...options, {value: "custom", text: t("conic_example_custom")}] : options}
+                              onChange={next => { if (next !== "custom") this.ignoreOutOfDomain(() => this.setExample(next)); }}/>
             </div>
         </>;
     }

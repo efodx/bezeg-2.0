@@ -188,16 +188,16 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         const {a, b, mode} = this.model;
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("area_mode_label")} value={mode} help={t("area_mode_help")}
-                              options={AREA_MODES.map(id => ({value: id, text: MODE_LABELS[id]()}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setMode(next))}/>
-            </div>
-            <div className="inspector-group">
                 <Slider customText={t("area_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
                 <Slider customText={t("area_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
                 <p className="inspector-help">{t("area_bounds_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("area_mode_label")} value={mode} help={t("area_mode_help")}
+                              options={AREA_MODES.map(id => ({value: id, text: MODE_LABELS[id]()}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setMode(next))}/>
             </div>
         </>;
     }

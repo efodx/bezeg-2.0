@@ -142,16 +142,16 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         const {fn, x0, h} = this.model;
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("derivative_function_label")} value={fn} help={t("derivative_function_help")}
-                              options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
                 <Slider customText={t("derivative_h_label")} min={H_MIN} max={H_MAX} step={H_STEP} value={h}
                         help={t("derivative_h_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setStep(stepOutOfBand(next, this.model.h)))}/>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("derivative_function_label")} value={fn} help={t("derivative_function_help")}
+                              options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
+                <Slider customText={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
             </div>
         </>;
     }

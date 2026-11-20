@@ -1112,8 +1112,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            {this.getGraphCommandsArea()}
             <WavesPlayback graph={this}/>
+            {this.getGraphCommandsArea()}
             <WavesReadout graph={this}/>
         </>;
     }

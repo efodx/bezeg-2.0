@@ -348,7 +348,7 @@ test('controls: function select, bound inputs, n slider 1-150 and method select'
     };
     walk([graph.renderControls(), graph.renderReveals()]);
     expect(found.ChoiceSelect).toHaveLength(2);
-    const [functionSelect, methodSelect] = found.ChoiceSelect.map(node => node.props);
+    const [methodSelect, functionSelect] = found.ChoiceSelect.map(node => node.props);
     expect(functionSelect.options.map((option: any) => option.value)).toEqual(['square', 'sin', 'exp']);
     expect(methodSelect.options.map((option: any) => option.value)).toEqual(['left', 'right', 'midpoint', 'trapezoid']);
     expect(methodSelect.options.map((option: any) => option.text)).toEqual(['Leva vsota', 'Desna vsota', 'Sredinska vsota', 'Trapezna vsota']);
@@ -360,7 +360,7 @@ test('controls: function select, bound inputs, n slider 1-150 and method select'
     expect(graph.model).toMatchObject({fn: 'exp', method: 'trapezoid'});
 
     expect(found.Slider).toHaveLength(3);
-    const [inputA, inputB] = found.Slider.slice(0, 2).map(node => node.props);
+    const [inputA, inputB] = found.Slider.slice(1, 3).map(node => node.props);
     expect([inputA.min, inputA.max, inputA.value, inputB.value]).toEqual([-7, 7, 0, 2]);
     inputA.onChange(-1.5);
     inputB.onChange(6.28);
@@ -370,7 +370,7 @@ test('controls: function select, bound inputs, n slider 1-150 and method select'
     expect(graph.model.b).toBe(6.28);
 
     expect(found.Slider).toHaveLength(3);
-    const slider = found.Slider[2].props;
+    const slider = found.Slider[0].props;
     expect([slider.min, slider.max, slider.step, slider.value]).toEqual([1, 150, 1, 4]);
     expect(slider.formatValue).toBeUndefined(); // integer counts show the slider's integer number field
     slider.onChange(150);
@@ -509,7 +509,7 @@ test('changing the function sets the view of that function, from the inspector a
         walk(node.props?.children);
     };
     walk([graph.renderControls(), graph.renderReveals()]);
-    found[0].props.onChange('sin');
+    found[1].props.onChange('sin');
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(SIN_BOX, true);
 });
 
@@ -548,7 +548,7 @@ test('the n slider shows an integer number field that commits typed whole number
         walk(node.props?.children);
     };
     walk([graph.renderControls(), graph.renderReveals()]);
-    render(found.Slider[2]);
+    render(found.Slider[0]);
     const field = screen.getByRole('spinbutton') as HTMLInputElement;
     expect(field.value).toBe('4');
     act(() => { enterNumber(field, '12'); });

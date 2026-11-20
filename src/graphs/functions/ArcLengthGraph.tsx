@@ -160,15 +160,15 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         const {a, b, n} = this.model;
         return <>
             <div className="inspector-group">
+                <Slider customText={t("arc_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
+            </div>
+            <div className="inspector-group">
                 <Slider customText={t("arc_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
                 <Slider customText={t("arc_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
                 <p className="inspector-help">{t("arc_bounds_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("arc_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
             </div>
         </>;
     }
