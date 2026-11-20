@@ -208,10 +208,6 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
         ];
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("prob_binomial_example_label")} value={example ?? "custom"} help={t("prob_binomial_example_help")} options={options}
-                              onChange={next => { if (isBinomialNormalExampleId(next)) this.setExample(next); }}/>
-            </div>
-            <div className="inspector-group">
                 <Slider customText={t("prob_binomial_n_label")} min={1} max={BINOMIAL_NORMAL_N_MAX} step={1} value={state.n}
                         rejectedHint={t("prob_binomial_n_rejected", {value0: BINOMIAL_NORMAL_N_MAX})}
                         onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
@@ -227,6 +223,10 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
                              onChange={next => this.ignoreOutOfDomain(() => this.setFlag("correction", next))}/>
                 <OnOffSwitch checked={state.poisson} label={t("prob_binomial_poisson_label")}
                              onChange={next => this.ignoreOutOfDomain(() => this.setFlag("poisson", next))}/>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("prob_binomial_example_label")} value={example ?? "custom"} help={t("prob_binomial_example_help")} options={options}
+                              onChange={next => { if (isBinomialNormalExampleId(next)) this.setExample(next); }}/>
             </div>
         </>;
     }

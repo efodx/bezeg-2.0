@@ -917,7 +917,8 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         const view = state.view;
         const current = this.exampleValue();
         const exampleOptions = EXAMPLES.filter(example => example.view === view).map(example => ({value: example.id, text: this.exampleName(example.id)}));
-        const commands: JSX.Element[] = [
+        // The counting inputs lead the panel; the view and example choosers follow (graph-control first use).
+        const selectors: JSX.Element[] = [
             <ChoiceSelect key="view" label={t("combinatorics_view_label")} value={view}
                           options={COUNTING_VIEWS.map(name => ({value: name, text: this.viewName(name)}))}
                           onChange={value => {
@@ -928,6 +929,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
                           options={current === "custom" ? [{value: "custom", text: t("combinatorics_example_custom")}, ...exampleOptions] : exampleOptions}
                           onChange={value => this.chooseExample(value)}/>,
         ];
+        const commands: JSX.Element[] = [];
         if (view === "multiset") {
             LETTERS.forEach((letter, kind) => commands.push(
                 <CountSetter key={`count-${letter}`} label={t("combinatorics_counting_letter_count", {value0: letter})} n={state.counts[kind]}
@@ -962,7 +964,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
                         onChange={value => this.editT(value)}/>,
             );
         }
-        return commands;
+        return [...commands, ...selectors];
     }
 
     protected override workspaceEdit(): React.ReactNode {

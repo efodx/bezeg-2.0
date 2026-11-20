@@ -215,13 +215,6 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         const atMax = state.n >= CLT_N_MAX;
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("prob_clt_example_label")} value={example ?? "custom"} help={t("prob_clt_example_help")} options={options}
-                              onChange={next => { if (isCltExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("prob_clt_n_label")} min={1} max={CLT_N_MAX} step={1} value={state.n}
-                        rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})} onChange={next => this.guarded(() => this.setN(next))}
-                        onTypedChange={next => guardField(this.refusals, () => this.setN(next))}/>
                 <PlaybackButtons placement="graph" groupLabel={t("prob_clt_iteration_controls")} playing={playing}
                                  nextLabel={t("prob_clt_next_step")} resetLabel={t("prob_clt_reset")}
                                  {...playbackBlocks({atStart: state.n === 1, atEnd: atMax, playing})}
@@ -229,6 +222,9 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }}
                                  onReset={() => this.resetIteration()}/>
                 <p className="inspector-help">{t("prob_clt_playback_note")}</p>
+                <Slider customText={t("prob_clt_n_label")} min={1} max={CLT_N_MAX} step={1} value={state.n}
+                        rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})} onChange={next => this.guarded(() => this.setN(next))}
+                        onTypedChange={next => guardField(this.refusals, () => this.setN(next))}/>
             </div>
             <div className="inspector-group">
                 {state.heights.map((height, index) => <Slider key={index}
@@ -237,6 +233,10 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
                     rejectedHint={t("prob_clt_zero_rejected")} onChange={next => this.guarded(() => this.setHeight(index, next))}
                     onTypedChange={next => guardField(this.refusals, () => this.setHeight(index, next))}/>)}
                 <p className="inspector-help">{t("prob_clt_heights_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("prob_clt_example_label")} value={example ?? "custom"} help={t("prob_clt_example_help")} options={options}
+                              onChange={next => { if (isCltExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.cdf} label={t("prob_clt_cdf_label")} onChange={next => this.guarded(() => this.setCdf(next))}/>

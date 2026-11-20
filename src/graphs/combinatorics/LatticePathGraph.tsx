@@ -911,7 +911,8 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             value: exampleId(first, second), text: view === "expansion" ? binomialText(first, second) : pointText(first, second),
         }));
         const current = this.exampleValue();
-        const commands: JSX.Element[] = [
+        // The selected route and target lead the panel; the view and example choosers follow (graph-control first use).
+        const selectors: JSX.Element[] = [
             <ChoiceSelect key="view" label={t("combinatorics_view_label")} value={view}
                           options={LATTICE_VIEWS.map(name => ({value: name, text: this.viewName(name)}))}
                           onChange={value => {
@@ -922,6 +923,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
                           options={current === "custom" ? [{value: "custom", text: t("combinatorics_example_custom")}, ...exampleOptions] : exampleOptions}
                           onChange={value => this.chooseExample(value)}/>,
         ];
+        const commands: JSX.Element[] = [];
         if (view === "expansion") {
             commands.push(
                 <CountSetter key="n" label={t("combinatorics_lattice_n_label")} n={state.n} min={EXPANSION_N_RANGE.min} max={EXPANSION_N_RANGE.max}
@@ -950,7 +952,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
                 <BooleanField key="split" variant="switch" label={t("combinatorics_lattice_split")} checked={state.split} unavailableReason={reason} onChange={checked => this.setState({split: checked})}/>,
             );
         }
-        return commands;
+        return [...commands, ...selectors];
     }
 
     private routeList(): React.ReactNode {

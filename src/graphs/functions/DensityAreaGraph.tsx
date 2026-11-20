@@ -173,8 +173,11 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         const sigmaRejected = t("prob_density_sigma_rejected");
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("prob_density_example_label")} value={example ?? "custom"} help={t("prob_density_example_help")} options={options}
-                              onChange={next => { if (next === "standard" || next === "iq") this.setExample(next); }}/>
+                <NumberInput label={t("prob_density_a_label")} value={state.a} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
+                <NumberInput label={t("prob_density_b_label")} value={state.b} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
+                <p className="inspector-help">{t("prob_density_bounds_help")}</p>
             </div>
             <div className="inspector-group">
                 <Slider customText={t("prob_density_mu_label")} min={-DENSITY_MU_LIMIT} max={DENSITY_MU_LIMIT} step={0.1} value={state.mu}
@@ -183,11 +186,8 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
                         rejectedHint={sigmaRejected} onChange={next => this.ignoreOutOfDomain(() => this.setSigma(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("prob_density_a_label")} value={state.a} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <NumberInput label={t("prob_density_b_label")} value={state.b} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
-                <p className="inspector-help">{t("prob_density_bounds_help")}</p>
+                <ChoiceSelect label={t("prob_density_example_label")} value={example ?? "custom"} help={t("prob_density_example_help")} options={options}
+                              onChange={next => { if (next === "standard" || next === "iq") this.setExample(next); }}/>
             </div>
         </>;
     }

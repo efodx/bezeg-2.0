@@ -421,10 +421,6 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         ];
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("prob_correlation_example_label")} value={example ?? "custom"} help={t("prob_correlation_example_help")}
-                              options={options} onChange={next => { if (isCorrelationExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
-            </div>
-            <div className="inspector-group">
                 <CountSetter label={t("prob_correlation_count_label")} n={state.points.length} min={CORRELATION_POINTS_MIN} max={CORRELATION_POINTS_MAX}
                              onPlus={() => this.guarded(() => this.addPoint())} onMinus={() => this.guarded(() => this.removePoint())}/>
                 <PointListInput title={t("prob_correlation_point_list")} points={state.points}
@@ -441,6 +437,10 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
                 <OnOffSwitch checked={state.xOnY} label={t("prob_correlation_xony_label")} describedBy="prob-correlation-xony-help"
                              onChange={next => this.guarded(() => this.setXOnY(next))}/>
                 <p id="prob-correlation-xony-help" className="inspector-help">{t("prob_correlation_xony_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("prob_correlation_example_label")} value={example ?? "custom"} help={t("prob_correlation_example_help")}
+                              options={options} onChange={next => { if (isCorrelationExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
             </div>
         </>;
     }

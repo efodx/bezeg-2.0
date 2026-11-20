@@ -347,10 +347,6 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         ];
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("prob_summary_example_label")} value={example ?? "custom"} help={t("prob_summary_example_help")} options={options}
-                              onChange={next => { if (isSummaryExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
-            </div>
-            <div className="inspector-group">
                 <ValueListInput title={t("prob_summary_values_title")} values={state.values} valueLabel={i => t("prob_summary_value_name", {value0: i + 1})}
                                 min={SUMMARY_VALUE_MIN} max={SUMMARY_VALUE_MAX} decimals={1} onCommit={(index, value) => this.editValue(index, value)}
                                 onRemove={index => this.guarded(() => this.removeValue(index))}
@@ -375,6 +371,10 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             <div className="inspector-group">
                 <OnOffSwitch checked={state.boxPlot} label={t("prob_summary_box_label")} onChange={next => this.guarded(() => this.setBoxPlot(next))}/>
                 <OnOffSwitch checked={state.sigmaBand} label={t("prob_summary_band_label")} onChange={next => this.guarded(() => this.setSigmaBand(next))}/>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("prob_summary_example_label")} value={example ?? "custom"} help={t("prob_summary_example_help")} options={options}
+                              onChange={next => { if (isSummaryExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
             </div>
         </>;
     }

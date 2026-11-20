@@ -1,0 +1,64 @@
+/**
+ * Probability routes, first task first (graph-control first use, batch 2): each route's own first task is the first control of the
+ * Edit panel on a fresh visit; the controls the plan places after it follow, the example chooser among them.
+ */
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {appStorage} from '../../storage/appStorage';
+import {setLanguage, t} from '../../localization';
+import DensityAreaGraph from './DensityAreaGraph';
+import BinomialNormalGraph from './BinomialNormalGraph';
+import CltGraph from './CltGraph';
+import SummaryStatisticsGraph from './SummaryStatisticsGraph';
+import CorrelationGraph from './CorrelationGraph';
+import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
+
+vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+beforeAll(installBoardShims);
+beforeEach(() => { appStorage.clear(); setLanguage('sl'); });
+
+type Label = () => string;
+
+/** The Edit panel's controls in document order, by accessible name. */
+const editControls = (): string[] => {
+    const edit = document.querySelector('#inspector-edit')!;
+    return [...edit.querySelectorAll('input:not([type="hidden"]), select, button, [role="slider"]')].map(element => {
+        const labelled = element.getAttribute('aria-labelledby')?.split(' ').map(id => document.getElementById(id)?.textContent).join(' ');
+        const action = element.getAttribute('data-action'); if (action) return 'action:' + action;
+        return element.getAttribute('aria-label') ?? labelled ?? (element.id && document.querySelector(`label[for="${element.id}"]`)?.textContent) ?? element.textContent ?? '';
+    });
+};
+
+/** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it, in order. */
+const checkOrder = (graph: BaseGraph<BaseGraphState>, first: Label, later: Label[]) => {
+    mountGraph(graph);
+    const names = editControls();
+    const at = (label: Label) => names.findIndex(name => name.startsWith(label()));
+    expect(at(first)).toBe(0);
+    let previous = 0;
+    for (const label of later) {
+        const index = at(label);
+        expect(index, label()).toBeGreaterThan(previous);
+        previous = index;
+    }
+};
+
+const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label; later: Label[]}> = {
+    density: {make: () => new DensityAreaGraph(), first: () => t('prob_density_a_label'),
+        later: [() => t('prob_density_b_label'), () => t('prob_density_mu_label'), () => t('prob_density_sigma_label'), () => t('prob_density_example_label')]},
+    'binomial-normal': {make: () => new BinomialNormalGraph(), first: () => t('prob_binomial_n_label'),
+        later: [() => t('prob_binomial_p_label'), () => t('prob_binomial_k_label'), () => t('prob_binomial_correction_label'), () => t('prob_binomial_example_label')]},
+    // The first control is the "Add another copy" action of the playback group.
+    clt: {make: () => new CltGraph(), first: () => 'action:next-step',
+        later: [() => t('prob_clt_n_label'), () => t('prob_clt_example_label'), () => t('prob_clt_cdf_label')]},
+    summary: {make: () => new SummaryStatisticsGraph(), first: () => t('prob_summary_value_name', {value0: 1}),
+        later: [() => 'action:add-value', () => t('prob_summary_rule_label'), () => t('prob_summary_box_label'), () => t('prob_summary_example_label')]},
+    // The count's own decrease button, then the exact point fields (keyboard entry) directly after it.
+    correlation: {make: () => new CorrelationGraph(), first: () => t('decrease_count'),
+        later: [() => t('increase_count'), () => t('prob_correlation_point_name', {value0: 1}), () => t('prob_correlation_residuals_label'), () => t('prob_correlation_example_label')]},
+};
+
+describe.each(Object.keys(plan))('%s', key => {
+    test('the first task leads the Edit panel', () => {
+        checkOrder(plan[key].make(), plan[key].first, plan[key].later);
+    });
+});
