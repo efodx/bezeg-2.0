@@ -689,6 +689,12 @@ describe('first use: Play first, then shape and trace detail (graph-control-firs
         expect(before(cutoffRange(), screen.getByText('Krajišča in kontrolne točke (tipkovnica)'))).toBe(true);
     });
 
+    test('the time slider labelled in radians shows its value in radians', () => {
+        const {graph} = mount();
+        act(() => { graph.setTime(3.14); });
+        expect(screen.getByLabelText('Čas t (rad)', {selector: 'input[type="range"]'}).getAttribute('aria-valuetext')).toBe('3,14');
+    });
+
     test('the cutoff is named for trace detail and shows its term count 2N + 1 next to it, in both languages', () => {
         const {graph} = mount();
         expect(screen.getByLabelText('Podrobnost sledi (N)', {selector: 'input[type="range"]'})).toBe(cutoffRange());
