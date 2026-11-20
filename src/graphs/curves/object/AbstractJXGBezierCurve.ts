@@ -7,6 +7,19 @@ import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
 import {sampleLine, type PxBox} from "../../legend/boardLabelPlacement";
 import {estimatedSchemeLabelSize, placeSchemeLabels, SCHEME_LABEL_MIN_BOARD_PX, type SchemeLabelPlacement, type SchemeLabelPoint} from "./decasteljauLabels";
 
+/** The parts of JSXGraph's point and text objects used to measure a label (the typings omit them). */
+interface SizedLabel {
+    size?: number[];
+    coords?: {scrCoords: number[]};
+    evalVisProp(name: string): unknown;
+    getAnchorX(): string;
+    getAnchorY(): string;
+}
+interface SizedPoint {
+    label?: SizedLabel;
+    evalVisProp?(name: string): unknown;
+}
+
 /** The curve is sampled at this many parameter steps as an obstacle for the scheme labels. */
 const CURVE_SAMPLE_COUNT = 48;
 /** A scheme label keeps its spot across parameter steps up to this size (the steps of an animation or a slider drag). */
@@ -297,7 +310,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         const px = (p: Point): readonly [number, number] => [origin[1] + p.X() * ux, origin[2] - p.Y() * uy];
         // JSXGraph measures a typeset label too tall (a 22 x 72 px box round a glyph about 26 px high), so the height is estimated; the width is measured when plausible.
         const [estimatedW, h] = estimatedSchemeLabelSize(settings.fontSize);
-        const measuredW = this.decasteljauPoints.map(point => point.label?.size?.[0]).find((width): width is number => !!width && width > 1);
+        const measuredW = this.decasteljauPoints.map(point => (point as unknown as SizedPoint).label?.size?.[0]).find((width): width is number => !!width && width > 1);
         const w = measuredW && measuredW >= estimatedW * 0.6 && measuredW <= estimatedW * 2 ? measuredW : estimatedW;
         // Only t changes between the frames of an animation: then a label keeps its spot (`prefer`). Any other change places the labels afresh.
         const fixedKey = [width, height, origin[1], origin[2], ux, uy, settings.fontSize, w, h, levels[0].map(p => `${p.X()},${p.Y()}`).join(";")].join("|");
@@ -306,7 +319,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         // A jump in t (a lesson action, a preset) places the labels afresh: the old spots belonged to another picture.
         if (this.schemeLabelMemo?.fixedKey !== fixedKey || Math.abs(t - this.schemeLabelMemo.t) > SCHEME_LABEL_STICKY_DT) this.schemeLabelFrom = new Map();
 
-        const markerRadius = Number(this.jxgPoints[0]?.evalVisProp?.("size")) || 5;
+        const markerRadius = Number((this.jxgPoints[0] as unknown as SizedPoint | undefined)?.evalVisProp?.("size")) || 5;
         const points: SchemeLabelPoint[] = [];
         const markers: Array<readonly [number, number, number]> = [];
         const samples: Array<readonly [number, number]> = [];
@@ -332,7 +345,7 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
 
         const occupied: PxBox[] = [];
         for (const point of this.jxgPoints) {
-            const label = point.label;
+            const label = (point as unknown as SizedPoint).label;
             if (!label || !label.evalVisProp("visible") || !label.size || !label.coords) continue;
             const [, lx, ly] = label.coords.scrCoords;
             const [lw, lh] = label.size;
