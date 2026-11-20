@@ -208,7 +208,7 @@ test('hides instructions without ending the session and reopens the same frame',
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         act(() => vi.advanceTimersByTime(250));
 
-        expect(document.querySelector('.guided-lesson-content')).toBeInTheDocument();
+        expect(document.querySelector('.guided-lesson-task')).toBeInTheDocument();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
         expect(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'})).toBeVisible();
         expect(screen.queryByRole('button', {name: 'Opazuj na grafu'})).not.toBeInTheDocument();
@@ -277,20 +277,40 @@ test('clicking the graph beside a reading panel hides the instructions', () => {
     }
 });
 
-test('clicking the graph beside an exploration panel observes the graph', () => {
+test('an observation frame is a task card: the graph is unlocked, no catcher hides the prompt, and Back or Next lock again on reading frames', () => {
     vi.useFakeTimers();
     setLanguage('sl');
     try {
-        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const onModeChange = vi.fn();
+        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}/>);
+        expect(onModeChange).toHaveBeenLastCalledWith('content');
+        expect(container.querySelector('.guided-lesson-graph-catcher')).toBeInTheDocument();
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         act(() => vi.advanceTimersByTime(250));
 
-        const catcher = container.querySelector('.guided-lesson-graph-catcher');
-        expect(catcher).toHaveAttribute('aria-hidden', 'true');
-        fireEvent.click(catcher!);
-        expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
+        expect(onModeChange).toHaveBeenLastCalledWith('explore');
         expect(container.querySelector('.guided-lesson-graph-catcher')).not.toBeInTheDocument();
+        const card = container.querySelector('.guided-lesson') as HTMLElement;
+        expect(card).toHaveClass('guided-lesson-task');
+        expect(screen.getByText('Opazuj')).toBeVisible();
+
+        // Hide and reopen keep the unlocked mode on the task card.
+        observe();
+        expect(onModeChange).toHaveBeenLastCalledWith('explore');
+        reopenWithTab();
+        act(() => vi.advanceTimersByTime(250));
+        expect(onModeChange).toHaveBeenLastCalledWith('explore');
+        expect(container.querySelector('.guided-lesson-graph-catcher')).not.toBeInTheDocument();
+
+        // Back to a reading frame locks the graph again and the catcher returns.
+        fireEvent.click(screen.getByRole('button', {name: 'Nazaj: prejšnji okvir'}));
+        act(() => vi.advanceTimersByTime(250));
+        expect(onModeChange).toHaveBeenLastCalledWith('content');
+        expect(container.querySelector('.guided-lesson')).not.toHaveClass('guided-lesson-task');
+        expect(container.querySelector('.guided-lesson-graph-catcher')).toBeInTheDocument();
+        fireEvent.click(container.querySelector('.guided-lesson-graph-catcher')!);
+        expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
         act(() => vi.advanceTimersByTime(250));
         expect(container.querySelector('.guided-lesson')).not.toBeInTheDocument();
         expect(screen.getByRole('button', {name: /Nazaj na navodila/})).toBeVisible();
@@ -502,13 +522,15 @@ test('keeps the graph locked while instructions are visible and unlocks it only 
         const onModeChange = vi.fn();
         render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
-        fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         expect(onModeChange).toHaveBeenLastCalledWith('content');
         observe();
         expect(onModeChange).toHaveBeenLastCalledWith('explore');
         reopenWithTab();
         act(() => vi.advanceTimersByTime(250));
         expect(onModeChange).toHaveBeenLastCalledWith('content');
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
+        act(() => vi.advanceTimersByTime(250));
+        expect(onModeChange).toHaveBeenLastCalledWith('explore');
         fireEvent.click(screen.getByRole('button', {name: 'Končaj in raziskuj graf'}));
         act(() => vi.advanceTimersByTime(250));
         expect(onModeChange).toHaveBeenLastCalledWith('complete');

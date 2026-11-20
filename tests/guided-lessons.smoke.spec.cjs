@@ -3117,7 +3117,7 @@ test.describe('Rational elevation outside lessons', () => {
 });
 
 // ---------------------------------------------------------------- Extras: observation flow
-// Observation frames are read in the full panel (graph locked). Hiding it leaves a compact reopen tab over the graph.
+// Observation frames open a task card above the live tools (graph unlocked, no catcher). Hiding it leaves a compact reopen tab over the graph.
 test.describe('Observation flow', () => {
     test.setTimeout(60_000);
     const graph = page => page.locator('section.workspace-graph');
@@ -3134,11 +3134,13 @@ test.describe('Observation flow', () => {
         throw new Error('no observation frame reached');
     }
 
-    test('visible instructions lock the graph, hide unlocks it, reopen preserves the frame and Next advances; focus follows', async ({page}) => {
+    test('the observation task card leaves the graph unlocked, hide and reopen preserve the frame and Next advances; focus follows', async ({page}) => {
         await openLesson(page, extrapolation, 'en');
         await toFirstObservation(page);
         const observationLabel = await progress(page);
-        expect(await locked(page), 'graph locked while the observation overlay is open').toBe(true);
+        expect(await locked(page), 'graph unlocked while the observation task card is open').toBe(false);
+        await expect(page.locator('.guided-lesson-graph-catcher'), 'no catcher hides the task card on a graph click').toHaveCount(0);
+        await expect(page.locator('.workspace-inspector')).toBeVisible();
         expect(await nextFocused(page), 'Next keeps focus after the activation that reached the frame').toBe(true);
 
         await pressOn(page, h.hideButton(page));
@@ -3157,7 +3159,7 @@ test.describe('Observation flow', () => {
         await pressOn(page, h.reopenButton(page));
         await expect(lessonPanel(page)).toBeVisible();
         expect(await progress(page)).toBe(observationLabel);
-        expect(await locked(page), 'graph locked while reopened instructions are visible').toBe(true);
+        expect(await locked(page), 'graph still unlocked while the reopened task card is visible').toBe(false);
         expect(await panelFocused(page), 'focus returns to the reopened overlay').toBe(true);
 
         // Escape from a header control hides the panel visually and focuses the surviving reopen action.
@@ -3172,7 +3174,7 @@ test.describe('Observation flow', () => {
         await pressOn(page, h.reopenButton(page));
         await expect(nextButton(page)).toBeVisible();
         expect(await progress(page)).toBe(observationLabel);
-        expect(await locked(page), 'graph locked after reopening instructions').toBe(true);
+        expect(await locked(page), 'graph unlocked after reopening the task card').toBe(false);
         expect(await panelFocused(page), 'focus returns to the overlay').toBe(true);
         const blocker = await nextButton(page).evaluate(button => {
             const r = button.getBoundingClientRect();
@@ -3187,7 +3189,7 @@ test.describe('Observation flow', () => {
         const after = await progress(page);
         expect(after, 'Next advanced past the observation frame').not.toBe(observationLabel);
         expect(stepNumber(after)).toBe(stepNumber(observationLabel) + 1);
-        expect(await locked(page), 'graph locked on the next frame').toBe(true);
+        expect(await locked(page), 'graph locked again on a reading frame, free on another observation frame').toBe(await h.observationFrame(page).count() === 0);
         expect(await nextFocused(page), 'Next keeps focus after advancing').toBe(true);
         // Back from the next frame returns to the observation frame.
         await back(page);

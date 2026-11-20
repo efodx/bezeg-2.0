@@ -29,6 +29,6 @@ The card never sits on the board at its home position.
 ## Consequences
 
 - The board is narrower during a lesson: 877 px instead of 1000 px at 1440×900, 637 px instead of 644 px at 1024×768, and 875 px instead of 1308 px in Presentation with closed tools. It is resized once when the lesson opens and once when it closes; JSXGraph keeps the scene centred and to scale.
-- The tools cannot be seen while the card is read. A lesson that asks the learner to use a control already has to hide the card to unlock it.
+- The tools cannot be seen while a reading frame's card is read. Amendment 2026-11-21: an observation frame's card is a task card that takes the completion card's place above the live tools (below the graph in one column) with no catcher, so a lesson that asks the learner to use a control keeps its prompt in view. Reading frames are unchanged.
 - No routes, Presets or stored data change. The lesson runtime's hide, reopen, exit, focus and reading-position contracts are unchanged.
 - `LessonGraphCapabilities.adjustGuidedLessonView` and `LessonSession.setGuidedLessonCardWidth` are removed.

@@ -29,18 +29,22 @@
     visibility: hidden;
 }
 
-/* After the last frame the tools are live again: the closing card sits above them in the same column. */
-.demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson) {
+/* After the last frame the tools are live again: the closing card sits above them in the same column. An observation
+   frame's card is a task card and takes the same place: its prompt stays in view while the tools below it are worked. */
+.demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
+.demonstration-workspace.lesson-open:has(> .guided-lesson-task) {
     grid-template-areas: "heading heading" "graph lesson" "graph inspector" "learning learning";
     grid-template-rows: auto auto minmax(0, 1fr) auto;
 }
 
-.demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson) {
+.demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson),
+.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-task) {
     grid-template-areas: "heading heading" "graph lesson" "graph inspector";
     grid-template-rows: auto auto minmax(0, 1fr);
 }
 
-.demonstration-workspace.lesson-complete > .guided-lesson {
+.demonstration-workspace.lesson-complete > .guided-lesson,
+.demonstration-workspace > .guided-lesson-task {
     grid-area: lesson;
 }
 
@@ -87,7 +91,9 @@
     .demonstration-workspace.is-presenting.lesson-open,
     .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson),
     .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
-    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson) {
+    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson),
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-task),
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-task) {
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas: "heading" "graph" "inspector";
         grid-template-rows: none;
@@ -96,7 +102,9 @@
     .demonstration-workspace.lesson-open:has(> .guided-lesson),
     .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson),
     .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
-    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson) {
+    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson),
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-task),
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-task) {
         grid-template-areas: "heading" "graph" "lesson" "inspector";
     }
 

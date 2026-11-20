@@ -200,11 +200,13 @@ export function GuidedLesson(props: {
         const corner = from.topLeft();
         if (corner) to.moveTo(corner);
     };
-    // A visible instruction panel locks graph edits; hiding the panel unlocks the current scene.
-    const mode: LessonMode = overlayPhase === 'visible' || overlayPhase === 'opening'
-        ? isComplete ? 'complete' : 'content'
-        : 'explore';
+    // A visible reading card locks graph edits; hiding the card unlocks the current scene. The card of an observation
+    // frame and the closing card are task cards: the tools stay live beside them, so their mode is never 'content'.
+    const cardMode: LessonMode = isComplete ? 'complete' : isExploring ? 'explore' : 'content';
+    const mode: LessonMode = overlayPhase === 'visible' || overlayPhase === 'opening' ? cardMode : 'explore';
     const onModeChange = props.onModeChange;
+    // The task card carries the animation controls itself; the workspace header offers them only while the card is away.
+    const cardOpen = overlayPhase === 'visible' || overlayPhase === 'opening';
 
     // On a phone or a short window the page is brought to the graph's top edge, so the board stays in view above
     // (or beside) the card's first rows. The layer shares the graph's cell; without it the card itself is aligned.
@@ -257,7 +259,7 @@ export function GuidedLesson(props: {
         clearHandoffTimer();
         if (overlayPhase === 'visible') return;
         handOverPlacement(tabDrag, panelDrag);
-        props.onModeChange?.(isComplete ? 'complete' : 'content');
+        props.onModeChange?.(cardMode);
         // Stop graph-owned playback too, including controls started in the inspector.
         pausePlayback();
         setOverlayPhase('opening');
@@ -527,9 +529,9 @@ export function GuidedLesson(props: {
     }, [session, props.registerExit]);
 
     useEffect(() => {
-        props.registerGraphActions?.(isExploring && animationControls ? {animationControls} : undefined);
+        props.registerGraphActions?.(isExploring && animationControls && !cardOpen ? {animationControls} : undefined);
         return () => props.registerGraphActions?.(undefined);
-    }, [session, props.registerGraphActions, isExploring, frame.id, frame.animation?.animationId, language]);
+    }, [session, props.registerGraphActions, isExploring, cardOpen, frame.id, frame.animation?.animationId, language]);
 
     // Short visible labels keep the heading to one row; each stays contained in its full accessible name.
     const closeButton = <button type="button" className="guided-lesson-exit" aria-label={t('exit_lesson')} title={t('exit_lesson')} onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson_short')}</button>;
@@ -632,7 +634,7 @@ export function GuidedLesson(props: {
     }}/>;
     return <>
     {homeSlot}
-    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
+    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
         <div className="guided-lesson-controls">
         <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag} onDoubleClick={dockOnDoubleClick}>
             <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
@@ -682,7 +684,7 @@ export function GuidedLesson(props: {
     <div ref={layerRef} className="guided-lesson-layer">
     {/* The graph is a pointer target for hiding the instructions;
         keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
-    {overlayPhase === 'visible' && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
+    {overlayPhase === 'visible' && !isExploring && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
     {tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
         onClick={() => { if (!tabDrag.consumeDragClick()) showOverlay(); }} {...tabDrag.handleProps} aria-keyshortcuts={ARROW_KEYS}
         aria-label={`${lessonTitle}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>

@@ -59,9 +59,10 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     await h.settle(page);
     await reachTaylorLagrangeObservation(page);
     const observationProgress = await h.progress(page);
-    // The docked card takes the tools' column while it is read (ADR 0061): the tools are hidden, not dimmed.
+    // An observation frame's task card sits above the live tools (ADR 0061): the tools are visible and not inert.
     const inspectorVisibility = () => page.locator('.workspace-inspector').evaluate(element => getComputedStyle(element).visibility);
-    expect(await inspectorVisibility(), 'the tools are hidden while the docked card is read at desktop width').toBe('hidden');
+    expect(await inspectorVisibility(), 'the tools stay visible beside the task card at desktop width').toBe('visible');
+    await expect(page.locator('.guided-lesson-graph-catcher')).toHaveCount(0);
     const beforeHide = await boardSnapshot(page);
 
     await h.hideButton(page).click();

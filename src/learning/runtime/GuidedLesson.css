@@ -169,6 +169,9 @@
 .guided-lesson-heading .guided-lesson-completion-title { flex:1 1 9ch; min-width:0; }
 .guided-lesson-completion-title:focus { outline:none; }
 .guided-lesson-complete .guided-lesson-reading { flex:none; min-height:0; overflow:visible; }
+/* A task card (an observation frame) leaves the live tools below it room: it keeps its text's height up to half the window. */
+.guided-lesson-task { max-height:min(var(--guided-lesson-max-height, 68vh), 50vh); }
+.guided-lesson-task .guided-lesson-reading { flex:none; min-height:0; overflow:visible; }
 .guided-lesson-completion-message { display:grid; gap:4px; }
 .guided-lesson-completion-message p { margin:0; color:var(--bezeg-shell-ink-secondary, #526152); }
 .guided-lesson .guided-lesson-completion-actions { flex:none; margin:0; padding-bottom:4px; }
@@ -219,7 +222,7 @@
     .guided-lesson { overflow-x:hidden; overflow-y:auto; }
     .guided-lesson-controls { position:sticky; top:0; z-index:1; margin:0 -16px; padding:4px 16px 0; background:var(--bezeg-shell-panel, #fffdf5); }
     .guided-lesson-reading { flex:0 0 auto; min-height:4.5rem; overflow:visible; }
-    .guided-lesson-complete .guided-lesson-controls { position:static; margin:0; padding:0; }
+    .guided-lesson-complete .guided-lesson-controls, .guided-lesson-task .guided-lesson-controls { position:static; margin:0; padding:0; }
 }
 /* One column: the text scrolls with the page and nothing pins to the top of the window. Back and Next are the card's
    last row there (GuidedLesson.tsx moves them), and that row rests on the bottom edge of the window from the first
