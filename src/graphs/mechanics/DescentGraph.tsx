@@ -18,6 +18,8 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointLabelMath} from "../styles/pointLabelMath";
+import {anchorsAlong, nameBox, pxFrame, tickStrips, type PlacementInput, type PxFrame} from "../legend/pointNamePlacement";
+import {placeStable, textBox, type Spots, type TrackItem} from "./descentLabels";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
@@ -44,6 +46,16 @@ export const HANDLE_TOUCH_RADIUS = 26;
 export const HANDLE_MOUSE_RADIUS = 8;
 /** Points sampled along a drawn track. */
 const SAMPLES = 160;
+
+/**
+ * The tags of `buildScene` by creation order, for the track mode placement: the three curve names, A and the handle texts. The other tags keep their
+ * offsets. `DescentLabels.test.tsx` checks that these indices are the texts they name.
+ */
+export const TAG_LINE = 0, TAG_CYCLOID = 3, TAG_TRACK = 4, TAG_A = 5, TAG_END = 7, TAG_P1 = 8, TAG_P2 = 9;
+const TRACK_TAGS: Record<number, string> = {[TAG_LINE]: "line", [TAG_CYCLOID]: "cycloid", [TAG_TRACK]: "track", [TAG_A]: "a", [TAG_END]: "end", [TAG_P1]: "p1", [TAG_P2]: "p2"};
+/** Where along a curve its name is tried, the middle first. */
+const NAME_FRACTIONS = [0.45, 0.55, 0.3, 0.7, 0.16, 0.84, 0.06, 0.94];
+
 
 const STORED_FIELDS = Object.keys(DEFAULT_DESCENT_STATE) as (keyof DescentState)[];
 
@@ -143,6 +155,9 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     private beadSpecCache?: {derived: DescentDerived; value: readonly BeadSpec[]};
     private beadCache?: {specs: readonly BeadSpec[]; time: number; value: readonly (readonly [number, number])[]};
     private readonly sampleCache = new WeakMap<Track, {x: number[]; y: number[]}>();
+    /** The texts of `buildScene` in creation order, and the memo of the track mode placement; both are dropped with the scene. */
+    private tags: Array<{content: () => string; visible: () => boolean; math: boolean}> = [];
+    private trackMemo?: {readonly frame: string; readonly token: readonly unknown[]; readonly spots: Spots};
     private drawnFrame = "";
     private shownView: number[] | undefined;
     private derivations = 0;
@@ -458,7 +473,80 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
     /** A text beside a board point, shifted by a few screen pixels. */
     private tagText(content: () => string, at: () => readonly [number, number], color: string, visible: () => boolean, dx = 9, dy = 9, math = false): void {
-        this.text(content, () => at()[0] + dx / this.scaleOf().ux, () => at()[1] + dy / this.scaleOf().uy, color, visible, {math});
+        // In track mode the placed spot replaces the offset (the tags are numbered in creation order, see `TRACK_TAGS`).
+        const tag = this.tags.length;
+        this.tags.push({content, visible, math});
+        this.text(content, () => this.trackSpot(tag)?.[0] ?? at()[0] + dx / this.scaleOf().ux, () => this.trackSpot(tag)?.[1] ?? at()[1] + dy / this.scaleOf().uy, color, visible, {math});
+    }
+
+    /** The left middle of a tag's placed box in board units, or undefined when the tag keeps its offset (another mode, or not placed). */
+    private trackSpot(tag: number): readonly [number, number] | undefined {
+        const id = TRACK_TAGS[tag];
+        if (id === undefined || this.mode() !== "track" || !this.hasBoard) return undefined;
+        const box = this.trackSpots()[id]?.box;
+        if (!box) return undefined;
+        const {ux, uy, left, top} = this.scaleOf();
+        return [left + box.x0 / ux, top - (box.y0 + box.y1) / 2 / uy];
+    }
+
+    /** The spots of the track mode texts for the current state: one computation per state, the previous one kept to be preferred (see `placeStable`). */
+    private trackSpots(): Spots {
+        const frame = pxFrame(this.board);
+        if (!frame) return {};
+        const key = `${frame.left},${frame.top},${this.board.unitX},${this.board.unitY},${frame.width},${frame.height}`;
+        const token = [this.state, currentLanguage(), this.fontPx()];
+        const memo = this.trackMemo;
+        if (memo && memo.frame === key && memo.token.length === token.length && memo.token.every((v, i) => v === token[i])) return memo.spots;
+        const input = this.trackInput(frame);
+        // The tick labels are padded: their strips are measured a little short of the drawn numbers.
+        const strips = tickStrips(this.board).map(b => ({x0: b.x0 - 3, y0: b.y0 - 4, x1: b.x1 + 3, y1: b.y1 + 4}));
+        const spots = placeStable(input, frame, strips, memo?.frame === key ? memo.spots : {});
+        this.trackMemo = {frame: key, token, spots};
+        return spots;
+    }
+
+    private fontPx(): number {
+        return (this.styles.point.namedLabel as unknown as {fontSize: () => number}).fontSize();
+    }
+
+    /**
+     * What the texts of the track mode are placed from (px, y down): the handle texts first (the user looks at what they drag), the name of A, then the
+     * curve names along their curves; markers are A and the handles, samples the drawn curves and the control polygon.
+     */
+    private trackInput(frame: PxFrame): PlacementInput & {readonly items: readonly TrackItem[]} {
+        const d = this.derived();
+        if (d.mode !== "track") return {items: [], markers: [], samples: []};
+        const px = (x: number, y: number) => frame.toPx(x, y);
+        const along = (track: Track): Array<readonly [number, number]> => {
+            const data = this.sampled(track);
+            return data.x.map((x, i) => px(x, data.y[i]));
+        };
+        const items: TrackItem[] = [];
+        const markers: Array<readonly [number, number, number]> = [[...px(0, 0), 6]];
+        const samples: Array<readonly [number, number]> = [];
+        const add = (tag: number, anchors: ReadonlyArray<readonly [number, number]>, curve?: ReadonlyArray<readonly [number, number]>) => {
+            const [first, ...rest] = anchors;
+            const info = this.tags[tag];
+            if (!first || !info?.visible()) return;
+            const box = info.math ? nameBox(info.content(), this.fontPx()) : textBox(info.content());
+            items.push({id: TRACK_TAGS[tag]!, ax: first[0], ay: first[1], alts: rest, ...box, curve});
+        };
+        const handles = [[TAG_END, "endX", "endY"], [TAG_P1, "p1x", "p1y"], [TAG_P2, "p2x", "p2y"]] as const;
+        const handleAt = (x: NumericField, y: NumericField) => px(this.state[x], -this.state[y]);
+        for (const [, x, y] of handles) markers.push([...handleAt(x, y), 9]);
+        for (const [tag, x, y] of handles) add(tag, [handleAt(x, y)]);
+        add(TAG_A, [px(0, 0)]);
+        const curves: Array<readonly [number, Track]> = [[TAG_CYCLOID, d.cycloid.track], [TAG_TRACK, d.track], [TAG_LINE, d.line]];
+        for (const [tag, track] of curves) {
+            const points = along(track);
+            if (tag !== TAG_CYCLOID || this.state.showCycloid) samples.push(...points);
+            add(tag, anchorsAlong(points, NAME_FRACTIONS), points);
+        }
+        const controls = d.controls.map(p => px(p[0], -p[1]));
+        for (let i = 0; i + 1 < controls.length; i++) {
+            for (let k = 0; k < 24; k++) samples.push([controls[i][0] + ((controls[i + 1][0] - controls[i][0]) * k) / 24, controls[i][1] + ((controls[i + 1][1] - controls[i][1]) * k) / 24]);
+        }
+        return {items, markers, samples};
     }
 
     private handleSpecs(): HandleSpec[] {
@@ -635,6 +723,8 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         }
         this.objects = [];
         this.handles = [];
+        this.tags = [];
+        this.trackMemo = undefined;
     }
 
     // ---- Dragging: the one place that snaps -------------------------------------------------------------------------------
