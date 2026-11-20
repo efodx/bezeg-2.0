@@ -1,10 +1,10 @@
 # Graph control first use: stream state
 
-**Updated 2026-11-20 by handler 5.** The only stream in progress; steps 8–10 remain, then it is finished. Branch `worktree-graph-control-plan-review` in `.claude/worktrees/graph-control-plan-review`. Source: [spec](../../specs/graph-control-first-use.md), [route plans](../../tasks/graph-control-first-use/README.md). Prepared inputs: [source triage](triage-source.md) (138 rows) and [fresh-visit baseline](baseline-fresh-visit.md). Each route's decisions are in its task-page entry, found by its id.
+**Finished 2026-11-20 by handler 6.** Every step is done and pushed; there is no successor. The final summary is at the end of this note. Branch `worktree-graph-control-plan-review` in `.claude/worktrees/graph-control-plan-review`. Source: [spec](../../specs/graph-control-first-use.md), [route plans](../../tasks/graph-control-first-use/README.md). Prepared inputs: [source triage](triage-source.md) (138 rows) and [fresh-visit baseline](baseline-fresh-visit.md). Each route's decisions are in its task-page entry, found by its id.
 
 ## For the owner
 
-**Owner answers, 2026-11-20 (second round, to handler 5):** “farin-points - yes should open with farin points shown; others you decide and spawn a successor so we finish with this stream.” Handler 5 decided Q1, Q3 and Q4 (D30–D32). Two slices remain, steps 8 and 9 under Remaining steps; then the stream is finished.
+**Owner answers, 2026-11-20 (second round, to handler 5):** “farin-points - yes should open with farin points shown; others you decide and spawn a successor so we finish with this stream.” Handler 5 decided Q1, Q3 and Q4 (D30–D32). Handler 6 did O9 and D31 and closed the stream; see the final summary at the end. The 2026-11-20 scheduled run failed on the parameterization lessons, and this is repaired (D34).
 
 **Owner answers, 2026-11-20** (all done: O2–O8 by handler 4, O1 wave 2 by handler 5; relayed by handler 3; owner: “decisions: yes to all, fix the broken behaviour while you're at it please”). Scheduled after batch 3 as steps 2–4 under Remaining steps:
 
@@ -61,7 +61,10 @@ On 2026-11-20 the owner authorised this run to continue without confirmation: de
 - **D30 (handler 5, Q1). Quintic PH gets no edited-handle marker.** Rows w₀–w₂ already carry the board's names; a marker needs new shared UI (active point on `PointListInput`, board-to-panel focus) for one route. The alternative was to build it. Nothing to revert.
 - **D31 (handler 5, Q3). triangle-centres and euler-line: the example chooser moves below the point rows.** Split `NotablePointsPanel`/`EulerLinePanel` so the readouts stay first and the example chooser renders after the P1–P3 rows (and before the settings group), as on the batch-4 routes where Primer follows the entry. The alternative was to leave it first. Step 9.
 - **D32 (handler 5, Q4). The companion disclosure starts closed.** The layout decision (variant B in `mobile-graph-playback.md`) keeps the board and Play in view first; open, the slider takes ~110 px more. The alternative was open by default. Nothing to change.
-- **O9 (owner, Q2). rational/farin-points opens with the Farin points shown.** Step 8.
+- **O9 (owner, Q2). rational/farin-points opens with the Farin points shown.** Done (`4d205b0a`, recaptures `998785e1`, `b228aa98`).
+- **D33 (handler 6, O9). What the Farin default changes, and the breaking change.** `FarinPointsCurveGraph.tsx:91` now defaults `showingFarinPoints: true`. With Farin points on, `inputsDisabled` blocks only board drags of the control points (`CurveEditingFeature.ts:80`), so a first visit drags the three Farin points. The typed coordinate fields stay editable; step 8 assumed they lock, which was wrong (smoke A3). Dragging control points on the board needs the Display switch off, as it always did. The guided lesson's step 1 (`farin-weights`) relied on the old default, so it now turns the points off explicitly. The clip recipe toggles off and then on, so it ends with them shown. User impact: only new visits change. Stored presets and saved scenes keep their own `showingFarinPoints`, and the route is unchanged. The alternative was an Edit shortcut with the default off (D3/D28), which the owner declined. To revert, restore `false` and the lesson step, then recapture `farin`.
+- **D34 (handler 6). Daily-run repair** (`53441b5f`). The 2026-11-20 scheduled run failed on the three parameterization lessons, because the guided-lesson smoke read the sample count as a range input after D22 made it a `CountSetter`. The smoke now reads the `CountSetter` by label. Process lesson: when a control's type changes, run `just smoke-lesson` for the lessons on that route.
+- **D35 (handler 6, D31). Primer comes after the vertex rows** (`830f23ad`). `PointSetGraph.beforeSettings()` (empty by default) renders between the rows and the settings group under `pointsFirst`; the two panels export their example selects. Smoke B3 found that decimal vertex input is refused; this is intended, because the rows are integer-only and the panel says “Koordinate so cela števila”. To revert, drop the two `beforeSettings` overrides and pass the chooser back into the panels.
 - **Overlap with graph-character** (unchanged): its implementation lives on `codex/graph-character-pilots`, not master. If it returns to master, it owns De Casteljau's board drawing and this stream owns `getGraphCommands`/Edit. The Voronoi and descent batches go after its slices.
 
 ## Accepted work
@@ -144,9 +147,9 @@ Batches 1 and 2 are done; every batch-2 family page has been through a worker.
 6. **Done (D28): batch 5, rational/farin-points.** No change; owner question recorded.
 7. **Done (D29): catalogue swaps.** None needed; the control-choice decisions stand.
 
-8. **O9: Farin points on by default.** Set `showingFarinPoints: true` in the default preset (`FarinPointsCurveGraph.tsx:91`; check `collections` and any preset tests). With Farin points on, `syncFarinInteraction` disables the curve's typed inputs; confirm the first visit still lets the user drag a Farin point (the task) and that turning them off restores the inputs. The Display switch stays (D3; `demonstrationControlPlacement.test.tsx:93` asserts `isShowingFarinPoints: false` on a stub, so it may stay). Grep the recipe (`scripts/demonstration-preview-recipes.cjs`, clip rows) and lesson text for “farin”; the preview manifest needs a recapture of farin-points (`just clip farin-points` or the route's clip id; see handler 4's recapture `9c54f668` and `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1` in the accepted-work entry for `e46e2e5a`). Breaking change: stored user presets keep their own value, so record the user impact (new visits only). Worker slice; Haiku smoke on the route (Farin points visible at load, drag one changes the weight readout/curve, switch off restores typed inputs).
-9. **D31: example chooser below the point rows** on triangle-centres and euler-line. Worker slice; order test in `PlaneGeometryFirstTask.test.tsx` failing first; Haiku smoke and a 310 px screenshot.
-10. **Close the stream.** Mark the spec's rollout status and `docs/tasks/graph-control-first-use/README.md` as done where they track status (search for a status line; do not invent one), write the final summary here, publish, and report to the owner. No successor after that.
+8. **Done (O9, D33): Farin points on by default.** Worker slice, clip and example recapture.
+9. **Done (D31, D35): example chooser below the point rows** on triangle-centres and euler-line.
+10. **Done: stream closed.** The spec's status line is updated; the task README has no status line, so none was added.
 
 ## Next slice brief inputs
 
@@ -155,3 +158,17 @@ Reuse the batch-2 brief (handler 3's dispatches; the final form is in `.command-
 ## Settings
 
 Handler: Opus, `bezeg-handler`. Workers: `bezeg-worker` Sonnet `medium`, each in its own worktree (`isolation: worktree`). The brief's first step makes a `node_modules` junction: `cmd //c "mklink /J node_modules C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\node_modules"`. Workers commit locally; the handler cherry-picks. Smoke: `bezeg-smoke`, Sonnet for new UI and Haiku for rechecks. At most two workers in this stream. Before removing a worker worktree, unlink its junction with PowerShell (`(Get-Item node_modules).Delete()`) first.
+
+## Final summary (handler 6, 2026-11-20)
+
+All 138 public Demonstrations have been through their first-use plan. Each route either leads Edit with its first task, or is recorded on its family task page as already meeting the check. The pilots (Epicycles, De Casteljau, Simulation) and the optional phone companion slider (wave 2) are on master. So are the owner fixes O1–O9 and decisions D1–D35 above.
+
+Handler 6's work: the daily-run repair `53441b5f` (pushed), D31 `830f23ad`, and O9 `4d205b0a` with the recaptures `998785e1` and `b228aa98`. Checks: `just check-changed 53441b5f` passed on the integrated tree, build included; `just smoke-lesson` passed for the three parameterization lessons and, in the worker, for `farin`. Haiku smoke (`.command-logs/gcfu-smoke-h6/`): Farin points shown and checked on first load in sl and en, and a Farin drag changes the board. On triangle-centres and euler-line the order is readouts → add/remove → P1–P3 → Primer → settings, and picking an example changes the rows, readouts and board. No overflow at 390 px, 0 console errors. Handler 6 looked at the 310 px triangle-centres panel and the opening Farin board.
+
+Open, for the owner (none blocks anything):
+
+- The usability observation in the spec (“How to tell whether this helped”) has not been run.
+- On the phone, the first-task control is the first Edit control but sits below the board on most routes. Only the playback routes have the companion slot (wave 2).
+- On rational/farin-points the control points cannot be dragged on the board while the Farin points are shown, which is pre-existing behaviour. The typed fields still move them.
+- Smoke gaps in this last run: no English pass on triangle-centres/euler-line, no keyboard-only pass.
+- graph-character still lives off master (see the overlap entry under Decisions).

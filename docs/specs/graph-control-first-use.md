@@ -1,6 +1,6 @@
 # Make the first graph interaction obvious
 
-**Proposal, 19 November 2026.** A visitor should be able to open a Demonstration, do one interesting thing and see what changed. The first pilot should be **Epicycles**, the graph the owner recalls their visitor trying. Follow it with **De Casteljau** and **Simulation of random experiments**. Those three test different ways to start exploring.
+**Proposal, 19 November 2026. Implemented on all 138 routes, 20 November 2026:** rollout steps 1–3 are done, including the optional phone companion slider; the per-route decisions and checks are in the [stream record](../reviews/graph-control-first-use/state.md). The usability observation under Rollout has not been run. A visitor should be able to open a Demonstration, do one interesting thing and see what changed. The first pilot should be **Epicycles**, the graph the owner recalls their visitor trying. Follow it with **De Casteljau** and **Simulation of random experiments**. Those three test different ways to start exploring.
 
 ## What the visitor meets on Epicycles
 
