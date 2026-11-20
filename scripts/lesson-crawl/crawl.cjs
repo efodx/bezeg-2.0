@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Lesson bug crawler. Usage:
-//   node scripts/lesson-crawl/crawl.cjs --base http://localhost:4399 --out <dir> <chapterId>... [--only <substring>] [--frames-only]
+//   node scripts/lesson-crawl/crawl.cjs --base http://localhost:4399 --out <dir> <chapterId>... [--only <substring>] [--frames-only] [--viewport WxH]
 // For every `?example=` link (guided lessons and activities) on each chapter page it walks every frame, runs
 // mechanical checks, then after Finish sweeps the inspector controls for ones with no visible effect, measures
 // layout at the inspector's width, and screenshots the inspector once per graph route. Writes
@@ -14,6 +14,7 @@ const opt = name => { const i = args.indexOf(name); if (i < 0) return undefined;
 const BASE = opt('--base') || 'http://localhost:4399';
 const OUT = opt('--out') || 'lesson-crawl-out';
 const ONLY = opt('--only');
+const [VIEW_W, VIEW_H] = (opt('--viewport') || '1440x900').split('x').map(Number);
 const SWEEP_LIMIT = Number(opt('--sweep-limit') || 60);
 // --frames-only walks the lesson frames and the phone check, without the inspector sweep (about 5 s per example).
 const FRAMES_ONLY = (i => i >= 0 && Boolean(args.splice(i, 1)))(args.indexOf('--frames-only'));
@@ -188,7 +189,7 @@ async function crawlExample(browser, chapter, href, ctx) {
     const route = new URL(href, BASE).pathname;
     const findings = [];
     const add = (kind, severity, frame, detail, shot) => findings.push({chapter, example: id, route, frame, kind, severity, detail, shot: shot || null});
-    const page = await browser.newPage({viewport: {width: 1440, height: 900}});
+    const page = await browser.newPage({viewport: {width: VIEW_W, height: VIEW_H}});
     page.setDefaultTimeout(4000);
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'sl'));
     await page.addInitScript({path: path.join(__dirname, 'page-helpers.js')});

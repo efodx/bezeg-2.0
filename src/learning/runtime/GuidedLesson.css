@@ -133,6 +133,7 @@
 .guided-lesson-frame p { margin:0 0 10px; line-height:1.55; }
 .guided-lesson-notation { margin:0 0 10px; padding:8px 12px; background:#f0f3e8; border-radius:6px; overflow-wrap:anywhere; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--bezeg-shell-scroll-thumb, #b9c2a8) transparent; }
 .guided-lesson-reading .guided-lesson-frame > :last-child, .guided-lesson-worked-example > :last-child { margin-bottom:0; }
+.guided-lesson-prose-scroll { overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--bezeg-shell-scroll-thumb, #b9c2a8) transparent; }
 .guided-lesson-notation:focus-visible { outline:3px solid #577cc3; outline-offset:2px; }
 .guided-lesson-notation mjx-container[display="true"] { margin:0 !important; max-width:none; min-width:0; overflow:visible; }
 .guided-lesson-frame, .guided-lesson-worked-example { min-width:0; max-width:100%; }

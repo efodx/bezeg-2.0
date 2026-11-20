@@ -459,7 +459,7 @@ export function GuidedLesson(props: {
     const expectedObservations = frame.kind === 'observation' && frame.expectedObservations && frame.expectedObservations.length > 0
         && <details className="guided-lesson-expected" key={`expected-${frame.id}`}>
             <summary>{t('guided_lesson_expected_observations')}</summary>
-            {frame.expectedObservations.map((text, index) => <p key={index}>{localized(text, language)}</p>)}
+            {frame.expectedObservations.map((text, index) => <p key={index} data-tex={localized(text, language)}>{localized(text, language)}</p>)}
         </details>;
     const animationControls = frame.animation && <div className="guided-lesson-animation-controls" role="group" aria-label={t('guided_lesson_animation_controls')}>
         {(['play', 'pause', 'replay'] as const).map(command => <button type="button" key={command} onClick={() => refresh(() => animateFrame(command))}>
@@ -576,22 +576,22 @@ export function GuidedLesson(props: {
         </div>
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
         <div className="guided-lesson-reading" ref={readingRef}>
-        {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary">{localized(props.lesson.summary, language)}</p>}
+        {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary" data-tex={localized(props.lesson.summary, language)}>{localized(props.lesson.summary, language)}</p>}
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
             <h3>{localized(frame.title, language)}</h3>
-            {frame.body && <p>{localized(frame.body, language)}</p>}
+            {frame.body && <p data-tex={localized(frame.body, language)}>{localized(frame.body, language)}</p>}
             {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index} data-tex={localized(formula, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(formula, language)}</div>)}
             {frame.kind === 'calculation' && frame.workedExample && <div className="guided-lesson-worked-example">
                 <h4>{localized(frame.workedExample.title, language)}</h4>
                 <div className="guided-lesson-notation" data-tex={localized(frame.workedExample.calculation, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.calculation, language)}</div>
                 <div className="guided-lesson-notation" data-tex={localized(frame.workedExample.result, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.result, language)}</div>
-                <p>{localized(frame.workedExample.check, language)}</p>
+                <p data-tex={localized(frame.workedExample.check, language)}>{localized(frame.workedExample.check, language)}</p>
             </div>}
             {expectedObservations}
         </div>}
         {!isComplete && isExploring && <div className="guided-lesson-exploration" key={frame.id}>
             <strong>{localized(frame.title, language)}</strong>
-            {frame.prompt && <p>{localized(frame.prompt, language)}</p>}
+            {frame.prompt && <p data-tex={localized(frame.prompt, language)}>{localized(frame.prompt, language)}</p>}
             {animationControls}
             {expectedObservations}
         </div>}

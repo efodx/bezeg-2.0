@@ -1,5 +1,5 @@
 import {describe, expect, test, vi} from 'vitest';
-import {fitFormulaRows, stackFormula} from './formulaRows';
+import {fitFormulaRows, splitInlineFormula, splitInlineFormulas, stackFormula} from './formulaRows';
 
 const stacked = (...lines: string[]) => `\\[\\begin{gathered}${lines.join('\\\\[0.3em]')}\\end{gathered}\\]`;
 
@@ -27,9 +27,96 @@ describe('stackFormula', () => {
         expect(stackFormula(row, 3)).toBe(stacked('m_1=\\frac32,', 'f(m_1)=(1{,}5;\\,2),', 'm_2=1{,}25'));
     });
 
+    test('breaks after a top-level semicolon at the third level, not inside brackets', () => {
+        const row = '\\[P=(-4,-2),(-3,3); b_1=(-1;\\,2); c=5\\]';
+        expect(stackFormula(row, 2)).toBe(row);
+        expect(stackFormula(row, 3)).toBe(stacked('P=(-4,-2),(-3,3);', 'b_1=(-1;\\,2);', 'c=5'));
+    });
+
+    test('breaks an equality chain before each further relation at the fourth level, with an empty left side', () => {
+        const row = '\\[a=b+c=d\\approx e\\]';
+        expect(stackFormula(row, 3)).toBe(row);
+        expect(stackFormula(row, 4)).toBe(stacked('a=b+c', '{}=d', '{}\\approx e'));
+    });
+
+    test('never breaks a chain inside groups, fences, brackets or environments', () => {
+        for (const row of ['\\[x^{a=b=c}\\]', '\\[\\left(a=b=c\\right)\\]', '\\[f(a=b=c)=d\\]', '\\[\\begin{cases}a=b=c\\end{cases}\\]', '\\[a=b=c\\tag{1}\\]'])
+            expect(stackFormula(row, 4)).toBe(row);
+    });
+
     test('returns rows it cannot break, and rows with their own line structure, unchanged', () => {
-        for (const row of ['\\[a=b\\]', 'prose with \\(x\\) inline', '\\[a\\quad b\\] and more', '\\[a\\quad b\\\\ c\\]', '\\[a&=b\\quad c\\]'])
+        for (const row of ['\\\\[a=b\\\\]', 'prose with \\\\(x\\\\) inline', '\\\\[a\\\\quad b\\\\] and more', '\\\\[a\\\\quad b\\\\\\\\ c\\\\]', '\\\\[a&=b\\\\quad c\\\\]'])
             expect(stackFormula(row, 3)).toBe(row);
+    });
+});
+
+describe('inline formula splitting', () => {
+    test('splits a chain at its top-level relations into spaced inline formulas', () => {
+        expect(splitInlineFormula('A=B=C')).toBe('\\(A\\) \\({}=B\\) \\({}=C\\)');
+        expect(splitInlineFormula('x^{a=b}+f(a=b)')).toBeUndefined();
+        expect(splitInlineFormula('31;\\ 121;\\ 1{,}5')).toBe('\\(31;\\) \\(121;\\) \\(1{,}5\\)');
+        expect(splitInlineFormula('(1;\\ 2)')).toBeUndefined();
+        expect(splitInlineFormula('a=b\\\\c=d')).toBeUndefined();
+    });
+
+    test('splits only the formulas marked wide', () => {
+        const source = 'Prva \\(a=b=c\\) in druga \\(d=e=f\\).';
+        expect(splitInlineFormulas(source, new Set([1]))).toBe('Prva \\(a=b=c\\) in druga \\(d\\) \\({}=e\\) \\({}=f\\).');
+        expect(splitInlineFormulas(source, new Set())).toBeUndefined();
+        expect(splitInlineFormulas('Samo \\(x^2\\).', new Set([0]))).toBeUndefined();
+    });
+});
+
+describe('fitFormulaRows prose', () => {
+    // A paragraph with inline formulas; jsdom has no layout, so the widths are stubbed from the source: 10px a character.
+    function paragraph(tex: string, clientWidth: number) {
+        const element = document.createElement('p');
+        element.dataset.tex = tex;
+        let source = tex;
+        const formulas = () => Array.from(source.matchAll(/\\\((.*?)\\\)/gs));
+        const sync = () => {
+            element.innerHTML = formulas().map(() => '<mjx-container></mjx-container>').join(' ');
+            const parts = Array.from(element.children) as HTMLElement[];
+            // Pieces fill a line and wrap to the next one; a piece wider than the line sticks out of it.
+            let left = 0;
+            formulas().forEach((match, index) => {
+                const width = match[1].length * 10;
+                if (left > 0 && left + width > clientWidth) left = 0;
+                left += width;
+                const right = left;
+                parts[index].getBoundingClientRect = () => ({right} as DOMRect);
+            });
+        };
+        sync();
+        Object.defineProperty(element, 'clientWidth', {get: () => clientWidth});
+        element.getBoundingClientRect = () => ({right: clientWidth} as DOMRect);
+        const retypeset = vi.fn(async (target: HTMLElement, next: string) => { if (target === element) { source = next; sync(); } });
+        const panel = document.createElement('section');
+        panel.append(element);
+        document.body.append(panel);
+        return {element, panel, retypeset, source: () => source};
+    }
+
+    test('a wide formula is split and the paragraph then needs no scrolling', async () => {
+        const {element, panel, retypeset, source} = paragraph('\\(aaaa=bbbb=cccc=dddd\\)', 150);
+        fitFormulaRows(panel, retypeset);
+        await vi.waitFor(() => expect(retypeset).toHaveBeenCalledTimes(1));
+        expect(source()).toBe('\\(aaaa\\) \\({}=bbbb\\) \\({}=cccc\\) \\({}=dddd\\)');
+        await vi.waitFor(() => expect(element.classList.contains('guided-lesson-prose-scroll')).toBe(false));
+    });
+
+    test('a formula that fits stays whole', async () => {
+        const {panel, retypeset} = paragraph('\\(a=b\\)', 150);
+        fitFormulaRows(panel, retypeset);
+        await Promise.resolve();
+        expect(retypeset).not.toHaveBeenCalled();
+    });
+
+    test('a wide formula with nothing to split makes the paragraph scroll sideways', async () => {
+        const {element, panel, retypeset} = paragraph('\\(aaaaaaaaaaaaaaaaaaaaaaaaaa\\)', 150);
+        fitFormulaRows(panel, retypeset);
+        await vi.waitFor(() => expect(element.classList.contains('guided-lesson-prose-scroll')).toBe(true));
+        expect(retypeset).not.toHaveBeenCalled();
     });
 });
 
