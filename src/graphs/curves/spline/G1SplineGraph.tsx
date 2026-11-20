@@ -27,6 +27,8 @@ export function g1SplineDefaultPreset(): CurveCollectionPresetData {
 
 class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
 
+    protected override workspaceConstructionFirst() { return true; }
+
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat(this.getBiSetters()
         ) : [];

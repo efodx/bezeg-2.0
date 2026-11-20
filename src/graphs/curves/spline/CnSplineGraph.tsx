@@ -48,6 +48,8 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
         }
     }
 
+    protected override workspaceConstructionFirst() { return true; }
+
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
         const spline = this.getFirstJxgCurve().getCurve();
