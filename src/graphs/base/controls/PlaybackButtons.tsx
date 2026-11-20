@@ -127,11 +127,12 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
     const companionBox = useRef<HTMLDivElement>(null);
     const companionFocused = useRef(false);
     const companionInSlot = useRef(inSlot);
+    const hasCompanion = companion !== undefined;
     // Under the board the companion is outside the inspector's inert region too, so it follows the same lesson lock as the group.
     useLayoutEffect(() => {
         const element = companionBox.current as (HTMLElement & {inert?: boolean}) | null;
         if (element && inSlot) element.inert = locked;
-    }, [locked, inSlot, companion !== undefined]);
+    }, [locked, inSlot, hasCompanion]);
     useLayoutEffect(() => {
         if (companionInSlot.current === inSlot) return;
         companionInSlot.current = inSlot;
