@@ -4,6 +4,7 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
+import {CountSetter} from "../../../inputs/CountSetter";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {splineParameterizationPresetCollection} from "./collections";
@@ -135,9 +136,10 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
     numberOfPointsSlider() {
-        return <div><Slider customText={t("number_of_points")} min={SPLINE_ALPHA_MIN_SAMPLES} max={SPLINE_ALPHA_MAX_SAMPLES} step={1}
-                            value={this.state.numberOfPoints}
-                            onChange={(num) => this.setNumberOfPoints(num)}/>
+        return <div><CountSetter label={t("number_of_points")} n={this.state.numberOfPoints} min={SPLINE_ALPHA_MIN_SAMPLES} max={SPLINE_ALPHA_MAX_SAMPLES}
+                                 onPlus={() => this.setNumberOfPoints(Math.min(SPLINE_ALPHA_MAX_SAMPLES, this.state.numberOfPoints + 1))}
+                                 onMinus={() => this.setNumberOfPoints(Math.max(SPLINE_ALPHA_MIN_SAMPLES, this.state.numberOfPoints - 1))}
+                                 onSet={count => count >= SPLINE_ALPHA_MIN_SAMPLES && count <= SPLINE_ALPHA_MAX_SAMPLES ? (this.setNumberOfPoints(count), true) : false}/>
         </div>;
     }
 

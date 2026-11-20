@@ -2,6 +2,7 @@ import {t} from "../../../localization";
 import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "../ph/BasePhBezierCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
+import {CountSetter} from "../../../inputs/CountSetter";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {range} from "../../../utils/Range";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
@@ -151,9 +152,10 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
                                   {value: "uniform", text: t("uniform_parametrization")}]}
                               onChange={value => this.selectParam(value)}/>
             </div>
-            <div><Slider customText={t("number_of_points")} min={ALPHA_PARAM_MIN_SAMPLES} max={ALPHA_PARAM_MAX_SAMPLES} step={1}
-                         value={this.state.numberOfPoints}
-                         onChange={(num) => this.setNumberOfPoints(num)}/>
+            <div><CountSetter label={t("number_of_points")} n={this.state.numberOfPoints} min={ALPHA_PARAM_MIN_SAMPLES} max={ALPHA_PARAM_MAX_SAMPLES}
+                                 onPlus={() => this.setNumberOfPoints(Math.min(ALPHA_PARAM_MAX_SAMPLES, this.state.numberOfPoints + 1))}
+                                 onMinus={() => this.setNumberOfPoints(Math.max(ALPHA_PARAM_MIN_SAMPLES, this.state.numberOfPoints - 1))}
+                                 onSet={count => count >= ALPHA_PARAM_MIN_SAMPLES && count <= ALPHA_PARAM_MAX_SAMPLES ? (this.setNumberOfPoints(count), true) : false}/>
             </div>
             {this.state.isAlphaParam ? <div>
                 <Slider min={PARAMETERIZATION_ALPHA_MIN} max={PARAMETERIZATION_ALPHA_MAX} value={this.state.alpha} customText={t("parameter_alpha")}

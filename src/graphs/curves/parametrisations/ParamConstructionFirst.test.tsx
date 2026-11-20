@@ -33,9 +33,9 @@ const markers = (graph: Run) => (graph.sampleMarkers ?? graph.sampleJxgPoints ??
 const gaps = (points: number[][]) => points.slice(1).map((p, i) => Math.hypot(p[0] - points[i][0], p[1] - points[i][1]));
 
 const firstTask: Record<Key, (root: HTMLElement) => HTMLElement[]> = {
-    'spline-parameterization': r => [within(r).getByRole('slider', {name: t('parameter_alpha')}), within(r).getByRole('slider', {name: t('number_of_points')})],
-    'weighted-parameterization': r => [within(r).getByRole('slider', {name: t('parameter_alpha')}), within(r).getByRole('slider', {name: t('number_of_points')})],
-    'uniform-parameterization': r => [within(r).getByRole('combobox', {name: t('choose_parametrization')}), within(r).getByRole('slider', {name: t('number_of_points')})],
+    'spline-parameterization': r => [within(r).getByRole('slider', {name: t('parameter_alpha')}), within(r).getByRole('spinbutton', {name: t('number_of_points')})],
+    'weighted-parameterization': r => [within(r).getByRole('slider', {name: t('parameter_alpha')}), within(r).getByRole('spinbutton', {name: t('number_of_points')})],
+    'uniform-parameterization': r => [within(r).getByRole('combobox', {name: t('choose_parametrization')}), within(r).getByRole('spinbutton', {name: t('number_of_points')})],
 };
 const later = [t('curve_selection'), t('hodograph'), t('curve_offsets')];
 
