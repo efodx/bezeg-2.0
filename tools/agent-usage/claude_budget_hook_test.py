@@ -43,13 +43,23 @@ class Hook(unittest.TestCase):
         self.assertIsNone(self.run_hook('abc'))
 
     def test_handler_stages(self):
-        self.main.write_text(assistant(174999, 'claude-opus-5-5') + '\n')
+        self.main.write_text(assistant(174999) + '\n')
         self.assertIsNone(self.run_hook())
-        self.main.write_text(assistant(175000, 'claude-opus-5-5') + '\n')
+        self.main.write_text(assistant(175000) + '\n')
         self.assertIn('BUDGET SOFT', self.run_hook())
-        self.main.write_text(assistant(215000, 'claude-opus-5-5') + '\n')
-        self.assertIn('BUDGET HANDOFF', self.run_hook())
+        self.main.write_text(assistant(189999) + '\n')
+        self.assertIn('BUDGET SOFT', self.run_hook())
         self.main.write_text(assistant(190000) + '\n')
+        self.assertIn('BUDGET HANDOFF', self.run_hook())
+
+    def test_opus_handler_thresholds_are_80_percent_higher(self):
+        self.main.write_text(assistant(314999, 'claude-opus-5-5') + '\n')
+        self.assertIsNone(self.run_hook())
+        self.main.write_text(assistant(315000, 'claude-opus-5-5') + '\n')
+        self.assertIn('BUDGET SOFT', self.run_hook())
+        self.main.write_text(assistant(386999, 'claude-opus-5-5') + '\n')
+        self.assertIn('BUDGET SOFT', self.run_hook())
+        self.main.write_text(assistant(387000, 'claude-opus-5-5') + '\n')
         self.assertIn('BUDGET HANDOFF', self.run_hook())
 
     def test_fable_handler_thresholds_are_80_percent_higher(self):
@@ -66,13 +76,13 @@ class Hook(unittest.TestCase):
 
     def test_handler_scale_raises_both_handler_thresholds(self):
         scaled = {'BEZEG_HANDLER_BUDGET_SCALE': '1.5'}
-        self.main.write_text(assistant(262499, 'claude-opus-5-5') + '\n')
+        self.main.write_text(assistant(472499, 'claude-opus-5-5') + '\n')
         self.assertIsNone(self.run_hook(env=scaled))
-        self.main.write_text(assistant(262500, 'claude-opus-5-5') + '\n')
+        self.main.write_text(assistant(472500, 'claude-opus-5-5') + '\n')
         self.assertIn('BUDGET SOFT', self.run_hook(env=scaled))
-        self.main.write_text(assistant(322499, 'claude-opus-5-5') + '\n')
+        self.main.write_text(assistant(580499, 'claude-opus-5-5') + '\n')
         self.assertIn('BUDGET SOFT', self.run_hook(env=scaled))
-        self.main.write_text(assistant(322500, 'claude-opus-5-5') + '\n')
+        self.main.write_text(assistant(580500, 'claude-opus-5-5') + '\n')
         self.assertIn('BUDGET HANDOFF', self.run_hook(env=scaled))
         self.main.write_text(assistant(285000) + '\n')
         self.assertIn('BUDGET HANDOFF', self.run_hook(env=scaled))
@@ -80,7 +90,7 @@ class Hook(unittest.TestCase):
     def test_handler_scale_leaves_workers_alone_and_ignores_bad_values(self):
         self.worker.write_text(assistant(135000) + '\n')
         self.assertIn('HANDOFF', self.run_hook('abc', env={'BEZEG_HANDLER_BUDGET_SCALE': '1.5'}))
-        self.main.write_text(assistant(175000, 'claude-opus-5-5') + '\n')
+        self.main.write_text(assistant(315000, 'claude-opus-5-5') + '\n')
         for bad in ('x', '0', '-2'):
             self.assertIn('BUDGET SOFT', self.run_hook(env={'BEZEG_HANDLER_BUDGET_SCALE': bad}))
 

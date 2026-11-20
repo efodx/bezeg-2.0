@@ -70,7 +70,9 @@ def handler_limits(model):
     """Default (soft, hard) handler thresholds for a model, before BEZEG_HANDLER_BUDGET_SCALE."""
     if 'fable' in model:
         return 315000, 342000  # Owner decision 2026-11-14: 80% above the 175k / 190k of other non-Opus models.
-    return 175000, 215000 if 'opus' in model else 190000
+    if 'opus' in model:
+        return 315000, 387000  # Owner decision 2026-11-20: 80% above the earlier Opus 175k / 215k.
+    return 175000, 190000
 
 
 def handler_message(tokens, model, args):
