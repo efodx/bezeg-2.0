@@ -13,9 +13,20 @@
     text-align: left;
 }
 .welcome-page > * { position: relative; z-index: 1; }
+/* Under 1600px the side botanicals are not drawn, so one still elder reaches in from the right edge beside the
+   headline instead. It sits behind the content, is sized from the viewport, and gives way to the gutter elder
+   at 1600px and to the full-width intro on phones. */
+.welcome-page > .welcome-elder {
+    position: absolute; z-index: 0; top: 8px; right: 0;
+    width: clamp(260px, 40vw, 600px); height: auto; aspect-ratio: 620 / 380;
+    transform: scaleX(-1); pointer-events: none;
+}
+@media (min-width: 1600px), (max-width: 700px) {
+    .welcome-page > .welcome-elder { display: none; }
+}
 .welcome-page ::selection { background: var(--bezeg-shell-nav-active); color: var(--bezeg-shell-ink); }
 /* The intro is type alone: the headline, its lede and one action. The header mark and, on wide screens, the side
-   botanicals carry the elderflower. */
+   botanicals (or, below 1600px, the hero elder) carry the elderflower. */
 .welcome-intro {
     position: relative;
     display: grid;

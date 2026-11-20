@@ -4,12 +4,14 @@ import {SiteContext} from "./graphs/context/react/SiteContext";
 import {Link} from 'react-router-dom';
 import './WelcomePage.css';
 import {HomeDemonstrationsCarousel} from './HomeDemonstrationsCarousel';
+import {HomeElder} from './HomeElder';
 
 export function WelcomePage() {
     const t = useT();
     const {setFullScreen} = useContext(SiteContext).fullScreen;
     useEffect(() => {setFullScreen(false);}, [setFullScreen]);
     return <main className="welcome-page" data-content-column>
+        <HomeElder/>
         <header className="welcome-intro">
             <h1>{t('home_headline')}</h1>
             <p>{t('home_introduction')}</p>
