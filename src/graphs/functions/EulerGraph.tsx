@@ -279,6 +279,17 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         const showAllUnavailable = model.revealed === null;
         return <>
             <div className="inspector-group">
+                <EulerRevealButtons nextReason={nextUnavailable ? t("playback_block_no_more_steps") : undefined}
+                                    showAllReason={showAllUnavailable ? t("euler_ode_show_all_done") : undefined}
+                                    onNext={() => this.ignoreOutOfDomain(() => this.nextStep())} onShowAll={() => this.showAllSteps()}/>
+                <p className="inspector-help">{t("euler_ode_reveal_note")}</p>
+            </div>
+            <div className="inspector-group">
+                <Slider customText={t("euler_ode_step_label")} min={0} max={STEP_SIZES.length - 1} step={1} value={stepIndex}
+                        formatValue={index => formatNumber(STEP_SIZES[Math.round(index)] ?? NaN, language, PRECISE)} help={t("euler_ode_step_help")}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setStep(STEP_SIZES[Math.round(next)]))}/>
+            </div>
+            <div className="inspector-group">
                 <ChoiceSelect label={t("euler_ode_example_label")} value={model.example} help={t("euler_ode_example_help")}
                               options={EULER_EXAMPLE_IDS.map(id => ({value: id, text: eulerExample(id).plain}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
@@ -297,20 +308,11 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
                 <p className="inspector-help">{t("euler_ode_initial_help")}</p>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("euler_ode_step_label")} min={0} max={STEP_SIZES.length - 1} step={1} value={stepIndex}
-                        formatValue={index => formatNumber(STEP_SIZES[Math.round(index)] ?? NaN, language, PRECISE)} help={t("euler_ode_step_help")}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setStep(STEP_SIZES[Math.round(next)]))}/>
                 <Slider customText={t("euler_ode_end_label")} value={model.xEnd} min={EULER_X_MIN} max={EULER_X_MAX} step={EULER_DRAG_STEP}
                              rejectedHint={t("euler_ode_end_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setEnd(next))}/>
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={model.showExact} label={t("euler_ode_exact_label")} onChange={next => this.setShowExact(next)}/>
-            </div>
-            <div className="inspector-group">
-                <EulerRevealButtons nextReason={nextUnavailable ? t("playback_block_no_more_steps") : undefined}
-                                    showAllReason={showAllUnavailable ? t("euler_ode_show_all_done") : undefined}
-                                    onNext={() => this.ignoreOutOfDomain(() => this.nextStep())} onShowAll={() => this.showAllSteps()}/>
-                <p className="inspector-help">{t("euler_ode_reveal_note")}</p>
             </div>
         </>;
     }

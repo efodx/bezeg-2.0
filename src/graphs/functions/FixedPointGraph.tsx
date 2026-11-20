@@ -358,6 +358,13 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         const canAdvance = fixedPointCanAdvance(state);
         return <>
             <div className="inspector-group">
+                <PlaybackButtons placement="graph" groupLabel={t("fixed_point_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("fixed_point_reset")} playing={playing}
+                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
+                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
+                                 {...playbackBlocks({atStart: state.step === 0, atEnd: !canAdvance, playing})}/>
+                <p className="inspector-help">{t("fixed_point_playback_note", {value0: FIXED_POINT_MAX_STEPS})}</p>
+            </div>
+            <div className="inspector-group">
                 <ChoiceSelect label={t("fixed_point_example_label")} value={state.example} help={t("fixed_point_example_help")}
                               options={FIXED_POINT_EXAMPLE_IDS.map(id => ({value: id, text: `${exampleFormula(id)}, x ∈ [${FIXED_POINT_EXAMPLES[id].a}, ${FIXED_POINT_EXAMPLES[id].b}]`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
@@ -373,13 +380,6 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                              onPlus={() => this.ignoreOutOfDomain(() => this.setDigits(state.digits + 1))}
                              onMinus={() => this.ignoreOutOfDomain(() => this.setDigits(state.digits - 1))}
                              onSet={next => this.ignoreOutOfDomain(() => this.setDigits(next))}/>
-            </div>
-            <div className="inspector-group">
-                <PlaybackButtons placement="graph" groupLabel={t("fixed_point_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("fixed_point_reset")} playing={playing}
-                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
-                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
-                                 {...playbackBlocks({atStart: state.step === 0, atEnd: !canAdvance, playing})}/>
-                <p className="inspector-help">{t("fixed_point_playback_note", {value0: FIXED_POINT_MAX_STEPS})}</p>
             </div>
         </>;
     }

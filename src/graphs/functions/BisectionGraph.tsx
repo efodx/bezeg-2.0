@@ -270,6 +270,13 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         const canAdvance = history.termination === undefined;
         return <>
             <div className="inspector-group">
+                <PlaybackButtons placement="graph" groupLabel={t("bisection_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("bisection_reset")} playing={playing}
+                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
+                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
+                                 {...playbackBlocks({atStart: step === 0, atEnd: !canAdvance, playing})}/>
+                <p className="inspector-help">{t("bisection_playback_note")}</p>
+            </div>
+            <div className="inspector-group">
                 <ChoiceSelect label={t("bisection_example_label")} value={example} help={t("bisection_example_help")}
                               options={BISECTION_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
@@ -280,13 +287,6 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                 <Slider customText={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
                         rejectedHint={t("bisection_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <p className="inspector-help">{t("bisection_bounds_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <PlaybackButtons placement="graph" groupLabel={t("bisection_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("bisection_reset")} playing={playing}
-                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
-                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
-                                 {...playbackBlocks({atStart: step === 0, atEnd: !canAdvance, playing})}/>
-                <p className="inspector-help">{t("bisection_playback_note")}</p>
             </div>
         </>;
     }

@@ -659,7 +659,6 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         const playing = this.isPlaying();
         const speedArgs = {value0: whole(SPEED_MIN), value1: whole(SPEED_MAX), value2: whole(SPEED_STEP)};
         return <>
-            {this.getGraphCommandsArea()}
             <div className="inspector-group">
                 <ReducedMotion>{() => <>
                     <PlaybackButtons placement="graph" groupLabel={t("recursion_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
@@ -671,6 +670,9 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
                             onChange={value => this.editSpeed(value)}/>
                 </>}</ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: ITERATION_MAX_STEPS})}</p>
+            </div>
+            {this.getGraphCommandsArea()}
+            <div className="inspector-group">
                 <ReadoutHeading>{t("recursion_graph_readout_title")}</ReadoutHeading>
                 <p data-recursion-status="">{this.statusText()}</p>
                 <ReadoutList label={t("recursion_graph_readout_title")} rows={this.readoutRows()}/>
