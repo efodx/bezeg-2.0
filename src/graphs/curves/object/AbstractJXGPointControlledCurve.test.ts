@@ -5,7 +5,7 @@ import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 import {GraphSession, GraphSessionDependencies} from '../../base/GraphSession';
 
 test('labels the fixed midpoint evaluation explicitly', () => {
-    expect(evaluationPointLabel(0.5)).toBe('$$B(\\frac{1}{2})$$');
+    expect(evaluationPointLabel(0.5)).toBe('$$B(\\tfrac{1}{2})$$');
 });
 
 test('refreshes callback-based curve geometry after a control-point drag', async () => {

@@ -13,6 +13,8 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 import {resizeScale, rotationAngle} from "../../../bezeg/impl/curve/gesture-transforms";
 import {assertPlanarPoints} from "../../../bezeg/impl/point/planar-guard";
+import {nameBox, PlacedLabels, pxFrame} from "../../legend/pointNamePlacement";
+import {sampleLine, type PxBox} from "../../legend/boardLabelPlacement";
 
 export interface PointControlledCurveAttributes {
     allowShowControlPolygon: boolean
@@ -30,8 +32,11 @@ export interface PointControlledCurveState {
 
 const pendingFullUpdates = new WeakSet<object>();
 
+const shown = (point: JXG.Point): boolean => (point as unknown as {visPropCalc?: {visible?: boolean}}).visPropCalc?.visible !== false;
+
 export function evaluationPointLabel(t: number): string {
-    return t === 0.5 ? '$$B(\\frac{1}{2})$$' : `$$B(${t})$$`;
+    // \tfrac: the fraction is typeset at the size of the other labels, not in display size.
+    return t === 0.5 ? '$$B(\\tfrac{1}{2})$$' : `$$B(${t})$$`;
 }
 
 /**
@@ -83,6 +88,8 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     private convexHull: JXG.Polygon | undefined = undefined;
     private evaluationPoint: JXG.Point | undefined;
     private evaluationPointT?: number;
+    /** The placed box of the evaluation point's name for one board state; cleared with the point and holds boxes only, no board object. */
+    private readonly evaluationLabels = new PlacedLabels();
     private selected: boolean = false;
     private dragging: boolean = false;
     private rotating: boolean = false;
@@ -392,8 +399,51 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         ], {
             ...this.styles.point.fixed,
             name: evaluationPointLabel(t),
-        });
+            label: {
+                ...(this.styles.point.fixed.label as object),
+                anchorX: 'middle', anchorY: 'middle',
+                offset: () => this.evaluationLabelOffset(t),
+            },
+        }) as JXG.Point;
         this.board.fullUpdate();
+    }
+
+    /**
+     * The offset (px, y up) from the evaluation point to the centre of its name: the free spot nearest the point, clear of the control
+     * point labels (which keep their own place), every marker, the drawn lines and curves and the axis numbers.
+     */
+    private evaluationLabelOffset(t: number): [number, number] {
+        const fallback: readonly [number, number] = [14, 10];
+        const point = this.evaluationPoint;
+        const frame = pxFrame(this.board);
+        if (!point || !frame) return [fallback[0], fallback[1]];
+        const settings = this.displaySettings;
+        const fontPx = settings.fontSize;
+        const token: unknown[] = [t, fontPx, settings.pointSize, settings.pointLabelsVisible, this.showingJxgPoints,
+            this.showingControlPolygon, ...this.jxgPoints.flatMap(p => [p.X(), p.Y(), shown(p)])];
+        const anchor = frame.toPx(point.X(), point.Y());
+        const boxes = this.evaluationLabels.boxes(this.board, token, () => {
+            const size = nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);
+            const markers: Array<readonly [number, number, number]> = [[anchor[0], anchor[1], settings.pointSize]];
+            const blocks: PxBox[] = [];
+            this.jxgPoints.forEach((p, i) => {
+                if (!shown(p)) return;
+                const [x, y] = frame.toPx(p.X(), p.Y());
+                markers.push([x, y, settings.pointSize]);
+                if (!settings.pointLabelsVisible) return;
+                // A control point's own label is left and bottom anchored, `0.3 fontSize` below the point (see PointStyles).
+                const {w, h} = nameBox(`p${i}`, fontPx);
+                blocks.push({x0: x, y0: y + fontPx * 0.3 - h, x1: x + w, y1: y + fontPx * 0.3});
+            });
+            const samples: Array<readonly [number, number]> = [];
+            const curve = this.jxgCurve as unknown as {points?: Array<{scrCoords: number[]}>};
+            for (const c of curve.points ?? []) if (Number.isFinite(c.scrCoords[1]) && Number.isFinite(c.scrCoords[2])) samples.push([c.scrCoords[1], c.scrCoords[2]]);
+            if (this.showingControlPolygon) {
+                samples.push(...sampleLine(this.jxgPoints.map(p => p.X()), this.jxgPoints.map(p => p.Y()), frame.toPx, frame.width, frame.height));
+            }
+            return {items: [{id: 'B', ax: anchor[0], ay: anchor[1], ...size}], markers, samples, blocks};
+        });
+        return this.evaluationLabels.offset(boxes.B, anchor, fallback);
     }
 
     hideEvaluationPoint(): void {
@@ -402,6 +452,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             this.evaluationPoint = undefined;
         }
         this.evaluationPointT = undefined;
+        this.evaluationLabels.clear();
     }
 
     /** Remove the base JSXGraph objects owned by this curve before its scene is replaced. */
@@ -412,6 +463,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             this.convexHull = undefined;
             this.evaluationPoint = undefined;
             this.evaluationPointT = undefined;
+            this.evaluationLabels.clear();
             this.controlPolygonSegments = [];
             this.boundBoxSegments = [];
             this.boundBoxPoints = [];
@@ -431,6 +483,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         this.convexHull = undefined;
         this.evaluationPoint = undefined;
         this.evaluationPointT = undefined;
+        this.evaluationLabels?.clear();
         this.controlPolygonSegments = [];
         this.boundBoxSegments = [];
         this.boundBoxPoints = [];

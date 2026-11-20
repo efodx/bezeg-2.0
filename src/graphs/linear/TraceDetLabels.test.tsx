@@ -56,7 +56,7 @@ function measure(graph: Probe) {
     const label = nameBox('(τ, δ)', fontPx);
     const bottom = hy - 0.55 * fontPx * 1.1;
     const handleLabel: PxBox = {x0: hx + 6.6 * 1.1, y0: bottom - label.h, x1: hx + 6.6 * 1.1 + label.w, y1: bottom};
-    const r = Number(graph.handle().evalVisProp('size')) + 1;
+    const r = Number((graph.handle() as unknown as Shown).evalVisProp('size')) + 1;
     const marker: PxBox = {x0: hx - r, y0: hy - r, x1: hx + r, y1: hy + r};
     return {board, name, handleLabel, marker, ticks: tickStrips(board)};
 }
