@@ -102,4 +102,4 @@ The lesson crawl ([triage](../reviews/lesson-bug-crawl/triage.md), sections 1 an
 
 ### Verification evidence
 
-Recorded in [the stream's handoff note](../reviews/lesson-card-layout/handler-handoff-1.md).
+Recorded in the stream's handoff notes: [the decision and first measurements](../reviews/lesson-card-layout/handler-handoff-1.md), [the full crawl, reviews and smoke repair](../reviews/lesson-card-layout/handler-handoff-2.md) and [the final checks](../reviews/lesson-card-layout/handler-handoff-3.md).
