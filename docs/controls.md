@@ -38,6 +38,8 @@ The inspector is 310 px wide on desktop (about 286 px of content) and the full w
 - Fields in one group share their left and right edges.
 - A label sits directly above or beside its control, never alone on a line of its own.
 - Help under a control is at most two lines at 310 px.
+- A control whose effect is hidden in the current state (the point or circle it edits is not shown) says so in a line directly under it, linked with `describedBy`, and the line goes when the object is shown.
+- A reason shared by two fields side by side is shown once, full width, under the pair (`reasonShownElsewhere` with `describedBy`), not once per half-width field.
 - A group box has all four edges; nothing is cut at the bottom of the panel.
 - Look at a screenshot of the panel before calling it done. Measurements do not show a row that reads badly.
 
@@ -53,7 +55,7 @@ The inspector is 310 px wide on desktop (about 286 px of content) and the full w
 | `NumberGrid` | `src/inputs/NumberGrid` | Typed numbers laid out as a matrix or as one wrapping row (knot vector) | `label` (caption and group name), `columns` (a count or `"wrap"`), `cells` in row-major order (each the `NumberInput` props with its accessible `label`), `describedBy`, `help`. Cells are compact `NumberInput`s with no visible label of their own; refusal hints come under the cell's row |
 | `PointCollection` | `src/inputs/PointCollection` | Count, add (button, typed entry, board mode), clear | Sits above its `PointListInput` |
 | `ValueListInput` | `src/inputs/ValueListInput` | A list of single numbers | Same commit and refusal rules as the point list |
-| `ChoiceSelect` | `src/inputs/ChoiceSelect` | One of several named options | Native select. A `custom` option appears only while the scene matches no example |
+| `ChoiceSelect` | `src/inputs/ChoiceSelect` | One of several named options | Native select. A `custom` option appears only while the scene matches no example. A selected text that does not end before the arrow is also shown in full under the select; one that fits is not repeated |
 | `ResetExampleButton` | `src/inputs/ResetExampleButton` | Back to the chosen example | Beside the example chooser; unavailable with a reason while the scene equals the example |
 | `OnOffSwitch`, `BooleanField` | `src/inputs/OnOffSwitch`, `src/inputs/BooleanField` | On or off | Switch for immediate display toggles, checkbox within a set |
 | `CheckboxGroup` | `src/inputs/CheckboxGroup` | Independent choices in one labelled set | |
