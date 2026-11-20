@@ -506,7 +506,7 @@ export class HullRobustnessGraph extends HullTraceGraph {
         setCell: (i, j) => this.selectKettnerCell(i, j),
     };
 
-    /** Chain view: the playback controls without the algorithm choice, the rule choices, the readout, then the view choice. */
+    /** Chain view: the playback controls without the algorithm choice, the rule choices, then the readout (the view choice leads `workspaceEdit`). */
     protected override hullControls(): React.ReactNode {
         const run = this.run();
         const step = this.step;
@@ -519,12 +519,15 @@ export class HullRobustnessGraph extends HullTraceGraph {
             <ChainChoices pop={this.popRule} duplicates={this.duplicateRule} actions={this.choiceActions}/>
             <ChainReadout pop={this.popRule} duplicates={this.duplicateRule} hull={hull} points={this.model.points}
                           gridStepExponent={this.model.gridStepExponent}/>
-            <RobustnessModeSelect mode="chain" actions={this.choiceActions}/>
         </>;
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        if (this.robustnessMode === "chain") return super.workspaceEdit();
+        // The view choice leads both views, so it does not move when the view changes; in the chain view Next step follows it.
+        if (this.robustnessMode === "chain") return <>
+            <RobustnessModeSelect mode="chain" actions={this.choiceActions}/>
+            {super.workspaceEdit()}
+        </>;
         const cell = kettnerCellReadout(this.kettnerCell.i, this.kettnerCell.j);
         return <>
             <RobustnessModeSelect mode="kettner" actions={this.choiceActions}/>

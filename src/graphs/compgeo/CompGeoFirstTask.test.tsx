@@ -2,7 +2,7 @@
  * First task leads the Edit panel on the computational-geometry routes (graph-control first use, batch 2): on a fresh desktop visit
  * each route's own first task is the first control of `#inspector-edit`, ahead of the setup the plan groups after it.
  */
-import {within} from '@testing-library/react';
+import {act, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
@@ -20,7 +20,6 @@ const labelled = (label: string): Find => root => within(root).getAllByLabelText
 
 interface Route {lead: Find; later: Find[]}
 const routes: Record<string, Route> = {
-    'hull-robustness': {lead: button(t('next_step')), later: [labelled(t('hullrobust_pop_label')), labelled(t('hullrobust_mode_label'))]},
     'ear-clipping': {lead: button(t('next_step')), later: [labelled(t('earclip_example_group'))]},
     'delaunay': {lead: button(t('next_step')), later: [labelled(t('del_example_group'))]},
     'point-set-triangulation': {lead: labelled(t('tri_edge_select')), later: [button(t('tri_flip')), labelled(t('pointset_overlay_grid'))]},
@@ -42,5 +41,32 @@ describe.each(Object.keys(routes))('%s first task', id => {
         for (const find of later) {
             expect(first.compareDocumentPosition(find(root)) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
         }
+    });
+});
+
+describe('hull-robustness view chooser', () => {
+    // The Prikaz chooser leads both views, so it does not move; in the chain view Next step is the control right after it.
+    test('leads the Edit panel in the chain and the Kettner views, with Next step second in the chain view', () => {
+        const graph = graphFactories['hull-robustness']() as unknown as {setRobustnessMode(mode: 'chain' | 'kettner'): void};
+        mountGraph(graph as never);
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const lead = () => {
+            const controls = [...root.querySelectorAll<HTMLElement>(FOCUSABLE)];
+            const chooser = labelled(t('hullrobust_mode_label'))(root);
+            const first = controls.includes(chooser) ? chooser : chooser.querySelector<HTMLElement>(FOCUSABLE) ?? chooser;
+            const group = first.closest('.inspector-group, .tools') ?? first.parentElement!;
+            return {controls, first, rest: controls.filter(control => !group.contains(control))};
+        };
+        let seen = lead();
+        expect(seen.controls[0]).toBe(seen.first);
+        expect(seen.rest[0]).toBe(button(t('next_step'))(root));
+        act(() => graph.setRobustnessMode('kettner'));
+        seen = lead();
+        expect(seen.controls[0]).toBe(seen.first);
+        expect(within(root).queryByRole('button', {name: t('next_step')})).toBeNull();
+        act(() => graph.setRobustnessMode('chain'));
+        seen = lead();
+        expect(seen.controls[0]).toBe(seen.first);
+        expect(seen.rest[0]).toBe(button(t('next_step'))(root));
     });
 });
