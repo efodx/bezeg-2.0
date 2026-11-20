@@ -280,9 +280,6 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         const options: { value: string, text: string }[] = INSERTION_EXAMPLE_IDS.map(id => ({value: id, text: t(id === 'quadratic' ? "bsi_example_quadratic" : "bsi_example_cubic")}));
         if (example === 'custom') options.push({value: 'custom', text: t("bsi_example_custom")});
         return super.getGraphCommands().concat(
-            <div key="example"><ChoiceSelect label={t("bsi_example")} value={example} options={options}
-                                             onChange={value => this.selectExample(value as InsertionExampleId)}/>
-                <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="insert" className="inspector-group">
                 <NumberInput label={t("bsi_insert_value")} value={insertValue} step={0.01} decimals={4} min={-KNOT_LIMIT} max={KNOT_LIMIT}
                              onChange={value => { this.setInsertValue(value); }}/>
@@ -293,6 +290,9 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
                 <RefusalNotice channel={this.refusals}/>
                 {ghost.length ? <p className="inspector-help" data-insertion-status="ghost">{t("bsi_ghost_note")}</p> : null}
             </div>,
+            <div key="example"><ChoiceSelect label={t("bsi_example")} value={example} options={options}
+                                             onChange={value => this.selectExample(value as InsertionExampleId)}/>
+                <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="multiplicity" className="inspector-group" role="group" aria-labelledby="bsi-multiplicity-title">
                 <h3 id="bsi-multiplicity-title">{t("bsi_multiplicity_title")}</h3>

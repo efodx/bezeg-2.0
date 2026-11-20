@@ -214,11 +214,6 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         const semicircleAvailable = state.nodeRule === "chebyshev";
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("interp_runge_function_label")} value={state.functionId} help={t("interp_runge_function_help")}
-                              options={INTERPOLATION_FUNCTION_IDS.map(id => ({value: id, text: rungeFunctionName(id)}))}
-                              onChange={next => this.guarded(() => this.setFunction(next))}/>
-            </div>
-            <div className="inspector-group">
                 <CountSetter label={t("interp_runge_degree_label")} n={state.degree} min={RUNGE_DEGREE_MIN} max={RUNGE_DEGREE_MAX}
                              help={t("interp_runge_degree_help", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
                              rejectedHint={t("interp_runge_degree_rejected", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
@@ -230,6 +225,11 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
                 <ChoiceSelect label={t("interp_runge_rule_label")} value={state.nodeRule} help={t("interp_runge_rule_help")}
                               options={RUNGE_NODE_RULES.map(rule => ({value: rule, text: this.ruleName(rule)}))}
                               onChange={next => this.guarded(() => this.setNodeRule(next))}/>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("interp_runge_function_label")} value={state.functionId} help={t("interp_runge_function_help")}
+                              options={INTERPOLATION_FUNCTION_IDS.map(id => ({value: id, text: rungeFunctionName(id)}))}
+                              onChange={next => this.guarded(() => this.setFunction(next))}/>
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.showError} label={t("interp_runge_show_error")} onChange={checked => this.setShowError(checked)}/>

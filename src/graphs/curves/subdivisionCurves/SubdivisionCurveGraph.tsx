@@ -352,18 +352,6 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const playing = this.playback.isPlaying;
         const complete = this.isComplete();
         return super.getGraphCommands().concat(
-            <div key="rule"><ChoiceSelect label={t("subdiv_rule")} value={rule}
-                                          options={[{value: 'chaikin', text: t("subdiv_rule_chaikin")}, {value: 'four-point', text: t("subdiv_rule_four_point")}]}
-                                          onChange={value => { if (isSubdivisionRule(value)) this.setRule(value); }}/></div>,
-            <div key="closed"><OnOffSwitch checked={closed} label={t("subdiv_closed")} onChange={checked => this.setClosed(checked)}/></div>,
-            <div key="count"><CountSetter label={t("subdiv_point_count")} n={points.length} min={SUBDIVISION_POINTS_MIN}
-                                          max={SUBDIVISION_POINTS_MAX} onPlus={() => this.addPoint()} onMinus={() => this.removePoint()}/></div>,
-            <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
-                                              min={-SUBDIVISION_COORDINATE_LIMIT} max={SUBDIVISION_COORDINATE_LIMIT}
-                                              onCommit={(index, value) => this.editPoint(index, value)}/></div>,
-            <div key="limit"><OnOffSwitch checked={showLimit} label={t("subdiv_show_limit")}
-                                          unavailableReason={rule !== 'chaikin' ? t("subdiv_limit_disabled") : undefined}
-                                          onChange={checked => this.setShowLimit(checked)}/></div>,
             <div key="playback" className="inspector-group">
                 <PlaybackButtons placement="graph" groupLabel={t("subdiv_controls")} nextLabel={t("next_step")} resetLabel={t("subdiv_reset")} playing={playing}
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
@@ -376,6 +364,18 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
                 {id: "vertices", text: t("subdiv_vertex_count", {value0: stageOf(this.state).length})},
                 ...(complete ? [{id: "complete", text: t("subdiv_complete", {value0: MAX_SUBDIVISION_ROUNDS})}] : []),
             ]}/>,
+            <div key="rule"><ChoiceSelect label={t("subdiv_rule")} value={rule}
+                                          options={[{value: 'chaikin', text: t("subdiv_rule_chaikin")}, {value: 'four-point', text: t("subdiv_rule_four_point")}]}
+                                          onChange={value => { if (isSubdivisionRule(value)) this.setRule(value); }}/></div>,
+            <div key="closed"><OnOffSwitch checked={closed} label={t("subdiv_closed")} onChange={checked => this.setClosed(checked)}/></div>,
+            <div key="count"><CountSetter label={t("subdiv_point_count")} n={points.length} min={SUBDIVISION_POINTS_MIN}
+                                          max={SUBDIVISION_POINTS_MAX} onPlus={() => this.addPoint()} onMinus={() => this.removePoint()}/></div>,
+            <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
+                                              min={-SUBDIVISION_COORDINATE_LIMIT} max={SUBDIVISION_COORDINATE_LIMIT}
+                                              onCommit={(index, value) => this.editPoint(index, value)}/></div>,
+            <div key="limit"><OnOffSwitch checked={showLimit} label={t("subdiv_show_limit")}
+                                          unavailableReason={rule !== 'chaikin' ? t("subdiv_limit_disabled") : undefined}
+                                          onChange={checked => this.setShowLimit(checked)}/></div>,
             <RefusalNotice key="notice" channel={this.refusals}/>,
         );
     }

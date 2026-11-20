@@ -289,15 +289,6 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         const num = (v: number) => formatNumber(v, language, 3);
         const maxDegree = Math.min(BLOSSOM_DEGREES[BLOSSOM_DEGREES.length - 1], points.length - 1);
         return super.getGraphCommands().concat(
-            <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BLOSSOM_DEGREES[0]} max={maxDegree}
-                                           maxReason={maxDegree < BLOSSOM_DEGREES[BLOSSOM_DEGREES.length - 1] ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
-                                           onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
-                                           onSet={value => this.setDegree(value)}/></div>,
-            <div key="segment"><ChoiceSelect label={t("bsl_segment")} value={String(segment)}
-                                             options={blossomSegments(knots, degree).map(j => ({
-                                                 value: String(j), text: t("bsl_segment_option", {value0: num(knots[j]), value1: num(knots[j + 1])}),
-                                             }))}
-                                             onChange={value => this.setSegment(Number(value))}/></div>,
             <div key="args" className="inspector-group" role="group" aria-labelledby="bsl-title">
                 <h3 id="bsl-title">{t("bsl_title")}</h3>
                 {args.slice(0, degree).map((value, i) =>
@@ -306,6 +297,15 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
                 <p className="inspector-help">{t("bsl_arg_help")}</p>
                 {this.readoutLines()}
             </div>,
+            <div key="segment"><ChoiceSelect label={t("bsl_segment")} value={String(segment)}
+                                             options={blossomSegments(knots, degree).map(j => ({
+                                                 value: String(j), text: t("bsl_segment_option", {value0: num(knots[j]), value1: num(knots[j + 1])}),
+                                             }))}
+                                             onChange={value => this.setSegment(Number(value))}/></div>,
+            <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BLOSSOM_DEGREES[0]} max={maxDegree}
+                                           maxReason={maxDegree < BLOSSOM_DEGREES[BLOSSOM_DEGREES.length - 1] ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
+                                           onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
+                                           onSet={value => this.setDegree(value)}/></div>,
             <div key="bezier"><OnOffSwitch checked={showBezier} label={t("bsl_bezier")} onChange={show => this.setShowBezier(show)}/></div>,
             <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
         );

@@ -258,6 +258,11 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         const view = problem ? undefined : parameterView(knots, degree, normalized);
         const lines = problem ? [] : readoutLines(knots, degree, position, normalized, language);
         return super.getGraphCommands().concat(
+            ...(view ? [<div key="position"><Slider min={view.toDisplay(view.start)} max={view.toDisplay(view.end)} step={0.01}
+                                                    value={view.toDisplay(clampToDomain(knots, degree, position))} customText={t("bsb_slider_t")}
+                                                    help={t("bsb_slider_help")} onChange={value => this.setDisplayedT(value)}/></div>] : []),
+            <div key="readout"><BasisReadout lines={problem ? [] : [...lines, domainNote(knots, degree, normalized, language)]}/></div>,
+            <RefusalNotice key="refusal" channel={this.refusals}/>,
             <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BASIS_MIN_DEGREE} max={BASIS_MAX_DEGREE}
                                            onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
                                            onSet={value => this.setDegree(value)}/></div>,
@@ -265,11 +270,6 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
                 <p className="inspector-help">{t("bsb_clamped_help")}</p></div>,
             <div key="normalize"><OnOffSwitch checked={normalized} label={t("bsb_normalize")} onChange={checked => this.setNormalized(checked)}/>
                 <p className="inspector-help">{t("bsb_normalize_help")}</p></div>,
-            ...(view ? [<div key="position"><Slider min={view.toDisplay(view.start)} max={view.toDisplay(view.end)} step={0.01}
-                                                    value={view.toDisplay(clampToDomain(knots, degree, position))} customText={t("bsb_slider_t")}
-                                                    help={t("bsb_slider_help")} onChange={value => this.setDisplayedT(value)}/></div>] : []),
-            <div key="readout"><BasisReadout lines={problem ? [] : [...lines, domainNote(knots, degree, normalized, language)]}/></div>,
-            <RefusalNotice key="refusal" channel={this.refusals}/>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );
     }

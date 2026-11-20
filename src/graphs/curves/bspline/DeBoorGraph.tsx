@@ -317,15 +317,6 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData, 
         const status = t("bsd_levels_status", {value0: level, value1: degree});
         this.liveReadout.report(status);
         return super.getGraphCommands().concat(
-            <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BASIS_MIN_DEGREE} max={maxDegree}
-                                           maxReason={maxDegree < BASIS_MAX_DEGREE ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
-                                           onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
-                                           onSet={value => this.setDegree(value)}/></div>,
-            <div key="count"><CountSetter label={t("bsd_point_count")} n={points.length} min={degree + 1} max={DEBOOR_MAX_POINTS}
-                                          onPlus={() => this.changePointCount(true)} onMinus={() => this.changePointCount(false)}/>
-                <p className="inspector-help">{t("bsd_point_count_help")}</p></div>,
-            <div key="position"><Slider min={start} max={end} step={0.01} value={Math.min(end, Math.max(start, position))}
-                                        customText={t("bsb_slider_t")} help={t("bsd_slider_help")} onChange={value => this.setT(value)}/></div>,
             <div key="playback" className="inspector-group">
                 <PlaybackButtons placement="graph" groupLabel={t("bsd_controls")} nextLabel={t("bsd_next_level")} resetLabel={t("bsd_reset_levels")} playing={playing}
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
@@ -334,6 +325,15 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData, 
                 <p className="inspector-help" data-deboor-status="levels">{status}</p>
                 <LiveReadout readout={this.liveReadout} muted={playing}/>
             </div>,
+            <div key="position"><Slider min={start} max={end} step={0.01} value={Math.min(end, Math.max(start, position))}
+                                        customText={t("bsb_slider_t")} help={t("bsd_slider_help")} onChange={value => this.setT(value)}/></div>,
+            <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BASIS_MIN_DEGREE} max={maxDegree}
+                                           maxReason={maxDegree < BASIS_MAX_DEGREE ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
+                                           onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
+                                           onSet={value => this.setDegree(value)}/></div>,
+            <div key="count"><CountSetter label={t("bsd_point_count")} n={points.length} min={degree + 1} max={DEBOOR_MAX_POINTS}
+                                          onPlus={() => this.changePointCount(true)} onMinus={() => this.changePointCount(false)}/>
+                <p className="inspector-help">{t("bsd_point_count_help")}</p></div>,
             <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );
