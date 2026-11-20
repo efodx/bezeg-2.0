@@ -24,7 +24,7 @@ async function lessonScrollPort(panel) {
 module.exports = function registerExperienceChecks() {
     test.describe('Lesson reading experience', () => {
         for (const language of ['sl', 'en']) {
-            test(`${language}: toolbar stays put after clipped-pointer Next activation`, async ({page}) => {
+            test(`${language}: Back and Next stay under the pointer after pointer Next activations on a phone`, async ({page}) => {
                 await page.setViewportSize({width: 390, height: 844});
                 await h.useLanguage(page, language);
                 await page.goto('/bezeg-2.0/analysis/taylor?learn=1&source=reading#preserved');
@@ -37,50 +37,53 @@ module.exports = function registerExperienceChecks() {
                 });
                 await page.addStyleTag({content: 'html {font-size:200% !important} body {font-family:Verdana, system-ui !important}'});
                 const next = h.nextButton(page);
-                await next.scrollIntoViewIfNeeded();
                 await h.settle(page);
 
-                // A fractional available height can clip the row while leaving its center clickable.
-                // Set that height explicitly so the edge case is independent of installed font metrics.
-                const clipping = await panel.evaluate(element => {
+                // In one column Back and Next are the card's last row and rest on the bottom edge of the window while
+                // the card reaches below it. A press there leaves the row under the pointer and the page where it
+                // is, so the same tap advances again. (A frame that ends inside the window takes the row up with
+                // the card's end, and a press deep in the text returns the page to the graph: the phone test in
+                // lesson-graph-access.smoke.spec.cjs covers that.)
+                const resting = () => panel.evaluate(element => {
+                    const row = element.querySelector('.guided-lesson-navigation').getBoundingClientRect();
                     const button = element.querySelector('.guided-lesson-nav-next');
-                    const height = button.getBoundingClientRect().bottom - element.getBoundingClientRect().top - 0.5;
-                    element.style.setProperty('max-height', `${height}px`, 'important');
                     const box = button.getBoundingClientRect();
                     const x = box.left + box.width / 2;
                     const y = box.top + box.height / 2;
-                    const hit = document.elementFromPoint(x, y);
                     return {
-                        panel: element.getBoundingClientRect().toJSON(),
-                        button: box.toJSON(), x, y,
-                        pageY: window.scrollY,
-                        outerScrollTop: element.scrollTop,
-                        centerInsideViewport: x >= 0 && x < window.innerWidth && y >= 0 && y < window.innerHeight,
-                        centerInsidePanel: x >= element.getBoundingClientRect().left && x <= element.getBoundingClientRect().right
-                            && y >= element.getBoundingClientRect().top && y <= element.getBoundingClientRect().bottom,
-                        centerHitsNext: hit === button || button.contains(hit),
+                        x, y,
+                        rowBelowWindowBottom: row.bottom - window.innerHeight,
+                        cardBelowWindowBottom: element.getBoundingClientRect().bottom - window.innerHeight,
+                        readingTop: element.querySelector('.guided-lesson-reading').getBoundingClientRect().top,
+                        centerHitsNext: button.contains(document.elementFromPoint(x, y)),
                     };
                 });
-                expect(clipping.centerInsideViewport).toBe(true);
-                expect(clipping.centerInsidePanel).toBe(true);
-                expect(clipping.button.bottom - clipping.panel.bottom, 'the Next button is fractionally clipped').toBeGreaterThan(0);
-                expect(clipping.button.bottom - clipping.panel.bottom).toBeLessThan(1);
-                expect(clipping.centerHitsNext, 'the visible center still targets the Next button').toBe(true);
-
                 const snapshot = async () => ({
                     positions: await Promise.all([h.backButton(page), next].map(async button => {
                         const box = await button.boundingBox();
                         return Object.fromEntries(['x', 'y', 'width', 'height'].map(key => [key, box[key]]));
                     })),
                     pageY: await page.evaluate(() => window.scrollY),
-                    outerScrollTop: await panel.evaluate(element => element.scrollTop),
                 });
+
+                // Enlarging the text after the page has loaded pushes the card down the page. Read from a little past
+                // the graph's top edge, so that a press which realigned the page to the graph would show as a move.
+                await page.locator('.guided-lesson-layer').evaluate(layer => scrollTo(0, layer.getBoundingClientRect().top + scrollY + 60));
+                const first = await resting();
+                expect(first.cardBelowWindowBottom, 'the enlarged card reaches below the window').toBeGreaterThan(0);
+                expect(Math.abs(first.rowBelowWindowBottom), 'the row rests on the bottom edge of the window').toBeLessThanOrEqual(1);
+                expect(first.readingTop, 'the start of the text is in the window').toBeGreaterThanOrEqual(0);
+                expect(first.centerHitsNext, 'the centre of Next is a pointer target').toBe(true);
                 const before = await snapshot();
-                const progressBefore = await h.progress(page);
-                await page.mouse.click(clipping.x, clipping.y);
-                await h.settle(page);
-                expect(await h.progress(page), 'the pointer advances to the next frame').not.toBe(progressBefore);
-                expect(await snapshot(), 'pointer navigation preserves the visible toolbar and scroll positions').toEqual(before);
+                expect(before.pageY, 'the page is scrolled past the top of the graph').toBeGreaterThan(0);
+                for (const press of ['first', 'repeated']) {
+                    const progressBefore = await h.progress(page);
+                    await page.mouse.click(first.x, first.y);
+                    await h.settle(page);
+                    expect(await h.progress(page), `${press} tap: the pointer advances to the next frame`).not.toBe(progressBefore);
+                    expect((await resting()).cardBelowWindowBottom, `${press} tap: the new frame's card still reaches below the window`).toBeGreaterThan(0);
+                    expect(await snapshot(), `${press} tap at the same point moves neither the row nor the page`).toEqual(before);
+                }
             });
         }
 

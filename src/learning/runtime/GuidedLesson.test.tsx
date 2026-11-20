@@ -377,6 +377,63 @@ test('keeps the page and enlarged controls in place when navigation is fractiona
     }
 });
 
+test('in one column Back and Next are the last row of the card and a frame change deep in the text returns to the graph', () => {
+    const oneColumnQuery = '(max-width: 700px)';
+    let oneColumn = true;
+    const oneColumnListeners = new Set<() => void>();
+    vi.stubGlobal('matchMedia', vi.fn((media: string) => ({
+        get matches() { return oneColumn && media.includes('max-width: 700px'); },
+        media,
+        addEventListener: (_type: string, listener: () => void) => { if (media === oneColumnQuery) oneColumnListeners.add(listener); },
+        removeEventListener: (_type: string, listener: () => void) => { if (media === oneColumnQuery) oneColumnListeners.delete(listener); },
+    })));
+    setLanguage('sl');
+    try {
+        const {container, unmount} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const panel = container.querySelector<HTMLElement>('.guided-lesson')!;
+        const layer = container.querySelector<HTMLElement>('.guided-lesson-layer')!;
+        const reading = container.querySelector<HTMLElement>('.guided-lesson-reading')!;
+        const toolbar = container.querySelector<HTMLElement>('.guided-lesson-toolbar')!;
+        const navigation = () => container.querySelector<HTMLElement>('.guided-lesson-navigation')!;
+
+        // The row follows the text in the document as it does on the screen; the toolbar keeps only the progress.
+        expect(container.querySelectorAll('.guided-lesson-navigation')).toHaveLength(1);
+        expect(panel.lastElementChild).toBe(navigation());
+        expect(reading.compareDocumentPosition(navigation()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        expect([...toolbar.children].map(child => child.className)).toEqual(['guided-lesson-progress-group']);
+
+        // Next pressed with the start of the text above the window brings the page back to the graph and keeps focus.
+        layer.scrollIntoView = vi.fn();
+        const readingBox = vi.spyOn(reading, 'getBoundingClientRect').mockReturnValue(new DOMRect(12, -300, 366, 900));
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 2');
+        expect(layer.scrollIntoView).toHaveBeenCalledTimes(1);
+        expect(layer.scrollIntoView).toHaveBeenCalledWith({block: 'start'});
+        expect(screen.getByRole('button', {name: 'Naprej: naslednji okvir'})).toHaveFocus();
+        expect(panel.lastElementChild).toBe(navigation());
+
+        // Back pressed with the start of the text in the window moves nothing.
+        readingBox.mockReturnValue(new DOMRect(12, 420, 366, 900));
+        fireEvent.click(screen.getByRole('button', {name: 'Nazaj: prejšnji okvir'}));
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 1');
+        expect(layer.scrollIntoView).toHaveBeenCalledTimes(1);
+
+        // Beside the graph the row is back in the toolbar, before the text.
+        oneColumn = false;
+        act(() => oneColumnListeners.forEach(listener => listener()));
+        expect(container.querySelectorAll('.guided-lesson-navigation')).toHaveLength(1);
+        expect(toolbar.contains(navigation())).toBe(true);
+        expect(navigation().compareDocumentPosition(reading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+        unmount();
+        expect(oneColumnListeners.size, 'the width listener is removed with the card').toBe(0);
+    } finally {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+        act(() => setLanguage('sl'));
+    }
+});
+
 test('rapidly reopening during the closing handoff restores panel focus without changing the lesson scene', () => {
     vi.useFakeTimers();
     vi.stubGlobal('matchMedia', vi.fn(() => ({matches: false, media: '(prefers-reduced-motion: reduce)', addEventListener: vi.fn(), removeEventListener: vi.fn()})));
