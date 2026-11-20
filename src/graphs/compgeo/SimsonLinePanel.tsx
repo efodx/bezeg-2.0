@@ -123,7 +123,7 @@ function GliderControls(props: GliderControlsProps) {
     const t = useT();
     const {language} = useLanguage();
     const stop = Math.max(0, SIMSON_OFFSETS.findIndex(offset => offset === props.epsilon));
-    return <div className="simson-glider">
+    return <>
         <div data-simson-t>
             <AngleSlider customText={t("simson_t_label")} value={props.t} onChange={value => props.onT(value)}/>
         </div>
@@ -136,7 +136,7 @@ function GliderControls(props: GliderControlsProps) {
                     }}/>
         </div>
         <p className="inspector-help" data-simson-epsilon-note>{t("simson_epsilon_note")}</p>
-    </div>;
+    </>;
 }
 
 function PPrimeFields(props: {point: GridPoint; onPPrime(point: GridPoint): void}) {

@@ -550,3 +550,10 @@ test('the labels of P, O and the feet are typeset as math while the elements kee
     expect(labelText(exact(graph, 'P')[0])).toBe('$$P$$');
     expect(labelText(exact(graph, 'O')[0])).toBe('$$O$$');
 });
+
+test('the t and epsilon sliders are direct children of the inspector group, so the group spacing rule keeps them 12 px apart', () => {
+    mount(new Observed());
+    for (const selector of ['[data-simson-t]', '[data-simson-epsilon]']) {
+        expect(field(selector).parentElement?.classList.contains('inspector-group')).toBe(true);
+    }
+});
