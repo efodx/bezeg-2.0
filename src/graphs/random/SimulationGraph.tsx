@@ -348,6 +348,11 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             const tick = label[0] as {usrCoords?: number[]} | undefined;
             if (current().mode === "walk" && tick?.usrCoords && tick.usrCoords[1] > current().walkSteps + 1e-9) return "";
             if (current().mode === "area" && tick?.usrCoords && Math.abs(tick.usrCoords[1]) > 1 + 1e-9) return "";
+            // The frequency and Markov plots run on log10(n): the numbers stand at powers of ten as trial counts (1, 10, 100 ...), none left of 1.
+            if ((current().mode === "frequency" || current().mode === "markov") && tick?.usrCoords) {
+                const exponent = tick.usrCoords[1];
+                return exponent > -1e-9 && Math.abs(exponent - Math.round(exponent)) < 1e-9 ? String(Math.round(10 ** Math.round(exponent))) : "";
+            }
             // The interval plot spans the population 0..99; right of it stands the law panel of the miss counts, which is not on that axis.
             if (current().mode === "interval" && tick?.usrCoords && tick.usrCoords[1] > LAW_LEFT - 1 + 1e-9) return "";
             return labelOfX ? labelOfX.apply(this, label) : "";
@@ -358,6 +363,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             const tick = label[0] as {usrCoords?: number[]} | undefined;
             if (current().mode === "area" && tick?.usrCoords && Math.abs(tick.usrCoords[2]) > 1 + 1e-9) return "";
             // The Markov plot ends at 0 and 1; the captions above it and the state diagram below it carry no numbers.
+            // The lower panel of the frequency plot has its own scale (the caption under it): the shared axis numbers there would mislead.
+            if (current().mode === "frequency" && tick?.usrCoords && tick.usrCoords[2] < -1e-9) return "";
             if (current().mode === "markov" && tick?.usrCoords && (tick.usrCoords[2] > 1 + 1e-9 || tick.usrCoords[2] < -1e-9)) return "";
             return labelOfY ? labelOfY.apply(this, label) : "";
         };

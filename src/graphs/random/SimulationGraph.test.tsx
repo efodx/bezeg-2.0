@@ -1208,6 +1208,22 @@ describe.each([[840, 520], [390, 520], [330, 520]])('Interval layout at a board 
         expect(axis.point2.X()).toBeLessThanOrEqual(100 + 1e-9);
     });
 
+    test('frequency log axis: x numbers are trial counts at powers of ten, none left of 1; the lower panel has no y numbers', () => {
+        const {graph} = mountGraph();
+        chooseMode('frequency');
+        act(() => { graph.editTrials(1000); });
+        const board = graph.liveBoard() as unknown as {defaultAxes: {x: unknown; y: unknown}; getBoundingBox(): number[]};
+        const [boxLeft, boxTop, boxRight, boxBottom] = board.getBoundingBox();
+        type Label = {plaintext?: string; X(): number; Y(): number};
+        const labelsOf = (axis: unknown) => (graph.liveBoard().objectsList as unknown as Array<{elType: string; line?: unknown; labels?: Label[]}>)
+            .filter(o => o.elType === 'ticks' && o.line === axis).flatMap(o => o.labels ?? []).filter(l => (l.plaintext ?? '') !== '');
+        const xTicks = labelsOf(board.defaultAxes.x).filter(l => l.X() >= boxLeft && l.X() <= boxRight);
+        expect(xTicks.length).toBeGreaterThan(0);
+        expect(xTicks.map(l => [l.plaintext, Math.round(l.X() * 1e6) / 1e6]).sort()).toEqual([['10', 1], ['100', 2], ['1000', 3]].sort());
+        const yTicks = labelsOf(board.defaultAxes.y).filter(l => l.Y() >= boxBottom && l.Y() <= boxTop);
+        expect(yTicks.filter(l => l.Y() < -1e-6).map(l => [l.plaintext, l.Y()])).toEqual([]);
+    });
+
     test.each([['sl', 20, 36], ['sl', 100, 16], ['sl', 10000, 16], ['sl', 10000, 36], ['sl', 10000, 100], ['en', 100, 36], ['en', 10000, 36], ['en', 10000, 100]] as const)('%s, %i intervals of %i: the law caption and the run caption are disjoint and inside the board', (language, n, size) => {
         setLanguage(language);
         const {graph} = mountGraph();
