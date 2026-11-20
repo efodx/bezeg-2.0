@@ -30,6 +30,7 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
     // The one announcement of the graph: the state sentence the chip shows (decision 63); a drag settles before it is read.
     const liveReadout = useStatusReadout(texts.chip, true);
     return <div className="inspector-group inscribed-panel" data-inscribed-state={texts.state}>
+        {glider && <GliderControls t={glider.t} onT={props.onT}/>}
         <ExampleSelect {...props}/>
         <p className="inspector-help pointset-status" data-inscribed-chip>{texts.chip}</p>
         {texts.acb && <>
@@ -43,7 +44,6 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
             {texts.diameter && <p className="inspector-help" data-inscribed-diameter>{texts.diameter}</p>}
             {texts.undefinedNote && <p className="inspector-help" data-inscribed-undefined>{texts.undefinedNote}</p>}
         </>}
-        {glider && <GliderControls t={glider.t} onT={props.onT}/>}
         {texts.vertices.length > 0 && <>
             <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-inscribed-coordinates>

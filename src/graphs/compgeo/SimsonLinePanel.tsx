@@ -65,11 +65,11 @@ export function SimsonLinePanel(props: SimsonLinePanelProps) {
     }
     if (!texts) return null;
     return <div className="inspector-group simson-panel" data-simson-state={texts.state} data-simson-status={analysis.status}>
-        <ExampleAndMode {...props}/>
-        <p className="inspector-help pointset-status" data-simson-chip>{texts.chip}</p>
         {settings.mode === "glider"
             ? <GliderControls t={normaliseDegrees(settings.t)} epsilon={resolveOffset(settings.epsilon)} onT={props.onT} onEpsilon={props.onEpsilon}/>
             : <PPrimeFields point={settings.pPrime} onPPrime={props.onPPrime}/>}
+        <ExampleAndMode {...props}/>
+        <p className="inspector-help pointset-status" data-simson-chip>{texts.chip}</p>
         <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
         <ul className="pointset-list simson-readouts">
             <li data-simson-readout="circle">{texts.circle}</li>

@@ -320,11 +320,6 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
         const state = this.model;
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("complex_roots_example_label")} value={state.example} help={t("complex_roots_example_help")}
-                              options={COMPLEX_ROOTS_EXAMPLE_IDS.map(id => ({value: id, text: exampleLabel(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
-            </div>
-            <div className="inspector-group">
                 <PointListInput title={t("complex_roots_w_title")} points={[[state.wRe, state.wIm]]}
                                 pointLabel={() => "w"} axisLabels={["Re", "Im"]}
                                 min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
@@ -338,6 +333,11 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                              onMinus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree - 1))}
                              onSet={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
                 <p className="inspector-help">{t("complex_roots_fields_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("complex_roots_example_label")} value={state.example} help={t("complex_roots_example_help")}
+                              options={COMPLEX_ROOTS_EXAMPLE_IDS.map(id => ({value: id, text: exampleLabel(id)}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group" data-complex-test-fields={state.testVisible ? "shown" : "hidden"}>
                 <PointListInput title={t("complex_roots_test_title")} points={[[state.zRe, state.zIm]]}
