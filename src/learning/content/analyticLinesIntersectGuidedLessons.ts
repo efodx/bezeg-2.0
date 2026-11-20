@@ -101,10 +101,10 @@ const l5Formulas: readonly FormulaBlock[] = [
     },
     {
         id: 'parallel-or-same',
-        latex: 'D=0:\\ \\ (a_2,b_2)=\\lambda(a_1,b_1),\\ \\ c_2=\\lambda c_1\\ \\Longleftrightarrow\\ \\text{the same line}',
+        latex: 'D=0:\\ \\ (a_2,b_2)=\\lambda(a_1,b_1),\\ \\ c_2=\\lambda c_1',
         notation: text(
-            '\\(\\lambda\\) je število, različno od \\(0\\); \\((a_1,b_1)\\) in \\((a_2,b_2)\\) sta normali premic.',
-            '\\(\\lambda\\) is a number other than \\(0\\); \\((a_1,b_1)\\) and \\((a_2,b_2)\\) are the normals of the lines.',
+            '\\(\\lambda\\) je število, različno od \\(0\\); \\((a_1,b_1)\\) in \\((a_2,b_2)\\) sta normali premic. Ko velja tudi \\(c_2=\\lambda c_1\\), premici sovpadata.',
+            '\\(\\lambda\\) is a number other than \\(0\\); \\((a_1,b_1)\\) and \\((a_2,b_2)\\) are the normals of the lines. When \\(c_2=\\lambda c_1\\) holds as well, the lines coincide.',
         ),
         explanation: text(
             'Definicija: premici sta vzporedni, ko imata isto smer in nobene skupne točke, in sovpadata, ko imata vse točke skupne. Če je \\(D=0\\), sta normali sorazmerni, zato premici nimata ene same skupne točke: ali sta vzporedni ali pa sovpadata. Odloči desna stran: pri \\((a_2,b_2)=\\lambda(a_1,b_1)\\) premici sovpadata natanko tedaj, ko je tudi \\(c_2=\\lambda c_1\\). Pri okrajšanih implicitnih oblikah (prva lekcija) so trojice koeficientov enakih premic enake.',

@@ -295,7 +295,7 @@ const rangeValue = async (page, index) => Number(await inspectorRange(page, inde
 const expectRange = (page, index, expected, message, digits = 1) =>
     expect.poll(() => rangeValue(page, index), {message}).toBeCloseTo(expected, digits);
 // Switches and counters are looked up by label in either language (the lesson tests run in sl and en).
-const SWITCH_NAMES = {farin: ['Farin points', 'Farinove Točke'], weights: ['Weights', 'Uteži'], standard: ['Standard form', 'Standardna Oblika'],
+const SWITCH_NAMES = {farin: ['Farin points', 'Farinove točke'], weights: ['Weights', 'Uteži'], standard: ['Standard form', 'Standardna oblika'],
     labels: ['Label all points', 'Označi vse točke'], hideFixed: ['Hide fixed points', 'Skrij fiksne točke'], polygon: ['Control polygon', 'Kontrolni poligon']};
 // Reads the state straight from the DOM: the inspector is inert during lesson overlays and some switches sit on a hidden tab.
 const switchByName = (page, key) => ({
