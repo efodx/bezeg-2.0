@@ -59,9 +59,21 @@ describe("playback companion control", () => {
         media.flip(true);
         expect(sliders(container)).toHaveLength(1);
         expect(document.activeElement).toBe(sliders(container)[0]);
+        // A browser cannot focus inside a closed <details>, so the moved focus opens it.
+        expect(slot(container).querySelector("details")!.open).toBe(true);
         media.flip(false);
         expect(sliders(container)).toHaveLength(1);
         expect(document.activeElement).toBe(sliders(container)[0]);
+    });
+
+    test("the slot disclosure reopens as the user left it after a move", () => {
+        const media = installMedia(true);
+        const {container} = render(workspace(<Group/>));
+        const details = slot(container).querySelector("details")!;
+        act(() => { details.open = true; details.dispatchEvent(new Event("toggle")); });
+        media.flip(false);
+        media.flip(true);
+        expect(slot(container).querySelector("details")!.open).toBe(true);
     });
 
     test("a group without a companion adds no disclosure", () => {

@@ -127,6 +127,8 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
     const companionBox = useRef<HTMLDivElement>(null);
     const companionFocused = useRef(false);
     const companionInSlot = useRef(inSlot);
+    // The slot's disclosure is re-created on each move; it reopens as the user last left it.
+    const [companionOpen, setCompanionOpen] = useState(false);
     const hasCompanion = companion !== undefined;
     // Under the board the companion is outside the inspector's inert region too, so it follows the same lesson lock as the group.
     useLayoutEffect(() => {
@@ -137,6 +139,9 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
         if (companionInSlot.current === inSlot) return;
         companionInSlot.current = inSlot;
         if (!companionFocused.current || (document.activeElement && document.activeElement !== document.body)) return;
+        // A closed <details> cannot take focus in its body, so the disclosure opens for the moved focus.
+        const details = companionBox.current?.closest("details");
+        if (details && !details.open) { details.open = true; setCompanionOpen(true); }
         companionBox.current?.querySelector<HTMLElement>("input, button, [tabindex]")?.focus();
     }, [inSlot]);
     const [pressed, setPressed] = useState<PlaybackAction>();
@@ -181,7 +186,8 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
                                             onFocus={() => { companionFocused.current = true; }}
                                             onBlur={event => { if (event.relatedTarget) companionFocused.current = false; }}>{companion.children}</div>;
     if (inSlot && slotElement) {
-        return createPortal(<>{content}{companionNode && <InspectorDisclosure className="playback-companion-disclosure" title={t("playback_companion_summary", {value0: companion.label})}>{companionNode}</InspectorDisclosure>}</>, slotElement);
+        return createPortal(<>{content}{companionNode && <InspectorDisclosure className="playback-companion-disclosure" defaultOpen={companionOpen}
+                                                                                    onToggle={setCompanionOpen} title={t("playback_companion_summary", {value0: companion.label})}>{companionNode}</InspectorDisclosure>}</>, slotElement);
     }
     return <>{content}{companionNode}</>;
 }
