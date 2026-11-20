@@ -3,7 +3,7 @@ import {act, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {HullRobustnessGraph, HullRobustnessGraphState} from './HullRobustnessGraph';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {boardSignature, installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {kettnerSignMap} from '../../compgeo/inexactOrientation';
 import {setLanguage, t} from '../../localization';
@@ -59,6 +59,7 @@ const pressBoardAt = (graph: Observed, x: number, y: number) => act(() => {
     vi.spyOn(board, 'getUsrCoordsOfMouse').mockReturnValue([x, y]);
     (board as unknown as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers(['down'], [{}]);
 });
+const expectBox = (actual: number[], expected: number[]) => { actual.forEach((value, index) => expect(value).toBeCloseTo(expected[index], 6)); };
 const boxWidth = (graph: Observed) => { const [left, , right] = graph.liveBoard().getBoundingBox(); return right - left; };
 const ariaLabel = (graph: Observed) => (graph.liveBoard().containerObj as HTMLElement).getAttribute('aria-label');
 const cellMap = kettnerSignMap();
@@ -473,6 +474,24 @@ describe('scene change, language and lifecycle', () => {
         expect(boxWidth(graph)).toBeCloseTo(chainWidth, 3);
         act(() => { graph.swap({...graph.getInitialState(), mode: 'kettner'}); });
         expect(boxWidth(graph)).toBeCloseTo(kettnerWidth, 3);
+    });
+
+    test('chain to Kettner and back leaves the same board and view as the first load', () => {
+        const graph = new Observed();
+        mount(graph);
+        const box = graph.liveBoard().getBoundingBox();
+        const signature = boardSignature(graph.liveBoard());
+        setMode('kettner');
+        setMode('chain');
+        expectBox(graph.liveBoard().getBoundingBox(), box);
+        expect(boardSignature(graph.liveBoard())).toEqual(signature);
+        // The same after a few steps: the trace overlay is redrawn for the step, not left from before the trip.
+        for (let i = 0; i < 3; i++) click('next-step');
+        const stepped = boardSignature(graph.liveBoard());
+        setMode('kettner');
+        setMode('chain');
+        expectBox(graph.liveBoard().getBoundingBox(), box);
+        expect(boardSignature(graph.liveBoard())).toEqual(stepped);
     });
 
     test('unmount leaves no board and no key listener acting on the graph', () => {
