@@ -104,6 +104,9 @@
         grid-area: lesson;
         max-height: none;
         overflow: visible;
+        /* The pinned controls below carry the top padding; a second one pushed Next off the first screen under a
+           two-row command bar. */
+        padding-top: 0;
     }
 
     /* Long text scrolls with the page. The card's heading and navigation stay at the top of the window meanwhile,
