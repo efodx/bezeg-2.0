@@ -2026,7 +2026,7 @@ export const en: Record<keyof typeof sl, string> = {
     "complex_recip_example_zero": "z = 0 (no reciprocal)",
     "complex_recip_radius_label": "Radius r",
     "complex_recip_radius_rejected_hint": "The radius must be a multiple of 0.05 between 0.05 and 2.",
-    "complex_recip_circle_help": "The inversion circle has centre c and radius r. You can also drag its centre and the point on the circle.",
+    "complex_recip_circle_help": "You can also drag the centre c and the point on the circle.",
     "complex_recip_actions_label": "Show the reciprocal, the division and the inversion circle",
     "complex_recip_show_reciprocal": "Show 1/z",
     "complex_recip_hide_reciprocal": "Hide 1/z",

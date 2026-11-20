@@ -2025,7 +2025,7 @@ export const sl = {
     "complex_recip_example_zero": "z = 0 (brez obratne vrednosti)",
     "complex_recip_radius_label": "Polmer r",
     "complex_recip_radius_rejected_hint": "Polmer mora biti večkratnik števila 0,05 med 0,05 in 2.",
-    "complex_recip_circle_help": "Krožnica inverzije ima središče c in polmer r. Povlečeš lahko tudi njeno središče in točko na krožnici.",
+    "complex_recip_circle_help": "Središče c in točko na krožnici lahko tudi povlečeš.",
     "complex_recip_actions_label": "Prikaz obratne vrednosti, deljenja in krožnice inverzije",
     "complex_recip_show_reciprocal": "Pokaži 1/z",
     "complex_recip_hide_reciprocal": "Skrij 1/z",
