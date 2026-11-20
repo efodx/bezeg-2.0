@@ -165,6 +165,8 @@ async function editFirstPoint(page, x) {
     const editor = page.locator('.curve-point-controls').first();
     if ((await editor.count()) === 0) await page.locator('.workspace-curve-picker button').first().click();
     const field = editor.getByRole('spinbutton', {name: 'p₀, x'});
+    // With one curve and none selected, the editor sits in a closed "Keyboard point entry" disclosure.
+    if (!(await field.isVisible())) await page.locator('summary', {hasText: /^(Keyboard point entry|Vnos točk s tipkovnico)$/}).first().click();
     await field.fill(String(x));
     await field.press('Enter');
     await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[x, -3], [-3, 2], [2, 2], [3, -2]]));
