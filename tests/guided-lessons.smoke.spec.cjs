@@ -93,7 +93,10 @@ const rationalElevation = {
 
 // ---------------------------------------------------------------- Parameterization
 const DEFAULT_SAMPLES = 10;
-const samplesSlider = page => page.locator('input[type="range"][max="40"]').first();
+// The sample count is a CountSetter labelled "Število točk" / "Number of points" (typed field or read-only output).
+const samplesValue = page => page.locator('.count-setter')
+    .filter({has: page.locator('.count-setter-label', {hasText: /^(Število točk|Number of points)$/})}).first()
+    .evaluate(root => Number((root.querySelector('input')?.value ?? root.querySelector('output')?.textContent ?? '').replace(/\D+/g, '')));
 
 // Sample points currently drawn: visible points minus the control points.
 const sampleCount = async (page, controls) => (await boardStats(page)).points - controls;
@@ -110,9 +113,10 @@ async function expectDefaultPoints(page, expected) {
 // Control points are the visible points minus the drawn samples (the samples slider value); on the bare route that
 // slider must hold the default 10 samples.
 async function controlPointCount(page) {
-    if (!(await lessonOpen(page))) await expect(samplesSlider(page)).toHaveValue(String(DEFAULT_SAMPLES));
-    await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThan(Number(await samplesSlider(page).inputValue()));
-    return (await boardStats(page)).points - Number(await samplesSlider(page).inputValue());
+    if (!(await lessonOpen(page))) await expect.poll(() => samplesValue(page)).toBe(DEFAULT_SAMPLES);
+    const samples = await samplesValue(page);
+    await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThan(samples);
+    return (await boardStats(page)).points - samples;
 }
 
 // samplesByStep: sample-point count the scene of each step prepares (step 1 is the route default).
@@ -552,9 +556,9 @@ const splineParameterization = {
         return {};
     },
     stepProbe: async (page, ctx, step, label) => {
-        // Range 0 is alpha (0..1), range 1 the number of sample points (0..50).
+        // Range 0 is alpha (0..1); the number of sample points is a CountSetter.
         await expectRange(page, 0, [0.5, 0.5, 0, 1, 0.5][step - 1], `alpha at ${label}`, 2);
-        await expectRange(page, 1, 10, `samples at ${label}`, 0);
+        await expect.poll(() => samplesValue(page), {message: `samples at ${label}`}).toBe(10);
         // Every step is the lesson fixture: 8 free + 12 derived points (joints visible) + 10 samples.
         await expect.poll(async () => (await boardStats(page)).points, {message: `points at ${label}`}).toBe(30);
         expect((await boardStats(page)).curves, `one spline curve at ${label}`).toBe(1);
