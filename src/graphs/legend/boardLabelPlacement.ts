@@ -37,6 +37,8 @@ export interface LayoutContext {
     /** The axes' px positions (the lines are one px wide): a text must not lie across them. */
     readonly axisX?: number;
     readonly axisY?: number;
+    /** The cost of one line sample inside a box (default 4). A low value lets a text stay near its anchor although a thin line crosses the spot. */
+    readonly sampleCost?: number;
 }
 
 const MARKER_CLEAR_PX = 3;
@@ -83,7 +85,8 @@ function penalty(box: PxBox, rank: number, ctx: LayoutContext, placed: readonly 
         const c = r + MARKER_CLEAR_PX;
         if (x + c > box.x0 && x - c < box.x1 && y + c > box.y0 && y - c < box.y1) cost += 60;
     }
-    for (const [x, y] of ctx.samples) if (x >= box.x0 - 1 && x <= box.x1 + 1 && y >= box.y0 - 1 && y <= box.y1 + 1) cost += 4;
+    const sampleCost = ctx.sampleCost ?? 4;
+    for (const [x, y] of ctx.samples) if (x >= box.x0 - 1 && x <= box.x1 + 1 && y >= box.y0 - 1 && y <= box.y1 + 1) cost += sampleCost;
     return cost;
 }
 

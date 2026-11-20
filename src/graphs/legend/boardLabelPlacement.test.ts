@@ -31,3 +31,23 @@ describe("placeLpLabels prefer", () => {
         expect(both.a).not.toEqual(PREFERRED);
     });
 });
+
+describe("placeLpLabels sampleCost", () => {
+    // A dense line crosses every spot round the anchor except the farthest left one (ring 3, x up to 267).
+    const samples: Array<[number, number]> = [];
+    for (let x = 270; x <= 350; x += 2) for (let y = 150; y <= 250; y += 2) samples.push([x, y]);
+    const clean = (box: PxBox) => !samples.some(([x, y]) => x >= box.x0 - 1 && x <= box.x1 + 1 && y >= box.y0 - 1 && y <= box.y1 + 1);
+
+    it("counts a line sample as 4 by default", () => {
+        const box = placeLpLabels([item()], ctx({samples})).a;
+        expect(clean(box)).toBe(true);
+        expect(placeLpLabels([item()], ctx({samples, sampleCost: 4})).a).toEqual(box);
+    });
+
+    it("takes a near spot crossed by the line over a far clean one when a sample costs little", () => {
+        const far = placeLpLabels([item()], ctx({samples})).a;
+        const near = placeLpLabels([item()], ctx({samples, sampleCost: 0.01})).a;
+        expect(near).not.toEqual(far);
+        expect(Math.hypot((near.x0 + near.x1) / 2 - 300, (near.y0 + near.y1) / 2 - 200)).toBeLessThan(Math.hypot((far.x0 + far.x1) / 2 - 300, (far.y0 + far.y1) / 2 - 200));
+    });
+});
