@@ -15,6 +15,7 @@ import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
+import {tickStrips} from "../legend/pointNamePlacement";
 import {pointLabelMath} from "../styles/pointLabelMath";
 import {fitBoundingBox, FitPoint} from "../base/fitBoundingBox";
 import {angleBetween} from "../../compgeo/circle";
@@ -377,11 +378,13 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         type Box = {x0: number; y0: number; x1: number; y1: number};
         const boxAt = (c: Xy, w: number, h: number): Box => ({x0: c.x - w / 2, y0: c.y - h / 2, x1: c.x + w / 2, y1: c.y + h / 2});
         const placed: Box[] = [];
+        const ticks = tickStrips(board); // the axis numbers: a side name never lands on one when any spot is free
         const cost = (b: Box): number => {
             let total = 0;
             if (b.x0 < 4 || b.y0 < 4 || b.x1 > board.canvasWidth - 4 || b.y1 > board.canvasHeight - 4) total += 200;
             for (const o of placed) if (b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0) total += 100;
             for (const m of markers) if (m.x + 9 > b.x0 && m.x - 9 < b.x1 && m.y + 9 > b.y0 && m.y - 9 < b.y1) total += 60;
+            for (const t of ticks) if (b.x0 < t.x1 && b.x1 > t.x0 && b.y0 < t.y1 && b.y1 > t.y0) total += 150;
             for (const [x, y] of lines) if (x >= b.x0 + 1 && x <= b.x1 - 1 && y >= b.y0 + 1 && y <= b.y1 - 1) total += 8;
             return total;
         };
@@ -395,7 +398,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             const out = toPx(sideNamePlace(p, q, r, ux, uy));
             const [ox, oy] = [out.x - mid.x, out.y - mid.y];
             const norm = Math.hypot(ox, oy) || 1;
-            for (const [slide, lift] of [[0, 0], [0, 6], [0.12, 0], [-0.12, 0], [0.12, 6], [-0.12, 6], [0.22, 0], [-0.22, 0], [0, 12], [0.22, 8], [-0.22, 8], [0.32, 8], [-0.32, 8], [0, 20]] as const) {
+            for (const [slide, lift] of [[0, 0], [0, 6], [0.12, 0], [-0.12, 0], [0.12, 6], [-0.12, 6], [0.22, 0], [-0.22, 0], [0, 12], [0.22, 8], [-0.22, 8], [0, 20]] as const) {
                 const sp = toPx({x: p.x + (q.x - p.x) * (0.5 + slide), y: p.y + (q.y - p.y) * (0.5 + slide)});
                 const candidate = {x: sp.x + ox + (ox / norm) * lift, y: sp.y + oy + (oy / norm) * lift};
                 const total = cost(boxAt(candidate, 12, 18)) + Math.abs(slide) * 10 + lift * 0.3;
