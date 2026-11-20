@@ -4,6 +4,19 @@
 
 ## For the owner
 
+**Owner answers, 2026-11-20** (relayed by handler 3; owner: “decisions: yes to all, fix the broken behaviour while you're at it please”). Scheduled after batch 3 as steps 2–4 under Remaining steps:
+
+- O1. Wave 2 phone companion slider: yes. A graph may supply one optional companion slider to the playback slot. This is a shared workspace change, in its own commit; recheck Bisection, Epicycles and De Casteljau.
+- O2. Moving choosers: make them stable, as in D13. In solids (D10) the mode/solid chooser stays first in every mode, and in section mode the plane offset comes right after it. In hull robustness (D12) the Prikaz chooser stays first in both views, and in the chain view Next step comes directly after it.
+- O3. Epicycles time slider: fix it. Handler 3 proposed a relabel in radians (“Čas t (rad)” / “Time t (rad)”, under the localization term rules) rather than a rescale; check whether the manifest goes stale.
+- O4. Parametrization sample count becomes a `CountSetter`. Behaviour and the weighted recipe stay.
+- O5. Affine reflection: make the label and the behaviour agree. The handler picks one, records it as a decision with the alternative, and names the choice in the final report.
+- O6. Circle count label becomes “Število lokov” / “Number of arcs”. Grep the lesson text and the recipe first.
+- O7. Spline cn: a global continuity order is enough. This closes D8's question.
+- O8. Fix the behaviour noticed in smoke, after confirming it is a real bug: (a) on patches/joins' default example, continuity none/C⁰/C¹ leaves the board unchanged; (b) in hull-robustness, the first Next step does not change the board, and chain→Kettner→chain differs from the first load. If a behaviour is intended, add on-screen feedback for it or record why not.
+
+Superseded questions as handler 3 left them:
+
 - **Wave 2 decision: a phone companion control.** After wave 1, the phone keeps Play/Pause in the graph slot on Epicycles and De Casteljau. The scrub sliders sit below the board: Epicycles “Čas t” at y1200, De Casteljau “Parameter t” at y1279 on 390 × 844. Scrubbing while watching the board therefore needs scrolling. The spec (Playback row) proposes that a graph supply one optional companion slider to the playback slot. That is a shared workspace change, with Bisection rechecked. Should it go ahead? Not started; wave 3 does not depend on it.
 - **Epicycles time slider label.** “Čas t (del obhoda)” / “Time t (fraction of a turn)” runs 0–6.28 (`EpicycleGraph.tsx:609`, radians). It predates this stream. Proposed fix: relabel the slider in radians, or scale it to 0–1. This is a small follow-up in lane E's file.
 - **Parametrization sample count.** On the three param routes, “Število točk” is a `Slider`; [the controls catalogue](../../controls.md) prescribes `CountSetter` for a count. Changing it is more than a reorder, so it was left. Should it become a `CountSetter` (route behaviour and the weighted recipe stay; only the control changes)?
@@ -28,6 +41,9 @@ On 2026-11-20 the owner authorised this run to continue without confirmation: de
 - **D12 (handler 3). Hull robustness leads with Next step in the chain view and keeps the view chooser first in the Kettner view.** The Kettner view has no Next step. So the “Prikaz” chooser sits fifth in chain and first in Kettner, the same trade-off as D10. Workers after this one are briefed to prefer a stable order. To revert, put `RobustnessModeSelect` first again in `HullRobustnessGraph.tsx`'s chain branch.
 - **D13 (handler 3). The combinatorics view chooser stays first in every view.** The worker first put “Vsebina” after the task inputs. Its position then changed with the view, so I had it moved back (`666d6ee7`): Vsebina comes first, the task inputs (T (a, b); n, k) come directly after it, and the example chooser comes last. Workers from the fourth slice on were briefed to prefer a stable order. D10 (solids) and D12 (hull) still let a chooser move; whether they should match this is for batch 4 or the owner.
 - **D14 (handler 3). `TensorPatchEditPanel` gains an opt-in `pointFirst` prop** (default off) so that patch-decasteljau and patch-derivatives lead with u/v. Tensor, triangular and Coons are unchanged. The alternative was a per-graph copy of the panel. To revert, drop the prop in `TensorPatchPanels.tsx` and the two graphs.
+- **D15 (handler 4). Batch 3 goes to two workers.** Slice A takes functions and computational geometry: extrema, function-inverse, polynomial-zeros, voronoi, voronoi-degenerate and point-set-triangulation, so one worker owns `VoronoiGraph`/`VoronoiControls`. Slice B takes the patches: coons, triangular and tensor. Graph-character is off master (`9e3154b0` reverted it), so Voronoi did not wait. Handler plan review: selection on the board is part of the task on all nine. The candidates for already meeting the check are extrema, point-set-triangulation and tensor, where the baseline has the lead in view with nothing before it. Process only; nothing to revert.
+- **D16 (handler 4, O5). Affine reflection keeps the centroid line; the label changes.** Two chapter texts already state that the buttons rotate and reflect about the mean of the control points (`linearMapsChapter.ts:94`, `linearMapsChapterLessons.ts:552`), as rotation does. So the behaviour is intended, and the button detail “os X/Y” is what is wrong. The details `affine_axis_x/y` will say that the line is horizontal/vertical and passes through the centre of the control points. The alternative was to reflect about the coordinate axes, which would contradict both texts and move the curve away from where the other buttons act. To revert, restore the two strings.
+- **D17 (O7).** cn's global continuity order is enough; D8's open question is closed by the owner.
 - **Overlap with graph-character** (unchanged): its implementation lives on `codex/graph-character-pilots`, not master. If it returns to master, it owns De Casteljau's board drawing and this stream owns `getGraphCommands`/Edit. The Voronoi and descent batches go after its slices.
 
 ## Accepted work
@@ -78,14 +94,16 @@ The bezier-family smoke at ced593df (Haiku, desktop and phone, sl, plus English 
 Batches 1 and 2 are done; every batch-2 family page has been through a worker.
 
 1. **Batch 3: selection/3D routes (9):** extrema, voronoi, voronoi-degenerate, point-set-triangulation, function-inverse, polynomial-zeros, patch-coons, patch-triangular, patch-tensor. The handler reviews each plan first: the selection belongs in the task (README definition of done, step 1). voronoi and voronoi-degenerate share `VoronoiGraph.workspaceEdit`/`VoronoiControls`; give them one owner. Graph-character overlap: the Voronoi work goes after its slices only if it has returned to master; check that first.
-2. **Batch 4: already-meeting rows.** They are recorded in the accepted-work entries above. Follow-ups that each fit one small slice:
+2. **Owner fixes, small slices (O2, O3, O4, O6, O7 and O5):** stable choosers in solids and hull-robustness; the Epicycles radians label; the param `CountSetter`; the circle label “Število lokov”; affine reflection (decide, then record it). O7 needs only the record.
+3. **Smoke bugs (O8):** patches/joins continuity, and the hull-robustness first step and view round trip. Confirm each is a bug first.
+4. **Wave 2 (O1):** the companion slider in the playback slot, as its own shared-workspace commit.
+5. **Batch 4: already-meeting rows.** They are recorded in the accepted-work entries above. Follow-ups that each fit one small slice:
    - Keyboard point entry is not adjacent on triangle-centres, euler-line, inversion, extraction, lagrange, least-squares, complex-multiplication, pascal, pole-polar and five-point.
-   - Moving choosers: solids (D10) and hull-robustness (D12).
+   - Moving choosers: moved to step 2 (O2).
    - On bezier/curve, spline-c1 and spline-c2, point entry exists only after selection.
    - PH follow-ups: cubic angle/length grouping, offset distance+count grouping, the quintic's edited handle.
-3. **Batch 5: rational/farin-points** (see D3).
-4. **Catalogue swaps (D11 and the reported ones):** ranged `NumberInput`s and count `Slider`s that tests type into by label. Each is a control swap with its tests updated, not a reorder; decide per control.
-5. Wave 2 once the owner decides.
+6. **Batch 5: rational/farin-points** (see D3).
+7. **Catalogue swaps (D11 and the reported ones):** ranged `NumberInput`s and count `Slider`s that tests type into by label. Each is a control swap with its tests updated, not a reorder; decide per control.
 
 ## Next slice brief inputs
 
