@@ -17,7 +17,7 @@
 /* Equal-column button rows (control-choice step 4b, S7): three buttons share one row, and a row that must wrap wraps into equal rows
    (2 + 2, 3 + 3), never 2 + 1 or 3 + 1. Six columns let a row of 2, 3, 4 or 6 buttons divide evenly; five make 3 + 2. Long labels wrap
    inside the button. Only buttons are counted (an empty anchor element among them takes no cell). */
-.control-row--fill, .inspector-playback { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.control-row--fill, .inspector-playback { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; align-items: stretch; } /* buttons of one grid row share one height */
 .control-row--fill > button, .inspector-playback > button { grid-column: span 2; min-width: 0; flex: none; overflow-wrap: break-word; line-height: 1.25; }
 .control-row--fill > :not(button), .inspector-playback > :not(button) { grid-column: 1 / -1; }
 .control-row--fill > :not(button):empty, .inspector-playback > :not(button):empty { display: none; }
