@@ -173,6 +173,7 @@ export function fitFormulaRows(panel: HTMLElement, retypeset?: (row: HTMLElement
         row.style.fontSize = '';
         if (!row.querySelector('mjx-container[display="true"]')) return;
         const source = row.dataset.tex;
+        forgetOtherSource(row);
         if (shrinkToFit(row) || !retypeset || source === undefined || row.dataset.stackedFor === source) return;
         // Remembered with its source, so a row that React refills (a language switch) is measured afresh.
         row.dataset.stackedFor = source;
@@ -181,6 +182,14 @@ export function fitFormulaRows(panel: HTMLElement, retypeset?: (row: HTMLElement
     panel.querySelectorAll<HTMLElement>('[data-tex]:not(.guided-lesson-notation)').forEach(element => {
         void fitProse(element, retypeset).catch(() => undefined);
     });
+}
+
+/**
+ * A refilled element holds its new source unbroken. The mark of the source it was broken for is dropped then, also
+ * when the new source fits: switching back refills the first source unbroken, and it has to be broken again.
+ */
+function forgetOtherSource(element: HTMLElement) {
+    if (element.dataset.stackedFor !== undefined && element.dataset.stackedFor !== element.dataset.tex) delete element.dataset.stackedFor;
 }
 
 const SCROLL_CLASS = 'guided-lesson-prose-scroll';
@@ -201,6 +210,7 @@ function wideFormulas(element: HTMLElement): {count: number, wide: Set<number>} 
  */
 async function fitProse(element: HTMLElement, retypeset?: (row: HTMLElement, tex: string) => Promise<unknown>) {
     const source = element.dataset.tex;
+    forgetOtherSource(element);
     const mark = () => element.classList.toggle(SCROLL_CLASS, wideFormulas(element).wide.size > 0);
     const {count, wide} = wideFormulas(element);
     if (source === undefined || !retypeset || element.dataset.stackedFor === source || wide.size === 0) return mark();

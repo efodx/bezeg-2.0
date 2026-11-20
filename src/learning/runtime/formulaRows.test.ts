@@ -170,4 +170,21 @@ describe('fitFormulaRows stacking', () => {
         fitFormulaRows(panel, retypeset);
         await vi.waitFor(() => expect(retypeset).toHaveBeenCalledTimes(2));
     });
+
+    test('a row refilled with a source that fits and then with the first one again is broken again', async () => {
+        const wide = '\\[aaaaaaaaaaaaaaaaaaaa\\quad bbbbbbbbbbbbbbbbbbbb\\]';
+        const {panel, retypeset, refill, source} = row(wide, 240);
+        fitFormulaRows(panel, retypeset);
+        await vi.waitFor(() => expect(retypeset).toHaveBeenCalledTimes(1));
+        // The other language's row fits, so nothing is typeset again...
+        refill('\\[cc\\quad d\\]');
+        fitFormulaRows(panel, retypeset);
+        await Promise.resolve();
+        expect(retypeset).toHaveBeenCalledTimes(1);
+        // ...and switching back refills the unbroken source, which has to be broken once more.
+        refill(wide);
+        fitFormulaRows(panel, retypeset);
+        await vi.waitFor(() => expect(retypeset).toHaveBeenCalledTimes(2));
+        expect(source()).toBe(stacked('aaaaaaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbbbbbb'));
+    });
 });
