@@ -23,7 +23,11 @@ Read [handoff 1](handler-handoff-1.md) for the owner's objective and scope and [
 1. Triage section 7 leftovers: label collisions (`.shots/visual-graph.md`). Rosettes and lattice paths keep their shared fixed frames, drag-the-track keeps its fixed frame.
 2. Triage sections 3 (controls that silently depend on another control) and 6 (inspector layout at 310 px). They came by relay from the lesson-bug-crawl handler, not from the owner; ask the owner before starting them.
 3. A full stop or comma after an inline formula can wrap alone onto the next line (seen in the beats lesson of waves, step 5). MathJax's inline container is an atomic inline, so the browser may break before the punctuation. Older than this stream; a repair would bind a formula to the punctuation that follows it when the card is typeset.
-4. The smoke lane worktree `.claude/worktrees/lesson-card-smoke` (branch `worktree-lesson-card-smoke`) is no longer needed. Unlink its `node_modules` junction with PowerShell before removing it.
+4. The crawler reads only 1440×900 and the first phone frame; later phone frames and 1024×768 are covered by the smoke assertions, not by the crawl.
+
+## Published
+
+`origin/master` is at ed3b05c2 (17 commits on e1b7a118, pushed 2026-11-20 19:41 UTC through `just publish --background --recipe runtime`; a plain `just publish` refuses this checkout because of its untracked scratch files). The first attempt stopped at the whitespace check on a blank line at the end of `formulaRows.ts`, removed in the last commit. CI run 44804487377 for ed3b05c2 succeeded in every job, deploy included. The smoke lane worktree and its branch are removed; the failed publish worktree `publish-c79e7133-6eb303` is removed by the publish tool after 24 hours. The preview on port 4421 serves this worktree's build.
 
 ## For the owner
 
