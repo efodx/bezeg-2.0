@@ -46,9 +46,9 @@ export interface InversionPanelProps extends InversionPanelActions {
 }
 
 /**
- * The readouts and controls of the inversion graph: example and focus choice, the inversion radius, the fields of the current
- * focus (X; the source circle or line; the power circle and the direction; the two circles and the intersection), then the
- * status chip and the readouts as words. The status paragraph keeps its element mounted (live region); state is words, never
+ * The readouts and controls of the inversion graph: the status chip, the inversion radius, the fields of the current focus
+ * (X; the source circle or line; the power circle and the direction; the two circles and the intersection), then the example and
+ * focus choice and the readouts as words. The status paragraph keeps its element mounted (live region); state is words, never
  * colour alone.
  */
 export function InversionPanel(props: InversionPanelProps) {
@@ -60,15 +60,15 @@ export function InversionPanel(props: InversionPanelProps) {
     const liveReadout = useStatusReadout(texts.chip, true);
     const rows = texts.rows.filter(row => row.text !== texts.chip);
     return <div className="inspector-group inversion-panel" data-inversion-state={texts.state} data-inversion-focus-now={fields.focus}>
-        <ExampleAndFocus {...props}/>
         <p className="inspector-help pointset-status" data-inversion-chip>{texts.chip}</p>
         {fields.hasCentre && <>
             {fields.focus !== "power" && <RadiusSlider label={t("inversion_radius_label")} field="radius" value={fields.radius} onValue={props.onRadius}/>}
             <FocusFields {...props}/>
-            {rows.length > 0 && <ul className="pointset-list inversion-readouts">
-                {rows.map(row => <li key={row.id} data-inversion-readout={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
-            </ul>}
         </>}
+        <ExampleAndFocus {...props}/>
+        {fields.hasCentre && rows.length > 0 && <ul className="pointset-list inversion-readouts">
+            {rows.map(row => <li key={row.id} data-inversion-readout={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
+        </ul>}
         <LiveReadout readout={liveReadout} dataAttribute="inversion-live"/>
     </div>;
 }

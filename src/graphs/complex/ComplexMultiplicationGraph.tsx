@@ -397,11 +397,6 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         const wZero = isZero(view.w);
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("complex_example_label")} value={state.example} help={t("complex_example_help")}
-                              options={COMPLEX_EXAMPLE_IDS.map(id => ({value: id, text: exampleLabel(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
-            </div>
-            <div className="inspector-group">
                 <PointListInput title={t("complex_numbers_title")} points={[[state.zRe, state.zIm], [state.wRe, state.wIm]]}
                                 pointLabel={index => index === 0 ? "z" : "w"} axisLabels={["Re", "Im"]}
                                 min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
@@ -420,6 +415,11 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
                         })}
                         onChange={next => this.ignoreOutOfDomain(() => this.setWArgument(next))}/>
                 {!wZero && <p className="inspector-help">{t("complex_polar_help")}</p>}
+            </div>
+            <div className="inspector-group">
+                <ChoiceSelect label={t("complex_example_label")} value={state.example} help={t("complex_example_help")}
+                              options={COMPLEX_EXAMPLE_IDS.map(id => ({value: id, text: exampleLabel(id)}))}
+                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
         </>;
     }

@@ -64,10 +64,6 @@ export function FivePointControls(props: FivePointControlsProps) {
     const liveReadout = useStatusReadout([text.status, nudgeText].filter(Boolean).join("\n"), true);
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <ChoiceSelect label={t("projective_five_point_example_label")} value={model.example} options={exampleOptions}
-                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
-        </div>
-        <div className="inspector-group">
             <div data-projective-status={text.kind} data-projective-stale={stale}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
             </div>
@@ -80,6 +76,19 @@ export function FivePointControls(props: FivePointControlsProps) {
             <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">
+            <p className="inspector-help" data-projective-selection>
+                {selected !== undefined ? t("projective_k1_selected", {value0: nameOf(selected)}) : t("projective_k1_no_selection")}
+            </p>
+            <PointListInput title={t("projective_five_point_points")} pointLabel={i => t("projective_point_named", {value0: nameOf(i)})}
+                            points={points} min={-LIMIT} max={LIMIT} grid={1 / FIVE_POINT_DENOMINATOR} step={1 / FIVE_POINT_DENOMINATOR} decimals={4}
+                            selected={selected} onSelect={actions.select}
+                            onCommit={(i, [x, y]) => { actions.place(i, Math.round(x * FIVE_POINT_DENOMINATOR), Math.round(y * FIVE_POINT_DENOMINATOR)); }}/>
+        </div>
+        <div className="inspector-group">
+            <ChoiceSelect label={t("projective_five_point_example_label")} value={model.example} options={exampleOptions}
+                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
+        </div>
+        <div className="inspector-group">
             <ChoiceSelect label={t("projective_five_point_end_a")} value={String(model.a)} options={INDICES.map(choice)}
                           onChange={value => actions.setEnd("a", Number(value))}/>
             <ChoiceSelect label={t("projective_five_point_end_b")} value={String(model.b)} options={INDICES.map(choice)}
@@ -88,15 +97,6 @@ export function FivePointControls(props: FivePointControlsProps) {
                           options={INDICES.filter(i => i !== model.a && i !== model.b).map(choice)}
                           onChange={value => actions.setThird(Number(value))}/>
             <BooleanField variant="checkbox" checked={extrapolation} label={t("projective_five_point_extrapolation")} onChange={actions.setExtrapolation}/>
-        </div>
-        <div className="inspector-group">
-            <p className="inspector-help" data-projective-selection>
-                {selected !== undefined ? t("projective_k1_selected", {value0: nameOf(selected)}) : t("projective_k1_no_selection")}
-            </p>
-            <PointListInput title={t("projective_five_point_points")} pointLabel={i => t("projective_point_named", {value0: nameOf(i)})}
-                            points={points} min={-LIMIT} max={LIMIT} grid={1 / FIVE_POINT_DENOMINATOR} step={1 / FIVE_POINT_DENOMINATOR} decimals={4}
-                            selected={selected} onSelect={actions.select}
-                            onCommit={(i, [x, y]) => { actions.place(i, Math.round(x * FIVE_POINT_DENOMINATOR), Math.round(y * FIVE_POINT_DENOMINATOR)); }}/>
         </div>
     </div>;
 }

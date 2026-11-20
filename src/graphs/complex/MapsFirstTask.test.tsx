@@ -7,6 +7,7 @@ import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import {ComplexRootsGraph} from './ComplexRootsGraph';
 import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
+import {allGraphFactories} from '../allGraphFactories';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -41,5 +42,23 @@ describe.each(Object.keys(routes))('%s', key => {
         const {first, later} = plan[key];
         expect(at(first)).toBe(0);
         for (const label of later) expect(at(label), label()).toBeGreaterThan(0);
+    });
+});
+
+/**
+ * Exact point entry follows the first task (graph-control first use, batch 4): the first-task group, then the route's exact entry,
+ * then the choosers and the rest. Each entry lists label prefixes in the order they must appear.
+ */
+const exactEntryOrder: Record<string, Label[]> = {
+    'complex-multiplication': [() => 'z, Re', () => 'w, Re', () => t('complex_example_label')],
+};
+
+describe.each(Object.keys(exactEntryOrder))('%s', key => {
+    test('the exact point entry directly follows the first task, before the examples', () => {
+        mountGraph(allGraphFactories[key as keyof typeof allGraphFactories]());
+        const names = editControls();
+        const positions = exactEntryOrder[key].map(label => names.findIndex(name => name.startsWith(label())));
+        expect(positions, names.join(' | ')).not.toContain(-1);
+        expect(positions, names.join(' | ')).toEqual([...positions].sort((a, b) => a - b));
     });
 });

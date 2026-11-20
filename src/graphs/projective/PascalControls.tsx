@@ -80,16 +80,6 @@ export function PascalControls(props: PascalControlsProps) {
     const exampleOptions = PASCAL_EXAMPLE_IDS.filter(id => id !== "custom" || model.example === "custom").map(id => ({value: id, text: t(EXAMPLE_LABELS[id])}));
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <ChoiceSelect label={t("projective_k2_example_label")} value={model.example} options={exampleOptions}
-                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
-            <ChoiceSelect label={t("projective_k2_conic_label")} value={model.conic}
-                          options={PASCAL_CONIC_IDS.map(id => ({value: id, text: t(CONIC_LABELS[id])}))}
-                          onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
-            <ChoiceSelect label={t("projective_k2_order_label")} value={currentOrder ?? ""}
-                          options={orderOptions}
-                          onChange={id => { if (isOrderId(id)) actions.setOrder(id); }}/>
-        </div>
-        <div className="inspector-group">
             <div data-projective-status={text.kind}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
             </div>
@@ -108,6 +98,16 @@ export function PascalControls(props: PascalControlsProps) {
                     <SelectablePointButton label={name} pressed={selected === handle} onToggle={() => actions.select(selected === handle ? undefined : handle)}/>
                     <PascalPointSlider model={model} scene={scene} handle={handle} onPosition={position => actions.setPosition(handle, position)}/>
                 </div>)}
+        </div>
+        <div className="inspector-group">
+            <ChoiceSelect label={t("projective_k2_example_label")} value={model.example} options={exampleOptions}
+                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
+            <ChoiceSelect label={t("projective_k2_conic_label")} value={model.conic}
+                          options={PASCAL_CONIC_IDS.map(id => ({value: id, text: t(CONIC_LABELS[id])}))}
+                          onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
+            <ChoiceSelect label={t("projective_k2_order_label")} value={currentOrder ?? ""}
+                          options={orderOptions}
+                          onChange={id => { if (isOrderId(id)) actions.setOrder(id); }}/>
         </div>
     </div>;
 }

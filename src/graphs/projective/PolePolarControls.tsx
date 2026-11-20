@@ -60,13 +60,6 @@ export function PolePolarControls(props: PolePolarControlsProps) {
     const liveReadout = useStatusReadout([text.status, text.polar, nudgeText].filter(Boolean).join("\n"), true);
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <ChoiceSelect label={t("projective_k3_example_label")} value={model.example} options={exampleOptions}
-                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
-            <ChoiceSelect label={t("projective_k3_conic_label")} value={model.conic}
-                          options={POLE_POLAR_CONIC_IDS.map(id => ({value: id, text: t(CONIC_LABELS[id])}))}
-                          onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
-        </div>
-        <div className="inspector-group">
             <div data-projective-status={text.region}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
                 {text.polar && <p className="inspector-help" data-projective-line="polar">{text.polar}</p>}
@@ -91,6 +84,13 @@ export function PolePolarControls(props: PolePolarControlsProps) {
                                   points={finite} min={-LIMIT} max={LIMIT} grid={1 / POLE_POLAR_DENOMINATOR} step={1 / POLE_POLAR_DENOMINATOR} decimals={3}
                                   selected={selected ? 0 : undefined} onSelect={at => actions.select(at !== undefined)}
                                   onCommit={(_, [x, y]) => { actions.place(Math.round(x * POLE_POLAR_DENOMINATOR), Math.round(y * POLE_POLAR_DENOMINATOR)); }}/>}
+        </div>
+        <div className="inspector-group">
+            <ChoiceSelect label={t("projective_k3_example_label")} value={model.example} options={exampleOptions}
+                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
+            <ChoiceSelect label={t("projective_k3_conic_label")} value={model.conic}
+                          options={POLE_POLAR_CONIC_IDS.map(id => ({value: id, text: t(CONIC_LABELS[id])}))}
+                          onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
         </div>
     </div>;
 }
