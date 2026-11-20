@@ -16,14 +16,11 @@ UX work (triage sections 1, 3, 5, 6, 7) belongs to the Fable stream, now `lesson
   rows are covered by `analyticLinesIntersectGuidedLessons.test.ts`), and the overlay covered part of the LLN
   screenshot. Evidence: `.crawl-out/smoke4/` (untracked).
 
-## Waiting on the owner
+## Owner answers, applied
 
-1. Title Case Slovenian demonstration titles in sl.ts (`bezier_curves`, `bernstein_polynomials`,
-   `affine_transformations`, `repeated_subdivision`, `degree_elevation`, `weighted_parametrization_234`, …): change to
-   sentence case? They are quoted in lesson prose, so lesson text changes with them.
-2. Stray `.crawl-out/stray-old.tsx` (once untracked `src/graphs/complex/old.tsx`, never committed, a triangle-solver
-   copy): the Fable handler says it is not theirs. Delete or keep?
-3. Open leads not verified (triage section 4): Cavalieri step says Strižba −1,5 and 3 while the field shows 0 (maybe
-   capture timing). Verify with `scripts/lesson-crawl/replay.cjs` before any fix.
+1. Sentence case approved: 12 demonstration titles in sl.ts (`cb6978ca`), with the linear-maps lesson quotes of
+   »Afine transformacije«. `just check-changed` (full unit suite, typecheck, lint, build) passed.
+2. Stray triangle-solver copy: deletion approved and done.
+3. Cavalieri lead dismissed: step 2 says the graph is back at Strižba 0 and asks the learner to set −1,5 and 3.
 
-The bug-only Next list is otherwise empty; a successor continues only with owner answers to the items above.
+The bug-only stream is complete. Any remaining crawl findings are UX and belong to the lesson-card-layout stream.
