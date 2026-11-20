@@ -73,7 +73,8 @@ function candidates(item: LabelItem): Array<{box: PxBox; rank: number}> {
     return out;
 }
 
-function penalty(box: PxBox, rank: number, ctx: LayoutContext, placed: readonly PxBox[]): number {
+/** The cost of a box; once it reaches `limit` (the best so far) the exact value no longer matters, so the line samples are skipped or cut short. */
+function penalty(box: PxBox, rank: number, ctx: LayoutContext, placed: readonly PxBox[], limit = Infinity): number {
     let cost = rank;
     if (box.x0 < MARGIN_PX || box.y0 < MARGIN_PX || box.x1 > ctx.width - MARGIN_PX || box.y1 > ctx.height - MARGIN_PX) cost += 200;
     for (const block of ctx.blocks) if (overlaps(box, block)) cost += 400;
@@ -86,7 +87,8 @@ function penalty(box: PxBox, rank: number, ctx: LayoutContext, placed: readonly 
         if (x + c > box.x0 && x - c < box.x1 && y + c > box.y0 && y - c < box.y1) cost += 60;
     }
     const sampleCost = ctx.sampleCost ?? 4;
-    for (const [x, y] of ctx.samples) if (x >= box.x0 - 1 && x <= box.x1 + 1 && y >= box.y0 - 1 && y <= box.y1 + 1) cost += sampleCost;
+    if (cost >= limit) return cost;
+    for (const [x, y] of ctx.samples) if (x >= box.x0 - 1 && x <= box.x1 + 1 && y >= box.y0 - 1 && y <= box.y1 + 1 && (cost += sampleCost) >= limit) break;
     return cost;
 }
 
@@ -98,7 +100,7 @@ export function placeLpLabels(items: readonly LabelItem[], ctx: LayoutContext): 
         let best: PxBox | undefined;
         let bestCost = Infinity;
         candidates(item).forEach(({box, rank}) => {
-            const cost = penalty(box, rank, ctx, placed);
+            const cost = penalty(box, rank, ctx, placed, bestCost);
             if (cost < bestCost) { bestCost = cost; best = box; }
         });
         if (best) { result[item.id] = best; placed.push(best); }
