@@ -510,7 +510,7 @@ export const en: Record<keyof typeof sl, string> = {
     "ph_curve_geometry": "PH curve geometry",
     "control_polygon_geometry": "Control polygon geometry",
     "farin_points": "Farin points",
-    "number_of_curves": "Number of curves",
+    "rational_circle_arc_count": "Number of arcs",
     "label_all_points": "Label all points",
     "hide_fixed_points": "Hide fixed points",
     "spline_parameter_b": "Parameter b",

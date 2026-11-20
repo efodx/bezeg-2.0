@@ -509,7 +509,7 @@ export const sl = {
     "ph_curve_geometry": "Geometrija PH krivulje",
     "control_polygon_geometry": "Geometrija kontrolnega poligona",
     "farin_points": "Farinove Točke",
-    "number_of_curves": "Število krivulj",
+    "rational_circle_arc_count": "Število lokov",
     "label_all_points": "Označi vse točke",
     "hide_fixed_points": "Skrij fiksne točke",
     "spline_parameter_b": "Parameter b",

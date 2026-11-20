@@ -34,7 +34,7 @@ const typeInto = (field: HTMLElement, value: string) => act(() => { fireEvent.ch
 
 describe('circle: the number of arcs leads', () => {
     const firstCard = () => screen.getAllByText(t('construction')).find(element => element.closest('.tools'))!.closest('.tools') as HTMLElement;
-    const countField = () => within(firstCard()).getByRole('spinbutton', {name: t('number_of_curves')});
+    const countField = () => within(firstCard()).getByRole('spinbutton', {name: t('rational_circle_arc_count')});
 
     test('the count is in the first Edit group, before the arc selection, the typed fields and the weights, before and after selecting', () => {
         const graph = mount('circle');
