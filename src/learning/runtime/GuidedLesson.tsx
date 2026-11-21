@@ -1,5 +1,6 @@
 import {uxFlags} from '../../uxlab/flags';
 import {useLessonTransitions} from '../../uxlab/useLessonTransitions';
+import {jumpToRecall, useMemory} from '../../uxlab/MemoryLayer';
 import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
@@ -312,6 +313,7 @@ export function GuidedLesson(props: {
     useEffect(() => {
         try {
             session.start();
+            jumpToRecall(session, props.lesson);
             setStartupError(undefined);
         } catch (error) {
             setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
@@ -516,6 +518,7 @@ export function GuidedLesson(props: {
     };
     const transitions = useLessonTransitions(props.capabilities, refresh, session);
     const navigate = transitions.navigate;
+    const memory = useMemory(props.lesson, snapshot, frame);
 
     const close = (restoreCompleted = false) => {
         session.close({restoreCompleted});
@@ -593,7 +596,7 @@ export function GuidedLesson(props: {
     const lessonHeading = <h2 id="guided-lesson-title" className="guided-lesson-title" title={lessonTitle}>{lessonTitle}</h2>;
 
     if (startupError) {
-        return <>{transitions.overlay}<section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content guided-lesson-docked" aria-labelledby="guided-lesson-title">
+        return <>{transitions.overlay}{memory.overlay}<section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content guided-lesson-docked" aria-labelledby="guided-lesson-title">
             <div className="guided-lesson-heading">
                 {lessonHeading}
                 <div className="guided-lesson-utilities">{chapterReturnLink}{closeButton}</div>
@@ -648,7 +651,7 @@ export function GuidedLesson(props: {
         left: panelDrag.dragHome.left, top: panelDrag.dragHome.top,
         width: panelDrag.dragHome.right - panelDrag.dragHome.left, height: panelDrag.dragHome.bottom - panelDrag.dragHome.top,
     }}/>;
-    return <>{transitions.overlay}
+    return <>{transitions.overlay}{memory.overlay}
     {homeSlot}
     {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
         <div className="guided-lesson-controls">

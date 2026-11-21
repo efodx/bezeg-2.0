@@ -37,6 +37,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b5',
+        name: 'Vrt spomina: čez teden dni še veš',
+        idea: 'Vsak okvir za opazovanje, ki ga obiščeš, posadi seme. Spomin se vrne po 1, 3, 7, 16 in 35 dneh: lekcija se odpre točno v tistem prizoru, vprašanje čaka, odgovor odkriješ sam in oceniš, koliko si vedel; z vsakim priklicem se odpre en cvet bezgovega kobula.',
+        generalizes: 'Kartica je le kazalec na okvir lekcije (pot, lekcija, korak, okvir); prizor zgradi lekcija sama, vprašanje in odgovor pa sta njen poziv in pričakovana opažanja. Vse ostane v brskalniku. Časovni stroj (+1 dan, +1 teden) pokaže razmike takoj.',
+        try: 'Na vrtu pritisni »Posadi primere«, nato »Ponovi zdaj«.',
+        links: [
+            {label: 'Vrt spomina', to: '/bezeg-2.0/ux-lab/spomin'},
+            {label: 'Bézier: lekcija, ki sadi', to: '/bezeg-2.0/bezier/curve?learn=1&ux=b5'},
+            {label: 'Funkcije: lekcija, ki sadi', to: '/bezeg-2.0/functions/transformations?learn=1&ux=b5'},
+        ],
+    },
+    {
         id: 'b2',
         name: 'Napoved: najprej nariši, potem poglej',
         idea: 'Preden lekcija spremeni graf, ga zadrži v starem stanju, razlago zamegli in vpraša: kaj se bo zgodilo? Učenec s prstom nariše napoved, nato se resnica zvezno pripelje na graf, njegova črta ostane kot črtkana sled z oceno ujemanja.',
