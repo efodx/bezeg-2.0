@@ -39,6 +39,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c9',
+        name: 'Preveri se',
+        borrowed: 'priklic znanja iz Duolinga in Brilliant ter muzejski kviz, ki najprej vpraša in šele nato pove',
+        idea: 'Vsak okvir lekcije iz lastnega besedila sestavi kratek preizkus na grafu: koordinata postane poved z luknjo, na primer »Teme je v ▢«, formula pa vprašanje »Tapni krivuljo y = (x − 3)² + 1«. Študent tapne na graf, tabla pokaže pravi odgovor, za koliko je zgrešil in zvezdice, odgovor v besedilu pa je med vprašanjem zabrisan.',
+        generalizes: 'Vprašanja se ne pišejo: nastanejo iz TeX-a v trenutnem okvirju (isti razčlenjevalnik kot pri Živem besedilu), krivulje se preverijo numerično proti narisanim, poved z luknjo se izreže iz odstavka okoli formule. Gumb »Preveri se« se pokaže samo, ko okvir ima smiselna vprašanja (točka v pogledu, krivulja med vsaj dvema).',
+        links: [
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c9`,
+                tryThis: 'Klikni »Preveri se« zgoraj levo na grafu: najprej te vpraša po težišču G = ▢, ki ni na mreži, nato po ogliščih.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c9`,
+                tryThis: 'Štirikrat klikni Naprej (okvir »Vodoravni prenos c«), nato »Preveri se«: katera parabola je y = (x − 3)² + 1, in kje je teme?'},
+            {label: 'Bernsteinovi polinomi', family: 'Bézierjeve osnove', href: `${BASE}/bernstein?learn=1&ux=c9`,
+                tryThis: 'Tapni krivuljo B₀¹(t) = 1 − t. Namerno tapni napačno premico in poglej, kako tabla pokaže razliko.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c9`,
+                tryThis: 'Na telefonu: kartica se umakne na polovico table, kjer ni odgovora.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
@@ -138,8 +155,8 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c9`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8,c9`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">

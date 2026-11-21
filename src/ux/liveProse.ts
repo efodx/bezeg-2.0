@@ -8,7 +8,7 @@
  * shapes and the shared sliders, so no lesson needs extra metadata.
  */
 import type {Board} from "jsxgraph";
-import {boardShapes, sampleShape} from "./boardShapes";
+import {boardShapes, sampleShape, type Shape} from "./boardShapes";
 import {shownSliders, type RegisteredSlider} from "./sliderRegistry";
 import "./ux.css";
 
@@ -193,7 +193,7 @@ function formatNumber(value: number): string {
 }
 
 /** A point in Slovenian notation: a semicolon separates the coordinates once either has a decimal comma. */
-function pairText(x: number, y: number): string {
+export function pairText(x: number, y: number): string {
     const a = formatNumber(x), b = formatNumber(y);
     return a.includes(',') || b.includes(',') ? `(${a}; ${b})` : `(${a}, ${b})`;
 }
@@ -212,6 +212,34 @@ function luminance(color: string): number {
         return 0;
     }
     return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
+
+
+/** Drawn curves that satisfy y = f(x): at least 90 % of their in-view samples lie within 2,5 px of the graph. */
+export function matchGraphShapes(board: Board, f: (v: number) => number): Shape[] {
+    const svg = (board.renderer as any)?.svgRoot as SVGSVGElement | undefined;
+    if (!svg) return [];
+    const origin = (board as any).origin.scrCoords as number[];
+    const unitX = (board as any).unitX as number, unitY = (board as any).unitY as number;
+    const found: Shape[] = [];
+    for (const shape of boardShapes(board)) {
+        if (shape.dot) continue;
+        const points = sampleShape(shape, 5);
+        if (points.length < 8) continue;
+        let near = 0, counted = 0;
+        // Only samples inside the view count: JSXGraph flattens the off-screen parts of a curve onto the edge.
+        const width = svg.clientWidth, height = svg.clientHeight;
+        for (const [px, py] of points) {
+            if (px < 1 || py < 1 || px > width - 1 || py > height - 1) continue;
+            const x = (px - origin[1]) / unitX;
+            const y = f(x);
+            if (!Number.isFinite(y)) continue;
+            counted++;
+            if (Math.abs(origin[2] - y * unitY - py) < 2.5) near++;
+        }
+        if (counted >= 8 && near / counted > 0.9) found.push(shape);
+    }
+    return found;
 }
 
 export function attachLiveProse(board: Board): () => void {
@@ -475,29 +503,7 @@ export function attachLiveProse(board: Board): () => void {
     };
 
     /** Curves on the board that satisfy a graph formula: most of their drawn samples lie on y = f(x). */
-    const graphShapes = (f: (v: number) => number) => {
-        const origin = (board as any).origin.scrCoords as number[];
-        const unitX = (board as any).unitX as number, unitY = (board as any).unitY as number;
-        const found: ReturnType<typeof boardShapes> = [];
-        for (const shape of boardShapes(board)) {
-            if (shape.dot) continue;
-            const points = sampleShape(shape, 5);
-            if (points.length < 8) continue;
-            let near = 0, counted = 0;
-            // Only samples inside the view count: JSXGraph flattens the off-screen parts of a curve onto the edge.
-            const width = svg.clientWidth, height = svg.clientHeight;
-            for (const [px, py] of points) {
-                if (px < 1 || py < 1 || px > width - 1 || py > height - 1) continue;
-                const x = (px - origin[1]) / unitX;
-                const y = f(x);
-                if (!Number.isFinite(y)) continue;
-                counted++;
-                if (Math.abs(origin[2] - y * unitY - py) < 2.5) near++;
-            }
-            if (counted >= 8 && near / counted > 0.9) found.push(shape);
-        }
-        return found;
-    };
+    const graphShapes = (f: (v: number) => number) => matchGraphShapes(board, f);
 
     const showSlider = (assignment: {symbol: string; value: number}) => {
         const slider = sliderFor(assignment);

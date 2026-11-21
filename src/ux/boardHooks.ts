@@ -7,12 +7,13 @@ import {attachMatchChallenge} from "./matchChallenge";
 import {attachListen} from "./listen";
 import {attachCompare} from "./compare";
 import {attachLiveProse} from "./liveProse";
+import {attachQuiz} from "./quiz";
 
 /** Attaches the flagged lane C board prototypes to a main graph board; returns their disposal. */
 export function attachUxBoard(board: Board): () => void {
     const disposers: (() => void)[] = [];
     // Board tools stay usable in lesson reading frames: the lesson's click-to-hide catcher lets clicks through to them.
-    if (['c1', 'c5', 'c6', 'c7', 'c8'].some(uxEnabled)) {
+    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9'].some(uxEnabled)) {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
@@ -22,6 +23,7 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c6')) disposers.push(attachListen(board));
     if (uxEnabled('c7')) disposers.push(attachCompare(board));
     if (uxEnabled('c8')) disposers.push(attachLiveProse(board));
+    if (uxEnabled('c9')) disposers.push(attachQuiz(board));
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));
