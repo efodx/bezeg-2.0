@@ -1,0 +1,22 @@
+.ux-sound-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; overflow: visible; }
+.ux-sound-layer .ux-playhead { stroke: #b88a43; stroke-width: 2; opacity: 0.75; }
+.ux-sound-layer .ux-voice { stroke: #fffdf5; stroke-width: 2.5; filter: drop-shadow(0 0 5px rgba(184, 138, 67, 0.8)); }
+.ux-sound-layer .ux-ring { fill: none; stroke-width: 2.5; }
+.ux-sound-layer .ux-ring-zero { stroke: #b88a43; }
+.ux-sound-layer .ux-ring-cross { stroke: #244c37; }
+.ux-sound-grip {
+    display: none; position: absolute; top: 0; width: 28px; height: 28px; margin-left: -14px; z-index: 6; cursor: ew-resize; touch-action: none;
+    border-radius: 0 0 14px 14px; background: #b88a43; box-shadow: 0 2px 8px rgba(25, 55, 47, 0.25);
+}
+.ux-sound-grip::after { content: ""; position: absolute; left: 9px; right: 9px; top: 9px; height: 2px; background: #fffdf5; box-shadow: 0 4px 0 #fffdf5; }
+.ux-sounding .ux-sound-grip { display: block; pointer-events: auto; }
+
+.ux-sound-tools { position: absolute; top: 8px; right: 10px; z-index: 7; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; pointer-events: none; }
+.ux-ghost-tools ~ .ux-sound-tools { top: 52px; }
+.demonstration-workspace .workspace-graph .ux-sound-tools button {
+    pointer-events: auto; display: flex; align-items: center; gap: 7px; min-height: 36px; padding: 4px 12px; border-radius: 10px;
+    background: rgba(255, 253, 245, 0.94); border: 1px solid #d6dccb; color: #526152; font-size: 0.8rem;
+}
+.demonstration-workspace .workspace-graph .ux-sound-tools button[aria-pressed="true"] { background: #244c37; border-color: #244c37; color: #fff; }
+.ux-sound-tools svg { width: 18px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.ux-sound-hint { margin: 0; font-size: 0.72rem; color: #526152; background: rgba(255, 253, 245, 0.9); padding: 3px 8px; border-radius: 6px; max-width: 240px; text-align: right; }

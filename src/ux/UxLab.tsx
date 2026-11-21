@@ -42,6 +42,17 @@ const PROTOTYPES: LabPrototype[] = [
         ],
     },
     {
+        id: 'a7', name: 'Poslušaj krivuljo',
+        idea: 'Predvajalna črta potuje čez graf in vsaka vidna krivulja zapoje: višina tona je višina krivulje, ničla klikne, presečišče dveh krivulj zazvoni. Črto lahko primeš in z njo drsiš, med predvajanjem pa vlečeš ploščice ali pustiš parametre nihati in slišiš spremembo.',
+        general: 'Bere JSXGraphove vzorčene krivulje kateregakoli grafa, zato poje vsak graf funkcije ali parametrična krivulja. Hkrati je zvočni dostop do grafa za slepe in slabovidne učence.',
+        try: 'Vklopi zvok (slušalke!), nato pri Taylorju povleci ploščico c ali pritisni + pri stopnji.',
+        links: [
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', at: 2, flags: 'a1,a7'},
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 1, flags: 'a1,a3,a7'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', at: 1, flags: 'a1,a7'},
+        ],
+    },
+    {
         id: 'a1', name: 'Parametri pod prsti',
         idea: 'Vsak parameter grafa je ploščica na samem grafu: povleci jo levo ali desno in graf se odziva, ne da bi pogled zapustil krivuljo. Dvigni prst nad ploščico za fino nastavljanje (merilo se poveča), lepe vrednosti pa se ujamejo z rahlim klikom.',
         general: 'Ploščice nastanejo iz deljenega drsnika (88 klicnih mest), zato jih dobi vsak graf in vsaka lekcija brez lastne kode. Ko lekcija sama spremeni parameter, ploščica zažari, tako da učenec vidi, kaj je korak spremenil.',
