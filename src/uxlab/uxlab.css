@@ -483,7 +483,11 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-scroll-rail button.ux-scroll-dot { flex: 1; box-shadow: none; min-width: 0; min-height: 0; height: 6px; padding: 0; border: 0; border-radius: 3px; background: rgba(36, 76, 55, .16); cursor: pointer; }
 .ux-scroll-rail button.ux-scroll-dot.is-step { margin-left: 4px; }
 .ux-scroll-rail button.ux-scroll-dot.is-active { background: #5d3b6e; }
-.ux-scroll-hint { font-size: 12px; color: #5d3b6e; margin: 0 0 10px; }
+.ux-scroll-hint { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 12px; color: #5d3b6e; margin: 0 0 10px; }
+.ux-scroll-rail { align-items: center; gap: 8px; }
+.ux-scroll-dots { flex: 1; display: flex; gap: 2px; min-width: 0; }
+.ux-scroll-rail .ux-scroll-play.ux-scroll-play { flex: none; width: 30px; min-width: 30px; padding: 0; text-align: center; min-height: 30px; height: 30px; border-radius: 999px; border: 1px solid #5d3b6e; background: #fffdf5; color: #5d3b6e; font-size: 12px; font-weight: 600; cursor: pointer; }
+.ux-scroll-rail .ux-scroll-play[aria-pressed="true"] { background: #5d3b6e; color: #fffdf5; }
 .ux-scroll-section { padding: 4px 0 26px; opacity: .42; transition: opacity .25s ease; }
 .ux-scroll-section.is-active { opacity: 1; }
 .ux-scroll-section h3 { margin: 0 0 6px; }

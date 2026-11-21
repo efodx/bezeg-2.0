@@ -55,6 +55,46 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
     const [active, setActive] = useState(0);
     const [morph, setMorph] = useState<{from: number; t: number}>();
     const [ready, setReady] = useState(false);
+    const [playing, setPlaying] = useState(false);
+    const activeRef = useRef(0);
+    activeRef.current = active;
+
+    // Autoplay: scroll at reading speed (about 170 words a minute for the section on the reading line). Any wheel,
+    // touch or key from the learner hands the clock back to them.
+    useEffect(() => {
+        if (!playing || !root.current) return;
+        const element = root.current;
+        let frame = 0, last = performance.now(), carry = 0;
+        const stop = (event?: Event) => { if (event?.target instanceof Element && event.target.closest('.ux-scroll-play')) return; setPlaying(false); };
+        const tick = (now: number) => {
+            const dt = Math.min(0.1, (now - last) / 1000);
+            last = now;
+            const node = element.querySelectorAll<HTMLElement>('.ux-scroll-section')[activeRef.current];
+            if (node) {
+                const words = Math.max(12, (node.textContent ?? '').split(/\s+/).length);
+                const formulas = node.querySelectorAll('mjx-container[display="true"], .guided-lesson-notation').length;
+                const seconds = words / 2.8 + formulas * 2.5 + 1.5;
+                carry += node.offsetHeight / seconds * dt;
+                const whole = Math.floor(carry);
+                if (whole >= 1) {
+                    carry -= whole;
+                    const target = scroller(element);
+                    const before = target instanceof Window ? window.scrollY : target.scrollTop;
+                    if (target instanceof Window) window.scrollBy(0, whole); else target.scrollTop += whole;
+                    const after = target instanceof Window ? window.scrollY : target.scrollTop;
+                    if (after === before) { stop(); return; }
+                }
+            }
+            frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
+        const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+        events.forEach(name => window.addEventListener(name, stop, {passive: true, capture: true}));
+        return () => {
+            cancelAnimationFrame(frame);
+            events.forEach(name => window.removeEventListener(name, stop, {capture: true}));
+        };
+    }, [playing]);
 
     // One checkpoint per step: the lesson's start, then that step's scene actions (a scene-less step shows the start).
     useEffect(() => {
@@ -178,11 +218,17 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
 
     const steps = lesson.steps.length;
     return <div ref={root} className="ux-scroll" data-ready={ready}>
-        <nav className="ux-scroll-rail" aria-label="Odseki lekcije">
+        <div className="ux-scroll-rail">
+            <button type="button" className="ux-scroll-play" aria-pressed={playing} aria-label={playing ? 'Ustavi samodejno branje' : 'Beri namesto mene'}
+                title={playing ? 'Ustavi branje' : 'Beri namesto mene: besedilo teče s hitrostjo branja, graf mu sledi'} onClick={() => setPlaying(value => !value)}>{playing ? '❚❚' : '▶'}</button>
+            <nav className="ux-scroll-dots" aria-label="Odseki lekcije">
             {sections.map((section, index) => <button key={index} type="button" className={`ux-scroll-dot ${index === active ? 'is-active' : ''}${section.frame === 0 ? ' is-step' : ''}`}
                 aria-label={`Korak ${section.step + 1}, okvir ${section.frame + 1}`} onClick={() => go(index)}/>)}
-        </nav>
-        <div className="ux-scroll-hint">Drsi po besedilu: graf sledi branju. Nazaj drsi, da se vrne.</div>
+            </nav>
+        </div>
+        <div className="ux-scroll-hint">
+            <span>Drsi po besedilu: graf sledi branju. Nazaj drsi, da se vrne. ▶ bere namesto tebe.</span>
+        </div>
         {sections.map((section, index) => {
             const {data} = section;
             const first = section.frame === 0;
