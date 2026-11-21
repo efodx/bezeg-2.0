@@ -21,6 +21,8 @@ import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotio
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {legendStackOffsetPx} from "../legend/legendStack";
+import {markBoardLegend} from "../legend/markBoardLegend";
+import {pickOn} from "../../uxPicks/picks";
 import {keepOpeningView} from "./openingView";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
@@ -117,7 +119,8 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
     }
 
     protected override initialView(): [number, number, number, number] {
-        return [...VIEW_BOX];
+        // UX pick boardText: the legend lives in a card, so the band below the frame is not reserved.
+        return pickOn("boardText") ? [VIEW_BOX[0], VIEW_BOX[1], VIEW_BOX[2], -VIEW_BOX[1]] : [...VIEW_BOX];
     }
 
     // ---- Derived numbers: a cache keyed by the stored content ----------------------------------------------------------------
@@ -246,15 +249,19 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         visible?: () => boolean; anchorX?: "left" | "right"; anchorY?: "top" | "bottom";
         /** A legend row: it gets the board's own background, so the axis and its tick labels do not run through its text. */
         legend?: boolean;
+        /** UX pick boardText: the legend row's index, set only for a legend row. */
+        legendIndex?: number;
     } = {}): void {
-        this.scene.own(this.board.create("text", [
+        const text_ = this.board.create("text", [
             () => x() + (typeof dx === "number" ? dx : dx()) / this.scaleOf().ux,
             () => y() + (typeof dy === "number" ? dy : dy()) / this.scaleOf().uy, text,
         ], {
             strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "bottom", fixed: true, highlight: false, withLabel: false,
             ...(options.legend ? {cssStyle: "background: rgba(255, 253, 245, 0.88); padding: 0 2px; border-radius: 2px;"} : {}),
             visible: options.visible ?? (() => true),
-        }));
+        });
+        if (options.legend && options.legendIndex !== undefined) markBoardLegend(text_, options.legendIndex);
+        this.scene.own(text_);
     }
 
     /** The k-th power of z (k from 1), or the origin for a power beyond n. */
@@ -345,7 +352,7 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                 const rows = legend.map(r => ({text: r.text(), visible: true}));
                 return 8 + legendStackOffsetPx(rows, rows.length, board.canvasWidth, ROW_PX) - legendStackOffsetPx(rows, index, board.canvasWidth, ROW_PX);
             };
-            this.caption(() => board.getBoundingBox()[0], () => board.getBoundingBox()[3], 10, offset, row.text, row.color, {anchorY: "top", legend: true});
+            this.caption(() => board.getBoundingBox()[0], () => board.getBoundingBox()[3], 10, offset, row.text, row.color, {anchorY: "top", legend: true, legendIndex: index});
         });
     }
 

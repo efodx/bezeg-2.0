@@ -21,6 +21,7 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
+import {markBoardLegend} from "../legend/markBoardLegend";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import type {Vec2} from "../../linear/matrix2";
@@ -595,11 +596,13 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         rows.forEach((row, index) => {
             // A row wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
             const place = () => rows.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + linesOf(other.text(), board.canvasWidth, this.compactLegend), 0);
-            this.scene.own(board.create("text", [
+            const legendText = board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
                 () => { const {top, uy} = this.scaleOf(); return top - (10 + place() * legendPitchPx(this.compactLegend)) / uy; },
                 () => row.text(),
-            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible, cssStyle: LEGEND_BACKDROP}));
+            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible, cssStyle: LEGEND_BACKDROP});
+            markBoardLegend(legendText, index);
+            this.scene.own(legendText);
         });
         // The matrix columns' captions: a second stack from the bottom left corner up, the last column lowest.
         columnRows.forEach((row, index) => {

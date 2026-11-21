@@ -55,19 +55,21 @@ function legendRow(text: string): string | undefined {
     }).join('') + '</div>';
 }
 
-/** The card body: formula on top, name = value readouts as a list, notes and legends muted last. */
-export function buildCardHtml(htmls: string[]): string {
+/** The text card's body (formula on top, name = value readouts as a list, notes muted last) and the line-style legend
+ * rows found among the same texts, which go to the legend card. */
+export function buildCardHtml(htmls: string[]): {text: string; legend: string[]} {
     const lines = readLines(htmls);
     let formula = '';
     const items: string[] = [];
     const notes: string[] = [];
+    const legends: string[] = [];
     for (const l of lines) {
         if (l.big && formula === '') {
             formula = `<div class="ux-btext-formula">${l.text.includes('=') || !/\p{L}{2,}/u.test(l.text) ? math(l.text) : proseToHtml(l.text)}</div>`;
             continue;
         }
         const legend = legendRow(l.text);
-        if (legend) { notes.push(legend); continue; }
+        if (legend) { legends.push(legend); continue; }
         const pieces = splitTop(l.text);
         const hasEq = pieces.some(p => p.includes(' = '));
         const kv = pieces.map(p => keyValue(p, hasEq));
@@ -79,5 +81,5 @@ export function buildCardHtml(htmls: string[]): string {
         } else notes.push(`<div class="ux-btext-note">${proseToHtml(l.text)}</div>`);
     }
     const list = items.length > 0 ? `<div class="ux-btext-list${items.length > 3 ? ' ux-btext-two' : ''}">${items.join('')}</div>` : '';
-    return formula + list + notes.join('');
+    return {text: formula + list + notes.join(''), legend: legends};
 }

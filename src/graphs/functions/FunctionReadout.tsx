@@ -2,6 +2,8 @@ import React from "react";
 import {useT} from "../../localization";
 import {ReadoutHeading, ReadoutHelp, ReadoutList} from "../base/controls/ReadoutParts";
 import "./FunctionReadout.css";
+import {usePick} from "../../uxPicks/picks";
+import {usePublishLegend} from "../../uxPicks/boardText/legendStore";
 
 export interface ReadoutRow {
     /** Stable key and test hook (data-readout). */
@@ -41,7 +43,7 @@ export interface LegendItem {
 const LINE_BORDER_KINDS: readonly string[] = ["dashed", "dashed-line", "dotted-line", "ring"];
 
 /** The swatch colour: a border for the outline kinds, the text colour for the cross (drawn from two strokes), a background otherwise. */
-function swatchStyle(item: LegendItem): React.CSSProperties {
+export function swatchStyle(item: LegendItem): React.CSSProperties {
     const kind = item.kind ?? "area";
     if (LINE_BORDER_KINDS.includes(kind)) return {borderColor: item.color};
     return kind === "cross" || kind === "plus" ? {color: item.color} : {backgroundColor: item.color};
@@ -50,6 +52,10 @@ function swatchStyle(item: LegendItem): React.CSSProperties {
 /** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */
 export function FunctionLegend(props: { items: readonly LegendItem[] }) {
     const t = useT();
+    // Pick boardText: the legend moves out of the tools into its own card on the graph.
+    const onBoard = usePick("boardText");
+    usePublishLegend(props.items, onBoard);
+    if (onBoard) return null;
     return <div className="inspector-group function-legend">
         <h3>{t("function_legend")}</h3>
         <ul>

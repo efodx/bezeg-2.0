@@ -35,6 +35,8 @@ import {
 } from "./contourScene";
 import {ContourPlayback, ContourReadout, ContourSurfacePanel} from "./ContourPanels";
 import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
+import {markBoardLegend} from "../legend/markBoardLegend";
+import {pickOn} from "../../uxPicks/picks";
 import {Memo} from "./Memo";
 import {contourPresetCollection, type ContourPresetData} from "./contourPresetCollection";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -521,6 +523,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
      * the mode can show, stacked, whatever the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
      */
     private legendBand(mode: ContourState["mode"]): number {
+        if (pickOn("boardText")) return 0; // UX pick boardText: the legend lives in a card, so no band is reserved.
         const captions = [t("levelsets_graph_cap_levels"), t("levelsets_graph_cap_levels_more")];
         if (mode !== "descent") captions.push(t("levelsets_graph_cap_through"));
         if (mode === "level-sets" || mode === "gradient") captions.push(t("levelsets_graph_cap_probe"));
@@ -702,12 +705,14 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         // The legend: stacked from the top left. It names every element the readout names.
         const MAX_ROWS = 12;
         for (let index = 0; index < MAX_ROWS; index++) {
-            this.scene.own(board.create("text", [
+            const legendText = board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
                 () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.legend().map(row => row.text), index, board.canvasWidth) / uy; },
                 () => this.legend()[index]?.text ?? "",
             ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
-                withLabel: false, visible: () => index < this.legend().length}));
+                withLabel: false, visible: () => index < this.legend().length});
+            markBoardLegend(legendText, index);
+            this.scene.own(legendText);
         }
     }
 

@@ -24,6 +24,8 @@ import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
 import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
 import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
+import {markBoardLegend} from "../legend/markBoardLegend";
+import {pickOn} from "../../uxPicks/picks";
 import {Memo} from "./Memo";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -314,6 +316,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
      * stacked, whatever rows the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
      */
     private legendBand(): number {
+        if (pickOn("boardText")) return 0; // UX pick boardText: the legend lives in a card, so no band is reserved.
         return legendBandPx(this.boardLegendTexts(true), this.board.canvasWidth);
     }
 
@@ -571,12 +574,14 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         // The legend: stacked from the top left. It names every element the readout names.
         const MAX_ROWS = 5;
         for (let index = 0; index < MAX_ROWS; index++) {
-            this.scene.own(board.create("text", [
+            const legendText = board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
                 () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.boardLegendTexts(), index, board.canvasWidth) / uy; },
                 () => this.boardLegend()[index]?.text ?? "",
             ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
-                withLabel: false, visible: () => index < this.boardLegend().length, cssStyle: LEGEND_BACKDROP}));
+                withLabel: false, visible: () => index < this.boardLegend().length, cssStyle: LEGEND_BACKDROP});
+            markBoardLegend(legendText, index);
+            this.scene.own(legendText);
         }
     }
 

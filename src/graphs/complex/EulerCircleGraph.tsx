@@ -19,6 +19,8 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {legendStackOffsetPx, legendWrapExtraPx} from "../legend/legendStack";
+import {markBoardLegend} from "../legend/markBoardLegend";
+import {pickOn} from "../../uxPicks/picks";
 import {keepOpeningView} from "./openingView";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
@@ -151,7 +153,8 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
     }
 
     protected override initialView(): [number, number, number, number] {
-        return [...VIEW_BOX];
+        // UX pick boardText: the legend lives in a card, so the band below the frame is not reserved.
+        return pickOn("boardText") ? [VIEW_BOX[0], VIEW_BOX[1], VIEW_BOX[2], LEGEND_TOP] : [...VIEW_BOX];
     }
 
     // ---- Derived numbers: a cache keyed by the state object ---------------------------------------------------------------------
@@ -286,15 +289,19 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         visible?: () => boolean; anchorX?: "left" | "right"; anchorY?: "top" | "bottom";
         /** A legend row: it gets the board's own background, so the axis and its tick labels do not run through its text. */
         legend?: boolean;
+        /** UX pick boardText: the legend row's index, set only for a legend row. */
+        legendIndex?: number;
     } = {}): void {
-        this.scene.own(this.board.create("text", [
+        const text_ = this.board.create("text", [
             () => x() + dx / this.scaleOf().ux, () => y() + (typeof dy === "number" ? dy : dy()) / this.scaleOf().uy, text,
         ], {
             strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "bottom", fixed: true, highlight: false, withLabel: false,
             ...(options.legend ? {cssStyle: "background: rgba(255, 253, 245, 0.88); padding: 0 2px; border-radius: 2px;"} : {}),
             parse: false, // the text holds e^(...), which JSXGraph would otherwise turn into a superscript of the bracket
             visible: options.visible ?? (() => true),
-        }));
+        });
+        if (options.legend && options.legendIndex !== undefined) markBoardLegend(text_, options.legendIndex);
+        this.scene.own(text_);
     }
 
     /** The tail of the velocity and acceleration arrows is the point; their tips are the point plus the scaled vectors. */
@@ -385,7 +392,7 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         const row = (text: () => string, color: string, visible: () => boolean = () => true) => {
             const index = shown.length;
             shown.push({text, visible});
-            this.caption(() => this.board.getBoundingBox()[0], () => this.board.getBoundingBox()[3], 10, () => rowOffset(index), text, color, {anchorY: "top", visible, legend: true});
+            this.caption(() => this.board.getBoundingBox()[0], () => this.board.getBoundingBox()[3], 10, () => rowOffset(index), text, color, {anchorY: "top", visible, legend: true, legendIndex: index});
         };
         row(() => t("euler_circle_graph_cap_unit", {value0: t("euler_circle_graph_style_dashed")}), GraphPalette.referenceCurve);
         row(() => t("euler_circle_graph_cap_projections", {value0: t("euler_circle_graph_style_dotted")}), GraphPalette.comparisonCurve);
