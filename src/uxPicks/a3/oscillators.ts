@@ -213,6 +213,13 @@ export function toggleOscillator(key: string) {
     if (running.size > 0 && !frame) frame = requestAnimationFrame(tick);
 }
 
+/** Key N: starts a sweep on every listed parameter that can sweep, or stops them all if any is sweeping. */
+export function sweepAll(keys: readonly string[]) {
+    if (running.size > 0) { stopAllOscillators(); return; }
+    if (prefersReducedMotion() || graphLocked()) return;
+    for (const key of keys) toggleOscillator(key);
+}
+
 export function stopAllOscillators() {
     running.clear();
     emit();

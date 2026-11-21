@@ -1,7 +1,8 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {GapSlot, useDock} from './BoardDock';
-import {GripIcon, MinusIcon, PlusIcon, ResetIcon} from './icons';
+import {GripIcon, KindIcon, MinusIcon, PlusIcon, ResetIcon} from './icons';
+import {foldAllFold, foldAllRules, setFoldAllCard, useFoldAll} from './foldAll';
 import {
     clearGap, currentGap, dropAtGap, orderOf, pickUp, placedRegion, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
     useDockLayout, type Target,
@@ -110,7 +111,10 @@ export function DockCard(props: DockCardProps) {
         observer.observe(workspace, {attributes: true, attributeFilter: ['class']});
         return () => observer.disconnect();
     }, [kind, props.foldInLesson]);
-    const collapsed = props.collapsed ?? (inLesson ? lessonFold ?? !auto : ownCollapsed);
+    // Fold-all (key Z) decides every card's fold but the lesson card's while it is on; the card's own fold comes back after it.
+    useFoldAll();
+    const byAll = foldAllRules(kind);
+    const collapsed = byAll ? foldAllFold(kind) : props.collapsed ?? (inLesson ? lessonFold ?? !auto : ownCollapsed);
     // The lesson frame refers to this card: it opens by itself (unless the learner chose) and glows briefly.
     const cueNow = auto && inLesson && lessonFold === null;
     useEffect(() => {
@@ -179,6 +183,7 @@ export function DockCard(props: DockCardProps) {
     const toggle = () => {
         if (phone) { dock.setPhoneOpen(open ? null : kind); return; }
         const next = !collapsed;
+        if (byAll) { setFoldAllCard(kind, next); return; }
         if (props.onToggle) { props.onToggle(!next); return; }
         if (inLesson) { lessonFolds.set(kind, next); setLessonFold(next); return; }
         setCollapsed(next);
@@ -260,7 +265,7 @@ export function DockCard(props: DockCardProps) {
     const label = `${open ? 'Skrij' : 'Pokaži'} ${props.what}`;
     // A phone shows a folded card as a small labelled chip.
     if (phone && !open) {
-        return createPortal(<button type="button" className="ux-dock-chip" aria-expanded={false} aria-label={label} onClick={toggle}>{props.title}</button>, target);
+        return createPortal(<button type="button" className="ux-dock-chip" aria-expanded={false} aria-label={label} onClick={toggle}><KindIcon kind={kind}/>{props.title}</button>, target);
     }
     const g = currentGap();
     const gapTarget = g && g.kind === kind && !phone ? dock.regions[g.region] : null;
@@ -275,6 +280,7 @@ export function DockCard(props: DockCardProps) {
                 {!phone && <span className="ux-btext-grip" role="button" tabIndex={0} onKeyDown={onKeyDown} onBlur={() => { setKeyboard(false); clearGap(kind); }}
                       aria-label={`Premakni ${props.what} (puščične tipke, Enter pripne na označeno mesto, Domov pripne na privzeto mesto)`}
                       title="Povleci za premik, dvoklik pripne"><GripIcon/></span>}
+                {!open && <KindIcon kind={kind}/>}
                 <span className="ux-btext-title">{props.head ?? props.title}</span>
                 {props.actions}
                 {moved && <button type="button" className="ux-btext-toggle ux-btext-reset" onClick={reset} aria-label={resetLabel} title={resetLabel}><ResetIcon/></button>}

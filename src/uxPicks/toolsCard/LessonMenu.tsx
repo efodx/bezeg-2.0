@@ -35,7 +35,10 @@ export function LessonMenu(props: {label: string; children: (trigger: () => HTML
     const toggle = () => {
         if (open) { setAt(null); return; }
         const r = button.current!.getBoundingClientRect();
-        setAt({top: Math.round(r.bottom + 4), right: Math.round(window.innerWidth - r.right)});
+        // The list opens below the card's Back/Next row, never over it (it covers the reading text instead).
+        const nav = Array.from(button.current!.closest('.ux-btext')?.querySelectorAll('.guided-lesson-nav-back, .guided-lesson-nav-next') ?? []);
+        const below = nav.reduce((m, e) => Math.max(m, e.getBoundingClientRect().bottom), r.bottom);
+        setAt({top: Math.round(below + 4), right: Math.round(window.innerWidth - r.right)});
     };
     const close = () => setAt(null);
     const onKeyDown = (event: React.KeyboardEvent) => {

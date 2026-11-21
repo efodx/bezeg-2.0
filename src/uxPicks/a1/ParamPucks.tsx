@@ -9,9 +9,10 @@ function puckTip(entry: AnyParam, first: string, usage: string): string {
 }
 import {usePick} from '../picks';
 import {jumpValue} from '../a29/track';
-import {canOscillate, isOscillating, stopAllOscillators, toggleOscillator, useOscillators} from '../a3/oscillators';
+import {canOscillate, isOscillating, stopAllOscillators, sweepAll, toggleOscillator, useOscillators} from '../a3/oscillators';
 import {useReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import {DockItem} from '../dock/BoardDock';
+import {ShortcutsButton, isBoardKey} from '../dock/Shortcuts';
 import {ChevronDownIcon, MinusIcon, PauseIcon, PlusIcon, WaveIcon} from '../dock/icons';
 import './ParamPucks.css';
 
@@ -277,6 +278,7 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     const reducedMotion = useReducedMotion();
     // Reduced motion: nothing moves by itself, so the sweep button is not offered and a running sweep stops.
     const showOscillator = usePick('a3') && !reducedMotion;
+    const hoverCard = usePick('a29');
     useEffect(() => { if (reducedMotion) stopAllOscillators(); }, [reducedMotion]);
     useLayoutEffect(() => {
         const frame = props.frame.current;
@@ -298,6 +300,20 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     // The tools card hides the controls the pucks show (only while the row is open, so a folded row gives them back).
     useLayoutEffect(() => { setPuckedKeys(collapsed ? [] : visible.map(entry => entry.key)); }, [visible, collapsed]);
     useLayoutEffect(() => () => setPuckedKeys([]), []);
+    // N: sweep every puck that can, or stop all if any is sweeping (nothing under reduced motion, like the ∿ button itself).
+    const sweepable = showOscillator ? visible.filter(canOscillate).map(entry => entry.key) : [];
+    const sweepRef = useRef(sweepable);
+    sweepRef.current = sweepable;
+    useEffect(() => {
+        if (!showOscillator || collapsed) return undefined;
+        const onKey = (event: KeyboardEvent) => {
+            if ((event.key !== 'n' && event.key !== 'N') || !isBoardKey(event) || locked) return;
+            event.preventDefault();
+            sweepAll(sweepRef.current);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [showOscillator, collapsed, locked]);
     if (visible.length === 0) return null;
     const scrubbed = scrub && visible.find((entry): entry is RangeParam => entry.kind === 'range' && entry.key === scrub.key);
     return <DockItem region="bottom" phoneRegion="tray"><div className={`ux-pucks${locked ? ' is-locked' : ''}${collapsed ? ' is-collapsed' : ''}`} role="group" aria-label="Parametri na grafu">
@@ -320,12 +336,13 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                     {showOscillator && canOscillate(entry) && <button type="button" className={`ux-puck-osc${locked ? ' is-held' : ''}`} aria-pressed={moving}
                         disabled={locked} aria-hidden={locked || undefined} tabIndex={locked ? -1 : undefined}
                         aria-label={moving ? `Ustavi: ${entry.label}` : `Naj se sam spreminja: ${entry.label}`}
-                        title={moving ? 'Ustavi' : entry.kind === 'count' ? 'Premikaj sam: števec šteje gor in dol' : 'Premikaj sam: drsnik niha med mejama'}
+                        title={hoverCard ? undefined : moving ? 'Ustavi' : entry.kind === 'count' ? 'Premikaj sam: števec šteje gor in dol' : 'Premikaj sam: drsnik niha med mejama'}
                         onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
                 </span>;
             })}
+            <ShortcutsButton className="ux-pucks-help"/>
         </div>
     </div></DockItem>;
 }

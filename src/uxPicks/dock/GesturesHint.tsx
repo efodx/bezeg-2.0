@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {createPortal} from 'react-dom';
+import {ShortcutsButton} from './Shortcuts';
 
 /**
  * One-time hint (round 4): the first time cards appear, a small note under the first card's head says how cards move.
@@ -56,6 +57,7 @@ export function GesturesHint(props: {frame: HTMLElement; phone: boolean}) {
     if (done || props.phone || !at) return null;
     return createPortal(<div className="ux-gesture-hint" role="status" style={{left: at.left, top: at.top}}>
         <span>Povleci za premik · − zloži · dvoklik vrne</span>
+        <ShortcutsButton/>
         <button type="button" onClick={close} aria-label="Zapri namig" title="Zapri namig">×</button>
     </div>, props.frame);
 }

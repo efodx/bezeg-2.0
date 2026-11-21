@@ -153,6 +153,9 @@ export function repeatsText(shown: string, label: string, value: string): boolea
     const v = squash(value), l = squash(label.split(/\s+/).slice(1).join(' '));
     if (v === '') return false;
     if (statesSame(shown, label, v)) return true;
+    // A row whose whole value is "skrito"/"hidden" (a hypothesis of an estimate that is off) while the text already says
+    // "…: skrita" (taylor, fixed point: "ocena napake: skrita" above "Predpostavka ocene skrito"): the text covers it.
+    if (/^(skrit[aeiou]?|hidden)$/i.test(v) && /:(skrit|hidden)/i.test(shown)) return true;
     if (v.length >= 4 && shown.includes(v)) return true;
     const nums = numbers(v);
     if (l === '' || nums.length !== 1 || v.replace(nums[0]!, '') !== '') return false;

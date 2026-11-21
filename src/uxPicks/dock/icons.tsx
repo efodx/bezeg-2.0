@@ -20,3 +20,20 @@ export const MoreIcon = () => <svg {...base}>{[3.5, 8, 12.5].map(x => <circle ke
 export const ChevronLeftIcon = () => <svg {...base}><path d="M10 4 6 8l4 4"/></svg>;
 export const ChevronRightIcon = () => <svg {...base}><path d="m6 4 4 4-4 4"/></svg>;
 export const HelpIcon = () => <svg {...base}><circle cx={8} cy={8} r={5.75}/><path d="M6.3 6.4a1.8 1.8 0 1 1 2.5 1.65c-.55.3-.8.65-.8 1.2"/><circle cx={8} cy={11.3} r={0.5} fill="currentColor" stroke="none"/></svg>;
+/** Two sliders: the tools. */
+export const ToolsKindIcon = () => <svg {...base}><path d="M2.5 5h11M2.5 11h11"/><circle cx={6} cy={5} r={1.6}/><circle cx={10.5} cy={11} r={1.6}/></svg>;
+/** Label and value rows: readouts. */
+export const ReadoutKindIcon = () => <svg {...base}><path d="M2.5 5h4M2.5 8h4M2.5 11h4M9 5h4.5M9 8h4.5M9 11h4.5"/></svg>;
+/** A swatch and a line, twice: the legend. */
+export const LegendKindIcon = () => <svg {...base}><path d="M2.5 5h2.5M7.5 5h6M2.5 11h2.5M7.5 11h6"/></svg>;
+/** Three stacked layers: a section card. */
+export const SectionKindIcon = () => <svg {...base}><path d="M8 2.8 13.5 5.5 8 8.2 2.5 5.5zM2.5 8.5 8 11.2l5.5-2.7M2.5 11.5 8 14.2l5.5-2.7"/></svg>;
+/** A keyboard key: the shortcuts card. */
+export const KeysIcon = () => <svg {...base}><rect x={2} y={4} width={12} height={8} rx={1.5}/><path d="M4.5 7h.01M7 7h.01M9.5 7h.01M11.5 7h.01M5 9.5h6"/></svg>;
+/** The small glyph a folded card's head carries, by the card's kind (quiet: the title stays the name). */
+export function KindIcon(props: {kind: string}) {
+    const {kind} = props;
+    const icon = kind === 'tools' ? <ToolsKindIcon/> : kind === 'text' || kind === 'readout' ? <ReadoutKindIcon/> : kind === 'legend' ? <LegendKindIcon/>
+        : kind.startsWith('section-') ? <SectionKindIcon/> : null;
+    return icon && <span className="ux-btext-kind">{icon}</span>;
+}
