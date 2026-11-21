@@ -90,6 +90,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c20',
+        name: 'Ploščica XY',
+        borrowed: 'ploščica XY na sintetizatorjih (Kaoss Pad) in zemljevid, po katerem premikaš žebljiček',
+        idea: 'Dva parametra na eni ploščici: ko vlečeš piko, se oba drsnika premikata hkrati, zato raziskuješ ravnino grafov namesto dveh ločenih črt. Ozadje ploščice je zemljevid te ravnine, 4 × 4 sličice table za pare vrednosti, zato pika vedno stoji na majhni sliki tega, kar bo tabla pokazala, tvoja pot pa ostane na ploščici kot sled.',
+        generalizes: 'Osi sta poljubna dva priključena drsnika iz skupnega Slider (v lekcijah tudi skrita), zamenjaš ju s čipoma. Sličice nariše aplikacija sama, vse v istem izrezu narisane vsebine, da se dajo primerjati. Deluje na vsaki tabli z vsaj dvema drsnikoma: funkcije, geometrija krivulj, verjetnost.',
+        links: [
+            {label: 'Parametrične krivulje (cikloida)', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/parametric?learn=1&ux=c20`,
+                tryThis: 'Odpri Ploščico XY: zemljevid pokaže sled cikloide za vsak par t in polmera. Vleci piko desno in gor: krog se kotali in raste hkrati.'},
+            {label: 'Trigonometrične funkcije', family: 'Funkcije', href: `${BASE}/functions/trigonometric?learn=1&ux=c20`,
+                tryThis: 'Osi sta A in ω: v vrsticah se val stiska, v stolpcih raste in se pri negativnem A obrne. Zamenjaj navpično os na φ in poišči, kje se val ne premakne.'},
+            {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?learn=1&ux=c20`,
+                tryThis: 'Osi μ in σ: levo-desno se zvon premika, gor se splošči. Na telefonu se ploščica odpre kot list na dnu zaslona.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c20`,
+                tryThis: 'Izberi c in d: pika na ploščici je kar teme parabole. Nato izberi a in b in poišči celico, kjer se graf zrcali.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
