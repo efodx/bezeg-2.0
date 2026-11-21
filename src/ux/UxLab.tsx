@@ -56,6 +56,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c10',
+        name: 'Filmski trak',
+        borrowed: 'filmski trak iz programov za montažo videa in risanka na listih (flipbook)',
+        idea: 'Ob spodnjem robu grafa je trak vseh okvirjev lekcije; vsak okvir, ki ga je študent že videl, hrani sliko table. Vlečenje po traku lista po teh slikah kot po risanki, zato se konstrukcija pred očmi gradi in podira v poljubnem tempu, ob spustu pa lekcija skoči na izbrani okvir.',
+        generalizes: 'Slike so kopije narisane table (SVG in oznake), skok pa izvede običajni Naprej oziroma Nazaj seje lekcije, zato se vsa dejanja scene izvedejo kot sicer. Deluje v vsaki vodeni lekciji brez dodatnih podatkov; trak se prilagodi številu okvirjev in širini table, tudi na telefonu.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c10`,
+                tryThis: 'Klikaj Naprej do koraka 4, nato vleci po traku nazaj in naprej: parabola se premika, razteza in zrcali kot v risanki.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c10`,
+                tryThis: 'Pojdi nekaj okvirjev naprej in z drsenjem po traku primerjaj vrstice konstrukcije; spusti na prvem okvirju za skok nazaj.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c10`,
+                tryThis: 'Po štirih korakih (težišče, središče očrtane krožnice, …) drsi po traku in opazuj, kako se znamenite točke selijo po trikotniku.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
@@ -156,7 +171,7 @@ export function UxLab() {
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
                 <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c9`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8,c9`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8,c9,c10`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">

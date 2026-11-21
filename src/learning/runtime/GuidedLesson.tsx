@@ -10,6 +10,7 @@ import './GuidedLesson.css';
 import './GuidedLessonLayout.css';
 import {uxEnabled} from '../../ux/flags';
 import {beginPrediction, cancelPrediction} from '../../ux/predict';
+import {flatIndex, publishLessonPosition} from '../../ux/lessonNav';
 
 function localized(value: {sl: string; en: string}, language: Language) {
     return value[language];
@@ -466,6 +467,25 @@ export function GuidedLesson(props: {
             const limit = Math.min(window.innerHeight * 0.6, (bar && bar.height > 0 ? bar.top : window.innerHeight) - 24);
             if (prompt && prompt.height > 0 && (prompt.top < 0 || prompt.top > limit)) alignLessonInWindow();
         }
+    }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
+    // UX challenge c10: the filmstrip reads the lesson position and jumps by stepping the session.
+    useEffect(() => {
+        if (!uxEnabled('c10')) return undefined;
+        const counts = props.lesson.steps.map(lessonStep => framesForLessonStep(lessonStep).length);
+        publishLessonPosition({
+            lessonId: props.lesson.id,
+            counts,
+            stepIndex: snapshot.stepIndex,
+            frameIndex: snapshot.frameIndex,
+            complete: snapshot.status === 'complete',
+            goTo: (stepIndex, frameIndex) => {
+                const here = session.getSnapshot();
+                const delta = flatIndex(counts, stepIndex, frameIndex) - flatIndex(counts, here.stepIndex, here.frameIndex);
+                cancelPrediction();
+                refresh(() => { for (let i = 0; i < Math.abs(delta); i++) { if (delta > 0) session.next(); else session.back(); } });
+            },
+        });
+        return () => publishLessonPosition(undefined);
     }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
 
     useEffect(() => {
