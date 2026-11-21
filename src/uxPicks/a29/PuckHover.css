@@ -5,6 +5,10 @@
     box-shadow: 0 3px 12px rgba(25, 55, 47, 0.3);
 }
 .ux-hover-card strong { font-size: 0.9rem; }
+/* The text that went with the control in the tools: a little wider card, the name on top, the help in calm paragraphs. */
+.ux-hover-card.has-about { max-width: 340px; gap: 4px; }
+.ux-hover-card .ux-hover-name { font-size: 0.82rem; }
+.ux-hover-card .ux-hover-about { margin: 0 0 2px; color: #e6eadb; font-size: 0.78rem; line-height: 1.4; text-wrap: pretty; }
 .ux-hover-card small { font-size: 0.68rem; color: #f3d98b; display: flex; align-items: center; gap: 4px; }
 .ux-hover-card i { font-weight: 700; color: #f3d98b; }
 .ux-hover-card b { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }

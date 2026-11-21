@@ -3,7 +3,7 @@ import {flushSync} from 'react-dom';
 import {createPortal} from 'react-dom';
 import {accompanyingText, getParam, recentlyProbed, setEditingParam, setPuckedKeys, splitLabel, useParams, type CountParam, type ParamEntry as AnyParam, type RangeParam} from './paramRegistry';
 
-/** A puck's tooltip: what it is, the text that went with its control in the tools (now hidden there), and how to use it. */
+/** Without the a29 hover card, the native tooltip carries the text that went with the control in the tools (now hidden there). */
 function puckTip(entry: AnyParam, first: string, usage: string): string {
     return [first, ...accompanyingText(entry.key), usage].filter(Boolean).join('\n\n');
 }
@@ -200,7 +200,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         else if (event.key === 'End' && !blocked) { event.preventDefault(); entry.set(entry.max); }
     };
     return <div ref={ref} role="slider" tabIndex={0} aria-label={entry.label} aria-valuemin={entry.min} aria-valuemax={entry.max} aria-valuenow={entry.value}
-        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? puckTip(entry, `${entry.label} (graf je med razlago zaklenjen)`, '') : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
+        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? 'Graf je med razlago zaklenjen' : jumps ? `${entry.label}: povleci levo ali desno, za fino nastavljanje dvigni prst` : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
         className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
         data-click={clicked % 2} data-param={entry.key}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
@@ -289,6 +289,7 @@ const COUNT_STEP_PX = 26;
  * Every step goes through the setter's own onMinus/onPlus, so the graph's bounds and refusals apply unchanged.
  */
 export function CountPuck(props: {entry: CountParam; locked: boolean}) {
+    const hoverCard = usePick('a29');
     const {entry, locked} = props;
     const ref = useRef<HTMLDivElement>(null);
     const entryRef = useRef(entry);
@@ -367,7 +368,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     const atMax = entry.max !== undefined && entry.value >= entry.max;
     return <div ref={ref} role="spinbutton" tabIndex={0} aria-label={entry.label} aria-valuenow={entry.value} aria-valuemin={entry.min} aria-valuemax={entry.max}
         aria-valuetext={entry.format(entry.value)} aria-disabled={locked || undefined}
-        title={locked ? puckTip(entry, `${entry.label} (graf je med razlago zaklenjen)`, '') : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
+        title={locked ? 'Graf je med razlago zaklenjen' : hoverCard ? `${entry.label}: povleci levo ali desno ali pritisni − in +` : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
         className={`ux-puck ux-count-puck${locked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
         data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
         onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>

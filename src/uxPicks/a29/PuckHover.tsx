@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {getParam, listParams, splitLabel, type ParamEntry} from '../a1/paramRegistry';
+import {accompanyingText, getParam, listParams, splitLabel, type ParamEntry} from '../a1/paramRegistry';
 import {captureGhost, findBoard, type Ghost} from '../a19/ghost';
 import {analyse, type Fan} from './fan';
 import {trackFraction, valueAt} from './track';
@@ -13,7 +13,9 @@ import './PuckHover.css';
  * parameter does: a27's fan of neighbouring values drawn on the board, and one sentence naming what stays fixed.
  */
 
-interface Card {key: string; x: number; top: number; symbol: string; head?: string; note?: string; sentence?: string; busy?: boolean}
+/** `name` and `about`: the parameter's full name and the text that went with its control in the tools (hidden there while
+ * the pucks show it; owner, 2026-11-21: "the accompanying text ... should be moved to the tooltip"). */
+interface Card {key: string; x: number; top: number; symbol: string; head?: string; note?: string; sentence?: string; busy?: boolean; name?: string; about?: string[]}
 interface Shown {fan: Fan; box: {left: number; top: number; width: number; height: number}}
 type Job = {kind: 'ghost'; key: string; value: number} | {kind: 'overview'; key: string};
 
@@ -53,7 +55,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         const anchor = (puck: HTMLElement) => {
             const frame = props.frame.current!.getBoundingClientRect(), box = puck.getBoundingClientRect();
             const row = (puck.closest('.ux-pucks-row') ?? puck).getBoundingClientRect();
-            const half = 135;
+            const half = 170; // half the widest card (with the tools text)
             return {x: Math.max(half, Math.min(frame.width - half, box.left + box.width / 2 - frame.left)), top: row.top - frame.top - 8};
         };
         const isWanted = (job: Job) => wanted === (job.kind === 'ghost' ? `g:${job.key}:${job.value}` : `o:${job.key}`);
@@ -104,7 +106,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             setGhost(undefined); setShown(undefined);
             const cached = cache.get(entry.key);
             const fresh = cached && cached.sig === stateSignature();
-            setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh,
+            setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh, name: entry.label, about: accompanyingText(entry.key),
                 sentence: fresh ? (cached.fan ? cached.fan.sentence : noFanHint(entry)) : undefined});
             schedule({kind: 'overview', key: entry.key});
         };
@@ -188,10 +190,12 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             {shown.fan.paths.map((path, i) => <path key={i} d={path.d} className={path.offset < 0 ? 'is-less' : 'is-more'} style={{opacity: Math.abs(path.offset) === 1 ? 0.8 : 0.4}}/>)}
             {shown.fan.pins.map((pin, i) => <g key={i} transform={`translate(${pin.sx} ${pin.sy})`}><circle r="10" className="ux-hover-halo"/><circle r="4.5"/><text x="12" y="-11">{pin.text}</text></g>)}
         </svg>}
-        {card && <div className="ux-hover-card" style={{left: card.x, top: card.top}} role="status">
+        {card && <div className={`ux-hover-card${card.about?.length ? ' has-about' : ''}`} style={{left: card.x, top: card.top}} role="status">
             {card.head
                 ? <><strong>{card.head}</strong>{card.note && <small>{card.note}</small>}</>
-                : <><span><i>{card.symbol}</i> {card.busy ? 'graf preizkuša sosednje vrednosti …' : card.sentence}</span>
+                : <>{card.name && card.name !== card.symbol && <strong className="ux-hover-name">{card.name}</strong>}
+                    {card.about?.map((text, i) => <p key={i} className="ux-hover-about">{text}</p>)}
+                    <span><i>{card.symbol}</i> {card.busy ? 'graf preizkuša sosednje vrednosti …' : card.sentence}</span>
                     {!card.busy && shown && <small><b className="is-less"/>manjše <b className="is-more"/>večje vrednosti</small>}</>}
         </div>}
     </>;
