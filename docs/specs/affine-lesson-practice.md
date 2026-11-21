@@ -1,6 +1,6 @@
 # Guided lessons: practice beside the task, and the affine comparison
 
-Status: implemented (lesson-card-layout stream, handler 6, 2026-11-21). Open: at 390×844 the label \(B(	frac12)\) still lies on the \(p_2\)/\(p_3\) labels of the opening frame (see the label collision spec's results); a pair of crosses closer than 12 px is named once, "c, c′".
+Status: implemented (lesson-card-layout stream, handlers 6 and 7, 2026-11-21). Open: at 390×844 the label \(B(\tfrac12)\) lies on the \(p_0\) label on the opening frame and the quarter-turn frame, because the phone board shows the desktop range and the curve spans about 80 px (see the label collision spec's results); a pair of crosses closer than 12 px is named once, "c, c′", the two names the separate crosses carry (kept). The lesson text never says what \(c\) and \(c'\) are.
 
 Source: an independent walkthrough of the English lesson "Affine transformations of a Bézier curve" (relayed by the owner on 2026-11-21, who asked to fix the points the handler agrees with). The handler agrees with all three.
 
