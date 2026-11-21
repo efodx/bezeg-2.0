@@ -111,3 +111,7 @@
 .ux-count-dots > span { width: 5px; height: 5px; border-radius: 50%; background: #e3e7d9; }
 .ux-count-dots > span.is-below { background: #9fb08f; }
 .ux-count-dots > span.is-on { background: #244c37; transform: scale(1.3); }
+
+/* ux-picks a3: the oscillate button sits on the puck's corner. */
+.ux-puck-wrap { position: relative; display: flex; pointer-events: auto; }
+.ux-puck-wrap.is-oscillating > .ux-puck { border-color: #244c37; }

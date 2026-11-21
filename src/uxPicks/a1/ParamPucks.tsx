@@ -1,5 +1,7 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {recentlyProbed, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
+import {usePick} from '../picks';
+import {canOscillate, isOscillating, toggleOscillator, useOscillators} from '../a3/oscillators';
 import './ParamPucks.css';
 
 type ParamEntry = RangeParam;
@@ -98,7 +100,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
     useEffect(() => {
         if (previous.current === entry.value) return;
         previous.current = entry.value;
-        if (scrub.current || recentlyProbed()) return;
+        if (scrub.current || recentlyProbed() || isOscillating(entry.key)) return;
         setNudged(true);
         const timer = window.setTimeout(() => setNudged(false), 1100);
         return () => window.clearTimeout(timer);
@@ -189,6 +191,8 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     const [collapsed, setCollapsed] = useState(false);
     const [width, setWidth] = useState(600);
     const [locked, setLocked] = useState(false);
+    const oscillating = useOscillators();
+    const showOscillator = usePick('a3');
     useLayoutEffect(() => {
         const frame = props.frame.current;
         if (!frame) return;
@@ -216,10 +220,20 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                 {collapsed ? <>Parametri <b>{visible.length}</b></> : <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 L6 7.5 L9 4.5"/></svg>}
                 <span className="visually-hidden">{collapsed ? '' : 'Skrij parametre'}</span>
             </button>
-            {!collapsed && visible.map(entry => entry.kind === 'count'
-                ? <CountPuck key={entry.key} entry={entry} locked={locked}/>
-                : <Puck key={entry.key} entry={entry} locked={locked} boardWidth={width}
-                    onScrub={state => setScrub(state && {key: entry.key, ...state})}/>)}
+            {!collapsed && visible.map(entry => {
+                const moving = oscillating.has(entry.key);
+                return <span key={entry.key} className={`ux-puck-wrap${moving ? ' is-oscillating' : ''}`}>
+                    {entry.kind === 'count'
+                        ? <CountPuck entry={entry} locked={locked}/>
+                        : <Puck entry={entry} locked={locked} boardWidth={width} onScrub={state => setScrub(state && {key: entry.key, ...state})}/>}
+                    {showOscillator && !locked && canOscillate(entry) && <button type="button" className="ux-puck-osc" aria-pressed={moving}
+                        aria-label={moving ? `Ustavi: ${entry.label}` : `Naj se sam spreminja: ${entry.label}`}
+                        title={moving ? 'Ustavi' : entry.kind === 'count' ? 'Naj sam šteje gor in dol' : 'Naj sam niha med mejama'}
+                        onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
+                        <svg viewBox="0 0 20 12" aria-hidden="true"><path d="M1 6 C 4 -1, 6 -1, 10 6 S 16 13, 19 6"/></svg>
+                    </button>}
+                </span>;
+            })}
         </div>
         {locked && !collapsed && <p className="ux-pucks-lock">Med razlago so parametri zaklenjeni — opazuj, kateri se spremeni.</p>}
     </div>;
@@ -244,7 +258,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     useEffect(() => {
         if (previous.current === entry.value) return;
         previous.current = entry.value;
-        if (drag.current || recentlyProbed()) return;
+        if (drag.current || recentlyProbed() || isOscillating(entry.key)) return;
         setNudged(true);
         const timer = window.setTimeout(() => setNudged(false), 1100);
         return () => window.clearTimeout(timer);
