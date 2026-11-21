@@ -33,8 +33,7 @@ export function useLessonDock(o: {
             if (!el || !host?.frame) return;
             const w = el.offsetWidth, h = el.offsetHeight;
             if (!was.current) { was.current = true; pickUp(LESSON, w, h, lessonSlotted()); }
-            // No side docks: with pick toolsCard the lesson's home already is the tools' side of the graph.
-            const m = measureDrag(host.regions, host.frame, null, el.getBoundingClientRect(), w, h, false);
+            const m = measureDrag(host.regions, host.frame, null, el.getBoundingClientRect(), w, h);
             if (!m) return;
             if (atHome) setGap(LESSON, null, 0, w, h); else setGap(LESSON, m.region, m.index, w, h);
             setOutlines(LESSON, m.view);

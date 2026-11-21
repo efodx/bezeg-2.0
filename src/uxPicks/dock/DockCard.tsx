@@ -3,7 +3,7 @@ import {createPortal} from 'react-dom';
 import {GapSlot, useDock} from './BoardDock';
 import {GripIcon, MinusIcon, PlusIcon, ResetIcon} from './icons';
 import {
-    clearGap, currentGap, dropAtGap, isSide, orderOf, pickUp, placedRegion, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
+    clearGap, currentGap, dropAtGap, orderOf, pickUp, placedRegion, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
     useDockLayout, type Target,
 } from './dockLayout';
 import {REGION_LABEL, measureDrag} from './dockMeasure';
@@ -15,8 +15,8 @@ import {useFlip} from './dockFlip';
  * would give (FLIP-animated). Dropped in the central area it floats where it is dropped; a double-click on its head, or Home
  * on its grip, returns it to its default dock. Stack and order are remembered per page. On a phone cards are labelled
  * chips in the top rail and one is open at a time.
- * Pick toolsCard adds side docks beside the graph ('sl', 'sr'): while they exist a card may be carried past the board's side
- * edges into them. A floating card is placed in board coordinates whatever element holds it (a side dock is outside the board).
+ * A floating card is placed in board coordinates whatever element holds it. Placements, floating positions and folds are
+ * remembered for the whole app (owner, 2026-11-21).
  *
  * Adding a card is one element: `<DockCard kind="x" title="Naslov" what="vsebino" region="tr" order={3}>{open => body}</DockCard>`.
  */
@@ -39,7 +39,7 @@ interface Pos { x: number; y: number; }
 const DRAG_THRESHOLD = 4;
 
 const collapsedKey = (kind: string) => kind === 'text' ? 'ux-boardtext-collapsed' : `ux-boardcard-collapsed:${kind}`;
-const posKey = (kind: string) => kind === 'text' ? `ux-boardtext-pos:${window.location.pathname}` : `ux-boardcard-pos:${kind}:${window.location.pathname}`;
+const posKey = (kind: string) => kind === 'text' ? 'ux-boardtext-pos' : `ux-boardcard-pos:${kind}`;
 
 function readCollapsed(kind: string): boolean {
     try { return localStorage.getItem(collapsedKey(kind)) === '1'; } catch { return false; }
@@ -81,13 +81,8 @@ export function DockCard(props: DockCardProps) {
     }, [kind]);
 
     const frame = dock?.frame;
-    /** Where a floating card may go, in board coordinates: the board, and past its side edges where a side dock exists. */
-    const bounds = (el: HTMLElement, host: HTMLElement) => {
-        const page = host.closest('.demonstration-workspace')?.getBoundingClientRect(), f = host.getBoundingClientRect();
-        const minX = dock?.regions.sl && page ? page.left - f.left : 0;
-        const maxX = (dock?.regions.sr && page ? page.right - f.left : host.clientWidth) - el.offsetWidth;
-        return {minX: Math.min(0, minX), maxX: Math.max(minX, maxX), maxY: host.clientHeight - el.offsetHeight};
-    };
+    /** Where a floating card may go, in board coordinates: anywhere on the board. */
+    const bounds = (el: HTMLElement, host: HTMLElement) => ({minX: 0, maxX: Math.max(0, host.clientWidth - el.offsetWidth), maxY: host.clientHeight - el.offsetHeight});
     /** Keeps a floating card inside its bounds (display only; the stored position is kept), placed in board coordinates
      * whatever element holds it. */
     const clamp = () => {
@@ -207,9 +202,7 @@ export function DockCard(props: DockCardProps) {
     const reset = () => { resetCard(kind); docked(); setSaid(`${props.title}: na privzetem mestu.`); };
 
     const placement = placementOf(kind);
-    // A side dock exists only while pick toolsCard is on: without it the card waits at its default anchor.
-    const wanted = phone ? 'tl' : placement.region;
-    const target = dock.regions[wanted] ?? (isSide(wanted) ? dock.regions[props.region] : null);
+    const target = dock.regions[phone ? 'tl' : placement.region];
     if (!target) return null;
     const style: React.CSSProperties | undefined = floating ? {left: pos.x, top: pos.y} : phone ? undefined : {order: orderOf(kind)};
     const label = `${open ? 'Skrij' : 'Pokaži'} ${props.what}`;
@@ -219,14 +212,12 @@ export function DockCard(props: DockCardProps) {
     }
     const g = currentGap();
     const gapTarget = g && g.kind === kind && !phone ? dock.regions[g.region] : null;
-    // Carried over a side dock, the card sits on its own ghost: it lets the ghost show through.
-    const overSide = floating && g !== null && g.kind === kind && g.isTarget && isSide(g.region);
     // Away from its default place (moved to another anchor, or floating), the card offers the way back in its head.
     const moved = !phone && (floating || (placedRegion(kind) ?? props.region) !== props.region);
     const resetLabel = `Vrni ${props.what} na privzeto mesto`;
     return <>
-        {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget} region={g.region}/>, gapTarget)}
-        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}${overSide ? ' is-over-side' : ''}`} style={style}>
+        {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget}/>, gapTarget)}
+        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}`} style={style}>
             <div className="ux-btext-head" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                  onPointerCancel={onPointerUp} onDoubleClick={reset}>
                 {!phone && <span className="ux-btext-grip" role="button" tabIndex={0} onKeyDown={onKeyDown} onBlur={() => { setKeyboard(false); clearGap(kind); }}

@@ -7,7 +7,7 @@ import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
 import {usePick} from "../../uxPicks/picks";
 import "../../uxPicks/dockTools/dockTools.css";
-import {SideDocks, ToolsCard, useToolsHome} from "../../uxPicks/toolsCard/ToolsCard";
+import {ToolsCard} from "../../uxPicks/toolsCard/ToolsCard";
 import {usePhone} from "../../uxPicks/dock/BoardDock";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
 import {DemonstrationPicker} from '../../DemonstrationPicker';
@@ -187,10 +187,9 @@ export function DemonstrationWorkspace(props: {
     // capability is available; BaseGraph will provide it on the next render.
     const lessonActive = lessonOpen && Boolean(lesson && props.lessonCapabilities);
     const dockToolsPick = usePick('dockTools');
-    // Pick toolsCard: the tools are a dock card beside (or on) the graph; phones keep them under it.
+    // Pick toolsCard: the tools are a dock card on the graph; phones keep them under it.
     const phone = usePhone();
     const toolsCard = usePick('toolsCard') && !phone;
-    const toolsHome = useToolsHome();
     // The one decision about user commands (Preset writes, playback), from the lesson state this workspace owns. The ref is what
     // `current()` reads at the moment of a commit; the render value only drives what controls show.
     const userActionMode: UserActionMode = !lessonActive ? 'free' : lessonMode === 'content' ? 'lesson-card' : 'lesson-observe';
@@ -210,7 +209,7 @@ export function DemonstrationWorkspace(props: {
     }, [props.graphBusy]);
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         data-ux-dock-tools={dockToolsPick ? '' : undefined}
-        data-ux-tools-card={toolsCard ? '' : undefined} data-ux-tools-home={toolsCard ? toolsHome : undefined}
+        data-ux-tools-card={toolsCard ? '' : undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
@@ -287,7 +286,6 @@ export function DemonstrationWorkspace(props: {
         <LearningPrompt key={pathname} pathname={pathname}/>
         {/* Pick dockTools: the docked lesson tab is portalled here so keyboard focus meets it right before the tools. */}
         {dockToolsPick && <div id="workspace-dock-slot" className="workspace-dock-slot"/>}
-        {toolsCard && <SideDocks/>}
         {(() => { const tools = <aside ref={inspector} id="workspace-inspector" className="workspace-inspector" hidden={!inspectorVisible}
             aria-disabled={lessonActive && lessonMode === 'content' ? true : undefined} aria-label={t("demonstration_tools")}>
             <div className="inspector-toolbar">

@@ -90,8 +90,7 @@
 /* A folded card opens on a click anywhere on its head. */
 .ux-btext-collapsed > .ux-btext-head { cursor: pointer; }
 .ux-btext-collapsed > .ux-btext-head:hover { background: var(--bezeg-shell-control-hover); border-radius: inherit; }
-/* Carried over a side dock the card would hide its own ghost: it turns translucent until it leaves. */
-.ux-btext.is-over-side { opacity: 0.55; transition: opacity 120ms ease-out; }
+
 
 /* A phone's folded card: a small labelled chip. */
 .ux-dock-chip {

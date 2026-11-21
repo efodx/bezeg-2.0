@@ -1,109 +1,33 @@
 /* Pick toolsCard (desktop and tablet; phones keep the tools under the graph).
-   The workspace becomes three columns: left side dock, graph, right side dock. A side column is as wide as what docks in it
-   and has no width while empty, so the board takes whatever the side docks leave. The column that holds the tools (their
-   "home" side, right unless the tools are docked left) also holds the guided lesson: its card sits above the tools there
-   (row "lesson") or, while it is read, over them (area "inspector"). The workspace's lesson rules name the areas
-   "lesson" and "inspector", so the template below gives those names to the home column; !important because those rules
-   come in many specificities. Gaps are margins here: an empty column or row must add no space. */
+   The tools are a card on the graph, and the graph takes the page's full width: without a lesson the workspace is one
+   column. With a lesson open the workspace's lesson rules keep their column beside the graph, now for the lesson card
+   alone; the tools stay on the board. */
 @media (min-width: 701px) {
-    .demonstration-workspace[data-ux-tools-card] {
-        --ux-col: 310px;
-        grid-template-columns: auto minmax(0, 1fr) auto !important;
-        grid-template-rows: auto auto minmax(0, 1fr) auto !important;
-        column-gap: 0 !important;
-        row-gap: 0 !important;
+    .demonstration-workspace[data-ux-tools-card]:not(.lesson-open) {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "heading" "graph" "learning";
     }
-    .demonstration-workspace[data-ux-tools-card][data-ux-tools-home="r"] {
-        grid-template-areas: "heading heading heading" "sl graph lesson" "sl graph inspector" "learning learning learning" !important;
-    }
-    .demonstration-workspace[data-ux-tools-card][data-ux-tools-home="l"] {
-        grid-template-areas: "heading heading heading" "lesson graph sr" "inspector graph sr" "learning learning learning" !important;
-    }
-    .demonstration-workspace.is-presenting[data-ux-tools-card] { --ux-col: 330px; }
-    /* A lesson's column is wide enough to read in, as without the pick. */
-    .demonstration-workspace.lesson-open[data-ux-tools-card] { --ux-col: clamp(310px, 30vw, 34rem); }
-    .demonstration-workspace.is-presenting.lesson-open[data-ux-tools-card] { --ux-col: clamp(330px, 30vw, 34rem); }
-
-    [data-ux-tools-card] > .workspace-heading { margin-bottom: 18px; }
-    [data-ux-tools-card] > .workspace-learning { margin-top: 18px; }
-    /* A board card carried toward a side dock stays visible past the board's edge. */
-    [data-ux-tools-card] > .workspace-graph { overflow: visible; }
-
-    /* The side docks. */
-    .ux-side {
-        position: relative; z-index: 6; box-sizing: border-box; min-width: 0; width: 0;
-        display: flex; flex-direction: column; gap: 8px;
-        /* The column follows the graph's height without stretching its row (as the tools column did). */
-        align-self: stretch; height: 0; min-height: 100%;
-        /* The column glides open and shut (the board narrows with it) instead of jumping under the pointer. */
-        transition: width 220ms cubic-bezier(0.16, 1, 0.3, 1), padding 220ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @media (prefers-reduced-motion: reduce) { .ux-side { transition: none; } }
-    [data-ux-tools-home="r"] > .ux-side-r { grid-area: inspector; }
-    [data-ux-tools-home="r"] > .ux-side-l { grid-area: sl; }
-    [data-ux-tools-home="l"] > .ux-side-l { grid-area: inspector; }
-    [data-ux-tools-home="l"] > .ux-side-r { grid-area: sr; }
-    .ux-side-r:has(> :not(.is-floating)) { width: calc(var(--ux-col) + 18px); padding-left: 18px; }
-    .ux-side-l:has(> :not(.is-floating)) { width: calc(var(--ux-col) + 18px); padding-right: 18px; }
-    /* Only the folded tools in a side dock: a narrow rail, the graph takes the rest. */
-    .ux-side-r:has(> .ux-bcard-tools.ux-btext-collapsed:not(.is-floating)):not(:has(> :not(.ux-bcard-tools):not(.is-floating))) { width: calc(42px + 18px); }
-    .ux-side-l:has(> .ux-bcard-tools.ux-btext-collapsed:not(.is-floating)):not(:has(> :not(.ux-bcard-tools):not(.is-floating))) { width: calc(42px + 18px); }
-    .ux-side > .ux-btext:not(.is-floating) { width: auto; max-width: none; flex: none; }
-
-    /* The lesson in the home column: above the tools, or over them while it is read (the tools are locked then). */
-    [data-ux-tools-card] > .guided-lesson,
-    [data-ux-tools-card] .guided-lesson-tab.guided-lesson-tab-docked { width: var(--ux-col); box-sizing: border-box; }
-    [data-ux-tools-home="r"] > .guided-lesson,
-    [data-ux-tools-home="r"] .guided-lesson-tab.guided-lesson-tab-docked { margin-left: 18px; }
-    [data-ux-tools-home="l"] > .guided-lesson,
-    [data-ux-tools-home="l"] .guided-lesson-tab.guided-lesson-tab-docked { margin-right: 18px; }
-    [data-ux-tools-card].lesson-open > .guided-lesson-task,
-    [data-ux-tools-card].lesson-complete > .guided-lesson { margin-bottom: 8px; }
-    [data-ux-tools-home="r"].lesson-content:has(> .guided-lesson-docked) > .ux-side-r,
-    [data-ux-tools-home="l"].lesson-content:has(> .guided-lesson-docked) > .ux-side-l { visibility: hidden; }
-
-    /* The target gap in a side dock is the ghost itself (the board's ghost cannot leave the board). */
-    .ux-side > .ux-dock-gap[data-dock-gap="target"] {
-        visibility: visible; position: relative; width: auto !important; border-radius: 12px;
-        background: color-mix(in srgb, var(--bezeg-shell-choice-rule-selected) 24%, transparent);
-    }
-    .ux-side > .ux-dock-gap .ux-dock-pill { position: absolute; left: 8px; top: 8px; }
-    .ux-dock-marker-side { opacity: 0.35; border-radius: 2px; }
+    /* While a lesson frame is read the board is locked (the workspace's lesson rules); the tools on it stay visible,
+       dimmed with it, instead of being hidden as they were under the reading card. */
+    .demonstration-workspace[data-ux-tools-card].lesson-open .ux-bcard-tools .workspace-inspector { visibility: visible; }
 }
 
 /* The tools card. Its own head (grip, "Orodja", fold) replaces the tools' heading; the tabs stay. */
-.ux-bcard-tools { width: 310px; max-width: none; display: flex; flex-direction: column; box-sizing: border-box; }
+.ux-bcard-tools { width: 310px; max-width: none; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
 .ux-bcard-tools > .ux-tools-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .ux-bcard-tools > .ux-tools-body[hidden] { display: none; }
 .ux-bcard-tools .workspace-inspector { flex: 1 1 auto; height: auto; min-height: 0; border: 0; background: transparent; }
 .ux-bcard-tools .workspace-inspector .inspector-heading { display: none !important; }
-/* In a row the card would scroll as a whole (dock.css): the tools scroll inside instead, under their tabs. */
-.ux-dock-h > .ux-bcard-tools { overflow: hidden; }
 .ux-bcard-tools > .ux-btext-head { padding: 6px 6px 2px 8px; }
 .ux-bcard-tools .ux-btext-title { font-weight: 700; letter-spacing: .08em; color: var(--workspace-ink, var(--bezeg-shell-ink)); }
 
-/* Docked beside the graph it looks like the tools column it replaces: flat, full height, the ink rule on top. */
-.ux-side > .ux-bcard-tools:not(.is-floating) {
-    flex: 1 1 auto; min-height: 0; border-radius: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
-    border: 1px solid var(--workspace-rule); border-top: 4px solid var(--workspace-ink); background: var(--workspace-panel);
-}
-
-/* On the graph (docked at an anchor or floating) it is a card as tall as its anchor allows; the tools scroll inside it. */
+/* In a stack the tools take the height the other cards leave (never less than a few controls) and scroll inside, so the
+   stack itself does not scroll. Floating, the card is as tall as the board allows. */
+.ux-dock-v > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 auto; min-height: 180px; }
 .ux-bcard-tools.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
-.ux-dock-a-tl > .ux-bcard-tools, .ux-dock-a-tr > .ux-bcard-tools { max-height: calc(var(--ux-dock-h, 560px) * 0.62 - 8px); }
-.ux-dock-a-ml > .ux-bcard-tools, .ux-dock-a-mr > .ux-bcard-tools { max-height: calc(var(--ux-dock-h, 560px) * 0.45 - 8px); }
-.ux-dock-a-br > .ux-bcard-tools { max-height: calc(var(--ux-dock-h, 560px) * 0.4 - 8px); }
 
-/* Folded beside the graph: a rail with the fold button on top and the name running down. */
-.ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) { flex: 1 1 auto; }
-.ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) > .ux-btext-head { flex-direction: column; align-items: center; gap: 8px; padding: 10px 0; height: 100%; box-sizing: border-box; border-radius: 0; }
-.ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) .ux-btext-toggle { order: -1; }
-.ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) .ux-btext-title { flex: none; writing-mode: vertical-rl; padding: 4px 0; }
-
-/* Presentation: the sticky heading stays above the side docks; the card takes the tools' night colours. */
-.is-presenting[data-ux-tools-card] > .workspace-heading { z-index: 7; }
+/* Presentation: the card takes the tools' night colours. */
 .is-presenting .ux-bcard-tools { background: var(--bezeg-night); color: var(--bezeg-night-panel); border-color: #50617b; }
-.is-presenting .ux-side > .ux-bcard-tools:not(.is-floating) { background: var(--bezeg-night); border-color: #50617b; border-top-color: #d9b461; }
 .is-presenting .ux-bcard-tools .ux-btext-title, .is-presenting .ux-bcard-tools .ux-btext-grip, .is-presenting .ux-bcard-tools .ux-btext-toggle { color: var(--bezeg-night-panel); }
 /* Hover on navy uses Presentation's own hover, not the day tint (cream ink would vanish on it). */
 .is-presenting .ux-bcard-tools .ux-btext-toggle:hover, .is-presenting .ux-bcard-tools .ux-btext-grip:hover,
