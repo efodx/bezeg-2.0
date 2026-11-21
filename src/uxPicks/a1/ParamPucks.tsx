@@ -101,6 +101,45 @@ export function Tape(props: {entry: ParamEntry; value: number; fineLabel: string
     </div>, document.body);
 }
 
+/** How long (ms) after its last change a value still counts as moving by itself. */
+const MOVING_MS = 400;
+
+/**
+ * True while a value is changing on its own: an oscillator, or a run of outside changes (a lesson animation).
+ * Changes the user makes on this puck (drag, keys, wheel, typing: `own` holds the time until which they count) never mark it.
+ */
+function useMoving(key: string, value: number, dragging: () => boolean, own: React.MutableRefObject<number>): boolean {
+    const [moving, setMoving] = useState(false);
+    const last = useRef({value, at: 0});
+    const timer = useRef<number>();
+    const sweepingRef = useRef(false);
+    useEffect(() => {
+        if (last.current.value === value) return;
+        const now = performance.now();
+        const before = last.current.at;
+        last.current = {value, at: now};
+        if (dragging() || recentlyProbed() || now < own.current) return;
+        if (!isOscillating(key) && now - before > MOVING_MS) return;
+        setMoving(true);
+        window.clearTimeout(timer.current);
+        timer.current = window.setTimeout(() => { if (!sweepingRef.current) setMoving(false); }, MOVING_MS);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
+    // A sweep holds the mark for as long as it runs (a count may wait seconds between steps), then lets go like any other run.
+    const sweeping = useOscillators().has(key);
+    sweepingRef.current = sweeping;
+    useEffect(() => {
+        window.clearTimeout(timer.current);
+        if (sweeping) setMoving(true);
+        else timer.current = window.setTimeout(() => setMoving(false), MOVING_MS);
+    }, [sweeping]);
+    useEffect(() => () => window.clearTimeout(timer.current), []);
+    return moving;
+}
+
+/** The quiet cue that the number is passing through, not the lesson's value: a small wave in the puck's corner. */
+const MovingMark = () => <span className="ux-puck-moving" aria-hidden="true"><WaveIcon/></span>;
+
 export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: {value: number; fine: string; pxPerRange: number; detent: boolean} | undefined): void; boardWidth: number}) {
     const {entry, locked} = props;
     const ref = useRef<HTMLDivElement>(null);
@@ -113,6 +152,8 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
     const previous = useRef(entry.value);
     const entryRef = useRef(entry);
     entryRef.current = entry;
+    const own = useRef(0);
+    const moving = useMoving(entry.key, entry.value, () => !!scrub.current, own);
     // A change that did not come from this puck (the lesson, the inspector, an oscillator) lights it up.
     useEffect(() => {
         if (previous.current === entry.value) return;
@@ -135,6 +176,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
             event.preventDefault();
             const current = entryRef.current;
             if (locked || current.inert) return;
+            own.current = performance.now() + 500;
             const direction = (Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : -event.deltaY) > 0 ? 1 : -1;
             current.set(snap(current.value + direction * current.step * (event.shiftKey ? 10 : 1), current));
         };
@@ -182,7 +224,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         if (!state.moved && event.type === 'pointerup' && jumps && ref.current) {
             // a29: a press on the track (the strip along the bottom of the puck) jumps to the value under the pointer.
             const target = jumpValue(entryRef.current, ref.current, event.clientX, event.clientY);
-            if (target !== undefined) entryRef.current.set(target);
+            if (target !== undefined) { own.current = performance.now() + 500; entryRef.current.set(target); }
         }
         if (!state.moved) ref.current?.focus();
     };
@@ -193,6 +235,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         if (editing !== undefined) return;
         const typed = startsTyping(event);
         if (typed !== undefined) { event.preventDefault(); if (blocked) refuse(); else setEditing(typed); return; }
+        own.current = performance.now() + 500;
         const big = event.shiftKey || event.key.startsWith('Page') ? 10 : 1;
         if (['ArrowRight', 'ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); stepBy(entry.step * big); }
         else if (['ArrowLeft', 'ArrowDown', 'PageDown'].includes(event.key)) { event.preventDefault(); stepBy(-entry.step * big); }
@@ -201,7 +244,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
     };
     return <div ref={ref} role="slider" tabIndex={0} aria-label={entry.label} aria-valuemin={entry.min} aria-valuemax={entry.max} aria-valuenow={entry.value}
         aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? 'Graf je med razlago zaklenjen' : jumps ? `${entry.label}: povleci levo ali desno, za fino nastavljanje dvigni prst` : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
-        className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
+        className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}${moving ? ' is-moving' : ''}`}
         data-click={clicked % 2} data-param={entry.key}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
         onDoubleClick={() => { if (blocked) refuse(); else setEditing(''); }} onKeyDown={onKeyDown}>
@@ -210,12 +253,14 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
             {editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
+                        own.current = performance.now() + 500;
                         const ok = Number.isFinite(value) && (entry.cyclic !== undefined || (value >= entry.min - 1e-9 && value <= entry.max + 1e-9));
                         if (ok) { entry.set(value); setProblem(undefined); } else { refuse(); setProblem(Number.isFinite(value) ? allowedRange(entry.format, entry.min, entry.max) : 'Vpiši število'); }
                         return ok;
                     }} onInput={() => setProblem(undefined)}/>
                 : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
         </span>
+        {moving && <MovingMark/>}
         {problem && <span className="ux-puck-problem" role="alert">{problem}</span>}
         <span className="ux-puck-track" aria-hidden="true"><span style={{left: `${Math.max(0, Math.min(1, fraction)) * 100}%`}}/></span>
     </div>;
@@ -271,7 +316,7 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                     {showOscillator && canOscillate(entry) && <button type="button" className={`ux-puck-osc${locked ? ' is-held' : ''}`} aria-pressed={moving}
                         disabled={locked} aria-hidden={locked || undefined} tabIndex={locked ? -1 : undefined}
                         aria-label={moving ? `Ustavi: ${entry.label}` : `Naj se sam spreminja: ${entry.label}`}
-                        title={moving ? 'Ustavi' : entry.kind === 'count' ? 'Naj sam šteje gor in dol' : 'Naj sam niha med mejama'}
+                        title={moving ? 'Ustavi' : entry.kind === 'count' ? 'Premikaj sam: števec šteje gor in dol' : 'Premikaj sam: drsnik niha med mejama'}
                         onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
@@ -295,6 +340,8 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     const entryRef = useRef(entry);
     entryRef.current = entry;
     const drag = useRef<{pointerId: number; startX: number; startY: number; steps: number; moved: boolean}>();
+    const own = useRef(0);
+    const moving = useMoving(entry.key, entry.value, () => !!drag.current, own);
     const [nudged, setNudged] = useState(false);
     const [refused, setRefused] = useState(false);
     const previous = useRef(entry.value);
@@ -309,6 +356,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     const refuse = () => { setRefused(true); window.setTimeout(() => setRefused(false), 420); };
     const step = (direction: 1 | -1) => {
         if (locked) { refuse(); return false; }
+        own.current = performance.now() + 500;
         const current = entryRef.current;
         const moved = direction > 0 ? current.plus() : current.minus();
         if (!moved) refuse(); else haptic();
@@ -369,7 +417,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     return <div ref={ref} role="spinbutton" tabIndex={0} aria-label={entry.label} aria-valuenow={entry.value} aria-valuemin={entry.min} aria-valuemax={entry.max}
         aria-valuetext={entry.format(entry.value)} aria-disabled={locked || undefined}
         title={locked ? 'Graf je med razlago zaklenjen' : hoverCard ? `${entry.label}: povleci levo ali desno ali pritisni − in +` : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
-        className={`ux-puck ux-count-puck${locked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
+        className={`ux-puck ux-count-puck${locked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}${moving ? ' is-moving' : ''}`}
         data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
         onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>
         <span className="ux-puck-text">
@@ -378,6 +426,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
             {editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
+                        own.current = performance.now() + 500;
                         const ok = setCount(entry, value);
                         if (ok) setProblem(undefined);
                         else {
@@ -389,6 +438,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
                 : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
             <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}><PlusIcon/></button>
         </span>
+        {moving && <MovingMark/>}
         {problem && <span className="ux-puck-problem" role="alert">{problem}</span>}
         {dots > 0 && <span className="ux-count-dots" aria-hidden="true">
             {Array.from({length: dots}, (_, index) => {

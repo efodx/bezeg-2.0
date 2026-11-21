@@ -57,8 +57,9 @@
 }
 .ux-pucks-toggle svg { width: 16px; height: 16px; display: block; }
 .ux-pucks-toggle b { color: #19372f; }
+/* In the strip's flow (not over the board): the cards docked above the strip end above the note instead of covering it. */
 .ux-pucks-lock {
-    position: absolute; left: 0; bottom: 100%; margin: 0 0 6px; white-space: nowrap; max-width: calc(100vw - 48px); overflow: hidden; text-overflow: ellipsis;
+    display: block; width: max-content; margin: 0 0 6px; white-space: nowrap; max-width: calc(100vw - 48px); overflow: hidden; text-overflow: ellipsis;
     pointer-events: none; font-size: 0.74rem; color: #526152; background: rgba(255, 253, 245, 0.85);
     padding: 2px 8px; border-radius: 6px;
 }
@@ -132,3 +133,14 @@
 
 /* While a reading frame locks the pucks, the oscillate buttons keep their space (the row does not shift) but are not shown. */
 .ux-pucks .ux-puck-osc.is-held { visibility: hidden; }
+
+/* A value passing through on its own (a sweep, a lesson animation): secondary ink and a small wave in the corner, so the number
+   is not read as the lesson's value. The mark overlays the puck's padding, so nothing shifts. */
+.ux-puck.is-moving .ux-puck-value { color: var(--bezeg-shell-ink-secondary, #526152); }
+.ux-puck-moving { position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; color: var(--bezeg-shell-ink-secondary, #526152); pointer-events: none; animation: ux-moving-in 160ms ease-out both; }
+.ux-puck-moving svg { width: 10px; height: 10px; display: block; }
+@keyframes ux-moving-in { from { opacity: 0; } to { opacity: 0.85; } }
+@media (prefers-reduced-motion: no-preference) {
+    .ux-puck-moving svg { animation: ux-moving-pulse 1.2s ease-in-out infinite; }
+}
+@keyframes ux-moving-pulse { 50% { opacity: 0.4; } }

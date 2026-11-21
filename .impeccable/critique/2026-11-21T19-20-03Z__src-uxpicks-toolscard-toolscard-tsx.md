@@ -10,6 +10,7 @@ target_fingerprint: "sha256:59f89cbf5fc530ec798bfc8082896c8d5e7e801e583f3b66b6ba
 target_path: "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\ux-picks\\src\\uxPicks\\toolsCard\\ToolsCard.tsx"
 timestamp: 2026-11-21T19-20-03Z
 slug: src-uxpicks-toolscard-toolscard-tsx
+closed: true
 ---
 Method: dual-agent (A: design review sub-agent · B: detector + browser sub-agent)
 Target: lesson card on the graph, pucks-only tools, tools fold while reading, and the board dock with them (pick toolsCard; ux-picks branch).

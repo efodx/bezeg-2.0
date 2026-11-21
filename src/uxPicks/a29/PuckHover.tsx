@@ -141,7 +141,9 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             ghostId = id;
             schedule({kind: 'ghost', key: entry.key, value});
         };
+        let touching = false;
         const focusIn = (event: FocusEvent) => {
+            if (touching) return; // a tap focuses the puck; whether it opens the card is decided on release
             const puck = (event.target as Element | null)?.closest?.('.ux-puck[data-param]') as HTMLElement | null;
             const entry = puck && getParam(puck.dataset.param!);
             if (!puck || !entry || hovered === puck) return;
@@ -153,11 +155,41 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         };
         const keydown = (event: KeyboardEvent) => { if (event.key === 'Escape') clear(); };
         // A press hides the preview; the puck itself decides whether the press jumps or scrubs.
+        // Touch has no hover: a tap on a puck's name (not its value, track or buttons) toggles the same overview card, a tap anywhere else closes it.
+        let touch: {id: number; x: number; y: number; puck: HTMLElement; wasOpen: boolean} | undefined;
         const down = (event: PointerEvent) => {
-            if ((event.target as Element | null)?.closest?.('.ux-puck[data-param]')) { const keep = hovered; clear(); hovered = keep; }
+            const puck = (event.target as Element | null)?.closest?.('.ux-puck[data-param]') as HTMLElement | null;
+            if (event.pointerType === 'touch') {
+                touching = true;
+                touch = puck && event.isPrimary ? {id: event.pointerId, x: event.clientX, y: event.clientY, puck, wasOpen: wanted === `o:${puck.dataset.param}`} : undefined;
+                if (!puck) clear();
+            }
+            if (puck) { const keep = hovered; clear(); hovered = keep; }
+        };
+        const nameTapped = (puck: HTMLElement, entry: ParamEntry, event: PointerEvent) => {
+            const target = event.target as Element | null;
+            if (target?.closest?.('button, .ux-puck-value, .ux-puck-input')) return false;
+            if (entry.kind === 'range' && trackFraction(puck, event.clientX, event.clientY) !== undefined) return false;
+            const value = puck.querySelector('.ux-puck-value, .ux-puck-input')?.getBoundingClientRect();
+            return !value || event.clientX < value.left;
+        };
+        const up = (event: PointerEvent) => {
+            if (event.pointerType !== 'touch') return;
+            const start = touch;
+            touch = undefined;
+            touching = false;
+            if (!start || start.id !== event.pointerId || event.type !== 'pointerup') return;
+            if (Math.hypot(event.clientX - start.x, event.clientY - start.y) >= 4) return;
+            const entry = getParam(start.puck.dataset.param!);
+            if (!entry || !nameTapped(start.puck, entry, event)) { clear(); return; }
+            if (start.wasOpen) { clear(); return; }
+            hovered = start.puck;
+            overview(start.puck, entry);
         };
         document.addEventListener('pointermove', move, {passive: true});
         document.addEventListener('pointerdown', down, {passive: true});
+        document.addEventListener('pointerup', up, {passive: true});
+        document.addEventListener('pointercancel', up, {passive: true});
         document.addEventListener('focusin', focusIn);
         document.addEventListener('focusout', focusOut);
         document.addEventListener('keydown', keydown);
@@ -165,6 +197,8 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         return () => {
             document.removeEventListener('pointermove', move);
             document.removeEventListener('pointerdown', down);
+            document.removeEventListener('pointerup', up);
+            document.removeEventListener('pointercancel', up);
             document.removeEventListener('focusin', focusIn);
             document.removeEventListener('focusout', focusOut);
             document.removeEventListener('keydown', keydown);
