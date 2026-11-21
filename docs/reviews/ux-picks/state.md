@@ -47,6 +47,13 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 
 Impeccable polish pass 1 done (efbebd3b, d616d449): findings, owner decisions, result and open items in `docs/reviews/ux-picks/polish-findings.md`. Board-hosted UI now goes through the dock host `src/uxPicks/dock/` (regions top-start, top-end, bottom, tray).
 
+## Dock (after polish pass 1, owner-driven iteration)
+
+- Commits: d7f1edfe (stacks, drop preview, Odčitki readout card via `src/uxPicks/boardText/BoardReadout.tsx`, ~30 graph files wrapped), 09bde461 (pucks lock note above the row), bea8babc (rows, lesson card docks in the graph, scroll clarity).
+- Model: `src/uxPicks/dock/` — `dockLayout.ts` (regions with an axis: left/right columns, `top-row`, `bottom-row`, `bottom-end`; order; per-page storage `ux-dock-layout:<path>`; lesson placeholder in memory only), `dockMeasure.ts` (drop targets both axes, 48px), `dockFlip.ts` (200 ms ease-out glide, instant under reduced motion), `DockCard.tsx`, `BoardDock.tsx`, `useLessonDock.ts` (lesson card follows a placeholder; GuidedLesson is never remounted), `dock.css`.
+- Owner rules for dragging (settled): pickup moves nothing; over a target, only cards a drop there would move glide to their final place; back over own slot or no target → pickup layout; outside all targets → floats and closes its gap. Columns grow to the free height of their side and scroll only past it (themed scrollbar + fade; "· se drsi" on the region label while dragging). Region labels Levo/Desno/Zgoraj/Spodaj/Spodaj desno in the preview. Phone: chips, one open; lesson card not graph-dockable on phone.
+- Known flaws: with the left column empty, its preview slot and "Levo" label overlap a top-row card (preview only); Odčitki repeats an "Odčitki" heading on transformations; tall Odčitki (complex-euler) covers much of the board by default; not checked: keyboard moves of the lesson card in the graph, row scrolling label, bottom-end overflow.
+
 ## Open items / known limits
 
 - a29 overview for counts (Bernstein degree) finds no fan; card points to the −/+ previews instead.
