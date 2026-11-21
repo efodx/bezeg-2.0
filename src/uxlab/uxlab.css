@@ -74,3 +74,46 @@
 .ux-onion-chip input { width: 18px; height: 18px; accent-color: var(--ux-berry); }
 .ux-onion-chip button { min-height: 36px; padding: 4px 10px; border-radius: 9px; border: 1px solid #cbd4c1; background: #fff; color: var(--ux-action); font: inherit; cursor: pointer; }
 @keyframes ux-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* b4: match the shape */
+.ux-target path { fill: none; stroke: var(--ux-berry); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; opacity: .22; }
+.ux-target circle { fill: none; stroke: var(--ux-berry); stroke-width: 3; opacity: .45; }
+.ux-match { position: absolute; z-index: 31; font: 500 .9rem/1.3 system-ui, sans-serif; color: var(--ux-ink); }
+.ux-match-entry { right: 10px; bottom: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 20px); }
+.ux-match-start {
+    display: inline-flex; gap: 8px; align-items: center; min-height: 42px; padding: 6px 14px 6px 10px; border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(93, 59, 110, .35); background: rgba(255, 253, 245, .95); color: var(--ux-berry); font: 700 .9rem/1 system-ui, sans-serif;
+    box-shadow: 0 8px 22px -14px rgba(93, 59, 110, .7); transition: transform .15s;
+}
+.ux-match-start:hover { transform: translateY(-1px); background: #fff; }
+.ux-match-best, .ux-match-streak { font: 700 .75rem/1 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--ux-berry); background: var(--ux-berry-soft); padding: 5px 8px; border-radius: 999px; }
+.ux-match-message { background: rgba(255, 253, 245, .95); border-radius: 10px; padding: 6px 10px; color: var(--ux-ink-2); }
+.ux-match-hud {
+    left: 50%; top: 10px; transform: translateX(-50%); width: min(560px, calc(100% - 20px)); box-sizing: border-box;
+    background: rgba(255, 253, 245, .97); border: 1px solid var(--ux-rule); border-radius: 16px; padding: 10px 12px;
+    box-shadow: 0 12px 30px -16px rgba(25, 55, 47, .55); display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center;
+    animation: ux-drop .35s cubic-bezier(.2, .9, .3, 1.2);
+}
+.ux-match-title { grid-column: 1 / -1; }
+.ux-match-title strong { color: var(--ux-berry); }
+.ux-match-meter { position: relative; height: 22px; border-radius: 999px; background: var(--ux-berry-soft); overflow: hidden; min-width: 120px; }
+.ux-match-meter span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #8c6a9c, var(--ux-berry)); border-radius: 999px; transition: width .18s ease-out; }
+.ux-match-meter b { position: absolute; right: 10px; top: 0; font: 800 .8rem/22px system-ui, sans-serif; color: var(--ux-ink); text-shadow: 0 0 4px #fff, 0 0 2px #fff; }
+.ux-match-actions { display: flex; gap: 6px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+.ux-match-actions button { min-height: 38px; padding: 4px 12px; border-radius: 10px; border: 1px solid #cbd4c1; background: #fff; color: var(--ux-action); font: 600 .88rem/1 system-ui, sans-serif; cursor: pointer; }
+.ux-match-actions button.ux-primary { background: var(--ux-action); color: #fff; border-color: var(--ux-action); }
+.ux-match-hud .ux-match-message { grid-column: 1 / -1; padding: 0; background: none; font-size: .85rem; }
+.ux-match-solved { border-color: rgba(93, 59, 110, .45); box-shadow: 0 0 0 4px rgba(233, 200, 74, .25), 0 12px 30px -16px rgba(25, 55, 47, .55); }
+.ux-match-solved .ux-match-meter span { background: linear-gradient(90deg, #e9c84a, #b8973a); }
+.ux-bloom { position: absolute; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
+.ux-bloom-flower { position: absolute; left: 50%; top: 45%; filter: drop-shadow(0 2px 2px rgba(60, 60, 30, .25)); }
+@media (max-width: 560px) {
+    .ux-match-hud { grid-template-columns: 1fr auto; padding: 6px 8px; top: 4px; gap: 6px; width: calc(100% - 8px); border-radius: 12px; }
+    .ux-match-active .ux-match-title { display: none; }
+    .ux-match-title { font-size: .85rem; }
+    .ux-match-meter { min-width: 70px; }
+    .ux-match-actions { gap: 4px; }
+    .ux-match-actions button { min-height: 34px; padding: 4px 8px; font-size: .8rem; }
+    .ux-match-streak { display: none; }
+    .ux-match-entry { right: 8px; bottom: 8px; }
+}

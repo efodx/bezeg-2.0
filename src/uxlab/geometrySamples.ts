@@ -67,3 +67,13 @@ export function matchScore(sketch: readonly Sample[], target: readonly Sample[],
     const distance = 0.65 * precision + 0.35 * recall;
     return Math.round(100 * Math.exp(-distance / scale));
 }
+
+/** Symmetric mean distance in pixels between two sample sets (Infinity when either is empty). */
+export function matchDistance(a: readonly Sample[], b: readonly Sample[]): number {
+    if (a.length === 0 || b.length === 0) return Infinity;
+    const thin = (set: readonly Sample[]) => set.length > 260 ? set.filter((_, index) => index % Math.ceil(set.length / 260) === 0) : set;
+    const x = thin(a), y = thin(b);
+    const forward = x.reduce((sum, point) => sum + nearest(point, y), 0) / x.length;
+    const backward = y.reduce((sum, point) => sum + nearest(point, x), 0) / y.length;
+    return Math.max(forward, backward);
+}

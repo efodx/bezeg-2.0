@@ -1,19 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
-import {contentElements, findMainBoard, svgRoot, type UxBoard, type UxElement} from './board';
+import {contentElements, findMainBoard, svgRoot, traced, type UxBoard} from './board';
 import {geometryKey} from './geometrySamples';
 import './uxlab.css';
 
-const TRACED = new Set(['curve', 'functiongraph', 'line', 'segment', 'polygon', 'arc', 'circle', 'sector', 'conic', 'ellipse', 'parabola', 'hyperbola', 'arrow', 'plot', 'spline', 'cardinalspline', 'integral', 'riemannsum', 'polygonalchain', 'semicircle', 'circumcircle', 'circumcirclearc', 'curvedifference', 'curveunion', 'curveintersection', 'inequality', 'tangent', 'normal', 'bisector', 'parallel', 'perpendicular']);
 const MAX_LAYERS = 22;
 const INTERVAL = 55;
-
-function traced(element: UxElement): boolean {
-    if (TRACED.has(element.elType)) return true;
-    // Constructed points (a point on the curve at t, a centroid) leave a dotted path; the dragged handles do not.
-    return (element.elType === 'point' || element.elType === 'glider' || element.elType === 'intersection' || element.elType === 'midpoint')
-        && element.isDraggable === false;
-}
 
 /**
  * Lane B b3: while the learner drags a point or moves a control, earlier positions of every curve stay on the board

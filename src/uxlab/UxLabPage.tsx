@@ -13,6 +13,30 @@ interface Prototype {
 /** Best first. Deep links open the lesson with the prototype switched on; the same link without `ux` is today's app. */
 const PROTOTYPES: Prototype[] = [
     {
+        id: 'b4',
+        name: 'Ujemi obliko: izziv, ki ga ne moreš nehati igrati',
+        idea: 'Trenutni prizor postane vijolična tarča, graf pa se strese v bližnji veljaven prizor. Z vlečenjem točk ali drsniki ga pripelješ nazaj; merilnik kaže ujemanje, ob zadetku zacveti bezeg in niz se podaljša, z nizom pa raste število premaknjenih parametrov.',
+        generalizes: 'Tresljaj nastane iz posnetka stanja (točke premakne kot celoto, parametre pomnoži), tarča in ujemanje pa iz vzorčenja SVG-krivulj plošče. Deluje v prostem raziskovanju in v okvirjih za opazovanje vsake lekcije; namig in rešitev uporabljata prehode iz b1.',
+        try: 'Pritisni »Izziv: ujemi obliko« spodaj desno na grafu.',
+        links: [
+            {label: 'Bézier: krivulja', to: '/bezeg-2.0/bezier/curve?ux=b4'},
+            {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?ux=b4'},
+            {label: 'Trikotnik: Eulerjeva premica', to: '/bezeg-2.0/euler-line?ux=b4'},
+        ],
+    },
+    {
+        id: 'b3',
+        name: 'Sledi: vidiš celo družino krivulj',
+        idea: 'Ko vlečeš točko ali premikaš drsnik, prejšnje lege vseh krivulj ostanejo na grafu kot bledeče sledi, kot čebulni papir pri risani animaciji. Začetna oblika ostane črtkana, z »Ohrani sledi« pa učitelj pusti celo pahljačo na tabli.',
+        generalizes: 'Posluša posodobitve plošče JSXGraph med učenčevo interakcijo in klonira narisane krivulje; ne pozna nobenega grafa posebej.',
+        try: 'Primi točko ali drsnik in ga premikaj.',
+        links: [
+            {label: 'Bézier: krivulja', to: '/bezeg-2.0/bezier/curve?ux=b3'},
+            {label: 'Trikotnik: Eulerjeva premica', to: '/bezeg-2.0/euler-line?ux=b3'},
+            {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?ux=b3'},
+        ],
+    },
+    {
         id: 'b2',
         name: 'Napoved: najprej nariši, potem poglej',
         idea: 'Preden lekcija spremeni graf, ga zadrži v starem stanju, razlago zamegli in vpraša: kaj se bo zgodilo? Učenec s prstom nariše napoved, nato se resnica zvezno pripelje na graf, njegova črta ostane kot črtkana sled z oceno ujemanja.',

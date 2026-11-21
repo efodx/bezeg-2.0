@@ -71,3 +71,13 @@ export function elementSignature(element: UxElement): string {
 export function svgRoot(board: UxBoard): SVGSVGElement | undefined {
     return board.renderer.svgRoot ?? board.containerObj.querySelector('svg') ?? undefined;
 }
+
+const TRACED = new Set(['curve', 'functiongraph', 'line', 'segment', 'polygon', 'arc', 'circle', 'sector', 'conic', 'ellipse', 'parabola', 'hyperbola', 'arrow', 'plot', 'spline', 'cardinalspline', 'integral', 'riemannsum', 'polygonalchain', 'semicircle', 'circumcircle', 'circumcirclearc', 'curvedifference', 'curveunion', 'curveintersection', 'inequality', 'tangent', 'normal', 'bisector', 'parallel', 'perpendicular']);
+
+export function traced(element: UxElement): boolean {
+    if (TRACED.has(element.elType)) return true;
+    // Constructed points (a point on the curve at t, a centroid) leave a dotted path; the dragged handles do not.
+    return (element.elType === 'point' || element.elType === 'glider' || element.elType === 'intersection' || element.elType === 'midpoint')
+        && element.isDraggable === false;
+}
+
