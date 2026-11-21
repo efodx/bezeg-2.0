@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a11', name: 'Nariši in najdi',
+        idea: 'Z eno potezo nariši krivuljo na graf in Bezeg poišče parametre, pri katerih gre graf skozi tvojo skico — nato krivulja iz prejšnjega položaja zdrsne vanjo in kartica pove »tvoja skica: c ≈ 1, d ≈ −3, a ≈ 2«. Obratno vprašanje vsake lekcije o grafih (katera števila dajo to obliko?) postane gib roke; ko dva parametra delujeta enako (a in b pri paraboli), to tudi pove.',
+        general: 'Reševalec ne pozna grafa: s kratkim sunkom ugotovi, katere krivulje premika kateri parameter, nato minimizira obojestransko razdaljo med skico in krivuljo (Levenberg–Marquardt s končnimi razlikami prek prave table, več začetnih točk, tudi zrcaljenja predznaka). Deluje na vsakem grafu s krivuljo in drsniki: parabola, sinusoida, binomska porazdelitev.',
+        try: 'Pritisni »Nariši in najdi« desno spodaj, nariši obliko z eno potezo in počakaj nekaj sekund. Pri binomski porazdelitvi nariši zvonec — Bezeg najde p.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a11', free: true},
+            {label: 'Trigonometrične funkcije', family: 'Trigonometrija', path: 'functions/trigonometric', flags: 'a11', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a11', free: true},
+        ],
+    },
+    {
         id: 'a10', name: 'Zadeni graf',
         idea: 'Vsak graf postane igra: na tabli se pojavi črtkana tarča — isti graf pri skritih vrednostih — in učenec svoj graf pripelje nanjo s ploščicami, z drsniki ali tako, da prime krivuljo (a4). Prva kroga povesta, kateri parameter se je spremenil; potem mora učenec to razbrati sam iz oblike (ožja parabola — torej a), nato pa ugane dva ali tri hkrati, z nizi zadetkov in točkami.',
         general: 'Tarče so naključne lepe vrednosti parametrov iz deljenega registra; tarča, ki bi zbežala s table, se zavrže, parametri, ki premaknejo le napis, se izločijo. Igra ne potrebuje nobene vrstice kode posameznega grafa in deluje na vsakem grafu z drsnikom.',
