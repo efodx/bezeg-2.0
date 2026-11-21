@@ -197,6 +197,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c18',
+        name: 'Previj nazaj',
+        borrowed: 'previjanje časa iz igre Braid, zgodovina razveljavitev v glasbenih programih in drsnik videa',
+        idea: 'Vse, kar študent na grafu naredi, vlek točk in premik drsnikov, se snema kot časovni trak pod grafom, z oznako na začetku vsake kretnje. Z vlekom po traku se graf odvrti nazaj skozi lastno raziskovanje, Ctrl+Z in Ctrl+Y pa korakata po eno kretnjo.',
+        generalizes: 'Snema vse priključene drsnike iz skupnega Slider in vse vlečljive točke JSXGraph, predvaja pa skozi iste vmesnike kot roka (vrednost drsnika in pravi vlek točke), zato stanje aplikacije sledi. Ni podatkov na lekcijo.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c18`,
+                tryThis: 'Premakni nekaj drsnikov, nato povleci po traku pod grafom nazaj: parabola se vrne po isti poti. Ctrl+Z razveljavi eno kretnjo.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?ux=c18`,
+                tryThis: 'Povleci oglišča v nekaj različnih trikotnikov, nato s trakom poišči tistega, pri katerem je bil H zunaj trikotnika.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?ux=c18`,
+                tryThis: 'Premakni kontrolne točke in t, nato previj in primerjaj obliko krivulje pred spremembo in po njej.'},
+        ],
+    },
+    {
         id: 'c17',
         name: 'Kazalnik',
         borrowed: 'laserski kazalnik predavatelja, črnilo, ki izgine, iz programov za prosojnice, in reflektor vodiča po muzeju',
@@ -281,7 +296,7 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16,c17,c18`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
                 <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>

@@ -15,6 +15,7 @@ import {attachWhatIf} from "./whatIf";
 import {attachScrubProse} from "./scrubProse";
 import {attachInvariants} from "./invariants";
 import {attachLaser} from "./laser";
+import {attachRewind} from "./rewind";
 
 /** Attaches the flagged lane C board prototypes to a main graph board; returns their disposal. */
 export function attachUxBoard(board: Board): () => void {
@@ -24,6 +25,7 @@ export function attachUxBoard(board: Board): () => void {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
+    if (['c16', 'c17', 'c18'].some(uxEnabled)) disposers.push(keepToolsInView(board));
     if (uxEnabled('c1')) disposers.push(attachLongExposure(board));
     if (uxEnabled('c4')) disposers.push(attachGrabGraph(board));
     if (uxEnabled('c5')) disposers.push(attachMatchChallenge(board));
@@ -39,9 +41,38 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c15')) disposers.push(attachScrubProse(board));
     if (uxEnabled('c16')) disposers.push(attachInvariants(board));
     if (uxEnabled('c17')) disposers.push(attachLaser(board));
+    if (uxEnabled('c18')) disposers.push(attachRewind(board));
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));
     }
     return () => { for (const dispose of disposers.splice(0)) dispose(); };
+}
+
+/**
+ * Desktop boards are often taller than the window, so tools anchored to the board's bottom edge would sit below the
+ * fold. The container gets `--ux-lift`: how far its bottom edge is below the window, which bottom-anchored tools add.
+ */
+function keepToolsInView(board: Board): () => void {
+    const container = board.containerObj as HTMLElement | undefined;
+    if (!container) return () => undefined;
+    let frame = 0;
+    const update = () => {
+        frame = 0;
+        const box = container.getBoundingClientRect();
+        const lift = Math.max(0, Math.min(box.bottom - window.innerHeight, box.height - 140));
+        container.style.setProperty('--ux-lift', `${Math.round(lift)}px`);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    window.addEventListener('scroll', schedule, {passive: true});
+    window.addEventListener('resize', schedule);
+    const interval = window.setInterval(schedule, 1000);
+    update();
+    return () => {
+        window.removeEventListener('scroll', schedule);
+        window.removeEventListener('resize', schedule);
+        window.clearInterval(interval);
+        if (frame) cancelAnimationFrame(frame);
+        container.style.removeProperty('--ux-lift');
+    };
 }
