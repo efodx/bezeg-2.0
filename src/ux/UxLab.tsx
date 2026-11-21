@@ -3,10 +3,22 @@ import './UxLab.css';
 
 /** The lane-A tour: one card per prototype, best first, with deep links that switch the flags on. */
 
-interface LabLink { label: string; family: string; path: string; at?: number; flags: string }
+interface LabLink { label: string; family: string; path: string; at?: number; flags: string; free?: boolean }
 interface LabPrototype { id: string; name: string; idea: string; general: string; try: string; links: LabLink[] }
 
 const PROTOTYPES: LabPrototype[] = [
+    {
+        id: 'a10', name: 'Zadeni graf',
+        idea: 'Vsak graf postane igra: na tabli se pojavi črtkana tarča — isti graf pri skritih vrednostih — in učenec svoj graf pripelje nanjo s ploščicami, z drsniki ali tako, da prime krivuljo (a4). Prva kroga povesta, kateri parameter se je spremenil; potem mora učenec to razbrati sam iz oblike (ožja parabola — torej a), nato pa ugane dva ali tri hkrati, z nizi zadetkov in točkami.',
+        general: 'Tarče so naključne lepe vrednosti parametrov iz deljenega registra; tarča, ki bi zbežala s table, se zavrže, parametri, ki premaknejo le napis, se izločijo. Igra ne potrebuje nobene vrstice kode posameznega grafa in deluje na vsakem grafu z drsnikom.',
+        try: 'Pritisni »Zadeni graf« desno spodaj na grafu. Spusti ploščico, ko se graf pokrije s tarčo; tarča se med približevanjem obarva zeleno.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a1,a4,a10', free: true},
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', flags: 'a1,a10', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a1,a10', free: true},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', flags: 'a1,a10', free: true},
+        ],
+    },
     {
         id: 'a9', name: 'Živo besedilo',
         idea: 'Simbol v besedilu lekcije, ki je parameter grafa (d v »Navpični premik d«, θ v formuli), postane ročica. Pokaži nanj in na grafu zasvetijo deli, ki jih premika, ter oznake in ploščica, ki so od njega odvisne; povleci ga vstran in parameter mu sledi. Med razlago je simbol vzmet: spusti ga in vrednost se vrne na lekcijino.',
@@ -113,7 +125,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 function href(link: LabLink, flags: string | undefined) {
-    const query = new URLSearchParams({learn: '1'});
+    const query = new URLSearchParams(link.free ? {} : {learn: '1'});
     if (link.at) query.set('uxAt', String(link.at));
     if (flags) query.set('ux', flags);
     return `/bezeg-2.0/${link.path}?${query.toString()}`;

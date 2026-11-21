@@ -17,7 +17,7 @@ const SKIPPED_TYPES = new Set([5, 18, 24]);
 const DRAWN_TAGS = ['path', 'line', 'ellipse', 'circle', 'polygon', 'rect'];
 type BoardObject = {id: string; type: number; elType?: string; rendNode?: SVGElement; visPropCalc?: {visible?: boolean}};
 
-function signature(node: Element): string {
+export function signature(node: Element): string {
     let out = node.tagName;
     for (const name of GEOMETRY_ATTRIBUTES) {
         const value = node.getAttribute(name);
@@ -26,36 +26,36 @@ function signature(node: Element): string {
     return out;
 }
 
-function drawn(board: Board): BoardObject[] {
+export function drawn(board: Board): BoardObject[] {
     return ((board as unknown as {objectsList: BoardObject[]}).objectsList).filter(object => object.rendNode && object.visPropCalc?.visible
         && !SKIPPED_TYPES.has(object.type) && object.elType !== 'axis' && object.elType !== 'text' && object.elType !== 'ticks'
         && DRAWN_TAGS.includes(object.rendNode.tagName.toLowerCase()));
 }
 
-function meaningful(entry: ParamEntry | undefined): entry is ParamEntry {
+export function meaningful(entry: ParamEntry | undefined): entry is ParamEntry {
     return !!entry && entry.max > entry.min && !entry.display && !PRESENTATION_LABEL.test(entry.label);
 }
 
-function tolerance(entry: ParamEntry) {
+export function tolerance(entry: ParamEntry) {
     const span = entry.max - entry.min;
     return entry.step >= 1 ? entry.step * 0.5 : Math.max(entry.step * 1.5, span * 0.008);
 }
 
-function distance(entry: ParamEntry, a: number, b: number) {
+export function distance(entry: ParamEntry, a: number, b: number) {
     const d = Math.abs(a - b);
     return entry.cyclic === undefined ? d : Math.min(d, entry.cyclic - d);
 }
 
-function mix(a: number[], b: number[], t: number) {
+export function mix(a: number[], b: number[], t: number) {
     const c = a.map((v, i) => Math.round(v + (b[i] - v) * t));
     return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 }
 
-interface Target { key: string; from: number; to: number }
+export interface Target { key: string; from: number; to: number }
 interface Pending { from: Map<string, number>; armedAt: number; lastChange: number }
 type Phase = 'rewinding' | 'playing' | 'solved' | 'revealed';
 
-function tween(targets: Target[], toward: 'from' | 'to', duration: number, done: () => void): () => void {
+export function tween(targets: Target[], toward: 'from' | 'to', duration: number, done: () => void): () => void {
     const start = performance.now();
     const origin = new Map(targets.map(target => [target.key, getParam(target.key)?.value ?? target[toward === 'to' ? 'from' : 'to']]));
     let raf = 0;
@@ -75,7 +75,7 @@ function tween(targets: Target[], toward: 'from' | 'to', duration: number, done:
     return () => cancelAnimationFrame(raf);
 }
 
-function Bloom() {
+export function Bloom() {
     // Elderflower florets: five cream petals round a yellow eye, thrown out from the middle of the board.
     const florets = Array.from({length: 14}, (_, i) => {
         const angle = (i / 14) * Math.PI * 2 + (i % 3) * 0.3;

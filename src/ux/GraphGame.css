@@ -1,0 +1,28 @@
+.demonstration-workspace .workspace-graph .ux-game-start {
+    position: absolute; right: 10px; bottom: 64px; z-index: 6; pointer-events: auto;
+    display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 4px 13px 4px 9px; border-radius: 12px; cursor: pointer;
+    background: rgba(255, 253, 245, 0.94); border: 1px solid #d6dccb; color: #19372f; font-size: 0.82rem; font-weight: 600;
+    box-shadow: 0 2px 10px rgba(25, 55, 47, 0.1);
+}
+.ux-game-start:hover { border-color: #b88a43; }
+.ux-game-start svg { width: 20px; height: 20px; fill: none; stroke: #b88a43; stroke-width: 1.7; }
+.ux-game-start svg .dot { fill: #b88a43; }
+.ux-game-head { display: flex; align-items: center; gap: 8px; margin: 0 0 4px 4px; font-size: 0.76rem; color: #526152; }
+.ux-game-round { font-weight: 700; color: #19372f; letter-spacing: 0.02em; }
+.ux-game-streak { background: #f3d98b; color: #6b430c; border-radius: 9px; padding: 1px 8px; font-weight: 700; animation: ux-streak 0.5s ease-out; }
+@keyframes ux-streak { from { transform: scale(1.4); } }
+.ux-game-points { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 650; color: #19372f; }
+.demonstration-workspace .workspace-graph .ux-game .ux-game-head .ux-turn-close { min-height: 32px; min-width: 32px; padding: 0; font-size: 1rem; }
+.ux-game-good { color: #2f7a4b; }
+.ux-game.is-capturing .ux-turn-row { opacity: 0.5; }
+.demonstration-workspace .workspace-graph .ux-game .ux-turn-card { min-width: min(320px, 100%); }
+@media (max-width: 600px) { .demonstration-workspace .workspace-graph .ux-game-start { bottom: 58px; right: 6px; } }
+.demonstration-workspace .workspace-graph .ux-game .ux-game-head .ux-turn-show { min-height: 32px; padding: 0 10px; }
+@media (max-width: 600px) {
+    .ux-game .ux-turn-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-top: 9px; margin-top: -9px; gap: 5px; }
+    .ux-game .ux-turn-row::-webkit-scrollbar { display: none; }
+    .ux-game .ux-turn-knob { flex: none; }
+    .ux-game .ux-puck { min-width: 52px; min-height: 42px; padding: 3px 8px 5px; }
+    .ux-game .ux-puck-text { gap: 5px; }
+    .ux-game .ux-puck-value { font-size: 0.9rem; min-width: 1.6em; }
+}
