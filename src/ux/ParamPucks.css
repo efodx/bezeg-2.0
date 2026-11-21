@@ -83,10 +83,16 @@
 .ux-tape-readout em { font-style: normal; font-size: 0.72rem; color: #fff; background: #244c37; padding: 1px 7px; border-radius: 9px; }
 
 @media (max-width: 600px) {
-    .ux-pucks { left: 6px; right: 6px; bottom: 6px; top: 6px; }
+    .ux-pucks { left: 6px; right: 6px; bottom: 6px; top: 6px; justify-content: flex-end; }
     .ux-tape svg { height: 28px; }
-    .ux-puck { min-width: 58px; padding: 4px 10px 6px; }
-    .ux-puck-symbol { font-size: 1.1rem; }
+    /* One strip along the bottom edge so the curve keeps the board; it scrolls sideways when the pucks do not fit. */
+    .ux-pucks-row { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; padding-top: 10px; margin-top: -10px; gap: 5px; }
+    .ux-pucks-row::-webkit-scrollbar { display: none; }
+    .ux-puck { flex: none; min-width: 52px; min-height: 42px; padding: 3px 8px 5px; }
+    .ux-puck-text { gap: 5px; }
+    .ux-puck-symbol { font-size: 1.05rem; }
+    .ux-puck-value { font-size: 0.9rem; min-width: 1.8em; }
+    .ux-puck-name { max-width: 6em; }
 }
 .ux-tape.is-detent .ux-tape-needle { stroke: #244c37; stroke-width: 3.4; }
 .ux-tape.is-detent .ux-tape-readout strong { color: #244c37; text-decoration: underline 2px #b88a43; text-underline-offset: 3px; }
