@@ -41,7 +41,7 @@ export interface DockCardProps {
     onToggle?: (open: boolean) => void;
     /** Starts folded on a narrow window (a crowded board) until the learner opens or folds it once. */
     foldWhenNarrow?: boolean;
-    /** Starts folded while a guided lesson is open (its card needs the column) until the learner opens or folds it once. */
+    /** Starts folded while a guided lesson is open (its card and the tools need the column) until the learner unfolds it during that lesson; the fold is kept apart from the one set outside lessons. */
     foldInLesson?: boolean;
 }
 
@@ -54,6 +54,9 @@ const posKey = (kind: string) => kind === 'text' ? 'ux-boardtext-pos' : `ux-boar
 
 /** Below this window width the board is crowded (tools, three cards, pucks): secondary cards start folded. */
 const NARROW_PX = 1200;
+/** Lesson-time folds, per card, until the lesson closes. */
+const lessonFolds = new Map<string, boolean>();
+const lessonIsOpen = () => !!document.querySelector('.demonstration-workspace.lesson-open');
 function readCollapsed(kind: string, foldWhenNarrow = false): boolean {
     try {
         const stored = localStorage.getItem(collapsedKey(kind));
@@ -76,7 +79,6 @@ export function DockCard(props: DockCardProps) {
     const phone = dock?.phone ?? false;
     const version = useDockLayout();
     const [ownCollapsed, setCollapsed] = useState(() => readCollapsed(kind, props.foldWhenNarrow));
-    const collapsed = props.collapsed ?? ownCollapsed;
     const [pos, setPos] = useState<Pos | null>(() => readPos(kind));
     const card = useRef<HTMLDivElement>(null);
     const drag = useRef<{dx: number; dy: number; sx: number; sy: number; moved: boolean} | null>(null);
@@ -86,19 +88,25 @@ export function DockCard(props: DockCardProps) {
     /** What a screen reader hears after a keyboard move, a drop or a reset (a polite status line). */
     const [said, setSaid] = useState('');
     
+    // In a guided lesson a `foldInLesson` card starts folded and keeps its own lesson-time fold (memory only); the fold the
+    // learner set outside lessons is neither read nor overwritten.
+    const [inLesson, setInLesson] = useState(() => !!props.foldInLesson && lessonIsOpen());
+    const [lessonFold, setLessonFold] = useState<boolean | null>(() => lessonFolds.get(kind) ?? null);
     useEffect(() => {
         if (!props.foldInLesson) return undefined;
         const workspace = document.querySelector('.demonstration-workspace');
         if (!workspace) return undefined;
         const apply = () => {
-            try { if (localStorage.getItem(collapsedKey(kind)) !== null) return; } catch { return; }
-            setCollapsed(workspace.classList.contains('lesson-open') || (props.foldWhenNarrow === true && window.innerWidth < NARROW_PX));
+            const now = workspace.classList.contains('lesson-open');
+            setInLesson(now);
+            if (!now) { lessonFolds.delete(kind); setLessonFold(null); }
         };
         apply();
         const observer = new MutationObserver(apply);
         observer.observe(workspace, {attributes: true, attributeFilter: ['class']});
         return () => observer.disconnect();
-    }, [kind, props.foldInLesson, props.foldWhenNarrow]);
+    }, [kind, props.foldInLesson]);
+    const collapsed = props.collapsed ?? (inLesson ? lessonFold ?? true : ownCollapsed);
     useEffect(() => registerCard(kind, props.region, props.order ?? 0), [kind, props.region, props.order]);
     useEffect(() => { setFloating(kind, floating); }, [kind, floating]);
     // A new page keeps its own place for the card.
@@ -160,6 +168,7 @@ export function DockCard(props: DockCardProps) {
         if (phone) { dock.setPhoneOpen(open ? null : kind); return; }
         const next = !collapsed;
         if (props.onToggle) { props.onToggle(!next); return; }
+        if (inLesson) { lessonFolds.set(kind, next); setLessonFold(next); return; }
         setCollapsed(next);
         try { localStorage.setItem(collapsedKey(kind), next ? '1' : '0'); } catch { /* ignore */ }
     };

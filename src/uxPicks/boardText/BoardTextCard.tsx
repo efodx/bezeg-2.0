@@ -127,6 +127,52 @@ function TypesetBody(props: {html: string; className?: string}) {
     </>;
 }
 
+const squash = (t: string) => t.normalize('NFKC').replace(/[\s ]+/g, '').replace(/[−–]/g, '-');
+const numbers = (t: string) => t.match(/\d+(?:,\d+)?/g) ?? [];
+/** A digit string the card above shows as `shown` (the same, or the same cut shorter at 3 or more characters). */
+const sameNumber = (a: string, b: string) => a === b || (Math.min(a.length, b.length) >= 3 && (a.startsWith(b) || b.startsWith(a)));
+
+/** Whether a readout row (label, value) says what the text above already shows (both squashed): a value the text
+ * repeats whole, or the row's symbol (its label after the first word) followed by the same number. */
+export function repeatsText(shown: string, label: string, value: string): boolean {
+    const v = squash(value), l = squash(label.split(/\s+/).slice(1).join(' '));
+    if (v === '') return false;
+    if (v.length >= 4 && shown.includes(v)) return true;
+    const nums = numbers(v);
+    if (l === '' || nums.length !== 1 || v.replace(nums[0]!, '') !== '') return false;
+    for (let at = shown.indexOf(l); at >= 0; at = shown.indexOf(l, at + 1)) {
+        const after = numbers(shown.slice(at + l.length, at + l.length + nums[0]!.length + 2))[0];
+        if (after && shown.slice(at + l.length).startsWith(after) && sameNumber(after, nums[0]!)) return true;
+    }
+    return false;
+}
+
+/** The readout slots under the formula, below a thin rule; rows that repeat what the text shows are hidden. */
+function MergedReadouts() {
+    const root = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const run = () => {
+            const el = root.current;
+            const text = el?.parentElement?.querySelector('.ux-btext-body:not(.ux-bmerged)');
+            if (!el || !text) return;
+            const shown = squash(text.textContent ?? '');
+            let visible = 0;
+            el.querySelectorAll('.readout-list-row').forEach(row => {
+                const dup = repeatsText(shown, row.querySelector('dt')?.textContent ?? '', row.querySelector('dd')?.textContent ?? '');
+                row.classList.toggle('ux-bread-dup', dup);
+                if (!dup) visible++;
+            });
+            el.querySelectorAll('.readout-list').forEach(l => l.classList.toggle('ux-bread-dup', l.querySelectorAll('.readout-list-row:not(.ux-bread-dup)').length === 0));
+            el.querySelectorAll('.inspector-reveals-title').forEach(h => h.classList.toggle('ux-bread-dup', h.textContent === 'Odčitki'));
+            el.classList.toggle('ux-bread-empty', visible === 0 && !el.querySelector('p, .readout-scroll-table'));
+        };
+        run();
+        const timer = window.setInterval(run, 250);
+        return () => window.clearInterval(timer);
+    }, []);
+    return <div ref={root} className="ux-bmerged"><ReadoutBody/></div>;
+}
+
 /**
  * Pick boardText: two cards docked on the graph (DockCard). The text card holds the formula and the
  * readouts the graph drew on its board; the legend card holds the tools' "Legenda" group and the legend rows the
@@ -140,11 +186,14 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
     const readouts = useReadoutCount();
     const hasLegend = items.length > 0 || rows.length > 0;
     return <>
-        {scan.text !== '' && <DockCard kind="text" title="Besedilo" what="besedilo" region="tr">
-            {open => open && <TypesetBody html={scan.text}/>}
+        {scan.text !== '' && <DockCard kind="text" title="Besedilo" what="besedilo" region="tr" foldInLesson>
+            {open => open && <>
+                <TypesetBody html={scan.text}/>
+                {readouts > 0 && <MergedReadouts/>}
+            </>}
         </DockCard>}
         {/* Bottom right: the top left holds the tools and, in a lesson, the lesson card (owner chose "lesson takes top-left"). */}
-        {hasLegend && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow>
+        {hasLegend && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow foldInLesson>
             {open => open && <div className="ux-btext-body ux-bleg-body">
                 {items.length > 0 && <ul className="ux-bleg-list">
                     {items.map(item => <li key={item.id} data-legend={item.id}>
@@ -155,7 +204,7 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
                 {rows.length > 0 && <TypesetBody html={rows.join('')} className="ux-bleg-rows"/>}
             </div>}
         </DockCard>}
-        {readouts > 0 && <DockCard kind="readout" title="Odčitki" what="odčitke" region="tr" order={2} foldWhenNarrow>
+        {readouts > 0 && scan.text === '' && <DockCard kind="readout" title="Odčitki" what="odčitke" region="tr" order={2} foldWhenNarrow foldInLesson>
             {open => open && <ReadoutBody/>}
         </DockCard>}
         <BoardSectionCards/>

@@ -33,3 +33,9 @@
 .ux-bread-slot .inspector-help, .ux-bread-slot p { color: var(--bezeg-shell-ink-secondary); font-size: 0.78rem; line-height: 1.4; margin: 6px 0 0; }
 .ux-bread-slot .readout-list { margin: 0; }
 .ux-bread-slot .readout-scroll-table { max-width: 100%; overflow: auto; }
+
+/* Readouts merged under the text card: a thin rule, rows the text already shows hidden. */
+.ux-bmerged { border-top: 1px solid var(--bezeg-shell-rule); margin: 0 12px; padding-top: 8px; }
+.ux-bmerged .ux-bread-body { padding: 0 0 9px; }
+.ux-bmerged.ux-bread-empty { display: none; }
+.ux-bread-dup { display: none !important; }
