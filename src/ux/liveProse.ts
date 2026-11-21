@@ -242,7 +242,7 @@ export function matchGraphShapes(board: Board, f: (v: number) => number): Shape[
     return found;
 }
 
-export function attachLiveProse(board: Board): () => void {
+export function attachLiveProse(board: Board, tour = false): () => void {
     const container = board.containerObj as HTMLElement | undefined;
     const svg = (board.renderer as any)?.svgRoot as SVGSVGElement | undefined;
     if (!container || !svg) return () => undefined;
@@ -631,14 +631,127 @@ export function attachLiveProse(board: Board): () => void {
     svg.addEventListener('pointerover', onBoardOver);
     svg.addEventListener('pointerout', onBoardOut);
     const onDocumentDown = (event: PointerEvent) => {
-        if (pinned && !(event.target as Element).closest?.('.ux-lp, .ux-lp-peek')) hide();
+        if (reading && !(event.target as Element).closest?.('.ux-read-button, .ux-lp-peek')) stopReading();
+        else if (pinned && !(event.target as Element).closest?.('.ux-lp, .ux-lp-peek')) hide();
     };
     document.addEventListener('pointerdown', onDocumentDown, true);
 
+    // ------------------------------------------------------------ c12 reading tour
+
+    /** The frame's text as sentences, each a DOM range with the formulas inside it, in reading order. */
+    const sentences = (root: Element): {range: Range; maths: HTMLElement[]; length: number}[] => {
+        type Piece = {text: Text} | {math: HTMLElement};
+        const pieces: Piece[] = [];
+        const walk = (node: Node) => {
+            for (const child of Array.from(node.childNodes)) {
+                if (child.nodeType === Node.TEXT_NODE) pieces.push({text: child as Text});
+                else if (child instanceof HTMLElement) {
+                    if (child.tagName === 'MJX-CONTAINER') pieces.push({math: child});
+                    else if (!child.matches('button, details:not([open]) > :not(summary), .ux-read-button, script, style')) walk(child);
+                }
+            }
+        };
+        const result: {range: Range; maths: HTMLElement[]; length: number}[] = [];
+        for (const block of Array.from(root.querySelectorAll('p, li, .guided-lesson-notation, .guided-lesson-worked-example'))) {
+            if (block.parentElement?.closest('p, li, .guided-lesson-notation, .guided-lesson-worked-example')) continue;
+            pieces.length = 0;
+            walk(block);
+            let range: Range | undefined;
+            let maths: HTMLElement[] = [];
+            let length = 0;
+            const close = (node: Node, offset: number) => {
+                if (!range) return;
+                range.setEnd(node, offset);
+                if (length > 2 || maths.length) result.push({range, maths, length});
+                range = undefined;
+                maths = [];
+                length = 0;
+            };
+            for (const piece of pieces) {
+                if ('math' in piece) {
+                    if (!range) { range = document.createRange(); range.setStartBefore(piece.math); }
+                    maths.push(piece.math);
+                    length += 4;
+                    continue;
+                }
+                const text = piece.text.data;
+                let from = 0;
+                for (let i = 0; i < text.length; i++) {
+                    if (!range && /\S/.test(text[i])) { range = document.createRange(); range.setStart(piece.text, i); from = i; }
+                    if (range && /[.!?]/.test(text[i]) && (i + 1 >= text.length || /\s/.test(text[i + 1]))) {
+                        length += i - from;
+                        close(piece.text, i + 1);
+                        from = i + 1;
+                    }
+                }
+                if (range) length += text.length - from;
+            }
+            const last = pieces[pieces.length - 1];
+            if (range && last) close('math' in last ? last.math.parentNode! : last.text, 'math' in last ? Array.from(last.math.parentNode!.childNodes).indexOf(last.math) + 1 : last.text.length);
+        }
+        return result;
+    };
+
+    let reading = false;
+    let readToken = 0;
+    const highlights = (CSS as any).highlights as Map<string, unknown> | undefined;
+    const HighlightClass = (window as any).Highlight as (new (...ranges: Range[]) => unknown) | undefined;
+    const readButton = document.createElement('button');
+    readButton.type = 'button';
+    readButton.className = 'ux-read-button';
+    const setButton = () => {
+        readButton.innerHTML = reading ? '<span aria-hidden="true">■</span> Ustavi branje' : '<span aria-hidden="true">▶</span> Preberi z grafom';
+        readButton.setAttribute('aria-pressed', String(reading));
+    };
+    setButton();
+    const stopReading = () => {
+        reading = false;
+        readToken++;
+        highlights?.delete('ux-read');
+        for (const node of links.keys()) node.classList.remove('ux-read-now');
+        setButton();
+        hide();
+    };
+    const read = async () => {
+        const root = document.querySelector('.guided-lesson-frame');
+        if (!root) return;
+        reading = true;
+        const token = ++readToken;
+        setButton();
+        scan();
+        const wait = (ms: number) => new Promise<boolean>(resolve => window.setTimeout(() => resolve(token === readToken), ms));
+        for (const sentence of sentences(root)) {
+            if (token !== readToken) return;
+            if (highlights && HighlightClass) highlights.set('ux-read', new HighlightClass(sentence.range));
+            const box = sentence.range.getBoundingClientRect();
+            if (box.height && (box.top < 0 || box.bottom > window.innerHeight)) (sentence.range.startContainer.parentElement)?.scrollIntoView({block: 'center', behavior: 'smooth'});
+            const linked = sentence.maths.filter(math => links.has(math));
+            const words = Math.max(1100, Math.min(4200, sentence.length * 45));
+            if (!linked.length) { hide(); if (!(await wait(words))) return; continue; }
+            const each = Math.max(1300, words / linked.length);
+            for (const math of linked) {
+                for (const node of links.keys()) node.classList.toggle('ux-read-now', node === math);
+                show(math);
+                pinned = true;
+                if (!(await wait(each))) return;
+                pinned = false;
+            }
+            for (const node of links.keys()) node.classList.remove('ux-read-now');
+        }
+        if (token === readToken) stopReading();
+    };
+    readButton.addEventListener('click', () => { if (reading) stopReading(); else void read(); });
+    const placeReadButton = () => {
+        if (!tour) return;
+        const root = document.querySelector('.guided-lesson-frame');
+        if (!root) { readButton.remove(); return; }
+        if (readButton.parentElement !== root) { stopReading(); root.prepend(readButton); }
+    };
+
     let scanTimer = 0;
-    const scheduleScan = () => { window.clearTimeout(scanTimer); scanTimer = window.setTimeout(scan, 250); };
+    const scheduleScan = () => { window.clearTimeout(scanTimer); scanTimer = window.setTimeout(() => { scan(); placeReadButton(); }, 250); };
     const observer = new MutationObserver(mutations => {
-        if (mutations.some(mutation => !layer.contains(mutation.target) && mutation.target !== layer && mutation.target !== chip && !chip.contains(mutation.target))) scheduleScan();
+        if (mutations.some(mutation => !layer.contains(mutation.target) && mutation.target !== layer && mutation.target !== chip && !chip.contains(mutation.target) && !readButton.contains(mutation.target) && !peek.contains(mutation.target))) scheduleScan();
     });
     observer.observe(document.body, {childList: true, subtree: true});
     let redraw = 0;
@@ -651,6 +764,8 @@ export function attachLiveProse(board: Board): () => void {
     const interval = window.setInterval(scan, 2000);
 
     return () => {
+        stopReading();
+        readButton.remove();
         observer.disconnect();
         window.clearTimeout(scanTimer);
         window.clearInterval(interval);

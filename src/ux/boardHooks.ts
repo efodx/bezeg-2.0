@@ -15,7 +15,7 @@ import {attachGhostHand} from "./ghostHand";
 export function attachUxBoard(board: Board): () => void {
     const disposers: (() => void)[] = [];
     // Board tools stay usable in lesson reading frames: the lesson's click-to-hide catcher lets clicks through to them.
-    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11'].some(uxEnabled)) {
+    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12'].some(uxEnabled)) {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
@@ -24,7 +24,7 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c5')) disposers.push(attachMatchChallenge(board));
     if (uxEnabled('c6')) disposers.push(attachListen(board));
     if (uxEnabled('c7')) disposers.push(attachCompare(board));
-    if (uxEnabled('c8')) disposers.push(attachLiveProse(board));
+    if (uxEnabled('c8') || uxEnabled('c12')) disposers.push(attachLiveProse(board, uxEnabled('c12')));
     if (uxEnabled('c9')) disposers.push(attachQuiz(board));
     if (uxEnabled('c10')) disposers.push(attachFilmstrip(board));
     if (uxEnabled('c11')) disposers.push(attachGhostHand(board));

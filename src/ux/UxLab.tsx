@@ -86,6 +86,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c12',
+        name: 'Bralni vodič',
+        borrowed: 'muzejski avdiovodič in karaoke',
+        idea: 'Gumb ▶ Preberi z grafom v okvirju lekcije vodi branje: poved za povedjo se osvetli v besedilu, formula v njej se obkroži, tabla pa hkrati pokaže, o čem govori (žebljiček, krivulja, točka). Tempo sledi dolžini povedi; vsak dotik branje ustavi, tako da lahko študent kadarkoli prevzame.',
+        generalizes: 'Povedi se razrežejo iz besedila okvirja z razponi DOM (označevanje s CSS Custom Highlight, brez spreminjanja besedila), povezave na tablo pa so iste kot pri Živem besedilu. Na telefonu tablo pokaže plavajoče okno. Deluje v vsakem okvirju z matematiko v besedilu.',
+        links: [
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c12`,
+                tryThis: 'Klikni ▶ Preberi z grafom nad besedilom in samo glej: kontrolne točke se prižgejo po vrsti, ko jih besedilo omeni.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c12`,
+                tryThis: 'Štirikrat klikni Naprej in nato ▶: besedilo o vodoravnem premiku pokaže parabolo, teme in sliko točke.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c12`,
+                tryThis: 'Klikni ▶: oglišča A, B, C in težišče G se prižigajo hkrati z branjem.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',

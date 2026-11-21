@@ -518,3 +518,15 @@ form.ux-hand-target { outline: 2px solid #d39a3a; outline-offset: 4px; border-ra
 .demonstration-workspace.lesson-content .workspace-graph .ux-hand-button { pointer-events: auto; }
 @media (prefers-reduced-motion: reduce) { .ux-hand-pressed .ux-hand-ripple { animation: none; } }
 .ux-hand.ux-hand-page { position: absolute; z-index: 1100; }
+
+/* c12 Bralni vodič: the frame reads itself onto the graph. */
+.ux-read-button {
+    display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 8px; padding: 6px 12px 6px 10px; min-height: 32px;
+    border: 1px solid #e2c79f; border-radius: 999px; background: #fbf1e0; color: #8a5a1c;
+    font: 600 13px/1 system-ui, sans-serif; cursor: pointer;
+}
+.ux-read-button:hover { background: #f7e6c8; }
+.ux-read-button[aria-pressed="true"] { background: #c47b1f; border-color: #c47b1f; color: #fff; }
+.ux-read-button:focus-visible { outline: 2px solid #c47b1f; outline-offset: 2px; }
+::highlight(ux-read) { background-color: rgb(224 181 74 / 32%); }
+.ux-live-prose mjx-container.ux-read-now { background-color: rgb(224 181 74 / 45%); box-shadow: 0 0 0 2px rgb(196 123 31 / 55%); }
