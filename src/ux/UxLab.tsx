@@ -82,6 +82,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c7',
+        name: 'A/B: zavesa in utripanje',
+        borrowed: 'primerjava A/B v glasbenih studiih, zavesa »prej/potem« in astronomski primerjalnik z utripanjem, s katerim so odkrili Pluton',
+        idea: 'Z »Zapomni si A« si tabla zapomni sliko; nato spremeniš karkoli (drsnik, točko, korak lekcije) in primerjaš: zavesa levo kaže A, desno zdaj, utripanje pa izmenjuje obe sliki, da sprememba skoči v oči.',
+        generalizes: 'A je kopija narisane table z oznakami vred, zato primerjava deluje na vsakem grafu in tudi med koraki lekcije, brez ene vrstice kode v lekcijah.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c7`,
+                tryThis: 'Zapomni si A, nato dvakrat Naprej in izberi Zavesa: vleci ločnico čez parabolo, prej/potem se zlijeta v en sam rez.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c7`,
+                tryThis: 'Zapomni si A, pojdi korak naprej in izberi Utripaj: nove simetrale in krožnica utripajo, vse drugo miruje.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?ux=c7`,
+                tryThis: 'Zapomni si A, premakni eno kontrolno točko in izberi Zavesa: vidiš, kateri del krivulje se je premaknil in kateri ne.'},
+        ],
+    },
+    {
         id: 'c3',
         name: 'Napovej',
         borrowed: 'muzejski eksponati »najprej ugani, nato poglej« in zanka ugibanja v igrah',
