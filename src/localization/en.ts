@@ -2438,6 +2438,7 @@ export const en: Record<keyof typeof sl, string> = {
     "guided_lesson_explanation": "Explanation",
     "guided_lesson_calculation": "Calculation",
     "guided_lesson_observation": "Observation",
+    "guided_lesson_tools_live": "You can now use the graph and the tools.",
     "guided_lesson_expected_observations": "What you should notice",
     "guided_lesson_animation_controls": "Construction animation controls",
     "play": "Play",

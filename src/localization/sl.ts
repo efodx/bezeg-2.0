@@ -2437,6 +2437,7 @@ export const sl = {
     "guided_lesson_explanation": "Razlaga",
     "guided_lesson_calculation": "Izračun",
     "guided_lesson_observation": "Opazovanje",
+    "guided_lesson_tools_live": "Graf in orodja lahko zdaj uporabljaš.",
     "guided_lesson_expected_observations": "Kaj bi morali opaziti",
     "guided_lesson_animation_controls": "Kontrole animacije konstrukcije",
     "play": "Predvajaj",

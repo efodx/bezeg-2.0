@@ -624,6 +624,8 @@ export function GuidedLesson(props: {
             <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <div className="guided-lesson-progress" role="status" aria-live="polite">
                 {t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}
+                {/* A task card leaves the graph and the tools live; a reading card locks them, so the change is announced. */}
+                {isExploring && <span className="visually-hidden"> {t('guided_lesson_tools_live')}</span>}
             </div>
         </div>
         {!oneColumn && navigation}

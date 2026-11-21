@@ -285,11 +285,14 @@ test('an observation frame is a task card: the graph is unlocked, no catcher hid
         const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()} onModeChange={onModeChange}/>);
         expect(onModeChange).toHaveBeenLastCalledWith('content');
         expect(container.querySelector('.guided-lesson-graph-catcher')).toBeInTheDocument();
+        expect(screen.getByRole('status')).not.toHaveTextContent('Graf in orodja lahko zdaj uporabljaš.');
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         act(() => vi.advanceTimersByTime(250));
 
         expect(onModeChange).toHaveBeenLastCalledWith('explore');
+        // The progress live region tells a screen reader that the tools are live now.
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3 Graf in orodja lahko zdaj uporabljaš.');
         expect(container.querySelector('.guided-lesson-graph-catcher')).not.toBeInTheDocument();
         const card = container.querySelector('.guided-lesson') as HTMLElement;
         expect(card).toHaveClass('guided-lesson-task');
@@ -308,6 +311,7 @@ test('an observation frame is a task card: the graph is unlocked, no catcher hid
         act(() => vi.advanceTimersByTime(250));
         expect(onModeChange).toHaveBeenLastCalledWith('content');
         expect(container.querySelector('.guided-lesson')).not.toHaveClass('guided-lesson-task');
+        expect(screen.getByRole('status')).not.toHaveTextContent('Graf in orodja');
         expect(container.querySelector('.guided-lesson-graph-catcher')).toBeInTheDocument();
         fireEvent.click(container.querySelector('.guided-lesson-graph-catcher')!);
         expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
