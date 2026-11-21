@@ -1,5 +1,7 @@
 import {currentLanguage, useT} from "../localization";
-import {useId} from "react";
+import {useId, useLayoutEffect, useRef} from "react";
+import {parameterRegistryWanted} from "../ux/flags";
+import {removeParam, upsertParam} from "../ux/paramRegistry";
 import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -76,8 +78,26 @@ export default function Slider(props: SliderProps) {
     };
     const exact = props.formatValue === undefined;
     const show = props.formatValue ?? ((value: number) => formatNumber(value, language, decimals));
+    // Lane-A UX prototypes: publish this parameter to the shared registry (no effect without a `?ux=` flag).
+    const latest = useRef(props);
+    const formRef = useRef<HTMLFormElement>(null);
+    latest.current = props;
+    useLayoutEffect(() => {
+        if (!parameterRegistryWanted()) return;
+        upsertParam({
+            key: id, label: props.customText, min: props.min, max: props.max, step, value: props.value, cyclic,
+            unavailable: unavailableReason, inert, format: show, display: Boolean(formRef.current?.closest('#inspector-display')),
+            set: value => {
+                const current = latest.current;
+                if (current.disabled || current.unavailableReason !== undefined) return;
+                const next = cyclic === undefined ? Math.min(current.max, Math.max(current.min, value)) : wrap(value);
+                if (next !== current.value) current.onChange(next);
+            },
+        });
+    });
+    useLayoutEffect(() => () => removeParam(id), [id]);
     const bounds = props.hideBounds ? undefined : {min: show(props.min), max: show(props.max), inline: show(props.min).length + show(props.max).length <= INLINE_BOUNDS_CHARACTERS};
-    return <Form className="slider-field">
+    return <Form ref={formRef} className="slider-field">
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={cyclic === undefined ? props.min : undefined}

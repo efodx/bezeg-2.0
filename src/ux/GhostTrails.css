@@ -1,0 +1,7 @@
+.ux-ghost-tools { position: absolute; top: 8px; right: 10px; z-index: 5; display: flex; gap: 6px; }
+.demonstration-workspace .ux-ghost-tools button {
+    display: flex; align-items: center; gap: 7px; min-height: 36px; padding: 4px 11px; border-radius: 10px;
+    background: rgba(255, 253, 245, 0.92); border: 1px solid #d6dccb; color: #526152; font-size: 0.78rem;
+}
+.demonstration-workspace .ux-ghost-tools button[aria-pressed="true"] { background: #244c37; color: #fff; border-color: #244c37; }
+.ux-ghost-tools svg { width: 20px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }

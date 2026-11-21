@@ -24,6 +24,8 @@ import {guidedLessonReturnPath, resolveGuidedLessonOwner} from '../../learning/c
 import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
 import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
 import {WorkspaceElder} from './WorkspaceElder';
+import {UxBoardLayer} from '../../ux/UxBoardLayer';
+import {uxFlags} from '../../ux/flags';
 
 type Section = "edit" | "display" | "save";
 type LessonMode = "content" | "explore" | "complete" | "closed";
@@ -123,6 +125,7 @@ export function DemonstrationWorkspace(props: {
     // The graph container is shared with the host (which mounts the board on it) and with the lesson overlay (which
     // keeps its prompt inside it).
     const graphContainer = useRef<HTMLDivElement | null>(null);
+    const uxFrame = useRef<HTMLDivElement>(null);
     const hostContainerRef = props.graphContainerRef;
     const setGraphContainer = useCallback((element: HTMLDivElement | null) => {
         graphContainer.current = element;
@@ -260,7 +263,7 @@ export function DemonstrationWorkspace(props: {
             }}/>}
         <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
-            <JGBox ref={setGraphContainer}/>
+            <div className="ux-board-frame" ref={uxFrame}><JGBox ref={setGraphContainer}/>{uxFlags().size > 0 && <UxBoardLayer frame={uxFrame} lessonMode={lessonActive ? lessonMode : 'closed'}/>}</div>
             <div ref={setSlotElement} data-playback-slot=""/>
             {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {
