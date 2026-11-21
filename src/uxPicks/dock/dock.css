@@ -103,7 +103,7 @@
 .ux-dock-chip {
     position: relative; pointer-events: auto; min-height: 0; height: 34px; padding: 0 12px; border-radius: 17px; border: 1px solid var(--bezeg-shell-rule);
     background: color-mix(in srgb, var(--bezeg-shell-panel) 94%, transparent); color: var(--bezeg-shell-ink-secondary);
-    font: inherit; font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+    font: inherit; font-size: 0.8125rem; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
     box-shadow: 0 1px 2px rgba(25, 55, 47, 0.08);
 }
 .ux-dock-chip::after { content: ""; position: absolute; inset: -6px -2px; } /* 44 px touch target */
@@ -125,8 +125,8 @@
 @keyframes ux-ghost-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .ux-dock-ghost { transition: none; animation: none; } }
 .ux-dock-pill {
-    display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 8px; border-radius: 9px; white-space: nowrap; box-sizing: border-box;
-    font-size: 0.66rem; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 3px; height: 22px; padding: 0 9px; border-radius: 11px; white-space: nowrap; box-sizing: border-box;
+    font-size: 0.8125rem; line-height: 22px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
     background: var(--bezeg-shell-action); color: var(--bezeg-shell-on-action);
 }
 .ux-dock-pill svg { width: 12px; height: 12px; display: block; margin-right: -3px; }
@@ -150,7 +150,7 @@
     /* Chips: one row under the graph, outside the curve's area; the board frame leaves them 46 px. An open card rises from the row
        over the graph (the row bottom-anchored, the card above it) and closes with its own button. */
     .ux-board-frame:has(> .ux-dock .ux-dock-a-tl > *) { margin-bottom: 46px; z-index: 3; } /* above the tray that follows it, so the chip row is not veiled by it */
-    .ux-dock-chip { padding: 0 10px; letter-spacing: 0.04em; font-size: 0.7rem; }
+    .ux-dock-chip { padding: 0 10px; letter-spacing: 0.04em; font-size: 0.8125rem; }
     .ux-dock .ux-dock-a-tl {
         position: absolute; left: 6px; right: 6px; bottom: -46px; display: flex; flex-direction: row; flex-wrap: nowrap; width: auto;
         overflow: visible; -webkit-mask-image: none; mask-image: none; max-height: none; margin: 0; padding: 0; gap: 8px; align-items: center; align-content: flex-end; min-height: 40px;
@@ -161,3 +161,9 @@
     .ux-btext { max-height: calc(var(--ux-dock-h, 300px) - 12px); overflow-y: auto; }
 }
 .ux-dock .ux-dock-chip { min-height: 0; height: 34px; border-radius: 17px; width: auto; }
+/* Coarse pointer: chips are 44 px tall (the row under the graph grows to 56 px to hold them). */
+@media (pointer: coarse) { .ux-dock-chip.ux-dock-chip { height: 44px; border-radius: 22px; } .ux-dock-chip::after { inset: 0; } }
+@media (max-width: 700px) and (pointer: coarse) {
+    .ux-board-frame:has(> .ux-dock .ux-dock-a-tl > *) { margin-bottom: 56px; }
+    .ux-dock .ux-dock-a-tl { bottom: -56px; min-height: 48px; }
+}

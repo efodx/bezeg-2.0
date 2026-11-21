@@ -1,15 +1,15 @@
 .ux-hover-card {
     position: absolute; z-index: 7; transform: translate(-50%, -100%); pointer-events: none;
     display: flex; flex-direction: column; gap: 2px; width: max-content; max-width: 270px; padding: 6px 11px 7px; border-radius: 10px;
-    background: #19372f; color: #fffdf5; font-size: 0.8rem; line-height: 1.3; font-variant-numeric: tabular-nums;
+    background: #19372f; color: #fffdf5; font-size: 0.8125rem; line-height: 1.3; font-variant-numeric: tabular-nums;
     box-shadow: 0 3px 12px rgba(25, 55, 47, 0.3);
 }
 .ux-hover-card strong { font-size: 0.9rem; }
 /* The text that went with the control in the tools: a little wider card, the name on top, the help in calm paragraphs. */
 .ux-hover-card.has-about { max-width: 340px; gap: 4px; }
 .ux-hover-card .ux-hover-name { font-size: 0.82rem; }
-.ux-hover-card .ux-hover-about { margin: 0 0 2px; color: #e6eadb; font-size: 0.78rem; line-height: 1.4; text-wrap: pretty; }
-.ux-hover-card small { font-size: 0.68rem; color: #f3d98b; display: flex; align-items: center; gap: 4px; }
+.ux-hover-card .ux-hover-about { margin: 0 0 2px; color: #e6eadb; font-size: 0.8125rem; line-height: 1.4; text-wrap: pretty; }
+.ux-hover-card small { font-size: 0.8125rem; color: #f3d98b; display: flex; align-items: center; gap: 4px; }
 .ux-hover-card i { font-weight: 700; color: #f3d98b; }
 .ux-hover-card b { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
 .ux-hover-card b.is-less, .ux-hover-fan .is-less { background: #6fa8dc; stroke: #3d7cb8; }
@@ -20,7 +20,7 @@
 .ux-hover-fan path { fill: none; stroke-width: 2px; }
 .ux-hover-fan g circle { fill: #244c37; }
 .ux-hover-fan .ux-hover-halo { fill: rgba(255, 253, 245, 0.7); stroke: #244c37; stroke-width: 1.5px; }
-.ux-hover-fan text { font-size: 11px; font-weight: 600; fill: #19372f; paint-order: stroke; stroke: #fffdf5; stroke-width: 3px; }
+.ux-hover-fan text { font-size: 13px; font-weight: 600; fill: #19372f; paint-order: stroke; stroke: #fffdf5; stroke-width: 3px; }
 
 .ux-puck-track::after {
     content: ""; position: absolute; top: -4px; left: calc(var(--aim, 0) * 100%); width: 2px; height: 11px; margin-left: -1px;

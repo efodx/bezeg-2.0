@@ -40,7 +40,7 @@ export interface DockCardProps {
     /** A fold the owner controls (the lesson card: folding is hiding the instructions); not stored. */
     collapsed?: boolean;
     onToggle?: (open: boolean) => void;
-    /** Starts folded on a narrow window (a crowded board) until the learner opens or folds it once. */
+    /** Kept for callers; every card but the lesson card now starts folded on a narrow window (see NARROW_PX), so it changes nothing. */
     foldWhenNarrow?: boolean;
     /** Starts folded while a guided lesson is open (its card and the tools need the column) until the learner unfolds it during that lesson; the fold is kept apart from the one set outside lessons. */
     foldInLesson?: boolean;
@@ -53,15 +53,16 @@ const DRAG_THRESHOLD = 4;
 const collapsedKey = (kind: string) => kind === 'text' ? 'ux-boardtext-collapsed' : `ux-boardcard-collapsed:${kind}`;
 const posKey = (kind: string) => kind === 'text' ? 'ux-boardtext-pos' : `ux-boardcard-pos:${kind}`;
 
-/** Below this window width the board is crowded (tools, three cards, pucks): secondary cards start folded. */
+/** Below this window width the board is crowded (tools, three cards, pucks): every card but the lesson card (and the tools card,
+ *  which folds by its own rules) starts folded until the learner sets its fold. */
 const NARROW_PX = 1200;
 /** Lesson-time folds, per card, until the lesson closes. */
 const lessonFolds = new Map<string, boolean>();
 const lessonIsOpen = () => !!document.querySelector('.demonstration-workspace.lesson-open');
-function readCollapsed(kind: string, foldWhenNarrow = false): boolean {
+function readCollapsed(kind: string): boolean {
     try {
         const stored = localStorage.getItem(collapsedKey(kind));
-        return stored === null ? foldWhenNarrow && window.innerWidth < NARROW_PX : stored === '1';
+        return stored === null ? kind !== 'guide' && window.innerWidth < NARROW_PX : stored === '1';
     } catch { return false; }
 }
 function readPos(kind: string): Pos | null {
@@ -79,7 +80,7 @@ export function DockCard(props: DockCardProps) {
     const dock = useDock();
     const phone = dock?.phone ?? false;
     const version = useDockLayout();
-    const [ownCollapsed, setCollapsed] = useState(() => readCollapsed(kind, props.foldWhenNarrow));
+    const [ownCollapsed, setCollapsed] = useState(() => readCollapsed(kind));
     const [pos, setPos] = useState<Pos | null>(() => readPos(kind));
     const card = useRef<HTMLDivElement>(null);
     const drag = useRef<{dx: number; dy: number; sx: number; sy: number; moved: boolean} | null>(null);

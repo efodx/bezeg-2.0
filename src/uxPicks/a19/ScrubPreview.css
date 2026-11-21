@@ -8,10 +8,10 @@
 .ux-scrub-tip {
     position: fixed; z-index: 60; transform: translate(-50%, calc(-100% - 6px)); pointer-events: none; white-space: nowrap;
     display: flex; flex-direction: column; align-items: center; padding: 3px 9px 4px; border-radius: 9px;
-    background: #19372f; color: #fffdf5; font-size: 0.8rem; font-weight: 600; font-variant-numeric: tabular-nums;
+    background: #19372f; color: #fffdf5; font-size: 0.8125rem; font-weight: 600; font-variant-numeric: tabular-nums;
     box-shadow: 0 3px 10px rgba(25, 55, 47, 0.25);
 }
-.ux-scrub-tip small { font-weight: 400; font-size: 0.68rem; color: #f3d98b; }
+.ux-scrub-tip small { font-weight: 400; font-size: 0.8125rem; color: #f3d98b; }
 .ux-scrub-tip::after { content: ""; position: absolute; bottom: -5px; left: 50%; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: #19372f; }
 .ux-scrub-tip-below { transform: translate(-50%, 8px); }
 .ux-scrub-tip-below::after { bottom: auto; top: -5px; border: 5px solid transparent; border-top: 0; border-bottom-color: #19372f; }

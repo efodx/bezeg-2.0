@@ -20,6 +20,9 @@
 
 /* The tools card. Its own head (grip, "Orodja", fold) replaces the tools' heading; the tabs stay. */
 .ux-bcard-tools { width: 310px; max-width: none; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+/* Below 1200 px (where the other cards start folded) the tools card is 260 px: 310 px took a third of a 1024 px board. 260 keeps
+   every label whole (Uredi/Prikaz/Shrani, Izvozi/Uvozi prednastavitve, sliders, selects); 240 broke "prednastavitve" mid-word. */
+@media (min-width: 701px) and (max-width: 1199px) { .ux-bcard-tools { width: 260px; } }
 .ux-bcard-tools > .ux-tools-body {
     flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
     overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-ink-secondary) transparent;
@@ -152,7 +155,7 @@
    1. The tabs are the head: grip, a compact Uredi/Prikaz/Shrani switch, fold. The tab bar is laid over the head row; the
       card keeps its name "Orodja" for screen readers (the title stays, visually hidden) and folded the head reads "Orodja". */
 .ux-bcard-tools { --ux-head-h: 36px; --ux-tab-h: 28px; --bezeg-control-height: 32px; }
-@media (pointer: coarse) { .ux-bcard-tools { --ux-head-h: 52px; --ux-tab-h: 44px; --bezeg-control-height: 44px; } }
+@media (pointer: coarse) { .ux-bcard-tools { --ux-head-h: 56px; --ux-tab-h: 48px; --bezeg-control-height: 44px; } }
 .ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head { min-height: var(--ux-head-h); box-sizing: border-box; padding-block: 0; }
 .ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head > .ux-btext-title {
     position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
