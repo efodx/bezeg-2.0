@@ -72,7 +72,7 @@ export default function Slider(props: SliderProps) {
     const {cyclic, unavailableReason} = props;
     const inert = props.disabled || unavailableReason !== undefined;
     const [lfo] = useState(() => uxEnabled('c2'));
-    const [grabbable] = useState(() => uxEnabled('c4') || uxEnabled('c5') || uxEnabled('c8') || uxEnabled('c11') || uxEnabled('c12') || uxEnabled('c14') || uxEnabled('c15') || uxEnabled('c16') || uxEnabled('c18') || uxEnabled('c19') || uxEnabled('c20') || uxEnabled('c24') || uxEnabled('c25') || uxEnabled('c26') || uxEnabled('c27') || uxEnabled('c28') || uxEnabled('c29'));
+    const [grabbable] = useState(() => uxEnabled('c4') || uxEnabled('c5') || uxEnabled('c8') || uxEnabled('c11') || uxEnabled('c12') || uxEnabled('c14') || uxEnabled('c15') || uxEnabled('c16') || uxEnabled('c18') || uxEnabled('c19') || uxEnabled('c20') || uxEnabled('c24') || uxEnabled('c25') || uxEnabled('c26') || uxEnabled('c27') || uxEnabled('c28') || uxEnabled('c29') || uxEnabled('c30'));
     const latest = useRef({props, step, inert, decimals});
     latest.current = {props, step, inert, decimals};
     const fieldRef = useRef<HTMLFormElement>(null);

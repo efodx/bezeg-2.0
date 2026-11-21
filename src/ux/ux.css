@@ -1135,3 +1135,10 @@ html.ux-nb-reading { overflow: hidden; }
 .ux-dep.ux-dep-gate { box-shadow: 0 0 0 3px rgb(196 123 31 / 45%), 0 10px 30px rgb(0 0 0 / 14%); }
 .ux-dep-gate-next { margin-left: 4px; min-height: 28px; padding: 2px 10px; border: 0; border-radius: 999px; background: var(--bezeg-shell-action, #244c37); color: #fff; font: 650 12px/1 system-ui, sans-serif; cursor: pointer; }
 .ux-dep.ux-dep-sheet .ux-dep-chart { max-height: 150px; margin: 0 auto; }
+
+/* c30 Odkrij zakon */
+.ux-dep-law { margin: 6px 0 0; padding: 6px 9px; border-radius: 8px; background: #eef3e5; border: 1px solid #cfdcbf; text-align: center; animation: ux-trace-pop .4s ease-out; }
+.ux-dep-law[hidden] { display: none; }
+.ux-dep-law-tag { font: 700 10.5px/1 system-ui, sans-serif; text-transform: uppercase; letter-spacing: .06em; color: #4d6a3f; margin-right: 4px; }
+.ux-dep-law-text { font: italic 650 15px/1.3 var(--bezeg-math-font, Georgia, serif); color: var(--bezeg-shell-action, #244c37); }
+.ux-dep-law-text small { font: 600 11.5px/1.3 system-ui, sans-serif; font-style: normal; color: #4d5a50; }

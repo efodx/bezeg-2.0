@@ -56,6 +56,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c30',
+        name: 'Odkrij zakon',
+        borrowed: 'Kepler, ki je iz Tychovih tabel izluščil zakon, prilagajanje krivulj v fizikalnem laboratoriju in regresija v Desmosu',
+        idea: 'Po preletu iz c24 tabla poišče najpreprostejši zakon, ki pojasni odvisnost (sorazmernost, linearna, potenca, polinom, približevanje meji), in konstante zapiše natančno, kjer so lepe: dolžina loka cikloide = 8·R, ploščina = 3π·R², integral = 1/3·b³, Riemannova vsota = 8/3 − 4/n + 4/(3n²) gre proti 8/3. Študent ne vidi le, da število raste, ampak zakaj in koliko.',
+        generalizes: 'Deluje na vsakem preletu c24: modeli se prilagajajo z najmanjšimi kvadrati, sprejmejo se le skoraj popolna ujemanja, konstante pa se prepoznajo kot cela števila, ulomki, večkratniki π in koreni. Kjer preprostega zakona ni (verjetnost pri normalni porazdelitvi), ne izmisli ničesar.',
+        links: [
+            {label: 'Parametrične krivulje (cikloida)', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/parametric?learn=1&ux=c30`,
+                tryThis: 'Odpri 📈 in izberi Polmer: »Zakon: Dolžina loka = 8·Polmer«. Spodaj izberi Ploščina: 3π·Polmer².'},
+            {label: 'Določeni integral', family: 'Funkcije', href: `${BASE}/functions/integral?ux=c30`,
+                tryThis: 'Pri n se pokaže natančna formula leve vsote 8/3 − 4/n + 4/(3n²) in njena meja 8/3. Izberi b in spodaj integral: 1/3·b³.'},
+            {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?ux=c30`,
+                tryThis: 'Izberi σ: verjetnost med a in b pada, a preprostega zakona ni (gre za funkcijo napake), zato tabla zakona ne izmisli.'},
+        ],
+    },
+    {
         id: 'c29',
         name: 'Najprej napoved',
         borrowed: 'delovni list v laboratoriju (»napovej, preden poženeš poskus«) in kontrolne točke v igrah',

@@ -6,6 +6,8 @@
  */
 import type {Board} from "jsxgraph";
 import {mountedSliders, type RegisteredSlider} from "./sliderRegistry";
+import {uxEnabled} from "./flags";
+import {discoverLaw} from "./law";
 import "./ux.css";
 
 const SAMPLES = 41;
@@ -299,6 +301,13 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false,
             }
         }
         caption.innerHTML = `<b>${chosen.quantity.label}</b> v odvisnosti od <i>${symbolOf(slider.label)}</i>${unit ? ` (v ${unit.trim()})` : ''}`;
+        const lawBox = panel.querySelector<HTMLElement>('.ux-dep-law');
+        if (lawBox) {
+            // c30: the law behind the curve, once the sweep is complete.
+            const law = !sweeping && uxEnabled('c30') && !(predict && predicting) ? discoverLaw(xs, values, chosen.quantity.label, symbolOf(slider.label), v => format(v)) : undefined;
+            lawBox.innerHTML = law ? `<span class="ux-dep-law-tag">${law.exact ? 'Zakon' : 'Zakon (zaokroženo)'}</span> <span class="ux-dep-law-text">${law.text}</span>` : '';
+            lawBox.hidden = !law;
+        }
         const chips = panel.querySelector<HTMLElement>('.ux-dep-quantities')!;
         chips.innerHTML = list.length > 1 ? list.map(entry => `<button type="button" class="ux-dep-q${entry === chosen ? ' ux-dep-q-on' : ''}" data-key="${entry.quantity.key.replace(/"/g, '&quot;')}">${entry.quantity.label}</button>`).join('') : '';
         live();
@@ -367,7 +376,7 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false,
             + `<div class="ux-dep-chips"><span>od</span>${chips}</div>`
             + `<p class="ux-dep-caption"></p>`
             + `<div class="ux-dep-plot"><svg class="ux-dep-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Graf odvisnosti"></svg><span class="ux-dep-progress"></span></div>`
-            + `<p class="ux-dep-readout" aria-live="polite"></p><p class="ux-dep-score" hidden></p><div class="ux-dep-quantities"></div>`
+            + `<p class="ux-dep-law" hidden></p><p class="ux-dep-readout" aria-live="polite"></p><p class="ux-dep-score" hidden></p><div class="ux-dep-quantities"></div>`
             + `<p class="ux-dep-hint">Premakni drsnik ali povleci po grafu odvisnosti: pika kaže, kje je tabla zdaj.</p>`;
         if (phone()) {
             if (panel.parentElement !== document.body) document.body.appendChild(panel);
