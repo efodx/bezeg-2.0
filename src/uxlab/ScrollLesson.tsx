@@ -3,12 +3,18 @@ import type {LessonDefinition, LessonFrame, LessonGraphCapabilities, LessonScene
 import {framesForLessonStep} from '../learning/model';
 import type {LessonSession} from '../learning/runtime/LessonSession';
 import {typesetMath} from '../mathjax/loadMathJax';
-import {coverBoard, findMainBoard, recoverBoards} from './board';
+import {coverBoard, findMainBoard, recoverBoards, type UxBoard} from './board';
+import {format} from './LiveProse';
+import {readouts} from './SliderTrace';
 import {interpolateValue} from './morph';
 import './uxlab.css';
 
 type Text = {sl: string; en: string};
 const say = (value: Text | undefined, language: string) => value ? (language === 'en' ? value.en : value.sl) || value.sl : '';
+const nextFrames = (count: number) => new Promise<void>(resolve => {
+    const step = (left: number) => left <= 0 ? resolve() : requestAnimationFrame(() => step(left - 1));
+    step(count);
+});
 const smooth = (t: number) => t * t * (3 - 2 * t);
 /** The graph moves while the last section of a step crosses the reading line, from this fraction of it on. */
 const MORPH_FROM = 0.3;
@@ -55,6 +61,7 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
     const [active, setActive] = useState(0);
     const [morph, setMorph] = useState<{from: number; t: number}>();
     const [ready, setReady] = useState(false);
+    const [readings, setReadings] = useState<Map<string, number>[]>([]);
     const [playing, setPlaying] = useState(false);
     const activeRef = useRef(0);
     activeRef.current = active;
@@ -128,6 +135,24 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
             scenes.current = found;
             applied.current = 'rest:0';
             setReady(true);
+            if (board) void readScenes(board, found, current ?? found[0]);
+        };
+        // What each step's scene shows, so the bridge between two steps can say what is about to change.
+        const readScenes = async (board: UxBoard, found: LessonSceneCheckpoint[], back: LessonSceneCheckpoint) => {
+            await new Promise(resolve => window.setTimeout(resolve, 400));
+            if (cancelled) return;
+            const veil = coverBoard(board.containerObj);
+            const rows: Map<string, number>[] = [];
+            for (const scene of found) {
+                try { caps.current.restoreState(scene); await nextFrames(2); recoverBoards(); rows.push(readouts(board)); } catch { recoverBoards(); rows.push(new Map()); }
+            }
+            const key = applied.current;
+            const step = key.startsWith('rest:') ? Number(key.slice(5)) : undefined;
+            try { caps.current.restoreState(step !== undefined ? kept.current.get(step) ?? found[step] : back); } catch { recoverBoards(); }
+            await nextFrames(1);
+            recoverBoards();
+            veil.remove();
+            if (!cancelled) setReadings(rows);
         };
         build();
         return () => { cancelled = true; window.clearTimeout(timer); cover?.remove(); };
@@ -217,10 +242,24 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
     };
 
     const steps = lesson.steps.length;
+    /** Readouts that differ between a step's scene and the next one, one per quantity. */
+    const changes = (step: number) => {
+        const from = readings[step], to = readings[step + 1];
+        if (!from || !to) return [];
+        const seen = new Set<string>();
+        return [...from].flatMap(([label, value]) => {
+            const next = to.get(label);
+            if (next === undefined || format(next) === format(value)) return [];
+            const pair = `${value}|${next}`;
+            if (seen.has(pair)) return [];
+            seen.add(pair);
+            return [{label, from: value, to: next}];
+        }).slice(0, 3);
+    };
     return <div ref={root} className="ux-scroll" data-ready={ready}>
         <div className="ux-scroll-rail">
             <button type="button" className="ux-scroll-play" aria-pressed={playing} aria-label={playing ? 'Ustavi samodejno branje' : 'Beri namesto mene'}
-                title={playing ? 'Ustavi branje' : 'Beri namesto mene: besedilo teče s hitrostjo branja, graf mu sledi'} onClick={() => setPlaying(value => !value)}>{playing ? '❚❚' : '▶'}</button>
+                title={playing ? 'Ustavi branje' : 'Beri namesto mene: besedilo teče s hitrostjo branja, graf mu sledi'} onClick={() => setPlaying(value => !value)}>{playing ? '❚❚' : '▶︎'}</button>
             <nav className="ux-scroll-dots" aria-label="Odseki lekcije">
             {sections.map((section, index) => <button key={index} type="button" className={`ux-scroll-dot ${index === active ? 'is-active' : ''}${section.frame === 0 ? ' is-step' : ''}`}
                 aria-label={`Korak ${section.step + 1}, okvir ${section.frame + 1}`} onClick={() => go(index)}/>)}
@@ -261,6 +300,8 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
                 {lastOfStep && section.step < steps - 1 && <div className={`ux-scroll-bridge${moving ? ' is-moving' : ''}`} aria-hidden="true">
                     <span style={{transform: `scaleX(${moving ? morph!.t : 0})`}}/>
                     <em>{moving ? 'graf se spreminja v naslednji prizor' : '↓ naprej drsi: graf se bo spremenil'}</em>
+                    {changes(section.step).length > 0 && <div className="ux-scroll-changes">{changes(section.step).map(change =>
+                        <b key={change.label}>{change.label}: {format(change.from)} → {format(change.to)}</b>)}</div>}
                 </div>}
             </section>;
         })}

@@ -28,7 +28,7 @@ const PROTOTYPES: Prototype[] = [
     {
         id: 'b17',
         name: 'Zvitek: lekcijo bereš z drsenjem, graf sledi branju',
-        idea: 'Vodena lekcija ni več niz okvirjev z gumbom Naprej, ampak eno samo besedilo, ki ga drsiš kot članek. Ko zadnji odstavek koraka prečka bralno črto, se graf zvezno preoblikuje v prizor naslednjega koraka; drsiš nazaj in se preoblikuje nazaj, kar poskusiš na grafu znotraj koraka, pa ostane, ko se vrneš.',
+        idea: 'Vodena lekcija ni več niz okvirjev z gumbom Naprej, ampak eno samo besedilo, ki ga drsiš kot članek. Ko zadnji odstavek koraka prečka bralno črto, se graf zvezno preoblikuje v prizor naslednjega koraka; drsiš nazaj in se preoblikuje nazaj. Most med koraki vnaprej pove, kaj se bo spremenilo (»Stopnja n: 1 → 2«), ▶ pa lekcijo bere s hitrostjo branja kot film.',
         generalizes: 'Prizore vseh korakov izračuna enkrat, za zamrznjeno kopijo plošče, iz lekcijinih lastnih dejanj prizora (posnetki stanja), nato med njimi interpolira glede na lego drsenja (točke na mreži po celih korakih). Deluje za vsako vodeno lekcijo brez kode na lekcijo; na telefonu graf obstane na vrhu zaslona, besedilo teče pod njim.',
         try: 'Odpri povezavo in drsi po besedilu lekcije (na namizju v desnem stolpcu, na telefonu po strani). Opazuj graf med koraki, nato drsi nazaj.',
         links: [
