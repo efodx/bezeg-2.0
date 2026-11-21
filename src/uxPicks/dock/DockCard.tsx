@@ -32,6 +32,13 @@ export interface DockCardProps {
     order?: number;
     /** The card's body, rendered only while the card is open. */
     children: (open: boolean) => React.ReactNode;
+    /** What the head shows instead of `title` (e.g. the lesson's title and, folded, its progress). */
+    head?: React.ReactNode;
+    /** Extra controls in the head, before the fold button (e.g. the lesson's Končaj). */
+    actions?: React.ReactNode;
+    /** A fold the owner controls (the lesson card: folding is hiding the instructions); not stored. */
+    collapsed?: boolean;
+    onToggle?: (open: boolean) => void;
 }
 
 interface Pos { x: number; y: number; }
@@ -59,7 +66,8 @@ export function DockCard(props: DockCardProps) {
     const dock = useDock();
     const phone = dock?.phone ?? false;
     const version = useDockLayout();
-    const [collapsed, setCollapsed] = useState(() => readCollapsed(kind));
+    const [ownCollapsed, setCollapsed] = useState(() => readCollapsed(kind));
+    const collapsed = props.collapsed ?? ownCollapsed;
     const [pos, setPos] = useState<Pos | null>(() => readPos(kind));
     const card = useRef<HTMLDivElement>(null);
     const drag = useRef<{dx: number; dy: number; sx: number; sy: number; moved: boolean} | null>(null);
@@ -129,6 +137,7 @@ export function DockCard(props: DockCardProps) {
     const toggle = () => {
         if (phone) { dock.setPhoneOpen(open ? null : kind); return; }
         const next = !collapsed;
+        if (props.onToggle) { props.onToggle(!next); return; }
         setCollapsed(next);
         try { localStorage.setItem(collapsedKey(kind), next ? '1' : '0'); } catch { /* ignore */ }
     };
@@ -146,7 +155,7 @@ export function DockCard(props: DockCardProps) {
         if (card.current) { card.current.style.left = ''; card.current.style.top = ''; }
     };
     const onPointerDown = (e: React.PointerEvent) => {
-        if (phone || e.button !== 0 || (e.target as HTMLElement).closest('button')) return;
+        if (phone || e.button !== 0 || (e.target as HTMLElement).closest('button, a')) return;
         const el = card.current;
         if (!el) return;
         const r = el.getBoundingClientRect();
@@ -219,11 +228,12 @@ export function DockCard(props: DockCardProps) {
         {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget}/>, gapTarget)}
         {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}`} style={style}>
             <div className="ux-btext-head" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
-                 onPointerCancel={onPointerUp} onDoubleClick={reset}>
+                 onPointerCancel={onPointerUp} onDoubleClick={e => { if (!(e.target as HTMLElement).closest('button, a')) reset(); }}>
                 {!phone && <span className="ux-btext-grip" role="button" tabIndex={0} onKeyDown={onKeyDown} onBlur={() => { setKeyboard(false); clearGap(kind); }}
                       aria-label={`Premakni ${props.what} (puščične tipke, Enter pripne na označeno mesto, Domov pripne na privzeto mesto)`}
                       title="Povleci za premik, dvoklik pripne"><GripIcon/></span>}
-                <span className="ux-btext-title">{props.title}</span>
+                <span className="ux-btext-title">{props.head ?? props.title}</span>
+                {props.actions}
                 {moved && <button type="button" className="ux-btext-toggle ux-btext-reset" onClick={reset} aria-label={resetLabel} title={resetLabel}><ResetIcon/></button>}
                 <button type="button" className="ux-btext-toggle" onClick={toggle} aria-expanded={open}
                         aria-label={label} title={label}>{open ? <MinusIcon/> : <PlusIcon/>}</button>

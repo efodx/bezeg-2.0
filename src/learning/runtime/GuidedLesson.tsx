@@ -8,6 +8,7 @@ import {useLessonMorph} from '../../uxPicks/b1/useLessonMorph';
 import {usePick} from '../../uxPicks/picks';
 import {releaseLesson} from '../../uxPicks/dock/dockLayout';
 import {useLessonDock} from '../../uxPicks/dock/useLessonDock';
+import {DockCard} from '../../uxPicks/dock/DockCard';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
 import {fitFormulaRows} from './formulaRows';
@@ -200,9 +201,11 @@ export function GuidedLesson(props: {
     // Decided when the card is hidden (from its dock or not); the tab's own offset is set only after it mounts.
     const [tabInDock, setTabInDock] = useState(true);
     const dockedTab = dockToolsPick && !oneColumn && tabInDock;
-    // Pick boardText: the card can take a place in the graph dock (see useLessonDock).
+    // Pick boardText: the card can take a place in the graph dock (see useLessonDock). Pick toolsCard: the card is a board
+    // card like the tools (a DockCard on the graph, no lesson column; see the render below), so the dock hook stands aside.
     const boardTextPick = usePick('boardText');
-    useLessonDock({enabled: boardTextPick && !oneColumn, lesson: props.lesson, panelDrag, tabDrag, panelRef: lessonRef, tabRef: compactTabRef, layerRef, phase: overlayPhase});
+    const lessonOnGraph = usePick('toolsCard') && !oneColumn;
+    useLessonDock({enabled: boardTextPick && !oneColumn && !lessonOnGraph, lesson: props.lesson, panelDrag, tabDrag, panelRef: lessonRef, tabRef: compactTabRef, layerRef, phase: overlayPhase});
     // Once either has been moved they travel together: hiding leaves the tab at the panel's corner and
     // reopening opens the panel at the tab, so the instructions come back where they were put away.
     const handOverPlacement = (from: typeof panelDrag, to: typeof panelDrag) => {
@@ -664,19 +667,7 @@ export function GuidedLesson(props: {
         left: panelDrag.dragHome.left, top: panelDrag.dragHome.top,
         width: panelDrag.dragHome.right - panelDrag.dragHome.left, height: panelDrag.dragHome.bottom - panelDrag.dragHome.top,
     }}/>;
-    return <>
-    {homeSlot}
-    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
-        <div className="guided-lesson-controls">
-        <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag} onDoubleClick={dockOnDoubleClick}>
-            <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
-                aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
-            {/* The page heading already names the lesson; the card then says what it is, so its first row is never bare. */}
-            {pageHeadingHasLessonTitle ? completionHeading || <span className="guided-lesson-title guided-lesson-kind">{t('guided_example')}</span> : lessonHeading}
-            <div className="guided-lesson-utilities">{chapterReturnLink}{!docked && dockButton}{hideButton}{closeButton}</div>
-        </div>
-        {navigationToolbar}
-        </div>
+    const cardBody = <>
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
         <div className="guided-lesson-reading" ref={readingRef}>
         {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary" data-tex={localized(props.lesson.summary, language)}>{localized(props.lesson.summary, language)}</p>}
@@ -699,7 +690,7 @@ export function GuidedLesson(props: {
             {expectedObservations}
         </div>}
         {isComplete && <div className="guided-lesson-completion-message">
-            {!pageHeadingHasLessonTitle && completionHeading}
+            {(!pageHeadingHasLessonTitle || lessonOnGraph) && completionHeading}
             <p>{t('guided_lesson_free_exploration')}</p>
         </div>}
         </div>
@@ -712,6 +703,41 @@ export function GuidedLesson(props: {
             </div>
         </footer>}
         {oneColumn && navigation}
+    </>;
+    // Pick toolsCard: the card is a board card (DockCard) on the graph, like the tools: it docks at any anchor or floats, its
+    // place is remembered for the whole app, and its fold is hiding the instructions (Skrij). The head carries the title
+    // (folded: also the progress), the chapter return and Končaj; the body is the card without its own heading row.
+    if (lessonOnGraph) {
+        const cardTitle = pageHeadingHasLessonTitle ? t('guided_example') : lessonTitle;
+        const progress = `${snapshot.stepIndex + 1}/${props.lesson.steps.length} · ${snapshot.frameIndex + 1}/${frames.length}`;
+        return <>
+            <DockCard kind="lesson" title={cardTitle} what="navodila" region="mr" order={0}
+                collapsed={!cardOpen} onToggle={open => { if (open) showOverlay(); else hideOverlay(); }}
+                head={<><span id="guided-lesson-title" className="ux-lesson-card-title" title={lessonTitle}>{cardTitle}</span>
+                    {!cardOpen && !isComplete && <span className="ux-lesson-card-progress">{progress}</span>}</>}
+                actions={<span className="ux-lesson-card-actions">{chapterReturnLink}{closeButton}</span>}>
+                {() => overlayVisible && <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-on-graph guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
+                    <div className="guided-lesson-controls">{navigationToolbar}</div>
+                    {cardBody}
+                </section>}
+            </DockCard>
+            {exitDialog}
+        </>;
+    }
+    return <>
+    {homeSlot}
+    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
+        <div className="guided-lesson-controls">
+        <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag} onDoubleClick={dockOnDoubleClick}>
+            <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
+                aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
+            {/* The page heading already names the lesson; the card then says what it is, so its first row is never bare. */}
+            {pageHeadingHasLessonTitle ? completionHeading || <span className="guided-lesson-title guided-lesson-kind">{t('guided_example')}</span> : lessonHeading}
+            <div className="guided-lesson-utilities">{chapterReturnLink}{!docked && dockButton}{hideButton}{closeButton}</div>
+        </div>
+        {navigationToolbar}
+        </div>
+        {cardBody}
     </section>}
     <div ref={layerRef} className="guided-lesson-layer">
     {/* The graph is a pointer target for hiding the instructions;

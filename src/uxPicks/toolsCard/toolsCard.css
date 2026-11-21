@@ -1,12 +1,18 @@
 /* Pick toolsCard (desktop and tablet; phones keep the tools under the graph).
-   The tools are a card on the graph, and the graph takes the page's full width: without a lesson the workspace is one
-   column. With a lesson open the workspace's lesson rules keep their column beside the graph, now for the lesson card
-   alone; the tools stay on the board. */
+   The tools are a card on the graph, and the graph takes the page's full width. The guided lesson card lives on the graph
+   too (owner, 2026-11-21: "guided lesson is still beside the graph, it shouldnt be!"): the workspace is one column with a
+   lesson as without one. It is a board card (DockCard), see GuidedLesson. */
 @media (min-width: 701px) {
-    .demonstration-workspace[data-ux-tools-card]:not(.lesson-open) {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas: "heading" "graph" "learning";
+    .demonstration-workspace[data-ux-tools-card] {
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-areas: "heading" "graph" "learning" !important;
+        grid-template-rows: none !important;
     }
+    .demonstration-workspace[data-ux-tools-card].is-presenting {
+        grid-template-areas: "heading" "graph" !important;
+    }
+    /* A reading card locks the graph (pointer events off); the lesson card on it stays live. */
+    .demonstration-workspace[data-ux-tools-card].lesson-content .workspace-graph .ux-bcard-lesson button { pointer-events: auto; }
     /* While a lesson frame is read the board is locked (the workspace's lesson rules); the tools on it stay visible,
        dimmed with it, instead of being hidden as they were under the reading card. */
     .demonstration-workspace[data-ux-tools-card].lesson-open .ux-bcard-tools .workspace-inspector { visibility: visible; }
@@ -32,3 +38,29 @@
 /* Hover on navy uses Presentation's own hover, not the day tint (cream ink would vanish on it). */
 .is-presenting .ux-bcard-tools .ux-btext-toggle:hover, .is-presenting .ux-bcard-tools .ux-btext-grip:hover,
 .is-presenting .ux-bcard-tools.ux-btext-collapsed > .ux-btext-head:hover { background: #2a3c58; }
+
+/* The guided lesson card on the graph (a DockCard). As wide as a reading column allows; in a stack it takes the height the
+   other cards leave (the stack holding it is not capped at a share: its column's other stacks give way first), and its
+   text scrolls inside. Floating, it is as tall as the board allows. */
+.ux-btext.ux-bcard-lesson { width: clamp(300px, 28vw, 400px); max-width: none; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+.ux-dock-v:has(> .ux-bcard-lesson:not(.ux-btext-collapsed)) { max-height: none; }
+.ux-dock-v > .ux-bcard-lesson:not(.ux-btext-collapsed) { flex: 1 1 auto; min-height: 200px; }
+.ux-bcard-lesson.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
+.ux-bcard-lesson > .ux-btext-head { padding: 4px 4px 2px 8px; }
+.ux-bcard-lesson .ux-btext-title { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding-right: 4px; text-transform: none; letter-spacing: 0; }
+.ux-lesson-card-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; font-weight: 700; color: var(--bezeg-shell-ink); }
+.ux-lesson-card-progress { flex: none; font-size: .75rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--bezeg-shell-ink-secondary); }
+.ux-lesson-card-actions { display: flex; flex: none; align-items: center; gap: 2px; }
+.ux-bcard-lesson .ux-lesson-card-actions :is(button, a) {
+    display: grid; place-items: center; min-width: 0; min-height: 28px; padding: 2px 8px; border: 0; border-radius: 6px; box-shadow: none;
+    background: transparent; color: var(--bezeg-shell-ink-secondary); font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
+}
+.ux-bcard-lesson .ux-lesson-card-actions :is(button, a):hover { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
+.ux-bcard-lesson .ux-lesson-card-actions :is(button, a):focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: -2px; }
+/* The lesson's own sheet inside the card: no frame of its own, no cap but the card's. */
+.ux-bcard-lesson > .guided-lesson {
+    grid-area: auto; flex: 1 1 auto; align-self: stretch; min-height: 0; max-height: none; z-index: auto;
+    padding: 0 12px 10px; border: 0; border-radius: 0 0 12px 12px; box-shadow: none; background: transparent;
+}
+.ux-bcard-lesson > .guided-lesson.guided-lesson-task { max-height: none; }
+@media (pointer: coarse) { .ux-bcard-lesson .ux-lesson-card-actions :is(button, a) { min-height: 44px; } }
