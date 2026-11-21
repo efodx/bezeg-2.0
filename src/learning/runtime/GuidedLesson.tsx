@@ -9,6 +9,8 @@ import {usePick} from '../../uxPicks/picks';
 import {releaseLesson} from '../../uxPicks/dock/dockLayout';
 import {useLessonDock} from '../../uxPicks/dock/useLessonDock';
 import {DockCard} from '../../uxPicks/dock/DockCard';
+import {ChevronLeftIcon, ChevronRightIcon} from '../../uxPicks/dock/icons';
+import {LessonMenu} from '../../uxPicks/toolsCard/LessonMenu';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
 import {fitFormulaRows} from './formulaRows';
@@ -301,6 +303,18 @@ export function GuidedLesson(props: {
             return;
         }
         if (exitRequested) return;
+        // Pick toolsCard: Končaj ends the lesson at once and restores the graph, without the "Zapustiti vodeni primer?"
+        // question (owner, 2026-11-21: "remove this step too"). A failed restore shows the card's alert.
+        if (lessonOnGraph) {
+            try {
+                session.close();
+                props.onModeChange?.('closed');
+                props.onClose();
+            } catch {
+                setExitError(true);
+            }
+            return;
+        }
         exitInvoker.current = invoker ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
         setExitError(false);
         setExitRequested(true);
@@ -637,10 +651,10 @@ export function GuidedLesson(props: {
     // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
     const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
             <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; navigate(() => session.back()); }}>
-                {t('guided_lesson_previous_frame_short')}
+                {lessonOnGraph ? <><ChevronLeftIcon/><span className="ux-nav-label">{t('guided_lesson_previous_frame_short')}</span></> : t('guided_lesson_previous_frame_short')}
             </button>
             <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; navigate(() => session.next()); }}>
-                {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
+                {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}{lessonOnGraph && !atLastFrame && <ChevronRightIcon/>}
             </button>
         </nav>;
     const navigationToolbar = !isComplete && <div className="guided-lesson-toolbar">
@@ -706,20 +720,40 @@ export function GuidedLesson(props: {
     </>;
     // Pick toolsCard: the card is a board card (DockCard) on the graph, like the tools: it docks at any anchor or floats, its
     // place is remembered for the whole app, and its fold is hiding the instructions (Skrij). The head carries the title
-    // (folded: also the progress), the chapter return and Končaj; the body is the card without its own heading row.
+    // (folded: also the progress), and "⋯" (chapter return, Končaj); the body is the card without its own heading row.
     // It starts at the top left above the tools, which fold while a frame is read (owner, 2026-11-21: "Lesson takes
     // top-left"). Its kind is `guide`, not dockLayout's `lesson` placeholder (boardText's beside-the-graph card).
     if (lessonOnGraph) {
         const cardTitle = pageHeadingHasLessonTitle ? t('guided_example') : lessonTitle;
         const progress = `${snapshot.stepIndex + 1}/${props.lesson.steps.length} · ${snapshot.frameIndex + 1}/${frames.length}`;
+        // Redesign (owner, 2026-11-21): one row under the title holds the progress line, the step rail and Back/Next, so Next
+        // stays in one place on every frame (owner: buttons under the text "will jump when somebody just wants to scroll
+        // through the lesson"); the text follows. The lesson-level actions sit behind "⋯" in the head, which stays one row.
+        const rail = <span className="ux-lesson-rail" aria-hidden="true">{props.lesson.steps.map((_, i) => <span key={i}
+            className={i < snapshot.stepIndex ? 'is-done' : i === snapshot.stepIndex ? 'is-current' : undefined}
+            style={{'--fill': i < snapshot.stepIndex ? 1 : i === snapshot.stepIndex ? (snapshot.frameIndex + 1) / frames.length : 0} as React.CSSProperties}/>)}</span>;
+        const cardProgress = !isComplete && <div className="ux-lesson-progress">
+            <div className="guided-lesson-progress" role="status" aria-live="polite">
+                <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
+                <span aria-hidden="true"> · </span>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}
+                {frames.length > 1 && <span className="visually-hidden">, {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</span>}
+                {isExploring && <span className="visually-hidden"> {t('guided_lesson_tools_live')}</span>}
+            </div>
+            {rail}
+            {navigation}
+        </div>;
+        const menu = <LessonMenu label="Več možnosti vodenega primera">{(trigger, close) => <>
+            {chapterReturnLink}
+            <button type="button" className="guided-lesson-exit" onClick={() => { close(); requestExit(trigger()); }}>{t('exit_lesson')}</button>
+        </>}</LessonMenu>;
         return <>
             <DockCard kind="guide" title={cardTitle} what="navodila" region="tl" order={-1}
                 collapsed={!cardOpen} onToggle={open => { if (open) showOverlay(); else hideOverlay(); }}
                 head={<><span id="guided-lesson-title" className="ux-lesson-card-title" title={lessonTitle}>{cardTitle}</span>
                     {!cardOpen && !isComplete && <span className="ux-lesson-card-progress">{progress}</span>}</>}
-                actions={<span className="ux-lesson-card-actions">{chapterReturnLink}{closeButton}</span>}>
+                actions={menu}>
                 {() => overlayVisible && <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-on-graph guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
-                    <div className="guided-lesson-controls">{navigationToolbar}</div>
+                    {cardProgress}
                     {cardBody}
                 </section>}
             </DockCard>

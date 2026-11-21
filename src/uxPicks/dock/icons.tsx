@@ -15,3 +15,7 @@ export const ChevronDownIcon = () => <svg {...base}><path d="M4 6.5 8 10.5 12 6.
 export const ResetIcon = () => <svg {...base}><path d="M3.5 7.5a4.5 4.5 0 1 1 1.3 3.7"/><path d="M3.2 4.2v3.5h3.5"/></svg>;
 /** Two arrows away from each other: the stack scrolls. */
 export const ScrollIcon = () => <svg {...base}><path d="M5.5 6 8 3.5 10.5 6M5.5 10 8 12.5 10.5 10"/></svg>;
+/** Three dots: more actions. */
+export const MoreIcon = () => <svg {...base}>{[3.5, 8, 12.5].map(x => <circle key={x} cx={x} cy={8} r={0.9}/>)}</svg>;
+export const ChevronLeftIcon = () => <svg {...base}><path d="M10 4 6 8l4 4"/></svg>;
+export const ChevronRightIcon = () => <svg {...base}><path d="m6 4 4 4-4 4"/></svg>;

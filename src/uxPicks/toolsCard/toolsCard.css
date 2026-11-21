@@ -51,41 +51,76 @@
 .ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) { max-height: none; flex-shrink: 1; }
 .ux-dock-v > .ux-bcard-guide:not(.ux-btext-collapsed) { flex: 0 1 auto; min-height: 200px; }
 .ux-bcard-guide.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
-/* The head: the title wraps and is never cut (DESIGN.md, lesson card); grip, reset and fold keep the first row, and the
-   chapter return and Končaj take a row of their own under it. Folded, the head is the title, the progress and the fold. */
-.ux-bcard-guide > .ux-btext-head { --ux-head-btn: 24px; flex-wrap: wrap; align-items: flex-start; row-gap: 0; padding: 5px 4px 2px 8px; }
-.ux-bcard-guide > .ux-btext-head > .ux-btext-grip { order: 0; }
+/* Redesign (owner, 2026-11-21): the head is one row (grip, title, "⋯", reset, fold); the title wraps and is never cut
+   (DESIGN.md, lesson card). Under it the progress row with Back and Next, then the text. Folded, the head is the title,
+   the progress, "⋯" and the fold. */
+.ux-bcard-guide > .ux-btext-head { align-items: flex-start; padding: 6px 4px 4px 8px; }
+.ux-bcard-guide > .ux-btext-head > :is(.ux-btext-grip, .ux-btext-toggle) { margin-top: 1px; }
 .ux-bcard-guide > .ux-btext-head > .ux-btext-title {
-    order: 1; flex: 1 1 100%; max-width: calc(100% - 3 * (var(--ux-head-btn) + 6px));
-    display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; min-width: 0; padding: 2px 0 0; text-transform: none; letter-spacing: 0;
+    display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; min-width: 0; padding: 2px 4px 0 0; text-transform: none; letter-spacing: 0;
 }
-.ux-bcard-guide > .ux-btext-head > .ux-btext-toggle { order: 2; }
-.ux-bcard-guide > .ux-btext-head > .ux-lesson-card-actions { order: 3; margin-left: auto; }
-.ux-bcard-guide.ux-btext-collapsed > .ux-btext-head { padding-bottom: 5px; }
-.ux-bcard-guide.ux-btext-collapsed .ux-lesson-card-actions { display: none; }
 .ux-lesson-card-title {
     min-width: 0; overflow-wrap: anywhere; text-wrap: pretty;
     font-family: var(--bezeg-font-display); font-size: 1rem; font-weight: 600; letter-spacing: -.003em; line-height: 1.25; color: var(--bezeg-shell-ink);
 }
 .ux-lesson-card-progress { flex: none; font-size: .8125rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--bezeg-shell-ink-secondary); }
-.ux-lesson-card-actions { display: flex; flex: none; align-items: center; gap: 2px; }
-/* Progress: the frame's kind in ink, then step and frame, both at the card's 13 px. */
-.ux-bcard-guide .guided-lesson-frame-label { font-size: .8125rem; font-weight: 600; color: var(--bezeg-shell-ink); }
-.ux-bcard-guide .guided-lesson-progress { font-size: .8125rem; }
-.ux-bcard-guide .ux-lesson-card-actions :is(button, a) {
-    display: grid; place-items: center; min-width: 0; min-height: 28px; padding: 2px 8px; border: 0; border-radius: 6px; box-shadow: none;
-    background: transparent; color: var(--bezeg-shell-ink-secondary); font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
+
+/* "⋯": a list fixed under the button (portalled to the page). */
+.ux-lesson-menu-button[aria-expanded="true"] { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
+.ux-lesson-menu-list {
+    position: fixed; z-index: 80; display: flex; flex-direction: column; min-width: 12rem; padding: 4px;
+    border: 1px solid var(--bezeg-shell-rule); border-radius: 10px; background: var(--bezeg-shell-panel);
+    box-shadow: 0 10px 28px rgba(25, 55, 47, 0.16), 0 1px 3px rgba(25, 55, 47, 0.08);
+    animation: ux-menu-in 140ms cubic-bezier(.2, .8, .2, 1);
 }
-.ux-bcard-guide .ux-lesson-card-actions :is(button, a):hover { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
-.ux-bcard-guide .ux-lesson-card-actions :is(button, a):focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: -2px; }
-/* The lesson's own sheet inside the card: no frame of its own, no cap but the card's. */
+.ux-lesson-menu-list :is(a, button) {
+    display: flex; align-items: center; min-height: 36px; padding: 0 10px; border: 0; border-radius: 6px; box-shadow: none; background: transparent;
+    color: var(--bezeg-shell-ink); font: inherit; font-size: .875rem; font-weight: 600; text-align: left; text-decoration: none; cursor: pointer;
+}
+.ux-lesson-menu-list :is(a, button):hover { background: var(--bezeg-shell-control-hover); }
+.ux-lesson-menu-list :is(a, button):focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: -2px; }
+.ux-lesson-menu-list a + button { margin-top: 4px; position: relative; }
+.ux-lesson-menu-list a + button::before { content: ""; position: absolute; left: 6px; right: 6px; top: -3px; border-top: 1px solid var(--bezeg-shell-rule); }
+@keyframes ux-menu-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .ux-lesson-menu-list { animation: none; } }
+@media (pointer: coarse) { .ux-lesson-menu-list :is(a, button) { min-height: 44px; } }
+
+/* The lesson's own sheet inside the card: no frame of its own, no cap but the card's. A column: progress, the text
+   (scrolls inside only when the card is capped), the frame's action. */
 .ux-bcard-guide > .guided-lesson {
     grid-area: auto; flex: 1 1 auto; align-self: stretch; min-height: 0; max-height: none; z-index: auto;
-    padding: 0 12px 10px; border: 0; border-radius: 0 0 12px 12px; box-shadow: none; background: transparent;
+    display: flex; flex-direction: column; padding: 0; border: 0; border-radius: 0 0 12px 12px; box-shadow: none; background: transparent;
 }
 .ux-bcard-guide > .guided-lesson.guided-lesson-task { max-height: none; }
-@media (pointer: coarse) { .ux-bcard-guide .ux-lesson-card-actions :is(button, a) { min-height: 44px; } }
-@media (max-width: 700px), (pointer: coarse) { .ux-bcard-guide > .ux-btext-head { --ux-head-btn: 44px; } }
+.ux-bcard-guide .guided-lesson-reading { flex: 1 1 auto; min-height: 3rem; padding: 10px 14px 12px; }
+.ux-bcard-guide .guided-lesson > :is(p, .guided-lesson-footer, .guided-lesson-actions) { margin-inline: 14px; }
+.ux-bcard-guide .guided-lesson-footer { padding-bottom: 10px; }
+
+/* One row under the title: "Razlaga · Korak 3 od 7" over a rail of the steps (done filled, the current one filled by its
+   frames), and Back/Next on the right, held to the row's top. Next never moves between frames: only the title above it
+   sets its place, and a progress line that wraps grows the row downwards. */
+.ux-lesson-progress {
+    flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: 12px;
+    padding: 2px 10px 10px 14px; border-bottom: 1px solid var(--bezeg-shell-rule);
+}
+.ux-bcard-guide .guided-lesson-progress { grid-column: 1; font-size: .8125rem; font-weight: 600; color: var(--bezeg-shell-ink-secondary); padding-top: 4px; line-height: 1.35; }
+.ux-bcard-guide .guided-lesson-frame-label { display: inline; font-size: .8125rem; font-weight: 600; color: var(--bezeg-shell-ink); }
+.ux-lesson-rail { grid-column: 1; display: flex; gap: 3px; margin-top: 6px; }
+.ux-lesson-rail > span {
+    flex: 1 1 0; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--bezeg-shell-rule) 80%, transparent);
+    background-image: linear-gradient(var(--bezeg-shell-action), var(--bezeg-shell-action));
+    background-repeat: no-repeat; background-size: calc(var(--fill, 0) * 100%) 100%;
+}
+@media (prefers-reduced-motion: no-preference) { .ux-lesson-rail > span { transition: background-size 220ms cubic-bezier(.2, .8, .2, 1); } }
+.ux-lesson-progress .guided-lesson-navigation { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 6px; }
+.ux-bcard-guide .ux-lesson-progress .guided-lesson-navigation button { min-width: 0; min-height: 40px; gap: 4px; padding: 0 12px; }
+/* Back is an arrow (its name stays in its label); Next keeps one width whether it reads Naprej or Končaj. */
+.ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-back { width: 40px; padding: 0; color: var(--bezeg-shell-ink-secondary); }
+.ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-back:hover:not(:disabled) { color: var(--bezeg-shell-ink); }
+.ux-lesson-progress .ux-nav-label { display: none; }
+.ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-next { min-width: 6.75rem; }
+.ux-lesson-progress .guided-lesson-navigation svg { width: 16px; height: 16px; flex: none; }
+@media (pointer: coarse) { .ux-bcard-guide .ux-lesson-progress .guided-lesson-navigation button { min-height: 44px; } .ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-back { width: 44px; } }
 
 /* Pucks (a1) and the tools card: a slider or count the pucks show lives only on its puck (owner, 2026-11-21: "only keep
    pucks for sliders"); its help, and its group's help, are in the puck's tooltip. The control stays mounted (hidden) so
