@@ -83,6 +83,19 @@ export function movingLeafCount(from: unknown, to: unknown, key = ''): number {
 
 const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
+/** True while a lesson morph runs: readers of the board (the text card) hold their last settled content until it ends. */
+let morphing = 0;
+const morphListeners = new Set<() => void>();
+export function isMorphing(): boolean { return morphing > 0; }
+export function subscribeMorphing(listener: () => void): () => void {
+    morphListeners.add(listener);
+    return () => { morphListeners.delete(listener); };
+}
+function bumpMorphing(delta: 1 | -1) {
+    morphing = Math.max(0, morphing + delta);
+    morphListeners.forEach(listener => listener());
+}
+
 export interface MorphHandle {
     finish(): void;
     readonly done: Promise<void>;
@@ -100,7 +113,11 @@ export function morphScene(capabilities: LessonGraphCapabilities, before: Lesson
     let finished = false;
     let frame = 0;
     let resolveDone: () => void = () => undefined;
-    const done = new Promise<void>(resolve => { resolveDone = resolve; });
+    let settled = false;
+    const settle = () => { if (!settled) { settled = true; bumpMorphing(-1); } };
+    bumpMorphing(1);
+    window.setTimeout(settle, duration + 3000); // a morph that is abandoned must not hold readers forever
+    const done = new Promise<void>(resolve => { resolveDone = () => { settle(); resolve(); }; });
     const from = refineGrid(before.value);
     const to = refineGrid(after.value);
     // Some quantities are whole numbers stored as numbers (half-degrees, steps): after one refusal they move in whole steps.

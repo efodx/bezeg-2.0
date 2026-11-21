@@ -117,3 +117,23 @@ export function recentlyProbed(): boolean {
 export function listParams(): ParamEntry[] {
     return [...entries.values()];
 }
+
+/**
+ * The parameter whose puck is being typed into, if any. Hover previews and ghosts (a19, a29) stay quiet while it is set:
+ * read `getEditingParam()` (or `useEditingParam()`), or match `body[data-ux-editing-param]` in CSS.
+ */
+let editingKey: string | undefined;
+const editingListeners = new Set<() => void>();
+export function getEditingParam(): string | undefined { return editingKey; }
+export function setEditingParam(key: string | undefined) {
+    if (editingKey === key) return;
+    editingKey = key;
+    if (typeof document !== 'undefined') {
+        if (key === undefined) document.body.removeAttribute('data-ux-editing-param');
+        else document.body.setAttribute('data-ux-editing-param', key);
+    }
+    editingListeners.forEach(listener => listener());
+}
+export function useEditingParam(): string | undefined {
+    return useSyncExternalStore(listener => { editingListeners.add(listener); return () => { editingListeners.delete(listener); }; }, () => editingKey, () => undefined);
+}

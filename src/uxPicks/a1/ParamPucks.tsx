@@ -1,9 +1,12 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
-import {getParam, recentlyProbed, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
+import {createPortal} from 'react-dom';
+import {getParam, recentlyProbed, setEditingParam, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
 import {usePick} from '../picks';
 import {jumpValue} from '../a29/track';
 import {canOscillate, isOscillating, toggleOscillator, useOscillators} from '../a3/oscillators';
+import {DockItem} from '../dock/BoardDock';
+import {ChevronDownIcon, MinusIcon, PauseIcon, PlusIcon, WaveIcon} from '../dock/icons';
 import './ParamPucks.css';
 
 type ParamEntry = RangeParam;
@@ -53,7 +56,8 @@ interface ScrubState {
     detent?: number; fine: number; pxPerRange: number;
 }
 
-export function Tape(props: {entry: ParamEntry; value: number; fineLabel: string; width: number; pxPerRange: number; detent: boolean}) {
+/** The drag ruler: compact, and anchored above the puck being dragged (a fixed box that follows the puck's place). */
+export function Tape(props: {entry: ParamEntry; value: number; fineLabel: string; width: number; anchor?: HTMLElement | null; pxPerRange: number; detent: boolean}) {
     const {entry, value, width} = props;
     const span = entry.max - entry.min;
     const pxPerUnit = props.pxPerRange / span;
@@ -71,20 +75,25 @@ export function Tape(props: {entry: ParamEntry; value: number; fineLabel: string
         if (entry.cyclic === undefined && (v < entry.min - 1e-9 || v > entry.max + 1e-9)) continue;
         const x = half + (v - value) * pxPerUnit;
         const isMajor = Math.abs(v / major - Math.round(v / major)) < 1e-6;
-        ticks.push(<line key={n} x1={x} x2={x} y1={isMajor ? 14 : 20} y2={30} className={isMajor ? 'major' : undefined}/>);
-        if (isMajor) ticks.push(<text key={`t${n}`} x={x} y={10}>{entry.format(entry.cyclic === undefined ? v : ((v % entry.cyclic) + entry.cyclic) % entry.cyclic)}</text>);
+        ticks.push(<line key={n} x1={x} x2={x} y1={isMajor ? 11 : 16} y2={24} className={isMajor ? 'major' : undefined}/>);
+        if (isMajor) ticks.push(<text key={`t${n}`} x={x} y={8}>{entry.format(entry.cyclic === undefined ? v : ((v % entry.cyclic) + entry.cyclic) % entry.cyclic)}</text>);
     }
     const minX = half + (entry.min - value) * pxPerUnit, maxX = half + (entry.max - value) * pxPerUnit;
-    return <div className={`ux-tape${props.detent ? ' is-detent' : ''}`} aria-hidden="true">
-        <svg width={width} height={34}>
-            {entry.cyclic === undefined && minX > 0 && <rect x={0} y={0} width={minX} height={34} className="ux-tape-out"/>}
-            {entry.cyclic === undefined && maxX < width && <rect x={maxX} y={0} width={width - maxX} height={34} className="ux-tape-out"/>}
+    const anchor = props.anchor?.getBoundingClientRect();
+    const place: React.CSSProperties = anchor ? {
+        left: Math.max(8, Math.min(window.innerWidth - width - 8, anchor.left + anchor.width / 2 - width / 2)),
+        bottom: Math.max(8, window.innerHeight - anchor.top + 8),
+    } : {};
+    return createPortal(<div className={`ux-tape${props.detent ? ' is-detent' : ''}`} style={place} aria-hidden="true">
+        <svg width={width} height={26}>
+            {entry.cyclic === undefined && minX > 0 && <rect x={0} y={0} width={minX} height={26} className="ux-tape-out"/>}
+            {entry.cyclic === undefined && maxX < width && <rect x={maxX} y={0} width={width - maxX} height={26} className="ux-tape-out"/>}
             {ticks}
-            <line x1={half} x2={half} y1={0} y2={34} className="ux-tape-needle"/>
+            <line x1={half} x2={half} y1={0} y2={26} className="ux-tape-needle"/>
         </svg>
         <div className="ux-tape-readout"><span>{splitLabel(entry.label).symbol ?? entry.label}</span> = <strong>{entry.format(value)}</strong>
             {props.fineLabel && <em>{props.fineLabel}</em>}</div>
-    </div>;
+    </div>, document.body);
 }
 
 export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: {value: number; fine: string; pxPerRange: number; detent: boolean} | undefined): void; boardWidth: number}) {
@@ -173,6 +182,8 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         if (!state.moved) ref.current?.focus();
     };
     const [editing, setEditing] = useState<string>();
+    const [problem, setProblem] = useState<string>();
+    useTypingState(entry.key, editing !== undefined, entry.value, setProblem);
     const onKeyDown = (event: React.KeyboardEvent) => {
         if (editing !== undefined) return;
         const typed = startsTyping(event);
@@ -195,11 +206,12 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
                         const ok = Number.isFinite(value) && (entry.cyclic !== undefined || (value >= entry.min - 1e-9 && value <= entry.max + 1e-9));
-                        if (ok) entry.set(value); else refuse();
+                        if (ok) { entry.set(value); setProblem(undefined); } else { refuse(); setProblem(Number.isFinite(value) ? allowedRange(entry.format, entry.min, entry.max) : 'Vpiši število'); }
                         return ok;
-                    }}/>
+                    }} onInput={() => setProblem(undefined)}/>
                 : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
         </span>
+        {problem && <span className="ux-puck-problem" role="alert">{problem}</span>}
         <span className="ux-puck-track" aria-hidden="true"><span style={{left: `${Math.max(0, Math.min(1, fraction)) * 100}%`}}/></span>
     </div>;
 }
@@ -231,12 +243,13 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
         && (entry.kind === 'count' || entry.max > entry.min)), [params]);
     if (visible.length === 0) return null;
     const scrubbed = scrub && visible.find((entry): entry is RangeParam => entry.kind === 'range' && entry.key === scrub.key);
-    return <div className={`ux-pucks${locked ? ' is-locked' : ''}${collapsed ? ' is-collapsed' : ''}`} role="group" aria-label="Parametri na grafu">
-        {scrubbed && scrub && <Tape entry={scrubbed} value={scrub.value} fineLabel={scrub.fine} width={Math.min(width - 24, 720)} pxPerRange={scrub.pxPerRange} detent={scrub.detent}/>}
+    return <DockItem region="bottom" phoneRegion="tray"><div className={`ux-pucks${locked ? ' is-locked' : ''}${collapsed ? ' is-collapsed' : ''}`} role="group" aria-label="Parametri na grafu">
+        {scrubbed && scrub && <Tape entry={scrubbed} value={scrub.value} fineLabel={scrub.fine} width={Math.min(width - 24, 416)} pxPerRange={scrub.pxPerRange} detent={scrub.detent}
+            anchor={document.querySelector<HTMLElement>(`.ux-puck[data-param="${CSS.escape(scrubbed.key)}"]`)}/>}
         <div className="ux-pucks-row">
             <button type="button" className="ux-pucks-toggle" aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}
                 title={collapsed ? 'Pokaži parametre na grafu' : 'Skrij parametre na grafu'}>
-                {collapsed ? <>Parametri <b>{visible.length}</b></> : <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 L6 7.5 L9 4.5"/></svg>}
+                {collapsed ? <>Parametri <b>{visible.length}</b></> : <ChevronDownIcon/>}
                 <span className="visually-hidden">{collapsed ? '' : 'Skrij parametre'}</span>
             </button>
             {!collapsed && visible.map(entry => {
@@ -249,13 +262,13 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                         aria-label={moving ? `Ustavi: ${entry.label}` : `Naj se sam spreminja: ${entry.label}`}
                         title={moving ? 'Ustavi' : entry.kind === 'count' ? 'Naj sam šteje gor in dol' : 'Naj sam niha med mejama'}
                         onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
-                        <svg viewBox="0 0 20 12" aria-hidden="true"><path d="M1 6 C 4 -1, 6 -1, 10 6 S 16 13, 19 6"/></svg>
+                        {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
                 </span>;
             })}
         </div>
         {locked && !collapsed && <p className="ux-pucks-lock">Med razlago so parametri zaklenjeni — opazuj, kateri se spremeni.</p>}
-    </div>;
+    </div></DockItem>;
 }
 
 /** Pixels of sideways drag per step of a count. */
@@ -328,6 +341,8 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
         if (!state.moved) ref.current?.focus();
     };
     const [editing, setEditing] = useState<string>();
+    const [problem, setProblem] = useState<string>();
+    useTypingState(entry.key, editing !== undefined, entry.value, setProblem);
     const onKeyDown = (event: React.KeyboardEvent) => {
         if (editing !== undefined) return;
         const typed = startsTyping(event);
@@ -347,14 +362,23 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
         data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
         onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>
         <span className="ux-puck-text">
-            <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Zmanjšaj: ${entry.label}`} aria-disabled={atMin || locked || undefined} onClick={() => step(-1)}>−</button>
+            <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Zmanjšaj: ${entry.label}`} aria-disabled={atMin || locked || undefined} onClick={() => step(-1)}><MinusIcon/></button>
             {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{name}</span>}
             {editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
-                    accept={value => { const ok = setCount(entry, value); if (!ok) refuse(); return ok; }}/>
+                    accept={value => {
+                        const ok = setCount(entry, value);
+                        if (ok) setProblem(undefined);
+                        else {
+                            refuse();
+                            setProblem(!Number.isFinite(value) ? 'Vpiši število' : !Number.isInteger(value) ? 'Vpiši celo število' : allowedRange(entry.format, entry.min, entry.max));
+                        }
+                        return ok;
+                    }} onInput={() => setProblem(undefined)}/>
                 : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
-            <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}>+</button>
+            <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}><PlusIcon/></button>
         </span>
+        {problem && <span className="ux-puck-problem" role="alert">{problem}</span>}
         {dots > 0 && <span className="ux-count-dots" aria-hidden="true">
             {Array.from({length: dots}, (_, index) => {
                 const value = entry.min! + index;
@@ -362,6 +386,25 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
             })}
         </span>}
     </div>;
+}
+
+/** "Dovoljeno od −20 do 20": what a refused typed value may be instead. */
+function allowedRange(format: (value: number) => string, min?: number, max?: number): string {
+    if (min !== undefined && max !== undefined) return `Dovoljeno od ${format(min)} do ${format(max)}`;
+    if (min !== undefined) return `Dovoljeno od ${format(min)} naprej`;
+    if (max !== undefined) return `Dovoljeno do ${format(max)}`;
+    return 'Vpiši število';
+}
+
+/** While a puck is typed into, the registry says so (hover previews stay quiet); the puck's message ends when its value changes. */
+function useTypingState(key: string, typing: boolean, value: number, setProblem: (text: undefined) => void) {
+    useEffect(() => { setProblem(undefined); }, [value, setProblem]);
+    useEffect(() => {
+        // Closing the field (Escape, blur, a refused Enter that ends typing) ends its message too.
+        if (!typing) { setProblem(undefined); return; }
+        setEditingParam(key);
+        return () => setEditingParam(undefined);
+    }, [key, typing, setProblem]);
 }
 
 /** Enter starts typing with the current value; a digit, minus or decimal mark starts typing with that character. */
@@ -397,7 +440,7 @@ function setCount(entry: CountParam, target: number): boolean {
 }
 
 /** The puck's value as a text field while the learner types; Enter or leaving commits, Escape cancels. */
-function TypedValue(props: {initial: string; shown: string; label: string; accept(value: number): boolean; onDone(): void}) {
+function TypedValue(props: {initial: string; shown: string; label: string; accept(value: number): boolean; onInput?(): void; onDone(): void}) {
     const input = useRef<HTMLInputElement>(null);
     const [text, setText] = useState(props.initial === '' ? props.shown : props.initial);
     const [invalid, setInvalid] = useState(false);
@@ -416,7 +459,7 @@ function TypedValue(props: {initial: string; shown: string; label: string; accep
     };
     return <input ref={input} className={`ux-puck-input${invalid ? ' is-invalid' : ''}`} inputMode="decimal" aria-label={`Vpiši: ${props.label}`}
         value={text} size={Math.max(3, text.length + 1)}
-        onChange={event => { setText(event.target.value); setInvalid(false); }}
+        onChange={event => { setText(event.target.value); setInvalid(false); props.onInput?.(); }}
         onPointerDown={event => event.stopPropagation()} onDoubleClick={event => event.stopPropagation()}
         onKeyDown={event => {
             event.stopPropagation();

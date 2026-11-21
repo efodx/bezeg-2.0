@@ -1,8 +1,6 @@
-.ux-board-frame { position: relative; }
-
+/* The pucks sit in the board dock: along the bottom of the graph, or in the tray under it on a phone. */
 .ux-pucks {
-    position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 5;
-    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: 100%;
     pointer-events: none;
 }
 .ux-pucks-row {
@@ -44,22 +42,20 @@
 .ux-puck.is-oscillating { border-color: #244c37; }
 
 .ux-pucks .ux-puck-osc {
-    min-height: 0; font-size: 0;
-    position: absolute; top: -9px; right: -9px; width: 24px; height: 24px; padding: 0;
-    border-radius: 50%; border: 1px solid #d6dccb; background: #fffdf5; color: #526152;
+    min-height: 0; flex: none; align-self: center; width: 28px; height: 28px; padding: 0; margin-left: 4px;
+    border-radius: 50%; border: 1px solid var(--bezeg-shell-rule); background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink-secondary);
     display: grid; place-items: center; cursor: pointer;
 }
-.ux-puck-osc::after { content: ""; position: absolute; inset: -8px; } /* 40 px touch target */
-.ux-puck-osc svg { width: 14px; height: 9px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
-.ux-pucks .ux-puck-osc[aria-pressed="true"] { background: #244c37; color: #fff; border-color: #244c37; }
-.ux-puck-osc[aria-pressed="true"] svg { animation: ux-osc 1.2s ease-in-out infinite alternate; }
-@keyframes ux-osc { from { transform: translateX(-1.5px); } to { transform: translateX(1.5px); } }
+.ux-pucks .ux-puck-osc:hover { border-color: var(--bezeg-shell-action); }
+.ux-puck-osc:focus-visible { outline: 3px solid var(--bezeg-shell-focus); outline-offset: 2px; }
+.ux-puck-osc svg { width: 16px; height: 16px; display: block; }
+.ux-pucks .ux-puck-osc[aria-pressed="true"] { background: var(--bezeg-shell-action); color: var(--bezeg-shell-on-action); border-color: var(--bezeg-shell-action); }
 
 .ux-pucks .ux-pucks-toggle {
-    min-width: 32px; min-height: 44px; padding: 0 9px; border-radius: 12px; border: 1px solid #d6dccb;
+    min-width: 36px; min-height: 44px; padding: 0 9px; justify-content: center; border-radius: 12px; border: 1px solid #d6dccb;
     background: rgba(255, 253, 245, 0.92); color: #526152; font-size: 0.78rem; display: flex; align-items: center; gap: 6px; cursor: pointer;
 }
-.ux-pucks-toggle svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.ux-pucks-toggle svg { width: 16px; height: 16px; display: block; }
 .ux-pucks-toggle b { color: #19372f; }
 .ux-pucks-lock {
     pointer-events: none; margin: 0; font-size: 0.74rem; color: #526152; background: rgba(255, 253, 245, 0.85);
@@ -67,8 +63,8 @@
 }
 
 .ux-tape {
-    align-self: center; margin-bottom: auto; pointer-events: none; background: rgba(255, 253, 245, 0.95); border: 1px solid #d6dccb;
-    border-radius: 12px; padding: 2px 0 4px; box-shadow: 0 8px 26px rgba(25, 55, 47, 0.16); overflow: hidden;
+    position: fixed; z-index: 60; pointer-events: none; background: color-mix(in srgb, var(--bezeg-shell-panel) 96%, transparent); border: 1px solid var(--bezeg-shell-rule);
+    border-radius: 12px; padding: 1px 0 2px; box-shadow: 0 8px 26px rgba(25, 55, 47, 0.16); overflow: hidden; max-height: 48px;
     display: flex; flex-direction: column; align-items: center; animation: ux-tape-in 120ms ease-out;
 }
 @keyframes ux-tape-in { from { opacity: 0; transform: translateY(6px); } }
@@ -78,21 +74,28 @@
 .ux-tape text { font-size: 9px; fill: #526152; text-anchor: middle; font-variant-numeric: tabular-nums; }
 .ux-tape .ux-tape-needle { stroke: #b88a43; stroke-width: 2.4; }
 .ux-tape .ux-tape-out { fill: rgba(214, 220, 203, 0.55); }
-.ux-tape-readout { font-size: 0.95rem; color: #19372f; font-variant-numeric: tabular-nums; display: flex; gap: 6px; align-items: baseline; }
+.ux-tape-readout { font-size: 0.78rem; line-height: 1.15; color: #19372f; font-variant-numeric: tabular-nums; display: flex; gap: 6px; align-items: baseline; }
 .ux-tape-readout span { font-family: "Source Serif 4", "Times New Roman", serif; font-style: italic; color: #885512; }
-.ux-tape-readout em { font-style: normal; font-size: 0.72rem; color: #fff; background: #244c37; padding: 1px 7px; border-radius: 9px; }
+.ux-tape-readout em { font-style: normal; font-size: 0.66rem; color: #fff; background: #244c37; padding: 0 7px; border-radius: 9px; }
 
-@media (max-width: 600px) {
-    .ux-pucks { left: 6px; right: 6px; bottom: 6px; top: 6px; justify-content: flex-end; }
-    .ux-tape svg { height: 28px; }
-    /* One strip along the bottom edge so the curve keeps the board; it scrolls sideways when the pucks do not fit. */
-    .ux-pucks-row { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; padding-top: 10px; margin-top: -10px; gap: 5px; }
+@media (max-width: 700px) {
+    /* The tray: one horizontally scrolling row; every button on it is a 44 px target. */
+    .ux-pucks { width: 100%; }
+    .ux-pucks-row { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; gap: 8px; width: 100%; padding: 2px; align-items: center; }
     .ux-pucks-row::-webkit-scrollbar { display: none; }
-    .ux-puck { flex: none; min-width: 52px; min-height: 42px; padding: 3px 8px 5px; }
+    .ux-puck-wrap { flex: none; }
+    .ux-puck { flex: none; min-width: 52px; padding: 3px 8px 5px; }
     .ux-puck-text { gap: 5px; }
     .ux-puck-symbol { font-size: 1.05rem; }
     .ux-puck-value { font-size: 0.9rem; min-width: 1.8em; }
     .ux-puck-name { max-width: 6em; }
+    .ux-pucks-lock { background: none; padding: 4px 2px 0; }
+}
+@media (max-width: 700px), (pointer: coarse) {
+    .ux-pucks .ux-puck-osc { width: 44px; height: 44px; margin-left: 4px; }
+    .ux-pucks .ux-puck .ux-count-step { width: 44px; height: 44px; }
+    .ux-pucks .ux-pucks-toggle { min-width: 44px; }
+    .ux-puck-input { min-height: 36px; }
 }
 .ux-tape.is-detent .ux-tape-needle { stroke: #244c37; stroke-width: 3.4; }
 .ux-tape.is-detent .ux-tape-readout strong { color: #244c37; text-decoration: underline 2px #b88a43; text-underline-offset: 3px; }
@@ -100,10 +103,12 @@
 
 /* ux-picks: count pucks (CountSetter). */
 .ux-pucks .ux-count-step {
-    min-height: 0; width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 1px solid #d6dccb; background: #fffdf5;
-    color: #19372f; font-size: 1rem; line-height: 1; display: grid; place-items: center; cursor: pointer; align-self: center;
+    min-height: 0; width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 1px solid var(--bezeg-shell-rule); background: var(--bezeg-shell-panel);
+    color: var(--bezeg-shell-ink); display: grid; place-items: center; cursor: pointer; align-self: center;
 }
-.ux-pucks .ux-count-step:hover { border-color: #244c37; }
+.ux-pucks .ux-count-step:hover { border-color: var(--bezeg-shell-action); }
+.ux-count-step svg { width: 16px; height: 16px; display: block; }
+.ux-count-step:focus-visible { outline: 3px solid var(--bezeg-shell-focus); outline-offset: 2px; }
 .ux-pucks .ux-count-step[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
 .ux-count-puck .ux-puck-text { align-items: center; }
 .ux-count-puck .ux-puck-value { min-width: 1.4em; text-align: center; }
@@ -112,11 +117,14 @@
 .ux-count-dots > span.is-below { background: #9fb08f; }
 .ux-count-dots > span.is-on { background: #244c37; transform: scale(1.3); }
 
-/* ux-picks a3: the oscillate button sits on the puck's corner. */
-.ux-puck-wrap { position: relative; display: flex; pointer-events: auto; }
+/* ux-picks a3: the oscillate button sits beside its puck. */
+.ux-puck-wrap { position: relative; display: flex; align-items: stretch; pointer-events: auto; }
 .ux-puck-wrap.is-oscillating > .ux-puck { border-color: #244c37; }
 
 /* ux-picks: typed entry on a puck. */
 .ux-puck-input { font: inherit; font-weight: 650; font-variant-numeric: tabular-nums; font-size: 0.98rem; width: auto; min-width: 3.2em; padding: 0 4px; border: 1px solid #244c37; border-radius: 6px; background: #fff; color: #19372f; cursor: text; }
 .ux-puck-input:focus { outline: 2px solid #456db0; outline-offset: 1px; }
 .ux-puck-input.is-invalid { border-color: #b3261e; background: #fdeceb; }
+
+/* Why a typed value was refused, until the value changes. */
+.ux-puck-problem { white-space: normal; max-width: 14em; font-size: 0.72rem; line-height: 1.25; color: #8f1d17; }

@@ -2,7 +2,8 @@ import React, {useEffect, useRef, useState} from 'react';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {swatchStyle} from '../../graphs/functions/FunctionReadout';
 import {buildCardHtml} from './boardTextLayout';
-import {BoardCard} from './BoardCard';
+import {DockCard} from '../dock/DockCard';
+import {isMorphing, subscribeMorphing} from '../b1/morph';
 import {usePublishedLegend} from './legendStore';
 import './BoardTextCard.css';
 
@@ -69,14 +70,17 @@ function useBoardScan(frame: React.RefObject<HTMLDivElement | null>): Scan {
             }
             drawn.sort((a, b) => a.order - b.order);
             const joined = parts.join('\u0000') + '\u0001' + drawn.map(d => d.html).join('\u0000');
-            if (joined === last.current) return;
+            // While a lesson morph runs the numbers are in between; the card holds its settled content until it ends.
+            if (isMorphing() || joined === last.current) return;
             last.current = joined;
             const built = buildCardHtml(parts);
             setScan({text: built.text, legendRows: [...built.legend, ...drawn.map(d => d.html)]});
         };
         sync();
         const timer = window.setInterval(sync, 200);
+        const unsubscribe = subscribeMorphing(() => { if (!isMorphing()) sync(); });
         return () => {
+            unsubscribe();
             window.clearInterval(timer);
             board?.off('update', sync);
             hidden.forEach(n => n.classList.remove(HIDDEN));
@@ -122,7 +126,7 @@ function TypesetBody(props: {html: string; className?: string}) {
 }
 
 /**
- * Pick boardText: two cards over the graph built on one shell (BoardCard). The text card holds the formula and the
+ * Pick boardText: two cards docked on the graph (DockCard). The text card holds the formula and the
  * readouts the graph drew on its board; the legend card holds the tools' "Legenda" group and the legend rows the
  * graph drew on its board. Each card shows only when it has something, and is moved and hidden on its own.
  */
@@ -133,10 +137,10 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
     const rows = items.length > 0 ? [] : scan.legendRows;
     const hasLegend = items.length > 0 || rows.length > 0;
     return <>
-        {scan.text !== '' && <BoardCard frame={props.frame} kind="text" title="Besedilo" what="besedilo">
+        {scan.text !== '' && <DockCard kind="text" title="Besedilo" what="besedilo" region="top-end">
             {open => open && <TypesetBody html={scan.text}/>}
-        </BoardCard>}
-        {hasLegend && <BoardCard frame={props.frame} kind="legend" title="Legenda" what="legendo">
+        </DockCard>}
+        {hasLegend && <DockCard kind="legend" title="Legenda" what="legendo" region="top-start">
             {open => open && <div className="ux-btext-body ux-bleg-body">
                 {items.length > 0 && <ul className="ux-bleg-list">
                     {items.map(item => <li key={item.id} data-legend={item.id}>
@@ -146,6 +150,6 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
                 </ul>}
                 {rows.length > 0 && <TypesetBody html={rows.join('')} className="ux-bleg-rows"/>}
             </div>}
-        </BoardCard>}
+        </DockCard>}
     </>;
 }
