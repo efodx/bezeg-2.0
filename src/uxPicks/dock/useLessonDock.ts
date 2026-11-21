@@ -36,7 +36,7 @@ export function useLessonDock(o: {
             const m = measureDrag(host.regions, host.frame, null, el.getBoundingClientRect(), w, h);
             if (!m) return;
             if (atHome) setGap(LESSON, null, 0, w, h); else setGap(LESSON, m.region, m.index, w, h);
-            setOutlines(LESSON, m.outlines);
+            setOutlines(LESSON, m.view);
         } else if (was.current) {
             was.current = false;
             if (atHome || !dropAtGap(LESSON)) { clearGap(LESSON); releaseLesson(); }

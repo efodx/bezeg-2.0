@@ -1,18 +1,21 @@
-import {AXIS, TARGETS, type Outline, type Target} from './dockLayout';
+import {AXIS, GROWS, TARGETS, type DragView, type Target} from './dockLayout';
 
 /**
- * Where a dragged card (or the lesson card) would dock: the stack it is over, the index it would take there, and the
- * outlines of every insertion position. A stack that would overflow with the card still offers the position (it scrolls
- * by design); its label then reads "... · se drsi".
+ * Where a dragged card (or the lesson card) would dock. The board's edge band (a share of its smaller side) maps the
+ * pointer to the nearest anchor, and the insertion index along the anchor's axis; in the central area the card floats.
+ * A stack that would overflow with the card still offers the position (it scrolls by design): `view.scrolls`.
  */
-export interface Hit { region: Target | null; index: number; outlines: Outline[]; }
+export interface Hit { region: Target | null; index: number; view: DragView; }
 
 const GAP = 8;
-/** A dragged card within this many pixels of a stack docks into it when released. */
-export const SNAP = 48;
-export const BAR = 8;
+/** The edge band, as a share of the board's smaller side. */
+export const BAND = 0.28;
 export const REGION_LABEL: Record<Target, string> = {
-    'top-start': 'Levo', 'top-end': 'Desno', 'top-row': 'Zgoraj', 'bottom-row': 'Spodaj', 'bottom-end': 'Spodaj desno',
+    tl: 'Zgoraj levo', tc: 'Zgoraj na sredini', tr: 'Zgoraj desno', ml: 'Levo', mr: 'Desno', bc: 'Spodaj na sredini', br: 'Spodaj desno',
+};
+/** An anchor's reference point on the board's edge, in shares of its width and height. */
+export const ANCHOR_AT: Record<Target, [number, number]> = {
+    tl: [0, 0], tc: [0.5, 0], tr: [1, 0], ml: [0, 0.5], mr: [1, 0.5], bc: [0.5, 1], br: [1, 1],
 };
 
 const isGap = (e: HTMLElement) => e.classList.contains('ux-dock-gap');
@@ -20,97 +23,60 @@ const byOrder = (a: HTMLElement, b: HTMLElement) => Number(a.style.order) - Numb
 
 export function measureDrag(regions: Partial<Record<string, HTMLElement | null>>, frame: HTMLElement, exclude: HTMLElement | null,
                             c: DOMRect, w: number, h: number): Hit | null {
-    const rail = frame.querySelector('.ux-dock-top');
-    if (!rail) return null;
-    const f = frame.getBoundingClientRect(), rr = rail.getBoundingClientRect();
-    const out: Outline[] = [];
-    let best: Target | null = null, bestDist = Infinity, bestArea = Infinity, bestIndex = 0;
+    const dock = frame.querySelector('.ux-dock');
+    if (!dock) return null;
+    const f = frame.getBoundingClientRect();
     // The point that decides: the grabbed head (its left part, for a wide card).
-    const cx = c.left + Math.min(c.width / 2, 110), cy = c.top + 16;
+    const cx = c.left + Math.min(c.width / 2, 110) - f.left, cy = c.top + 16 - f.top;
+    const none = (): Hit => ({region: null, index: 0, view: {region: null, scrolls: false, free: {x: Math.round(c.left - f.left), y: Math.round(c.bottom - f.top + 6)}}});
 
+    const band = BAND * Math.min(f.width, f.height);
+    // The card's own edges decide whether it is near the board's edge (a card kept inside the board by clamping is as near as it gets).
+    if (Math.min(c.left - f.left, f.right - c.right, c.top - f.top, f.bottom - c.bottom) > band) return none();
+    // The anchor is the one nearest the card's middle; the grabbed head (cx, cy) decides the place within a stack.
+    const mx = (c.left + c.right) / 2 - f.left, my = (c.top + c.bottom) / 2 - f.top;
+    let best: Target | null = null, bestDist = Infinity;
     for (const r of TARGETS) {
-        const regionEl = regions[r];
-        if (!regionEl) continue;
-        const horiz = AXIS[r] === 'h';
-        const rb = regionEl.getBoundingClientRect();
-        if (horiz ? rb.width <= 0 : false) continue;
-        const live = Array.from(regionEl.children).filter((ch): ch is HTMLElement => ch instanceof HTMLElement && ch !== exclude
-            && !ch.classList.contains('is-floating')).sort(byOrder);
-        const cards = live.filter(ch => ch.hasAttribute('data-dock-item'));
-        const size = (e: HTMLElement) => horiz ? e.offsetWidth : e.offsetHeight;
-        const need = cards.reduce((a, e) => a + size(e), 0) + GAP * cards.length + (horiz ? w : h);
-        const maxH = parseFloat(getComputedStyle(regionEl).maxHeight);
-        const room = horiz ? rb.width - 4
-            : (r === 'bottom-end' ? (Number.isFinite(maxH) ? maxH : Infinity) : rr.height) - 4;
-        const fits = true, scrolls = need > room + 0.5;
-
-        // The settled box of an element, without a running glide's transform, relative to the frame.
-        const rect = (e: HTMLElement) => {
-            const b = e.getBoundingClientRect(), t = getComputedStyle(e).transform;
-            const m = t && t !== 'none' ? new DOMMatrixReadOnly(t) : null;
-            const dx = m?.m41 ?? 0, dy = m?.m42 ?? 0;
-            return {left: b.left - dx - f.left, right: b.right - dx - f.left, top: b.top - dy - f.top, bottom: b.bottom - dy - f.top};
-        };
-        const left = (r === 'top-start' ? rb.left : rb.right - w) - f.left;
-        const tag = (x: number, y: number) => out.push({region: r, x: Math.round(x), y: Math.round(y), w: 0, h: 16, bar: false, label: REGION_LABEL[r] + (scrolls ? ' · se drsi' : '')});
-
-        // The zone the card must be near, and the position it would take.
-        let zone: {left: number; right: number; top: number; bottom: number};
-        if (horiz) {
-            const hh = Math.max(rb.height, h);
-            const top = r === 'top-row' ? rr.top : f.bottom - 10 - hh;
-            zone = {left: rb.left, right: rb.right, top, bottom: top + hh};
-        } else if (rb.width > 0) zone = rb;
-        else {
-            const o = r === 'top-start' ? {x: rr.left, y: rr.top} : r === 'top-end' ? {x: rr.right - w, y: rr.top} : {x: f.right - 10 - w, y: f.bottom - 10 - h};
-            zone = {left: o.x, right: o.x + w, top: o.y, bottom: o.y + h};
-        }
-        if (fits) {
-            const dx = Math.max(zone.left - cx, 0, cx - zone.right), dy = Math.max(zone.top - cy, 0, cy - zone.bottom);
-            const near = c.left < zone.right + SNAP && c.right > zone.left - SNAP && c.top < zone.bottom + SNAP && c.bottom > zone.top - SNAP;
-            const dist = Math.hypot(dx, dy), area = (zone.right - zone.left) * (zone.bottom - zone.top);
-            if (near && (dist < bestDist || (dist === bestDist && area < bestArea))) {
-                best = r; bestDist = dist; bestArea = area;
-                let index = 0;
-                if (horiz) {
-                    let x = rb.width > 0 ? rb.left - regionEl.scrollLeft + 2 : zone.left;
-                    cards.forEach(e => { if (x + e.offsetWidth / 2 < cx) index++; x += e.offsetWidth + GAP; });
-                } else {
-                    const heights = cards.map(e => e.offsetHeight);
-                    const total = heights.reduce((a, b) => a + b, 0) + GAP * Math.max(0, cards.length - 1);
-                    let y = r === 'bottom-end' ? f.bottom - 10 - total : (rb.width > 0 ? rb.top - regionEl.scrollTop + 2 : zone.top);
-                    const head = c.top + 16; // the grabbed head decides the position
-                    heights.forEach(ch => { if (y + ch / 2 < head) index++; y += ch + GAP; });
-                }
-                bestIndex = index;
-            }
-        }
-
-        // Outlines of this stack.
-        if (live.length === 0) {
-            const sx = horiz ? zone.left - f.left + 2 : (r === 'top-start' ? zone.left : zone.right - w) - f.left;
-            const sy = zone.top - f.top;
-            const x = Math.max(0, Math.round(sx)), y = Math.max(0, Math.round(Math.min(sy, f.bottom - h - f.top)));
-            out.push({region: r, x, y, w, h, bar: false}); tag(x + 8, y + 8);
-            continue;
-        }
-        const first = rect(live[0]), last = rect(live[live.length - 1]);
-        {
-            const bar = (p: number, rr0: {left: number; top: number; bottom: number}) => out.push(horiz
-                ? {region: r, x: Math.round(p), y: Math.round(Math.min(first.top, rr0.top)), w: BAR, h: Math.round(Math.max(...live.map(e => rect(e).bottom)) - Math.min(...live.map(e => rect(e).top))), bar: true}
-                : {region: r, x: Math.round(left), y: Math.round(p), w, h: BAR, bar: true});
-            const start = (e: ReturnType<typeof rect>) => horiz ? e.left : e.top;
-            const end = (e: ReturnType<typeof rect>) => horiz ? e.right : e.bottom;
-            if (!isGap(live[0]) && fits) bar(start(first) - BAR - 1, first);
-            for (let i = 0; i + 1 < live.length; i++) {
-                if (isGap(live[i]) || isGap(live[i + 1]) || !fits) continue;
-                bar((end(rect(live[i])) + start(rect(live[i + 1]))) / 2 - BAR / 2, first);
-            }
-            if (!isGap(live[live.length - 1]) && fits) bar(end(last) + 1, first);
-        }
-        // The label: free space beyond the stack's far end.
-        if (!horiz) tag(left, r === 'bottom-end' ? first.top - BAR - 20 : last.bottom + BAR + 4);
-        else tag(first.left, r === 'bottom-row' ? Math.min(...live.map(e => rect(e).top)) - 20 : Math.max(...live.map(e => rect(e).bottom)) + 4);
+        const d = Math.hypot(mx - ANCHOR_AT[r][0] * f.width, my - ANCHOR_AT[r][1] * f.height);
+        if (d < bestDist) { best = r; bestDist = d; }
     }
-    return {region: best, index: bestIndex, outlines: out};
+    if (!best) return none();
+
+    const regionEl = regions[best];
+    const horiz = AXIS[best] === 'h';
+    const live = regionEl ? Array.from(regionEl.children).filter((ch): ch is HTMLElement => ch instanceof HTMLElement && ch !== exclude
+        && !ch.classList.contains('is-floating')).sort(byOrder) : [];
+    const cards = live.filter(ch => ch.hasAttribute('data-dock-item'));
+    const gap = live.find(isGap);
+    const size = (e: HTMLElement) => horiz ? e.offsetWidth : e.offsetHeight;
+
+    // Does the stack scroll with the card in it? The room is what its anchor allows.
+    const need = cards.reduce((a, e) => a + size(e), 0) + GAP * cards.length + (horiz ? w : h);
+    const col = regionEl?.parentElement;
+    const others = col && regionEl ? Array.from(col.children).filter(e => e !== regionEl && e instanceof HTMLElement && e.hasAttribute('data-region') && e.offsetHeight > 0)
+        .reduce((a, e) => a + (e as HTMLElement).offsetHeight + GAP, 0) : 0;
+    const cap = regionEl ? parseFloat(getComputedStyle(regionEl).maxHeight) : NaN;
+    const room = horiz ? (col?.clientWidth ?? f.width) : best === 'ml' || best === 'mr' ? (col?.clientHeight ?? f.height) - others - GAP
+        : Number.isFinite(cap) ? cap : f.height * 0.45;
+    const scrolls = need > room + 0.5;
+
+    // Where in the stack: card centres as they would lie without the gap (it shifts them by its growth rule).
+    const settled = (e: HTMLElement) => {
+        const b = e.getBoundingClientRect(), t = getComputedStyle(e).transform;
+        const m = t && t !== 'none' ? new DOMMatrixReadOnly(t) : null;
+        const dx = m?.m41 ?? 0, dy = m?.m42 ?? 0;
+        return horiz ? b.left - dx - f.left + b.width / 2 : b.top - dy - f.top + b.height / 2;
+    };
+    const s = gap ? size(gap) + GAP : 0;
+    const gi = gap ? live.indexOf(gap) : 0;
+    const grows = GROWS[best];
+    const head = horiz ? cx : cy;
+    let index = 0;
+    live.forEach((e, i) => {
+        if (isGap(e) || !e.hasAttribute('data-dock-item')) return;
+        const after = i > gi;
+        const shift = !gap ? 0 : grows === 'start' ? (after ? -s : 0) : grows === 'end' ? (after ? 0 : s) : (after ? -s / 2 : s / 2);
+        if (settled(e) + shift < head) index++;
+    });
+    return {region: best, index, view: {region: best, scrolls, free: null}};
 }

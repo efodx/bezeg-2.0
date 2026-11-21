@@ -1,6 +1,6 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
-import {useDock} from './BoardDock';
+import {GapSlot, useDock} from './BoardDock';
 import {GripIcon, MinusIcon, PlusIcon} from './icons';
 import {
     clearGap, currentGap, dropAtGap, orderOf, pickUp, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
@@ -10,13 +10,13 @@ import {measureDrag} from './dockMeasure';
 import {useFlip} from './dockFlip';
 
 /**
- * A movable, foldable card in the board dock. Docked, it sits in a vertical stack (left, right or bottom right) and never
- * overlaps another docked card. Picked up, its place stays reserved; over a stack the cards move to the layout a drop there
- * would give (FLIP-animated). Dropped outside every stack it floats where it is dropped; a double-click on its head, or Home
+ * A movable, foldable card in the board dock. Docked, it sits at one of seven anchors around the board's edge and never
+ * overlaps another docked card. Picked up, its place stays reserved; over an anchor the cards move to the layout a drop there
+ * would give (FLIP-animated). Dropped in the central area it floats where it is dropped; a double-click on its head, or Home
  * on its grip, returns it to its default dock. Stack and order are remembered per page. On a phone cards are labelled
  * chips in the top rail and one is open at a time.
  *
- * Adding a card is one element: `<DockCard kind="x" title="Naslov" what="vsebino" region="top-end" order={3}>{open => body}</DockCard>`.
+ * Adding a card is one element: `<DockCard kind="x" title="Naslov" what="vsebino" region="tr" order={3}>{open => body}</DockCard>`.
  */
 export interface DockCardProps {
     kind: string;
@@ -34,8 +34,6 @@ export interface DockCardProps {
 
 interface Pos { x: number; y: number; }
 
-/** A dragged card within this many pixels of a stack docks into it when released. */
-const SNAP = 48;
 const DRAG_THRESHOLD = 4;
 
 const collapsedKey = (kind: string) => kind === 'text' ? 'ux-boardtext-collapsed' : `ux-boardcard-collapsed:${kind}`;
@@ -52,14 +50,6 @@ function readPos(kind: string): Pos | null {
 }
 function writePos(kind: string, p: Pos | null) {
     try { if (p) localStorage.setItem(posKey(kind), JSON.stringify(p)); else localStorage.removeItem(posKey(kind)); } catch { /* ignore */ }
-}
-
-/** The reserved place of a lifted card, or where a drop would put it. */
-function GapSlot(props: {w: number; h: number; order: number; target: boolean}) {
-    const ref = useRef<HTMLDivElement>(null);
-    useFlip(ref, false);
-    return <div ref={ref} className={`ux-dock-gap${props.target ? ' is-target' : ''}`} data-dock-gap={props.target ? 'target' : 'origin'}
-                style={{width: props.w, height: props.h, order: props.order}} aria-hidden="true"/>;
 }
 
 export function DockCard(props: DockCardProps) {
@@ -116,7 +106,7 @@ export function DockCard(props: DockCardProps) {
         const el = card.current;
         if (!m || !el) return;
         setGap(kind, m.region, m.index, el.offsetWidth, el.offsetHeight);
-        setOutlines(kind, m.outlines);
+        setOutlines(kind, m.view);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dragging, keyboard, floating, pos, collapsed, frame, version]);
     useFlip(card, floating);
@@ -189,7 +179,7 @@ export function DockCard(props: DockCardProps) {
     };
 
     const placement = placementOf(kind);
-    const target = dock.regions[phone ? 'top-start' : placement.region];
+    const target = dock.regions[phone ? 'tl' : placement.region];
     if (!target) return null;
     const style: React.CSSProperties | undefined = floating ? {left: pos.x, top: pos.y} : phone ? undefined : {order: orderOf(kind)};
     const label = `${open ? 'Skrij' : 'Pokaži'} ${props.what}`;

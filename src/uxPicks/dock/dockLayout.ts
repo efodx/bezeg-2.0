@@ -1,18 +1,25 @@
 import {useSyncExternalStore} from 'react';
 
 /**
- * Where the dock's cards sit: which stack (left, right, bottom right) and in which order. Each stack is a vertical list.
- * A card that is picked up leaves a reserved gap (`gap`) in its stack; the gap moves to the position the card would
- * take if dropped now, and the cards between the old and the new position make room (the cards animate with FLIP).
- * Placements are remembered per page in localStorage.
+ * Where the dock's cards sit: which anchor around the board's edge and in which order. Seven anchors hold cards (the
+ * eighth, bottom left, belongs to the pucks): top left, top centre, top right, left, right, bottom centre, bottom right.
+ * Corner and side anchors are vertical stacks; top and bottom centre are horizontal rows. A card that is picked up leaves
+ * a reserved gap (`gap`) in its stack; the gap moves to the position the card would take if dropped now, and the cards
+ * between the old and the new position make room (the cards animate with FLIP). Placements are remembered per page in
+ * localStorage.
  */
-export type Target = 'top-start' | 'top-end' | 'bottom-end' | 'top-row' | 'bottom-row';
-/** Every stack has an axis: 'v' stacks cards top to bottom, 'h' side by side. A further region is one entry here and in BoardDock. */
-export const AXIS: Record<Target, 'v' | 'h'> = {'top-start': 'v', 'top-end': 'v', 'bottom-end': 'v', 'top-row': 'h', 'bottom-row': 'h'};
-export const TARGETS: readonly Target[] = ['top-start', 'top-end', 'bottom-end', 'top-row', 'bottom-row'];
+export type Target = 'tl' | 'tc' | 'tr' | 'ml' | 'mr' | 'bc' | 'br';
+/** Every anchor has an axis: 'v' stacks cards top to bottom, 'h' side by side. */
+export const AXIS: Record<Target, 'v' | 'h'> = {tl: 'v', tc: 'h', tr: 'v', ml: 'v', mr: 'v', bc: 'h', br: 'v'};
+/** Which end of its stack stays put when the stack grows: 'start' grows away from the top, 'end' grows up, 'mid' both ways. */
+export const GROWS: Record<Target, 'start' | 'end' | 'mid'> = {tl: 'start', tc: 'mid', tr: 'start', ml: 'mid', mr: 'mid', bc: 'mid', br: 'end'};
+export const TARGETS: readonly Target[] = ['tl', 'tc', 'tr', 'ml', 'mr', 'bc', 'br'];
+/** Stored layouts of the first dock: its regions map to the nearest anchor. */
+const LEGACY: Record<string, Target> = {'top-start': 'tl', 'top-end': 'tr', 'bottom-end': 'br', 'top-row': 'tc', 'bottom-row': 'bc'};
 /** The graph dock's stack the lesson card can take a place in (in memory only: lessons restart at home). */
 export const LESSON = 'lesson';
-export interface Outline { region: Target; x: number; y: number; w: number; h: number; bar: boolean; label?: string; }
+/** What the drag in progress shows besides the ghost: the anchor it would dock at (null: floats), whether that stack would scroll, and where the "Prosto" hint goes. */
+export interface DragView { region: Target | null; scrolls: boolean; free: {x: number; y: number} | null; }
 interface Placement { region: Target; order: number; }
 export interface Gap { kind: string; region: Target; index: number; w: number; h: number; }
 
@@ -34,7 +41,8 @@ function load() {
     try {
         const raw = JSON.parse(localStorage.getItem(storeKey()) ?? '{}') as Record<string, Placement>;
         for (const [kind, p] of Object.entries(raw)) {
-            if (p && TARGETS.includes(p.region) && Number.isFinite(p.order)) placed[kind] = {region: p.region, order: p.order};
+            const region = p && (LEGACY[p.region as string] ?? p.region);
+            if (p && TARGETS.includes(region) && Number.isFinite(p.order)) placed[kind] = {region, order: p.order};
         }
     } catch { /* ignore */ }
 }
@@ -44,14 +52,14 @@ function save() {
         localStorage.setItem(storeKey(), JSON.stringify(rest));
     } catch { /* ignore */ }
 }
-let outlines: Outline[] | null = null;
-let outlineOwner = '';
-export function getOutlines() { return outlines; }
-/** The preview slots of the drag in progress (null clears them, only for their owner). */
-export function setOutlines(owner: string, list: Outline[] | null) {
-    if (list === null && owner !== outlineOwner) return;
-    if (list === null ? outlines === null : outlines !== null && JSON.stringify(outlines) === JSON.stringify(list)) return;
-    outlines = list; outlineOwner = owner; emit();
+let view: DragView | null = null;
+let viewOwner = '';
+export function getOutlines() { return view; }
+/** The preview of the drag in progress (null clears it, only for its owner). */
+export function setOutlines(owner: string, v: DragView | null) {
+    if (v === null && owner !== viewOwner) return;
+    if (v === null ? view === null : view !== null && JSON.stringify(view) === JSON.stringify(v)) return;
+    view = v; viewOwner = owner; emit();
 }
 interface Host { regions: Partial<Record<string, HTMLElement | null>>; frame: HTMLElement | null; }
 let host: Host | null = null;
@@ -89,7 +97,7 @@ export function registerCard(kind: string, region: Target, order: number) {
     emit();
     return () => { regs.delete(kind); floating.delete(kind); if (lifted === kind) { origin = null; target = null; lifted = null; } emit(); };
 }
-export function placementOf(kind: string): Placement { return placed[kind] ?? regs.get(kind) ?? {region: 'top-end', order: 0}; }
+export function placementOf(kind: string): Placement { return placed[kind] ?? regs.get(kind) ?? {region: 'tr', order: 0}; }
 export function setFloating(kind: string, on: boolean) {
     if (floating.has(kind) === on) return;
     if (on) floating.add(kind); else floating.delete(kind);
