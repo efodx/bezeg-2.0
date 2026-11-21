@@ -12,7 +12,7 @@
         grid-template-areas: "heading" "graph" !important;
     }
     /* A reading card locks the graph (pointer events off); the lesson card on it stays live. */
-    .demonstration-workspace[data-ux-tools-card].lesson-content .workspace-graph .ux-bcard-lesson button { pointer-events: auto; }
+    .demonstration-workspace[data-ux-tools-card].lesson-content .workspace-graph .ux-bcard-guide button { pointer-events: auto; }
     /* While a lesson frame is read the board is locked (the workspace's lesson rules); the tools on it stay visible,
        dimmed with it, instead of being hidden as they were under the reading card. */
     .demonstration-workspace[data-ux-tools-card].lesson-open .ux-bcard-tools .workspace-inspector { visibility: visible; }
@@ -30,6 +30,9 @@
 /* In a stack the tools take the height the other cards leave (never less than a few controls) and scroll inside, so the
    stack itself does not scroll. Floating, the card is as tall as the board allows. */
 .ux-dock-v > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 auto; min-height: 180px; }
+/* Sharing a stack with the lesson card, the tools give way first: the lesson keeps its text's height while the tools shrink
+   to their minimum, then both shrink. */
+.ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 0; }
 .ux-bcard-tools.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
 
 /* Presentation: the card takes the tools' night colours. */
@@ -39,31 +42,50 @@
 .is-presenting .ux-bcard-tools .ux-btext-toggle:hover, .is-presenting .ux-bcard-tools .ux-btext-grip:hover,
 .is-presenting .ux-bcard-tools.ux-btext-collapsed > .ux-btext-head:hover { background: #2a3c58; }
 
-/* The guided lesson card on the graph (a DockCard). As wide as a reading column allows; in a stack it takes the height the
-   other cards leave (the stack holding it is not capped at a share: its column's other stacks give way first), and its
-   text scrolls inside. Floating, it is as tall as the board allows. */
-.ux-btext.ux-bcard-lesson { width: clamp(300px, 28vw, 400px); max-width: none; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
-.ux-dock-v:has(> .ux-bcard-lesson:not(.ux-btext-collapsed)) { max-height: none; }
-.ux-dock-v > .ux-bcard-lesson:not(.ux-btext-collapsed) { flex: 1 1 auto; min-height: 200px; }
-.ux-bcard-lesson.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
-.ux-bcard-lesson > .ux-btext-head { padding: 4px 4px 2px 8px; }
-.ux-bcard-lesson .ux-btext-title { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding-right: 4px; text-transform: none; letter-spacing: 0; }
-.ux-lesson-card-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; font-weight: 700; color: var(--bezeg-shell-ink); }
-.ux-lesson-card-progress { flex: none; font-size: .75rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--bezeg-shell-ink-secondary); }
+/* The guided lesson card on the graph (a DockCard), by default at the top left above the tools. As wide as a reading column
+   allows; in a stack it keeps its text's height and gives way last (the stack holding it is not capped at a share: its
+   column's other stacks give way first), and its text scrolls inside only past that. Floating, it is as tall as the board
+   allows. */
+.ux-btext.ux-bcard-guide { width: clamp(310px, 28vw, 400px); max-width: none; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+/* A middle stack holding it shrinks like the corners (not first, as middle stacks otherwise do). */
+.ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) { max-height: none; flex-shrink: 1; }
+.ux-dock-v > .ux-bcard-guide:not(.ux-btext-collapsed) { flex: 0 1 auto; min-height: 200px; }
+.ux-bcard-guide.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
+/* The head: the title wraps and is never cut (DESIGN.md, lesson card); grip, reset and fold keep the first row, and the
+   chapter return and Končaj take a row of their own under it. Folded, the head is the title, the progress and the fold. */
+.ux-bcard-guide > .ux-btext-head { --ux-head-btn: 24px; flex-wrap: wrap; align-items: flex-start; row-gap: 0; padding: 5px 4px 2px 8px; }
+.ux-bcard-guide > .ux-btext-head > .ux-btext-grip { order: 0; }
+.ux-bcard-guide > .ux-btext-head > .ux-btext-title {
+    order: 1; flex: 1 1 100%; max-width: calc(100% - 3 * (var(--ux-head-btn) + 6px));
+    display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; min-width: 0; padding: 2px 0 0; text-transform: none; letter-spacing: 0;
+}
+.ux-bcard-guide > .ux-btext-head > .ux-btext-toggle { order: 2; }
+.ux-bcard-guide > .ux-btext-head > .ux-lesson-card-actions { order: 3; margin-left: auto; }
+.ux-bcard-guide.ux-btext-collapsed > .ux-btext-head { padding-bottom: 5px; }
+.ux-bcard-guide.ux-btext-collapsed .ux-lesson-card-actions { display: none; }
+.ux-lesson-card-title {
+    min-width: 0; overflow-wrap: anywhere; text-wrap: pretty;
+    font-family: var(--bezeg-font-display); font-size: 1rem; font-weight: 600; letter-spacing: -.003em; line-height: 1.25; color: var(--bezeg-shell-ink);
+}
+.ux-lesson-card-progress { flex: none; font-size: .8125rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--bezeg-shell-ink-secondary); }
 .ux-lesson-card-actions { display: flex; flex: none; align-items: center; gap: 2px; }
-.ux-bcard-lesson .ux-lesson-card-actions :is(button, a) {
+/* Progress: the frame's kind in ink, then step and frame, both at the card's 13 px. */
+.ux-bcard-guide .guided-lesson-frame-label { font-size: .8125rem; font-weight: 600; color: var(--bezeg-shell-ink); }
+.ux-bcard-guide .guided-lesson-progress { font-size: .8125rem; }
+.ux-bcard-guide .ux-lesson-card-actions :is(button, a) {
     display: grid; place-items: center; min-width: 0; min-height: 28px; padding: 2px 8px; border: 0; border-radius: 6px; box-shadow: none;
     background: transparent; color: var(--bezeg-shell-ink-secondary); font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
 }
-.ux-bcard-lesson .ux-lesson-card-actions :is(button, a):hover { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
-.ux-bcard-lesson .ux-lesson-card-actions :is(button, a):focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: -2px; }
+.ux-bcard-guide .ux-lesson-card-actions :is(button, a):hover { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
+.ux-bcard-guide .ux-lesson-card-actions :is(button, a):focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: -2px; }
 /* The lesson's own sheet inside the card: no frame of its own, no cap but the card's. */
-.ux-bcard-lesson > .guided-lesson {
+.ux-bcard-guide > .guided-lesson {
     grid-area: auto; flex: 1 1 auto; align-self: stretch; min-height: 0; max-height: none; z-index: auto;
     padding: 0 12px 10px; border: 0; border-radius: 0 0 12px 12px; box-shadow: none; background: transparent;
 }
-.ux-bcard-lesson > .guided-lesson.guided-lesson-task { max-height: none; }
-@media (pointer: coarse) { .ux-bcard-lesson .ux-lesson-card-actions :is(button, a) { min-height: 44px; } }
+.ux-bcard-guide > .guided-lesson.guided-lesson-task { max-height: none; }
+@media (pointer: coarse) { .ux-bcard-guide .ux-lesson-card-actions :is(button, a) { min-height: 44px; } }
+@media (max-width: 700px), (pointer: coarse) { .ux-bcard-guide > .ux-btext-head { --ux-head-btn: 44px; } }
 
 /* Pucks (a1) and the tools card: a slider or count the pucks show lives only on its puck (owner, 2026-11-21: "only keep
    pucks for sliders"); its help, and its group's help, are in the puck's tooltip. The control stays mounted (hidden) so

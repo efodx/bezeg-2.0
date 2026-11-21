@@ -707,11 +707,13 @@ export function GuidedLesson(props: {
     // Pick toolsCard: the card is a board card (DockCard) on the graph, like the tools: it docks at any anchor or floats, its
     // place is remembered for the whole app, and its fold is hiding the instructions (Skrij). The head carries the title
     // (folded: also the progress), the chapter return and Končaj; the body is the card without its own heading row.
+    // It starts at the top left above the tools, which fold while a frame is read (owner, 2026-11-21: "Lesson takes
+    // top-left"). Its kind is `guide`, not dockLayout's `lesson` placeholder (boardText's beside-the-graph card).
     if (lessonOnGraph) {
         const cardTitle = pageHeadingHasLessonTitle ? t('guided_example') : lessonTitle;
         const progress = `${snapshot.stepIndex + 1}/${props.lesson.steps.length} · ${snapshot.frameIndex + 1}/${frames.length}`;
         return <>
-            <DockCard kind="lesson" title={cardTitle} what="navodila" region="mr" order={0}
+            <DockCard kind="guide" title={cardTitle} what="navodila" region="tl" order={-1}
                 collapsed={!cardOpen} onToggle={open => { if (open) showOverlay(); else hideOverlay(); }}
                 head={<><span id="guided-lesson-title" className="ux-lesson-card-title" title={lessonTitle}>{cardTitle}</span>
                     {!cardOpen && !isComplete && <span className="ux-lesson-card-progress">{progress}</span>}</>}

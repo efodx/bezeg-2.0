@@ -142,7 +142,8 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
         {scan.text !== '' && <DockCard kind="text" title="Besedilo" what="besedilo" region="tr">
             {open => open && <TypesetBody html={scan.text}/>}
         </DockCard>}
-        {hasLegend && <DockCard kind="legend" title="Legenda" what="legendo" region="tl" order={1} foldWhenNarrow>
+        {/* Bottom right: the top left holds the tools and, in a lesson, the lesson card (owner chose "lesson takes top-left"). */}
+        {hasLegend && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow>
             {open => open && <div className="ux-btext-body ux-bleg-body">
                 {items.length > 0 && <ul className="ux-bleg-list">
                     {items.map(item => <li key={item.id} data-legend={item.id}>

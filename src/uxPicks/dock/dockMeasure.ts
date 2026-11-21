@@ -28,7 +28,7 @@ export function measureDrag(regions: Partial<Record<string, HTMLElement | null>>
     const f = frame.getBoundingClientRect();
     // The point that decides: the grabbed head (its left part, for a wide card).
     const cx = c.left + Math.min(c.width / 2, 110) - f.left, cy = c.top + 16 - f.top;
-    const none = (): Hit => ({region: null, index: 0, view: {region: null, scrolls: false, free: {x: Math.round(c.left - f.left), y: Math.round(c.bottom - f.top + 6), above: Math.round(c.top - f.top - 24)}}});
+    const none = (): Hit => ({region: null, index: 0, view: {region: null, scrolls: false, free: {x: Math.round(c.left - f.left), y: Math.round(c.bottom - f.top + 6), above: Math.round(c.top - f.top - 24), right: Math.round(c.right - f.left), top: Math.round(c.top - f.top)}}});
 
     let best: Target | null = null;
     {

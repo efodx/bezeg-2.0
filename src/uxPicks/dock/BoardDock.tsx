@@ -160,6 +160,12 @@ function DragPreview(props: {frame: HTMLElement; dock: HTMLElement | null; view:
     const strip = dock?.querySelector<HTMLElement>('.ux-dock-strip');
     const stripTop = strip && strip.offsetHeight > 0 ? strip.getBoundingClientRect().top - frame.getBoundingClientRect().top : H;
     const freeMax = Math.max(0, Math.min(H, stripTop) - 24);
+    // A tall card near the board's top has room neither under nor above it: the hint goes beside it, right if there is
+    // room, else left, level with its top (it no longer sits on the card's head).
+    const PILL_W = 64;
+    const free = view.free && (view.free.y <= freeMax ? {left: view.free.x, top: view.free.y}
+        : view.free.above >= 0 ? {left: view.free.x, top: Math.min(view.free.above, freeMax)}
+        : {left: view.free.right + 8 + PILL_W <= W ? view.free.right + 8 : Math.max(0, view.free.x - 8 - PILL_W), top: Math.max(0, Math.min(view.free.top, freeMax))});
     return createPortal(<>
         {TARGETS.filter(k => k !== active).map(k => {
             const [ax, ay] = ANCHOR_AT[k];
@@ -171,7 +177,7 @@ function DragPreview(props: {frame: HTMLElement; dock: HTMLElement | null; view:
         {box && active && <div className="ux-dock-ghost" data-dock-ghost={active} style={{left: box.x, top: box.y, width: box.w, height: box.h}} aria-hidden="true">
             <span className="ux-dock-pill">{REGION_LABEL[active]}{view.scrolls && <ScrollIcon/>}</span>
         </div>}
-        {view.free && <span className="ux-dock-pill ux-dock-free" data-dock-free="" style={{left: view.free.x, top: view.free.y <= freeMax ? view.free.y : Math.max(0, Math.min(view.free.above, freeMax))}} aria-hidden="true">Prosto</span>}
+        {free && <span className="ux-dock-pill ux-dock-free" data-dock-free="" style={free} aria-hidden="true">Prosto</span>}
     </>, frame);
 }
 
