@@ -397,6 +397,37 @@ test('keeps the page and enlarged controls in place when navigation is fractiona
     }
 });
 
+test('in one column an observation frame whose task is below Back and Next brings the graph and the task into view', () => {
+    vi.stubGlobal('matchMedia', vi.fn((media: string) => ({matches: media.includes('max-width: 700px'), media, addEventListener: vi.fn(), removeEventListener: vi.fn()})));
+    setLanguage('sl');
+    let promptTop = 900;
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        if (this.classList.contains('guided-lesson-exploration')) return DOMRect.fromRect({x: 12, y: promptTop, width: 366, height: 80});
+        if (this.classList.contains('guided-lesson-navigation')) return DOMRect.fromRect({x: 0, y: 774, width: 390, height: 70});
+        return DOMRect.fromRect();
+    });
+    try {
+        const {container} = render(<GuidedLesson lesson={observationFirstLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const layer = container.querySelector<HTMLElement>('.guided-lesson-layer')!;
+        layer.scrollIntoView = vi.fn();
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
+        expect(container.querySelector('.guided-lesson-exploration')).toBeInTheDocument();
+        expect(layer.scrollIntoView).toHaveBeenCalledWith({block: 'start'});
+        expect(screen.getByRole('button', {name: 'Naprej: naslednji okvir'})).toHaveFocus();
+
+        // Back to the reading frame and forward again with the task in view moves nothing.
+        promptTop = 300;
+        fireEvent.click(screen.getByRole('button', {name: 'Nazaj: prejšnji okvir'}));
+        (layer.scrollIntoView as Mock).mockClear();
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
+        expect(container.querySelector('.guided-lesson-exploration')).toBeInTheDocument();
+        expect(layer.scrollIntoView).not.toHaveBeenCalled();
+    } finally {
+        rect.mockRestore();
+        vi.unstubAllGlobals();
+    }
+});
+
 test('in one column Back and Next are the last row of the card and a frame change deep in the text returns to the graph', () => {
     const oneColumnQuery = '(max-width: 700px)';
     let oneColumn = true;

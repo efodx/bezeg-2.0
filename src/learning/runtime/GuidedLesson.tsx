@@ -454,6 +454,15 @@ export function GuidedLesson(props: {
             // with the graph it changed in view. A press with the start of the text in view moves nothing.
             alignLessonInWindow();
         }
+        // An observation frame is worked with the graph and the tools: in one column, a task that starts above the window or low in
+        // it (under Back and Next once its formulas are typeset) brings the page to the graph, which puts the graph and the start of
+        // the task card in view together. Aligning an aligned page moves nothing.
+        if (navigated && snapshot.status === 'explore' && window.matchMedia?.('(max-width: 700px)').matches) {
+            const prompt = lessonRef.current?.querySelector('.guided-lesson-exploration')?.getBoundingClientRect();
+            const bar = lessonRef.current?.querySelector('.guided-lesson-navigation')?.getBoundingClientRect();
+            const limit = Math.min(window.innerHeight * 0.6, (bar && bar.height > 0 ? bar.top : window.innerHeight) - 24);
+            if (prompt && prompt.height > 0 && (prompt.top < 0 || prompt.top > limit)) alignLessonInWindow();
+        }
     }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
 
     useEffect(() => {
