@@ -530,3 +530,61 @@ form.ux-hand-target { outline: 2px solid #d39a3a; outline-offset: 4px; border-ra
 .ux-read-button:focus-visible { outline: 2px solid #c47b1f; outline-offset: 2px; }
 ::highlight(ux-read) { background-color: rgb(224 181 74 / 32%); }
 .ux-live-prose mjx-container.ux-read-now { background-color: rgb(224 181 74 / 45%); box-shadow: 0 0 0 2px rgb(196 123 31 / 55%); }
+
+/* c13 Ravnilo: measuring chain on the board. */
+.ux-measure-button {
+    position: absolute; top: 10px; right: 10px; z-index: 26;
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; min-height: 34px;
+    border: 1px solid #b9cfa7; border-radius: 999px; background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-action, #244c37);
+    font: 600 13px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto;
+}
+.ux-measure-button:hover { background: #eef3e5; }
+.ux-measure-button:focus-visible { outline: 2px solid var(--bezeg-shell-action, #244c37); outline-offset: 2px; }
+.ux-measure-button.ux-measure-on { background: var(--bezeg-shell-action, #244c37); color: #fff; border-color: var(--bezeg-shell-action, #244c37); }
+.ux-measure-capture { position: absolute; inset: 0; z-index: 24; cursor: crosshair; touch-action: none; pointer-events: auto; }
+.ux-measure-capture[hidden] { display: none; }
+.ux-measure-layer { position: absolute; inset: 0; z-index: 23; pointer-events: none; overflow: visible; width: 100%; height: 100%; }
+.ux-measure-band { stroke: #f3d98a; stroke-opacity: .55; stroke-width: 14; stroke-linecap: round; }
+.ux-measure-link { stroke: #8a5a12; stroke-width: 2; stroke-linecap: round; }
+.ux-measure-tick { stroke: #8a5a12; stroke-width: 1.3; }
+.ux-measure-preview { stroke: #8a5a12; stroke-width: 1.5; stroke-dasharray: 5 5; opacity: .7; }
+.ux-measure-tag rect { fill: #fffdf5; stroke: #c9a54a; stroke-width: 1.2; }
+.ux-measure-tag text { font: 700 12.5px/1 system-ui, sans-serif; fill: #6b4510; font-variant-numeric: tabular-nums; }
+.ux-measure-angle rect { fill: #eef3e5; stroke: #7aa36b; }
+.ux-measure-angle text { fill: #244c37; }
+.ux-measure-ghost { opacity: .75; }
+.ux-measure-wedge { fill: #7aa36b; fill-opacity: .18; stroke: none; }
+.ux-measure-arc { fill: none; stroke: #3f7a4f; stroke-width: 2; }
+.ux-measure-pin { fill: #fffdf5; stroke: #8a5a12; stroke-width: 2.5; }
+.ux-measure-pin-drag { r: 9; }
+.ux-measure-pin-point, .ux-measure-hover.ux-measure-pin-point { stroke: #2f7a40; }
+.ux-measure-pin-intersection, .ux-measure-hover.ux-measure-pin-intersection { stroke: #7a3fa0; }
+.ux-measure-pin-maximum, .ux-measure-pin-minimum, .ux-measure-hover.ux-measure-pin-maximum, .ux-measure-hover.ux-measure-pin-minimum { stroke: #b5532f; }
+.ux-measure-name { font: 700 13px/1 system-ui, sans-serif; fill: #6b4510; paint-order: stroke; stroke: #fffdf5; stroke-width: 3px; }
+.ux-measure-hover { fill: none; stroke: #8a5a12; stroke-width: 2; stroke-dasharray: 3 3; }
+.ux-measure-hover-text { font: 600 11.5px/1 system-ui, sans-serif; fill: #3d4a40; paint-order: stroke; stroke: #fffdf5; stroke-width: 3px; font-variant-numeric: tabular-nums; }
+.ux-measure-readout {
+    position: absolute; right: 10px; top: 52px; z-index: 26; max-width: min(300px, calc(100% - 20px));
+    display: flex; flex-direction: column; gap: 4px; padding: 9px 12px; border: 1px solid #e0cf98; border-radius: 12px;
+    background: rgb(255 253 245 / 95%); color: var(--bezeg-shell-ink, #19372f); box-shadow: 0 4px 16px rgb(25 55 47 / 12%);
+    font: 13.5px/1.35 system-ui, sans-serif; font-variant-numeric: tabular-nums; pointer-events: auto;
+}
+.ux-measure-readout[hidden] { display: none; }
+.ux-measure-row { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; }
+.ux-measure-row b { font-weight: 700; color: #6b4510; }
+.ux-measure-row small { color: #66705f; font-size: 12px; }
+.ux-measure-ratio { padding-top: 4px; border-top: 1px dashed #e0cf98; }
+.ux-measure-ratio b { color: #244c37; }
+.ux-measure-hint { color: #4d5a50; font-size: 12.5px; }
+.ux-measure-clear { align-self: flex-start; margin-top: 2px; padding: 4px 10px; min-height: 28px; border: 1px solid #c9a54a; border-radius: 999px; background: #fffdf5; color: #6b4510; font: 600 12px/1 system-ui, sans-serif; cursor: pointer; }
+.ux-measuring .guided-lesson-graph-catcher { pointer-events: none; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-measure-button,
+.demonstration-workspace.lesson-content .workspace-graph .ux-measure-readout,
+.demonstration-workspace.lesson-content .workspace-graph .ux-measure-readout button,
+.demonstration-workspace.lesson-content .workspace-graph .ux-measure-capture { pointer-events: auto; }
+@media (max-width: 640px) {
+    .ux-measure-readout { top: auto; bottom: 6px; left: 6px; right: 6px; max-width: none; flex-flow: row wrap; align-items: center; gap: 2px 12px; padding: 5px 8px; font-size: 12.5px; border-radius: 10px; }
+    .ux-measure-row small { display: none; }
+    .ux-measure-ratio { padding-top: 0; border-top: 0; }
+    .ux-measure-clear { margin: 0 0 0 auto; min-height: 26px; padding: 3px 9px; }
+}

@@ -71,6 +71,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c13',
+        name: 'Ravnilo',
+        borrowed: 'ravnilo in kotomer iz peresnice, merilo razdalj v Figmi in na zemljevidih',
+        idea: 'Gumb Izmeri spremeni graf v merilno mizo: tapni do štiri točke in med njimi se napne ravnilo z dolžino in naklonom, v vsakem oglišču kotomer s kotom, med zaporednima daljicama pa razmerje. Točke se pripnejo na narisane točke, presečišča, vrhove in dna krivulj ter mrežo, točke na tabli pa vlečejo meritev s seboj, ko premikaš drsnik.',
+        generalizes: 'Orodje bere le tablo: točke JSXGraph, vzorce vsake narisane krivulje (funkcijske grafe in osi natančno izračuna z bisekcijo, vrhe s parabolo skozi vzorce) in mrežo. Natančne vrednosti prepozna sámo (5/3, π, √10), zato študent preveri trditve lekcij, kot sta 2 : 1 ali t : (1 − t), brez avtorskih podatkov.',
+        links: [
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c13`,
+                tryThis: 'Izmeri, tapni P₃, nato G in na koncu presečišče težiščnice s stranico: razmerje je 2 : 1 in kot 180° pove, da je G na težiščnici. Povleci oglišče in razmerje ostane 2 : 1.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?ux=c13`,
+                tryThis: 'Tapni p₀⁰, p₀¹ in p₁⁰: razmerje je 1 : 1. Nato v orodjih nastavi t = 0,3 in meritev se premakne s točkami: 3 : 7.'},
+            {label: 'Trigonometrične funkcije', family: 'Funkcije', href: `${BASE}/functions/trigonometric?ux=c13`,
+                tryThis: 'Tapni dve zaporedni ničli sinusa: razdalja je π. Tapni vrh: točka se pripne na (π/2; 1). Spremeni ω in izmeri periodo znova.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c13`,
+                tryThis: 'Tapni teme parabole in izhodišče: teme se pripne natanko na (3; 1), razdalja je √10, naklon 1/3.'},
+        ],
+    },
+    {
         id: 'c3',
         name: 'Napovej',
         borrowed: 'muzejski eksponati »najprej ugani, nato poglej« in zanka ugibanja v igrah',
@@ -200,7 +217,7 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
                 <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>
