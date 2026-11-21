@@ -6,6 +6,8 @@ export interface LessonPosition {
     stepIndex: number;
     frameIndex: number;
     complete: boolean;
+    /** An observation frame: the student is asked to explore the graph. */
+    observing: boolean;
     /** Moves to a frame by stepping Next/Back through the session, so every scene action runs as usual. */
     goTo(stepIndex: number, frameIndex: number): void;
 }

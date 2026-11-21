@@ -489,3 +489,32 @@ form.ux-lp-target { animation: ux-lp-target 0.9s ease; border-radius: 6px; }
 .ux-film-narrow .ux-film-label { left: 50%; transform: translateX(-50%); top: 3px; min-width: 0; padding: 0 1px; font-size: 9px; }
 .ux-film-narrow .ux-film-track { padding: 4px 6px; }
 .ux-film .ux-film-tile { padding: 0 !important; min-height: 0 !important; min-width: 0 !important; }
+
+/* c11 Duh pokaže: a ghost hand demonstrates what can be moved. */
+.ux-hand { position: absolute; left: -9px; top: -3px; z-index: 30; pointer-events: none; transition: opacity .2s ease; filter: drop-shadow(0 3px 6px rgb(25 55 47 / 35%)); opacity: .92; }
+.ux-hand[hidden] { display: none; }
+.ux-hand svg { display: block; transition: transform .12s ease; transform-origin: 30% 10%; }
+.ux-hand-pressed svg { transform: scale(.88); }
+.ux-hand-ripple { position: absolute; left: 1px; top: -7px; width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid #c47b1f; opacity: 0; }
+.ux-hand-pressed .ux-hand-ripple { animation: ux-hand-ripple .9s ease-out infinite; }
+@keyframes ux-hand-ripple { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
+.ux-hand-caption {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 29; max-width: calc(100% - 24px);
+    padding: 6px 12px; border-radius: 999px; background: var(--bezeg-shell-action, #244c37); color: #fff;
+    font: 600 13px/1.35 system-ui, sans-serif; text-align: center; pointer-events: none; animation: ux-card-in .25s ease-out;
+}
+.ux-hand-caption[hidden] { display: none; }
+.ux-hand-button {
+    position: absolute; top: 10px; left: 10px; z-index: 21; display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 12px 7px 10px; min-height: 34px; border: 1px solid var(--bezeg-shell-control-rule, #cbd4c1); border-radius: 999px;
+    background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-ink, #19372f); font: 600 13px/1 system-ui, sans-serif;
+    cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto;
+}
+.ux-hand-button:hover { background: var(--bezeg-shell-control-hover, #eef3e5); }
+.ux-hand-button:focus-visible { outline: 2px solid var(--bezeg-shell-action, #244c37); outline-offset: 2px; }
+.ux-quiz-start:not([hidden]) ~ .ux-hand-button { top: 52px; }
+.ux-hand-playing .ux-hand-button { visibility: hidden; }
+form.ux-hand-target { outline: 2px solid #d39a3a; outline-offset: 4px; border-radius: 8px; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-hand-button { pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { .ux-hand-pressed .ux-hand-ripple { animation: none; } }
+.ux-hand.ux-hand-page { position: absolute; z-index: 1100; }

@@ -71,6 +71,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c11',
+        name: 'Duh pokaže',
+        borrowed: 'prozorna roka iz vadnic v igrah in muzejskih kioskov na dotik',
+        idea: 'Ko okvir lekcije zahteva raziskovanje in se nekaj sekund nič ne zgodi, v graf seže prosojna roka, prime točko, jo zavrti v majhni zanki in jo vrne na mesto, nato pa še premakne drsnik. Študent vidi, kaj se da premikati in kaj se ob tem spremeni, še preden kaj prebere; gumb ✋ Pokaži prikaz ponovi kjerkoli.',
+        generalizes: 'Roka ne pozna nobene lekcije: poišče vlečljive točke JSXGraph (najbližjo sredini table) in vidne skupne drsnike, točko pa premika z navadnimi dogodki kazalca, zato konstrukcija sledi tako kot pri pravem vlečenju in se na koncu natančno vrne. Pravi pritisk prikaz takoj ustavi.',
+        links: [
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c11`,
+                tryThis: 'Klikni Naprej na okvir »Opazovanje« in počakaj tri sekunde: roka prime kontrolno točko in konstrukcija sledi.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c11`,
+                tryThis: 'Klikni ✋ Pokaži zgoraj levo: roka premakne označeno točko na paraboli, nato drsnik c v orodjih.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?ux=c11`,
+                tryThis: 'Na telefonu klikni ✋ Pokaži: roka povleče oglišče in težišče se premika z njim.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
@@ -171,7 +186,7 @@ export function UxLab() {
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
                 <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c9`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8,c9,c10`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">

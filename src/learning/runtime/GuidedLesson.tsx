@@ -468,9 +468,9 @@ export function GuidedLesson(props: {
             if (prompt && prompt.height > 0 && (prompt.top < 0 || prompt.top > limit)) alignLessonInWindow();
         }
     }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
-    // UX challenge c10: the filmstrip reads the lesson position and jumps by stepping the session.
+    // UX challenge c10/c11: the filmstrip and the ghost hand read the lesson position and jumps by stepping the session.
     useEffect(() => {
-        if (!uxEnabled('c10')) return undefined;
+        if (!uxEnabled('c10') && !uxEnabled('c11')) return undefined;
         const counts = props.lesson.steps.map(lessonStep => framesForLessonStep(lessonStep).length);
         publishLessonPosition({
             lessonId: props.lesson.id,
@@ -478,6 +478,7 @@ export function GuidedLesson(props: {
             stepIndex: snapshot.stepIndex,
             frameIndex: snapshot.frameIndex,
             complete: snapshot.status === 'complete',
+            observing: snapshot.status === 'explore',
             goTo: (stepIndex, frameIndex) => {
                 const here = session.getSnapshot();
                 const delta = flatIndex(counts, stepIndex, frameIndex) - flatIndex(counts, here.stepIndex, here.frameIndex);
