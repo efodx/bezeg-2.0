@@ -8,6 +8,18 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a23', name: 'Značilne točke',
+        idea: 'Vsaka krivulja na tabli sproti nosi svoje kažipote: ničle, presečišče z osjo y ter lokalne minimume in maksimume, vsakega s koordinatami. Ko se parameter umiri, graf v enem stavku pove, kaj se je zgodilo: »lokalni maksimum: (3; 1) → (5; 1), 2 desno«, »lokalni maksimum je postal lokalni minimum«, »ničle: 2 → 1, graf se osi x le dotakne v (3; 0)«.',
+        general: 'Točke so prebrane iz SVG geometrije same table (vzorec na vsak piksel, ničle z interpolacijo, ekstremi s parabolo skozi tri vzorce), prikazane z natančnostjo, ki jo risba dopušča, ločeno po oseh; stopničasti histogrami so izpuščeni. Zgodba se pripoveduje krivuljo za krivuljo in jo sliši tudi bralnik zaslona. Brez kode v lekcijah: šolske funkcije, verjetnost (vrh normalne krivulje), Bézierjeve krivulje, Taylorjev polinom.',
+        try: 'Premikaj d navzdol, dokler se parabola ne dotakne osi x, nato še naprej; potem obrni predznak a.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a23', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a23', free: true},
+            {label: 'Bézierjeva krivulja', family: 'Bézierjeve krivulje', path: 'bezier/curve', flags: 'a23', free: true},
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', flags: 'a23', free: true},
+        ],
+    },
+    {
         id: 'a22', name: 'Raziskano ozemlje',
         idea: 'Vsak drsnik si zapomni, kod je graf že hodil: pod drsnikom raste jantarni pas, zato ostanejo deli parametra, ki jih ni nihče poskusil, vidno goli. Ko ostane gol velik kos, drsnik to pove z besedami — najprej »poskusi še negativne a«, ker se pri predznaku skriva največ presenečenj (zrcaljenje, odpiranje navzdol) — in dotik odpelje graf tja.',
         general: 'Vsak drsnik objavi svoje premike v deljeni register; vlečenje in tipke pobarvajo vmesne vrednosti, skok pa samo cilj. Poskusi drugih prototipov so označeni in se ne štejejo. Ko je raziskana več kot polovica obsega, nasveti utihnejo. Brez kode v lekcijah: šolske funkcije, verjetnost, Bézierjeve krivulje.',
@@ -262,7 +274,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a23', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -278,7 +290,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Dvaindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Triindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}

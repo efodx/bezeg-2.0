@@ -1,0 +1,33 @@
+.ux-mark-layer { position: absolute; z-index: 4; pointer-events: none; overflow: visible; }
+.ux-mark circle, .ux-mark rect { stroke-width: 2; fill: #fffdf5; }
+.ux-mark-zero circle { stroke: #3d7a56; }
+.ux-mark-yint circle { stroke: #4b6aa8; }
+.ux-mark-min rect, .ux-mark-max rect { stroke: #b0702d; fill: #f3d98b; }
+.ux-mark text {
+    font-size: 11.5px; font-weight: 600; fill: #19372f; font-variant-numeric: tabular-nums;
+    paint-order: stroke; stroke: #fffdf5; stroke-width: 3.5px; stroke-linejoin: round;
+}
+.ux-mark-layer .ux-mark { transition: transform 90ms linear; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-mark-legend {
+    position: absolute; left: 10px; bottom: 58px; z-index: 6; pointer-events: auto; display: flex; align-items: center; gap: 5px;
+    min-height: 30px; padding: 2px 11px; border-radius: 15px; border: 1px solid #d6dccb; background: rgba(255, 253, 245, 0.94);
+    color: #526152; font-size: 0.74rem; cursor: pointer; box-shadow: 0 2px 8px rgba(25, 55, 47, 0.08);
+}
+.ux-mark-legend.is-off { opacity: 0.6; text-decoration: line-through; }
+.ux-mark-legend span { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2px solid; margin-left: 4px; }
+.ux-mark-legend .z { border-color: #3d7a56; }
+.ux-mark-legend .y { border-color: #4b6aa8; }
+.ux-mark-legend .e { border-color: #b0702d; background: #f3d98b; border-radius: 1px; transform: rotate(45deg) scale(0.85); }
+.ux-mark-story { position: absolute; left: 10px; bottom: 94px; z-index: 6; display: flex; flex-direction: column; gap: 4px; pointer-events: none; max-width: min(460px, 70%); }
+.ux-mark-story p {
+    margin: 0; padding: 4px 11px; border-radius: 10px; background: #19372f; color: #fffdf5; font-size: 0.8rem; font-variant-numeric: tabular-nums;
+    box-shadow: 0 3px 10px rgba(25, 55, 47, 0.2); animation: ux-mark-in 360ms cubic-bezier(.3, 1.4, .5, 1) both;
+}
+.ux-mark-story p:nth-child(2) { animation-delay: 90ms; }
+.ux-mark-story p:nth-child(3) { animation-delay: 180ms; }
+@keyframes ux-mark-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 600px) {
+    .demonstration-workspace .workspace-graph .ux-board-frame .ux-mark-legend { left: 6px; bottom: 6px; font-size: 0.68rem; padding: 2px 8px; }
+    .ux-mark-story { left: 6px; bottom: 40px; max-width: calc(100% - 64px); }
+    .ux-mark-story p { font-size: 0.72rem; }
+}
