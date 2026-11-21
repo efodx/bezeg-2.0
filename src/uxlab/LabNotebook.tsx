@@ -32,6 +32,8 @@ interface Entry {
     checkpoint: LessonSceneCheckpoint;
     from: LessonSceneCheckpoint;
     verdict?: 'holds' | 'breaks' | 'flat';
+    /** The learner's prediction before the test move (1 up, -1 down, 0 unchanged) and whether it was right. */
+    guess?: {sign: number; right: boolean};
     claim?: string;
 }
 interface Settled { key: string; checkpoint: LessonSceneCheckpoint; quantities: Quantity[]; readings: Map<string, number>; thumb: Thumb; points: Map<string, [number, number]> }
@@ -382,6 +384,9 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
     };
 
     /** Tests a rule somewhere else: other sliders shaken to fresh values, the same move made again. */
+    const [trial, setTrial] = useState<{rule: Conjecture; context: Change[]}>();
+    const answer = useRef<(sign: number | undefined) => void>();
+
     const test = async (rule: Conjecture) => {
         if (!board || busy) return;
         const all = quantities();
@@ -406,6 +411,13 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
             recoverBoards();
             const first = capture(board);
             const startValue = Number(moved.input.value);
+            // Predict first: the learner sees the new place and says what the readout will do before the move.
+            const guess = await new Promise<number | undefined>(resolve => {
+                answer.current = resolve;
+                setTrial({rule, context: [...context.filter(item => !near(item.from, item.to)), {name: moved.name, from: startValue, to: startValue}]});
+            });
+            answer.current = undefined;
+            setTrial(undefined);
             setSlider(moved, startValue + rule.direction * delta);
             await nextFrames(3);
             recoverBoards();
@@ -419,7 +431,9 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
             const verdict: Entry['verdict'] = rule.sign === 0
                 ? (effect ? 'breaks' : second.readings.has(rule.label) ? 'holds' : 'flat')
                 : !effect ? 'flat' : Math.sign(effect.to - effect.from) === rule.sign ? 'holds' : 'breaks';
+            const actual = effect ? Math.sign(effect.to - effect.from) : 0;
             const entry: Entry = {
+                guess: guess === undefined ? undefined : {sign: guess, right: guess === actual},
                 id: ++counter.current, kind: 'test', changes: [change], effects: effect ? [effect, ...effects.filter(item => item !== effect).slice(0, 1)] : effects.slice(0, 2),
                 kept: kept.filter(item => item.name === rule.label), context: context.filter(item => !near(item.from, item.to)), before: first.thumb, after: second.thumb, checkpoint: second.checkpoint, from: first.checkpoint, verdict,
                 claim: rule.sign === 0 ? `ko spreminjaš ${rule.name}, se ${rule.label} ne spremeni` : `če ${rule.name} ${verb(rule.direction)}š, se ${rule.label} ${verb(rule.sign)}`,
@@ -427,7 +441,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
             setEntries(list => [entry, ...list].slice(0, 40));
             settled.current = second;
             pending.current = {key: second.key, since: performance.now()};
-            if (verdict === 'holds') bloom(board.containerObj);
+            if (verdict === 'holds' || (guess !== undefined && guess === actual)) bloom(board.containerObj);
         } catch { recoverBoards(); } finally {
             quiet.current = false;
             setBusy(false);
@@ -444,13 +458,21 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
         <div className="ux-lab-head">
             <strong>Laboratorijski dnevnik</strong>
             {entries.length > 0 && <button type="button" className="ux-lab-clear" onClick={() => setEntries([])}>Počisti</button>}
-            <button type="button" className="ux-lab-close" aria-label="Zapri dnevnik" onClick={() => setOpen(false)}>✕</button>
+            <button type="button" className="ux-lab-close" aria-label="Zapri dnevnik" onClick={() => { answer.current?.(undefined); setOpen(false); }}>✕</button>
         </div>
         {rules.length > 0 && <div className="ux-lab-rules">
             {rules.map(rule => <div key={`${rule.name}|${rule.direction}|${rule.label}`} className={`ux-lab-rule${rule.contradicted ? ' is-mixed' : ''}`}>
                 <span className="ux-lab-rule-tag">{ruleTag(rule)}</span>
                 <span className="ux-lab-rule-text">{ruleText(rule)}</span>
-                <button type="button" className="ux-lab-test" disabled={busy || !quantities().find(item => item.name === rule.name)?.input} onClick={() => void test(rule)}>{busy ? 'Preizkušam …' : 'Preizkusi drugje'}</button>
+                {trial && trial.rule.name === rule.name && trial.rule.direction === rule.direction && trial.rule.label === rule.label ? <div className="ux-lab-guess">
+                    <span>Nov kraj: {trial.context.map(item => `${item.name} = ${format(item.to)}`).join(', ')}. Ko {rule.name} {rule.direction > 0 ? 'povečaš' : 'zmanjšaš'}, se {rule.label}:</span>
+                    <span className="ux-lab-guess-buttons">
+                        <button type="button" onClick={() => answer.current?.(1)}>▲ poveča</button>
+                        <button type="button" onClick={() => answer.current?.(-1)}>▼ zmanjša</button>
+                        <button type="button" onClick={() => answer.current?.(0)}>= ne spremeni</button>
+                        <button type="button" className="is-skip" onClick={() => answer.current?.(undefined)}>Pokaži</button>
+                    </span>
+                </div> : <button type="button" className="ux-lab-test" disabled={busy || !quantities().find(item => item.name === rule.name)?.input} onClick={() => void test(rule)}>Preizkusi drugje</button>}
             </div>)}
         </div>}
         {entries.length === 0 ? <p className="ux-lab-empty">Premakni drsnik ali točko. Vsak poskus se zapiše sam, iz podobnih poskusov pa dnevnik sestavi domnevo, ki jo lahko preizkusiš.</p>
@@ -459,7 +481,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
                     <ThumbPair entry={entry} width={board.canvasWidth} height={board.canvasHeight}/>
                 </button>
                 <div className="ux-lab-text">
-                    {entry.kind === 'test' && <div className="ux-lab-verdict">{entry.verdict === 'holds' ? '✓ Drži tudi tu' : entry.verdict === 'breaks' ? '✗ Tu ne drži' : '– Tu se ne spremeni'}: <i>{entry.claim}</i></div>}
+                    {entry.kind === 'test' && <div className="ux-lab-verdict">{entry.verdict === 'holds' ? '✓ Drži tudi tu' : entry.verdict === 'breaks' ? '✗ Tu ne drži' : '– Tu se ne spremeni'}: <i>{entry.claim}</i>{entry.guess && <span className={`ux-lab-guessed${entry.guess.right ? ' is-right' : ''}`}> · tvoja napoved {entry.guess.right ? '✓' : '✗'}</span>}</div>}
                     <div className="ux-lab-sentence">{sentence(entry)}</div>
                     {entry.context && entry.context.length > 0 && <div className="ux-lab-context">pri {entry.context.map(item => `${item.name} = ${format(item.to)}`).join(', ')}</div>}
                 </div>

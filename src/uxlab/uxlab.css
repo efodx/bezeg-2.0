@@ -690,3 +690,10 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-lab-matches { margin-top: 6px; padding: 6px 9px; border-radius: 10px; background: #f1f8ef; border: 1px solid rgba(54, 110, 64, .4); font-size: 13px; color: #19372f; }
 .ux-lab-matches p { margin: 2px 0; }
 .ux-lab-matches b { color: #2f6a3a; }
+.ux-lab-guess { grid-column: 1 / -1; display: grid; gap: 6px; padding: 6px 8px; border-radius: 8px; background: #f6f1fa; font-size: 12.5px; line-height: 1.4; animation: ux-lab-in .25s ease-out; }
+.ux-lab-guess-buttons { display: flex; flex-wrap: wrap; gap: 5px; }
+.ux-lab-guess-buttons button { min-height: 32px; padding: 3px 10px; border-radius: 999px; border: 1px solid #5d3b6e; background: #fffdf5; color: #5d3b6e; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.ux-lab-guess-buttons button:hover { background: #5d3b6e; color: #fffdf5; }
+.ux-lab-guess-buttons button.is-skip { border-color: transparent; background: none; color: #526152; font-weight: 500; text-decoration: underline; }
+.ux-lab-guessed { color: #a24a2e; font-style: normal; }
+.ux-lab-guessed.is-right { color: #2f6a3a; }
