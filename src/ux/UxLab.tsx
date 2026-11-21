@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a4', name: 'Zgrabi krivuljo',
+        idea: 'Primi kar krivuljo, premico ali izpeljano točko in jo povleci: parametri se spremenijo tako, da gre krivulja skozi tvoj prst. Tapni krivuljo, da zabiješ žebljiček; ta drži svojo točko, zato vlečenje drugje spremeni druge parametre (oglišče pribiješ, krak potegneš — parabola se raztegne).',
+        general: 'Reševalec ne ve nič o grafu: ob prijemu vsak parameter rahlo potrese, izmeri, kako se prijeto mesto premakne, nato vsako sličico reši dušeni problem najmanjših kvadratov in sproti popravlja oceno (Broyden). Brez žebljičkov vleče en parameter naenkrat — tistega, ki prijeto mesto premakne najbolj — in svetleča ploščica pove, katerega.',
+        try: 'Pri Taylorju povleci tangento in opazuj, kako središče c drsi po krivulji. Pri paraboli tapni oglišče, nato povleci krak.',
+        links: [
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', at: 2, flags: 'a1,a4'},
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 1, flags: 'a1,a4'},
+            {label: 'Množenje kompleksnih števil', family: 'Kompleksna števila', path: 'complex-multiplication', at: 1, flags: 'a1,a4'},
+        ],
+    },
+    {
         id: 'a1', name: 'Parametri pod prsti',
         idea: 'Vsak parameter grafa je ploščica na samem grafu: povleci jo levo ali desno in graf se odziva, ne da bi pogled zapustil krivuljo. Dvigni prst nad ploščico za fino nastavljanje (merilo se poveča), lepe vrednosti pa se ujamejo z rahlim klikom.',
         general: 'Ploščice nastanejo iz deljenega drsnika (88 klicnih mest), zato jih dobi vsak graf in vsaka lekcija brez lastne kode. Ko lekcija sama spremeni parameter, ploščica zažari, tako da učenec vidi, kaj je korak spremenil.',
