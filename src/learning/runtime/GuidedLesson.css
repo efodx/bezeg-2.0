@@ -171,7 +171,6 @@
 .guided-lesson-complete .guided-lesson-reading { flex:none; min-height:0; overflow:visible; }
 /* A task card (an observation frame) leaves the live tools below it room: it keeps its text's height up to half the window. */
 .guided-lesson-task { max-height:min(var(--guided-lesson-max-height, 68vh), 50vh); }
-.guided-lesson-task .guided-lesson-reading { flex:none; min-height:0; overflow:visible; }
 .guided-lesson-completion-message { display:grid; gap:4px; }
 .guided-lesson-completion-message p { margin:0; color:var(--bezeg-shell-ink-secondary, #526152); }
 .guided-lesson .guided-lesson-completion-actions { flex:none; margin:0; padding-bottom:4px; }

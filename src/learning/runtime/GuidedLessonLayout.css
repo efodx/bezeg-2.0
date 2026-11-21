@@ -108,6 +108,10 @@
         grid-template-areas: "heading" "graph" "lesson" "inspector";
     }
 
+    /* The tools and the card's row are content the browser could anchor to: a frame change that makes the card taller
+       or shorter would scroll the page to keep them still. The page stays where the learner left it. */
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-task) { overflow-anchor: none; }
+
     .demonstration-workspace.lesson-open > .guided-lesson {
         grid-area: lesson;
         max-height: none;
@@ -136,15 +140,17 @@
     }
 
     /* A graph with its own playback row fills the screen with its board; while the card is read the board keeps the
-       ordinary phone height, so the card's first rows stay on the first screen. */
-    .demonstration-workspace.lesson-content .workspace-graph[data-playback-filled] #jgbox {
+       ordinary phone height, so the card's first rows stay on the first screen. A task card keeps it too: the board is the same
+       size on every frame, so a scene's view is never cut by a change of mode. */
+    .demonstration-workspace.lesson-content .workspace-graph[data-playback-filled] #jgbox,
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-task) .workspace-graph[data-playback-filled] #jgbox {
         height: 35vh !important;
         min-height: 260px;
     }
 
     /* The collapsed tab reaches about 30px into the graph cell here, over board captions; the board starts below it
        while the tab is shown. */
-    .demonstration-workspace.lesson-explore .workspace-graph {
+    .demonstration-workspace.lesson-explore:not(:has(> .guided-lesson-task)) .workspace-graph {
         padding-top: 36px;
     }
 }
