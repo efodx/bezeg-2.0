@@ -108,6 +108,9 @@
 }
 .ux-bcard-guide > .guided-lesson.guided-lesson-task { max-height: none; }
 .ux-bcard-guide .guided-lesson-reading { flex: 1 1 auto; min-height: 3rem; padding: 10px 14px 12px; }
+/* The completion text scrolls like a frame's when its column caps the card (the base sheet lets it overflow, which ran it
+   under "Nadaljuj v poglavju" at 1024). */
+.ux-bcard-guide .guided-lesson-complete .guided-lesson-reading { flex: 1 1 auto; min-height: 3rem; overflow-y: auto; }
 .ux-bcard-guide .guided-lesson > :is(p, .guided-lesson-footer, .guided-lesson-actions) { margin-inline: 14px; }
 .ux-bcard-guide .guided-lesson-footer { padding-bottom: 10px; }
 
