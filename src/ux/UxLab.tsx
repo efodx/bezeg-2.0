@@ -49,6 +49,8 @@ const PROTOTYPES: Prototype[] = [
                 tryThis: 'Odpri 📈 in izberi Polmer: »Zakon: Dolžina loka = 8·Polmer«. Spodaj izberi Ploščina: 3π·Polmer².'},
             {label: 'Določeni integral', family: 'Funkcije', href: `${BASE}/functions/integral?ux=c30`,
                 tryThis: 'Pri n se pokaže natančna formula leve vsote 8/3 − 4/n + 4/(3n²) in njena meja 8/3. Izberi b in spodaj integral: 1/3·b³.'},
+            {label: 'Določeni integral z vlečenjem', family: 'Funkcije', href: `${BASE}/functions/integral?ux=c30,c26`,
+                tryThis: 'Zakon deluje tudi na tvoji sledi: odpri 〰️ Sled vlečenja, povleci mejo b tja in nazaj in izberi integral: 1/3·x_b³.'},
             {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?ux=c30`,
                 tryThis: 'Izberi σ: verjetnost med a in b pada, a preprostega zakona ni (gre za funkcijo napake), zato tabla zakona ne izmisli.'},
         ],

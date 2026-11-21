@@ -9,6 +9,8 @@ import type {Board} from "jsxgraph";
 import {format, readouts, symbolOf} from "./dependence";
 import {mountedSliders, type RegisteredSlider} from "./sliderRegistry";
 import {pointLabel} from "./measure";
+import {uxEnabled} from "./flags";
+import {discoverLaw} from "./law";
 import "./ux.css";
 
 const W = 260, H = 150, PAD_L = 40, PAD_B = 22, PAD_T = 10, PAD_R = 10;
@@ -228,13 +230,21 @@ export function attachDragTrace(board: Board): () => void {
             : `<b>${label}</b>, ko ${verb()} <i>${driverName || 'točko'}</i>${unit ? ` (v ${unit.trim()})` : ''}`;
         chips.innerHTML = candidates.length > 1 ? candidates.map(key => `<button type="button" class="ux-dep-q${key === quantity ? ' ux-dep-q-on' : ''}" data-key="${key.replace(/"/g, '&quot;')}">${labels.get(key)!.label}</button>`).join('') : '';
         readout.innerHTML = last && latest !== undefined ? `${axisLabel.split(' ')[0]} = ${format(last[ax])} → ${label} = ${format(latest)}${unit}` : '';
+        // c30: the law behind the trail, from the student's own samples.
+        const lawBox = panel.querySelector<HTMLElement>('.ux-dep-law');
+        if (lawBox) {
+            const symbol = bySlider ? driverName : `${axisLabel.split(' ')[0]}${driverName ? `_${driverName}` : ''}`;
+            const law = uxEnabled('c30') && !flat ? discoverLaw(points.map(p => p.x), points.map(p => p.y), label, symbol, v => format(v)) : undefined;
+            lawBox.innerHTML = law ? `<span class="ux-dep-law-tag">Zakon</span> <span class="ux-dep-law-text">${law.text}</span>` : '';
+            lawBox.hidden = !law;
+        }
     };
 
     const render = () => {
         panel.innerHTML = `<div class="ux-dep-head"><strong>Sled vlečenja</strong><span><button type="button" class="ux-trace-clear" title="Pobriši zapisane pike">Počisti</button><button type="button" class="ux-dep-close" aria-label="Zapri">✕</button></span></div>`
             + `<p class="ux-dep-caption"></p>`
             + `<div class="ux-dep-plot"><svg class="ux-dep-chart ux-trace-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Sled števila med vlečenjem"></svg></div>`
-            + `<p class="ux-dep-readout" aria-live="polite"></p><div class="ux-trace-still" aria-live="polite"></div><div class="ux-dep-quantities"></div>`
+            + `<p class="ux-dep-law" hidden></p><p class="ux-dep-readout" aria-live="polite"></p><div class="ux-trace-still" aria-live="polite"></div><div class="ux-dep-quantities"></div>`
             + `<p class="ux-dep-hint">Vleci počasi tja in nazaj: pike se zložijo v graf odvisnosti. Kar ostane enako, se zbere zgoraj.</p>`;
         if (phone()) {
             if (panel.parentElement !== document.body) document.body.appendChild(panel);
