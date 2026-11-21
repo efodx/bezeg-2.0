@@ -6,7 +6,7 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 
 - Worktree `C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\ux-picks`, branch `ux-picks` (pushed to origin; never push it to master). `node_modules` is a junction to the main checkout's — unlink with PowerShell before ever removing the worktree.
 - Preview: Vite dev server with HMR on 127.0.0.1:4460, served to the tailnet at `http://desktop-a0j72sv.tail2032db.ts.net:4460/bezeg-2.0/`. It runs under a watchdog loop `C:\Users\1337Hacker\Desktop\bezeg-ux-picks\keep-vite.ps1` (log `vite.log` beside it), launched detached. If the URL gives 502, check the loop and restart it with `Start-Process powershell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File C:\Users\1337Hacker\Desktop\bezeg-ux-picks\keep-vite.ps1' -WindowStyle Hidden`. `vite.config.mts` allows `.ts.net` hosts on this branch only.
-- Last commit at handoff: see `git log -1` (this note's commit follows `3b1e77bf`).
+- Last commit at handoff: see `git log -1`.
 
 ## Standing owner directions (verbatim where quoted)
 
@@ -15,6 +15,9 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 - Prototypes should work across graphs generally, not only on one page; per-graph only where generic is unreliable ("if it is so, just choose like 3 lessons, one of them being the Taylor's polynomial").
 - Owner is remote: always give tailnet URLs, never localhost.
 - "the statements like 'graf gre vedno skozi...' should be removed" — no interpretive sentences on the a29 card.
+- 2026-11-21 (handler 2): the owner wants all picks **except the ghost controls** implemented app-wide. Order: first polish the prototypes here (with the impeccable skill, `~/.claude/skills/impeccable/SKILL.md`, to critique and polish), then plan the app-wide implementation. Which picks count as "ghost controls" is still to be confirmed (asked: c11 ghost hand only, or also the a19/a29 ghost previews).
+- Docked lesson: tools stay small only while the card is docked; a card carried away gives the tools the whole column. Hiding a docked card keeps its tab in the dock, not on the graph (pick dockTools).
+- Legends: a separate legend card on the graph, built on the same shell as the text card (same pick, boardText).
 
 ## How picks are built
 
@@ -37,6 +40,8 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 | c11 Duh pokaže (+ b15) | idle ghost hand (8 s) and "Pokaži"/"Pokaži mi" on request; in lessons acts out the frame's named symbols | 937bbd98 |
 | a29 Predogled na ploščici | puck track hover → ghost at that value, press jumps; elsewhere overview fan | 1b4309b7, 32d7dfe2 (statements removed) |
 | boardText | graph's formula/readout text moved into a movable, collapsible MathJax card (11 graphs, semi-generic) | 4d9ca0fd, 3b1e77bf |
+| boardText legend card | second card on the shared `BoardCard` shell: tools `FunctionLegend` (≈38 graphs, via `legendStore.ts`) and board-drawn legends marked with `markBoardLegend` (complex power, Euler circle, phase portrait, linear program, contours; their legend band is dropped while the pick is on) | e001d142 |
+| dockTools | undocked task/closing card frees the tools column; hidden-from-dock tab sits in the dock | b05bea17 |
 
 ## Open items / known limits
 
@@ -45,6 +50,8 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 - c11: not checked at 390 px or touch; lesson matching only sees MathJax-rendered symbols.
 - boardText: bisection, mean value, convexity, arc length, inscribed angle, Lagrange not looked at with the new styling; one-letter Slovenian words may italicise; long names can overflow a narrow card; top-left readout rule could capture stray corner text on other graphs.
 - Pucks not reviewed at phone width since the later picks were added.
+- Legend card defaults to the top-left corner and can cover data there (e.g. z³ on complex power); position to be settled in the polish pass. Other board-drawn legends beyond the five graphs were not searched exhaustively.
+- dockTools: two-column layouts only; not checked in presentation mode.
 
 ## Next steps
 
