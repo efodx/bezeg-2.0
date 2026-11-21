@@ -25,18 +25,19 @@ export function readouts(board: UxBoard): Map<string, number> {
     document.querySelectorAll<HTMLElement>('#workspace-inspector .readout-list-row').forEach(row => {
         if (row.offsetParent === null || row.children.length < 2) return;
         const label = (row.firstElementChild?.textContent ?? '').replace(/\s+/g, ' ').trim();
-        const numbers = [...(row.lastElementChild?.textContent ?? '').replace(/ /g, ' ').matchAll(/([−-]?)\s*(\d+(?:,\d+)?)/g)];
+        // A fraction ("35/2") is one number, not two.
+        const numbers = [...(row.lastElementChild?.textContent ?? '').replace(/ /g, ' ').matchAll(/([−-]?)\s*(\d+(?:,\d+)?)(?:\s*\/\s*(\d+(?:,\d+)?))?/g)];
         const last = numbers[numbers.length - 1];
         if (!label || label.length > 48 || !last) return;
-        const value = Number(last[2].replace(',', '.')) * (last[1] ? -1 : 1);
+        const value = Number(last[2].replace(',', '.')) / (last[3] ? Number(last[3].replace(',', '.')) : 1) * (last[1] ? -1 : 1);
         if (Number.isFinite(value) && !found.has(label)) found.set(label, value);
     });
-    const pattern = /([^=;\n]{1,48}?)\s*=\s*([−-]?)\s*(\d+(?:,\d+)?)/g;
+    const pattern = /([^=;\n]{1,48}?)\s*=\s*([−-]?)\s*(\d+(?:,\d+)?)(?:\s*\/\s*(\d+(?:,\d+)?))?/g;
     for (const text of texts) {
         for (const match of text.replace(/ /g, ' ').matchAll(pattern)) {
             const label = match[1].split(/,\s|\s·\s|:\s/).pop()!.replace(/\s+/g, ' ').trim();
             if (!label || label.length > 34 || /^\d/.test(label)) continue;
-            const value = Number(match[3].replace(',', '.')) * (match[2] ? -1 : 1);
+            const value = Number(match[3].replace(',', '.')) / (match[4] ? Number(match[4].replace(',', '.')) : 1) * (match[2] ? -1 : 1);
             if (Number.isFinite(value) && !found.has(label)) found.set(label, value);
         }
     }

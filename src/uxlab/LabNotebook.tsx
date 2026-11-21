@@ -24,6 +24,8 @@ interface Entry {
     effects: Change[];
     /** Readouts that stayed put: an invariant is often the point (an inscribed angle, a sum). */
     kept: Change[];
+    /** Named points of the board that moved (Bézier control points, triangle vertices). */
+    points?: {name: string; from: [number, number]; to: [number, number]}[];
     context?: Change[];
     before: Thumb;
     after: Thumb;
@@ -32,7 +34,22 @@ interface Entry {
     verdict?: 'holds' | 'breaks' | 'flat';
     claim?: string;
 }
-interface Settled { key: string; checkpoint: LessonSceneCheckpoint; quantities: Quantity[]; readings: Map<string, number>; thumb: Thumb }
+interface Settled { key: string; checkpoint: LessonSceneCheckpoint; quantities: Quantity[]; readings: Map<string, number>; thumb: Thumb; points: Map<string, [number, number]> }
+
+const SUBSCRIPT: Record<string, string> = {0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉'};
+function pointsOf(board: UxBoard): Map<string, [number, number]> {
+    const found = new Map<string, [number, number]>();
+    for (const element of board.objectsList) {
+        if ((element.elType !== 'point' && element.elType !== 'glider') || !element.X || !element.Y || element.visPropCalc?.visible === false) continue;
+        const draggable = typeof element.draggable === 'function' ? element.draggable() : element.isDraggable;
+        if (!draggable) continue;
+        const name = (element.name ?? '').replace(/<[^>]+>/g, '').replace(/\\[a-z]+/gi, '').replace(/[{}$\\]/g, '').replace(/_(\d+)/g, (_, digits: string) => digits.split('').map(digit => SUBSCRIPT[digit]).join('')).trim();
+        if (!name || name.length > 6 || found.has(name)) continue;
+        found.set(name, [element.X(), element.Y()]);
+    }
+    return found;
+}
+const point = (p: [number, number]) => `(${format(p[0])}; ${format(p[1])})`;
 interface Conjecture { name: string; direction: 1 | -1; label: string; sign: 1 | -1 | 0; count: number; contradicted: boolean; delta: number }
 
 /** "Središče c" → "c"; a label without a one-letter symbol stays a (short) label. */
@@ -139,7 +156,8 @@ function conjectures(entries: Entry[]): Conjecture[] {
     const byName = new Map<string, Entry[]>();
     for (const entry of entries) if (entry.changes.length === 1) byName.set(entry.changes[0].name, [...(byName.get(entry.changes[0].name) ?? []), entry]);
     for (const [name, list] of byName) {
-        if (list.length < 2) continue;
+        // A quantity that visibly drives some readout makes its "constants" trivial (they simply do not depend on it).
+        if (list.length < 2 || result.some(rule => rule.name === name)) continue;
         const label = list[0].kept.map(item => item.name).find(candidate => list.every(entry => entry.kept.some(item => item.name === candidate)));
         if (!label) continue;
         const delta = list.reduce((sum, entry) => sum + Math.abs(entry.changes[0].to - entry.changes[0].from), 0) / list.length;
@@ -151,7 +169,9 @@ function conjectures(entries: Entry[]): Conjecture[] {
 }
 
 function sentence(entry: Entry) {
-    const moved = entry.changes.length ? entry.changes.map(change => <span key={change.name}><b>{change.name}</b> {arrow(change)}</span>) : [<span key="drag">premik na grafu</span>];
+    const moved = entry.changes.length ? entry.changes.map(change => <span key={change.name}><b>{change.name}</b> {arrow(change)}</span>)
+        : entry.points?.length ? entry.points.map(item => <span key={item.name}><b>{item.name}</b> {point(item.from)} → {point(item.to)}</span>)
+        : [<span key="drag">premik na grafu</span>];
     const effects = entry.effects.slice(0, 3).map(effect => <span key={effect.name} className={effect.to > effect.from ? 'is-up' : 'is-down'}>{effect.name} {arrow(effect)}</span>);
     return <>{moved}{(effects.length > 0 || entry.kept.length > 0) && <span className="ux-lab-then" aria-label="posledica">⇒</span>}{effects.length > 0 ? effects : entry.kept.length > 0
         ? entry.kept.slice(0, 2).map(item => <span key={item.name} className="ux-lab-kept">{item.name} ostane {format(item.to)}</span>)
@@ -271,7 +291,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
     const capture = (current: UxBoard): Settled | undefined => {
         let checkpoint: LessonSceneCheckpoint;
         try { checkpoint = caps.current.captureState(); } catch { return undefined; }
-        return {key: JSON.stringify(checkpoint.value), checkpoint, quantities: quantities(), readings: readouts(current), thumb: snapshot(current)};
+        return {key: JSON.stringify(checkpoint.value), checkpoint, quantities: quantities(), readings: readouts(current), thumb: snapshot(current), points: pointsOf(current)};
     };
 
     // Watch the scene; when it has been still for half a second, write down what changed since the last still moment.
@@ -297,7 +317,11 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
             if (changes.length > 2) return;
             const effects = effectsOf(previous.readings, next.readings, changes);
             const kept = keptOf(previous.readings, next.readings, next.quantities.map(item => item.name));
-            const entry: Entry = {id: ++counter.current, kind: 'change', changes, effects, kept, before: previous.thumb, after: next.thumb, checkpoint: next.checkpoint, from: previous.checkpoint};
+            const points = changes.length ? [] : [...next.points].flatMap(([name, to]) => {
+                const from = previous.points.get(name);
+                return from && (Math.abs(from[0] - to[0]) > 1e-6 || Math.abs(from[1] - to[1]) > 1e-6) ? [{name, from, to}] : [];
+            }).slice(0, 2);
+            const entry: Entry = {id: ++counter.current, kind: 'change', changes, effects, kept, points, before: previous.thumb, after: next.thumb, checkpoint: next.checkpoint, from: previous.checkpoint};
             setEntries(list => [entry, ...list].slice(0, 40));
             setToast(entry);
             window.clearTimeout(toastTimer.current);
