@@ -1,5 +1,6 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {recentlyProbed, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
+import {flushSync} from 'react-dom';
+import {getParam, recentlyProbed, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
 import {usePick} from '../picks';
 import {canOscillate, isOscillating, toggleOscillator, useOscillators} from '../a3/oscillators';
 import './ParamPucks.css';
@@ -164,7 +165,11 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         props.onScrub(undefined);
         if (!state.moved) ref.current?.focus();
     };
+    const [editing, setEditing] = useState<string>();
     const onKeyDown = (event: React.KeyboardEvent) => {
+        if (editing !== undefined) return;
+        const typed = startsTyping(event);
+        if (typed !== undefined) { event.preventDefault(); if (blocked) refuse(); else setEditing(typed); return; }
         const big = event.shiftKey || event.key.startsWith('Page') ? 10 : 1;
         if (['ArrowRight', 'ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); stepBy(entry.step * big); }
         else if (['ArrowLeft', 'ArrowDown', 'PageDown'].includes(event.key)) { event.preventDefault(); stepBy(-entry.step * big); }
@@ -176,10 +181,17 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
         data-click={clicked % 2} data-param={entry.key}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
-        onDoubleClick={() => { if (!blocked) entry.set(homeRef.current); }} onKeyDown={onKeyDown}>
+        onDoubleClick={() => { if (blocked) refuse(); else setEditing(''); }} onKeyDown={onKeyDown}>
         <span className="ux-puck-text">
             {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{name}</span>}
-            <span className="ux-puck-value">{entry.format(entry.value)}</span>
+            {editing !== undefined
+                ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
+                    accept={value => {
+                        const ok = Number.isFinite(value) && (entry.cyclic !== undefined || (value >= entry.min - 1e-9 && value <= entry.max + 1e-9));
+                        if (ok) entry.set(value); else refuse();
+                        return ok;
+                    }}/>
+                : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
         </span>
         <span className="ux-puck-track" aria-hidden="true"><span style={{left: `${Math.max(0, Math.min(1, fraction)) * 100}%`}}/></span>
     </div>;
@@ -308,7 +320,11 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
         drag.current = undefined;
         if (!state.moved) ref.current?.focus();
     };
+    const [editing, setEditing] = useState<string>();
     const onKeyDown = (event: React.KeyboardEvent) => {
+        if (editing !== undefined) return;
+        const typed = startsTyping(event);
+        if (typed !== undefined) { event.preventDefault(); if (locked) refuse(); else setEditing(typed); return; }
         if (['ArrowRight', 'ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); step(1); }
         else if (['ArrowLeft', 'ArrowDown', 'PageDown'].includes(event.key)) { event.preventDefault(); step(-1); }
     };
@@ -321,11 +337,15 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
         aria-valuetext={entry.format(entry.value)} aria-disabled={locked || undefined}
         title={locked ? 'Graf je med razlago zaklenjen' : `${entry.label}: povleci levo ali desno ali pritisni − in +`}
         className={`ux-puck ux-count-puck${locked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
-        data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}>
+        data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
+        onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>
         <span className="ux-puck-text">
             <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Zmanjšaj: ${entry.label}`} aria-disabled={atMin || locked || undefined} onClick={() => step(-1)}>−</button>
             {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{name}</span>}
-            <span className="ux-puck-value">{entry.format(entry.value)}</span>
+            {editing !== undefined
+                ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
+                    accept={value => { const ok = setCount(entry, value); if (!ok) refuse(); return ok; }}/>
+                : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
             <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}>+</button>
         </span>
         {dots > 0 && <span className="ux-count-dots" aria-hidden="true">
@@ -335,4 +355,71 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
             })}
         </span>}
     </div>;
+}
+
+/** Enter starts typing with the current value; a digit, minus or decimal mark starts typing with that character. */
+function startsTyping(event: React.KeyboardEvent): string | undefined {
+    if (event.ctrlKey || event.metaKey || event.altKey) return undefined;
+    if (event.key === 'Enter' || event.key === 'F2') return '';
+    if (/^[0-9,.\-−]$/.test(event.key)) return event.key === '−' ? '-' : event.key;
+    return undefined;
+}
+
+/** Reads "1,5", "-2", "−0.25" (decimal comma or point, typographic minus). */
+function parseTyped(text: string): number {
+    const cleaned = text.trim().replace(/\s/g, '').replace('−', '-').replace(',', '.');
+    return cleaned === '' || cleaned === '-' ? NaN : Number(cleaned);
+}
+
+/**
+ * Sets a count to a typed whole number through the setter's own − and +, one step per synchronous render, so the
+ * graph's bounds and refusals apply unchanged. Returns false when the value is not whole or lies outside the bounds.
+ */
+function setCount(entry: CountParam, target: number): boolean {
+    if (!Number.isInteger(target)) return false;
+    if ((entry.min !== undefined && target < entry.min) || (entry.max !== undefined && target > entry.max)) return false;
+    for (let guard = 0; guard < 500; guard++) {
+        const current = getParam(entry.key);
+        if (!current || current.kind !== 'count') return false;
+        if (current.value === target) return true;
+        let moved = false;
+        flushSync(() => { moved = target > current.value ? current.plus() : current.minus(); });
+        if (!moved) return false;
+    }
+    return false;
+}
+
+/** The puck's value as a text field while the learner types; Enter or leaving commits, Escape cancels. */
+function TypedValue(props: {initial: string; shown: string; label: string; accept(value: number): boolean; onDone(): void}) {
+    const input = useRef<HTMLInputElement>(null);
+    const [text, setText] = useState(props.initial === '' ? props.shown : props.initial);
+    const [invalid, setInvalid] = useState(false);
+    const finished = useRef(false);
+    useEffect(() => {
+        const node = input.current;
+        if (!node) return;
+        node.focus();
+        if (props.initial === '') node.select(); else node.setSelectionRange(node.value.length, node.value.length);
+    }, [props.initial]);
+    const unchanged = () => text.trim() === props.shown;
+    const commit = () => {
+        if (finished.current) return;
+        if (unchanged() || props.accept(parseTyped(text))) { finished.current = true; props.onDone(); }
+        else { setInvalid(true); input.current?.select(); }
+    };
+    return <input ref={input} className={`ux-puck-input${invalid ? ' is-invalid' : ''}`} inputMode="decimal" aria-label={`Vpiši: ${props.label}`}
+        value={text} size={Math.max(3, text.length + 1)}
+        onChange={event => { setText(event.target.value); setInvalid(false); }}
+        onPointerDown={event => event.stopPropagation()} onDoubleClick={event => event.stopPropagation()}
+        onKeyDown={event => {
+            event.stopPropagation();
+            if (event.key === 'Enter') { event.preventDefault(); commit(); }
+            else if (event.key === 'Escape') { event.preventDefault(); finished.current = true; props.onDone(); }
+        }}
+        onBlur={() => {
+            if (finished.current) return;
+            finished.current = true;
+            if (!unchanged()) props.accept(parseTyped(text));
+            props.onDone();
+        }}/>;
 }
