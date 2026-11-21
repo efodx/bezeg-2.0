@@ -8,6 +8,18 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a21', name: 'Družina v prostoru',
+        idea: 'En gumb spremeni izbrani parameter v tretjo os: Bezeg nariše graf pri petindvajsetih vrednostih, slike zloži eno za drugo in kup nagne, da družina krivulj postane pokrajina — ploskev y = f(x; p) — današnji graf pa jantarna rezina skoznjo. Povleci, da jo zasukaš; premakni drsnik in rezina potuje; »Splošči« vse krivulje spet zloži na eno tablo.',
+        general: 'Krivulje so vzorčene iz SVG same table, medtem ko Bezeg parameter sinhrono postavlja prek deljenega registra drsnikov (in ga povrne pred risanjem); okno vrednosti se samo zoži, dokler večina slik ne kaže nečesa. Brez kode v lekcijah: parabole pri c, d, a, b, binomska porazdelitev pri p in n, De Casteljau pri t, tangente Taylorjevega polinoma pri c (premonosna ploskev).',
+        try: 'Tapni »V prostor«, nato povleci po pokrajini; izberi drug parameter zgoraj in premikaj njegov drsnik.',
+        links: [
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a21', free: true},
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a21', free: true},
+            {label: 'De Casteljaujev postopek', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', flags: 'a21', free: true},
+            {label: 'Taylorjev polinom (tangente pri c)', family: 'Analiza', path: 'analysis/taylor', flags: 'a21', free: true},
+        ],
+    },
+    {
         id: 'a20', name: 'Kaj premika kaj',
         idea: 'Pokaži na drsnik in na tabli zasvetijo natanko tisti liki, ki jih premika, vse drugo stopi v ozadje; pokaži na krivuljo ali točko (na telefonu jo tapni) in v orodjih zasvetijo drsniki, ki jo premikajo, ob kazalcu pa piše »to premikajo c, d, a in b« ali »tega ne premakne noben drsnik«. Orodja niso več seznam imen, ampak zemljevid tega, kaj krmili kaj.',
         general: 'Bezeg vsak parameter iz deljenega registra drsnikov za hip premakne, zabeleži, kateri liki so se spremenili, in vrednosti povrne, preden brskalnik nariše; zemljevid se osveži ob vsaki spremembi. Brez kode v lekcijah: šolske funkcije, Bézierjeve krivulje, verjetnost, trigonometrija.',
@@ -239,7 +251,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a11', 'a13', 'a18', 'a19', 'a20', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a19', 'a20', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -255,7 +267,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Dvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Enaindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}

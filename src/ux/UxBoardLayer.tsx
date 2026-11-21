@@ -19,6 +19,7 @@ import {PullField} from './PullField';
 import {Bead} from './Bead';
 import {ScrubPreview} from './ScrubPreview';
 import {Linker} from './Linker';
+import {FamilySpace} from './FamilySpace';
 import './UxBoardLayer.css';
 
 /** Lane-A prototypes that live on the board, each behind its own `?ux=` flag. */
@@ -42,6 +43,7 @@ export function UxBoardLayer(props: {frame: React.RefObject<HTMLDivElement>; les
         {(uxEnabled('a5') || uxEnabled('a16')) && <PredictSketch frame={props.frame}/>}
         {uxEnabled('a16') && <PredictParams frame={props.frame}/>}
         {uxEnabled('a17') && <PullField frame={props.frame}/>}
+        {uxEnabled('a21') && <FamilySpace frame={props.frame}/>}
         {uxEnabled('a20') && <Linker frame={props.frame}/>}
         {uxEnabled('a19') && <ScrubPreview frame={props.frame}/>}
         {uxEnabled('a18') && <Bead frame={props.frame}/>}
