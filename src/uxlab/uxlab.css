@@ -687,3 +687,6 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-strip-cell.is-current { opacity: 1; border-color: #c9a14a; }
 .ux-strip-cell svg { pointer-events: none; }
 .ux-strip-head { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: #c9a14a; box-shadow: 0 0 0 1px rgba(25, 55, 47, .5); pointer-events: none; }
+.ux-lab-matches { margin-top: 6px; padding: 6px 9px; border-radius: 10px; background: #f1f8ef; border: 1px solid rgba(54, 110, 64, .4); font-size: 13px; color: #19372f; }
+.ux-lab-matches p { margin: 2px 0; }
+.ux-lab-matches b { color: #2f6a3a; }

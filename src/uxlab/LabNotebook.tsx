@@ -195,6 +195,40 @@ function publish(list: Entry[]) { published = list; subscribers.forEach(callback
  * Lane B b23 in a guided lesson: on an observation frame, the learner's own experiments of this frame and the rules they
  * suggest stand above the lesson's "what you should notice", so the claim is read against evidence the learner made.
  */
+/** Decimal numbers a lesson text states ("0{,}7183", "2,5"); integers are too ambiguous to match. */
+function statedNumbers(text: string): {text: string; value: number}[] {
+    return [...text.matchAll(/(\d+)(?:\{,\}|,)(\d+)/g)].map(match => ({text: `${match[1]},${match[2]}`, value: Number(`${match[1]}.${match[2]}`)}));
+}
+
+/**
+ * Inside the revealed "what you should notice": the numbers the lesson states, matched against readouts the learner
+ * recorded in this frame. Shown only after the reveal, so it never gives the answer away.
+ */
+export function LabMatches(props: {frameKey: string; texts: string[]}) {
+    const [, setTick] = useState(0);
+    useEffect(() => {
+        const callback = () => setTick(tick => tick + 1);
+        subscribers.add(callback);
+        return () => { subscribers.delete(callback); };
+    }, []);
+    const start = React.useMemo(() => published[0]?.id ?? 0, [props.frameKey]);
+    const mine = published.filter(entry => entry.id > start).reverse();
+    const matches = props.texts.flatMap(statedNumbers).flatMap(stated => {
+        for (const entry of mine) {
+            for (const item of [...entry.effects, ...entry.kept]) {
+                for (const value of [item.from, item.to]) {
+                    if (Math.abs(value - stated.value) <= 0.01 * Math.abs(stated.value) + 1e-9) return [{stated, entry, label: item.name, value}];
+                }
+            }
+        }
+        return [];
+    });
+    if (matches.length === 0) return null;
+    return <div className="ux-lab-matches">{matches.map(match => <p key={match.stated.text}>
+        <b>✓ {match.stated.text}</b>: to kaže tudi tvoj poskus #{match.entry.id} ({match.label} = {format(match.value)})
+    </p>)}</div>;
+}
+
 export function LabEvidence(props: {frameKey: string; quietWhenEmpty?: boolean}) {
     const [, setTick] = useState(0);
     useEffect(() => {
