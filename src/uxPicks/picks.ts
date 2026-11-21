@@ -21,6 +21,7 @@ export type Pick = {
 };
 
 export const PICKS: readonly Pick[] = [
+    {id: 'b1', title: 'Prehodi', from: 'b1', note: 'Naprej in Nazaj v vodeni lekciji: graf zvezno zdrsne v nov prizor, novo se nariše, staro zbledi. Deluje v vseh lekcijah.', tryAt: '/bezeg-2.0/functions/transformations?learn=1'},
     // {id: 'example', title: 'Primer', from: 'a1', note: 'Kaj naredi in kje ga najdeš.', tryAt: '/bezeg-2.0/functions/transformations'},
 ];
 
