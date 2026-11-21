@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a20', name: 'Kaj premika kaj',
+        idea: 'Pokaži na drsnik in na tabli zasvetijo natanko tisti liki, ki jih premika, vse drugo stopi v ozadje; pokaži na krivuljo ali točko (na telefonu jo tapni) in v orodjih zasvetijo drsniki, ki jo premikajo, ob kazalcu pa piše »to premikajo c, d, a in b« ali »tega ne premakne noben drsnik«. Orodja niso več seznam imen, ampak zemljevid tega, kaj krmili kaj.',
+        general: 'Bezeg vsak parameter iz deljenega registra drsnikov za hip premakne, zabeleži, kateri liki so se spremenili, in vrednosti povrne, preden brskalnik nariše; zemljevid se osveži ob vsaki spremembi. Brez kode v lekcijah: šolske funkcije, Bézierjeve krivulje, verjetnost, trigonometrija.',
+        try: 'Z miško počasi prehajaj čez drsnike v orodjih, nato čez krivuljo in točke na tabli.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a20', free: true},
+            {label: 'De Casteljaujev postopek', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', flags: 'a20', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a20', free: true},
+        ],
+    },
+    {
         id: 'a19', name: 'Poglej, preden skočiš',
         idea: 'Z miško potuj vzdolž drsnika, ne da bi kliknil, in na veliki tabli se kot črtkan jantarni duh pokaže graf pri vrednosti pod kazalcem; vzdolž drsnika duh preleti celo družino krivulj. Klik in pravi graf skoči točno na duha.',
         general: 'Kot sličica nad časovnico videa, le da je predogled narisan na samem grafu, zato ostane graf edino mesto, kamor gledaš. Vsak drsnik se objavi v deljenem registru pod svojim id; tabla se sinhrono postavi na vrednost, spremenjeni liki se klonirajo in prava vrednost se povrne, preden brskalnik nariše. Na zaklenjenih drsnikih lekcije je le pogled. Velja za vsak drsnik v aplikaciji (na računalniku; na dotik ni lebdenja).',
@@ -228,7 +239,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a11', 'a13', 'a18', 'a19', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a11', 'a13', 'a18', 'a19', 'a20', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -244,7 +255,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Devetnajst prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Dvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
