@@ -150,6 +150,50 @@ function conjectures(entries: Entry[]): Conjecture[] {
     return result.sort((a, b) => rank(b) - rank(a) || b.count - a.count).slice(0, 3);
 }
 
+function sentence(entry: Entry) {
+    const moved = entry.changes.length ? entry.changes.map(change => <span key={change.name}><b>{change.name}</b> {arrow(change)}</span>) : [<span key="drag">premik na grafu</span>];
+    const effects = entry.effects.slice(0, 3).map(effect => <span key={effect.name} className={effect.to > effect.from ? 'is-up' : 'is-down'}>{effect.name} {arrow(effect)}</span>);
+    return <>{moved}{(effects.length > 0 || entry.kept.length > 0) && <span className="ux-lab-then" aria-label="posledica">⇒</span>}{effects.length > 0 ? effects : entry.kept.length > 0
+        ? entry.kept.slice(0, 2).map(item => <span key={item.name} className="ux-lab-kept">{item.name} ostane {format(item.to)}</span>)
+        : <span className="ux-lab-none">odčitki enaki</span>}</>;
+}
+
+function ruleText(rule: Conjecture) {
+    return rule.contradicted
+        ? <>Ob {rule.direction > 0 ? 'povečanju' : 'zmanjšanju'} {rule.name} {rule.label} enkrat narašča, drugič pada. Od česa je to odvisno?</>
+        : rule.sign === 0 ? <>Ko spreminjaš {rule.name}, se {rule.label} ne spremeni <small>({rule.count}× v tvojih poskusih)</small></>
+        : <>Če {rule.name} {verb(rule.direction)}š, se {rule.label} {verb(rule.sign)} <small>({rule.count}× v tvojih poskusih)</small></>;
+}
+const ruleTag = (rule: Conjecture) => rule.contradicted ? 'Protislovje' : rule.sign === 0 ? 'Nespremenljivka?' : 'Domneva';
+
+// The notebook's entries, for the lesson card (b23 in guided lessons).
+let published: Entry[] = [];
+const subscribers = new Set<() => void>();
+function publish(list: Entry[]) { published = list; subscribers.forEach(callback => callback()); }
+
+/**
+ * Lane B b23 in a guided lesson: on an observation frame, the learner's own experiments of this frame and the rules they
+ * suggest stand above the lesson's "what you should notice", so the claim is read against evidence the learner made.
+ */
+export function LabEvidence(props: {frameKey: string}) {
+    const [, setTick] = useState(0);
+    useEffect(() => {
+        const callback = () => setTick(tick => tick + 1);
+        subscribers.add(callback);
+        return () => { subscribers.delete(callback); };
+    }, []);
+    // Entries newer than the newest one when this frame opened.
+    const start = React.useMemo(() => published[0]?.id ?? 0, [props.frameKey]);
+    const mine = published.filter(entry => entry.kind === 'change' && entry.id > start);
+    const rules = conjectures(mine);
+    return <div className="ux-lab-evidence" aria-live="polite">
+        <strong>📓 Tvoji poskusi v tem koraku{mine.length > 0 && ` (${mine.length})`}</strong>
+        {mine.length === 0 ? <p>Še nič. Premakni drsnik ali točko, vsaj dvakrat v isto smer; dnevnik zapiše, kaj se zgodi. Nato primerjaj s tem, kar trdi lekcija.</p>
+            : <ol>{mine.slice(0, 4).reverse().map(entry => <li key={entry.id} className="ux-lab-sentence">{sentence(entry)}</li>)}</ol>}
+        {rules.map(rule => <p key={`${rule.name}|${rule.direction}|${rule.label}`} className={`ux-lab-evidence-rule${rule.contradicted ? ' is-mixed' : ''}`}><span className="ux-lab-rule-tag">{ruleTag(rule)}</span> {ruleText(rule)}</p>)}
+    </div>;
+}
+
 function ThumbPair(props: {entry: Entry; width: number; height: number}) {
     const box = props.entry.after.box ?? props.entry.before.box;
     const pad = 12;
@@ -242,6 +286,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
     }, [board, props.locked]);
 
     useEffect(() => () => window.clearTimeout(toastTimer.current), []);
+    useEffect(() => publish(entries), [entries]);
 
     /** Replays an entry: back to where it started, then the move itself as a morph. */
     const replay = (entry: Entry) => {
@@ -312,13 +357,6 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
     if (!board || props.locked) return null;
     const host = board.containerObj;
     const rules = conjectures(entries.filter(entry => entry.kind === 'change'));
-    const sentence = (entry: Entry) => {
-        const moved = entry.changes.length ? entry.changes.map(change => <span key={change.name}><b>{change.name}</b> {arrow(change)}</span>) : [<span key="drag">premik na grafu</span>];
-        const effects = entry.effects.slice(0, 3).map(effect => <span key={effect.name} className={effect.to > effect.from ? 'is-up' : 'is-down'}>{effect.name} {arrow(effect)}</span>);
-        return <>{moved}{(effects.length > 0 || entry.kept.length > 0) && <span className="ux-lab-then" aria-label="posledica">⇒</span>}{effects.length > 0 ? effects : entry.kept.length > 0
-            ? entry.kept.slice(0, 2).map(item => <span key={item.name} className="ux-lab-kept">{item.name} ostane {format(item.to)}</span>)
-            : <span className="ux-lab-none">odčitki enaki</span>}</>;
-    };
     const tab = <button type="button" className="ux-lab-open" aria-expanded={open} onClick={() => setOpen(value => !value)}
         title="Laboratorijski dnevnik: vsak tvoj poskus je zapisan">📓 Dnevnik{entries.length > 0 && <span className="ux-lab-count">{entries.length}</span>}</button>;
     const toastNode = toast && !open && <div className={`ux-lab-toast${phone ? ' is-fixed' : ''}`} role="status"><span className="ux-lab-toast-tag">Zapisano</span>{sentence(toast)}</div>;
@@ -330,11 +368,8 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
         </div>
         {rules.length > 0 && <div className="ux-lab-rules">
             {rules.map(rule => <div key={`${rule.name}|${rule.direction}|${rule.label}`} className={`ux-lab-rule${rule.contradicted ? ' is-mixed' : ''}`}>
-                <span className="ux-lab-rule-tag">{rule.contradicted ? 'Protislovje' : rule.sign === 0 ? 'Nespremenljivka?' : 'Domneva'}</span>
-                <span className="ux-lab-rule-text">{rule.contradicted
-                    ? <>Ob {rule.direction > 0 ? 'povečanju' : 'zmanjšanju'} {rule.name} {rule.label} enkrat narašča, drugič pada. Od česa je to odvisno?</>
-                    : rule.sign === 0 ? <>Ko spreminjaš {rule.name}, se {rule.label} ne spremeni <small>({rule.count}× v tvojih poskusih)</small></>
-                    : <>Če {rule.name} {verb(rule.direction)}š, se {rule.label} {verb(rule.sign)} <small>({rule.count}× v tvojih poskusih)</small></>}</span>
+                <span className="ux-lab-rule-tag">{ruleTag(rule)}</span>
+                <span className="ux-lab-rule-text">{ruleText(rule)}</span>
                 <button type="button" className="ux-lab-test" disabled={busy || !quantities().find(item => item.name === rule.name)?.input} onClick={() => void test(rule)}>{busy ? 'Preizkušam …' : 'Preizkusi drugje'}</button>
             </div>)}
         </div>}

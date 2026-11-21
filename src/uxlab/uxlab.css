@@ -666,3 +666,13 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-tilt-bubble { width: 34px; height: 34px; }
 .ux-tilt-axes select { min-height: 26px; }
 .ux-tilt-stop.ux-tilt-stop { min-height: 32px; }
+.ux-lab-evidence { margin: 10px 0 6px; padding: 9px 11px; border-radius: 12px; background: #fffbee; border: 1px solid rgba(138, 90, 31, .3); font-size: 13.5px; color: #19372f;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 25px, rgba(138, 90, 31, .07) 25px 26px); }
+.ux-lab-evidence strong { color: #6e4716; font-size: 13.5px; }
+.ux-lab-evidence p { margin: 4px 0 0; line-height: 1.45; }
+.ux-lab-evidence ol { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 2px; }
+.ux-lab-evidence li.ux-lab-sentence { display: list-item; }
+.ux-lab-evidence li.ux-lab-sentence > span { margin-right: 6px; }
+.ux-lab-evidence-rule { padding: 5px 8px; border-radius: 8px; background: #fff; border: 1px solid rgba(93, 59, 110, .28); font-weight: 600; }
+.ux-lab-evidence-rule.is-mixed { border-color: rgba(176, 82, 54, .5); background: #fff6f1; }
+.ux-lab-evidence-rule small { font-weight: 400; color: #526152; }
