@@ -1,0 +1,62 @@
+:root {
+    --ux-berry: #5d3b6e;
+    --ux-berry-soft: rgba(93, 59, 110, .14);
+    --ux-panel: #fffdf5;
+    --ux-ink: #19372f;
+    --ux-ink-2: #526152;
+    --ux-rule: #d6dccb;
+    --ux-action: #244c37;
+}
+.ux-predict { position: fixed; z-index: 1200; pointer-events: none; }
+.ux-predict-predict { pointer-events: auto; box-shadow: inset 0 0 0 2px var(--ux-berry-soft); border-radius: 12px; }
+.ux-predict-ink { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
+.ux-predict-ink path { fill: none; stroke: var(--ux-berry); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.ux-predict-revealing .ux-predict-ink path, .ux-predict-scored .ux-predict-ink path { stroke-dasharray: 2 9; stroke-width: 4.5; opacity: .7; }
+.ux-predict-bar, .ux-predict-result {
+    position: absolute; left: 50%; top: 12px; transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); box-sizing: border-box;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+    background: var(--ux-panel); color: var(--ux-ink); border: 1px solid var(--ux-rule); border-radius: 14px; padding: 8px 10px 8px 14px;
+    box-shadow: 0 10px 30px -14px rgba(25, 55, 47, .45); font-size: .95rem; line-height: 1.35; pointer-events: auto;
+    animation: ux-drop .35s cubic-bezier(.2, .9, .3, 1.2);
+}
+.ux-predict-label strong { color: var(--ux-berry); margin-right: 6px; letter-spacing: .02em; }
+.ux-predict-actions { display: flex; gap: 6px; }
+.ux-predict button, .ux-button {
+    min-height: 40px; padding: 6px 14px; border-radius: 10px; border: 1px solid #cbd4c1; background: #fff; color: var(--ux-action); font-weight: 600; cursor: pointer; font: inherit; font-weight: 600;
+}
+.ux-predict button.ux-primary, .ux-button.ux-primary { background: var(--ux-action); color: #fff; border-color: var(--ux-action); }
+.ux-predict-result { padding: 8px; max-width: min(560px, calc(100% - 24px)); justify-content: flex-start; flex-wrap: nowrap; }
+.ux-predict-result button { min-height: 36px; min-width: 36px; padding: 0; border: none; background: transparent; font-size: 1.4rem; line-height: 1; color: #647557; }
+.ux-predict-score {
+    flex: none; display: inline-flex; align-items: baseline; justify-content: center; padding-top: 18px; box-sizing: border-box;
+    width: 58px; height: 58px; border-radius: 50%; color: var(--ux-berry); position: relative;
+    background: conic-gradient(var(--ux-berry) calc(var(--score) * 1%), var(--ux-berry-soft) 0);
+    animation: ux-pop .5s cubic-bezier(.2, .9, .3, 1.4);
+}
+.ux-predict-score::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--ux-panel); }
+.ux-predict-score b, .ux-predict-score small { position: relative; }
+.ux-predict-score b { font-size: 1.15rem; line-height: 1; }
+.ux-predict-score small { font-size: .7rem; }
+@keyframes ux-drop { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes ux-pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (max-width: 560px) {
+    .ux-predict-bar { font-size: .85rem; top: 6px; gap: 6px; padding: 6px 8px; }
+    .ux-predict-result { font-size: .85rem; top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .ux-predict-bar, .ux-predict-result, .ux-predict-score { animation: none; } }
+
+/* b2: the explanation waits until the learner has committed to a prediction. */
+.ux-hold-reading .guided-lesson-frame > :not(h3), .ux-hold-reading .guided-lesson-exploration > :not(h3) {
+    filter: blur(5px); opacity: .55; user-select: none; pointer-events: none; transition: filter .4s, opacity .4s;
+}
+.ux-hold-reading .guided-lesson-frame > h3::after, .ux-hold-reading .guided-lesson-exploration > h3::after {
+    content: "Najprej napoved na grafu, potem razlaga."; display: block; font: 600 .78rem/1.3 system-ui, sans-serif; letter-spacing: .02em;
+    color: var(--ux-berry); margin-top: 4px;
+}
+.ux-short { display: none; }
+@media (max-width: 560px) {
+    .ux-long { display: none; }
+    .ux-short { display: inline; }
+    .ux-predict-bar { flex-wrap: nowrap; }
+    .ux-predict-bar button { min-height: 36px; padding: 4px 10px; }
+}

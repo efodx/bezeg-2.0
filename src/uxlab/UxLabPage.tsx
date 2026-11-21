@@ -13,6 +13,18 @@ interface Prototype {
 /** Best first. Deep links open the lesson with the prototype switched on; the same link without `ux` is today's app. */
 const PROTOTYPES: Prototype[] = [
     {
+        id: 'b2',
+        name: 'Napoved: najprej nariši, potem poglej',
+        idea: 'Preden lekcija spremeni graf, ga zadrži v starem stanju, razlago zamegli in vpraša: kaj se bo zgodilo? Učenec s prstom nariše napoved, nato se resnica zvezno pripelje na graf, njegova črta ostane kot črtkana sled z oceno ujemanja.',
+        generalizes: 'Napoved se sproži sama ob vsakem prehodu, ki spremeni graf, in se oceni z vzorčenjem spremenjenih SVG-elementov plošče; ni ročno pripravljenih vprašanj. Vključuje prehode iz b1.',
+        try: 'Pritisni Naprej; ko se pojavi »Napoved«, nariši na graf in pritisni Pokaži.',
+        links: [
+            {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?learn=1&ux=b2'},
+            {label: 'Trikotnik: Eulerjeva premica', to: '/bezeg-2.0/euler-line?learn=1&ux=b2'},
+            {label: 'Bézier: krivulja', to: '/bezeg-2.0/bezier/curve?learn=1&ux=b2'},
+        ],
+    },
+    {
         id: 'b1',
         name: 'Prehodi: graf se premakne, ne preskoči',
         idea: 'Ko greš naprej ali nazaj, graf zdrsne iz prejšnjega prizora v novega: točke drsijo, parametri se zvezno spremenijo, novi elementi se narišejo kot s kredo, stari zbledijo. Učenec vidi, kaj se je spremenilo, namesto da išče razliko med dvema slikama.',

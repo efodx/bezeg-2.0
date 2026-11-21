@@ -1,7 +1,5 @@
-import {uxEnabled, uxFlags} from '../../uxlab/flags';
-import {morphScene, type MorphHandle} from '../../uxlab/morph';
-import {findMainBoard} from '../../uxlab/board';
-import {captureBoardPicture, revealChanges} from '../../uxlab/sceneReveal';
+import {uxFlags} from '../../uxlab/flags';
+import {useLessonTransitions} from '../../uxlab/useLessonTransitions';
 import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
@@ -508,22 +506,6 @@ export function GuidedLesson(props: {
     useEffect(() => {
         if (uxFlags().length) window.__uxLesson = {capabilities: props.capabilities, session};
     }, [props.capabilities, session]);
-    const morph = useRef<MorphHandle>();
-    useEffect(() => () => morph.current?.finish(), [session]);
-    const navigate = (operation: () => void) => {
-        morph.current?.finish();
-        morph.current = undefined;
-        let before: LessonSceneCheckpoint | undefined;
-        const board = uxEnabled('b1') ? findMainBoard() : undefined;
-        const picture = board && captureBoardPicture(board);
-        if (uxEnabled('b1')) { try { before = props.capabilities.captureState(); } catch { before = undefined; } }
-        refresh(operation);
-        if (!before) return;
-        const handle = morphScene(props.capabilities, before);
-        morph.current = handle;
-        const reveal = () => requestAnimationFrame(() => { if (picture) revealChanges(picture); });
-        if (handle) void handle.done.then(reveal); else reveal();
-    };
     const refresh = (operation: () => void) => {
         try {
             operation();
@@ -532,6 +514,8 @@ export function GuidedLesson(props: {
             setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
         }
     };
+    const transitions = useLessonTransitions(props.capabilities, refresh, session);
+    const navigate = transitions.navigate;
 
     const close = (restoreCompleted = false) => {
         session.close({restoreCompleted});
@@ -609,7 +593,7 @@ export function GuidedLesson(props: {
     const lessonHeading = <h2 id="guided-lesson-title" className="guided-lesson-title" title={lessonTitle}>{lessonTitle}</h2>;
 
     if (startupError) {
-        return <><section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content guided-lesson-docked" aria-labelledby="guided-lesson-title">
+        return <>{transitions.overlay}<section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content guided-lesson-docked" aria-labelledby="guided-lesson-title">
             <div className="guided-lesson-heading">
                 {lessonHeading}
                 <div className="guided-lesson-utilities">{chapterReturnLink}{closeButton}</div>
@@ -635,10 +619,10 @@ export function GuidedLesson(props: {
     // Back and Next sit beside the progress in the tools column. In one column they are the card's last row, after the
     // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
     const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; navigate(() => session.back()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; navigate(() => session.back(), false); }}>
                 {t('guided_lesson_previous_frame_short')}
             </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; navigate(() => session.next()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; navigate(() => session.next(), true); }}>
                 {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
             </button>
         </nav>;
@@ -664,7 +648,7 @@ export function GuidedLesson(props: {
         left: panelDrag.dragHome.left, top: panelDrag.dragHome.top,
         width: panelDrag.dragHome.right - panelDrag.dragHome.left, height: panelDrag.dragHome.bottom - panelDrag.dragHome.top,
     }}/>;
-    return <>
+    return <>{transitions.overlay}
     {homeSlot}
     {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
         <div className="guided-lesson-controls">
@@ -678,7 +662,7 @@ export function GuidedLesson(props: {
         {navigationToolbar}
         </div>
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
-        <div className="guided-lesson-reading" ref={readingRef}>
+        <div className={`guided-lesson-reading${transitions.predicting ? " ux-hold-reading" : ""}`} ref={readingRef}>
         {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary" data-tex={localized(props.lesson.summary, language)}>{localized(props.lesson.summary, language)}</p>}
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
             <h3>{localized(frame.title, language)}</h3>
@@ -708,7 +692,7 @@ export function GuidedLesson(props: {
         </div>}
         {!isComplete && frameAction && <footer className="guided-lesson-footer">
             <div className="guided-lesson-actions">
-                <button type="button" onClick={() => navigate(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>
+                <button type="button" onClick={() => navigate(() => session.applyCurrentAction(), true)}>{localized(frameAction.label, language)}</button>
             </div>
         </footer>}
         {oneColumn && navigation}
