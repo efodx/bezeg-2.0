@@ -11,6 +11,7 @@ import {useLessonDock} from '../../uxPicks/dock/useLessonDock';
 import {DockCard} from '../../uxPicks/dock/DockCard';
 import {ChevronLeftIcon, ChevronRightIcon} from '../../uxPicks/dock/icons';
 import {LessonMenu} from '../../uxPicks/toolsCard/LessonMenu';
+import {openShortcuts} from '../../uxPicks/dock/Shortcuts';
 import {useLessonDrift} from '../../uxPicks/toolsCard/useLessonDrift';
 import {stopAllOscillators} from '../../uxPicks/a3/oscillators';
 import {useLessonCardFit} from '../../uxPicks/toolsCard/useLessonCardFit';
@@ -555,7 +556,7 @@ export function GuidedLesson(props: {
         `${snapshot.stepIndex}:${snapshot.frameIndex}`, () => props.capabilities.captureState());
     const restoreFrame = () => { if (lessonOnGraph) stopAllOscillators(); refresh(() => session.reset()); clearDrift(); };
     useLessonCardFit(lessonOnGraph && overlayVisible, props.lesson);
-    // Pick toolsCard: Alt+Left/Right and PageUp/PageDown are Back/Next while focus is not in a field, slider or editable;
+    // Pick toolsCard: Alt+Left/Right are Back/Next while focus is not in a field, and PageUp/PageDown while focus is inside the lesson card, slider or editable;
     // the same handlers as the buttons (assigned below, after the early return), so sweeps stop and the morph runs.
     const lessonKeysRef = useRef<{back: () => void; next: () => void} | null>(null);
     useEffect(() => {
@@ -568,6 +569,8 @@ export function GuidedLesson(props: {
             const next = (alt && event.key === 'ArrowRight') || (plain && event.key === 'PageDown');
             if (!back && !next) return;
             const target = event.target instanceof Element ? event.target : null;
+            // PageUp/PageDown step frames only from inside the lesson card; elsewhere they scroll the page as usual.
+            if (plain && !target?.closest('.ux-bcard-guide')) return;
             if (target?.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="slider"], [role="textbox"], [role="spinbutton"]')) return;
             event.preventDefault();
             (back ? lessonKeysRef.current?.back : lessonKeysRef.current?.next)?.();
@@ -698,11 +701,11 @@ export function GuidedLesson(props: {
     // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
     const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
             <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame}
-                {...(lessonOnGraph ? {title: 'Nazaj (Alt+←)', 'aria-keyshortcuts': 'Alt+ArrowLeft PageUp'} : {})} onClick={goBack}>
+                {...(lessonOnGraph ? {title: 'Nazaj (Alt+←)', 'aria-keyshortcuts': 'Alt+ArrowLeft'} : {})} onClick={goBack}>
                 {lessonOnGraph ? <><ChevronLeftIcon/><span className="ux-nav-label">{t('guided_lesson_previous_frame_short')}</span></> : t('guided_lesson_previous_frame_short')}
             </button>
             <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={lessonOnGraph ? nextName : nextEndsLesson ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')}
-                {...(lessonOnGraph ? {title: 'Naprej (Alt+→)', 'aria-keyshortcuts': 'Alt+ArrowRight PageDown'} : {})} onClick={goNext}>
+                {...(lessonOnGraph ? {title: 'Naprej (Alt+→)', 'aria-keyshortcuts': 'Alt+ArrowRight'} : {})} onClick={goNext}>
                 {nextEndsLesson && !lessonOnGraph ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}{lessonOnGraph && <ChevronRightIcon/>}
             </button>
         </nav>;
@@ -795,7 +798,7 @@ export function GuidedLesson(props: {
             </div>
             <span className="ux-lesson-rail" aria-hidden="true">{props.lesson.steps.map((_, i) => <span key={i} className="is-done" style={{'--fill': 1} as React.CSSProperties}/>)}</span>
             <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-                <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} title="Nazaj (Alt+←)" aria-keyshortcuts="Alt+ArrowLeft PageUp"
+                <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} title="Nazaj (Alt+←)" aria-keyshortcuts="Alt+ArrowLeft"
                     onClick={goBack}>
                     <ChevronLeftIcon/><span className="ux-nav-label">{t('guided_lesson_previous_frame_short')}</span>
                 </button>
@@ -819,6 +822,7 @@ export function GuidedLesson(props: {
         </div>;
         const menu = <LessonMenu label="Več možnosti vodenega primera">{(trigger, close) => <>
             {chapterReturnLink}
+            <button type="button" className="ux-lesson-shortcuts" onClick={() => { const back = trigger(); close(); openShortcuts(back ?? undefined); }}>Bližnjice</button>
             <button type="button" className="guided-lesson-exit" onClick={() => { close(); requestExit(trigger()); }}>{t('exit_lesson')}</button>
         </>}</LessonMenu>;
         return <>
@@ -827,9 +831,9 @@ export function GuidedLesson(props: {
                 head={<><span id="guided-lesson-title" className="ux-lesson-card-title" title={lessonTitle}>{cardTitle}</span>
                     {!cardOpen && !isComplete && <span className="ux-lesson-card-progress">{progress}</span>}
                     {!cardOpen && !isComplete && <span className="ux-lesson-fold-nav">
-                        <button type="button" className="ux-btext-toggle" aria-label={t('guided_lesson_previous_frame_accessible')} title="Nazaj (Alt+←)" aria-keyshortcuts="Alt+ArrowLeft PageUp" disabled={atFirstFrame}
+                        <button type="button" className="ux-btext-toggle" aria-label={t('guided_lesson_previous_frame_accessible')} title="Nazaj (Alt+←)" aria-keyshortcuts="Alt+ArrowLeft" disabled={atFirstFrame}
                             onClick={goBack}><ChevronLeftIcon/></button>
-                        <button type="button" className="ux-btext-toggle" aria-label={nextName} title="Naprej (Alt+→)" aria-keyshortcuts="Alt+ArrowRight PageDown"
+                        <button type="button" className="ux-btext-toggle" aria-label={nextName} title="Naprej (Alt+→)" aria-keyshortcuts="Alt+ArrowRight"
                             onClick={goNext}><ChevronRightIcon/></button>
                     </span>}</>}
                 actions={menu}>

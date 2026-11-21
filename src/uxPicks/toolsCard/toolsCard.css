@@ -39,6 +39,10 @@
 .ux-bcard-tools > .ux-tools-body::-webkit-scrollbar { width: 6px; }
 .ux-bcard-tools > .ux-tools-body::-webkit-scrollbar-thumb { background: var(--bezeg-shell-ink-secondary); border-radius: 3px; }
 .ux-bcard-tools > .ux-tools-body[hidden] { display: none; }
+/* Cut-edge cue (round 5): the tools list fades where more lies behind the edge; useToolsSections marks data-overflow. */
+.ux-bcard-tools > .ux-tools-body[data-overflow~="end"] { -webkit-mask-image: linear-gradient(#000 calc(100% - 36px), transparent); mask-image: linear-gradient(#000 calc(100% - 36px), transparent); }
+.ux-bcard-tools > .ux-tools-body[data-overflow~="start"] { -webkit-mask-image: linear-gradient(transparent, #000 28px); mask-image: linear-gradient(transparent, #000 28px); }
+.ux-bcard-tools > .ux-tools-body[data-overflow="start end"] { -webkit-mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 36px), transparent); }
 .ux-bcard-tools .workspace-inspector { flex: none; height: auto; min-height: 0; border: 0; background: transparent; }
 .ux-bcard-tools .workspace-inspector .inspector-heading { display: none !important; }
 .ux-bcard-tools > .ux-btext-head { padding: 6px 6px 2px 8px; }
@@ -196,7 +200,7 @@
 .ux-bcard-tools .point-coordinate-editor [role="alert"] { border-left: 0; border-radius: 8px; background: color-mix(in srgb, var(--workspace-pollen) 14%, transparent); }
 
 /* 2 and 3. Section headings: a chevron folds the section, a "?" shows its help. */
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3[data-ux-sec] { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) [data-ux-sec] { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .ux-sec-fold, .ux-sec-help {
     flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; box-shadow: none;
     background: transparent; color: var(--workspace-ink-soft); cursor: pointer;
@@ -210,25 +214,25 @@
 .ux-sec-fold:focus-visible, .ux-sec-help:focus-visible { outline: var(--bezeg-control-focus); outline-offset: -1px; }
 @media (pointer: coarse) { .ux-sec-fold, .ux-sec-help { width: 44px; height: 44px; } .ux-sec-fold { margin-left: -14px; } }
 @media (prefers-reduced-motion: reduce) { .ux-sec-fold svg { transition: none; } }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] { padding-bottom: 0; }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] > :not(h3) { display: none; }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] > h3 { margin-bottom: 8px; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body)[data-ux-folded] { padding-bottom: 0; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body)[data-ux-folded] > :not([data-ux-sec]) { display: none; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body)[data-ux-folded] > [data-ux-sec] { margin-bottom: 8px; }
 /* Closed help stays in the accessibility tree (controls describe themselves by it), but takes no room. */
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals):not([data-ux-help-open]) [data-ux-help-text] {
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body):not([data-ux-help-open]) [data-ux-help-text] {
     position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-help-open] [data-ux-help-text] { margin-top: 6px; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body)[data-ux-help-open] [data-ux-help-text] { margin-top: 6px; }
 .is-presenting .ux-bcard-tools :is(.ux-sec-fold, .ux-sec-help) { color: var(--bezeg-night-panel); }
 .is-presenting .ux-bcard-tools :is(.ux-sec-fold, .ux-sec-help):hover { background: #2a3c58; }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals) { position: relative; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) { position: relative; }
 .ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head > .ux-btext-toggle:last-child { margin-left: auto; }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-fold, .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-help {
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) [data-ux-sec] > button.ux-sec-fold, .ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) [data-ux-sec] > button.ux-sec-help {
     min-height: 0; min-width: 0; width: 24px; height: 24px; padding: 0; border: 0; box-shadow: none; background: transparent; font-size: inherit;
 }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-help { margin-left: auto; }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button:is(.ux-sec-fold, .ux-sec-help):is(:hover, [aria-expanded="true"]:not(.ux-sec-fold)) { background: var(--bezeg-shell-control-hover); }
-@media (pointer: coarse) { .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-fold, .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-help { width: 44px; height: 44px; } }
-.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] > h3 > .ux-sec-help { display: none; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) [data-ux-sec] > button.ux-sec-help { margin-left: auto; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) [data-ux-sec] > button:is(.ux-sec-fold, .ux-sec-help):is(:hover, [aria-expanded="true"]:not(.ux-sec-fold)) { background: var(--bezeg-shell-control-hover); }
+@media (pointer: coarse) { .ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) [data-ux-sec] > button.ux-sec-fold, .ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body) [data-ux-sec] > button.ux-sec-help { width: 44px; height: 44px; } }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body)[data-ux-folded] > [data-ux-sec] > .ux-sec-help { display: none; }
 
 /* Lesson card: the text region fades at the edge it is cut at (useLessonCardFit marks data-overflow). */
 .ux-bcard-guide .guided-lesson-reading[data-overflow~="end"] { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); }

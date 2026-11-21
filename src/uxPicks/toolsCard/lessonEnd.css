@@ -6,7 +6,7 @@
 .ux-lesson-recap ol { margin: 0; padding: 0; list-style: none; font-size: .8125rem; line-height: 1.5; color: var(--bezeg-shell-ink); }
 /* One flowing line of step titles; the list stays an ordered list for assistive technology. */
 .ux-lesson-recap li { display: inline; margin: 0; padding: 0; }
-.ux-lesson-recap li:not(:last-child)::after { content: " · "; color: var(--bezeg-shell-ink-secondary); white-space: pre; }
+.ux-lesson-recap li:not(:last-child)::after { content: "\00a0· "; color: var(--bezeg-shell-ink-secondary); white-space: pre-wrap; } /* the dot ends a line, never starts one */
 
 /* The card's own controls: 32 px on a fine pointer (the dock's coarse and narrow rule already gives 44 px). */
 @media (pointer: fine) and (min-width: 701px) {
