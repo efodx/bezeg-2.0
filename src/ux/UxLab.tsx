@@ -204,14 +204,18 @@ function href(link: LabLink, flags: string | undefined) {
 }
 
 export function UxLab() {
+    const sorted = [...PROTOTYPES].sort((p, q) => rank(p.id) - rank(q.id));
     return <div className="ux-lab-wrap"><main className="ux-lab">
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Prototipi, v katerih graf sam postane krmilo: vlečeš, drsiš, nihaš in opazuješ sled. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Šestnajst prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
+        <nav className="ux-lab-index" aria-label="Kazalo prototipov">
+            {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
+        </nav>
         <ol className="ux-lab-list">
-            {[...PROTOTYPES].sort((p, q) => rank(p.id) - rank(q.id)).map(prototype => <li key={prototype.id} className="ux-lab-card">
+            {sorted.map(prototype => <li key={prototype.id} id={prototype.id} className="ux-lab-card">
                 <div className="ux-lab-card-head"><span className="ux-lab-id">{prototype.id}</span><h2>{prototype.name}</h2></div>
                 <p>{prototype.idea}</p>
                 <p className="ux-lab-general"><strong>Zakaj velja splošno.</strong> {prototype.general}</p>

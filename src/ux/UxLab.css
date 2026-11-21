@@ -25,3 +25,9 @@ body:has(.ux-lab), #root:has(.ux-lab) { background: #f7f5e9; }
     .ux-lab { padding: 20px 16px 48px; }
     .ux-lab-card { padding: 16px; }
 }
+
+.ux-lab-index { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; }
+.ux-lab-index a { display: inline-flex; gap: 5px; align-items: baseline; padding: 5px 10px; border-radius: 14px; border: 1px solid #d6dccb; background: #fffdf5; color: #19372f; text-decoration: none; font-size: 0.84rem; }
+.ux-lab-index a:hover { border-color: #b88a43; }
+.ux-lab-index b { font-size: 0.72rem; color: #885512; }
+.ux-lab-card { scroll-margin-top: 12px; }
