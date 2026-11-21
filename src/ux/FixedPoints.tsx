@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import type {Board} from 'jsxgraph';
 import {findBoard} from './boardAccess';
-import {getParam, observeParamChanges, probing, splitLabel, type ParamEntry} from './paramRegistry';
+import {currentParams, getParam, observeParamChanges, probing, splitLabel, type ParamEntry} from './paramRegistry';
 import {drawn, meaningful} from './YourTurn';
 import {settle, svgRootOf} from './family';
 import {uxEnabled} from './flags';
@@ -286,6 +286,49 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
         <div className={`ux-fixed-sentence${guess === undefined ? '' : right ? ' is-right' : ' is-wrong'}`} role="status">
             <span className={fan.pins.length ? 'ux-fixed-icon' : 'ux-fixed-icon is-none'} aria-hidden="true"/><span className="ux-fixed-text">{fan.preview && <b className="ux-fixed-preview">Predogled · </b>}{verdict ?? fan.sentence}</span>
             <small><b className="is-less"/>manjši <b className="is-more"/>večji{guess !== undefined && tally.total > 1 && <span className="ux-fixed-tally">napovedi: {tally.hits} od {tally.total} zadetih</span>}</small>
+        </div>
+    </>;
+}
+
+/**
+ * a29 — What each slider does. The graph writes its own legend: a27's analysis is run for every slider in turn, and a
+ * card says in one line each what it does ("a: graf ostane pripet v (3; 1)", "c: premakne ves graf"). A row shows that
+ * slider's fan on the board. No lesson author wrote the glossary; it is read from the graph.
+ */
+export function SliderGuide(props: {frame: React.RefObject<HTMLDivElement>}) {
+    const [open, setOpen] = useState(false);
+    const [rows, setRows] = useState<{key: string; symbol: string; fan?: Fan}[]>();
+    const [shown, setShown] = useState<string>();
+
+    const build = async () => {
+        setOpen(true); setRows(undefined); setShown(undefined);
+        const b = findBoard(props.frame.current);
+        const svg = b && svgRootOf(b);
+        if (!b || !svg) { setRows([]); return; }
+        const out: {key: string; symbol: string; fan?: Fan}[] = [];
+        for (const entry of currentParams().filter(e => meaningful(e) && e.unavailable === undefined && !e.inert)) {
+            const result = await analyse(b, entry);
+            const frame = props.frame.current!.getBoundingClientRect(), box = svg.getBoundingClientRect();
+            out.push({key: entry.key, symbol: symbolOf(entry), fan: result && {...result, box: {left: box.left - frame.left, top: box.top - frame.top, width: box.width, height: box.height}}});
+        }
+        setRows(out);
+        setShown(out.find(row => row.fan)?.key);
+    };
+    const fan = rows?.find(row => row.key === shown)?.fan;
+
+    if (!open) return <button type="button" className="ux-guide-start" onClick={() => void build()}>Kaj počne kateri drsnik?</button>;
+    return <>
+        {fan && <svg className="ux-fixed-fan" aria-hidden="true" style={fan.box} width={fan.box.width} height={fan.box.height}>
+            {fan.paths.map((path, i) => <path key={i} d={path.d} className={`ux-fixed-path ${path.offset < 0 ? 'is-less' : 'is-more'}`} style={{opacity: Math.abs(path.offset) === 1 ? 0.75 : 0.4}}/>)}
+            {fan.pins.map((pin, i) => <g key={i} className="ux-fixed-pin" transform={`translate(${pin.sx} ${pin.sy})`}><circle r="11" className="ux-fixed-halo"/><circle r="5"/><text x="12" y="-12">{pin.text}</text></g>)}
+        </svg>}
+        <div className="ux-guide" role="region" aria-label="Kaj počne kateri drsnik">
+            <div className="ux-guide-head"><strong>Kaj počne kateri drsnik</strong><button type="button" onClick={() => { setOpen(false); setShown(undefined); }} aria-label="Zapri">×</button></div>
+            {!rows && <p className="ux-guide-busy">Graf preizkuša drsnike …</p>}
+            {rows && rows.length === 0 && <p className="ux-guide-busy">Na tej strani ni drsnikov, ki bi premikali krivulje.</p>}
+            {rows?.map(row => <button type="button" key={row.key} className={`ux-guide-row${row.key === shown ? ' is-on' : ''}`} disabled={!row.fan} onClick={() => setShown(row.key)}>
+                <i>{row.symbol}</i><span>{row.fan ? row.fan.sentence : 'ne premakne nobene krivulje'}</span>
+            </button>)}
         </div>
     </>;
 }

@@ -47,3 +47,28 @@ body.ux-lane-a .ux-board-frame .ux-fixed-catch { position: absolute; z-index: 5;
 /* Phones: the fan's colours explain themselves; the legend line would cover a short lesson board. */
 @media (max-width: 600px) { .ux-fixed-sentence small { display: none; } }
 .ux-fixed-tally { margin-left: auto; font-variant-numeric: tabular-nums; color: #f3d98b; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-guide-start {
+    position: absolute; left: 10px; top: 30px; z-index: 6; pointer-events: auto; min-height: 36px; padding: 4px 14px; border-radius: 18px; cursor: pointer;
+    background: #19372f; color: #fffdf5; border: 0; font-weight: 600; font-size: 0.84rem; box-shadow: 0 6px 18px rgba(25, 55, 47, 0.22);
+}
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-guide {
+    position: absolute; left: 10px; top: 30px; z-index: 6; pointer-events: auto; width: min(400px, calc(100% - 20px)); box-sizing: border-box;
+    padding: 8px 10px 10px; border-radius: 14px; background: rgba(255, 253, 245, 0.97); border: 1px solid #d6dccb; box-shadow: 0 8px 22px rgba(25, 55, 47, 0.16);
+    display: flex; flex-direction: column; gap: 4px; color: #19372f; font-size: 0.82rem;
+}
+.ux-guide-head { display: flex; align-items: center; justify-content: space-between; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-guide-head button { width: 32px; height: 32px; border: 0; background: none; font-size: 1.2rem; cursor: pointer; color: #19372f; pointer-events: auto; }
+.ux-guide-busy { margin: 4px 0; color: #526152; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-guide-row {
+    display: flex; gap: 10px; align-items: baseline; text-align: left; min-height: 34px; padding: 5px 8px; border-radius: 9px; border: 1px solid transparent;
+    background: none; color: #19372f; cursor: pointer; font: inherit; pointer-events: auto;
+}
+.ux-guide-row i { font-family: "Source Serif 4", "Times New Roman", serif; font-size: 1.15em; color: #885512; min-width: 1.2em; }
+.ux-guide-row span i { min-width: 0; }
+.ux-guide-row:hover:not(:disabled) { background: #f3f5ec; }
+.ux-guide-row.is-on { background: #fff6e2; border-color: #e2b764; }
+.ux-guide-row:disabled { opacity: 0.55; cursor: default; }
+@media (max-width: 600px) {
+    .demonstration-workspace .workspace-graph .ux-board-frame :is(.ux-guide, .ux-guide-start) { left: 6px; top: 6px; }
+    .demonstration-workspace .workspace-graph .ux-board-frame .ux-guide { width: calc(100% - 62px); font-size: 0.76rem; }
+}

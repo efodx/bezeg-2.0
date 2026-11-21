@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a29', name: 'Kaj počne kateri drsnik',
+        idea: 'Graf napiše svojo legendo: na »Kaj počne kateri drsnik?« Bezeg preizkusi vsak drsnik posebej (in vse povrne) ter v eni vrstici pove, kaj počne: »a: graf ostane pripet v (3; 1)«, »c: premakne ves graf«, »u: ne premakne nobene krivulje«. Vrstica na tabli pokaže pahljačo tega drsnika.',
+        general: 'Slovarček, ki ga ni napisal noben avtor lekcije: prebran je iz grafa z analizo a27 za vse drsnike v registru. Šolske funkcije, trigonometrija, eksponentna funkcija.',
+        try: 'Pritisni »Kaj počne kateri drsnik?« levo zgoraj na grafu, nato klikaj vrstice.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a29', free: true},
+            {label: 'Trigonometrijske funkcije', family: 'Trigonometrija', path: 'functions/trigonometric', flags: 'a29', free: true},
+            {label: 'Eksponentna funkcija', family: 'Eksponentna in logaritemska', path: 'functions/exponential', flags: 'a29', free: true},
+        ],
+    },
+    {
         id: 'a28', name: 'Napovej, kaj ostane',
         idea: 'Napoved pred odgovorom za a27: ko prvič premakneš parameter, Bezeg pahljačo zadrži in vpraša »kje ostane graf pripet, ko spreminjaš a?«. Tapneš točko na grafu ali izbereš »nobena točka«, nato se pahljača odpre čez tvojo napoved: »Zadeto! Graf ostane pripet v (3; 1)« ali »Ne čisto«, s tvojim križcem ob pravi točki.',
         general: 'Vprašanje si Bezeg sestavi sam iz nepremičnih točk (a27), zato ga ima vsak drsnik, ki premika krivuljo, brez besedila v lekcijah. Pri vsakem parametru vpraša enkrat, nato kaže pahljačo takoj. Šolske funkcije, trigonometrija, eksponentna funkcija.',
@@ -329,7 +340,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a27', 'a28', 'a16', 'a21', 'a25', 'a26', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a27', 'a28', 'a29', 'a16', 'a21', 'a25', 'a26', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -346,7 +357,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Osemindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, graf pokaže, kaj ostane na mestu, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Devetindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, graf pokaže, kaj ostane na mestu, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
