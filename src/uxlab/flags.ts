@@ -1,5 +1,5 @@
 /** UX challenge lane B prototype switches: `?ux=b1,b2`. Read from the live URL so a deep link decides. */
-export type UxFlag = 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7' | 'b8' | 'b9' | 'b10' | 'b11' | 'b12' | 'b13' | 'b14' | 'b15' | 'b16' | 'b17' | 'b18' | 'b19' | 'b20';
+export type UxFlag = 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7' | 'b8' | 'b9' | 'b10' | 'b11' | 'b12' | 'b13' | 'b14' | 'b15' | 'b16' | 'b17' | 'b18' | 'b19' | 'b20' | 'b21';
 
 const STORAGE_KEY = 'bezeg-uxlab-b-flags';
 

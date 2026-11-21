@@ -74,6 +74,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b21',
+        name: 'Ukaz: povej grafu, kaj želiš',
+        idea: 'Gumb »⌨ Ukaz« odpre ukazno vrstico za graf. »x = 2« ali »n = 4« nastavi količino po črki ali imenu; »napaka = 0,01« pa poišče, kateri drsnik in kje da tak odčitek, in drsnik zdrsne tja. Če cilj ni dosegljiv, pove zakaj, na primer da obodni kot pri t ≈ 203 skoči z 66,8° na 113,2°.',
+        generalizes: 'Količine najde med drsniki in števci v inšpektorju (črka na koncu imena ali v oklepaju), odčitke med zapisi »oznaka = število« in vrsticami seznama Odčitki. Iskanje cilja prehodi vsak drsnik za zamrznjeno kopijo plošče, najde prehod čez cilj in ga izostri s sekantno metodo na pravem prizoru (kot Goal Seek v preglednici). Brez kode na lekcijo.',
+        try: 'Pritisni »⌨ Ukaz« na vrhu grafa in vpiši ali tapni enega od primerov.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (n = 4, napaka = 0,01)', to: '/bezeg-2.0/analysis/taylor?ux=b21'},
+            {label: 'Verjetnost: binomska in normalna (σ = 3)', to: '/bezeg-2.0/probability/binomial-normal?ux=b21'},
+            {label: 'Geometrija: obodni kot (∠APB = 100 ni dosegljivo)', to: '/bezeg-2.0/inscribed-angle?ux=b21'},
+        ],
+    },
+    {
         id: 'b14',
         name: 'Živo besedilo: simboli v razlagi so drsniki',
         idea: 'Črka v besedilu lekcije, ki pomeni količino prizora (»središče c«, »stopnja n«, »x = 1«), je podčrtana s pikicami: ko greš nanjo, se prižgejo vse njene ponovitve in njen drsnik, ko jo povlečeš levo ali desno, se graf spreminja. Dokler lekcija drži prizor, se graf po spustu vrne v sliko lekcije, kot vzmet.',

@@ -573,3 +573,16 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-pin-ghost * { fill: none !important; stroke: #5d3b6e !important; stroke-width: 2.5px !important; stroke-opacity: .45; vector-effect: non-scaling-stroke; }
 .ux-pin-ghost ellipse, .ux-pin-ghost circle { fill: rgba(93, 59, 110, .3) !important; stroke-width: 1px !important; }
 .ux-pin .ux-pin-swap.ux-pin-swap:hover, .ux-pin .ux-pin-swap.ux-pin-swap:focus-visible, .ux-pin .ux-pin-swap.ux-pin-swap:active { background: #4a2e58; color: #fffdf5; border-color: #4a2e58; }
+
+/* b21 Ukaz */
+.ux-seek-open.ux-seek-open { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 30; min-height: 32px; padding: 5px 14px; border-radius: 999px; border: 1px solid #244c37; background: #fffdf5; color: #244c37; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(25, 55, 47, .14); cursor: pointer; }
+.ux-seek-open.ux-seek-open:hover { background: #244c37; color: #fffdf5; }
+.ux-seek { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 32; width: min(440px, calc(100% - 20px)); padding: 8px; border-radius: 14px; background: rgba(255, 253, 245, .97); border: 1px solid rgba(36, 76, 55, .25); box-shadow: 0 12px 30px rgba(25, 55, 47, .2); }
+.ux-seek-row { display: flex; gap: 6px; align-items: center; }
+.ux-seek-row input { flex: 1; min-width: 0; min-height: 38px; padding: 6px 10px; border-radius: 10px; border: 1.5px solid #244c37; background: #fff; font: 600 15px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; color: #19372f; }
+.ux-seek-row button[type=submit] { min-height: 38px; padding: 4px 14px; border-radius: 10px; background: #244c37; border: 1px solid #244c37; color: #fffdf5; font-weight: 700; }
+.ux-seek-close.ux-seek-close { min-height: 30px; min-width: 30px; padding: 0; border: 0; background: none; font-size: 15px; color: #526152; }
+.ux-seek-answer { margin: 6px 4px 0; font-size: 13px; color: #244c37; font-weight: 600; line-height: 1.4; }
+.ux-seek-answer.is-error { color: #8a4b2a; font-weight: 500; }
+.ux-seek-examples { margin: 6px 4px 0; font-size: 12px; color: #526152; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.ux-seek-examples button { min-height: 0; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(36, 76, 55, .3); background: rgba(36, 76, 55, .06); font: 600 12px ui-monospace, Consolas, monospace; color: #244c37; cursor: pointer; }
