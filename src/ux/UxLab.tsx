@@ -39,6 +39,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c4',
+        name: 'Primi graf',
+        borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
+        idea: 'Primi katerokoli krivuljo ali daljico na grafu in jo povleci: drsniki v orodjih se premaknejo sami, tako da gre graf skozi tvojo roko, ob roki pa se izpiše, kateri parametri delajo. Študent najprej pokaže obliko, ki jo želi, in iz tega razbere, kaj pomeni vsak parameter.',
+        generalizes: 'Ob prijemu tabla vsak viden drsnik za hip rahlo premakne in izmeri, kam se premakne prijeti del grafa (numerični Jacobian); med vlečenjem dušeni najmanjši kvadrati razliko do roke prevedejo v spremembe drsnikov. Ne potrebuje nobene vednosti o grafu: deluje z vsakim skupnim drsnikom in vsako narisano krivuljo, drsniki brez učinka pa ostanejo pri miru.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c4`,
+                tryThis: 'Primi zeleno parabolo (kazalec postane roka) in jo vleci gor, dol in vstran; opazuj, kateri od a, b, c, d se premikajo.'},
+            {label: 'Vzporedne krivulje', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/offset?ux=c4`,
+                tryThis: 'Primi črtkano vzporednico in jo odmakni od parabole: razdalja d sledi roki, tudi čez ničlo na drugo stran.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?ux=c4`,
+                tryThis: 'Primi eno od oranžnih vmesnih daljic in jo potegni vzdolž kontrolnega poligona: parameter t gre za roko.'},
+        ],
+    },
+    {
         id: 'c9',
         name: 'Preveri se',
         borrowed: 'priklic znanja iz Duolinga in Brilliant ter muzejski kviz, ki najprej vpraša in šele nato pove',
@@ -53,6 +68,21 @@ const PROTOTYPES: Prototype[] = [
                 tryThis: 'Tapni krivuljo B₀¹(t) = 1 − t. Namerno tapni napačno premico in poglej, kako tabla pokaže razliko.'},
             {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c9`,
                 tryThis: 'Na telefonu: kartica se umakne na polovico table, kjer ni odgovora.'},
+        ],
+    },
+    {
+        id: 'c3',
+        name: 'Napovej',
+        borrowed: 'muzejski eksponati »najprej ugani, nato poglej« in zanka ugibanja v igrah',
+        idea: 'Preden korak lekcije spremeni graf, se tabla zamrzne na stari sliki in študent s prstom ali miško nariše, kar pričakuje. Razkritje stari sliki pusti zbledeti pod skico, obarva, kar se je res spremenilo, in skico oceni z zvezdicami.',
+        generalizes: 'Napoved se sproži sama: ob vsakem koraku naprej primerja narisane oblike pred in po prizoru (pogled mora ostati isti, prestavljeni a nespremenjeni predmeti ne štejejo). Lekcije ne potrebujejo nobenih oznak; koraki brez vidne spremembe tečejo naprej kot doslej.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c3`,
+                tryThis: 'Dvakrat Naprej: preden se graf premakne za d navzgor, nariši novo parabolo in pritisni Razkrij.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c3`,
+                tryThis: 'Enkrat Naprej: nariši, kje bodo simetrale stranic in očrtana krožnica.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c3`,
+                tryThis: 'Prva napoved pride v 4. koraku, ko kvadratna krivulja postane kubična: nariši novo krivuljo.'},
         ],
     },
     {
@@ -101,18 +131,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
-        id: 'c4',
-        name: 'Primi graf',
-        borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
-        idea: 'Primi katerokoli krivuljo ali daljico na grafu in jo povleci: drsniki v orodjih se premaknejo sami, tako da gre graf skozi tvojo roko, ob roki pa se izpiše, kateri parametri delajo. Študent najprej pokaže obliko, ki jo želi, in iz tega razbere, kaj pomeni vsak parameter.',
-        generalizes: 'Ob prijemu tabla vsak viden drsnik za hip rahlo premakne in izmeri, kam se premakne prijeti del grafa (numerični Jacobian); med vlečenjem dušeni najmanjši kvadrati razliko do roke prevedejo v spremembe drsnikov. Ne potrebuje nobene vednosti o grafu: deluje z vsakim skupnim drsnikom in vsako narisano krivuljo, drsniki brez učinka pa ostanejo pri miru.',
+        id: 'c5',
+        name: 'Ujemi',
+        borrowed: 'igre ujemanja grafov (Desmos Marbleslides) in arkadni krogi »zadeni obliko«',
+        idea: 'Gumb Izziv spremeni trenutni graf v zlato tarčo in premeša nekaj drsnikov, ki ga res oblikujejo. Študent z drsniki, tipkanjem, nihalom ali prijemom grafa najde pot nazaj; merilnik kaže ujemanje v živo, zadetek prinese zvezdice, vsak naslednji krog pa premeša en drsnik več.',
+        generalizes: 'Tarča je kar trenutna slika table, premešajo se le drsniki, ki sliko vidno spremenijo, in le tako, da premešana slika ostane na tabli. Tako iz vsakega grafa z drsniki (tudi sredi lekcije, v okvirju Opazovanje) brez priprave nastane uganka.',
         links: [
-            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c4`,
-                tryThis: 'Primi zeleno parabolo (kazalec postane roka) in jo vleci gor, dol in vstran; opazuj, kateri od a, b, c, d se premikajo.'},
-            {label: 'Vzporedne krivulje', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/offset?ux=c4`,
-                tryThis: 'Primi črtkano vzporednico in jo odmakni od parabole: razdalja d sledi roki, tudi čez ničlo na drugo stran.'},
-            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?ux=c4`,
-                tryThis: 'Primi eno od oranžnih vmesnih daljic in jo potegni vzdolž kontrolnega poligona: parameter t gre za roko.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c5,c4`,
+                tryThis: 'Pritisni Izziv (desno zgoraj na grafu) in spravi parabolo nazaj na tarčo; poskusi tudi s prijemom grafa (c4 je vklopljen).'},
+            {label: 'De Casteljau, opazovanje', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c5`,
+                tryThis: '4 × Naprej do opazovanja, nato Izziv: poišči t, pri katerem vmesna daljica pade na zlato tarčo.'},
+            {label: 'Vzporedne krivulje', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/offset?ux=c5`,
+                tryThis: 'Izziv premakne vzporednico; vrni jo na tarčo. Drugi krog premeša že dva drsnika.'},
         ],
     },
     {
@@ -128,21 +158,6 @@ const PROTOTYPES: Prototype[] = [
                 tryThis: 'Izberi Osvetlitev, nato pri »Vodoravni premik c« pritisni ∿, pri »Navpična raztegnitev a« pa dvakrat ∿.'},
             {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?ux=c1,c2`,
                 tryThis: 'Izberi Osvetlitev in vleci oglišče v krogu: težišče in višinska točka narišeta vsak svoj tir.'},
-        ],
-    },
-    {
-        id: 'c5',
-        name: 'Ujemi',
-        borrowed: 'igre ujemanja grafov (Desmos Marbleslides) in arkadni krogi »zadeni obliko«',
-        idea: 'Gumb Izziv spremeni trenutni graf v zlato tarčo in premeša nekaj drsnikov, ki ga res oblikujejo. Študent z drsniki, tipkanjem, nihalom ali prijemom grafa najde pot nazaj; merilnik kaže ujemanje v živo, zadetek prinese zvezdice, vsak naslednji krog pa premeša en drsnik več.',
-        generalizes: 'Tarča je kar trenutna slika table, premešajo se le drsniki, ki sliko vidno spremenijo, in le tako, da premešana slika ostane na tabli. Tako iz vsakega grafa z drsniki (tudi sredi lekcije, v okvirju Opazovanje) brez priprave nastane uganka.',
-        links: [
-            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c5,c4`,
-                tryThis: 'Pritisni Izziv (desno zgoraj na grafu) in spravi parabolo nazaj na tarčo; poskusi tudi s prijemom grafa (c4 je vklopljen).'},
-            {label: 'De Casteljau, opazovanje', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c5`,
-                tryThis: '4 × Naprej do opazovanja, nato Izziv: poišči t, pri katerem vmesna daljica pade na zlato tarčo.'},
-            {label: 'Vzporedne krivulje', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/offset?ux=c5`,
-                tryThis: 'Izziv premakne vzporednico; vrni jo na tarčo. Drugi krog premeša že dva drsnika.'},
         ],
     },
     {
@@ -175,21 +190,6 @@ const PROTOTYPES: Prototype[] = [
                 tryThis: 'Zapomni si A, premakni eno kontrolno točko in izberi Zavesa: vidiš, kateri del krivulje se je premaknil in kateri ne.'},
         ],
     },
-    {
-        id: 'c3',
-        name: 'Napovej',
-        borrowed: 'muzejski eksponati »najprej ugani, nato poglej« in zanka ugibanja v igrah',
-        idea: 'Preden korak lekcije spremeni graf, se tabla zamrzne na stari sliki in študent s prstom ali miško nariše, kar pričakuje. Razkritje stari sliki pusti zbledeti pod skico, obarva, kar se je res spremenilo, in skico oceni z zvezdicami.',
-        generalizes: 'Napoved se sproži sama: ob vsakem koraku naprej primerja narisane oblike pred in po prizoru (pogled mora ostati isti, prestavljeni a nespremenjeni predmeti ne štejejo). Lekcije ne potrebujejo nobenih oznak; koraki brez vidne spremembe tečejo naprej kot doslej.',
-        links: [
-            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c3`,
-                tryThis: 'Dvakrat Naprej: preden se graf premakne za d navzgor, nariši novo parabolo in pritisni Razkrij.'},
-            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c3`,
-                tryThis: 'Enkrat Naprej: nariši, kje bodo simetrale stranic in očrtana krožnica.'},
-            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c3`,
-                tryThis: 'Prva napoved pride v 4. koraku, ko kvadratna krivulja postane kubična: nariši novo krivuljo.'},
-        ],
-    },
 ];
 
 export function UxLab() {
@@ -200,8 +200,8 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c9`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">
