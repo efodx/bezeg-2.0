@@ -72,7 +72,7 @@ export default function Slider(props: SliderProps) {
     const {cyclic, unavailableReason} = props;
     const inert = props.disabled || unavailableReason !== undefined;
     const [lfo] = useState(() => uxEnabled('c2'));
-    const [grabbable] = useState(() => uxEnabled('c4'));
+    const [grabbable] = useState(() => uxEnabled('c4') || uxEnabled('c5'));
     const latest = useRef({props, step, inert, decimals});
     latest.current = {props, step, inert, decimals};
     const fieldRef = useRef<HTMLFormElement>(null);

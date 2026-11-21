@@ -52,6 +52,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c5',
+        name: 'Ujemi',
+        borrowed: 'igre ujemanja grafov (Desmos Marbleslides) in arkadni krogi »zadeni obliko«',
+        idea: 'Gumb Izziv spremeni trenutni graf v zlato tarčo in premeša nekaj drsnikov, ki ga res oblikujejo. Študent z drsniki, tipkanjem, nihalom ali prijemom grafa najde pot nazaj; merilnik kaže ujemanje v živo, zadetek prinese zvezdice, vsak naslednji krog pa premeša en drsnik več.',
+        generalizes: 'Tarča je kar trenutna slika table, premešajo se le drsniki, ki sliko vidno spremenijo, in le tako, da premešana slika ostane na tabli. Tako iz vsakega grafa z drsniki (tudi sredi lekcije, v okvirju Opazovanje) brez priprave nastane uganka.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c5,c4`,
+                tryThis: 'Pritisni Izziv (desno zgoraj na grafu) in spravi parabolo nazaj na tarčo; poskusi tudi s prijemom grafa (c4 je vklopljen).'},
+            {label: 'De Casteljau, opazovanje', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c5`,
+                tryThis: '4 × Naprej do opazovanja, nato Izziv: poišči t, pri katerem vmesna daljica pade na zlato tarčo.'},
+            {label: 'Vzporedne krivulje', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/offset?ux=c5`,
+                tryThis: 'Izziv premakne vzporednico; vrni jo na tarčo. Drugi krog premeša že dva drsnika.'},
+        ],
+    },
+    {
         id: 'c3',
         name: 'Napovej',
         borrowed: 'muzejski eksponati »najprej ugani, nato poglej« in zanka ugibanja v igrah',
