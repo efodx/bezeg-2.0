@@ -285,7 +285,7 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
         </svg>
         <div className={`ux-fixed-sentence${guess === undefined ? '' : right ? ' is-right' : ' is-wrong'}`} role="status">
             <span className={fan.pins.length ? 'ux-fixed-icon' : 'ux-fixed-icon is-none'} aria-hidden="true"/><span className="ux-fixed-text">{fan.preview && <b className="ux-fixed-preview">Predogled · </b>}{verdict ?? fan.sentence}</span>
-            <small><b className="is-less"/>manjši <b className="is-more"/>večji{guess !== undefined && tally.total > 1 && <span className="ux-fixed-tally">napovedi: {tally.hits} od {tally.total} zadetih</span>}</small>
+            <small><span className="ux-fixed-legend"><b className="is-less"/>manjši <b className="is-more"/>večji</span>{guess !== undefined && tally.total > 1 && <span className="ux-fixed-tally">napovedi: {tally.hits} od {tally.total} zadetih</span>}</small>
         </div>
     </>;
 }

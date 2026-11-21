@@ -45,7 +45,11 @@ body.ux-lane-a .ux-board-frame .ux-fixed-catch { position: absolute; z-index: 5;
     .demonstration-workspace .workspace-graph .ux-board-frame:has(.ux-ribbon) .ux-fixed-sentence { top: 92px; }
 }
 /* Phones: the fan's colours explain themselves; the legend line would cover a short lesson board. */
-@media (max-width: 600px) { .ux-fixed-sentence small { display: none; } }
+@media (max-width: 600px) {
+    .ux-fixed-sentence small:not(:has(.ux-fixed-tally)) { display: none; }
+    .ux-fixed-sentence small .ux-fixed-legend { display: none; }
+}
+.ux-fixed-legend { display: inline-flex; align-items: center; gap: 4px; }
 .ux-fixed-tally { margin-left: auto; font-variant-numeric: tabular-nums; color: #f3d98b; }
 .demonstration-workspace .workspace-graph .ux-board-frame .ux-guide-start {
     position: absolute; left: 10px; top: 30px; z-index: 6; pointer-events: auto; min-height: 36px; padding: 4px 14px; border-radius: 18px; cursor: pointer;
