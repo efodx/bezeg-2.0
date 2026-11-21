@@ -72,12 +72,12 @@ export default function Slider(props: SliderProps) {
     const {cyclic, unavailableReason} = props;
     const inert = props.disabled || unavailableReason !== undefined;
     const [lfo] = useState(() => uxEnabled('c2'));
-    const [grabbable] = useState(() => uxEnabled('c4') || uxEnabled('c5'));
+    const [grabbable] = useState(() => uxEnabled('c4') || uxEnabled('c5') || uxEnabled('c8'));
     const latest = useRef({props, step, inert, decimals});
     latest.current = {props, step, inert, decimals};
     const fieldRef = useRef<HTMLFormElement>(null);
     useEffect(() => {
-        if (!grabbable || props.formatValue !== undefined || props.cyclic !== undefined) return undefined;
+        if (!grabbable) return undefined;
         const read = () => latest.current;
         return registerSlider({
             get label() { return read().props.customText; },
@@ -89,6 +89,7 @@ export default function Slider(props: SliderProps) {
             set: value => { read().props.onChange(value); },
             inert: () => read().inert,
             element: () => fieldRef.current,
+            plain: props.formatValue === undefined && props.cyclic === undefined,
         });
     }, [grabbable, props.formatValue, props.cyclic]);
     // Rounds before wrapping, so noise just below the period lands on 0 rather than on the period itself.

@@ -6,6 +6,7 @@ import {attachGrabGraph} from "./grabGraph";
 import {attachMatchChallenge} from "./matchChallenge";
 import {attachListen} from "./listen";
 import {attachCompare} from "./compare";
+import {attachLiveProse} from "./liveProse";
 
 /** Attaches the flagged lane C board prototypes to a main graph board; returns their disposal. */
 export function attachUxBoard(board: Board): () => void {
@@ -20,6 +21,7 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c5')) disposers.push(attachMatchChallenge(board));
     if (uxEnabled('c6')) disposers.push(attachListen(board));
     if (uxEnabled('c7')) disposers.push(attachCompare(board));
+    if (uxEnabled('c8')) disposers.push(attachLiveProse(board));
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));

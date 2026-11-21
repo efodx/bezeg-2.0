@@ -9,6 +9,8 @@ export interface RegisteredSlider {
     inert(): boolean;
     element(): HTMLElement | null;
     decimals: number;
+    /** False for sliders with formatted (for example π-multiple) or cyclic values, which c4 and c5 leave alone. */
+    plain: boolean;
 }
 
 const sliders = new Set<RegisteredSlider>();
@@ -18,8 +20,13 @@ export function registerSlider(entry: RegisteredSlider): () => void {
     return () => { sliders.delete(entry); };
 }
 
-/** Sliders a student could use right now: shown, enabled and with a real range. */
+/** Plain sliders a student could use right now: shown, enabled and with a real range. */
 export function usableSliders(): RegisteredSlider[] {
+    return shownSliders().filter(entry => entry.plain);
+}
+
+/** Every shown, enabled slider with a real range, including formatted and cyclic ones. */
+export function shownSliders(): RegisteredSlider[] {
     return [...sliders].filter(entry => {
         const element = entry.element();
         if (!element || !element.isConnected || entry.inert() || !(entry.max > entry.min)) return false;

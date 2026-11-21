@@ -300,3 +300,100 @@
 .demonstration-workspace.lesson-content .workspace-graph .ux-exposure,
 .demonstration-workspace.lesson-content .workspace-graph .ux-exposure button,
 .demonstration-workspace.lesson-content .workspace-graph .ux-match-start { pointer-events: auto; }
+
+/* c8 Živo besedilo: formulas in the prose point at the board. */
+.ux-live-prose mjx-container.ux-lp {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 0 2px;
+    margin: 0 -2px;
+    background-image: linear-gradient(90deg, var(--ux-lp-color, #b8862b) 50%, transparent 50%);
+    background-size: 5px 1.5px;
+    background-repeat: repeat-x;
+    background-position: 0 100%;
+    transition: background-color 140ms ease;
+}
+.ux-live-prose mjx-container.ux-lp-symbol { color: var(--ux-lp-color); }
+.ux-live-prose mjx-container.ux-lp-assign.ux-lp-live { --ux-lp-color: var(--bezeg-shell-action, #244c37); }
+.ux-live-prose mjx-container.ux-lp-assign.ux-lp-live::after {
+    content: '▸';
+    font-size: 0.7em;
+    margin-left: 2px;
+    color: var(--bezeg-shell-action, #244c37);
+    vertical-align: 0.2em;
+}
+.ux-live-prose mjx-container.ux-lp:hover,
+.ux-live-prose mjx-container.ux-lp:focus-visible,
+.ux-live-prose mjx-container.ux-lp-lit {
+    background-color: color-mix(in srgb, var(--ux-lp-color, #e0b54a) 22%, transparent);
+    outline: none;
+}
+.ux-live-prose mjx-container.ux-lp-assign:not(.ux-lp-live) { background-image: none; cursor: default; }
+.ux-lp-layer { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: visible; }
+.ux-lp-dim { fill: var(--bezeg-shell-panel, #fffdf5); opacity: 0; animation: ux-lp-dim 220ms ease forwards; }
+@keyframes ux-lp-dim { to { opacity: 0.5; } }
+.ux-lp-guide { stroke: #b8862b; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.ux-lp-tick { fill: #b8862b; }
+.ux-lp-pin { fill: #fff; stroke: #8a5f12; stroke-width: 2.5; }
+.ux-lp-pulse { fill: none; stroke: #e0b54a; stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: ux-lp-pulse 1.2s ease-out infinite; }
+@keyframes ux-lp-pulse { from { transform: scale(0.4); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+.ux-lp-ring { fill: none; stroke-width: 4; opacity: 0.85; transform-box: fill-box; transform-origin: center; animation: ux-lp-ring 1s ease-in-out infinite alternate; }
+@keyframes ux-lp-ring { from { transform: scale(0.85); } to { transform: scale(1.15); } }
+.ux-lp-glow { stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; opacity: 0.4; animation: ux-lp-glow 1s ease-in-out infinite alternate; }
+@keyframes ux-lp-glow { from { opacity: 0.25; } to { opacity: 0.55; } }
+.ux-lp-chip {
+    position: absolute;
+    z-index: 7;
+    pointer-events: none;
+    padding: 3px 9px;
+    border: 1.5px solid #b8862b;
+    border-radius: 999px;
+    background: var(--bezeg-shell-panel, #fffdf5);
+    color: var(--bezeg-shell-ink, #19372f);
+    font: 600 13px/1.4 system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgb(25 55 47 / 0.15);
+}
+.ux-lp-ghost {
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2.5px dashed var(--bezeg-shell-action, #244c37);
+    background: color-mix(in srgb, #e0b54a 35%, transparent);
+    font-size: 0;
+}
+.ux-lp-ghost::after {
+    content: attr(data-label);
+}
+form.ux-lp-target { animation: ux-lp-target 0.9s ease; border-radius: 6px; }
+@keyframes ux-lp-target { 30% { background: color-mix(in srgb, #e0b54a 30%, transparent); } }
+@media (prefers-reduced-motion: reduce) {
+    .ux-lp-pulse, .ux-lp-ring, .ux-lp-glow, .ux-lp-dim { animation: none; }
+    .ux-lp-dim { opacity: 0.5; }
+}
+.ux-lp-peek {
+    position: fixed;
+    z-index: 1001;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0;
+    overflow: hidden;
+    border: 1.5px solid #b8862b;
+    border-radius: 12px;
+    background: var(--bezeg-shell-panel, #fffdf5);
+    box-shadow: 0 10px 30px rgb(25 55 47 / 0.28);
+    cursor: pointer;
+    animation: ux-lp-peek 180ms ease-out;
+}
+.ux-lp-peek.ux-lp-peek-bottom { top: auto; bottom: 10px; }
+.ux-lp-peek[hidden] { display: none; }
+.ux-lp-peek-inner { position: relative; transform-origin: 0 0; pointer-events: none; }
+.ux-lp-peek-inner > * { position: absolute; }
+.ux-lp-peek-inner > svg:first-child { inset: 0; }
+@keyframes ux-lp-peek { from { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
