@@ -4,6 +4,7 @@ import {findBoard} from './boardAccess';
 import {getParam, observeParamChanges, probing, splitLabel, type ParamEntry} from './paramRegistry';
 import {drawn, meaningful} from './YourTurn';
 import {settle, svgRootOf} from './family';
+import {uxEnabled} from './flags';
 import './FixedPoints.css';
 
 /**
@@ -16,7 +17,7 @@ import './FixedPoints.css';
  */
 
 type Pt = [number, number];
-interface Fan { paths: {d: string; offset: number}[]; pins: {sx: number; sy: number; text: string}[]; sentence: React.ReactNode; box: {left: number; top: number; width: number; height: number} }
+interface Fan { symbol: string; paths: {d: string; offset: number}[]; pins: {sx: number; sy: number; text: string}[]; sentence: React.ReactNode; box: {left: number; top: number; width: number; height: number} }
 type Units = {unitX: number; unitY: number; origin: {scrCoords: number[]}};
 
 const symbolOf = (entry: ParamEntry) => splitLabel(entry.label).symbol ?? (entry.label.match(/\s(\S{1,2})$/)?.[1] ?? entry.label);
@@ -146,12 +147,22 @@ async function analyse(b: Board, entry: ParamEntry): Promise<Omit<Fan, 'box'> | 
             ? <>ko spreminjaš {symbol}, graf ostane pripet v {pins.map(p => p.text).join(' in ')}</>
             : <>ko spreminjaš {symbol}, gre graf vedno skozi {pins.length} istih točk</>;
     const paths = neighbours.flatMap(n => [...n.shapes.values()].map(s => ({d: s.d, offset: n.offset})));
-    return {paths, pins: pins.slice(0, 8), sentence};
+    return {symbol: symbolOf(entry), paths, pins: pins.slice(0, 8), sentence};
 }
+
+/**
+ * a28 — Predict what stays put (a27's machinery). The first time a parameter settles, the fan is held back and the
+ * learner is asked first: tap where the graph stays pinned, or say that no point does. Then the fan opens over the guess.
+ */
+type Guess = {sx: number; sy: number} | 'none';
 
 export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
     const [fan, setFan] = useState<Fan>();
+    const [ask, setAsk] = useState<Fan>();
+    const [guess, setGuess] = useState<Guess>();
     const busy = useRef(false);
+    const asked = useRef(new Set<string>());
+    const predict = uxEnabled('a28');
 
     useEffect(() => {
         // Some pages answer a value with effects of their own after the probe has restored it; those echoes are not the
@@ -167,20 +178,48 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
             try {
                 const result = await analyse(b, entry);
                 const frame = props.frame.current!.getBoundingClientRect(), box = svg.getBoundingClientRect();
-                setFan(result && {...result, box: {left: box.left - frame.left, top: box.top - frame.top, width: box.width, height: box.height}});
+                const next = result && {...result, box: {left: box.left - frame.left, top: box.top - frame.top, width: box.width, height: box.height}};
+                if (next && predict && !asked.current.has(entry.key)) { asked.current.add(entry.key); setGuess(undefined); setAsk(next); setFan(undefined); }
+                else setFan(next);
             } finally { busy.current = false; quietUntil = performance.now() + 500; }
         };
         const stop = observeParamChanges((_previous, next) => {
             if (probing() || !meaningful(next) || busy.current || performance.now() < quietUntil) return;
             key = next.key;
-            setFan(undefined);
+            setFan(undefined); setAsk(undefined); setGuess(undefined);
             window.clearTimeout(timer);
             timer = window.setTimeout(() => void run(), 650);
         });
         return () => { stop(); window.clearTimeout(timer); };
-    }, [props.frame]);
+    }, [props.frame, predict]);
+
+    const answer = (value: Guess) => {
+        (window as unknown as {__uxConsumed?: number}).__uxConsumed = performance.now();
+        setGuess(value); setFan(ask); setAsk(undefined);
+    };
+
+    if (ask) return <>
+        <div className="ux-fixed-catch" style={ask.box} aria-hidden="true" onClick={event => event.stopPropagation()} onPointerDown={event => {
+            event.preventDefault(); event.stopPropagation();
+            const rect = event.currentTarget.getBoundingClientRect();
+            answer({sx: event.clientX - rect.left, sy: event.clientY - rect.top});
+        }}/>
+        <div className="ux-fixed-sentence is-ask" role="status">
+            <span className="ux-fixed-icon is-ask" aria-hidden="true"/>
+            <span className="ux-fixed-text">Napovej: kje ostane graf pripet, ko spreminjaš <i>{ask.symbol}</i>? Tapni točko na grafu.</span>
+            <button type="button" onClick={() => answer('none')}>nobena točka</button>
+        </div>
+    </>;
 
     if (!fan) return null;
+    let verdict: React.ReactNode, right = false;
+    if (guess !== undefined) {
+        const where = fan.pins.map(p => p.text).join(' in ');
+        right = guess === 'none' ? fan.pins.length === 0 : fan.pins.some(p => Math.hypot(p.sx - guess.sx, p.sy - guess.sy) <= 28);
+        verdict = fan.pins.length === 0
+            ? <>{right ? 'Prav' : 'Ne'}: <i>{fan.symbol}</i> premakne ves graf, nobena točka ne ostane na mestu.</>
+            : right ? <>Zadeto! Graf ostane pripet v {where}.</> : <>Ne čisto: graf ostane pripet v {where}.</>;
+    }
     return <>
         <svg className="ux-fixed-fan" aria-hidden="true" style={fan.box} width={fan.box.width} height={fan.box.height}>
             {fan.paths.map((path, i) => <path key={i} d={path.d} className={`ux-fixed-path ${path.offset < 0 ? 'is-less' : 'is-more'}`} style={{opacity: Math.abs(path.offset) === 1 ? 0.75 : 0.4}}/>)}
@@ -189,9 +228,13 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
                 <circle r="5"/>
                 <text x="12" y="-12">{pin.text}</text>
             </g>)}
+            {guess && guess !== 'none' && <g className={`ux-fixed-guess${right ? ' is-right' : ''}`} transform={`translate(${guess.sx} ${guess.sy})`}>
+                <path d="M -7 -7 L 7 7 M -7 7 L 7 -7"/>
+                <text x="10" y="20">tvoja napoved</text>
+            </g>}
         </svg>
-        <div className="ux-fixed-sentence" role="status">
-            <span className={fan.pins.length ? 'ux-fixed-icon' : 'ux-fixed-icon is-none'} aria-hidden="true"/><span className="ux-fixed-text">{fan.sentence}</span>
+        <div className={`ux-fixed-sentence${guess === undefined ? '' : right ? ' is-right' : ' is-wrong'}`} role="status">
+            <span className={fan.pins.length ? 'ux-fixed-icon' : 'ux-fixed-icon is-none'} aria-hidden="true"/><span className="ux-fixed-text">{verdict ?? fan.sentence}</span>
             <small><b className="is-less"/>manjši <b className="is-more"/>večji</small>
         </div>
     </>;

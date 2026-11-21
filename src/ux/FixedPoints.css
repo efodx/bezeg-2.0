@@ -21,6 +21,19 @@
 .ux-fixed-sentence small b.is-more { border-color: #e2b764; }
 .ux-fixed-icon { width: 10px; height: 10px; border-radius: 50%; background: #f3d98b; box-shadow: 0 0 0 3px rgba(243, 217, 139, 0.35); flex: none; }
 .ux-fixed-icon.is-none { background: transparent; border: 2px dashed #f3d98b; box-shadow: none; box-sizing: border-box; }
+body.ux-lane-a .ux-board-frame .ux-fixed-catch { position: absolute; z-index: 5; pointer-events: auto; cursor: crosshair; touch-action: none; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-fixed-sentence.is-ask { pointer-events: auto; background: #fff6e2; color: #19372f; border: 1px dashed #b0702d; }
+.ux-fixed-sentence.is-ask i { color: #885512; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-fixed-sentence.is-ask button {
+    min-height: 32px; padding: 2px 12px; border-radius: 16px; border: 1px solid #19372f; background: #19372f; color: #fffdf5; font-weight: 600; cursor: pointer; pointer-events: auto;
+}
+.ux-fixed-icon.is-ask { background: #b0702d; animation: ux-fixed-pulse 1.2s ease-in-out infinite; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-fixed-sentence.is-right { background: #2f5a2a; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-fixed-sentence.is-wrong { background: #5a3a2a; }
+.ux-fixed-guess path { stroke: #a33d4f; stroke-width: 3px; stroke-linecap: round; fill: none; }
+.ux-fixed-guess.is-right path { stroke: #2f5a2a; }
+.ux-fixed-guess text { font: 600 12px system-ui, sans-serif; fill: #a33d4f; paint-order: stroke; stroke: #fffdf5; stroke-width: 4px; }
+.ux-fixed-guess.is-right text { fill: #2f5a2a; }
 @keyframes ux-fixed-in { from { opacity: 0; } }
 @keyframes ux-fixed-pulse { 50% { transform: scale(1.45); } }
 @media (max-width: 600px) {
