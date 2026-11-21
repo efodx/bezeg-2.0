@@ -30,8 +30,16 @@ export function measureDrag(regions: Partial<Record<string, HTMLElement | null>>
     const cx = c.left + Math.min(c.width / 2, 110) - f.left, cy = c.top + 16 - f.top;
     const none = (): Hit => ({region: null, index: 0, view: {region: null, scrolls: false, free: {x: Math.round(c.left - f.left), y: Math.round(c.bottom - f.top + 6), above: Math.round(c.top - f.top - 24), right: Math.round(c.right - f.left), top: Math.round(c.top - f.top)}}});
 
+    // Dropped onto a docked card (or onto the gap its stack holds open): the dragged card joins that stack and never lands floating over another card.
     let best: Target | null = null;
-    {
+    const px = cx + f.left, py = cy + f.top;
+    for (const r of TARGETS) {
+        const el = regions[r];
+        const hit = el && Array.from(el.children).some(ch => ch instanceof HTMLElement && ch !== exclude && (ch.hasAttribute('data-dock-item') || isGap(ch))
+            && !ch.classList.contains('is-floating') && (() => { const b = ch.getBoundingClientRect(); return px >= b.left && px <= b.right && py >= b.top && py <= b.bottom; })());
+        if (hit) { best = r; break; }
+    }
+    if (!best) {
         const band = BAND * Math.min(f.width, f.height);
         // The card's own edges decide whether it is near the board's edge (a card kept inside the board by clamping is as near as it gets).
         // A card too tall (or too wide) to leave the band on both sides is judged by its other axis only, so it can still float.

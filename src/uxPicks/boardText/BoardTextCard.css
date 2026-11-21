@@ -31,6 +31,13 @@
 .ux-bread-slot .inspector-group { margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
 .ux-bread-slot .inspector-reveals-title { margin: 0 0 6px; }
 .ux-bread-slot .inspector-help, .ux-bread-slot p { color: var(--bezeg-shell-ink-secondary); font-size: 0.8125rem; line-height: 1.4; margin: 6px 0 0; }
+/* Help paragraphs wait behind the "?" at the card's foot; status lines stay. */
+.ux-bread-wrap:not([data-help-open]) .ux-bread-slot :is(p, .inspector-help, .form-text):not([role="status"], [role="alert"], [aria-live], [data-refusal-notice], .function-status, .visually-hidden) { display: none; }
+.ux-bread-helpbar { display: flex; justify-content: flex-end; padding: 0 9px 6px 12px; }
+.ux-bread-helpbar button.ux-sec-help { margin: 0; min-height: 0; min-width: 0; width: 24px; height: 24px; padding: 0; border: 0; box-shadow: none; background: transparent; }
+.ux-bread-helpbar button.ux-sec-help:is(:hover, [aria-expanded="true"]) { background: var(--bezeg-shell-control-hover); }
+@media (pointer: coarse) { .ux-bread-helpbar button.ux-sec-help { width: 44px; height: 44px; } }
+.ux-bmerged .ux-bread-helpbar { padding: 0 0 6px; }
 /* Presentation restyles .inspector-help for the navy tools (cream, ~1.8:1 on the light card): board cards keep the day ink. */
 .is-presenting .ux-btext:not(.ux-bcard-tools) :is(.inspector-help, .form-text, .text-muted) { color: var(--bezeg-shell-ink-secondary); }
 .ux-bread-slot .readout-list { margin: 0; }

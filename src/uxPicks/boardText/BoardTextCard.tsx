@@ -134,11 +134,25 @@ const numbers = (t: string) => t.match(/\d+(?:,\d+)?/g) ?? [];
 /** A digit string the card above shows as `shown` (the same, or the same cut shorter at 3 or more characters). */
 const sameNumber = (a: string, b: string) => a === b || (Math.min(a.length, b.length) >= 3 && (a.startsWith(b) || b.startsWith(a)));
 
+/** A row that says in words what the text says in words: its label (without a parenthesis) occurs in the text and the text
+ * continues with the row's value (same stem: "ocena napake: skrita" and "Ocena napake (Lagrange) skrito"). Numbers are left to the rules below. */
+function statesSame(shown: string, label: string, v: string): boolean {
+    if (/\d/.test(v) || v.length < 4) return false;
+    const key = squash(label.replace(/\([^)]*\)/g, '')).toLowerCase();
+    if (key.length < 6) return false;
+    const text = shown.toLowerCase(), stem = v.toLowerCase().slice(0, Math.max(4, v.length - 1));
+    for (let at = text.indexOf(key); at >= 0; at = text.indexOf(key, at + 1)) {
+        if (text.slice(at + key.length, at + key.length + 3 + stem.length).includes(stem)) return true;
+    }
+    return false;
+}
+
 /** Whether a readout row (label, value) says what the text above already shows (both squashed): a value the text
  * repeats whole, or the row's symbol (its label after the first word) followed by the same number. */
 export function repeatsText(shown: string, label: string, value: string): boolean {
     const v = squash(value), l = squash(label.split(/\s+/).slice(1).join(' '));
     if (v === '') return false;
+    if (statesSame(shown, label, v)) return true;
     if (v.length >= 4 && shown.includes(v)) return true;
     const nums = numbers(v);
     if (l === '' || nums.length !== 1 || v.replace(nums[0]!, '') !== '') return false;

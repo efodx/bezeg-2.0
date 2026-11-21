@@ -169,7 +169,8 @@
     position: absolute; z-index: 2; left: 38px; right: 40px; top: calc((var(--ux-head-h) - var(--ux-tab-h)) / 2);
     height: var(--ux-tab-h); box-sizing: border-box; margin: 0; padding: 2px; gap: 2px; border-radius: 8px;
 }
-.ux-bcard-tools .inspector-toolbar .inspector-tabs button { min-height: 0; height: 100%; padding: 0 4px; font-size: .8125rem; line-height: 1; border-radius: 6px; }
+.ux-bcard-tools .inspector-toolbar .inspector-tabs button { min-height: 0; height: 100%; padding: 0 4px; font-size: min(.8125rem, 15px); line-height: 1; border-radius: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* A large root font (browser zoom, font-size setting) must not break a tab label: the size stops at 15 px and a label that still does not fit is cut with an ellipsis. */
 .ux-bcard-tools .workspace-inspector #inspector-content { border-top: 1px solid var(--workspace-rule); }
 
 /* 3. Compact rows and spacing. */

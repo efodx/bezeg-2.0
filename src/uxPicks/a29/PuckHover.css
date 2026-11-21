@@ -1,16 +1,18 @@
 .ux-hover-card {
     position: absolute; z-index: 7; transform: translate(-50%, -100%); pointer-events: none;
-    display: flex; flex-direction: column; gap: 2px; width: max-content; max-width: 270px; padding: 6px 11px 7px; border-radius: 10px;
-    background: #19372f; color: #fffdf5; font-size: 0.8125rem; line-height: 1.3; font-variant-numeric: tabular-nums;
-    box-shadow: 0 3px 12px rgba(25, 55, 47, 0.3);
+    display: flex; flex-direction: column; gap: 2px; width: max-content; max-width: 270px; padding: 6px 11px 7px; border-radius: 12px;
+    background: var(--bezeg-shell-panel); border: 1px solid var(--bezeg-shell-rule); color: var(--bezeg-shell-ink);
+    font-size: 0.8125rem; line-height: 1.3; font-variant-numeric: tabular-nums;
+    box-shadow: 0 1px 2px rgba(25, 55, 47, 0.08), 0 4px 14px rgba(25, 55, 47, 0.08);
 }
 .ux-hover-card strong { font-size: 0.9rem; }
 /* The text that went with the control in the tools: a little wider card, the name on top, the help in calm paragraphs. */
 .ux-hover-card.has-about { max-width: 340px; gap: 4px; }
 .ux-hover-card .ux-hover-name { font-size: 0.82rem; }
-.ux-hover-card .ux-hover-about { margin: 0 0 2px; color: #e6eadb; font-size: 0.8125rem; line-height: 1.4; text-wrap: pretty; }
-.ux-hover-card small { font-size: 0.8125rem; color: #f3d98b; display: flex; align-items: center; gap: 4px; }
-.ux-hover-card i { font-weight: 700; color: #f3d98b; }
+.ux-hover-card .ux-hover-about { margin: 0 0 2px; color: var(--bezeg-shell-ink-secondary); font-size: 0.8125rem; line-height: 1.4; text-wrap: pretty; }
+.ux-hover-card .ux-hover-how { color: var(--bezeg-shell-ink-secondary); font-size: 0.8125rem; line-height: 1.35; text-wrap: pretty; }
+.ux-hover-card small { font-size: 0.8125rem; color: var(--bezeg-shell-ink-secondary); display: flex; align-items: center; gap: 4px; }
+.ux-hover-card i { font-weight: 700; color: var(--bezeg-shell-ink); }
 .ux-hover-card b { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
 .ux-hover-card b.is-less, .ux-hover-fan .is-less { background: #6fa8dc; stroke: #3d7cb8; }
 .ux-hover-card b.is-more, .ux-hover-fan .is-more { background: #e2a24a; stroke: #b0702d; }

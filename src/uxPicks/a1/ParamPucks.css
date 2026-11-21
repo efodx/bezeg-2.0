@@ -39,6 +39,11 @@
 .ux-puck.is-blocked .ux-puck-track > span { background: #9aa592; }
 .ux-puck.is-refused { animation: ux-refuse 0.4s ease; }
 @keyframes ux-refuse { 20% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 80% { transform: translateX(-2px); } }
+/* Reduced motion: no ring pulse and no shake; the nudge keeps its amber border and fill, the refusal a steady dark border. */
+@media (prefers-reduced-motion: reduce) {
+    .ux-puck.is-nudged { animation: none; background: #fbefd4; }
+    .ux-puck.is-refused { animation: none; border-color: var(--bezeg-shell-ink-secondary, #526152); }
+}
 .ux-puck.is-oscillating { border-color: #244c37; }
 
 .ux-pucks .ux-puck-osc {

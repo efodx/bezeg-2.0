@@ -15,13 +15,20 @@ import './PuckHover.css';
 
 /** `name` and `about`: the parameter's full name and the text that went with its control in the tools (hidden there while
  * the pucks show it; owner, 2026-11-21: "the accompanying text ... should be moved to the tooltip"). */
-interface Card {key: string; x: number; top: number; symbol: string; head?: string; note?: string; sentence?: string; busy?: boolean; name?: string; about?: string[]}
+interface Card {key: string; x: number; top: number; symbol: string; head?: string; note?: string; sentence?: string; busy?: boolean; name?: string; about?: string[]; how?: string}
 interface Shown {fan: Fan; box: {left: number; top: number; width: number; height: number}}
 type Job = {kind: 'ghost'; key: string; value: number} | {kind: 'overview'; key: string};
 
 const symbolOf = (entry: ParamEntry) => splitLabel(entry.label).symbol ?? (entry.label.match(/\s(\S{1,2})$/)?.[1] ?? entry.label);
-/** What a card says when no fan could be drawn: a slider is previewed on its track, a count on its − and +. */
-const noFanHint = (entry: ParamEntry) => entry.kind === 'range' ? 'premakni kazalec nad črto spodaj za predogled vrednosti' : 'pokaži na − ali + za predogled koraka';
+/** What a card says when no fan could be drawn: nothing; how to preview is part of the how-to line below. */
+const noFanHint = (_entry: ParamEntry) => '';
+/** How to use the puck, in one line (the native tooltip it replaced): for the input in use, touch or pointer. */
+const howTo = (entry: ParamEntry) => {
+    const touch = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+    if (entry.kind !== 'range') return touch ? 'Povleci levo ali desno ali pritisni − in +.' : 'Povleci levo ali desno ali pritisni − in +; kazalec nad − ali + pokaže predogled.';
+    return touch ? 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'
+        : 'Povleci levo ali desno; kazalec nad črto spodaj pokaže predogled, dvoklik vnese število, puščice premaknejo za korak.';
+};
 const stateSignature = () => listParams().map(p => `${p.key}=${p.value}`).join(';');
 
 export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
@@ -106,7 +113,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             setGhost(undefined); setShown(undefined);
             const cached = cache.get(entry.key);
             const fresh = cached && cached.sig === stateSignature();
-            setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh, name: entry.label, about: accompanyingText(entry.key),
+            setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh, name: entry.label, about: accompanyingText(entry.key), how: howTo(entry),
                 sentence: fresh ? (cached.fan ? cached.fan.sentence : noFanHint(entry)) : undefined});
             schedule({kind: 'overview', key: entry.key});
         };
@@ -229,7 +236,8 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
                 ? <><strong>{card.head}</strong>{card.note && <small>{card.note}</small>}</>
                 : <>{card.name && card.name !== card.symbol && <strong className="ux-hover-name">{card.name}</strong>}
                     {card.about?.map((text, i) => <p key={i} className="ux-hover-about">{text}</p>)}
-                    <span><i>{card.symbol}</i> {card.busy ? 'graf preizkuša sosednje vrednosti …' : card.sentence}</span>
+                    {(card.busy || card.sentence) && <span><i>{card.symbol}</i> {card.busy ? 'graf preizkuša sosednje vrednosti …' : card.sentence}</span>}
+                    {card.how && <span className="ux-hover-how">{card.how}</span>}
                     {!card.busy && shown && <small><b className="is-less"/>manjše <b className="is-more"/>večje vrednosti</small>}</>}
         </div>}
     </>;

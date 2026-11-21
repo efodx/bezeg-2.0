@@ -167,3 +167,20 @@
     .ux-board-frame:has(> .ux-dock .ux-dock-a-tl > *) { margin-bottom: 56px; }
     .ux-dock .ux-dock-a-tl { bottom: -56px; min-height: 48px; }
 }
+
+/* The one-time gestures hint under the first card's head (GesturesHint). Under reduced motion it only fades. */
+.ux-gesture-hint {
+    position: absolute; z-index: 8; display: flex; align-items: center; gap: 6px; max-width: 280px; padding: 4px 4px 4px 10px;
+    background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink-secondary); border: 1px solid var(--bezeg-shell-rule); border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(25, 55, 47, 0.08), 0 4px 14px rgba(25, 55, 47, 0.08); font-size: 0.8125rem; line-height: 1.3;
+    animation: ux-hint-in 240ms ease-out both;
+}
+.ux-gesture-hint button {
+    flex: none; width: 24px; height: 24px; min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 6px; background: transparent;
+    color: var(--bezeg-shell-ink-secondary); font-size: 1rem; line-height: 1; cursor: pointer; box-shadow: none;
+}
+.ux-gesture-hint button:hover { background: var(--bezeg-shell-control-hover); }
+.ux-gesture-hint button:focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: 1px; }
+@media (pointer: coarse) { .ux-gesture-hint button { width: 44px; height: 44px; } }
+@keyframes ux-hint-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .ux-gesture-hint { animation-name: ux-hint-fade; } @keyframes ux-hint-fade { from { opacity: 0; } } }

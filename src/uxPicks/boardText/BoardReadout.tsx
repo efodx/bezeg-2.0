@@ -1,6 +1,7 @@
 import React, {useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {createPortal} from 'react-dom';
 import {usePick} from '../picks';
+import {HelpIcon} from '../dock/icons';
 
 /**
  * Pick boardText: a result group of the tools ("Odčitki") moves into the readout card on the graph. With the pick on, the
@@ -48,7 +49,27 @@ export function BoardReadout(props: {children: React.ReactNode}) {
     return <><span ref={anchor} hidden data-readout-anchor=""/>{createPortal(props.children, slot)}</>;
 }
 
-/** The readout card's body: the slots of every readout group, in document order. */
+/** Explanations in the readout slots: help paragraphs, not status lines (those stay visible). */
+const HELP = '.ux-bread-slot :is(p, .inspector-help, .form-text):not([role="status"], [role="alert"], [aria-live], [data-refusal-notice], .function-status, .visually-hidden)';
+
+/**
+ * The readout card's body: the slots of every readout group, in document order. Help paragraphs sit behind a "?" at the
+ * foot (closed by default, like the tools sections), so the card shows values first.
+ */
 export function ReadoutBody() {
-    return <div className="ux-btext-body ux-bread-body" ref={setReadoutHost}/>;
+    const wrap = useRef<HTMLDivElement>(null);
+    const [has, setHas] = useState(false);
+    const [open, setOpen] = useState(false);
+    useLayoutEffect(() => {
+        const run = () => setHas(!!wrap.current?.querySelector(HELP));
+        run();
+        const timer = window.setInterval(run, 300);
+        return () => window.clearInterval(timer);
+    }, []);
+    return <div ref={wrap} className="ux-bread-wrap" data-help-open={open || undefined}>
+        <div className="ux-btext-body ux-bread-body" ref={setReadoutHost}/>
+        {has && <div className="ux-bread-helpbar">
+            <button type="button" className="ux-sec-help" aria-expanded={open} aria-label="Pomoč: odčitki" title="Pomoč: odčitki" onClick={() => setOpen(o => !o)}><HelpIcon/></button>
+        </div>}
+    </div>;
 }

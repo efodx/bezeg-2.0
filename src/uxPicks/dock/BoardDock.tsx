@@ -8,6 +8,7 @@ import {
 import {useFlip} from './dockFlip';
 import {ANCHOR_AT, REGION_LABEL} from './dockMeasure';
 import {ScrollIcon} from './icons';
+import {GesturesHint} from './GesturesHint';
 
 /**
  * The board dock: one host for everything the picks put on or beside the graph, so objects never overlap.
@@ -126,6 +127,7 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
         {props.children}
         {view && frameEl && !api.phone && <DragPreview frame={frameEl} dock={dockEl.current} view={view} version={layoutVersion}/>}
         {layoutVersion >= 0 && !phone && <LessonGap api={api}/>}
+        {frameEl && <GesturesHint frame={frameEl} phone={phone}/>}
         {layoutVersion >= 0 && lessonSlotted() && !lessonLifted() && !phone && <LessonPlaceholder api={api}/>}
     </DockContext.Provider>;
 }
