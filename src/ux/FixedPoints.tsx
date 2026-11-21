@@ -67,11 +67,12 @@ function distance(p: Pt, lines: Pt[][]): number {
  * the largest distance to a neighbour that are nearly zero and from which the curves clearly part on both sides. A shared
  * tail (every exponential flattens onto the x axis) or a stretch the parameter does not move has no such rise.
  */
-function common(own: Pt[][], neighbours: Pt[][][]): Pt[] {
+function common(own: Pt[][], neighbours: Pt[][][], still = {count: 0, total: 0}): Pt[] {
     const out: Pt[] = [];
     const W = 80;
     for (const run of own) {
         const D = run.map(p => Math.max(...neighbours.map(lines => distance(p, lines))));
+        still.count += D.filter(d => d < 1.2).length; still.total += D.length;
         const arc = [0];
         for (let i = 1; i < run.length; i++) arc.push(arc[i - 1] + Math.hypot(run[i][0] - run[i - 1][0], run[i][1] - run[i - 1][1]));
         for (let i = 1; i < run.length - 1; i++) {
@@ -130,11 +131,18 @@ async function analyse(b: Board, entry: ParamEntry): Promise<Omit<Fan, 'box'> | 
         return (Object.is(v, -0) ? 0 : v).toLocaleString('sl-SI', {maximumFractionDigits: 3}).replace('-', '−');
     };
     const pins: Fan['pins'] = [];
+    const still = {count: 0, total: 0};
+    let grows = false;
     for (const object of moved) {
         const own = base.get(object.id)!.lines;
         const others = neighbours.filter(n => n.shapes.has(object.id)).map(n => n.shapes.get(object.id)!.lines);
         if (others.length < 2) continue;
-        for (const p of common(own, others)) {
+        // A trace that grows with the parameter (the unit circle's sine) keeps its start and lengthens: not a shift.
+        const length = (lines: Pt[][]) => lines.reduce((n, r) => n + r.slice(1).reduce((m, q, i) => m + Math.hypot(q[0] - r[i][0], q[1] - r[i][1]), 0), 0);
+        const lengths = neighbours.filter(n => n.shapes.has(object.id)).map(n => [n.offset, length(n.shapes.get(object.id)!.lines)] as const).sort((x, y) => x[0] - y[0]);
+        const own0 = length(own);
+        if (lengths.length >= 2 && Math.abs(lengths[lengths.length - 1][1] - lengths[0][1]) > 0.1 * own0) grows = true;
+        for (const p of common(own, others, still)) {
             if (near(pins.map(q => [q.sx, q.sy] as Pt), p, 10)) continue;
             if (p[0] < 4 || p[1] < 4 || p[0] > W - 4 || p[1] > H - 4) continue;
             pins.push({sx: p[0], sy: p[1], text: `(${fmt((p[0] - ox) / u.unitX, u.unitX)}; ${fmt((oy - p[1]) / u.unitY, u.unitY)})`});
@@ -142,7 +150,9 @@ async function analyse(b: Board, entry: ParamEntry): Promise<Omit<Fan, 'box'> | 
     }
     const symbol = <i>{symbolOf(entry)}</i>;
     const sentence = pins.length === 0
-        ? <>{symbol} premakne ves graf — nobena točka ne ostane na mestu</>
+        ? grows && still.count > 0.25 * still.total
+            ? <>{symbol} graf podaljša ali skrajša — del, ki je že narisan, ostane na mestu</>
+            : <>{symbol} premakne ves graf — nobena točka ne ostane na mestu</>
         : pins.length <= 3
             ? <>ko spreminjaš {symbol}, graf ostane pripet v {pins.map(p => p.text).join(' in ')}</>
             : <>ko spreminjaš {symbol}, gre graf vedno skozi {pins.length} istih točk</>;
@@ -243,7 +253,7 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
         const where = fan.pins.map(p => p.text).join(' in ');
         right = guess === 'none' ? fan.pins.length === 0 : fan.pins.some(p => Math.hypot(p.sx - guess.sx, p.sy - guess.sy) <= 28);
         verdict = fan.pins.length === 0
-            ? <>{right ? 'Prav' : 'Ne'}: <i>{fan.symbol}</i> premakne ves graf, nobena točka ne ostane na mestu.</>
+            ? <>{right ? 'Prav' : 'Ne'}: {fan.sentence}.</>
             : right ? <>Zadeto! Graf ostane pripet v {where}.</> : <>Ne čisto: graf ostane pripet v {where}.</>;
     }
     return <>
