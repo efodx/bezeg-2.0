@@ -121,7 +121,10 @@ function farinEffectiveWeights(values) {
     for (const v of values) weights.push(weights.at(-1) * (v / (1 - v)));
     return weights;
 }
-const farinWeightText = (k, weight) => `$$w_{${k}}=${weight.toFixed(2)}$$`;
+// The board writes a weight as the app's Slovenian number (weightTex in JXGRationalBezierCurve.ts): at most two decimals,
+// trailing zeros dropped, {,} as the decimal comma. Captures run in the default language, Slovenian.
+const farinWeightTex = weight => { const fixed = weight.toFixed(2).replace(/\.?0+$/, ''); return (/^-?0$/.test(fixed) ? '0' : fixed).replace('.', '{,}'); };
+const farinWeightText = (k, weight) => `$$w_{${k}}=${farinWeightTex(weight)}$$`;
 
 // Alpha reparameterization used by the weighted-parameterization route: φ_α(t) = (1-α) t / (α(1-t) + (1-α) t), α = 1/2 is the identity.
 // Independent copy of alphaParameterization in src/graphs/curves/parametrisations/AlphaParamBezierCurveGraph.tsx (scripts cannot import TS).

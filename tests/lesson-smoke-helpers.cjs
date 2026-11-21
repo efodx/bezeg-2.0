@@ -144,15 +144,15 @@ function boardStats(page) {
 }
 
 // drawnCurves excludes the 2-point zero-length remainder curve the subdivision graphs leave at t = 1.
-// Weight labels ("w_{i}=1.50") currently shown on the board, in label order.
+// Weight labels ("w_{i}=1.5", Slovenian "w_{i}=1{,}5") currently shown on the board, in label order.
 function boardWeights(page) {
     return page.locator('#jgbox').evaluate(container => {
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
         const weights = [];
         for (const object of Object.values(board.objects)) {
             if (!['text', 'smartlabel'].includes(object.elType) || !object.rendNode?.isConnected || object.visPropCalc?.visible === false) continue;
-            const match = /w_\{(\d+)\}=(-?\d+(?:\.\d+)?)/.exec(String(object.plaintext ?? ''));
-            if (match) weights.push([Number(match[1]), Number(match[2])]);
+            const match = /w_\{(\d+)\}=(-?\d+(?:(?:\.|\{,\})\d+)?)/.exec(String(object.plaintext ?? ''));
+            if (match) weights.push([Number(match[1]), Number(match[2].replace('{,}', '.'))]);
         }
         return weights.sort((a, b) => a[0] - b[0]).map(entry => entry[1]);
     });
