@@ -54,6 +54,12 @@ Impeccable polish pass 1 done (efbebd3b, d616d449): findings, owner decisions, r
 - Owner rules for dragging (settled): pickup moves nothing; over a target, only cards a drop there would move glide to their final place; back over own slot or no target → pickup layout; outside all targets → floats and closes its gap. Columns grow to the free height of their side and scroll only past it (themed scrollbar + fade; "· se drsi" on the region label while dragging). Region labels Levo/Desno/Zgoraj/Spodaj/Spodaj desno in the preview. Phone: chips, one open; lesson card not graph-dockable on phone.
 - Known flaws: with the left column empty, its preview slot and "Levo" label overlap a top-row card (preview only); Odčitki repeats an "Odčitki" heading on transformations; tall Odčitki (complex-euler) covers much of the board by default; not checked: keyboard moves of the lesson card in the graph, row scrolling label, bottom-end overflow.
 
+## Next slice (owner approved 2026-11-21: "good plan")
+
+1. Dock anchor refinement: a worker was running it at handoff time (brief: eight edge anchors top-left/top-centre/top-right/middle-left/middle-right/bottom-centre/bottom-right, pucks at bottom-left; quiet markers, one soft ghost for the target, labelled pill, central area floats with a "Prosto" hint; owner verdict "80% there, needs better positions (top-centre?) + nicer visuals; dislike 4 corners only"). Outputs in `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/dock4/`. Review screenshots, commit, push.
+2. New pick "Orodja kot kartica" (id e.g. `toolsCard`), a separate toggle so the owner can compare: the tools column becomes a dock card (head, fold, drag) and the graph can take the full width. Add side docks *beside* the graph (right, left, possibly below) that take layout space instead of overlaying; the tools card defaults to the right side dock so the page looks as today; folding it or dragging it onto the graph gives the graph the full width; other cards may use the side docks. The lesson card's home moves with the tools (the side dock). Phone: tools stay under the graph. Presentation mode needs its own check. Conflicts to record for the app-wide plan: DESIGN.md's fixed 310px inspector column and ADR 0061 (lesson card never on the board).
+3. Then the app-wide implementation plan (spec in `docs/specs/`, tasks in `docs/tasks/`).
+
 ## Open items / known limits
 
 - a29 overview for counts (Bernstein degree) finds no fan; card points to the −/+ previews instead.
