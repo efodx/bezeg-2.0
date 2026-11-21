@@ -88,6 +88,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c14',
+        name: 'Kaj če?',
+        borrowed: 'peskovnik ob ravni v igrah, »poskusni posnetek« v glasbenih programih in veja v Gitu',
+        idea: 'V vsakem okvirju lekcije lahko študent stopi s poti: parametri okvirja, ki jih lekcija sicer skrije z orodji, pridejo na graf kot žetoni z drsnikom, točke na grafu postanejo vlečljive, slika lekcije pa ostane zadaj kot bled duh za primerjavo. Gumb Nazaj k lekciji vse gladko vrne, premik naprej v lekciji pa najprej obnovi stanje lekcije, zato raziskovanje lekcije nikoli ne pokvari.',
+        generalizes: 'Žetoni so vsi priključeni drsniki iz skupnega Slider (tudi skriti), točke so vse vlečljive točke JSXGraph, duh je kopija SVG table v trenutku razcepa, vračanje pa gre skozi iste vmesnike kot študentova roka (drsnik in pravi vlek točke), zato stanje aplikacije sledi. Lekcija ne potrebuje nobenih podatkov.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c14`,
+                tryThis: 'Dvakrat klikni Naprej, nato Kaj če?, izberi a in ga povleci v negativno: parabola se obrne, bledi duh pokaže lekcijo. Klikni Naprej in lekcija se nadaljuje, kot da se ni nič zgodilo.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c14`,
+                tryThis: 'Kaj če? in povleci oglišče: težiščnice in G sledijo, sivi trikotnik je lekcija. Nazaj k lekciji odpelje oglišče nazaj.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c14`,
+                tryThis: 'Kaj če?, žeton t: povleci t proti 1 in primerjaj konstrukcijo z duhom pri t = 1/2. Oznaka ▲ lekcija kaže, od kod si prišel.'},
+        ],
+    },
+    {
         id: 'c3',
         name: 'Napovej',
         borrowed: 'muzejski eksponati »najprej ugani, nato poglej« in zanka ugibanja v igrah',
@@ -218,7 +233,7 @@ export function UxLab() {
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
                 <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">

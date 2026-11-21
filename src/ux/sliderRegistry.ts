@@ -34,3 +34,13 @@ export function shownSliders(): RegisteredSlider[] {
         return rect.width > 0 && rect.height > 0 && getComputedStyle(element).visibility !== 'hidden';
     });
 }
+
+/** Every mounted, enabled slider with a real range, also those a lesson keeps hidden with the inspector (c14). */
+export function mountedSliders(): RegisteredSlider[] {
+    return [...sliders].filter(entry => {
+        const element = entry.element();
+        if (!element || !element.isConnected || entry.inert() || !(entry.max > entry.min)) return false;
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    });
+}

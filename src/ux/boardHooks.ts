@@ -11,12 +11,13 @@ import {attachQuiz} from "./quiz";
 import {attachFilmstrip} from "./filmstrip";
 import {attachGhostHand} from "./ghostHand";
 import {attachMeasure} from "./measure";
+import {attachWhatIf} from "./whatIf";
 
 /** Attaches the flagged lane C board prototypes to a main graph board; returns their disposal. */
 export function attachUxBoard(board: Board): () => void {
     const disposers: (() => void)[] = [];
     // Board tools stay usable in lesson reading frames: the lesson's click-to-hide catcher lets clicks through to them.
-    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13'].some(uxEnabled)) {
+    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14'].some(uxEnabled)) {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
@@ -30,6 +31,7 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c10')) disposers.push(attachFilmstrip(board));
     if (uxEnabled('c11')) disposers.push(attachGhostHand(board));
     if (uxEnabled('c13')) disposers.push(attachMeasure(board));
+    if (uxEnabled('c14')) disposers.push(attachWhatIf(board));
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));

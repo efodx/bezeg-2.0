@@ -588,3 +588,59 @@ form.ux-hand-target { outline: 2px solid #d39a3a; outline-offset: 4px; border-ra
     .ux-measure-ratio { padding-top: 0; border-top: 0; }
     .ux-measure-clear { margin: 0 0 0 auto; min-height: 26px; padding: 3px 9px; }
 }
+
+/* c14 Kaj če?: a sandbox fork of the lesson frame. */
+.ux-whatif-button {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 26;
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; min-height: 34px;
+    border: 1px solid #b9cfa7; border-radius: 999px; background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-action, #244c37);
+    font: 650 13px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto;
+}
+.ux-whatif-button[hidden] { display: none; }
+.ux-whatif-button span { font-size: 15px; }
+.ux-whatif-button:hover { background: #eef3e5; }
+.ux-whatif-button.ux-whatif-on { background: #c47b1f; border-color: #c47b1f; color: #fff; }
+.ux-whatif-ghost { position: absolute; z-index: 2; pointer-events: none; opacity: .5; filter: grayscale(1) contrast(1.3); mix-blend-mode: multiply; }
+.ux-whatif-ghost[hidden] { display: none; }
+.ux-whatif-ghost-svg { width: 100%; height: 100%; display: block; }
+.ux-whatif-ghost-svg text, .ux-whatif-ghost-svg foreignObject { display: none; }
+.ux-whatif-panel {
+    position: absolute; left: 50%; top: 52px; transform: translateX(-50%); z-index: 26; width: min(560px, calc(100% - 20px));
+    display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid #e3c48f; border-radius: 14px;
+    background: rgb(255 253 245 / 96%); color: var(--bezeg-shell-ink, #19372f); box-shadow: 0 6px 22px rgb(25 55 47 / 16%);
+    font: 13.5px/1.35 system-ui, sans-serif; pointer-events: auto; box-sizing: border-box;
+}
+.ux-whatif-panel[hidden] { display: none; }
+.ux-whatif-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ux-whatif-head strong { color: #8a5a12; font-size: 14px; }
+.ux-whatif-chips { display: inline-flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+.ux-whatif-chip { min-width: 34px; min-height: 30px; padding: 3px 9px; border: 1px solid #cfd8c4; border-radius: 999px; background: #fff; color: var(--bezeg-shell-action, #244c37); font: 650 13px/1 var(--bezeg-math-font, Georgia, serif); font-style: italic; cursor: pointer; position: relative; }
+.ux-whatif-chip-on { background: var(--bezeg-shell-action, #244c37); border-color: var(--bezeg-shell-action, #244c37); color: #fff; }
+.ux-whatif-chip-changed::after { content: ''; position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; border-radius: 50%; background: #c47b1f; border: 1.5px solid #fffdf5; }
+.ux-whatif-back { margin-left: auto; min-height: 30px; padding: 4px 12px; border: 1px solid #c47b1f; border-radius: 999px; background: #fbf1e0; color: #8a5a12; font: 650 12.5px/1 system-ui, sans-serif; cursor: pointer; }
+.ux-whatif-back:hover { background: #f6e3c3; }
+.ux-whatif-row { display: grid; grid-template-columns: auto 1fr 3.2em; align-items: center; gap: 10px; margin: 0; }
+.ux-whatif-label { font-weight: 600; font-size: 12.5px; color: #4d5a50; max-width: 12em; }
+.ux-whatif-range { width: 100%; accent-color: var(--bezeg-shell-action, #244c37); min-height: 28px; margin: 0; }
+.ux-whatif-value { font: 700 14px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums; text-align: right; color: var(--bezeg-shell-action, #244c37); }
+.ux-whatif-track { position: relative; display: block; padding-bottom: 14px; }
+.ux-whatif-mark { position: absolute; top: 24px; left: calc(8px + var(--at, 0) * (100% - 16px)); transform: translateX(-50%); white-space: nowrap; font: 600 10.5px/1 system-ui, sans-serif; color: #8a5a12; }
+.ux-whatif-mark::before { content: '▲ '; font-size: 8px; }
+.ux-whatif-note { font-size: 12px; color: #66705f; }
+.ux-whatif-panel.ux-whatif-mini { width: auto; max-width: calc(100% - 20px); padding: 5px 12px; border-radius: 999px; }
+.ux-whatif-mini .ux-whatif-note { display: block !important; white-space: nowrap; }
+.ux-whatif-open .guided-lesson-graph-catcher { pointer-events: none; }
+/* The fork unlocks the lesson's graph, so its points can be dragged like in the demonstration. */
+.ux-whatif-open .demonstration-workspace.lesson-open.lesson-content .workspace-graph { pointer-events: auto; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-whatif-button,
+.demonstration-workspace.lesson-content .workspace-graph .ux-whatif-panel,
+.demonstration-workspace.lesson-content .workspace-graph .ux-whatif-panel * { pointer-events: auto; }
+@media (max-width: 640px) {
+    .ux-whatif-panel { top: auto; bottom: 6px; padding: 6px 9px 2px; gap: 2px; font-size: 12.5px; }
+    .ux-whatif-chip { min-height: 28px; min-width: 30px; padding: 2px 8px; }
+    .ux-whatif-panel.ux-whatif-mini { padding: 5px 12px; }
+    .ux-whatif-label { display: none; }
+    .ux-whatif-row { grid-template-columns: 1fr 3em; }
+    .ux-whatif-note { display: none; }
+    .ux-whatif-head strong { display: none; }
+}
