@@ -714,3 +714,27 @@ mjx-container.ux-scrub-changed { border-bottom-style: solid; background: #fbf1e0
     .ux-inv-finding { font-size: 13.5px; }
     .ux-inv-count b { font-size: 20px; }
 }
+
+/* c17 Kazalnik: laser pointer, fading ink and spotlight for projection. */
+.ux-laser-button {
+    position: absolute; right: 10px; bottom: 10px; z-index: 29;
+    display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; min-height: 34px;
+    border: 1px solid #e7b9a5; border-radius: 999px; background: var(--bezeg-shell-panel, #fffdf5); color: #9a3412;
+    font: 650 13px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto;
+}
+.ux-laser-button:hover { background: #fdf0e8; }
+.ux-laser-dot-icon { width: 10px; height: 10px; border-radius: 50%; background: #ef5a28; box-shadow: 0 0 0 3px rgb(239 90 40 / 25%), 0 0 8px 2px rgb(255 110 60 / 60%); }
+.ux-laser-button.ux-laser-on { background: #9a3412; border-color: #9a3412; color: #fff; }
+.ux-laser-tools { position: absolute; right: 10px; bottom: 52px; z-index: 29; display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgb(255 253 245 / 94%); border: 1px solid #e7b9a5; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto; }
+.ux-laser-tools[hidden] { display: none; }
+.ux-laser-tools button { min-height: 28px; padding: 3px 11px; border: 0; border-radius: 999px; background: transparent; color: #9a3412; font: 600 12px/1 system-ui, sans-serif; cursor: pointer; }
+.ux-laser-tools button[aria-pressed="true"] { background: #fde2d4; }
+.ux-laser-canvas { position: absolute; inset: 0; z-index: 28; width: 100%; height: 100%; cursor: none; touch-action: none; pointer-events: auto; }
+.ux-laser-canvas[hidden] { display: none; }
+.ux-laser-spot { position: absolute; inset: 0; z-index: 27; pointer-events: none; background: radial-gradient(circle 110px at var(--x, 50%) var(--y, 50%), transparent 0 70%, rgb(12 28 22 / 62%) 100%); transition: opacity .2s ease; }
+.ux-laser-spot[hidden] { display: none; }
+.ux-lasering .guided-lesson-graph-catcher { pointer-events: none; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-laser-button,
+.demonstration-workspace.lesson-content .workspace-graph .ux-laser-tools,
+.demonstration-workspace.lesson-content .workspace-graph .ux-laser-tools button,
+.demonstration-workspace.lesson-content .workspace-graph .ux-laser-canvas { pointer-events: auto; }

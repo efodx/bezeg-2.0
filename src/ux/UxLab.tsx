@@ -197,6 +197,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c17',
+        name: 'Kazalnik',
+        borrowed: 'laserski kazalnik predavatelja, črnilo, ki izgine, iz programov za prosojnice, in reflektor vodiča po muzeju',
+        idea: 'Za pouk s projektorjem: kazalec na grafu postane žareča točka s kratkim repom, z vlekom pišeš črnilo, ki čez nekaj sekund samo zbledi, reflektor pa zatemni vse razen okolice kazalca. Dvojni dotik izbriše črnilo, tipka L vklopi kazalnik, S reflektor.',
+        generalizes: 'Je le prozorna plast nad tablo, zato ne spremeni grafa in ne potrebuje ničesar od lekcije: deluje na vsaki tabli, v demonstraciji, v lekciji in v predstavitvenem načinu.',
+        links: [
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c17`,
+                tryThis: 'Vklopi Kazalnik, obkroži težišče G in opazuj, kako krog zbledi. Nato izberi Reflektor in z njim vodi pogled po težiščnicah.'},
+            {label: 'Trigonometrične funkcije', family: 'Funkcije', href: `${BASE}/functions/trigonometric?ux=c17`,
+                tryThis: 'Pritisni L in s kazalnikom pokaži periodo, nato s črnilom označi ničle.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c17`,
+                tryThis: 'Reflektor (S) osvetli le eno vrstico konstrukcije, ko jo razlagaš razredu.'},
+        ],
+    },
+    {
         id: 'c5',
         name: 'Ujemi',
         borrowed: 'igre ujemanja grafov (Desmos Marbleslides) in arkadni krogi »zadeni obliko«',
