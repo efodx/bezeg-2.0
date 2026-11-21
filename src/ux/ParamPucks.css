@@ -67,7 +67,7 @@
 }
 
 .ux-tape {
-    align-self: center; pointer-events: none; background: rgba(255, 253, 245, 0.95); border: 1px solid #d6dccb;
+    align-self: center; margin-bottom: auto; pointer-events: none; background: rgba(255, 253, 245, 0.95); border: 1px solid #d6dccb;
     border-radius: 12px; padding: 2px 0 4px; box-shadow: 0 8px 26px rgba(25, 55, 47, 0.16); overflow: hidden;
     display: flex; flex-direction: column; align-items: center; animation: ux-tape-in 120ms ease-out;
 }
@@ -83,7 +83,8 @@
 .ux-tape-readout em { font-style: normal; font-size: 0.72rem; color: #fff; background: #244c37; padding: 1px 7px; border-radius: 9px; }
 
 @media (max-width: 600px) {
-    .ux-pucks { left: 6px; right: 6px; bottom: 6px; }
+    .ux-pucks { left: 6px; right: 6px; bottom: 6px; top: 6px; }
+    .ux-tape svg { height: 28px; }
     .ux-puck { min-width: 58px; padding: 4px 10px 6px; }
     .ux-puck-symbol { font-size: 1.1rem; }
 }

@@ -1,0 +1,75 @@
+import React from 'react';
+import './UxLab.css';
+
+/** The lane-A tour: one card per prototype, best first, with deep links that switch the flags on. */
+
+interface LabLink { label: string; family: string; path: string; at?: number; flags: string }
+interface LabPrototype { id: string; name: string; idea: string; general: string; try: string; links: LabLink[] }
+
+const PROTOTYPES: LabPrototype[] = [
+    {
+        id: 'a1', name: 'Parametri pod prsti',
+        idea: 'Vsak parameter grafa je ploščica na samem grafu: povleci jo levo ali desno in graf se odziva, ne da bi pogled zapustil krivuljo. Dvigni prst nad ploščico za fino nastavljanje (merilo se poveča), lepe vrednosti pa se ujamejo z rahlim klikom.',
+        general: 'Ploščice nastanejo iz deljenega drsnika (88 klicnih mest), zato jih dobi vsak graf in vsaka lekcija brez lastne kode. Ko lekcija sama spremeni parameter, ploščica zažari, tako da učenec vidi, kaj je korak spremenil.',
+        try: 'Povleci ploščico vodoravno; med vlečenjem dvigni prst ali miško navzgor. Kolešček in puščice tudi delujejo. Dvoklik vrne začetno vrednost.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 1, flags: 'a1'},
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', at: 2, flags: 'a1'},
+            {label: 'De Boorov algoritem', family: 'B-zlepki', path: 'bspline/deboor', at: 1, flags: 'a1'},
+            {label: 'Množenje kompleksnih števil', family: 'Kompleksna števila', path: 'complex-multiplication', at: 1, flags: 'a1'},
+        ],
+    },
+    {
+        id: 'a2', name: 'Dolga osvetlitev',
+        idea: 'Dokler je roka na matematiki, vsak premikajoči se element pušča bledečo sled. Poteg parametra tako nariše celo družino krivulj, vlečena točka svojo pot, premikajoča se premica pa ovojnico.',
+        general: 'Deluje na kateri koli JSXGraph tabli: opazuje izrisane elemente in klonira tiste, ki so se premaknili. Gumb »Dolga osvetlitev« sled zadrži, da lahko nastalo sliko pokažeš razredu.',
+        try: 'Povleci točko ali ploščico parametra in opazuj sled. Pri De Casteljauju nastane ovojnica vmesnih daljic.',
+        links: [
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', at: 1, flags: 'a1,a2'},
+            {label: 'Reševanje trikotnika', family: 'Trigonometrija', path: 'triangle-solver', at: 1, flags: 'a2'},
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 1, flags: 'a1,a2'},
+        ],
+    },
+    {
+        id: 'a3', name: 'Dihajoči parametri',
+        idea: 'Gumb ∿ na ploščici zaniha parameter med mejama, več parametrov pa lahko niha hkrati z različnimi periodami. Graf postane živ in učenec opazuje, kaj se ohranja, medtem ko se vse drugo spreminja.',
+        general: 'Nihalo uporablja isti register parametrov kot ploščice, zato deluje povsod, kjer je drsnik. Z dolgo osvetlitvijo (a2) nihanje izriše celotno družino.',
+        try: 'Pritisni ∿ na eni ali dveh ploščicah in vklopi »Dolga osvetlitev«.',
+        links: [
+            {label: 'Binomska in normalna porazdelitev', family: 'Verjetnost', path: 'probability/binomial-normal', at: 1, flags: 'a1,a2,a3'},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', at: 1, flags: 'a1,a2,a3'},
+            {label: 'Ukrivljenost', family: 'Geometrija krivulj', path: 'curve-geometry/curvature', at: 1, flags: 'a1,a2,a3'},
+        ],
+    },
+];
+
+function href(link: LabLink, flags: string | undefined) {
+    const query = new URLSearchParams({learn: '1'});
+    if (link.at) query.set('uxAt', String(link.at));
+    if (flags) query.set('ux', flags);
+    return `/bezeg-2.0/${link.path}?${query.toString()}`;
+}
+
+export function UxLab() {
+    return <div className="ux-lab-wrap"><main className="ux-lab">
+        <header className="ux-lab-header">
+            <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
+            <h1>Matematika pod prsti</h1>
+            <p className="ux-lab-lede">Prototipi, v katerih graf sam postane krmilo: vlečeš, drsiš, nihaš in opazuješ sled. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+        </header>
+        <ol className="ux-lab-list">
+            {PROTOTYPES.map(prototype => <li key={prototype.id} className="ux-lab-card">
+                <div className="ux-lab-card-head"><span className="ux-lab-id">{prototype.id}</span><h2>{prototype.name}</h2></div>
+                <p>{prototype.idea}</p>
+                <p className="ux-lab-general"><strong>Zakaj velja splošno.</strong> {prototype.general}</p>
+                <p className="ux-lab-try"><strong>Poskusi.</strong> {prototype.try}</p>
+                <ul className="ux-lab-links">
+                    {prototype.links.map(link => <li key={link.path + link.flags}>
+                        <a className="ux-lab-open" href={href(link, link.flags)}><span>{link.label}</span><small>{link.family}</small></a>
+                        <a className="ux-lab-compare" href={href(link, undefined)} aria-label={`${link.label} brez prototipa`}>brez</a>
+                    </li>)}
+                </ul>
+            </li>)}
+        </ol>
+    </main></div>;
+}

@@ -1,4 +1,5 @@
 import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
+import {uxStartFrames} from '../../ux/flags';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
@@ -310,6 +311,8 @@ export function GuidedLesson(props: {
     useEffect(() => {
         try {
             session.start();
+            // UX-challenge deep links: `?uxAt=n` opens the lesson n frames in.
+            for (let skip = uxStartFrames(); skip > 0; skip--) session.next();
             setStartupError(undefined);
         } catch (error) {
             setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));

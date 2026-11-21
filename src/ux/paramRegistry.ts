@@ -70,14 +70,16 @@ export function useParams(): readonly ParamEntry[] {
     return useSyncExternalStore(subscribe, () => snapshot, () => snapshot);
 }
 
-/** Splits "Vodoravni premik c" into a name and its symbol, so a puck can show the symbol large. */
+/** Splits "Vodoravni premik c" into a name and its symbol, so a puck can show the symbol large; a trailing "(rad)" or "(°)" is dropped. */
 export function splitLabel(label: string): {symbol?: string; name: string} {
-    const trimmed = label.trim();
+    let trimmed = label.trim();
+    // A trailing parenthetical (a unit, or a reminder such as "(P(X ≤ k))") is not part of the symbol.
+    const paren = /\s*\((?:[^()]|\([^()]*\))*\)$/.exec(trimmed);
+    if (paren && paren.index > 0) trimmed = trimmed.slice(0, paren.index).trim();
     if (trimmed.length <= 4) return {symbol: trimmed, name: ''};
     const parts = trimmed.split(/\s+/);
-    const last = parts[parts.length - 1];
-    if (parts.length > 1 && last.length <= 3 && !/^\(|\)$/.test(last)) return {symbol: last, name: parts.slice(0, -1).join(' ')};
-    const symbolMatch = /^(.*?)\s*\(?\s*([A-Za-zα-ωΑ-Ω][₀-₉0-9]?)\s*\)?$/.exec(trimmed);
-    if (symbolMatch && symbolMatch[1] && symbolMatch[2].length <= 2 && /[\s(]/.test(trimmed.slice(-4))) return {symbol: symbolMatch[2], name: symbolMatch[1]};
+    const tail: string[] = [];
+    while (parts.length > 1 && tail.length < 2 && parts[parts.length - 1].length <= 3 && /[^A-Za-zČŠŽčšž]|^[a-zα-ω]{1,3}$/.test(parts[parts.length - 1])) tail.unshift(parts.pop()!);
+    if (tail.length > 0 && tail.join(' ').length <= 6) return {symbol: tail.join(' '), name: parts.join(' ')};
     return {name: trimmed};
 }

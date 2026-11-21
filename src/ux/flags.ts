@@ -21,3 +21,10 @@ export function parameterRegistryWanted(): boolean {
     const flags = uxFlags();
     return flags.has('a1') || flags.has('a3') || flags.has('a4');
 }
+
+/** `?uxAt=n`: deep links from the UX lab open a lesson n frames in (also without a prototype flag, for comparison). */
+export function uxStartFrames(): number {
+    if (typeof window === 'undefined') return 0;
+    const value = Number(new URLSearchParams(window.location.search).get('uxAt'));
+    return Number.isInteger(value) && value > 0 && value < 60 ? value : 0;
+}
