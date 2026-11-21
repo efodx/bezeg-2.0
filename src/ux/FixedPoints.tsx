@@ -17,7 +17,7 @@ import './FixedPoints.css';
  */
 
 type Pt = [number, number];
-interface Fan { symbol: string; paths: {d: string; offset: number}[]; pins: {sx: number; sy: number; text: string}[]; sentence: React.ReactNode; box: {left: number; top: number; width: number; height: number} }
+interface Fan { preview?: boolean; symbol: string; paths: {d: string; offset: number}[]; pins: {sx: number; sy: number; text: string}[]; sentence: React.ReactNode; box: {left: number; top: number; width: number; height: number} }
 type Units = {unitX: number; unitY: number; origin: {scrCoords: number[]}};
 
 const symbolOf = (entry: ParamEntry) => splitLabel(entry.label).symbol ?? (entry.label.match(/\s(\S{1,2})$/)?.[1] ?? entry.label);
@@ -167,30 +167,56 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
     useEffect(() => {
         // Some pages answer a value with effects of their own after the probe has restored it; those echoes are not the
         // learner's changes and must not start another analysis.
-        let timer = 0, key = '', quietUntil = 0;
-        const run = async () => {
-            const entry = getParam(key);
+        let timer = 0, key = '', quietUntil = 0, hovered = '', hoverTimer = 0;
+        const run = async (preview = false) => {
+            const entry = getParam(preview ? hovered : key);
             const b = findBoard(props.frame.current);
             const svg = b && svgRootOf(b);
             if (!entry || !b || !svg || !meaningful(entry)) return;
-            if (busy.current) { timer = window.setTimeout(() => void run(), 300); return; }
+            if (busy.current) { if (!preview) timer = window.setTimeout(() => void run(), 300); return; }
             busy.current = true;
             try {
                 const result = await analyse(b, entry);
+                if (preview && hovered !== entry.key) return;
                 const frame = props.frame.current!.getBoundingClientRect(), box = svg.getBoundingClientRect();
-                const next = result && {...result, box: {left: box.left - frame.left, top: box.top - frame.top, width: box.width, height: box.height}};
-                if (next && predict && !asked.current.has(entry.key)) { asked.current.add(entry.key); setGuess(undefined); setAsk(next); setFan(undefined); }
-                else setFan(next);
+                const next = result && {...result, preview, box: {left: box.left - frame.left, top: box.top - frame.top, width: box.width, height: box.height}};
+                if (!preview && next && predict && !asked.current.has(entry.key)) { asked.current.add(entry.key); setGuess(undefined); setAsk(next); setFan(undefined); }
+                else { if (preview) setGuess(undefined); setFan(next); }
             } finally { busy.current = false; quietUntil = performance.now() + 500; }
         };
         const stop = observeParamChanges((_previous, next) => {
             if (probing() || !meaningful(next) || busy.current || performance.now() < quietUntil) return;
             key = next.key;
+            hovered = '';
+            window.clearTimeout(hoverTimer);
             setFan(undefined); setAsk(undefined); setGuess(undefined);
             window.clearTimeout(timer);
             timer = window.setTimeout(() => void run(), 650);
         });
-        return () => { stop(); window.clearTimeout(timer); };
+        // Desktop: resting the pointer on a slider shows what it would keep in place, before anything moves (not while a
+        // prediction for that parameter is still to be asked, which would give the answer away).
+        const over = (event: PointerEvent) => {
+            const input = (event.target as Element | null)?.closest?.('input[type="range"]') as HTMLInputElement | null;
+            if (!input || event.pointerType === 'touch' || event.buttons !== 0 || input.id === hovered) return;
+            if (!getParam(input.id) || predict && !asked.current.has(input.id)) return;
+            hovered = input.id;
+            window.clearTimeout(hoverTimer);
+            hoverTimer = window.setTimeout(() => void run(true), 380);
+        };
+        const out = (event: PointerEvent) => {
+            const input = (event.target as Element | null)?.closest?.('input[type="range"]') as HTMLInputElement | null;
+            if (!input || input.id !== hovered) return;
+            hovered = '';
+            window.clearTimeout(hoverTimer);
+            setFan(current => current?.preview ? undefined : current);
+        };
+        document.addEventListener('pointerover', over, {passive: true});
+        document.addEventListener('pointerout', out, {passive: true});
+        return () => {
+            stop(); window.clearTimeout(timer); window.clearTimeout(hoverTimer);
+            document.removeEventListener('pointerover', over);
+            document.removeEventListener('pointerout', out);
+        };
     }, [props.frame, predict]);
 
     const answer = (value: Guess) => {
@@ -234,7 +260,7 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
             </g>}
         </svg>
         <div className={`ux-fixed-sentence${guess === undefined ? '' : right ? ' is-right' : ' is-wrong'}`} role="status">
-            <span className={fan.pins.length ? 'ux-fixed-icon' : 'ux-fixed-icon is-none'} aria-hidden="true"/><span className="ux-fixed-text">{verdict ?? fan.sentence}</span>
+            <span className={fan.pins.length ? 'ux-fixed-icon' : 'ux-fixed-icon is-none'} aria-hidden="true"/><span className="ux-fixed-text">{fan.preview && <b className="ux-fixed-preview">Predogled · </b>}{verdict ?? fan.sentence}</span>
             <small><b className="is-less"/>manjši <b className="is-more"/>večji</small>
         </div>
     </>;

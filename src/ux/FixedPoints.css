@@ -39,3 +39,8 @@ body.ux-lane-a .ux-board-frame .ux-fixed-catch { position: absolute; z-index: 5;
 @media (max-width: 600px) {
     .demonstration-workspace .workspace-graph .ux-board-frame .ux-fixed-sentence { left: 6px; top: auto; bottom: 6px; max-width: calc(100% - 64px); font-size: 0.76rem; padding: 4px 9px; }
 }
+.ux-fixed-preview { color: #f3d98b; font-weight: 600; }
+/* With the time ribbon (a26) on, the sentence sits under it. */
+@media (min-width: 601px) {
+    .demonstration-workspace .workspace-graph .ux-board-frame:has(.ux-ribbon) .ux-fixed-sentence { top: 92px; }
+}

@@ -22,7 +22,7 @@ const PROTOTYPES: LabPrototype[] = [
         id: 'a27', name: 'Kaj ostane na mestu',
         idea: 'Ko se parameter umiri, Bezeg okoli grafa nariše pahljačo sosedov (parameter malo manjši in malo večji) in pripne točke, skozi katere gredo vsi: teme, okoli katerega se parabola razteza, (0; 1), skozi katero gre vsaka eksponentna funkcija, ničle, ki jih amplituda sinusa ne premakne. En stavek pove »ko spreminjaš a, graf ostane pripet v (3; 1)« ali »c premakne ves graf — nobena točka ne ostane na mestu«.',
         general: 'Razlika med premikom in raztegom postane vidna, ne izrečena. Pahljača je tabla sama, za hip postavljena na sosednje vrednosti (in povrnjena); nepremične točke so skupne točke vseh sosedov iz JSXGraphovih izrisanih točk, tudi kadar se krivulje le dotaknejo (teme). Stopničasti histogrami so izpuščeni. Brez kode v lekcijah: šolske funkcije, eksponentna funkcija, trigonometrija, verjetnost (»p premakne ves graf«).',
-        try: 'Premakni drsnik a ali b, nato c; v trigonometriji amplitudo A in nato ω.',
+        try: 'Na namizju samo pomiri miško na drsniku a, nato na c (predogled brez premika); ali premakni drsnik. V trigonometriji amplituda A in nato ω.',
         links: [
             {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a27', free: true},
             {label: 'Trigonometrijske funkcije', family: 'Trigonometrija', path: 'functions/trigonometric', flags: 'a27', free: true},
@@ -357,6 +357,7 @@ export function UxLab() {
                 <a href="/bezeg-2.0/functions/transformations?ux=a18,a23,a19,a20,a22,a21,a26">Premiki in raztegi grafa</a>
                 <a href="/bezeg-2.0/probability/binomial-normal?ux=a23,a21,a20,a22,a19">Binomska in normalna</a>
                 <a href="/bezeg-2.0/functions/transformations?learn=1&amp;ux=a8,a16,a23,a12">Vodena lekcija: a8, a16, a23, a12</a>
+                <a href="/bezeg-2.0/functions/trigonometric?ux=a27,a26,a23">Trigonometrija: a27, a26, a23</a>
             </span>
         </section>
         <ol className="ux-lab-list">
