@@ -3,8 +3,8 @@ import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {setLanguage} from '../../../localization';
 import type {PxBox} from '../../legend/boardLabelPlacement';
-import {nameBox, tickStrips} from '../../legend/pointNamePlacement';
-import {evaluationPointLabel} from '../object/AbstractJXGPointControlledCurve';
+import {tickStrips} from '../../legend/pointNamePlacement';
+import {controlNameBox, evaluationNameBox, evaluationPointLabel} from '../object/AbstractJXGPointControlledCurve';
 
 // A lesson board at 1440 px is about 880 x 600.
 beforeAll(() => {
@@ -25,11 +25,11 @@ function open(t: number, polygon = false) {
     const graph = mounted.graph as unknown as Internals;
     const curve = graph.getFirstJxgCurve();
     act(() => { if (polygon) curve.showControlPolygon(); curve.showEvaluationPoint(t); graph.board.update(); });
-    return {graph, curve};
+    return {graph, curve, t};
 }
 
 /** The evaluation point's name box (as anchored), the control point labels and the markers, all in px. */
-function measure({graph, curve}: ReturnType<typeof open>) {
+function measure({graph, curve, t}: ReturnType<typeof open>) {
     const board = graph.board;
     const [left, top] = board.getBoundingBox();
     const toPx = (x: number, y: number) => [(x - left) * board.unitX, (top - y) * board.unitY] as const;
@@ -37,15 +37,16 @@ function measure({graph, curve}: ReturnType<typeof open>) {
     const evaluation = points.filter(o => o.elType === 'point' && o.label && o.name?.startsWith('$$B(')).pop()!;
     expect(evaluation, 'the evaluation point has a label').toBeDefined();
     const fontPx = Number(evaluation.label!.evalVisProp('fontsize'));
-    const boxAt = (label: Placed, name: string): PxBox => {
-        const {w, h} = nameBox(name, fontPx);
-        const [x, y] = toPx(label.X(), label.Y());
-        const x0 = label.evalVisProp('anchorx') === 'left' ? x : label.evalVisProp('anchorx') === 'right' ? x - w : x - w / 2;
-        const y0 = label.evalVisProp('anchory') === 'bottom' ? y - h : label.evalVisProp('anchory') === 'top' ? y : y - h / 2;
-        return {x0, y0, x1: x0 + w, y1: y0 + h};
-    };
-    const name = boxAt(evaluation.label!, 'B(1/2)');
-    const controls = curve.getJxgPoints().map((p, i) => ({name: `p${i}`, box: boxAt((p as unknown as Placed).label!, `p${i}`)}));
+    // The evaluation name is a typeset fraction centred on its anchor; its box is the one measured in the browser.
+    const {w, h} = evaluationNameBox(t, fontPx);
+    const [ex, ey] = toPx(evaluation.label!.X(), evaluation.label!.Y());
+    expect([evaluation.label!.evalVisProp('anchorx'), evaluation.label!.evalVisProp('anchory')]).toEqual(['middle', 'middle']);
+    const name: PxBox = {x0: ex - w / 2, y0: ey - h / 2, x1: ex + w / 2, y1: ey + h / 2};
+    // A control point's typeset name sits about 1.3 font sizes above the point, wherever its anchor is (measured in the browser).
+    const controls = curve.getJxgPoints().map((p, i) => {
+        const [x, y] = toPx(p.X(), p.Y());
+        return {name: `p${i}`, box: controlNameBox(`p${i}`, x, y, fontPx)};
+    });
     const markers = [evaluation, ...(curve.getJxgPoints() as unknown as Placed[])].map(p => ({at: toPx(p.X(), p.Y()), r: Number(p.evalVisProp('size')) + 1}));
     return {board, name, controls, markers, ticks: tickStrips(board)};
 }

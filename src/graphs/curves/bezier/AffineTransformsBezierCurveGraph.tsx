@@ -13,7 +13,7 @@ import {formatNumber} from "../../../analysis/format";
 import {ReadoutHeading, ReadoutHelp, ReadoutList} from "../../base/controls/ReadoutParts";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {nameBox, PlacedLabels, pxFrame} from "../../legend/pointNamePlacement";
-import {evaluationNameBox} from "../object/AbstractJXGPointControlledCurve";
+import {controlNameBox, evaluationNameBox} from "../object/AbstractJXGPointControlledCurve";
 import {
     type Affine, type AffineOperation, type Pt, IDENTITY, affineOfOperation, bezierPoint, boxCentreOf, composeAffine,
     departsFromTrack, mappedReferencePoint, meanOf,
@@ -355,8 +355,7 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
                 const [x, y] = frame.toPx(p.X(), p.Y());
                 markers.push([x, y, settings.pointSize]);
                 if (!settings.pointLabelsVisible) return;
-                const {w, h} = nameBox(`p${i}`, fontPx);
-                blocks.push({x0: x, y0: y - fontPx * 1.3 - h / 2, x1: x + w, y1: y - fontPx * 1.3 + h / 2});
+                blocks.push(controlNameBox(`p${i}`, x, y, fontPx));
             });
             if (t !== undefined) {
                 const at = frame.toPx(...bezierPoint(points, t));

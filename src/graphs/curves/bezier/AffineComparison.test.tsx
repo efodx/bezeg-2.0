@@ -7,7 +7,7 @@ import {t} from '../../../localization';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from '../../base/realGraphTestHarness';
 import AffineTransformBezierCurveGraph from './AffineTransformsBezierCurveGraph';
-import {nameBox} from '../../legend/pointNamePlacement';
+import {evaluationNameBox} from '../object/AbstractJXGPointControlledCurve';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -92,7 +92,7 @@ function labelBoxAndPx(graph: Probe, at: readonly [number, number]) {
     const offset = (point.label.visProp.offset as () => [number, number])();
     const px = (x: number, y: number): [number, number] => [x * board.unitX + board.origin.scrCoords[1], board.origin.scrCoords[2] - y * board.unitY];
     const [bx, by] = px(point.X(), point.Y());
-    const {w, h} = nameBox('B(1/2)', 14);
+    const {w, h} = evaluationNameBox(0.5, 14);
     const [cx, cy] = [bx + offset[0], by - offset[1]];
     return {box: {x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2}, cross: px(at[0], at[1])};
 }

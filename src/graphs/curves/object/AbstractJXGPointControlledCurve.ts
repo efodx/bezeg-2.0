@@ -36,11 +36,22 @@ const pendingFullUpdates = new WeakSet<object>();
 const shown = (point: JXG.Point): boolean => (point as unknown as {visPropCalc?: {visible?: boolean}}).visPropCalc?.visible !== false;
 
 /**
- * The box (px) of the name of B(t) for the placement, shared with the affine graph. The written-out `B(1/2)` is wider (81 px) than the
- * typeset fraction (about 54 by 32 px measured at 20 px); it stays, since `PhQuinticEvaluationLabels.test.tsx` measures with it.
+ * The box (px) of the name of B(t) for the placement, shared with the affine graph and the label tests: the half is typeset as a
+ * fraction, four glyphs wide and taller than a line (measured in the browser at 20 px: 54 by 32), so the written-out `B(1/2)`
+ * (81 px wide) would be too wide and too low.
  */
 export function evaluationNameBox(t: number, fontPx: number): {w: number; h: number} {
-    return nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);
+    if (t !== 0.5) return nameBox(`B(${t})`, fontPx);
+    return {w: nameBox("B(½)", fontPx).w, h: Math.ceil(fontPx * 1.6)};
+}
+
+/**
+ * The box (px) of a control point's typeset name for the placement: its label is left and bottom anchored `0.3 fontSize` below the
+ * point (see PointStyles), but its glyphs sit about 1.3 fontSize above the point (measured in the browser at 20 px).
+ */
+export function controlNameBox(name: string, x: number, y: number, fontPx: number): PxBox {
+    const {w, h} = nameBox(name, fontPx);
+    return {x0: x, y0: y - fontPx * 1.3 - h / 2, x1: x + w, y1: y - fontPx * 1.3 + h / 2};
 }
 
 export function evaluationPointLabel(t: number): string {
@@ -455,9 +466,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
                 const [x, y] = frame.toPx(p.X(), p.Y());
                 markers.push([x, y, settings.pointSize]);
                 if (!settings.pointLabelsVisible) return;
-                // A control point's own label is left and bottom anchored, `0.3 fontSize` below the point (see PointStyles), but its typeset glyphs sit about 1.3 fontSize above the point (measured in the browser at 20 px).
-                const {w, h} = nameBox(`p${i}`, fontPx);
-                blocks.push({x0: x, y0: y - fontPx * 1.3 - h / 2, x1: x + w, y1: y - fontPx * 1.3 + h / 2});
+                blocks.push(controlNameBox(`p${i}`, x, y, fontPx));
             });
             const samples: Array<readonly [number, number]> = [];
             const curve = this.jxgCurve as unknown as {points?: Array<{scrCoords: number[]}>};

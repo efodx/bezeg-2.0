@@ -23,6 +23,11 @@ const FRAMES = [
     ['LC-7', 'curve-geometry/descent', 'lesson.mechanical-curves.drag-the-track.mechanics-descent', 'Korak 2 od 7 · Okvir 2 od 2'],
     ['LC-8', 'triangle-solver', 'lesson.trigonometry.cosine-rule.triangle-solver', 'Korak 2 od 7 · Okvir 2 od 2'],
     ['LC-9', 'ph/quintic', 'lesson.ph-curves.offsets.ph-quintic', 'Korak 2 od 5 · Okvir 1 od 3'],
+    // The affine lesson's frames with B(1/2) beside the control point names (lesson-card-layout handoff 6).
+    ['LC-9b', 'bezier/affine', 'lesson.bezier-curves.affine-transformations.affine', 'Korak 1 od 5 · Okvir 1 od 3'],
+    ['LC-9c', 'bezier/affine', 'lesson.bezier-curves.affine-transformations.affine', 'Korak 2 od 5 · Okvir 1 od 3'],
+    ['LC-9d', 'bezier/affine', 'lesson.bezier-curves.affine-transformations.affine', 'Korak 3 od 5 · Okvir 1 od 3'],
+    ['LC-9e', 'bezier/affine', 'lesson.bezier-curves.affine-transformations.affine', 'Korak 4 od 5 · Okvir 1 od 3'],
 ];
 
 const args = process.argv.slice(2);
