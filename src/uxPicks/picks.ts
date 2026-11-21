@@ -27,6 +27,7 @@ export const PICKS: readonly Pick[] = [
     {id: 'a3', title: 'Parameter se premika sam', from: 'a3 + števci', note: 'Gumb ∿ na ploščici (potrebuje »Parametri na grafu«): drsnik sam niha med mejama, števec sam šteje gor in dol. Več jih lahko teče hkrati.', tryAt: '/bezeg-2.0/bernstein'},
     {id: 'c11', title: 'Duh pokaže', from: 'c11 + b15', note: 'Ko se nekaj časa ne dotakneš grafa, prosojna roka pokaže, kaj se da premikati (točka, drsnik, števec). Gumb ✋ Pokaži jo pokliče; v vodeni lekciji »Pokaži mi« pokaže, kar okvir sprašuje.', tryAt: '/bezeg-2.0/functions/transformations'},
     // {id: 'example', title: 'Primer', from: 'a1', note: 'Kaj naredi in kje ga najdeš.', tryAt: '/bezeg-2.0/functions/transformations'},
+    {id: 'a29', title: 'Predogled na ploščici', from: 'a29 + a19', note: 'Potrebuje »Parametri na grafu«: spodnji pas ploščice je njena proga. Z miško nad njim vidiš graf pri tisti vrednosti, klik skoči tja, vlečenje še vedno drsi; drugje na ploščici (ali s tipkovnico) kartica pove, kaj drsnik počne.', tryAt: '/bezeg-2.0/functions/transformations'},
 ];
 
 const STORAGE_KEY = 'bezeg.uxPicks';

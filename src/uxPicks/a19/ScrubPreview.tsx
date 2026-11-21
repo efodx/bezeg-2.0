@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {flushSync} from 'react-dom';
-import {asProbe, getParam, splitLabel, type ParamEntry} from '../a1/paramRegistry';
+import {getParam, splitLabel, type ParamEntry} from '../a1/paramRegistry';
+import {captureGhost, findBoard, type Ghost, type JxgBoard} from './ghost';
 import {PRESENTATION_LABEL} from '../a1/ParamPucks';
 import './ScrubPreview.css';
 
@@ -11,53 +11,12 @@ import './ScrubPreview.css';
  * Generic: the board is set to the hovered value, the changed shapes are cloned, and the live value is restored.
  */
 
-interface JxgObject {id: string; type: number; elType?: string; rendNode?: SVGElement; visPropCalc?: {visible?: boolean}}
-interface JxgBoard {containerObj?: HTMLElement; objectsList: JxgObject[]; renderer: {svgRoot?: SVGSVGElement}; on(event: string, handler: () => void): void; off(event: string, handler: () => void): void}
-interface Ghost {svg: SVGSVGElement; box: {width: number; height: number; left: number; top: number}}
 interface Tip {x: number; y: number; text: string; note?: string}
-
-const SKIPPED_TYPES = new Set([5, 18, 24]);
-const DRAWN_TAGS = ['path', 'line', 'ellipse', 'circle', 'polygon', 'rect'];
-
-function findBoard(frame: HTMLElement | null): JxgBoard | undefined {
-    const boards = (window as unknown as {JXG?: {boards?: Record<string, JxgBoard>}}).JXG?.boards;
-    if (!frame || !boards) return undefined;
-    let best: JxgBoard | undefined;
-    for (const board of Object.values(boards)) {
-        const container = board.containerObj;
-        if (!container || !container.isConnected || !frame.contains(container)) continue;
-        if (!best || container.clientWidth * container.clientHeight > best.containerObj!.clientWidth * best.containerObj!.clientHeight) best = board;
-    }
-    return best;
-}
-
-const drawn = (board: JxgBoard) => board.objectsList.filter(object => object.rendNode && object.visPropCalc?.visible
-    && !SKIPPED_TYPES.has(object.type) && object.elType !== 'axis' && object.elType !== 'text' && object.elType !== 'ticks'
-    && DRAWN_TAGS.includes(object.rendNode.tagName.toLowerCase()));
-
-const shapeSignature = (node: Element) => ['d', 'points', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'rx', 'ry', 'r', 'x', 'y', 'width', 'height', 'transform']
-    .map(name => node.getAttribute(name) ?? '').join('|');
 
 const symbolOf = (label: string) => splitLabel(label).symbol ?? (label.match(/\s(\S{1,2})$/)?.[1] ?? label);
 
 const meaningful = (entry: ParamEntry | undefined): entry is ParamEntry => !!entry && !entry.display && !PRESENTATION_LABEL.test(entry.label)
     && (entry.kind === 'count' || entry.max > entry.min);
-
-/** Runs `write` and waits until the board has redrawn. */
-async function settle(board: JxgBoard, write: () => void) {
-    let redrawn = false;
-    const mark = () => { redrawn = true; };
-    board.on('update', mark);
-    try { asProbe(() => flushSync(write)); } finally { board.off('update', mark); }
-    if (redrawn) return;
-    await new Promise<void>(resolve => {
-        let left = 4;
-        const done = () => { board.off('update', done); resolve(); };
-        const tick = () => { if (--left <= 0) done(); else requestAnimationFrame(tick); };
-        board.on('update', done);
-        requestAnimationFrame(tick);
-    });
-}
 
 type Job = {kind: 'range'; input: HTMLInputElement; x: number} | {kind: 'count'; key: string; direction: 1 | -1; button: Element};
 
@@ -75,24 +34,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
 
         /** Sets the board to the probed value, clones what moved, and restores the live value. */
         const capture = async (board: JxgBoard, svg: SVGSVGElement, apply: () => void, restore: () => void) => {
-            const before = new Map(drawn(board).map(object => [object.rendNode!.id, shapeSignature(object.rendNode!)]));
-            let clone: SVGSVGElement;
-            let changed: Set<string>;
-            try {
-                await settle(board, apply);
-                clone = svg.cloneNode(true) as SVGSVGElement;
-                changed = new Set(drawn(board).map(object => object.rendNode!).filter(node => before.get(node.id) !== shapeSignature(node)).map(node => node.id));
-            } finally {
-                await settle(board, restore);
-            }
-            clone.querySelectorAll('[id]').forEach(node => {
-                const tag = node.tagName.toLowerCase();
-                if (['path', 'line', 'ellipse', 'circle', 'polygon', 'rect', 'polyline'].includes(tag) && !changed.has(node.id)) node.remove();
-            });
-            clone.querySelectorAll('text, foreignObject, image').forEach(node => node.remove());
-            clone.removeAttribute('id');
-            const frame = props.frame.current!.getBoundingClientRect(), box = svg.getBoundingClientRect();
-            setGhost(changed.size ? {svg: clone, box: {width: box.width, height: box.height, left: box.left - frame.left, top: box.top - frame.top}} : undefined);
+            setGhost(await captureGhost(props.frame.current!, board, svg, apply, restore));
         };
 
         const run = async () => {

@@ -2,6 +2,7 @@ import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'reac
 import {flushSync} from 'react-dom';
 import {getParam, recentlyProbed, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
 import {usePick} from '../picks';
+import {jumpValue} from '../a29/track';
 import {canOscillate, isOscillating, toggleOscillator, useOscillators} from '../a3/oscillators';
 import './ParamPucks.css';
 
@@ -91,6 +92,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
     const ref = useRef<HTMLDivElement>(null);
     const scrub = useRef<ScrubState>();
     const homeRef = useRef(entry.value);
+    const jumps = usePick('a29');
     const [nudged, setNudged] = useState(false);
     const [refused, setRefused] = useState(false);
     const [clicked, setClicked] = useState(0);
@@ -163,6 +165,11 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         if (!state || state.pointerId !== event.pointerId) return;
         scrub.current = undefined;
         props.onScrub(undefined);
+        if (!state.moved && event.type === 'pointerup' && jumps && ref.current) {
+            // a29: a press on the track (the strip along the bottom of the puck) jumps to the value under the pointer.
+            const target = jumpValue(entryRef.current, ref.current, event.clientX, event.clientY);
+            if (target !== undefined) entryRef.current.set(target);
+        }
         if (!state.moved) ref.current?.focus();
     };
     const [editing, setEditing] = useState<string>();
