@@ -15,7 +15,7 @@ const nextFrames = (count: number) => new Promise<void>(resolve => {
 });
 const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
 
-interface Quantity { name: string; value: number; input?: HTMLInputElement; min?: number; max?: number; step?: number }
+interface Quantity { name: string; value: number; input?: HTMLInputElement; min?: number; max?: number; step?: number; setter?: HTMLElement }
 interface Change { name: string; from: number; to: number }
 interface Entry {
     id: number;
@@ -75,9 +75,18 @@ function quantities(): Quantity[] {
         const label = setter.querySelector('.count-setter-label')?.textContent ?? '';
         const field = setter.querySelector<HTMLInputElement>('input');
         const value = Number(field?.value ?? setter.querySelector('.count-setter-value')?.textContent);
-        if (label && Number.isFinite(value)) found.push({name: shortName(label.trim()), value});
+        if (label && Number.isFinite(value)) found.push({name: shortName(label.trim()), value, setter});
     });
     return found;
+}
+
+/** A counter's value now, and a press of its − or + button (counters have no range input to set). */
+function counterValue(setter: HTMLElement): number {
+    return Number(setter.querySelector<HTMLInputElement>('input')?.value ?? setter.querySelector('.count-setter-value')?.textContent);
+}
+function pressCounter(setter: HTMLElement, sign: number) {
+    const button = [...setter.querySelectorAll<HTMLButtonElement>('button')].find(item => (item.textContent ?? '').trim() === (sign > 0 ? '+' : '−') || (sign < 0 && (item.textContent ?? '').trim() === '-'));
+    if (button && !button.disabled) button.click();
 }
 
 function setSlider(quantity: Quantity, value: number) {
@@ -425,7 +434,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
         if (!board || busy) return;
         const all = quantities();
         const moved = all.find(item => item.name === rule.name);
-        if (!moved?.input || moved.min === undefined || moved.max === undefined) return;
+        if (!moved || (!moved.setter && (!moved.input || moved.min === undefined || moved.max === undefined))) return;
         setBusy(true);
         quiet.current = true;
         try {
@@ -437,14 +446,17 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
                 setSlider(other, other.min! + (other.max! - other.min!) * fraction);
                 context.push({name: other.name, from, to: Number(other.input!.value)});
             }
-            const span = moved.max - moved.min;
-            const delta = Math.min(rule.delta || span / 4, span / 2);
-            const start = rule.direction > 0 ? moved.min + Math.random() * (span - delta) : moved.min + delta + Math.random() * (span - delta);
-            setSlider(moved, start);
+            let delta: number;
+            if (moved.input && moved.min !== undefined && moved.max !== undefined) {
+                const span = moved.max - moved.min;
+                delta = Math.min(rule.delta || span / 4, span / 2);
+                const start = rule.direction > 0 ? moved.min + Math.random() * (span - delta) : moved.min + delta + Math.random() * (span - delta);
+                setSlider(moved, start);
+            } else delta = Math.max(1, Math.round(rule.delta || 1));
             await nextFrames(3);
             recoverBoards();
             const first = capture(board);
-            const startValue = Number(moved.input.value);
+            const startValue = moved.input ? Number(moved.input.value) : counterValue(moved.setter!);
             // Predict first: the learner sees the new place and says what the readout will do before the move.
             const guess = await new Promise<number | undefined>(resolve => {
                 answer.current = resolve;
@@ -452,12 +464,13 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
             });
             answer.current = undefined;
             setTrial(undefined);
-            setSlider(moved, startValue + rule.direction * delta);
+            if (moved.input) setSlider(moved, startValue + rule.direction * delta);
+            else for (let press = 0; press < delta; press++) { pressCounter(moved.setter!, rule.direction); await nextFrames(2); }
             await nextFrames(3);
             recoverBoards();
             const second = capture(board);
             if (!first || !second) return;
-            const endValue = Number(moved.input.value);
+            const endValue = moved.input ? Number(moved.input.value) : counterValue(moved.setter!);
             const change = {name: moved.name, from: startValue, to: endValue};
             const effects = effectsOf(first.readings, second.readings, [change]);
             const effect = effects.find(item => item.name === rule.label);
@@ -507,7 +520,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
                         <button type="button" onClick={() => answer.current?.(0)}>= ne spremeni</button>
                         <button type="button" className="is-skip" onClick={() => answer.current?.(undefined)}>Pokaži</button>
                     </span>
-                </div> : <button type="button" className="ux-lab-test" disabled={busy || !quantities().find(item => item.name === rule.name)?.input} onClick={() => void test(rule)}>Preizkusi drugje</button>}
+                </div> : <button type="button" className="ux-lab-test" disabled={busy || !quantities().some(item => item.name === rule.name && (item.input || item.setter))} onClick={() => void test(rule)}>Preizkusi drugje</button>}
             </div>)}
         </div>}
         {entries.length === 0 ? <p className="ux-lab-empty">Premakni drsnik ali točko. Vsak poskus se zapiše sam, iz podobnih poskusov pa dnevnik sestavi domnevo, ki jo lahko preizkusiš.</p>
