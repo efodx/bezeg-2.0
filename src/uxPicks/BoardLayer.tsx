@@ -18,6 +18,7 @@ export function UxBoardFrame(props: {children: React.ReactNode}) {
     const preview = usePick('a19');
     const hover = usePick('a29');
     const boardText = usePick('boardText');
+    const toolsCard = usePick('toolsCard');
     // While a puck is typed into, the hover previews are unmounted, which also clears their ghosts from the board.
     const typing = useEditingParam() !== undefined;
     return <>
@@ -25,7 +26,7 @@ export function UxBoardFrame(props: {children: React.ReactNode}) {
             {props.children}
             {preview && !typing && <ScrubPreview frame={frame}/>}
             {pucks && hover && !typing && <PuckHover frame={frame}/>}
-            {(pucks || boardText) && <BoardDock frame={frame} tray={tray}>
+            {(pucks || boardText || toolsCard) && <BoardDock frame={frame} tray={tray}>
                 {pucks && <ParamPucks frame={frame}/>}
                 {boardText && <BoardCards frame={frame}/>}
             </BoardDock>}

@@ -7,6 +7,8 @@ import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
 import {usePick} from "../../uxPicks/picks";
 import "../../uxPicks/dockTools/dockTools.css";
+import {SideDocks, ToolsCard, useToolsHome} from "../../uxPicks/toolsCard/ToolsCard";
+import {usePhone} from "../../uxPicks/dock/BoardDock";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
 import {DemonstrationPicker} from '../../DemonstrationPicker';
 import {readDemonstrationReturnContext} from '../../demonstrationNavigation';
@@ -185,6 +187,10 @@ export function DemonstrationWorkspace(props: {
     // capability is available; BaseGraph will provide it on the next render.
     const lessonActive = lessonOpen && Boolean(lesson && props.lessonCapabilities);
     const dockToolsPick = usePick('dockTools');
+    // Pick toolsCard: the tools are a dock card beside (or on) the graph; phones keep them under it.
+    const phone = usePhone();
+    const toolsCard = usePick('toolsCard') && !phone;
+    const toolsHome = useToolsHome();
     // The one decision about user commands (Preset writes, playback), from the lesson state this workspace owns. The ref is what
     // `current()` reads at the moment of a commit; the render value only drives what controls show.
     const userActionMode: UserActionMode = !lessonActive ? 'free' : lessonMode === 'content' ? 'lesson-card' : 'lesson-observe';
@@ -193,16 +199,18 @@ export function DemonstrationWorkspace(props: {
     const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
     const bindUserActions = props.bindUserActions;
     useLayoutEffect(() => bindUserActions?.(() => userActionModeRef.current), [bindUserActions]);
+    // Every commit: with pick toolsCard the tools mount a little later (when the dock is ready) and again after a move.
     useEffect(() => {
         const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = lessonActive && lessonMode === 'content';
-    }, [lessonActive, lessonMode]);
+    });
     useLayoutEffect(() => {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         data-ux-dock-tools={dockToolsPick ? '' : undefined}
+        data-ux-tools-card={toolsCard ? '' : undefined} data-ux-tools-home={toolsCard ? toolsHome : undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
@@ -279,7 +287,8 @@ export function DemonstrationWorkspace(props: {
         <LearningPrompt key={pathname} pathname={pathname}/>
         {/* Pick dockTools: the docked lesson tab is portalled here so keyboard focus meets it right before the tools. */}
         {dockToolsPick && <div id="workspace-dock-slot" className="workspace-dock-slot"/>}
-        <aside ref={inspector} id="workspace-inspector" className="workspace-inspector" hidden={!inspectorVisible}
+        {toolsCard && <SideDocks/>}
+        {(() => { const tools = <aside ref={inspector} id="workspace-inspector" className="workspace-inspector" hidden={!inspectorVisible}
             aria-disabled={lessonActive && lessonMode === 'content' ? true : undefined} aria-label={t("demonstration_tools")}>
             <div className="inspector-toolbar">
             <div className="inspector-heading">
@@ -306,6 +315,7 @@ export function DemonstrationWorkspace(props: {
                 {sections.map(tab => <section key={tab.id} id={`inspector-${tab.id}`} hidden={section !== tab.id}
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
-        </aside>
+        </aside>;
+        return toolsCard && inspectorVisible ? <ToolsCard>{tools}</ToolsCard> : tools; })()}
     </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PlaybackSlotContext.Provider></PresetLockContext.Provider>;
 }

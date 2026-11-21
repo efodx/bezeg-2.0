@@ -3,7 +3,7 @@ import {createPortal} from 'react-dom';
 import {GapSlot, useDock} from './BoardDock';
 import {GripIcon, MinusIcon, PlusIcon} from './icons';
 import {
-    clearGap, currentGap, dropAtGap, orderOf, pickUp, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
+    clearGap, currentGap, dropAtGap, isSide, orderOf, pickUp, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
     useDockLayout, type Target,
 } from './dockLayout';
 import {measureDrag} from './dockMeasure';
@@ -15,6 +15,8 @@ import {useFlip} from './dockFlip';
  * would give (FLIP-animated). Dropped in the central area it floats where it is dropped; a double-click on its head, or Home
  * on its grip, returns it to its default dock. Stack and order are remembered per page. On a phone cards are labelled
  * chips in the top rail and one is open at a time.
+ * Pick toolsCard adds side docks beside the graph ('sl', 'sr'): while they exist a card may be carried past the board's side
+ * edges into them. A floating card is placed in board coordinates whatever element holds it (a side dock is outside the board).
  *
  * Adding a card is one element: `<DockCard kind="x" title="Naslov" what="vsebino" region="tr" order={3}>{open => body}</DockCard>`.
  */
@@ -77,14 +79,26 @@ export function DockCard(props: DockCardProps) {
     }, [kind]);
 
     const frame = dock?.frame;
-    /** Keeps a floating card inside the frame (display only; the stored position is kept). */
+    /** Where a floating card may go, in board coordinates: the board, and past its side edges where a side dock exists. */
+    const bounds = (el: HTMLElement, host: HTMLElement) => {
+        const page = host.closest('.demonstration-workspace')?.getBoundingClientRect(), f = host.getBoundingClientRect();
+        const minX = dock?.regions.sl && page ? page.left - f.left : 0;
+        const maxX = (dock?.regions.sr && page ? page.right - f.left : host.clientWidth) - el.offsetWidth;
+        return {minX: Math.min(0, minX), maxX: Math.max(minX, maxX), maxY: host.clientHeight - el.offsetHeight};
+    };
+    /** Keeps a floating card inside its bounds (display only; the stored position is kept), placed in board coordinates
+     * whatever element holds it. */
     const clamp = () => {
         const el = card.current, host = frame?.current;
         if (!el || !host || !floating || !pos) return;
-        el.style.left = `${Math.max(0, Math.min(pos.x, host.clientWidth - el.offsetWidth))}px`;
-        el.style.top = `${Math.max(0, Math.min(pos.y, host.clientHeight - el.offsetHeight))}px`;
+        const b = bounds(el, host);
+        const x = Math.max(b.minX, Math.min(pos.x, b.maxX)), y = Math.max(0, Math.min(pos.y, b.maxY));
+        const parent = (el.offsetParent as HTMLElement | null) ?? host;
+        const f = host.getBoundingClientRect(), q = parent.getBoundingClientRect();
+        el.style.left = `${x + f.left - q.left - parent.clientLeft}px`;
+        el.style.top = `${y + f.top - q.top - parent.clientTop}px`;
     };
-    useEffect(() => {
+    useLayoutEffect(() => {
         clamp();
         const host = frame?.current;
         if (!host || !floating || typeof ResizeObserver === 'undefined') return;
@@ -123,10 +137,8 @@ export function DockCard(props: DockCardProps) {
 
     const place = (x: number, y: number): Pos => {
         const el = card.current!, host = frame!.current!;
-        return {
-            x: Math.round(Math.max(0, Math.min(x, host.clientWidth - el.offsetWidth))),
-            y: Math.round(Math.max(0, Math.min(y, host.clientHeight - el.offsetHeight))),
-        };
+        const b = bounds(el, host);
+        return {x: Math.round(Math.max(b.minX, Math.min(x, b.maxX))), y: Math.round(Math.max(0, Math.min(y, b.maxY)))};
     };
     const lift = () => { const el = card.current!; pickUp(kind, el.offsetWidth, el.offsetHeight, !floating); };
     /** The card is docked (by a drop at the gap, or back in its default dock): it no longer floats. */
@@ -159,7 +171,10 @@ export function DockCard(props: DockCardProps) {
         if (!d?.moved || !el) return;
         if (dropAtGap(kind)) { docked(); return; }
         clearGap(kind);
-        writePos(kind, {x: el.offsetLeft, y: el.offsetTop});
+        const host = frame?.current;
+        if (!host) return;
+        const r = el.getBoundingClientRect(), f = host.getBoundingClientRect();
+        writePos(kind, {x: Math.round(r.left - f.left), y: Math.round(r.top - f.top)});
     };
     const onKeyDown = (e: React.KeyboardEvent) => {
         if (phone) return;
@@ -179,7 +194,9 @@ export function DockCard(props: DockCardProps) {
     };
 
     const placement = placementOf(kind);
-    const target = dock.regions[phone ? 'tl' : placement.region];
+    // A side dock exists only while pick toolsCard is on: without it the card waits at its default anchor.
+    const wanted = phone ? 'tl' : placement.region;
+    const target = dock.regions[wanted] ?? (isSide(wanted) ? dock.regions[props.region] : null);
     if (!target) return null;
     const style: React.CSSProperties | undefined = floating ? {left: pos.x, top: pos.y} : phone ? undefined : {order: orderOf(kind)};
     const label = `${open ? 'Skrij' : 'Pokaži'} ${props.what}`;
@@ -190,7 +207,7 @@ export function DockCard(props: DockCardProps) {
     const g = currentGap();
     const gapTarget = g && g.kind === kind && !phone ? dock.regions[g.region] : null;
     return <>
-        {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget}/>, gapTarget)}
+        {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget} region={g.region}/>, gapTarget)}
         {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}`} style={style}>
             <div className="ux-btext-head" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                  onPointerCancel={onPointerUp} onDoubleClick={() => { resetCard(kind); docked(); }}>

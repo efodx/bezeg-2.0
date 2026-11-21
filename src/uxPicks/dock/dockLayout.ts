@@ -8,12 +8,18 @@ import {useSyncExternalStore} from 'react';
  * between the old and the new position make room (the cards animate with FLIP). Placements are remembered per page in
  * localStorage.
  */
-export type Target = 'tl' | 'tc' | 'tr' | 'ml' | 'mr' | 'bc' | 'br';
+export type BoardTarget = 'tl' | 'tc' | 'tr' | 'ml' | 'mr' | 'bc' | 'br';
+/** Pick toolsCard: the side docks beside the graph ('sl' left, 'sr' right). They take layout space (the board narrows) and exist only while that pick is on. */
+export type SideTarget = 'sl' | 'sr';
+export type Target = BoardTarget | SideTarget;
 /** Every anchor has an axis: 'v' stacks cards top to bottom, 'h' side by side. */
-export const AXIS: Record<Target, 'v' | 'h'> = {tl: 'v', tc: 'h', tr: 'v', ml: 'v', mr: 'v', bc: 'h', br: 'v'};
+export const AXIS: Record<Target, 'v' | 'h'> = {tl: 'v', tc: 'h', tr: 'v', ml: 'v', mr: 'v', bc: 'h', br: 'v', sl: 'v', sr: 'v'};
 /** Which end of its stack stays put when the stack grows: 'start' grows away from the top, 'end' grows up, 'mid' both ways. */
-export const GROWS: Record<Target, 'start' | 'end' | 'mid'> = {tl: 'start', tc: 'mid', tr: 'start', ml: 'mid', mr: 'mid', bc: 'mid', br: 'end'};
-export const TARGETS: readonly Target[] = ['tl', 'tc', 'tr', 'ml', 'mr', 'bc', 'br'];
+export const GROWS: Record<Target, 'start' | 'end' | 'mid'> = {tl: 'start', tc: 'mid', tr: 'start', ml: 'mid', mr: 'mid', bc: 'mid', br: 'end', sl: 'start', sr: 'start'};
+export const BOARD_TARGETS: readonly BoardTarget[] = ['tl', 'tc', 'tr', 'ml', 'mr', 'bc', 'br'];
+export const SIDE_TARGETS: readonly SideTarget[] = ['sl', 'sr'];
+export const TARGETS: readonly Target[] = [...BOARD_TARGETS, ...SIDE_TARGETS];
+export const isSide = (t: Target | null | undefined): t is SideTarget => t === 'sl' || t === 'sr';
 /** Stored layouts of the first dock: its regions map to the nearest anchor. */
 const LEGACY: Record<string, Target> = {'top-start': 'tl', 'top-end': 'tr', 'bottom-end': 'br', 'top-row': 'tc', 'bottom-row': 'bc'};
 /** The graph dock's stack the lesson card can take a place in (in memory only: lessons restart at home). */
@@ -157,6 +163,21 @@ export function dropAtGap(kind: string): boolean {
 }
 /** Ends a pickup without docking: the old gap closes. */
 export function clearGap(kind: string) { if (lifted === kind) { origin = null; target = null; lifted = null; emit(); } }
+/**
+ * Pick toolsCard: the side docks are elements of the workspace grid (outside the board frame); they register here and
+ * the board dock adds them to its regions. Kept in a store of their own so a change re-renders only the dock.
+ */
+let sides: Partial<Record<SideTarget, HTMLElement | null>> = {};
+const sideListeners = new Set<() => void>();
+export function setSideRegion(side: SideTarget, el: HTMLElement | null) {
+    if ((sides[side] ?? null) === el) return;
+    sides = {...sides, [side]: el};
+    sideListeners.forEach(l => l());
+}
+export function useSideRegions(): Partial<Record<SideTarget, HTMLElement | null>> {
+    return useSyncExternalStore(l => { sideListeners.add(l); return () => { sideListeners.delete(l); }; }, () => sides, () => sides);
+}
+
 /** Back to the card's default dock. */
 export function resetCard(kind: string) {
     delete placed[kind];
