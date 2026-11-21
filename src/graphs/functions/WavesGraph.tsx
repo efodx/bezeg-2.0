@@ -22,6 +22,7 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {travelling} from "../../waves/standing";
 import {valueAt} from "../../waves/sinusoid";
 import {envelope} from "../../waves/beats";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 import {
     DEFAULT_WAVES_STATE, parseWavesState, POINTS_PER_SECOND, serializeWavesState, snapWavesField, WAVES_FIELD_RANGES, WAVES_MODES, windowOf, type WavesMode, type WavesNumericField,
     type WavesState, type WavesToggleField,
@@ -1151,13 +1152,13 @@ function WavesReadout(props: {graph: WavesGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <BoardReadout><div className="inspector-group">
         <ReadoutHeading>{text("waves_graph_readout_title")}</ReadoutHeading>
         <p data-waves-status="">{graph.statusText()}</p>
         <ReadoutList label={text("waves_graph_readout_title")} rows={graph.readoutRows()}/>
         <p data-waves-note="">{text("waves_graph_computed_note")}</p>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div>;
+    </div></BoardReadout>;
 }
 
 export default WavesGraph;

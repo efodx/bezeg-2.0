@@ -23,3 +23,13 @@
 .ux-bleg-rows { display: grid; gap: 3px; font-size: 0.8rem; line-height: 1.3; }
 .ux-bleg-rows .ux-btext-legend { margin-top: 0; font-size: 0.8rem; flex-direction: column; gap: 3px; }
 .ux-bleg-drawn, .ux-bleg-drawn * { background: none !important; margin-left: 0 !important; padding-left: 0 !important; position: static !important; }
+
+/* The readout card: result groups from the tools, stacked in document order. */
+.ux-bcard-readout { max-width: 300px; }
+.ux-bread-body { display: grid; gap: 12px; max-height: min(52vh, 420px); overflow: auto; font-size: 0.82rem; }
+.ux-bread-slot { display: block; min-width: 0; }
+.ux-bread-slot .inspector-group { margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+.ux-bread-slot .inspector-reveals-title { margin: 0 0 6px; }
+.ux-bread-slot .inspector-help, .ux-bread-slot p { color: var(--bezeg-shell-ink-secondary); font-size: 0.78rem; line-height: 1.4; margin: 6px 0 0; }
+.ux-bread-slot .readout-list { margin: 0; }
+.ux-bread-slot .readout-scroll-table { max-width: 100%; overflow: auto; }

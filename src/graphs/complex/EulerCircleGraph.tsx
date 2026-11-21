@@ -33,6 +33,7 @@ import {
 } from "../../complex/eulerCircleModel";
 import {eulerCirclePresetCollection, eulerCirclePresetData, EulerCirclePresetData} from "./eulerCirclePresetCollection";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state: the stored fields of `EulerCircleState`, nothing derived and no playback. */
 export interface EulerCircleGraphState extends BaseGraphState, EulerCircleState {}
 
@@ -783,10 +784,12 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
                                      onReset={() => this.resetRun()} {...blocks} playBlock={blocks.playBlock ?? (!playing && this.reducedMotion() ? "reduced-motion" : undefined)}
                                      reducedMotionReason={t("playback_block_reduced_motion_next_step")}/>}
                 </ReducedMotion>
-                <ReadoutHeading>{t("euler_circle_graph_readout_title")}</ReadoutHeading>
-                <p data-euler-status="">{this.statusText()}</p>
-                <ReadoutList label={t("euler_circle_graph_readout_title")} rows={this.readoutRows()}/>
-                <LiveReadout readout={this.status} muted={playing}/>
+                <BoardReadout>
+                    <ReadoutHeading>{t("euler_circle_graph_readout_title")}</ReadoutHeading>
+                    <p data-euler-status="">{this.statusText()}</p>
+                    <ReadoutList label={t("euler_circle_graph_readout_title")} rows={this.readoutRows()}/>
+                    <LiveReadout readout={this.status} muted={playing}/>
+                </BoardReadout>
             </div>
         </>;
     }

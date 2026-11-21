@@ -33,6 +33,7 @@ import {
 } from "../../complex/complexPowerModel";
 import {complexPowerPresetCollection, complexPowerPresetData, ComplexPowerPresetData} from "./complexPowerPresetCollection";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state: the stored fields of `ComplexPowerState`, nothing derived and no playback. */
 export interface ComplexPowerGraphState extends BaseGraphState, ComplexPowerState {}
 
@@ -649,10 +650,12 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                                      reducedMotionReason={t("playback_block_reduced_motion_next_step")}/>}
                 </ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: n, value1: N_RANGE.max})}</p>
-                <ReadoutHeading>{t("complex_power_graph_readout_title")}</ReadoutHeading>
-                <p data-complex-power-status="">{this.statusText()}</p>
-                <ReadoutList label={t("complex_power_graph_readout_title")} rows={this.readoutRows()}/>
-                <LiveReadout readout={this.status} muted={playing}/>
+                <BoardReadout>
+                    <ReadoutHeading>{t("complex_power_graph_readout_title")}</ReadoutHeading>
+                    <p data-complex-power-status="">{this.statusText()}</p>
+                    <ReadoutList label={t("complex_power_graph_readout_title")} rows={this.readoutRows()}/>
+                    <LiveReadout readout={this.status} muted={playing}/>
+                </BoardReadout>
             </div>
         </>;
     }

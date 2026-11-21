@@ -15,6 +15,7 @@ import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {SimsonPlaceId, simsonChip, simsonTexts, simsonVertexTexts} from "./simsonLineText";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 export interface SimsonLinePanelProps {
     analysis: SimsonAnalysis;
     settings: SimsonSettings;
@@ -56,10 +57,12 @@ export function SimsonLinePanel(props: SimsonLinePanelProps) {
             <ExampleAndMode {...props}/>
             <p className="inspector-help pointset-status" data-simson-chip>{stateText}</p>
             <p className="inspector-help" data-simson-degenerate>{t("simson_degenerate_why")}</p>
-            <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
-            <ul className="pointset-list" data-simson-coordinates>
-                {simsonVertexTexts(analysis.vertices, t).map((text, i) => <li key={i}>{text}</li>)}
-            </ul>
+            <BoardReadout>
+                <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
+                <ul className="pointset-list" data-simson-coordinates>
+                    {simsonVertexTexts(analysis.vertices, t).map((text, i) => <li key={i}>{text}</li>)}
+                </ul>
+            </BoardReadout>
             <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
         </div>;
     }
@@ -70,20 +73,24 @@ export function SimsonLinePanel(props: SimsonLinePanelProps) {
             : <PPrimeFields point={settings.pPrime} onPPrime={props.onPPrime}/>}
         <ExampleAndMode {...props}/>
         <p className="inspector-help pointset-status" data-simson-chip>{texts.chip}</p>
-        <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
-        <ul className="pointset-list simson-readouts">
-            <li data-simson-readout="circle">{texts.circle}</li>
-            {texts.rows.map(row => <li key={row.id} data-simson-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
-            {texts.power && <li data-simson-readout="power">{texts.power}</li>}
-            <li data-simson-readout="area">{texts.area}</li>
-        </ul>
-        {texts.onCircle && <p className="inspector-help" data-simson-on-circle>{texts.onCircle}</p>}
-        {texts.distinct && <p className="inspector-help" data-simson-distinct>{texts.distinct}</p>}
-        {texts.tooFar.map(note => <p key={note} className="inspector-help" data-simson-too-far>{note}</p>)}
-        <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
-        <ul className="pointset-list" data-simson-coordinates>
-            {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
-        </ul>
+        <BoardReadout>
+            <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
+            <ul className="pointset-list simson-readouts">
+                <li data-simson-readout="circle">{texts.circle}</li>
+                {texts.rows.map(row => <li key={row.id} data-simson-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
+                {texts.power && <li data-simson-readout="power">{texts.power}</li>}
+                <li data-simson-readout="area">{texts.area}</li>
+            </ul>
+            {texts.onCircle && <p className="inspector-help" data-simson-on-circle>{texts.onCircle}</p>}
+            {texts.distinct && <p className="inspector-help" data-simson-distinct>{texts.distinct}</p>}
+            {texts.tooFar.map(note => <p key={note} className="inspector-help" data-simson-too-far>{note}</p>)}
+        </BoardReadout>
+        <BoardReadout>
+            <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
+            <ul className="pointset-list" data-simson-coordinates>
+                {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
+            </ul>
+        </BoardReadout>
         <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
     </div>;
 }

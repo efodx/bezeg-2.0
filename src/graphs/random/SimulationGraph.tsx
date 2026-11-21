@@ -30,6 +30,7 @@ import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {AREA_LAYOUT, Caption, CaptionKey, EMPTY_LAYER, Layer, LAW_LEFT, POINTS_DRAWN, sceneFor, SceneData} from "./simulationScene";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state: the stored simulation fields (`RandomState`), nothing derived. */
 export interface RandomGraphState extends BaseGraphState, RandomState {}
 
@@ -1082,11 +1083,13 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
                             onChange={value => this.editStopMs(value)}/>
                 </>}</ReducedMotion>
                 <StepCounter step={index} length={length}/>
-                <ReadoutHeading>{t("random_graph_readout_title")}</ReadoutHeading>
-                <p data-random-status="">{this.statusText()}</p>
-                <ReadoutList label={t("random_graph_readout_title")} rows={this.readoutRows()}/>
-                {this.readoutNotes().map(note => <ReadoutHelp key={note}><span data-random-note="">{note}</span></ReadoutHelp>)}
-                <LiveReadout readout={this.status} muted={this.playing}/>
+                <BoardReadout>
+                    <ReadoutHeading>{t("random_graph_readout_title")}</ReadoutHeading>
+                    <p data-random-status="">{this.statusText()}</p>
+                    <ReadoutList label={t("random_graph_readout_title")} rows={this.readoutRows()}/>
+                    {this.readoutNotes().map(note => <ReadoutHelp key={note}><span data-random-note="">{note}</span></ReadoutHelp>)}
+                    <LiveReadout readout={this.status} muted={this.playing}/>
+                </BoardReadout>
             </div>
         </>;
     }

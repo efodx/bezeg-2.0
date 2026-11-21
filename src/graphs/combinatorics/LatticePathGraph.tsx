@@ -25,6 +25,7 @@ import {
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {latticePathsPresetCollection} from "./combinatoricsPresetCollection";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 import {
     addPolyline, binomialText, binomText, boxPoints, countText, emptyPoly, HANDLE_MOUSE_RADIUS, HANDLE_TOUCH_RADIUS, listText, Poly, pointText,
     routeLetters, SceneObjects, smallText, stepRightText, stepUpText, superscript,
@@ -960,7 +961,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         if (this.state.view !== "paths" || !lattice.enumerable) return null;
         const first = lattice.page * ROUTES_PER_PAGE;
         const masks = lattice.masks.slice(first, first + ROUTES_PER_PAGE);
-        return <div className="inspector-group">
+        return <BoardReadout><div className="inspector-group">
             <ReadoutHeading>{t("combinatorics_lattice_routes_list", {value0: smallText(lattice.page + 1), value1: smallText(lattice.pages)})}</ReadoutHeading>
             <ol className="readout-list" data-combinatorics-routes="" start={first + 1}>
                 {masks.map((mask, i) => {
@@ -970,7 +971,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
                     </li>;
                 })}
             </ol>
-        </div>;
+        </div></BoardReadout>;
     }
 
     private stringsTable(): React.ReactNode {
@@ -997,12 +998,12 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("combinatorics_readout_title")}</ReadoutHeading>
                 <p data-combinatorics-status="">{this.statusText()}</p>
                 <ReadoutList label={t("combinatorics_readout_title")} rows={this.readoutRows()}/>
                 <LiveReadout readout={this.status}/>
-            </div>
+            </div></BoardReadout>
             {this.routeList()}
             {this.stringsTable()}
         </>;

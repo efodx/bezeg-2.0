@@ -4,11 +4,11 @@ import './dock.css';
 
 /**
  * The board dock: one host for everything the picks put on or beside the graph, so objects never overlap.
- * Regions along the board's edges: 'top-start' and 'top-end' are the left and right ends of a top rail that wraps
- * onto more lines when its ends do not fit; 'bottom' is the strip along the bottom edge; 'tray' sits directly under
+ * Regions along the board's edges: 'top-start' and 'top-end' are vertical stacks at the left and right ends of a top rail
+ * (a stack taller than the board scrolls); 'bottom-end' is a stack in the bottom right corner; 'bottom' is the strip along the bottom left; 'tray' sits directly under
  * the board (phones). Add an object with `<DockCard .../>` (a movable, foldable card) or `<DockItem .../>` (anything).
  */
-export type DockRegion = 'top-start' | 'top-end' | 'bottom' | 'tray';
+export type DockRegion = 'top-start' | 'top-end' | 'bottom-end' | 'bottom' | 'tray';
 
 export const PHONE_QUERY = '(max-width: 700px)';
 
@@ -41,19 +41,32 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
     const [start, setStart] = useState<HTMLElement | null>(null);
     const [end, setEnd] = useState<HTMLElement | null>(null);
     const [bottom, setBottom] = useState<HTMLElement | null>(null);
+    const [bottomEnd, setBottomEnd] = useState<HTMLElement | null>(null);
+    const dockEl = React.useRef<HTMLDivElement>(null);
     const [phoneOpen, setPhoneOpen] = useState<string | null>(null);
     const phone = usePhone();
     const api = useMemo<DockApi>(() => ({
-        regions: {'top-start': start, 'top-end': end, bottom, tray: props.tray},
+        regions: {'top-start': start, 'top-end': end, 'bottom-end': bottomEnd, bottom, tray: props.tray},
         phone, phoneOpen, setPhoneOpen, frame: props.frame,
-    }), [start, end, bottom, props.tray, phone, phoneOpen, props.frame]);
+    }), [start, end, bottomEnd, bottom, props.tray, phone, phoneOpen, props.frame]);
+    // A stack never grows taller than a share of the board: it scrolls instead.
+    useEffect(() => {
+        const host = props.frame.current, el = dockEl.current;
+        if (!host || !el || typeof ResizeObserver === 'undefined') return undefined;
+        const ro = new ResizeObserver(() => el.style.setProperty('--ux-dock-h', `${host.clientHeight}px`));
+        ro.observe(host);
+        return () => ro.disconnect();
+    }, [props.frame]);
     return <DockContext.Provider value={api}>
-        <div className="ux-dock" data-dock="">
+        <div className="ux-dock" data-dock="" ref={dockEl}>
             <div className="ux-dock-top">
                 <div className="ux-dock-region ux-dock-start" data-region="top-start" ref={setStart}/>
                 <div className="ux-dock-region ux-dock-end" data-region="top-end" ref={setEnd}/>
             </div>
-            <div className="ux-dock-region ux-dock-bottom" data-region="bottom" ref={setBottom}/>
+            <div className="ux-dock-bottom-row">
+                <div className="ux-dock-region ux-dock-bottom" data-region="bottom" ref={setBottom}/>
+                <div className="ux-dock-region ux-dock-bottom-end" data-region="bottom-end" ref={setBottomEnd}/>
+            </div>
         </div>
         {props.children}
     </DockContext.Provider>;

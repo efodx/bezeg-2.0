@@ -11,6 +11,7 @@ import {ReadoutList} from "../base/controls/ReadoutParts";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import type {TriangulationEvent, TriangulationReadout, TriangulationRefusal} from "./TriangulationGraph";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 export interface TriangulationControlActions {
     selectEdge(a: number | undefined, b?: number): void;
     flip(): void;
@@ -112,7 +113,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
         <div className="inspector-group" data-triangulation="status">
             <div data-triangulation="refusal-slot"><RefusalNotice channel={channel}/></div>
             {eventSentence && refusalSentence !== eventSentence && <p className="inspector-help" data-triangulation="event">{eventSentence}</p>}
-            {readout && <ReadoutList label={t("tri_readout_label")} hooks={{"data-triangulation": "readout"}} rows={[
+            {readout && <BoardReadout><ReadoutList label={t("tri_readout_label")} hooks={{"data-triangulation": "readout"}} rows={[
                 {id: "n", value: t("tri_readout_points", {value0: readout.n})},
                 {id: "k", value: t("tri_readout_boundary", {value0: readout.boundary.k})},
                 ...(readout.boundary.collinear > 0 ? [{id: "collinear", value: t("tri_readout_collinear", {value0: readout.boundary.collinear})}] : []),
@@ -126,7 +127,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                         ? t("tri_readout_angle_before_none")
                         : t("tri_readout_angle_before", {value0: formatDegrees(readout.minAngleBefore, language)})},
                 ] : []),
-            ]}/>}
+            ]}/></BoardReadout>}
             {announce && <LiveReadout readout={liveReadout} dataAttribute="triangulation-live"/>}
         </div>
     </>;

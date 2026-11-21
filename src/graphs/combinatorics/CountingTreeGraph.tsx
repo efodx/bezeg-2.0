@@ -23,6 +23,7 @@ import {Preset} from "../base/presets/Presets";
 import {countingTreePresetCollection} from "./combinatoricsPresetCollection";
 import {addPolyline, binomText, countText, emptyPoly, Poly, SceneObjects, smallText, superscript} from "./combinatoricsText";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state: the stored counting fields. */
 export interface CountingTreeGraphState extends BaseGraphState, CountingState {}
 
@@ -970,12 +971,12 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("combinatorics_readout_title")}</ReadoutHeading>
                 <p data-combinatorics-status="">{this.statusText()}</p>
                 <ReadoutList label={t("combinatorics_readout_title")} rows={this.readoutRows()}/>
                 <LiveReadout readout={this.status}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

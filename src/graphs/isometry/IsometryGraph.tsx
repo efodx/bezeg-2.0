@@ -32,6 +32,7 @@ import type {IsometryClass} from "../../isometry/isometry2";
 import type {RosetteImage} from "../../isometry/rosette";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state is the stored isometry state (ADR 0047 sections 1 to 3); everything else is derived from it. */
 export interface IsometryGraphState extends BaseGraphState, IsometryState {}
 
@@ -1255,13 +1256,13 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("isometry_graph_readout_title")}</ReadoutHeading>
                 <p data-isometry-status="">{this.statusText()}</p>
                 <ReadoutList label={t("isometry_graph_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("isometry_graph_approx_note")}</p>
                 <LiveReadout readout={this.status}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

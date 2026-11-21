@@ -29,6 +29,7 @@ import {classifyEigen, type EigenClassification} from "../../linear/eigen2";
 import type {PlaneType} from "../../dynamics/classify2";
 import {RK4_STEP, type StopReason} from "../../dynamics/rk4";
 import {SYSTEM_IDS, type SystemId} from "../../dynamics/systems2";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 import {
     DEFAULT_PHASE_STATE, derivePhase, ENTRY_RANGE, ENTRY_SCALE, entryOf, equilibriumChoices, halfWidthOf, ORBIT_DURATION, parsePhaseState, PhaseDerived, PhaseState, serializePhaseState,
     SEEDS_MAX, SEEDS_MIN, SEED_RANGE, SEED_SCALE, seedOf, snapDragInteger, typedInteger, withSystem, ZOOM_RANGE, EnergyStatus, Orbit, SeedState,
@@ -1267,13 +1268,13 @@ function PhaseReadout(props: {graph: PhasePortraitGraph}) {
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
     const {plane} = graph.derived();
-    return <div className="inspector-group">
+    return <BoardReadout><div className="inspector-group">
         <ReadoutHeading>{text("phase_graph_readout_title")}</ReadoutHeading>
         <p data-phase-status="">{graph.statusText()}</p>
         <ReadoutList label={text("phase_graph_readout_title")} rows={graph.readoutRows()}/>
         <TraceDeterminantInset tau={plane.tau} delta={plane.delta}/>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div>;
+    </div></BoardReadout>;
 }
 
 export default PhasePortraitGraph;

@@ -13,6 +13,7 @@ import {useStatusReadout} from "../base/controls/useStatusReadout";
 import type {FourPointReadout} from "./degenerateSites";
 import type {VoronoiMode} from "./voronoiPresetCollection";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The named examples of the degenerate-sites graph. */
 export type VoronoiExampleId = "square" | "trapezoid" | "near" | "collinear";
 const EXAMPLE_LABEL = {
@@ -217,7 +218,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             <p className="inspector-help" data-voronoi="construction">{stepText}</p>
         </div>}
         {/* The diagram's counts and vertices follow the cell construction, so the site choice that starts the first task leads the panel. */}
-        {!refusal && status.diagramShown && <div className="inspector-group" data-voronoi-diagram="">
+        {!refusal && status.diagramShown && <BoardReadout><div className="inspector-group" data-voronoi-diagram="">
             <ReadoutList label={t("vor_readout_label")} hooks={{"data-voronoi": "readout"}} rows={[
                 {id: "sites", value: t("vor_count_sites", {value0: counts.sites})},
                 {id: "vertices", value: t("vor_count_vertices", {value0: counts.vertices})},
@@ -232,7 +233,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                     <li key={index} data-vertex={index}>{t("vor_vertex_item", {value0: index + 1, value1: vertex.x, value2: vertex.y, value3: siteList(vertex.sites)})}</li>
                 ))}
             </ul>}
-        </div>}
+        </div></BoardReadout>}
         <div className="inspector-group">
             {/* A single-point list: no add or remove. Values are quarters of a grid unit, so the field grid keeps them exact. */}
             <PointListInput title={t("vor_query_group")} points={[status.query.value]} pointLabel={() => "q"}

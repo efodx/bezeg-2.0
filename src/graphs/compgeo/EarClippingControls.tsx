@@ -9,6 +9,7 @@ import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The named examples, in the order of the chooser. */
 export type EarClippingExampleId = "example-1" | "example-2";
 
@@ -99,7 +100,7 @@ export function EarClippingControls(props: EarClippingControlsProps) {
             {trianglesText && <p className="inspector-help" data-ear-clipping="triangles">{trianglesText}</p>}
             {countText && <p className="inspector-help" data-ear-clipping="count">{countText}</p>}
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="ear-clipping-live"/>
-            {summary && <>
+            {summary && <BoardReadout>
                 <ReadoutHeading>{t("earclip_result_title")}</ReadoutHeading>
                 <ul data-ear-clipping="result">
                     <li data-result="triangles">{t("earclip_result_triangles", {value0: summary.triangles, value1: summary.triangles + 2})}</li>
@@ -109,7 +110,7 @@ export function EarClippingControls(props: EarClippingControlsProps) {
                     <li data-result="guards">{t("earclip_result_guards", {
                         value0: summary.guardCount, value1: summary.guardVertices.map(v => `P${v + 1}`).join(", ")})}</li>
                 </ul>
-            </>}
+            </BoardReadout>}
         </div>
         <div className="inspector-group">
             <ExampleSelect label={t("earclip_example_group")} current={exampleId} onChoose={actions.loadExample}

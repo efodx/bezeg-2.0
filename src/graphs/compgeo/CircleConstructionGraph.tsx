@@ -27,6 +27,7 @@ import {Preset} from "../base/presets/Presets";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import {circleConstructionPresetCollection} from "./circleConstruction/circleConstructionPresetCollection";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state is the stored circle construction state (ADR 0045 sections 1 and 2); everything else is derived from it. */
 export interface CircleConstructionGraphState extends BaseGraphState, CircleConstructionState {}
 
@@ -1041,14 +1042,14 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("circle_construction_readout_title")}</ReadoutHeading>
                 <p data-circle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("circle_construction_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("circle_construction_approx_note")}</p>
                 {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

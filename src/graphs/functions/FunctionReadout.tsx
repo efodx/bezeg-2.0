@@ -4,6 +4,7 @@ import {ReadoutHeading, ReadoutHelp, ReadoutList} from "../base/controls/Readout
 import "./FunctionReadout.css";
 import {usePick} from "../../uxPicks/picks";
 import {usePublishLegend} from "../../uxPicks/boardText/legendStore";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 
 export interface ReadoutRow {
     /** Stable key and test hook (data-readout). */
@@ -20,11 +21,11 @@ export interface ReadoutRow {
 export function FunctionReadout(props: { title: string; rows: readonly ReadoutRow[]; note?: string | readonly string[] }) {
     useT();
     const notes = props.note === undefined ? [] : typeof props.note === "string" ? [props.note] : props.note;
-    return <div className="inspector-group function-readout">
+    return <BoardReadout><div className="inspector-group function-readout">
         <ReadoutHeading>{props.title}</ReadoutHeading>
         {props.rows.length > 0 && <ReadoutList label={props.title} rows={props.rows}/>}
         {notes.map(note => <ReadoutHelp key={note} hooks={{"data-readout-note": ""}}>{note}</ReadoutHelp>)}
-    </div>;
+    </div></BoardReadout>;
 }
 
 export interface LegendItem {

@@ -27,6 +27,7 @@ import {SceneObjects} from "./SceneObjects";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state: the stored cobweb fields (`CobwebState`), nothing derived and no playback. */
 export interface RecursionCobwebGraphState extends BaseGraphState, CobwebState {}
 
@@ -672,13 +673,13 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: ITERATION_MAX_STEPS})}</p>
             </div>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("recursion_graph_readout_title")}</ReadoutHeading>
                 <p data-recursion-status="">{this.statusText()}</p>
                 <ReadoutList label={t("recursion_graph_readout_title")} rows={this.readoutRows()}/>
                 {this.state.map !== "cosine" && <ReadoutHelp><span data-recursion-note="">{t("recursion_graph_note_exact")}</span></ReadoutHelp>}
                 <LiveReadout readout={this.status} muted={playing}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

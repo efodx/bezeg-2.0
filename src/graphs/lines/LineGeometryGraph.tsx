@@ -23,6 +23,7 @@ import {Preset} from "../base/presets/Presets";
 import {lineGeometryPresetCollection} from "./linePresetCollection";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The scene state: the mode, what the intersect mode meets, and the integer grid handles. */
 export type LineGeometryGraphState = BaseGraphState & LineGeometryState;
 
@@ -912,12 +913,12 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("line_geometry_readout_title")}</ReadoutHeading>
                 <p data-line-status="">{this.statusText()}</p>
                 <ReadoutList label={t("line_geometry_readout_title")} rows={this.rows()}/>
                 <LiveReadout readout={this.status}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

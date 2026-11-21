@@ -13,6 +13,7 @@ import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 import {ReadoutScrollTable} from "../base/controls/ReadoutParts";
 import "./BezierClippingControls.css";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 export interface BezierClippingControlsProps {
     /** What the shown step knows (the graph's `clipState`). */
     state: ClipState;
@@ -100,7 +101,7 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
                           onChange={value => props.onTolerance(Number(value))}/>
             <p className="inspector-help">{t("bezierclipping_tolerance_help")}</p>
         </div>
-        <div className="inspector-group bezier-clipping-table">
+        <BoardReadout><div className="inspector-group bezier-clipping-table">
             <ReadoutScrollTable label={t("bezierclipping_table_caption")}>
             <table data-bezier-clipping="table" style={{width: "100%", fontSize: "1rem", fontVariantNumeric: "tabular-nums", borderCollapse: "collapse"}}>
                 <caption style={{textAlign: "left", fontWeight: 700}}>{t("bezierclipping_table_caption")}</caption>
@@ -123,7 +124,7 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
                 </tbody>
             </table>
             </ReadoutScrollTable>
-        </div>
+        </div></BoardReadout>
         <Inset controller={props.inset} fontSize={props.fontSize}/>
         {/* Silent while Play runs (a tick each interval would flood a screen reader); announces once on Pause or at the end. */}
         <LiveReadout readout={liveReadout} muted={playing} dataAttribute="bezier-clipping-live"/>

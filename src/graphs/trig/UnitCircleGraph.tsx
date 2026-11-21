@@ -17,6 +17,7 @@ import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {addAngles, Angle, angleFromHalfDegrees, degreesOf, Quadrant, toRadians} from "../../trig/angle";
 import {pointInRotatedFrame, pointOnCircle, Point, rotationFrame, sumPoint, symmetricImages} from "../../trig/unitCircle";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 import {
     DEFAULT_UNIT_CIRCLE_STATE, deriveUnitCircle, parseUnitCircleState, serializeUnitCircleState, snapAngleInput, snapPiMultipleInput, UnitCircleDerived,
     UnitCircleState,
@@ -583,14 +584,14 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("unit_circle_readout_title")}</ReadoutHeading>
                 <p data-unit-circle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("unit_circle_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("unit_circle_approx_note")}</p>
                 {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

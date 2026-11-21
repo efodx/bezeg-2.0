@@ -22,6 +22,7 @@ import {AnimationDriver, AnimationScheduler} from "../../../learning/runtime/ani
 import type {LessonAction} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {circularSource} from "../../../kinematics/motion";
+import {BoardReadout} from "../../../uxPicks/boardText/BoardReadout";
 import {
     arrowEnd, componentVectors, DEFAULT_KINEMATICS_STATE, deriveKinematics, Evaluation, evaluateAt, FIELD_RANGES, GRAVITY,
     KinematicsDerived, KinematicsState, MotionChoice, MOTION_IDS, NumericField, parseKinematicsState, SAMPLES, serializeKinematicsState, snapField, ToggleField, withMotion,
@@ -1035,13 +1036,13 @@ function KinematicsReadout(props: {graph: KinematicsGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <BoardReadout><div className="inspector-group">
         <ReadoutHeading>{text("kinematics_graph_readout_title")}</ReadoutHeading>
         <p data-kinematics-status="">{graph.statusText()}</p>
         <ReadoutList label={text("kinematics_graph_readout_title")} rows={graph.readoutRows()}/>
         <p data-kinematics-sign="">{text("kinematics_graph_sign_hint")}</p>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div>;
+    </div></BoardReadout>;
 }
 
 export default KinematicsGraph;

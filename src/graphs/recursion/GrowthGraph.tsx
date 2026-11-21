@@ -24,6 +24,7 @@ import {SceneObjects} from "./SceneObjects";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The keys of `S` that hold numbers: the only fields an integer edit may write. */
 type NumericKeys<S> = {[K in keyof S & string]: S[K] extends number ? K : never}[keyof S & string];
 
@@ -706,14 +707,14 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         const panel = this.state.panel;
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("recursion_graph_growth_readout_title")}</ReadoutHeading>
                 <p data-recursion-status="">{this.statusText()}</p>
                 <ReadoutList label={t("recursion_graph_growth_readout_title")} rows={panel === "sequence" ? this.sequenceRows() : panel === "interest" ? this.interestRows() : this.logRows()}/>
                 {panel === "interest" && <ReadoutList label={t("recursion_graph_growth_e_title")} rows={this.eRows()}/>}
                 <ReadoutHelp><span data-recursion-note="">{t(this.noteKey())}</span></ReadoutHelp>
                 <LiveReadout readout={this.status} muted={false}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

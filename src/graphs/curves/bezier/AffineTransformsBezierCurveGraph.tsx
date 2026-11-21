@@ -14,6 +14,7 @@ import {ReadoutHeading, ReadoutHelp, ReadoutList} from "../../base/controls/Read
 import {GraphPalette} from "../../styles/GraphPalette";
 import {nameBox, PlacedLabels, pxFrame} from "../../legend/pointNamePlacement";
 import {controlNameBox, evaluationNameBox} from "../object/AbstractJXGPointControlledCurve";
+import {BoardReadout} from "../../../uxPicks/boardText/BoardReadout";
 import {
     type Affine, type AffineOperation, type Pt, IDENTITY, affineOfOperation, bezierPoint, boxCentreOf, composeAffine,
     departsFromTrack, mappedReferencePoint, meanOf,
@@ -394,13 +395,13 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
         const mapped = mappedReferencePoint(reference, this.track, parameter);
         const own = curve.eval(parameter);
         const at = number(parameter);
-        return <section key="compare" className="affine-transform-group affine-compare" data-affine-compare="true">
+        return <BoardReadout><section key="compare" className="affine-transform-group affine-compare" data-affine-compare="true">
             <ReadoutHeading>{t("affine_compare_title")}</ReadoutHeading>
             <ReadoutList label={t("affine_compare_title")} rows={[
                 {id: 'affine-mapped-reference', label: `T(B(${at}))`, value: pair(mapped)},
                 {id: 'affine-moved-points', label: <>B<sub>T</sub>({at})</>, value: pair([own.X(), own.Y()])},
             ]}/>
             <ReadoutHelp>{t("affine_compare_help")}</ReadoutHelp>
-        </section>;
+        </section></BoardReadout>;
     }
 }

@@ -8,6 +8,7 @@ import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {inscribedTexts} from "./inscribedAngleText";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 export interface InscribedAnglePanelProps {
     analysis: InscribedAnalysis;
     /** The example whose vertices are exactly the current ones; undefined for custom vertices. */
@@ -33,7 +34,7 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
         {glider && <GliderControls t={glider.t} onT={props.onT}/>}
         <ExampleSelect {...props}/>
         <p className="inspector-help pointset-status" data-inscribed-chip>{texts.chip}</p>
-        {texts.acb && <>
+        {texts.acb && <BoardReadout>
             <ReadoutHeading>{t("inscribed_readouts_heading")}</ReadoutHeading>
             <ul className="pointset-list inscribed-readouts">
                 <li data-inscribed-readout="acb">{texts.acb}</li>
@@ -43,13 +44,13 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
             {texts.relation && <p className="inspector-help" data-inscribed-relation={glider?.relation}>{texts.relation}</p>}
             {texts.diameter && <p className="inspector-help" data-inscribed-diameter>{texts.diameter}</p>}
             {texts.undefinedNote && <p className="inspector-help" data-inscribed-undefined>{texts.undefinedNote}</p>}
-        </>}
-        {texts.vertices.length > 0 && <>
+        </BoardReadout>}
+        {texts.vertices.length > 0 && <BoardReadout>
             <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-inscribed-coordinates>
                 {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
             </ul>
-        </>}
+        </BoardReadout>}
         <LiveReadout readout={liveReadout} dataAttribute="inscribed-live"/>
     </div>;
 }

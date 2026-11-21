@@ -22,6 +22,7 @@ import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
 import {BIFURCATION_R_MAX, BIFURCATION_R_MIN, bifurcationRaster, columnR, nearestColumn} from "../../dynamics/bifurcation";
 import {logisticMapAt} from "../../dynamics/logistic";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 import {
     DEFAULT_LOGISTIC_STATE, deriveLogistic, LogisticDerived, LogisticState, parseLogisticState, R_RANGE, R_SCALE, rOf, serializeLogisticState, snapDragInteger, startOf, STEP_RANGE, typedInteger,
     X_RANGE, X_SCALE,
@@ -802,10 +803,12 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
                 }}
                 </ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: STEP_RANGE.max})}</p>
-                <ReadoutHeading>{t("phase_graph_logistic_readout_title")}</ReadoutHeading>
-                <p data-logistic-status="">{this.statusText()}</p>
-                <ReadoutList label={t("phase_graph_logistic_readout_title")} rows={this.readoutRows()}/>
-                <LiveReadout readout={this.status} muted={playing}/>
+                <BoardReadout>
+                    <ReadoutHeading>{t("phase_graph_logistic_readout_title")}</ReadoutHeading>
+                    <p data-logistic-status="">{this.statusText()}</p>
+                    <ReadoutList label={t("phase_graph_logistic_readout_title")} rows={this.readoutRows()}/>
+                    <LiveReadout readout={this.status} muted={playing}/>
+                </BoardReadout>
             </div>
         </>;
     }

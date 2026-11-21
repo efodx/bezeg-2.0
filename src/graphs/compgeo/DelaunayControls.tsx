@@ -12,6 +12,7 @@ import {eventText} from "./TriangulationControls";
 import type {TriangulationEvent} from "./TriangulationGraph";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** The named examples, in the order of the chooser. */
 export type DelaunayExampleId = "quad" | "seven" | "square";
 
@@ -146,14 +147,14 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             <p className="inspector-help" data-delaunay="note">{noteSentence}</p>
             {detail && <p className="inspector-help" data-delaunay="detail">{detail}</p>}
             {incircle && <p className="inspector-help" data-delaunay="incircle">{incircle}</p>}
-            <ReadoutList label={t("del_readout_label")} hooks={{"data-delaunay": "readout"}} rows={[
+            <BoardReadout><ReadoutList label={t("del_readout_label")} hooks={{"data-delaunay": "readout"}} rows={[
                 {id: "flips", value: t("del_flips", {value0: status.flips})},
                 {id: "illegal", value: t("del_illegal_count", {value0: status.illegalCount})},
                 {id: "min-now", value: t("del_min_now", {value0: formatDegrees(status.minNow, language)})},
                 {id: "min-start", value: t("del_min_start", {value0: formatDegrees(status.minStart, language)})},
                 {id: "angles-now", value: angleLine(t, language, status.anglesNow, "del_angles_now")},
                 {id: "angles-start", value: angleLine(t, language, status.anglesStart, "del_angles_start")},
-            ]}/>
+            ]}/></BoardReadout>
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("del_tri_list_label")} data-delaunay="triangles">
                 {status.triangles.map((corners, index) => (
                     <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedIndex === index}

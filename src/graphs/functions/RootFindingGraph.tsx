@@ -23,6 +23,7 @@ import {functionPresetCollections} from "./functionPresetCollections";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {ReadoutHelp} from "../base/controls/ReadoutParts";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 /** Time between two playback steps: one step per interval, never more than one per frame (ADR 0012), as for bisection. */
 export const ROOT_FINDING_STEP_INTERVAL_MS = 600;
 
@@ -332,7 +333,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         const status = this.status(model, language);
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("root_finding_note", {value0: number(reference)})}/>
-            <div className="inspector-group function-readout root-finding-table">
+            <BoardReadout><div className="inspector-group function-readout root-finding-table">
                 <h3>{t("root_finding_table_title")}</h3>
                 <table aria-label={t("root_finding_table_title")}>
                     <thead><tr>
@@ -346,7 +347,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                     </tbody>
                 </table>
                 {first > 0 && <ReadoutHelp>{t("root_finding_table_truncated", {value0: ROOT_FINDING_TABLE_ROWS})}</ReadoutHelp>}
-            </div>
+            </div></BoardReadout>
             <FunctionStatus className="bisection-status" dataAttribute="root-finding-status" lines={[status]} muted={this.playback.isPlaying}/>
         </>;
     }

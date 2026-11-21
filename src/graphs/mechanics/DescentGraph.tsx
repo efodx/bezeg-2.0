@@ -26,6 +26,7 @@ import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animat
 import {fitBoundingBox} from "../base/fitBoundingBox";
 import {G} from "../../mechanics/descentTime";
 import type {Track, Vec2} from "../../mechanics/tracks";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 import {
     beadParameter, checkField, DEFAULT_DESCENT_STATE, DESCENT_MODES, deriveDescent, DescentDerived, DescentMode, DescentState, FIELD_RANGES, isThetaField, QUARTER,
     NumericField, parseDescentState, RaceDerived, RaceTrackId, serializeDescentState, snapDrag, TautochroneDerived, ThetaField, THETA_FIELDS, ToggleField, TrackDerived,
@@ -1156,13 +1157,13 @@ function DescentReadout(props: {graph: DescentGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <BoardReadout><div className="inspector-group">
         <ReadoutHeading>{text("descent_graph_readout_title")}</ReadoutHeading>
         <p data-descent-status="">{graph.statusText()}</p>
         <ReadoutList label={text("descent_graph_readout_title")} rows={graph.readoutRows()}/>
         <ReadoutHelp hooks={{"data-descent-hint": ""}}>{text("descent_graph_depth_hint")}</ReadoutHelp>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div>;
+    </div></BoardReadout>;
 }
 
 export default DescentGraph;

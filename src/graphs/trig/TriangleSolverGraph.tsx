@@ -23,6 +23,7 @@ import {Rational, RationalPoint} from "../../compgeo/rational";
 import type {TriangleShape} from "../../compgeo/triangle";
 import {angleAtAntipode, CosineRule, SineRule} from "../../trig/sineCosineRules";
 import {SolveResult, triangleFromSolution, Vertices} from "../../trig/triangleSolver";
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 import {
     DEFAULT_SOLVE_DATA, DEFAULT_TRIANGLE_STATE, deriveTriangle, parseTriangleState, serializeTriangleState, SIDE_MAX, SIDE_MIN, SOLVE_DATA_TYPES, SOLVER_ANGLE_MAX,
     SOLVER_ANGLE_MIN, snapSideInput, snapSolverAngleInput, snapVertexInput, TRIANGLE_MODES, TriangleDerived, TriangleState,
@@ -953,13 +954,13 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <BoardReadout><div className="inspector-group">
                 <ReadoutHeading>{t("triangle_solver_readout_title")}</ReadoutHeading>
                 <p data-triangle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("triangle_solver_readout_title")} rows={this.readoutRows()}/>
                 {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
-            </div>
+            </div></BoardReadout>
         </>;
     }
 }

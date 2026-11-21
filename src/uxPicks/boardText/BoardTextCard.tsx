@@ -5,6 +5,7 @@ import {buildCardHtml} from './boardTextLayout';
 import {DockCard} from '../dock/DockCard';
 import {isMorphing, subscribeMorphing} from '../b1/morph';
 import {usePublishedLegend} from './legendStore';
+import {ReadoutBody, useReadoutCount} from './BoardReadout';
 import './BoardTextCard.css';
 
 const HIDDEN = 'ux-boardtext-hidden';
@@ -135,12 +136,13 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
     const items = usePublishedLegend();
     // A graph with a tools legend repeats its key in a short line on the board; the fuller tools legend wins.
     const rows = items.length > 0 ? [] : scan.legendRows;
+    const readouts = useReadoutCount();
     const hasLegend = items.length > 0 || rows.length > 0;
     return <>
         {scan.text !== '' && <DockCard kind="text" title="Besedilo" what="besedilo" region="top-end">
             {open => open && <TypesetBody html={scan.text}/>}
         </DockCard>}
-        {hasLegend && <DockCard kind="legend" title="Legenda" what="legendo" region="top-start">
+        {hasLegend && <DockCard kind="legend" title="Legenda" what="legendo" region="top-start" order={1}>
             {open => open && <div className="ux-btext-body ux-bleg-body">
                 {items.length > 0 && <ul className="ux-bleg-list">
                     {items.map(item => <li key={item.id} data-legend={item.id}>
@@ -150,6 +152,9 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
                 </ul>}
                 {rows.length > 0 && <TypesetBody html={rows.join('')} className="ux-bleg-rows"/>}
             </div>}
+        </DockCard>}
+        {readouts > 0 && <DockCard kind="readout" title="Odčitki" what="odčitke" region="top-end" order={2}>
+            {open => open && <ReadoutBody/>}
         </DockCard>}
     </>;
 }

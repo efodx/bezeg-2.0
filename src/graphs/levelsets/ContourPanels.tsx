@@ -9,6 +9,7 @@ import type {SurfaceView} from "../patches/surface-view/surfaceScene";
 import type ContourMapGraph from "./ContourMapGraph";
 import {FUNCTION_KEYS} from "./ContourMapGraph";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 const REDUCED_REASON_ID = "contour-play-reduced-reason";
 
 /** Play or pause, reset and the step slider of the descent: host state, so only this part re-renders on a step. */
@@ -42,7 +43,7 @@ export function ContourReadout(props: {graph: ContourMapGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <BoardReadout><div className="inspector-group">
         <ReadoutHeading>{text("levelsets_graph_readout_title")}</ReadoutHeading>
         <p data-contour-status="">{graph.statusText()}</p>
         <ReadoutList label={text("levelsets_graph_readout_title")} rows={graph.readoutRows()}/>
@@ -50,7 +51,7 @@ export function ContourReadout(props: {graph: ContourMapGraph}) {
             {graph.legend().map(row => <li key={row.id} data-legend={row.id}>{row.text}</li>)}
         </ul>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div>;
+    </div></BoardReadout>;
 }
 
 /** The surface z = f(x, y) with the chosen-level contour, in the workspace beside the map; the camera edits are stored. */

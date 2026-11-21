@@ -27,6 +27,7 @@ import {epicyclePresetCollection} from "./functionPresetCollections";
 import "./EpicycleGraph.css";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
+import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
 const TWO_PI = 2 * Math.PI;
 const BOARD_VIEW: BoundingBox = [-3.2, 3.2, 3.2, -3.2];
 /** One turn of the time t takes this long, measured from frame timestamps (never frame counts). */
@@ -575,7 +576,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
 function EpicycleTable(props: { rows: readonly { k: number; modulus: number }[] }) {
     const text = useT();
     const language = currentLanguage();
-    return <div className="inspector-group">
+    return <BoardReadout><div className="inspector-group">
         <div className="epicycle-table" data-testid="epicycle-table">
             <ReadoutScrollTable label={text("epicycle_table_summary")}>
             <table>
@@ -590,7 +591,7 @@ function EpicycleTable(props: { rows: readonly { k: number; modulus: number }[] 
             </table>
             </ReadoutScrollTable>
         </div>
-    </div>;
+    </div></BoardReadout>;
 }
 
 /** Play or pause and the time slider: host state, so only this part re-renders on a frame. */
