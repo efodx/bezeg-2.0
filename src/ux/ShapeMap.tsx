@@ -70,7 +70,9 @@ export function ShapeMap(props: {frame: React.RefObject<HTMLDivElement>}) {
     };
 
     const start = () => {
-        const keys = [...recent.current.filter(key => usable.some(entry => entry.key === key)), ...usable.map(entry => entry.key)];
+        // Untouched parameters: prefer ones with fewer slider steps (n up to 1000 makes a map of hair-thin tiles).
+        const bySteps = [...usable].sort((p, q) => (p.max - p.min) / p.step - (q.max - q.min) / q.step);
+        const keys = [...recent.current.filter(key => usable.some(entry => entry.key === key)), ...bySteps.map(entry => entry.key)];
         const two = [...new Set(keys)].slice(0, 2);
         setOpen(true);
         void capture(two);
