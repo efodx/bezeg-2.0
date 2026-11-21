@@ -38,6 +38,19 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b23',
+        name: 'Laboratorijski dnevnik: tvoji poskusi postanejo domneve',
+        idea: 'Vsaka sprememba, ki jo narediš (drsnik, števec, točka), se sama zapiše kot poskus: kaj premakneš, kaj naredijo odčitki in kaj ostane enako, s sličico prej/potem, ki jo tapneš za ponovitev. Iz dveh podobnih poskusov dnevnik sestavi domnevo (»če x povečaš, se napaka poveča«, »ko spreminjaš P, se ∠APB ne spremeni«) in jo s »Preizkusi drugje« preveri pri naključno pretresenih ostalih količinah; domneva, ki tam pade, je lekcija.',
+        generalizes: 'Opazuje posnetek stanja prizora; ko se pol sekunde ne spremeni, primerja drsnike in števce v inšpektorju ter vse odčitke (besedila na plošči, seznam Odčitki) s prejšnjim mirnim stanjem. Domneve so le štetje predznakov sprememb po količini, zato deluje na vsakem grafu z odčitki, brez kode na lekcijo.',
+        try: 'Dvakrat premakni isti drsnik v isto smer, odpri »Dnevnik« in tapni »Preizkusi drugje«. Pri Taylorju poskusi večkrat: ko je x levo od c, domneva pade.',
+        links: [
+            {label: 'Geometrija: obodni kot (odkrij izrek)', to: '/bezeg-2.0/inscribed-angle?ux=b23'},
+            {label: 'Analiza: Taylorjev polinom (domneva, ki pade)', to: '/bezeg-2.0/analysis/taylor?ux=b23'},
+            {label: 'Verjetnost: binomska in normalna', to: '/bezeg-2.0/probability/binomial-normal?ux=b23'},
+            {label: 'Funkcije: transformacije (sličice brez odčitkov)', to: '/bezeg-2.0/functions/transformations?ux=b23'},
+        ],
+    },
+    {
         id: 'b18',
         name: 'Zemljevid: vse kombinacije dveh količin naenkrat',
         idea: 'Gumb »▦ Zemljevid« na grafu nariše mrežo pomanjšanih grafov za dve izbrani količini (vodoravno ena, navpično druga). Najprej iz sličic napoveš, kje je odčitek (na primer napaka) najmanjši, nato se mreža pobarva po odčitku z napovedjo in pravim mestom; vlečeš po zemljevidu in oba drsnika se premikata hkrati.',

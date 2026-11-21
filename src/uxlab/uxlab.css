@@ -595,3 +595,56 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
     :has(> .ux-map-open, > .ux-task-open) > .ux-grab-hint,
     :has(.ux-map-open, .ux-task-open) .ux-grab-hint { bottom: 58px; }
 }
+
+/* b23 Laboratorijski dnevnik */
+.ux-lab-open.ux-lab-open { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 30; min-height: 32px; padding: 5px 12px; border-radius: 999px; border: 1px solid #8a5a1f; background: #fffdf5; color: #6e4716; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(25, 55, 47, .14); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.ux-lab-open.ux-lab-open:hover, .ux-lab-open[aria-expanded=true] { background: #6e4716; color: #fffdf5; }
+.ux-lab-count { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #c9a14a; color: #19372f; font-size: 11px; line-height: 18px; text-align: center; }
+.ux-lab-toast { position: absolute; left: 10px; top: calc(50% + 26px); z-index: 30; max-width: min(420px, calc(100% - 20px)); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 6px 10px; border-radius: 12px; background: rgba(255, 251, 238, .96); border: 1px solid rgba(138, 90, 31, .35); box-shadow: 0 6px 18px rgba(25, 55, 47, .14); font-size: 12.5px; color: #19372f; font-variant-numeric: tabular-nums; pointer-events: none; animation: ux-lab-in .25s ease-out; }
+@keyframes ux-lab-in { from { opacity: 0; transform: translateY(6px); } }
+.ux-lab-toast-tag { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a5a1f; }
+.ux-lab { position: absolute; left: 10px; top: 10px; bottom: 10px; z-index: 31; width: min(380px, calc(100% - 20px)); display: flex; flex-direction: column; border-radius: 14px; background: #fffbee; border: 1px solid rgba(138, 90, 31, .3); box-shadow: 0 12px 30px rgba(25, 55, 47, .2); color: #19372f; font-size: 13px; overflow: hidden;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 27px, rgba(138, 90, 31, .08) 27px 28px); }
+.ux-lab.is-sheet { position: fixed; left: 0; right: 0; top: auto; bottom: 0; width: auto; max-height: 62vh; border-radius: 16px 16px 0 0; z-index: 1000; }
+.ux-lab-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px 8px; border-bottom: 1px solid rgba(138, 90, 31, .2); background: #fffbee; }
+.ux-lab-head strong { flex: 1; font-family: var(--font-display, Georgia, serif); font-size: 16px; color: #6e4716; }
+.ux-lab-clear.ux-lab-clear { min-height: 28px; padding: 2px 10px; border-radius: 999px; border: 1px solid rgba(138, 90, 31, .35); background: none; color: #6e4716; font-size: 12px; }
+.ux-lab-close.ux-lab-close { min-height: 30px; min-width: 30px; padding: 0; border: 0; background: none; font-size: 15px; color: #526152; }
+.ux-lab-rules { display: grid; gap: 6px; padding: 8px 10px; border-bottom: 1px solid rgba(138, 90, 31, .2); background: rgba(255, 251, 238, .97); }
+.ux-lab-rule { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; padding: 7px 8px; border-radius: 10px; background: #fff; border: 1px solid rgba(93, 59, 110, .28); }
+.ux-lab-rule.is-mixed { border-color: rgba(176, 82, 54, .5); background: #fff6f1; }
+.ux-lab-rule-tag { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5d3b6e; }
+.ux-lab-rule.is-mixed .ux-lab-rule-tag { color: #a24a2e; }
+.ux-lab-rule-text { font-weight: 600; line-height: 1.35; }
+.ux-lab-rule-text small { font-weight: 400; color: #526152; }
+.ux-lab-test.ux-lab-test { grid-column: 1 / -1; justify-self: start; min-height: 30px; padding: 3px 12px; border-radius: 999px; border: 1px solid #5d3b6e; background: #5d3b6e; color: #fffdf5; font-weight: 700; font-size: 12px; cursor: pointer; }
+.ux-lab-test:disabled { opacity: .55; cursor: default; }
+.ux-lab-empty { margin: 12px; color: #526152; line-height: 1.5; }
+.ux-lab-list { list-style: none; margin: 0; padding: 6px 8px 10px; overflow-y: auto; display: grid; gap: 6px; }
+.ux-lab-entry { display: grid; grid-template-columns: 72px 1fr auto; gap: 8px; align-items: center; padding: 6px; border-radius: 10px; background: rgba(255, 255, 255, .78); border: 1px solid rgba(138, 90, 31, .15); animation: ux-lab-in .25s ease-out; }
+.ux-lab-entry.is-test.is-holds { border-color: rgba(54, 110, 64, .5); background: #f1f8ef; }
+.ux-lab-entry.is-test.is-breaks { border-color: rgba(176, 82, 54, .5); background: #fff3ee; }
+.ux-lab-replay.ux-lab-replay { padding: 0; border: 1px solid rgba(25, 55, 47, .15); border-radius: 8px; background: #fffdf5; width: 72px; height: 54px; cursor: pointer; overflow: hidden; }
+.ux-lab-replay:hover { border-color: #5d3b6e; }
+.ux-lab-thumb { width: 100%; height: 100%; display: block; }
+.ux-lab-thumb * { vector-effect: non-scaling-stroke; }
+.ux-lab-before { opacity: .3; }
+.ux-lab-text { min-width: 0; display: grid; gap: 2px; }
+.ux-lab-sentence, .ux-lab-toast { font-variant-numeric: tabular-nums; }
+.ux-lab-sentence { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; line-height: 1.35; }
+.ux-lab-sentence b, .ux-lab-toast b { color: #6e4716; }
+.ux-lab-then { color: #8a5a1f; font-weight: 700; }
+.is-up::before { content: '▲ '; color: #366e40; font-size: 9px; }
+.is-down::before { content: '▼ '; color: #a24a2e; font-size: 9px; }
+.ux-lab-none { color: #8a9a86; font-style: italic; }
+.ux-lab-verdict { font-weight: 700; font-size: 12px; }
+.is-holds .ux-lab-verdict { color: #2f6a3a; }
+.is-breaks .ux-lab-verdict { color: #a24a2e; }
+.ux-lab-verdict i { font-weight: 500; }
+.ux-lab-context { font-size: 11.5px; color: #526152; }
+.ux-lab-num { align-self: start; font-size: 10.5px; color: #8a9a86; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .ux-lab-toast, .ux-lab-entry { animation: none; } }
+.ux-lab-toast.is-fixed { position: fixed; left: 10px; right: 10px; top: auto; bottom: 12px; max-width: none; z-index: 1000; }
+.ux-lab-kept { color: #2f5b78; font-weight: 600; }
+.ux-lab-kept::before { content: '= '; font-size: 10px; }
+.ux-lab-test.ux-lab-test:hover:not(:disabled) { background: #4a2f58; color: #fffdf5; border-color: #4a2f58; }
