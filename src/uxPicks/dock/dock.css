@@ -35,6 +35,10 @@
 .ux-dock-a-tc { align-items: flex-start; }
 .ux-dock-a-bc { align-items: flex-end; }
 .ux-dock-h > * { flex: none; }
+/* A card taller than its row would be cut at the row's edge, and at the bottom row that edge is its head: the card is capped
+   at the row's height instead, its body scrolls inside it and the head (grip, fold) stays pinned at its top. */
+.ux-dock-h > .ux-btext { max-height: calc(var(--ux-dock-h, 600px) * 0.45 - 8px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-ink-secondary) transparent; }
+.ux-dock-h > .ux-btext > .ux-btext-head { position: sticky; top: 0; z-index: 1; background: var(--bezeg-shell-panel); border-radius: 12px 12px 0 0; }
 .ux-dock-v[data-overflow~="end"] { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); }
 .ux-dock-v[data-overflow~="start"] { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28px); mask-image: linear-gradient(to bottom, transparent, #000 28px); }
 .ux-dock-v[data-overflow~="start"][data-overflow~="end"] { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
