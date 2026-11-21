@@ -70,7 +70,14 @@ function readouts(container: HTMLElement): Map<string, {quantity: Quantity; valu
 
 const phone = () => window.matchMedia('(max-width: 640px)').matches;
 
-export function attachDependence(board: Board): () => void {
+const BINS = 48;
+
+/**
+ * With `predict` (prototype c25 "Napovej odvisnost", PhET's and Desmos's predict-then-observe), the chart starts
+ * empty: the student sketches how the number will change, and only then the sweep draws the truth over the sketch and
+ * scores how well the shapes agree.
+ */
+export function attachDependence(board: Board, predict = false): () => void {
     const container = board.containerObj as HTMLElement | undefined;
     if (!container) return () => undefined;
 
@@ -101,6 +108,8 @@ export function attachDependence(board: Board): () => void {
     let series = new Map<string, {quantity: Quantity; values: number[]}>();
     let sweeping = false;
     let token = 0;
+    let predicting = false;
+    let sketch: number[] = [];
 
     const settle = () => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => window.setTimeout(resolve, 25))));
 
@@ -119,12 +128,45 @@ export function attachDependence(board: Board): () => void {
         return finite.length === values.length && finite.every(v => Math.abs(v - finite[0]) <= 1e-9 * Math.max(1, Math.abs(v)));
     });
 
+    /** The student's sketch in chart coordinates (bins across, 0..1 up). */
+    const sketchPath = () => {
+        let d = '', pen = false;
+        sketch.forEach((fy, bin) => {
+            if (!Number.isFinite(fy)) { pen = false; return; }
+            const x = PAD_L + bin / (BINS - 1) * (W - PAD_L - PAD_R);
+            const y = H - PAD_B - fy * (H - PAD_B - PAD_T);
+            d += `${pen ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`;
+            pen = true;
+        });
+        return `<path class="ux-dep-sketch" d="${d}"/>`;
+    };
+    const score = (agreement: number) => {
+        const box = panel.querySelector<HTMLElement>('.ux-dep-score');
+        if (!box) return;
+        const stars = agreement >= 0.8 ? 3 : agreement >= 0.6 ? 2 : agreement >= 0.35 ? 1 : 0;
+        const words = ['Poskusi znova: primerjaj modro napoved z oranžno resnico.', 'Smer je prava, oblika še ne povsem.', 'Dobro: oblika se lepo ujema.', 'Odlično! Napovedal si obliko odvisnosti.'];
+        box.innerHTML = `<span class="ux-dep-stars" aria-label="${stars} od 3">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</span> Ujemanje oblike ${Math.round(agreement * 100)} %. ${words[stars]}`;
+        box.hidden = false;
+    };
+
     const plot = () => {
         const chart = panel.querySelector<SVGSVGElement>('.ux-dep-chart');
         const list = useful();
         if (!chart || !slider) return;
-        const chosen = list.find(entry => entry.quantity.key === quantity) ?? list[0];
         const caption = panel.querySelector<HTMLElement>('.ux-dep-caption')!;
+        if (predict && !sweeping && quantity && sketch.some(Number.isFinite) && !list.some(entry => entry.quantity.key === quantity)) {
+            // The predicted number did not move at all: a flat sketch was right.
+            const drawn = sketch.filter(Number.isFinite);
+            const flat = Math.max(0, 1 - (Math.max(...drawn) - Math.min(...drawn)) * 1.5);
+            const label = series.get(quantity)?.quantity.label ?? quantity;
+            chart.innerHTML = `<rect class="ux-dep-frame" x="${PAD_L}" y="${PAD_T}" width="${W - PAD_L - PAD_R}" height="${H - PAD_B - PAD_T}"/>` + sketchPath();
+            caption.innerHTML = `<b>${label}</b> se s <i>${symbolOf(slider.label)}</i> sploh ne spremeni.`;
+            score(flat);
+            return;
+        }
+        const predicted = predict && sketch.some(Number.isFinite);
+        const chosen = list.find(entry => entry.quantity.key === quantity) ?? (predicted ? undefined : list[0]);
+        if (!chosen && predicted) return;
         if (!chosen) {
             chart.innerHTML = '';
             caption.textContent = sweeping ? '' : `Ko se ${symbolOf(slider.label)} spreminja, nobeno število na grafu ne spremeni vrednosti.`;
@@ -172,6 +214,22 @@ export function attachDependence(board: Board): () => void {
             + `<text class="ux-dep-axis" x="${(PAD_L + W - PAD_R) / 2}" y="${H - 6}" text-anchor="middle">${symbolOf(slider.label)}</text>`
             + `<g class="ux-dep-now"><line class="ux-dep-now-line" y1="${PAD_T}" y2="${H - PAD_B}"/><circle r="5"/></g>`;
         chart.dataset.lo = String(lo); chart.dataset.hi = String(hi);
+        if (predict && sketch.some(Number.isFinite)) {
+            chart.insertAdjacentHTML('beforeend', sketchPath());
+            if (!sweeping) {
+                // Shape agreement in the chart's own frame: mean vertical gap over the bins the student drew.
+                let gap = 0, n = 0;
+                sketch.forEach((fy, bin) => {
+                    if (!Number.isFinite(fy)) return;
+                    const i = Math.round(bin / (BINS - 1) * (SAMPLES - 1));
+                    const v = values[i];
+                    if (!Number.isFinite(v)) return;
+                    gap += Math.abs(fy - (v - lo) / (hi - lo));
+                    n++;
+                });
+                if (n) score(Math.max(0, 1 - 2.2 * gap / n));
+            }
+        }
         caption.innerHTML = `<b>${chosen.quantity.label}</b> v odvisnosti od <i>${symbolOf(slider.label)}</i>${unit ? ` (v ${unit.trim()})` : ''}`;
         const chips = panel.querySelector<HTMLElement>('.ux-dep-quantities')!;
         chips.innerHTML = list.length > 1 ? list.map(entry => `<button type="button" class="ux-dep-q${entry === chosen ? ' ux-dep-q-on' : ''}" data-key="${entry.quantity.key.replace(/"/g, '&quot;')}">${entry.quantity.label}</button>`).join('') : '';
@@ -237,11 +295,11 @@ export function attachDependence(board: Board): () => void {
         if (!slider || !list.includes(slider)) slider = list[0];
         if (!slider) return;
         const chips = list.map((entry, i) => `<button type="button" class="ux-dep-chip${entry === slider ? ' ux-dep-chip-on' : ''}" data-index="${i}" title="${entry.label}">${symbolOf(entry.label)}</button>`).join('');
-        panel.innerHTML = `<div class="ux-dep-head"><strong>Kako je odvisno?</strong><button type="button" class="ux-dep-close" aria-label="Zapri">✕</button></div>`
+        panel.innerHTML = `<div class="ux-dep-head"><strong>${predict ? 'Napovej odvisnost' : 'Kako je odvisno?'}</strong><button type="button" class="ux-dep-close" aria-label="Zapri">✕</button></div>`
             + `<div class="ux-dep-chips"><span>od</span>${chips}</div>`
             + `<p class="ux-dep-caption"></p>`
             + `<div class="ux-dep-plot"><svg class="ux-dep-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Graf odvisnosti"></svg><span class="ux-dep-progress"></span></div>`
-            + `<p class="ux-dep-readout" aria-live="polite"></p><div class="ux-dep-quantities"></div>`
+            + `<p class="ux-dep-readout" aria-live="polite"></p><p class="ux-dep-score" hidden></p><div class="ux-dep-quantities"></div>`
             + `<p class="ux-dep-hint">Premakni drsnik ali povleci po grafu odvisnosti: pika kaže, kje je tabla zdaj.</p>`;
         if (phone()) {
             if (panel.parentElement !== document.body) document.body.appendChild(panel);
@@ -252,21 +310,58 @@ export function attachDependence(board: Board): () => void {
         }
         panel.hidden = false;
         bindChart();
-        void sweep();
+        if (!predict) { void sweep(); return; }
+        // Predict first: the chart is empty and the sweep waits for the student's sketch.
+        predicting = true;
+        sketch = Array(BINS).fill(NaN);
+        series = new Map();
+        const symbol = symbolOf(slider.label);
+        const options = [...readouts(container).values()].filter(({quantity: q}) => q.label !== symbol && !q.label.endsWith(` ${symbol}`));
+        if (!quantity || !options.some(option => option.quantity.key === quantity)) quantity = (options.find(option => option.value !== 0) ?? options[0])?.quantity.key;
+        const chosen = options.find(option => option.quantity.key === quantity);
+        const quantities = panel.querySelector<HTMLElement>('.ux-dep-quantities')!;
+        quantities.innerHTML = options.length > 1 ? options.map(({quantity: q}) => `<button type="button" class="ux-dep-q ux-dep-pick${q.key === quantity ? ' ux-dep-q-on' : ''}" data-key="${q.key.replace(/"/g, '&quot;')}">${q.label}</button>`).join('') : '';
+        panel.querySelector<HTMLElement>('.ux-dep-caption')!.innerHTML = chosen
+            ? `Napovej: kako se bo spreminjala količina <b>${chosen.quantity.label}</b>, ko <i>${symbol}</i> raste od ${format(slider.min)} do ${format(slider.max)}? Nariši s prstom ali miško.`
+            : 'Na tem grafu ni števila, ki bi ga lahko napovedal.';
+        const chart = panel.querySelector<SVGSVGElement>('.ux-dep-chart')!;
+        chart.innerHTML = `<rect class="ux-dep-frame" x="${PAD_L}" y="${PAD_T}" width="${W - PAD_L - PAD_R}" height="${H - PAD_B - PAD_T}"/>`
+            + `<text class="ux-dep-tick" x="${PAD_L - 4}" y="${PAD_T + 8}" text-anchor="end">več</text><text class="ux-dep-tick" x="${PAD_L - 4}" y="${H - PAD_B}" text-anchor="end">manj</text>`
+            + `<text class="ux-dep-tick" x="${PAD_L}" y="${H - 6}">${format(slider.min)}</text><text class="ux-dep-tick" x="${W - PAD_R}" y="${H - 6}" text-anchor="end">${format(slider.max)}</text>`
+            + `<text class="ux-dep-axis" x="${(PAD_L + W - PAD_R) / 2}" y="${H - 6}" text-anchor="middle">${symbol}</text><g class="ux-dep-ink"></g>`;
+        panel.querySelector<HTMLElement>('.ux-dep-readout')!.innerHTML = '<button type="button" class="ux-dep-check" disabled>Preveri napoved</button>';
+        panel.querySelector<HTMLElement>('.ux-dep-hint')!.textContent = 'Nariši krivuljo od leve proti desni. Tabla se ne premakne, dokler ne preveriš.';
     };
 
     /** Scrubbing the dependency graph moves the slider: the abstraction drives the concrete picture. */
     const bindChart = () => {
         const chart = panel.querySelector<SVGSVGElement>('.ux-dep-chart')!;
         let down = false;
+        let lastBin = -1;
         const move = (event: PointerEvent) => {
             if (!slider || sweeping) return;
             const box = chart.getBoundingClientRect();
             const fx = ((event.clientX - box.left) / box.width * W - PAD_L) / (W - PAD_L - PAD_R);
+            if (predicting) {
+                const fy = Math.min(1, Math.max(0, (H - PAD_B - (event.clientY - box.top) / box.height * H) / (H - PAD_B - PAD_T)));
+                const bin = Math.round(Math.min(1, Math.max(0, fx)) * (BINS - 1));
+                // Fill the bins between two pointer samples, so a fast stroke leaves no holes.
+                if (lastBin >= 0 && Math.abs(bin - lastBin) > 1) {
+                    const from = sketch[lastBin];
+                    const step = bin > lastBin ? 1 : -1;
+                    for (let b = lastBin + step; b !== bin; b += step) sketch[b] = from + (fy - from) * (b - lastBin) / (bin - lastBin);
+                }
+                sketch[bin] = fy;
+                lastBin = bin;
+                chart.querySelector('.ux-dep-ink')!.innerHTML = sketchPath();
+                const check = panel.querySelector<HTMLButtonElement>('.ux-dep-check');
+                if (check) check.disabled = sketch.filter(Number.isFinite).length < BINS / 3;
+                return;
+            }
             const value = slider.min + Math.min(1, Math.max(0, fx)) * (slider.max - slider.min);
             slider.set(slider.step > 0 ? Math.round((value - slider.min) / slider.step) * slider.step + slider.min : value);
         };
-        chart.addEventListener('pointerdown', event => { down = true; chart.setPointerCapture(event.pointerId); move(event); });
+        chart.addEventListener('pointerdown', event => { down = true; lastBin = -1; chart.setPointerCapture(event.pointerId); move(event); });
         chart.addEventListener('pointermove', event => { if (down) move(event); });
         chart.addEventListener('pointerup', () => { down = false; });
         chart.addEventListener('pointercancel', () => { down = false; });
@@ -280,8 +375,25 @@ export function attachDependence(board: Board): () => void {
         const chip = target.closest<HTMLElement>('.ux-dep-chip');
         if (chip && !sweeping) { slider = choices()[Number(chip.dataset.index)]; render(); return; }
         const q = target.closest<HTMLElement>('.ux-dep-q');
-        if (q) { quantity = q.dataset.key; plot(); }
+        if (q && q.classList.contains('ux-dep-pick')) { quantity = q.dataset.key; render(); return; }
+        if (q) { quantity = q.dataset.key; panel.querySelector<HTMLElement>('.ux-dep-score')?.setAttribute('hidden', ''); plot(); }
+        if (target.closest('.ux-dep-check')) runCheck();
     });
+    // A tap right after a touch stroke may not produce a click on some phones; the release starts the check too.
+    panel.addEventListener('pointerup', event => {
+        const check = (event.target as HTMLElement).closest<HTMLButtonElement>('.ux-dep-check');
+        if (check && !check.disabled) runCheck();
+    });
+    function runCheck() {
+        if (!predicting) return;
+        {
+            predicting = false;
+            panel.querySelector<HTMLElement>('.ux-dep-readout')!.textContent = '';
+            panel.querySelector<HTMLElement>('.ux-dep-quantities')!.innerHTML = '';
+            panel.querySelector<HTMLElement>('.ux-dep-hint')!.textContent = 'Modra je tvoja napoved, oranžna resnica. Povleci po grafu in tabla sledi.';
+            void sweep();
+        }
+    }
     let frame = 0;
     const onUpdate = () => {
         if (panel.hidden || sweeping || frame) return;

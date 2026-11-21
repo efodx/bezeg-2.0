@@ -105,6 +105,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c25',
+        name: 'Napovej odvisnost',
+        borrowed: 'napovej, nato opazuj iz simulacij PhET in dejavnosti Desmos',
+        idea: 'Različica c24, ki najprej vpraša: graf odvisnosti je prazen, študent pa s prstom nariše, kako misli, da se bo število na tabli (vsota, verjetnost, dolžina loka) spreminjalo s parametrom. Šele Preveri napoved požene prelet: resnica se nariše čez modro napoved, ujemanje oblike pa dobi odstotek in zvezdice.',
+        generalizes: 'Uporablja iste izpise s table in iste drsnike kot c24, zato deluje povsod, kjer deluje c24. Oblika se primerja v lastnem okviru grafa (več/manj), zato študentu ni treba poznati merila, le smer in ukrivljenost.',
+        links: [
+            {label: 'Določeni integral', family: 'Funkcije', href: `${BASE}/functions/integral?ux=c25`,
+                tryThis: 'Napovej, kako se Riemannova vsota spreminja z n: raste? pada? se ustali? Nariši in pritisni Preveri napoved.'},
+            {label: 'Parametrične krivulje (cikloida)', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/parametric?learn=1&ux=c25`,
+                tryThis: 'Izberi Polmer in napovej dolžino loka. Veliko jih nariše parabolo, resnica pa je premica 8R; nato napovej še ploščino.'},
+            {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?learn=1&ux=c25`,
+                tryThis: 'Izberi σ in napovej, kaj se zgodi z verjetnostjo med a in b, ko se zvon širi.'},
+        ],
+    },
+    {
         id: 'c16',
         name: 'Kaj ostane enako?',
         borrowed: 'iskalnik izrekov v dinamični geometriji in Brilliantov trenutek »opaziš vzorec?«',
