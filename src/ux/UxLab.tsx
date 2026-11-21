@@ -8,6 +8,18 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a13', name: 'Lestvica abstrakcije',
+        idea: 'En pritisk in graf stopi korak nazaj: živa tabla se pomanjša v eno sličico mreže, okrog nje pa se prikaže isti graf pri drugih vrednostih parametra — barvno, kar se spreminja, bledo, kar ostane. Tapni drugi simbol in mreža postane ravnina dveh parametrov (k in p pri binomski porazdelitvi), tapni sličico in se ta razraste v tablo, graf pa zdrsne tja.',
+        general: 'Sličice so prava tabla pri teh vrednostih: Bezeg jih nastavi sinhrono prek deljenega registra drsnikov, posname SVG in vrne stanje. Okno vrednosti se samo zoži, dokler večina sličic kaže nekaj, kar se premika, korak pa je lepo število z živo vrednostjo v mreži. Brez kode lekcij deluje v šolskih funkcijah, verjetnosti, trigonometriji, analizi, Bézierjevih krivuljah, B-zlepkih in kompleksnih številih.',
+        try: 'Pritisni »Lestvica« desno spodaj. Nato tapni še en simbol v glavi za ravnino parametrov in tapni sličico, da graf skoči tja.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 2, flags: 'a13'},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', at: 1, flags: 'a13'},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', at: 1, flags: 'a13'},
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', flags: 'a13', free: true},
+        ],
+    },
+    {
         id: 'a12', name: 'Zgodba lekcije',
         idea: 'Pod grafom vsak okvir lekcije, ki ga učenec vidi, pusti sličico table in to, kar je korak spremenil (»d 0 → 1«), kot sličice stripa. Pokaži na sličico in tisti trenutek se kot bleda senca položi čez živi graf (kako je bilo dva koraka nazaj?); tapni jo in lekcija se vrne tja. Na koncu lekcije je trak povzetek celotne poti.',
         general: 'Sličice so kloni SVG-ja table, okvir prebere iz vrstice napredka na kartici lekcije, spremembe iz deljenega registra drsnikov, skok pa pritiska kartičina gumba Nazaj in Naprej. Nobena lekcija za to ne potrebuje metapodatkov.',
@@ -147,7 +159,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a11', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a11', 'a13', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {

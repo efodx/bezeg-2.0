@@ -1,0 +1,100 @@
+.demonstration-workspace .workspace-graph .ux-ladder-start {
+    position: absolute; right: 10px; z-index: 6; pointer-events: auto;
+    display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 4px 13px 4px 9px; border-radius: 12px; cursor: pointer;
+    background: rgba(255, 253, 245, 0.94); border: 1px solid #d6dccb; color: #19372f; font-size: 0.82rem; font-weight: 600;
+    box-shadow: 0 2px 10px rgba(25, 55, 47, 0.1);
+}
+.ux-ladder-start:hover { border-color: #b88a43; }
+.ux-ladder-start svg { width: 20px; height: 20px; fill: none; stroke: #19372f; stroke-width: 1.3; }
+.ux-ladder-start svg .on { fill: #f3d98b; stroke: #b88a43; }
+
+.ux-ladder-scan {
+    position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 8; overflow: hidden;
+    padding: 9px 16px; border-radius: 14px; background: rgba(255, 253, 245, 0.96); border: 1px solid #d6dccb;
+    color: #19372f; font-size: 0.84rem; box-shadow: 0 6px 24px rgba(25, 55, 47, 0.14);
+}
+.ux-ladder-scan span { position: absolute; left: 0; bottom: 0; height: 3px; background: #b88a43; transition: width 80ms linear; }
+
+.ux-ladder-note {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 8; margin: 0;
+    padding: 6px 12px; border-radius: 10px; background: #fbefd4; color: #6b430c; font-size: 0.8rem; box-shadow: 0 2px 10px rgba(25, 55, 47, 0.1);
+}
+
+/* The grid covers the board: it is the board, one rung up. */
+.ux-ladder {
+    position: absolute; inset: 6px; z-index: 9; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;
+    padding: 8px 10px 8px; border-radius: 16px; background: rgba(251, 250, 242, 0.97); border: 1px solid #d6dccb;
+    box-shadow: 0 10px 34px rgba(25, 55, 47, 0.18); color: #19372f; font-size: 0.84rem;
+    animation: ux-ladder-in 220ms ease-out;
+}
+@keyframes ux-ladder-in { from { background: rgba(251, 250, 242, 0); box-shadow: none; } }
+.demonstration-workspace .workspace-graph .ux-ladder, .demonstration-workspace .workspace-graph .ux-ladder button { pointer-events: auto; }
+.ux-ladder-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ux-ladder-title { font-weight: 700; letter-spacing: 0.01em; }
+.ux-ladder-chips { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
+.demonstration-workspace .workspace-graph .ux-ladder-chip {
+    display: inline-flex; align-items: baseline; gap: 3px; min-width: 36px; min-height: 32px; justify-content: center; padding: 0 9px;
+    border-radius: 16px; border: 1px solid #d6dccb; background: #fffdf5; color: #19372f; cursor: pointer;
+}
+.ux-ladder-chip i, .ux-ladder i { font-family: "Source Serif 4", "Times New Roman", serif; font-size: 1.08em; color: #885512; }
+.demonstration-workspace .workspace-graph .ux-ladder-chip.is-on { background: #f3d98b; border-color: #b88a43; }
+.ux-ladder-chip small { font-size: 0.72rem; color: #6b430c; }
+.demonstration-workspace .workspace-graph .ux-ladder-close {
+    margin-left: auto; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #d6dccb; background: #fffdf5; font-size: 1.2rem; line-height: 1; cursor: pointer; color: #19372f;
+}
+.ux-ladder-still-note { margin: 0; color: #6b430c; font-size: 0.78rem; }
+.ux-ladder-body { flex: 1; min-height: 0; display: flex; gap: 4px; }
+.ux-ladder-main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 2px; }
+.ux-ladder-grid {
+    list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0;
+    display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 6px; align-content: start;
+}
+.ux-ladder.is-plane .ux-ladder-grid { gap: 3px; grid-template-rows: repeat(5, minmax(0, 1fr)); align-content: stretch; }
+.ux-ladder-grid > li { min-width: 0; min-height: 0; animation: ux-ladder-cell 360ms both cubic-bezier(.2,.8,.2,1); animation-delay: calc(var(--i) * 18ms + 80ms); }
+@keyframes ux-ladder-cell { from { opacity: 0; transform: scale(0.92); } }
+.ux-ladder-grid.is-leaving > li { transition: opacity 240ms ease; opacity: 0.15; }
+.ux-ladder-grid.is-leaving > li.is-chosen { opacity: 1; position: relative; z-index: 2; }
+.ux-ladder:has(.is-leaving) { background: transparent; border-color: transparent; box-shadow: none; transition: background 300ms ease; }
+.ux-ladder:has(.is-leaving) > :not(.ux-ladder-body) { opacity: 0; }
+
+.demonstration-workspace .workspace-graph .ux-ladder-cell {
+    display: flex; flex-direction: column; gap: 2px; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; font: inherit;
+}
+.ux-ladder-thumb {
+    position: relative; display: block; width: 100%; aspect-ratio: var(--aspect); border-radius: 8px; overflow: hidden;
+    background: #fff; border: 1px solid #e0e4d6; box-sizing: border-box; will-change: transform;
+}
+.ux-ladder.is-plane .ux-ladder-thumb { aspect-ratio: auto; height: 100%; border-radius: 5px; }
+.ux-ladder.is-row .ux-ladder-grid { grid-auto-rows: minmax(0, 1fr); align-content: stretch; }
+.ux-ladder.is-row .ux-ladder-thumb { flex: 1; min-height: 0; aspect-ratio: auto; }
+.ux-ladder-cell:hover .ux-ladder-thumb, .ux-ladder-cell:focus-visible .ux-ladder-thumb { border-color: #b88a43; box-shadow: 0 0 0 2px rgba(184, 138, 67, 0.35); }
+.ux-ladder-cell[aria-current] .ux-ladder-thumb { border: 2px solid #3d7a56; }
+.ux-ladder-thumb svg { display: block; width: 100%; height: 100%; }
+.ux-ladder-thumb svg * { vector-effect: non-scaling-stroke; }
+.ux-ladder-thumb svg text { display: none; }
+.ux-ladder-thumb svg .ux-ladder-still { opacity: 0.28; }
+.ux-ladder-thumb svg .ux-ladder-moves { stroke-width: 2.2px; }
+.ux-ladder-value { font-size: 0.74rem; text-align: center; font-variant-numeric: tabular-nums; color: #3c4d40; }
+.ux-ladder-cell[aria-current] .ux-ladder-value { color: #1f5a3a; font-weight: 700; }
+.ux-ladder-xaxis { display: flex; align-items: baseline; font-size: 0.7rem; color: #526152; font-variant-numeric: tabular-nums; }
+.ux-ladder-xaxis span { flex: 1; text-align: center; }
+.ux-ladder-xaxis i { padding-left: 4px; }
+.ux-ladder-yaxis { position: relative; display: grid; grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 3px; font-size: 0.7rem; color: #526152; padding-bottom: 18px; font-variant-numeric: tabular-nums; min-width: 26px; }
+.ux-ladder-yaxis span { display: flex; align-items: center; justify-content: flex-end; }
+.ux-ladder-yaxis i { position: absolute; top: -17px; right: 2px; }
+.ux-ladder-hint { margin: 0; font-size: 0.74rem; color: #526152; }
+
+@media (max-width: 600px) {
+    .ux-ladder { inset: 3px; padding: 6px 6px 6px; gap: 4px; }
+    .ux-ladder-title { display: none; }
+    .ux-ladder-hint { display: none; }
+    .ux-ladder-grid { gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ux-ladder, .ux-ladder-grid > li { animation: none; }
+}
+/* Content frames lock the graph (pointer-events: none on it and its buttons); stepping up the ladder stays available. */
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-ladder-start,
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-ladder,
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-ladder button { pointer-events: auto; }
+@media (max-width: 600px) { .ux-ladder-yaxis i { top: -14px; font-size: 0.95em; } }
