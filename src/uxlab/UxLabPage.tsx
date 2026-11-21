@@ -249,7 +249,7 @@ export function UxLabPage() {
             <p className="uxlab-kicker">UX laboratorij · pas B</p>
             <h1>Ko se zasveti</h1>
             <p className="uxlab-lede">Prototipi, ki izhajajo iz učenčeve glave: trenutek, ko nekaj klikne, kako lekcija pripelje do njega, kako učenec ve, da razume, in kako si zapomni še čez teden dni. Vsak prototip vklopi zastavica <code>?ux=</code>; ista povezava brez nje je današnja aplikacija.</p>
-            <p className="uxlab-all">Vse skupaj v eni lekciji: <Link to="/bezeg-2.0/functions/transformations?learn=1&ux=b1,b2,b3,b5" reloadDocument>lekcija s prehodi, napovedjo, sledmi in vrtom</Link> · <Link to="/bezeg-2.0/bezier/curve?ux=b3,b4,b6,b7" reloadDocument>graf z izzivom, pahljačo, rentgenom in sledmi</Link> · <Link to="/bezeg-2.0/analysis/taylor?learn=1&ux=b1,b12,b13,b14,b15" reloadDocument>lekcija, v kateri je vse vlečljivo: krivulja, besedilo, predogled in roka</Link></p>
+            <p className="uxlab-all">Vse skupaj v eni lekciji: <Link to="/bezeg-2.0/functions/transformations?learn=1&ux=b1,b2,b3,b5" reloadDocument>lekcija s prehodi, napovedjo, sledmi in vrtom</Link> · <Link to="/bezeg-2.0/bezier/curve?ux=b3,b4,b6,b7" reloadDocument>graf z izzivom, pahljačo, rentgenom in sledmi</Link> · <Link to="/bezeg-2.0/analysis/taylor?learn=1&ux=b1,b12,b13,b14,b15" reloadDocument>lekcija, v kateri je vse vlečljivo: krivulja, besedilo, predogled in roka</Link> · <Link to="/bezeg-2.0/analysis/taylor?ux=b12,b18,b19,b20,b21" reloadDocument>raziskovalna miza: ukaz, pripni, naloga, zemljevid in vlečljiva krivulja</Link></p>
         </header>
         <ol className="uxlab-list">
             {PROTOTYPES.map((prototype, index) => <li key={prototype.id} className="uxlab-card">
