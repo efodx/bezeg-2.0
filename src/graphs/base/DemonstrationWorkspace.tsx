@@ -5,6 +5,8 @@ import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext, type UserActionMode, type UserActionPolicy} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
+import {usePick} from "../../uxPicks/picks";
+import "../../uxPicks/dockTools/dockTools.css";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
 import {DemonstrationPicker} from '../../DemonstrationPicker';
 import {readDemonstrationReturnContext} from '../../demonstrationNavigation';
@@ -182,6 +184,7 @@ export function DemonstrationWorkspace(props: {
     // board. Keep the normal workspace interactive until the graph-owned
     // capability is available; BaseGraph will provide it on the next render.
     const lessonActive = lessonOpen && Boolean(lesson && props.lessonCapabilities);
+    const dockToolsPick = usePick('dockTools');
     // The one decision about user commands (Preset writes, playback), from the lesson state this workspace owns. The ref is what
     // `current()` reads at the moment of a commit; the render value only drives what controls show.
     const userActionMode: UserActionMode = !lessonActive ? 'free' : lessonMode === 'content' ? 'lesson-card' : 'lesson-observe';
@@ -199,6 +202,7 @@ export function DemonstrationWorkspace(props: {
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
+        data-ux-dock-tools={dockToolsPick ? '' : undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>

@@ -28,6 +28,7 @@ export const PICKS: readonly Pick[] = [
     {id: 'c11', title: 'Duh pokaže', from: 'c11 + b15', note: 'Ko se nekaj časa ne dotakneš grafa, prosojna roka pokaže, kaj se da premikati (točka, drsnik, števec). Gumb ✋ Pokaži jo pokliče; v vodeni lekciji »Pokaži mi« pokaže, kar okvir sprašuje.', tryAt: '/bezeg-2.0/functions/transformations'},
     // {id: 'example', title: 'Primer', from: 'a1', note: 'Kaj naredi in kje ga najdeš.', tryAt: '/bezeg-2.0/functions/transformations'},
     {id: 'a29', title: 'Predogled na ploščici', from: 'a29 + a19', note: 'Potrebuje »Parametri na grafu«: spodnji pas ploščice je njena proga. Z miško nad njim vidiš graf pri tisti vrednosti, klik skoči tja, vlečenje še vedno drsi; drugje na ploščici (ali s tipkovnico) kartica pove, kaj drsnik počne.', tryAt: '/bezeg-2.0/functions/transformations'},
+    {id: 'dockTools', title: 'Orodja ob lekciji', from: 'želja lastnika', note: 'Vodena lekcija na koraku z orodji: dokler je kartica pripeta nad orodji, so orodja nizka; ko kartico odneseš drugam, orodja zrastejo čez ves stolpec, ob ponovnem pripenjanju se spet skrčijo.', tryAt: '/bezeg-2.0/functions/transformations?learn=1'},
     {id: 'boardText', title: 'Besedilo grafa v kartici', from: 'lastna ideja', note: 'Formula in izpisi, ki so risani na grafu, se preselijo v majhno kartico v zgornjem desnem kotu; s × jo skriješ, ostane značka »Besedilo«. Vrednosti ostanejo žive.', tryAt: '/bezeg-2.0/analysis/taylor'},
 ];
 

@@ -4,6 +4,7 @@ import {framesForLessonStep} from '../model';
 import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
 import {useLessonMorph} from '../../uxPicks/b1/useLessonMorph';
+import {usePick} from '../../uxPicks/picks';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
 import {fitFormulaRows} from './formulaRows';
@@ -189,6 +190,10 @@ export function GuidedLesson(props: {
     }, [overlayVisible, panelDrag.offset.x, panelDrag.offset.y]);
     const tabDrag = useDraggableOffset(layerRef, compactTabRef, tabVisible, props.lesson);
     const isMoved = (drag: {offset: {x: number; y: number}}) => drag.offset.x !== 0 || drag.offset.y !== 0;
+    const dockToolsPick = usePick('dockTools');
+    // Decided when the card is hidden (from its dock or not); the tab's own offset is set only after it mounts.
+    const [tabInDock, setTabInDock] = useState(true);
+    const dockedTab = dockToolsPick && !oneColumn && tabInDock;
     // Once either has been moved they travel together: hiding leaves the tab at the panel's corner and
     // reopening opens the panel at the tab, so the instructions come back where they were put away.
     const handOverPlacement = (from: typeof panelDrag, to: typeof panelDrag) => {
@@ -248,6 +253,7 @@ export function GuidedLesson(props: {
         readingPosition.current.page = window.scrollY;
         readingRestore.current += 1;
         hasSavedReadingPosition.current = true;
+        setTabInDock(!isMoved(panelDrag));
         handOverPlacement(panelDrag, tabDrag);
         clearHandoffTimer();
         props.onModeChange?.('explore');
@@ -699,7 +705,7 @@ export function GuidedLesson(props: {
     {/* The graph is a pointer target for hiding the instructions;
         keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
     {overlayPhase === 'visible' && !isExploring && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
-    {tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
+    {tabVisible && !dockedTab && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
         onClick={() => { if (!tabDrag.consumeDragClick()) showOverlay(); }} {...tabDrag.handleProps} aria-keyshortcuts={ARROW_KEYS}
         aria-label={`${lessonTitle}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
         <GripIcon/>
@@ -710,6 +716,18 @@ export function GuidedLesson(props: {
         </svg>
     </button>}
     </div>
+    {/* Pick dockTools: a card hidden from its dock leaves its tab in the dock, at the top of the tools column, not on
+        the graph. The tab reopens the card in the same place; it is not dragged (open the card to move it). */}
+    {tabVisible && dockedTab && <button ref={compactTabRef} type="button" className="guided-lesson-tab guided-lesson-tab-docked"
+        onClick={showOverlay}
+        aria-label={`${lessonTitle}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
+        <span className="guided-lesson-tab-title">{t('guided_example')}</span>
+        <span className="guided-lesson-tab-progress">{snapshot.stepIndex + 1}/{props.lesson.steps.length} · {snapshot.frameIndex + 1}/{frames.length}</span>
+        <span className="guided-lesson-tab-open">Odpri</span>
+        <svg className="guided-lesson-tab-expand" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    </button>}
     {exitDialog}
     </>;
 }

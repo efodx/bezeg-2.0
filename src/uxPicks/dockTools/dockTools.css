@@ -1,0 +1,68 @@
+/* Pick dockTools: a task card (or the closing card) docked at the top of the tools column keeps the tools short below
+   it. Carried away from home, the card gives its row back: it shares the tools' grid area (overlapping, out of the row
+   sizing), so its origin and on-screen place do not move, and the tools grow to the full column. Docking it again
+   brings the row back. Two columns only; the one-column layout keeps the card in the page flow. */
+@media (min-width: 701px) {
+    .demonstration-workspace[data-ux-dock-tools].lesson-open.lesson-complete:has(> .guided-lesson:not(.guided-lesson-docked)),
+    .demonstration-workspace[data-ux-dock-tools].lesson-open:has(> .guided-lesson-task:not(.guided-lesson-docked)) {
+        grid-template-areas: "heading heading" "graph inspector" "learning learning";
+        grid-template-rows: none;
+    }
+
+    .demonstration-workspace[data-ux-dock-tools].is-presenting.lesson-open.lesson-complete:has(> .guided-lesson:not(.guided-lesson-docked)),
+    .demonstration-workspace[data-ux-dock-tools].is-presenting.lesson-open:has(> .guided-lesson-task:not(.guided-lesson-docked)) {
+        grid-template-areas: "heading heading" "graph inspector";
+        grid-template-rows: none;
+    }
+
+    .demonstration-workspace[data-ux-dock-tools].lesson-complete > .guided-lesson:not(.guided-lesson-docked),
+    .demonstration-workspace[data-ux-dock-tools] > .guided-lesson-task:not(.guided-lesson-docked) {
+        grid-area: inspector;
+    }
+}
+
+/* A card hidden from its dock leaves its tab in the dock: a strip at the top of the tools column, which the tools sit
+   below. The tab is rendered only while the pick is on and the window has two columns. */
+.demonstration-workspace.lesson-open:has(> .guided-lesson-tab-docked) {
+    grid-template-areas: "heading heading" "graph lesson" "graph inspector" "learning learning";
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-tab-docked) {
+    grid-template-areas: "heading heading" "graph lesson" "graph inspector";
+    grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.demonstration-workspace .guided-lesson-tab.guided-lesson-tab-docked {
+    grid-area: lesson;
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: 3;
+    width: 100%;
+    max-width: none;
+    margin: 0 0 8px;
+    padding: 7px 12px;
+    border: 1px solid var(--bezeg-shell-rule, #d6dccb);
+    border-radius: 12px;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.guided-lesson-tab-docked .guided-lesson-tab-progress { margin-left: auto; }
+
+.guided-lesson-tab-docked .guided-lesson-tab-open {
+    flex: none;
+    font-weight: 600;
+    color: var(--bezeg-shell-ink, #19372f);
+}
+
+/* Presentation with the tools closed has no column; the tab then waits in the graph's top-left corner as before. */
+.demonstration-workspace.is-presenting.lesson-open:has(.workspace-inspector[hidden]) > .guided-lesson-tab-docked {
+    grid-area: graph;
+    align-self: start;
+    justify-self: start;
+    width: auto;
+    margin: 8px;
+    z-index: 4;
+}
