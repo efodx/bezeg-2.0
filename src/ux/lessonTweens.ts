@@ -55,12 +55,12 @@ export function installLessonTweens(): () => void {
     document.addEventListener('click', arm, true);
     document.addEventListener('keydown', arm, true);
     document.addEventListener('pointerdown', cancel, true);
-    observeParamChanges(onChange);
+    const unobserve = observeParamChanges(onChange);
     return () => {
         document.removeEventListener('click', arm, true);
         document.removeEventListener('keydown', arm, true);
         document.removeEventListener('pointerdown', cancel, true);
-        observeParamChanges(undefined);
+        unobserve();
         cancelAnimationFrame(frame);
         running.clear();
     };

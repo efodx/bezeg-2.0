@@ -11,7 +11,7 @@ import './ParamPucks.css';
  */
 
 /** Sliders that tune the presentation rather than the mathematics. */
-const PRESENTATION_LABEL = /hitrost animacije|animation speed|velikost element|element size|debelina|line width/i;
+export const PRESENTATION_LABEL = /hitrost animacije|animation speed|velikost element|element size|debelina|line width/i;
 
 const FINE_LEVELS = [{distance: 0, factor: 1, label: ''}, {distance: 56, factor: 0.25, label: 'fino ×¼'}, {distance: 130, factor: 1 / 16, label: 'zelo fino ×¹⁄₁₆'}];
 
@@ -47,7 +47,7 @@ interface ScrubState {
     detent?: number; fine: number; pxPerRange: number;
 }
 
-function Tape(props: {entry: ParamEntry; value: number; fineLabel: string; width: number; pxPerRange: number; detent: boolean}) {
+export function Tape(props: {entry: ParamEntry; value: number; fineLabel: string; width: number; pxPerRange: number; detent: boolean}) {
     const {entry, value, width} = props;
     const span = entry.max - entry.min;
     const pxPerUnit = props.pxPerRange / span;
@@ -81,7 +81,7 @@ function Tape(props: {entry: ParamEntry; value: number; fineLabel: string; width
     </div>;
 }
 
-function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: {value: number; fine: string; pxPerRange: number; detent: boolean} | undefined): void; boardWidth: number; oscillating: boolean; showOscillator: boolean}) {
+export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: {value: number; fine: string; pxPerRange: number; detent: boolean} | undefined): void; boardWidth: number; oscillating: boolean; showOscillator: boolean}) {
     const {entry, locked} = props;
     const ref = useRef<HTMLDivElement>(null);
     const scrub = useRef<ScrubState>();

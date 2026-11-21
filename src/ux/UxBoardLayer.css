@@ -1,0 +1,3 @@
+/* With a lane-A prototype on, the lesson's "click the graph to hide the card" catcher lets clicks through to the board
+   layer; UxBoardLayer forwards plain board clicks to it, so the original behaviour stays for clicks that hit no prototype. */
+body.ux-lane-a .guided-lesson-graph-catcher { pointer-events: none !important; }

@@ -367,6 +367,7 @@ export function CurveGrab(props: {frame: React.RefObject<HTMLDivElement>}) {
                 event.stopImmediatePropagation();
                 const finished = drag;
                 drag = undefined;
+                (window as unknown as {__uxConsumed?: number}).__uxConsumed = performance.now();
                 frame.classList.remove('ux-grabbing');
                 if (finished.phase === 'probe') finished.keys.forEach((key, i) => { if (i < finished.probeIndex) setParam(key, finished.origin[i]); });
                 if (!finished.moved) {

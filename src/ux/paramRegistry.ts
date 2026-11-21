@@ -46,17 +46,18 @@ function same(a: ParamEntry, b: ParamEntry) {
 }
 
 type ChangeObserver = (previous: ParamEntry, next: ParamEntry) => void;
-let changeObserver: ChangeObserver | undefined;
+const changeObservers = new Set<ChangeObserver>();
 
-/** One observer hears every value change of a registered parameter (a6 uses it to tween lesson-driven jumps). */
-export function observeParamChanges(observer: ChangeObserver | undefined) {
-    changeObserver = observer;
+/** Observers hear every value change of a registered parameter (a6 tweens lesson-driven jumps, a8 records them). */
+export function observeParamChanges(observer: ChangeObserver): () => void {
+    changeObservers.add(observer);
+    return () => { changeObservers.delete(observer); };
 }
 
 export function upsertParam(entry: ParamEntry) {
     const previous = entries.get(entry.key);
     entries.set(entry.key, entry);
-    if (previous && previous.value !== entry.value) changeObserver?.(previous, entry);
+    if (previous && previous.value !== entry.value) for (const observer of [...changeObservers]) observer(previous, entry);
     if (!previous || !same(previous, entry)) emit();
 }
 

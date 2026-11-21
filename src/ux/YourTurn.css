@@ -1,0 +1,85 @@
+.ux-target-ghost { color: #b88a43; transition: color 220ms ease, opacity 600ms ease; }
+.ux-target-ghost > [data-kind="line"] {
+    stroke: currentColor !important; stroke-width: 3.2px; stroke-dasharray: 9 7; stroke-linecap: round;
+    fill: none !important; opacity: 0.85;
+}
+.ux-target-ghost > [data-kind="point"] { stroke: currentColor !important; fill: #fffdf5 !important; stroke-width: 2.4px; stroke-dasharray: 3 3; opacity: 0.95; }
+.ux-target-ghost.is-hit > * { stroke-dasharray: none; animation: ux-ghost-hit 1.8s ease-out forwards; }
+@keyframes ux-ghost-hit { 0% { stroke-width: 3.2px; opacity: 0.9; } 30% { stroke-width: 9px; opacity: 0.5; } 100% { stroke-width: 14px; opacity: 0; } }
+
+.ux-yourturn-active .ux-pucks { display: none; }
+
+.ux-turn-offer {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 8;
+    display: flex; align-items: stretch; gap: 4px; max-width: calc(100% - 20px);
+    animation: ux-turn-in 360ms cubic-bezier(.2, .9, .3, 1.2);
+}
+@keyframes ux-turn-in { from { opacity: 0; transform: translate(-50%, -10px) scale(.96); } }
+.demonstration-workspace .workspace-graph .ux-turn-offer button, .demonstration-workspace .workspace-graph .ux-turn-panel button { min-height: 44px; }
+.demonstration-workspace .workspace-graph .ux-turn-go {
+    display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 10px; border-radius: 14px; text-align: left;
+    background: #244c37; color: #fffdf5; border: 1px solid #244c37; box-shadow: 0 6px 20px rgba(25, 55, 47, 0.28); cursor: pointer;
+}
+.ux-turn-go:hover { background: #2c5b42; }
+.ux-turn-go svg { flex: none; width: 22px; height: 22px; fill: none; stroke: #f3d98b; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ux-turn-go span { display: flex; flex-direction: column; line-height: 1.2; }
+.ux-turn-go strong { font-size: 0.95rem; }
+.ux-turn-go small { font-size: 0.74rem; opacity: 0.85; }
+.ux-turn-go i, .ux-turn-title i { font-family: "Source Serif 4", "Times New Roman", serif; }
+.demonstration-workspace .workspace-graph .ux-turn-close {
+    min-width: 40px; padding: 0 10px; border-radius: 12px; border: 1px solid #d6dccb; background: rgba(255, 253, 245, 0.94);
+    color: #526152; font-size: 1.2rem; line-height: 1; cursor: pointer;
+}
+
+.ux-turn-panel {
+    position: absolute; left: 10px; right: 10px; top: 8px; z-index: 8; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.ux-turn-panel > * { pointer-events: auto; }
+.ux-turn-card {
+    max-width: 100%; padding: 8px 10px 10px; border-radius: 16px;
+    background: rgba(255, 253, 245, 0.95); border: 1px solid #d6dccb; box-shadow: 0 6px 24px rgba(25, 55, 47, 0.16);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    animation: ux-card-in 300ms ease-out;
+}
+@keyframes ux-card-in { from { opacity: 0; transform: translateY(-8px); } }
+.ux-turn-title { margin: 0 4px 7px; font-size: 0.84rem; color: #19372f; }
+.ux-turn-panel.is-solved .ux-turn-title strong { color: #2f7a4b; }
+.ux-turn-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+.ux-turn-knob { position: relative; border-radius: 13px; transition: box-shadow 200ms ease; }
+.ux-turn-knob .ux-puck { background: #fffdf5; }
+.ux-turn-knob.is-hit .ux-puck { border-color: #2f7a4b; box-shadow: 0 0 0 2px rgba(47, 122, 75, 0.35); }
+.ux-turn-knob.is-hit::after {
+    content: "✓"; position: absolute; top: -8px; right: -6px; width: 18px; height: 18px; border-radius: 50%;
+    background: #2f7a4b; color: #fff; font-size: 11px; line-height: 18px; text-align: center; font-weight: 700;
+}
+.demonstration-workspace .workspace-graph .ux-turn-show {
+    padding: 0 14px; border-radius: 12px; border: 1px solid #d6dccb; background: transparent; color: #526152; font-size: 0.8rem; cursor: pointer;
+}
+.ux-turn-panel.is-rewinding .ux-turn-row { opacity: 0.6; }
+
+.ux-bloom { position: absolute; left: 50%; top: 40px; width: 0; height: 0; pointer-events: none; }
+.ux-bloom-floret {
+    position: absolute; left: 0; top: 0; width: var(--size); height: var(--size); margin: calc(var(--size) / -2);
+    animation: ux-floret 1.6s cubic-bezier(.15, .8, .3, 1) var(--delay) both;
+}
+.ux-bloom-floret ellipse { fill: #fffbea; stroke: #d9cfa6; stroke-width: 0.6; }
+.ux-bloom-floret circle { fill: #e2b93b; }
+@keyframes ux-floret {
+    0% { transform: translate(0, 0) scale(0.2) rotate(0deg); opacity: 0; }
+    15% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1) rotate(160deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .ux-bloom { display: none; } .ux-turn-offer, .ux-turn-card { animation: none; } }
+/* Content frames lock the graph (pointer-events: none on it and its buttons); the hand-over controls stay live. */
+.demonstration-workspace .workspace-graph .ux-turn-offer, .demonstration-workspace .workspace-graph .ux-turn-offer button,
+.demonstration-workspace .workspace-graph .ux-turn-card, .demonstration-workspace .workspace-graph .ux-turn-card button { pointer-events: auto; }
+/* Phones: the board is short, so the hand-over sits on its bottom edge and the ruler rises above it. */
+@media (max-width: 600px) {
+    .ux-turn-panel { top: auto; bottom: 6px; left: 6px; right: 6px; flex-direction: column-reverse; }
+    .ux-turn-card { padding: 6px 8px 8px; }
+    .ux-turn-title { font-size: 0.76rem; margin-bottom: 5px; }
+    .ux-turn-panel .ux-tape { margin-bottom: 0; }
+    .ux-bloom { top: auto; bottom: 60px; }
+}
