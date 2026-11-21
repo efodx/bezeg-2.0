@@ -8,7 +8,7 @@ import {applyRow, deltaAt, FAN_SIZE, fanRows, rowName, type FanRow} from './fan'
 import {morphScene} from './morph';
 import './uxlab.css';
 
-interface Thumb { markup: string; ghost: string; box?: [number, number, number, number] }
+export interface Thumb { markup: string; ghost: string; box?: [number, number, number, number] }
 type Strip = (Thumb | null)[];
 
 const nextFrames = (count: number) => new Promise<void>(resolve => {
@@ -24,7 +24,7 @@ function nodeMarkup(element: UxElement): string {
     return node.outerHTML.replace(/\s(id|marker-start|marker-end|marker-mid)="[^"]*"/g, '');
 }
 
-function snapshot(board: UxBoard): Thumb {
+export function snapshot(board: UxBoard): Thumb {
     const elements = contentElements(board);
     const shown = elements.filter(element => traced(element) || element.elType === 'point' || element.elType === 'glider');
     // The drawn extent (inside the canvas), so thumbnails can zoom to the content instead of the whole board.

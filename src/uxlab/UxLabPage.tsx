@@ -38,6 +38,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b18',
+        name: 'Zemljevid: vse kombinacije dveh količin naenkrat',
+        idea: 'Gumb »▦ Zemljevid« na grafu nariše mrežo pomanjšanih grafov za dve izbrani količini (vodoravno ena, navpično druga) in jo pobarva po odčitku prizora, na primer po napaki. Vlečeš po zemljevidu in oba drsnika se premikata hkrati, zlati krog pa kaže, kje na zemljevidu si.',
+        generalizes: 'Za zamrznjeno kopijo plošče nastavi vsaki kombinaciji drsnikov vrednost, posname risbo SVG in prebere vse zapise »oznaka = število«; barva je rang odčitka, ki se najbolj spreminja. Deluje v vsakem prizoru z vsaj dvema drsnikoma, brez kode na lekcijo; na telefonu se odpre kot list od spodaj.',
+        try: 'Pritisni »▦ Zemljevid« v spodnjem desnem kotu grafa, nato vleci po mreži. Pri Taylorju je svetla diagonala x = c: tam je napaka nič.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (središče c × točka x, napaka)', to: '/bezeg-2.0/analysis/taylor?ux=b18'},
+            {label: 'Verjetnost: binomska in normalna (n × p, σ)', to: '/bezeg-2.0/probability/binomial-normal?ux=b18'},
+            {label: 'Funkcije: transformacije (izberi a × b)', to: '/bezeg-2.0/functions/transformations?ux=b18'},
+        ],
+    },
+    {
         id: 'b14',
         name: 'Živo besedilo: simboli v razlagi so drsniki',
         idea: 'Črka v besedilu lekcije, ki pomeni količino prizora (»središče c«, »stopnja n«, »x = 1«), je podčrtana s pikicami: ko greš nanjo, se prižgejo vse njene ponovitve in njen drsnik, ko jo povlečeš levo ali desno, se graf spreminja. Dokler lekcija drži prizor, se graf po spustu vrne v sliko lekcije, kot vzmet.',

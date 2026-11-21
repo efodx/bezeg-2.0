@@ -505,3 +505,24 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
   .ux-scroll-lesson section.workspace-graph { position: sticky !important; top: 0 !important; z-index: 40 !important; box-shadow: 0 6px 16px rgba(25, 55, 47, .12); }
   .ux-scroll-rail.is-fixed { position: fixed; left: 0; right: 0; z-index: 41; padding: 5px 12px 6px; box-shadow: 0 4px 10px rgba(25, 55, 47, .08); }
 }
+
+/* b18 Zemljevid: a map of two quantities */
+.ux-map-open.ux-map-open { position: absolute; right: 10px; bottom: 10px; z-index: 30; min-height: 34px; padding: 6px 14px; border-radius: 999px; border: 1px solid #5d3b6e; background: #fffdf5; color: #5d3b6e; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(25, 55, 47, .14); cursor: pointer; }
+.ux-map-open.ux-map-open:hover { background: #5d3b6e; color: #fffdf5; }
+.ux-map { position: absolute; right: 10px; bottom: 10px; z-index: 31; width: min(350px, calc(100% - 20px)); padding: 10px 12px 10px; border-radius: 14px; background: rgba(255, 253, 245, .97); border: 1px solid rgba(36, 76, 55, .18); box-shadow: 0 12px 32px rgba(25, 55, 47, .2); font-size: 13px; color: #19372f; }
+.ux-map.is-sheet { position: fixed; left: 0; right: 0; bottom: 0; width: auto; border-radius: 16px 16px 0 0; z-index: 60; padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); }
+.ux-map-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ux-map-pair { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+.ux-map-pair select { min-width: 0; flex: 1; font-size: 12px; padding: 3px 4px; border-radius: 6px; border: 1px solid rgba(36, 76, 55, .25); background: #fffdf5; color: #19372f; }
+.ux-map-close.ux-map-close { min-height: 30px; min-width: 30px; padding: 0; border: 0; background: none; font-size: 16px; color: #526152; cursor: pointer; }
+.ux-map-body { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: 2px 6px; }
+.ux-map-ylabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 11px; color: #526152; text-align: center; }
+.ux-map-xlabel { grid-column: 2; font-size: 11px; color: #526152; text-align: center; }
+.ux-map-grid { position: relative; display: grid; gap: 2px; aspect-ratio: 1; touch-action: none; cursor: crosshair; user-select: none; }
+.ux-map.is-sheet .ux-map-grid { max-height: 42vh; aspect-ratio: auto; height: min(42vh, 330px); }
+.ux-map-cell { border-radius: 4px; overflow: hidden; border: 1px solid rgba(36, 76, 55, .1); min-width: 0; min-height: 0; }
+.ux-map-cell svg { display: block; width: 100%; height: 100%; }
+.ux-map-cell svg * { vector-effect: non-scaling-stroke; }
+.ux-map-marker { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid #d6a646; background: rgba(255, 253, 245, .5); box-shadow: 0 0 0 2px #fffdf5, 0 2px 8px rgba(0, 0, 0, .25); pointer-events: none; }
+.ux-map-note { margin: 8px 0 0; font-size: 12px; color: #526152; line-height: 1.4; }
+.ux-map-heat.ux-map-heat { min-height: 0; padding: 0 6px; border-radius: 999px; border: 1px solid #5d3b6e; background: rgba(93, 59, 110, .1); color: #5d3b6e; font-size: 12px; font-weight: 600; cursor: pointer; }

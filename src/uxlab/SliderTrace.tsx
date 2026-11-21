@@ -13,7 +13,7 @@ const nextFrames = (count: number) => new Promise<void>(resolve => {
 const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
 
 /** Every "label = number" the scene shows: texts on the board and the inspector's readouts. */
-function readouts(board: UxBoard): Map<string, number> {
+export function readouts(board: UxBoard): Map<string, number> {
     const texts: string[] = [];
     for (const element of board.objectsList) {
         if (element.elType !== 'text' || !element.rendNode || element.visPropCalc?.visible === false) continue;
