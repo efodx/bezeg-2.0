@@ -470,7 +470,7 @@ export function GuidedLesson(props: {
     }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
     // UX challenge c10/c11: the filmstrip and the ghost hand read the lesson position and jumps by stepping the session.
     useEffect(() => {
-        if (!uxEnabled('c10') && !uxEnabled('c11') && !uxEnabled('c21')) return undefined;
+        if (!uxEnabled('c10') && !uxEnabled('c11') && !uxEnabled('c21') && !uxEnabled('c23')) return undefined;
         const counts = props.lesson.steps.map(lessonStep => framesForLessonStep(lessonStep).length);
         publishLessonPosition({
             lessonId: props.lesson.id,

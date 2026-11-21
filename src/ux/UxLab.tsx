@@ -73,6 +73,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c23',
+        name: 'Moj zvezek',
+        borrowed: 'šolski zvezek, Cornellove zapiske in laboratorijski dnevnik',
+        idea: 'Med lekcijo se vsak okvir, do katerega pride študent, sam zapiše v zvezek: naslov, formule iz okvirja in graf, kot ga je pustil. Z 📌 Pripni doda svoj posnetek grafa s trenutnimi vrednostmi parametrov in ročno opombo, zvezek pa se odpre kot črtasta stran, ki se natisne ali shrani kot PDF za ponavljanje ali oddajo.',
+        generalizes: 'Zvezek bere le skupni položaj lekcije, naslov in bloke z zapisom iz okvirja ter narisano tablo, zato deluje v vsaki vodeni lekciji brez podatkov; pripenjanje deluje tudi zunaj lekcij. Vse ostane v brskalniku, tiskanje uporablja tiskalni slog strani.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c23`,
+                tryThis: 'Klikni nekajkrat Naprej, vmes 📌 Pripni, nato 📓 Zvezek: vsak okvir ima formulo in graf, v svoj posnetek pa vpiši opombo. Natisni ali shrani PDF.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c23`,
+                tryThis: 'Pojdi skozi težišče, središče včrtane in višinsko točko: zvezek zbere vse štiri konstrukcije na eno stran.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c23`,
+                tryThis: 'Na telefonu: pojdi do izračuna in odpri zvezek; točke P⁰, P¹, P² so zapisane ob sliki konstrukcije.'},
+        ],
+    },
+    {
         id: 'c16',
         name: 'Kaj ostane enako?',
         borrowed: 'iskalnik izrekov v dinamični geometriji in Brilliantov trenutek »opaziš vzorec?«',

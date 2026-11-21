@@ -964,3 +964,67 @@ mjx-container.ux-scrub-changed { border-bottom-style: solid; background: #fbf1e0
 .ux-measure-button ~ .ux-loupe-button, .ux-xy-button:not([hidden]) ~ .ux-loupe-button { top: 52px; }
 .ux-measure-button ~ .ux-xy-button:not([hidden]) ~ .ux-loupe-button { top: 94px; }
 .demonstration-workspace.lesson-content .workspace-graph .ux-loupe-button { pointer-events: auto; }
+
+/* c23 Moj zvezek */
+.ux-nb { position: absolute; left: 10px; bottom: calc(10px + var(--ux-lift, 0px)); z-index: 26; display: flex; gap: 6px; pointer-events: auto; }
+.ux-inv-button ~ .ux-nb { bottom: calc(52px + var(--ux-lift, 0px)); }
+.ux-nb button {
+    display: inline-flex; align-items: center; gap: 5px; padding: 7px 11px; min-height: 34px; border: 1px solid #b9cfa7; border-radius: 999px;
+    background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-action, #244c37); font: 650 13px/1 system-ui, sans-serif; cursor: pointer;
+    box-shadow: 0 2px 10px rgb(25 55 47 / 10%);
+}
+.ux-nb button:hover { background: #eef3e5; }
+.ux-nb-count { min-width: 18px; padding: 2px 5px; border-radius: 999px; background: #e6eddc; color: var(--bezeg-shell-action, #244c37); font-size: 11.5px; text-align: center; }
+.ux-nb-has .ux-nb-count { background: #c47b1f; color: #fff; }
+.ux-nb-flash .ux-nb-count { animation: ux-nb-pop .5s ease-out; }
+@keyframes ux-nb-pop { 40% { transform: scale(1.5); } }
+.ux-nb-shutter::after { content: ''; position: absolute; inset: 0; z-index: 35; pointer-events: none; background: #fff; animation: ux-nb-shutter .45s ease-out forwards; }
+@keyframes ux-nb-shutter { from { opacity: .85; } to { opacity: 0; } }
+@media (max-width: 640px) { .ux-nb-pin span { display: none; } }
+.demonstration-workspace.lesson-content .workspace-graph .ux-nb, .demonstration-workspace.lesson-content .workspace-graph .ux-nb * { pointer-events: auto; }
+.ux-nb-sheet { position: fixed; inset: 0; z-index: 2000; overflow: auto; background: #efeadb; animation: ux-sm-in .2s ease-out; }
+html.ux-nb-reading { overflow: hidden; }
+.ux-nb-toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgb(239 234 219 / 94%); border-bottom: 1px solid #ddd5bd; }
+.ux-nb-toolbar strong { font: 700 16px/1.2 var(--bezeg-heading-font, Georgia, serif); color: var(--bezeg-shell-action, #244c37); }
+.ux-nb-spacer { flex: 1; }
+.ux-nb-print { padding: 8px 14px; border: 0; border-radius: 999px; background: var(--bezeg-shell-action, #244c37); color: #fff; font: 650 13px/1 system-ui, sans-serif; cursor: pointer; }
+.ux-nb-close { width: 34px; height: 34px; border: 1px solid #cfd8c4; border-radius: 50%; background: #fff; cursor: pointer; }
+.ux-nb-page {
+    max-width: 860px; margin: 18px auto 40px; padding: 28px 34px 36px; box-sizing: border-box; background: #fffef8; color: #1d2b24;
+    box-shadow: 0 6px 30px rgb(40 50 30 / 15%); border-radius: 4px;
+    background-image: linear-gradient(90deg, transparent 54px, rgb(214 90 70 / 30%) 54px, rgb(214 90 70 / 30%) 55.5px, transparent 55.5px), repeating-linear-gradient(transparent 0 27px, rgb(120 150 190 / 16%) 27px 28px);
+}
+.ux-nb-page header { padding-left: 40px; margin-bottom: 18px; }
+.ux-nb-page h1 { margin: 0 0 4px; font: 700 28px/1.15 var(--bezeg-heading-font, Georgia, serif); color: var(--bezeg-shell-action, #244c37); }
+.ux-nb-page header p { margin: 0; color: #6a6f62; font: 13px/1.4 system-ui, sans-serif; }
+.ux-nb-entry { padding-left: 40px; margin: 0 0 18px; break-inside: avoid; }
+.ux-nb-entry h2 { margin: 14px 0 6px; font: 700 19px/1.25 var(--bezeg-heading-font, Georgia, serif); color: #23432f; }
+.ux-nb-row { display: flex; gap: 18px; align-items: flex-start; }
+.ux-nb-text { flex: 1; min-width: 0; }
+.ux-nb-label { margin: 0 0 6px; font: 600 12px/1.3 system-ui, sans-serif; color: #8a7a4a; letter-spacing: .02em; }
+.ux-nb-pinned .ux-nb-label { color: #b5651d; }
+.ux-nb-formula { overflow-x: auto; margin: 4px 0; padding: 2px 8px; border-left: 3px solid #b9cfa7; background: rgb(238 243 229 / 60%); font-size: 14px; }
+.ux-nb-formula .guided-lesson-notation { margin: 0; padding: 4px 0; background: none; border: 0; box-shadow: none; }
+.ux-nb-values { margin: 6px 0; font: 600 13px/1.4 system-ui, sans-serif; color: #244c37; font-variant-numeric: tabular-nums; }
+.ux-nb-note { min-height: 1.5em; margin: 6px 0 0; padding: 3px 6px; border-radius: 4px; font: italic 15px/1.5 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive; color: #2b4a8a; outline: none; }
+.ux-nb-note:empty::before { content: attr(data-placeholder); color: #9aa6bf; }
+.ux-nb-note:focus { background: rgb(255 248 220 / 80%); }
+.ux-nb-figure { position: relative; flex: none; overflow: hidden; border: 1px solid #d9dccd; border-radius: 6px; background: #fff; }
+.ux-nb-pinned .ux-nb-figure { border-color: #e3c27a; box-shadow: 3px 3px 0 #f2e3bb; transform: rotate(-.6deg); }
+.ux-nb-picture { position: absolute; left: 0; transform-origin: 0 0; pointer-events: none; }
+.ux-nb-picture > svg { position: absolute; left: 0; top: 0; }
+.ux-nb-empty { padding-left: 40px; color: #6a6f62; }
+@media (max-width: 640px) {
+    .ux-nb-page { margin: 0; padding: 16px 12px 28px; border-radius: 0; background-image: none; }
+    .ux-nb-page header, .ux-nb-entry, .ux-nb-empty { padding-left: 0; }
+    .ux-nb-row { flex-direction: column-reverse; gap: 8px; }
+    .ux-nb-toolbar strong { display: none; }
+}
+@media print {
+    html.ux-nb-reading body > *:not(.ux-nb-sheet) { display: none !important; }
+    html.ux-nb-reading, html.ux-nb-reading body { overflow: visible !important; background: #fff !important; }
+    .ux-nb-sheet { position: static; overflow: visible; background: #fff; }
+    .ux-nb-toolbar { display: none; }
+    .ux-nb-page { box-shadow: none; margin: 0; max-width: none; }
+    .ux-nb-note:empty { display: none; }
+}
