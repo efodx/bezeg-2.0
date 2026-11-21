@@ -288,7 +288,7 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
             fixed: true, highlight: false, visible: false, layer: 8,
             name: id === 'c' ? '$$c$$' : "$$c'$$",
             label: {
-                ...(this.styles.point.fixed.label as object), anchorX: 'middle', anchorY: 'middle',
+                ...(this.styles.point.fixed.label as object), anchorX: 'middle', anchorY: 'middle', visible: 'inherit',
                 offset: () => this.centreLabelOffset(id),
             },
         }) as JXG.Point;
@@ -336,8 +336,15 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
             if (t !== undefined) {
                 const at = frame.toPx(...bezierPoint(points, t));
                 markers.push([at[0], at[1], settings.pointSize]);
+                // The curve's own label of B(t) sits where the curve placed it: the middle of its box is the point plus the label offset (y up).
                 const {w, h} = nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);
-                blocks.push({x0: at[0] + 4, y0: at[1] - 4 - h, x1: at[0] + 4 + w, y1: at[1] - 4});
+                const label = (marks.board.objectsList as unknown as Array<{elType?: string; name?: string; label?: {visProp?: {offset?: unknown}}}>)
+                    .find(o => o.elType === 'point' && typeof o.name === 'string' && o.name.startsWith('$$B('))?.label;
+                const offset = typeof label?.visProp?.offset === 'function' ? (label.visProp.offset as () => unknown)() : label?.visProp?.offset;
+                if (Array.isArray(offset) && offset.length === 2) {
+                    const [cx, cy] = [at[0] + Number(offset[0]), at[1] - Number(offset[1])];
+                    blocks.push({x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2});
+                }
             }
             const samples: Array<readonly [number, number]> = [];
             const own = curve.getJxgCurve() as unknown as {points?: Array<{scrCoords: number[]}>};
