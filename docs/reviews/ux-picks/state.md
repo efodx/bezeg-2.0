@@ -43,6 +43,10 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 | boardText legend card | second card on the shared `BoardCard` shell: tools `FunctionLegend` (≈38 graphs, via `legendStore.ts`) and board-drawn legends marked with `markBoardLegend` (complex power, Euler circle, phase portrait, linear program, contours; their legend band is dropped while the pick is on) | e001d142 |
 | dockTools | undocked task/closing card frees the tools column; hidden-from-dock tab sits in the dock | b05bea17 |
 
+## Polish
+
+Impeccable polish pass 1 done (efbebd3b, d616d449): findings, owner decisions, result and open items in `docs/reviews/ux-picks/polish-findings.md`. Board-hosted UI now goes through the dock host `src/uxPicks/dock/` (regions top-start, top-end, bottom, tray).
+
 ## Open items / known limits
 
 - a29 overview for counts (Bernstein degree) finds no fan; card points to the −/+ previews instead.
@@ -54,7 +58,7 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 
 ## Next steps
 
-The owner chooses the next ideas from the lane tours (`C:\Users\1337Hacker\Desktop\bezeg-ux-challenge\SUMMARY.md`, lane-x/REPORT.md). Wait for the owner's next request; for each: port from the lane branch behind a new pick id (extend to counts and other controls where it makes sense, as the owner asked for a1/a19/a3), typecheck, look at it on the preview, commit to `ux-picks`, push the branch, report with the tailnet link.
+The owner chooses the next ideas from the lane tours (`C:\Users\1337Hacker\Desktop\bezeg-ux-challenge\SUMMARY.md`, lane-x/REPORT.md). After polish, the owner wants a plan for implementing the kept picks app-wide (spec under `docs/specs/`, tasks under `docs/tasks/`). Wait for the owner's next request; for a new pick: port from the lane branch behind a new pick id (extend to counts and other controls where it makes sense, as the owner asked for a1/a19/a3), typecheck, look at it on the preview, commit to `ux-picks`, push the branch, report with the tailnet link.
 
 ## Settings
 
