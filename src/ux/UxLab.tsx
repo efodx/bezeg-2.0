@@ -73,6 +73,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c19',
+        name: 'Mreža primerov',
+        borrowed: 'majhni mnogokratniki (»small multiples«) Edwarda Tufta in fotografski kontaktni list',
+        idea: 'En pritisk nariše graf za šest vrednosti izbranega parametra hkrati, od najmanjše do največje, s trenutno vrednostjo označeno: vpliv parametra se vidi naenkrat, ne en položaj drsnika za drugim. Tapni sličico in drsnik skoči na to vrednost.',
+        generalizes: 'Parametri so vsi priključeni drsniki iz skupnega Slider (v lekcijah tudi skriti), vsako sličico nariše aplikacija sama pri tisti vrednosti, nato se vrednost vrne. Deluje na vsaki tabli z drsnikom, brez podatkov.',
+        links: [
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c19`,
+                tryThis: 'Mreža primerov za t: šest sličic konstrukcije od t = 0 do t = 1 kot stripa; točka na krivulji potuje.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c19`,
+                tryThis: 'Izberi a: parabola se od −10 do 10 obrne in zoži. Nato izberi c ali d in primerjaj, kaj premakne graf.'},
+            {label: 'Trigonometrične funkcije', family: 'Funkcije', href: `${BASE}/functions/trigonometric?ux=c19`,
+                tryThis: 'Izberi ω: šest valov z vedno krajšo periodo. Pri A je pri A = 0 val raven, pri negativnem A obrnjen.'},
+            {label: 'Vzporedne krivulje', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/offset?ux=c19`,
+                tryThis: 'Mreža za razdaljo d pokaže, kdaj vzporedna krivulja dobi ostre konice.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
@@ -296,8 +313,8 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16,c17,c18`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16,c17,c18,c19`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15,c19`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">
