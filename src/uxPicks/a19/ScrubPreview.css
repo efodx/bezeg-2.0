@@ -1,0 +1,15 @@
+.ux-scrub-ghost { position: absolute; z-index: 4; pointer-events: none; overflow: hidden; }
+.ux-scrub-ghost svg { position: absolute; left: 0; top: 0; overflow: hidden; }
+.ux-scrub-ghost svg :is(path, line, ellipse, circle, polygon, rect, polyline) {
+    stroke: #b0702d !important; stroke-opacity: 0.85 !important; stroke-dasharray: 7 5; stroke-width: 2.4px !important;
+    fill-opacity: 0.12 !important; fill: #e2b764 !important;
+}
+.ux-scrub-ghost svg path:not([fill]), .ux-scrub-ghost svg path[fill="none"], .ux-scrub-ghost svg line, .ux-scrub-ghost svg polyline { fill: none !important; }
+.ux-scrub-tip {
+    position: fixed; z-index: 60; transform: translate(-50%, calc(-100% - 6px)); pointer-events: none; white-space: nowrap;
+    display: flex; flex-direction: column; align-items: center; padding: 3px 9px 4px; border-radius: 9px;
+    background: #19372f; color: #fffdf5; font-size: 0.8rem; font-weight: 600; font-variant-numeric: tabular-nums;
+    box-shadow: 0 3px 10px rgba(25, 55, 47, 0.25);
+}
+.ux-scrub-tip small { font-weight: 400; font-size: 0.68rem; color: #f3d98b; }
+.ux-scrub-tip::after { content: ""; position: absolute; bottom: -5px; left: 50%; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: #19372f; }

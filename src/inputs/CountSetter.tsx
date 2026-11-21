@@ -88,7 +88,7 @@ export function CountSetter(props: CountSetterProps) {
     });
     useLayoutEffect(() => () => removeParam(id), [id]);
 
-    return <div ref={rootRef} className="count-setter">
+    return <div ref={rootRef} className="count-setter" data-param={id}>
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
         <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
              aria-describedby={joinIds(props.help && `${id}-help`, props.describedBy)}>

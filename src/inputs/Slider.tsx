@@ -91,6 +91,7 @@ export default function Slider(props: SliderProps) {
                 const next = cyclic === undefined ? Math.min(current.max, Math.max(current.min, value)) : wrap(value);
                 if (next !== current.value) current.onChange(next);
             },
+            setRaw: value => { if (value !== latest.current.value) latest.current.onChange(value); },
         });
     });
     useLayoutEffect(() => () => removeParam(id), [id]);

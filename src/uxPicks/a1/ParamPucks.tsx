@@ -1,5 +1,5 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
+import {recentlyProbed, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
 import './ParamPucks.css';
 
 type ParamEntry = RangeParam;
@@ -98,7 +98,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
     useEffect(() => {
         if (previous.current === entry.value) return;
         previous.current = entry.value;
-        if (scrub.current) return;
+        if (scrub.current || recentlyProbed()) return;
         setNudged(true);
         const timer = window.setTimeout(() => setNudged(false), 1100);
         return () => window.clearTimeout(timer);
@@ -244,7 +244,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     useEffect(() => {
         if (previous.current === entry.value) return;
         previous.current = entry.value;
-        if (drag.current) return;
+        if (drag.current || recentlyProbed()) return;
         setNudged(true);
         const timer = window.setTimeout(() => setNudged(false), 1100);
         return () => window.clearTimeout(timer);

@@ -24,6 +24,8 @@ export interface RangeParam extends ParamBase {
     readonly cyclic?: number;
     /** Sends a value through the slider's own onChange (clamped or wrapped). */
     set(value: number): void;
+    /** Writes past the learner-facing lock, for previews that restore the value at once. */
+    setRaw(value: number): void;
 }
 
 export interface CountParam extends ParamBase {
@@ -97,4 +99,16 @@ export function splitLabel(label: string): {symbol?: string; name: string} {
 /** Whether the control's element sits on the inspector's Display tab. */
 export function onDisplayTab(element: Element | null): boolean {
     return Boolean(element?.closest('#inspector-display'));
+}
+
+/** Previews (a19) set a value for a moment and restore it; observers skip changes made while probing. */
+let probeDepth = 0;
+let lastProbeEnd = -Infinity;
+export function asProbe<T>(run: () => T): T {
+    probeDepth++;
+    try { return run(); } finally { probeDepth--; lastProbeEnd = performance.now(); }
+}
+/** True while a preview probes, or within a moment after (effects of the probe's renders run later). */
+export function recentlyProbed(): boolean {
+    return probeDepth > 0 || performance.now() - lastProbeEnd < 250;
 }
