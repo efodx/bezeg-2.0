@@ -1,6 +1,6 @@
 # Lesson graphs: label collisions
 
-Status: in progress (lesson-card-layout stream, handler 5, 2026-11-20).
+Status: implemented (lesson-card-layout stream, handlers 5 and 6, 2026-11-21); results and open items under [Results](#results-2026-11-21).
 
 Source: section 7 of the [lesson bug crawl triage](../reviews/lesson-bug-crawl/triage.md) ("overlapping point labels"), in the owner's scope for this stream since [handoff 1](../reviews/lesson-card-layout/handler-handoff-1.md). The framing half of section 7 was done by the first slice.
 
@@ -80,3 +80,30 @@ Per item: the graph's unit tests through `just unit <files>`, `just typecheck`, 
 - Other frames and other graphs. The measurement can be pointed at more frames later.
 - Drag-the-track's fixed frame and the shared frames of rosettes and lattice paths (kept by design).
 - The two names of one vertex in monotone triangulation (P₂ and v2).
+
+## Results (2026-11-21)
+
+Measured on the production build of b9e4212d with `label-collisions.cjs` (pairs/crossings; lesson frame 1440×900, route 1440×900, lesson frame 390×844; baseline in brackets):
+
+| ID | Lesson | Route | Phone |
+| --- | --- | --- | --- |
+| LC-1a, 1b | 0/3 (1/11) | 0/3 (1/7) | 1/15 (1/15) |
+| LC-1c | 0/2 (0/6) | 0/2 (0/4) | 3/10 (3/10) |
+| LC-1d | 0/1 (2/1) | 0/2 (0/4) | 1/3 (1/3) |
+| LC-2 | 0/1 (4/2) | 0/1 (4/2) | 0/2 (23/4) |
+| LC-3 | 0/0 (2/4) | 0/0 (2/4) | 1/1 (7/6) |
+| LC-4 | 0/1 (7/11) | 0/2 (0/2) | 1/4 (7/12) |
+| LC-5 | 0/1 (1/2) | 0/1 (1/2) | 0/0 (1/5) |
+| LC-6 | 0/1 (2/4) | 1/10 (1/10) | 3/4 (4/6) |
+| LC-7 | 0/3 (7/8) | 0/1 (0/1) | 7/0 (25/9) |
+| LC-8 | 0/0 (1/0) | 0/0 (0/0) | 0/0 (0/0) |
+| LC-9 | 0/2 (3/4) | 0/1 (0/1) | 5/2 (11/3) |
+
+Totals: lesson frames 0 pairs and 18 crossings (from 31 and 64), routes 1 and 26 (from 10 and 44), phone 23 and 56 (from 84 and 88).
+
+- LC-6 route: the bare route opens in the composition mode, not the trace–determinant plane; its one pair is the tick 2 against the composition text \(a_2=Ae_2\), outside this item. In the trace–determinant mode on the route a drag through 18 handle positions gave no overlap.
+- LC-1 phone is unchanged by decision (boards under 480 px keep the compact layout).
+- Phone leftovers: LC-7 "Tir" and the P1 text, captions on tick labels; LC-9 \(B(	frac12)\) on the \(p_2\)/\(p_3\) labels (no free spot within 40 px on a 364 px board; the measured box of the fraction would place it, but the PH label test measures with the written-out estimate, so the change was reverted, see 13fceb12); LC-6 the triangle's name keeps the spot that covers the fewest axis numbers.
+- Shared placement changes made on the way: `placeNames` falls back to the spot on the fewest blocks and tick labels; the curve point label is keyed on the curve version and takes extra obstacles from its graph (`setEvaluationObstacles`).
+- Not changed (out of scope, seen): the rational weights \(w_i = 1.00\) are written with a decimal point and lie on the polygon in LC-1d; control point labels on their polygon legs.
+
