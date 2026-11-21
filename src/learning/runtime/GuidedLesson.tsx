@@ -749,7 +749,23 @@ export function GuidedLesson(props: {
         const rail = <span className="ux-lesson-rail" aria-hidden="true">{props.lesson.steps.map((_, i) => <span key={i}
             className={i < snapshot.stepIndex ? 'is-done' : i === snapshot.stepIndex ? 'is-current' : undefined}
             style={{'--fill': i < snapshot.stepIndex ? 1 : i === snapshot.stepIndex ? (snapshot.frameIndex + 1) / frames.length : 0} as React.CSSProperties}/>)}</span>;
-        const cardProgress = !isComplete && <div className="ux-lesson-progress">
+        // The completion card keeps the row (owner, 2026-11-21: "have a back button here too"): a full rail and Back at the
+        // place it has on every frame, so the learner who pressed Končaj finds the way back under the same spot.
+        const completeProgress = isComplete && <div className="ux-lesson-progress ux-lesson-progress-complete">
+            <div className="guided-lesson-progress">
+                <span className="guided-lesson-frame-label">Končano</span>
+                <span aria-hidden="true"> · </span>{t('guided_lesson_step', {value0: props.lesson.steps.length, value1: props.lesson.steps.length})}
+            </div>
+            <span className="ux-lesson-rail" aria-hidden="true">{props.lesson.steps.map((_, i) => <span key={i} className="is-done" style={{'--fill': 1} as React.CSSProperties}/>)}</span>
+            <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
+                <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')}
+                    onClick={() => { navigationFocus.current = 'back'; stopAllOscillators(); navigate(() => session.back()); }}>
+                    <ChevronLeftIcon/><span className="ux-nav-label">{t('guided_lesson_previous_frame_short')}</span>
+                </button>
+                <span className="ux-nav-next-slot" aria-hidden="true"/>
+            </nav>
+        </div>;
+        const cardProgress = isComplete ? completeProgress : <div className="ux-lesson-progress">
             <div className="guided-lesson-progress" role="status" aria-live="polite">
                 <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
                 <span aria-hidden="true"> · </span>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}

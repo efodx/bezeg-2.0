@@ -63,7 +63,8 @@
 .ux-btext.ux-bcard-guide { width: clamp(310px, 28vw, 400px); max-width: none; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
 /* A middle stack holding it shrinks like the corners (not first, as middle stacks otherwise do). */
 .ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) { max-height: none; flex-shrink: 1; }
-.ux-dock-v > .ux-bcard-guide:not(.ux-btext-collapsed) { flex: 0 1 auto; min-height: 200px; }
+/* Its height and floor (min(200 px, its text)) are set by useLessonCardFit, which glides it between frames. */
+.ux-dock-v > .ux-bcard-guide:not(.ux-btext-collapsed) { flex: 0 1 auto; }
 .ux-bcard-guide.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
 /* Redesign (owner, 2026-11-21): the head is one row (grip, title, "⋯", reset, fold); the title wraps and is never cut
    (DESIGN.md, lesson card). Under it the progress row with Back and Next, then the text. Folded, the head is the title,
@@ -132,8 +133,10 @@
 .ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-back { width: 40px; padding: 0; color: var(--bezeg-shell-ink-secondary); }
 .ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-back:hover:not(:disabled) { color: var(--bezeg-shell-ink); }
 .ux-lesson-progress .ux-nav-label { display: none; }
-.ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-next { min-width: 6.75rem; }
+.ux-bcard-guide .ux-lesson-progress .guided-lesson-navigation .guided-lesson-nav-next { width: 6.75rem; justify-content: center; }
 .ux-lesson-progress .guided-lesson-navigation svg { width: 16px; height: 16px; flex: none; }
+/* Completion card: Back keeps its frame-time place; the empty slot is where Naprej/Končaj stood. */
+.ux-lesson-progress .ux-nav-next-slot { width: 6.75rem; flex: none; }
 @media (pointer: coarse) { .ux-bcard-guide .ux-lesson-progress .guided-lesson-navigation button { min-height: 44px; } .ux-bcard-guide .ux-lesson-progress .guided-lesson-nav-back { width: 44px; } }
 
 /* Pucks (a1) and the tools card: a slider or count the pucks show lives only on its puck (owner, 2026-11-21: "only keep

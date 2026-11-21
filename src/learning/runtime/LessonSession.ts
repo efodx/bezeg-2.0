@@ -119,6 +119,13 @@ export class LessonSession {
 
     back() {
         const currentFrames = framesForLessonStep(this.lesson.steps[this.snapshotValue.stepIndex]);
+        // From the completion card, Back reopens the last frame as it was left: finishing did not change the graph, so
+        // going back does not either.
+        if (this.snapshotValue.status === 'complete') {
+            const frame = currentFrames[this.snapshotValue.frameIndex];
+            this.snapshotValue = {...this.snapshotValue, status: frame.kind === 'observation' ? 'explore' : 'content', error: undefined};
+            return;
+        }
         if (this.snapshotValue.frameIndex > 0) {
             this.stopAnimations();
             const frameIndex = this.snapshotValue.frameIndex - 1;

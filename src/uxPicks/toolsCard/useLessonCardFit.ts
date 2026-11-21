@@ -1,13 +1,20 @@
 import {useEffect, useState} from 'react';
 
 /**
- * Pick toolsCard: the lesson card on the graph keeps one height for the whole lesson (owner review 7: its height changed
- * 325 -> 238 -> 200 between frames, so the cards below it jumped on every Naprej). The largest height the card reached in
- * this lesson becomes its min-height (a ratchet), capped by what its stack's column can give it once the other cards have
- * their minimum. The ratchet starts over when the lesson changes, when the card is folded or carried away, and when it
- * lands in another stack. The same hook marks the text region that scrolls (`data-overflow`: "start"/"end") so the
- * stylesheet can fade the cut edge.
+ * Pick toolsCard: the lesson card on the graph fits its text, and when the text changes (Naprej, Nazaj, an opened
+ * "Kaj bi morali opaziti", MathJax finishing) the card glides to its new height instead of snapping, so the cards below
+ * it slide with it rather than jump. Review 7 had asked for one height per lesson (the cards below jumped on every
+ * Naprej); the owner found the blank space that left under short frames ugly (2026-11-21), so the height follows the
+ * text again and only the motion is smoothed.
+ *
+ * Docked in a stack, the card holds an explicit height: the height it would have on its own (capped by the column, as
+ * before) with a floor of min(200 px, its text) so a crowded column still leaves it room to read. Floating or folded,
+ * the card is left to the stylesheet. The same hook marks the text region that scrolls (`data-overflow`: "start"/"end")
+ * so the stylesheet can fade the cut edge. Reduced motion: no glide.
  */
+const GLIDE = 'height 220ms cubic-bezier(.2, .8, .2, 1)';
+const FLOOR = 200;
+
 export function useLessonCardFit(enabled: boolean, lesson: unknown) {
     const [attempt, setAttempt] = useState(0);
     useEffect(() => {
@@ -15,24 +22,9 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
         const card = document.querySelector<HTMLElement>('.ux-bcard-guide');
         // The dock's regions mount a moment after the lesson: look again until the card is there.
         if (!card) { const retry = window.setTimeout(() => setAttempt(a => a + 1), 150); return () => window.clearTimeout(retry); }
-        let max = 0, home: Element | null = card.parentElement, raf = 0;
-        const px = (value: string) => parseFloat(value) || 0;
-                /** The height the stack's column can give the card: the column minus the other stacks and the cards beside it at their minimum. */
-        const cap = (region: HTMLElement) => {
-            const column = region.parentElement;
-            if (!column) return Infinity;
-            const own = getComputedStyle(region);
-            let free = column.clientHeight - px(own.paddingTop) - px(own.paddingBottom) - px(own.marginTop) - px(own.marginBottom);
-            for (const other of Array.from(column.children) as HTMLElement[]) {
-                if (other === region || other.classList.contains('ux-dock-region') === false || other.childElementCount === 0) continue;
-                const s = getComputedStyle(other);
-                free -= other.scrollHeight + px(s.marginTop) + px(s.marginBottom);
-            }
-            const beside = (Array.from(region.children) as HTMLElement[]).filter(c => c !== card && c.classList.contains('ux-btext'));
-            for (const c of beside) free -= c.classList.contains('ux-btext-collapsed') ? c.offsetHeight : Math.min(c.offsetHeight, px(getComputedStyle(c).minHeight) || c.offsetHeight);
-            free -= 8 * beside.length;
-            return free;
-        };
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let held = false, home: Element | null = card.parentElement;
+
         const reading = () => card.querySelector<HTMLElement>('.guided-lesson-reading');
         const markScroll = () => {
             const el = reading();
@@ -40,36 +32,82 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
             const v = [el.scrollTop > 1 ? 'start' : '', el.scrollTop + el.clientHeight < el.scrollHeight - 1 ? 'end' : ''].filter(Boolean).join(' ');
             if (el.getAttribute('data-overflow') !== v) { if (v) el.setAttribute('data-overflow', v); else el.removeAttribute('data-overflow'); }
         };
+        const release = () => {
+            if (!held) return;
+            held = false;
+            for (const p of ['height', 'min-height', 'transition', 'flex-shrink']) card.style.removeProperty(p);
+        };
+        const docked = () => !card.classList.contains('is-floating') && !card.classList.contains('ux-btext-collapsed')
+            && !!card.parentElement?.classList.contains('ux-dock-v');
+
+        let busy = false;
         const apply = () => {
-            raf = 0;
-            const region = card.parentElement;
-            if (card.classList.contains('is-floating') || !region || !region.classList.contains('ux-dock-v')) { max = 0; card.style.removeProperty('min-height'); markScroll(); return; }
-            if (region !== home) { home = region; max = 0; card.style.removeProperty('min-height'); }
-            max = Math.max(max, card.offsetHeight);
-            const want = Math.round(Math.min(max, Math.max(200, cap(region))));
-            if (card.style.minHeight !== `${want}px`) card.style.minHeight = `${want}px`;
+            if (busy) return;
+            if (!docked()) { release(); markScroll(); return; }
+            busy = true;
+            try {
+                const moved = card.parentElement !== home;
+                home = card.parentElement;
+                // Where the card is on screen now (mid-glide too), then the height it wants: its full text (no shrink),
+                // and what its column gives it (the stylesheet's flex).
+                const now = card.getBoundingClientRect().height;
+                card.style.transition = 'none';
+                card.style.removeProperty('height');
+                card.style.removeProperty('min-height');
+                card.style.flexShrink = '0';
+                const full = card.getBoundingClientRect().height;
+                card.style.removeProperty('flex-shrink');
+                const floor = Math.min(FLOOR, full);
+                card.style.minHeight = `${Math.round(floor)}px`;
+                const fits = card.getBoundingClientRect().height;
+                const target = Math.round(Math.max(floor, fits));
+                const glide = held && !moved && !reducedMotion.matches && Math.abs(target - now) > 2;
+                held = true;
+                if (glide) {
+                    card.style.height = `${now}px`;
+                    void card.offsetHeight;
+                    card.style.transition = GLIDE;
+                }
+                card.style.height = `${target}px`;
+            } finally {
+                busy = false;
+            }
             markScroll();
         };
-        const schedule = () => { if (!raf) raf = requestAnimationFrame(apply); };
-        const observer = new ResizeObserver(schedule);
-        observer.observe(card);
-        const watch = (el: Element | null) => { if (el) observer.observe(el); };
-        const rewatch = () => { watch(card.parentElement); watch(card.parentElement?.parentElement ?? null); for (const sib of Array.from(card.parentElement?.parentElement?.children ?? [])) watch(sib); };
+
+        // Our own style writes resize the card and its column; those observer calls find nothing new to do (the target is
+        // unchanged), so they settle at once.
+        let raf = 0;
+        const schedule = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; apply(); }); };
+        // Content changes are handled before the frame is painted, so the card never shows the new text at the old height.
+        // (One observe call: a second call on the same node would replace these options.) Our own writes are to `style`
+        // and `data-overflow`, which are not watched.
+        const mutations = new MutationObserver(() => { rewatch(); apply(); });
+        mutations.observe(card, {childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'open', 'hidden']});
+        const contentSize = new ResizeObserver(() => apply());
+        const layoutSize = new ResizeObserver(schedule);
+        const rewatch = () => {
+            contentSize.disconnect(); layoutSize.disconnect();
+            // The text's own blocks (their size changes with MathJax and opened details) and the column holding the card.
+            const el = reading();
+            if (el) for (const child of Array.from(el.children)) contentSize.observe(child);
+            const column = card.parentElement?.parentElement;
+            if (column) layoutSize.observe(column);
+        };
         rewatch();
-        // The card moves between stacks without being remounted, and the reading region is replaced on each frame.
-        const mutations = new MutationObserver(() => { rewatch(); schedule(); });
-        mutations.observe(card, {childList: true, subtree: true});
-        mutations.observe(card, {attributes: true, attributeFilter: ['class']});
         const onScroll = () => markScroll();
         card.addEventListener('scroll', onScroll, true);
-        const timer = window.setInterval(() => { if (card.parentElement !== home) schedule(); markScroll(); }, 250);
-        schedule();
+        const onResize = () => schedule();
+        window.addEventListener('resize', onResize);
+        const timer = window.setInterval(() => { if (card.parentElement !== home) { rewatch(); schedule(); } markScroll(); }, 250);
+        apply();
         return () => {
             if (raf) cancelAnimationFrame(raf);
             window.clearInterval(timer);
-            observer.disconnect(); mutations.disconnect();
+            window.removeEventListener('resize', onResize);
+            mutations.disconnect(); contentSize.disconnect(); layoutSize.disconnect();
             card.removeEventListener('scroll', onScroll, true);
-            card.style.removeProperty('min-height');
+            release();
         };
     }, [enabled, lesson, attempt]);
 }
