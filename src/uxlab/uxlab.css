@@ -458,7 +458,8 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 }
 .ux-trace-button:hover, .ux-trace-button.is-open { background: #5d3b6e; color: #fffdf5; }
 .ux-trace { margin-top: 4px; }
-.ux-trace-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.ux-trace-chips { display: flex; gap: 4px; margin-bottom: 4px; overflow-x: auto; scrollbar-width: none; }
+.ux-trace-chips button { flex: none; white-space: nowrap; }
 .ux-trace-chips button {
     font: inherit; font-size: 11px; padding: 2px 7px; border-radius: 999px; border: 1px solid #d6dccb; background: #fff; color: #526152; cursor: pointer;
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;

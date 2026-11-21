@@ -60,7 +60,9 @@ function extreme(series: readonly (number | undefined)[]): {index: number; kind:
     const defined = series.map((value, index) => ({value, index})).filter((item): item is {value: number; index: number} => item.value !== undefined);
     const lowest = defined.reduce((best, item) => item.value < best.value ? item : best, defined[0]);
     const highest = defined.reduce((best, item) => item.value > best.value ? item : best, defined[0]);
-    const inside = (index: number) => index > 0 && index < series.length - 1;
+    // Inside the stretch where the readout exists (it may vanish at the ends, e.g. σ at p = 0).
+    const first = defined[0].index, last = defined[defined.length - 1].index;
+    const inside = (index: number) => index > first && index < last;
     if (inside(lowest.index) || !inside(highest.index)) return {index: lowest.index, kind: 'min'};
     return {index: highest.index, kind: 'max'};
 }
@@ -119,6 +121,8 @@ export function SliderTrace(props: {root: React.RefObject<HTMLElement>; capabili
             return step ? Math.min(max, Math.round((raw - min) / step) * step + min) : raw;
         });
         const rows: Map<string, number>[] = [];
+        const stateKey = () => { try { return JSON.stringify(caps.current.captureState().value); } catch { return ''; } };
+        let previous = stateKey(), previousValue = Number(input.value);
         for (const value of values) {
             try {
                 valueSetter?.call(input, String(value));
@@ -126,7 +130,11 @@ export function SliderTrace(props: {root: React.RefObject<HTMLElement>; capabili
                 input.dispatchEvent(new Event('change', {bubbles: true}));
                 await nextFrames(2);
                 recoverBoards();
-                rows.push(readouts(board));
+                // A value the scene refuses (p = 0 in a binomial) leaves the state as it was: its readouts are stale.
+                const key = stateKey();
+                const refused = key !== '' && key === previous && Math.abs(value - previousValue) > 1e-12;
+                rows.push(refused ? new Map() : readouts(board));
+                if (!refused) { previous = key; previousValue = value; }
             } catch { recoverBoards(); rows.push(new Map()); }
         }
         try { caps.current.restoreState(base); } catch { recoverBoards(); }
@@ -145,6 +153,7 @@ export function SliderTrace(props: {root: React.RefObject<HTMLElement>; capabili
             .slice(0, 5);
         const name = (input.labels?.[0]?.textContent ?? '').replace(/,\s*vrednost.*$/i, '').trim();
         if (series.length === 0) { setTrace({input, host, name, values, series: [], selected: 0, phase: 'shown'}); return; }
+        (window as unknown as {__uxTrace?: unknown}).__uxTrace = {values, series};
         setTrace({input, host, name, values, series, selected: 0, phase: 'predict'});
     };
 
@@ -167,9 +176,12 @@ export function SliderTrace(props: {root: React.RefObject<HTMLElement>; capabili
 function TraceView(props: {trace: Trace; now: number; hover?: number; setHover: (index?: number) => void; setTrace: (trace?: Trace) => void}) {
     const {trace} = props;
     const input = trace.input;
+    const box = useRef<HTMLDivElement>(null);
+    // The trace opens under the slider, often below the fold of the inspector: bring it into view once.
+    useEffect(() => { box.current?.scrollIntoView({block: 'nearest', behavior: 'smooth'}); }, [trace.host, trace.series.length]);
     const width = input.offsetWidth || 200, height = 46, pad = 8;
     const left = Math.max(0, input.getBoundingClientRect().left - trace.host.getBoundingClientRect().left);
-    if (trace.series.length === 0) return <div className="ux-trace" style={{marginLeft: left, width}}><p className="ux-trace-note">Noben odčitek na grafu ali v inšpektorju se ob tem drsniku ne spremeni.</p></div>;
+    if (trace.series.length === 0) return <div ref={box} className="ux-trace" style={{marginLeft: left, width}}><p className="ux-trace-note">Noben odčitek na grafu ali v inšpektorju se ob tem drsniku ne spremeni.</p></div>;
     const series = trace.series[trace.selected];
     const min = trace.values[0], max = trace.values[trace.values.length - 1];
     const xOf = (value: number) => pad + (width - 2 * pad) * (value - min) / (max - min || 1);
@@ -198,7 +210,7 @@ function TraceView(props: {trace: Trace; now: number; hover?: number; setHover: 
     const shown = trace.phase === 'shown';
     const hoverIndex = props.hover;
     const guessText = trace.guess !== undefined ? ` · tvoja napoved ${format(trace.values[trace.guess])}` : '';
-    return <div className="ux-trace" style={{marginLeft: left, width}}>
+    return <div ref={box} className="ux-trace" style={{marginLeft: left, width}}>
         {trace.series.length > 1 && <div className="ux-trace-chips">{trace.series.map((item, index) =>
             <button key={item.label} type="button" aria-pressed={index === trace.selected} onClick={() => props.setTrace({...trace, selected: index, phase: 'predict', guess: undefined})}>{item.label}</button>)}</div>}
         <svg className={`ux-trace-plot ${shown ? '' : 'is-hidden'}`} viewBox={`0 0 ${width} ${height}`} width={width} height={height}

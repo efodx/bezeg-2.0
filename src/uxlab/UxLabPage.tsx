@@ -62,6 +62,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b16',
+        name: 'Sled na drsniku: najprej napovej, nato poglej vso pot',
+        idea: 'Gumb ∿ ob vsakem drsniku prehodi drsnik od začetka do konca in pod njim nariše, kako se spreminja odčitek prizora (napaka, kot, verjetnost). Najprej te vpraša, kje bo odčitek najmanjši ali največji; tapneš, nato se krivulja razkrije s tvojo napovedjo in pravim ekstremom, tap na sled pa drsnik prestavi tja.',
+        generalizes: 'Drsnik zares premika in po vsakem koraku prebere vse zapise »oznaka = število« na plošči in v inšpektorju, nato izbere najbolj ukrivljeno odvisnost; prizor obnovi iz posnetka stanja. Deluje za vsak drsnik in vsak odčitek, brez kode na lekcijo.',
+        try: 'Pritisni ∿ ob imenu drsnika, tapni napoved v okvir pod njim, nato premikaj miško po sledi.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (napaka vzdolž x)', to: '/bezeg-2.0/analysis/taylor?ux=b16'},
+            {label: 'Verjetnost: binomska in normalna (P vzdolž p)', to: '/bezeg-2.0/probability/binomial-normal?ux=b16'},
+            {label: 'Geometrija: obodni kot (∠APB vzdolž lege P)', to: '/bezeg-2.0/inscribed-angle?ux=b16'},
+        ],
+    },
+    {
         id: 'b4',
         name: 'Ujemi obliko: izziv, ki ga ne moreš nehati igrati',
         idea: 'Trenutni prizor postane vijolična tarča, graf pa se strese v bližnji veljaven prizor. Z vlečenjem točk ali drsniki ga pripelješ nazaj; merilnik kaže ujemanje, ob zadetku zacveti bezeg in niz se podaljša, z nizom pa raste število premaknjenih parametrov.',
