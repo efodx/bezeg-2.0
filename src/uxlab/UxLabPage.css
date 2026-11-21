@@ -1,0 +1,25 @@
+.uxlab { max-width: none; margin: 0; padding: 32px max(16px, calc((100% - 880px) / 2)) 80px; color: var(--bezeg-shell-ink, #19372f); background: var(--bezeg-shell-canvas, #f7f5e9); text-align: left; min-height: 100vh; box-sizing: border-box; }
+.uxlab-kicker { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--bezeg-shell-label, #647557); margin: 0 0 6px; }
+.uxlab-head h1 { font-family: var(--bezeg-font-display, serif); font-size: var(--bezeg-type-page, 3rem); font-weight: 550; margin: 0 0 12px; letter-spacing: -.018em; }
+.uxlab-lede { font-size: 1.05rem; line-height: 1.55; color: var(--bezeg-shell-ink-secondary, #526152); max-width: 64ch; }
+.uxlab-lede code, .uxlab-flag { font-size: .85em; background: var(--bezeg-shell-nav-active, #e8eddd); padding: 1px 6px; border-radius: 6px; }
+.uxlab-list { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 18px; }
+.uxlab-card { background: var(--bezeg-shell-panel, #fffdf5); border: 1px solid var(--bezeg-shell-rule, #d6dccb); border-radius: 18px; padding: 20px 22px; box-shadow: 0 8px 24px -18px rgba(25, 55, 47, .35); }
+.uxlab-card p { line-height: 1.55; margin: 8px 0; }
+.uxlab-card-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.uxlab-card-head h2 { font-family: var(--bezeg-font-display, serif); font-size: var(--bezeg-type-item, 1.3rem); margin: 0; flex: 1 1 260px; }
+.uxlab-rank { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--bezeg-shell-action, #244c37); color: #fff; font-weight: 700; font-size: .9rem; flex: none; }
+.uxlab-why { color: var(--bezeg-shell-ink-secondary, #526152); font-size: .95rem; }
+.uxlab-try { font-style: italic; color: var(--bezeg-shell-label, #647557); }
+.uxlab-links { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.uxlab-links li { display: flex; border: 1px solid var(--bezeg-shell-control-rule, #cbd4c1); border-radius: 999px; overflow: hidden; }
+.uxlab-links a { padding: 9px 14px; text-decoration: none; color: var(--bezeg-shell-action, #244c37); font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; }
+.uxlab-links a:hover { background: var(--bezeg-shell-control-hover, #eef3e5); }
+.uxlab-links .uxlab-compare { font-weight: 400; color: var(--bezeg-shell-label, #647557); border-left: 1px solid var(--bezeg-shell-control-rule, #cbd4c1); font-size: .85rem; }
+@media (max-width: 560px) {
+    .uxlab { padding: 20px 16px 60px; }
+    .uxlab-card-head h2 { flex-basis: 200px; }
+    .uxlab-card { padding: 16px; }
+    .uxlab-links li { width: 100%; }
+    .uxlab-links li a:first-child { flex: 1; }
+}
