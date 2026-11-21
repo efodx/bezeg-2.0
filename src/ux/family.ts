@@ -113,7 +113,7 @@ const zoomWindow = async (b: Board, svg: SVGSVGElement, keys: string[], start: n
     return gridValues(entry, start[index], half, count);
 };
 
-export interface FamilyCell { values: number[]; svg: string }
+export interface FamilyCell { values: number[]; svg: string; /** Equal for states that draw the same picture. */ look: string }
 export interface Family { xs: number[]; ys: number[]; cells: FamilyCell[]; moving: number; start: number[]; width: number; height: number }
 
 /** Pictures the board over a row (`yCount` 0) or a plane of values of `entries`; rows run from the largest y down. */
@@ -126,7 +126,7 @@ export async function captureFamily(b: Board, entries: ParamEntry[], xCount: num
     const box = container(b);
     box.style.transition = 'opacity 160ms ease';
     box.style.opacity = '0.12';
-    const clones: {values: number[]; node: SVGSVGElement; signatures: Map<string, string>}[] = [];
+    const clones: Clone[] = [];
     let xs: number[] = [], ys: (number | undefined)[] = [undefined];
     try {
         xs = await zoomWindow(b, svg, keys, start, 0, xCount);
@@ -145,9 +145,16 @@ export async function captureFamily(b: Board, entries: ParamEntry[], xCount: num
         await settle(b, keys, start);
         box.style.opacity = '';
     }
-    // What changes across the family is drawn in colour; everything that stays put is faded.
+    const {cells, moving} = mark(clones, width, height);
+    return {xs, ys: ys.filter((y): y is number => y !== undefined), cells, moving, start, width, height};
+}
+
+type Clone = {values: number[]; node: SVGSVGElement; signatures: Map<string, string>};
+
+/** What changes across the pictures is drawn in colour; everything that stays put is faded. */
+function mark(clones: Clone[], width: number, height: number): {cells: FamilyCell[]; moving: number} {
     const moving = new Set<string>();
-    for (const [id, first] of clones[0].signatures) if (clones.some(clone => clone.signatures.get(id) !== first)) moving.add(id);
+    for (const [id, first] of clones[0]?.signatures ?? []) if (clones.some(clone => clone.signatures.get(id) !== first)) moving.add(id);
     const cells = clones.map(({values, node, signatures}) => {
         node.querySelectorAll('.ux-ghosts, .ux-target-ghost, .ux-fit-layer').forEach(element => element.remove());
         for (const id of signatures.keys()) if (!moving.has(id)) node.querySelector(`[id="${id}"]`)?.classList.add('ux-ladder-still');
@@ -157,7 +164,30 @@ export async function captureFamily(b: Board, entries: ParamEntry[], xCount: num
         node.setAttribute('height', '100%');
         node.setAttribute('preserveAspectRatio', 'xMidYMid meet');
         node.removeAttribute('style');
-        return {values, svg: node.outerHTML};
+        return {values, svg: node.outerHTML, look: [...signatures.values()].join('#')};
     });
-    return {xs, ys: ys.filter((y): y is number => y !== undefined), cells, moving: moving.size, start, width, height};
+    return {cells, moving: moving.size};
+}
+
+/** Pictures the board at each listed combination of `keys` values (then restores the live values). */
+export async function captureStates(b: Board, keys: string[], states: number[][]): Promise<FamilyCell[] | undefined> {
+    const svg = svgRootOf(b);
+    if (!svg) return undefined;
+    const start = keys.map(key => getParam(key)?.value ?? 0);
+    const width = svg.clientWidth, height = svg.clientHeight;
+    const box = container(b);
+    box.style.transition = 'opacity 120ms ease';
+    box.style.opacity = '0.12';
+    const clones: Clone[] = [];
+    try {
+        for (const values of states) {
+            await settle(b, keys, values);
+            clones.push({values, node: svg.cloneNode(true) as SVGSVGElement,
+                signatures: new Map(drawn(b).map(object => [object.rendNode!.id || object.id, signature(object.rendNode!)]))});
+        }
+    } finally {
+        await settle(b, keys, start);
+        box.style.opacity = '';
+    }
+    return mark(clones, width, height).cells;
 }

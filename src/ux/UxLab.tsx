@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a15', name: 'Ponovi',
+        idea: 'Ponavljanje iz lekcije same: Bezeg si zapomni sliko vsakega okvirja in na »Ponovi« vpraša »ta korak je levo sliko spremenil v desno — kateri parameter? Povečal ali zmanjšal?« ter na živem grafu »zdaj je d = 1; kateri graf dobiš pri d = 3?«, z zvijačnimi odgovori (isti parameter v drugo smer, drug parameter). Napačen odgovor vodi nazaj na tisti korak.',
+        general: 'Priklic je najmočnejši način utrjevanja, a vprašanj nobena lekcija ne potrebuje: okvirje bere iz vrstice napredka, vrednosti iz deljenega registra drsnikov, slike pa so posnetki prave table (pri možnostih prek istega zajema kot a13). Deluje v vsaki lekciji z drsnikom; pri enem samem parametru vpraša le za smer.',
+        try: 'Z gumbom »Naprej« pojdi skozi pet ali šest okvirjev lekcije, nato pritisni »Ponovi« desno spodaj na grafu (številka pove, koliko korakov s spremembo si že videl).',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a15'},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a15'},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', flags: 'a15'},
+        ],
+    },
+    {
         id: 'a14', name: 'Zemljevid oblik',
         idea: 'Dva parametra, ki delujeta skupaj (c in d, k in p, |w| in arg w), dobita eno krmilo: blazinico v kotu table, katere ozadje je zemljevid — sličice grafa povsod v tej ravnini parametrov. Povleci piko čez zemljevid in velika tabla ji sledi v živo; zemljevid vnaprej pokaže, kje živijo oblike, ki jih iščeš.',
         general: 'Zemljevid je posnetek prave table prek deljenega registra drsnikov (isti zajem kot a13), pika piše v iste drsnike. Med razlago je pika vzmet: spusti jo in vrednosti lekcije se vrnejo. Deluje na vsakem grafu z vsaj dvema drsnikoma; navdih sta XY-blazinica sintetizatorjev in mini zemljevid iger.',
@@ -171,7 +182,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a11', 'a13', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a11', 'a13', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {

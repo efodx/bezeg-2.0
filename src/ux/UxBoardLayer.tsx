@@ -13,6 +13,7 @@ import {SketchFit} from './SketchFit';
 import {Storyboard} from './Storyboard';
 import {Ladder} from './Ladder';
 import {ShapeMap} from './ShapeMap';
+import {Recap} from './Recap';
 import './UxBoardLayer.css';
 
 /** Lane-A prototypes that live on the board, each behind its own `?ux=` flag. */
@@ -38,6 +39,7 @@ export function UxBoardLayer(props: {frame: React.RefObject<HTMLDivElement>; les
         {uxEnabled('a2') && <GhostTrails frame={props.frame}/>}
         {uxEnabled('a7') && <CurveSound frame={props.frame}/>}
         {uxEnabled('a12') && <Storyboard frame={props.frame}/>}
+        {uxEnabled('a15') && <Recap frame={props.frame}/>}
         {uxEnabled('a14') && <ShapeMap frame={props.frame}/>}
         {uxEnabled('a13') && <Ladder frame={props.frame}/>}
         {uxEnabled('a11') && <SketchFit frame={props.frame}/>}
