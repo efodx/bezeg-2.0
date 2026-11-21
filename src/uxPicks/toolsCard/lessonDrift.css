@@ -1,0 +1,18 @@
+/* Pick toolsCard: the reading frame's graph differs from the frame (the learner changed it); "Povrni" applies the frame
+   again. A quiet line under the progress row, spanning it; it never moves Back/Next, which keep the row's top. */
+.ux-lesson-drift {
+    grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 8px 0 0; padding: 4px 4px 4px 10px; border-radius: 8px;
+    background: color-mix(in srgb, var(--bezeg-shell-action) 8%, var(--bezeg-shell-panel));
+    color: var(--bezeg-shell-ink); font-size: .8125rem; font-weight: 600; line-height: 1.3;
+    animation: ux-drift-in 160ms cubic-bezier(.2, .8, .2, 1);
+}
+.ux-lesson-drift button {
+    flex: none; min-height: 30px; padding: 0 12px; border: 1px solid var(--bezeg-control-border, #767f6c); border-radius: 6px; box-shadow: none;
+    background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink); font: inherit; font-weight: 700; cursor: pointer;
+}
+.ux-lesson-drift button:hover { background: var(--bezeg-shell-control-hover); }
+.ux-lesson-drift button:focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: 2px; }
+@keyframes ux-drift-in { from { opacity: 0; transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .ux-lesson-drift { animation: none; } }
+@media (pointer: coarse) { .ux-lesson-drift button { min-height: 44px; } }

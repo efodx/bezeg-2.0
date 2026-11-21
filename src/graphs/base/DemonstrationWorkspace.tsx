@@ -190,9 +190,12 @@ export function DemonstrationWorkspace(props: {
     // Pick toolsCard: the tools are a dock card on the graph; phones keep them under it.
     const phone = usePhone();
     const toolsCard = usePick('toolsCard') && !phone;
+    // A reading frame locks the graph and the tools, except under pick toolsCard (owner, 2026-11-21: the lock "makes it feel
+    // clunky"): there everything stays live and the lesson card offers "Povrni" once the graph differs from the frame.
+    const readingLocks = lessonActive && lessonMode === 'content' && !toolsCard;
     // The one decision about user commands (Preset writes, playback), from the lesson state this workspace owns. The ref is what
     // `current()` reads at the moment of a commit; the render value only drives what controls show.
-    const userActionMode: UserActionMode = !lessonActive ? 'free' : lessonMode === 'content' ? 'lesson-card' : 'lesson-observe';
+    const userActionMode: UserActionMode = !lessonActive ? 'free' : readingLocks ? 'lesson-card' : 'lesson-observe';
     const userActionModeRef = useRef(userActionMode);
     useLayoutEffect(() => { userActionModeRef.current = userActionMode; }, [userActionMode]);
     const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
@@ -201,7 +204,7 @@ export function DemonstrationWorkspace(props: {
     // Every commit: with pick toolsCard the tools mount a little later (when the dock is ready) and again after a move.
     useEffect(() => {
         const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
-        if (element) element.inert = lessonActive && lessonMode === 'content';
+        if (element) element.inert = readingLocks;
     });
     useLayoutEffect(() => {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
@@ -210,7 +213,7 @@ export function DemonstrationWorkspace(props: {
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         data-ux-dock-tools={dockToolsPick ? '' : undefined}
         data-ux-tools-card={toolsCard ? '' : undefined}
-        className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
+        className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode === 'content' && !readingLocks ? 'reading' : lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
                 <Link to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={forwardedState}>{t('demonstrations')}</Link>
@@ -270,7 +273,7 @@ export function DemonstrationWorkspace(props: {
                 }
                 setTimeout(() => learnButton.current?.focus(), 0);
             }}/>}
-        <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
+        <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={readingLocks ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
             <UxBoardFrame><JGBox ref={setGraphContainer}/></UxBoardFrame>
             <div ref={setSlotElement} data-playback-slot=""/>
@@ -278,7 +281,7 @@ export function DemonstrationWorkspace(props: {
                 {actions.map(action => {
                     if (action === 'fit') return <button key={action} data-navigation={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
                     const [text, label] = navigationLabels[action];
-                    return <button key={action} data-navigation={action} disabled={lessonOpen && lessonMode === 'content'} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
+                    return <button key={action} data-navigation={action} disabled={lessonOpen && lessonMode === 'content' && !toolsCard} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
                 })}
             </div>}
             <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
@@ -287,7 +290,7 @@ export function DemonstrationWorkspace(props: {
         {/* Pick dockTools: the docked lesson tab is portalled here so keyboard focus meets it right before the tools. */}
         {dockToolsPick && <div id="workspace-dock-slot" className="workspace-dock-slot"/>}
         {(() => { const tools = <aside ref={inspector} id="workspace-inspector" className="workspace-inspector" hidden={!inspectorVisible}
-            aria-disabled={lessonActive && lessonMode === 'content' ? true : undefined} aria-label={t("demonstration_tools")}>
+            aria-disabled={readingLocks ? true : undefined} aria-label={t("demonstration_tools")}>
             <div className="inspector-toolbar">
             <div className="inspector-heading">
                 <div><h2>{t("tools")}</h2></div>
@@ -314,6 +317,6 @@ export function DemonstrationWorkspace(props: {
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
         </aside>;
-        return toolsCard && inspectorVisible ? <ToolsCard locked={lessonActive && lessonMode === 'content'}>{tools}</ToolsCard> : tools; })()}
+        return toolsCard && inspectorVisible ? <ToolsCard locked={readingLocks}>{tools}</ToolsCard> : tools; })()}
     </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PlaybackSlotContext.Provider></PresetLockContext.Provider>;
 }

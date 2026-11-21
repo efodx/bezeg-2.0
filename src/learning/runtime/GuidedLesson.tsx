@@ -11,6 +11,8 @@ import {useLessonDock} from '../../uxPicks/dock/useLessonDock';
 import {DockCard} from '../../uxPicks/dock/DockCard';
 import {ChevronLeftIcon, ChevronRightIcon} from '../../uxPicks/dock/icons';
 import {LessonMenu} from '../../uxPicks/toolsCard/LessonMenu';
+import {useLessonDrift} from '../../uxPicks/toolsCard/useLessonDrift';
+import '../../uxPicks/toolsCard/lessonDrift.css';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
 import {fitFormulaRows} from './formulaRows';
@@ -544,6 +546,11 @@ export function GuidedLesson(props: {
     };
 
     const navigate = useLessonMorph(props.capabilities, refresh, session);
+    // Pick toolsCard: reading frames do not lock the graph; once the learner's changes make the graph differ from the frame,
+    // the card offers "Povrni", which applies the step's scene again (as Back and Next do).
+    const [drifted, clearDrift] = useLessonDrift(lessonOnGraph && snapshot.status === 'content',
+        `${snapshot.stepIndex}:${snapshot.frameIndex}`, () => props.capabilities.captureState());
+    const restoreFrame = () => { refresh(() => session.reset()); clearDrift(); };
 
     const close = (restoreCompleted = false) => {
         session.close({restoreCompleted});
@@ -741,6 +748,10 @@ export function GuidedLesson(props: {
             </div>
             {rail}
             {navigation}
+            {drifted && !isExploring && <p className="ux-lesson-drift" role="status">
+                <span>Graf se razlikuje od razlage.</span>
+                <button type="button" onClick={restoreFrame}>Povrni</button>
+            </p>}
         </div>;
         const menu = <LessonMenu label="Več možnosti vodenega primera">{(trigger, close) => <>
             {chapterReturnLink}
