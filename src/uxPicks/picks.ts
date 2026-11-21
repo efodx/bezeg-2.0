@@ -25,6 +25,7 @@ export const PICKS: readonly Pick[] = [
     {id: 'a1', title: 'Parametri na grafu', from: 'a1 + števci', note: 'Vsak drsnik in vsak števec (− n +) je ploščica na grafu: povleci levo ali desno, za fino nastavljanje dvigni prst; kolešček in puščice tudi delujejo.', tryAt: '/bezeg-2.0/functions/transformations'},
     {id: 'a19', title: 'Poglej, preden skočiš', from: 'a19 + števci', note: 'Z miško potuj po drsniku v orodjih: graf črtkano pokaže, kako bi bil videti pri tej vrednosti; klik skoči tja. Nad − ali + števca pokaže korak nižje ali višje.', tryAt: '/bezeg-2.0/functions/transformations'},
     {id: 'a3', title: 'Parameter se premika sam', from: 'a3 + števci', note: 'Gumb ∿ na ploščici (potrebuje »Parametri na grafu«): drsnik sam niha med mejama, števec sam šteje gor in dol. Več jih lahko teče hkrati.', tryAt: '/bezeg-2.0/bernstein'},
+    {id: 'c11', title: 'Duh pokaže', from: 'c11 + b15', note: 'Ko se nekaj časa ne dotakneš grafa, prosojna roka pokaže, kaj se da premikati (točka, drsnik, števec). Gumb ✋ Pokaži jo pokliče; v vodeni lekciji »Pokaži mi« pokaže, kar okvir sprašuje.', tryAt: '/bezeg-2.0/functions/transformations'},
     // {id: 'example', title: 'Primer', from: 'a1', note: 'Kaj naredi in kje ga najdeš.', tryAt: '/bezeg-2.0/functions/transformations'},
 ];
 

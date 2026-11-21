@@ -112,3 +112,8 @@ export function asProbe<T>(run: () => T): T {
 export function recentlyProbed(): boolean {
     return probeDepth > 0 || performance.now() - lastProbeEnd < 250;
 }
+
+/** The parameters registered right now, for non-React readers (c11). */
+export function listParams(): ParamEntry[] {
+    return [...entries.values()];
+}

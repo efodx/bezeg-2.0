@@ -1,0 +1,24 @@
+/* c11 Duh pokaže (from ux-challenge/c ux.css), with the hand fixed to the viewport so it can reach any control. */
+.ux-hand { position: fixed; left: -9px; top: -3px; z-index: 1100; pointer-events: none; filter: drop-shadow(0 3px 6px rgb(25 55 47 / 35%)); opacity: .92; }
+.ux-hand[hidden] { display: none; }
+.ux-hand svg { display: block; transition: transform .12s ease; transform-origin: 30% 10%; }
+.ux-hand.is-pressed svg { transform: scale(.88); }
+.ux-hand-ripple { position: absolute; left: 1px; top: -7px; width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid #c47b1f; opacity: 0; }
+.ux-hand.is-pressed .ux-hand-ripple { animation: ux-hand-ripple .9s ease-out infinite; }
+@keyframes ux-hand-ripple { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
+.ux-hand-caption {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 29; max-width: calc(100% - 24px);
+    padding: 6px 12px; border-radius: 999px; background: var(--bezeg-shell-action, #244c37); color: #fff;
+    font: 600 13px/1.35 system-ui, sans-serif; text-align: center; pointer-events: none;
+}
+.ux-hand-button {
+    position: absolute; top: 10px; left: 10px; z-index: 6; display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 12px 7px 10px; min-height: 34px; border: 1px solid var(--bezeg-shell-control-rule, #cbd4c1); border-radius: 999px;
+    background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-ink, #19372f); font: 600 13px/1 system-ui, sans-serif;
+    cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto;
+}
+.ux-hand-button[hidden] { display: none; }
+.ux-hand-button:hover { background: var(--bezeg-shell-control-hover, #eef3e5); }
+.ux-hand-button:focus-visible { outline: 2px solid var(--bezeg-shell-action, #244c37); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .ux-hand.is-pressed .ux-hand-ripple { animation: none; } }
+.ux-hand-button.in-layer { top: 40px; z-index: 5; }
