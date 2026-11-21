@@ -30,6 +30,7 @@ const routes = [{
             const {FamilyChapterPage} = await import('./learning/FamilyChapterPage');
             return {Component: FamilyChapterPage};
         }},
+        {path: '/bezeg-2.0/ux-lab', lazy: async () => ({Component: (await import('./ux/UxLab')).UxLab})},
         {path: '/bezeg-2.0/learn/*', element: <ErrorPage embedded/>},
         // Harness for browser smoke checks of the collision playground (CP4); see CollisionHarness.tsx.
         {path: '/bezeg-2.0/harness/collision-playground', lazy: async () => ({Component: (await import('./learning/playground/collisions/CollisionHarness')).CollisionHarness})},

@@ -97,7 +97,7 @@ export function attachLongExposure(board: Board): () => void {
             ghost.removeAttribute('marker-end');
             ghost.removeAttribute('filter');
             ghost.setAttribute('class', `ux-ghost ux-ghost-${mode}`);
-            if (element.elType === 'point' || element.elType === 'glider' || node.tagName.toLowerCase() === 'ellipse') ghost.classList.add('ux-ghost-dot');
+            if (element.elType === 'point' || element.elType === 'glider') ghost.classList.add('ux-ghost-dot');
             fragment.appendChild(ghost);
         }
         previousShapes = shapes;

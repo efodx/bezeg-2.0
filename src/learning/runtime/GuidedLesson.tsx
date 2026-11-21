@@ -8,6 +8,8 @@ import {useDraggableOffset} from './useDraggableOffset';
 import {fitFormulaRows} from './formulaRows';
 import './GuidedLesson.css';
 import './GuidedLessonLayout.css';
+import {uxEnabled} from '../../ux/flags';
+import {beginPrediction, cancelPrediction} from '../../ux/predict';
 
 function localized(value: {sl: string; en: string}, language: Language) {
     return value[language];
@@ -88,6 +90,7 @@ export function GuidedLesson(props: {
     const visiblePageTitle = normalizeTitle(props.visiblePageTitle ?? '');
     const pageHeadingHasLessonTitle = !!visiblePageTitle && visiblePageTitle === normalizeTitle(lessonTitle);
     const [startupError, setStartupError] = useState<Error>();
+    useEffect(() => () => cancelPrediction(), []);
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
     const [exitRequested, setExitRequested] = useState(false);
     const [exitError, setExitError] = useState(false);
@@ -612,10 +615,10 @@ export function GuidedLesson(props: {
     // Back and Next sit beside the progress in the tools column. In one column they are the card's last row, after the
     // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
     const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; refresh(() => session.back()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; cancelPrediction(); refresh(() => session.back()); }}>
                 {t('guided_lesson_previous_frame_short')}
             </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; refresh(() => session.next()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; if (uxEnabled('c3') && !atLastFrame) beginPrediction(); refresh(() => session.next()); }}>
                 {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
             </button>
         </nav>;

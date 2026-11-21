@@ -80,3 +80,80 @@
 @keyframes ux-lfo-scroll { to { transform: translateX(-18px); } }
 @media (prefers-reduced-motion: reduce) { .ux-lfo-wave { animation: none !important; } }
 @media (pointer: coarse), (max-width: 700px) { .ux-lfo { height: 40px; min-width: 44px; } }
+
+/* lane C marker */
+.ux-badge {
+    position: fixed; right: 10px; bottom: 10px; z-index: 1200;
+    display: flex; gap: 1px; border-radius: 999px; overflow: hidden;
+    box-shadow: 0 2px 10px rgb(25 55 47 / 18%);
+    font: 600 11.5px/1 system-ui, sans-serif;
+}
+.ux-badge a { padding: 7px 10px; text-decoration: none; background: #9a6a2c; color: #fff; }
+.ux-badge a + a { background: var(--bezeg-shell-action, #244c37); }
+.ux-badge a:hover { filter: brightness(1.12); color: #fff; }
+
+/* c3 predict */
+.ux-predict { position: absolute; inset: 0; z-index: 25; pointer-events: auto; }
+.ux-predict-frozen { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: var(--workspace-panel, var(--bezeg-panel, #fffdf5)); transition: opacity .9s ease; }
+.ux-predict-frozen.ux-predict-fading { opacity: 0; }
+.ux-predict-asking::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    box-shadow: inset 0 0 0 3px rgb(196 123 31 / 55%); border-radius: inherit;
+}
+.ux-predict-sketch { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+.ux-predict-revealed { pointer-events: none; }
+.ux-predict-revealed .ux-predict-card { pointer-events: auto; }
+.ux-predict-stroke { fill: none; stroke: #c47b1f; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+.ux-predict-revealed .ux-predict-stroke { stroke-dasharray: 2 7; stroke-width: 4.5; }
+.ux-predict-dot { fill: #c47b1f; opacity: .85; }
+.ux-predict-truth > * { fill: none !important; stroke: #3f8f5a !important; stroke-width: 9 !important; stroke-opacity: .28 !important; stroke-dasharray: none !important; stroke-linecap: round; animation: ux-truth 1.4s ease-out 1; }
+.ux-predict-truth > ellipse.ux-truth-dot { fill: #3f8f5a !important; fill-opacity: .3 !important; }
+@keyframes ux-truth { from { stroke-width: 22; stroke-opacity: 0; } 40% { stroke-opacity: .5; } }
+.ux-predict-card {
+    position: absolute; top: 12px; right: 12px;
+    width: min(300px, calc(100% - 24px)); box-sizing: border-box;
+    padding: 12px 14px 12px; border-radius: 14px;
+    background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-ink, #19372f);
+    border: 1px solid #e2c79f; box-shadow: 0 10px 30px rgb(25 55 47 / 16%);
+    font: 14px/1.4 system-ui, sans-serif; text-align: left;
+    animation: ux-card-in .25s ease-out;
+}
+@keyframes ux-card-in { from { transform: translateY(-8px); opacity: 0; } }
+.ux-predict-card p { margin: 0; }
+.ux-predict-kicker { font-weight: 700; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #9a6a2c; margin-bottom: 4px !important; }
+.ux-predict-text { color: var(--bezeg-shell-ink-secondary, #526152); }
+.ux-predict-stars { font-size: 22px; letter-spacing: 4px; line-height: 1.1; margin: 2px 0 4px !important; }
+.ux-predict-stars span { color: #d8dccf; }
+.ux-predict-stars span.on { color: #c47b1f; animation: ux-star .5s ease-out both; }
+.ux-predict-stars span.on:nth-child(2) { animation-delay: .15s; }
+.ux-predict-stars span.on:nth-child(3) { animation-delay: .3s; }
+@keyframes ux-star { from { transform: scale(.2); opacity: 0; } 70% { transform: scale(1.35); } }
+.ux-predict-tally { font-size: 12px; color: var(--bezeg-shell-label, #647557); margin-top: 6px !important; }
+.ux-predict-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.ux-predict-actions button {
+    border-radius: 999px; padding: 8px 14px; min-height: 36px; font: 600 13px/1 system-ui, sans-serif; cursor: pointer;
+    border: 1px solid var(--bezeg-shell-control-rule, #cbd4c1); background: transparent; color: var(--bezeg-shell-ink, #19372f);
+}
+.ux-predict-actions .ux-predict-reveal, .ux-predict-actions .ux-predict-done { background: var(--bezeg-shell-action, #244c37); color: #fff; border-color: transparent; }
+.ux-predict-actions button:focus-visible { outline: 2px solid var(--bezeg-shell-action, #244c37); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+    .ux-predict-frozen { transition: none; }
+    .ux-predict-truth > *, .ux-predict-stars span.on, .ux-predict-card { animation: none; }
+}
+.ux-predicting .guided-lesson-graph-catcher { pointer-events: none; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-predict button { pointer-events: auto; }
+@media (max-width: 700px) {
+    .ux-badge { top: 84px; bottom: auto; right: 0; border-radius: 999px 0 0 999px; }
+    .ux-badge a { padding: 6px 8px; font-size: 10.5px; }
+}
+/* A small board keeps most of its picture: the card becomes a slim bar along the bottom edge. */
+.ux-predict-compact .ux-predict-card {
+    top: auto; bottom: 8px; left: 8px; right: 8px; width: auto;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px;
+    padding: 7px 8px 7px 12px; border-radius: 12px; font-size: 12.5px;
+}
+.ux-predict-compact .ux-predict-kicker { margin: 0 !important; }
+.ux-predict-compact .ux-predict-text, .ux-predict-compact .ux-predict-tally { display: none; }
+.ux-predict-compact .ux-predict-stars { margin: 0 !important; font-size: 17px; }
+.ux-predict-compact .ux-predict-actions { margin: 0 0 0 auto; gap: 4px; }
+.ux-predict-compact .ux-predict-actions button { min-height: 34px; padding: 6px 11px; }

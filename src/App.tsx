@@ -6,6 +6,7 @@ import {Outlet, useLocation} from "react-router-dom";
 import {SideBotanicals, showsSideBotanicals} from './sideBotanicals/SideBotanicals';
 import {SiteContext} from "./graphs/context/react/SiteContext";
 import {AppHeader} from './AppHeader';
+import {UxBadge} from './ux/UxBadge';
 
 function App() {
     const t = useT();
@@ -27,6 +28,7 @@ function App() {
                     <a href="/bezeg-2.0/learn/bezier-curves">{t('chapter_return')}</a> · <button onClick={clearNavigationFailure}>{t('chapter_dismiss')}</button>
                 </aside>}
                 <Outlet/>
+                <UxBadge/>
                 {showsSideBotanicals(pathname) && <SideBotanicals route={pathname}/>}
             </div>
         </SiteContext.Provider>
