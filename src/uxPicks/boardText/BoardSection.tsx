@@ -12,13 +12,13 @@ import {DockCard} from '../dock/DockCard';
  * `<BoardSection kind="steps" title="Vrstni red operacij" what="vrstni red operacij">{body}</BoardSection>`; the
  * board text layer renders the cards (`BoardSectionCards`).
  */
-interface Section { kind: string; title: string; what: string; slot: HTMLElement; }
+export interface Section { kind: string; title: string; what: string; slot: HTMLElement; }
 
 const sections = new Map<string, Section>();
 const listeners = new Set<() => void>();
 let list: Section[] = [];
 function emit() { list = [...sections.values()]; listeners.forEach(l => l()); }
-function useSections(): Section[] {
+export function useSections(): Section[] {
     return useSyncExternalStore(l => { listeners.add(l); return () => { listeners.delete(l); }; }, () => list, () => list);
 }
 

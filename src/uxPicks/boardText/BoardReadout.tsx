@@ -27,6 +27,8 @@ function emit() {
     layout();
     listeners.forEach(l => l());
 }
+/** What the readout groups show now (their slots keep their content while the card is folded). */
+export function readoutText(): string { return [...entries].map(e => e.slot.textContent ?? '').join(' '); }
 export function setReadoutHost(el: HTMLElement | null) { host = el; layout(); }
 export function useReadoutCount(): number {
     return useSyncExternalStore(l => { listeners.add(l); return () => { listeners.delete(l); }; }, () => count, () => 0);

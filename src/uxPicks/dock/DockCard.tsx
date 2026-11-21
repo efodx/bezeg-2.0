@@ -8,6 +8,7 @@ import {
 } from './dockLayout';
 import {REGION_LABEL, measureDrag} from './dockMeasure';
 import {useFlip} from './dockFlip';
+import {useAutoOpen} from '../boardText/autoOpenStore';
 
 /**
  * A movable, foldable card in the board dock. Docked, it sits at one of seven anchors around the board's edge and never
@@ -90,6 +91,8 @@ export function DockCard(props: DockCardProps) {
     
     // In a guided lesson a `foldInLesson` card starts folded and keeps its own lesson-time fold (memory only); the fold the
     // learner set outside lessons is neither read nor overwritten.
+    const auto = useAutoOpen(kind);
+    const [cue, setCue] = useState(false);
     const [inLesson, setInLesson] = useState(() => !!props.foldInLesson && lessonIsOpen());
     const [lessonFold, setLessonFold] = useState<boolean | null>(() => lessonFolds.get(kind) ?? null);
     useEffect(() => {
@@ -106,7 +109,15 @@ export function DockCard(props: DockCardProps) {
         observer.observe(workspace, {attributes: true, attributeFilter: ['class']});
         return () => observer.disconnect();
     }, [kind, props.foldInLesson]);
-    const collapsed = props.collapsed ?? (inLesson ? lessonFold ?? true : ownCollapsed);
+    const collapsed = props.collapsed ?? (inLesson ? lessonFold ?? !auto : ownCollapsed);
+    // The lesson frame refers to this card: it opens by itself (unless the learner chose) and glows briefly.
+    const cueNow = auto && inLesson && lessonFold === null;
+    useEffect(() => {
+        if (!cueNow) { setCue(false); return undefined; }
+        setCue(true);
+        const timer = window.setTimeout(() => setCue(false), 1200);
+        return () => window.clearTimeout(timer);
+    }, [cueNow]);
     useEffect(() => registerCard(kind, props.region, props.order ?? 0), [kind, props.region, props.order]);
     useEffect(() => { setFloating(kind, floating); }, [kind, floating]);
     // A new page keeps its own place for the card.
@@ -257,7 +268,7 @@ export function DockCard(props: DockCardProps) {
     const resetLabel = `Vrni ${props.what} na privzeto mesto`;
     return <>
         {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget}/>, gapTarget)}
-        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}`} style={style}>
+        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}${cue ? ' ux-btext-cue' : ''}`} style={style}>
             <div className="ux-btext-head" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                  onPointerCancel={onPointerUp} onDoubleClick={e => { if (!(e.target as HTMLElement).closest('button, a')) reset(); }}>
                 {!phone && <span className="ux-btext-grip" role="button" tabIndex={0} onKeyDown={onKeyDown} onBlur={() => { setKeyboard(false); clearGap(kind); }}

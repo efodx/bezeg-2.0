@@ -5,8 +5,10 @@ import {buildCardHtml} from './boardTextLayout';
 import {DockCard} from '../dock/DockCard';
 import {isMorphing, subscribeMorphing} from '../b1/morph';
 import {usePublishedLegend} from './legendStore';
-import {ReadoutBody, useReadoutCount} from './BoardReadout';
-import {BoardSectionCards} from './BoardSection';
+import {ReadoutBody, readoutText, useReadoutCount} from './BoardReadout';
+import {BoardSectionCards, useSections} from './BoardSection';
+import {referencedCards, type RefCard} from './lessonRefs';
+import {setAutoOpen} from './autoOpenStore';
 import './BoardTextCard.css';
 
 const HIDDEN = 'ux-boardtext-hidden';
@@ -173,6 +175,33 @@ function MergedReadouts() {
     return <div ref={root} className="ux-bmerged"><ReadoutBody/></div>;
 }
 
+const plain = (html: string) => html.replace(/<[^>]*>/g, ' ');
+
+/** In a guided lesson: on each frame change, decides which cards the frame refers to (lessonRefs) and publishes them. */
+function useLessonRefs(getCards: () => RefCard[]) {
+    const latest = useRef(getCards);
+    latest.current = getCards;
+    useEffect(() => {
+        let frame: string | null = null;
+        const timers: number[] = [];
+        const decide = (text: string) => setAutoOpen(referencedCards(text, latest.current()));
+        const poll = () => {
+            const region = document.querySelector('.ux-bcard-guide .guided-lesson-reading');
+            const text = region ? [...region.querySelectorAll('[data-tex]')].map(n => n.getAttribute('data-tex') ?? '').join(' ') : null;
+            if (text === frame) return;
+            frame = text;
+            timers.splice(0).forEach(t => window.clearTimeout(t));
+            if (text === null) { setAutoOpen(new Set()); return; }
+            // The board settles (a morph, the text scan) before the cards' values are compared.
+            const settle = () => { if (isMorphing()) { timers.push(window.setTimeout(settle, 200)); } else decide(text); };
+            timers.push(window.setTimeout(settle, 500), window.setTimeout(() => decide(text), 1800));
+        };
+        poll();
+        const timer = window.setInterval(poll, 250);
+        return () => { window.clearInterval(timer); timers.forEach(t => window.clearTimeout(t)); setAutoOpen(new Set()); };
+    }, []);
+}
+
 /**
  * Pick boardText: two cards docked on the graph (DockCard). The text card holds the formula and the
  * readouts the graph drew on its board; the legend card holds the tools' "Legenda" group and the legend rows the
@@ -185,6 +214,15 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
     const rows = items.length > 0 ? [] : scan.legendRows;
     const readouts = useReadoutCount();
     const hasLegend = items.length > 0 || rows.length > 0;
+    const sections = useSections();
+    useLessonRefs(() => {
+        const cards: RefCard[] = [];
+        if (scan.text !== '') cards.push({kind: 'text', readouts: readouts > 0, text: `${plain(scan.text)} ${readoutText()}`});
+        else if (readouts > 0) cards.push({kind: 'readout', readouts: true, text: readoutText()});
+        if (hasLegend) cards.push({kind: 'legend', legend: true, text: `${items.map(i => i.label).join(' ')} ${plain(rows.join(' '))}`});
+        sections.forEach(s => cards.push({kind: `section-${s.kind}`, title: s.title, text: s.slot.textContent ?? ''}));
+        return cards;
+    });
     return <>
         {scan.text !== '' && <DockCard kind="text" title="Besedilo" what="besedilo" region="tr" foldInLesson>
             {open => open && <>
