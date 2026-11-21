@@ -83,7 +83,7 @@ class PartSequencer extends BaseSequencer {
 export default defineConfig({
     base: '/bezeg-2.0/',
     plugins: [react()],
-    server: {port: 3000},
+    server: {port: 3000, allowedHosts: ['.ts.net']}, // ux-picks: reachable over the tailnet
     build: {
         // CI, the smoke-test server, and `npm run deploy` publish this directory.
         outDir: 'build',
