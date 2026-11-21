@@ -18,7 +18,7 @@
 .ux-lab-intro > p:last-child { max-width: 62ch; color: var(--bezeg-shell-ink-secondary, #526152); line-height: 1.55; }
 .ux-lab-kicker { margin: 0; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: #9a6a2c; font-weight: 600; }
 .ux-lab code { font-size: .85em; background: var(--bezeg-shell-nav-active, #e8eddd); padding: 1px 5px; border-radius: 4px; }
-.ux-lab-list { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 22px; }
+.ux-lab-list { list-style: none; padding: 0; margin: 28px auto 0; display: grid; gap: 22px; }
 .ux-lab-card {
     background: var(--bezeg-shell-panel, #fffdf5);
     border: 1px solid var(--bezeg-shell-rule, #d6dccb);
@@ -56,3 +56,6 @@
     .ux-lab-card { padding: 18px 16px; border-radius: 12px; }
     .ux-lab-rank { width: 28px; height: 28px; font-size: .9rem; }
 }
+.ux-lab-all { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; margin-top: 18px; }
+.ux-lab-open-alt { background: #9a6a2c; }
+.ux-lab-open-alt:hover { background: #87591f; }

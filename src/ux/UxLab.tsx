@@ -120,6 +120,10 @@ export function UxLab() {
             <p className="ux-lab-kicker">Izziv UX · pas C</p>
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
+            <div className="ux-lab-all">
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
+            </div>
         </header>
         <ol className="ux-lab-list">
             {PROTOTYPES.map((prototype, index) => <li key={prototype.id} className="ux-lab-card">
