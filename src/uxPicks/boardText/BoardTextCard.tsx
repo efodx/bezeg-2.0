@@ -6,6 +6,7 @@ import {DockCard} from '../dock/DockCard';
 import {isMorphing, subscribeMorphing} from '../b1/morph';
 import {usePublishedLegend} from './legendStore';
 import {ReadoutBody, useReadoutCount} from './BoardReadout';
+import {BoardSectionCards} from './BoardSection';
 import './BoardTextCard.css';
 
 const HIDDEN = 'ux-boardtext-hidden';
@@ -157,5 +158,6 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
         {readouts > 0 && <DockCard kind="readout" title="Odčitki" what="odčitke" region="tr" order={2} foldWhenNarrow>
             {open => open && <ReadoutBody/>}
         </DockCard>}
+        <BoardSectionCards/>
     </>;
 }

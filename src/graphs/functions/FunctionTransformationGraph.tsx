@@ -17,6 +17,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RevealButton} from "../../inputs/RevealButton";
+import {BoardSection} from '../../uxPicks/boardText/BoardSection';
 
 /** Positions show four decimals, so that 0.25 and 1.5 are read off exactly. */
 const PRECISE = 4;
@@ -264,12 +265,12 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("function_transformation_note")}/>
-            <div className="inspector-group">
-                <h3>{t("function_transformation_steps_title")}</h3>
+            {/* Pick boardText: its own card on the graph; otherwise the same group in the tools. */}
+            <BoardSection kind="transform-steps" title={t("function_transformation_steps_title")} what="vrstni red operacij">
                 <ol data-transform-steps>
                     {ruleStepsOf(model).map(step => <li key={step.kind} data-step={step.kind}>{this.stepText(step)}</li>)}
                 </ol>
-            </div>
+            </BoardSection>
         </>;
     }
 }
