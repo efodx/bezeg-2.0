@@ -33,3 +33,6 @@ body:has(.ux-lab), #root:has(.ux-lab) { background: #f7f5e9; }
 .ux-lab-card { scroll-margin-top: 12px; }
 
 .ux-lab-shot { display: block; width: 100%; max-width: 640px; height: auto; margin: 4px 0 12px; border-radius: 10px; border: 1px solid #d6dccb; background: #fffdf5; }
+.ux-lab-combo { margin: 0 0 18px; padding: 12px 16px; border-radius: 14px; background: #f3f0dc; border: 1px solid #d6dccb; line-height: 1.5; }
+.ux-lab-combo-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.ux-lab-combo-links a { padding: 6px 12px; border-radius: 16px; background: #244c37; color: #fffdf5; text-decoration: none; font-weight: 600; font-size: 0.86rem; }

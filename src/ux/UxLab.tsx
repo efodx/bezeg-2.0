@@ -295,6 +295,14 @@ export function UxLab() {
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
         </nav>
+        <section className="ux-lab-combo" aria-label="Vse skupaj">
+            <strong>Vse skupaj.</strong> Prototipi se sestavljajo: kroglica, značilne točke, predogled na drsniku, »kaj premika kaj«, raziskano ozemlje in družina v prostoru hkrati.
+            <span className="ux-lab-combo-links">
+                <a href="/bezeg-2.0/functions/transformations?ux=a18,a23,a19,a20,a22,a21">Premiki in raztegi grafa</a>
+                <a href="/bezeg-2.0/probability/binomial-normal?ux=a23,a21,a20,a22,a19">Binomska in normalna</a>
+                <a href="/bezeg-2.0/functions/transformations?learn=1&amp;ux=a8,a16,a23,a12">Vodena lekcija: a8, a16, a23, a12</a>
+            </span>
+        </section>
         <ol className="ux-lab-list">
             {sorted.map(prototype => <li key={prototype.id} id={prototype.id} className="ux-lab-card">
                 <div className="ux-lab-card-head"><span className="ux-lab-id">{prototype.id}</span><h2>{prototype.name}</h2></div>

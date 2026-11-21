@@ -96,10 +96,10 @@ function landmarks(b: Board): Mark[] {
         }
     }
     // One mark per place (the end of one subpath may meet the start of the next).
-    const unique = out.filter((m, i) => !out.slice(0, i).some(n => n.kind === m.kind && Math.hypot(n.sx - m.sx, n.sy - m.sy) < 4));
+    const unique = out.filter((m, i) => !out.slice(0, i).some(n => n.curve === m.curve && n.kind === m.kind && Math.hypot(n.sx - m.sx, n.sy - m.sy) < 4));
     // Where two kinds meet (a vertex on an axis), the extremum carries the label.
     const rank: Record<Kind, number> = {min: 0, max: 0, zero: 1, yint: 2};
-    return unique.filter(m => !unique.some(n => n !== m && rank[n.kind] < rank[m.kind] && Math.hypot(n.sx - m.sx, n.sy - m.sy) < 4));
+    return unique.filter(m => !unique.some(n => n !== m && n.curve === m.curve && rank[n.kind] < rank[m.kind] && Math.hypot(n.sx - m.sx, n.sy - m.sy) < 4));
 }
 
 export function Landmarks(props: {frame: React.RefObject<HTMLDivElement>}) {
@@ -160,7 +160,7 @@ export function Landmarks(props: {frame: React.RefObject<HTMLDivElement>}) {
     const crowded = marks.length > 9;
     return <>
         {shown && box && <svg className="ux-mark-layer" style={box} viewBox={`0 0 ${box.width} ${box.height}`} aria-hidden="true">
-            {marks.map((m, i) => <g key={i} className={`ux-mark ux-mark-${m.kind}`} transform={`translate(${m.sx.toFixed(1)} ${m.sy.toFixed(1)})`}>
+            {marks.filter((m, i) => !marks.slice(0, i).some(n => Math.hypot(n.sx - m.sx, n.sy - m.sy) < 4)).map((m, i) => <g key={i} className={`ux-mark ux-mark-${m.kind}`} transform={`translate(${m.sx.toFixed(1)} ${m.sy.toFixed(1)})`}>
                 {m.kind === 'min' || m.kind === 'max' ? <rect x={-5} y={-5} width={10} height={10} transform="rotate(45)"/> : <circle r={5}/>}
                 {!crowded && <text x={m.kind === 'yint' ? 9 : 0} y={m.kind === 'max' ? -11 : m.kind === 'yint' ? 4 : 19} textAnchor={m.kind === 'yint' ? 'start' : 'middle'}>
                     ({fmt(m.x, 0)}; {fmt(m.y, 1)})
@@ -181,7 +181,8 @@ export function Landmarks(props: {frame: React.RefObject<HTMLDivElement>}) {
         for (const curve of curves) for (const kind of ['min', 'max', 'yint', 'zero'] as Kind[]) {
             // An extremum on the x axis is a zero too (a double root: the graph touches the axis without crossing it).
             const touching = (m: Mark) => (m.kind === 'min' || m.kind === 'max') && Math.abs(m.y) < 10 ** -digits[1] / 2;
-            const pick = (list: Mark[]) => list.filter(m => m.curve === curve && (m.kind === kind || kind === 'zero' && touching(m)));
+            const onYAxis = (m: Mark) => (m.kind === 'min' || m.kind === 'max') && Math.abs(m.x) < 10 ** -digits[0] / 2;
+            const pick = (list: Mark[]) => list.filter(m => m.curve === curve && (m.kind === kind || kind === 'zero' && touching(m) || kind === 'yint' && onYAxis(m)));
             const a = pick(before), b = pick(after);
             if (a.length === 0 && b.length === 0) continue;
             if (kind === 'zero' && a.length !== b.length) {
