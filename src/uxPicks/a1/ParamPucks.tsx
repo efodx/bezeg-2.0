@@ -246,6 +246,8 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     return <DockItem region="bottom" phoneRegion="tray"><div className={`ux-pucks${locked ? ' is-locked' : ''}${collapsed ? ' is-collapsed' : ''}`} role="group" aria-label="Parametri na grafu">
         {scrubbed && scrub && <Tape entry={scrubbed} value={scrub.value} fineLabel={scrub.fine} width={Math.min(width - 24, 416)} pxPerRange={scrub.pxPerRange} detent={scrub.detent}
             anchor={document.querySelector<HTMLElement>(`.ux-puck[data-param="${CSS.escape(scrubbed.key)}"]`)}/>}
+        {/* Pinned above the row and out of the layout, so the row never moves when a reading frame locks it. */}
+        {locked && !collapsed && <p className="ux-pucks-lock">Med razlago so parametri zaklenjeni — opazuj, kateri se spremeni.</p>}
         <div className="ux-pucks-row">
             <button type="button" className="ux-pucks-toggle" aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}
                 title={collapsed ? 'Pokaži parametre na grafu' : 'Skrij parametre na grafu'}>
@@ -258,7 +260,8 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                     {entry.kind === 'count'
                         ? <CountPuck entry={entry} locked={locked}/>
                         : <Puck entry={entry} locked={locked} boardWidth={width} onScrub={state => setScrub(state && {key: entry.key, ...state})}/>}
-                    {showOscillator && !locked && canOscillate(entry) && <button type="button" className="ux-puck-osc" aria-pressed={moving}
+                    {showOscillator && canOscillate(entry) && <button type="button" className={`ux-puck-osc${locked ? ' is-held' : ''}`} aria-pressed={moving}
+                        disabled={locked} aria-hidden={locked || undefined} tabIndex={locked ? -1 : undefined}
                         aria-label={moving ? `Ustavi: ${entry.label}` : `Naj se sam spreminja: ${entry.label}`}
                         title={moving ? 'Ustavi' : entry.kind === 'count' ? 'Naj sam šteje gor in dol' : 'Naj sam niha med mejama'}
                         onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
@@ -267,7 +270,6 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                 </span>;
             })}
         </div>
-        {locked && !collapsed && <p className="ux-pucks-lock">Med razlago so parametri zaklenjeni — opazuj, kateri se spremeni.</p>}
     </div></DockItem>;
 }
 

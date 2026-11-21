@@ -1,6 +1,6 @@
 /* The pucks sit in the board dock: along the bottom of the graph, or in the tray under it on a phone. */
 .ux-pucks {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: 100%;
+    position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: 100%;
     pointer-events: none;
 }
 .ux-pucks-row {
@@ -58,7 +58,8 @@
 .ux-pucks-toggle svg { width: 16px; height: 16px; display: block; }
 .ux-pucks-toggle b { color: #19372f; }
 .ux-pucks-lock {
-    pointer-events: none; margin: 0; font-size: 0.74rem; color: #526152; background: rgba(255, 253, 245, 0.85);
+    position: absolute; left: 0; bottom: 100%; margin: 0 0 6px; white-space: nowrap; max-width: calc(100vw - 48px); overflow: hidden; text-overflow: ellipsis;
+    pointer-events: none; font-size: 0.74rem; color: #526152; background: rgba(255, 253, 245, 0.85);
     padding: 2px 8px; border-radius: 6px;
 }
 
@@ -128,3 +129,6 @@
 
 /* Why a typed value was refused, until the value changes. */
 .ux-puck-problem { white-space: normal; max-width: 14em; font-size: 0.72rem; line-height: 1.25; color: #8f1d17; }
+
+/* While a reading frame locks the pucks, the oscillate buttons keep their space (the row does not shift) but are not shown. */
+.ux-pucks .ux-puck-osc.is-held { visibility: hidden; }
