@@ -68,6 +68,20 @@ export function readouts(container: HTMLElement): Map<string, {quantity: Quantit
             }
         });
     });
+    // Prototype c13's ruler rows (»|AB| = 3,61«, »∠ABC = 72,3°«, »|AG| : |GM| = 2 : 1«) are numbers the student chose
+    // to measure; they count as readouts too, so c24–c28 work on boards that print nothing themselves.
+    container.querySelectorAll<HTMLElement>('.ux-measure-row').forEach(row => {
+        const label = row.querySelector('b')?.textContent?.trim();
+        if (!label) return;
+        const rest = (row.textContent ?? '').slice((row.textContent ?? '').indexOf(label) + label.length);
+        const match = /^\s*=\s*([−-]?\d+(?:[.,]\d+)?)(?:\s*:\s*(\d+(?:[.,]\d+)?))?/.exec(rest);
+        if (!match) return;
+        const read = (text: string) => Number(text.replace('−', '-').replace(',', '.'));
+        const value = match[2] ? read(match[1]) / read(match[2]) : read(match[1]);
+        if (!Number.isFinite(value)) return;
+        const key = `📏 ${label}#0`;
+        if (!found.has(key)) found.set(key, {quantity: {key, label, unit: rest.includes('°') ? '°' : ''}, value});
+    });
     return found;
 }
 
