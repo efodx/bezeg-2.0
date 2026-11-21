@@ -36,12 +36,11 @@ const pendingFullUpdates = new WeakSet<object>();
 const shown = (point: JXG.Point): boolean => (point as unknown as {visPropCalc?: {visible?: boolean}}).visPropCalc?.visible !== false;
 
 /**
- * The box (px) of the name of B(t) for the placement: the half is typeset as a fraction, four glyphs wide and taller than a line
- * (measured in the browser at 20 px: 54 by 32), so the written-out `B(1/2)` would be too wide and too low.
+ * The box (px) of the name of B(t) for the placement, shared with the affine graph. The written-out `B(1/2)` is wider (81 px) than the
+ * typeset fraction (about 54 by 32 px measured at 20 px); it stays, since `PhQuinticEvaluationLabels.test.tsx` measures with it.
  */
 export function evaluationNameBox(t: number, fontPx: number): {w: number; h: number} {
-    if (t !== 0.5) return nameBox(`B(${t})`, fontPx);
-    return {w: nameBox('B(½)', fontPx).w, h: Math.ceil(fontPx * 1.8 + 4)};
+    return nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);
 }
 
 export function evaluationPointLabel(t: number): string {
