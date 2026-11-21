@@ -97,6 +97,14 @@ function bumpMorphing(delta: 1 | -1) {
     morphListeners.forEach(listener => listener());
 }
 
+/** Whether a string or boolean differs between two checkpoint values (a different setup rather than moved numbers). */
+export function setupChanged(from: unknown, to: unknown): boolean {
+    if (typeof from === 'string' || typeof from === 'boolean' || typeof to === 'string' || typeof to === 'boolean') return from !== to;
+    if (Array.isArray(from) && Array.isArray(to)) return from.length === to.length && from.some((item, index) => setupChanged(item, to[index]));
+    if (isRecord(from) && isRecord(to)) return Object.keys(to).some(key => key in from && setupChanged(from[key], to[key]));
+    return false;
+}
+
 export interface MorphHandle {
     finish(): void;
     readonly done: Promise<void>;
@@ -110,6 +118,10 @@ export function morphScene(capabilities: LessonGraphCapabilities, before: Lesson
     let after: LessonSceneCheckpoint;
     try { after = capabilities.captureState(); } catch { return undefined; }
     if (!checkpointsDiffer(before, after) || movingLeafCount(before.value, after.value) === 0) return undefined;
+    // A different setup (another example function, a switched option) has no valid in-between scenes: its numbers would
+    // slide under the new setup's rules (Taylor step 6: the point slid outside the new example's domain and the graph
+    // threw while rendering, where the restore's catch cannot see it). Such a change shows at once.
+    if (setupChanged(before.value, after.value)) return undefined;
     const duration = options.duration ?? 750;
     let finished = false;
     let frame = 0;
