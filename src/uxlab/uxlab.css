@@ -60,3 +60,17 @@
     .ux-predict-bar { flex-wrap: nowrap; }
     .ux-predict-bar button { min-height: 36px; padding: 4px 10px; }
 }
+.ux-onion-note { display: none; }
+
+/* b3: onion skins */
+.ux-onion-start path, .ux-onion-start line, .ux-onion-start ellipse, .ux-onion-start polygon { stroke-dasharray: 6 6; }
+.ux-onion-chip {
+    position: absolute; left: 10px; bottom: 10px; z-index: 30; display: flex; gap: 6px; align-items: center;
+    background: rgba(255, 253, 245, .94); border: 1px solid var(--ux-rule); border-radius: 12px; padding: 4px 6px 4px 10px;
+    font: 600 .85rem/1.2 system-ui, sans-serif; color: var(--ux-ink); box-shadow: 0 6px 18px -12px rgba(25, 55, 47, .5);
+    animation: ux-fade-in .25s ease-out;
+}
+.ux-onion-chip label { display: inline-flex; gap: 6px; align-items: center; min-height: 36px; cursor: pointer; }
+.ux-onion-chip input { width: 18px; height: 18px; accent-color: var(--ux-berry); }
+.ux-onion-chip button { min-height: 36px; padding: 4px 10px; border-radius: 9px; border: 1px solid #cbd4c1; background: #fff; color: var(--ux-action); font: inherit; cursor: pointer; }
+@keyframes ux-fade-in { from { opacity: 0; } to { opacity: 1; } }

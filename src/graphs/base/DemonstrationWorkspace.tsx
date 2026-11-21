@@ -15,6 +15,8 @@ import {LearningPrompt} from './LearningPrompt';
 import {PlaybackSlotContext, type PlaybackSlot} from './PlaybackSlotContext';
 import {useGraphAdjacentPlayback} from './useGraphAdjacentPlayback';
 import {GuidedLesson} from '../../learning/runtime/GuidedLesson';
+import {OnionTrails} from '../../uxlab/OnionTrails';
+import {uxEnabled} from '../../uxlab/flags';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
 import {useChapterActivity} from '../../learning/chapter/useChapterActivity';
@@ -238,6 +240,7 @@ export function DemonstrationWorkspace(props: {
                 <a href={pathname}>{t('chapter_free_exploration')}</a>
             </>}
         </p>}
+        {uxEnabled('b3') && <OnionTrails root={workspaceRoot}/>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
             visiblePageTitle={workspaceTitle}
             registerClose={registerLessonClose}
