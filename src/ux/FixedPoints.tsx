@@ -130,6 +130,15 @@ async function analyse(b: Board, entry: ParamEntry): Promise<Omit<Fan, 'box'> | 
         const v = Math.abs(value - nice) * unit < 2 ? nice : Number(value.toFixed(decimals(unit)));
         return (Object.is(v, -0) ? 0 : v).toLocaleString('sl-SI', {maximumFractionDigits: 3}).replace('-', '−');
     };
+    // Multiples of π/2 are named as such when the drawing cannot tell them from π (zeros of sine), never otherwise.
+    const fmtX = (value: number, unit: number) => {
+        const k = Math.round(value / (Math.PI / 2));
+        if (k !== 0 && Math.abs(k) <= 12 && Math.abs(value - k * Math.PI / 2) * unit < 2 && Math.abs(value - Math.round(value * 10) / 10) * unit >= 1) {
+            const sign = k < 0 ? '−' : '', n = Math.abs(k);
+            return n % 2 === 0 ? `${sign}${n === 2 ? '' : n / 2}π` : `${sign}${n === 1 ? '' : n}π/2`;
+        }
+        return fmt(value, unit);
+    };
     const pins: Fan['pins'] = [];
     const still = {count: 0, total: 0};
     let grows = false;
@@ -145,7 +154,7 @@ async function analyse(b: Board, entry: ParamEntry): Promise<Omit<Fan, 'box'> | 
         for (const p of common(own, others, still)) {
             if (near(pins.map(q => [q.sx, q.sy] as Pt), p, 10)) continue;
             if (p[0] < 4 || p[1] < 4 || p[0] > W - 4 || p[1] > H - 4) continue;
-            pins.push({sx: p[0], sy: p[1], text: `(${fmt((p[0] - ox) / u.unitX, u.unitX)}; ${fmt((oy - p[1]) / u.unitY, u.unitY)})`});
+            pins.push({sx: p[0], sy: p[1], text: `(${fmtX((p[0] - ox) / u.unitX, u.unitX)}; ${fmt((oy - p[1]) / u.unitY, u.unitY)})`});
         }
     }
     const symbol = <i>{symbolOf(entry)}</i>;
