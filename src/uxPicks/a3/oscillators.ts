@@ -1,5 +1,6 @@
 import {useSyncExternalStore} from 'react';
 import {getParam, type ParamEntry, type RangeParam} from '../a1/paramRegistry';
+import {prefersReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import {findBoard, settle, type JxgBoard} from '../a19/ghost';
 
 /**
@@ -45,15 +46,36 @@ export function canOscillate(entry: ParamEntry): boolean {
     return entry.min !== undefined && entry.max !== undefined && entry.max > entry.min;
 }
 
+/**
+ * Writing a parameter redraws the graph and re-renders the workspace, which costs more than a frame on slow machines.
+ * Writes are paced by how long the last one kept the main thread busy (measured by a message queued behind it, so the
+ * React render and commit are included): never faster than one per frame, never slower than 8 per second.
+ * Oscillator phases follow the clock, so a slower write rate only coarsens the motion, never the range or the period.
+ */
+let writeAfter = 0;
+const channel = typeof MessageChannel === 'undefined' ? undefined : new MessageChannel();
+let busyStart = 0;
+let busy = 0;
+if (channel) channel.port1.onmessage = () => { busy = performance.now() - busyStart; };
+function measureBusy() {
+    if (!channel) return;
+    busyStart = performance.now();
+    channel.port2.postMessage(0);
+}
+
 function tick(now: number) {
     frame = 0;
     if (graphLocked()) { running.clear(); emit(); return; }
+    const paced = now < writeAfter;
+    let wrote = false;
     for (const [key, osc] of running) {
         const entry = getParam(key);
         if (!entry || !canOscillate(entry)) { running.delete(key); emit(); continue; }
-        const dt = Math.min(64, now - osc.last);
+        const prev = osc.last;
+        if (probing > 0) { osc.last = now; continue; }
+        if (paced) continue; // keep osc.last: the next write covers the whole elapsed time
         osc.last = now;
-        if (probing > 0) continue;
+        const dt = Math.min(250, now - prev);
         if (entry.kind === 'count') {
             if (now < osc.nextStep) continue;
             osc.nextStep = now + COUNT_STEP_MS;
@@ -71,8 +93,9 @@ function tick(now: number) {
         const base = entry.cyclic === undefined ? entry.min : 0;
         const snapped = base + Math.round((target - base) / entry.step) * entry.step;
         const value = Math.min(hi, Math.max(lo, Number(snapped.toFixed(10))));
-        if (value !== entry.value) entry.set(value);
+        if (value !== entry.value) { entry.set(value); wrote = true; }
     }
+    if (wrote) { measureBusy(); writeAfter = now + Math.min(125, Math.max(0, busy * 1.2 - 8)); }
     if (running.size > 0) frame = requestAnimationFrame(tick);
 }
 
@@ -117,6 +140,9 @@ async function probeInterval(key: string): Promise<[number, number] | undefined>
         for (const value of values) {
             await settle(board, () => (getParam(key) as RangeParam | undefined)?.setRaw(value));
             samples.push(at());
+            // Back to the live value and a pause before the next probe: the probes never share one long task and never reach a paint.
+            await settle(board, () => (getParam(key) as RangeParam | undefined)?.setRaw(start));
+            await new Promise<void>(resolve => window.setTimeout(resolve, 0));
         }
     } finally {
         await settle(board, () => (getParam(key) as RangeParam | undefined)?.setRaw(start));
@@ -173,7 +199,7 @@ export function toggleOscillator(key: string) {
     if (running.has(key)) running.delete(key);
     else {
         const entry = getParam(key);
-        if (!entry || !canOscillate(entry)) return;
+        if (!entry || !canOscillate(entry) || prefersReducedMotion()) return;
         let phase = 0;
         if (entry.kind === 'range') {
             const mid = (entry.min + entry.max) / 2, amp = (entry.max - entry.min) / 2 || 1;

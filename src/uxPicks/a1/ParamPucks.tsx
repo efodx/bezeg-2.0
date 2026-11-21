@@ -9,7 +9,8 @@ function puckTip(entry: AnyParam, first: string, usage: string): string {
 }
 import {usePick} from '../picks';
 import {jumpValue} from '../a29/track';
-import {canOscillate, isOscillating, toggleOscillator, useOscillators} from '../a3/oscillators';
+import {canOscillate, isOscillating, stopAllOscillators, toggleOscillator, useOscillators} from '../a3/oscillators';
+import {useReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import {DockItem} from '../dock/BoardDock';
 import {ChevronDownIcon, MinusIcon, PauseIcon, PlusIcon, WaveIcon} from '../dock/icons';
 import './ParamPucks.css';
@@ -273,7 +274,10 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     const [width, setWidth] = useState(600);
     const [locked, setLocked] = useState(false);
     const oscillating = useOscillators();
-    const showOscillator = usePick('a3');
+    const reducedMotion = useReducedMotion();
+    // Reduced motion: nothing moves by itself, so the sweep button is not offered and a running sweep stops.
+    const showOscillator = usePick('a3') && !reducedMotion;
+    useEffect(() => { if (reducedMotion) stopAllOscillators(); }, [reducedMotion]);
     useLayoutEffect(() => {
         const frame = props.frame.current;
         if (!frame) return;

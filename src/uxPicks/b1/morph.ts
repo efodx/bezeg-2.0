@@ -1,4 +1,5 @@
 import {recoverBoards, recoverBoardsSoon} from './board';
+import {prefersReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import type {LessonGraphCapabilities, LessonSceneCheckpoint} from '../../learning/model';
 
 /** Keys whose numbers are counts or choices: they jump to the target instead of sliding. */
@@ -146,6 +147,7 @@ export function morphScene(capabilities: LessonGraphCapabilities, before: Lesson
         options.onFrame?.(1);
         resolveDone();
     };
+    if (prefersReducedMotion()) { finish(); return {finish, done}; } // reduced motion: jump to the end state
     try {
         if (restore(0) > 90) { finish(); return {finish, done}; }
     } catch { finish(); return {finish, done}; }
