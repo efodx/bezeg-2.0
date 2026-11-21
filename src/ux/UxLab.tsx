@@ -8,6 +8,18 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a9', name: 'Živo besedilo',
+        idea: 'Simbol v besedilu lekcije, ki je parameter grafa (d v »Navpični premik d«, θ v formuli), postane ročica. Pokaži nanj in na grafu zasvetijo deli, ki jih premika, ter oznake in ploščica, ki so od njega odvisne; povleci ga vstran in parameter mu sledi. Med razlago je simbol vzmet: spusti ga in vrednost se vrne na lekcijino.',
+        general: 'Kateri znak je kateri, pove MathJaxov lastni MathML, kateri znaki so parametri, pove deljeni register drsnikov, kaj parameter premika, pa kratek poskus na tabli (3-odstotni sunek za dve sličici). Nič od tega ne potrebuje kode lekcije: deluje v šolskih funkcijah, trigonometriji, B-zlepkih, verjetnosti, analizi in geometriji krivulj.',
+        try: 'Pokaži na podčrtani d v naslovu okvirja in opazuj graf, nato ga povleci levo ali desno in spusti. Pri binomski porazdelitvi povleci k ali n kar iz formule.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 2, flags: 'a1,a9'},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', at: 2, flags: 'a1,a9'},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', at: 1, flags: 'a1,a9'},
+            {label: 'Ukrivljenost', family: 'Geometrija krivulj', path: 'curve-geometry/curvature', at: 1, flags: 'a1,a9'},
+        ],
+    },
+    {
         id: 'a8', name: 'Ti na vrsti',
         idea: 'Ko korak lekcije premakne graf, se na tabli ponudi »Ti na vrsti«: sprememba se previje nazaj, novo stanje ostane kot črtkana slika, učenec pa ga sestavi sam — samo s parametri, ki jih je korak spremenil. Črtkana slika se med približevanjem obarva iz okraste v zeleno, zadetek pa vzcveti v bezgove cvetove.',
         general: 'Kaj je korak spremenil, ve deljeni register drsnikov (vrednost pred klikom in po njem), ciljno sliko pa da izris table: klon vsakega elementa, ki se ob previjanju premakne. Brez metapodatkov lekcije deluje povsod, kjer korak spremeni parameter — preizkušeno na 8 lekcijah iz 7 družin.',

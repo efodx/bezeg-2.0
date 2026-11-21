@@ -1,0 +1,26 @@
+.guided-lesson .ux-live-sym {
+    position: relative; cursor: ew-resize; touch-action: none; border-radius: 3px;
+    background: linear-gradient(transparent 82%, rgba(184, 138, 67, 0.55) 82%, rgba(184, 138, 67, 0.55) 92%, transparent 92%);
+    transition: background-color 160ms ease, color 160ms ease;
+}
+.guided-lesson .ux-live-sym::after { content: ""; position: absolute; inset: -7px -6px; }
+.guided-lesson .ux-live-sym:hover, .guided-lesson .ux-live-sym.is-held { background-color: rgba(243, 217, 139, 0.55); color: #885512; }
+.guided-lesson .ux-live-sym.is-pulsing { animation: ux-sym-pulse 0.9s ease-out; }
+@keyframes ux-sym-pulse { 0% { background-color: rgba(226, 185, 59, 0.85); } 100% { background-color: transparent; } }
+
+.ux-linked { stroke: #d99a1e !important; filter: drop-shadow(0 0 4px rgba(226, 185, 59, 0.95)); }
+.ux-puck.is-linked { border-color: #d99a1e; box-shadow: 0 0 0 3px rgba(226, 185, 59, 0.45); }
+
+.ux-live-tag {
+    position: fixed; z-index: 1000; width: 180px; padding: 6px 10px 6px; border-radius: 12px; pointer-events: none;
+    background: #19372f; color: #fffdf5; box-shadow: 0 8px 24px rgba(25, 55, 47, 0.3); font-size: 0.8rem;
+    animation: ux-tag-in 140ms ease-out;
+}
+@keyframes ux-tag-in { from { opacity: 0; transform: translateY(4px); } }
+.ux-live-tag-value { font-variant-numeric: tabular-nums; }
+.ux-live-tag-value i { font-family: "Source Serif 4", "Times New Roman", serif; color: #f3d98b; font-size: 1rem; }
+.ux-live-tag-track { position: relative; height: 3px; margin: 5px 0 4px; border-radius: 2px; background: rgba(255, 253, 245, 0.25); }
+.ux-live-tag-track span { position: absolute; top: -3px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: #f3d98b; }
+.ux-live-tag-hint { font-size: 0.7rem; opacity: 0.75; }
+.ux-live-tag.is-dragging { background: #885512; }
+div.ux-linked, span.ux-linked { background: rgba(243, 217, 139, 0.7); border-radius: 4px; box-shadow: 0 0 0 3px rgba(243, 217, 139, 0.7); filter: none; }

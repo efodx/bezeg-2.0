@@ -170,7 +170,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
     return <div ref={ref} role="slider" tabIndex={0} aria-label={entry.label} aria-valuemin={entry.min} aria-valuemax={entry.max} aria-valuenow={entry.value}
         aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? 'Graf je med razlago zaklenjen' : `${entry.label}: povleci levo ali desno, za fino nastavljanje dvigni prst`)}
         className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}${props.oscillating ? ' is-oscillating' : ''}`}
-        data-click={clicked % 2}
+        data-click={clicked % 2} data-param={entry.key}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
         onDoubleClick={() => { if (!blocked) entry.set(homeRef.current); }} onKeyDown={onKeyDown}>
         <span className="ux-puck-text">

@@ -7,6 +7,7 @@ import {CurveGrab} from './CurveGrab';
 import {PredictSketch} from './PredictSketch';
 import {CurveSound} from './CurveSound';
 import {YourTurn} from './YourTurn';
+import {LiveProse} from './LiveProse';
 import './UxBoardLayer.css';
 
 /** Lane-A prototypes that live on the board, each behind its own `?ux=` flag. */
@@ -31,6 +32,7 @@ export function UxBoardLayer(props: {frame: React.RefObject<HTMLDivElement>; les
         {uxEnabled('a4') && <CurveGrab frame={props.frame}/>}
         {uxEnabled('a2') && <GhostTrails frame={props.frame}/>}
         {uxEnabled('a7') && <CurveSound frame={props.frame}/>}
+        {uxEnabled('a9') && <LiveProse frame={props.frame}/>}
         {uxEnabled('a8') && <YourTurn frame={props.frame}/>}
         {(uxEnabled('a1') || uxEnabled('a3')) && <ParamPucks frame={props.frame}/>}
     </>;

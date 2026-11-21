@@ -19,7 +19,7 @@ export function uxEnabled(flag: UxFlag): boolean {
 /** The prototypes that read the shared parameter registry. */
 export function parameterRegistryWanted(): boolean {
     const flags = uxFlags();
-    return flags.has('a1') || flags.has('a3') || flags.has('a4') || flags.has('a6') || flags.has('a8');
+    return flags.has('a1') || flags.has('a3') || flags.has('a4') || flags.has('a6') || flags.has('a8') || flags.has('a9');
 }
 
 /** `?uxAt=n`: deep links from the UX lab open a lesson n frames in (also without a prototype flag, for comparison). */
