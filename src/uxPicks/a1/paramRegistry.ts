@@ -113,7 +113,7 @@ export function recentlyProbed(): boolean {
     return probeDepth > 0 || performance.now() - lastProbeEnd < 250;
 }
 
-/** The parameters registered right now, for non-React readers (c11). */
+/** The parameters registered right now, for non-React readers (a29). */
 export function listParams(): ParamEntry[] {
     return [...entries.values()];
 }
