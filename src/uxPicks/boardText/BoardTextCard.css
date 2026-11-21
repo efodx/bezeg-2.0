@@ -1,0 +1,25 @@
+.ux-boardtext-hidden { display: none !important; }
+
+.ux-btext {
+    position: absolute; top: 10px; right: 10px; z-index: 5;
+    max-width: min(46%, 380px); padding: 7px 28px 7px 12px;
+    background: rgba(255, 253, 245, 0.92); border: 1px solid #d6dccb; border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(25, 55, 47, 0.08), 0 4px 14px rgba(25, 55, 47, 0.08);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    color: #19372f; font-size: 0.9rem; line-height: 1.35;
+}
+.ux-btext-rows { display: flex; flex-direction: column; gap: 3px; font-variant-numeric: tabular-nums; }
+.ux-btext-row { overflow-wrap: anywhere; }
+.ux-btext-row > div { font-size: 0.88rem !important; color: #19372f !important; }
+.ux-btext-toggle {
+    position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%;
+    background: transparent; color: #526152; font-size: 1rem; line-height: 1; cursor: pointer;
+}
+.ux-btext-toggle::after { content: ""; position: absolute; inset: -9px; }
+.ux-btext-toggle:hover { background: #e3e7d9; }
+.ux-btext-collapsed { padding: 0; max-width: none; border-radius: 12px; }
+.ux-btext-chip {
+    min-height: 32px; padding: 0 12px; border: 0; border-radius: 12px; background: transparent;
+    color: #526152; font-size: 0.78rem; cursor: pointer;
+}
+.ux-btext-chip:hover { color: #19372f; }
