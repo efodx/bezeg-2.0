@@ -1028,3 +1028,54 @@ html.ux-nb-reading { overflow: hidden; }
     .ux-nb-page { box-shadow: none; margin: 0; max-width: none; }
     .ux-nb-note:empty { display: none; }
 }
+
+/* c24 Kako je odvisno? */
+.ux-dep-button {
+    position: absolute; top: 10px; right: 10px; z-index: 26;
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; min-height: 34px;
+    border: 1px solid #b9cfa7; border-radius: 999px; background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-action, #244c37);
+    font: 650 13px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto;
+}
+.ux-dep-button[hidden] { display: none; }
+.ux-dep-button:hover { background: #eef3e5; }
+.ux-dep {
+    position: absolute; top: 52px; right: 10px; z-index: 30; width: min(300px, calc(100% - 20px)); box-sizing: border-box;
+    padding: 9px 11px 10px; border: 1px solid #d6e1c8; border-radius: 16px; background: rgb(255 253 245 / 97%);
+    box-shadow: 0 8px 28px rgb(25 55 47 / 18%); pointer-events: auto; animation: ux-sm-in .18s ease-out;
+    font: 13px/1.3 system-ui, sans-serif; color: var(--bezeg-shell-ink, #19372f);
+}
+.ux-dep[hidden] { display: none; }
+.ux-dep-head { display: flex; align-items: center; justify-content: space-between; }
+.ux-dep-head strong { font: 700 15px/1.2 var(--bezeg-heading-font, Georgia, serif); color: var(--bezeg-shell-action, #244c37); }
+.ux-dep-close { width: 30px; height: 30px; border: 1px solid #cfd8c4; border-radius: 50%; background: #fff; color: #4d5a50; cursor: pointer; font-size: 13px; }
+.ux-dep-chips { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin: 6px 0 2px; }
+.ux-dep-chips > span { color: #66705f; margin-right: 2px; }
+.ux-dep-chip { min-width: 32px; min-height: 28px; padding: 2px 8px; border: 1px solid #cfd8c4; border-radius: 999px; background: #fff; color: var(--bezeg-shell-action, #244c37); font: italic 650 13px/1 var(--bezeg-math-font, Georgia, serif); cursor: pointer; }
+.ux-dep-chip-on { background: var(--bezeg-shell-action, #244c37); color: #fff; border-color: var(--bezeg-shell-action, #244c37); }
+.ux-dep-caption { margin: 6px 0 4px; min-height: 1.3em; color: #3d4a40; }
+.ux-dep-caption i { font-family: var(--bezeg-math-font, Georgia, serif); }
+.ux-dep-plot { position: relative; }
+.ux-dep-chart { display: block; width: 100%; height: auto; touch-action: none; cursor: ew-resize; overflow: visible; }
+.ux-dep-frame { fill: #fff; stroke: #dfe4d6; }
+.ux-dep-zero { stroke: rgb(36 76 55 / 30%); stroke-width: 1; }
+.ux-dep-line { fill: none; stroke: #c47b1f; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.ux-dep-tick { font: 600 9.5px/1 system-ui, sans-serif; fill: #66705f; font-variant-numeric: tabular-nums; }
+.ux-dep-axis { font: italic 700 12px/1 var(--bezeg-math-font, Georgia, serif); fill: var(--bezeg-shell-action, #244c37); }
+.ux-dep-now-line { stroke: rgb(36 76 55 / 45%); stroke-dasharray: 3 3; }
+.ux-dep-now circle { fill: var(--bezeg-shell-action, #244c37); stroke: #fff; stroke-width: 2; }
+.ux-dep-sweeping .ux-dep-now { display: none; }
+.ux-dep-progress { position: absolute; left: 40px; bottom: 20px; height: 3px; width: 0; max-width: calc(100% - 50px); background: #c47b1f; border-radius: 2px; transition: width .08s linear; }
+.ux-dep:not(.ux-dep-sweeping) .ux-dep-progress { opacity: 0; transition: opacity .4s; }
+.ux-dep-readout { margin: 4px 0 0; text-align: center; font-weight: 650; font-variant-numeric: tabular-nums; }
+.ux-dep-readout i { font-family: var(--bezeg-math-font, Georgia, serif); }
+.ux-dep-quantities { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.ux-dep-q { padding: 4px 8px; border: 1px solid #e3d3a8; border-radius: 999px; background: #fffaf0; color: #6b4a12; font: 600 11.5px/1.2 system-ui, sans-serif; cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ux-dep-q-on { background: #c47b1f; color: #fff; border-color: #c47b1f; }
+.ux-dep-hint { margin: 6px 0 0; font-size: 12px; color: #66705f; }
+.ux-dep.ux-dep-sheet { position: fixed; top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; z-index: 1000; max-height: 55vh; overflow: auto; }
+.ux-dep-sheet .ux-dep-hint { display: none; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-dep-button,
+.demonstration-workspace.lesson-content .workspace-graph .ux-dep,
+.demonstration-workspace.lesson-content .workspace-graph .ux-dep * { pointer-events: auto; }
+.ux-dep-ref { stroke: #5a7bb0; stroke-width: 1.4; stroke-dasharray: 5 4; }
+.ux-dep-ref-label { font: 600 9.5px/1 system-ui, sans-serif; fill: #3f5f94; paint-order: stroke; stroke: #fff; stroke-width: 3px; }

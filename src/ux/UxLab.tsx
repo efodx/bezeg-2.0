@@ -88,6 +88,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c24',
+        name: 'Kako je odvisno?',
+        borrowed: '»Up and Down the Ladder of Abstraction« Breta Victorja, parametrični preleti v znanosti in osciloskop',
+        idea: 'Vsako število, ki ga tabla izpiše (ploščina, dolžina loka, verjetnost, vsota), se nariše v odvisnosti od izbranega parametra: en prelet drsnika čez celoten razpon nariše krivuljo odvisnosti, števila, ki se ne spremenijo, pa postanejo črtkane referenčne črte. Pika nato sledi drsniku, vlečenje po grafu odvisnosti pa premika tablo. Študent se povzpne od ene slike do funkcije za vsemi slikami: Riemannova vsota pred očmi zleze k integralu.',
+        generalizes: 'Števila se preberejo iz besedil na tabli (oznaka in vrednost, z enotami % in °), ključ je oznaka, zato preživijo prerisovanje osi. Parametri so vsi priključeni drsniki iz skupnega Slider, tudi skriti v lekcijah. Brez podatkov deluje v funkcijah, geometriji krivulj, verjetnosti in Bézierjevih lekcijah z izpisi.',
+        links: [
+            {label: 'Določeni integral', family: 'Funkcije', href: `${BASE}/functions/integral?ux=c24`,
+                tryThis: 'Odpri 📈 Kako je odvisno? od n: vsota se z rastočim n približuje črtkani črti integrala 2,67. Zamenjaj na b in spodaj izberi integral: ploščina kot funkcija meje je b³/3.'},
+            {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?ux=c24`,
+                tryThis: 'Izberi σ: verjetnost med a in b z rastočim σ pada. Nato μ: zvonasta krivulja verjetnosti, največja pri μ = 0.'},
+            {label: 'Parametrične krivulje (cikloida)', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/parametric?learn=1&ux=c24`,
+                tryThis: 'Izberi Polmer: dolžina loka cikloide je premica (8R), ploščina parabola (3πR²). Preklopi med njima s čipoma spodaj.'},
+            {label: 'Dolžina loka Bézierjeve krivulje', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/arc-length?ux=c24`,
+                tryThis: 'Izberi Lega (parameter t): dolžina loka s(t) narašča od 0 do L, črtkana črta je celotna dolžina L; krivulja ni premica, zato enaki koraki v t niso enaki koraki po loku.'},
+        ],
+    },
+    {
         id: 'c16',
         name: 'Kaj ostane enako?',
         borrowed: 'iskalnik izrekov v dinamični geometriji in Brilliantov trenutek »opaziš vzorec?«',
