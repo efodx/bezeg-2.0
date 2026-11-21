@@ -112,7 +112,7 @@ const sign = () => Math.random() < 0.5 ? -1 : 1;
  * Returns a jittered deep copy that moves `count` random groups. `view` is the board box [left, top, right, bottom] used
  * to size point moves and keep them visible.
  */
-export function jitterCheckpoint(value: unknown, candidates: Candidates, count: number, view: readonly number[], exclude: ReadonlySet<string> = new Set()): {value: unknown; moved: string[]} {
+export function jitterCheckpoint(value: unknown, candidates: Candidates, count: number, view: readonly number[], exclude: ReadonlySet<string> = new Set(), bounds: ReadonlyMap<string, {min: number; max: number; step: number}> = new Map()): {value: unknown; moved: string[]} {
     const copy = JSON.parse(JSON.stringify(value)) as unknown;
     const keys = [...candidates.groups.keys()].filter(key => !exclude.has(key));
     // Points first: they are what a learner can always grab.
@@ -158,7 +158,16 @@ export function jitterCheckpoint(value: unknown, candidates: Candidates, count: 
         const step = quantum(group.leaves.map(leaf => leaf.value));
         if (Number.isInteger(original)) next = Math.round(next) === original ? original + sign() : Math.round(next);
         else if (step) next = snap(next, step) === original ? original + step : snap(next, step);
-        next = Number(next.toFixed(2));
+        const bound = bounds.get(key);
+        if (bound) {
+            // A slider shows the graph's domain: stay inside it, on its step, and away from where we started.
+            const span = bound.max - bound.min;
+            next = original + sign() * random(0.2, 0.45) * span;
+            if (next < bound.min || next > bound.max) next = 2 * original - next;
+            next = Math.min(bound.max, Math.max(bound.min, next));
+            if (bound.step > 0) next = bound.min + Math.round((next - bound.min) / bound.step) * bound.step;
+        }
+        next = Number(next.toFixed(bound && bound.step > 0 && bound.step < 0.01 ? 4 : 2));
         for (const leaf of group.leaves) setAt(copy, leaf.path, next);
     }
     return {value: copy, moved: chosen};

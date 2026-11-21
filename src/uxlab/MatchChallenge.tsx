@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {LessonGraphCapabilities, LessonSceneCheckpoint} from '../learning/model';
 import {contentElements, findMainBoard, recoverBoards, svgRoot, traced, type UxBoard} from './board';
+import {bindControls} from './controls';
 import {geometryKey, sampleNode, shapeDistance, type Sample} from './geometrySamples';
 import {jitterCandidates, jitterCheckpoint, readLeaf, restoreGroup, type Candidates} from './jitter';
 import {morphScene} from './morph';
@@ -223,11 +224,12 @@ export function MatchChallenge(props: {root: React.RefObject<HTMLElement>; capab
         const targetKeys = shapeElements(board, mode).map(element => geometryKey(element.rendNode!)).join('#');
         const candidates = jitterCandidates(target.value);
         if (candidates.groups.size === 0) { setMessage('Ta graf nima parametrov za izziv.'); return; }
+        const bounds = bindControls(candidates, props.root.current ?? document);
         const level = Math.min(4, 1 + Math.floor(streak / 2));
         const inert = new Set<string>();
         const refusals = new Map<string, number>();
         for (let attempt = 0; attempt < 18 && inert.size < candidates.groups.size; attempt++) {
-            const {value, moved} = jitterCheckpoint(target.value, candidates, level, board.getBoundingBox(), inert);
+            const {value, moved} = jitterCheckpoint(target.value, candidates, level, board.getBoundingBox(), inert, bounds);
             const debug = window.location.search.includes('uxdebug');
             try {
                 props.capabilities.restoreState({version: 1, value});
