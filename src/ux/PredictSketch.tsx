@@ -179,6 +179,8 @@ export function PredictSketch(props: {frame: React.RefObject<HTMLDivElement>}) {
                 }
                 scored = {segments};
                 setVerdict({score, precision, coverage});
+                // a16 turns the sketch into parameter values: hand it the sketch and the curves that moved.
+                window.dispatchEvent(new CustomEvent('ux-predicted', {detail: {sketch: sketchSamples, ids: moved.map(object => object.id), score}}));
                 draw();
             };
             const onUpdate = () => {
@@ -217,7 +219,7 @@ export function PredictSketch(props: {frame: React.RefObject<HTMLDivElement>}) {
             capture.addEventListener('pointerup', up);
             capture.addEventListener('pointercancel', up);
             api.current = {
-                clear: () => { strokes = []; scored = undefined; baseline = undefined; setHasSketch(false); setVerdict(undefined); draw(); },
+                clear: () => { strokes = []; scored = undefined; baseline = undefined; setHasSketch(false); setVerdict(undefined); draw(); window.dispatchEvent(new CustomEvent('ux-predicted-clear')); },
                 // Leaving the pencil fixes the prediction: from now on, a change of the scene is what it is compared with.
                 finish: () => { if (strokes.length > 0) takeBaseline(); },
             };

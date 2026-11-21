@@ -14,6 +14,7 @@ import {Storyboard} from './Storyboard';
 import {Ladder} from './Ladder';
 import {ShapeMap} from './ShapeMap';
 import {Recap} from './Recap';
+import {PredictParams} from './PredictParams';
 import './UxBoardLayer.css';
 
 /** Lane-A prototypes that live on the board, each behind its own `?ux=` flag. */
@@ -34,7 +35,8 @@ export function UxBoardLayer(props: {frame: React.RefObject<HTMLDivElement>; les
         return () => { document.body.classList.remove('ux-lane-a'); frame.removeEventListener('click', click); };
     }, [props.frame]);
     return <>
-        {uxEnabled('a5') && <PredictSketch frame={props.frame}/>}
+        {(uxEnabled('a5') || uxEnabled('a16')) && <PredictSketch frame={props.frame}/>}
+        {uxEnabled('a16') && <PredictParams frame={props.frame}/>}
         {uxEnabled('a4') && <CurveGrab frame={props.frame}/>}
         {uxEnabled('a2') && <GhostTrails frame={props.frame}/>}
         {uxEnabled('a7') && <CurveSound frame={props.frame}/>}

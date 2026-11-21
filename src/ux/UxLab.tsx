@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a16', name: 'Napoved v številih',
+        idea: 'Ko učenec nariše napoved (a5) in korak spremeni graf, Bezeg poišče, katere vrednosti spremenjenih parametrov njegova skica pomeni, nato učenec preklaplja med »tvoja napoved: d ≈ 3« in »lekcija: d = 1« in vidi oba grafa. Povratna informacija postane natančna: »prava smer, a preveč«, »nasprotna smer« — ali »tvoja skica ustreza spremembi ω, lekcija pa je spremenila A«.',
+        general: 'Spremenjene parametre pove deljeni register drsnikov, krivulje preverjanje napovedi iz a5, iskanje pa je mreža in vzorčno iskanje po pravi tabli z obojestransko razdaljo in časovnim proračunom. Ko skice spremenjeni parameter ne zmore, Bezeg preizkusi vsak drug parameter posebej in pove, na katerega je učenec verjetno mislil. Preizkušeno na šolskih funkcijah, trigonometriji in binomski porazdelitvi.',
+        try: 'Pritisni »Napovej«, nariši, kam bo šel graf v naslednjem koraku, pritisni »Zakleni napoved« in nato »Naprej«. Pod grafom se pojavi »Katero vrednost … si napovedal?«.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 1, flags: 'a16'},
+            {label: 'Trigonometrične funkcije', family: 'Trigonometrija', path: 'functions/trigonometric', at: 2, flags: 'a16'},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', at: 1, flags: 'a16'},
+        ],
+    },
+    {
         id: 'a15', name: 'Ponovi',
         idea: 'Ponavljanje iz lekcije same: Bezeg si zapomni sliko vsakega okvirja in na »Ponovi« vpraša »ta korak je levo sliko spremenil v desno — kateri parameter? Povečal ali zmanjšal?« ter na živem grafu »zdaj je d = 1; kateri graf dobiš pri d = 3?«, z zvijačnimi odgovori (isti parameter v drugo smer, drug parameter). Napačen odgovor vodi nazaj na tisti korak.',
         general: 'Priklic je najmočnejši način utrjevanja, a vprašanj nobena lekcija ne potrebuje: okvirje bere iz vrstice napredka, vrednosti iz deljenega registra drsnikov, slike pa so posnetki prave table (pri možnostih prek istega zajema kot a13). Deluje v vsaki lekciji z drsnikom; pri enem samem parametru vpraša le za smer.',
@@ -182,7 +193,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a11', 'a13', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a11', 'a13', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
