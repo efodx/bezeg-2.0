@@ -933,3 +933,34 @@ mjx-container.ux-scrub-changed { border-bottom-style: solid; background: #fbf1e0
 @media (max-width: 640px) { .ux-wc-badge { max-width: calc(100% - 20px); bottom: 8px; } }
 .ux-rw ~ .ux-wc-badge { bottom: calc(70px + var(--ux-lift, 0px)); }
 @media (prefers-reduced-motion: reduce) { .ux-wc-new, .ux-wc-ghost, .ux-wc-move, .ux-wc-move path { animation: none; stroke-opacity: .6; stroke-dashoffset: 0; } .ux-wc-new.ux-wc-dot { fill-opacity: .5; } }
+
+/* c22 Lupa */
+.ux-loupe { position: absolute; z-index: 40; pointer-events: none; animation: ux-loupe-in .14s ease-out; }
+.ux-loupe-lens {
+    position: absolute; inset: 0; border-radius: 50%; overflow: hidden; box-sizing: border-box;
+    background: var(--bezeg-shell-panel, #fffdf5); border: 3px solid #fff; box-shadow: 0 0 0 1.5px #8f7a3c, 0 10px 28px rgb(25 55 47 / 30%);
+}
+.ux-loupe[hidden] { display: none; }
+.ux-loupe.ux-loupe-out { animation: ux-loupe-in .16s ease-in reverse forwards; }
+@keyframes ux-loupe-in { from { transform: scale(.6); opacity: 0; } }
+.ux-loupe-view { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ux-loupe-cross { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; }
+.ux-loupe-cross::before, .ux-loupe-cross::after { content: ''; position: absolute; background: rgb(196 123 31 / 75%); }
+.ux-loupe-cross::before { left: 10px; top: 0; width: 2px; height: 22px; }
+.ux-loupe-cross::after { top: 10px; left: 0; height: 2px; width: 22px; }
+.ux-loupe-label {
+    position: absolute; left: 50%; top: calc(100% + 5px); transform: translateX(-50%); white-space: nowrap; padding: 2px 7px; border-radius: 999px;
+    background: rgb(36 76 55 / 88%); color: #fff; font: 650 11px/1.3 system-ui, sans-serif; font-variant-numeric: tabular-nums;
+}
+.ux-loupe-button {
+    position: absolute; top: 10px; right: 10px; z-index: 26;
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; min-height: 34px;
+    border: 1px solid #b9cfa7; border-radius: 999px; background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-shell-action, #244c37);
+    font: 650 13px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%); pointer-events: auto;
+}
+.ux-loupe-button[hidden] { display: none; }
+.ux-loupe-button:hover { background: #eef3e5; }
+.ux-loupe-button.ux-loupe-on { background: var(--bezeg-shell-action, #244c37); color: #fff; border-color: var(--bezeg-shell-action, #244c37); }
+.ux-measure-button ~ .ux-loupe-button, .ux-xy-button:not([hidden]) ~ .ux-loupe-button { top: 52px; }
+.ux-measure-button ~ .ux-xy-button:not([hidden]) ~ .ux-loupe-button { top: 94px; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-loupe-button { pointer-events: auto; }

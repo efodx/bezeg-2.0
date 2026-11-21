@@ -124,6 +124,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c22',
+        name: 'Lupa',
+        borrowed: 'lupa za besedilo na telefonu, urarska lupa in povečevalo v aplikacijah z zemljevidi',
+        idea: 'Na zaslonu na dotik prst zakrije prav tisto točko, ki jo vleče. Med vlečenjem nad prstom (ali ob njem, ko zgoraj ni prostora) plava okrogla lupa z 2,4-kratno živo povečavo table, s križcem in koordinatami vlečene točke, zato je natančno postavljanje na telefonu končno mogoče.',
+        generalizes: 'Lupa je živa kopija SVG table prek elementa use, zato prikaže vse, kar tabla nariše, brez kopiranja in v vsaki lekciji. Ali se kaj vleče, pove JSXGraph sam (način vlečenja), zato se lupa ne pokaže pri premikanju pogleda. Z miško jo vklopi gumb 🔍 Lupa ali tipka Alt med vlečenjem.',
+        links: [
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c22`,
+                tryThis: 'Na telefonu povleci kontrolno točko: nad prstom se pokaže povečava s koordinatami, ki jih prst sicer zakrije.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?ux=c22`,
+                tryThis: 'Povleci oglišče natanko na mrežno točko: lupa pokaže križec in koordinate, na računalniku vklopi 🔍 Lupa ali drži Alt.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?ux=c22`,
+                tryThis: 'Povleci točko na paraboli ali parabolo samo: lupa sledi prstu in kaže, kje točno je.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
