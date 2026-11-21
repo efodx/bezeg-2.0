@@ -20,6 +20,8 @@ export interface ParamEntry {
     format(value: number): string;
     /** Sends a value through the slider's own onChange (clamped and wrapped by the caller's rules). */
     set(value: number): void;
+    /** Writes on the lesson's behalf, also while the learner's controls are locked. */
+    setFromLesson(value: number): void;
 }
 
 const entries = new Map<string, ParamEntry>();
@@ -43,9 +45,18 @@ function same(a: ParamEntry, b: ParamEntry) {
         && a.cyclic === b.cyclic && a.unavailable === b.unavailable && a.inert === b.inert && a.display === b.display;
 }
 
+type ChangeObserver = (previous: ParamEntry, next: ParamEntry) => void;
+let changeObserver: ChangeObserver | undefined;
+
+/** One observer hears every value change of a registered parameter (a6 uses it to tween lesson-driven jumps). */
+export function observeParamChanges(observer: ChangeObserver | undefined) {
+    changeObserver = observer;
+}
+
 export function upsertParam(entry: ParamEntry) {
     const previous = entries.get(entry.key);
     entries.set(entry.key, entry);
+    if (previous && previous.value !== entry.value) changeObserver?.(previous, entry);
     if (!previous || !same(previous, entry)) emit();
 }
 

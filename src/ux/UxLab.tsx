@@ -30,6 +30,18 @@ const PROTOTYPES: LabPrototype[] = [
         ],
     },
     {
+        id: 'a6', name: 'Koraki, ki se premaknejo',
+        idea: 'Ko lekcija ob »Naprej« spremeni parameter, ta ne skoči, ampak v manj kot sekundi odpotuje do nove vrednosti. Učenec vidi, kaj je korak spremenil in kako — z dolgo osvetlitvijo (a2) gib pusti sled, na primer zrcaljenje parabole čez premico y = d.',
+        general: 'Prehod ujame vsako spremembo parametra v deljenem registru drsnikov, ki sledi kliku na gumb lekcije; lekcije zanj ne vedo ničesar. Celoštevilski parametri stopajo po celih številih, učenčev dotik prehod takoj zaključi.',
+        try: 'Pritiskaj »Naprej« in opazuj graf; primerjaj s povezavo »brez«.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a1,a2,a6'},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', flags: 'a1,a2,a6'},
+            {label: 'De Boorov algoritem', family: 'B-zlepki', path: 'bspline/deboor', flags: 'a1,a2,a6'},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a1,a6'},
+        ],
+    },
+    {
         id: 'a1', name: 'Parametri pod prsti',
         idea: 'Vsak parameter grafa je ploščica na samem grafu: povleci jo levo ali desno in graf se odziva, ne da bi pogled zapustil krivuljo. Dvigni prst nad ploščico za fino nastavljanje (merilo se poveča), lepe vrednosti pa se ujamejo z rahlim klikom.',
         general: 'Ploščice nastanejo iz deljenega drsnika (88 klicnih mest), zato jih dobi vsak graf in vsaka lekcija brez lastne kode. Ko lekcija sama spremeni parameter, ploščica zažari, tako da učenec vidi, kaj je korak spremenil.',

@@ -93,6 +93,11 @@ export default function Slider(props: SliderProps) {
                 const next = cyclic === undefined ? Math.min(current.max, Math.max(current.min, value)) : wrap(value);
                 if (next !== current.value) current.onChange(next);
             },
+            // The lesson's own scene writes (a6 tweens) pass the learner-facing lock.
+            setFromLesson: value => {
+                const current = latest.current;
+                if (value !== current.value) current.onChange(value);
+            },
         });
     });
     useLayoutEffect(() => () => removeParam(id), [id]);
