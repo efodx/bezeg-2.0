@@ -13,6 +13,7 @@ import {formatNumber} from "../../../analysis/format";
 import {ReadoutHeading, ReadoutHelp, ReadoutList} from "../../base/controls/ReadoutParts";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {nameBox, PlacedLabels, pxFrame} from "../../legend/pointNamePlacement";
+import {evaluationNameBox} from "../object/AbstractJXGPointControlledCurve";
 import {
     type Affine, type AffineOperation, type Pt, IDENTITY, affineOfOperation, bezierPoint, boxCentreOf, composeAffine,
     departsFromTrack, mappedReferencePoint, meanOf,
@@ -353,13 +354,13 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
                 markers.push([x, y, settings.pointSize]);
                 if (!settings.pointLabelsVisible) return;
                 const {w, h} = nameBox(`p${i}`, fontPx);
-                blocks.push({x0: x, y0: y + fontPx * 0.3 - h, x1: x + w, y1: y + fontPx * 0.3});
+                blocks.push({x0: x, y0: y - fontPx * 1.3 - h / 2, x1: x + w, y1: y - fontPx * 1.3 + h / 2});
             });
             if (t !== undefined) {
                 const at = frame.toPx(...bezierPoint(points, t));
                 markers.push([at[0], at[1], settings.pointSize]);
                 // The curve's own label of B(t) sits where the curve placed it: the middle of its box is the point plus the label offset (y up).
-                const {w, h} = nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);
+                const {w, h} = evaluationNameBox(t, fontPx);
                 const label = (marks.board.objectsList as unknown as Array<{elType?: string; name?: string; label?: {visProp?: {offset?: unknown}}}>)
                     .find(o => o.elType === 'point' && typeof o.name === 'string' && o.name.startsWith('$$B('))?.label;
                 const offset = typeof label?.visProp?.offset === 'function' ? (label.visProp.offset as () => unknown)() : label?.visProp?.offset;

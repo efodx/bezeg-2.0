@@ -35,6 +35,15 @@ const pendingFullUpdates = new WeakSet<object>();
 
 const shown = (point: JXG.Point): boolean => (point as unknown as {visPropCalc?: {visible?: boolean}}).visPropCalc?.visible !== false;
 
+/**
+ * The box (px) of the name of B(t) for the placement: the half is typeset as a fraction, four glyphs wide and taller than a line
+ * (measured in the browser at 20 px: 54 by 32), so the written-out `B(1/2)` would be too wide and too low.
+ */
+export function evaluationNameBox(t: number, fontPx: number): {w: number; h: number} {
+    if (t !== 0.5) return nameBox(`B(${t})`, fontPx);
+    return {w: nameBox('B(½)', fontPx).w, h: Math.ceil(fontPx * 1.8 + 4)};
+}
+
 export function evaluationPointLabel(t: number): string {
     // \tfrac: the fraction is typeset at the size of the other labels, not in display size.
     return t === 0.5 ? '$$B(\\tfrac{1}{2})$$' : `$$B(${t})$$`;
@@ -435,7 +444,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             this.showingJxgPoints, this.showingControlPolygon, ...this.jxgPoints.flatMap(p => [p.X(), p.Y(), shown(p)])];
         const anchor = frame.toPx(point.X(), point.Y());
         const boxes = this.evaluationLabels.boxes(this.board, token, () => {
-            const size = nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);
+            const size = evaluationNameBox(t, fontPx);
             const markers: Array<readonly [number, number, number]> = [[anchor[0], anchor[1], settings.pointSize]];
             const blocks: PxBox[] = [];
             for (const [ox, oy, r] of obstacles) {
@@ -447,9 +456,9 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
                 const [x, y] = frame.toPx(p.X(), p.Y());
                 markers.push([x, y, settings.pointSize]);
                 if (!settings.pointLabelsVisible) return;
-                // A control point's own label is left and bottom anchored, `0.3 fontSize` below the point (see PointStyles).
+                // A control point's own label is left and bottom anchored, `0.3 fontSize` below the point (see PointStyles), but its typeset glyphs sit about 1.3 fontSize above the point (measured in the browser at 20 px).
                 const {w, h} = nameBox(`p${i}`, fontPx);
-                blocks.push({x0: x, y0: y + fontPx * 0.3 - h, x1: x + w, y1: y + fontPx * 0.3});
+                blocks.push({x0: x, y0: y - fontPx * 1.3 - h / 2, x1: x + w, y1: y - fontPx * 1.3 + h / 2});
             });
             const samples: Array<readonly [number, number]> = [];
             const curve = this.jxgCurve as unknown as {points?: Array<{scrCoords: number[]}>};
