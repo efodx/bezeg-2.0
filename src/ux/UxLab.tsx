@@ -19,6 +19,17 @@ const PROTOTYPES: LabPrototype[] = [
         ],
     },
     {
+        id: 'a5', name: 'Najprej napovej',
+        idea: 'S svinčnikom nariši na graf, kam misliš, da bo šla krivulja, nato napoved zakleni in spremeni graf ali pojdi naprej. Ko se graf umiri, ostane tvoja napoved na njem — zelena, kjer se ujema, oranžna pikčasta, kjer se ne — z oceno zadetka.',
+        general: 'Primerjava ne pozna lekcije: napoved primerja z vsemi elementi table, ki so se po zaklepu premaknili ali pojavili. Ko besedilo okvirja reče »napovej«, »predvidi« ali »ugani«, svinčnik sam povabi k risanju — brez metapodatkov lekcije.',
+        try: 'Pri Taylorju (okvir prosi za napoved) nariši, kje bo tangenta, zakleni in povleci ploščico c. Pri Bézierju nariši obliko, zakleni in pritisni Naprej.',
+        links: [
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', at: 2, flags: 'a1,a5'},
+            {label: 'Bézierjeva krivulja', family: 'Bézierjeve krivulje', path: 'bezier/curve', at: 2, flags: 'a5'},
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', at: 1, flags: 'a1,a5'},
+        ],
+    },
+    {
         id: 'a1', name: 'Parametri pod prsti',
         idea: 'Vsak parameter grafa je ploščica na samem grafu: povleci jo levo ali desno in graf se odziva, ne da bi pogled zapustil krivuljo. Dvigni prst nad ploščico za fino nastavljanje (merilo se poveča), lepe vrednosti pa se ujamejo z rahlim klikom.',
         general: 'Ploščice nastanejo iz deljenega drsnika (88 klicnih mest), zato jih dobi vsak graf in vsaka lekcija brez lastne kode. Ko lekcija sama spremeni parameter, ploščica zažari, tako da učenec vidi, kaj je korak spremenil.',
