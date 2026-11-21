@@ -99,6 +99,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b22',
+        name: 'Nagni telefon: drsnika v rokah, ne pod palcem',
+        idea: 'Na telefonu tapneš »Nagni« in nagib levo-desno premika en drsnik, nagib naprej-nazaj drugega, kot bi kotalil frnikolo po pladnju; vodna tehtnica kaže nagib, »Ustavi« vrednosti zamrzne. Graf se odziva na gib rok, namesto da loviš 4 px tanko sled drsnika.',
+        generalizes: 'Bere drsnike iz inšpektorja in jim pošilja običajne dogodke vnosa, zato deluje na vsakem grafu z drsniki; začetna drža je ničla, zato ob vklopu nič ne skoči. Na iPhonu najprej vpraša za dovoljenje senzorja.',
+        try: 'Samo na telefonu (senzor nagiba): odpri povezavo, tapni »Nagni« in počasi nagibaj telefon. Na namizju gumba ni.',
+        links: [
+            {label: 'Funkcije: transformacije (c in d hkrati)', to: '/bezeg-2.0/functions/transformations?ux=b22'},
+            {label: 'Analiza: Taylorjev polinom (c in x)', to: '/bezeg-2.0/analysis/taylor?ux=b22'},
+            {label: 'Geometrija: obodni kot (točka P kroži)', to: '/bezeg-2.0/inscribed-angle?ux=b22'},
+        ],
+    },
+    {
         id: 'b14',
         name: 'Živo besedilo: simboli v razlagi so drsniki',
         idea: 'Črka v besedilu lekcije, ki pomeni količino prizora (»središče c«, »stopnja n«, »x = 1«), je podčrtana s pikicami: ko greš nanjo, se prižgejo vse njene ponovitve in njen drsnik, ko jo povlečeš levo ali desno, se graf spreminja. Dokler lekcija drži prizor, se graf po spustu vrne v sliko lekcije, kot vzmet.',

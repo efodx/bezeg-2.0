@@ -648,3 +648,21 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-lab-kept { color: #2f5b78; font-weight: 600; }
 .ux-lab-kept::before { content: '= '; font-size: 10px; }
 .ux-lab-test.ux-lab-test:hover:not(:disabled) { background: #4a2f58; color: #fffdf5; border-color: #4a2f58; }
+
+/* b22 Nagni telefon */
+.ux-tilt-open.ux-tilt-open { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 30; min-height: 36px; padding: 5px 14px; border-radius: 999px; border: 1px solid #244c37; background: #fffdf5; color: #244c37; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(25, 55, 47, .14); }
+.ux-tilt { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 32; display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "bubble axes stop" "bubble values stop"; gap: 4px 10px; align-items: center; padding: 8px 10px; border-radius: 14px; background: rgba(255, 253, 245, .96); border: 1px solid rgba(36, 76, 55, .3); box-shadow: 0 8px 24px rgba(25, 55, 47, .18); font-size: 13px; color: #19372f; }
+.ux-tilt-bubble { grid-area: bubble; position: relative; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #244c37; background: radial-gradient(circle, #f4f1e3 0 30%, #e6ead9 31% 100%); }
+.ux-tilt-bubble::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 1px dashed rgba(36, 76, 55, .5); }
+.ux-tilt-bubble i { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #c9a14a; box-shadow: 0 1px 3px rgba(25, 55, 47, .35); transition: transform .08s linear; }
+.ux-tilt-axes { grid-area: axes; display: flex; gap: 10px; flex-wrap: wrap; }
+.ux-tilt-axes label { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: #244c37; }
+.ux-tilt-axes select { min-height: 30px; max-width: 120px; border-radius: 8px; border: 1px solid rgba(36, 76, 55, .35); background: #fff; font-size: 13px; }
+.ux-tilt-values { grid-area: values; font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1.35; }
+.ux-tilt-stop.ux-tilt-stop { grid-area: stop; min-height: 36px; padding: 4px 12px; border-radius: 999px; border: 1px solid #244c37; background: #244c37; color: #fffdf5; font-weight: 700; }
+.ux-tilt-error { position: absolute; right: 10px; top: calc(50% + 26px); z-index: 30; padding: 6px 10px; border-radius: 10px; background: #fff3ee; border: 1px solid rgba(176, 82, 54, .5); color: #a24a2e; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .ux-tilt-bubble i { transition: none; } }
+.ux-tilt { padding: 5px 8px; gap: 2px 8px; left: 6px; right: 6px; bottom: 6px; font-size: 12px; }
+.ux-tilt-bubble { width: 34px; height: 34px; }
+.ux-tilt-axes select { min-height: 26px; }
+.ux-tilt-stop.ux-tilt-stop { min-height: 32px; }
