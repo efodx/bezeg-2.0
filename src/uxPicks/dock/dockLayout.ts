@@ -103,6 +103,8 @@ export function registerCard(kind: string, region: Target, order: number) {
     emit();
     return () => { regs.delete(kind); floating.delete(kind); if (lifted === kind) { origin = null; target = null; lifted = null; } emit(); };
 }
+/** The anchor the user docked the card at, if any (undefined: it sits at its default). */
+export function placedRegion(kind: string): Target | undefined { return placed[kind]?.region; }
 export function placementOf(kind: string): Placement { return placed[kind] ?? regs.get(kind) ?? {region: 'tr', order: 0}; }
 export function setFloating(kind: string, on: boolean) {
     if (floating.has(kind) === on) return;

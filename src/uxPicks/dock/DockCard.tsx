@@ -1,12 +1,12 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {GapSlot, useDock} from './BoardDock';
-import {GripIcon, MinusIcon, PlusIcon} from './icons';
+import {GripIcon, MinusIcon, PlusIcon, ResetIcon} from './icons';
 import {
-    clearGap, currentGap, dropAtGap, isSide, orderOf, pickUp, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
+    clearGap, currentGap, dropAtGap, isSide, orderOf, pickUp, placedRegion, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
     useDockLayout, type Target,
 } from './dockLayout';
-import {measureDrag} from './dockMeasure';
+import {REGION_LABEL, measureDrag} from './dockMeasure';
 import {useFlip} from './dockFlip';
 
 /**
@@ -66,6 +66,8 @@ export function DockCard(props: DockCardProps) {
     const floating = pos !== null && !phone;
     const [dragging, setDragging] = useState(false);
     const [keyboard, setKeyboard] = useState(false);
+    /** What a screen reader hears after a keyboard move, a drop or a reset (a polite status line). */
+    const [said, setSaid] = useState('');
     
     useEffect(() => registerCard(kind, props.region, props.order ?? 0), [kind, props.region, props.order]);
     useEffect(() => { setFloating(kind, floating); }, [kind, floating]);
@@ -121,6 +123,7 @@ export function DockCard(props: DockCardProps) {
         if (!m || !el) return;
         setGap(kind, m.region, m.index, el.offsetWidth, el.offsetHeight);
         setOutlines(kind, m.view);
+        if (keyboard) setSaid(m.region ? `${props.title}: ${REGION_LABEL[m.region]}. Enter pripne.` : `${props.title}: prosto.`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dragging, keyboard, floating, pos, collapsed, frame, version]);
     useFlip(card, floating);
@@ -168,6 +171,8 @@ export function DockCard(props: DockCardProps) {
         drag.current = null;
         setDragging(false);
         const el = card.current;
+        // A click (no drag) on a folded card's head opens it: the whole head, or the whole rail beside the graph, is the target.
+        if (d && !d.moved && collapsed && !phone) { toggle(); return; }
         if (!d?.moved || !el) return;
         if (dropAtGap(kind)) { docked(); return; }
         clearGap(kind);
@@ -178,8 +183,13 @@ export function DockCard(props: DockCardProps) {
     };
     const onKeyDown = (e: React.KeyboardEvent) => {
         if (phone) return;
-        if (e.key === 'Home') { e.preventDefault(); resetCard(kind); docked(); return; }
-        if (e.key === 'Enter' && keyboard) { e.preventDefault(); if (dropAtGap(kind)) docked(); return; }
+        if (e.key === 'Home') { e.preventDefault(); reset(); return; }
+        if (e.key === 'Enter' && keyboard) {
+            e.preventDefault();
+            const g = currentGap();
+            if (g && dropAtGap(kind)) { docked(); setSaid(`${props.title}: pripeto, ${REGION_LABEL[g.region]}.`); }
+            return;
+        }
         const step = e.shiftKey ? 40 : 10;
         const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
         const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
@@ -192,6 +202,9 @@ export function DockCard(props: DockCardProps) {
         setKeyboard(true);
         setPos(next); writePos(kind, next);
     };
+
+    /** Back to the default place (Home on the grip, double-click on the head, or the reset button). */
+    const reset = () => { resetCard(kind); docked(); setSaid(`${props.title}: na privzetem mestu.`); };
 
     const placement = placementOf(kind);
     // A side dock exists only while pick toolsCard is on: without it the card waits at its default anchor.
@@ -206,19 +219,26 @@ export function DockCard(props: DockCardProps) {
     }
     const g = currentGap();
     const gapTarget = g && g.kind === kind && !phone ? dock.regions[g.region] : null;
+    // Carried over a side dock, the card sits on its own ghost: it lets the ghost show through.
+    const overSide = floating && g !== null && g.kind === kind && g.isTarget && isSide(g.region);
+    // Away from its default place (moved to another anchor, or floating), the card offers the way back in its head.
+    const moved = !phone && (floating || (placedRegion(kind) ?? props.region) !== props.region);
+    const resetLabel = `Vrni ${props.what} na privzeto mesto`;
     return <>
         {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget} region={g.region}/>, gapTarget)}
-        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}`} style={style}>
+        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}${overSide ? ' is-over-side' : ''}`} style={style}>
             <div className="ux-btext-head" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
-                 onPointerCancel={onPointerUp} onDoubleClick={() => { resetCard(kind); docked(); }}>
+                 onPointerCancel={onPointerUp} onDoubleClick={reset}>
                 {!phone && <span className="ux-btext-grip" role="button" tabIndex={0} onKeyDown={onKeyDown} onBlur={() => { setKeyboard(false); clearGap(kind); }}
                       aria-label={`Premakni ${props.what} (puščične tipke, Enter pripne na označeno mesto, Domov pripne na privzeto mesto)`}
                       title="Povleci za premik, dvoklik pripne"><GripIcon/></span>}
                 <span className="ux-btext-title">{props.title}</span>
+                {moved && <button type="button" className="ux-btext-toggle ux-btext-reset" onClick={reset} aria-label={resetLabel} title={resetLabel}><ResetIcon/></button>}
                 <button type="button" className="ux-btext-toggle" onClick={toggle} aria-expanded={open}
                         aria-label={label} title={label}>{open ? <MinusIcon/> : <PlusIcon/>}</button>
             </div>
             {props.children(open)}
+            {!phone && <span className="visually-hidden" role="status">{said}</span>}
         </div>, target)}
     </>;
 }

@@ -71,7 +71,7 @@
 }
 .ux-btext.is-floating { position: absolute; z-index: 2; }
 .ux-bcard-legend { max-width: 280px; }
-.ux-btext-head { display: flex; align-items: center; gap: 4px; padding: 2px 3px 2px 3px; cursor: grab; touch-action: none; user-select: none; }
+.ux-btext-head { display: flex; align-items: center; gap: 6px; padding: 2px 3px 2px 3px; cursor: grab; touch-action: none; user-select: none; }
 .ux-btext-head:active { cursor: grabbing; }
 .ux-btext .ux-btext-grip, .ux-btext .ux-btext-toggle {
     min-height: 0; min-width: 0; box-shadow: none; flex: none; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px;
@@ -81,7 +81,17 @@
 .ux-btext-toggle { cursor: pointer; }
 .ux-btext-toggle:hover, .ux-btext-grip:hover { background: var(--bezeg-shell-control-hover); }
 .ux-btext-grip:focus-visible, .ux-btext-toggle:focus-visible, .ux-dock-chip:focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: 1px; }
-.ux-btext-title { flex: 1; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bezeg-shell-ink-secondary); padding: 0 10px 0 2px; }
+/* 12 px: the smallest functional text that still reads from the back of a classroom. */
+.ux-btext-title { flex: 1; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bezeg-shell-ink-secondary); padding: 0 10px 0 0; }
+/* Board cards stay light in Presentation: their headings keep the day ink (Presentation's cream heading colour would vanish). */
+.is-presenting .ux-btext:not(.ux-bcard-tools) :is(h2, h3, h4) { color: var(--bezeg-shell-ink); }
+/* The grip's ring stays inside its own box, so it never runs into the title beside it. */
+.ux-btext .ux-btext-grip:focus-visible { outline-offset: -2px; }
+/* A folded card opens on a click anywhere on its head. */
+.ux-btext-collapsed > .ux-btext-head { cursor: pointer; }
+.ux-btext-collapsed > .ux-btext-head:hover { background: var(--bezeg-shell-control-hover); border-radius: inherit; }
+/* Carried over a side dock the card would hide its own ghost: it turns translucent until it leaves. */
+.ux-btext.is-over-side { opacity: 0.55; transition: opacity 120ms ease-out; }
 
 /* A phone's folded card: a small labelled chip. */
 .ux-dock-chip {

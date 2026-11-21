@@ -35,7 +35,10 @@
         display: flex; flex-direction: column; gap: 8px;
         /* The column follows the graph's height without stretching its row (as the tools column did). */
         align-self: stretch; height: 0; min-height: 100%;
+        /* The column glides open and shut (the board narrows with it) instead of jumping under the pointer. */
+        transition: width 220ms cubic-bezier(0.16, 1, 0.3, 1), padding 220ms cubic-bezier(0.16, 1, 0.3, 1);
     }
+    @media (prefers-reduced-motion: reduce) { .ux-side { transition: none; } }
     [data-ux-tools-home="r"] > .ux-side-r { grid-area: inspector; }
     [data-ux-tools-home="r"] > .ux-side-l { grid-area: sl; }
     [data-ux-tools-home="l"] > .ux-side-l { grid-area: inspector; }
@@ -77,7 +80,7 @@
 /* In a row the card would scroll as a whole (dock.css): the tools scroll inside instead, under their tabs. */
 .ux-dock-h > .ux-bcard-tools { overflow: hidden; }
 .ux-bcard-tools > .ux-btext-head { padding: 6px 6px 2px 8px; }
-.ux-bcard-tools .ux-btext-title { font-size: .75rem; font-weight: 700; letter-spacing: .08em; color: var(--workspace-ink, var(--bezeg-shell-ink)); }
+.ux-bcard-tools .ux-btext-title { font-weight: 700; letter-spacing: .08em; color: var(--workspace-ink, var(--bezeg-shell-ink)); }
 
 /* Docked beside the graph it looks like the tools column it replaces: flat, full height, the ink rule on top. */
 .ux-side > .ux-bcard-tools:not(.is-floating) {
@@ -93,7 +96,7 @@
 
 /* Folded beside the graph: a rail with the fold button on top and the name running down. */
 .ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) { flex: 1 1 auto; }
-.ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) > .ux-btext-head { flex-direction: column; align-items: center; gap: 6px; padding: 6px 0; height: 100%; box-sizing: border-box; }
+.ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) > .ux-btext-head { flex-direction: column; align-items: center; gap: 8px; padding: 10px 0; height: 100%; box-sizing: border-box; border-radius: 0; }
 .ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) .ux-btext-toggle { order: -1; }
 .ux-side > .ux-bcard-tools.ux-btext-collapsed:not(.is-floating) .ux-btext-title { flex: none; writing-mode: vertical-rl; padding: 4px 0; }
 
@@ -102,3 +105,6 @@
 .is-presenting .ux-bcard-tools { background: var(--bezeg-night); color: var(--bezeg-night-panel); border-color: #50617b; }
 .is-presenting .ux-side > .ux-bcard-tools:not(.is-floating) { background: var(--bezeg-night); border-color: #50617b; border-top-color: #d9b461; }
 .is-presenting .ux-bcard-tools .ux-btext-title, .is-presenting .ux-bcard-tools .ux-btext-grip, .is-presenting .ux-bcard-tools .ux-btext-toggle { color: var(--bezeg-night-panel); }
+/* Hover on navy uses Presentation's own hover, not the day tint (cream ink would vanish on it). */
+.is-presenting .ux-bcard-tools .ux-btext-toggle:hover, .is-presenting .ux-bcard-tools .ux-btext-grip:hover,
+.is-presenting .ux-bcard-tools.ux-btext-collapsed > .ux-btext-head:hover { background: #2a3c58; }
