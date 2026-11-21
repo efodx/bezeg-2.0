@@ -3,6 +3,22 @@
 .ux-lesson-frame-count { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ux-lesson-recap { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--bezeg-shell-rule); }
 .ux-lesson-recap h4 { margin: 0 0 4px; font-size: .75rem; font-weight: 600; letter-spacing: .02em; color: var(--bezeg-shell-ink-secondary); }
-.ux-lesson-recap ol { margin: 0; padding: 0 0 0 1.25rem; font-size: .8125rem; line-height: 1.4; color: var(--bezeg-shell-ink); }
-.ux-lesson-recap li { margin: 0 0 3px; padding-left: 2px; }
-.ux-lesson-recap li::marker { color: var(--bezeg-shell-ink-secondary); font-variant-numeric: tabular-nums; }
+.ux-lesson-recap ol { margin: 0; padding: 0; list-style: none; font-size: .8125rem; line-height: 1.5; color: var(--bezeg-shell-ink); }
+/* One flowing line of step titles; the list stays an ordered list for assistive technology. */
+.ux-lesson-recap li { display: inline; margin: 0; padding: 0; }
+.ux-lesson-recap li:not(:last-child)::after { content: " · "; color: var(--bezeg-shell-ink-secondary); white-space: pre; }
+
+/* The card's own controls: 32 px on a fine pointer (the dock's coarse and narrow rule already gives 44 px). */
+@media (pointer: fine) and (min-width: 701px) {
+    .ux-bcard-guide .ux-btext-head :is(.ux-btext-grip, .ux-btext-toggle) { width: 32px; height: 32px; }
+    .ux-bcard-guide .ux-lesson-progress .guided-lesson-navigation button { min-height: 40px; }
+    .ux-bcard-guide .ux-lesson-drift button { min-height: 32px; }
+}
+
+/* Completion card at a capped height (the card shares the dock column with the tools): a smaller heading, a one-line
+   progress label and a tighter recap, so the recap and "Nadaljuj v poglavju" fit without scrolling. */
+.ux-bcard-guide .guided-lesson-completion-message { gap: 2px; }
+.ux-bcard-guide .guided-lesson-completion-message .guided-lesson-completion-title { font-size: 1.2rem; }
+.ux-bcard-guide .ux-lesson-recap { margin-top: 6px; padding-top: 6px; }
+.ux-bcard-guide .ux-lesson-recap h4 { margin-bottom: 2px; }
+.ux-bcard-guide .guided-lesson-complete .guided-lesson-reading { padding-bottom: 6px; }
