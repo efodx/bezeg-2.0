@@ -286,6 +286,7 @@ export function UxLab() {
         <ol className="ux-lab-list">
             {sorted.map(prototype => <li key={prototype.id} id={prototype.id} className="ux-lab-card">
                 <div className="ux-lab-card-head"><span className="ux-lab-id">{prototype.id}</span><h2>{prototype.name}</h2></div>
+                <img className="ux-lab-shot" src={`${import.meta.env.BASE_URL}ux-shots/${prototype.id}.webp`} alt="" loading="lazy" width={640} height={400}/>
                 <p>{prototype.idea}</p>
                 <p className="ux-lab-general"><strong>Zakaj velja splošno.</strong> {prototype.general}</p>
                 <p className="ux-lab-try"><strong>Poskusi.</strong> {prototype.try}</p>

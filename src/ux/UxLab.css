@@ -31,3 +31,5 @@ body:has(.ux-lab), #root:has(.ux-lab) { background: #f7f5e9; }
 .ux-lab-index a:hover { border-color: #b88a43; }
 .ux-lab-index b { font-size: 0.72rem; color: #885512; }
 .ux-lab-card { scroll-margin-top: 12px; }
+
+.ux-lab-shot { display: block; width: 100%; max-width: 640px; height: auto; margin: 4px 0 12px; border-radius: 10px; border: 1px solid #d6dccb; background: #fffdf5; }
