@@ -7,6 +7,7 @@ import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
 import {usePick} from "../../uxPicks/picks";
 import "../../uxPicks/dockTools/dockTools.css";
+import "../../uxPicks/toolsCard/compactHeader.css";
 import {ToolsCard} from "../../uxPicks/toolsCard/ToolsCard";
 import {usePhone} from "../../uxPicks/dock/BoardDock";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
@@ -213,6 +214,7 @@ export function DemonstrationWorkspace(props: {
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         data-ux-dock-tools={dockToolsPick ? '' : undefined}
         data-ux-tools-card={toolsCard ? '' : undefined}
+        data-ux-compact-header={toolsCard && lessonActive && !fullScreen ? '' : undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode === 'content' && !readingLocks ? 'reading' : lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>

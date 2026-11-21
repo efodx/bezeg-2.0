@@ -1,0 +1,14 @@
+/* Pick toolsCard, guided lesson open: the workspace header shrinks to one slim row and the board takes the freed height, so the
+   lesson card (which follows the board's column) can show more text. Not applied on phones or to free graphs. No animation. */
+.demonstration-workspace[data-ux-compact-header] { padding-top: 0; row-gap: 0; }
+.demonstration-workspace[data-ux-compact-header] .workspace-heading { align-items: center; }
+.demonstration-workspace[data-ux-compact-header] .workspace-breadcrumb,
+.demonstration-workspace[data-ux-compact-header] .workspace-heading-copy > p { display: none; }
+.demonstration-workspace[data-ux-compact-header] .workspace-heading h1 { margin: 0; font-size: 1.35rem; letter-spacing: -.02em; line-height: 1.15; }
+.demonstration-workspace[data-ux-compact-header] .workspace-graph #jgbox { height: max(560px, calc(100vh - 260px)) !important; }
+/* Slim action row: one line, buttons at 34 px (desktop only; phones never get this). */
+.demonstration-workspace[data-ux-compact-header] .workspace-heading { flex-wrap: nowrap; gap: 12px; padding-bottom: 2px; }
+.demonstration-workspace[data-ux-compact-header] .workspace-actions { flex-wrap: nowrap; gap: 6px; }
+.demonstration-workspace[data-ux-compact-header] .workspace-actions button,
+.demonstration-workspace[data-ux-compact-header] .workspace-actions > a,
+.demonstration-workspace.lesson-open[data-ux-compact-header] .workspace-actions .workspace-lesson-action { min-height: 34px; padding-block: 2px; font-size: .85rem; white-space: nowrap; }
