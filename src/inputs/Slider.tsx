@@ -1,5 +1,6 @@
 import {currentLanguage, useT} from "../localization";
-import {useId} from "react";
+import {useId, useLayoutEffect, useRef} from "react";
+import {onDisplayTab, removeParam, upsertParam} from "../uxPicks/a1/paramRegistry";
 import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -76,8 +77,25 @@ export default function Slider(props: SliderProps) {
     };
     const exact = props.formatValue === undefined;
     const show = props.formatValue ?? ((value: number) => formatNumber(value, language, decimals));
+    // ux-picks a1: publish this parameter so the board pucks can show and drive it.
+    const latest = useRef(props);
+    latest.current = props;
+    const formRef = useRef<HTMLFormElement>(null);
+    useLayoutEffect(() => {
+        upsertParam({
+            kind: 'range', key: id, label: props.customText, min: props.min, max: props.max, step, value: props.value, cyclic,
+            unavailable: unavailableReason, inert, format: show, display: onDisplayTab(formRef.current),
+            set: value => {
+                const current = latest.current;
+                if (current.disabled || current.unavailableReason !== undefined) return;
+                const next = cyclic === undefined ? Math.min(current.max, Math.max(current.min, value)) : wrap(value);
+                if (next !== current.value) current.onChange(next);
+            },
+        });
+    });
+    useLayoutEffect(() => () => removeParam(id), [id]);
     const bounds = props.hideBounds ? undefined : {min: show(props.min), max: show(props.max), inline: show(props.min).length + show(props.max).length <= INLINE_BOUNDS_CHARACTERS};
-    return <Form className="slider-field">
+    return <Form ref={formRef} className="slider-field">
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={cyclic === undefined ? props.min : undefined}

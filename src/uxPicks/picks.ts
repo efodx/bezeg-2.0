@@ -22,6 +22,7 @@ export type Pick = {
 
 export const PICKS: readonly Pick[] = [
     {id: 'b1', title: 'Prehodi', from: 'b1', note: 'Naprej in Nazaj v vodeni lekciji: graf zvezno zdrsne v nov prizor, novo se nariše, staro zbledi. Deluje v vseh lekcijah.', tryAt: '/bezeg-2.0/functions/transformations?learn=1'},
+    {id: 'a1', title: 'Parametri na grafu', from: 'a1 + števci', note: 'Vsak drsnik in vsak števec (− n +) je ploščica na grafu: povleci levo ali desno, za fino nastavljanje dvigni prst; kolešček in puščice tudi delujejo.', tryAt: '/bezeg-2.0/functions/transformations'},
     // {id: 'example', title: 'Primer', from: 'a1', note: 'Kaj naredi in kje ga najdeš.', tryAt: '/bezeg-2.0/functions/transformations'},
 ];
 

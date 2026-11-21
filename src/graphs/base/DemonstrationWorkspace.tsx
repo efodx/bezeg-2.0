@@ -4,6 +4,7 @@ import {Link, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext, type UserActionMode, type UserActionPolicy} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
+import {UxBoardFrame} from "../../uxPicks/BoardLayer";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
 import {DemonstrationPicker} from '../../DemonstrationPicker';
 import {readDemonstrationReturnContext} from '../../demonstrationNavigation';
@@ -260,7 +261,7 @@ export function DemonstrationWorkspace(props: {
             }}/>}
         <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
-            <JGBox ref={setGraphContainer}/>
+            <UxBoardFrame><JGBox ref={setGraphContainer}/></UxBoardFrame>
             <div ref={setSlotElement} data-playback-slot=""/>
             {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {

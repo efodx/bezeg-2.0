@@ -1,5 +1,6 @@
 import {currentLanguage, useT} from "../localization";
-import React, {useContext, useId, useState} from "react";
+import React, {useContext, useId, useLayoutEffect, useRef, useState} from "react";
+import {onDisplayTab, removeParam, upsertParam} from "../uxPicks/a1/paramRegistry";
 import {ReplacementRevision} from "./replacementRevision";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -72,7 +73,22 @@ export function CountSetter(props: CountSetterProps) {
     const plusReason = atMax ? props.maxReason ?? t("count_at_maximum", {value0: formatNumber(max, language, 0)}) : undefined;
     const shownReason = pressed?.side === "min" ? minusReason : pressed?.side === "max" ? plusReason : undefined;
 
-    return <div className="count-setter">
+    // ux-picks a1: publish this count so the board pucks can show and drive it through the setter's own − and +.
+    const latest = useRef({props, atMin, atMax});
+    latest.current = {props, atMin, atMax};
+    const rootRef = useRef<HTMLDivElement>(null);
+    useLayoutEffect(() => {
+        upsertParam({
+            kind: 'count', key: id, label: props.label ?? props.plusLabel ?? t("current_count", {value0: formatNumber(n, language, digits)}),
+            min, max, value: n, inert: false, display: onDisplayTab(rootRef.current),
+            format: value => formatNumber(value, language, digits),
+            minus: () => { if (latest.current.atMin) return false; latest.current.props.onMinus(); return true; },
+            plus: () => { if (latest.current.atMax) return false; latest.current.props.onPlus(); return true; },
+        });
+    });
+    useLayoutEffect(() => () => removeParam(id), [id]);
+
+    return <div ref={rootRef} className="count-setter">
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
         <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
              aria-describedby={joinIds(props.help && `${id}-help`, props.describedBy)}>
