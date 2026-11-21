@@ -1,6 +1,6 @@
 import {flushSync} from 'react-dom';
 import type {Board} from 'jsxgraph';
-import {getParam, type ParamEntry} from './paramRegistry';
+import {getParam, type ParamEntry, asProbe} from './paramRegistry';
 import {drawn, signature} from './YourTurn';
 
 /**
@@ -58,7 +58,7 @@ export const settle = async (b: Board, keys: string[], values: number[]) => {
     let redrawn = false;
     const mark = () => { redrawn = true; };
     events.on('update', mark);
-    try { flushSync(() => keys.forEach((key, i) => getParam(key)?.setFromLesson(values[i]))); } finally { events.off('update', mark); }
+    try { asProbe(() => flushSync(() => keys.forEach((key, i) => getParam(key)?.setFromLesson(values[i])))); } finally { events.off('update', mark); }
     if (redrawn) return;
     await new Promise<void>(resolve => {
         let left = 4;

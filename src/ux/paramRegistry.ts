@@ -48,6 +48,14 @@ function same(a: ParamEntry, b: ParamEntry) {
 type ChangeObserver = (previous: ParamEntry, next: ParamEntry) => void;
 const changeObservers = new Set<ChangeObserver>();
 
+/** Prototype probes (a17, a19–a21 and the family captures) set values for a moment and restore them; recorders skip those. */
+let probeDepth = 0;
+export function probing(): boolean { return probeDepth > 0; }
+export function asProbe<T>(run: () => T): T {
+    probeDepth++;
+    try { return run(); } finally { probeDepth--; }
+}
+
 /** Observers hear every value change of a registered parameter (a6 tweens lesson-driven jumps, a8 records them). */
 export function observeParamChanges(observer: ChangeObserver): () => void {
     changeObservers.add(observer);

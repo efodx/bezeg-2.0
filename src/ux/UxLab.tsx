@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a22', name: 'Raziskano ozemlje',
+        idea: 'Vsak drsnik si zapomni, kod je graf že hodil: pod drsnikom raste jantarni pas, zato ostanejo deli parametra, ki jih ni nihče poskusil, vidno goli. Ko ostane gol velik kos, drsnik to pove z besedami — najprej »poskusi še negativne a«, ker se pri predznaku skriva največ presenečenj (zrcaljenje, odpiranje navzdol) — in dotik odpelje graf tja.',
+        general: 'Vsak drsnik objavi svoje premike v deljeni register; vlečenje in tipke pobarvajo vmesne vrednosti, skok pa samo cilj. Poskusi drugih prototipov so označeni in se ne štejejo. Ko je raziskana več kot polovica obsega, nasveti utihnejo. Brez kode v lekcijah: šolske funkcije, verjetnost, Bézierjeve krivulje.',
+        try: 'Premakni drsnik a le malo levo ali desno in poglej pas in nasvet pod njim; tapni nasvet.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a22', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a22', free: true},
+            {label: 'De Casteljaujev postopek', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', flags: 'a22', free: true},
+        ],
+    },
+    {
         id: 'a21', name: 'Družina v prostoru',
         idea: 'En gumb spremeni izbrani parameter v tretjo os: Bezeg nariše graf pri petindvajsetih vrednostih, slike zloži eno za drugo in kup nagne, da družina krivulj postane pokrajina — ploskev y = f(x; p) — današnji graf pa jantarna rezina skoznjo. Povleci, da jo zasukaš; premakni drsnik in rezina potuje; »Splošči« vse krivulje spet zloži na eno tablo.',
         general: 'Krivulje so vzorčene iz SVG same table, medtem ko Bezeg parameter sinhrono postavlja prek deljenega registra drsnikov (in ga povrne pred risanjem); okno vrednosti se samo zoži, dokler večina slik ne kaže nečesa. Brez kode v lekcijah: parabole pri c, d, a, b, binomska porazdelitev pri p in n, De Casteljau pri t, tangente Taylorjevega polinoma pri c (premonosna ploskev).',
@@ -251,7 +262,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a19', 'a20', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -267,7 +278,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Enaindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Dvaindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
