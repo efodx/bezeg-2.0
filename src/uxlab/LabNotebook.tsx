@@ -4,7 +4,7 @@ import type {LessonGraphCapabilities, LessonSceneCheckpoint} from '../learning/m
 import {findMainBoard, recoverBoards, type UxBoard} from './board';
 import {format} from './LiveProse';
 import {bloom} from './MatchChallenge';
-import {morphScene} from './morph';
+import {interpolateValue, morphScene} from './morph';
 import {snapshot, type Thumb} from './ParameterFan';
 import {readouts} from './SliderTrace';
 import './uxlab.css';
@@ -210,7 +210,28 @@ function ThumbPair(props: {entry: Entry; width: number; height: number}) {
  * readouts did, a before/after sketch). From two or more alike experiments the notebook drafts a rule ("če povečaš n, se
  * napaka zmanjša") and offers to test it elsewhere, with the other quantities shaken up; a rule that breaks is the lesson.
  */
-export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabilities: LessonGraphCapabilities; locked: boolean}) {
+interface Frame { key: string; checkpoint: LessonSceneCheckpoint; thumb: Thumb }
+
+/** Every state the learner stopped at, in order; consecutive repeats once. */
+function framesOf(entries: Entry[]): Frame[] {
+    const frames: Frame[] = [];
+    const push = (checkpoint: LessonSceneCheckpoint, thumb: Thumb) => {
+        const key = JSON.stringify(checkpoint.value);
+        if (frames[frames.length - 1]?.key !== key) frames.push({key, checkpoint, thumb});
+    };
+    for (const entry of [...entries].reverse()) { push(entry.from, entry.before); push(entry.checkpoint, entry.after); }
+    return frames;
+}
+
+function StateThumb(props: {thumb: Thumb; width: number; height: number}) {
+    const box = props.thumb.box, pad = 10;
+    const view = box ? `${box[0] - pad} ${box[1] - pad} ${box[2] - box[0] + 2 * pad} ${box[3] - box[1] + 2 * pad}` : `0 0 ${props.width} ${props.height}`;
+    return <svg className="ux-lab-thumb" viewBox={view} preserveAspectRatio="xMidYMid meet" aria-hidden="true" dangerouslySetInnerHTML={{__html: props.thumb.markup}}/>;
+}
+
+export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabilities: LessonGraphCapabilities; locked: boolean; strip?: boolean}) {
+    const [head, setHead] = useState<number>();
+    const scrubbing = useRef(false);
     const [board, setBoard] = useState<UxBoard>();
     const [entries, setEntries] = useState<Entry[]>([]);
     const [open, setOpen] = useState(false);
@@ -287,7 +308,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
     }, [board, props.locked]);
 
     useEffect(() => () => window.clearTimeout(toastTimer.current), []);
-    useEffect(() => publish(entries), [entries]);
+    useEffect(() => { publish(entries); setHead(undefined); }, [entries]);
 
     /** Replays an entry: back to where it started, then the move itself as a morph. */
     const replay = (entry: Entry) => {
@@ -387,7 +408,40 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
                 <span className="ux-lab-num">#{entry.id}</span>
             </li>)}</ol>}
     </div>;
+    // b9 Filmski trak: the states you stopped at, as a strip to scrub through; the graph morphs between them.
+    const frames = props.strip ? framesOf(entries) : [];
+    const scrubTo = (event: React.PointerEvent<HTMLDivElement>, release = false) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const cell = rect.width / frames.length;
+        const f = Math.max(0, Math.min(frames.length - 1, (event.clientX - rect.left - cell / 2) / cell));
+        const at = release ? Math.round(f) : f;
+        const i = Math.min(frames.length - 2, Math.floor(at)), t = at - Math.max(0, i);
+        const value = frames.length === 1 || i < 0 ? frames[0].checkpoint.value : t <= 0 ? frames[i].checkpoint.value : t >= 1 ? frames[i + 1].checkpoint.value
+            : interpolateValue(frames[i].checkpoint.value, frames[i + 1].checkpoint.value, t, '', false, true);
+        try { caps.current.restoreState({version: 1, value}); } catch { recoverBoards(); }
+        setHead(at);
+    };
+    const strip = props.strip && frames.length > 1 && <div className={`ux-strip${phone ? ' is-phone' : ''}`} role="slider" aria-label="Filmski trak tvojih poskusov" aria-valuemin={1} aria-valuemax={frames.length} aria-valuenow={Math.round(head ?? frames.length - 1) + 1}
+        tabIndex={0} onKeyDown={event => {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+            event.preventDefault();
+            const next = Math.max(0, Math.min(frames.length - 1, Math.round(head ?? frames.length - 1) + (event.key === 'ArrowRight' ? 1 : -1)));
+            quiet.current = true;
+            const before = (() => { try { return caps.current.captureState(); } catch { return undefined; } })();
+            try { caps.current.restoreState(frames[next].checkpoint); } catch { recoverBoards(); }
+            const morph = before && morphScene(caps.current, before, {duration: 350});
+            setHead(next);
+            void (morph ? morph.done : Promise.resolve()).finally(() => { if (board) settled.current = capture(board); quiet.current = false; });
+        }}
+        onPointerDown={event => event.stopPropagation()}>
+        <span className="ux-strip-label">Trak</span>
+        <div className="ux-strip-cells" onPointerDown={event => { event.stopPropagation(); scrubbing.current = true; quiet.current = true; event.currentTarget.setPointerCapture(event.pointerId); scrubTo(event); }}         onPointerMove={event => { if (scrubbing.current) scrubTo(event); }}         onPointerUp={event => { if (!scrubbing.current) return; scrubbing.current = false; scrubTo(event, true); if (board) settled.current = capture(board); pending.current = undefined; quiet.current = false; }}         onPointerCancel={() => { scrubbing.current = false; quiet.current = false; }}>
+            {frames.map((frame, index) => <span key={index} className={`ux-strip-cell${Math.round(head ?? frames.length - 1) === index ? ' is-current' : ''}`}><StateThumb thumb={frame.thumb} width={board.canvasWidth} height={board.canvasHeight}/></span>)}
+            <i className="ux-strip-head" style={{left: `${((head ?? frames.length - 1) + 0.5) / frames.length * 100}%`}}/>
+        </div>
+    </div>;
     return <>
+        {strip && createPortal(strip, host)}
         {createPortal(<>{tab}{!phone && toastNode}{!phone && panel}</>, host)}
         {phone && createPortal(<>{toastNode}{panel}</>, document.body)}
     </>;

@@ -676,3 +676,14 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-lab-evidence-rule { padding: 5px 8px; border-radius: 8px; background: #fff; border: 1px solid rgba(93, 59, 110, .28); font-weight: 600; }
 .ux-lab-evidence-rule.is-mixed { border-color: rgba(176, 82, 54, .5); background: #fff6f1; }
 .ux-lab-evidence-rule small { font-weight: 400; color: #526152; }
+
+/* b9 Filmski trak */
+.ux-strip { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 29; display: flex; align-items: stretch; gap: 6px; padding: 5px 6px; border-radius: 12px; background: rgba(25, 55, 47, .9); box-shadow: 0 6px 18px rgba(25, 55, 47, .25); touch-action: none; }
+.ux-strip:focus-visible { outline: 3px solid #c9a14a; outline-offset: 2px; }
+.ux-strip-label { writing-mode: vertical-rl; transform: rotate(180deg); color: #c9a14a; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; text-align: center; }
+.ux-strip-cells { position: relative; flex: 1; display: flex; gap: 3px; cursor: ew-resize; min-width: 0; }
+.ux-strip-cell { flex: 1 1 0; min-width: 0; height: 50px; border-radius: 6px; background: #fffdf5; overflow: hidden; opacity: .78; border: 2px solid transparent; }
+.ux-strip.is-phone .ux-strip-cell { height: 40px; }
+.ux-strip-cell.is-current { opacity: 1; border-color: #c9a14a; }
+.ux-strip-cell svg { pointer-events: none; }
+.ux-strip-head { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: #c9a14a; box-shadow: 0 0 0 1px rgba(25, 55, 47, .5); pointer-events: none; }

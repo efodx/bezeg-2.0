@@ -52,6 +52,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b9',
+        name: 'Filmski trak: previj nazaj po lastnih poskusih',
+        idea: 'Ob spodnjem robu grafa se nabira trak sličic vseh stanj, pri katerih si se ustavil. Vlečeš po traku in graf se zvezno preoblikuje skozi tvojo zgodovino, naprej in nazaj, kot pri premikanju po posnetku v glasbenem programu; ob izpustu se zaskoči na najbližje stanje.',
+        generalizes: 'Uporablja posnetke stanja, ki jih zbira laboratorijski dnevnik (b23), in med sosednjima interpolira vse številske vrednosti, zato deluje na vsakem grafu brez kode na lekcijo; previjanje se ne zapiše kot nov poskus. S tipkovnico: puščici levo in desno.',
+        try: 'Nekajkrat premakni drsnike (počakaj pol sekunde med premiki), nato povleci po traku na dnu grafa.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom', to: '/bezeg-2.0/analysis/taylor?ux=b9'},
+            {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?ux=b9'},
+            {label: 'Geometrija: obodni kot', to: '/bezeg-2.0/inscribed-angle?ux=b9'},
+        ],
+    },
+    {
         id: 'b18',
         name: 'Zemljevid: vse kombinacije dveh količin naenkrat',
         idea: 'Gumb »▦ Zemljevid« na grafu nariše mrežo pomanjšanih grafov za dve izbrani količini (vodoravno ena, navpično druga). Najprej iz sličic napoveš, kje je odčitek (na primer napaka) najmanjši, nato se mreža pobarva po odčitku z napovedjo in pravim mestom; vlečeš po zemljevidu in oba drsnika se premikata hkrati.',
