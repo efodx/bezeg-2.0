@@ -155,6 +155,11 @@ function DragPreview(props: {frame: HTMLElement; dock: HTMLElement | null; view:
         return () => cancelAnimationFrame(raf);
     }, [frame, dock, active, version, g?.index, g?.w, g?.h]);
     const W = frame.clientWidth, H = frame.clientHeight;
+    // "Prosto" stays above the pucks' strip (it sat on the slider tiles when a card was carried low over the board): under the
+    // card while there is room, else above it.
+    const strip = dock?.querySelector<HTMLElement>('.ux-dock-strip');
+    const stripTop = strip && strip.offsetHeight > 0 ? strip.getBoundingClientRect().top - frame.getBoundingClientRect().top : H;
+    const freeMax = Math.max(0, Math.min(H, stripTop) - 24);
     return createPortal(<>
         {TARGETS.filter(k => k !== active).map(k => {
             const [ax, ay] = ANCHOR_AT[k];
@@ -166,7 +171,7 @@ function DragPreview(props: {frame: HTMLElement; dock: HTMLElement | null; view:
         {box && active && <div className="ux-dock-ghost" data-dock-ghost={active} style={{left: box.x, top: box.y, width: box.w, height: box.h}} aria-hidden="true">
             <span className="ux-dock-pill">{REGION_LABEL[active]}{view.scrolls && <ScrollIcon/>}</span>
         </div>}
-        {view.free && <span className="ux-dock-pill ux-dock-free" data-dock-free="" style={{left: view.free.x, top: Math.min(view.free.y, H - 24)}} aria-hidden="true">Prosto</span>}
+        {view.free && <span className="ux-dock-pill ux-dock-free" data-dock-free="" style={{left: view.free.x, top: view.free.y <= freeMax ? view.free.y : Math.max(0, Math.min(view.free.above, freeMax))}} aria-hidden="true">Prosto</span>}
     </>, frame);
 }
 

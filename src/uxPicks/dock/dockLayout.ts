@@ -19,7 +19,7 @@ const LEGACY: Record<string, Target> = {'top-start': 'tl', 'top-end': 'tr', 'bot
 /** The graph dock's stack the lesson card can take a place in (in memory only: lessons restart at home). */
 export const LESSON = 'lesson';
 /** What the drag in progress shows besides the ghost: the anchor it would dock at (null: floats), whether that stack would scroll, and where the "Prosto" hint goes. */
-export interface DragView { region: Target | null; scrolls: boolean; free: {x: number; y: number} | null; }
+export interface DragView { region: Target | null; scrolls: boolean; free: {x: number; y: number; above: number} | null; }
 interface Placement { region: Target; order: number; }
 export interface Gap { kind: string; region: Target; index: number; w: number; h: number; }
 

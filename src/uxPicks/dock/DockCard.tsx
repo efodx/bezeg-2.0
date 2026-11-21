@@ -39,6 +39,8 @@ export interface DockCardProps {
     /** A fold the owner controls (the lesson card: folding is hiding the instructions); not stored. */
     collapsed?: boolean;
     onToggle?: (open: boolean) => void;
+    /** Starts folded on a narrow window (a crowded board) until the learner opens or folds it once. */
+    foldWhenNarrow?: boolean;
 }
 
 interface Pos { x: number; y: number; }
@@ -48,8 +50,13 @@ const DRAG_THRESHOLD = 4;
 const collapsedKey = (kind: string) => kind === 'text' ? 'ux-boardtext-collapsed' : `ux-boardcard-collapsed:${kind}`;
 const posKey = (kind: string) => kind === 'text' ? 'ux-boardtext-pos' : `ux-boardcard-pos:${kind}`;
 
-function readCollapsed(kind: string): boolean {
-    try { return localStorage.getItem(collapsedKey(kind)) === '1'; } catch { return false; }
+/** Below this window width the board is crowded (tools, three cards, pucks): secondary cards start folded. */
+const NARROW_PX = 1200;
+function readCollapsed(kind: string, foldWhenNarrow = false): boolean {
+    try {
+        const stored = localStorage.getItem(collapsedKey(kind));
+        return stored === null ? foldWhenNarrow && window.innerWidth < NARROW_PX : stored === '1';
+    } catch { return false; }
 }
 function readPos(kind: string): Pos | null {
     try {
@@ -66,7 +73,7 @@ export function DockCard(props: DockCardProps) {
     const dock = useDock();
     const phone = dock?.phone ?? false;
     const version = useDockLayout();
-    const [ownCollapsed, setCollapsed] = useState(() => readCollapsed(kind));
+    const [ownCollapsed, setCollapsed] = useState(() => readCollapsed(kind, props.foldWhenNarrow));
     const collapsed = props.collapsed ?? ownCollapsed;
     const [pos, setPos] = useState<Pos | null>(() => readPos(kind));
     const card = useRef<HTMLDivElement>(null);
