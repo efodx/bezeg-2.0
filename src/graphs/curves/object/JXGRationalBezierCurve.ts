@@ -7,6 +7,8 @@ import {AbstractJXGBezierCurve, BezierCurveAttributes} from "./AbstractJXGBezier
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {RationalBezierCurve} from "../../../bezeg/impl/curve/rational-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
+import {formatNumber, MINUS_SIGN} from "../../../analysis/format";
+import {currentLanguage} from "../../../localization";
 import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 interface JSXRationalBezierCurveConstructorParams {
@@ -19,6 +21,11 @@ interface JSXRationalBezierCurveState extends JXGBezierCurveState {
     weightNumber: number
     showingWeights: boolean
     showingFarinPoints: boolean
+}
+
+/** A weight inside TeX in the app's number format: at most two decimals, `{,}` as the Slovenian decimal comma, an ASCII minus. */
+export function weightTex(weight: number): string {
+    return formatNumber(weight, currentLanguage(), 2).replace(MINUS_SIGN, "-").replace(",", "{,}");
 }
 
 export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezierCurve, BezierCurveAttributes> {
@@ -216,7 +223,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
             this.hideWeights();
         }
         this.weightLabels = this.getJxgPoints().map((point, i) =>
-            this.board.create('smartlabel', [point, () => "$$w_{" + i + "}=" + this.getCurve().getWeights()[i].toFixed(2) + "$$"], {
+            this.board.create('smartlabel', [point, () => "$$w_{" + i + "}=" + weightTex(this.getCurve().getWeights()[i]) + "$$"], {
                 fontSize: () => this.displaySettings.fontSize,
                 size: () => this.displaySettings.fontSize,
                 cssClass: "smart-label-point2",
