@@ -13,6 +13,19 @@ interface Prototype {
 /** Best first. Deep links open the lesson with the prototype switched on; the same link without `ux` is today's app. */
 const PROTOTYPES: Prototype[] = [
     {
+        id: 'b12',
+        name: 'Primi krivuljo: povleci graf, drsniki sledijo',
+        idea: 'Primeš katerokoli krivuljo, premico ali krožnico neposredno na grafu in jo povlečeš; krivulja sledi prstu, drsniki in točke v inšpektorju pa se premaknejo sami. Tangento povlečeš po eksponentni krivulji in središče c se premakne; vrh sinusoide dvigneš in zraste amplituda.',
+        generalizes: 'Ob prijemu vsako prosto količino iz posnetka stanja za hip premakne za zamrznjeno kopijo plošče in izmeri, kako se premakne prijeta točka (Jacobijeva matrika iz risbe SVG). Med vlečenjem jo vsak okvir reši z najmanjšo spremembo količin in sproti popravlja z Broydenovim pravilom, z zaupanjskim območjem proti pobegu. Brez kode na lekcijo.',
+        try: 'Z miško pojdi nad krivuljo (zažari) in jo povleci; po vlečenju lahko spremembo razveljaviš.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (povleci črtkano tangento)', to: '/bezeg-2.0/analysis/taylor?ux=b12'},
+            {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?ux=b12'},
+            {label: 'Bézier: krivulja', to: '/bezeg-2.0/bezier/curve?ux=b12'},
+            {label: 'Funkcije: trigonometrične', to: '/bezeg-2.0/functions/trigonometric?ux=b12'},
+        ],
+    },
+    {
         id: 'b4',
         name: 'Ujemi obliko: izziv, ki ga ne moreš nehati igrati',
         idea: 'Trenutni prizor postane vijolična tarča, graf pa se strese v bližnji veljaven prizor. Z vlečenjem točk ali drsniki ga pripelješ nazaj; merilnik kaže ujemanje, ob zadetku zacveti bezeg in niz se podaljša, z nizom pa raste število premaknjenih parametrov.',

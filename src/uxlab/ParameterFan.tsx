@@ -53,7 +53,7 @@ function cleanName(name: string | undefined): string {
 }
 
 /** Names point rows after the board point that sits where the row's stored coordinates say. */
-function pointNames(board: UxBoard, rows: FanRow[], grid: number | undefined): Map<string, string> {
+export function pointNames(board: UxBoard, rows: FanRow[], grid: number | undefined): Map<string, string> {
     const names = new Map<string, string>();
     const unit = grid !== undefined ? 2 ** grid : 1;
     const handles = board.objectsList.filter(element => (element.elType === 'point' || element.elType === 'glider') && element.X && element.Y);

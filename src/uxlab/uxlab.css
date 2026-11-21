@@ -345,3 +345,41 @@
     .ux-listen { right: 6px; bottom: 6px; width: calc(100% - 12px); padding: 6px 8px 8px; }
     .ux-listen-hint { display: none; }
 }
+
+/* b12 Primi krivuljo */
+.ux-grab-can, .ux-grab-can svg { cursor: grab; }
+.ux-grab-active, .ux-grab-active svg { cursor: grabbing; }
+.ux-grab-hover { filter: drop-shadow(0 0 3px rgba(93, 59, 110, .55)) drop-shadow(0 0 1px rgba(93, 59, 110, .9)); }
+.ux-grab-layer .ux-grab-ghost { opacity: .32; stroke-dasharray: 5 5; filter: none; }
+.ux-grab-band { stroke: var(--ux-berry, #5d3b6e); stroke-width: 2; stroke-dasharray: 3 4; stroke-linecap: round; opacity: .8; }
+.ux-grab-hand { fill: rgba(93, 59, 110, .14); stroke: var(--ux-berry, #5d3b6e); stroke-width: 2; }
+.ux-grab-dot { fill: var(--ux-berry, #5d3b6e); }
+.ux-grab-hint {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 20; pointer-events: none;
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+    background: rgba(255, 253, 245, .94); color: var(--ux-berry, #5d3b6e); border: 1px solid rgba(93, 59, 110, .28);
+    font-size: 13px; font-weight: 600; box-shadow: 0 2px 10px rgba(25, 55, 47, .12); white-space: nowrap;
+    animation: ux-grab-breathe 2.4s ease-in-out infinite;
+}
+.ux-grab-hint.is-busy { animation: none; color: var(--ux-ink-2, #526152); }
+@keyframes ux-grab-breathe { 50% { box-shadow: 0 2px 16px rgba(93, 59, 110, .28); } }
+.ux-grab-chips {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 21; pointer-events: none;
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 24px);
+}
+.ux-grab-chips span {
+    padding: 5px 10px; border-radius: 10px; background: var(--ux-berry, #5d3b6e); color: #fffdf5; font-size: 14px;
+    font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(25, 55, 47, .2);
+}
+.ux-grab-chips b { font-weight: 600; opacity: .8; margin-right: 2px; }
+.ux-grab-result {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 21;
+    display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 12px; border-radius: 12px; max-width: calc(100% - 24px);
+    background: var(--ux-panel, #fffdf5); color: var(--ux-ink, #19372f); border: 1px solid var(--ux-rule, #d6dccb);
+    box-shadow: 0 4px 14px rgba(25, 55, 47, .16); font-size: 13px;
+}
+.ux-grab-result button {
+    min-height: 34px; padding: 4px 12px; border-radius: 8px; border: 1px solid #cbd4c1; background: #fff; color: var(--ux-action, #244c37);
+    font: inherit; font-weight: 600; cursor: pointer; flex: none;
+}
+@media (prefers-reduced-motion: reduce) { .ux-grab-hint { animation: none; } }

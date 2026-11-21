@@ -13,7 +13,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * points can slide smoothly and every in-between scene is still a valid one.
  */
 const GRID_REFINEMENT = 5;
-function refineGrid(value: unknown): unknown {
+export function refineGrid(value: unknown): unknown {
     if (Array.isArray(value)) return value.map(refineGrid);
     if (!isRecord(value)) return value;
     const result: Record<string, unknown> = {};
@@ -30,6 +30,21 @@ function refineGrid(value: unknown): unknown {
 }
 
 /** Interpolates plain JSON: numbers slide, everything structural or discrete takes the target. */
+/** Back from a refined grid to the original one (`original` is the unrefined checkpoint value), rounding to its points. */
+export function coarsenGrid(value: unknown, original: unknown): unknown {
+    if (Array.isArray(value)) return value.map((item, index) => coarsenGrid(item, Array.isArray(original) ? original[index] : undefined));
+    if (!isRecord(value) || !isRecord(original)) return value;
+    const result: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(value)) result[key] = coarsenGrid(child, original[key]);
+    if (typeof value.gridStepExponent === 'number' && typeof original.gridStepExponent === 'number' && Array.isArray(value.points)) {
+        const scale = 2 ** (original.gridStepExponent - value.gridStepExponent);
+        result.gridStepExponent = original.gridStepExponent;
+        result.points = (value.points as unknown[]).map(point => isRecord(point) && typeof point.x === 'number' && typeof point.y === 'number'
+            ? {...point, x: Math.round(point.x / scale), y: Math.round(point.y / scale)} : point);
+    }
+    return result;
+}
+
 export function interpolateValue(from: unknown, to: unknown, t: number, key = '', integer = false, roundIntegers = false): unknown {
     if (typeof from === 'number' && typeof to === 'number') {
         if (!Number.isFinite(from) || !Number.isFinite(to) || from === to) return to;
