@@ -82,7 +82,7 @@ function segmentIntersection(
 const SUB = '₀₁₂₃₄₅₆₇₈₉', SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
 
 /** A board point's name as plain text, with TeX or numbered indices typeset: P3 → P₃, p_0^1 → p₀¹. */
-function pointLabel(element: any): string | undefined {
+export function pointLabel(element: any): string | undefined {
     const name = typeof element?.name === 'function' ? element.name() : element?.name;
     if (typeof name !== 'string') return undefined;
     let clean = name.replace(/<[^>]*>/g, '').replace(/\$/g, '').replace(/\\[a-zA-Z]+/g, '').trim();

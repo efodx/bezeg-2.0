@@ -56,6 +56,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c16',
+        name: 'Kaj ostane enako?',
+        borrowed: 'iskalnik izrekov v dinamični geometriji in Brilliantov trenutek »opaziš vzorec?«',
+        idea: 'En pritisk in graf sam zaniha svoje vlečljive točke, medtem pa se za vsak par in trojico točk preverja, kaj drži: ali ležijo na premici, v kakšnem razmerju se delijo, ali so enako oddaljene od središča, ali je kot pravi. Števec odnosov pada v živo, kar preživi, se nariše na graf in pove z besedami: na Eulerjevi premici najde razmerje 2 : 1 in središče devetih točk, pri težišču tri težiščnice v razmerju 2 : 1.',
+        generalizes: 'Uporablja le točke na tabli, krajišča narisanih daljic (tudi skrita, na primer razpolovišča) in presečišča narisanih premic. Ker aplikacija izpeljane elemente ob vsaki spremembi zgradi na novo, se točke prepoznajo po imenu in vrstnem redu, premik pa je pravi vlek JSXGraph, zato velja za vsako geometrijsko tablo brez podatkov.',
+        links: [
+            {label: 'Eulerjeva premica', family: 'Geometrija trikotnika', href: `${BASE}/euler-line?ux=c16`,
+                tryThis: 'Pritisni Kaj ostane enako? in glej, kako števec pade s 64 na 8. Z › listaj: G deli HO v razmerju 2 : 1, N je razpolovišče HO, O je enako oddaljena od oglišč.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c16`,
+                tryThis: 'Med lekcijo pritisni gumb: graf zaniha oglišča in najde, da G deli vse tri težiščnice v razmerju 2 : 1.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?ux=c16`,
+                tryThis: 'Od 380 odnosov jih ostane 20: vse vmesne točke so razpolovišča, ker je t = 1/2. Nastavi t = 0,3 in poskusi znova.'},
+            {label: 'Obodni kot', family: 'Geometrija krožnice', href: `${BASE}/inscribed-angle?ux=c16`,
+                tryThis: 'Graf premika točke in ugotovi, katere ostanejo na krožnici s središčem O.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
@@ -249,7 +266,7 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
                 <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>

@@ -13,12 +13,13 @@ import {attachGhostHand} from "./ghostHand";
 import {attachMeasure} from "./measure";
 import {attachWhatIf} from "./whatIf";
 import {attachScrubProse} from "./scrubProse";
+import {attachInvariants} from "./invariants";
 
 /** Attaches the flagged lane C board prototypes to a main graph board; returns their disposal. */
 export function attachUxBoard(board: Board): () => void {
     const disposers: (() => void)[] = [];
     // Board tools stay usable in lesson reading frames: the lesson's click-to-hide catcher lets clicks through to them.
-    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15'].some(uxEnabled)) {
+    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16'].some(uxEnabled)) {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
@@ -35,6 +36,7 @@ export function attachUxBoard(board: Board): () => void {
     // c15 scrubs inside the c14 fork, so it brings the fork along.
     if (uxEnabled('c14') || uxEnabled('c15')) disposers.push(attachWhatIf(board));
     if (uxEnabled('c15')) disposers.push(attachScrubProse(board));
+    if (uxEnabled('c16')) disposers.push(attachInvariants(board));
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));
