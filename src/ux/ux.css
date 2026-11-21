@@ -898,3 +898,38 @@ mjx-container.ux-scrub-changed { border-bottom-style: solid; background: #fbf1e0
 .ux-xy-sheet .ux-xy-pad { grid-area: pad; margin: 0; }
 .ux-xy-sheet .ux-xy-readout { grid-area: ro; text-align: left; font-size: 12.5px; }
 .ux-xy-sheet .ux-xy-hint { display: none; }
+
+/* c21 Kaj je novo? */
+.ux-wc-layer { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; overflow: visible; }
+.ux-wc-new {
+    fill: none !important; stroke: #e0a030 !important; stroke-width: 7px !important; stroke-opacity: .0; stroke-linecap: round; stroke-linejoin: round;
+    filter: drop-shadow(0 0 5px rgb(240 180 60 / 85%)); animation: ux-wc-pulse 2.4s ease-out forwards;
+}
+.ux-wc-new.ux-wc-dot { fill: #f2c25a !important; fill-opacity: 0; animation-name: ux-wc-pulse-dot; }
+@keyframes ux-wc-pulse { 0% { stroke-opacity: 0; } 12% { stroke-opacity: .75; } 30% { stroke-opacity: .2; } 46% { stroke-opacity: .7; } 100% { stroke-opacity: 0; } }
+@keyframes ux-wc-pulse-dot { 0% { fill-opacity: 0; stroke-opacity: 0; } 12% { fill-opacity: .6; stroke-opacity: .8; } 30% { fill-opacity: .15; stroke-opacity: .2; } 46% { fill-opacity: .55; stroke-opacity: .7; } 100% { fill-opacity: 0; stroke-opacity: 0; } }
+.ux-wc-ghost {
+    fill: none !important; stroke: #8b8f86 !important; stroke-width: 2px !important; stroke-dasharray: 5 5 !important;
+    animation: ux-wc-fade 2.4s ease-in forwards;
+}
+@keyframes ux-wc-fade { 0% { opacity: .9; } 60% { opacity: .5; } 100% { opacity: 0; } }
+.ux-wc-move circle { fill: none; stroke: #b5651d; stroke-width: 2; stroke-dasharray: 3 3; }
+.ux-wc-move path { fill: none; stroke: #b5651d; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: ux-wc-draw .55s ease-out .1s forwards, ux-wc-fade 2.4s ease-in .2s forwards; }
+.ux-wc-move { animation: ux-wc-fade 2.6s ease-in forwards; }
+@keyframes ux-wc-draw { to { stroke-dashoffset: 0; } }
+.JXGtext.ux-wc-text { animation: ux-wc-text 2.2s ease-out; border-radius: 4px; }
+@keyframes ux-wc-text { 0%, 40% { background: rgb(242 194 90 / 55%); box-shadow: 0 0 0 4px rgb(242 194 90 / 55%); } 100% { background: transparent; box-shadow: 0 0 0 4px transparent; } }
+.ux-wc-badge {
+    position: absolute; bottom: calc(12px + var(--ux-lift, 0px)); left: 50%; transform: translateX(-50%); z-index: 26; max-width: calc(100% - 140px);
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; min-height: 32px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border: 1px solid #e3c27a; border-radius: 999px; background: #fff8e6; color: #6b4a12; pointer-events: auto;
+    font: 650 12.5px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%);
+}
+.ux-wc-badge[hidden] { display: none; }
+.ux-wc-on .ux-wc-badge { animation: ux-wc-badge .5s ease-out; }
+@keyframes ux-wc-badge { from { transform: translateX(-50%) translateY(-6px); opacity: 0; } }
+.ux-wc-again { font-size: 14px; color: #a06a14; }
+.demonstration-workspace.lesson-content .workspace-graph .ux-wc-badge { pointer-events: auto; }
+@media (max-width: 640px) { .ux-wc-badge { max-width: calc(100% - 20px); bottom: 8px; } }
+.ux-rw ~ .ux-wc-badge { bottom: calc(70px + var(--ux-lift, 0px)); }
+@media (prefers-reduced-motion: reduce) { .ux-wc-new, .ux-wc-ghost, .ux-wc-move, .ux-wc-move path { animation: none; stroke-opacity: .6; stroke-dashoffset: 0; } .ux-wc-new.ux-wc-dot { fill-opacity: .5; } }

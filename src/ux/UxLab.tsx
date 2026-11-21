@@ -56,6 +56,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c21',
+        name: 'Kaj je novo?',
+        borrowed: 'primerjava različic kode (diff), »smart animate« v Figmi in muzejska vitrina, ki osvetli, o čemer govori vodnik',
+        idea: 'Ob vsakem koraku lekcije tabla pokaže, kaj je korak naredil: nove in spremenjene črte dvakrat zažarijo, izginule zbledijo kot siv duh, premaknjene točke pa pustijo puščico od tam, kjer so bile. Oznaka na vrhu pove po slovensko, kaj se je zgodilo (»2 novi črti · 1 točka se premakne«), tap nanjo pa spremembo pokaže znova.',
+        generalizes: 'Primerja se kar narisan SVG table pred korakom in po njem (oblika, barva, črtkanost), točke z imenom pa po imenu; neimenovane točke in črte se sparijo po videzu. Ne potrebuje nobenih podatkov o lekciji in deluje na vsakem prehodu okvirja v vseh družinah; sprememba pogleda (povečava) se ne šteje.',
+        links: [
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c21`,
+                tryThis: 'Klikaj Naprej: v vsakem koraku zažarijo nove simetrale ali višine in nova krožnica, prejšnje pomožne črte pa zbledijo.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c21`,
+                tryThis: 'Dvakrat Naprej: parabola zažari na novem mestu, stara zbledi, puščica pa pokaže, da gre točka (2, 4) v (2, 5), natanko kot pravi besedilo.'},
+            {label: 'Bernsteinovi polinomi', family: 'Bézierjeve osnove', href: `${BASE}/bernstein?learn=1&ux=c21`,
+                tryThis: 'Klikni Naprej do drugega koraka: štiri bazne funkcije stopnje 3 zažarijo, premici stopnje 1 pa zbledita kot duh.'},
+            {label: 'De Boorov algoritem', family: 'B-zlepki', href: `${BASE}/bspline/deboor?learn=1&ux=c21`,
+                tryThis: 'Dvakrat Naprej: nova točka konstrukcije zažari, sivi duh spremenjene črte pa pokaže, kje je bila prej.'},
+        ],
+    },
+    {
         id: 'c16',
         name: 'Kaj ostane enako?',
         borrowed: 'iskalnik izrekov v dinamični geometriji in Brilliantov trenutek »opaziš vzorec?«',
