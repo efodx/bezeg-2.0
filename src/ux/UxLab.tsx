@@ -8,6 +8,18 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a17', name: 'Kam vleče parameter',
+        idea: 'Izberi parameter in vzdolž vsake krivulje, ki jo premika, zrastejo puščice: vsaka pokaže, kam majhno povečanje parametra potisne tisto točko krivulje. Pri d so vse enake in kažejo gor, pri c se nagnejo vstran in pri temenu izginejo, pri a rastejo stran od temena, pri t v De Casteljauovem postopku pokažejo hitrost vsake vmesne točke; puščice ostanejo žive, ko vlečeš druge parametre.',
+        general: 'To je normalna hitrost družine krivulj (le premik prek krivulje je viden). Tablo Bezeg sinhrono premakne prek deljenega registra drsnikov in jo vrne, še preden brskalnik nariše, zato nič ne utripne; točke dobijo puščico celotnega premika. Deluje na vsakem grafu z drsnikom: šolske funkcije, verjetnost, trigonometrija, Bézierjeve krivulje.',
+        try: 'Tapni simbol v »Kam vleče« desno zgoraj, nato premikaj druge drsnike in opazuj, kako se puščice spreminjajo.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a17', free: true},
+            {label: 'De Casteljaujev postopek', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', flags: 'a17', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a17', free: true},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', flags: 'a17', free: true},
+        ],
+    },
+    {
         id: 'a16', name: 'Napoved v številih',
         idea: 'Ko učenec nariše napoved (a5) in korak spremeni graf, Bezeg poišče, katere vrednosti spremenjenih parametrov njegova skica pomeni, nato učenec preklaplja med »tvoja napoved: d ≈ 3« in »lekcija: d = 1« in vidi oba grafa. Povratna informacija postane natančna: »prava smer, a preveč«, »nasprotna smer« — ali »tvoja skica ustreza spremembi ω, lekcija pa je spremenila A«.',
         general: 'Spremenjene parametre pove deljeni register drsnikov, krivulje preverjanje napovedi iz a5, iskanje pa je mreža in vzorčno iskanje po pravi tabli z obojestransko razdaljo in časovnim proračunom. Ko skice spremenjeni parameter ne zmore, Bezeg preizkusi vsak drug parameter posebej in pove, na katerega je učenec verjetno mislil. Preizkušeno na šolskih funkcijah, trigonometriji in binomski porazdelitvi.',
@@ -193,7 +205,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a11', 'a13', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a11', 'a13', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -209,7 +221,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Šestnajst prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Sedemnajst prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
