@@ -89,7 +89,7 @@ export function useMemory(lesson: LessonDefinition, snapshot: LessonSessionSnaps
                 <div className="ux-recall-copy">
                     <span className="ux-recall-kicker"><Seed/> Spomin · {sl({sl: recallCard.lessonTitle})}</span>
                     {recallCard.prompt && <span className="ux-recall-question">{recallCard.prompt}</span>}
-                    {!revealed && <span className="ux-recall-hint">Najprej odgovori sam: na grafu, na glas ali v mislih.</span>}
+                    {!revealed && <span className="ux-recall-hint">Najprej odgovori brez pomoči: na grafu, na glas ali v mislih.</span>}
                     {revealed && (recallCard.answers?.length
                         ? <ul className="ux-recall-answers">{recallCard.answers.map((answer, index) => <li key={index}>{answer}</li>)}</ul>
                         : <span className="ux-recall-hint">Primerjaj z razlago v kartici lekcije.</span>)}

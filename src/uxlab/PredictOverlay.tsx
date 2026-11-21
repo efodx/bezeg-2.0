@@ -17,7 +17,7 @@ export interface PredictOverlayProps {
 function verdict(score: number): {title: string; text: string} {
     if (score >= 80) return {title: 'Zadetek!', text: 'Tvoja napoved se skoraj prekriva z grafom.'};
     if (score >= 55) return {title: 'Blizu.', text: 'Smer drži; poglej, kje se črti razideta.'};
-    if (score >= 30) return {title: 'Delno.', text: 'Del si predvidel. Kje te je graf presenetil?'};
+    if (score >= 30) return {title: 'Delno.', text: 'Del napovedi drži. Kje te je graf presenetil?'};
     return {title: 'Presenečenje.', text: 'Razlika med napovedjo in grafom je točno tisto, kar se splača razumeti.'};
 }
 

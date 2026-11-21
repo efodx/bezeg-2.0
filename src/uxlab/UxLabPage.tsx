@@ -40,7 +40,7 @@ const PROTOTYPES: Prototype[] = [
     {
         id: 'b23',
         name: 'Laboratorijski dnevnik: tvoji poskusi postanejo domneve',
-        idea: 'Vsaka sprememba, ki jo narediš (drsnik, števec, točka), se sama zapiše kot poskus: kaj premakneš, kaj naredijo odčitki in kaj ostane enako, s sličico prej/potem, ki jo tapneš za ponovitev. Iz dveh podobnih poskusov dnevnik sestavi domnevo (»če x povečaš, se napaka poveča«, »ko spreminjaš P, se ∠APB ne spremeni«) in jo s »Preizkusi drugje« preveri pri naključno pretresenih ostalih količinah; domneva, ki tam pade, je lekcija. V vodeni lekciji se tvoji poskusi in domneve koraka pokažejo nad »Kaj bi morali opaziti«, zato trditev lekcije bereš ob lastnih dokazih; ko jo razkriješ, so števila, ki jih navaja, označena s poskusom, v katerem si jih videl.',
+        idea: 'Vsaka sprememba, ki jo narediš (drsnik, števec, točka), se sama zapiše kot poskus: kaj premakneš, kaj naredijo odčitki in kaj ostane enako, s sličico prej/potem, ki jo tapneš za ponovitev. Iz dveh podobnih poskusov dnevnik sestavi domnevo (»če x povečaš, se napaka poveča«, »ko spreminjaš P, se ∠APB ne spremeni«) in jo s »Preizkusi drugje« preveri pri naključno pretresenih ostalih količinah; domneva, ki tam pade, je lekcija. V vodeni lekciji se tvoji poskusi in domneve koraka pokažejo nad »Kaj bi morali opaziti«, zato trditev lekcije bereš ob lastnih dokazih; ko jo razkriješ, so števila, ki jih navaja, označena s tvojim poskusom, ki jih je pokazal.',
         generalizes: 'Opazuje posnetek stanja prizora; ko se pol sekunde ne spremeni, primerja drsnike in števce v inšpektorju ter vse odčitke (besedila na plošči, seznam Odčitki) s prejšnjim mirnim stanjem. Domneve so le štetje predznakov sprememb po količini, zato deluje na vsakem grafu z odčitki, brez kode na lekcijo.',
         try: 'Dvakrat premakni isti drsnik v isto smer, odpri »Dnevnik« in tapni »Preizkusi drugje«. Pri Taylorju poskusi večkrat: ko je x levo od c, domneva pade.',
         links: [
@@ -54,7 +54,7 @@ const PROTOTYPES: Prototype[] = [
     {
         id: 'b9',
         name: 'Filmski trak: previj nazaj po lastnih poskusih',
-        idea: 'Ob spodnjem robu grafa se nabira trak sličic vseh stanj, pri katerih si se ustavil. Vlečeš po traku in graf se zvezno preoblikuje skozi tvojo zgodovino, naprej in nazaj, kot pri premikanju po posnetku v glasbenem programu; ob izpustu se zaskoči na najbližje stanje.',
+        idea: 'Ob spodnjem robu grafa se nabira trak sličic vseh stanj, v katerih se je graf ustavil. Vlečeš po traku in graf se zvezno preoblikuje skozi tvojo zgodovino, naprej in nazaj, kot pri premikanju po posnetku v glasbenem programu; ob izpustu se zaskoči na najbližje stanje.',
         generalizes: 'Uporablja posnetke stanja, ki jih zbira laboratorijski dnevnik (b23), in med sosednjima interpolira vse številske vrednosti, zato deluje na vsakem grafu brez kode na lekcijo; previjanje se ne zapiše kot nov poskus. S tipkovnico: puščici levo in desno.',
         try: 'Nekajkrat premakni drsnike (počakaj pol sekunde med premiki), nato povleci po traku na dnu grafa.',
         links: [
@@ -246,7 +246,7 @@ const PROTOTYPES: Prototype[] = [
     {
         id: 'b5',
         name: 'Vrt spomina: čez teden dni še veš',
-        idea: 'Vsak okvir za opazovanje, ki ga obiščeš, posadi seme. Spomin se vrne po 1, 3, 7, 16 in 35 dneh: lekcija se odpre točno v tistem prizoru, vprašanje čaka, odgovor odkriješ sam in oceniš, koliko si vedel; z vsakim priklicem se odpre en cvet bezgovega kobula.',
+        idea: 'Vsak okvir za opazovanje, ki ga obiščeš, posadi seme. Spomin se vrne po 1, 3, 7, 16 in 35 dneh: lekcija se odpre točno v tistem prizoru, vprašanje čaka, odgovor odkriješ in oceniš, koliko ti je ostalo v spominu; z vsakim priklicem se odpre en cvet bezgovega kobula.',
         generalizes: 'Kartica je le kazalec na okvir lekcije (pot, lekcija, korak, okvir); prizor zgradi lekcija sama, vprašanje in odgovor pa sta njen poziv in pričakovana opažanja. Vse ostane v brskalniku. Časovni stroj (+1 dan, +1 teden) pokaže razmike takoj.',
         try: 'Na vrtu pritisni »Posadi primere«, nato »Ponovi zdaj«.',
         links: [
