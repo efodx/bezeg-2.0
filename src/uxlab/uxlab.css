@@ -383,3 +383,19 @@
     font: inherit; font-weight: 600; cursor: pointer; flex: none;
 }
 @media (prefers-reduced-motion: reduce) { .ux-grab-hint { animation: none; } }
+
+/* b13 Predogled (feedforward) */
+.ux-ff-layer .ux-ff-plus > * { stroke: #5d3b6e !important; stroke-dasharray: 7 5; stroke-opacity: .85; fill: rgba(93, 59, 110, .08) !important; }
+.ux-ff-layer .ux-ff-plus > path, .ux-ff-layer .ux-ff-plus > line, .ux-ff-layer .ux-ff-plus > polyline { fill: none !important; }
+.ux-ff-layer .ux-ff-minus > * { stroke: #8a9a86 !important; stroke-dasharray: 3 5; stroke-opacity: .8; fill: none !important; }
+.ux-ff-layer .ux-ff-arrows line { stroke: #5d3b6e; stroke-width: 1.6; stroke-opacity: .7; }
+.ux-ff-source { outline: 3px solid rgba(93, 59, 110, .45); outline-offset: 3px; border-radius: 6px; }
+.ux-ff-caption {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 22; pointer-events: none;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 24px);
+    padding: 6px 12px; border-radius: 12px; background: rgba(255, 253, 245, .95); color: var(--ux-berry, #5d3b6e);
+    border: 1px solid rgba(93, 59, 110, .3); box-shadow: 0 2px 10px rgba(25, 55, 47, .12); font-size: 13px; font-weight: 600;
+}
+.ux-ff-key { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; color: var(--ux-ink-2, #526152); }
+.ux-ff-key i { display: inline-block; width: 18px; height: 0; border-top: 2px dashed #5d3b6e; }
+.ux-ff-key i.is-minus { border-top-color: #8a9a86; margin-left: 6px; }

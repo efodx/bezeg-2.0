@@ -22,6 +22,7 @@ import {WhyLens} from '../../uxlab/WhyLens';
 import {ClipRecorder} from '../../uxlab/ClipRecorder';
 import {ListenGraph} from '../../uxlab/ListenGraph';
 import {CurveGrab} from '../../uxlab/CurveGrab';
+import {FeedForward} from '../../uxlab/FeedForward';
 import {uxEnabled} from '../../uxlab/flags';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
@@ -251,6 +252,7 @@ export function DemonstrationWorkspace(props: {
         {uxEnabled('b8') && props.lessonCapabilities && <ClipRecorder root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b7') && props.lessonCapabilities && <WhyLens root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b6') && props.lessonCapabilities && <ParameterFan root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
+        {uxEnabled('b13') && props.lessonCapabilities && <FeedForward root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b12') && props.lessonCapabilities && <CurveGrab root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b4') && props.lessonCapabilities && <MatchChallenge root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}

@@ -15,7 +15,7 @@ const PROTOTYPES: Prototype[] = [
     {
         id: 'b12',
         name: 'Primi krivuljo: povleci graf, drsniki sledijo',
-        idea: 'Primeš katerokoli krivuljo, premico ali krožnico neposredno na grafu in jo povlečeš; krivulja sledi prstu, drsniki in točke v inšpektorju pa se premaknejo sami. Tangento povlečeš po eksponentni krivulji in središče c se premakne; vrh sinusoide dvigneš in zraste amplituda.',
+        idea: 'Primeš katerokoli krivuljo, premico ali krožnico neposredno na grafu in jo povlečeš; krivulja sledi prstu, drsniki in točke v inšpektorju pa se premaknejo sami. Tangento povlečeš po eksponentni krivulji in središče c zdrsne za njo; parabolo potegneš in premakneta se oba premika; Bézierjevo krivuljo potegneš in kontrolne točke se razporedijo same.',
         generalizes: 'Ob prijemu vsako prosto količino iz posnetka stanja za hip premakne za zamrznjeno kopijo plošče in izmeri, kako se premakne prijeta točka (Jacobijeva matrika iz risbe SVG). Med vlečenjem jo vsak okvir reši z najmanjšo spremembo količin in sproti popravlja z Broydenovim pravilom, z zaupanjskim območjem proti pobegu. Brez kode na lekcijo.',
         try: 'Z miško pojdi nad krivuljo (zažari) in jo povleci; po vlečenju lahko spremembo razveljaviš.',
         links: [
@@ -23,6 +23,18 @@ const PROTOTYPES: Prototype[] = [
             {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?ux=b12'},
             {label: 'Bézier: krivulja', to: '/bezeg-2.0/bezier/curve?ux=b12'},
             {label: 'Funkcije: trigonometrične', to: '/bezeg-2.0/functions/trigonometric?ux=b12'},
+        ],
+    },
+    {
+        id: 'b13',
+        name: 'Predogled: kontrolnik pokaže, kaj bo naredil, preden ga pritisneš',
+        idea: 'Z miško počivaj na drsniku, gumbu + ali −, puščici ali stikalu (ali se nanj premakni s tipko Tab) in graf bledo pokaže, kaj bi se zgodilo: vijolično en korak naprej, sivo en korak nazaj, puščice pa, kam gre kateri del krivulje. Vklopa ne pokaže vnaprej, ker je to razkritje: najprej napoved.',
+        generalizes: 'Kontrolnik za zamrznjeno kopijo plošče zares sproži (drsniku nastavi vrednost, gumb klikne), primerja risbo SVG pred in po ter prizor obnovi iz posnetka stanja. Deluje za vse drsnike, števce in gumbe v inšpektorju in pod grafom, brez kode na lekcijo; gumbi, ki shranjujejo, odpirajo ali razkrivajo, so izključeni.',
+        try: 'Na namizju z miško počakaj na gumbu + pri »Stopnja n« ali na drsniku.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (gumb + pri stopnji)', to: '/bezeg-2.0/analysis/taylor?ux=b13'},
+            {label: 'Verjetnost: binomska in normalna (drsnik n)', to: '/bezeg-2.0/probability/binomial-normal?ux=b13'},
+            {label: 'Geometrija: obodni kot (drsnik lege P)', to: '/bezeg-2.0/inscribed-angle?ux=b13'},
         ],
     },
     {
