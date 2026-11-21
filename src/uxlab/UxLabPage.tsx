@@ -61,6 +61,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b10',
+        name: 'Poslušaj graf: oblika kot zvok',
+        idea: 'Izbrane krivulje zazvenijo: višina točke je višina tona, levo in desno je levo in desno v slušalkah. V zanki vlečeš točke ali drsnike in slišiš, kako se oblika spreminja; dve skoraj enaki krivulji utripata in se zlijeta v en ton, ko se ujameta.',
+        generalizes: 'Bere narisane SVG-poti plošče: grafe funkcij preleti po x (zato se dve krivulji primerjata pri istem x), parametrične krivulje po dolžini loka; vrzeli in deli izven plošče so tišina. Spletni zvok v brskalniku, brez strežnika; pomaga tudi slepim in slabovidnim.',
+        try: 'Pritisni »Poslušaj graf«, nato ▶, in med poslušanjem premikaj drsnik ali točko. Vklopi zvok.',
+        links: [
+            {label: 'Funkcije: kotne funkcije', to: '/bezeg-2.0/functions/trigonometric?ux=b10'},
+            {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?ux=b10'},
+            {label: 'Bézier: krivulja', to: '/bezeg-2.0/bezier/curve?ux=b10'},
+        ],
+    },
+    {
         id: 'b2',
         name: 'Napoved: najprej nariši, potem poglej',
         idea: 'Preden lekcija spremeni graf, ga zadrži v starem stanju, razlago zamegli in vpraša: kaj se bo zgodilo? Učenec s prstom nariše napoved, nato se resnica zvezno pripelje na graf, njegova črta ostane kot črtkana sled z oceno ujemanja.',

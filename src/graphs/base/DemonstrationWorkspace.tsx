@@ -20,6 +20,7 @@ import {MatchChallenge} from '../../uxlab/MatchChallenge';
 import {ParameterFan} from '../../uxlab/ParameterFan';
 import {WhyLens} from '../../uxlab/WhyLens';
 import {ClipRecorder} from '../../uxlab/ClipRecorder';
+import {ListenGraph} from '../../uxlab/ListenGraph';
 import {uxEnabled} from '../../uxlab/flags';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
@@ -245,6 +246,7 @@ export function DemonstrationWorkspace(props: {
             </>}
         </p>}
         {uxEnabled('b3') && <OnionTrails root={workspaceRoot}/>}
+        {uxEnabled('b10') && <ListenGraph root={workspaceRoot} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b8') && props.lessonCapabilities && <ClipRecorder root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b7') && props.lessonCapabilities && <WhyLens root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b6') && props.lessonCapabilities && <ParameterFan root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
