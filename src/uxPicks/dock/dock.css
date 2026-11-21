@@ -147,8 +147,17 @@
     .ux-btext { max-width: 100%; }
     .ux-bcard-legend { max-width: 100%; }
     .ux-dock .ux-dock-region:not(.ux-dock-a-tl) { display: none; }
-    .ux-dock .ux-dock-a-tl { display: flex; flex-direction: row; flex-wrap: wrap; width: auto; overflow: visible; max-height: none; margin: 0; padding: 0; gap: 8px; align-items: flex-start; }
-    .ux-dock-chip { flex: none; }
+    /* Chips: one row under the graph, outside the curve's area; the board frame leaves them 46 px. An open card rises from the row
+       over the graph (the row bottom-anchored, the card above it) and closes with its own button. */
+    .ux-board-frame:has(> .ux-dock .ux-dock-a-tl > *) { margin-bottom: 46px; z-index: 3; } /* above the tray that follows it, so the chip row is not veiled by it */
+    .ux-dock-chip { padding: 0 10px; letter-spacing: 0.04em; font-size: 0.7rem; }
+    .ux-dock .ux-dock-a-tl {
+        position: absolute; left: 6px; right: 6px; bottom: -46px; display: flex; flex-direction: row; flex-wrap: nowrap; width: auto;
+        overflow: visible; -webkit-mask-image: none; mask-image: none; max-height: none; margin: 0; padding: 0; gap: 8px; align-items: center; align-content: flex-end; min-height: 40px;
+    }
+    /* One row: mixed case is narrower than the desktop small caps; a chip that still does not fit shrinks with an ellipsis. */
+    .ux-dock-chip { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-transform: none; letter-spacing: 0; font-size: .8125rem; }
+    .ux-dock .ux-dock-a-tl > .ux-btext { position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); width: auto; z-index: 2; }
     .ux-btext { max-height: calc(var(--ux-dock-h, 300px) - 12px); overflow-y: auto; }
 }
-.ux-dock .ux-dock-chip { min-height: 0; height: 34px; padding: 0 12px; border-radius: 17px; width: auto; }
+.ux-dock .ux-dock-chip { min-height: 0; height: 34px; border-radius: 17px; width: auto; }

@@ -81,10 +81,10 @@
 .ux-tape-readout em { font-style: normal; font-size: 0.66rem; color: #fff; background: #244c37; padding: 0 7px; border-radius: 9px; }
 
 @media (max-width: 700px) {
-    /* The tray: one horizontally scrolling row; every button on it is a 44 px target. */
+    /* The tray: every button on it is a 44 px target. */
     .ux-pucks { width: 100%; }
-    .ux-pucks-row { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; gap: 8px; width: 100%; padding: 2px; align-items: center; }
-    .ux-pucks-row::-webkit-scrollbar { display: none; }
+    /* Wrapped, never scrolled: a puck takes the touch for its value (touch-action: none), so a swipe over a puck could not scroll a row. */
+    .ux-pucks-row { flex-wrap: wrap; max-height: none; gap: 8px; width: 100%; padding: 2px; align-items: center; }
     .ux-puck-wrap { flex: none; }
     .ux-puck { flex: none; min-width: 52px; padding: 3px 8px 5px; }
     .ux-puck-text { gap: 5px; }
