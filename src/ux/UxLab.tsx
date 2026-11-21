@@ -135,6 +135,10 @@ const PROTOTYPES: LabPrototype[] = [
     },
 ];
 
+/** Best first. */
+const ORDER = ['a8', 'a11', 'a9', 'a4', 'a10', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
+
 function href(link: LabLink, flags: string | undefined) {
     const query = new URLSearchParams(link.free ? {} : {learn: '1'});
     if (link.at) query.set('uxAt', String(link.at));
@@ -150,7 +154,7 @@ export function UxLab() {
             <p className="ux-lab-lede">Prototipi, v katerih graf sam postane krmilo: vlečeš, drsiš, nihaš in opazuješ sled. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <ol className="ux-lab-list">
-            {PROTOTYPES.map(prototype => <li key={prototype.id} className="ux-lab-card">
+            {[...PROTOTYPES].sort((p, q) => rank(p.id) - rank(q.id)).map(prototype => <li key={prototype.id} className="ux-lab-card">
                 <div className="ux-lab-card-head"><span className="ux-lab-id">{prototype.id}</span><h2>{prototype.name}</h2></div>
                 <p>{prototype.idea}</p>
                 <p className="ux-lab-general"><strong>Zakaj velja splošno.</strong> {prototype.general}</p>
