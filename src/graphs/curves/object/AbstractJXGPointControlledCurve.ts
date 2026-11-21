@@ -409,10 +409,18 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         this.board.fullUpdate();
     }
 
+    /** Extra obstacles of the name placement: markers the graph draws that this curve does not know, as `[x, y, radius px]` (board x and y). */
+    private evaluationObstacles: () => ReadonlyArray<readonly [number, number, number]> = () => [];
+
+    setEvaluationObstacles(provider: () => ReadonlyArray<readonly [number, number, number]>): void {
+        this.evaluationObstacles = provider;
+    }
+
     /**
      * The offset (px, y up) from the evaluation point to the centre of its name: the free spot nearest the point, clear of the control
      * point labels (which keep their own place), every marker, the drawn lines and curves and the axis numbers.
      */
+
     private evaluationLabelOffset(t: number): [number, number] {
         const fallback: readonly [number, number] = [14, 10];
         const point = this.evaluationPoint;
@@ -422,13 +430,18 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         const fontPx = settings.fontSize;
         // The curve's version covers changes that move no control point (weights, degree, parametrization); an unversioned curve places afresh.
         const revision = versionOf(this.pointControlledCurve);
-        const token: unknown[] = [t, revision === VOLATILE ? {} : revision, point.X(), point.Y(), fontPx, settings.pointSize, settings.pointLabelsVisible,
+        const obstacles = this.evaluationObstacles();
+        const token: unknown[] = [t, ...obstacles.flat(), revision === VOLATILE ? {} : revision, point.X(), point.Y(), fontPx, settings.pointSize, settings.pointLabelsVisible,
             this.showingJxgPoints, this.showingControlPolygon, ...this.jxgPoints.flatMap(p => [p.X(), p.Y(), shown(p)])];
         const anchor = frame.toPx(point.X(), point.Y());
         const boxes = this.evaluationLabels.boxes(this.board, token, () => {
             const size = nameBox(t === 0.5 ? 'B(1/2)' : `B(${t})`, fontPx);
             const markers: Array<readonly [number, number, number]> = [[anchor[0], anchor[1], settings.pointSize]];
             const blocks: PxBox[] = [];
+            for (const [ox, oy, r] of obstacles) {
+                const [x, y] = frame.toPx(ox, oy);
+                markers.push([x, y, r]);
+            }
             this.jxgPoints.forEach((p, i) => {
                 if (!shown(p)) return;
                 const [x, y] = frame.toPx(p.X(), p.Y());

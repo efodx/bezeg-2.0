@@ -30,6 +30,9 @@ interface AffineMarks {
 }
 
 const SAME_CENTRE_PX = 0.5;
+/** Two centre crosses closer than this (px) are named once, "c, c'" on the turn centre, since two names there would read as one. */
+const MERGED_NAME_PX = 12;
+const MERGED_NAME = "$$c,\\ c'$$";
 const REFERENCE_SAMPLES = 60;
 const isShown = (o: JXG.GeometryElement) => (o as unknown as {visProp?: {visible?: unknown}}).visProp?.visible !== false;
 
@@ -188,6 +191,7 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
      */
     private apply(op: AffineOperation): void {
         const curve = this.getFirstCurve();
+        this.getFirstJxgCurve()?.setEvaluationObstacles(() => this.centreObstacles());
         if (!this.referencePoints) {
             this.referencePoints = this.currentPoints();
             this.track = IDENTITY;
@@ -246,12 +250,19 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
         const differs = this.differsFromReference();
         const frame = pxFrame(marks.board);
         let separate = false;
+        let merged = false;
         if (differs && frame) {
             const points = this.currentPoints();
             const a = frame.toPx(...meanOf(points));
             const b = frame.toPx(...boxCentreOf(points));
-            separate = Math.hypot(a[0] - b[0], a[1] - b[1]) > SAME_CENTRE_PX;
+            const apart = Math.hypot(a[0] - b[0], a[1] - b[1]);
+            separate = apart > SAME_CENTRE_PX;
+            merged = separate && apart < MERGED_NAME_PX;
         }
+        const turnName = merged ? MERGED_NAME : '$$c$$';
+        if ((marks.turnCentre as JXG.Point).name !== turnName) (marks.turnCentre as JXG.Point).setName(turnName);
+        const scaleLabel = (marks.scaleCentre as JXG.Point).label;
+        if (scaleLabel) scaleLabel.setAttribute({visible: merged ? false : 'inherit'});
         const want = new Map<JXG.GeometryElement, boolean>([
             [marks.curve, differs], [marks.polygon, differs], [marks.turnCentre, differs],
             [marks.scaleCentre, separate], [marks.ring, differs && this.evaluationT() !== undefined],
@@ -304,6 +315,17 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
         }) as JXG.Point;
         this.marks = {board, objects: [curve, polygon, turnCentre, scaleCentre, ring], curve, polygon, turnCentre, scaleCentre, ring};
         return this.marks;
+    }
+
+    /** The centre crosses that are shown are obstacles for the name of the shown curve point. */
+    private centreObstacles(): ReadonlyArray<readonly [number, number, number]> {
+        const marks = this.marks;
+        const points = this.getFirstCurve()?.getPoints();
+        if (!marks || !points || !isShown(marks.turnCentre)) return [];
+        const current = points.map(p => [p.X(), p.Y()] as Pt);
+        const out: Array<readonly [number, number, number]> = [[...meanOf(current), 3]];
+        if (isShown(marks.scaleCentre)) out.push([...boxCentreOf(current), 3]);
+        return out;
     }
 
     /** The offset (px, y up) from a centre cross to the middle of its name, from the shared name placement. */

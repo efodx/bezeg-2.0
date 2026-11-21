@@ -86,3 +86,20 @@ test('a hand edit departs from the track, a tracked operation does not', () => {
     curve.getPoints()[1].setX(curve.getPoints()[1].X() + 0.01);
     expect(departsFromTrack(lessonPoints, map, pointsOf(curve))).toBe(true);
 });
+
+const mirrorScenes: Array<[string, AffineOperation[]]> = [
+    ['a mirror across the y axis, then a turn', [{kind: 'flip', x: true, y: false}, {kind: 'rotate', theta: 0.7}]],
+    ['a mirror across the x axis between shifts and a scaling', [{kind: 'move', x: 1, y: 2}, {kind: 'flip', x: false, y: true}, {kind: 'scale', factor: 1.5}, {kind: 'move', x: -3, y: 0.5}]],
+    ['both mirrors and a scaling about the box centre', [{kind: 'scale', factor: 0.5}, {kind: 'flip', x: true, y: true}, {kind: 'flip', x: true, y: false}]],
+];
+
+test.each(mirrorScenes)('a mirror keeps T(B(t)) equal to B_T(t) to 1e-9 (it acts about the mean of the points): %s', (_, ops) => {
+    const {map, curve} = run(lessonPoints, ops);
+    for (const t of [0, 0.25, 0.5, 0.9, 1]) {
+        const viaMap = mappedReferencePoint(lessonPoints, map, t);
+        const viaPoints = curve.eval(t);
+        expect(Math.abs(viaMap[0] - viaPoints.X())).toBeLessThan(1e-9);
+        expect(Math.abs(viaMap[1] - viaPoints.Y())).toBeLessThan(1e-9);
+    }
+    expect(departsFromTrack(lessonPoints, map, pointsOf(curve))).toBe(false);
+});
