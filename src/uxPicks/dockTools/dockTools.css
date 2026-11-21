@@ -23,12 +23,12 @@
 
 /* A card hidden from its dock leaves its tab in the dock: a strip at the top of the tools column, which the tools sit
    below. The tab is rendered only while the pick is on and the window has two columns. */
-.demonstration-workspace.lesson-open:has(> .guided-lesson-tab-docked) {
+.demonstration-workspace.lesson-open:has(.workspace-dock-slot > .guided-lesson-tab-docked) {
     grid-template-areas: "heading heading" "graph lesson" "graph inspector" "learning learning";
     grid-template-rows: auto auto minmax(0, 1fr) auto;
 }
 
-.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-tab-docked) {
+.demonstration-workspace.is-presenting.lesson-open:has(.workspace-dock-slot > .guided-lesson-tab-docked) {
     grid-template-areas: "heading heading" "graph lesson" "graph inspector";
     grid-template-rows: auto auto minmax(0, 1fr);
 }
@@ -58,7 +58,7 @@
 }
 
 /* Presentation with the tools closed has no column; the tab then waits in the graph's top-left corner as before. */
-.demonstration-workspace.is-presenting.lesson-open:has(.workspace-inspector[hidden]) > .guided-lesson-tab-docked {
+.demonstration-workspace.is-presenting.lesson-open:has(.workspace-inspector[hidden]) > .workspace-dock-slot > .guided-lesson-tab-docked {
     grid-area: graph;
     align-self: start;
     justify-self: start;
@@ -66,3 +66,6 @@
     margin: 8px;
     z-index: 4;
 }
+
+/* The slot adds no box: the tab inside is still a grid item of the workspace. */
+.workspace-dock-slot { display: contents; }

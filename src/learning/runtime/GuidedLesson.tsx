@@ -1,3 +1,4 @@
+import {createPortal} from 'react-dom';
 import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
@@ -71,6 +72,9 @@ export {fitFormulaRows};
 
 /** Replaces a formula row's source and typesets that row again. */
 const retypesetFormulaRow = (row: HTMLElement, tex: string) => typesetMath(row, () => row.isConnected, () => { row.textContent = tex; });
+
+/** The slot in front of the tools column (see DemonstrationWorkspace), where the docked tab sits in focus order. */
+const dockSlot = () => document.getElementById('workspace-dock-slot');
 
 export function GuidedLesson(props: {
     lesson: LessonDefinition;
@@ -718,7 +722,7 @@ export function GuidedLesson(props: {
     </div>
     {/* Pick dockTools: a card hidden from its dock leaves its tab in the dock, at the top of the tools column, not on
         the graph. The tab reopens the card in the same place; it is not dragged (open the card to move it). */}
-    {tabVisible && dockedTab && <button ref={compactTabRef} type="button" className="guided-lesson-tab guided-lesson-tab-docked"
+    {tabVisible && dockedTab && dockSlot() && createPortal(<button ref={compactTabRef} type="button" className="guided-lesson-tab guided-lesson-tab-docked"
         onClick={showOverlay}
         aria-label={`${lessonTitle}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
         <span className="guided-lesson-tab-title">{t('guided_example')}</span>
@@ -727,7 +731,7 @@ export function GuidedLesson(props: {
         <svg className="guided-lesson-tab-expand" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
             <path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-    </button>}
+    </button>, dockSlot()!)}
     {exitDialog}
     </>;
 }

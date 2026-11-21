@@ -13,3 +13,5 @@
 }
 .ux-scrub-tip small { font-weight: 400; font-size: 0.68rem; color: #f3d98b; }
 .ux-scrub-tip::after { content: ""; position: absolute; bottom: -5px; left: 50%; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: #19372f; }
+.ux-scrub-tip-below { transform: translate(-50%, 8px); }
+.ux-scrub-tip-below::after { bottom: auto; top: -5px; border: 5px solid transparent; border-top: 0; border-bottom-color: #19372f; }

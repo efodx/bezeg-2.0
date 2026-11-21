@@ -11,7 +11,8 @@ import './ScrubPreview.css';
  * Generic: the board is set to the hovered value, the changed shapes are cloned, and the live value is restored.
  */
 
-interface Tip {x: number; y: number; text: string; note?: string}
+/** `below`: the tip hangs under the slider track, so it never covers the row's number field above it. */
+interface Tip {x: number; y: number; text: string; note?: string; below?: boolean}
 
 const symbolOf = (label: string) => splitLabel(label).symbol ?? (label.match(/\s(\S{1,2})$/)?.[1] ?? label);
 
@@ -58,7 +59,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
                     const value = Math.round(Math.round((raw - entry.min) / entry.step) * entry.step * 1e9) / 1e9 + entry.min;
                     const tipX = rect.left + inset + (value - entry.min) / (entry.max - entry.min) * (rect.width - 2 * inset);
                     const locked = entry.inert || entry.unavailable !== undefined;
-                    setTip({x: tipX, y: rect.top, text: `${symbolOf(entry.label)} = ${entry.format(Number(value.toPrecision(6)))}`,
+                    setTip({x: tipX, y: rect.bottom, below: true, text: `${symbolOf(entry.label)} = ${entry.format(Number(value.toPrecision(6)))}`,
                         note: Math.abs(value - entry.value) < 1e-12 ? undefined : locked ? 'samo pogled: lekcija vodi ta drsnik' : 'klik: skoči sem'});
                     const id = `${entry.key}:${value}`;
                     if (shown === id) return;
@@ -142,7 +143,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
 
     return <>
         <div ref={host} className="ux-scrub-ghost" aria-hidden="true" style={ghost ? ghost.box : {display: 'none'}}/>
-        {tip && <div className="ux-scrub-tip" style={{left: tip.x, top: tip.y}} role="status">
+        {tip && <div className={`ux-scrub-tip${tip.below ? ' ux-scrub-tip-below' : ''}`} style={{left: tip.x, top: tip.y}} role="status">
             {tip.text}{tip.note && <small>{tip.note}</small>}
         </div>}
     </>;

@@ -25,3 +25,5 @@
 .ux-puck.is-aiming .ux-puck-track { background: #d6dccb; }
 .ux-puck.is-aiming .ux-puck-track::after { opacity: 1; }
 .ux-puck.is-aiming { cursor: pointer; }
+/* The track is drawn 3px thin; an invisible strip around it makes it a 14px-tall hit target. */
+.ux-puck-track::before { content: ""; position: absolute; left: 0; right: 0; top: -6px; height: 14px; }

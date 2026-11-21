@@ -277,6 +277,8 @@ export function DemonstrationWorkspace(props: {
             <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
         </section>
         <LearningPrompt key={pathname} pathname={pathname}/>
+        {/* Pick dockTools: the docked lesson tab is portalled here so keyboard focus meets it right before the tools. */}
+        {dockToolsPick && <div id="workspace-dock-slot" className="workspace-dock-slot"/>}
         <aside ref={inspector} id="workspace-inspector" className="workspace-inspector" hidden={!inspectorVisible}
             aria-disabled={lessonActive && lessonMode === 'content' ? true : undefined} aria-label={t("demonstration_tools")}>
             <div className="inspector-toolbar">

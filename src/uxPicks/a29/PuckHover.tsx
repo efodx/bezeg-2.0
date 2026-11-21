@@ -18,6 +18,8 @@ interface Shown {fan: Fan; box: {left: number; top: number; width: number; heigh
 type Job = {kind: 'ghost'; key: string; value: number} | {kind: 'overview'; key: string};
 
 const symbolOf = (entry: ParamEntry) => splitLabel(entry.label).symbol ?? (entry.label.match(/\s(\S{1,2})$/)?.[1] ?? entry.label);
+/** What a card says when no fan could be drawn: a slider is previewed on its track, a count on its − and +. */
+const noFanHint = (entry: ParamEntry) => entry.kind === 'range' ? 'premakni kazalec nad črto spodaj za predogled vrednosti' : 'pokaži na − ali + za predogled koraka';
 const stateSignature = () => listParams().map(p => `${p.key}=${p.value}`).join(';');
 
 export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
@@ -86,7 +88,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
                     if (!isWanted(job)) return;
                     setShown(cached.fan && {fan: cached.fan, box: boxOf(svg)});
                     setCard(current => current && current.key === job.key
-                        ? {...current, busy: false, sentence: cached!.fan ? cached!.fan.sentence : 'pokaži na − ali + za predogled koraka'} : current);
+                        ? {...current, busy: false, sentence: cached!.fan ? cached!.fan.sentence : noFanHint(entry)} : current);
                 }
             } finally {
                 busy = false;
@@ -103,13 +105,15 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             const cached = cache.get(entry.key);
             const fresh = cached && cached.sig === stateSignature();
             setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh,
-                sentence: fresh ? (cached.fan ? cached.fan.sentence : 'pokaži na − ali + za predogled koraka') : undefined});
+                sentence: fresh ? (cached.fan ? cached.fan.sentence : noFanHint(entry)) : undefined});
             schedule({kind: 'overview', key: entry.key});
         };
 
         const move = (event: PointerEvent) => {
             if (event.pointerType === 'touch') return;
             if (event.buttons !== 0) { if (wanted || hovered) clear(); return; }
+            // The − and + of a count are previewed by a19's own tip; two boxes at once would crowd the board.
+            if ((event.target as Element | null)?.closest?.('.ux-count-step, .count-setter-button')) { if (wanted || hovered) clear(); return; }
             const puck = (event.target as Element | null)?.closest?.('.ux-puck[data-param]') as HTMLElement | null;
             const entry = puck && getParam(puck.dataset.param!);
             if (!puck || !entry) { if (wanted || hovered) clear(); return; }
