@@ -22,6 +22,9 @@ export function format(value: number, digits = 3): string {
 }
 
 export function symbolOf(label: string): string {
+    // »Lega točke P (t, stopinje)«: the letter in brackets is the parameter's symbol.
+    const bracketed = /\((\p{L}{1,2}\d?)[,)\s]/u.exec(label)?.[1];
+    if (bracketed) return bracketed;
     const last = /\s(\S{1,3})$/.exec(label.trim())?.[1];
     return last && !/^\d+$/.test(last) ? last : label.trim().split(/\s+/)[0];
 }
@@ -72,19 +75,45 @@ const phone = () => window.matchMedia('(max-width: 640px)').matches;
 
 const BINS = 48;
 
+/** The qualitative answers c28 offers, and the one the sweep finds. */
+const SHAPES: [string, string][] = [['up', 'raste'], ['down', 'pada'], ['flat', 'ostane enaka'], ['peak', 'najprej raste, nato pada'], ['valley', 'najprej pada, nato raste']];
+
+export function shapeOf(values: number[]): string {
+    const f = values.filter(Number.isFinite);
+    if (f.length < 3) return 'other';
+    const lo = Math.min(...f), hi = Math.max(...f);
+    if (hi - lo <= 1e-9 * Math.max(1, Math.abs(hi))) return 'flat';
+    // Rounded readouts wobble by a last digit; a step smaller than 2 % of the range is not a turn.
+    const tol = 0.02 * (hi - lo);
+    const rising = (list: number[]) => list.every((v, i) => i === 0 || v >= list[i - 1] - tol);
+    const falling = (list: number[]) => list.every((v, i) => i === 0 || v <= list[i - 1] + tol);
+    // Flat pieces joined by jumps (an inscribed angle as P crosses to the other arc) are steps, not a smooth turn.
+    const steps = f.slice(1).map((v, i) => Math.abs(v - f[i]));
+    if (steps.some(step => step > 0.25 * (hi - lo)) && steps.filter(step => step <= tol).length >= steps.length * 0.8) return 'steps';
+    if (rising(f)) return 'up';
+    if (falling(f)) return 'down';
+    const top = f.indexOf(hi), bottom = f.indexOf(lo);
+    if (top > 0 && top < f.length - 1 && rising(f.slice(0, top + 1)) && falling(f.slice(top))) return 'peak';
+    if (bottom > 0 && bottom < f.length - 1 && falling(f.slice(0, bottom + 1)) && rising(f.slice(bottom))) return 'valley';
+    return 'other';
+}
+
 /**
  * With `predict` (prototype c25 "Napovej odvisnost", PhET's and Desmos's predict-then-observe), the chart starts
  * empty: the student sketches how the number will change, and only then the sweep draws the truth over the sketch and
  * scores how well the shapes agree.
  */
-export function attachDependence(board: Board, predict = false): () => void {
+export function attachDependence(board: Board, mode: boolean | 'choice' = false): () => void {
+    const predict = mode === true;
+    const choice = mode === 'choice';
     const container = board.containerObj as HTMLElement | undefined;
     if (!container) return () => undefined;
 
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'ux-dep-button';
-    button.innerHTML = '<span aria-hidden="true">📈</span> Kako je odvisno?';
+    button.innerHTML = choice ? '<span aria-hidden="true">❓</span> Kaj se zgodi?' : '<span aria-hidden="true">📈</span> Kako je odvisno?';
+    if (choice) button.classList.add('ux-dep-button-choice');
     button.title = 'Nariši, kako se število na grafu spreminja s parametrom';
     button.hidden = true;
     const panel = document.createElement('div');
@@ -113,9 +142,11 @@ export function attachDependence(board: Board, predict = false): () => void {
 
     const settle = () => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => window.setTimeout(resolve, 25))));
 
-    const useful = () => [...series.values()].filter(({values}) => {
+    const useful = () => [...series.values()].filter(({quantity: q, values}) => {
         const finite = values.filter(Number.isFinite);
         if (finite.length < SAMPLES / 3) return false;
+        // The asked-about number is drawn even when it stays the same: that is the answer.
+        if (choice && q.key === quantity) return true;
         const lo = Math.min(...finite), hi = Math.max(...finite);
         if (hi - lo < 1e-9 * Math.max(1, Math.abs(hi))) return false;
         // The parameter itself, printed back (perhaps rounded), is no news.
@@ -295,7 +326,7 @@ export function attachDependence(board: Board, predict = false): () => void {
         if (!slider || !list.includes(slider)) slider = list[0];
         if (!slider) return;
         const chips = list.map((entry, i) => `<button type="button" class="ux-dep-chip${entry === slider ? ' ux-dep-chip-on' : ''}" data-index="${i}" title="${entry.label}">${symbolOf(entry.label)}</button>`).join('');
-        panel.innerHTML = `<div class="ux-dep-head"><strong>${predict ? 'Napovej odvisnost' : 'Kako je odvisno?'}</strong><button type="button" class="ux-dep-close" aria-label="Zapri">✕</button></div>`
+        panel.innerHTML = `<div class="ux-dep-head"><strong>${predict ? 'Napovej odvisnost' : choice ? 'Kaj se zgodi?' : 'Kako je odvisno?'}</strong><button type="button" class="ux-dep-close" aria-label="Zapri">✕</button></div>`
             + `<div class="ux-dep-chips"><span>od</span>${chips}</div>`
             + `<p class="ux-dep-caption"></p>`
             + `<div class="ux-dep-plot"><svg class="ux-dep-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Graf odvisnosti"></svg><span class="ux-dep-progress"></span></div>`
@@ -310,7 +341,7 @@ export function attachDependence(board: Board, predict = false): () => void {
         }
         panel.hidden = false;
         bindChart();
-        if (!predict) { void sweep(); return; }
+        if (!predict && !choice) { void sweep(); return; }
         // Predict first: the chart is empty and the sweep waits for the student's sketch.
         predicting = true;
         sketch = Array(BINS).fill(NaN);
@@ -329,6 +360,13 @@ export function attachDependence(board: Board, predict = false): () => void {
             + `<text class="ux-dep-tick" x="${PAD_L - 4}" y="${PAD_T + 8}" text-anchor="end">več</text><text class="ux-dep-tick" x="${PAD_L - 4}" y="${H - PAD_B}" text-anchor="end">manj</text>`
             + `<text class="ux-dep-tick" x="${PAD_L}" y="${H - 6}">${format(slider.min)}</text><text class="ux-dep-tick" x="${W - PAD_R}" y="${H - 6}" text-anchor="end">${format(slider.max)}</text>`
             + `<text class="ux-dep-axis" x="${(PAD_L + W - PAD_R) / 2}" y="${H - 6}" text-anchor="middle">${symbol}</text><g class="ux-dep-ink"></g>`;
+        if (choice) {
+            if (chosen) panel.querySelector<HTMLElement>('.ux-dep-caption')!.innerHTML = `Kaj se zgodi s količino <b>${chosen.quantity.label}</b>, ko <i>${symbol}</i> raste od ${format(slider.min)} do ${format(slider.max)}?`;
+            chart.querySelector('.ux-dep-ink')?.remove();
+            panel.querySelector<HTMLElement>('.ux-dep-readout')!.innerHTML = chosen ? `<span class="ux-dep-choices">${SHAPES.map(([id, text]) => `<button type="button" class="ux-dep-choice" data-shape="${id}">${text}</button>`).join('')}</span>` : '';
+            panel.querySelector<HTMLElement>('.ux-dep-hint')!.textContent = 'Izberi odgovor. Nato drsnik sam preleti ves razpon in tabla pokaže, kaj se res zgodi.';
+            return;
+        }
         panel.querySelector<HTMLElement>('.ux-dep-readout')!.innerHTML = '<button type="button" class="ux-dep-check" disabled>Preveri napoved</button>';
         panel.querySelector<HTMLElement>('.ux-dep-hint')!.textContent = 'Nariši krivuljo od leve proti desni. Tabla se ne premakne, dokler ne preveriš.';
     };
@@ -378,7 +416,35 @@ export function attachDependence(board: Board, predict = false): () => void {
         if (q && q.classList.contains('ux-dep-pick')) { quantity = q.dataset.key; render(); return; }
         if (q) { quantity = q.dataset.key; panel.querySelector<HTMLElement>('.ux-dep-score')?.setAttribute('hidden', ''); plot(); }
         if (target.closest('.ux-dep-check')) runCheck();
+        const answer = target.closest<HTMLButtonElement>('.ux-dep-choice');
+        if (answer && predicting) void runChoice(answer.dataset.shape ?? '');
     });
+    async function runChoice(guess: string) {
+        predicting = false;
+        const asked = quantity;
+        panel.querySelectorAll<HTMLButtonElement>('.ux-dep-choice').forEach(b => {
+            b.disabled = true;
+            b.classList.toggle('ux-dep-choice-on', b.dataset.shape === guess);
+        });
+        panel.querySelector<HTMLElement>('.ux-dep-quantities')!.innerHTML = '';
+        panel.querySelector<HTMLElement>('.ux-dep-hint')!.textContent = 'Opazuj tablo: drsnik preleti ves razpon.';
+        await sweep();
+        if (panel.hidden || !asked) return;
+        const values = series.get(asked)?.values ?? [];
+        const truth = shapeOf(values);
+        const box = panel.querySelector<HTMLElement>('.ux-dep-score');
+        const name = series.get(asked)?.quantity.label ?? '';
+        const said = SHAPES.find(([id]) => id === guess)?.[1] ?? '';
+        const real = SHAPES.find(([id]) => id === truth)?.[1]
+            ?? (truth === 'steps' ? 'na delih razpona ostane enaka in vmes skoči' : 'se spreminja drugače (niha)');
+        if (box) {
+            box.innerHTML = truth === guess
+                ? `<span class="ux-dep-stars" aria-label="Pravilno">★★★</span> Pravilno: <b>${name}</b> ${real}.`
+                : `<span class="ux-dep-stars" aria-label="Ne povsem">☆</span> Rekel si »${said}«, <b>${name}</b> pa ${real}. Povleci po grafu in poglej, kje.`;
+            box.hidden = false;
+        }
+        panel.querySelector<HTMLElement>('.ux-dep-hint')!.textContent = 'Povleci po grafu odvisnosti in tabla sledi. Za novo vprašanje izberi drug parameter zgoraj.';
+    }
     // A tap right after a touch stroke may not produce a click on some phones; the release starts the check too.
     panel.addEventListener('pointerup', event => {
         const check = (event.target as HTMLElement).closest<HTMLButtonElement>('.ux-dep-check');

@@ -29,7 +29,7 @@ import {attachDependence} from "./dependence";
 export function attachUxBoard(board: Board): () => void {
     const disposers: (() => void)[] = [];
     // Board tools stay usable in lesson reading frames: the lesson's click-to-hide catcher lets clicks through to them.
-    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c19', 'c20', 'c21', 'c22', 'c23', 'c24', 'c25', 'c26'].some(uxEnabled)) {
+    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c19', 'c20', 'c21', 'c22', 'c23', 'c24', 'c25', 'c26', 'c28'].some(uxEnabled)) {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
@@ -59,6 +59,7 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c24') || uxEnabled('c25')) disposers.push(attachDependence(board, uxEnabled('c25')));
     if (uxEnabled('c26')) disposers.push(attachDragTrace(board));
     if (uxEnabled('c27')) disposers.push(attachFog());
+    if (uxEnabled('c28')) disposers.push(attachDependence(board, 'choice'));
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));

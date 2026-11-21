@@ -1119,3 +1119,10 @@ html.ux-nb-reading { overflow: hidden; }
 @keyframes ux-fog-glow { 0% { box-shadow: 0 0 0 0 rgb(84 132 92 / 55%); } 100% { box-shadow: 0 0 0 10px rgb(84 132 92 / 0%); } }
 @media (prefers-reduced-motion: reduce) { .ux-fog-celebrate .ux-fog-meter, .ux-fog-celebrate .form-range { animation: none; } }
 .ux-fog .slider-field .form-range::-webkit-slider-thumb { margin-top: -7px; }
+
+/* c28 Kaj se zgodi? */
+.ux-dep-choices { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+.ux-dep-choice { min-height: 34px; padding: 4px 11px; border: 1px solid #cfd8c4; border-radius: 999px; background: #fff; color: var(--bezeg-shell-action, #244c37); font: 650 12.5px/1.2 system-ui, sans-serif; cursor: pointer; }
+.ux-dep-choice:hover:not(:disabled) { background: #eef3e5; }
+.ux-dep-choice:disabled { opacity: .55; cursor: default; }
+.ux-dep-choice.ux-dep-choice-on { opacity: 1; background: #3f6fc0; border-color: #3f6fc0; color: #fff; }

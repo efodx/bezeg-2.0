@@ -88,6 +88,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c28',
+        name: 'Kaj se zgodi?',
+        borrowed: 'vprašanja »kaj misliš, da se zgodi« iz Brilliant in Duolingo ter interaktivni poskusi v znanstvenih muzejih',
+        idea: 'Tabla sama sestavi vprašanje iz števil, ki jih izpiše, in iz drsnikov: »Kaj se zgodi s ploščino, ko σ raste od 0,1 do 20?« Študent tapne enega od petih odgovorov (raste, pada, ostane enaka, najprej raste in nato pada, najprej pada in nato raste), nato drsnik sam preleti ves razpon, nariše resnično odvisnost in jo primerja z odgovorom, tudi kadar je resnica skok (obodni kot na nasprotnem loku).',
+        generalizes: 'Uporablja iste izpise s table in iste drsnike kot c24, oblika odvisnosti pa se razvrsti iz preleta (monotono, vrh, dno, konstanta, skoki) z dopustnim odstopanjem za zaokrožene izpise. En tap namesto risanja, zato dobro deluje na telefonu; brez podatkov o lekciji deluje v funkcijah, verjetnosti, geometriji krivulj in ravnine ter Bézierjevih lekcijah.',
+        links: [
+            {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?ux=c28`,
+                tryThis: 'Tapni ❓ Kaj se zgodi?, izberi σ in ugani, kaj se zgodi s ploščino med a in b, ko se zvon širi.'},
+            {label: 'Obodni kot in Talesov izrek', family: 'Geometrija ravnine', href: `${BASE}/inscribed-angle?ux=c28`,
+                tryThis: 'Vprašanje o ∠APB, ko t teče okoli krožnice: večina reče »ostane enaka«, prelet pa pokaže skok na nasprotnem loku (180° − 66,8°).'},
+            {label: 'Naravna parametrizacija', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/arc-length?ux=c28`,
+                tryThis: 'Kaj se zgodi z dolžino L, ko N raste? Past: N je le število delov, dolžina krivulje ostane enaka.'},
+            {label: 'Parametrične krivulje (cikloida)', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/parametric?learn=1&ux=c28`,
+                tryThis: 'V lekciji izberi Polmer: dolžina loka raste premo sorazmerno; nato zamenjaj na ploščino.'},
+        ],
+    },
+    {
         id: 'c26',
         name: 'Sled vlečenja',
         borrowed: 'merilnik podatkov iz šolskega laboratorija, sled (trace) v Desmosu in seizmograf',
@@ -442,7 +459,7 @@ export function UxLab() {
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
                 <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16,c17,c18,c19,c20,c22,c23,c26,c27`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15,c19,c21,c23`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15,c19,c21,c23,c28`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">
