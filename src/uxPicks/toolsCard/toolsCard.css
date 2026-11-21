@@ -64,3 +64,9 @@
 }
 .ux-bcard-lesson > .guided-lesson.guided-lesson-task { max-height: none; }
 @media (pointer: coarse) { .ux-bcard-lesson .ux-lesson-card-actions :is(button, a) { min-height: 44px; } }
+
+/* Pucks (a1) and the tools card: a slider or count the pucks show lives only on its puck (owner, 2026-11-21: "only keep
+   pucks for sliders"); its help, and its group's help, are in the puck's tooltip. The control stays mounted (hidden) so
+   the puck still drives it. A group left with nothing but help text goes too. */
+.ux-bcard-tools [data-ux-pucked] { display: none !important; }
+.ux-bcard-tools .inspector-group:has([data-ux-pucked]):not(:has(> :not([data-ux-pucked]):not(p.inspector-help))) { display: none; }

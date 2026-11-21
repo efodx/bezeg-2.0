@@ -314,6 +314,6 @@ export function DemonstrationWorkspace(props: {
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
         </aside>;
-        return toolsCard && inspectorVisible ? <ToolsCard>{tools}</ToolsCard> : tools; })()}
+        return toolsCard && inspectorVisible ? <ToolsCard locked={lessonActive && lessonMode === 'content'}>{tools}</ToolsCard> : tools; })()}
     </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PlaybackSlotContext.Provider></PresetLockContext.Provider>;
 }

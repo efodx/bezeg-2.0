@@ -1,7 +1,12 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {createPortal} from 'react-dom';
-import {getParam, recentlyProbed, setEditingParam, splitLabel, useParams, type CountParam, type RangeParam} from './paramRegistry';
+import {accompanyingText, getParam, recentlyProbed, setEditingParam, setPuckedKeys, splitLabel, useParams, type CountParam, type ParamEntry as AnyParam, type RangeParam} from './paramRegistry';
+
+/** A puck's tooltip: what it is, the text that went with its control in the tools (now hidden there), and how to use it. */
+function puckTip(entry: AnyParam, first: string, usage: string): string {
+    return [first, ...accompanyingText(entry.key), usage].filter(Boolean).join('\n\n');
+}
 import {usePick} from '../picks';
 import {jumpValue} from '../a29/track';
 import {canOscillate, isOscillating, toggleOscillator, useOscillators} from '../a3/oscillators';
@@ -195,7 +200,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         else if (event.key === 'End' && !blocked) { event.preventDefault(); entry.set(entry.max); }
     };
     return <div ref={ref} role="slider" tabIndex={0} aria-label={entry.label} aria-valuemin={entry.min} aria-valuemax={entry.max} aria-valuenow={entry.value}
-        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? 'Graf je med razlago zaklenjen' : `${entry.label}: povleci levo ali desno, za fino nastavljanje dvigni prst`)}
+        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? puckTip(entry, `${entry.label} (graf je med razlago zaklenjen)`, '') : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
         className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
         data-click={clicked % 2} data-param={entry.key}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
@@ -241,6 +246,9 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     }, [props.frame]);
     const visible = useMemo(() => params.filter(entry => !entry.display && !PRESENTATION_LABEL.test(entry.label)
         && (entry.kind === 'count' || entry.max > entry.min)), [params]);
+    // The tools card hides the controls the pucks show (only while the row is open, so a folded row gives them back).
+    useLayoutEffect(() => { setPuckedKeys(collapsed ? [] : visible.map(entry => entry.key)); }, [visible, collapsed]);
+    useLayoutEffect(() => () => setPuckedKeys([]), []);
     if (visible.length === 0) return null;
     const scrubbed = scrub && visible.find((entry): entry is RangeParam => entry.kind === 'range' && entry.key === scrub.key);
     return <DockItem region="bottom" phoneRegion="tray"><div className={`ux-pucks${locked ? ' is-locked' : ''}${collapsed ? ' is-collapsed' : ''}`} role="group" aria-label="Parametri na grafu">
@@ -359,7 +367,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     const atMax = entry.max !== undefined && entry.value >= entry.max;
     return <div ref={ref} role="spinbutton" tabIndex={0} aria-label={entry.label} aria-valuenow={entry.value} aria-valuemin={entry.min} aria-valuemax={entry.max}
         aria-valuetext={entry.format(entry.value)} aria-disabled={locked || undefined}
-        title={locked ? 'Graf je med razlago zaklenjen' : `${entry.label}: povleci levo ali desno ali pritisni − in +`}
+        title={locked ? puckTip(entry, `${entry.label} (graf je med razlago zaklenjen)`, '') : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
         className={`ux-puck ux-count-puck${locked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}`}
         data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
         onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>

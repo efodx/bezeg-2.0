@@ -1,6 +1,6 @@
 import {currentLanguage, useT} from "../localization";
 import React, {useContext, useId, useLayoutEffect, useRef, useState} from "react";
-import {onDisplayTab, removeParam, upsertParam} from "../uxPicks/a1/paramRegistry";
+import {onDisplayTab, removeParam, upsertParam, usePucked} from "../uxPicks/a1/paramRegistry";
 import {ReplacementRevision} from "./replacementRevision";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -77,6 +77,7 @@ export function CountSetter(props: CountSetterProps) {
     const latest = useRef({props, atMin, atMax});
     latest.current = {props, atMin, atMax};
     const rootRef = useRef<HTMLDivElement>(null);
+    const pucked = usePucked(id);
     useLayoutEffect(() => {
         upsertParam({
             kind: 'count', key: id, label: props.label ?? props.plusLabel ?? t("current_count", {value0: formatNumber(n, language, digits)}),
@@ -88,7 +89,7 @@ export function CountSetter(props: CountSetterProps) {
     });
     useLayoutEffect(() => () => removeParam(id), [id]);
 
-    return <div ref={rootRef} className="count-setter" data-param={id}>
+    return <div ref={rootRef} className="count-setter" data-param={id} data-ux-pucked={pucked ? '' : undefined}>
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
         <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
              aria-describedby={joinIds(props.help && `${id}-help`, props.describedBy)}>

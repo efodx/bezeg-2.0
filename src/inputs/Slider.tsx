@@ -1,6 +1,6 @@
 import {currentLanguage, useT} from "../localization";
 import {useId, useLayoutEffect, useRef} from "react";
-import {onDisplayTab, removeParam, upsertParam} from "../uxPicks/a1/paramRegistry";
+import {onDisplayTab, removeParam, upsertParam, usePucked} from "../uxPicks/a1/paramRegistry";
 import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -81,6 +81,7 @@ export default function Slider(props: SliderProps) {
     const latest = useRef(props);
     latest.current = props;
     const formRef = useRef<HTMLFormElement>(null);
+    const pucked = usePucked(id);
     useLayoutEffect(() => {
         upsertParam({
             kind: 'range', key: id, label: props.customText, min: props.min, max: props.max, step, value: props.value, cyclic,
@@ -96,7 +97,7 @@ export default function Slider(props: SliderProps) {
     });
     useLayoutEffect(() => () => removeParam(id), [id]);
     const bounds = props.hideBounds ? undefined : {min: show(props.min), max: show(props.max), inline: show(props.min).length + show(props.max).length <= INLINE_BOUNDS_CHARACTERS};
-    return <Form ref={formRef} className="slider-field">
+    return <Form ref={formRef} className="slider-field" data-ux-pucked={pucked ? '' : undefined}>
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={cyclic === undefined ? props.min : undefined}
