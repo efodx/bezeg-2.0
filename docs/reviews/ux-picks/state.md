@@ -68,7 +68,16 @@ Last owner message, not yet acted on (verbatim): "this makes the guided lesson b
 
 Next for handler 4, in order: (1) the lesson item above; (2) the 3a polish: touch dragging of cards (pointer events with `touch-action: none` on heads; check a coarse-pointer emulation), the crowded graph at 1024×768 (tools 310 px + three board cards), the "Prosto" pill overlapping the pucks strip (clamp above `.ux-dock-strip`). Scripts in `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/toolscard/` (`final.js`, `polish.js`, `pres.js`, `lesson.js`; `walk.js`/`polish.js` still contain side-dock steps — adapt). Critique snapshot `.impeccable/critique/2026-11-21T18-01-33Z__…` is closed; rerun `$impeccable critique` after the polish if the owner wants a score.
 
-## Handler 4 → handler 5 (2026-11-21, read this first)
+## Handler 5 (2026-11-21, read this first)
+
+Owner answers to the critique questions: (a) "Lesson takes top-left" (not folding Legenda/Odčitki), (b) "Tap the puck's name" for touch help, (c) "All five" findings. Polish done and the snapshot `2026-11-21T19-20-03Z__…` closed:
+- a67e0d23: the lesson card's kind is `guide` (was `lesson`, which collided with dockLayout's `LESSON` placeholder of boardText's beside-the-graph card: its docked place was never stored, a drop overwrote its default, and BoardDock drew a second gap) and defaults to `tl` order −1 above the tools; the head wraps (Literata 1rem title, grip/reset/fold on row 1, Nazaj v poglavje + Končaj on row 2, actions hidden while folded); frame label and progress 13 px; in a stack the lesson keeps its text's height and the tools give way (`flex: 1 1 0`, min 180); folded cards never shrink (`dock.css`); card width `clamp(310px, 28vw, 400px)` so its edge meets the tools'; Legenda defaults to `br`; "Prosto" goes beside a tall card near the board top.
+- 3c04f911 (worker): touch tap on a puck's name toggles the a29 card (`PuckHover.tsx` `down`/`up`), value/track taps unchanged; `useMoving`/`MovingMark` in `ParamPucks.tsx` mark a sweeping or externally animated value (secondary ink, 10 px wave, pulse only without reduced motion); sweep button titles; `.ux-pucks-lock` is in the strip's flow (it sat under docked cards).
+- Checked (scripts `Desktop/bezeg-ux-picks/polish5/lesson5.js`, worker's `t.js`/`s.js`; shots there): transformations lesson at 1440×900 (reading 308 px, was ~120; task frame 144 px with tools 180), 1024×768 (title wraps to two lines, never cut), fold, task, carry to top (pill clear of the card), drop at `mr` persists over reload, double-click reset; touch tap/drag at 1024; sweep mark; typecheck clean; detector: advisories only; no page errors.
+- Not checked: Presentation with the lesson card at `tl`, phone (lesson path unchanged there), the "Prosto"-beside branch (the pill fitted under the card in the run), lesson-scene animation marking (only sweeps were seen), chapter-owned lessons.
+- Next: wait for the owner's verdict on the preview; a new `$impeccable critique` if he wants a score; then the app-wide plan (Next steps).
+
+## Handler 4 → handler 5 (2026-11-21; done, see "Handler 5")
 
 Later commits by handler 4: f81d3541 (puck help moved from the native title into the a29 hover card, owner: "the previous tooltip on the pucks should be used for this purpose instead"), 3d77300f (a carried card was clipped by its stack's fade mask; a stack holding a floating card drops the mask).
 
