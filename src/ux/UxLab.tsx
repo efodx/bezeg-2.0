@@ -22,6 +22,23 @@ const BASE = '/bezeg-2.0';
 /** Best first. */
 const PROTOTYPES: Prototype[] = [
     {
+        id: 'c8',
+        name: 'Živo besedilo',
+        borrowed: 'reaktivni dokumenti Breta Victorja, »Explorable Explanations« in barvno označene enačbe',
+        idea: 'Matematika v besedilu lekcije kaže na graf: koordinata, kot je (0, 4), na tabli zabode žebljiček z vodili do osi in prižge krivuljo ali točko, ki je tam, formula y = (x − 3)² + 1 prižge krivuljo, ki ji ustreza, simboli pa so obarvani z barvo svojega predmeta. Vrednost, kot je t = 1/2 ▸, s klikom zapelje drsnik do sebe, na telefonu pa se graf, ko je odmaknjen z zaslona, pokaže v plavajočem oknu.',
+        generalizes: 'Vse se prebere iz že stavljenega TeX-a in narisane table: pari števil postanejo točke, formule oblike y = … ali f(x) = … se izračunajo in primerjajo z vsako narisano krivuljo (ujemati se mora 90 % vzorcev v pogledu), simboli se ujemajo z oznakami na tabli ali z definicijami, kot je A = (0, 0), vrednosti pa z znakom v imenu drsnika. Nobena lekcija ne potrebuje dodatnih podatkov.',
+        links: [
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c8`,
+                tryThis: 'V prvem okvirju pokaži na (0, 4): zasvetita točka in obe daljici, ki gresta skozi njo. Na telefonu tapni t = 1/2 ▸ in opazuj, kako se konstrukcija v plavajočem oknu premakne.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c8`,
+                tryThis: 'Dvakrat klikni Naprej in pokaži na y = x² + 1, nato na (2, 4) in (2, 5): vidiš, katera točka leži na kateri paraboli.'},
+            {label: 'Znamenite točke trikotnika', family: 'Geometrija trikotnika', href: `${BASE}/triangle-centres?learn=1&ux=c8`,
+                tryThis: 'Pokaži na A = (0, 0), B, C in nato na G: težišče dobi obroček in koordinate. Obratno: pokaži na točko na grafu in v besedilu zasvetijo formule o njej.'},
+            {label: 'Bernsteinovi polinomi', family: 'Bézierjeve osnove', href: `${BASE}/bernstein?learn=1&ux=c8`,
+                tryThis: 'Pokaži na B₀¹(t) = 1 − t in na B₁¹(t) = t: vsaka formula prižge svojo premico in je obarvana z njeno barvo.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
@@ -121,8 +138,8 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8`}><span>Vse naenkrat: igrišče</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c1,c2,c3,c4,c5,c6,c7,c8`}><span>Vse naenkrat v lekciji</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">

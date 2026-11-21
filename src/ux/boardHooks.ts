@@ -12,7 +12,7 @@ import {attachLiveProse} from "./liveProse";
 export function attachUxBoard(board: Board): () => void {
     const disposers: (() => void)[] = [];
     // Board tools stay usable in lesson reading frames: the lesson's click-to-hide catcher lets clicks through to them.
-    if (['c1', 'c5', 'c6', 'c7'].some(uxEnabled)) {
+    if (['c1', 'c5', 'c6', 'c7', 'c8'].some(uxEnabled)) {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
