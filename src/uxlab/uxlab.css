@@ -227,4 +227,9 @@
     .ux-fan { left: 6px; bottom: 6px; width: calc(100% - 12px); padding: 6px 7px 8px; }
     .ux-fan-strip { gap: 3px; }
     .ux-fan-thumb small { font-size: .6rem; }
+    .ux-fan-chips button { min-height: 30px; padding: 3px 9px; font-size: .8rem; }
+    .ux-fan-close { width: 30px; height: 30px; }
+    .ux-fan-value { margin: 3px 2px 4px; font-size: .8rem; }
+    .ux-fan-value span { display: none; }
+    .ux-fan-thumb { aspect-ratio: 1.75; }
 }

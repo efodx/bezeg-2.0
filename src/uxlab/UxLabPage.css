@@ -23,3 +23,5 @@
     .uxlab-links li { width: 100%; }
     .uxlab-links li a:first-child { flex: 1; }
 }
+.uxlab-all { margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: rgba(93, 59, 110, .08); color: #3d2a48; }
+.uxlab-all a { color: #5d3b6e; font-weight: 600; }
