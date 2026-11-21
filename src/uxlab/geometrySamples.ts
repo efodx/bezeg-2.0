@@ -88,3 +88,60 @@ export function shapeDistance(a: readonly (readonly Sample[])[], b: readonly (re
     for (let i = 0; i < a.length; i++) worst = Math.max(worst, matchDistance(a[i], b[i]));
     return worst;
 }
+
+/** Clips segment a–b to the rectangle, or undefined when it lies outside (Liang–Barsky). */
+function clipSegment(a: Sample, b: Sample, left: number, top: number, right: number, bottom: number): [Sample, Sample] | undefined {
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    let t0 = 0, t1 = 1;
+    const edges: [number, number][] = [[-dx, a[0] - left], [dx, right - a[0]], [-dy, a[1] - top], [dy, bottom - a[1]]];
+    for (const [p, q] of edges) {
+        if (p === 0) { if (q < 0) return undefined; continue; }
+        const r = q / p;
+        if (p < 0) { if (r > t1) return undefined; if (r > t0) t0 = r; } else { if (r < t0) return undefined; if (r < t1) t1 = r; }
+    }
+    return [[a[0] + t0 * dx, a[1] + t0 * dy], [a[0] + t1 * dx, a[1] + t1 * dy]];
+}
+
+/**
+ * The visible part of a drawn path in drawing order, evenly spaced: polyline paths (JSXGraph curves) are read from their
+ * vertices and clipped to the board, so a curve that runs far off the board still yields dense samples where it is seen.
+ * A jump between consecutive samples marks a gap.
+ */
+export function visibleSamples(node: Element, width: number, height: number, spacing = 3): Sample[] {
+    const d = node.tagName.toLowerCase() === 'path' ? node.getAttribute('d') ?? '' : '';
+    let vertices: Sample[][] = [];
+    if (d && /^[\sMLml0-9eE.,+-]*$/.test(d) && !/[ml]/.test(d)) {
+        let run: Sample[] = [];
+        const tokens = d.match(/[ML]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) ?? [];
+        let command = 'M';
+        for (let i = 0; i < tokens.length;) {
+            if (tokens[i] === 'M' || tokens[i] === 'L') { command = tokens[i]; i++; continue; }
+            const point: Sample = [Number(tokens[i]), Number(tokens[i + 1])];
+            i += 2;
+            if (!Number.isFinite(point[0]) || !Number.isFinite(point[1])) continue;
+            if (command === 'M' && run.length) { vertices.push(run); run = []; }
+            run.push(point);
+            command = 'L';
+        }
+        if (run.length) vertices.push(run);
+    } else {
+        vertices = [sampleNode(node, spacing)];
+    }
+    const margin = 2;
+    const samples: Sample[] = [];
+    for (const run of vertices) {
+        if (run.length === 1) { const [x, y] = run[0]; if (x >= -margin && y >= -margin && x <= width + margin && y <= height + margin) samples.push(run[0]); continue; }
+        for (let i = 1; i < run.length; i++) {
+            const clipped = clipSegment(run[i - 1], run[i], -margin, -margin, width + margin, height + margin);
+            if (!clipped) continue;
+            const [a, b] = clipped;
+            const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+            const steps = Math.max(1, Math.ceil(length / spacing));
+            const last = samples[samples.length - 1];
+            const from = last && Math.hypot(last[0] - a[0], last[1] - a[1]) < 0.01 ? 1 : 0;
+            for (let k = from; k <= steps; k++) samples.push([a[0] + (b[0] - a[0]) * k / steps, a[1] + (b[1] - a[1]) * k / steps]);
+            if (samples.length > 6000) return samples;
+        }
+    }
+    return samples;
+}

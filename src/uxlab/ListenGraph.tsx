@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {contentElements, elementSignature, findMainBoard, svgRoot, traced, type UxBoard, type UxElement} from './board';
-import {sampleNode, type Sample} from './geometrySamples';
+import {visibleSamples, type Sample} from './geometrySamples';
 import './uxlab.css';
 
 const LOW_HZ = 196;   // G3
@@ -22,15 +22,15 @@ function monotoneInX(samples: Sample[]): boolean {
 }
 
 /** The point of a track at sweep time t, or undefined in a gap. */
-function pointAt(track: Track, t: number, width: number): Sample | undefined {
+function pointAt(track: Track, t: number, span: readonly [number, number]): Sample | undefined {
     const samples = track.samples;
     if (track.byX) {
-        const x = t * width;
+        const x = span[0] + t * (span[1] - span[0]);
         if (x < samples[0][0] || x > samples[samples.length - 1][0]) return undefined;
         let low = 0, high = samples.length - 1;
         while (high - low > 1) { const middle = (low + high) >> 1; if (samples[middle][0] <= x) low = middle; else high = middle; }
         const [x0, y0] = samples[low], [x1, y1] = samples[high];
-        if (Math.abs(y1 - y0) > 40) return undefined;
+        if (Math.abs(y1 - y0) > 40 || x1 - x0 > 12) return undefined;
         return [x, x1 === x0 ? y0 : y0 + (y1 - y0) * (x - x0) / (x1 - x0)];
     }
     const position = t * (samples.length - 1);
@@ -63,12 +63,15 @@ function strokeOf(element: UxElement): string {
 function labelOf(element: UxElement): string {
     const kind = KIND[element.elType] ?? element.elType;
     const name = (element.name ?? '').replace(/<[^>]+>/g, '').replace(/[{}$\\]/g, '').trim();
-    return /^[A-Za-zα-ω](_?\d+)?'*$/.test(name) ? `${kind} ${name.replace('_', '')}` : kind;
+    if (/^[A-Za-zα-ω](_?\d+)?'*$/.test(name)) return `${kind} ${name.replace('_', '')}`;
+    // Lessons tell their curves apart by stroke ("polna črta: f; črtkana črta: Tₙ"): so do the chips.
+    const dashed = Number(element.visProp?.dash ?? 0) > 0;
+    return dashed ? `črtkana ${kind}` : kind;
 }
 
 /** Samples of a drawn path in drawing order, only the parts inside the board (a gap is silence). */
 function trackSamples(element: UxElement, board: UxBoard): Sample[] {
-    return sampleNode(element.rendNode!, 3).filter(([x, y]) => x >= -2 && y >= -2 && x <= board.canvasWidth + 2 && y <= board.canvasHeight + 2);
+    return visibleSamples(element.rendNode!, board.canvasWidth, board.canvasHeight, 3);
 }
 
 function pitch(y: number, height: number): number {
@@ -108,8 +111,8 @@ export function ListenGraph(props: {root: React.RefObject<HTMLElement>; locked: 
     const listChoices = useCallback(() => {
         if (!board) return [];
         const found = [...keyed(board)].map(([key, element]) => {
-            let length = 0;
-            try { length = (element.rendNode as SVGGeometryElement).getTotalLength(); } catch { /* not drawn */ }
+            // Only the part on the board counts: a Taylor polynomial may run kilometres off the top.
+            const length = trackSamples(element, board).length * 3;
             return {key, label: labelOf(element), color: strokeOf(element), length};
         }).filter(choice => choice.length > 30).sort((a, b) => b.length - a.length).slice(0, 8);
         // Same label twice: number them in drawing order.
@@ -190,6 +193,11 @@ export function ListenGraph(props: {root: React.RefObject<HTMLElement>; locked: 
             });
         };
         resample();
+        // Graphs of x are swept over the x-range where any of them is visible, so no time is spent on silence.
+        const span = (): [number, number] => {
+            const xs = tracks.filter(track => track.byX && track.samples.length > 1).flatMap(track => [track.samples[0][0], track.samples[track.samples.length - 1][0]]);
+            return xs.length ? [Math.max(0, Math.min(...xs)), Math.min(board.canvasWidth, Math.max(...xs))] : [0, board.canvasWidth];
+        };
         const tick = (now: number) => {
             let t = (now - start) / SWEEP_MS;
             if (t >= 1) {
@@ -200,12 +208,13 @@ export function ListenGraph(props: {root: React.RefObject<HTMLElement>; locked: 
             // The shape is read every frame: a drag during the sweep is heard at once.
             resample();
             const time = context.currentTime;
+            const range = span();
             const dots: string[] = [];
             const notes: string[] = [];
             tracks.forEach((track, index) => {
                 const voice = voices[index];
                 if (!voice) return;
-                const point = track.samples.length >= 2 ? pointAt(track, t, board.canvasWidth) : undefined;
+                const point = track.samples.length >= 2 ? pointAt(track, t, range) : undefined;
                 if (!point) { voice.gain.gain.setTargetAtTime(0, time, 0.02); notes.push('—'); return; }
                 const [x, y] = point;
                 const gap = false;
@@ -221,7 +230,7 @@ export function ListenGraph(props: {root: React.RefObject<HTMLElement>; locked: 
                 const beat = Math.abs(a - b);
                 notes.push(beat < 1.5 ? 'v sozvočju' : beat < 25 ? `utripanje ${beat.toFixed(0)} Hz` : 'narazen');
             }
-            if (layer.current) layer.current.innerHTML = dots.join('') + (tracks.some(track => track.byX) ? `<line x1="${(t * board.canvasWidth).toFixed(1)}" x2="${(t * board.canvasWidth).toFixed(1)}" y1="0" y2="${board.canvasHeight}" stroke="#5d3b6e" stroke-opacity=".25" stroke-width="2"/>` : '');
+            if (layer.current) layer.current.innerHTML = dots.join('') + (tracks.some(track => track.byX) ? `<line x1="${(range[0] + t * (range[1] - range[0])).toFixed(1)}" x2="${(range[0] + t * (range[1] - range[0])).toFixed(1)}" y1="0" y2="${board.canvasHeight}" stroke="#5d3b6e" stroke-opacity=".25" stroke-width="2"/>` : '');
             if (++frames % 6 === 0) setReadout(notes.join(' · '));
             frame.current = requestAnimationFrame(tick);
         };
