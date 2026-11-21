@@ -88,12 +88,14 @@ export function ClipRecorder(props: {root: React.RefObject<HTMLElement>; capabil
     useEffect(() => {
         if (!board || phase !== 'recording') return;
         const container = board.containerObj;
-        const onUpdate = () => push();
+        // The graph writes its state after the host commits: read it a frame after the board moved.
+        let pending = 0;
+        const onUpdate = () => { if (!pending) pending = requestAnimationFrame(() => { pending = 0; push(); }); };
         const onMove = (event: PointerEvent) => {
             // The way to the stop button is not part of the explanation.
             const onControls = event.target instanceof Element && Boolean(event.target.closest('.ux-clip, .ux-clip-entry'));
             pointer.current.at = onControls && !pointer.current.down ? undefined : toUser(board, event.clientX, event.clientY);
-            push();
+            onUpdate();
         };
         const onDown = (event: PointerEvent) => {
             if (event.target instanceof Element && event.target.closest('.ux-clip, .ux-clip-entry')) { pointer.current.at = undefined; return; }
@@ -121,6 +123,7 @@ export function ClipRecorder(props: {root: React.RefObject<HTMLElement>; capabil
             window.removeEventListener('pointerup', onUp, true);
             container.removeEventListener('pointerleave', onLeave);
             window.clearInterval(timer);
+            cancelAnimationFrame(pending);
         };
     }, [board, phase, push, stopRecording]);
 
@@ -144,7 +147,7 @@ export function ClipRecorder(props: {root: React.RefObject<HTMLElement>; capabil
         if (dot) {
             if (scene.pointer) {
                 const [x, y] = toScreen(board, scene.pointer);
-                dot.style.transform = `translate(${x}px, ${y}px)`;
+                dot.style.translate = `${x}px ${y}px`;
                 dot.classList.toggle('is-down', Boolean(scene.down));
                 dot.style.opacity = '1';
             } else dot.style.opacity = '0';
@@ -178,6 +181,7 @@ export function ClipRecorder(props: {root: React.RefObject<HTMLElement>; capabil
             if (cancelled) return;
             if (loaded.route !== window.location.pathname) { setMessage('Ta posnetek je bil posnet na drugem grafu.'); return; }
             setClip(loaded);
+            if (window.location.search.includes('uxdebug')) (window as unknown as {__uxClip: unknown}).__uxClip = loaded.frames;
             setCaption(loaded.caption);
             setShared(true);
             setTime(0);
