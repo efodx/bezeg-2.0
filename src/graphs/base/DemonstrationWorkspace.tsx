@@ -28,6 +28,7 @@ import {GhostHand} from '../../uxlab/GhostHand';
 import {SliderTrace} from '../../uxlab/SliderTrace';
 import {ParameterMap} from '../../uxlab/ParameterMap';
 import {SceneTask} from '../../uxlab/SceneTask';
+import {PinCompare} from '../../uxlab/PinCompare';
 import {uxEnabled} from '../../uxlab/flags';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
@@ -257,6 +258,7 @@ export function DemonstrationWorkspace(props: {
         {uxEnabled('b8') && props.lessonCapabilities && <ClipRecorder root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b7') && props.lessonCapabilities && <WhyLens root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b6') && props.lessonCapabilities && <ParameterFan root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
+        {uxEnabled('b20') && props.lessonCapabilities && <PinCompare root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b19') && props.lessonCapabilities && <SceneTask root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b18') && props.lessonCapabilities && <ParameterMap root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b16') && props.lessonCapabilities && <SliderTrace root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}

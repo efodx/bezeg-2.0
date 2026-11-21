@@ -62,6 +62,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b20',
+        name: 'Pripni in primerjaj: dve nastavitvi, ena ob drugi',
+        idea: 'Gumb »📌 Pripni« ohrani trenutno risbo kot vijolično sled na grafu in si zapomni vse odčitke. Ko raziskuješ naprej, majhna tabela kaže pripeto, zdaj in razliko; »A ⇄ B« graf zvezno premakne v pripeti prizor in pripne tistega, ki ga je zapustil, zato dve nastavitvi menjaš kot diapozitiva.',
+        generalizes: 'Sled je posnetek risbe SVG v koordinatah ravnine (sledi premiku in povečavi pogleda), odčitki so vsi zapisi »oznaka = število« in vrstice seznama Odčitki, menjava je obnova posnetka stanja s prehodom iz b1. Deluje v vsakem prizoru, brez kode na lekcijo.',
+        try: 'Pritisni »📌 Pripni« zgoraj desno na grafu, spremeni drsnik ali stopnjo, nato večkrat pritisni »A ⇄ B«.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (stopnja 1 proti 3)', to: '/bezeg-2.0/analysis/taylor?ux=b20'},
+            {label: 'Geometrija: obodni kot (lok proti nasprotnemu loku)', to: '/bezeg-2.0/inscribed-angle?ux=b20'},
+            {label: 'Verjetnost: binomska in normalna (dve vrednosti p)', to: '/bezeg-2.0/probability/binomial-normal?ux=b20'},
+        ],
+    },
+    {
         id: 'b14',
         name: 'Živo besedilo: simboli v razlagi so drsniki',
         idea: 'Črka v besedilu lekcije, ki pomeni količino prizora (»središče c«, »stopnja n«, »x = 1«), je podčrtana s pikicami: ko greš nanjo, se prižgejo vse njene ponovitve in njen drsnik, ko jo povlečeš levo ali desno, se graf spreminja. Dokler lekcija drži prizor, se graf po spustu vrne v sliko lekcije, kot vzmet.',
