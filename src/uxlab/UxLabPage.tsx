@@ -26,6 +26,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b14',
+        name: 'Živo besedilo: simboli v razlagi so drsniki',
+        idea: 'Črka v besedilu lekcije, ki pomeni količino prizora (»središče c«, »stopnja n«, »x = 1«), je podčrtana s pikicami: ko greš nanjo, se prižgejo vse njene ponovitve in njen drsnik, ko jo povlečeš levo ali desno, se graf spreminja. Dokler lekcija drži prizor, se graf po spustu vrne v sliko lekcije, kot vzmet.',
+        generalizes: 'Simbole najde v izrisani matematiki (MathJax) vsake lekcije, kadar formula vsebuje samo simbol ali »simbol = vrednost«. Količino poišče po imenu ključa v posnetku stanja (n, p, omega → ω) ali po zadnji črki oznake drsnika oziroma števca, domeno pa vzame iz drsnika. Ni kode na lekcijo.',
+        try: 'V lekciji povleci podčrtano črko c ali n v besedilu desno od grafa.',
+        links: [
+            {label: 'Lekcija: Taylorjev polinom (c, n, x)', to: '/bezeg-2.0/analysis/taylor?learn=1&ux=b14'},
+            {label: 'Lekcija: binomska in normalna (n, p, k)', to: '/bezeg-2.0/probability/binomial-normal?learn=1&ux=b14'},
+            {label: 'Lekcija: obodni kot (t)', to: '/bezeg-2.0/inscribed-angle?learn=1&ux=b14'},
+        ],
+    },
+    {
         id: 'b13',
         name: 'Predogled: kontrolnik pokaže, kaj bo naredil, preden ga pritisneš',
         idea: 'Z miško počivaj na drsniku, gumbu + ali −, puščici ali stikalu (ali se nanj premakni s tipko Tab) in graf bledo pokaže, kaj bi se zgodilo: vijolično en korak naprej, sivo en korak nazaj, puščice pa, kam gre kateri del krivulje. Vklopa ne pokaže vnaprej, ker je to razkritje: najprej napoved.',

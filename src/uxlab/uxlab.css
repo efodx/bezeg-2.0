@@ -399,3 +399,25 @@
 .ux-ff-key { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; color: var(--ux-ink-2, #526152); }
 .ux-ff-key i { display: inline-block; width: 18px; height: 0; border-top: 2px dashed #5d3b6e; }
 .ux-ff-key i.is-minus { border-top-color: #8a9a86; margin-left: 6px; }
+
+/* b14 Živo besedilo */
+mjx-container.ux-live-sym {
+    cursor: ew-resize; touch-action: none; border-radius: 4px; padding: 0 2px; margin: 0 -2px;
+    background-image: linear-gradient(to right, #5d3b6e 45%, transparent 45%); background-size: 5px 1.5px; background-repeat: repeat-x; background-position: 0 100%;
+    transition: background-color .15s;
+}
+mjx-container.ux-live-sym.ux-live-lit { background-color: rgba(93, 59, 110, .14); color: #5d3b6e; }
+body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; user-select: none; }
+.ux-live-badge {
+    position: fixed; z-index: 1000; transform: translate(-50%, calc(-100% - 8px)); pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 10px; border-radius: 10px;
+    background: #5d3b6e; color: #fffdf5; box-shadow: 0 3px 12px rgba(25, 55, 47, .25); font-size: 14px; white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+.ux-live-badge span { font-size: 11px; opacity: .85; }
+.ux-live-pip {
+    position: fixed; z-index: 999; top: 10px; right: 10px; width: min(46vw, 260px); aspect-ratio: 5 / 3; pointer-events: none;
+    background: #fffdf5; border: 1px solid rgba(93, 59, 110, .35); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 6px 20px rgba(25, 55, 47, .22);
+}
+.ux-live-pip svg { display: block; }
