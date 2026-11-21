@@ -25,6 +25,7 @@ import {Landmarks} from './Landmarks';
 import {Challenge} from './Challenge';
 import {Score} from './Score';
 import {TimeRibbon} from './TimeRibbon';
+import {FixedPoints} from './FixedPoints';
 import './UxBoardLayer.css';
 
 /** Lane-A prototypes that live on the board, each behind its own `?ux=` flag. */
@@ -48,6 +49,7 @@ export function UxBoardLayer(props: {frame: React.RefObject<HTMLDivElement>; les
         {(uxEnabled('a5') || uxEnabled('a16')) && <PredictSketch frame={props.frame}/>}
         {uxEnabled('a16') && <PredictParams frame={props.frame}/>}
         {uxEnabled('a17') && <PullField frame={props.frame}/>}
+        {uxEnabled('a27') && <FixedPoints frame={props.frame}/>}
         {uxEnabled('a26') && <TimeRibbon frame={props.frame}/>}
         {uxEnabled('a25') && <Score/>}
         {uxEnabled('a24') && <Challenge frame={props.frame}/>}

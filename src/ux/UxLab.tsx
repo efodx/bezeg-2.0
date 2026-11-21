@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a27', name: 'Kaj ostane na mestu',
+        idea: 'Ko se parameter umiri, Bezeg okoli grafa nariše pahljačo sosedov (parameter malo manjši in malo večji) in pripne točke, skozi katere gredo vsi: teme, okoli katerega se parabola razteza, (0; 1), skozi katero gre vsaka eksponentna funkcija, ničle, ki jih amplituda sinusa ne premakne. En stavek pove »ko spreminjaš a, graf ostane pripet v (3; 1)« ali »c premakne ves graf — nobena točka ne ostane na mestu«.',
+        general: 'Razlika med premikom in raztegom postane vidna, ne izrečena. Pahljača je tabla sama, za hip postavljena na sosednje vrednosti (in povrnjena); nepremične točke so skupne točke vseh sosedov iz JSXGraphovih izrisanih točk, tudi kadar se krivulje le dotaknejo (teme). Stopničasti histogrami so izpuščeni. Brez kode v lekcijah: šolske funkcije, eksponentna funkcija, trigonometrija, verjetnost (»p premakne ves graf«).',
+        try: 'Premakni drsnik a ali b, nato c; v trigonometriji amplitudo A in nato ω.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a27', free: true},
+            {label: 'Trigonometrijske funkcije', family: 'Trigonometrija', path: 'functions/trigonometric', flags: 'a27', free: true},
+            {label: 'Eksponentna funkcija', family: 'Eksponentna in logaritemska', path: 'functions/exponential', flags: 'a27', free: true},
+        ],
+    },
+    {
         id: 'a26', name: 'Časovni trak',
         idea: 'Vsaka umirjena sprememba grafa postane kroglica na traku nad tablo, obarvana po parametru, ki se je premaknil, zato ima raziskovanje vidno zgodovino kot dokument svoje različice. Z miško nad kroglico se graf tistega trenutka pokaže črtkano; klik ali vlečenje po traku popelje cel graf nazaj v čas, Ctrl+Z in Ctrl+Y korakata, nova sprememba od tam začne novo vejo.',
         general: 'Ker je pot nazaj zastonj, je preizkušanje divjih vrednosti varno. Posnetki so vrednosti deljenega registra drsnikov, duh pa nastane tako, da Bezeg tablo za hip postavi v tisti trenutek in jo povrne. V vodeni lekciji trak pripada enemu koraku: rezi lekcije med okvirji niso učenčevo raziskovanje. Brez kode v lekcijah: šolske funkcije, verjetnost, Bézierjeve krivulje, trigonometrija.',
@@ -307,7 +318,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a21', 'a25', 'a26', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a27', 'a16', 'a21', 'a25', 'a26', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -324,7 +335,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Šestindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Sedemindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
