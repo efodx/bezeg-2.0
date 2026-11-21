@@ -161,11 +161,9 @@ export async function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamE
             pins.push({sx: p[0], sy: p[1], text: `(${fmtX((p[0] - ox) / unitX, unitX)}; ${fmt((oy - p[1]) / unitY, unitY)})`});
         }
     }
-    const sentence = entry.kind === 'count'
-        ? pins.length ? `ob spremembi ostane graf pripet v ${pins.slice(0, 3).map(p => p.text).join(' in ')}` : 'vsak korak spremeni graf, kot kažejo krivulje'
-        : pins.length === 0
-            ? grows && still.count > 0.25 * still.total ? 'graf podaljša ali skrajša, narisani del ostane na mestu' : 'premakne ves graf, nobena točka ne ostane na mestu'
-            : pins.length <= 3 ? `graf ostane pripet v ${pins.map(p => p.text).join(' in ')}` : `graf gre vedno skozi ${pins.length} istih točk`;
+    // Owner (2026-11-21): no interpretive statements ("graf gre vedno skozi …"); the fan and its pins speak for themselves.
+    void grows;
+    const sentence = 'sosednje vrednosti';
     const paths = neighbours.flatMap(n => [...n.shapes.values()].map(s => ({d: s.d, offset: n.offset})));
     return {paths, pins: pins.slice(0, 8), sentence};
 }
