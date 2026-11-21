@@ -76,13 +76,28 @@ module.exports = function registerExperienceChecks() {
                 expect(first.centerHitsNext, 'the centre of Next is a pointer target').toBe(true);
                 const before = await snapshot();
                 expect(before.pageY, 'the page is scrolled past the top of the graph').toBeGreaterThan(0);
+                // The first tap enters a reading frame (frame 2 is a calculation); the repeated tap enters frame 3, an
+                // observation frame, whose task is worked with the graph: there the page comes to the graph, with the
+                // start of the task in view (GuidedLesson.tsx, the observation alignment of c2ac1463).
                 for (const press of ['first', 'repeated']) {
                     const progressBefore = await h.progress(page);
                     await page.mouse.click(first.x, first.y);
                     await h.settle(page);
                     expect(await h.progress(page), `${press} tap: the pointer advances to the next frame`).not.toBe(progressBefore);
                     expect((await resting()).cardBelowWindowBottom, `${press} tap: the new frame's card still reaches below the window`).toBeGreaterThan(0);
-                    expect(await snapshot(), `${press} tap at the same point moves neither the row nor the page`).toEqual(before);
+                    const task = await panel.evaluate(element => element.classList.contains('guided-lesson-task'));
+                    expect(task, `${press} tap: the frame kind this check expects`).toBe(press === 'repeated');
+                    if (!task) {
+                        expect(await snapshot(), `${press} tap at the same point moves neither the row nor the page`).toEqual(before);
+                        continue;
+                    }
+                    const view = await panel.evaluate(element => ({
+                        layerTop: document.querySelector('.guided-lesson-layer').getBoundingClientRect().top,
+                        promptTop: element.querySelector('.guided-lesson-exploration').getBoundingClientRect().top,
+                    }));
+                    expect(Math.abs(view.layerTop), `${press} tap: an observation frame brings the page to the graph`).toBeLessThanOrEqual(1);
+                    expect(view.promptTop, `${press} tap: the start of the task is in the window`).toBeGreaterThanOrEqual(0);
+                    expect(view.promptTop, `${press} tap: the start of the task is in the window`).toBeLessThan(844);
                 }
             });
         }
