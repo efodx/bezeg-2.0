@@ -1,6 +1,7 @@
 import {Board, JSXGraph} from "jsxgraph";
 import {DisplaySettings} from "./DisplaySettings";
 import {applyBoardTextDefaults} from "../styles/BoardText";
+import {attachUxBoard} from "../../ux/boardHooks";
 
 export type GraphBoardOptions = Parameters<typeof JSXGraph.initBoard>[1];
 
@@ -64,6 +65,7 @@ export class GraphSession {
         this.board = board;
         sessionsByBoard.set(board, this);
         this.refreshPointerOriginOnPointerDown(board);
+        this.registerCleanup(attachUxBoard(board));
         return board;
     }
 

@@ -1,11 +1,13 @@
 import {currentLanguage, useT} from "../localization";
-import {useId} from "react";
+import {useId, useState} from "react";
 import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
 import {stepKeyDelta} from "./stepKeys";
 import {joinIds} from "./describedBy";
 import "./Slider.css";
+import {uxEnabled} from "../ux/flags";
+import {SliderLfo} from "../ux/SliderLfo";
 
 interface SliderProps {
     min: number;
@@ -68,6 +70,7 @@ export default function Slider(props: SliderProps) {
     const decimals = props.decimals ?? (integer ? 0 : Math.max(2, stepDecimals(step)));
     const {cyclic, unavailableReason} = props;
     const inert = props.disabled || unavailableReason !== undefined;
+    const [lfo] = useState(() => uxEnabled('c2'));
     // Rounds before wrapping, so noise just below the period lands on 0 rather than on the period itself.
     const wrap = (value: number) => {
         if (cyclic === undefined) return value;
@@ -88,6 +91,7 @@ export default function Slider(props: SliderProps) {
                                onStepChange={value => props.onChange(wrap(value))}/>
                 : <output htmlFor={id}>{show(props.value)}</output>}</div>
         <div className="slider-track" data-bounds={bounds === undefined ? "none" : bounds.inline ? "inline" : "caption"}>
+            {lfo && <SliderLfo min={props.min} max={props.max} step={step} value={props.value} onChange={props.onChange} inert={inert} cyclic={cyclic} label={props.customText}/>}
             {bounds && <span className="slider-bound" aria-hidden="true">{bounds.min}</span>}
             <Form.Range id={id} aria-describedby={joinIds(props.help && `${id}-help`, unavailableReason && `${id}-reason`, props.describedBy)} min={props.min}
                     max={props.max} value={props.value} disabled={props.disabled} aria-disabled={unavailableReason !== undefined ? true : undefined}
