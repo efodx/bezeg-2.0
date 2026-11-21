@@ -6,6 +6,8 @@ import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphC
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
 import {useLessonMorph} from '../../uxPicks/b1/useLessonMorph';
 import {usePick} from '../../uxPicks/picks';
+import {releaseLesson} from '../../uxPicks/dock/dockLayout';
+import {useLessonDock} from '../../uxPicks/dock/useLessonDock';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
 import {fitFormulaRows} from './formulaRows';
@@ -198,6 +200,9 @@ export function GuidedLesson(props: {
     // Decided when the card is hidden (from its dock or not); the tab's own offset is set only after it mounts.
     const [tabInDock, setTabInDock] = useState(true);
     const dockedTab = dockToolsPick && !oneColumn && tabInDock;
+    // Pick boardText: the card can take a place in the graph dock (see useLessonDock).
+    const boardTextPick = usePick('boardText');
+    useLessonDock({enabled: boardTextPick && !oneColumn, lesson: props.lesson, panelDrag, tabDrag, panelRef: lessonRef, tabRef: compactTabRef, layerRef, phase: overlayPhase});
     // Once either has been moved they travel together: hiding leaves the tab at the panel's corner and
     // reopening opens the panel at the tab, so the instructions come back where they were put away.
     const handOverPlacement = (from: typeof panelDrag, to: typeof panelDrag) => {
@@ -559,6 +564,7 @@ export function GuidedLesson(props: {
     const closeButton = <button type="button" className="guided-lesson-exit" aria-label={t('exit_lesson')} title={t('exit_lesson')} onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson_short')}</button>;
     // Docking returns the card and its tab to their homes; the button leaves with the move, so focus goes to the grip.
     const dockCard = () => {
+        releaseLesson();
         panelDrag.home();
         tabDrag.home();
     };
@@ -612,7 +618,9 @@ export function GuidedLesson(props: {
     const frameAction = frame.action;
     const atFirstFrame = snapshot.stepIndex === 0 && snapshot.frameIndex === 0;
     const atLastFrame = snapshot.stepIndex === props.lesson.steps.length - 1 && snapshot.frameIndex === frames.length - 1;
-    const {onKeyDown: movePanelByKey, ...panelPointerHandlers} = panelDrag.handleProps;
+    const {onKeyDown: movePanelKey, ...panelPointerHandlers} = panelDrag.handleProps;
+    // A keyboard move takes the card out of its graph place.
+    const movePanelByKey = (event: React.KeyboardEvent<HTMLElement>) => { if (event.key.startsWith('Arrow') || event.key === 'Home') releaseLesson(); movePanelKey(event); };
     // The whole heading row moves the panel, except presses that start on its own actions.
     const startPanelDrag = (event: React.PointerEvent<HTMLElement>) => {
         if (event.target instanceof Element && event.target.closest('a, button:not(.guided-lesson-grip)')) return;

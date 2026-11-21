@@ -6,8 +6,13 @@ import {useSyncExternalStore} from 'react';
  * take if dropped now, and the cards between the old and the new position make room (the cards animate with FLIP).
  * Placements are remembered per page in localStorage.
  */
-export type Target = 'top-start' | 'top-end' | 'bottom-end';
-export const TARGETS: readonly Target[] = ['top-start', 'top-end', 'bottom-end'];
+export type Target = 'top-start' | 'top-end' | 'bottom-end' | 'top-row' | 'bottom-row';
+/** Every stack has an axis: 'v' stacks cards top to bottom, 'h' side by side. A further region is one entry here and in BoardDock. */
+export const AXIS: Record<Target, 'v' | 'h'> = {'top-start': 'v', 'top-end': 'v', 'bottom-end': 'v', 'top-row': 'h', 'bottom-row': 'h'};
+export const TARGETS: readonly Target[] = ['top-start', 'top-end', 'bottom-end', 'top-row', 'bottom-row'];
+/** The graph dock's stack the lesson card can take a place in (in memory only: lessons restart at home). */
+export const LESSON = 'lesson';
+export interface Outline { region: Target; x: number; y: number; w: number; h: number; bar: boolean; label?: string; }
 interface Placement { region: Target; order: number; }
 export interface Gap { kind: string; region: Target; index: number; w: number; h: number; }
 
@@ -33,7 +38,41 @@ function load() {
         }
     } catch { /* ignore */ }
 }
-function save() { try { localStorage.setItem(storeKey(), JSON.stringify(placed)); } catch { /* ignore */ } }
+function save() {
+    try {
+        const {[LESSON]: _lesson, ...rest} = placed;
+        localStorage.setItem(storeKey(), JSON.stringify(rest));
+    } catch { /* ignore */ }
+}
+let outlines: Outline[] | null = null;
+let outlineOwner = '';
+export function getOutlines() { return outlines; }
+/** The preview slots of the drag in progress (null clears them, only for their owner). */
+export function setOutlines(owner: string, list: Outline[] | null) {
+    if (list === null && owner !== outlineOwner) return;
+    if (list === null ? outlines === null : outlines !== null && JSON.stringify(outlines) === JSON.stringify(list)) return;
+    outlines = list; outlineOwner = owner; emit();
+}
+interface Host { regions: Partial<Record<string, HTMLElement | null>>; frame: HTMLElement | null; }
+let host: Host | null = null;
+export function setHost(h: Host | null) { host = h; }
+export function getHost() { return host; }
+let lessonSize = {w: 0, h: 0};
+let lessonEl: HTMLElement | null = null;
+export function getLessonSize() { return lessonSize; }
+export function setLessonSize(w: number, h: number) { if (lessonSize.w !== w || lessonSize.h !== h) { lessonSize = {w, h}; emit(); } }
+export function setPlaceholderEl(el: HTMLElement | null) { lessonEl = el; }
+export function getPlaceholderEl() { return lessonEl; }
+/** True while the lesson card holds a place (a placeholder, or the gap it left while lifted) in a graph stack. */
+export function lessonLifted() { return floating.has(LESSON); }
+export function lessonSlotted() { return regs.has(LESSON); }
+/** The lesson card leaves its graph place (home, or floating free): the placeholder is freed. */
+export function releaseLesson() {
+    if (!regs.has(LESSON) && !placed[LESSON] && lifted !== LESSON) return;
+    regs.delete(LESSON); delete placed[LESSON]; floating.delete(LESSON);
+    if (lifted === LESSON) { origin = null; target = null; lifted = null; }
+    emit();
+}
 function emit() { version++; listeners.forEach(l => l()); }
 
 /** Subscribes the component to every layout change. */
@@ -102,6 +141,7 @@ export function dropAtGap(kind: string): boolean {
     const p = prev === undefined ? undefined : placementOf(prev).order, n = next === undefined ? undefined : placementOf(next).order;
     const order = p !== undefined && n !== undefined ? (p + n) / 2 : p !== undefined ? p + 1 : n !== undefined ? n - 1 : 0;
     placed[kind] = {region: gap.region, order};
+    if (kind === LESSON) regs.set(kind, placed[kind]);
     floating.delete(kind);
     origin = null; target = null; lifted = null;
     save(); emit();

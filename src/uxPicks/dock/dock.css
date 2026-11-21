@@ -2,21 +2,39 @@
 .ux-board-frame { position: relative; }
 .ux-dock {
     position: absolute; inset: 0; z-index: 5; pointer-events: none;
-    display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 10px;
+    display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 8px; padding: 10px;
 }
 /* The top rail: a start end and an end end that wrap onto another line when they do not fit together. */
-.ux-dock-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px; max-height: calc(100% - 78px); }
+.ux-dock-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px; min-height: 0; overflow: hidden; }
 .ux-dock-region { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; max-width: 100%; min-width: 0; }
 /* The card stacks: vertical, top to bottom, scrolling when taller than a share of the board. */
 .ux-dock-start, .ux-dock-end, .ux-dock-bottom-end {
     flex-direction: column; flex-wrap: nowrap; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; padding: 2px;
-    margin: -2px; max-height: calc(var(--ux-dock-h, 600px) - 100px);
+    margin: -2px; max-height: calc(100% + 4px); scrollbar-color: var(--bezeg-shell-ink-secondary) transparent;
 }
+/* A stack that is taller (or wider) than its free side of the board scrolls: a themed thin scrollbar and a soft fade at the cut edge. */
+.ux-dock-region[data-overflow~="end"] { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); }
+.ux-dock-region[data-overflow~="start"] { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28px); mask-image: linear-gradient(to bottom, transparent, #000 28px); }
+.ux-dock-region[data-overflow~="start"][data-overflow~="end"] { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
+.ux-dock-top-row[data-overflow~="end"], .ux-dock-bottom-row-stack[data-overflow~="end"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+.ux-dock-top-row[data-overflow~="start"], .ux-dock-bottom-row-stack[data-overflow~="start"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px); mask-image: linear-gradient(to right, transparent, #000 28px); }
+.ux-dock-region::-webkit-scrollbar { width: 6px; height: 6px; }
+.ux-dock-region::-webkit-scrollbar-thumb { background: var(--bezeg-shell-ink-secondary); border-radius: 3px; }
+/* The rows: cards side by side along the top and bottom edges; a row wider than its free width scrolls sideways. */
+.ux-dock-top-row, .ux-dock-bottom-row-stack {
+    flex: 1 1 0; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; justify-content: flex-start;
+    overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-ink-secondary) transparent;
+    padding: 2px; margin: -2px; min-width: 0;
+}
+.ux-dock-bottom-row-stack { align-items: flex-end; }
+.ux-dock .ux-dock-top-row:empty, .ux-dock .ux-dock-bottom-row-stack:empty { display: block; height: 0; }
+.ux-dock-top-row > *, .ux-dock-bottom-row-stack > * { flex: none; }
 .ux-dock-start { align-items: flex-start; }
 .ux-dock-end { align-items: flex-end; }
 .ux-dock-bottom-end { align-items: flex-end; margin-left: auto; max-height: calc(var(--ux-dock-h, 600px) * 0.4); }
-.ux-dock-bottom-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px; }
-.ux-dock-bottom-row > .ux-dock-region:empty { display: none; }
+.ux-dock-bottom-row { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: flex-end; gap: 8px; }
+.ux-dock-bottom-row { min-width: 0; }
+.ux-dock-bottom-row > .ux-dock-region:empty:not(.ux-dock-bottom-row-stack):not(.ux-dock-bottom-end-x) { display: none; }
 /* The place a picked-up card leaves, or would take: the lesson card's home-slot language. */
 .ux-dock-gap {
     flex: none; pointer-events: none; box-sizing: border-box; border: 2px dashed #6f8160; border-radius: 12px;
@@ -26,8 +44,8 @@
 @media (prefers-reduced-motion: reduce) { .ux-dock-gap { transition: none; } }
 .ux-dock-region:empty { display: none; }
 .ux-dock-end { margin-left: auto; }
+.ux-dock-top-row:empty { margin: 0; }
 .ux-dock-bottom { flex-direction: column; align-items: flex-start; }
-.ux-dock-bottom-row { flex-wrap: wrap; }
 
 /* The tray under the board (phones): a scrolling row for whatever the picks put there. */
 .ux-dock-tray {
@@ -75,6 +93,9 @@
     .ux-btext { max-width: 100%; }
     .ux-bcard-legend { max-width: 100%; }
     .ux-dock-top { max-height: none; }
+    .ux-dock .ux-dock-top-row, .ux-dock .ux-dock-bottom-row-stack { display: none; }
+    .ux-dock { display: flex; flex-direction: column; justify-content: space-between; }
+    .ux-dock-top { overflow: visible; }
     .ux-dock-start { flex-direction: row; flex-wrap: wrap; overflow: visible; max-height: none; margin: 0; padding: 0; }
     .ux-dock-end { margin: 0; }
     .ux-dock-chip { flex: none; }
@@ -92,3 +113,10 @@
 .ux-dock-slot.is-target { border-style: solid; border-color: #55704a; background: rgb(226 236 211 / 88%); }
 @media (prefers-reduced-motion: reduce) { .ux-dock-slot { transition: none; } }
 .ux-dock-slot.is-bar { border-width: 2px; border-radius: 4px; background: transparent; }
+.ux-dock-tag {
+    position: absolute; z-index: 5; pointer-events: none; height: 16px; padding: 0 7px; border-radius: 8px; white-space: nowrap;
+    font-size: 0.66rem; line-height: 16px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+    background: #e2ecd3; color: #34502c; border: 1px solid #6f8160;
+}
+/* The lesson card's reserved place in a graph stack: it adds no look; the card itself is carried over it. */
+.ux-dock-ph { flex: none; pointer-events: none; visibility: hidden; }
