@@ -90,14 +90,15 @@ describe('Subdivision graphs', () => {
 });
 
 describe('Rational Farin graph', () => {
-    test('farin points and weights are in Display; standard form stays in Edit', () => {
+    test('farin points are in Display, without a second weights switch; standard form stays in Edit', () => {
         const graph = makeGraph(FarinPointsCurveGraph.prototype, {});
         graph.getFirstJxgCurve = () => ({
             isShowingFarinPoints: () => false, isShowingWeights: () => true, inStandardForm: () => true,
         });
         displayOf(graph);
         expect(screen.getByRole('checkbox', {name: t('farin_points')})).not.toBeChecked();
-        expect(screen.getByRole('checkbox', {name: t('weights')})).toBeChecked();
+        // The weights switch is the rational curve's own, in its display group (stubbed here; SelectedCurveTools.test.tsx).
+        expect(screen.queryByRole('checkbox', {name: t('weights')})).toBeNull();
 
         const editLabels = commandProps(graph).map(props => props.label);
         expect(editLabels).toContain(t('standard_form'));

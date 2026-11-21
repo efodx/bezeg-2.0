@@ -57,15 +57,11 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         });
     }
 
+    // The weights switch is the curve's own, in its display group above; the construction group adds only the Farin points.
     protected override workspaceGraphDisplay(): React.ReactNode {
         return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
             <OnOffSwitch checked={this.getFirstJxgCurve().isShowingFarinPoints()}
-                onChange={(checked) => this.showFarinPoints(checked)} label={t("farin_points")}/>
-            <OnOffSwitch checked={this.getFirstJxgCurve().isShowingWeights()}
-                onChange={(checked) => {
-                    this.getFirstJxgCurve().showwWeights(checked);
-                    this.store.notify();
-                }} label={t("weights")}/></div></>;
+                onChange={(checked) => this.showFarinPoints(checked)} label={t("farin_points")}/></div></>;
     }
 
     override getGraphCommands(): JSX.Element[] {
