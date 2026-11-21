@@ -10,7 +10,7 @@ const GREEK: Record<string, string> = {
     alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', phi: 'φ', omega: 'ω', tau: 'τ', rho: 'ρ', kappa: 'κ',
 };
 
-interface Binding {
+export interface Binding {
     symbol: string;
     /** Key path of the quantity, so a fresh checkpoint can be searched for it again. */
     key: string;
@@ -32,7 +32,7 @@ function symbolOfKey(key: string): string | undefined {
     return GREEK[last.toLowerCase()];
 }
 
-function format(value: number): string {
+export function format(value: number): string {
     const digits = Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 10 ? 1 : 2;
     let text = value.toFixed(digits);
     if (text.includes('.')) text = text.replace(/0+$/, '').replace(/\.$/, '');
@@ -40,7 +40,7 @@ function format(value: number): string {
 }
 
 /** The quantities of the scene that a lesson can name with one letter, with their domain. */
-function bindings(checkpoint: LessonSceneCheckpoint, board: UxBoard | undefined): Map<string, Binding> {
+export function bindings(checkpoint: LessonSceneCheckpoint, board: UxBoard | undefined): Map<string, Binding> {
     const {rows} = fanRows(checkpoint.value, board?.getBoundingBox() ?? [-5, 5, 5, -5], 40);
     const scalars = rows.filter(row => row.kind === 'scalar');
     const result = new Map<string, Binding>();
@@ -78,7 +78,7 @@ function bindings(checkpoint: LessonSceneCheckpoint, board: UxBoard | undefined)
 }
 
 /** The symbol a rendered formula names when it is only that symbol, or "symbol = value". */
-function namedSymbol(container: Element): string | undefined {
+export function namedSymbol(container: Element): string | undefined {
     const math = container.querySelector('mjx-assistive-mml math') ?? container.querySelector('math');
     if (!math) return undefined;
     const parts = [...math.children].flatMap(child => child.tagName.toLowerCase() === 'mrow' && math.children.length === 1 ? [...child.children] : [child]);
@@ -90,8 +90,46 @@ function namedSymbol(container: Element): string | undefined {
     return undefined;
 }
 
-function findRow(value: unknown, board: UxBoard | undefined, key: string): FanRow | undefined {
+export function findRow(value: unknown, board: UxBoard | undefined, key: string): FanRow | undefined {
     return fanRows(value, board?.getBoundingBox() ?? [-5, 5, 5, -5], 40).rows.find(row => row.kind === 'scalar' && row.key === key);
+}
+
+/** A small live copy of the board in a corner while the board itself is scrolled out of view (phones). */
+export function livePicture(board: UxBoard): {show: () => void; hide: () => void} {
+    let pip: HTMLDivElement | undefined;
+    let frame = 0;
+    const show = () => {
+        const svg = board.renderer.svgRoot;
+        if (!svg || pip) return;
+        const rect = board.containerObj.getBoundingClientRect();
+        if (!(rect.bottom < 80 || rect.top > window.innerHeight - 80)) return;
+        pip = document.createElement('div');
+        pip.className = 'ux-live-pip';
+        pip.setAttribute('aria-hidden', 'true');
+        pip.style.aspectRatio = `${board.canvasWidth} / ${board.canvasHeight}`;
+        document.body.appendChild(pip);
+        let ticks = 0;
+        const draw = () => {
+            if (!pip) return;
+            if (ticks++ % 2 === 0) {
+                const copy = svg.cloneNode(true) as SVGSVGElement;
+                copy.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+                copy.setAttribute('viewBox', `0 0 ${board.canvasWidth} ${board.canvasHeight}`);
+                copy.setAttribute('width', '100%');
+                copy.setAttribute('height', '100%');
+                copy.removeAttribute('style');
+                pip.replaceChildren(copy);
+            }
+            frame = requestAnimationFrame(draw);
+        };
+        frame = requestAnimationFrame(draw);
+    };
+    const hide = () => {
+        cancelAnimationFrame(frame);
+        pip?.remove();
+        pip = undefined;
+    };
+    return {show, hide};
 }
 
 /**
@@ -145,44 +183,9 @@ export function LiveProse(props: {root: React.RefObject<HTMLElement>; capabiliti
             if (control && control.offsetParent !== null) { control.classList.add('ux-ff-source'); lit.push(control); }
         };
         // On a phone the graph is often scrolled away from the text: a small live copy follows the finger then.
-        let pip: HTMLDivElement | undefined;
-        let pipFrame = 0;
-        const pipOn = () => {
-            const svg = board?.renderer.svgRoot;
-            if (!board || !svg) return;
-            const rect = board.containerObj.getBoundingClientRect();
-            const hidden = rect.bottom < 80 || rect.top > window.innerHeight - 80;
-            if (!hidden) return;
-            if (!pip) {
-                pip = document.createElement('div');
-                pip.className = 'ux-live-pip';
-                pip.setAttribute('aria-hidden', 'true');
-                pip.style.aspectRatio = `${board.canvasWidth} / ${board.canvasHeight}`;
-                document.body.appendChild(pip);
-            }
-            let ticks = 0;
-            const draw = () => {
-                if (!pip) return;
-                if (ticks++ % 2 === 0) {
-                    const copy = svg.cloneNode(true) as SVGSVGElement;
-                    copy.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
-                    copy.setAttribute('viewBox', `0 0 ${board.canvasWidth} ${board.canvasHeight}`);
-                    copy.setAttribute('width', '100%');
-                    copy.setAttribute('height', '100%');
-                    copy.removeAttribute('style');
-                    pip.replaceChildren(copy);
-                }
-                pipFrame = requestAnimationFrame(draw);
-            };
-            cancelAnimationFrame(pipFrame);
-            pipFrame = requestAnimationFrame(draw);
-        };
-        const pipOff = (delay = 0) => {
-            cancelAnimationFrame(pipFrame);
-            const leaving = pip;
-            pip = undefined;
-            if (leaving) window.setTimeout(() => leaving.remove(), delay);
-        };
+        const pictureInPicture = board ? livePicture(board) : undefined;
+        const pipOn = () => pictureInPicture?.show();
+        const pipOff = () => pictureInPicture?.hide();
 
         const place = (element: Element, text: string, hint?: string) => {
             const rect = element.getBoundingClientRect();

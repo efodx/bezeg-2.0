@@ -421,3 +421,32 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
     box-shadow: 0 6px 20px rgba(25, 55, 47, .22);
 }
 .ux-live-pip svg { display: block; }
+
+/* b15 Pokaži mi */
+.ux-hand-button {
+    display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; vertical-align: baseline; min-height: 30px;
+    padding: 2px 10px; border-radius: 999px; border: 1px solid rgba(93, 59, 110, .35); background: rgba(93, 59, 110, .08);
+    color: #5d3b6e; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.ux-hand-button.ux-hand-button { border: 1px solid rgba(93, 59, 110, .35); background: rgba(93, 59, 110, .08); color: #5d3b6e; opacity: 1; }
+.ux-hand-button.ux-hand-button:hover { background: rgba(93, 59, 110, .16); }
+.ux-hand-button.ux-hand-button.is-playing { background: #5d3b6e; color: #fffdf5; }
+.ux-hand {
+    position: fixed; z-index: 1001; pointer-events: none; transform: translate(-17px, -4px);
+    transition: left .45s cubic-bezier(.3, .7, .3, 1), top .45s cubic-bezier(.3, .7, .3, 1), opacity .25s;
+    filter: drop-shadow(0 4px 6px rgba(25, 55, 47, .28));
+}
+.ux-hand.is-pressed { transition: left .05s linear, top .05s linear, opacity .25s; }
+.ux-hand svg { display: block; transition: transform .12s; transform-origin: 17px 4px; }
+.ux-hand.is-pressed svg { transform: scale(.88); }
+.ux-hand.is-pressed::before {
+    content: ''; position: absolute; left: 17px; top: 4px; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%;
+    background: rgba(93, 59, 110, .22); animation: ux-hand-ring 1s ease-out infinite;
+}
+@keyframes ux-hand-ring { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+.ux-hand.is-leaving { opacity: 0; }
+.ux-hand span {
+    position: absolute; left: 34px; top: 30px; padding: 3px 8px; border-radius: 8px; background: #5d3b6e; color: #fffdf5;
+    font-size: 13px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) { .ux-hand, .ux-hand svg { transition: none; } .ux-hand.is-pressed::before { animation: none; } }

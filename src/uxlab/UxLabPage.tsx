@@ -38,6 +38,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b15',
+        name: 'Pokaži mi: roka, ki pokaže navodilo',
+        idea: 'Vsako navodilo, ki imenuje količine (»Premakni središče c in točko x ter spreminjaj stopnjo n«), dobi gumb »Pokaži mi«. Prosojna roka kot v vadnicah iger seže po imenovanem drsniku ali gumbu +, ga premika, graf se spreminja v živo, nato se vse vrne, kot je bilo.',
+        generalizes: 'Navodila najde v pozivih »Preizkusi in opazuj« in v okvirjih lekcij (stavki z velelnikom in matematiko). Imenovane količine prepozna kot b14 (simbol, ime ključa, oznaka drsnika ali števca, v navadnem besedilu »samostalnik + črka«), premika pa jih z obnovo stanja, zato roka in drsnik vedno kažeta isto. Brez kode na lekcijo.',
+        try: 'Pritisni »✋ Pokaži mi« na koncu navodila pod grafom ali v okvirju »Opazovanje«.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (c, x, n)', to: '/bezeg-2.0/analysis/taylor?ux=b15'},
+            {label: 'Verjetnost: binomska in normalna (n, p)', to: '/bezeg-2.0/probability/binomial-normal?ux=b15'},
+            {label: 'Funkcije: transformacije (b, c, d)', to: '/bezeg-2.0/functions/transformations?ux=b15'},
+        ],
+    },
+    {
         id: 'b13',
         name: 'Predogled: kontrolnik pokaže, kaj bo naredil, preden ga pritisneš',
         idea: 'Z miško počivaj na drsniku, gumbu + ali −, puščici ali stikalu (ali se nanj premakni s tipko Tab) in graf bledo pokaže, kaj bi se zgodilo: vijolično en korak naprej, sivo en korak nazaj, puščice pa, kam gre kateri del krivulje. Vklopa ne pokaže vnaprej, ker je to razkritje: najprej napoved.',
@@ -165,7 +177,7 @@ export function UxLabPage() {
             <p className="uxlab-kicker">UX laboratorij · pas B</p>
             <h1>Ko se zasveti</h1>
             <p className="uxlab-lede">Prototipi, ki izhajajo iz učenčeve glave: trenutek, ko nekaj klikne, kako lekcija pripelje do njega, kako učenec ve, da razume, in kako si zapomni še čez teden dni. Vsak prototip vklopi zastavica <code>?ux=</code>; ista povezava brez nje je današnja aplikacija.</p>
-            <p className="uxlab-all">Vse skupaj v eni lekciji: <Link to="/bezeg-2.0/functions/transformations?learn=1&ux=b1,b2,b3,b5" reloadDocument>lekcija s prehodi, napovedjo, sledmi in vrtom</Link> · <Link to="/bezeg-2.0/bezier/curve?ux=b3,b4,b6,b7" reloadDocument>graf z izzivom, pahljačo, rentgenom in sledmi</Link></p>
+            <p className="uxlab-all">Vse skupaj v eni lekciji: <Link to="/bezeg-2.0/functions/transformations?learn=1&ux=b1,b2,b3,b5" reloadDocument>lekcija s prehodi, napovedjo, sledmi in vrtom</Link> · <Link to="/bezeg-2.0/bezier/curve?ux=b3,b4,b6,b7" reloadDocument>graf z izzivom, pahljačo, rentgenom in sledmi</Link> · <Link to="/bezeg-2.0/analysis/taylor?learn=1&ux=b1,b12,b13,b14,b15" reloadDocument>lekcija, v kateri je vse vlečljivo: krivulja, besedilo, predogled in roka</Link></p>
         </header>
         <ol className="uxlab-list">
             {PROTOTYPES.map((prototype, index) => <li key={prototype.id} className="uxlab-card">
