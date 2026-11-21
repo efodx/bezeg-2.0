@@ -106,4 +106,3 @@ Totals: lesson frames 0 pairs and 18 crossings (from 31 and 64), routes 1 and 26
 - Phone leftovers: LC-7 "Tir" and the P1 text, captions on tick labels; LC-9 \(B(	frac12)\) on the \(p_2\)/\(p_3\) labels (no free spot within 40 px on a 364 px board; the measured box of the fraction would place it, but the PH label test measures with the written-out estimate, so the change was reverted, see 13fceb12); LC-6 the triangle's name keeps the spot that covers the fewest axis numbers.
 - Shared placement changes made on the way: `placeNames` falls back to the spot on the fewest blocks and tick labels; the curve point label is keyed on the curve version and takes extra obstacles from its graph (`setEvaluationObstacles`).
 - Not changed (out of scope, seen): the rational weights \(w_i = 1.00\) are written with a decimal point and lie on the polygon in LC-1d; control point labels on their polygon legs.
-
