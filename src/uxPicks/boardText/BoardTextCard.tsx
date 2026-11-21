@@ -215,16 +215,22 @@ export function BoardCards(props: {frame: React.RefObject<HTMLDivElement | null>
     const readouts = useReadoutCount();
     const hasLegend = items.length > 0 || rows.length > 0;
     const sections = useSections();
+    // The card is named after what it shows (owner, 2026-11-21, on curvature's "Ukrivljenost κ 0,2357 …" card titled
+    // Besedilo: "this is actually a readout"): read-off values (label/value rows, a decimal, an angle in degrees, a point's
+    // coordinates, or merged readout rows) make it "Odčitki"; a bare formula stays "Besedilo". Its kind (stored place and
+    // fold) is unchanged. The text is TeX source here, so a decimal comma may be written {,} and degrees \circ.
+    const readsValues = readouts > 0 || scan.text.includes('ux-btext-k')
+        || /\d(?:,|\{,\})\d|\d\s*(?:°|\^?\{?\\circ)|\(\s*-?\d+(?:(?:,|\{,\})\d+)?\s*;\s*[-−]?\d/.test(plain(scan.text));
     useLessonRefs(() => {
         const cards: RefCard[] = [];
-        if (scan.text !== '') cards.push({kind: 'text', readouts: readouts > 0, text: `${plain(scan.text)} ${readoutText()}`});
+        if (scan.text !== '') cards.push({kind: 'text', readouts: readsValues, text: `${plain(scan.text)} ${readoutText()}`});
         else if (readouts > 0) cards.push({kind: 'readout', readouts: true, text: readoutText()});
         if (hasLegend) cards.push({kind: 'legend', legend: true, text: `${items.map(i => i.label).join(' ')} ${plain(rows.join(' '))}`});
         sections.forEach(s => cards.push({kind: `section-${s.kind}`, title: s.title, text: s.slot.textContent ?? ''}));
         return cards;
     });
     return <>
-        {scan.text !== '' && <DockCard kind="text" title="Besedilo" what="besedilo" region="tr" foldInLesson>
+        {scan.text !== '' && <DockCard kind="text" title={readsValues ? 'Odčitki' : 'Besedilo'} what={readsValues ? 'odčitke' : 'besedilo'} region="tr" foldInLesson>
             {open => open && <>
                 <TypesetBody html={scan.text}/>
                 {readouts > 0 && <MergedReadouts/>}
