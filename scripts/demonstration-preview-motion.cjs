@@ -125,6 +125,12 @@ function farinEffectiveWeights(values) {
 // trailing zeros dropped, {,} as the decimal comma. Captures run in the default language, Slovenian.
 const farinWeightTex = weight => { const fixed = weight.toFixed(2).replace(/\.?0+$/, ''); return (/^-?0$/.test(fixed) ? '0' : fixed).replace('.', '{,}'); };
 const farinWeightText = (k, weight) => `$$w_{${k}}=${farinWeightTex(weight)}$$`;
+// A recorded weight label matches when it names weight k and its number is the weight rounded to two decimals; clips captured
+// before the board used the number format recorded "1.00", later ones "1" or "1{,}38".
+const farinWeightTextMatches = (text, k, weight) => {
+    const match = /^\$\$w_\{(\d+)\}=(-?\d+(?:(?:\.|\{,\})\d+)?)\$\$$/.exec(String(text));
+    return !!match && Number(match[1]) === k && Number(match[2].replace('{,}', '.')) === Number(weight.toFixed(2));
+};
 
 // Alpha reparameterization used by the weighted-parameterization route: φ_α(t) = (1-α) t / (α(1-t) + (1-α) t), α = 1/2 is the identity.
 // Independent copy of alphaParameterization in src/graphs/curves/parametrisations/AlphaParamBezierCurveGraph.tsx (scripts cannot import TS).
@@ -765,7 +771,7 @@ const motionSpecs = {
                 else assert.ok(Math.abs(slider.v - fixed.v) < 1e-9, `Non-dragged ratio changed at frame ${i}`);
             });
             const effective = farinEffectiveWeights(sample.observed.sliders.map(s => s.v));
-            effective.forEach((w, k) => assert.equal(sample.observed.weights[k], farinWeightText(k, w), `Weight text differs from the effective weight at frame ${i}`));
+            effective.forEach((w, k) => assert.ok(farinWeightTextMatches(sample.observed.weights[k], k, w), `Weight text differs from the effective weight at frame ${i}`));
             assert.equal(sample.observed.weights.length, 4, `Wrong weight label count at frame ${i}`);
             const controlPoints = controls.map(({x, y}) => ({x, y}));
             farinParameterTs.forEach((t, k) => {
@@ -1933,7 +1939,7 @@ const testSupport = Object.freeze({
     sweepValue, minimumDistinctFrames, snapToStep, g1ComputedPoints, assertG1Join, phaseAsPiText, phiReadoutText,
     alphaParameterizationValue, weightedParameterizationMarkers, deCasteljauLevels,
     bernsteinPoint, bernsteinDerivativePoint, phOffsetRadii, phOffsetWaypoints, phOffsetSweepCheck,
-    rationalPoint, farinEffectiveWeights, farinWeightText, farinValue, farinPoint,
+    rationalPoint, farinEffectiveWeights, farinWeightText, farinWeightTextMatches, farinValue, farinPoint,
     farinParameterTs, sin2OutAndBack, movePhase, complexCaptionLines, complexText,
     accumulationReference, accumulationReadoutLine, accumulationSnap, formatSlNumber,
     steppedClips, darbouxReferenceSums, leftRiemannReference,
