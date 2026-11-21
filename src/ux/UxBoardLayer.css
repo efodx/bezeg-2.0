@@ -4,9 +4,9 @@ body.ux-lane-a .guided-lesson-graph-catcher { pointer-events: none !important; }
 
 /* Phones: the board actions of several prototypes become a rail of icon buttons; the names stay as accessible text. */
 @media (max-width: 600px) {
-    .demonstration-workspace .workspace-graph .ux-board-frame :is(.ux-game-start, .ux-fit-start, .ux-ladder-start, .ux-map-start, .ux-recap-start) {
+    .demonstration-workspace .workspace-graph .ux-board-frame :is(.ux-game-start, .ux-fit-start, .ux-ladder-start, .ux-map-start, .ux-recap-start, .ux-bead-start) {
         font-size: 0; gap: 0; width: 42px; min-height: 42px; height: 42px; padding: 0; justify-content: center; border-radius: 50%; right: 6px;
     }
-    .ux-board-frame :is(.ux-game-start, .ux-fit-start, .ux-ladder-start, .ux-map-start, .ux-recap-start) svg { width: 22px; height: 22px; }
+    .ux-board-frame :is(.ux-game-start, .ux-fit-start, .ux-ladder-start, .ux-map-start, .ux-recap-start, .ux-bead-start) svg { width: 22px; height: 22px; }
     .ux-board-frame .ux-recap-start .ux-recap-badge { position: absolute; top: -4px; right: -4px; font-size: 0.68rem; }
 }

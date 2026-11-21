@@ -8,6 +8,18 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a18', name: 'Kroglica na krivulji',
+        idea: 'Kroglica drsi po katerikoli narisani krivulji kot biser na žici: kjer je krivulja strma, pospeši, kjer je ravna, se umiri, in obstane v najnižji točki, ki jo nato poimenuje s koordinatami lekcije. Obrni težnost in poišče najvišjo točko; spremeni parameter in žica se preoblikuje pod njo, kroglica pa se odkotali do novega temena.',
+        general: 'Tir je vzorčen iz SVG geometrije same table (grafi funkcij, Bézierjeve krivulje, daljice, krožnice), obrezan na vidni del; zaprte krivulje se sklenejo, zato kroglica na krožnici niha kot nihalo. Bezeg pove le, kar je res: najnižja točka samo, če se žica dviga na obeh straneh, sicer »na koncu krivulje« ali »skoraj vodoravna«. Brez kode v lekcijah: šolske funkcije, Bézierjeve krivulje, trigonometrija, verjetnost.',
+        try: 'Tapni »Kroglica«, nato premakni drsnik a ali d in opazuj, kako kroglica sledi temenu. Povleci jo na drugo krivuljo ali jo zalučaj; »teža navzgor« poišče vrh.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a18', free: true},
+            {label: 'Bézierjeva krivulja', family: 'Bézierjeve krivulje', path: 'bezier/curve', flags: 'a18', free: true},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', flags: 'a18', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a18', free: true},
+        ],
+    },
+    {
         id: 'a17', name: 'Kam vleče parameter',
         idea: 'Izberi parameter in vzdolž vsake krivulje, ki jo premika, zrastejo puščice: vsaka pokaže, kam majhno povečanje parametra potisne tisto točko krivulje. Pri d so vse enake in kažejo gor, pri c se nagnejo vstran in pri temenu izginejo, pri a rastejo stran od temena, pri t v De Casteljauovem postopku pokažejo hitrost vsake vmesne točke; puščice ostanejo žive, ko vlečeš druge parametre.',
         general: 'To je normalna hitrost družine krivulj (le premik prek krivulje je viden). Tablo Bezeg sinhrono premakne prek deljenega registra drsnikov in jo vrne, še preden brskalnik nariše, zato nič ne utripne; točke dobijo puščico celotnega premika. Deluje na vsakem grafu z drsnikom: šolske funkcije, verjetnost, trigonometrija, Bézierjeve krivulje.',
@@ -205,7 +217,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a11', 'a13', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a11', 'a13', 'a18', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -221,7 +233,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Sedemnajst prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Osemnajst prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
