@@ -31,6 +31,7 @@ export function attachUxBoard(board: Board): () => void {
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
     if (['c16', 'c17', 'c18', 'c21', 'c23'].some(uxEnabled)) disposers.push(keepToolsInView(board));
+    disposers.push(stackCornerTools(board));
     if (uxEnabled('c1')) disposers.push(attachLongExposure(board));
     if (uxEnabled('c4')) disposers.push(attachGrabGraph(board));
     if (uxEnabled('c5')) disposers.push(attachMatchChallenge(board));
@@ -84,5 +85,56 @@ function keepToolsInView(board: Board): () => void {
         window.clearInterval(interval);
         if (frame) cancelAnimationFrame(frame);
         container.style.removeProperty('--ux-lift');
+    };
+}
+
+/**
+ * With several prototypes on, their buttons share board corners. Each pass lets CSS place every corner tool, and when
+ * two or more land in the same corner they are stacked in DOM order; bottom stacks also clear the c10 filmstrip.
+ */
+function stackCornerTools(board: Board): () => void {
+    const container = board.containerObj as HTMLElement | undefined;
+    if (!container) return () => undefined;
+    const touched = new Set<HTMLElement>();
+    const pass = () => {
+        const tools = Array.from(container.children).filter((child): child is HTMLElement =>
+            child instanceof HTMLElement && (child.tagName === 'BUTTON' || child.classList.contains('ux-nb')) && /(^| )ux-/.test(child.className));
+        for (const tool of touched) { tool.style.removeProperty('top'); tool.style.removeProperty('bottom'); }
+        touched.clear();
+        const groups = new Map<string, {tool: HTMLElement; offset: number}[]>();
+        const height = container.clientHeight;
+        for (const tool of tools) {
+            if (tool.hidden || tool.offsetParent === null) continue;
+            const style = getComputedStyle(tool);
+            if (style.position !== 'absolute') continue;
+            const left = parseFloat(style.left), right = parseFloat(style.right), top = parseFloat(style.top), bottom = parseFloat(style.bottom);
+            const side = left <= 14 ? 'left' : right <= 14 ? 'right' : '';
+            if (!side) continue;
+            const edge = top < height / 2 ? 'top' : 'bottom';
+            const key = `${edge}-${side}`;
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key)!.push({tool, offset: edge === 'top' ? top : bottom});
+        }
+        const film = container.querySelector<HTMLElement>(':scope > .ux-film');
+        const filmHeight = film && !film.hidden && film.offsetParent !== null ? film.offsetHeight + 6 : 0;
+        for (const [key, group] of groups) {
+            const bottomEdge = key.startsWith('bottom');
+            if (group.length < 2 && !(bottomEdge && filmHeight)) continue;
+            let at = Math.min(...group.map(entry => entry.offset)) + (bottomEdge ? filmHeight : 0);
+            const ordered = bottomEdge ? [...group].reverse() : group;
+            for (const {tool} of ordered) {
+                tool.style.setProperty(bottomEdge ? 'bottom' : 'top', `${Math.round(at)}px`);
+                touched.add(tool);
+                at += tool.offsetHeight + 8;
+            }
+        }
+    };
+    const interval = window.setInterval(pass, 700);
+    window.addEventListener('resize', pass);
+    window.setTimeout(pass, 50);
+    return () => {
+        window.clearInterval(interval);
+        window.removeEventListener('resize', pass);
+        for (const tool of touched) { tool.style.removeProperty('top'); tool.style.removeProperty('bottom'); }
     };
 }
