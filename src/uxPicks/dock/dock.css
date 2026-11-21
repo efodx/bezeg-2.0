@@ -24,7 +24,7 @@
 /* Vertical stacks: top to bottom; taller than their room they scroll (themed thin scrollbar and a soft fade at the cut edge). */
 .ux-dock-v {
     flex-direction: column; flex-wrap: nowrap; width: max-content; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;
-    scrollbar-color: var(--bezeg-shell-ink-secondary) transparent; padding: 2px; margin: 2px; max-height: calc(var(--ux-dock-h, 600px) * 0.45);
+    scrollbar-color: var(--bezeg-shell-ink-secondary) transparent; padding: 14px; margin: -10px; /* room for the cards' soft shadow inside the scroll box (it clipped square); same 4 px outer offset */ max-height: calc(var(--ux-dock-h, 600px) * 0.45);
 }
 .ux-dock-a-tl, .ux-dock-a-tr { max-height: calc(var(--ux-dock-h, 600px) * 0.62); }
 .ux-dock-a-br { max-height: calc(var(--ux-dock-h, 600px) * 0.4); }
@@ -40,7 +40,7 @@
 /* Rows: cards side by side, centred; a row wider than the centre column scrolls sideways. */
 .ux-dock-h {
     flex-direction: row; flex-wrap: nowrap; width: max-content; max-width: calc(100% - 4px); overflow-x: auto; overflow-y: hidden; scrollbar-width: thin;
-    scrollbar-color: var(--bezeg-shell-ink-secondary) transparent; padding: 2px; margin: 2px; max-height: calc(var(--ux-dock-h, 600px) * 0.45);
+    scrollbar-color: var(--bezeg-shell-ink-secondary) transparent; padding: 14px; margin: -10px; /* room for the cards' soft shadow inside the scroll box (it clipped square); same 4 px outer offset */ max-height: calc(var(--ux-dock-h, 600px) * 0.45);
 }
 .ux-dock-a-tc { align-items: flex-start; }
 .ux-dock-a-bc { align-items: flex-end; }
