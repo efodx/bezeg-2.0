@@ -25,6 +25,7 @@ import {CurveGrab} from '../../uxlab/CurveGrab';
 import {FeedForward} from '../../uxlab/FeedForward';
 import {LiveProse} from '../../uxlab/LiveProse';
 import {GhostHand} from '../../uxlab/GhostHand';
+import {SliderTrace} from '../../uxlab/SliderTrace';
 import {uxEnabled} from '../../uxlab/flags';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
@@ -254,6 +255,7 @@ export function DemonstrationWorkspace(props: {
         {uxEnabled('b8') && props.lessonCapabilities && <ClipRecorder root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b7') && props.lessonCapabilities && <WhyLens root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b6') && props.lessonCapabilities && <ParameterFan root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
+        {uxEnabled('b16') && props.lessonCapabilities && <SliderTrace root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
         {uxEnabled('b15') && props.lessonCapabilities && <GhostHand root={workspaceRoot} capabilities={props.lessonCapabilities}/>}
         {uxEnabled('b14') && props.lessonCapabilities && <LiveProse root={workspaceRoot} capabilities={props.lessonCapabilities}/>}
         {uxEnabled('b13') && props.lessonCapabilities && <FeedForward root={workspaceRoot} capabilities={props.lessonCapabilities} locked={lessonActive && lessonMode === 'content'}/>}
