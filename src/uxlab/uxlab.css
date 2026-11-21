@@ -526,3 +526,24 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-map-marker { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid #d6a646; background: rgba(255, 253, 245, .5); box-shadow: 0 0 0 2px #fffdf5, 0 2px 8px rgba(0, 0, 0, .25); pointer-events: none; }
 .ux-map-note { margin: 8px 0 0; font-size: 12px; color: #526152; line-height: 1.4; }
 .ux-map-heat.ux-map-heat { min-height: 0; padding: 0 6px; border-radius: 999px; border: 1px solid #5d3b6e; background: rgba(93, 59, 110, .1); color: #5d3b6e; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+/* b19 Naloga iz prizora */
+.ux-task-dock { position: absolute; left: 10px; bottom: 10px; z-index: 30; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 140px); }
+.ux-task-open.ux-task-open { min-height: 34px; padding: 6px 14px; border-radius: 999px; border: 1px solid #244c37; background: #fffdf5; color: #244c37; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(25, 55, 47, .14); cursor: pointer; white-space: nowrap; }
+.ux-task-open.ux-task-open:hover { background: #244c37; color: #fffdf5; }
+.ux-task-message { font-size: 12px; color: #526152; background: rgba(255, 253, 245, .92); padding: 4px 8px; border-radius: 8px; }
+.ux-task { position: absolute; left: 10px; bottom: 10px; z-index: 31; width: min(330px, calc(100% - 20px)); padding: 10px 14px 12px; border-radius: 14px; background: rgba(255, 253, 245, .97); border: 1px solid rgba(36, 76, 55, .2); box-shadow: 0 12px 32px rgba(25, 55, 47, .2); font-size: 14px; color: #19372f; }
+.ux-task.is-sheet { position: fixed; left: 0; right: 0; bottom: 0; width: auto; border-radius: 16px 16px 0 0; z-index: 60; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+.ux-task-head { display: flex; align-items: center; justify-content: space-between; color: #244c37; }
+.ux-task-close.ux-task-close { min-height: 30px; min-width: 30px; padding: 0; border: 0; background: none; font-size: 16px; color: #526152; cursor: pointer; }
+.ux-task-text { margin: 4px 0 6px; line-height: 1.45; }
+.ux-task-text b { color: #5d3b6e; }
+.ux-task-hint { margin: 0 0 8px; font-size: 12.5px; color: #526152; }
+.ux-task-ok { margin: 0 0 8px; font-weight: 700; color: #244c37; }
+.ux-task-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.ux-task-actions button { min-height: 34px; padding: 4px 14px; border-radius: 999px; font-size: 13px; }
+.ux-task .ux-task-actions button.ux-task-primary { background: #244c37; border: 1px solid #244c37; color: #fffdf5; opacity: 1; font-weight: 700; }
+.ux-task .ux-task-actions button.ux-task-primary:hover { background: #19372f; }
+.ux-task-masked { filter: blur(6px); transition: filter .2s; }
+.ux-task-slider { animation: ux-task-glow 0.8s ease-in-out 3; border-radius: 8px; }
+@keyframes ux-task-glow { 50% { box-shadow: 0 0 0 4px rgba(93, 59, 110, .35); } }

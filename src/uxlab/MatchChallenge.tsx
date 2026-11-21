@@ -54,7 +54,7 @@ function readBest(): number { try { return Number(window.localStorage.getItem(st
 function writeBest(value: number) { try { window.localStorage.setItem(storageKey(), String(value)); } catch { /* storage off */ } }
 
 /** Elderflower umbels bursting from the board centre. */
-function bloom(container: HTMLElement) {
+export function bloom(container: HTMLElement) {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     const layer = document.createElement('div');
     layer.className = 'ux-bloom';

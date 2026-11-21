@@ -21,6 +21,16 @@ export function readouts(board: UxBoard): Map<string, number> {
     }
     document.querySelectorAll('#workspace-inspector li, #workspace-inspector p, #workspace-inspector dd, #workspace-inspector td').forEach(node => texts.push(node.textContent ?? ''));
     const found = new Map<string, number>();
+    // The inspector's readout list: a label cell and a value cell ("√41 ≈ 6,40312", "63,4349°"): the last number counts.
+    document.querySelectorAll<HTMLElement>('#workspace-inspector .readout-list-row').forEach(row => {
+        if (row.offsetParent === null || row.children.length < 2) return;
+        const label = (row.firstElementChild?.textContent ?? '').replace(/\s+/g, ' ').trim();
+        const numbers = [...(row.lastElementChild?.textContent ?? '').replace(/ /g, ' ').matchAll(/([−-]?)\s*(\d+(?:,\d+)?)/g)];
+        const last = numbers[numbers.length - 1];
+        if (!label || label.length > 48 || !last) return;
+        const value = Number(last[2].replace(',', '.')) * (last[1] ? -1 : 1);
+        if (Number.isFinite(value) && !found.has(label)) found.set(label, value);
+    });
     const pattern = /([^=;\n]{1,48}?)\s*=\s*([−-]?)\s*(\d+(?:,\d+)?)/g;
     for (const text of texts) {
         for (const match of text.replace(/ /g, ' ').matchAll(pattern)) {

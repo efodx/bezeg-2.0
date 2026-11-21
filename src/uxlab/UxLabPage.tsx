@@ -50,6 +50,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b19',
+        name: 'Naloga iz prizora: vsak graf si sam sestavi vaje',
+        idea: 'Gumb »🎯 Naloga« iz trenutnega prizora sestavi nalogo, na primer »Nastavi drsnik Točka x tako, da bo napaka = 1,6«. Odčitek na grafu in v inšpektorju se zamegli, zato vrednost oceniš iz risbe, šele s Preveri vidiš število; dva zgrešena poskusa pokažeta rešitev, zadetki gradijo niz.',
+        generalizes: 'Za zamrznjeno kopijo plošče prehodi naključni drsnik, prebere vse odčitke (zapise »oznaka = število« in vrstice seznama Odčitki) in izbere vrednost, ki jo prizor res doseže, zaokroženo na dve mesti. Šteje vsaka nastavitev, ki cilj doseže, ne glede na pot. Brez kode na lekcijo.',
+        try: 'Pritisni »🎯 Naloga« v spodnjem levem kotu grafa, premakni imenovani drsnik po občutku, nato Preveri.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (napaka)', to: '/bezeg-2.0/analysis/taylor?ux=b19'},
+            {label: 'Funkcije: določeni integral (vsota in integral)', to: '/bezeg-2.0/functions/integral?ux=b19'},
+            {label: 'Verjetnost: binomska in normalna (σ, verjetnosti)', to: '/bezeg-2.0/probability/binomial-normal?ux=b19'},
+        ],
+    },
+    {
         id: 'b14',
         name: 'Živo besedilo: simboli v razlagi so drsniki',
         idea: 'Črka v besedilu lekcije, ki pomeni količino prizora (»središče c«, »stopnja n«, »x = 1«), je podčrtana s pikicami: ko greš nanjo, se prižgejo vse njene ponovitve in njen drsnik, ko jo povlečeš levo ali desno, se graf spreminja. Dokler lekcija drži prizor, se graf po spustu vrne v sliko lekcije, kot vzmet.',
