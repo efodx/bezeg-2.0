@@ -95,7 +95,7 @@ function effectsOf(before: Map<string, number>, after: Map<string, number>, chan
     const effects: Change[] = [];
     for (const [label, to] of after) {
         const from = before.get(label);
-        if (from === undefined || near(from, to)) continue;
+        if (from === undefined || near(from, to) || !/\p{L}/u.test(label)) continue;
         const echo = changes.some(change => (near(change.from, from) && near(change.to, to)) || shortName(label) === change.name || label.trim() === change.name);
         if (echo) continue;
         // One quantity shown twice (board text and readout list) is one effect, under its shorter name.
@@ -110,7 +110,7 @@ function keptOf(before: Map<string, number>, after: Map<string, number>, names: 
     const kept: Change[] = [];
     for (const [label, to] of after) {
         const from = before.get(label);
-        if (from === undefined || !near(from, to) || names.includes(shortName(label)) || label.trim().length < 2) continue;
+        if (from === undefined || !near(from, to) || names.includes(shortName(label)) || label.trim().length < 2 || !/\p{L}/u.test(label)) continue;
         const twin = kept.findIndex(item => near(item.to, to));
         if (twin < 0) kept.push({name: label, from, to});
         else if (label.length < kept[twin].name.length) kept[twin] = {name: label, from, to};
@@ -178,6 +178,35 @@ function sentence(entry: Entry) {
     return <>{moved}{(effects.length > 0 || entry.kept.length > 0) && <span className="ux-lab-then" aria-label="posledica">⇒</span>}{effects.length > 0 ? effects : entry.kept.length > 0
         ? entry.kept.slice(0, 2).map(item => <span key={item.name} className="ux-lab-kept">{item.name} ostane {format(item.to)}</span>)
         : <span className="ux-lab-none">odčitki enaki</span>}</>;
+}
+
+function ruleLine(rule: Conjecture): string {
+    return rule.contradicted ? `Protislovje: ob ${rule.direction > 0 ? 'povečanju' : 'zmanjšanju'} ${rule.name} ${rule.label} enkrat narašča, drugič pada.`
+        : rule.sign === 0 ? `Nespremenljivka? Ko spreminjaš ${rule.name}, se ${rule.label} ne spremeni (${rule.count}×).`
+        : `Domneva: če ${rule.name} ${verb(rule.direction)}š, se ${rule.label} ${verb(rule.sign)} (${rule.count}×).`;
+}
+
+/** The notebook as a Markdown lab report the learner can hand in (a file download; nothing leaves the browser otherwise). */
+function exportReport(entries: Entry[], rules: Conjecture[]) {
+    const plain = (entry: Entry) => {
+        const moved = entry.changes.length ? entry.changes.map(change => `${change.name} ${arrow(change)}`).join(', ')
+            : entry.points?.length ? entry.points.map(item => `${item.name} ${point(item.from)} → ${point(item.to)}`).join(', ') : 'premik na grafu';
+        const effects = entry.effects.length ? entry.effects.map(effect => `${effect.name} ${arrow(effect)}`).join('; ')
+            : entry.kept.length ? entry.kept.map(item => `${item.name} ostane ${format(item.to)}`).join('; ') : 'odčitki enaki';
+        const test = entry.kind === 'test' ? ` — preizkus (${entry.claim}): ${entry.verdict === 'holds' ? 'drži' : entry.verdict === 'breaks' ? 'ne drži' : 'brez spremembe'}${entry.guess ? `, napoved ${entry.guess.right ? 'pravilna' : 'napačna'}` : ''}` : '';
+        const context = entry.context?.length ? ` (pri ${entry.context.map(item => `${item.name} = ${format(item.to)}`).join(', ')})` : '';
+        return `${entry.id}. ${moved} ⇒ ${effects}${context}${test}`;
+    };
+    const title = document.querySelector('h1')?.textContent?.trim() ?? 'Bezeg';
+    const text = [`# Laboratorijski dnevnik: ${title}`, '', `${new Date().toLocaleString('sl-SI')} · ${window.location.href}`, '',
+        '## Domneve', '', ...(rules.length ? rules.map(rule => `- ${ruleLine(rule)}`) : ['- (še nobena)']), '',
+        '## Poskusi', '', ...[...entries].reverse().map(plain), ''].join('\n');
+    const url = URL.createObjectURL(new Blob([text], {type: 'text/markdown;charset=utf-8'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'laboratorijski-dnevnik.md';
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function ruleText(rule: Conjecture) {
@@ -457,6 +486,7 @@ export function LabNotebook(props: {root: React.RefObject<HTMLElement>; capabili
     const panel = open && <div className={`ux-lab${phone ? ' is-sheet' : ''}`} role="dialog" aria-label="Laboratorijski dnevnik" onPointerDown={event => event.stopPropagation()}>
         <div className="ux-lab-head">
             <strong>Laboratorijski dnevnik</strong>
+            {entries.length > 0 && <button type="button" className="ux-lab-clear" onClick={() => exportReport(entries, rules)}>Izvozi</button>}
             {entries.length > 0 && <button type="button" className="ux-lab-clear" onClick={() => setEntries([])}>Počisti</button>}
             <button type="button" className="ux-lab-close" aria-label="Zapri dnevnik" onClick={() => { answer.current?.(undefined); setOpen(false); }}>✕</button>
         </div>
