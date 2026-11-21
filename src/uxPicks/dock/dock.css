@@ -33,6 +33,8 @@
 .ux-dock-col:not(:has(> .ux-dock-region:not(:empty) ~ .ux-dock-region:not(:empty))) > .ux-dock-v:not(:empty) { max-height: calc(100% - 4px); }
 /* A folded card is only its head: in a crowded stack it keeps that height and the open cards give way. */
 .ux-dock-v > .ux-btext.ux-btext-collapsed { flex-shrink: 0; }
+/* A stack of folded heads only keeps its height (it was squeezed to a sliver beside an open stack in a short column). */
+.ux-dock-v:not(:empty):not(:has(> .ux-btext:not(.ux-btext-collapsed))) { flex-shrink: 0; }
 .ux-dock-a-tl, .ux-dock-a-ml { align-items: flex-start; }
 .ux-dock-a-tr, .ux-dock-a-mr, .ux-dock-a-br { align-items: flex-end; }
 /* Rows: cards side by side, centred; a row wider than the centre column scrolls sideways. */

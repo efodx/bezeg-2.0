@@ -20,9 +20,23 @@
 
 /* The tools card. Its own head (grip, "Orodja", fold) replaces the tools' heading; the tabs stay. */
 .ux-bcard-tools { width: 310px; max-width: none; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
-.ux-bcard-tools > .ux-tools-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.ux-bcard-tools > .ux-tools-body {
+    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+    overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-ink-secondary) transparent;
+}
+/* Scroll cue: a soft shadow at an edge with more behind it (the panel-coloured "local" layers cover it at the ends). */
+.ux-bcard-tools > .ux-tools-body {
+    background:
+        linear-gradient(var(--bezeg-shell-panel) 30%, transparent) 0 0 / 100% 20px no-repeat local,
+        linear-gradient(transparent, var(--bezeg-shell-panel) 70%) 0 100% / 100% 20px no-repeat local,
+        linear-gradient(rgba(25, 55, 47, .16), transparent) 0 0 / 100% 8px no-repeat scroll,
+        linear-gradient(transparent, rgba(25, 55, 47, .16)) 0 100% / 100% 8px no-repeat scroll;
+}
+.is-presenting .ux-bcard-tools > .ux-tools-body { background: none; }
+.ux-bcard-tools > .ux-tools-body::-webkit-scrollbar { width: 6px; }
+.ux-bcard-tools > .ux-tools-body::-webkit-scrollbar-thumb { background: var(--bezeg-shell-ink-secondary); border-radius: 3px; }
 .ux-bcard-tools > .ux-tools-body[hidden] { display: none; }
-.ux-bcard-tools .workspace-inspector { flex: 1 1 auto; height: auto; min-height: 0; border: 0; background: transparent; }
+.ux-bcard-tools .workspace-inspector { flex: none; height: auto; min-height: 0; border: 0; background: transparent; }
 .ux-bcard-tools .workspace-inspector .inspector-heading { display: none !important; }
 .ux-bcard-tools > .ux-btext-head { padding: 6px 6px 2px 8px; }
 .ux-bcard-tools .ux-btext-title { font-weight: 700; letter-spacing: .08em; color: var(--workspace-ink, var(--bezeg-shell-ink)); }
@@ -32,7 +46,7 @@
 .ux-dock-v > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 auto; min-height: 180px; }
 /* Sharing a stack with the lesson card, the tools give way first: the lesson keeps its text's height while the tools shrink
    to their minimum, then both shrink. */
-.ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 0; }
+.ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 0; min-height: 120px; }
 .ux-bcard-tools.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
 
 /* Presentation: the card takes the tools' night colours. */
@@ -138,9 +152,12 @@
     position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
 .ux-bcard-tools .workspace-inspector { overflow: visible; contain: none; }
-.ux-bcard-tools .inspector-toolbar { position: relative; height: 0; border: 0; border-radius: 0; background: transparent; }
+/* The body scrolls (a short card shows what fits and scrolls the rest); the tabs are laid over the head, which does not
+   scroll, so they are placed against the card, not the scrolling body. */
+.ux-bcard-tools #inspector-content { overflow: visible; flex: none; }
+.ux-bcard-tools .inspector-toolbar { position: static; height: 0; border: 0; border-radius: 0; background: transparent; }
 .ux-bcard-tools .inspector-toolbar .inspector-tabs {
-    position: absolute; z-index: 2; left: 38px; right: 40px; top: calc((var(--ux-head-h) - var(--ux-tab-h)) / 2 - var(--ux-head-h));
+    position: absolute; z-index: 2; left: 38px; right: 40px; top: calc((var(--ux-head-h) - var(--ux-tab-h)) / 2);
     height: var(--ux-tab-h); box-sizing: border-box; margin: 0; padding: 2px; gap: 2px; border-radius: 8px;
 }
 .ux-bcard-tools .inspector-toolbar .inspector-tabs button { min-height: 0; height: 100%; padding: 0 4px; font-size: .8125rem; line-height: 1; border-radius: 6px; }
@@ -202,3 +219,13 @@
 .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button:is(.ux-sec-fold, .ux-sec-help):is(:hover, [aria-expanded="true"]:not(.ux-sec-fold)) { background: var(--bezeg-shell-control-hover); }
 @media (pointer: coarse) { .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-fold, .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-help { width: 44px; height: 44px; } }
 .ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] > h3 > .ux-sec-help { display: none; }
+
+/* Lesson card: the text region fades at the edge it is cut at (useLessonCardFit marks data-overflow). */
+.ux-bcard-guide .guided-lesson-reading[data-overflow~="end"] { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); }
+.ux-bcard-guide .guided-lesson-reading[data-overflow~="start"] { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20px); mask-image: linear-gradient(to bottom, transparent, #000 20px); }
+.ux-bcard-guide .guided-lesson-reading[data-overflow~="start"][data-overflow~="end"] { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 20px, #000 calc(100% - 28px), transparent); }
+.ux-bcard-guide .guided-lesson-reading { scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-ink-secondary) transparent; }
+/* Folded, the head keeps Back and Next beside the progress. */
+.ux-lesson-fold-nav { display: inline-flex; gap: 2px; margin-left: auto; align-self: center; }
+.ux-lesson-fold-nav .ux-btext-toggle:disabled { opacity: .4; cursor: default; }
+.ux-lesson-fold-nav .ux-btext-toggle:not(:disabled) { color: var(--bezeg-shell-ink); }

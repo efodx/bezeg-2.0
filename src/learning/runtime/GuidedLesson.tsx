@@ -12,6 +12,8 @@ import {DockCard} from '../../uxPicks/dock/DockCard';
 import {ChevronLeftIcon, ChevronRightIcon} from '../../uxPicks/dock/icons';
 import {LessonMenu} from '../../uxPicks/toolsCard/LessonMenu';
 import {useLessonDrift} from '../../uxPicks/toolsCard/useLessonDrift';
+import {stopAllOscillators} from '../../uxPicks/a3/oscillators';
+import {useLessonCardFit} from '../../uxPicks/toolsCard/useLessonCardFit';
 import '../../uxPicks/toolsCard/lessonDrift.css';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
@@ -550,7 +552,15 @@ export function GuidedLesson(props: {
     // the card offers "Povrni", which applies the step's scene again (as Back and Next do).
     const [drifted, clearDrift] = useLessonDrift(lessonOnGraph && snapshot.status === 'content',
         `${snapshot.stepIndex}:${snapshot.frameIndex}`, () => props.capabilities.captureState());
-    const restoreFrame = () => { refresh(() => session.reset()); clearDrift(); };
+    const restoreFrame = () => { if (lessonOnGraph) stopAllOscillators(); refresh(() => session.reset()); clearDrift(); };
+    useLessonCardFit(lessonOnGraph && overlayVisible, props.lesson);
+    // Pick a3: a sweep (the ∿ on a puck) belongs to the frame it was started in; any frame change, Povrni, and the lesson's
+    // start and close stop every sweep, so the graph never disagrees with the frame it is showing.
+    useEffect(() => {
+        if (!lessonOnGraph) return undefined;
+        stopAllOscillators();
+        return () => stopAllOscillators();
+    }, [lessonOnGraph, snapshot.stepIndex, snapshot.frameIndex]);
 
     const close = (restoreCompleted = false) => {
         session.close({restoreCompleted});
@@ -657,10 +667,10 @@ export function GuidedLesson(props: {
     // Back and Next sit beside the progress in the tools column. In one column they are the card's last row, after the
     // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
     const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; navigate(() => session.back()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; if (lessonOnGraph) stopAllOscillators(); navigate(() => session.back()); }}>
                 {lessonOnGraph ? <><ChevronLeftIcon/><span className="ux-nav-label">{t('guided_lesson_previous_frame_short')}</span></> : t('guided_lesson_previous_frame_short')}
             </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; navigate(() => session.next()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; if (lessonOnGraph) stopAllOscillators(); navigate(() => session.next()); }}>
                 {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}{lessonOnGraph && !atLastFrame && <ChevronRightIcon/>}
             </button>
         </nav>;
@@ -761,7 +771,13 @@ export function GuidedLesson(props: {
             <DockCard kind="guide" title={cardTitle} what="navodila" region="tl" order={-1}
                 collapsed={!cardOpen} onToggle={open => { if (open) showOverlay(); else hideOverlay(); }}
                 head={<><span id="guided-lesson-title" className="ux-lesson-card-title" title={lessonTitle}>{cardTitle}</span>
-                    {!cardOpen && !isComplete && <span className="ux-lesson-card-progress">{progress}</span>}</>}
+                    {!cardOpen && !isComplete && <span className="ux-lesson-card-progress">{progress}</span>}
+                    {!cardOpen && !isComplete && <span className="ux-lesson-fold-nav">
+                        <button type="button" className="ux-btext-toggle" aria-label={t('guided_lesson_previous_frame_accessible')} title={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame}
+                            onClick={() => { stopAllOscillators(); navigate(() => session.back()); }}><ChevronLeftIcon/></button>
+                        <button type="button" className="ux-btext-toggle" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} title={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')}
+                            onClick={() => { stopAllOscillators(); navigate(() => session.next()); }}><ChevronRightIcon/></button>
+                    </span>}</>}
                 actions={menu}>
                 {() => overlayVisible && <section ref={lessonRef} tabIndex={-1} className={`guided-lesson guided-lesson-on-graph guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}`} aria-labelledby="guided-lesson-title">
                     {cardProgress}

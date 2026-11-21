@@ -43,7 +43,7 @@ function SlotHost(props: {slot: HTMLElement}) {
 /** One card per registered section, at the left middle (the right column holds the text, readouts and legend). */
 export function BoardSectionCards() {
     const all = useSections();
-    return <>{all.map((s, i) => <DockCard key={s.kind} kind={`section-${s.kind}`} title={s.title} what={s.what} region="ml" order={i} foldWhenNarrow>
+    return <>{all.map((s, i) => <DockCard key={s.kind} kind={`section-${s.kind}`} title={s.title} what={s.what} region="ml" order={i} foldWhenNarrow foldInLesson>
         {open => open && <SlotHost slot={s.slot}/>}
     </DockCard>)}</>;
 }

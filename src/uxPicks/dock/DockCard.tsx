@@ -41,6 +41,8 @@ export interface DockCardProps {
     onToggle?: (open: boolean) => void;
     /** Starts folded on a narrow window (a crowded board) until the learner opens or folds it once. */
     foldWhenNarrow?: boolean;
+    /** Starts folded while a guided lesson is open (its card needs the column) until the learner opens or folds it once. */
+    foldInLesson?: boolean;
 }
 
 interface Pos { x: number; y: number; }
@@ -84,6 +86,19 @@ export function DockCard(props: DockCardProps) {
     /** What a screen reader hears after a keyboard move, a drop or a reset (a polite status line). */
     const [said, setSaid] = useState('');
     
+    useEffect(() => {
+        if (!props.foldInLesson) return undefined;
+        const workspace = document.querySelector('.demonstration-workspace');
+        if (!workspace) return undefined;
+        const apply = () => {
+            try { if (localStorage.getItem(collapsedKey(kind)) !== null) return; } catch { return; }
+            setCollapsed(workspace.classList.contains('lesson-open') || (props.foldWhenNarrow === true && window.innerWidth < NARROW_PX));
+        };
+        apply();
+        const observer = new MutationObserver(apply);
+        observer.observe(workspace, {attributes: true, attributeFilter: ['class']});
+        return () => observer.disconnect();
+    }, [kind, props.foldInLesson, props.foldWhenNarrow]);
     useEffect(() => registerCard(kind, props.region, props.order ?? 0), [kind, props.region, props.order]);
     useEffect(() => { setFloating(kind, floating); }, [kind, floating]);
     // A new page keeps its own place for the card.

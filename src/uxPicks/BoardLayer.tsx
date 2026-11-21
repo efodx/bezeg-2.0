@@ -6,6 +6,7 @@ import {PuckHover} from './a29/PuckHover';
 import {BoardCards} from './boardText/BoardTextCard';
 import {BoardDock} from './dock/BoardDock';
 import {useEditingParam} from './a1/paramRegistry';
+import {useQuietFormulas} from './quietFormulas';
 
 /**
  * The board frame that hosts the on-board picks; each child renders only while its pick is on. Pucks and cards sit in
@@ -20,6 +21,7 @@ export function UxBoardFrame(props: {children: React.ReactNode}) {
     const boardText = usePick('boardText');
     const toolsCard = usePick('toolsCard');
     // While a puck is typed into, the hover previews are unmounted, which also clears their ghosts from the board.
+    useQuietFormulas(boardText || toolsCard);
     const typing = useEditingParam() !== undefined;
     return <>
         <div className="ux-board-frame" ref={frame}>
