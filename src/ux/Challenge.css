@@ -1,0 +1,47 @@
+.ux-challenge-ghost { position: absolute; z-index: 4; pointer-events: none; overflow: hidden; }
+.ux-challenge-ghost svg { position: absolute; left: 0; top: 0; }
+.ux-challenge-ghost svg :is(path, line, ellipse, circle, polygon, rect, polyline) {
+    stroke: #6d4c8f !important; stroke-opacity: 0.8 !important; stroke-dasharray: 9 6; stroke-width: 3px !important; fill: #6d4c8f !important; fill-opacity: 0.08 !important;
+}
+.ux-challenge-ghost svg path:not([fill]), .ux-challenge-ghost svg path[fill="none"], .ux-challenge-ghost svg line, .ux-challenge-ghost svg polyline { fill: none !important; }
+.ux-challenge-ghost.is-solved svg :is(path, line, ellipse, circle, polygon, rect, polyline) { stroke: #3d7a56 !important; transition: stroke 400ms; }
+
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-start {
+    position: absolute; right: 10px; z-index: 6; pointer-events: auto;
+    display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 4px 13px 4px 9px; border-radius: 12px; cursor: pointer;
+    background: rgba(255, 253, 245, 0.94); border: 1px solid #d6dccb; color: #19372f; font-size: 0.82rem; font-weight: 600; box-shadow: 0 2px 10px rgba(25, 55, 47, 0.1);
+}
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-start.is-on { background: #f8e3cc; border-color: #b0702d; }
+.ux-challenge-start svg { width: 20px; height: 20px; fill: none; stroke: #19372f; stroke-width: 1.4; }
+.ux-challenge-start svg .eye { fill: #b0702d; stroke: #b0702d; }
+
+.ux-challenge-panel {
+    position: absolute; right: 10px; bottom: 112px; z-index: 9; width: min(340px, calc(100% - 20px)); display: flex; flex-direction: column; gap: 8px;
+    padding: 12px 14px; border-radius: 14px; background: #fffdf5; border: 1px solid #d6dccb; box-shadow: 0 8px 28px rgba(25, 55, 47, 0.18);
+    color: #19372f; font-size: 0.82rem;
+}
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-panel,
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-panel :is(button, a, input),
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-bar,
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-bar button { pointer-events: auto; }
+.ux-challenge-panel p { margin: 0; line-height: 1.45; color: #526152; }
+.ux-challenge-panel i { font-family: "Source Serif 4", "Times New Roman", serif; font-size: 1.1em; color: #885512; }
+.ux-challenge-panel input { width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid #d6dccb; font-size: 0.74rem; color: #19372f; background: #f7f5e8; }
+.ux-challenge-actions { display: flex; gap: 8px; align-items: center; }
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-actions button,
+.demonstration-workspace .workspace-graph .ux-board-frame .ux-challenge-bar button {
+    min-height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #244c37; color: #fffdf5; font-weight: 600; cursor: pointer;
+}
+.ux-challenge-actions a { color: #244c37; font-weight: 600; }
+.ux-challenge-bar {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 8; margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    max-width: min(620px, calc(100% - 20px)); padding: 7px 12px; border-radius: 14px; background: rgba(255, 253, 245, 0.96); border: 1px solid #c9b8dc;
+    box-shadow: 0 4px 16px rgba(25, 55, 47, 0.12); color: #19372f; font-size: 0.82rem;
+}
+.ux-challenge-bar b { color: #6d4c8f; }
+.ux-challenge-meter { flex: 1 1 120px; min-width: 90px; height: 8px; border-radius: 4px; background: #ece6f2; overflow: hidden; }
+.ux-challenge-meter span { display: block; height: 100%; background: linear-gradient(90deg, #b88a43, #3d7a56); transition: width 160ms; }
+@media (max-width: 600px) {
+    .ux-challenge-bar { top: 6px; font-size: 0.74rem; padding: 5px 9px; }
+    .ux-challenge-panel { bottom: auto; top: 8px; right: 56px; width: calc(100% - 66px); }
+}

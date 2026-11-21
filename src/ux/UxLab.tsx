@@ -3,10 +3,21 @@ import './UxLab.css';
 
 /** The lane-A tour: one card per prototype, best first, with deep links that switch the flags on. */
 
-interface LabLink { label: string; family: string; path: string; at?: number; flags: string; free?: boolean }
+interface LabLink { label: string; family: string; path: string; at?: number; flags: string; free?: boolean; extra?: Record<string, string> }
 interface LabPrototype { id: string; name: string; idea: string; general: string; try: string; links: LabLink[] }
 
 const PROTOTYPES: LabPrototype[] = [
+    {
+        id: 'a24', name: 'Izziv za prijatelja',
+        idea: 'Z drsniki oblikuj katerikoli graf, pritisni »Izziv« in dobiš povezavo. Kdor jo odpre, vidi isto stran z začetnimi vrednostmi, tvoj graf pa črtkano kot tarčo, ki jo mora zadeti; vrstica bližine kaže, kako blizu je, cvet bezga pove »zadeto«, nato lahko izziv vrne.',
+        general: 'Učenci si drug drugemu postavljajo naloge, kar je hkrati priklic in razlaga. Statično in brez strežnika: izziv živi v povezavi (oznake parametrov in vrednosti), tarča se nariše tako, da Bezeg tablo za hip postavi nanjo in jo povrne. Deluje na vsaki strani z drsniki: šolske funkcije, verjetnost, trigonometrija.',
+        try: 'Odpri povezavo »izziv« spodaj (pripravljen izziv) ali na kateri koli strani premakni drsnike in pritisni »Izziv«.',
+        links: [
+            {label: 'Pripravljen izziv: parabola', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a24', free: true, extra: {izziv: 'W3sibCI6IlZvZG9yYXZuaSBwcmVtaWsgYyIsInYiOjV9LHsibCI6Ik5hdnBpxI1uYSByYXp0ZWduaXRldiBhIiwidiI6MX1d'}},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a24', free: true},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', flags: 'a24', free: true},
+        ],
+    },
     {
         id: 'a23', name: 'Značilne točke',
         idea: 'Vsaka krivulja na tabli sproti nosi svoje kažipote: ničle, presečišče z osjo y ter lokalne minimume in maksimume, vsakega s koordinatami. Ko se parameter umiri, graf v enem stavku pove, kaj se je zgodilo: »lokalni maksimum: (3; 1) → (5; 1), 2 desno«, »lokalni maksimum je postal lokalni minimum«, »ničle: 2 → 1, graf se osi x le dotakne v (3; 0)«.',
@@ -274,13 +285,14 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a23', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
     const query = new URLSearchParams(link.free ? {} : {learn: '1'});
     if (link.at) query.set('uxAt', String(link.at));
     if (flags) query.set('ux', flags);
+    if (flags && link.extra) for (const [key, value] of Object.entries(link.extra)) query.set(key, value);
     return `/bezeg-2.0/${link.path}?${query.toString()}`;
 }
 
@@ -290,7 +302,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Triindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Štiriindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
