@@ -203,7 +203,7 @@ export function FamilySpace(props: {frame: React.RefObject<HTMLDivElement>}) {
     // Fit the whole tilted stack between the header and the note; flat, it lies exactly on the board again.
     const corners = [-depth / 2, depth / 2].flatMap(z => ([[0, 0], [W, 0], [W, H], [0, H]] as Vec[]).map(p => raw(p, z)));
     const xs = corners.map(p => p[0]), ys = corners.map(p => p[1]);
-    const top = 58, bottomSpace = W < 600 ? 64 : 48, margin = 26;
+    const top = W < 600 ? 50 : 58, bottomSpace = W < 600 ? 8 : 30, margin = W < 600 ? 14 : 26;
     const k = Math.min((W - 2 * margin) / (Math.max(...xs) - Math.min(...xs)), (H - top - bottomSpace) / (Math.max(...ys) - Math.min(...ys)));
     const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
     const project = (p: Vec, z: number): Vec => {
@@ -231,6 +231,20 @@ export function FamilySpace(props: {frame: React.RefObject<HTMLDivElement>}) {
         setView({yaw: Math.max(-85, Math.min(85, d.view.yaw + (event.clientX - d.x) * 0.35)), pitch: Math.max(-10, Math.min(70, d.view.pitch + (event.clientY - d.y) * 0.3))});
     };
     const up = () => { drag.current = undefined; };
+    // The handle on the parameter axis: slide it and the slice (and the real graph) travel through the landscape.
+    const handle = live && space ? project([0, H], liveZ) : undefined;
+    const slide = (event: React.PointerEvent) => {
+        if (!space || !(event.buttons & 1)) return;
+        const svg = (event.currentTarget as SVGElement).ownerSVGElement!;
+        const rect = svg.getBoundingClientRect();
+        const q: Vec = [(event.clientX - rect.left) * W / rect.width, (event.clientY - rect.top) * H / rect.height];
+        const dx = axisTo[0] - axisFrom[0], dy = axisTo[1] - axisFrom[1];
+        const f = Math.max(0, Math.min(1, ((q[0] - axisFrom[0]) * dx + (q[1] - axisFrom[1]) * dy) / (dx * dx + dy * dy || 1)));
+        const target = getParam(space.key);
+        if (!target) return;
+        const value = space.low + f * (space.high - space.low);
+        target.set(Math.round((value - target.min) / target.step) * target.step + target.min);
+    };
 
     return <div className="ux-space" style={box} role="dialog" aria-label="Družina krivulj v prostoru">
         <svg className="ux-space-stage" viewBox={`0 0 ${W} ${H}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
@@ -247,6 +261,11 @@ export function FamilySpace(props: {frame: React.RefObject<HTMLDivElement>}) {
                         {(i % 6 === 0 || i === space.slices.length - 1) && flatness > 0.3 && entry && (() => { const q = project([0, H], z); return <text x={q[0] - 6} y={q[1] + 4} className="ux-space-tick">{entry.format(Number(slice.value.toPrecision(4)))}</text>; })()}
                     </g>;
                 })}
+                {handle && <g className="ux-space-handle" onPointerDown={event => { event.stopPropagation(); (event.currentTarget as Element).setPointerCapture(event.pointerId); }}
+                    onPointerMove={event => { event.stopPropagation(); slide(event); }} role="slider" aria-label="Vrednost na tretji osi" aria-valuenow={live?.value}>
+                    <circle cx={handle[0]} cy={handle[1]} r={20} className="hit"/>
+                    <circle cx={handle[0]} cy={handle[1]} r={8} className="knob"/>
+                </g>}
                 {live && <g className="ux-space-live">
                     <path d={frameAt(liveZ)} className="ux-space-frame"/>
                     {live.still && <path d={pathOf(live.still, liveZ)} className="still"/>}
@@ -267,6 +286,6 @@ export function FamilySpace(props: {frame: React.RefObject<HTMLDivElement>}) {
             </button>
             <button type="button" className="ux-space-close" onClick={close} aria-label="Zapri prostor">×</button>
         </div>
-        {entry && <p className="ux-space-note">Vsaka tanka krivulja je graf pri drugi vrednosti <i>{symbolOf(entry)}</i>; jantarna je današnja. Povleci, da zasukaš; premakni drsnik in rezina potuje.</p>}
+        {entry && <p className="ux-space-note">Vsaka tanka krivulja je graf pri drugi vrednosti <i>{symbolOf(entry)}</i>; jantarna je današnja. Povleci pokrajino, da jo zasukaš; povleci rumeni gumb na osi in rezina potuje.</p>}
     </div>;
 }
