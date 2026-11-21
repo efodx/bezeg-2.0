@@ -51,6 +51,8 @@ const changeObservers = new Set<ChangeObserver>();
 /** Prototype probes (a17, a19–a21 and the family captures) set values for a moment and restore them; recorders skip those. */
 let probeDepth = 0;
 export function probing(): boolean { return probeDepth > 0; }
+/** For asynchronous probes (a25 reads a whole lesson ahead): call the returned function when done. */
+export function holdProbe(): () => void { probeDepth++; let done = false; return () => { if (!done) { done = true; probeDepth--; } }; }
 export function asProbe<T>(run: () => T): T {
     probeDepth++;
     try { return run(); } finally { probeDepth--; }

@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a25', name: 'Partitura lekcije',
+        idea: 'Ko se vodena lekcija odpre, jo Bezeg tiho prebere naprej (skozi vse okvirje in nazaj) in pod napredek lekcije zapiše partituro kot v glasbenem urejevalniku: za vsak parameter svoj pas, za vsak okvir svoj stolpec, romb, kjer lekcija parameter premakne, in rumen stolpec na trenutnem okvirju. Načrt lekcije je viden na prvi pogled — najprej d, nato c, nato a, b in u — in vsak stolpec je skok.',
+        general: 'Okvirji so prebrani iz gumbov in napredka same lekcije, vrednosti iz deljenega registra drsnikov; zadnjega »Naprej« (konec lekcije) ne pritisne, pri nalogi, ki zahteva rešitev, se ustavi. Brez kode v lekcijah: šolske funkcije, verjetnost, Bézierjeve krivulje.',
+        try: 'Odpri lekcijo in poglej partituro pod »Korak 1 od …«; z miško pojdi čez stolpce, nato klikni enega.',
+        links: [
+            {label: 'Preoblikovanje grafov funkcij', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a25'},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a25'},
+            {label: 'De Casteljaujev postopek', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', flags: 'a25'},
+        ],
+    },
+    {
         id: 'a24', name: 'Izziv za prijatelja',
         idea: 'Z drsniki oblikuj katerikoli graf, pritisni »Izziv« in dobiš povezavo. Kdor jo odpre, vidi isto stran z začetnimi vrednostmi, tvoj graf pa črtkano kot tarčo, ki jo mora zadeti; vrstica bližine kaže, kako blizu je, cvet bezga pove »zadeto«, nato lahko izziv vrne.',
         general: 'Učenci si drug drugemu postavljajo naloge, kar je hkrati priklic in razlaga. Statično in brez strežnika: izziv živi v povezavi (oznake parametrov in vrednosti), tarča se nariše tako, da Bezeg tablo za hip postavi nanjo in jo povrne. Deluje na vsaki strani z drsniki: šolske funkcije, verjetnost, trigonometrija.',
@@ -285,7 +296,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a21', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a21', 'a25', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -302,7 +313,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Štiriindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Petindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
