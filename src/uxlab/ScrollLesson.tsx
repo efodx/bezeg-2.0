@@ -64,7 +64,8 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
     useEffect(() => {
         if (!playing || !root.current) return;
         const element = root.current;
-        let frame = 0, last = performance.now(), carry = 0;
+        let frame = 0, last = performance.now(), stuck = 0;
+        let position: number | undefined;
         const stop = (event?: Event) => { if (event?.target instanceof Element && event.target.closest('.ux-scroll-play')) return; setPlaying(false); };
         const tick = (now: number) => {
             const dt = Math.min(0.1, (now - last) / 1000);
@@ -74,16 +75,15 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
                 const words = Math.max(12, (node.textContent ?? '').split(/\s+/).length);
                 const formulas = node.querySelectorAll('mjx-container[display="true"], .guided-lesson-notation').length;
                 const seconds = words / 2.8 + formulas * 2.5 + 1.5;
-                carry += node.offsetHeight / seconds * dt;
-                const whole = Math.floor(carry);
-                if (whole >= 1) {
-                    carry -= whole;
-                    const target = scroller(element);
-                    const before = target instanceof Window ? window.scrollY : target.scrollTop;
-                    if (target instanceof Window) window.scrollBy(0, whole); else target.scrollTop += whole;
-                    const after = target instanceof Window ? window.scrollY : target.scrollTop;
-                    if (after === before) { stop(); return; }
-                }
+                const target = scroller(element);
+                const current = target instanceof Window ? window.scrollY : target.scrollTop;
+                if (position === undefined || Math.abs(current - position) > 40) position = current;
+                position += node.offsetHeight / seconds * dt;
+                if (target instanceof Window) window.scrollTo(0, Math.round(position)); else target.scrollTop = Math.round(position);
+                const reached = target instanceof Window ? window.scrollY : target.scrollTop;
+                // A scroller that stays behind the clock has reached its end.
+                stuck = position - reached > 6 ? stuck + 1 : 0;
+                if (stuck > 30) { stop(); return; }
             }
             frame = requestAnimationFrame(tick);
         };
