@@ -37,6 +37,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b7',
+        name: 'Kaj premika kaj? Rentgen konstrukcije',
+        idea: 'Dotakni se kateregakoli elementa na grafu in izveš, katere količine ga premikajo; njihovi drsniki v inšpektorju zasvetijo v isti barvi. Ali izberi količino: kar je odvisno od nje, zažari, vse drugo zbledi.',
+        generalizes: 'Vsako prosto količino iz posnetka stanja za trenutek premakne za korak za zamrznjeno kopijo plošče in zapiše, katerim elementom se spremeni risba. Elemente prepozna po videzu in vrstnem redu, ker nekateri grafi ob obnovi vse narišejo na novo. Brez kode na lekcijo.',
+        try: 'Pritisni »Kaj premika kaj?« zgoraj desno, nato se dotakni krivulje ali premice.',
+        links: [
+            {label: 'Trikotnik: Eulerjeva premica', to: '/bezeg-2.0/euler-line?ux=b7'},
+            {label: 'Analiza: Taylorjev polinom', to: '/bezeg-2.0/analysis/taylor?ux=b7'},
+            {label: 'Funkcije: transformacije', to: '/bezeg-2.0/functions/transformations?ux=b7'},
+        ],
+    },
+    {
         id: 'b2',
         name: 'Napoved: najprej nariši, potem poglej',
         idea: 'Preden lekcija spremeni graf, ga zadrži v starem stanju, razlago zamegli in vpraša: kaj se bo zgodilo? Učenec s prstom nariše napoved, nato se resnica zvezno pripelje na graf, njegova črta ostane kot črtkana sled z oceno ujemanja.',
@@ -92,7 +104,7 @@ export function UxLabPage() {
             <p className="uxlab-kicker">UX laboratorij · pas B</p>
             <h1>Ko se zasveti</h1>
             <p className="uxlab-lede">Prototipi, ki izhajajo iz učenčeve glave: trenutek, ko nekaj klikne, kako lekcija pripelje do njega, kako učenec ve, da razume, in kako si zapomni še čez teden dni. Vsak prototip vklopi zastavica <code>?ux=</code>; ista povezava brez nje je današnja aplikacija.</p>
-            <p className="uxlab-all">Vse skupaj v eni lekciji: <Link to="/bezeg-2.0/functions/transformations?learn=1&ux=b1,b2,b3,b5" reloadDocument>lekcija s prehodi, napovedjo, sledmi in vrtom</Link> · <Link to="/bezeg-2.0/bezier/curve?ux=b3,b4,b6" reloadDocument>graf z izzivom, pahljačo in sledmi</Link></p>
+            <p className="uxlab-all">Vse skupaj v eni lekciji: <Link to="/bezeg-2.0/functions/transformations?learn=1&ux=b1,b2,b3,b5" reloadDocument>lekcija s prehodi, napovedjo, sledmi in vrtom</Link> · <Link to="/bezeg-2.0/bezier/curve?ux=b3,b4,b6,b7" reloadDocument>graf z izzivom, pahljačo, rentgenom in sledmi</Link></p>
         </header>
         <ol className="uxlab-list">
             {PROTOTYPES.map((prototype, index) => <li key={prototype.id} className="uxlab-card">
