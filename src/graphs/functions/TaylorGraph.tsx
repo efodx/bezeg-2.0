@@ -18,6 +18,8 @@ import {taylorEditMessage} from "./taylorMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {RevealButton} from "../../inputs/RevealButton";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, ReadoutNote} from "../../uxPicks/declare/graphUx";
 
 /** Positions show four decimals; values of T_n and f show four as well, errors and the bound use significant digits. */
 const PRECISE = 4;
@@ -34,6 +36,9 @@ const EXAMPLE_VIEWS: Readonly<Record<TaylorExampleId, BoundingBox>> = {
     geometric: [-2.6, 6, 1.6, -3],
     flat: [-1.4, 1.6, 3.4, -0.6],
 };
+
+/** UX pick boardText: the caption's lines (formula, numbers, key) move into the cards, so the board stops drawing them. */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** Dash styles (JSXGraph numbering): f is solid, T_n dashed, so they differ by pattern and not only by colour. */
 const FUNCTION_DASH = 0;
@@ -294,12 +299,12 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
 
         // The formula, the numbers, the bound (or the word hidden) and the key stay on the board (projection needs them).
         this.caption("top-left", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {text: () => t("taylor_board_parameters", {value0: this.number(model().center), value1: model().degree, value2: this.number(model().x)})},
-            {text: () => t("taylor_board_values", {value0: this.number(view().polynomial), value1: this.number(view().value)})},
-            {text: () => t("taylor_board_error", {value0: this.small(view().absoluteError)}), color: GraphPalette.warningText},
-            {text: () => this.boardBound(model(), view()), minBoardWidth: 520},
-            {text: () => t("taylor_board_key"), minBoardWidth: 520},
+            {text: () => exampleTitle(model().example), scale: 1.2, math: true, visible: boardTextOnBoard},
+            {text: () => t("taylor_board_parameters", {value0: this.number(model().center), value1: model().degree, value2: this.number(model().x)}), visible: boardTextOnBoard},
+            {text: () => t("taylor_board_values", {value0: this.number(view().polynomial), value1: this.number(view().value)}), visible: boardTextOnBoard},
+            {text: () => t("taylor_board_error", {value0: this.small(view().absoluteError)}), color: GraphPalette.warningText, visible: boardTextOnBoard},
+            {text: () => this.boardBound(model(), view()), minBoardWidth: 520, visible: boardTextOnBoard},
+            {text: () => t("taylor_board_key"), minBoardWidth: 520, visible: boardTextOnBoard},
         ]);
     }
 
@@ -359,6 +364,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the legend card shows it
         return <FunctionLegend items={[
             {id: "function", color: GraphPalette.primaryCurve, label: t("taylor_legend_function"), kind: "line"},
             {id: "polynomial", color: GraphPalette.comparisonCurve, label: t("taylor_legend_polynomial"), kind: "dashed-line"},
@@ -388,7 +394,63 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         return result;
     }
 
+    // ---- UX picks (pick boardText): what the cards show -------------------------------------------------------------
+
+    /** The headline formula as TeX (the same four functions as `exampleFormula`). */
+    private formulaTex(id: TaylorExampleId): string {
+        switch (id) {
+            case "exp": return "f(x)=e^{x}";
+            case "sine": return "f(x)=\\sin x";
+            case "geometric": return "f(x)=\\frac{1}{1-x}";
+            case "flat": return "f(x)=e^{-1/x}\\ (x>0),\\ 0\\ \\text{sicer}";
+        }
+    }
+
+    /** The cards' declaration: the numbers of `renderReadout` grouped for a reader, the state sentences as notes. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const view = this.viewOf(model);
+        const shown = model.boundVisible;
+        const notes: ReadoutNote[] = [];
+        if (!shown) notes.push({id: "bound-state", text: "Ocena napake je skrita.", tone: "muted"});
+        else if (view.bound.kind !== "bound") notes.push({id: "bound-state", text: t("taylor_bound_unavailable"), tone: "muted"});
+        else notes.push({id: "bound-hypothesis", text: `${t("taylor_readout_hypothesis")}: ${this.hypothesisText(model.example)}`, tone: "muted"});
+        notes.push({id: "series", text: this.seriesText(model, view), tone: "muted"});
+        for (const status of this.statuses(model, view)) {
+            if (status.id === "bound-not-sharp" || status.id === "no-bound" || status.id === "flat") notes.push({id: status.id, text: status.text, tone: "muted"});
+        }
+        const bound = shown && view.bound.kind === "bound" ? view.bound.value : undefined;
+        return {
+            formula: this.formulaTex(model.example),
+            readouts: [
+                {id: "setup", title: "Razvoj", rows: [
+                    {id: "center", name: "središče", symbol: "c", value: this.number(model.center), tone: "primary"},
+                    {id: "degree", name: "stopnja", symbol: "n", value: String(model.degree)},
+                    {id: "x", name: "točka", symbol: "x", value: this.number(model.x), tone: "error"},
+                ]},
+                {id: "values", title: "Vrednosti v x", rows: [
+                    {id: "function", name: "funkcija", symbol: "f(x)", value: this.number(view.value), tone: "primary"},
+                    {id: "polynomial", name: "polinom", symbol: "T_n(x)", value: this.number(view.polynomial), tone: "comparison"},
+                    {id: "signed-error", name: "napaka", symbol: "f(x)-T_n(x)", value: this.small(view.signedError), tone: "error"},
+                    {id: "absolute-error", name: "absolutna napaka", symbol: "|f(x)-T_n(x)|", value: this.small(view.absoluteError), tone: "error"},
+                    ...(bound === undefined ? [] : [{id: "bound", name: "ocena napake", symbol: "\\le", value: this.small(bound), tone: "accent" as const}]),
+                ]},
+            ],
+            notes,
+            readoutHelp: <><p>{t("taylor_note")}</p><p>{t("taylor_bound_help")}</p></>,
+            legend: [
+                {id: "function", label: t("taylor_legend_function"), kind: "line", color: GraphPalette.primaryCurve},
+                {id: "polynomial", label: t("taylor_legend_polynomial"), kind: "dashed", color: GraphPalette.comparisonCurve},
+                {id: "error", label: t("taylor_legend_error"), kind: "line", color: GraphPalette.warningText},
+                {id: "bound", label: t("taylor_legend_bound"), kind: "area", color: GraphPalette.constructionAccent},
+                ...(model.example === "geometric" ? [{id: "convergence", label: t("taylor_legend_convergence"), kind: "area" as const, color: GraphPalette.additionalCurves[0]}] : []),
+            ],
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout card shows it
         const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);

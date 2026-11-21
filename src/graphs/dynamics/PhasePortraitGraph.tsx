@@ -21,7 +21,6 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
-import {markBoardLegend} from "../legend/markBoardLegend";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import type {Vec2} from "../../linear/matrix2";
@@ -602,7 +601,6 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 () => { const {top, uy} = this.scaleOf(); return top - (10 + place() * legendPitchPx(this.compactLegend)) / uy; },
                 () => row.text(),
             ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible, cssStyle: LEGEND_BACKDROP});
-            markBoardLegend(legendText, index);
             this.scene.own(legendText);
         });
         // The matrix columns' captions: a second stack from the bottom left corner up, the last column lowest.

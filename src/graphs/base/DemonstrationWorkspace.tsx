@@ -5,6 +5,8 @@ import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext, type UserActionMode, type UserActionPolicy} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
+import {useGraphUxPublisher} from "../../uxPicks/declare/graphUxStore";
+import type {GraphUx} from "../../uxPicks/declare/graphUx";
 import {usePick} from "../../uxPicks/picks";
 import "../../uxPicks/dockTools/dockTools.css";
 import "../../uxPicks/toolsCard/compactHeader.css";
@@ -43,6 +45,8 @@ export function DemonstrationWorkspace(props: {
     disposeFailedGraph?: () => void,
     /** Gives the graph the workspace's decision reader, for commits that arrive through callbacks retained from an earlier render. Returns the release. */
     bindUserActions?: (current: () => UserActionMode) => () => void,
+    /** The graph's UX-pick declaration (`BaseGraph.workspaceUx`), published to the board cards. */
+    ux?: GraphUx,
 }) {
     const t = useT();
     const closeLesson = useRef<(() => void) | undefined>();
@@ -200,6 +204,7 @@ export function DemonstrationWorkspace(props: {
     const userActionModeRef = useRef(userActionMode);
     useLayoutEffect(() => { userActionModeRef.current = userActionMode; }, [userActionMode]);
     const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
+    useGraphUxPublisher(props.ux);
     const bindUserActions = props.bindUserActions;
     useLayoutEffect(() => bindUserActions?.(() => userActionModeRef.current), [bindUserActions]);
     // Every commit: with pick toolsCard the tools mount a little later (when the dock is ready) and again after a move.

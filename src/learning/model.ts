@@ -1,4 +1,5 @@
 import type {DemonstrationId} from '../demonstrations';
+import type {FrameUx} from '../uxPicks/declare/graphUx';
 import type {SystemId} from '../dynamics/systems2';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
@@ -870,6 +871,8 @@ export interface LessonFrame {
     readonly expectedObservations?: readonly LocalizedText[];
     readonly animation?: LessonAnimation;
     readonly action?: LessonStepAction;
+    /** UX picks: the board cards this frame opens and the readout rows it highlights (src/uxPicks/declare/graphUx.ts). */
+    readonly ux?: FrameUx;
 }
 
 export interface LessonStep {

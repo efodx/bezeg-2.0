@@ -58,9 +58,13 @@ import type {SequenceExampleId} from '../../analysis/sequence';
 import type {FixedPointExampleId} from '../../analysis/fixedPoint';
 import type {UniformExampleId} from '../../analysis/uniformConvergence';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+/** `ux` (UX picks): the board cards the frame opens and the readout rows it highlights; only for frames whose text talks about them. */
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** A frame that reads values off the readout card. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
@@ -2076,7 +2080,7 @@ const taylor: GuidedLesson = {
                 'How closely can a polynomial follow \\(e^x\\)? You need higher derivatives \\(f^{(k)}(c)\\) and factorials \\(k!\\). The center \\(c\\) tells us where the polynomial matches the function and its derivatives; the degree \\(n\\) determines how many terms we use. For \\(e^x\\) about \\(c=0\\), every derivative at the center equals \\(1\\). At \\(x=1\\) you will first compare degrees \\(1\\), \\(2\\) and \\(3\\), then degree \\(6\\), before revealing the error bound.',
             ),
             formulaIds: ['taylor-polynomial'], workedExampleId: 'taylor-opening-example',
-            frames: [frame('taylor-prerequisites-explanation', 'explanation'), frame('taylor-prerequisites-calculation', 'calculation'), frame('taylor-prerequisites-observation', 'observation')],
+            frames: [frame('taylor-prerequisites-explanation', 'explanation'), frame('taylor-prerequisites-calculation', 'calculation'), frame('taylor-prerequisites-observation', 'observation', readouts('absolute-error', 'degree'))],
             observationPrompt: text(
                 'Napovej, kako se napaka v točki \\(x=1\\) spremeni, ko stopnjo \\(n\\) povečaš na \\(2\\) in na \\(3\\) (gumb +); šele nato pritisni Pokaži oceno napake.',
                 'Predict how the error at \\(x=1\\) changes when you raise the degree \\(n\\) to \\(2\\) and to \\(3\\) (the + button); only then press Show error bound.',
@@ -2103,7 +2107,7 @@ const taylor: GuidedLesson = {
                 'The center and the point stay the same: \\(c=0\\), \\(x=1\\). At \\(n=1\\), \\(T_1(1)=1+1=2\\); at \\(n=2\\), \\(T_2(1)=1+1+\\frac12=\\frac52\\); at \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16=\\frac83\\). The actual errors \\(e-T_n(1)\\) are about \\(0.7183\\), \\(0.2183\\) and \\(0.0516\\): each added term reduces the error at this point. This is an observation at one point, not a proof for all \\(x\\) and \\(n\\). The scene shows \\(n=2\\); the error bound is still hidden.',
             ),
             formulaIds: ['taylor-polynomial'],
-            frames: [frame('taylor-exp-low-degrees-explanation', 'explanation'), frame('taylor-exp-low-degrees-observation', 'observation')],
+            frames: [frame('taylor-exp-low-degrees-explanation', 'explanation', readouts('polynomial', 'absolute-error')), frame('taylor-exp-low-degrees-observation', 'observation', readouts('polynomial', 'absolute-error', 'degree'))],
             observationPrompt: text(
                 'Preberi \\(T_2(1)\\) in absolutno napako, nato stopnjo povečaj na \\(3\\) in zmanjšaj na \\(1\\) (gumba + in −) ter primerjaj tri napake. Napovej, kolikšna bo napaka pri \\(n=6\\).',
                 'Read \\(T_2(1)\\) and the absolute error, then raise the degree to \\(3\\) and lower it to \\(1\\) (the + and − buttons) and compare the three errors. Predict the error at \\(n=6\\).',
@@ -2130,7 +2134,7 @@ const taylor: GuidedLesson = {
                 'At \\(n=3\\), \\(T_3(1)=1+1+\\frac12+\\frac16\\) \\(=\\frac83\\approx2.6667\\), and at \\(n=6\\), \\(T_6(1)=\\frac{1957}{720}\\approx2.7181\\): the error falls from about \\(0.7183\\) through \\(0.2183\\) and \\(0.0516\\) to about \\(0.000226\\). The Lagrange bound is now shown as well. The assumption is that \\(M\\) is an upper bound for \\(|f^{(n+1)}|\\) between \\(c\\) and \\(x\\); for \\(e^x\\) this is \\(M=\\max(e^c,e^x)=e<3\\), because \\(e^t\\) is increasing. At \\(n=6\\) the bound is \\(\\frac{e}{7!}\\approx0.000539\\), which lies above the actual error \\(0.000226\\).',
             ),
             formulaIds: ['taylor-polynomial', 'taylor-lagrange'], workedExampleId: 'taylor-exp-example',
-            frames: [frame('taylor-exp-explanation', 'explanation'), frame('taylor-exp-calculation', 'calculation'), frame('taylor-exp-observation', 'observation')],
+            frames: [frame('taylor-exp-explanation', 'explanation', readouts('polynomial', 'absolute-error', 'bound')), frame('taylor-exp-calculation', 'calculation'), frame('taylor-exp-observation', 'observation', readouts('polynomial', 'absolute-error', 'bound'))],
             observationPrompt: text(
                 'Primerjaj z napovedjo: preberi \\(T_6(1)\\), absolutno napako in oceno napake v odčitkih ter predpostavko ocene; nato stopnjo zmanjšaj in opazuj, kako se spremenita napaka in ocena.',
                 'Compare with your prediction: read \\(T_6(1)\\), the absolute error and the error bound in the readouts together with the assumption of the bound; then lower the degree and watch how the error and the bound change.',
@@ -2157,7 +2161,7 @@ const taylor: GuidedLesson = {
                 'The derivatives of \\(\\sin x\\) repeat: \\(\\sin x\\), \\(\\cos x\\), \\(-\\sin x\\), \\(-\\cos x\\). At the center \\(c=0\\) their values are \\(0\\), \\(1\\), \\(0\\), \\(-1\\), so \\(T_n\\) has only odd powers. For \\(e^x\\) we saw that the bound lies above the error: \\(M=e\\) bounds every derivative \\(e^t\\) for \\(t\\) between \\(0\\) and \\(1\\) (the Lagrange form of the remainder). Now we look at \\(\\sin x\\) at the point \\(x=2\\) with \\(n=3\\); the error bound is hidden.',
             ),
             formulaIds: ['taylor-polynomial'],
-            frames: [frame('taylor-sine-prediction-explanation', 'explanation'), frame('taylor-sine-prediction-observation', 'observation')],
+            frames: [frame('taylor-sine-prediction-explanation', 'explanation'), frame('taylor-sine-prediction-observation', 'observation', readouts('absolute-error', 'degree'))],
             observationPrompt: text(
                 'Napovej, ali je pri \\(n=3\\) napaka v \\(x=2\\) večja od \\(0{,}1\\) in kolikšna bi bila ocena \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\); šele nato pritisni Pokaži oceno napake.',
                 'Predict whether at \\(n=3\\) the error at \\(x=2\\) is larger than \\(0.1\\) and what the bound \\(\\frac{|x-c|^{n+1}}{(n+1)!}\\) would be; only then press Show error bound.',
@@ -2184,7 +2188,7 @@ const taylor: GuidedLesson = {
                 'At \\(n=3\\), \\(T_3(2)=2-\\frac{2^3}{3!}\\) \\(=2-\\frac86=\\frac23\\approx0.6667\\), \\(\\sin2\\approx0.9093\\) and the error is about \\(0.2426\\). The assumption of the bound: every derivative of \\(\\sin x\\) is \\(\\pm\\sin x\\) or \\(\\pm\\cos x\\), so \\(M=1\\) and the bound is \\(\\frac{|x-c|^{n+1}}{(n+1)!}=\\frac{2^4}{4!}\\) \\(=\\frac{16}{24}=\\frac23\\). The bound lies above the error, but it is very rough. With degree \\(n=5\\) the error drops to about \\(0.0240\\) and the bound to \\(\\frac{2^6}{6!}\\approx0.0889\\).',
             ),
             formulaIds: ['taylor-lagrange'], workedExampleId: 'taylor-sine-example',
-            frames: [frame('taylor-sine-explanation', 'explanation'), frame('taylor-sine-calculation', 'calculation'), frame('taylor-sine-observation', 'observation')],
+            frames: [frame('taylor-sine-explanation', 'explanation', readouts('function', 'polynomial', 'absolute-error', 'bound')), frame('taylor-sine-calculation', 'calculation'), frame('taylor-sine-observation', 'observation', readouts('absolute-error', 'bound', 'degree', 'center'))],
             observationPrompt: text(
                 'Primerjaj z napovedjo. Nato povečaj stopnjo na \\(5\\) in preberi novo napako in oceno; poskusi še drugo središče \\(c\\), na primer \\(c=1\\).',
                 'Compare with your prediction. Then raise the degree to \\(5\\) and read the new error and bound; also try another center \\(c\\), for example \\(c=1\\).',
@@ -2211,7 +2215,7 @@ const taylor: GuidedLesson = {
                 'For \\(\\sin x\\) degree \\(n=5\\) gave a smaller error than \\(n=3\\). Is that always so? We look at \\(f(x)=\\frac{1}{1-x}\\) about \\(c=0\\); all coefficients are \\(1\\) and \\(T_n\\) is a partial sum of the geometric series. The point is \\(x=-1.5\\), where \\(f(-1.5)=\\frac{1}{2.5}=0.4\\), and the degree is \\(n=1\\). The thick line on the \\(x\\)-axis is the convergence interval of the series, that is \\(|x-c|<1-c\\), here between \\(-1\\) and \\(1\\). The point \\(x\\) is outside it.',
             ),
             formulaIds: ['taylor-geometric'],
-            frames: [frame('taylor-geometric-explanation', 'explanation'), frame('taylor-geometric-observation', 'observation')],
+            frames: [frame('taylor-geometric-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['function', 'x']}), frame('taylor-geometric-observation', 'observation', readouts('absolute-error', 'x', 'degree'))],
             observationPrompt: text(
                 'Napovej, ali bo napaka v \\(x=-1{,}5\\) manjša, če stopnjo povečaš na \\(3\\) in na \\(5\\) (gumb +); nato stopnjo povečaj in preberi absolutno napako. Nazadnje premakni \\(x\\) na \\(0{,}5\\) in primerjaj.',
                 'Predict whether the error at \\(x=-1.5\\) becomes smaller if you raise the degree to \\(3\\) and to \\(5\\) (the + button); then raise the degree and read the absolute error. Finally move \\(x\\) to \\(0.5\\) and compare.',
@@ -2238,7 +2242,7 @@ const taylor: GuidedLesson = {
                 'Outside the convergence interval the error grows: \\(f-T_n=\\frac{x^{n+1}}{1-x}\\) \\(=\\frac{(-1.5)^{n+1}}{2.5}\\), that is \\(0.9\\) at \\(n=1\\), \\(2.025\\) at \\(n=3\\) and about \\(4.556\\) at \\(n=5\\); inside, at \\(x=0.5\\), it falls, for example \\(0.125\\) at \\(n=3\\) and \\(0.03125\\) at \\(n=5\\). Now the smooth function \\(f(x)=e^{-1/x}\\) for \\(x>0\\) and \\(f(x)=0\\) for \\(x\\le0\\) about the center \\(c=0\\), which is fixed here. Its derivatives at \\(0\\) are all \\(0\\). We look at the point \\(x=1\\).',
             ),
             formulaIds: ['taylor-flat'],
-            frames: [frame('taylor-flat-prediction-explanation', 'explanation'), frame('taylor-flat-prediction-observation', 'observation')],
+            frames: [frame('taylor-flat-prediction-explanation', 'explanation'), frame('taylor-flat-prediction-observation', 'observation', readouts('function', 'polynomial', 'degree'))],
             observationPrompt: text(
                 'Napovej, ali se bo \\(T_n(1)\\) z večanjem stopnje približal \\(f(1)\\); povečaj stopnjo in preveri. Šele nato pritisni Pokaži oceno napake in preberi, kaj aplikacija pove o oceni.',
                 'Predict whether \\(T_n(1)\\) approaches \\(f(1)\\) as the degree grows; raise the degree and check. Only then press Show error bound and read what the app says about the bound.',
@@ -2265,7 +2269,7 @@ const taylor: GuidedLesson = {
                 'For \\(f(x)=e^{-1/x}\\), \\(T_n(1)=0\\) for every \\(n\\), \\(f(1)=e^{-1}\\approx0.3679\\), and the error is \\(0.3679\\) at every degree. All coefficients at \\(0\\) are \\(0\\), the series is identically \\(0\\) and converges, but to \\(0\\), not to \\(f\\). The error bound is not shown: the derivatives at \\(c=0\\) are all \\(0\\) and give no limit for the remainder; a limit for \\(|f^{(n+1)}|\\) would have to come from derivatives elsewhere, which the app does not model. So two things are kept apart: the finite polynomial \\(T_n\\) always exists, and how well it approximates \\(f\\) at \\(x\\) is told by the error or, where there is one, the bound; the infinite series converges everywhere for \\(e^x\\) and \\(\\sin x\\), for \\(\\frac{1}{1-x}\\) only for \\(|x-c|<1-c\\), and for this function to the wrong value. Now explore on your own: change the example, move \\(c\\) and \\(x\\), change the degree and predict the error before you show the bound.',
             ),
             formulaIds: ['taylor-flat', 'taylor-lagrange'], workedExampleId: 'taylor-flat-example',
-            frames: [frame('taylor-free-explanation', 'explanation'), frame('taylor-free-calculation', 'calculation'), frame('taylor-free-observation', 'observation')],
+            frames: [frame('taylor-free-explanation', 'explanation', readouts('function', 'polynomial', 'absolute-error')), frame('taylor-free-calculation', 'calculation'), frame('taylor-free-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text(
                 'Preberi, zakaj ocena napake ni prikazana. Nato skrij oceno, izberi drug primer ali središče in napovej, preden jo spet pokažeš.',
                 'Read why the error bound is not shown. Then hide the bound, choose another example or center and predict before you show it again.',

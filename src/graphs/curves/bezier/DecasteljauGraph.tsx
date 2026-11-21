@@ -1,4 +1,8 @@
-import {t} from "../../../localization";
+import {currentLanguage, t} from "../../../localization";
+import {formatNumber} from "../../../analysis/format";
+import {pickOn} from "../../../uxPicks/picks";
+import type {GraphUx} from "../../../uxPicks/declare/graphUx";
+import {GraphPalette} from "../../styles/GraphPalette";
 import React from 'react';
 
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
@@ -196,6 +200,45 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.drawParameter(t);
         this.publishedParameter = t;
         this.setState({t, animationStatus}, callback);
+    }
+
+    /**
+     * The cards' declaration (pick boardText): the recurrence, the parameter, the point it reaches and the size of the
+     * construction. This graph draws no text on the board, so nothing is stopped under the pick.
+     */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const curve = this.getFirstCurve();
+        if (!curve || !this.state.initialized) return undefined;
+        const language = currentLanguage();
+        const number = (value: number) => formatNumber(value, language, 3);
+        const t0 = this.parameter;
+        const end = curve.eval(t0);
+        const degree = curve.getPoints().length - 1;
+        const separator = language === "sl" ? "; " : ", ";
+        return {
+            formula: "P_i^{(r)}=(1-t)P_i^{(r-1)}+tP_{i+1}^{(r-1)}",
+            readouts: [
+                {id: "parameter", rows: [
+                    {id: "t", name: "parameter", symbol: "t", value: number(t0), tone: "accent"},
+                ]},
+                {id: "point", title: "Točka na krivulji", rows: [
+                    {id: "curve-point", name: "končna točka", symbol: "B(t)=P_0^{(n)}", value: `(${number(end.X())}${separator}${number(end.Y())})`, tone: "primary"},
+                ]},
+                {id: "construction", title: "Konstrukcija", rows: [
+                    {id: "degree", name: "stopnja", symbol: "n", value: String(degree)},
+                    {id: "rows", name: "vrstic interpolacije", symbol: "r", value: degree > 0 ? `1 … ${degree}` : "0"},
+                ]},
+            ],
+            notes: [
+                {id: "reading", text: "Vsaka vrstica deli daljice prejšnje vrstice v razmerju t : (1 − t); zadnja točka leži na krivulji.", tone: "muted"},
+            ],
+            legend: [
+                {id: "curve", label: "Krivulja do t", kind: "line", color: GraphPalette.primaryCurve},
+                ...(this.state.wholeCurve ? [{id: "rest", label: "Preostali del krivulje", kind: "line" as const, color: GraphPalette.comparisonCurve}] : []),
+                {id: "points", label: "Točke konstrukcije", kind: "point", color: GraphPalette.constructionAccent},
+            ],
+        };
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {

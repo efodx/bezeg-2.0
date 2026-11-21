@@ -21,8 +21,6 @@ import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotio
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {legendStackOffsetPx} from "../legend/legendStack";
-import {markBoardLegend} from "../legend/markBoardLegend";
-import {pickOn} from "../../uxPicks/picks";
 import {keepOpeningView} from "./openingView";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
@@ -120,8 +118,7 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
     }
 
     protected override initialView(): [number, number, number, number] {
-        // UX pick boardText: the legend lives in a card, so the band below the frame is not reserved.
-        return pickOn("boardText") ? [VIEW_BOX[0], VIEW_BOX[1], VIEW_BOX[2], -VIEW_BOX[1]] : [...VIEW_BOX];
+        return [...VIEW_BOX];
     }
 
     // ---- Derived numbers: a cache keyed by the stored content ----------------------------------------------------------------
@@ -261,7 +258,6 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
             ...(options.legend ? {cssStyle: "background: rgba(255, 253, 245, 0.88); padding: 0 2px; border-radius: 2px;"} : {}),
             visible: options.visible ?? (() => true),
         });
-        if (options.legend && options.legendIndex !== undefined) markBoardLegend(text_, options.legendIndex);
         this.scene.own(text_);
     }
 

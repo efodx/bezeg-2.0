@@ -17,7 +17,11 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RevealButton} from "../../inputs/RevealButton";
-import {BoardSection} from '../../uxPicks/boardText/BoardSection';
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx} from "../../uxPicks/declare/graphUx";
+
+/** Board captions move into the cards while pick `boardText` is on (the graph decides). */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** Positions show four decimals, so that 0.25 and 1.5 are read off exactly. */
 const PRECISE = 4;
@@ -167,8 +171,8 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
 
         // The rule and the tracked point stay on the board (projection needs them).
         this.caption("bottom-right", [
-            {text: () => transformRuleText(model(), currentLanguage()), scale: 1.2, math: true},
-            {text: () => this.boardPointText(model()), minBoardWidth: 520},
+            {text: () => transformRuleText(model(), currentLanguage()), scale: 1.2, math: true, visible: boardTextOnBoard},
+            {text: () => this.boardPointText(model()), minBoardWidth: 520, visible: boardTextOnBoard},
         ]);
     }
 
@@ -247,6 +251,7 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the legend card shows it
         return <FunctionLegend items={[
             {id: "curve", color: GraphPalette.primaryCurve, label: t("function_transformation_legend_curve"), kind: "line"},
             {id: "ghost", color: GraphPalette.referenceCurve, label: t("function_transformation_legend_ghost"), kind: "dashed-line"},
@@ -254,7 +259,43 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         ]}/>;
     }
 
+    /** The cards' declaration (pick boardText): the rule, the traced point and its image, the order of operations, the legend. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const point = trackedPointOf(model);
+        const undefinedText = t("function_transformation_point_undefined");
+        return {
+            // TeX: the decimal comma of the rule text must not get a space after it.
+            formula: transformRuleText(model, currentLanguage()).replace(/,/g, "{,}"),
+            readouts: [
+                {id: "rule", title: t("function_transformation_readout_rule"), rows: [
+                    {id: "base", name: t("function_transformation_base_label"), value: PRETTY_BASE[model.base], tone: "muted"},
+                ]},
+                {id: "point", title: t("function_transformation_legend_point"), rows: [
+                    {id: "u", name: t("function_transformation_u_label"), value: this.number(model.u)},
+                    {id: "base-point", name: t("function_transformation_readout_base_point"), value: point ? this.pointText(point.base.x, point.base.y) : undefinedText, tone: "muted"},
+                    {id: "image-point", name: t("function_transformation_readout_image_point"), value: point ? this.pointText(point.image.x, point.image.y) : undefinedText, tone: "primary"},
+                ]},
+            ],
+            readoutHelp: <p>{t("function_transformation_note")}</p>,
+            legend: [
+                {id: "curve", label: t("function_transformation_legend_curve"), kind: "line", color: GraphPalette.primaryCurve},
+                ...(model.ghostVisible ? [{id: "ghost", label: t("function_transformation_legend_ghost"), kind: "dashed" as const, color: GraphPalette.referenceCurve}] : []),
+                {id: "point", label: t("function_transformation_legend_point"), kind: "point", color: GraphPalette.constructionAccent},
+            ],
+            sections: [{id: "steps", title: t("function_transformation_steps_title"), body: this.stepsList(model)}],
+        };
+    }
+
+    private stepsList(model: FunctionTransformationModel): React.ReactNode {
+        return <ol data-transform-steps>
+            {ruleStepsOf(model).map(step => <li key={step.kind} data-step={step.kind}>{this.stepText(step)}</li>)}
+        </ol>;
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout and section cards show it
         const model = this.model;
         const point = trackedPointOf(model);
         const undefinedText = t("function_transformation_point_undefined");
@@ -265,12 +306,10 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("function_transformation_note")}/>
-            {/* Pick boardText: its own card on the graph; otherwise the same group in the tools. */}
-            <BoardSection kind="transform-steps" title={t("function_transformation_steps_title")} what="vrstni red operacij">
-                <ol data-transform-steps>
-                    {ruleStepsOf(model).map(step => <li key={step.kind} data-step={step.kind}>{this.stepText(step)}</li>)}
-                </ol>
-            </BoardSection>
+            
+            <div className="inspector-group"><h3>{t("function_transformation_steps_title")}</h3>
+                {this.stepsList(model)}
+            </div>
         </>;
     }
 }

@@ -19,8 +19,6 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {legendStackOffsetPx, legendWrapExtraPx} from "../legend/legendStack";
-import {markBoardLegend} from "../legend/markBoardLegend";
-import {pickOn} from "../../uxPicks/picks";
 import {keepOpeningView} from "./openingView";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
@@ -154,8 +152,7 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
     }
 
     protected override initialView(): [number, number, number, number] {
-        // UX pick boardText: the legend lives in a card, so the band below the frame is not reserved.
-        return pickOn("boardText") ? [VIEW_BOX[0], VIEW_BOX[1], VIEW_BOX[2], LEGEND_TOP] : [...VIEW_BOX];
+        return [...VIEW_BOX];
     }
 
     // ---- Derived numbers: a cache keyed by the state object ---------------------------------------------------------------------
@@ -301,7 +298,6 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
             parse: false, // the text holds e^(...), which JSXGraph would otherwise turn into a superscript of the bracket
             visible: options.visible ?? (() => true),
         });
-        if (options.legend && options.legendIndex !== undefined) markBoardLegend(text_, options.legendIndex);
         this.scene.own(text_);
     }
 

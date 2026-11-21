@@ -12,6 +12,7 @@ import {DockCard} from '../../uxPicks/dock/DockCard';
 import {ChevronLeftIcon, ChevronRightIcon} from '../../uxPicks/dock/icons';
 import {LessonMenu} from '../../uxPicks/toolsCard/LessonMenu';
 import {openShortcuts} from '../../uxPicks/dock/Shortcuts';
+import {useFrameUxPublisher} from '../../uxPicks/declare/graphUxStore';
 import {useLessonDrift} from '../../uxPicks/toolsCard/useLessonDrift';
 import {stopAllOscillators} from '../../uxPicks/a3/oscillators';
 import {useLessonCardFit} from '../../uxPicks/toolsCard/useLessonCardFit';
@@ -145,6 +146,8 @@ export function GuidedLesson(props: {
     const frame = frames[Math.min(snapshot.frameIndex, frames.length - 1)];
     const isComplete = snapshot.status === 'complete';
     const isExploring = snapshot.status === 'explore';
+    // UX picks: the frame's declared cards and highlighted readout rows (LessonFrame.ux); none once the lesson is complete.
+    useFrameUxPublisher(isComplete ? undefined : frame.ux);
     const oneColumn = useOneColumn();
     const overlayVisible = overlayPhase !== 'hidden';
     const tabVisible = overlayPhase === 'closing' || overlayPhase === 'hidden';

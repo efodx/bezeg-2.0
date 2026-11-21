@@ -143,10 +143,12 @@ function frameForStep(
     workedExamples: ReadonlyMap<string, LessonFrame['workedExample']>,
 ): LessonFrame {
     const notation = (frame.formulaIds ?? step.formulaIds).flatMap(id => formulas.get(id) ?? []);
+    const ux = frame.ux ? {ux: frame.ux} : {};
     if (frame.kind === 'calculation') {
         return {
             id: frame.id,
             kind: frame.kind,
+            ...ux,
             title: step.title,
             workedExample: step.workedExampleId ? workedExamples.get(step.workedExampleId) : undefined,
         };
@@ -155,6 +157,7 @@ function frameForStep(
         return {
             id: frame.id,
             kind: frame.kind,
+            ...ux,
             title: step.title,
             prompt: step.observationPrompt,
             expectedObservations: step.expectedObservations.length > 0 ? step.expectedObservations : undefined,
@@ -164,6 +167,7 @@ function frameForStep(
     return {
         id: frame.id,
         kind: frame.kind,
+        ...ux,
         title: step.title,
         body: step.explanation,
         notation,

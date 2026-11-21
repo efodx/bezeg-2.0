@@ -1,4 +1,5 @@
 import type {StoredGraphState} from "./presets/Presets";
+import type {GraphUx} from "../../uxPicks/declare/graphUx";
 import {LocalizedError, message, Message, onLanguageChange, renderMessage, t} from "../../localization";
 import {presetWritesAllowed, type UserActionMode} from "../context/react/PresetLockContext";
 import React from 'react';
@@ -91,6 +92,8 @@ export interface GraphWorkspacePanels {
     /** Pauses graph-owned playback at its current frame. */
     pausePlayback: () => void;
     lessonCapabilities: LessonGraphCapabilities | undefined;
+    /** What the graph puts on the board cards under the UX picks (see {@link BaseGraph.workspaceUx}); undefined keeps its original UI. */
+    ux?: GraphUx;
     /** Lets the workspace hand over its current user-action decision (see {@link UserActionMode}). */
     bindUserActions: (current: () => UserActionMode) => () => void;
 }
@@ -521,6 +524,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     }
 
     /** The one default description; graphs with their own wording override it. The title belongs to the route's Demonstration. */
+    /**
+     * UX picks: the graph's explicit declaration of its board cards (formula, readouts, notes, legend, sections). Default none:
+     * the graph keeps its original UI. Read on every render, so values follow the state. See src/uxPicks/declare/graphUx.ts.
+     */
+    protected workspaceUx(): GraphUx | undefined { return undefined; }
     protected workspaceDescription(): string { return t("change_the_settings_and_observe_their_effect_on_the_graph"); }
     protected workspaceEdit(): React.ReactNode { return this.getGraphCommandsArea(); }
     /**
@@ -1038,6 +1046,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     getWorkspacePanels(): GraphWorkspacePanels {
         return {
             description: this.workspaceDescription(),
+            ux: this.workspaceUx(),
             edit: this.state.initialized ? this.withReplacementRevision(this.workspaceEdit()) : <p>{t("preparing_graph")}</p>,
             display: this.state.initialized ? this.withReplacementRevision(this.workspaceDisplay()) : null,
             save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureExports.batchActive,

@@ -1,55 +1,5 @@
-.ux-boardtext-hidden { display: none !important; }
-
+/* Shared frame of the board cards (the declared bodies are styled in src/uxPicks/declare/declare.css). */
 .ux-btext-body { padding: 0 12px 9px; font-variant-numeric: tabular-nums; }
-.ux-btext-buffer { position: absolute; visibility: hidden; pointer-events: none; left: 0; top: 0; height: 0; overflow: hidden; white-space: nowrap; }
-.ux-btext-formula { font-size: 1.22rem; line-height: 1.3; padding: 2px 0 7px; border-bottom: 1px solid #e3e7d9; margin-bottom: 6px; overflow-wrap: anywhere; }
-.ux-btext-list { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 2px; align-items: baseline; }
-.ux-btext-two { grid-template-columns: auto auto auto auto; column-gap: 8px; }
-.ux-btext-k { color: #526152; }
-.ux-btext-v { font-weight: 600; }
-.ux-btext-two .ux-btext-v { margin-right: 8px; }
-.ux-btext-warn { color: #9c5d48; }
-.ux-btext-note, .ux-btext-legend { margin-top: 6px; font-size: 0.8125rem; color: #526152; line-height: 1.35; }
-.ux-btext-legend { display: flex; flex-wrap: wrap; gap: 2px 12px; }
-.ux-btext-leg { display: inline-flex; align-items: center; gap: 5px; }
-.ux-btext-sw { display: inline-block; width: 18px; height: 0; border-top: 2px solid #526152; }
-.ux-btext-sw-dash { border-top-style: dashed; }
-@media (max-width: 520px) { .ux-btext-two { grid-template-columns: auto 1fr; column-gap: 12px; } .ux-btext-two .ux-btext-v { margin-right: 0; } }
-
-/* The legend card: a key of swatches with words. */
-.ux-bleg-body { display: grid; gap: 6px; }
-.ux-bleg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.ux-bleg-list li { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; line-height: 1.3; }
-.ux-bleg-rows { display: grid; gap: 3px; font-size: 0.8125rem; line-height: 1.3; }
-.ux-bleg-rows .ux-btext-legend { margin-top: 0; font-size: 0.8125rem; flex-direction: column; gap: 3px; }
-.ux-bleg-drawn, .ux-bleg-drawn * { background: none !important; margin-left: 0 !important; padding-left: 0 !important; position: static !important; }
-
-/* The readout card: result groups from the tools, stacked in document order. */
-.ux-bcard-readout { max-width: 300px; }
-.ux-bread-body { display: grid; gap: 12px; max-height: min(52vh, 420px); overflow: auto; font-size: 0.82rem; }
-.ux-bread-slot { display: block; min-width: 0; }
-.ux-bread-slot .inspector-group { margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
-.ux-bread-slot .inspector-reveals-title { margin: 0 0 6px; }
-.ux-bread-slot .inspector-help, .ux-bread-slot p { color: var(--bezeg-shell-ink-secondary); font-size: 0.8125rem; line-height: 1.4; margin: 6px 0 0; }
-/* Help paragraphs wait behind the "?" at the card's foot; status lines stay. */
-.ux-bread-wrap:not([data-help-open]) .ux-bread-slot :is(p, .inspector-help, .form-text):not([role="status"], [role="alert"], [aria-live], [data-refusal-notice], .function-status, .visually-hidden) { display: none; }
-/* Opening the help must not resize or shift the card: the paragraphs fill the width the values already make (width 0 gives them no say in the card's max-content width) and wrap. */
-.ux-bread-wrap[data-help-open] .ux-bread-slot :is(p, .inspector-help, .form-text):not([role="status"], [role="alert"], [aria-live], [data-refusal-notice], .function-status, .visually-hidden) { width: 0; min-width: 100%; box-sizing: border-box; }
-.ux-bread-helpbar { display: flex; justify-content: flex-end; padding: 0 9px 6px 12px; }
-.ux-bread-helpbar button.ux-sec-help { margin: 0; min-height: 0; min-width: 0; width: 24px; height: 24px; padding: 0; border: 0; box-shadow: none; background: transparent; }
-.ux-bread-helpbar button.ux-sec-help:is(:hover, [aria-expanded="true"]) { background: var(--bezeg-shell-control-hover); }
-@media (pointer: coarse) { .ux-bread-helpbar button.ux-sec-help { width: 44px; height: 44px; } }
-.ux-bmerged .ux-bread-helpbar { padding: 0 0 6px; }
-/* Presentation restyles .inspector-help for the navy tools (cream, ~1.8:1 on the light card): board cards keep the day ink. */
-.is-presenting .ux-btext:not(.ux-bcard-tools) :is(.inspector-help, .form-text, .text-muted) { color: var(--bezeg-shell-ink-secondary); }
-.ux-bread-slot .readout-list { margin: 0; }
-.ux-bread-slot .readout-scroll-table { max-width: 100%; overflow: auto; }
-
-/* Readouts merged under the text card: a thin rule, rows the text already shows hidden. */
-.ux-bmerged { border-top: 1px solid var(--bezeg-shell-rule); margin: 0 12px; padding-top: 8px; }
-.ux-bmerged .ux-bread-body { padding: 0 0 9px; }
-.ux-bmerged.ux-bread-empty { display: none; }
-.ux-bread-dup { display: none !important; }
 
 /* A card the lesson frame refers to opens by itself and glows once. */
 @keyframes ux-btext-cue { 0% { box-shadow: 0 0 0 0 var(--bezeg-shell-focus); } 25% { box-shadow: 0 0 0 4px var(--bezeg-shell-focus); } 100% { box-shadow: 0 0 0 0 transparent; } }
