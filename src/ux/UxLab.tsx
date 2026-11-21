@@ -56,6 +56,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c29',
+        name: 'Najprej napoved',
+        borrowed: 'delovni list v laboratoriju (»napovej, preden poženeš poskus«) in kontrolne točke v igrah',
+        idea: 'V vodeni lekciji Naprej na okvirju, ki na tabli izpiše števila, najprej odpre vprašanje iz c28: kaj se zgodi s številom, ko parameter raste? Študent odgovori z enim tapom in prelet pokaže resnico, ali pa z gumbom Naprej nadaljuje brez napovedi; lekcija tako postane zaporedje majhnih poskusov namesto branja.',
+        generalizes: 'Ne potrebuje podatkov o lekciji: prestreže gumb Naprej v skupnem izvajalniku lekcij in vpraša le na okvirjih, kjer tabla izpiše števila in obstaja drsnik. Vsak okvir vpraša največ enkrat, drugi Naprej vedno nadaljuje, zato lekcije nikoli ne zaklene.',
+        links: [
+            {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?learn=1&ux=c29`,
+                tryThis: 'Pritisni Naprej: preden se lekcija premakne, vpraša, kaj se zgodi s ploščino, ko se zvon premika (μ). Odgovori in opazuj prelet.'},
+            {label: 'Parametrične krivulje (cikloida)', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/parametric?learn=1&ux=c29`,
+                tryThis: 'Prvo vprašanje je past: celotna dolžina loka se s t ne spremeni. Zamenjaj na Polmer in odgovori znova.'},
+            {label: 'Določeni integral', family: 'Funkcije', href: `${BASE}/functions/integral?learn=1&ux=c29`,
+                tryThis: 'Pojdi skozi lekcijo z Naprej: vsak okvir s številom vsote vpraša, kaj se z njo zgodi, ko raste n ali meja.'},
+            {label: 'Obodni kot in Talesov izrek', family: 'Geometrija ravnine', href: `${BASE}/inscribed-angle?learn=1&ux=c29`,
+                tryThis: 'Na okvirjih z drsnikom t lekcija vpraša o ∠APB; odgovor »ostane enaka« je skoraj pravilen, prelet pokaže skok na nasprotnem loku.'},
+        ],
+    },
+    {
         id: 'c21',
         name: 'Kaj je novo?',
         borrowed: 'primerjava različic kode (diff), »smart animate« v Figmi in muzejska vitrina, ki osvetli, o čemer govori vodnik',

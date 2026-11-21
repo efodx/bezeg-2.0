@@ -103,7 +103,14 @@ export function shapeOf(values: number[]): string {
     const falling = (list: number[]) => list.every((v, i) => i === 0 || v <= list[i - 1] + tol);
     // Flat pieces joined by jumps (an inscribed angle as P crosses to the other arc) are steps, not a smooth turn.
     const steps = f.slice(1).map((v, i) => Math.abs(v - f[i]));
-    if (steps.some(step => step > 0.25 * (hi - lo)) && steps.filter(step => step <= tol).length >= steps.length * 0.8) return 'steps';
+    // Both the top and the bottom must be plateaus: a narrow peak caught by one or two samples is still a peak.
+    const plateau = (level: number) => {
+        let best = 0, run = 0;
+        for (const v of f) { run = Math.abs(v - level) <= tol ? run + 1 : 0; best = Math.max(best, run); }
+        return best >= 3;
+    };
+    if (steps.some(step => step > 0.25 * (hi - lo)) && steps.filter(step => step <= tol).length >= steps.length * 0.8
+        && plateau(hi) && plateau(lo)) return 'steps';
     if (rising(f)) return 'up';
     if (falling(f)) return 'down';
     const top = f.indexOf(hi), bottom = f.indexOf(lo);
@@ -117,7 +124,7 @@ export function shapeOf(values: number[]): string {
  * empty: the student sketches how the number will change, and only then the sweep draws the truth over the sketch and
  * scores how well the shapes agree.
  */
-export function attachDependence(board: Board, mode: boolean | 'choice' = false): () => void {
+export function attachDependence(board: Board, mode: boolean | 'choice' = false, gate = false): () => void {
     const predict = mode === true;
     const choice = mode === 'choice';
     const container = board.containerObj as HTMLElement | undefined;
@@ -203,7 +210,7 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false)
         const box = panel.querySelector<HTMLElement>('.ux-dep-score');
         if (!box) return;
         const stars = agreement >= 0.8 ? 3 : agreement >= 0.6 ? 2 : agreement >= 0.35 ? 1 : 0;
-        const words = ['Poskusi znova: primerjaj modro napoved z oranžno resnico.', 'Smer je prava, oblika še ne povsem.', 'Dobro: oblika se lepo ujema.', 'Odlično! Napovedal si obliko odvisnosti.'];
+        const words = ['Poskusi znova: primerjaj modro napoved z oranžno resnico.', 'Smer je prava, oblika še ne povsem.', 'Dobro: oblika se lepo ujema.', 'Odlično! Napoved se ujema z obliko odvisnosti.'];
         box.innerHTML = `<span class="ux-dep-stars" aria-label="${stars} od 3">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</span> Ujemanje oblike ${Math.round(agreement * 100)} %. ${words[stars]}`;
         box.hidden = false;
     };
@@ -236,7 +243,7 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false)
         const finite = values.filter(Number.isFinite);
         let lo = Math.min(...finite), hi = Math.max(...finite);
         // Quantities that did not move with the parameter are references (an integral the sums approach, a limit).
-        const references = constants().filter(entry => {
+        const references = constants().filter(entry => entry.quantity.key !== chosen.quantity.key).filter(entry => {
             const v = entry.values.find(Number.isFinite)!;
             return v !== 0 && v >= lo - (hi - lo) * 0.5 && v <= hi + (hi - lo) * 0.5;
         }).slice(0, 2);
@@ -248,6 +255,8 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false)
         const floor = lo === 0, ceiling = hi === 0;
         lo = floor ? 0 : lo - span * 0.06;
         hi = ceiling ? 0 : hi + span * 0.06;
+        // A number that stays at zero would leave the chart without height.
+        if (hi - lo < 1e-12) { lo -= 1; hi += 1; }
         const x0 = slider.min, x1 = slider.max;
         const sx = (x: number) => PAD_L + (x - x0) / (x1 - x0) * (W - PAD_L - PAD_R);
         const sy = (y: number) => H - PAD_B - (y - lo) / (hi - lo) * (H - PAD_B - PAD_T);
@@ -468,7 +477,7 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false)
         if (box) {
             box.innerHTML = truth === guess
                 ? `<span class="ux-dep-stars" aria-label="Pravilno">★★★</span> Pravilno: <b>${name}</b> ${real}.`
-                : `<span class="ux-dep-stars" aria-label="Ne povsem">☆</span> Rekel si »${said}«, <b>${name}</b> pa ${real}. Povleci po grafu in poglej, kje.`;
+                : `<span class="ux-dep-stars" aria-label="Ne povsem">☆</span> Tvoj odgovor: »${said}«. V resnici <b>${name}</b> ${real}. Povleci po grafu in poglej, kje.`;
             box.hidden = false;
         }
         panel.querySelector<HTMLElement>('.ux-dep-hint')!.textContent = 'Povleci po grafu odvisnosti in tabla sledi. Za novo vprašanje izberi drug parameter zgoraj.';
@@ -497,8 +506,35 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false)
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape' && !panel.hidden) close(); };
     window.addEventListener('keydown', onKey);
 
+    /**
+     * Prototype c29 "Najprej napoved" (a lab worksheet's »predict before you run it«): in a guided lesson, Naprej on a
+     * frame whose board prints numbers first opens the c28 question. Answering, or pressing Naprej again, moves on.
+     */
+    let frameIndex = 0;
+    let askedAt = -1;
+    const onNext = (event: MouseEvent) => {
+        const next = (event.target as HTMLElement | null)?.closest?.('button');
+        if (!next || !/^(Naprej|Nadaljuj)\b/.test(next.textContent?.trim() ?? '') || panel.contains(next)) return;
+        if (askedAt === frameIndex || button.hidden || sweeping) { frameIndex++; closeGate(); return; }
+        event.preventDefault();
+        event.stopPropagation();
+        askedAt = frameIndex;
+        if (panel.hidden) render();
+        panel.classList.add('ux-dep-gate');
+        const note = document.createElement('p');
+        note.className = 'ux-dep-gate-note';
+        note.innerHTML = '<b>Preden greš naprej:</b> kaj misliš, da se zgodi? Odgovori ali nadaljuj brez napovedi. <button type="button" class="ux-dep-gate-next">Naprej ›</button>';
+        // On a phone the sheet covers the lesson's own Naprej, so the note carries one.
+        note.querySelector('button')!.addEventListener('click', () => next.click());
+        panel.querySelector('.ux-dep-head')?.after(note);
+        if (phone()) panel.scrollIntoView({block: 'nearest'});
+    };
+    const closeGate = () => { if (panel.classList.contains('ux-dep-gate')) { panel.classList.remove('ux-dep-gate'); close(); } };
+    if (gate) document.addEventListener('click', onNext, true);
+
     return () => {
         token++;
+        if (gate) document.removeEventListener('click', onNext, true);
         window.clearInterval(watch);
         window.removeEventListener('keydown', onKey);
         board.off('update', onUpdate);
