@@ -157,3 +157,20 @@
 .ux-predict-compact .ux-predict-stars { margin: 0 !important; font-size: 17px; }
 .ux-predict-compact .ux-predict-actions { margin: 0 0 0 auto; gap: 4px; }
 .ux-predict-compact .ux-predict-actions button { min-height: 34px; padding: 6px 11px; }
+
+/* c4 grab the graph */
+.ux-grab-ready, .ux-grab-ready svg { cursor: grab !important; }
+.ux-grabbing, .ux-grabbing svg { cursor: grabbing !important; }
+.ux-grab-halo {
+    position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; z-index: 22; pointer-events: none;
+    border-radius: 50%; border: 2px solid #c47b1f; background: rgb(196 123 31 / 16%);
+    box-shadow: 0 0 0 6px rgb(196 123 31 / 10%);
+}
+.ux-grab-chips {
+    position: absolute; left: 18px; top: 18px; z-index: 22; pointer-events: none;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+    font: 600 12px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums;
+}
+.ux-grab-chip { padding: 5px 8px; border-radius: 999px; background: rgb(255 253 245 / 92%); color: var(--bezeg-shell-label, #647557); border: 1px solid var(--bezeg-shell-rule, #d6dccb); white-space: nowrap; }
+.ux-grab-chip-on { background: var(--bezeg-shell-action, #244c37); color: #fff; border-color: transparent; }
+.ux-grab-none { padding: 6px 9px; border-radius: 8px; background: rgb(255 253 245 / 95%); border: 1px solid #e2c79f; color: var(--bezeg-shell-ink, #19372f); font-weight: 500; white-space: nowrap; }

@@ -1,5 +1,5 @@
 import {currentLanguage, useT} from "../localization";
-import {useId, useState} from "react";
+import {useEffect, useId, useRef, useState} from "react";
 import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -8,6 +8,7 @@ import {joinIds} from "./describedBy";
 import "./Slider.css";
 import {uxEnabled} from "../ux/flags";
 import {SliderLfo} from "../ux/SliderLfo";
+import {registerSlider} from "../ux/sliderRegistry";
 
 interface SliderProps {
     min: number;
@@ -71,6 +72,25 @@ export default function Slider(props: SliderProps) {
     const {cyclic, unavailableReason} = props;
     const inert = props.disabled || unavailableReason !== undefined;
     const [lfo] = useState(() => uxEnabled('c2'));
+    const [grabbable] = useState(() => uxEnabled('c4'));
+    const latest = useRef({props, step, inert, decimals});
+    latest.current = {props, step, inert, decimals};
+    const fieldRef = useRef<HTMLFormElement>(null);
+    useEffect(() => {
+        if (!grabbable || props.formatValue !== undefined || props.cyclic !== undefined) return undefined;
+        const read = () => latest.current;
+        return registerSlider({
+            get label() { return read().props.customText; },
+            get min() { return read().props.min; },
+            get max() { return read().props.max; },
+            get step() { return read().step; },
+            get decimals() { return read().decimals; },
+            value: () => read().props.value,
+            set: value => { read().props.onChange(value); },
+            inert: () => read().inert,
+            element: () => fieldRef.current,
+        });
+    }, [grabbable, props.formatValue, props.cyclic]);
     // Rounds before wrapping, so noise just below the period lands on 0 rather than on the period itself.
     const wrap = (value: number) => {
         if (cyclic === undefined) return value;
@@ -80,7 +100,7 @@ export default function Slider(props: SliderProps) {
     const exact = props.formatValue === undefined;
     const show = props.formatValue ?? ((value: number) => formatNumber(value, language, decimals));
     const bounds = props.hideBounds ? undefined : {min: show(props.min), max: show(props.max), inline: show(props.min).length + show(props.max).length <= INLINE_BOUNDS_CHARACTERS};
-    return <Form className="slider-field">
+    return <Form ref={fieldRef} className="slider-field">
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={cyclic === undefined ? props.min : undefined}
