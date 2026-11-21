@@ -346,7 +346,7 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Osemindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Osemindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, graf pokaže, kaj ostane na mestu, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}

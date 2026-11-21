@@ -44,3 +44,5 @@ body.ux-lane-a .ux-board-frame .ux-fixed-catch { position: absolute; z-index: 5;
 @media (min-width: 601px) {
     .demonstration-workspace .workspace-graph .ux-board-frame:has(.ux-ribbon) .ux-fixed-sentence { top: 92px; }
 }
+/* Phones: the fan's colours explain themselves; the legend line would cover a short lesson board. */
+@media (max-width: 600px) { .ux-fixed-sentence small { display: none; } }
