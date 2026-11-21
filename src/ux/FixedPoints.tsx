@@ -179,6 +179,7 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
     const [fan, setFan] = useState<Fan>();
     const [ask, setAsk] = useState<Fan>();
     const [guess, setGuess] = useState<Guess>();
+    const [tally, setTally] = useState({hits: 0, total: 0});
     const busy = useRef(false);
     const asked = useRef(new Set<string>());
     const predict = uxEnabled('a28');
@@ -240,6 +241,10 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
 
     const answer = (value: Guess) => {
         (window as unknown as {__uxConsumed?: number}).__uxConsumed = performance.now();
+        if (ask) {
+            const hit = value === 'none' ? ask.pins.length === 0 : ask.pins.some(p => Math.hypot(p.sx - value.sx, p.sy - value.sy) <= 28);
+            setTally(t => ({hits: t.hits + (hit ? 1 : 0), total: t.total + 1}));
+        }
         setGuess(value); setFan(ask); setAsk(undefined);
     };
 
@@ -280,7 +285,7 @@ export function FixedPoints(props: {frame: React.RefObject<HTMLDivElement>}) {
         </svg>
         <div className={`ux-fixed-sentence${guess === undefined ? '' : right ? ' is-right' : ' is-wrong'}`} role="status">
             <span className={fan.pins.length ? 'ux-fixed-icon' : 'ux-fixed-icon is-none'} aria-hidden="true"/><span className="ux-fixed-text">{fan.preview && <b className="ux-fixed-preview">Predogled · </b>}{verdict ?? fan.sentence}</span>
-            <small><b className="is-less"/>manjši <b className="is-more"/>večji</small>
+            <small><b className="is-less"/>manjši <b className="is-more"/>večji{guess !== undefined && tally.total > 1 && <span className="ux-fixed-tally">napovedi: {tally.hits} od {tally.total} zadetih</span>}</small>
         </div>
     </>;
 }

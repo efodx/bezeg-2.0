@@ -46,3 +46,4 @@ body.ux-lane-a .ux-board-frame .ux-fixed-catch { position: absolute; z-index: 5;
 }
 /* Phones: the fan's colours explain themselves; the legend line would cover a short lesson board. */
 @media (max-width: 600px) { .ux-fixed-sentence small { display: none; } }
+.ux-fixed-tally { margin-left: auto; font-variant-numeric: tabular-nums; color: #f3d98b; }
