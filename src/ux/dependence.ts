@@ -141,7 +141,21 @@ export function attachDependence(board: Board, mode: boolean | 'choice' = false)
     }
 
     const choices = () => mountedSliders().filter(slider => !/hitrost|velikost|speed|size/i.test(slider.label));
-    const sync = () => { button.hidden = choices().length === 0 || readouts(container).size === 0; };
+    let signature = '';
+    const sync = () => {
+        const found = readouts(container);
+        button.hidden = choices().length === 0 || found.size === 0;
+        // c28: a new set of numbers on the board (a new lesson frame) makes the question button call for attention.
+        const next = [...found.keys()].sort().join('|');
+        if (choice && next !== signature) {
+            if (signature && !button.hidden && panel.hidden) {
+                button.classList.remove('ux-dep-call');
+                void button.offsetWidth;
+                button.classList.add('ux-dep-call');
+            }
+            signature = next;
+        }
+    };
     const watch = window.setInterval(sync, 900);
     sync();
 

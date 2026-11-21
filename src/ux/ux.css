@@ -1126,3 +1126,6 @@ html.ux-nb-reading { overflow: hidden; }
 .ux-dep-choice:hover:not(:disabled) { background: #eef3e5; }
 .ux-dep-choice:disabled { opacity: .55; cursor: default; }
 .ux-dep-choice.ux-dep-choice-on { opacity: 1; background: #3f6fc0; border-color: #3f6fc0; color: #fff; }
+.ux-dep-button.ux-dep-call { animation: ux-dep-call 1.1s ease-out 2; }
+@keyframes ux-dep-call { 0% { box-shadow: 0 0 0 0 rgb(196 123 31 / 60%); } 100% { box-shadow: 0 0 0 12px rgb(196 123 31 / 0%); } }
+@media (prefers-reduced-motion: reduce) { .ux-dep-button.ux-dep-call { animation: none; outline: 2px solid #c47b1f; } }
