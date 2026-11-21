@@ -49,6 +49,8 @@ export function ParameterMap(props: {root: React.RefObject<HTMLElement>; capabil
     const [busy, setBusy] = useState(false);
     const [pair, setPair] = useState<[number, number]>([0, 1]);
     const [heat, setHeat] = useState(0);
+    // Predict first: before the colour appears the learner taps where they expect the extreme.
+    const [guess, setGuess] = useState<number | 'skip'>();
     const [marker, setMarker] = useState<[number, number]>([0, 0]);
     const [phone, setPhone] = useState(false);
     const caps = useRef(props.capabilities);
@@ -126,6 +128,7 @@ export function ParameterMap(props: {root: React.RefObject<HTMLElement>; capabil
             .sort((a, b) => new Set(cells.map(cell => cell.readings.get(b.label)?.toFixed(4))).size - new Set(cells.map(cell => cell.readings.get(a.label)?.toFixed(4))).size)
             .slice(0, 4).map(({label, low, high}) => ({label, low, high}));
         setHeat(0);
+        setGuess(undefined);
         setData({x, y, size, cells, width: board.canvasWidth, height: board.canvasHeight, heat: heatSeries});
     };
 
@@ -156,8 +159,20 @@ export function ParameterMap(props: {root: React.RefObject<HTMLElement>; capabil
 
     const names = axes().map(axis => axis.name);
     const series = data.heat[heat];
-    const tint = (cell: Cell) => {
+    const predicting = !!series && guess === undefined;
+    const readingsOf = (label: string) => data.cells.map(cell => cell.readings.get(label));
+    const target = (() => {
         if (!series) return undefined;
+        const values = readingsOf(series.label);
+        const indexed = values.map((value, index) => ({value, index})).filter((item): item is {value: number; index: number} => item.value !== undefined);
+        if (indexed.length === 0) return undefined;
+        const low = indexed.reduce((best, item) => item.value < best.value ? item : best);
+        const high = indexed.reduce((best, item) => item.value > best.value ? item : best);
+        const border = (index: number) => { const row = Math.floor(index / data.size), column = index % data.size; return row === 0 || column === 0 || row === data.size - 1 || column === data.size - 1; };
+        return !border(low.index) || border(high.index) ? {index: low.index, kind: 'min' as const} : {index: high.index, kind: 'max' as const};
+    })();
+    const tint = (cell: Cell) => {
+        if (!series || predicting) return undefined;
         const value = cell.readings.get(series.label);
         if (value === undefined) return 'rgba(0,0,0,.04)';
         // Rank, not linear: one huge corner value must not wash out the structure of the rest.
@@ -180,10 +195,19 @@ export function ParameterMap(props: {root: React.RefObject<HTMLElement>; capabil
         <div className="ux-map-body">
             <span className="ux-map-ylabel">{short(data.y.name)} ↑</span>
             <div className="ux-map-grid" style={{gridTemplateColumns: `repeat(${data.size}, 1fr)`}}
-                onPointerDown={event => { dragging.current = true; event.currentTarget.setPointerCapture(event.pointerId); scrubTo(event); }}
+                onPointerDown={event => {
+                    if (predicting) {
+                        const rect = event.currentTarget.getBoundingClientRect();
+                        const column = Math.min(data.size - 1, Math.floor((event.clientX - rect.left) / rect.width * data.size));
+                        const row = Math.min(data.size - 1, Math.floor((event.clientY - rect.top) / rect.height * data.size));
+                        setGuess(row * data.size + column);
+                        return;
+                    }
+                    dragging.current = true; event.currentTarget.setPointerCapture(event.pointerId); scrubTo(event);
+                }}
                 onPointerMove={event => { if (dragging.current) scrubTo(event); }}
                 onPointerUp={() => { dragging.current = false; }} onPointerCancel={() => { dragging.current = false; }}>
-                {data.cells.map((cell, index) => <div key={index} className="ux-map-cell" style={{background: tint(cell)}}>
+                {data.cells.map((cell, index) => <div key={index} className={`ux-map-cell${!predicting && target?.index === index ? ' is-extreme' : ''}${guess === index ? ' is-guess' : ''}`} style={{background: tint(cell)}}>
                     {cell.thumb && <svg viewBox={`0 0 ${data.width} ${data.height}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true" dangerouslySetInnerHTML={{__html: cell.thumb.markup}}/>}
                 </div>)}
                 <span className="ux-map-marker" style={{left: `${(marker[0] * (data.size - 1) + 0.5) / data.size * 100}%`, top: `${((1 - marker[1]) * (data.size - 1) + 0.5) / data.size * 100}%`}}/>
@@ -191,9 +215,11 @@ export function ParameterMap(props: {root: React.RefObject<HTMLElement>; capabil
             <span className="ux-map-xlabel">{short(data.x.name)} →</span>
         </div>
         <p className="ux-map-note">
+            {predicting && target ? <><b className="ux-map-ask">Kje na zemljevidu je {series!.label} {target.kind === 'min' ? 'najmanjša' : 'največja'}? Tapni celico.</b> Najprej napovej iz sličic. <button type="button" className="ux-map-heat" onClick={() => setGuess('skip')}>Pokaži takoj</button></>
+            : <>{typeof guess === 'number' && target && <span className="ux-map-verdict">{guess === target.index ? 'Zadetek! ' : Math.abs(Math.floor(guess / data.size) - Math.floor(target.index / data.size)) <= 1 && Math.abs(guess % data.size - target.index % data.size) <= 1 ? 'Skoraj: sosednja celica. ' : 'Zlati okvir kaže pravo mesto, zeleni tvojo napoved. '}</span>}
             {series ? <>Barva: <button type="button" className="ux-map-heat" onClick={() => setHeat((heat + 1) % (data.heat.length + 1))}>{series.label}</button> od {format(series.low)} (svetlo) do {format(series.high)} (temno). </>
                 : data.heat.length > 0 ? <><button type="button" className="ux-map-heat" onClick={() => setHeat(0)}>Pobarvaj po odčitku</button>. </> : null}
-            Vleci po zemljevidu: oba drsnika se premikata hkrati.
+            Vleci po zemljevidu: oba drsnika se premikata hkrati.</>}
         </p>
     </div>;
     return createPortal(box, phone ? document.body : host);

@@ -40,7 +40,7 @@ const PROTOTYPES: Prototype[] = [
     {
         id: 'b18',
         name: 'Zemljevid: vse kombinacije dveh količin naenkrat',
-        idea: 'Gumb »▦ Zemljevid« na grafu nariše mrežo pomanjšanih grafov za dve izbrani količini (vodoravno ena, navpično druga) in jo pobarva po odčitku prizora, na primer po napaki. Vlečeš po zemljevidu in oba drsnika se premikata hkrati, zlati krog pa kaže, kje na zemljevidu si.',
+        idea: 'Gumb »▦ Zemljevid« na grafu nariše mrežo pomanjšanih grafov za dve izbrani količini (vodoravno ena, navpično druga). Najprej iz sličic napoveš, kje je odčitek (na primer napaka) najmanjši, nato se mreža pobarva po odčitku z napovedjo in pravim mestom; vlečeš po zemljevidu in oba drsnika se premikata hkrati.',
         generalizes: 'Za zamrznjeno kopijo plošče nastavi vsaki kombinaciji drsnikov vrednost, posname risbo SVG in prebere vse zapise »oznaka = število«; barva je rang odčitka, ki se najbolj spreminja. Deluje v vsakem prizoru z vsaj dvema drsnikoma, brez kode na lekcijo; na telefonu se odpre kot list od spodaj.',
         try: 'Pritisni »▦ Zemljevid« v spodnjem desnem kotu grafa, nato vleci po mreži. Pri Taylorju je svetla diagonala x = c: tam je napaka nič.',
         links: [
