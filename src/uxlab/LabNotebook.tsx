@@ -52,7 +52,7 @@ function pointsOf(board: UxBoard): Map<string, [number, number]> {
     return found;
 }
 const point = (p: [number, number]) => `(${format(p[0])}; ${format(p[1])})`;
-interface Conjecture { name: string; direction: 1 | -1; label: string; sign: 1 | -1 | 0; count: number; contradicted: boolean; delta: number }
+interface Conjecture { name: string; direction: 1 | -1; label: string; sign: 1 | -1 | 0; count: number; contradicted: boolean; delta: number; strength?: number }
 
 /** "Središče c" → "c"; a label without a one-letter symbol stays a (short) label. */
 function shortName(label: string): string {
@@ -145,13 +145,18 @@ function conjectures(entries: Entry[]): Conjecture[] {
     for (const group of groups.values()) {
         if (group.entries.length < 2) continue;
         const labels = new Map<string, number[]>();
-        for (const entry of group.entries) for (const effect of entry.effects) labels.set(effect.name, [...(labels.get(effect.name) ?? []), Math.sign(effect.to - effect.from)]);
+        const strengths = new Map<string, number>();
+        for (const entry of group.entries) for (const effect of entry.effects) {
+            labels.set(effect.name, [...(labels.get(effect.name) ?? []), Math.sign(effect.to - effect.from)]);
+            // Relative change: the readout this move affects most leads.
+            strengths.set(effect.name, (strengths.get(effect.name) ?? 0) + Math.abs(effect.to - effect.from) / Math.max(Math.abs(effect.from), Math.abs(effect.to), 1e-9));
+        }
         const delta = group.entries.reduce((sum, entry) => sum + Math.abs(entry.changes[0].to - entry.changes[0].from), 0) / group.entries.length;
         for (const [label, signs] of labels) {
             if (signs.length < 2) continue;
             const positive = signs.filter(sign => sign > 0).length, negative = signs.length - positive;
             const sign = positive >= negative ? 1 : -1;
-            result.push({name: group.name, direction: group.direction, label, sign, count: Math.max(positive, negative), contradicted: positive > 0 && negative > 0, delta});
+            result.push({name: group.name, direction: group.direction, label, sign, count: Math.max(positive, negative), contradicted: positive > 0 && negative > 0, delta, strength: strengths.get(label) ?? 0});
         }
     }
     // Invariants: whatever you did to one quantity, this readout never moved.
@@ -167,7 +172,7 @@ function conjectures(entries: Entry[]): Conjecture[] {
     }
     // Contradictions first (they are the interesting ones), then invariants, then the best-supported rules.
     const rank = (rule: Conjecture) => rule.contradicted ? 2 : rule.sign === 0 ? 1 : 0;
-    return result.sort((a, b) => rank(b) - rank(a) || b.count - a.count).slice(0, 3);
+    return result.sort((a, b) => rank(b) - rank(a) || b.count - a.count || (b.strength ?? 0) - (a.strength ?? 0)).slice(0, 3);
 }
 
 function sentence(entry: Entry) {
