@@ -1,0 +1,8 @@
+/* Pick toolsCard, lesson end: within-step count in the progress line, and the completion card's recap (the lesson's own
+   step titles, so every lesson gets one without new prose). */
+.ux-lesson-frame-count { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ux-lesson-recap { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--bezeg-shell-rule); }
+.ux-lesson-recap h4 { margin: 0 0 4px; font-size: .75rem; font-weight: 600; letter-spacing: .02em; color: var(--bezeg-shell-ink-secondary); }
+.ux-lesson-recap ol { margin: 0; padding: 0 0 0 1.25rem; font-size: .8125rem; line-height: 1.4; color: var(--bezeg-shell-ink); }
+.ux-lesson-recap li { margin: 0 0 3px; padding-left: 2px; }
+.ux-lesson-recap li::marker { color: var(--bezeg-shell-ink-secondary); font-variant-numeric: tabular-nums; }

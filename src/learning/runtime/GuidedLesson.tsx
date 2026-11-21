@@ -15,6 +15,7 @@ import {useLessonDrift} from '../../uxPicks/toolsCard/useLessonDrift';
 import {stopAllOscillators} from '../../uxPicks/a3/oscillators';
 import {useLessonCardFit} from '../../uxPicks/toolsCard/useLessonCardFit';
 import '../../uxPicks/toolsCard/lessonDrift.css';
+import '../../uxPicks/toolsCard/lessonEnd.css';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
 import {fitFormulaRows} from './formulaRows';
@@ -652,6 +653,9 @@ export function GuidedLesson(props: {
     const frameAction = frame.action;
     const atFirstFrame = snapshot.stepIndex === 0 && snapshot.frameIndex === 0;
     const atLastFrame = snapshot.stepIndex === props.lesson.steps.length - 1 && snapshot.frameIndex === frames.length - 1;
+    // One fact decides Naprej's visible label, its accessible name and its fold twin: pressing it ends the lesson (session.next()
+    // completes exactly when the last frame of the last step is shown).
+    const nextEndsLesson = atLastFrame && !isComplete;
     const {onKeyDown: movePanelKey, ...panelPointerHandlers} = panelDrag.handleProps;
     // A keyboard move takes the card out of its graph place.
     const movePanelByKey = (event: React.KeyboardEvent<HTMLElement>) => { if (event.key.startsWith('Arrow') || event.key === 'Home') releaseLesson(); movePanelKey(event); };
@@ -670,8 +674,8 @@ export function GuidedLesson(props: {
             <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; if (lessonOnGraph) stopAllOscillators(); navigate(() => session.back()); }}>
                 {lessonOnGraph ? <><ChevronLeftIcon/><span className="ux-nav-label">{t('guided_lesson_previous_frame_short')}</span></> : t('guided_lesson_previous_frame_short')}
             </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; if (lessonOnGraph) stopAllOscillators(); navigate(() => session.next()); }}>
-                {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}{lessonOnGraph && !atLastFrame && <ChevronRightIcon/>}
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={nextEndsLesson ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; if (lessonOnGraph) stopAllOscillators(); navigate(() => session.next()); }}>
+                {nextEndsLesson ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}{lessonOnGraph && !nextEndsLesson && <ChevronRightIcon/>}
             </button>
         </nav>;
     const navigationToolbar = !isComplete && <div className="guided-lesson-toolbar">
@@ -723,6 +727,10 @@ export function GuidedLesson(props: {
         {isComplete && <div className="guided-lesson-completion-message">
             {(!pageHeadingHasLessonTitle || lessonOnGraph) && completionHeading}
             <p>{t('guided_lesson_free_exploration')}</p>
+            {lessonOnGraph && <section className="ux-lesson-recap" aria-labelledby="ux-lesson-recap-title">
+                <h4 id="ux-lesson-recap-title">Kaj si spoznal</h4>
+                <ol>{props.lesson.steps.map(s => <li key={s.id} data-tex={localized(s.title, language)}>{localized(s.title, language)}</li>)}</ol>
+            </section>}
         </div>}
         </div>
         {isComplete && props.chapterOwner && <div className="guided-lesson-actions guided-lesson-completion-actions">
@@ -768,8 +776,9 @@ export function GuidedLesson(props: {
         const cardProgress = isComplete ? completeProgress : <div className="ux-lesson-progress">
             <div className="guided-lesson-progress" role="status" aria-live="polite">
                 <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
-                <span aria-hidden="true"> · </span>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}
-                {frames.length > 1 && <span className="visually-hidden">, {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</span>}
+                <span aria-hidden="true"> · </span><span className="ux-lesson-frame-count">{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}</span>
+                {frames.length > 1 && <><span aria-hidden="true" className="ux-lesson-frame-count"> · {snapshot.frameIndex + 1}/{frames.length}</span>
+                    <span className="visually-hidden">, {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</span></>}
                 {isExploring && <span className="visually-hidden"> {t('guided_lesson_tools_live')}</span>}
             </div>
             {rail}
@@ -791,7 +800,7 @@ export function GuidedLesson(props: {
                     {!cardOpen && !isComplete && <span className="ux-lesson-fold-nav">
                         <button type="button" className="ux-btext-toggle" aria-label={t('guided_lesson_previous_frame_accessible')} title={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame}
                             onClick={() => { stopAllOscillators(); navigate(() => session.back()); }}><ChevronLeftIcon/></button>
-                        <button type="button" className="ux-btext-toggle" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} title={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')}
+                        <button type="button" className="ux-btext-toggle" aria-label={nextEndsLesson ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} title={nextEndsLesson ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')}
                             onClick={() => { stopAllOscillators(); navigate(() => session.next()); }}><ChevronRightIcon/></button>
                     </span>}</>}
                 actions={menu}>
