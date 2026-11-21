@@ -1,3 +1,4 @@
+import {recoverBoards, recoverBoardsSoon} from './board';
 import type {LessonGraphCapabilities, LessonSceneCheckpoint} from '../learning/model';
 
 /** Keys whose numbers are counts or choices: they jump to the target instead of sliding. */
@@ -29,22 +30,22 @@ function refineGrid(value: unknown): unknown {
 }
 
 /** Interpolates plain JSON: numbers slide, everything structural or discrete takes the target. */
-export function interpolateValue(from: unknown, to: unknown, t: number, key = '', integer = false): unknown {
+export function interpolateValue(from: unknown, to: unknown, t: number, key = '', integer = false, roundIntegers = false): unknown {
     if (typeof from === 'number' && typeof to === 'number') {
         if (!Number.isFinite(from) || !Number.isFinite(to) || from === to) return to;
         if (DISCRETE_KEY.test(key)) return to;
         const value = from + (to - from) * t;
-        return integer ? Math.round(value) : value;
+        return integer || (roundIntegers && Number.isInteger(from) && Number.isInteger(to)) ? Math.round(value) : value;
     }
     if (Array.isArray(from) && Array.isArray(to)) {
         if (from.length !== to.length) return to;
-        return to.map((item, index) => interpolateValue(from[index], item, t, key, integer));
+        return to.map((item, index) => interpolateValue(from[index], item, t, key, integer, roundIntegers));
     }
     if (isRecord(from) && isRecord(to)) {
         const result: Record<string, unknown> = {};
         const onGrid = integer || typeof to.gridStepExponent === 'number';
         for (const [childKey, value] of Object.entries(to)) {
-            result[childKey] = childKey in from ? interpolateValue(from[childKey], value, t, childKey, onGrid && childKey !== 'boundingBox') : value;
+            result[childKey] = childKey in from ? interpolateValue(from[childKey], value, t, childKey, onGrid && childKey !== 'boundingBox', roundIntegers) : value;
         }
         return result;
     }
@@ -87,9 +88,18 @@ export function morphScene(capabilities: LessonGraphCapabilities, before: Lesson
     const done = new Promise<void>(resolve => { resolveDone = resolve; });
     const from = refineGrid(before.value);
     const to = refineGrid(after.value);
+    // Some quantities are whole numbers stored as numbers (half-degrees, steps): after one refusal they move in whole steps.
+    let roundIntegers = false;
     const restore = (t: number) => {
         const started = performance.now();
-        capabilities.restoreState({version: 1, value: interpolateValue(from, to, t)});
+        try {
+            capabilities.restoreState({version: 1, value: interpolateValue(from, to, t, '', false, roundIntegers)});
+        } catch (error) {
+            recoverBoards();
+            if (roundIntegers) throw error;
+            roundIntegers = true;
+            capabilities.restoreState({version: 1, value: interpolateValue(from, to, t, '', false, true)});
+        }
         return performance.now() - started;
     };
     const debug = typeof window !== 'undefined' && window.location.search.includes('uxdebug');
@@ -99,7 +109,8 @@ export function morphScene(capabilities: LessonGraphCapabilities, before: Lesson
         if (finished) return;
         finished = true;
         cancelAnimationFrame(frame);
-        try { if (capabilities.isAvailable?.() !== false) capabilities.restoreState(after); } catch { /* graph went away */ }
+        try { if (capabilities.isAvailable?.() !== false) capabilities.restoreState(after); } catch { recoverBoards(); }
+        recoverBoardsSoon(() => { try { capabilities.restoreState(after); } catch { recoverBoards(); } });
         options.onFrame?.(1);
         resolveDone();
     };
@@ -113,6 +124,8 @@ export function morphScene(capabilities: LessonGraphCapabilities, before: Lesson
         if (linear >= 1) { finish(); return; }
         try {
             if (capabilities.isAvailable?.() === false) { finished = true; resolveDone(); return; }
+            // A frame that the graph refused while drawing leaves the board stuck: recover, then move in whole steps.
+            if (recoverBoards()) roundIntegers = true;
             const cost = restore(ease(linear));
             frames++;
             options.onFrame?.(linear);

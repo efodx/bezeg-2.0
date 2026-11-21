@@ -33,8 +33,17 @@ function tail(path: Path): string {
     // Points: ...points.<i>.<x|0> → group by the point; scalars: the key itself.
     const pointsAt = named.lastIndexOf('points');
     if (pointsAt >= 0 && pointsAt >= named.length - 3) return named.slice(pointsAt).join('.');
-    return named.slice(-1).join('.');
+    // Trailing indices (a matrix entry, a coefficient list) stay attached to the key that names them.
+    let from = named.length - 1;
+    while (from > 0 && typeof named[from] === 'number') from--;
+    return named.slice(from).join('.');
 }
+
+/** The coarsest step every value already sits on (1, ½, ¼, 0.1), so a jitter keeps a graph's own granularity. */
+function quantum(values: readonly number[]): number | undefined {
+    return [1, 0.5, 0.25, 0.1].find(step => values.every(value => Math.abs(value / step - Math.round(value / step)) < 1e-9));
+}
+const snap = (value: number, step: number | undefined) => step ? Math.round(value / step) * step : value;
 
 function groupKey(path: Path): {group: string; kind: JitterGroup['kind']} {
     const key = tail(path);
@@ -119,6 +128,7 @@ export function jitterCheckpoint(value: unknown, candidates: Candidates, count: 
             const angle = random(0, Math.PI * 2);
             const distance = random(0.12, 0.26) * Math.min(width, height);
             const offset: Record<string, number> = {};
+            const step = gridUnit ? undefined : quantum(group.leaves.map(leaf => leaf.value));
             for (const leaf of group.leaves) {
                 const axis = String(leaf.path[leaf.path.length - 1]);
                 const isX = axis === 'x' || axis === '0';
@@ -133,6 +143,7 @@ export function jitterCheckpoint(value: unknown, candidates: Candidates, count: 
                     const moved = Math.min(ceiling, Math.max(low + margin, current + (isX ? Math.cos(angle) : Math.sin(angle)) * distance));
                     let stored = moved / unit;
                     if (gridUnit) stored = Math.round(stored);
+                    else stored = snap(stored, step);
                     offset[axis] = stored - leaf.value;
                 }
                 setAt(copy, leaf.path, leaf.value + offset[axis]);
@@ -144,7 +155,9 @@ export function jitterCheckpoint(value: unknown, candidates: Candidates, count: 
         if (original >= 0 && original <= 1 && !Number.isInteger(original)) next = Math.min(0.95, Math.max(0.05, original + sign() * random(0.2, 0.4)));
         else if (original === 0) next = sign() * random(0.6, 2);
         else next = original * (Math.random() < 0.5 ? random(0.45, 0.72) : random(1.35, 1.9));
-        if (Number.isInteger(original)) next = Math.round(next * 2) / 2 || original + 1;
+        const step = quantum(group.leaves.map(leaf => leaf.value));
+        if (Number.isInteger(original)) next = Math.round(next) === original ? original + sign() : Math.round(next);
+        else if (step) next = snap(next, step) === original ? original + step : snap(next, step);
         next = Number(next.toFixed(2));
         for (const leaf of group.leaves) setAt(copy, leaf.path, next);
     }

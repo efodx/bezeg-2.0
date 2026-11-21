@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {LessonGraphCapabilities, LessonSceneCheckpoint} from '../learning/model';
-import {contentElements, findMainBoard, svgRoot, traced, type UxBoard} from './board';
-import {geometryKey, matchDistance, sampleNode, type Sample} from './geometrySamples';
+import {contentElements, findMainBoard, recoverBoards, svgRoot, traced, type UxBoard} from './board';
+import {geometryKey, sampleNode, shapeDistance, type Sample} from './geometrySamples';
 import {jitterCandidates, jitterCheckpoint, readLeaf, restoreGroup, type Candidates} from './jitter';
 import {morphScene} from './morph';
 import './uxlab.css';
@@ -12,6 +12,7 @@ type Phase = 'idle' | 'active' | 'solved' | 'revealed';
 interface Round {
     target: LessonSceneCheckpoint;
     targetShapes: Sample[][];
+    mode: ShapeMode;
     candidates: Candidates;
     moved: string[];
     started: number;
@@ -30,8 +31,16 @@ function toScreen(board: UxBoard, [x, y]: Sample): Sample {
     return [(x - left) / (right - left) * board.canvasWidth, (top - y) / (top - bottom) * board.canvasHeight];
 }
 
-function shapesNow(board: UxBoard): Sample[][] {
-    return contentElements(board).filter(traced).map(element => sampleNode(element.rendNode!, 5)).filter(shape => shape.length > 0);
+type ShapeMode = 'traced' | 'handles';
+
+/** Traced geometry; a graph of bare points (a point set, a hull drawn elsewhere) is matched by its handles instead. */
+function shapeElements(board: UxBoard, mode: ShapeMode) {
+    const handles = (element: ReturnType<typeof contentElements>[number]) => (element.elType === 'point' || element.elType === 'glider') && element.isDraggable !== false;
+    return contentElements(board).filter(mode === 'traced' ? traced : handles);
+}
+
+function shapesNow(board: UxBoard, mode: ShapeMode): Sample[][] {
+    return shapeElements(board, mode).map(element => sampleNode(element.rendNode!, 5)).filter(shape => shape.length > 0);
 }
 
 const nextFrames = (count: number) => new Promise<void>(resolve => {
@@ -113,7 +122,14 @@ export function MatchChallenge(props: {root: React.RefObject<HTMLElement>; capab
         ghost.current.innerHTML = current.targetShapes.map(shape => {
             const points = shape.map(point => toScreen(board, point));
             if (points.length === 1) return `<circle cx="${points[0][0].toFixed(1)}" cy="${points[0][1].toFixed(1)}" r="7"/>`;
-            return `<path d="M${points.map(point => `${point[0].toFixed(1)},${point[1].toFixed(1)}`).join(' L')}"/>`;
+            // A path with several pieces (a grid, a dashed family) is sampled across the gaps: lift the pen at big jumps.
+            const jumps = points.slice(1).map((point, index) => Math.hypot(point[0] - points[index][0], point[1] - points[index][1]));
+            const usual = [...jumps].sort((a, b) => a - b)[Math.floor(jumps.length / 2)] ?? 0;
+            const d = points.map((point, index) => {
+                const jump = index === 0 ? Infinity : jumps[index - 1];
+                return `${jump > Math.max(22, 2.5 * usual) ? 'M' : 'L'}${point[0].toFixed(1)},${point[1].toFixed(1)}`;
+            }).join(' ');
+            return `<path d="${d}"/>`;
         }).join('');
     }, [board]);
 
@@ -122,9 +138,8 @@ export function MatchChallenge(props: {root: React.RefObject<HTMLElement>; capab
     const measure = useCallback(() => {
         const current = round.current;
         if (!board || !current) return Infinity;
-        const target = current.targetShapes.flat().map(point => toScreen(board, point));
-        const now = shapesNow(board).flat();
-        const value = matchDistance(now, target);
+        const target = current.targetShapes.map(shape => shape.map(point => toScreen(board, point)));
+        const value = shapeDistance(shapesNow(board, current.mode), target);
         distance.current = value;
         setCloseness(Number.isFinite(value) ? Math.round(100 * Math.exp(-value / 28)) : 0);
         return value;
@@ -202,33 +217,45 @@ export function MatchChallenge(props: {root: React.RefObject<HTMLElement>; capab
         } else {
             try { target = props.capabilities.captureState(); } catch { return; }
         }
-        const targetShapes = shapesNow(board).map(shape => shape.map(point => toUser(board, point)));
+        const mode: ShapeMode = shapesNow(board, 'traced').length > 0 ? 'traced' : 'handles';
+        const targetShapes = shapesNow(board, mode).map(shape => shape.map(point => toUser(board, point)));
         if (targetShapes.length === 0) { setMessage('Na grafu ni krivulje, ki bi jo lahko ujel.'); return; }
-        const targetKeys = contentElements(board).filter(traced).map(element => geometryKey(element.rendNode!)).join('#');
+        const targetKeys = shapeElements(board, mode).map(element => geometryKey(element.rendNode!)).join('#');
         const candidates = jitterCandidates(target.value);
         if (candidates.groups.size === 0) { setMessage('Ta graf nima parametrov za izziv.'); return; }
         const level = Math.min(4, 1 + Math.floor(streak / 2));
         const inert = new Set<string>();
-        for (let attempt = 0; attempt < 14 && inert.size < candidates.groups.size; attempt++) {
+        const refusals = new Map<string, number>();
+        for (let attempt = 0; attempt < 18 && inert.size < candidates.groups.size; attempt++) {
             const {value, moved} = jitterCheckpoint(target.value, candidates, level, board.getBoundingBox(), inert);
             const debug = window.location.search.includes('uxdebug');
             try {
                 props.capabilities.restoreState({version: 1, value});
             } catch (error) {
                 if (debug) console.info('[ux b4] jitter refused', moved.join(','), error instanceof Error ? error.message : error);
+                recoverBoards();
                 try { props.capabilities.restoreState(target); } catch { /* leave it */ }
-                if (moved.length === 1) inert.add(moved[0]);
+                // A refused value may be just out of range; a group is given up after three refusals.
+                for (const key of moved) { refusals.set(key, (refusals.get(key) ?? 0) + 1); if ((refusals.get(key) ?? 0) >= 3) inert.add(key); }
                 continue;
             }
             // Some families draw after the host commits: look at the board two frames later.
             await nextFrames(2);
-            const keys = contentElements(board).filter(traced).map(element => geometryKey(element.rendNode!)).join('#');
-            const shapes = shapesNow(board).flat();
-            const apart = matchDistance(shapes, targetShapes.flat().map(point => toScreen(board, point)));
+            if (recoverBoards()) {
+                // The graph refused the scene while drawing it: put the target back and try other parameters.
+                if (debug) console.info('[ux b4] board stuck after', moved.join(','));
+                try { props.capabilities.restoreState(target); } catch { /* leave it */ }
+                await nextFrames(1);
+                recoverBoards();
+                for (const key of moved) { refusals.set(key, (refusals.get(key) ?? 0) + 1); if ((refusals.get(key) ?? 0) >= 3) inert.add(key); }
+                continue;
+            }
+            const keys = shapeElements(board, mode).map(element => geometryKey(element.rendNode!)).join('#');
+            const apart = shapeDistance(shapesNow(board, mode), targetShapes.map(shape => shape.map(point => toScreen(board, point))));
             if (debug) console.info('[ux b4] attempt', moved.join(','), 'same', keys === targetKeys, 'apart', apart.toFixed(1));
             if (keys === targetKeys || apart < 18) { if (keys === targetKeys) moved.forEach(key => inert.add(key)); continue; }
             // The round starts once the shape has flown apart; checks before that would see the target itself.
-            round.current = {target, targetShapes, candidates, moved, started: performance.now() + 700, hints: 0};
+            round.current = {target, targetShapes, mode, candidates, moved, started: performance.now() + 700, hints: 0};
             morphScene(props.capabilities, target, {duration: 650});
             drawGhost();
             setMessage('');

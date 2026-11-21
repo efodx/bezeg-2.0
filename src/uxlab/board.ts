@@ -81,3 +81,24 @@ export function traced(element: UxElement): boolean {
         && element.isDraggable === false;
 }
 
+
+/**
+ * A graph that throws inside a board update (a refused restore) leaves JSXGraph's `inUpdate` set, and every later update
+ * returns early: the model moves but nothing is drawn again. Call after catching such a throw.
+ */
+export function recoverBoards(): boolean {
+    let stuck = false;
+    for (const board of Object.values(window.JXG?.boards ?? {}) as (UxBoard & {inUpdate?: boolean; isSuspendedUpdate?: boolean; unsuspendUpdate?: () => void})[]) {
+        if (!board.containerObj?.isConnected || !(board.inUpdate || board.isSuspendedUpdate)) continue;
+        stuck = true;
+        board.inUpdate = false;
+        if (board.isSuspendedUpdate) board.unsuspendUpdate?.();
+        try { board.update(); } catch { /* the graph's own state is still invalid */ }
+    }
+    return stuck;
+}
+
+/** The throw may happen later, in the host's commit; a frame later no update can legitimately be running. */
+export function recoverBoardsSoon(onStuck?: () => void) {
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (recoverBoards()) onStuck?.(); }));
+}

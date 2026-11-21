@@ -77,3 +77,14 @@ export function matchDistance(a: readonly Sample[], b: readonly Sample[]): numbe
     const backward = y.reduce((sum, point) => sum + nearest(point, x), 0) / y.length;
     return Math.max(forward, backward);
 }
+
+/**
+ * Distance between two drawings shape by shape (the worst shape counts), so a small moved part next to a long unchanged
+ * curve still reads as apart. Falls back to the flattened distance when the shapes do not pair up.
+ */
+export function shapeDistance(a: readonly (readonly Sample[])[], b: readonly (readonly Sample[])[]): number {
+    if (a.length !== b.length || a.length === 0) return matchDistance(a.flat(), b.flat());
+    let worst = 0;
+    for (let i = 0; i < a.length; i++) worst = Math.max(worst, matchDistance(a[i], b[i]));
+    return worst;
+}
