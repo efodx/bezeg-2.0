@@ -211,7 +211,8 @@ test('direct guided family context preserves its frame through hide and returns 
     const directFrameCount = resolveGuidedExample('?explore=splines.piecewise.spline-cn', 'spline-cn')?.lesson.steps[0].frames?.length;
     fireEvent.click(document.querySelector('.guided-lesson-nav-next')!);
     expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
-    expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
+    // An observation frame is worked with the graph and the tools (affine-lesson-practice, section A): the graph stays unlocked.
+    expect(screen.getByRole('region', {name: 'Interactive graph'})).not.toHaveAttribute('data-lesson-locked');
     const progress = document.querySelector('.guided-lesson-progress')?.textContent;
 
     fireEvent.click(screen.getByRole('button', {name: 'Hide example instructions'}));
@@ -230,7 +231,7 @@ test('direct guided family context preserves its frame through hide and returns 
     expect(screen.getByText('Observation', {selector: 'strong'})).toBeVisible();
     expect(document.querySelector('.guided-lesson-progress')?.textContent).toBe(progress);
     expect(parameter).toHaveValue('.8');
-    expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
+    expect(screen.getByRole('region', {name: 'Interactive graph'})).not.toHaveAttribute('data-lesson-locked');
 
     fireEvent.click(document.querySelector('.guided-lesson-heading .guided-lesson-exit')!);
     const dialog = screen.getByRole('dialog');
