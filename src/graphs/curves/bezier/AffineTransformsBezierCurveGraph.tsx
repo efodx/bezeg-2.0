@@ -291,7 +291,9 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
             strokeColor: GraphPalette.referenceCurve, strokeOpacity: 0.7, strokeWidth: 2, dash: 2, fixed: true, highlight: false,
             withLabel: false, hasPoint: false, layer: 3, visible: false, isDraggable: false,
         };
-        const curve = board.create('curve', [(u: number) => bezierPoint(reference(), u)[0], (u: number) => bezierPoint(reference(), u)[1], 0, 1], faint) as JXG.Curve;
+        // JSXGraph updates a hidden curve too: without a reference (before the first operation, after a drag or Reset) it draws nothing.
+        const along = (u: number, axis: 0 | 1) => { const r = reference(); return r.length > 0 ? bezierPoint(r, u)[axis] : NaN; };
+        const curve = board.create('curve', [(u: number) => along(u, 0), (u: number) => along(u, 1), 0, 1], faint) as JXG.Curve;
         const polygon = board.create('curve', [() => reference().map(p => p[0]), () => reference().map(p => p[1])], {...faint, strokeWidth: 1, strokeOpacity: 0.5}) as JXG.Curve;
         const settings = this.displaySettings;
         const centre = (id: 'c' | 'c2', at: () => Pt) => board.create('point', [() => at()[0], () => at()[1]], {
@@ -307,8 +309,8 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
         const turnCentre = centre('c', () => meanOf(this.currentPoints()));
         const scaleCentre = centre('c2', () => boxCentreOf(this.currentPoints()));
         const ring = board.create('point', [
-            () => mappedReferencePoint(reference(), this.track, this.evaluationT() ?? 0)[0],
-            () => mappedReferencePoint(reference(), this.track, this.evaluationT() ?? 0)[1],
+            () => reference().length > 0 ? mappedReferencePoint(reference(), this.track, this.evaluationT() ?? 0)[0] : NaN,
+            () => reference().length > 0 ? mappedReferencePoint(reference(), this.track, this.evaluationT() ?? 0)[1] : NaN,
         ], {
             face: 'o', size: () => settings.pointSize + 3, fillColor: 'none', fillOpacity: 0, highlightFillColor: 'none', highlightFillOpacity: 0,
             strokeColor: GraphPalette.emphasis, highlightStrokeColor: GraphPalette.emphasis, strokeWidth: 2, withLabel: false,
