@@ -21,6 +21,7 @@ import {attachXyPad} from "./xyPad";
 import {attachWhatChanged} from "./whatChanged";
 import {attachLoupe} from "./loupe";
 import {attachNotebook} from "./notebook";
+import {attachFog} from "./fog";
 import {attachDragTrace} from "./dragTrace";
 import {attachDependence} from "./dependence";
 
@@ -57,6 +58,7 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c23')) disposers.push(attachNotebook(board));
     if (uxEnabled('c24') || uxEnabled('c25')) disposers.push(attachDependence(board, uxEnabled('c25')));
     if (uxEnabled('c26')) disposers.push(attachDragTrace(board));
+    if (uxEnabled('c27')) disposers.push(attachFog());
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));

@@ -105,6 +105,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c27',
+        name: 'Megla',
+        borrowed: 'megla vojne v strateških igrah, odkrit zemljevid v pustolovskih igrah in muzejska kartica z žigi',
+        idea: 'Tir vsakega drsnika je na začetku šrafiran kot neraziskana pokrajina. Kjer je študent drsnik že povlekel, se megla razkadi in tir postane zelen; merilnik ob oznaki šteje raziskani delež, celoten razpon pa prinese kljukico »ves razpon«. Študent, ki parameter pusti na privzeti vrednosti ali ga le malo premakne, takoj vidi, kje še ni pogledal.',
+        generalizes: 'Deluje na vsakem skupnem drsniku Slider v demonstracijah in lekcijah, brez podatkov. Študentovo vlečenje odkrije vso pot palca, skok (klik na tir ali korak lekcije) pa le eno mesto; raziskano ostane shranjeno tudi, ko lekcija drsnik na novem koraku prikaže znova.',
+        links: [
+            {label: 'Določeni integral', family: 'Funkcije', href: `${BASE}/functions/integral?ux=c27`,
+                tryThis: 'Povleci n le malo: tir ostane večinoma šrafiran. Nato povleci mejo a čez cel tir in dobi »✓ ves razpon«; opazuj, kaj se zgodi s ploščino, ko je a večji od b.'},
+            {label: 'Obodni kot in Talesov izrek', family: 'Geometrija ravnine', href: `${BASE}/inscribed-angle?ux=c27,c26`,
+                tryThis: 'Lega točke P ima 360 stopinj neraziskane krožnice. Odpri še 〰️ Sled vlečenja in razišči cel tir: megla se razkadi, sled pa pokaže skok kota na nasprotnem loku.'},
+            {label: 'Gostota in verjetnost kot ploščina', family: 'Verjetnost', href: `${BASE}/probability/density?learn=1&ux=c27`,
+                tryThis: 'Pojdi skozi lekcijo: koraki premikajo drsnike, a odkrijejo le posamezna mesta. Ves razpon σ in μ moraš raziskati sam.'},
+        ],
+    },
+    {
         id: 'c15',
         name: 'Vleci število',
         borrowed: 'Tangle in »Explorable Explanations« Breta Victorja: števila v besedilu so ročice',
@@ -426,7 +441,7 @@ export function UxLab() {
             <h1>Laboratorij prototipov</h1>
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
-                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16,c17,c18,c19,c20,c22,c23,c26`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
+                <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13,c16,c17,c18,c19,c20,c22,c23,c26,c27`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
                 <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15,c19,c21,c23`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>
