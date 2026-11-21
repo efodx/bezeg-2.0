@@ -162,7 +162,7 @@ export function symbolKey(tex: string): string {
     return s;
 }
 
-function sliderSymbol(slider: RegisteredSlider): string | undefined {
+export function sliderSymbol(slider: RegisteredSlider): string | undefined {
     const last = slider.label.trim().split(/\s+/).pop() ?? '';
     return /^[A-Za-zα-ω]$/.test(last) ? last : undefined;
 }

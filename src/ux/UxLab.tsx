@@ -39,6 +39,23 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c15',
+        name: 'Vleci število',
+        borrowed: 'Tangle in »Explorable Explanations« Breta Victorja: števila v besedilu so ročice',
+        idea: 'Vrednost, ki jo besedilo lekcije navaja, na primer t = 1/2 ali ω = 1, primeš kar v stavku in jo vlečeš levo ali desno: graf sledi, oblaček nad formulo kaže trenutno vrednost ob vrednosti iz besedila. Sprememba teče v razcepu c14, zato bledi duh pokaže lekcijo, na telefonu pa ob vleku priplava živa slika grafa.',
+        generalizes: 'Prireditve se preberejo iz že stavljenega TeX-a v okvirju, simbol pa se ujame s skupnim Slider po znaku na koncu imena (t, ω, φ, d), tudi ko lekcija drsnike skriva. Brez podatkov deluje v Bézierjevih lekcijah, funkcijah in geometriji krivulj, s tipkovnico pa s puščicami.',
+        links: [
+            {label: 'Trigonometrične funkcije', family: 'Funkcije', href: `${BASE}/functions/trigonometric?learn=1&ux=c15`,
+                tryThis: 'V stavku »Pri privzetih nastavitvah A = 1, ω = 1 …« primi ω = 1 in vleci desno: val se stiska, sivi sinus je lekcija. Nato poskusi še φ in B.'},
+            {label: 'De Casteljau', family: 'Bézierjeve krivulje', href: `${BASE}/bezier/decasteljau?learn=1&ux=c15`,
+                tryThis: 'Na koncu odstavka primi t = 1/2 in ga vleci: celotna konstrukcija drsi po krivulji. Klikni Naprej in lekcija se vrne na t = 1/2.'},
+            {label: 'Vzporedne krivulje', family: 'Geometrija krivulj', href: `${BASE}/curve-geometry/offset?learn=1&ux=c15`,
+                tryThis: 'Primi razdaljo d v besedilu in jo vleci čez 0: vzporedna krivulja preskoči na drugo stran.'},
+            {label: 'Premiki in raztegi grafa', family: 'Funkcije', href: `${BASE}/functions/transformations?learn=1&ux=c15`,
+                tryThis: 'Vleci a, b, c in d kar v besedilu prvega okvirja in opazuj, kateri premakne in kateri razteguje.'},
+        ],
+    },
+    {
         id: 'c4',
         name: 'Primi graf',
         borrowed: 'neposredno upravljanje iz Figme in inverzna kinematika iz igralnih pogonov in lutkovnih rigov',
@@ -233,7 +250,7 @@ export function UxLab() {
             <p>Mehanike, izposojene iz iger, glasbil, ustvarjalnih orodij in muzejskih eksponatov, v službi matematike. Vsak prototip se vklopi z zastavico <code>?ux=</code> v naslovu; povezava »Brez« odpre isto stran v današnji obliki. V vogalu strani je oznaka z gumbom za izklop.</p>
             <div className="ux-lab-all">
                 <a className="ux-lab-open" href={`${BASE}/functions/transformations?ux=c1,c2,c4,c5,c6,c7,c8,c11,c13`}><span>Igrišče: vsa orodja za graf</span><small>Premiki in raztegi grafa</small></a>
-                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
+                <a className="ux-lab-open ux-lab-open-alt" href={`${BASE}/bezier/decasteljau?learn=1&ux=c3,c8,c9,c10,c11,c12,c14,c15`}><span>Lekcija: vsi lekcijski prototipi</span><small>De Casteljau</small></a>
             </div>
         </header>
         <ol className="ux-lab-list">

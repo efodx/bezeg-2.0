@@ -25,6 +25,20 @@ function symbolOf(label: string): string {
     return label.trim().split(/\s+/)[0];
 }
 
+/** The board's fork, for prototypes that step off the lesson path from elsewhere (c15 scrubs values in the prose). */
+export interface Fork {
+    /** Opens the fork if needed (lesson ghost, back button) and shows this slider's chip. */
+    enter(slider?: RegisteredSlider, quiet?: boolean): void;
+    isOpen(): boolean;
+    /** The value the lesson had for a slider when the fork opened. */
+    lessonValue(slider: RegisteredSlider): number | undefined;
+}
+
+let currentFork: Fork | undefined;
+export function activeFork(): Fork | undefined {
+    return currentFork;
+}
+
 export function attachWhatIf(board: Board): () => void {
     const container = board.containerObj as HTMLElement | undefined;
     const svg = (board.renderer as any)?.svgRoot as SVGSVGElement | undefined;
@@ -219,6 +233,16 @@ export function attachWhatIf(board: Board): () => void {
     };
 
     button.addEventListener('click', () => { if (open) void restore(false); else start(); });
+    const fork: Fork = {
+        enter: (slider, quiet) => {
+            if (!open) { start(); if (quiet) panel.hidden = true; }
+            const index = slider ? saved.findIndex(entry => entry.slider === slider) : -1;
+            if (index >= 0 && index !== selected) { selected = index; render(); }
+        },
+        isOpen: () => open,
+        lessonValue: slider => saved.find(entry => entry.slider === slider)?.value,
+    };
+    currentFork = fork;
     panel.addEventListener('click', event => {
         const target = event.target as HTMLElement;
         const chip = target.closest<HTMLElement>('.ux-whatif-chip');
@@ -237,6 +261,7 @@ export function attachWhatIf(board: Board): () => void {
     document.addEventListener('keydown', onNavigate, true);
 
     return () => {
+        if (currentFork === fork) currentFork = undefined;
         if (open) void restore(true);
         window.clearInterval(watch);
         board.off('update', onUpdate);
