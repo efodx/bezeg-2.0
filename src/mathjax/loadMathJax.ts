@@ -119,4 +119,31 @@ export async function typesetMath(
     api.typesetClear?.([element]);
     prepare?.();
     await api.typesetPromise?.([element]);
+    if (isActive()) bindTrailingPunctuation(element);
+}
+
+/** The class of the span that holds an inline formula and the punctuation after it (`white-space: nowrap` in `src/index.css`). */
+const BOUND_MATH_CLASS = 'math-with-punctuation';
+
+/** Closing punctuation that may not start a line: a full stop, comma, colon, semicolon, mark or closing bracket or quote. */
+const TRAILING_PUNCTUATION = /^[.,:;!?…)\]}»“”’"']+/;
+
+/**
+ * A typeset inline formula is an atomic inline, so the browser may break a line between it and the punctuation after it and
+ * start the next line with a lone full stop. Each inline formula followed directly by closing punctuation is wrapped with
+ * that punctuation in a span that does not break. Display math, formulas already bound and other text are left alone.
+ */
+export function bindTrailingPunctuation(root: HTMLElement): void {
+    for (const math of root.querySelectorAll<HTMLElement>('mjx-container:not([display="true"])')) {
+        if (math.parentElement?.classList.contains(BOUND_MATH_CLASS)) continue;
+        const next = math.nextSibling;
+        if (!(next instanceof Text)) continue;
+        const punctuation = TRAILING_PUNCTUATION.exec(next.data)?.[0];
+        if (!punctuation) continue;
+        const bound = document.createElement('span');
+        bound.className = BOUND_MATH_CLASS;
+        math.before(bound);
+        bound.append(math, document.createTextNode(punctuation));
+        next.data = next.data.slice(punctuation.length);
+    }
 }

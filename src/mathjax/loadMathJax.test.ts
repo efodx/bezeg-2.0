@@ -105,3 +105,48 @@ describe('on-demand MathJax loading', () => {
         expect(api.typesetPromise).not.toHaveBeenCalled();
     });
 });
+
+describe('punctuation after inline math', () => {
+    beforeEach(() => {
+        vi.resetModules();
+        delete (window as Window & {MathJax?: TestMathJax}).MathJax;
+    });
+
+    afterEach(() => {
+        delete (window as Window & {MathJax?: TestMathJax}).MathJax;
+        document.getElementById('MathJax-script')?.remove();
+    });
+
+    // A typeset paragraph as MathJax leaves it: the formula is an element between text nodes.
+    function typesetParagraph(html: string): HTMLElement {
+        const root = document.createElement('div');
+        root.innerHTML = html;
+        return root;
+    }
+
+    test('binds a full stop or comma to the inline formula before it, once, and leaves the rest of the text', async () => {
+        const {bindTrailingPunctuation} = await import('./loadMathJax');
+        const root = typesetParagraph('<p>Zato je <mjx-container>x</mjx-container>. Nato <mjx-container>y</mjx-container>, in <mjx-container>z</mjx-container> ostane.</p>');
+        bindTrailingPunctuation(root);
+        bindTrailingPunctuation(root);
+        const bound = [...root.querySelectorAll('.math-with-punctuation')];
+        expect(bound.map(span => span.textContent)).toEqual(['x.', 'y,']);
+        expect(root.querySelectorAll('.math-with-punctuation mjx-container')).toHaveLength(2);
+        expect(root.textContent).toBe('Zato je x. Nato y, in z ostane.');
+    });
+
+    test('leaves display math and a formula followed by a space alone', async () => {
+        const {bindTrailingPunctuation} = await import('./loadMathJax');
+        const root = typesetParagraph('<p><mjx-container display="true">x</mjx-container>. <mjx-container>y</mjx-container> .</p>');
+        bindTrailingPunctuation(root);
+        expect(root.querySelector('.math-with-punctuation')).toBeNull();
+    });
+
+    test('binds after typesetting, while the surface is active', async () => {
+        setMathJax();
+        const {typesetMath} = await import('./loadMathJax');
+        const root = typesetParagraph('<p>Velja <mjx-container>x</mjx-container>.</p>');
+        await typesetMath(root);
+        expect(root.querySelector('.math-with-punctuation')?.textContent).toBe('x.');
+    });
+});

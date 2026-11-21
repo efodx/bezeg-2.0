@@ -17,3 +17,6 @@ code {
     position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden;
     clip-path: inset(50%); white-space: nowrap;
 }
+
+/* An inline formula and the punctuation right after it break as one word (bindTrailingPunctuation in src/mathjax/loadMathJax.ts). */
+.math-with-punctuation { white-space: nowrap; }
