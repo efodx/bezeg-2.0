@@ -41,16 +41,17 @@
 .ux-bcard-tools > .ux-tools-body[hidden] { display: none; }
 /* Cut-edge cue (round 5): the tools list fades where more lies behind the edge; useToolsSections marks data-overflow. */
 .ux-bcard-tools > .ux-tools-body[data-overflow~="end"] { -webkit-mask-image: linear-gradient(#000 calc(100% - 36px), transparent); mask-image: linear-gradient(#000 calc(100% - 36px), transparent); }
-.ux-bcard-tools > .ux-tools-body[data-overflow~="start"] { -webkit-mask-image: linear-gradient(transparent, #000 28px); mask-image: linear-gradient(transparent, #000 28px); }
-.ux-bcard-tools > .ux-tools-body[data-overflow="start end"] { -webkit-mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 36px), transparent); }
-.ux-bcard-tools .workspace-inspector { flex: none; height: auto; min-height: 0; border: 0; background: transparent; }
+.ux-bcard-tools > .ux-tools-body[data-overflow~="start"] { -webkit-mask-image: linear-gradient(#000 calc(var(--ux-tab-h) + 8px), transparent calc(var(--ux-tab-h) + 8px), #000 calc(calc(var(--ux-tab-h) + 8px) + 28px)); mask-image: linear-gradient(#000 calc(var(--ux-tab-h) + 8px), transparent calc(var(--ux-tab-h) + 8px), #000 calc(calc(var(--ux-tab-h) + 8px) + 28px)); }
+.ux-bcard-tools > .ux-tools-body[data-overflow="start end"] { -webkit-mask-image: linear-gradient(#000 calc(var(--ux-tab-h) + 8px), transparent calc(var(--ux-tab-h) + 8px), #000 calc(calc(var(--ux-tab-h) + 8px) + 28px), #000 calc(100% - 36px), transparent); mask-image: linear-gradient(#000 calc(var(--ux-tab-h) + 8px), transparent calc(var(--ux-tab-h) + 8px), #000 calc(calc(var(--ux-tab-h) + 8px) + 28px), #000 calc(100% - 36px), transparent); }
+.ux-bcard-tools .workspace-inspector { flex: none; height: auto; min-height: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
 .ux-bcard-tools .workspace-inspector .inspector-heading { display: none !important; }
 .ux-bcard-tools > .ux-btext-head { padding: 6px 6px 2px 8px; }
 .ux-bcard-tools .ux-btext-title { font-weight: 700; letter-spacing: .08em; color: var(--workspace-ink, var(--bezeg-shell-ink)); }
 
 /* In a stack the tools take the height the other cards leave (never less than a few controls) and scroll inside, so the
    stack itself does not scroll. Floating, the card is as tall as the board allows. */
-.ux-dock-v > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 auto; min-height: 180px; }
+/* Round 6: the card hugs its content (folded sections leave no blank tail); a long list still shrinks to the free height and scrolls. */
+.ux-dock-v > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 0 1 auto; min-height: 120px; }
 /* Sharing a stack with the lesson card, the tools give way first: the lesson keeps its text's height while the tools shrink
    to their minimum, then both shrink. */
 .ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) > .ux-bcard-tools:not(.ux-btext-collapsed) { flex: 1 1 0; min-height: 120px; }
@@ -156,22 +157,24 @@
 .ux-bcard-tools .inspector-group:has([data-ux-pucked]):not(:has(> :not([data-ux-pucked]):not(p.inspector-help))) { display: none; }
 
 /* ---- Tools card redesign (owner, 2026-11-21) ----
-   1. The tabs are the head: grip, a compact Uredi/Prikaz/Shrani switch, fold. The tab bar is laid over the head row; the
-      card keeps its name "Orodja" for screen readers (the title stays, visually hidden) and folded the head reads "Orodja". */
+   1. The tabs are the head: grip, a compact Uredi/Prikaz/Shrani switch, fold. The tab bar is laid under the head row (round 6: the head keeps its title "Orodja" open and folded). */
 .ux-bcard-tools { --ux-head-h: 36px; --ux-tab-h: 28px; --bezeg-control-height: 32px; }
 @media (pointer: coarse) { .ux-bcard-tools { --ux-head-h: 56px; --ux-tab-h: 48px; --bezeg-control-height: 44px; } }
 .ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head { min-height: var(--ux-head-h); box-sizing: border-box; padding-block: 0; }
-.ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head > .ux-btext-title {
-    position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
-}
+/* Round 6 (owner: "Title + compact list"): the open head keeps its title "Orodja"; the tabs are a row of their own under it. */
 .ux-bcard-tools .workspace-inspector { overflow: visible; contain: none; }
 /* The body scrolls (a short card shows what fits and scrolls the rest); the tabs are laid over the head, which does not
    scroll, so they are placed against the card, not the scrolling body. */
 .ux-bcard-tools #inspector-content { overflow: visible; flex: none; }
-.ux-bcard-tools .inspector-toolbar { position: static; height: 0; border: 0; border-radius: 0; background: transparent; }
+/* The tab row is the first, sticky row of the scrolling body (inside the fade mask: a mask clips what lies outside its box, which hid
+   a row laid over the head whenever the list overflowed). Under it the list scrolls; the row is panel-coloured so nothing shows through. */
+.ux-bcard-tools .inspector-toolbar {
+    position: sticky; top: 0; z-index: 3; box-sizing: border-box; height: calc(var(--ux-tab-h) + 8px); padding: 2px 8px 6px; border: 0; border-radius: 0;
+    background: var(--bezeg-shell-panel);
+}
+.is-presenting .ux-bcard-tools .inspector-toolbar { background: var(--bezeg-night); }
 .ux-bcard-tools .inspector-toolbar .inspector-tabs {
-    position: absolute; z-index: 2; left: 38px; right: 40px; top: calc((var(--ux-head-h) - var(--ux-tab-h)) / 2);
-    height: var(--ux-tab-h); box-sizing: border-box; margin: 0; padding: 2px; gap: 2px; border-radius: 8px;
+    position: static; height: var(--ux-tab-h); box-sizing: border-box; margin: 0; padding: 2px; gap: 2px; border-radius: 8px; width: 100%;
 }
 .ux-bcard-tools .inspector-toolbar .inspector-tabs button { min-height: 0; height: 100%; padding: 0 4px; font-size: min(.8125rem, 15px); line-height: 1; border-radius: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* A large root font (browser zoom, font-size setting) must not break a tab label: the size stops at 15 px and a label that still does not fit is cut with an ellipsis. */
@@ -243,3 +246,36 @@
 .ux-lesson-fold-nav { display: inline-flex; gap: 2px; margin-left: auto; align-self: center; }
 .ux-lesson-fold-nav .ux-btext-toggle:disabled { opacity: .4; cursor: default; }
 .ux-lesson-fold-nav .ux-btext-toggle:not(:disabled) { color: var(--bezeg-shell-ink); }
+
+.ux-bcard-tools .inspector-toolbar:not(:has(.inspector-tabs)) { display: none; }
+
+/* ---- Round 6: the "Shrani" tab at card width (owner: "the presets is not looking that good anymore") ----
+   One heading level: the group's own heading (with its chevron) is the only heading; "Shranjena stanja" is redundant under it and
+   stays for screen readers only; "Varnostna kopija" is a quiet label. Buttons are the plain control tier, one line each; the
+   selected row is a tint with a check, not a bar. */
+.ux-bcard-tools .preset-panel { gap: 10px; }
+.ux-bcard-tools .preset-panel .preset-subheading#preset-states-heading { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ux-bcard-tools .preset-panel .preset-subheading { font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--workspace-ink-soft, var(--bezeg-shell-ink-secondary)); }
+.ux-bcard-tools .preset-panel .preset-list { border-radius: 8px; }
+.ux-bcard-tools .preset-panel .preset-row[data-selected] { box-shadow: none; background: color-mix(in srgb, var(--workspace-green, #244c37) 10%, var(--bezeg-control-surface, #fffdf5)); }
+.ux-bcard-tools .preset-panel .preset-row[data-selected] .preset-row-name { font-weight: 600; }
+.ux-bcard-tools .preset-panel .preset-row[data-selected] .preset-row-badge::before { content: "\2713\00a0"; font-weight: 700; color: var(--workspace-green, #244c37); }
+.ux-bcard-tools .preset-panel .preset-row-select { padding-block: 4px; min-height: var(--bezeg-control-height); }
+/* "Ponastavi": a quiet control button beside the list, not a lone underlined link. */
+.ux-bcard-tools .preset-panel .preset-quiet-actions { margin-top: 0; }
+.ux-bcard-tools .preset-panel .preset-action-quiet-link {
+    min-height: var(--bezeg-control-height); padding: 0 12px; border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); text-decoration: none;
+    background: var(--bezeg-control-surface); color: var(--bezeg-control-ink); font-size: .8125rem;
+}
+/* "Shrani trenutno stanje …": a control-tier button with the selected-ink weight, not a 44 px slab. */
+.ux-bcard-tools .preset-panel .preset-save-box > .preset-action-primary {
+    min-height: var(--bezeg-control-height); width: 100%; font-size: .8125rem; font-weight: 600; white-space: nowrap;
+    background: var(--bezeg-control-surface); color: var(--bezeg-control-ink); border: var(--bezeg-control-border);
+}
+.ux-bcard-tools .preset-panel .preset-save-box > .preset-action-primary:hover:not([aria-disabled="true"]) { background: var(--bezeg-shell-control-hover); }
+.ux-bcard-tools .preset-panel .preset-backup { padding-top: 10px; margin-top: 0; }
+/* Buttons of the backup and image groups: one per line would waste height, two per line broke the labels; each is one line, full width. */
+.ux-bcard-tools .preset-panel .preset-button-pair { grid-template-columns: 1fr; gap: 6px; }
+.ux-bcard-tools .preset-panel :is(.preset-file-button, .preset-action), .ux-bcard-tools .figure-export-actions > .btn, .ux-bcard-tools [class*="figure-batch"] button, .ux-bcard-tools .preset-batch-button {
+    min-height: var(--bezeg-control-height); font-size: .8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0;
+}

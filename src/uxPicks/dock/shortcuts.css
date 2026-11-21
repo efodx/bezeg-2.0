@@ -1,6 +1,6 @@
 /* The shortcuts card ("Bližnjice"): a non-modal dialog over the board, placed clear of the lesson card. */
 .ux-sc-card {
-    position: fixed; z-index: 60; width: min(450px, calc(100vw - 16px)); max-height: min(72vh, 640px); display: flex; flex-direction: column;
+    position: fixed; z-index: 60; width: min(400px, calc(100vw - 16px)); max-height: calc(100vh - 16px); display: flex; flex-direction: column;
     background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink); border: 1px solid var(--bezeg-shell-rule); border-radius: 12px;
     box-shadow: 0 2px 4px rgba(25, 55, 47, 0.1), 0 10px 28px rgba(25, 55, 47, 0.16); font-size: 0.8125rem; line-height: 1.35;
 }
@@ -12,15 +12,15 @@
 }
 .ux-sc-card.ux-sc-card button.ux-sc-close:hover { background: var(--bezeg-shell-control-hover); }
 .ux-sc-card.ux-sc-card button.ux-sc-close:focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: 1px; }
-.ux-sc-body { overflow-y: auto; padding: 4px 12px 10px; scrollbar-width: thin; }
+.ux-sc-body { overflow-y: auto; padding: 0 12px 10px; scrollbar-width: thin; }
 .ux-sc-body h3 { margin: 10px 0 4px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bezeg-shell-ink-secondary); }
-.ux-sc-body dl { margin: 0; display: grid; gap: 5px; }
-.ux-sc-row { display: grid; grid-template-columns: 11.5em 1fr; gap: 10px; align-items: start; }
+.ux-sc-body dl { margin: 0; display: grid; gap: 4px; }
+.ux-sc-row { display: grid; grid-template-columns: 8.5em 1fr; gap: 8px; align-items: start; }
 .ux-sc-row dt { display: flex; flex-wrap: wrap; gap: 3px; margin: 0; }
 .ux-sc-row dd { margin: 0; color: var(--bezeg-shell-ink-secondary); }
 .ux-sc-row kbd {
     font: inherit; font-size: 0.75rem; padding: 0 5px; border: 1px solid var(--bezeg-shell-rule); border-bottom-width: 2px; border-radius: 5px;
-    background: color-mix(in srgb, var(--bezeg-shell-panel) 70%, var(--bezeg-shell-control-hover)); color: var(--bezeg-shell-ink); white-space: nowrap;
+    background: color-mix(in srgb, var(--bezeg-shell-panel) 70%, var(--bezeg-shell-control-hover)); color: var(--bezeg-shell-ink); white-space: normal; overflow-wrap: anywhere;
 }
 /* The "?" buttons (gestures hint, pucks' strip). */
 .ux-sc-button.ux-sc-button {
@@ -33,3 +33,11 @@
 .ux-sc-button.ux-sc-button.ux-pucks-help { align-self: center; pointer-events: auto; }
 @media (pointer: coarse) { .ux-sc-button.ux-sc-button, .ux-sc-card.ux-sc-card button.ux-sc-close { width: 44px; height: 44px; } }
 @media (max-width: 460px) { .ux-sc-row { grid-template-columns: 1fr; gap: 2px; } }
+.ux-sc-body section { break-inside: avoid; }
+.ux-sc-note { margin: 10px 0 0; font-size: 0.75rem; color: var(--bezeg-shell-ink-secondary); column-span: all; }
+/* Wide enough (a 640 px card), the groups run in two columns. */
+@media (min-width: 656px) {
+    .ux-sc-card { width: 640px; }
+    .ux-sc-body { columns: 2; column-gap: 24px; }
+}
+

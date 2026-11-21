@@ -11,7 +11,9 @@ export const GripIcon = () => <svg {...base}>{[4, 8, 12].flatMap(y => [5.5, 10.5
 export const WaveIcon = () => <svg {...base}><path d="M1.5 8c1.8-5 3.5-5 5 0s3.2 5 5 0 1.6-3.4 2.5-3"/></svg>;
 export const PauseIcon = () => <svg {...base}><path d="M5.5 3.5v9M10.5 3.5v9"/></svg>;
 export const ChevronDownIcon = () => <svg {...base}><path d="M4 6.5 8 10.5 12 6.5"/></svg>;
-/** An arrow turning back: return the card to its default place. */
+/** A house: return the card to its default place ("home"; the turning arrow read as resetting a value). */
+export const HomeIcon = () => <svg {...base}><path d="M2.5 7.8 8 3l5.5 4.8M4 6.8V13h8V6.8M6.7 13V9.6h2.6V13"/></svg>;
+/** An arrow turning back. */
 export const ResetIcon = () => <svg {...base}><path d="M3.5 7.5a4.5 4.5 0 1 1 1.3 3.7"/><path d="M3.2 4.2v3.5h3.5"/></svg>;
 /** Two arrows away from each other: the stack scrolls. */
 export const ScrollIcon = () => <svg {...base}><path d="M5.5 6 8 3.5 10.5 6M5.5 10 8 12.5 10.5 10"/></svg>;

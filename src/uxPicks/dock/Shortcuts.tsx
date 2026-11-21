@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useRef, useSyncExternalStore} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {createPortal} from 'react-dom';
 import {usePick} from '../picks';
 import {useReducedMotion} from '../../graphs/base/controls/reducedMotion';
@@ -48,26 +48,35 @@ export function isBoardKey(event: KeyboardEvent): boolean {
 }
 
 type Row = [keys: string[], text: string];
-const GROUPS = (sweep: boolean, track: boolean): {title: string; rows: Row[]}[] => [
+/** What the board offers right now (read from the page, so a row is listed only when its key does something). */
+type BoardNow = {lesson: boolean; pucks: 'none' | 'folded' | 'locked' | 'ready'};
+const readBoard = (): BoardNow => {
+    const pucks = document.querySelector('.ux-pucks');
+    return {
+        lesson: !!document.querySelector('.demonstration-workspace.lesson-open'),
+        pucks: !pucks ? 'none' : pucks.classList.contains('is-collapsed') ? 'folded' : pucks.classList.contains('is-locked') ? 'locked' : 'ready',
+    };
+};
+const GROUPS = (now: BoardNow, sweep: boolean, track: boolean): {title: string; rows: Row[]}[] => [
     {title: 'Kartice', rows: [
-        [['povleci glavo'], 'premakne kartico; spusti jo nad označeno mesto, da se pripne, v sredini ostane prosto'],
-        [['dvoklik na glavo'], 'vrne kartico na privzeto mesto'],
-        [['−', '+'], 'zloži ali razpne kartico (klik na zloženo glavo jo razpne)'],
-        [['← ↑ → ↓'], 'na prijemalu kartice: premik (Shift: večji korak); Enter pripne na označeno mesto, Home na privzeto'],
-        [['Z'], 'zloži vse kartice razen lekcije; še enkrat: vrne jih, kakor so bile'],
+        [['povleci glavo'], 'premakne; nad označenim mestom pripne'],
+        [['dvoklik na glavo'], 'privzeto mesto'],
+        [['−', '+'], 'zloži / razpne (klik na zloženo glavo)'],
+        [['← ↑ → ↓'], 'na prijemalu: premik (Shift: večji); Enter pripne, Home privzeto mesto'],
+        [['Z'], 'zloži vse razen lekcije; še enkrat: nazaj'],
     ]},
-    {title: 'Lekcija', rows: [
+    ...(now.lesson ? [{title: 'Lekcija', rows: [
         [['Alt + ←', 'Alt + →'], 'nazaj / naprej'],
-        [['PageUp', 'PageDown'], 'nazaj / naprej, ko je fokus v kartici lekcije'],
-    ]},
-    {title: 'Parametri na grafu', rows: [
-        [['povleci levo ali desno'], 'spremeni vrednost; med vlečenjem dvigni kazalec ali prst za fino nastavljanje'],
-        [['← ↑ → ↓'], 'na ploščici: korak (Shift ali PageUp/PageDown: 10 korakov); Home in End: najmanjša in največja vrednost'],
+        [['PageUp', 'PageDown'], 'nazaj / naprej v kartici lekcije'],
+    ] as Row[]}] : []),
+    ...(now.pucks === 'ready' ? [{title: 'Parametri na grafu', rows: [
+        [['povleci levo ali desno'], 'spremeni vrednost; dvigni prst za fino'],
+        [['← ↑ → ↓'], 'na ploščici: korak (Shift ali PageUp/PageDown: 10); Home, End: meji'],
         [['številka', 'Enter', 'dvoklik'], 'vpiši vrednost; Enter potrdi, Esc prekliče'],
-        ...(sweep ? [[['∿'], 'ploščica niha sama med mejami'] as Row, [['N'], 'vsi parametri začnejo nihati; če kateri niha, se vsi ustavijo'] as Row] : []),
-        ...(track ? [[['spodnji trak'], 'kazalec nad trakom pokaže graf pri tej vrednosti, klik skoči nanjo'] as Row] : []),
-    ]},
-    {title: 'Splošno', rows: [[['?'], 'ta seznam; Esc ga zapre'], [['?', 'Z', 'N'], 'delujejo, ko je fokus na grafu ali v kartici']]},
+        ...(sweep ? [[['∿'], 'ploščica niha sama'] as Row, [['N'], 'vsi začnejo nihati; če kateri niha, se vsi ustavijo'] as Row] : []),
+        ...(track ? [[['spodnji trak'], 'kazalec pokaže graf pri tej vrednosti, klik skoči nanjo'] as Row] : []),
+    ] as Row[]}] : []),
+    {title: 'Splošno', rows: [[['?'], 'ta seznam; Esc ga zapre']]},
 ];
 
 /** A small "?" that opens the list. */
@@ -96,39 +105,70 @@ export function ShortcutsHost() {
 
 function ShortcutsCard(props: {sweep: boolean; track: boolean}) {
     const card = useRef<HTMLDivElement>(null);
+    const [now, setNow] = useState(readBoard);
     useEffect(() => { card.current?.querySelector<HTMLElement>('.ux-sc-close')?.focus({preventScroll: true}); }, []);
-    // Clear of the lesson card (its Back and Next stay reachable): centred over the board, else beside the lesson card.
+    // The list follows the board while it is open (a lesson opens, the pucks fold or lock).
+    useEffect(() => {
+        let frame = 0;
+        const refresh = () => { frame = 0; setNow(prev => { const next = readBoard(); return prev.lesson === next.lesson && prev.pucks === next.pucks ? prev : next; }); };
+        const observer = new MutationObserver(() => { if (!frame) frame = requestAnimationFrame(refresh); });
+        observer.observe(document.body, {attributes: true, attributeFilter: ['class'], subtree: true});
+        return () => { observer.disconnect(); if (frame) cancelAnimationFrame(frame); };
+    }, []);
+    const groups = GROUPS(now, props.sweep, props.track);
+    const shape = `${now.lesson}${now.pucks}${props.sweep}${props.track}`;
+    // Clear of the lesson card (its Back and Next stay reachable) and of the pucks' strip: centred over the board, else beside,
+    // above or below what must stay free; the first spot that overlaps none of them, else the one that overlaps least.
     useLayoutEffect(() => {
         const el = card.current;
         if (!el) return undefined;
         const place = () => {
             const frame = document.querySelector('.ux-board-frame')?.getBoundingClientRect();
-            const avoid = Array.from(document.querySelectorAll('.ux-bcard-guide')).map(e => e.getBoundingClientRect()).filter(r => r.width > 0);
-            const w = el.offsetWidth, h = el.offsetHeight;
+            const avoid = Array.from(document.querySelectorAll('.ux-bcard-guide, .ux-dock-strip')).map(e => e.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0);
+            el.style.maxHeight = '';
+            const w = el.offsetWidth, h = Math.min(el.offsetHeight, window.innerHeight - 16);
             const area = frame ?? new DOMRect(0, 0, window.innerWidth, window.innerHeight);
-            const top = Math.max(8, Math.min(area.top + 40, window.innerHeight - h - 8));
-            const clear = (x: number) => avoid.every(r => x + w + 8 <= r.left || x >= r.right + 8 || top + h + 8 <= r.top || top >= r.bottom + 8);
             const lo = 8, hi = window.innerWidth - w - 8;
-            const candidates = [area.left + area.width / 2 - w / 2, ...avoid.flatMap(r => [r.right + 12, r.left - 12 - w]), hi, lo].map(x => Math.max(lo, Math.min(hi, x)));
-            const x = candidates.find(clear) ?? candidates[0]!;
-            el.style.left = `${Math.round(x)}px`; el.style.top = `${Math.round(top)}px`;
+            const xs = [area.left + area.width / 2 - w / 2, ...avoid.flatMap(r => [r.right + 12, r.left - 12 - w]), hi, lo].map(x => Math.max(lo, Math.min(hi, x)));
+            const clampY = (y: number) => Math.max(8, Math.min(y, window.innerHeight - h - 8));
+            const ys = [area.top + 40, ...avoid.flatMap(r => [r.top - 8 - h, r.bottom + 8]), 8].map(clampY);
+            const overlap = (x: number, y: number) => avoid.reduce((sum, r) => {
+                const ox = Math.min(x + w + 8, r.right) - Math.max(x - 8, r.left), oy = Math.min(y + h + 8, r.bottom) - Math.max(y - 8, r.top);
+                return sum + (ox > 0 && oy > 0 ? ox * oy : 0);
+            }, 0);
+            let best = {x: xs[0]!, y: ys[0]!, cost: Infinity};
+            for (const y of ys) for (const x of xs) { const cost = overlap(x, y); if (cost < best.cost) best = {x, y, cost}; }
+            el.style.left = `${Math.round(best.x)}px`; el.style.top = `${Math.round(best.y)}px`;
+            el.style.maxHeight = `${Math.round(window.innerHeight - best.y - 8)}px`;
         };
         place();
         window.addEventListener('resize', place);
         return () => window.removeEventListener('resize', place);
-    }, []);
-    return createPortal(<div ref={card} className="ux-sc-card" role="dialog" aria-label="Bližnjice" aria-modal="false">
+    }, [shape]);
+    // Tab past the last control (or Shift+Tab before the first) goes back into the board, to what opened the list, not to the page top.
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key !== 'Tab') return;
+        const items = Array.from(card.current?.querySelectorAll<HTMLElement>('button, [href], [tabindex]:not([tabindex="-1"])') ?? []);
+        const edge = e.shiftKey ? items[0] : items[items.length - 1];
+        if (!edge || document.activeElement !== edge) return;
+        const target = returnTo?.isConnected ? returnTo : document.querySelector<HTMLElement>('.ux-sc-button, .ux-btext-grip, .workspace-graph');
+        if (!target) return;
+        e.preventDefault();
+        target.focus();
+    };
+    return createPortal(<div ref={card} className="ux-sc-card" role="dialog" aria-label="Bližnjice" aria-modal="false" onKeyDown={onKeyDown}>
         <div className="ux-sc-head">
             <span className="ux-sc-title">Bližnjice</span>
             <button type="button" className="ux-sc-close" onClick={() => closeShortcuts()} aria-label="Zapri bližnjice" title="Zapri (Esc)">×</button>
         </div>
         <div className="ux-sc-body">
-            {GROUPS(props.sweep, props.track).map(group => <section key={group.title}>
+            {groups.map(group => <section key={group.title}>
                 <h3>{group.title}</h3>
                 <dl>{group.rows.map(([keys, text], i) => <div key={i} className="ux-sc-row">
                     <dt>{keys.map((k, j) => <kbd key={j}>{k}</kbd>)}</dt><dd>{text}</dd>
                 </div>)}</dl>
             </section>)}
+            <p className="ux-sc-note">Z, N in ? delujejo, ko je fokus na grafu ali v kartici.</p>
         </div>
     </div>, document.body);
 }

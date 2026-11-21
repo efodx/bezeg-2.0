@@ -1,7 +1,7 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {GapSlot, useDock} from './BoardDock';
-import {GripIcon, KindIcon, MinusIcon, PlusIcon, ResetIcon} from './icons';
+import {GripIcon, KindIcon, MinusIcon, PlusIcon, HomeIcon} from './icons';
 import {foldAllFold, foldAllRules, setFoldAllCard, useFoldAll} from './foldAll';
 import {
     clearGap, currentGap, dropAtGap, orderOf, pickUp, placedRegion, placementOf, registerCard, resetCard, setFloating, setGap, setOutlines, syncPath,
@@ -271,7 +271,7 @@ export function DockCard(props: DockCardProps) {
     const gapTarget = g && g.kind === kind && !phone ? dock.regions[g.region] : null;
     // Away from its default place (moved to another anchor, or floating), the card offers the way back in its head.
     const moved = !phone && (floating || (placedRegion(kind) ?? props.region) !== props.region);
-    const resetLabel = `Vrni ${props.what} na privzeto mesto`;
+    const resetTip = 'Vrni kartico na privzeto mesto';
     return <>
         {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget}/>, gapTarget)}
         {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}${cue ? ' ux-btext-cue' : ''}`} style={style}>
@@ -283,7 +283,7 @@ export function DockCard(props: DockCardProps) {
                 {!open && <KindIcon kind={kind}/>}
                 <span className="ux-btext-title">{props.head ?? props.title}</span>
                 {props.actions}
-                {moved && <button type="button" className="ux-btext-toggle ux-btext-reset" onClick={reset} aria-label={resetLabel} title={resetLabel}><ResetIcon/></button>}
+                {moved && <button type="button" className="ux-btext-toggle ux-btext-reset" onClick={reset} aria-label={`${resetTip}: ${props.title}`} title={resetTip}><HomeIcon/></button>}
                 <button type="button" className="ux-btext-toggle" onClick={toggle} aria-expanded={open}
                         aria-label={label} title={label}>{open ? <MinusIcon/> : <PlusIcon/>}</button>
             </div>

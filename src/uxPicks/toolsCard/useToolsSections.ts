@@ -28,15 +28,24 @@ const headingOf = (group: Element): HTMLElement | null => {
     const h = Array.from(group.children).find(c => c.matches(HEADING));
     return (h as HTMLElement) ?? null;
 };
-const nameOf = (h: HTMLElement) => (h.dataset.uxSecName ??= (h.textContent ?? '').trim());
+const rawName = (h: HTMLElement) => (h.dataset.uxSecName ??= (h.textContent ?? '').trim());
+/** The heading's own text; where two sections of the tools share it (De Casteljau: "Konstrukcija" in Uredi and in Prikaz), the tab it sits in is added, so each fold button and its stored fold has its own name. */
+const nameOf = (root: HTMLElement, h: HTMLElement) => {
+    const raw = rawName(h);
+    const same = Array.from(root.querySelectorAll<HTMLElement>(HEADING)).filter(o => headingOf(o.parentElement!) === o && rawName(o) === raw);
+    if (same.length < 2) return raw;
+    const panel = h.closest<HTMLElement>('[role="tabpanel"], section[aria-label]');
+    const label = panel?.getAttribute('aria-label');
+    return label ? `${raw} (${label})` : raw;
+};
 
 function apply(root: HTMLElement) {
     let n = 0;
     root.querySelectorAll<HTMLElement>(SECTION).forEach(group => {
         const h = headingOf(group);
         if (!h) return;
-        const name = nameOf(h);
-        if (!name) return;
+        const name = nameOf(root, h);
+        if (!rawName(h)) return;
         if (h.dataset.uxSec === undefined) h.dataset.uxSec = '';
         // Help: paragraphs whose nearest group is this one and that are not status lines.
         const helps = Array.from(group.querySelectorAll<HTMLElement>(HELP)).filter(el =>
@@ -98,7 +107,7 @@ export function useToolsSections(root: HTMLElement | null) {
                 apply(root);
                 return;
             }
-            const name = nameOf(h);
+            const name = nameOf(root, h);
             writeFold(name, !readFold(name));
             apply(root);
         };
