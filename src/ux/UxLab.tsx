@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a12', name: 'Zgodba lekcije',
+        idea: 'Pod grafom vsak okvir lekcije, ki ga učenec vidi, pusti sličico table in to, kar je korak spremenil (»d 0 → 1«), kot sličice stripa. Pokaži na sličico in tisti trenutek se kot bleda senca položi čez živi graf (kako je bilo dva koraka nazaj?); tapni jo in lekcija se vrne tja. Na koncu lekcije je trak povzetek celotne poti.',
+        general: 'Sličice so kloni SVG-ja table, okvir prebere iz vrstice napredka na kartici lekcije, spremembe iz deljenega registra drsnikov, skok pa pritiska kartičina gumba Nazaj in Naprej. Nobena lekcija za to ne potrebuje metapodatkov.',
+        try: 'Pojdi skozi nekaj okvirov, nato pokaži na starejšo sličico (senca na grafu) in jo tapni.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a6,a12'},
+            {label: 'De Boorov algoritem', family: 'B-zlepki', path: 'bspline/deboor', flags: 'a6,a12'},
+            {label: 'Enotska krožnica', family: 'Trigonometrija', path: 'functions/unit-circle', flags: 'a6,a12'},
+        ],
+    },
+    {
         id: 'a11', name: 'Nariši in najdi',
         idea: 'Z eno potezo nariši krivuljo na graf in Bezeg poišče parametre, pri katerih gre graf skozi tvojo skico — nato krivulja iz prejšnjega položaja zdrsne vanjo in kartica pove »tvoja skica: c ≈ 1, d ≈ −3, a ≈ 2«. Obratno vprašanje vsake lekcije o grafih (katera števila dajo to obliko?) postane gib roke; ko dva parametra delujeta enako (a in b pri paraboli), to tudi pove.',
         general: 'Reševalec ne pozna grafa: s kratkim sunkom ugotovi, katere krivulje premika kateri parameter, nato minimizira obojestransko razdaljo med skico in krivuljo (Levenberg–Marquardt s končnimi razlikami prek prave table, več začetnih točk, tudi zrcaljenja predznaka). Deluje na vsakem grafu s krivuljo in drsniki: parabola, sinusoida, binomska porazdelitev.',
@@ -136,7 +147,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a11', 'a9', 'a4', 'a10', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a11', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {

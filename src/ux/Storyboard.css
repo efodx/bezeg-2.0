@@ -1,0 +1,35 @@
+.ux-story {
+    display: flex; align-items: stretch; gap: 8px; padding: 8px 10px 10px; border-top: 1px solid #e3e7d9;
+    background: linear-gradient(#fbf8ee, #fffdf5); pointer-events: auto;
+}
+.ux-story-title {
+    writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: #885512; text-align: center;
+}
+.ux-story-strip {
+    display: flex; gap: 8px; margin: 0; padding: 2px 2px 4px; list-style: none; overflow-x: auto; scrollbar-width: thin; flex: 1; min-width: 0;
+}
+.ux-story-strip > li { flex: none; }
+.demonstration-workspace .workspace-graph .ux-story button.ux-story-panel {
+    pointer-events: auto; display: flex; flex-direction: column; gap: 4px; width: 128px; padding: 4px; border-radius: 10px; cursor: pointer;
+    border: 1px solid #d6dccb; background: #fffdf5; color: #19372f; text-align: left; transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+    animation: ux-panel-in 380ms cubic-bezier(.2, .9, .3, 1.2);
+}
+@keyframes ux-panel-in { from { opacity: 0; transform: translateY(8px) scale(0.94); } }
+.demonstration-workspace .workspace-graph .ux-story button.ux-story-panel:hover { border-color: #b88a43; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(25, 55, 47, 0.12); }
+.demonstration-workspace .workspace-graph .ux-story button.ux-story-panel[aria-current="step"] { border-color: #244c37; box-shadow: 0 0 0 2px rgba(36, 76, 55, 0.25); }
+.ux-story-thumb { display: block; width: 100%; max-height: 84px; overflow: hidden; border-radius: 6px; background: #fffdf5; pointer-events: none; }
+.ux-story-thumb svg { display: block; }
+.ux-story-caption { display: flex; flex-wrap: wrap; gap: 3px 6px; align-items: baseline; font-size: 0.7rem; line-height: 1.25; min-height: 1.3em; }
+.ux-story-caption b { color: #526152; font-weight: 650; font-variant-numeric: tabular-nums; }
+.ux-story-change { background: #fbefd4; color: #6b430c; border-radius: 6px; padding: 0 5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ux-story-change i { font-family: "Source Serif 4", "Times New Roman", serif; }
+.ux-story-skin { position: absolute; z-index: 3; pointer-events: none; opacity: 0.4; filter: grayscale(1) sepia(0.5) hue-rotate(-10deg); mix-blend-mode: multiply; }
+.ux-story-skin svg { display: block; }
+@media (max-width: 600px) {
+    .ux-story { padding: 6px 6px 8px; gap: 6px; }
+    .demonstration-workspace .workspace-graph .ux-story button.ux-story-panel { width: 104px; }
+    .ux-story-thumb { max-height: 64px; }
+}
+/* Scaled to a sixth, hairlines vanish: strokes keep their screen width, so the curves read in the thumbnail. */
+.ux-story-thumb svg path, .ux-story-thumb svg line, .ux-story-thumb svg ellipse, .ux-story-thumb svg polygon { vector-effect: non-scaling-stroke; }
+.ux-story-thumb svg { opacity: 0.95; }
