@@ -1,4 +1,5 @@
 import type {StoredGraphState} from "./presets/Presets";
+import {withViewIntent} from './viewIntent';
 import {LocalizedError, message, Message, onLanguageChange, renderMessage, t} from "../../localization";
 import {presetWritesAllowed, type UserActionMode} from "../context/react/PresetLockContext";
 import React from 'react';
@@ -870,7 +871,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const box = this.fitView(points, parseFloat(String(width)), parseFloat(String(height)));
         if (box) {
-            this.board.setBoundingBox(box, this.equalAxisUnits, 'update');
+            withViewIntent('graph', () => this.board.setBoundingBox(box, this.equalAxisUnits, 'update'));
             this.board.applyZoom();
         }
     }
@@ -883,7 +884,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const [left, top, right, bottom] = this.board.getBoundingBox();
         const dx = (right - left) * (action === "left" ? -.15 : action === "right" ? .15 : 0);
         const dy = (top - bottom) * (action === "up" ? .15 : action === "down" ? -.15 : 0);
-        this.board.setBoundingBox([left + dx, top + dy, right + dx, bottom + dy], false);
+        withViewIntent('user', () => this.board.setBoundingBox([left + dx, top + dy, right + dx, bottom + dy], false));
     }
 
     /** Graph-specific mount/figure-entry work; a declared standalone scene is built by the host right after it. */

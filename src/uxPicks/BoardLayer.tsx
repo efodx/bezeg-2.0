@@ -7,6 +7,7 @@ import {BoardCards} from './boardText/BoardTextCard';
 import {BoardDock} from './dock/BoardDock';
 import {useEditingParam} from './a1/paramRegistry';
 import {useQuietFormulas} from './quietFormulas';
+import {BoardRoom} from './room/RoomMount';
 
 /**
  * The board frame that hosts the on-board picks; each child renders only while its pick is on. Pucks and cards sit in
@@ -26,6 +27,7 @@ export function UxBoardFrame(props: {children: React.ReactNode}) {
     return <>
         <div className="ux-board-frame" ref={frame}>
             {props.children}
+            {toolsCard && <BoardRoom/>}
             {preview && !typing && <ScrubPreview frame={frame}/>}
             {pucks && hover && !typing && <PuckHover frame={frame}/>}
             {(pucks || boardText || toolsCard) && <BoardDock frame={frame} tray={tray}>
