@@ -158,7 +158,7 @@ const SUBSCRIPT: Record<string, string> = {0: '₀', 1: '₁', 2: '₂', 3: '₃
 const WORDS: Record<string, string> = {
     knots: 'vozel', weights: 'utež', coefficients: 'koeficient', coeffs: 'koeficient', values: 'vrednost', nodes: 'vozlišče',
     degree: 'stopnja', order: 'red', count: 'število', iterations: 'iteracije', iteration: 'iteracija', terms: 'členi', steps: 'koraki', depth: 'globina', level: 'raven', harmonics: 'harmoniki', segments: 'odseki', subdivisions: 'delitve',
-    angle: 'kot', secondangle: 'drugi kot', radius: 'polmer', weight: 'utež', weights: 'utež', scale: 'merilo', shift: 'zamik',
+    angle: 'kot', secondangle: 'drugi kot', radius: 'polmer', weight: 'utež', scale: 'merilo', shift: 'zamik',
     amplitude: 'amplituda', frequency: 'frekvenca', phase: 'faza', speed: 'hitrost', time: 'čas', length: 'dolžina', height: 'višina',
     alpha: 'α', beta: 'β', gamma: 'γ', theta: 'θ', phi: 'φ', lambda: 'λ', mu: 'μ', sigma: 'σ', tension: 'napetost', offset: 'odmik', matrix: 'stolpec', center: 'središče', control: 'kontrolna točka',
 };
