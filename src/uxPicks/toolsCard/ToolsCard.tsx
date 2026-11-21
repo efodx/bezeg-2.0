@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {DockCard} from '../dock/DockCard';
+import {useToolsSections} from './useToolsSections';
 import './toolsCard.css';
 
 /**
@@ -19,6 +20,8 @@ const readFold = () => { try { return localStorage.getItem(FOLD_KEY) === '1'; } 
  */
 export function ToolsCard(props: {children: React.ReactNode; locked?: boolean}) {
     const locked = props.locked ?? false;
+    const [body, setBody] = useState<HTMLDivElement | null>(null);
+    useToolsSections(body);
     const [own, setOwn] = useState(readFold);
     const [peek, setPeek] = useState(false);
     useEffect(() => { if (!locked) setPeek(false); }, [locked]);
@@ -28,6 +31,6 @@ export function ToolsCard(props: {children: React.ReactNode; locked?: boolean}) 
         try { localStorage.setItem(FOLD_KEY, open ? '0' : '1'); } catch { /* ignore */ }
     };
     return <DockCard kind={TOOLS} title="Orodja" what="orodja" region="tl" order={0} collapsed={own || (locked && !peek)} onToggle={onToggle}>
-        {open => <div className="ux-tools-body" hidden={!open}>{props.children}</div>}
+        {open => <div className="ux-tools-body" ref={setBody} hidden={!open}>{props.children}</div>}
     </DockCard>;
 }

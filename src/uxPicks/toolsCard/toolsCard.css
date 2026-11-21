@@ -127,3 +127,78 @@
    the puck still drives it. A group left with nothing but help text goes too. */
 .ux-bcard-tools [data-ux-pucked] { display: none !important; }
 .ux-bcard-tools .inspector-group:has([data-ux-pucked]):not(:has(> :not([data-ux-pucked]):not(p.inspector-help))) { display: none; }
+
+/* ---- Tools card redesign (owner, 2026-11-21) ----
+   1. The tabs are the head: grip, a compact Uredi/Prikaz/Shrani switch, fold. The tab bar is laid over the head row; the
+      card keeps its name "Orodja" for screen readers (the title stays, visually hidden) and folded the head reads "Orodja". */
+.ux-bcard-tools { --ux-head-h: 36px; --ux-tab-h: 28px; --bezeg-control-height: 32px; }
+@media (pointer: coarse) { .ux-bcard-tools { --ux-head-h: 52px; --ux-tab-h: 44px; --bezeg-control-height: 44px; } }
+.ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head { min-height: var(--ux-head-h); box-sizing: border-box; padding-block: 0; }
+.ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head > .ux-btext-title {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.ux-bcard-tools .workspace-inspector { overflow: visible; contain: none; }
+.ux-bcard-tools .inspector-toolbar { position: relative; height: 0; border: 0; border-radius: 0; background: transparent; }
+.ux-bcard-tools .inspector-toolbar .inspector-tabs {
+    position: absolute; z-index: 2; left: 38px; right: 40px; top: calc((var(--ux-head-h) - var(--ux-tab-h)) / 2 - var(--ux-head-h));
+    height: var(--ux-tab-h); box-sizing: border-box; margin: 0; padding: 2px; gap: 2px; border-radius: 8px;
+}
+.ux-bcard-tools .inspector-toolbar .inspector-tabs button { min-height: 0; height: 100%; padding: 0 4px; font-size: .8125rem; line-height: 1; border-radius: 6px; }
+.ux-bcard-tools .workspace-inspector #inspector-content { border-top: 1px solid var(--workspace-rule); }
+
+/* 3. Compact rows and spacing. */
+.ux-bcard-tools .workspace-inspector #inspector-content > section { padding: 10px 12px 12px; }
+.ux-bcard-tools .inspector-group { padding-bottom: 8px; margin-bottom: 8px; }
+.ux-bcard-tools .inspector-group > :where(* + :not(p, .inspector-help)) { margin-top: 8px; }
+.ux-bcard-tools .inspector-group > * + h3, .ux-bcard-tools .inspector-group > * + fieldset { margin-top: 12px; }
+.ux-bcard-tools #inspector-content > section > :not(.inspector-group) + .inspector-group { margin-top: 12px; }
+.ux-bcard-tools .inspector-control { margin: 8px 0; }
+.ux-bcard-tools .inspector-group h3 { margin-bottom: 6px; }
+.ux-bcard-tools .workspace-inspector .tools .card-title { margin-bottom: 6px; }
+.ux-bcard-tools .workspace-inspector .tools .list-group-item { padding-block: 8px; }
+.ux-bcard-tools .inspector-group p, .ux-bcard-tools .inspector-help { line-height: 1.4; }
+.ux-bcard-tools .workspace-inspector .inspector-help, .ux-bcard-tools .workspace-inspector .form-text { line-height: 1.4; }
+.ux-bcard-tools .point-list-rows { row-gap: .2rem; }
+.ux-bcard-tools .point-list-row :is(input, button, select) { min-height: 28px; padding-block: 2px; }
+.ux-bcard-tools .point-list-index { font-size: .8125rem; }
+@media (pointer: coarse) { .ux-bcard-tools .point-list-row :is(input, button, select) { min-height: 44px; } }
+
+/* Callouts: soft tints, no coloured side bars. */
+.ux-bcard-tools .inspector-reveals { padding: 6px 10px; border-left: 0; border-radius: 8px; background: color-mix(in srgb, var(--workspace-green) 9%, transparent); }
+.ux-bcard-tools .function-inspector :is([role="status"], .function-status) > p.inspector-help { padding: 6px 10px; border-left: 0; border-radius: 8px; background: color-mix(in srgb, var(--workspace-pollen) 14%, transparent); }
+.ux-bcard-tools .point-coordinate-editor [role="alert"] { border-left: 0; border-radius: 8px; background: color-mix(in srgb, var(--workspace-pollen) 14%, transparent); }
+
+/* 2 and 3. Section headings: a chevron folds the section, a "?" shows its help. */
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3[data-ux-sec] { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.ux-sec-fold, .ux-sec-help {
+    flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; box-shadow: none;
+    background: transparent; color: var(--workspace-ink-soft); cursor: pointer;
+}
+.ux-sec-fold { margin-left: -6px; }
+.ux-sec-help { margin-left: auto; }
+.ux-sec-fold svg, .ux-sec-help svg { width: 16px; height: 16px; }
+.ux-sec-fold svg { transition: transform 160ms cubic-bezier(.2, .8, .2, 1); }
+.ux-sec-fold[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.ux-sec-fold:hover, .ux-sec-help:hover, .ux-sec-help[aria-expanded="true"] { background: var(--bezeg-shell-control-hover); color: var(--workspace-ink); }
+.ux-sec-fold:focus-visible, .ux-sec-help:focus-visible { outline: var(--bezeg-control-focus); outline-offset: -1px; }
+@media (pointer: coarse) { .ux-sec-fold, .ux-sec-help { width: 44px; height: 44px; } .ux-sec-fold { margin-left: -14px; } }
+@media (prefers-reduced-motion: reduce) { .ux-sec-fold svg { transition: none; } }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] { padding-bottom: 0; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] > :not(h3) { display: none; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] > h3 { margin-bottom: 8px; }
+/* Closed help stays in the accessibility tree (controls describe themselves by it), but takes no room. */
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals):not([data-ux-help-open]) [data-ux-help-text] {
+    position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-help-open] [data-ux-help-text] { margin-top: 6px; }
+.is-presenting .ux-bcard-tools :is(.ux-sec-fold, .ux-sec-help) { color: var(--bezeg-night-panel); }
+.is-presenting .ux-bcard-tools :is(.ux-sec-fold, .ux-sec-help):hover { background: #2a3c58; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals) { position: relative; }
+.ux-bcard-tools:not(.ux-btext-collapsed) > .ux-btext-head > .ux-btext-toggle:last-child { margin-left: auto; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-fold, .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-help {
+    min-height: 0; min-width: 0; width: 24px; height: 24px; padding: 0; border: 0; box-shadow: none; background: transparent; font-size: inherit;
+}
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-help { margin-left: auto; }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button:is(.ux-sec-fold, .ux-sec-help):is(:hover, [aria-expanded="true"]:not(.ux-sec-fold)) { background: var(--bezeg-shell-control-hover); }
+@media (pointer: coarse) { .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-fold, .ux-bcard-tools :is(.inspector-group, .inspector-reveals) h3 > button.ux-sec-help { width: 44px; height: 44px; } }
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals)[data-ux-folded] > h3 > .ux-sec-help { display: none; }

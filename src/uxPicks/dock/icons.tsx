@@ -19,3 +19,4 @@ export const ScrollIcon = () => <svg {...base}><path d="M5.5 6 8 3.5 10.5 6M5.5 
 export const MoreIcon = () => <svg {...base}>{[3.5, 8, 12.5].map(x => <circle key={x} cx={x} cy={8} r={0.9}/>)}</svg>;
 export const ChevronLeftIcon = () => <svg {...base}><path d="M10 4 6 8l4 4"/></svg>;
 export const ChevronRightIcon = () => <svg {...base}><path d="m6 4 4 4-4 4"/></svg>;
+export const HelpIcon = () => <svg {...base}><circle cx={8} cy={8} r={5.75}/><path d="M6.3 6.4a1.8 1.8 0 1 1 2.5 1.65c-.55.3-.8.65-.8 1.2"/><circle cx={8} cy={11.3} r={0.5} fill="currentColor" stroke="none"/></svg>;
