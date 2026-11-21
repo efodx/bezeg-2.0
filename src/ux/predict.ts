@@ -101,7 +101,6 @@ export function beginPrediction() {
             .filter(({points}) => points.length > 0 && points.filter(wasDrawn).length / points.length < 0.9);
         const strokes = targets.filter(target => !target.shape.dot && shapeExtent(target.points) >= MIN_CHANGED_PIXELS);
         const dots = targets.filter(target => target.shape.dot);
-        (window as any).__uxPredict = {changed: changed.length, targets: targets.length, strokes: strokes.length, dots: dots.length};
         if (strokes.length === 0 && dots.length === 0) { dispose(); return; }
         ask(board, overlay, frozen, strokes.length > 0 ? strokes : dots, strokes.length === 0, cleanups, dispose);
     });

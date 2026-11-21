@@ -153,7 +153,6 @@ export function attachGrabGraph(board: Board): () => void {
             let probedAt: Vec = anchor;
             let lastProbe = performance.now();
             let columns = await probe(anchor);
-            const debug: any = (window as any).__uxGrab = {columns: columns.map(c => [c.slider.label, c.column.map(v => Math.round(v))]), log: []};
             if (columns.length === 0) {
                 chips.hidden = false;
                 chips.innerHTML = '<span class="ux-grab-none">Tega dela grafa ne premika noben drsnik.</span>';
@@ -170,7 +169,6 @@ export function attachGrabGraph(board: Board): () => void {
                 place(halo, pointer);
                 const gap: Vec = [pointer[0] - contact.point[0], pointer[1] - contact.point[1]];
                 const distance = Math.hypot(gap[0], gap[1]);
-                if (debug.log.length < 40) debug.log.push([contact.point.map(Math.round), Math.round(distance)]);
                 render(columns, start, contact.point);
                 if (distance < 1.5) continue;
                 const now = performance.now();

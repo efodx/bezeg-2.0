@@ -141,7 +141,6 @@ export function attachWhatChanged(board: Board): () => void {
         const textNodes = [...container.querySelectorAll<HTMLElement>('.JXGtext')].filter(node =>
             node.textContent?.trim() && node.style.display !== 'none' && node.style.visibility !== 'hidden'
             && !before.texts.has(`${node.textContent.trim()}|${Math.round(node.offsetLeft / 3)}|${Math.round(node.offsetTop / 3)}`));
-        container.dataset.uxWc = `${added.length}/${after.shapes.size} -${removed.length} m${moved.length} t${textNodes.length}`;
         // A changed view (zoom, pan) changes every stroke; that is not news about the construction.
         if (!after.shapes.size || added.length > 0.8 * after.shapes.size && after.shapes.size > 12) { badge.hidden = true; return; }
         const total = freshDots + freshLines + changedNew.size + vanished + moved.length + textNodes.length;
@@ -218,7 +217,6 @@ export function attachWhatChanged(board: Board): () => void {
         const changed = position && previous && position.lessonId === previous.lessonId
             && (position.stepIndex !== previous.stepIndex || position.frameIndex !== previous.frameIndex);
         if (position) previous = position;
-        container.dataset.uxWcPos = `${position?.stepIndex}.${position?.frameIndex} ${changed} ${!!stable}`;
         if (!changed || !stable) return;
         const before = stable;
         busy = true;

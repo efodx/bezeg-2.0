@@ -283,8 +283,8 @@ export function attachMeasure(board: Board): () => void {
                 const px = ax + t * lx, py = ay + t * ly;
                 const d = Math.hypot(px - sx, py - sy);
                 if (piece.vertical === undefined && (piece.points.length > 2 || piece.f === undefined) && d <= reach * 0.8 && (!best || d < best.d)) {
-                    let [x, y] = toUser(px, py);
-                    if (piece.f) y = piece.f(x);
+                    const [x, y0] = toUser(px, py);
+                    const y = piece.f ? piece.f(x) : y0;
                     best = {d, pin: {x, y, snap: 'curve'}};
                 }
             }

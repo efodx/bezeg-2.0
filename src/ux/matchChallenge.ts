@@ -120,19 +120,14 @@ export function attachMatchChallenge(board: Board): () => void {
                 slider.set(next);
                 await frames(3);
                 changed = moved(board, before).length > 0 && onScreen();
-                ((window as any).__uxMatchTries ??= []).push([slider.label, next, changed, onScreen()]);
             }
             if (changed) chosen.push({slider, answer});
             else { slider.set(answer); await frames(2); }
         }
         if (chosen.length === 0) { start.hidden = false; return; }
-        const afterShapes = strokes(board);
-        const afterKeys = new Set(afterShapes.map(shape => shape.key));
         const goal = moved(board, before);
         const goalPoints: Vec[] = goal.flatMap(shape => shape.points);
         const goalKinds = new Set(goal.map(shape => shape.kind));
-        (window as any).__uxMatch = {chosen: chosen.map(c => [c.slider.label, c.answer, c.slider.value()]), before: before.length, after: afterShapes.length, goal: goal.length, goalPoints: goalPoints.length,
-            changedKeys: before.filter(shape => !afterKeys.has(shape.key)).map(shape => shape.element.elType)};
         if (goalPoints.length === 0) {
             for (const {slider, answer} of chosen) slider.set(answer);
             start.hidden = false;
