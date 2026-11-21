@@ -681,13 +681,13 @@ export function GuidedLesson(props: {
                 <div className="guided-lesson-notation" data-tex={localized(frame.workedExample.result, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.result, language)}</div>
                 <p data-tex={localized(frame.workedExample.check, language)}>{localized(frame.workedExample.check, language)}</p>
             </div>}
-            {expectedObservations}
+            {expectedObservations || (uxEnabled('b23') && <LabEvidence key={`evidence-${frame.id}`} frameKey={frame.id} quietWhenEmpty/>)}
         </div>}
         {!isComplete && isExploring && <div className="guided-lesson-exploration" key={frame.id}>
             <strong>{localized(frame.title, language)}</strong>
             {frame.prompt && <p data-tex={localized(frame.prompt, language)}>{localized(frame.prompt, language)}</p>}
             {animationControls}
-            {expectedObservations}
+            {expectedObservations || (uxEnabled('b23') && <LabEvidence key={`evidence-${frame.id}`} frameKey={frame.id} quietWhenEmpty/>)}
         </div>}
         </>}
         {isComplete && <div className="guided-lesson-completion-message">

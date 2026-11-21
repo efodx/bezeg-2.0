@@ -175,7 +175,7 @@ function publish(list: Entry[]) { published = list; subscribers.forEach(callback
  * Lane B b23 in a guided lesson: on an observation frame, the learner's own experiments of this frame and the rules they
  * suggest stand above the lesson's "what you should notice", so the claim is read against evidence the learner made.
  */
-export function LabEvidence(props: {frameKey: string}) {
+export function LabEvidence(props: {frameKey: string; quietWhenEmpty?: boolean}) {
     const [, setTick] = useState(0);
     useEffect(() => {
         const callback = () => setTick(tick => tick + 1);
@@ -186,6 +186,7 @@ export function LabEvidence(props: {frameKey: string}) {
     const start = React.useMemo(() => published[0]?.id ?? 0, [props.frameKey]);
     const mine = published.filter(entry => entry.kind === 'change' && entry.id > start);
     const rules = conjectures(mine);
+    if (props.quietWhenEmpty && mine.length === 0) return null;
     return <div className="ux-lab-evidence" aria-live="polite">
         <strong>📓 Tvoji poskusi v tem koraku{mine.length > 0 && ` (${mine.length})`}</strong>
         {mine.length === 0 ? <p>Še nič. Premakni drsnik ali točko, vsaj dvakrat v isto smer; dnevnik zapiše, kaj se zgodi. Nato primerjaj s tem, kar trdi lekcija.</p>
