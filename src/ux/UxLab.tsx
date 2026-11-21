@@ -67,6 +67,21 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'c6',
+        name: 'Poslušaj',
+        borrowed: 'glasbila in zvočni grafi za slepe in slabovidne (zvočna sled v Desmosu)',
+        idea: 'Gumb Poslušaj pošlje čez tablo predvajalno glavo, vsaka krivulja pa poje svojo višino: višje na tabli zveni višje, zvok potuje od levega do desnega zvočnika, prehod čez os x klikne, vrzel v krivulji je tišina. Simetrija, periodičnost, rast in ničle postanejo slišne; z nihalom (c2) na drsniku se graf igra kot theremin.',
+        generalizes: 'Bere le narisane krivulje na tabli (do štiri glasove), zato deluje na vsakem grafu funkcije, porazdelitve ali baznih funkcij brez priprave; je tudi zametek dostopnosti za študente, ki grafa ne vidijo.',
+        links: [
+            {label: 'Trigonometrične funkcije', family: 'Funkcije', href: `${BASE}/functions/trigonometric?ux=c6,c2`,
+                tryThis: 'Pritisni Poslušaj; nato pri Frekvenci ω pritisni ∿ in poslušaj znova: valovanje se zgosti.'},
+            {label: 'Bernsteinovi polinomi', family: 'Bézierjeve osnove', href: `${BASE}/bernstein?learn=1&ux=c6`,
+                tryThis: 'V opazovanju pritisni Poslušaj: bazni funkciji se zrcalno zamenjata, njuna glasova se prekrižata.'},
+            {label: 'Gostota porazdelitve', family: 'Verjetnost', href: `${BASE}/probability/density?ux=c6`,
+                tryThis: 'Poslušaj zvonasto krivuljo: ton se dvigne do vrha in simetrično spusti.'},
+        ],
+    },
+    {
         id: 'c3',
         name: 'Napovej',
         borrowed: 'muzejski eksponati »najprej ugani, nato poglej« in zanka ugibanja v igrah',

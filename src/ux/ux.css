@@ -238,3 +238,22 @@
 .ux-match-compact .ux-match-task { grid-row: 2; }
 .ux-match-compact .ux-match-actions { grid-row: 3; margin: 0; }
 .ux-match-compact .ux-match-actions button { min-height: 32px; padding: 6px 10px; }
+
+/* c6 listen */
+.ux-listen-button {
+    position: absolute; right: 10px; bottom: 10px; z-index: 21;
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px 7px 10px; min-height: 34px;
+    border: 1px solid var(--bezeg-shell-control-rule, #cbd4c1); border-radius: 999px; background: var(--bezeg-shell-panel, #fffdf5);
+    color: var(--bezeg-shell-action, #244c37); font: 600 13px/1 system-ui, sans-serif; cursor: pointer; box-shadow: 0 2px 10px rgb(25 55 47 / 10%);
+}
+.ux-listen-button:hover { background: var(--bezeg-shell-control-hover, #eef3e5); }
+.ux-listen-button[aria-pressed="true"] { background: var(--bezeg-shell-action, #244c37); color: #fff; border-color: transparent; }
+.ux-listen-button:focus-visible { outline: 2px solid var(--bezeg-shell-action, #244c37); outline-offset: 2px; }
+.ux-listen-head {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0; z-index: 19; pointer-events: none;
+    border-left: 2px solid rgb(196 123 31 / 65%); box-shadow: 0 0 12px rgb(196 123 31 / 35%);
+}
+.ux-listen-marker {
+    position: absolute; left: 0; top: -7px; width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid #fffdf5; box-shadow: 0 0 0 2px rgb(25 55 47 / 25%), 0 0 14px rgb(196 123 31 / 60%);
+}
