@@ -476,3 +476,28 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 .ux-trace-ask { font-size: 12px; fill: #5d3b6e; font-weight: 600; }
 .ux-trace-note { margin: 3px 0 0; font-size: 12px; color: #526152; line-height: 1.35; }
 .ux-trace-skip.ux-trace-skip { min-height: 0; border-radius: 0; font: inherit; font-size: 12px; padding: 0; border: 0; background: none; color: #5d3b6e; text-decoration: underline; cursor: pointer; }
+
+/* b17 Zvitek: the lesson as one scroll */
+.ux-scroll { position: relative; padding-bottom: 45vh; }
+.ux-scroll-rail { position: sticky; top: 0; z-index: 2; display: flex; gap: 2px; padding: 6px 0 8px; background: var(--color-surface, #fffdf5); }
+.ux-scroll-rail button.ux-scroll-dot { flex: 1; box-shadow: none; min-width: 0; min-height: 0; height: 6px; padding: 0; border: 0; border-radius: 3px; background: rgba(36, 76, 55, .16); cursor: pointer; }
+.ux-scroll-rail button.ux-scroll-dot.is-step { margin-left: 4px; }
+.ux-scroll-rail button.ux-scroll-dot.is-active { background: #5d3b6e; }
+.ux-scroll-hint { font-size: 12px; color: #5d3b6e; margin: 0 0 10px; }
+.ux-scroll-section { padding: 4px 0 26px; opacity: .42; transition: opacity .25s ease; }
+.ux-scroll-section.is-active { opacity: 1; }
+.ux-scroll-section h3 { margin: 0 0 6px; }
+.ux-scroll-step { margin: 18px 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #244c37; border-top: 1px solid rgba(36, 76, 55, .2); padding-top: 12px; }
+.ux-scroll-prompt { border-left: 3px solid #5d3b6e; padding-left: 10px; }
+.ux-scroll-try { font-size: 13px; color: #5d3b6e; font-weight: 600; }
+.ux-scroll-action, .ux-scroll-anim button { margin: 4px 6px 4px 0; }
+.ux-scroll-bridge { position: relative; margin-top: 18px; padding-top: 8px; font-size: 12px; color: #6b766b; }
+.ux-scroll-bridge span { position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 2px; background: #5d3b6e; transform-origin: left; }
+.ux-scroll-bridge::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 2px; background: rgba(93, 59, 110, .15); }
+.ux-scroll-bridge.is-moving em { color: #5d3b6e; font-weight: 600; }
+.ux-scroll-end { font-size: 13px; color: #526152; padding-top: 12px; }
+.ux-scroll-lesson .guided-lesson-toolbar .guided-lesson-progress-group, .ux-scroll-lesson .guided-lesson-navigation { display: none !important; }
+@media (max-width: 700px) {
+  .ux-scroll-lesson section.workspace-graph { position: sticky !important; top: 0 !important; z-index: 40 !important; box-shadow: 0 6px 16px rgba(25, 55, 47, .12); }
+  .ux-scroll-rail.is-fixed { position: fixed; left: 0; right: 0; z-index: 41; padding: 5px 12px 6px; box-shadow: 0 4px 10px rgba(25, 55, 47, .08); }
+}

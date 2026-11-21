@@ -1,5 +1,6 @@
-import {uxFlags} from '../../uxlab/flags';
+import {uxEnabled, uxFlags} from '../../uxlab/flags';
 import {useLessonTransitions} from '../../uxlab/useLessonTransitions';
+import {ScrollLesson} from '../../uxlab/ScrollLesson';
 import {jumpToRecall, useMemory} from '../../uxlab/MemoryLayer';
 import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
@@ -517,6 +518,7 @@ export function GuidedLesson(props: {
         }
     };
     const transitions = useLessonTransitions(props.capabilities, refresh, session);
+    const scrollMode = uxEnabled('b17') && !isComplete;
     const navigate = transitions.navigate;
     const memory = useMemory(props.lesson, snapshot, frame);
 
@@ -667,6 +669,7 @@ export function GuidedLesson(props: {
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
         <div className={`guided-lesson-reading${transitions.predicting ? " ux-hold-reading" : ""}`} ref={readingRef}>
         {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary" data-tex={localized(props.lesson.summary, language)}>{localized(props.lesson.summary, language)}</p>}
+        {scrollMode ? <ScrollLesson lesson={props.lesson} session={session} capabilities={props.capabilities} language={language}/> : <>
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
             <h3>{localized(frame.title, language)}</h3>
             {frame.body && <p data-tex={localized(frame.body, language)}>{localized(frame.body, language)}</p>}
@@ -685,6 +688,7 @@ export function GuidedLesson(props: {
             {animationControls}
             {expectedObservations}
         </div>}
+        </>}
         {isComplete && <div className="guided-lesson-completion-message">
             {!pageHeadingHasLessonTitle && completionHeading}
             <p>{t('guided_lesson_free_exploration')}</p>
