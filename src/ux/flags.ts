@@ -3,7 +3,7 @@
  * parameter the app behaves exactly as on master. The URL is the only source, so a link without the flag is the
  * comparison baseline.
  */
-export type UxFlag = 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6' | 'a7' | 'a8' | 'a9' | 'a10' | 'a11' | 'a12' | 'a13';
+export type UxFlag = 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6' | 'a7' | 'a8' | 'a9' | 'a10' | 'a11' | 'a12' | 'a13' | 'a14';
 
 export function uxFlags(): ReadonlySet<string> {
     if (typeof window === 'undefined') return new Set();
@@ -19,7 +19,7 @@ export function uxEnabled(flag: UxFlag): boolean {
 /** The prototypes that read the shared parameter registry. */
 export function parameterRegistryWanted(): boolean {
     const flags = uxFlags();
-    return flags.has('a1') || flags.has('a3') || flags.has('a4') || flags.has('a6') || flags.has('a8') || flags.has('a9') || flags.has('a10') || flags.has('a11') || flags.has('a12') || flags.has('a13');
+    return flags.has('a1') || flags.has('a3') || flags.has('a4') || flags.has('a6') || flags.has('a8') || flags.has('a9') || flags.has('a10') || flags.has('a11') || flags.has('a12') || flags.has('a13') || flags.has('a14');
 }
 
 /** `?uxAt=n`: deep links from the UX lab open a lesson n frames in (also without a prototype flag, for comparison). */

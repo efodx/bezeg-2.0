@@ -8,6 +8,18 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a14', name: 'Zemljevid oblik',
+        idea: 'Dva parametra, ki delujeta skupaj (c in d, k in p, |w| in arg w), dobita eno krmilo: blazinico v kotu table, katere ozadje je zemljevid — sličice grafa povsod v tej ravnini parametrov. Povleci piko čez zemljevid in velika tabla ji sledi v živo; zemljevid vnaprej pokaže, kje živijo oblike, ki jih iščeš.',
+        general: 'Zemljevid je posnetek prave table prek deljenega registra drsnikov (isti zajem kot a13), pika piše v iste drsnike. Med razlago je pika vzmet: spusti jo in vrednosti lekcije se vrnejo. Deluje na vsakem grafu z vsaj dvema drsnikoma; navdih sta XY-blazinica sintetizatorjev in mini zemljevid iger.',
+        try: 'Pritisni »Zemljevid« desno spodaj in vleci piko po zemljevidu; simbol v glavi zamenja os. Puščice premikajo piko s tipkovnico.',
+        links: [
+            {label: 'Premiki in raztegi grafa', family: 'Šolske funkcije', path: 'functions/transformations', flags: 'a14', free: true},
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', at: 1, flags: 'a14'},
+            {label: 'Množenje kompleksnih števil', family: 'Kompleksna števila', path: 'complex-multiplication', flags: 'a14', free: true},
+            {label: 'Taylorjev polinom', family: 'Analiza', path: 'analysis/taylor', flags: 'a14', free: true},
+        ],
+    },
+    {
         id: 'a13', name: 'Lestvica abstrakcije',
         idea: 'En pritisk in graf stopi korak nazaj: živa tabla se pomanjša v eno sličico mreže, okrog nje pa se prikaže isti graf pri drugih vrednostih parametra — barvno, kar se spreminja, bledo, kar ostane. Tapni drugi simbol in mreža postane ravnina dveh parametrov (k in p pri binomski porazdelitvi), tapni sličico in se ta razraste v tablo, graf pa zdrsne tja.',
         general: 'Sličice so prava tabla pri teh vrednostih: Bezeg jih nastavi sinhrono prek deljenega registra drsnikov, posname SVG in vrne stanje. Okno vrednosti se samo zoži, dokler večina sličic kaže nekaj, kar se premika, korak pa je lepo število z živo vrednostjo v mreži. Brez kode lekcij deluje v šolskih funkcijah, verjetnosti, trigonometriji, analizi, Bézierjevih krivuljah, B-zlepkih in kompleksnih številih.',
@@ -159,7 +171,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a11', 'a13', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a11', 'a13', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
