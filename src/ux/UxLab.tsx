@@ -8,6 +8,17 @@ interface LabPrototype { id: string; name: string; idea: string; general: string
 
 const PROTOTYPES: LabPrototype[] = [
     {
+        id: 'a26', name: 'Časovni trak',
+        idea: 'Vsaka umirjena sprememba grafa postane kroglica na traku nad tablo, obarvana po parametru, ki se je premaknil, zato ima raziskovanje vidno zgodovino kot dokument svoje različice. Z miško nad kroglico se graf tistega trenutka pokaže črtkano; klik ali vlečenje po traku popelje cel graf nazaj v čas, Ctrl+Z in Ctrl+Y korakata, nova sprememba od tam začne novo vejo.',
+        general: 'Ker je pot nazaj zastonj, je preizkušanje divjih vrednosti varno. Posnetki so vrednosti deljenega registra drsnikov, duh pa nastane tako, da Bezeg tablo za hip postavi v tisti trenutek in jo povrne. V vodeni lekciji trak pripada enemu koraku: rezi lekcije med okvirji niso učenčevo raziskovanje. Brez kode v lekcijah: šolske funkcije, verjetnost, Bézierjeve krivulje, trigonometrija.',
+        try: 'Premakni nekaj drsnikov, nato pojdi z miško čez kroglice na traku in klikni prvo (ali pritisni Ctrl+Z); na telefonu tapni ali povleci po traku.',
+        links: [
+            {label: 'Binomska in normalna', family: 'Verjetnost', path: 'probability/binomial-normal', flags: 'a26', free: true},
+            {label: 'Premiki in raztegi grafa (lekcija)', family: 'Šolske funkcije', path: 'functions/transformations', at: 6, flags: 'a26'},
+            {label: 'De Casteljaujev postopek', family: 'Bézierjeve krivulje', path: 'bezier/decasteljau', flags: 'a26', free: true},
+        ],
+    },
+    {
         id: 'a25', name: 'Partitura lekcije',
         idea: 'Ko se vodena lekcija odpre, jo Bezeg tiho prebere naprej (skozi vse okvirje in nazaj) in pod napredek lekcije zapiše partituro kot v glasbenem urejevalniku: za vsak parameter svoj pas, za vsak okvir svoj stolpec, romb, kjer lekcija parameter premakne, in rumen stolpec na trenutnem okvirju. Načrt lekcije je viden na prvi pogled — najprej d, nato c, nato a, b in u — in vsak stolpec je skok.',
         general: 'Okvirji so prebrani iz gumbov in napredka same lekcije, vrednosti iz deljenega registra drsnikov; zadnjega »Naprej« (konec lekcije) ne pritisne, pri nalogi, ki zahteva rešitev, se ustavi. Brez kode v lekcijah: šolske funkcije, verjetnost, Bézierjeve krivulje.',
@@ -296,7 +307,7 @@ const PROTOTYPES: LabPrototype[] = [
 ];
 
 /** Best first. */
-const ORDER = ['a8', 'a16', 'a21', 'a25', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
+const ORDER = ['a8', 'a16', 'a21', 'a25', 'a26', 'a11', 'a13', 'a18', 'a23', 'a24', 'a19', 'a20', 'a22', 'a17', 'a15', 'a14', 'a9', 'a4', 'a10', 'a12', 'a1', 'a6', 'a5', 'a2', 'a7', 'a3'];
 const rank = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
 
 function href(link: LabLink, flags: string | undefined) {
@@ -313,15 +324,15 @@ export function UxLab() {
         <header className="ux-lab-header">
             <p className="ux-lab-eyebrow">Laboratorij UX · proga A</p>
             <h1>Matematika pod prsti</h1>
-            <p className="ux-lab-lede">Petindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
+            <p className="ux-lab-lede">Šestindvajset prototipov, najboljši prvi: graf sam postane krmilo, lekcija vpraša, napoved dobi številke, družina grafov se razgrne v mrežo. Vsak je vklopljen z zastavico <code>?ux=</code>; povezava »brez« odpre isti okvir lekcije v današnji aplikaciji za primerjavo.</p>
         </header>
         <nav className="ux-lab-index" aria-label="Kazalo prototipov">
             {sorted.map(prototype => <a key={prototype.id} href={`#${prototype.id}`}><b>{prototype.id}</b> {prototype.name}</a>)}
         </nav>
         <section className="ux-lab-combo" aria-label="Vse skupaj">
-            <strong>Vse skupaj.</strong> Prototipi se sestavljajo: kroglica, značilne točke, predogled na drsniku, »kaj premika kaj«, raziskano ozemlje in družina v prostoru hkrati.
+            <strong>Vse skupaj.</strong> Prototipi se sestavljajo: kroglica, značilne točke, predogled na drsniku, »kaj premika kaj«, raziskano ozemlje, družina v prostoru in časovni trak hkrati.
             <span className="ux-lab-combo-links">
-                <a href="/bezeg-2.0/functions/transformations?ux=a18,a23,a19,a20,a22,a21">Premiki in raztegi grafa</a>
+                <a href="/bezeg-2.0/functions/transformations?ux=a18,a23,a19,a20,a22,a21,a26">Premiki in raztegi grafa</a>
                 <a href="/bezeg-2.0/probability/binomial-normal?ux=a23,a21,a20,a22,a19">Binomska in normalna</a>
                 <a href="/bezeg-2.0/functions/transformations?learn=1&amp;ux=a8,a16,a23,a12">Vodena lekcija: a8, a16, a23, a12</a>
             </span>
