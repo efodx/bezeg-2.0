@@ -479,7 +479,7 @@ body.ux-live-dragging, body.ux-live-dragging * { cursor: ew-resize !important; u
 
 /* b17 Zvitek: the lesson as one scroll */
 .ux-scroll { position: relative; padding-bottom: 45vh; }
-.ux-scroll-rail { position: sticky; top: 0; z-index: 2; display: flex; gap: 2px; padding: 6px 0 8px; background: var(--color-surface, #fffdf5); }
+.ux-scroll-rail { position: sticky; top: -1px; box-shadow: 0 -24px 0 8px var(--color-surface, #fffdf5); z-index: 2; display: flex; gap: 2px; padding: 6px 0 8px; background: var(--color-surface, #fffdf5); }
 .ux-scroll-rail button.ux-scroll-dot { flex: 1; box-shadow: none; min-width: 0; min-height: 0; height: 6px; padding: 0; border: 0; border-radius: 3px; background: rgba(36, 76, 55, .16); cursor: pointer; }
 .ux-scroll-rail button.ux-scroll-dot.is-step { margin-left: 4px; }
 .ux-scroll-rail button.ux-scroll-dot.is-active { background: #5d3b6e; }

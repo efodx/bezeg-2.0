@@ -4,7 +4,7 @@ import {framesForLessonStep} from '../learning/model';
 import type {LessonSession} from '../learning/runtime/LessonSession';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {coverBoard, findMainBoard, recoverBoards} from './board';
-import {interpolateValue, refineGrid} from './morph';
+import {interpolateValue} from './morph';
 import './uxlab.css';
 
 type Text = {sl: string; en: string};
@@ -152,7 +152,7 @@ export function ScrollLesson(props: {lesson: LessonDefinition; session: LessonSe
             setMorph({from: step, t});
             if (t >= 1) { apply(`rest:${nextStep}`, () => to); return; }
             const quantized = Math.round(t * 120) / 120;
-            apply(`morph:${step}:${quantized}`, () => ({version: 1, value: interpolateValue(refineGrid(from.value), refineGrid(to.value), quantized, '', false, true)}));
+            apply(`morph:${step}:${quantized}`, () => ({version: 1, value: interpolateValue(from.value, to.value, quantized, '', false, true)}));
         };
         const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
         // Capture: scroll events of any scroller (the panel on a desktop, the page on a phone) reach the document.

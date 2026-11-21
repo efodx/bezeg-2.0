@@ -26,6 +26,18 @@ const PROTOTYPES: Prototype[] = [
         ],
     },
     {
+        id: 'b17',
+        name: 'Zvitek: lekcijo bereš z drsenjem, graf sledi branju',
+        idea: 'Vodena lekcija ni več niz okvirjev z gumbom Naprej, ampak eno samo besedilo, ki ga drsiš kot članek. Ko zadnji odstavek koraka prečka bralno črto, se graf zvezno preoblikuje v prizor naslednjega koraka; drsiš nazaj in se preoblikuje nazaj, kar poskusiš na grafu znotraj koraka, pa ostane, ko se vrneš.',
+        generalizes: 'Prizore vseh korakov izračuna enkrat, za zamrznjeno kopijo plošče, iz lekcijinih lastnih dejanj prizora (posnetki stanja), nato med njimi interpolira glede na lego drsenja (točke na mreži po celih korakih). Deluje za vsako vodeno lekcijo brez kode na lekcijo; na telefonu graf obstane na vrhu zaslona, besedilo teče pod njim.',
+        try: 'Odpri povezavo in drsi po besedilu lekcije (na namizju v desnem stolpcu, na telefonu po strani). Opazuj graf med koraki, nato drsi nazaj.',
+        links: [
+            {label: 'Analiza: Taylorjev polinom (stopnja raste z branjem)', to: '/bezeg-2.0/analysis/taylor?learn=1&ux=b17'},
+            {label: 'Bézier: De Casteljau (vrstice konstrukcije)', to: '/bezeg-2.0/bezier/decasteljau?learn=1&ux=b17'},
+            {label: 'Geometrija: obodni kot (točke se premikajo)', to: '/bezeg-2.0/inscribed-angle?learn=1&ux=b17'},
+        ],
+    },
+    {
         id: 'b14',
         name: 'Živo besedilo: simboli v razlagi so drsniki',
         idea: 'Črka v besedilu lekcije, ki pomeni količino prizora (»središče c«, »stopnja n«, »x = 1«), je podčrtana s pikicami: ko greš nanjo, se prižgejo vse njene ponovitve in njen drsnik, ko jo povlečeš levo ali desno, se graf spreminja. Dokler lekcija drži prizor, se graf po spustu vrne v sliko lekcije, kot vzmet.',
