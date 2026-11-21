@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {LessonGraphCapabilities, LessonSceneCheckpoint} from '../learning/model';
-import {contentElements, findMainBoard, recoverBoards, svgRoot, traced, type UxBoard, type UxElement} from './board';
+import {contentElements, coverBoard, findMainBoard, recoverBoards, svgRoot, traced, type UxBoard, type UxElement} from './board';
 import {bindControls} from './controls';
 import {geometryKey} from './geometrySamples';
 import {applyRow, deltaAt, FAN_SIZE, fanRows, rowName, type FanRow} from './fan';
@@ -15,17 +15,6 @@ const nextFrames = (count: number) => new Promise<void>(resolve => {
     const step = (left: number) => left <= 0 ? resolve() : requestAnimationFrame(() => step(left - 1));
     step(count);
 });
-
-/** A frozen copy of the board over the board, while scenes are tried behind it. */
-function coverBoard(container: HTMLElement): HTMLElement {
-    const cover = container.cloneNode(true) as HTMLElement;
-    cover.removeAttribute('id');
-    cover.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
-    cover.querySelectorAll('.ux-fan, .ux-match, .ux-fan-ghost, .ux-fan-entry').forEach(node => node.remove());
-    cover.className = 'ux-fan-cover';
-    container.appendChild(cover);
-    return cover;
-}
 
 const GEOMETRY = /^(path|line|ellipse|circle|polygon|polyline|rect)$/i;
 

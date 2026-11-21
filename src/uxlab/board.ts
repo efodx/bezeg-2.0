@@ -102,3 +102,15 @@ export function recoverBoards(): boolean {
 export function recoverBoardsSoon(onStuck?: () => void) {
     requestAnimationFrame(() => requestAnimationFrame(() => { if (recoverBoards()) onStuck?.(); }));
 }
+
+/** A frozen copy of the board over the board, while scenes are tried behind it. */
+export function coverBoard(container: HTMLElement): HTMLElement {
+    const cover = container.cloneNode(true) as HTMLElement;
+    cover.removeAttribute('id');
+    cover.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+    cover.querySelectorAll('.ux-fan, .ux-match, .ux-fan-ghost, .ux-fan-entry, .ux-why, .ux-why-layer').forEach(node => node.remove());
+    cover.className = 'ux-fan-cover';
+    container.appendChild(cover);
+    return cover;
+}
+
