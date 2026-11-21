@@ -358,6 +358,10 @@ test('the construction ends at the polygon clipCell returns (exact) for every si
 test('keyboard only: select a site, select a triangle, move the query point, toggle the overlay', () => {
     const graph = new Observed();
     mount(graph);
+    // The site buttons open the Edit tab under a visible heading naming what they build.
+    const sitesGroup = siteButton(0).closest('.inspector-group')!;
+    expect(sitesGroup.firstElementChild?.tagName).toBe('H3');
+    expect(sitesGroup.firstElementChild?.textContent).toBe(t('vor_construct_group'));
     act(() => { fireEvent.click(overlaySwitch()); });
     act(() => { fireEvent.click(siteButton(5)); });
     expect(graph.cellSite).toBe(5);

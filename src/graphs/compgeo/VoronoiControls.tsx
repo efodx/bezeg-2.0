@@ -199,6 +199,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             </div>}
         </div>
         {!refusal && <div className="inspector-group">
+            <ReadoutHeading>{t("vor_construct_group")}</ReadoutHeading>
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("vor_sites_label")} data-voronoi="sites">
                 {Array.from({length: counts.sites}, (_, site) => (
                     <button type="button" key={site} data-site={site} aria-pressed={status.cellSite === site}
