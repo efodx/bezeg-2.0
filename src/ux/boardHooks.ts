@@ -21,13 +21,14 @@ import {attachXyPad} from "./xyPad";
 import {attachWhatChanged} from "./whatChanged";
 import {attachLoupe} from "./loupe";
 import {attachNotebook} from "./notebook";
+import {attachDragTrace} from "./dragTrace";
 import {attachDependence} from "./dependence";
 
 /** Attaches the flagged lane C board prototypes to a main graph board; returns their disposal. */
 export function attachUxBoard(board: Board): () => void {
     const disposers: (() => void)[] = [];
     // Board tools stay usable in lesson reading frames: the lesson's click-to-hide catcher lets clicks through to them.
-    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c19', 'c20', 'c21', 'c22', 'c23', 'c24', 'c25'].some(uxEnabled)) {
+    if (['c1', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c19', 'c20', 'c21', 'c22', 'c23', 'c24', 'c25', 'c26'].some(uxEnabled)) {
         document.documentElement.classList.add('ux-board-tools');
         disposers.push(() => document.documentElement.classList.remove('ux-board-tools'));
     }
@@ -55,6 +56,7 @@ export function attachUxBoard(board: Board): () => void {
     if (uxEnabled('c22')) disposers.push(attachLoupe(board));
     if (uxEnabled('c23')) disposers.push(attachNotebook(board));
     if (uxEnabled('c24') || uxEnabled('c25')) disposers.push(attachDependence(board, uxEnabled('c25')));
+    if (uxEnabled('c26')) disposers.push(attachDragTrace(board));
     if (uxEnabled('c3')) {
         setPredictionBoard(board);
         disposers.push(() => setPredictionBoard(undefined));

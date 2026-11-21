@@ -13,7 +13,7 @@ const W = 260, H = 150, PAD_L = 40, PAD_B = 22, PAD_T = 10, PAD_R = 10;
 
 interface Quantity { key: string; label: string; unit: string }
 
-function format(value: number, digits = 3): string {
+export function format(value: number, digits = 3): string {
     if (!Number.isFinite(value)) return '–';
     const abs = Math.abs(value);
     const d = abs >= 100 ? 0 : abs >= 10 ? 1 : abs >= 1 ? 2 : digits;
@@ -21,13 +21,13 @@ function format(value: number, digits = 3): string {
     return (text.includes('.') ? text.replace(/\.?0+$/, '') : text).replace('.', ',').replace('-', '−');
 }
 
-function symbolOf(label: string): string {
+export function symbolOf(label: string): string {
     const last = /\s(\S{1,3})$/.exec(label.trim())?.[1];
     return last && !/^\d+$/.test(last) ? last : label.trim().split(/\s+/)[0];
 }
 
 /** Every "label number" pair the board prints, keyed by its label so the key survives the number changing. */
-function readouts(container: HTMLElement): Map<string, {quantity: Quantity; value: number}> {
+export function readouts(container: HTMLElement): Map<string, {quantity: Quantity; value: number}> {
     const found = new Map<string, {quantity: Quantity; value: number}>();
     const texts = [...container.querySelectorAll<HTMLElement>('.JXGtext')].filter(node =>
         node.style.display !== 'none' && node.style.visibility !== 'hidden' && !node.querySelector('mjx-container')
@@ -46,7 +46,7 @@ function readouts(container: HTMLElement): Map<string, {quantity: Quantity; valu
                 // A number inside a coordinate pair or right after another number is not a quantity of its own.
                 if (/[(\[,;]\s*$/.test(before) && !/[=:]\s*[(\[]?\s*$/.test(before)) continue;
                 if (/[(\[]\s*$/.test(before)) continue;
-                let label = before.replace(/^[\s,;|.)\]]+/, '').replace(/[\s=:≈]+$/, '').replace(/\s+/g, ' ').trim();
+                let label = before.replace(/^[\s,;|.)\]°%]+/, '').replace(/[\s=:≈]+$/, '').replace(/\s+/g, ' ').trim();
                 // A label that runs on from an earlier sentence starts at its last capitalised word, or keeps four words.
                 if (label.length > 24) {
                     const words = label.split(' ');

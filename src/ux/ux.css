@@ -1088,3 +1088,19 @@ html.ux-nb-reading { overflow: hidden; }
 .ux-dep-score { margin: 6px 0 0; padding: 6px 8px; border-radius: 10px; background: #fff6e2; color: #5d4210; font-size: 12.5px; }
 .ux-dep-score[hidden] { display: none; }
 .ux-dep-stars { color: #d08a17; font-size: 16px; letter-spacing: 1px; margin-right: 4px; }
+
+/* c26 Sled vlečenja */
+.ux-trace .ux-dep-head > span { display: flex; gap: 6px; align-items: center; }
+.ux-trace-clear { min-height: 30px; padding: 2px 10px; border: 1px solid #cfd8c4; border-radius: 999px; background: #fff; color: #4d5a50; font: 600 12px/1 system-ui, sans-serif; cursor: pointer; }
+.ux-trace-chart { cursor: default; }
+.ux-trace-dot { fill: #c47b1f; fill-opacity: .75; }
+.ux-trace-empty { font: 600 11px/1 system-ui, sans-serif; fill: #8a927f; }
+.ux-trace-still { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-top: 6px; }
+.ux-trace-still:empty { display: none; }
+.ux-trace-still-head { font: 700 11.5px/1.2 system-ui, sans-serif; color: #3f5f94; margin-right: 2px; }
+.ux-trace-pill { padding: 4px 9px; border-radius: 999px; background: #e9f0fb; color: #2f4f85; border: 1px solid #c4d3ec; font: 650 12px/1.2 system-ui, sans-serif; font-variant-numeric: tabular-nums; animation: ux-trace-pop .35s ease-out; }
+@keyframes ux-trace-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+.ux-dep.ux-trace.ux-dep-sheet { max-height: 42vh; }
+.ux-trace.ux-dep-sheet .ux-trace-chart { max-height: 130px; margin: 0 auto; }
+@media (prefers-reduced-motion: reduce) { .ux-trace-pill { animation: none; } }
+.ux-trace-dot-still { fill: #3f6fc0; }
