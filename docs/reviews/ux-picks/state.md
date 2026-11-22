@@ -190,6 +190,21 @@ The challenge runs until ~11:10, and the owner wakes after that. Next, in order:
 Consultant: Agent `Plan` (opus, high) used once at 08:53 on the plateau (advice recorded in "Handler 11"). Start a fresh one if needed.
 Self-spawn rule: at your own handoff, write "## Handler 12 → handler 13", commit and push the note, then start your successor with `claude --bg` from the Bash tool with `-n 'UX picks handler 13' --agent bezeg-handler --model claude-opus-5-5 --effort high --permission-mode auto`, confirm it with `claude logs <id>`, and pass this rule on.
 
+## Handler 12 → handler 13 (2026-11-22, after 11:10; owner awake and working live)
+
+Read first: this section, then "Standing owner directions" (new 2026-11-22 entry on input during motion), then "Handler 12" below. The overnight challenge is over; the morning report at the top is final. The owner is present and gives requests directly: owner decisions go to him again (no more "decide and log"). Handler 12 stopped at BUDGET SOFT (~320k). Everything is committed and pushed on ux-picks (last code commits R21-R25 plus the spec); ` M src/uxPicks/b1/morph.ts` is the old line-ending artefact, leave it.
+
+Since 11:10 (all pushed): R21 ecc31c94 input stops a sweep; R22 c617da8b no hover preview probes while something sweeps (owner's flicker: value alternated between the sweep and a preview's stale restore); R23 5bf8c060 + R25 6259062f Odčitki formula as a labelled first row (`GraphUx.formulaLabel`, 11 graphs); R24 dcbc55bc Orodja tabs as icons in its head + its Več expands it in a shared stack ("Manj" restores; Naprej/Nazaj and fold restore too); `docs/smoke-tests.md` "Interrupt what moves"; spec draft `docs/specs/parameter-writes.md` (819128c6: one synchronous store, source-tagged writes learner > lesson > animation, previews never write live state; options A/B/C for previews; acceptance includes the fuzzer).
+
+Next, in order:
+1. **Owner bug, unstarted:** on a count puck (Taylor n = 1), hovering "+" shows the tooltip "n = 0 · tako bo po kliku"; it should say n = 2. The tooltip is the a19 count-step preview (`src/uxPicks/a19/ScrubPreview.tsx`, count ± hover) or the pucks' step tooltip (`src/uxPicks/a1/ParamPucks.tsx`, grep "tako bo po kliku"). Check whether it predates R22 (`git stash`-free: copy files aside as handler 12 did) and whether a sweep was running. Fix, screenshot, commit, tell the owner.
+2. **Fuzzer (owner chose "c": fuzzer now, spec as requirement):** a Sonnet worker was dispatched ~11:50 with `Desktop/bezeg-ux-picks/night/h12/FUZZ-BRIEF.md` (outputs `night/fuzz/`, RESULTS.md, min-*.json). If `night/fuzz/RESULTS.md` is missing or partial, dispatch a fresh worker with the same brief plus `night/fuzz/NOTES.md` if present. Then: verify each distinct failure yourself (replay its min-*.json), fix on the prototype, commit, and fill the spec's "Fuzzer findings" section with each as a test case.
+3. Spec open question for the owner (ask him): a learner write during a lesson's Back/Next morph — end the morph at once (as written) or let it finish, then apply?
+4. Known, unfixed: a sweep pauses ~0.5 s mid-swing while re-measuring its in-view range after a view refit (`a3/oscillators.ts` fitToView); Povrni pill covers 1-2 lesson lines and the lesson card grows ~90 px when it appears (see Handler 12); round 14 A' P2s left (Odčitki folds groups during a card drag; bisection zoom under cards; label collisions inside graphs).
+5. Orodja R24 not checked: touch pointer, reduced motion, floating Orodja, Odčitki squeezing.
+Process (owner's "how can we improve"): before accepting, play with each changed control for a minute, combining and interrupting actions; every writer of a value states who else writes it and who wins.
+Self-spawn rule: at your own handoff, write "## Handler 13 → handler 14", commit and push the note, then start your successor with `claude --bg` from the Bash tool with `-n 'UX picks handler 14' --agent bezeg-handler --model claude-opus-5-5 --effort high --permission-mode auto`, confirm it with `claude logs <id>`, and pass this rule on.
+
 ## Handler 12 (2026-11-22, from 10:05 machine time)
 
 Decisions (decision | alternatives | why); scripts and shots in `Desktop/bezeg-ux-picks/night/h12/`:
