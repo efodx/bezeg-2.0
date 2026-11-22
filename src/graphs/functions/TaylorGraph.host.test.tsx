@@ -5,6 +5,8 @@ import {TaylorGraph} from './TaylorGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {UntaggedWriteError} from '../base/writes/parameterArbiter';
+import {runAs} from '../base/writes/writeSource';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -28,6 +30,11 @@ class ObservedTaylorGraph extends TaylorGraph {
 
     ownedObjects() {
         return this.generatedObjectCount;
+    }
+
+    /** A setter call with no write source: what a writer that forgot to say who it is would do. */
+    setCenterDirectly(value: number) {
+        this.setCenter(value);
     }
 }
 
@@ -120,4 +127,33 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     expect(screen.getByRole('spinbutton', {name: 'Center c, value'})).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', {name: 'Degree n'})).toBeInTheDocument();
     expect(readout('convergence')).toMatch(/x is outside/);
+});
+
+test('parameter writes are source-tagged: a seeded untagged write throws, a tagged one applies, and the arbiter decides between sources', () => {
+    const graph = new ObservedTaylorGraph();
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const parameters = graph.parameters!;
+    expect(parameters.keys()).toEqual(['taylor-center', 'taylor-degree', 'taylor-x', 'taylor-example']);
+
+    // seeded untagged write (ADR 0064): a setter called outside any write source fails the development check
+    expect(() => act(() => graph.setCenterDirectly(0.5))).toThrow(UntaggedWriteError);
+    act(() => runAs('learner', () => graph.setCenterDirectly(0.25)));
+    expect(graph.modelNow().center).toBe(0.25);
+
+    // the tools control is a learner writer through its input event
+    act(() => { enterNumber(screen.getByLabelText('Središče c, vrednost'), '0.5'); });
+    expect(graph.modelNow().center).toBe(0.5);
+
+    // lesson writes go through the same setters; a domain refusal is reported, not applied
+    act(() => { expect(parameters.write('taylor-degree', 3, 'lesson')).toEqual({status: 'applied'}); });
+    expect(parameters.read('taylor-degree')).toBe(3);
+    const refused = parameters.write('taylor-degree', -1, 'lesson');
+    expect(refused.status).toBe('refused-domain');
+    expect(graph.modelNow().degree).toBe(3);
+
+    // a learner hold keeps a lesson write off the key until release
+    const release = parameters.hold('taylor-x');
+    expect(parameters.write('taylor-x', 0.5, 'lesson')).toEqual({status: 'refused-arbiter', reason: 'held'});
+    release();
+    act(() => { expect(parameters.write('taylor-x', 0.5, 'lesson').status).toBe('applied'); });
 });

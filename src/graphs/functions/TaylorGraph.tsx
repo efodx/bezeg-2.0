@@ -18,6 +18,7 @@ import {taylorEditMessage} from "./taylorMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {RevealButton} from "../../inputs/RevealButton";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
 
 /** Positions show four decimals; values of T_n and f show four as well, errors and the bound use significant digits. */
 const PRECISE = 4;
@@ -163,6 +164,19 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
 
     protected setBoundVisible(visible: boolean): void {
         if (visible !== this.model.boundVisible) this.commitModel({...this.model, boundVisible: visible});
+    }
+
+    /**
+     * Parameter writes (ADR 0064). Keys are the lesson names. Writers: the tools controls and the board's center and x
+     * points (`learner`, tagged by their input gesture), lesson actions and scenes (`lesson`); nothing animates them.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "taylor-center": {read: () => this.model.center, apply: (value: number) => this.setCenter(value)},
+            "taylor-degree": {read: () => this.model.degree, apply: (value: number) => this.setDegree(value)},
+            "taylor-x": {read: () => this.model.x, apply: (value: number) => this.setX(value)},
+            "taylor-example": {read: () => this.model.example, apply: (value: unknown) => this.setExample(value)},
+        };
     }
 
     protected override lessonFunctionActions(): FunctionLessonActions {
