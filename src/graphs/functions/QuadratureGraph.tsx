@@ -17,6 +17,12 @@ import {quadratureEditMessage} from "./quadratureMessages";
 import {cleanNumber} from "../../analysis/numbers";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutNote} from "../../uxPicks/declare/graphUx";
+
+/** Under pick boardText the formula, the readouts and the key live in the cards, so the board caption stays empty. */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** Errors and ratios are shown with significant digits: the errors span five orders of magnitude (0,4292 to 1,66·10⁻⁵). */
 const ERROR_DIGITS = ERROR_DISPLAY_DIGITS;
@@ -182,16 +188,17 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
 
         // The function, the approximation with its error and the error ratio stay on the board (projection needs them), top left.
         this.caption("top-left", [
-            {text: () => `f(x) = ${catalogFunction(model().fn).plain}`, scale: 1.2, math: true},
+            {text: () => `f(x) = ${catalogFunction(model().fn).plain}`, scale: 1.2, math: true, visible: boardTextOnBoard},
             {
                 text: () => t("quadrature_board_values", {
                     value0: String(model().n), value1: formatNumber(this.viewOf(model()).approximation, language(), PRECISE),
                     value2: formatSignificant(this.viewOf(model()).error, language(), ERROR_DIGITS),
                 }),
+                visible: boardTextOnBoard,
             },
             {
                 text: () => t("quadrature_board_ratio", {value0: formatSignificant(this.viewOf(model()).ratio ?? NaN, language(), RATIO_DIGITS)}),
-                visible: () => this.viewOf(model()).ratio !== undefined,
+                visible: () => boardTextOnBoard() && this.viewOf(model()).ratio !== undefined,
             },
         ]);
     }
@@ -213,27 +220,26 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
         const {rule, fn, a, b, n} = this.model;
         const counts = countRule(rule);
         return <>
-            <div className="inspector-group">
+            <ToolSection id="quadrature-choices">
                 <ChoiceSelect label={t("quadrature_rule_label")} value={rule} help={t("quadrature_rule_help")}
                               options={QUADRATURE_RULES.map(id => ({value: id, text: RULE_LABELS[id]()}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setRule(next))}/>
                 <ChoiceSelect label={t("quadrature_function_label")} value={fn} help={t("quadrature_function_help")}
                               options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("quadrature_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+            </ToolSection>
+            <ToolSection id="quadrature-bounds" help={t("quadrature_bounds_help")}>
+                <Slider paramKey="quadrature.a" customText={t("quadrature_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              rejectedHint={t("quadrature_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <Slider customText={t("quadrature_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                <Slider paramKey="quadrature.b" customText={t("quadrature_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              rejectedHint={t("quadrature_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
-                <p className="inspector-help">{t("quadrature_bounds_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("quadrature_n_label")} min={counts.min} max={counts.max} step={counts.step} value={n}
+            </ToolSection>
+            <ToolSection id="quadrature-count">
+                <Slider paramKey="quadrature.n" customText={t("quadrature_n_label")} min={counts.min} max={counts.max} step={counts.step} value={n}
                         help={rule === "simpson" ? t("quadrature_n_help_simpson") : t("quadrature_n_help_trapezoid")}
                         rejectedHint={rule === "simpson" ? t("quadrature_n_even_rejected", {value0: counts.min, value1: counts.max}) : undefined}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
-            </div>
+            </ToolSection>
         </>;
     }
 
@@ -247,7 +253,56 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
         return result;
     }
 
+    // ---- Declarations (pick boardText) ---------------------------------------------------------------------------
+
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const view = this.viewOf(model);
+        const language = currentLanguage();
+        const number = (value: number) => formatNumber(value, language, PRECISE);
+        const none = t("quadrature_none");
+        const ruleId = model.rule === "simpson" ? "simpson" : "trapezoid";
+        const legend: LegendEntry[] = [
+            {id: "function", label: t("quadrature_legend_function"), kind: "line", color: GraphPalette.comparisonCurve},
+            {id: "bound", label: t("quadrature_legend_bound"), kind: "line", color: GraphPalette.constructionAccent},
+            model.rule === "simpson"
+                ? {id: "simpson", label: t("quadrature_legend_simpson"), kind: "area", color: GraphPalette.additionalCurves[0]}
+                : {id: "trapezoid", label: t("quadrature_legend_trapezoid"), kind: "area", color: GraphPalette.additionalCurves[0]},
+        ];
+        const notes: ReadoutNote[] = this.statuses(model, view).map(status => ({id: status.id, text: status.text, tone: status.id === "adjusted" ? "warning" : "muted"}));
+        return {
+            pucks: [
+                {param: "quadrature.a", help: t("quadrature_bounds_help")},
+                {param: "quadrature.b", help: t("quadrature_bounds_help")},
+                {param: "quadrature.n", help: model.rule === "simpson" ? t("quadrature_n_help_simpson") : t("quadrature_n_help_trapezoid")},
+            ],
+            formula: `f(x)=${catalogFunction(model.fn).latex}`,
+            readouts: [
+                {id: "setup", title: "Delitev", rows: [
+                    {id: "n", name: t("quadrature_readout_n"), value: String(model.n)},
+                ]},
+                {id: "values", title: "Vrednosti", rows: [
+                    {id: "approximation", name: t("quadrature_readout_approximation"), value: number(view.approximation), legend: ruleId},
+                    {id: "exact", name: t("quadrature_readout_exact"), value: number(view.exact)},
+                    {id: "error", name: t("quadrature_readout_error"), value: formatSignificant(view.error, language, ERROR_DIGITS)},
+                ]},
+                {id: "halving", title: "Razpolovitev n", rows: [
+                    {
+                        id: "half-error", name: view.halfN === undefined ? t("quadrature_readout_half_error", {value0: none}) : t("quadrature_readout_half_error", {value0: view.halfN}),
+                        value: view.halfError === undefined ? none : formatSignificant(view.halfError, language, ERROR_DIGITS),
+                    },
+                    {id: "ratio", name: t("quadrature_readout_ratio"), value: view.ratio === undefined ? none : formatSignificant(view.ratio, language, RATIO_DIGITS)},
+                ]},
+            ],
+            notes,
+            readoutHelp: <p>{t("quadrature_note")}</p>,
+            legend,
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null;
         const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
@@ -271,6 +326,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null;
         const rule = this.model.rule;
         return <FunctionLegend items={[
             {id: "function", color: GraphPalette.comparisonCurve, label: t("quadrature_legend_function"), kind: "line"},

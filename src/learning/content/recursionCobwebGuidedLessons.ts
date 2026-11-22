@@ -8,10 +8,11 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-rec-b.md.
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
 
 interface StepContent {
     readonly id: string;
@@ -23,11 +24,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}). */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation', ux?.explanation), frame(`${content.id}-observation`, 'observation', ux?.observation)],
 });
 
 /** The stored cobweb fields a scene may set: the map, m = M/20, c = C/10, r = R/10 (5..29), x0 = X/100 and the drawn step (0..60). */
@@ -117,6 +120,7 @@ const rg2Formulas: readonly FormulaBlock[] = [
 const rg2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'rg2-line-diagonal', order: 1,
+        ux: {explanation: {open: ['readouts', 'legend'], highlight: ['slope', 'fixed']}, observation: {open: ['readouts']}},
         title: text('Premica, diagonala in en korak', 'The line, the diagonal and one step'),
         purpose: text('Napovedati prve iterate, preden jih graf pokaže.', 'Predicting the first iterates before the graph shows them.'),
         explanation: text(
@@ -132,6 +136,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg2-play', order: 2,
+        ux: {observation: {open: ['readouts']}},
         title: text('Koliko korakov do bližine', 'How many steps to get close'),
         purpose: text('Z napako, ki se v vsakem koraku pomnoži z \\(m\\), napovedati število korakov.', 'Using the error that is multiplied by \\(m\\) in every step to predict a number of steps.'),
         explanation: text(
@@ -147,6 +152,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg2-negative-slope', order: 3,
+        ux: {observation: {open: ['readouts']}},
         title: text('Naklon pod ničlo', 'A slope below zero'),
         purpose: text('Napovedati, kaj se zgodi, ko je \\(m\\) negativen.', 'Predicting what happens when \\(m\\) is negative.'),
         explanation: text(
@@ -162,6 +168,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg2-repelling', order: 4,
+        ux: {observation: {open: ['readouts']}},
         title: text('Naklon \\(-1{,}2\\)', 'The slope \\(-1.2\\)'),
         purpose: text('Z napako, pomnoženo z \\(m\\), napovedati obnašanje mreže, ko začetek leži blizu \\(x^*\\).', 'Using the error multiplied by \\(m\\) to predict the behaviour of the cobweb when the start is close to \\(x^*\\).'),
         explanation: text(
@@ -177,6 +184,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg2-borderline', order: 5,
+        ux: {observation: {open: ['readouts']}},
         title: text('Naklon \\(-1\\) in \\(1\\)', 'The slopes \\(-1\\) and \\(1\\)'),
         purpose: text('Napovedati, kaj se zgodi na meji \\(\\lvert m\\rvert=1\\).', 'Predicting what happens on the boundary \\(\\lvert m\\rvert=1\\).'),
         explanation: text(
@@ -192,6 +200,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg2-cosine', order: 6,
+        ux: {observation: {open: ['readouts']}},
         title: text('Krivulja namesto premice', 'A curve instead of a line'),
         purpose: text('Napovedati, kako naklon pri negibni točki krivulje nadomesti \\(m\\), in to preveriti na kosinusu.', 'Predicting how the slope at the fixed point of a curve takes the place of \\(m\\), and checking it on the cosine.'),
         explanation: text(
@@ -207,6 +216,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg2-explore', order: 7,
+        ux: {observation: {open: ['readouts']}},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Preizkusiti odločilni naklon na svojih primerih.', 'Trying the deciding slope on your own examples.'),
         explanation: text(
@@ -242,6 +252,7 @@ const rg4Formulas: readonly FormulaBlock[] = [
 const rg4Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'rg4-rule', order: 1,
+        ux: {observation: {open: ['readouts']}},
         title: text('Rast, ki se ustavlja', 'Growth that slows down'),
         purpose: text('Napovedati, kje se rast ustavi, ko \\(r\\) raste.', 'Predicting where growth stops when \\(r\\) grows.'),
         explanation: text(
@@ -257,6 +268,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg4-staircase', order: 2,
+        ux: {explanation: {open: ['readouts'], highlight: ['fixed']}, observation: {open: ['readouts']}},
         title: text('Mreža pri \\(r=1{,}5\\)', 'The cobweb at \\(r=1.5\\)'),
         purpose: text('Napovedati pot iteratov do negibne točke.', 'Predicting the path of the iterates to the fixed point.'),
         explanation: text(
@@ -272,6 +284,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg4-spiral', order: 3,
+        ux: {observation: {open: ['readouts']}},
         title: text('Večji \\(r\\)', 'A larger \\(r\\)'),
         purpose: text('Z lego negibne točke glede na vrh parabole napovedati obliko mreže.', 'Using the position of the fixed point relative to the vertex of the parabola to predict the shape of the cobweb.'),
         explanation: text(
@@ -287,6 +300,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg4-slow-spiral', order: 4,
+        ux: {observation: {open: ['readouts']}},
         title: text('Mreža pri \\(r=2{,}9\\)', 'The cobweb at \\(r=2.9\\)'),
         purpose: text('Napovedati hitrost približevanja pri večjem \\(r\\) in ločiti limito od zadnjega iterata.', 'Predicting the speed of the approach for a larger \\(r\\) and separating the limit from the last iterate.'),
         explanation: text(
@@ -302,6 +316,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg4-extinction', order: 5,
+        ux: {observation: {open: ['readouts']}},
         title: text('Majhen \\(r\\)', 'A small \\(r\\)'),
         purpose: text('Napovedati, kaj se zgodi pri \\(r<1\\), in meji \\(r=1\\), kjer naklon ne odloči.', 'Predicting what happens for \\(r<1\\) and on the boundary \\(r=1\\), where the slope does not decide.'),
         explanation: text(
@@ -317,6 +332,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg4-slope', order: 6,
+        ux: {observation: {open: ['readouts']}},
         title: text('Naklon v negibni točki', 'The slope at the fixed point'),
         purpose: text('Z odvodom izračunati naklon v negibni točki in ga primerjati z odčitkom.', 'Computing the slope at the fixed point with the derivative and comparing it with the readout.'),
         explanation: text(
@@ -332,6 +348,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg4-explore', order: 7,
+        ux: {observation: {open: ['readouts']}},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Preizkusiti naklon \\(2-r\\) na svojih vrednostih \\(r\\).', 'Trying the slope \\(2-r\\) on your own values of \\(r\\).'),
         explanation: text(

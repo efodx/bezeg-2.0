@@ -8,10 +8,13 @@
  * never a silent change of n by the graph (which would raise it by one when the rule is switched).
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 type QuadratureFunction = 'square' | 'sin' | 'exp';
 type Rule = 'trapezoid' | 'simpson';
@@ -47,14 +50,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -126,6 +131,7 @@ const quadratureLesson: GuidedLesson = {
     steps: [
         step({
             id: 'trapezoid-predict', order: 1,
+            ux: {explanation: readouts('n', 'approximation', 'error'), observation: {open: ['readouts']}},
             title: text('Trapezno pravilo pri \\(n=2\\)', 'The trapezoid rule at \\(n=2\\)'),
             purpose: text('Videti ploščino pod grafom in trapezni približek ter napovedati napako pri \\(n=4\\).', 'Seeing the area under the graph and the trapezoid approximation, and predicting the error at \\(n=4\\).'),
             explanation: text(
@@ -141,6 +147,7 @@ const quadratureLesson: GuidedLesson = {
         }),
         step({
             id: 'trapezoid-halve', order: 2,
+            ux: {explanation: readouts('error', 'ratio'), observation: {open: ['readouts']}},
             title: text('Podvojitev \\(n\\) pri trapeznem pravilu', 'Doubling \\(n\\) in the trapezoid rule'),
             purpose: text('Prebrati napako in razmerje napak pri \\(n=4\\) ter ga primerjati z napovedjo.', 'Reading the error and the ratio of the errors at \\(n=4\\) and comparing it with the prediction.'),
             explanation: text(
@@ -156,6 +163,7 @@ const quadratureLesson: GuidedLesson = {
         }),
         step({
             id: 'simpson-parabolas', order: 3,
+            ux: {explanation: {open: ['readouts', 'legend'], highlight: ['approximation', 'error', 'ratio']}, observation: {open: ['readouts']}},
             title: text('Simpsonovo pravilo: parabole', 'The Simpson rule: parabolas'),
             purpose: text('Videti parabole skozi tri točke grafa in prvo razmerje napak pri Simpsonovem pravilu.', 'Seeing the parabolas through three points of the graph and the first ratio of the errors for the Simpson rule.'),
             explanation: text(
@@ -171,6 +179,7 @@ const quadratureLesson: GuidedLesson = {
         }),
         step({
             id: 'simpson-halve', order: 4,
+            ux: {explanation: readouts('error', 'ratio'), observation: {open: ['readouts']}},
             title: text('Podvojitev \\(n\\) pri Simpsonovem pravilu', 'Doubling \\(n\\) in the Simpson rule'),
             purpose: text('Prebrati razmerje napak pri \\(n=8\\) in ga primerjati s \\(16\\).', 'Reading the ratio of the errors at \\(n=8\\) and comparing it with \\(16\\).'),
             explanation: text(
@@ -186,6 +195,7 @@ const quadratureLesson: GuidedLesson = {
         }),
         step({
             id: 'simpson-exact', order: 5,
+            ux: {explanation: readouts('approximation', 'error'), observation: {open: ['readouts']}},
             title: text('Natančnost za \\(x^2\\)', 'Exactness for \\(x^2\\)'),
             purpose: text('Videti, da je Simpsonovo pravilo za kvadratno funkcijo natančno.', 'Seeing that the Simpson rule is exact for a quadratic function.'),
             explanation: text(
@@ -201,6 +211,7 @@ const quadratureLesson: GuidedLesson = {
         }),
         step({
             id: 'simpson-even', order: 6,
+            ux: {explanation: readouts('n', 'approximation', 'error'), observation: {open: ['readouts']}},
             title: text('Zakaj je \\(n\\) sodo', 'Why \\(n\\) is even'),
             purpose: text('Razumeti, da ena parabola potrebuje dva podintervala.', 'Understanding that one parabola needs two subintervals.'),
             explanation: text(

@@ -22,6 +22,9 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {RevealButton} from "../../inputs/RevealButton";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutNote} from "../../uxPicks/declare/graphUx";
 
 /**
  * Time between two playback steps. One iterate per interval, never more than one per frame, whatever the display refresh rate
@@ -42,6 +45,9 @@ const EXAMPLE_VIEWS: Readonly<Record<FixedPointExampleId, BoundingBox>> = {
     "cosine": [-1.72, 1.75, 2.72, -0.2],
     "reflection": [-1.72, 1.75, 2.72, -0.2],
 };
+
+/** Under pick boardText the formula, the readouts and the key live in the cards, so the board caption stays empty. */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** Dash styles (JSXGraph numbering): the diagonal and the box edge are dashed, the drop line short-dashed. */
 const DIAGONAL_DASH = 2;
@@ -329,22 +335,23 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
 
         // The formula, the step, the bound line, the two-cycle, the reason the iteration ended and the key stay on the board (projection needs them).
         this.caption("top-right", [
-            {text: () => exampleFormula(model().example), scale: 1.2, math: true},
-            {text: () => t("fixed_point_board_progress", {value0: history().step, value1: this.position(current())})},
+            {text: () => exampleFormula(model().example), scale: 1.2, math: true, visible: boardTextOnBoard},
+            {text: () => t("fixed_point_board_progress", {value0: history().step, value1: this.position(current())}), visible: boardTextOnBoard},
             {
                 text: () => this.boardBound(model(), view()).text,
                 color: () => ({neutral: GraphPalette.label, ok: GraphPalette.primaryCurve, warning: GraphPalette.warningText})[this.boardBound(model(), view()).tone],
+                visible: boardTextOnBoard,
             },
             {
                 text: () => t("fixed_point_board_cycle", {value0: this.position(history().cycle?.first ?? 0), value1: this.position(history().cycle?.second ?? 0)}),
-                minBoardWidth: COMPACT_BOARD_WIDTH, visible: () => history().cycle !== undefined,
+                minBoardWidth: COMPACT_BOARD_WIDTH, visible: () => boardTextOnBoard() && history().cycle !== undefined,
             },
             {
                 text: () => this.boardEnd(history())?.text ?? "",
                 color: () => this.boardEnd(history())?.tone === "ok" ? GraphPalette.primaryCurve : GraphPalette.warningText,
-                visible: () => this.boardEnd(history()) !== undefined,
+                visible: () => boardTextOnBoard() && this.boardEnd(history()) !== undefined,
             },
-            {text: () => t("fixed_point_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
+            {text: () => t("fixed_point_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH, visible: boardTextOnBoard},
         ]);
     }
 
@@ -357,30 +364,29 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         const playing = this.playback.isPlaying;
         const canAdvance = fixedPointCanAdvance(state);
         return <>
-            <div className="inspector-group">
+            <ToolSection id="fixed-point-playback" help={t("fixed_point_playback_note", {value0: FIXED_POINT_MAX_STEPS})}>
                 <PlaybackButtons placement="graph" groupLabel={t("fixed_point_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("fixed_point_reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.step === 0, atEnd: !canAdvance, playing})}/>
-                <p className="inspector-help">{t("fixed_point_playback_note", {value0: FIXED_POINT_MAX_STEPS})}</p>
-            </div>
-            <div className="inspector-group">
+            </ToolSection>
+            <ToolSection id="fixed-point-example">
                 <ChoiceSelect label={t("fixed_point_example_label")} value={state.example} help={t("fixed_point_example_help")}
                               options={FIXED_POINT_EXAMPLE_IDS.map(id => ({value: id, text: `${exampleFormula(id)}, x ∈ [${FIXED_POINT_EXAMPLES[id].a}, ${FIXED_POINT_EXAMPLES[id].b}]`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("fixed_point_x0_label")} value={state.x0} min={example.a} max={example.b} step={0.01}
+            </ToolSection>
+            <ToolSection id="fixed-point-x0">
+                <Slider paramKey="fixed-point.x0" customText={t("fixed_point_x0_label")} value={state.x0} min={example.a} max={example.b} step={0.01}
                         rejectedHint={t("fixed_point_x0_rejected_hint", {value0: formatNumber(example.a, language), value1: formatNumber(example.b, language)})}
                         onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
-            </div>
-            <div className="inspector-group">
-                <CountSetter label={t("fixed_point_digits_label")} n={state.digits} min={FIXED_POINT_MIN_DIGITS} max={FIXED_POINT_MAX_DIGITS} help={t("fixed_point_fields_help")}
+            </ToolSection>
+            <ToolSection id="fixed-point-digits">
+                <CountSetter paramKey="fixed-point.digits" label={t("fixed_point_digits_label")} n={state.digits} min={FIXED_POINT_MIN_DIGITS} max={FIXED_POINT_MAX_DIGITS} help={t("fixed_point_fields_help")}
                              rejectedHint={t("fixed_point_digits_rejected_hint", {value0: FIXED_POINT_MIN_DIGITS, value1: FIXED_POINT_MAX_DIGITS})}
                              onPlus={() => this.ignoreOutOfDomain(() => this.setDigits(state.digits + 1))}
                              onMinus={() => this.ignoreOutOfDomain(() => this.setDigits(state.digits - 1))}
                              onSet={next => this.ignoreOutOfDomain(() => this.setDigits(next))}/>
-            </div>
+            </ToolSection>
         </>;
     }
 
@@ -391,11 +397,15 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                 <RevealButton action="toggle-fixed-point-bound" revealed={state.boundVisible} showLabel={t("show_error_bound")} hideLabel={t("hide_error_bound")}
                               onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
-            <p className="inspector-help">{t("fixed_point_bound_help")}</p>
         </>;
     }
 
+    protected override revealsHelp(): React.ReactNode {
+        return t("fixed_point_bound_help");
+    }
+
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null;
         return <FunctionLegend items={[
             {id: "function", color: GraphPalette.primaryCurve, label: t("fixed_point_legend_function"), kind: "line"},
             {id: "diagonal", color: GraphPalette.comparisonCurve, label: t("fixed_point_legend_diagonal"), kind: "dashed-line"},
@@ -458,7 +468,63 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         return result;
     }
 
+    // ---- Declarations (pick boardText) ---------------------------------------------------------------------------
+
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const language = currentLanguage();
+        const view = this.viewOf(model);
+        const {history} = view;
+        const shown = model.boundVisible;
+        const hidden = t("fixed_point_hidden");
+        const contraction = history.q !== undefined;
+        const bound = (value: number | undefined): string => !shown ? hidden : !contraction ? t("fixed_point_no_bound") : value === undefined ? NOT_A_NUMBER_TEXT : this.small(value);
+        const boundDrawn = shown && history.current.aPosteriori !== undefined;
+        const started = history.step >= 1;
+        const legend: LegendEntry[] = [
+            {id: "function", label: t("fixed_point_legend_function"), kind: "line", color: GraphPalette.primaryCurve},
+            {id: "diagonal", label: t("fixed_point_legend_diagonal"), kind: "dashed", color: GraphPalette.comparisonCurve},
+            {id: "box", label: t("fixed_point_legend_box"), kind: "area", color: GraphPalette.referenceCurve},
+            ...(started ? [{id: "cobweb", label: t("fixed_point_legend_cobweb"), kind: "line" as const, color: GraphPalette.constructionAccent}] : []),
+            {id: "iterate", label: t("fixed_point_legend_iterate"), kind: "point", color: GraphPalette.constructionAccent},
+            ...(started ? [{id: "start", label: t("fixed_point_legend_start"), kind: "point" as const, color: GraphPalette.constructionAccent}] : []),
+            {id: "fixed-point", label: t("fixed_point_legend_fixed"), kind: "point", color: GraphPalette.label},
+            ...(boundDrawn ? [{id: "bound", label: t("fixed_point_legend_bound"), kind: "line" as const, color: GraphPalette.additionalCurves[0]}] : []),
+        ];
+        const notes: ReadoutNote[] = this.statuses(model, view).map(status => ({
+            id: status.id, text: status.text,
+            tone: status.id === "no-bound" || status.id === "cycle" || status.id === "stagnation" || status.id === "iteration-limit" ? "warning" : "muted",
+        }));
+        return {
+            pucks: [
+                {param: "fixed-point.x0", help: "Začetni približek x₀ iteracije: mnogokratnik 0,01 znotraj intervala preslikave."},
+                {param: "fixed-point.digits", help: t("fixed_point_fields_help")},
+            ],
+            formula: `T(x)=${fixedPointExample(model.example).latex}`,
+            readouts: [
+                {id: "iteration", title: "Iteracija", rows: [
+                    {id: "step", name: t("fixed_point_readout_step", {value0: FIXED_POINT_MAX_STEPS}), value: String(history.step)},
+                    {id: "x0", name: t("fixed_point_readout_x0"), value: formatNumber(model.x0, language, 2), ...(started ? {legend: "start"} : {})},
+                    {id: "current", name: t("fixed_point_readout_current"), value: this.position(history.current.x), legend: "iterate"},
+                    {id: "delta", name: t("fixed_point_readout_delta"), value: history.current.delta === undefined ? NOT_A_NUMBER_TEXT : this.small(history.current.delta)},
+                    {id: "tolerance", name: t("fixed_point_readout_tolerance"), value: toleranceText(model.digits)},
+                    {id: "end", name: t("fixed_point_readout_end"), value: this.endText(history)},
+                ]},
+                {id: "bound", title: t("fixed_point_bound_actions_label"), rows: [
+                    {id: "q", name: t("fixed_point_readout_q"), value: !shown ? hidden : contraction ? formatNumber(history.q ?? 0, language, 6) : t("fixed_point_no_bound")},
+                    {id: "a-priori", name: t("fixed_point_readout_a_priori"), value: bound(history.current.aPriori)},
+                    {id: "a-posteriori", name: t("fixed_point_readout_a_posteriori"), value: bound(history.current.aPosteriori), ...(boundDrawn ? {legend: "bound"} : {})},
+                ]},
+            ],
+            notes,
+            readoutHelp: <p>{t("fixed_point_note")}</p>,
+            legend,
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null;
         const model = this.model;
         const language = currentLanguage();
         const view = this.viewOf(model);

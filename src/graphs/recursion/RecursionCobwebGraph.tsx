@@ -27,7 +27,9 @@ import {SceneObjects} from "./SceneObjects";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
-import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
+import {pickOn} from "../../uxPicks/picks";
+import {ToolSection} from "../../inputs/ToolSection";
+import type {GraphUx, LegendEntry, ReadoutNote} from "../../uxPicks/declare/graphUx";
 /** The scene state: the stored cobweb fields (`CobwebState`), nothing derived and no playback. */
 export interface RecursionCobwebGraphState extends BaseGraphState, CobwebState {}
 
@@ -255,8 +257,9 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
     }
 
     private caption(text: () => string, place: (chars: number) => {x: number; y: number}, visible: () => boolean = () => true): JXG.Text {
+        const shown = () => !pickOn("boardText") && visible();
         return this.scene.own(this.board.create("text", [() => place(text().length).x, () => place(text().length).y, text], {
-            strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
+            strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible: shown,
         }));
     }
 
@@ -630,16 +633,16 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         ];
         if (state.map === "affine") {
             commands.push(
-                <Slider key="m" customText={t("recursion_graph_m_label")} value={state.M / M_SCALE} step={1 / M_SCALE} bigStep={1} min={M_RANGE.min / M_SCALE}
+                <Slider key="m" paramKey="cobweb.m" customText={t("recursion_graph_m_label")} value={state.M / M_SCALE} step={1 / M_SCALE} bigStep={1} min={M_RANGE.min / M_SCALE}
                         max={M_RANGE.max / M_SCALE} grid={1 / M_SCALE} decimals={2}
                         rejectedHint={t("recursion_graph_m_rejected", this.fieldRange(M_RANGE.min, M_RANGE.max, M_SCALE))} onChange={value => this.editSlope(value)}/>,
-                <Slider key="c" customText={t("recursion_graph_c_label")} value={state.C / C_SCALE} step={1 / C_SCALE} bigStep={1} min={C_RANGE.min / C_SCALE}
+                <Slider key="c" paramKey="cobweb.c" customText={t("recursion_graph_c_label")} value={state.C / C_SCALE} step={1 / C_SCALE} bigStep={1} min={C_RANGE.min / C_SCALE}
                         max={C_RANGE.max / C_SCALE} grid={1 / C_SCALE} decimals={1}
                         rejectedHint={t("recursion_graph_c_rejected", this.fieldRange(C_RANGE.min, C_RANGE.max, C_SCALE))} onChange={value => this.editIntercept(value)}/>,
             );
         } else if (state.map === "logistic") {
             commands.push(
-                <Slider key="r" customText={t("recursion_graph_r_label")} value={state.R / R_SCALE} step={1 / R_SCALE} bigStep={0.5} min={R_RANGE.min / R_SCALE}
+                <Slider key="r" paramKey="cobweb.r" customText={t("recursion_graph_r_label")} value={state.R / R_SCALE} step={1 / R_SCALE} bigStep={0.5} min={R_RANGE.min / R_SCALE}
                         max={R_RANGE.max / R_SCALE} grid={1 / R_SCALE} decimals={1} help={t("recursion_graph_r_help")}
                         rejectedHint={t("recursion_graph_r_rejected", this.fieldRange(R_RANGE.min, R_RANGE.max, R_SCALE))} onChange={value => this.editRate(value)}/>,
             );
@@ -648,11 +651,66 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         const logistic = state.map === "logistic";
         const startArgs = this.fieldRange(range.min, range.max, X_SCALE);
         commands.push(
-            <Slider key="x" customText={t("recursion_graph_x_label")} value={startOf(state.X)} step={1 / X_SCALE} bigStep={0.1} min={range.min / X_SCALE}
+            <Slider key="x" paramKey="cobweb.x" customText={t("recursion_graph_x_label")} value={startOf(state.X)} step={1 / X_SCALE} bigStep={0.1} min={range.min / X_SCALE}
                     max={range.max / X_SCALE} grid={1 / X_SCALE} decimals={2} help={t(logistic ? "recursion_graph_x_help_logistic" : "recursion_graph_x_help")}
                     rejectedHint={t(logistic ? "recursion_graph_x_rejected_logistic" : "recursion_graph_x_rejected", startArgs)} onChange={value => this.editStart(value)}/>,
         );
         return commands;
+    }
+
+    // ---- Declarations (pick boardText) ---------------------------------------------------------------------------
+
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const state = this.state;
+        const derived = this.derived();
+        const tex = (value: number): string => num(value).replace(/,/g, "{,}");
+        const formula = state.map === "affine"
+            ? `y=${tex(state.M / M_SCALE)}\\cdot x${state.C === 0 ? "" : `${state.C < 0 ? "-" : "+"}${tex(Math.abs(state.C / C_SCALE))}`}`
+            : state.map === "cosine" ? "y=\\cos x" : `y=${tex(state.R / R_SCALE)}\\cdot x\\,(1-x)`;
+        const fixedDrawn = derived.fixedPoint !== null && inView(state.map, derived.fixedPoint);
+        const iterateDrawn = state.step > 0 && inView(state.map, derived.iteration.points[state.step] ?? NaN);
+        const stepped = state.step > 0;
+        const legend: LegendEntry[] = [
+            {id: "map", label: this.mapCaption(), kind: "line", color: GraphPalette.primaryCurve},
+            {id: "diagonal", label: t("recursion_graph_cap_diagonal"), kind: "dashed", color: GraphPalette.referenceCurve},
+            ...(stepped ? [{id: "cobweb", label: t("fixed_point_legend_cobweb"), kind: "line" as const, color: GraphPalette.constructionAccent}] : []),
+            {id: "start", label: t("recursion_graph_r_start"), kind: "point", color: GraphPalette.constructionAccent},
+            ...(fixedDrawn ? [{id: "fixed", label: t("recursion_graph_r_fixed"), kind: "point" as const, color: GraphPalette.comparisonCurve}] : []),
+            ...(iterateDrawn ? [{id: "iterate", label: t("recursion_graph_r_iterate", {value0: subscript(state.step)}), kind: "point" as const, color: GraphPalette.label}] : []),
+        ];
+        const rows = this.readoutRows();
+        const row = (id: string, extra: {legend?: string} = {}) => {
+            const found = rows.find(candidate => candidate.id === id);
+            return found && typeof found.label === "string" && typeof found.value === "string" ? [{id, name: found.label, value: found.value, ...extra}] : [];
+        };
+        const notes: ReadoutNote[] = [{id: "status", text: this.statusText(), tone: "muted"}];
+        return {
+            pucks: [
+                ...(state.map === "affine" ? [
+                    {param: "cobweb.m", help: "Naklon premice y = m·x + c."},
+                    {param: "cobweb.c", help: "Prosti člen premice y = m·x + c."},
+                ] : []),
+                ...(state.map === "logistic" ? [{param: "cobweb.r", help: t("recursion_graph_r_help")}] : []),
+                {param: "cobweb.x", help: t(state.map === "logistic" ? "recursion_graph_x_help_logistic" : "recursion_graph_x_help")},
+            ],
+            formula,
+            readouts: [
+                {id: "map", title: t("recursion_graph_r_map"), rows: [
+                    ...row("map", {legend: "map"}), ...row("slope"), ...row("intercept"), ...row("rate"),
+                ]},
+                {id: "fixed", title: t("recursion_graph_r_fixed"), rows: [
+                    ...row("fixed", fixedDrawn ? {legend: "fixed"} : {}), ...row("decisive"), ...row("shape"),
+                ]},
+                {id: "run", title: t("recursion_graph_r_steps"), rows: [
+                    ...row("start", {legend: "start"}), ...row("steps", stepped ? {legend: "cobweb"} : {}),
+                    ...row("iterate", iterateDrawn ? {legend: "iterate"} : {}),
+                ]},
+            ],
+            notes,
+            ...(state.map !== "cosine" ? {readoutHelp: <p>{t("recursion_graph_note_exact")}</p>} : {}),
+            legend,
+        };
     }
 
     protected override workspaceEdit(): React.ReactNode {
@@ -660,7 +718,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         const playing = this.isPlaying();
         const speedArgs = {value0: whole(SPEED_MIN), value1: whole(SPEED_MAX), value2: whole(SPEED_STEP)};
         return <>
-            <div className="inspector-group">
+            <ToolSection id="cobweb-playback" pickTitle={t("recursion_graph_playback_group")}>
                 <ReducedMotion>{() => <>
                     <PlaybackButtons placement="graph" groupLabel={t("recursion_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
                                      playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
@@ -671,15 +729,15 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
                             onChange={value => this.editSpeed(value)}/>
                 </>}</ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: ITERATION_MAX_STEPS})}</p>
-            </div>
+            </ToolSection>
             {this.getGraphCommandsArea()}
-            <BoardReadout><div className="inspector-group">
+            {pickOn("boardText") ? <LiveReadout readout={this.status} muted={playing}/> : <div className="inspector-group">
                 <ReadoutHeading>{t("recursion_graph_readout_title")}</ReadoutHeading>
                 <p data-recursion-status="">{this.statusText()}</p>
                 <ReadoutList label={t("recursion_graph_readout_title")} rows={this.readoutRows()}/>
                 {this.state.map !== "cosine" && <ReadoutHelp><span data-recursion-note="">{t("recursion_graph_note_exact")}</span></ReadoutHelp>}
                 <LiveReadout readout={this.status} muted={playing}/>
-            </div></BoardReadout>
+            </div>}
         </>;
     }
 }
