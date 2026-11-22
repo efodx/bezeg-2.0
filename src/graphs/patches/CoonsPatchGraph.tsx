@@ -1,12 +1,18 @@
 import type React from "react";
+import {message, messageNumber} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote, ReadoutRow, StatusLine} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {cssColor, MESH_STYLE, markerColor, polylineStyle} from "./surface-view/jsxStyles";
+import {SURFACE_COLORS} from "./surface-view/surfaceStyles";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import BaseSurfaceGraph, {type SurfaceGraphOptions, type SurfaceGraphState} from "./BaseSurfaceGraph";
 import {
-    type CoonsPanelActions, CoonsDisplayPanel, CoonsEditPanel, CoonsReadoutPanel, type CoonsSelection,
+    type CoonsPanelActions, CoonsDisplayPanel, CoonsEditPanel, CoonsReadoutPanel, type CoonsSelection, CORNER_COORDINATES, triple,
 } from "./CoonsPatchPanels";
+import {subscriptDigits} from "./TensorPatchPanels";
 import {
-    buildCoonsScene, COONS_BOUNDARY_NAMES, type CoonsBoundaryName, type CoonsBoundaryPoints, type CoonsShown, cloneCoonsBoundaries, coonsInteriorPoints, coonsMismatches,
+    buildCoonsScene, COONS_BOUNDARY_NAMES, COONS_SHOWN, type CoonsBoundaryName, type CoonsBoundaryPoints, type CoonsShown, cloneCoonsBoundaries, coonsInteriorPoints, coonsMismatches,
     coonsNet, coonsPointId, coonsSurfacePoint, defaultCoonsBoundaries, isCoonsCornerPoint, isCoonsShown, moveCoonsPoint, parseCoonsPointId, snapCoonsCorners,
 } from "./coonsScene";
 import {coonsPresetCollection, type CoonsPatchDto, type CoonsPresetData} from "./coonsPresetCollection";
@@ -26,6 +32,21 @@ export interface CoonsGraphState extends SurfaceGraphState {
     /** Vertical-drag mode of the view; a mode of the session, not saved in Presets. */
     zMode: boolean;
 }
+
+/**
+ * The ids of the declaration (`DeclarationIds`). No parameters: the shown surface, the switches, the view angles and the
+ * boundary points are not bound in the arbiter, so the switches and the surface choice are actions (with `pressed`) and
+ * the points are the legend only. The interior net is the readout rows; the corner check is the status lines.
+ */
+export type CoonsIds = {
+    param: never;
+    row: "p-1-1" | "p-1-2" | "p-2-1" | "p-2-2" | "centre";
+    note: "interior";
+    legend: "boundary" | "polygon" | "net" | "surface" | "centre" | "points";
+    section: never;
+    /** One per shown surface, then the corner linking and the display switches. */
+    action: `shown-${CoonsShown}` | "linked-corners" | "control-net" | "shading" | "height-mode";
+};
 
 /** The authored view, fitted to the default example for a landscape host (`DEFAULT_FIT_ASPECT`), so the patch fills the board. */
 const AUTHORED_CAMERA: SurfaceCamera = {az: -0.9, el: 0.5, distance: 1, projection: "perspective", target: [0, 0, 0]};
@@ -196,6 +217,91 @@ export default class CoonsPatchGraph extends BaseSurfaceGraph<CoonsGraphState, C
                 throw new Error("A coons action needs the operation set-shown, set-linked-corners or move-point.");
             }
         });
+    }
+
+    // ---- Declaration (task 02: nothing renders it yet) ---------------------------------------------------------
+
+    /**
+     * Pure data from the scene state: the interior control net and the centre as rows, the interior note, the corner
+     * check as status lines, the legend of what the surface view draws and the switches as actions. No view or camera
+     * is declared (a surface view has no `ViewAdapter` marks yet).
+     */
+    protected override declaration(): GraphDeclaration<CoonsIds> {
+        const {boundaries, shown, linkedCorners, showControlNet, showShading, zMode} = this.state;
+        const rows: ReadoutRow<CoonsIds>[] = [
+            ...coonsInteriorPoints(boundaries).map(({i, j, xyz}) => ({
+                id: `p-${i}-${j}` as "p-1-1" | "p-1-2" | "p-2-1" | "p-2-2",
+                name: message("coons_interior_point_name", {value0: subscriptDigits(i), value1: subscriptDigits(j)}),
+                value: {kind: "formatted" as const, text: triple(xyz)},
+            })),
+            {id: "centre", name: message("coons_centre"), value: {kind: "formatted", text: triple(coonsSurfacePoint(boundaries, "s", 0.5, 0.5))}, legend: "centre"},
+        ];
+        const notes: ReadoutNote<CoonsIds>[] = [{id: "interior", text: message("coons_interior_note"), tone: "muted"}];
+        const mismatches = coonsMismatches(boundaries);
+        const status: StatusLine[] = mismatches.length === 0
+            ? [{id: "corners", text: message("coons_corners_met"), tone: "success"}]
+            : [
+                ...mismatches.map(mismatch => ({
+                    id: `corner-${mismatch.corner}`,
+                    text: message("coons_corner_mismatch", {value0: CORNER_COORDINATES[mismatch.corner], value1: messageNumber(mismatch.distance, 3)}),
+                    tone: "warning" as const,
+                })),
+                {id: "no-interpolation", text: message("coons_no_interpolation"), tone: "warning"},
+            ];
+        const legend: LegendEntry<CoonsIds>[] = [
+            {id: "boundary", label: message("coons_legend_boundary"), kind: "line", object: "boundary"},
+            {id: "polygon", label: message("coons_legend_polygon"), kind: "line", object: "polygon"},
+            {id: "net", label: message("coons_legend_net"), kind: "line", object: "net"},
+            {id: "surface", label: message("coons_legend_surface"), kind: "area", object: "surface"},
+            {id: "centre", label: message("coons_centre"), kind: "point", object: "centre"},
+            {id: "points", label: message("coons_legend_points"), kind: "point", object: "points"},
+        ];
+        // The surface choice and the corner linking are used while watching the surface: the board. The display switches are Orodja.
+        const board = (id: CoonsIds["action"], label: ActionDeclaration["label"], pressed: boolean): ActionDeclaration<CoonsIds> =>
+            ({id, label, placement: "board", enabled: true, pressed});
+        const tools = (id: CoonsIds["action"], label: ActionDeclaration["label"], pressed: boolean): ActionDeclaration<CoonsIds> =>
+            ({id, label, placement: "tools", section: "display", enabled: true, pressed});
+        const actions: ActionDeclaration<CoonsIds>[] = [
+            ...COONS_SHOWN.map(value => board(`shown-${value}`, message(`coons_shown_${value}`), shown === value)),
+            board("linked-corners", message("coons_linked_corners"), linkedCorners),
+            tools("control-net", message("patch_show_control_net"), showControlNet),
+            tools("shading", message("patch_show_shading"), showShading),
+            tools("height-mode", message("patch_move_height"), zMode),
+        ];
+        return {readouts: [{id: "interior", rows}], notes, status, legend, actions};
+    }
+
+    /** An action pressed as the learner: the method the panel's control calls. */
+    override performAction(id: string): void {
+        const s = this.state;
+        const shownId = COONS_SHOWN.find(value => `shown-${value}` === id);
+        runAs("learner", () => {
+            if (shownId !== undefined) this.setShown(shownId);
+            else if (id === "linked-corners") this.setLinkedCorners(!s.linkedCorners);
+            else if (id === "control-net") this.setVisibility("showControlNet", !s.showControlNet);
+            else if (id === "shading") this.setVisibility("showShading", !s.showShading);
+            else if (id === "height-mode") this.setZMode(!s.zMode);
+            else throw new Error("Unknown action");
+        });
+    }
+
+    /**
+     * What the surface view draws for a legend entry: the colour its renderer gives the role (`jsxStyles`) and whether the
+     * scene holds it now. The boundary curves, their polygons, the centre marker and the points are always in the scene; the
+     * net and the shaded mesh follow their switches. Nothing is drawn while the view could not start.
+     */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const {showControlNet, showShading, surfaceUnavailable} = this.state;
+        const drawn = (color: string, visible = true) => ({color, visible: visible && !surfaceUnavailable});
+        switch (id) {
+            case "boundary": return drawn(polylineStyle("boundary").stroke);
+            case "polygon": return drawn(polylineStyle("construction").stroke);
+            case "net": return drawn(polylineStyle("net").stroke, showControlNet);
+            case "surface": return drawn(MESH_STYLE.fill ?? cssColor(SURFACE_COLORS.surface), showShading);
+            case "centre": return drawn(markerColor("evaluated"));
+            case "points": return drawn(cssColor(SURFACE_COLORS.point));
+            default: return undefined;
+        }
     }
 
     // ---- Panels ------------------------------------------------------------------------------------------------
