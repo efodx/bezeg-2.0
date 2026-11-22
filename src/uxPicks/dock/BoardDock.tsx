@@ -10,7 +10,7 @@ import {ANCHOR_AT, REGION_LABEL} from './dockMeasure';
 import {ScrollIcon} from './icons';
 import {GesturesHint} from './GesturesHint';
 import {ShortcutsHost} from './Shortcuts';
-import {BAR, FADE, clearSnap, footOf, pageStep, snapRows} from './snapRows';
+import {BAR, FADE, blockBands, clearSnap, footOf, pageStep, snapRows} from './snapRows';
 
 /**
  * The board dock: one host for everything the picks put on or beside the graph, so objects never overlap.
@@ -181,7 +181,7 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             const consider = (el: HTMLElement, within = false, snap = true) => {
                 const skipped = !within && (getComputedStyle(el).overflowY === 'hidden' || el.closest('.is-floating') !== null);
                 // At the top an element is measured at its natural height, then ended on a whole row.
-                if (el.scrollTop <= 1) { clearSnap(el); if (!skipped && snap) snapRows(el); }
+                if (el.scrollTop <= 1) { clearSnap(el); if (!skipped && snap) snapRows(el, el.classList.contains('ux-tools-body') ? blockBands : undefined, el.classList.contains('ux-tools-body') ? 120 : undefined); }
                 const cut = !skipped && el.scrollHeight > el.clientHeight + 2 && el.scrollTop + el.clientHeight < el.scrollHeight - 2;
                 if (el.hasAttribute('data-cut') !== cut) { if (cut) el.setAttribute('data-cut', ''); else el.removeAttribute('data-cut'); }
                 if (!cut) return;
@@ -201,7 +201,7 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(el => consider(el));
             root.querySelectorAll<HTMLElement>('.ux-dock-h > .ux-btext').forEach(el => consider(el));
             // The tools card's body scrolls inside the card: its bar sits in the foot of the card, the body is not snapped to rows.
-            root.querySelectorAll<HTMLElement>('.ux-bcard-tools:not(.is-floating) > .ux-tools-body').forEach(el => consider(el, false, false));
+            root.querySelectorAll<HTMLElement>('.ux-bcard-tools:not(.is-floating) > .ux-tools-body').forEach(el => consider(el));
             // The lesson card's own text scrolls inside it (a docked card capped on a narrow board): the bar sits in the foot of the text.
             root.querySelectorAll<HTMLElement>('.ux-bcard-guide:not(.is-floating):not(.ux-btext-collapsed) .guided-lesson-reading').forEach(el => consider(el, true));
             setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.w === next[k].w && c.n === next[k].n) ? prev : next);
@@ -261,7 +261,7 @@ function DragPreview(props: {frame: HTMLElement; dock: HTMLElement | null; view:
         {box && active && <div className="ux-dock-ghost" data-dock-ghost={active} style={{left: box.x, top: box.y, width: box.w, height: box.h}} aria-hidden="true">
             <span className="ux-dock-pill">{REGION_LABEL[active]}{view.scrolls && <ScrollIcon/>}</span>
         </div>}
-        {free && <span className="ux-dock-pill ux-dock-free" data-dock-free="" style={free} aria-hidden="true">Prosto</span>}
+        {free && <span className="ux-dock-pill ux-dock-free" data-dock-free="" style={free} aria-hidden="true">Prosto mesto</span>}
     </>, frame);
 }
 

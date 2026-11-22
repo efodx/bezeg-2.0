@@ -458,6 +458,7 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
             </button>
             {!collapsed && <span className="ux-pucks-items">{visible.map(entry => {
                 const moving = oscillating.has(entry.key);
+                const oscName = splitLabel(entry.label).symbol ?? splitLabel(entry.label).name;
                 return <span key={entry.key} className={`ux-puck-wrap${moving ? ' is-oscillating' : ''}`}>
                     {entry.kind === 'count'
                         ? <CountPuck entry={entry} locked={locked}/>
@@ -468,7 +469,7 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                         onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
-                    {showOscillator && canOscillate(entry) && !locked && <span role="tooltip" aria-hidden="true" className="ux-puck-osc-tip">{moving ? 'Ustavi' : `Samodejno premikaj ${entry.label}`}</span>}
+                    {showOscillator && canOscillate(entry) && !locked && <span role="tooltip" aria-hidden="true" className="ux-puck-osc-tip">{moving ? `Ustavi: ${oscName}` : `Samodejno: ${oscName}`}</span>}
                 </span>;
             })}</span>}
         </div>

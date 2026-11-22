@@ -304,7 +304,7 @@ export function DockCard(props: DockCardProps) {
                       aria-label={`Premakni ${props.what} (puščične tipke, Enter pripne na označeno mesto, Domov pripne na privzeto mesto)`}
                       title="Povleci za premik, dvoklik pripne"><GripIcon/></span>}
                 {!open && <KindIcon kind={kind}/>}
-                <span className="ux-btext-title">{props.head ?? props.title}</span>
+                <span className="ux-btext-title" title={typeof (props.head ?? props.title) === 'string' ? String(props.head ?? props.title) : undefined}>{props.head ?? props.title}</span>
                 {props.actions}
                 {moved && <button type="button" className="ux-btext-toggle ux-btext-reset" onClick={reset} aria-label={`${resetTip}: ${props.title}`} title={resetTip}><HomeIcon/></button>}
                 <button type="button" className="ux-btext-toggle" onClick={toggle} aria-expanded={open}
