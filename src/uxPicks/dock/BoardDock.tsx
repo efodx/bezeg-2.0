@@ -10,6 +10,7 @@ import {ANCHOR_AT, REGION_LABEL} from './dockMeasure';
 import {ScrollIcon} from './icons';
 import {GesturesHint} from './GesturesHint';
 import {ShortcutsHost} from './Shortcuts';
+import {BAR, FADE, clearSnap, footOf, pageStep, snapRows} from './snapRows';
 
 /**
  * The board dock: one host for everything the picks put on or beside the graph, so objects never overlap.
@@ -90,12 +91,19 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
             const full = reach < d.width - right - 12;
             if (full !== el.hasAttribute('data-right-full')) { if (full) el.setAttribute('data-right-full', ''); else el.removeAttribute('data-right-full'); }
         };
-        const ro = new ResizeObserver(() => { el.style.setProperty('--ux-dock-h', `${host.clientHeight}px`); side(); });
+        // Phone: the chips tray wraps, so the room the frame leaves under the graph follows the tray's own height.
+        const tray = () => {
+            const tl = els.tl, coarse = window.matchMedia('(pointer: coarse)').matches;
+            if (window.matchMedia(PHONE_QUERY).matches && tl && tl.offsetHeight > 0) host.style.setProperty('--ux-tray-h', `${Math.ceil(tl.offsetHeight + (coarse ? 8 : 6))}px`);
+            else host.style.removeProperty('--ux-tray-h');
+        };
+        const ro = new ResizeObserver(() => { el.style.setProperty('--ux-dock-h', `${host.clientHeight}px`); side(); tray(); });
         ro.observe(host);
+        if (els.tl) ro.observe(els.tl);
         for (const k of SIDE_STACKS) { const r = els[k]; if (r) ro.observe(r); }
         if (els.bottom) { ro.observe(els.bottom); for (const c of Array.from(els.bottom.children)) ro.observe(c); }
-        side();
-        return () => ro.disconnect();
+        side(); tray();
+        return () => { ro.disconnect(); host.style.removeProperty('--ux-tray-h'); };
     }, [props.frame, els]);
     // The graph dock is known to the lesson card (outside this tree) through the layout module.
     useEffect(() => { setHost({regions: api.regions, frame: props.frame.current}); return () => setHost(null); }, [api, props.frame]);
@@ -127,8 +135,11 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
             {region('bottom')}
         </div>
         {props.children}
-        {frameEl && !phone && cues.map(c => <button key={c.id} type="button" className="ux-dock-more" style={{left: c.x, top: c.y}}
-            aria-label={c.n ? `Še ${c.n} odčitkov: pomakni navzdol` : 'Pomakni navzdol'} onClick={() => c.scroll()}>{c.n ? `še ${c.n}` : 'Več'}<ChevronDown/></button>)}
+        {frameEl && !phone && cues.map(c => <React.Fragment key={c.id}>
+            <span className="ux-dock-more-fade" style={{left: c.x, top: c.y - FADE, width: c.w, height: FADE}} aria-hidden="true"/>
+            <button type="button" className="ux-dock-more" style={{left: c.x, top: c.y, width: c.w, height: BAR}}
+                aria-label={c.n ? `Še ${c.n} odčitkov: pomakni navzdol` : 'Pomakni navzdol'} onClick={() => c.scroll()}>{c.n ? `še ${c.n}` : 'Več'}<ChevronDown/></button>
+        </React.Fragment>)}
         {view && frameEl && !api.phone && <DragPreview frame={frameEl} dock={dockEl.current} view={view} version={layoutVersion}/>}
         {layoutVersion >= 0 && !phone && <LessonGap api={api}/>}
         {frameEl && <GesturesHint frame={frameEl} phone={phone}/>}
@@ -141,12 +152,14 @@ function ChevronDown() {
     return <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 
-interface Cue { id: string; x: number; y: number; n: number; scroll: () => void; }
+interface Cue { id: string; x: number; y: number; w: number; n: number; scroll: () => void; }
 
 /**
- * A card or stack whose body is cut at the bottom says so with a clickable cue ("še N" rows, or "Več") over its lower edge,
- * which scrolls one page down and goes away at the end (the fade alone left rows cut mid-way with nothing to click).
- * Positions are in board coordinates; the cue is drawn in the board's frame, outside the scroller and its fade.
+ * A card or stack whose body is cut at the bottom says so with an opaque footer bar ("še N" rows, or "Več") along the inside
+ * of its bottom edge, full width of the card and BAR tall; a click scrolls to the next whole row and the bar goes away at the
+ * end. Above it an opaque gradient in the card's colour replaces the see-through mask fade. The visible height first ends on a
+ * row or text-line boundary (snapRows), so the bar never cuts a row. Positions are in board coordinates; the bar is drawn in
+ * the board's frame, outside the scroller, and always inside the element's own rect (it never reaches another card or chip).
  */
 function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React.RefObject<HTMLElement | null>): Cue[] {
     const [cues, setCues] = useState<Cue[]>([]);
@@ -158,20 +171,30 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             const next: Cue[] = [];
             let i = 0;
             const consider = (el: HTMLElement, within = false) => {
-                if (el.scrollHeight <= el.clientHeight + 2 || el.scrollTop + el.clientHeight >= el.scrollHeight - 2) return;
-                if (!within && (getComputedStyle(el).overflowY === 'hidden' || el.classList.contains('is-floating'))) return;
+                const skipped = !within && (getComputedStyle(el).overflowY === 'hidden' || el.classList.contains('is-floating'));
+                // At the top an element is measured at its natural height, then ended on a whole row.
+                if (el.scrollTop <= 1) { clearSnap(el); if (!skipped) snapRows(el); }
+                const cut = !skipped && el.scrollHeight > el.clientHeight + 2 && el.scrollTop + el.clientHeight < el.scrollHeight - 2;
+                if (el.hasAttribute('data-cut') !== cut) { if (cut) el.setAttribute('data-cut', ''); else el.removeAttribute('data-cut'); }
+                if (!cut) return;
                 const r = el.getBoundingClientRect();
                 if (r.height < 60 || r.width < 40) return;
-                const rows = Array.from(el.querySelectorAll<HTMLElement>('[data-readout]')).filter(row => row.getBoundingClientRect().bottom > r.bottom - 14).length;
-                // Just under the card's bottom edge (critique round 8: half over the fade still clipped the last row), centred.
-                next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(r.left - f.left + r.width / 2), y: Math.round(r.bottom - f.top + 2 - (el.classList.contains('ux-dock-region') ? 12 : 0)), n: rows,
-                    scroll: () => el.scrollBy({top: Math.max(60, el.clientHeight * 0.8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'})});
+                const barTop = r.bottom - footOf(el) - BAR;
+                const rows = Array.from(el.querySelectorAll<HTMLElement>('[data-readout]')).filter(row => row.getBoundingClientRect().bottom > barTop - FADE + 1).length;
+                // A stack's bar spans the card it cuts (the last one reaching its bottom edge); a card's or text's own box otherwise.
+                let left = r.left, right = r.right;
+                if (el.classList.contains('ux-dock-region')) {
+                    const reach = Array.from(el.children).map(c => c.getBoundingClientRect()).filter(c => c.width > 0 && c.top < barTop + BAR).pop();
+                    if (reach) { left = Math.max(r.left, reach.left); right = Math.min(r.right, reach.right); }
+                }
+                next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(left - f.left), y: Math.round(barTop - f.top), w: Math.round(right - left), n: rows,
+                    scroll: () => el.scrollBy({top: pageStep(el), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'})});
             };
             root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(el => consider(el));
             root.querySelectorAll<HTMLElement>('.ux-dock-h > .ux-btext').forEach(el => consider(el));
-            // The lesson card's own text scrolls inside it (a docked card capped on a narrow board): the cue sits over the faded foot of the text.
+            // The lesson card's own text scrolls inside it (a docked card capped on a narrow board): the bar sits in the foot of the text.
             root.querySelectorAll<HTMLElement>('.ux-bcard-guide:not(.is-floating):not(.ux-btext-collapsed) .guided-lesson-reading').forEach(el => consider(el, true));
-            setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.n === next[k].n) ? prev : next);
+            setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.w === next[k].w && c.n === next[k].n) ? prev : next);
         };
         measure();
         const timer = window.setInterval(measure, 250);
