@@ -220,7 +220,7 @@ button.ux-dock-more.ux-dock-more { min-height: 0; min-width: 0; background: var(
 button.ux-dock-more.ux-dock-more:hover, button.ux-dock-more.ux-dock-more:focus-visible { background: var(--bezeg-shell-control-hover, #eef0e4); }
 
 /* A narrow board (about 1024 px): the readouts card and the lesson card are slimmer, so together they leave more of the graph. */
-@media (min-width: 701px) and (max-width: 1099px) { .ux-btext:not(.ux-bcard-guide):not(.is-floating) { max-width: 270px; } }
+@media (min-width: 701px) and (max-width: 1099px) { .ux-btext:not(.ux-bcard-guide):not(.is-floating):not(.ux-btext-collapsed) { max-width: 270px; } }
 
 /* Round 9: in the toolbar line under the graph the note is an ordinary flex item at the row's free right end. */
 .ux-gesture-hint.ux-gesture-hint-row { position: static; margin-left: auto; align-self: center; flex: none; }

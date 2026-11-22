@@ -36,7 +36,7 @@ export function BoardCards(_props: {frame?: React.RefObject<HTMLDivElement | nul
         {legend.length > 1 && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow foldInLesson>
             {isOpen => isOpen && <LegendBody entries={legend}/>}
         </DockCard>}
-        {(ux.sections ?? []).map((s, i) => <DockCard key={s.id} kind={`section-${s.id}`} title={s.title} what={s.title.toLowerCase()} region="ml" order={i} foldWhenNarrow foldInLesson>
+        {(ux.sections ?? []).map((s, i) => <DockCard key={s.id} kind={`section-${s.id}`} title={s.title} what={s.title.toLowerCase()} region="tl" order={i + 1} foldWhenNarrow foldInLesson>
             {isOpen => isOpen && <div className="ux-rc-section">{s.body}</div>}
         </DockCard>)}
     </>;

@@ -301,10 +301,17 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const half = (xMax - xMin) / 2;
         const free = getFreeRect();
         const captionPx = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_equilibrium", {value0: typeLabel(derived.plane.type)}).length + 12;
-        // The caption must fit between the equilibrium and the free rectangle's right edge: with the hull of width 2 half + extra
-        // filling the rectangle (width W minus the fit margin), solve (half + extra) / (2 half + extra) = captionPx / W for extra.
-        const fraction = Math.min(0.85, captionPx / Math.max(1, (free?.width ?? 600) - 40));
-        const extra = fraction <= 0.5 ? 0 : Math.min(2 * half, half * (2 * fraction - 1) / (1 - fraction));
+        // The caption starts at the equilibrium (the square's centre) and runs captionPx to the right, so the hull must reach
+        // captionPx / scale right of it. The fill's scale is the smaller of width / hull width and height / span (each minus the
+        // fit margin), and the hull width grows with extra, so iterate a few times. Where width limits the fit this converges to
+        // (half + extra) / (2 half + extra) = captionPx / W; where height limits it, extra = captionPx / scale - half.
+        const width = Math.max(1, (free?.width ?? 600) - 40);
+        const heightScale = Math.max(1, (free?.height ?? 400) - 40) / Math.max(1e-9, yMax - yMin);
+        let extra = 0;
+        for (let i = 0; i < 6; i++) {
+            const scale = Math.min(width / (2 * half + extra), heightScale);
+            extra = Math.min(2 * half, Math.max(0, captionPx / scale - half));
+        }
         return [[xMin, yMax], [xMax + extra, yMax], [xMax + extra, yMin], [xMin, yMin]];
     }
 
