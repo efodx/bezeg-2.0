@@ -3215,3 +3215,15 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Repair rounds: one on the \(B(\tfrac12)\) box (the restored 1.8 em height made the affine quarter-turn frame worse, 3 → 4 pairs; the measured 1.6 em gives 3 pairs and one crossing fewer than before). One crawler row named the wrong frame count and clicked through the lesson until the page crashed under a concurrent publish gate; not an app defect (a completion probe stayed stable).
 - Checks: focused unit tests per change, typecheck, lint, the label measurement at 390×844 and 1440×900 for LC-9 and the new affine rows, the phone smoke check, 310 px screenshots of both panels; the publish gate's `check-changed` and CI for the full smoke.
 - Finding: the phone leftovers of LC-2, LC-7 and LC-9 share one cause (a phone lesson board shows the desktop coordinate range with a quarter of the pixels); fitting phone frames changes every lesson and is left for the owner.
+
+### 2026-11-22 · Token-efficiency audit: `just shot`, `just publish --wait`, state note guard, agent definitions
+
+- Role and size: handler (Fable 5.2, background session, not `bezeg-handler`), tooling and documentation, M. Two independent tool slices with disjoint files in one worktree; the hook, definitions and documents stayed with the handler.
+- Workers: 2 `bezeg-worker`, Sonnet requested, handoff-v13. `just shot` (new script, test, recipe): 70 tool calls and about 52k tokens including one repair. `just publish --wait` (gate and its test): 25 tool calls, about 38k tokens, about 10 minutes, no repair. Usage is the task notification's subagent total.
+- Brief wording added for both: send independent reads together; create files with Write, no heredocs or leading `cd`; run checks in the foreground with a long timeout. Neither worker reported a refused shell call, which was not checked against its transcript.
+- Accepted: commits 68645364, b6295a93, 8f9248fe and 67f88549, published with the `tooling` recipe at 67f88549.
+- Checks: `just tooling-test` and `just lint` on the final tree, the hook's 14 tests, the gate's recheck. The handler confirmed by mutation the two wait tests the worker had left unconfirmed, and read one contact sheet from a real run of two graph routes at 310 px.
+- Repair rounds: one, on contact sheet layout. The first sheet upscaled a small crop and cut off a tall tile, and the sample route was the not-found page; the brief had capped the sheet size but not said that a tile is never enlarged and is shown whole.
+- Tool failure: the worker's report after the repair was not delivered (one hand-back per result while it had background work), so the handler verified the repair from the files.
+- One `check-changed-selector` timing assertion (under 10 s) failed in both workers' `tooling-test` runs while the machine was loaded and passed in the handler's run.
+- Gaps: no real background publish was waited on; sheets of more than 8 tiles were unit tested only; `bezeg-visual` has not run in a stream.
