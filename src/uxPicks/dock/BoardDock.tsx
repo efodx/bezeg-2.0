@@ -194,7 +194,8 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             const consider = (el: HTMLElement, within = false, snap = true) => {
                 const skipped = !within && (getComputedStyle(el).overflowY === 'hidden' || el.closest('.is-floating') !== null);
                 // At the top an element is measured at its natural height, then ended on a whole row.
-                if (el.scrollTop <= 1) { clearSnap(el); if (!skipped && snap) snapRows(el, el.classList.contains('ux-tools-body') ? blockBands : undefined, el.classList.contains('ux-tools-body') ? 120 : undefined); }
+                // The docked lesson text is ended on a line by useLessonCardFit, which also shrinks the card to it.
+                if (el.scrollTop <= 1 && !el.classList.contains('guided-lesson-reading')) { clearSnap(el); if (!skipped && snap) snapRows(el, el.classList.contains('ux-tools-body') ? blockBands : undefined, el.classList.contains('ux-tools-body') ? 120 : undefined); }
                 const cut = !skipped && el.scrollHeight > el.clientHeight + 2 && el.scrollTop + el.clientHeight < el.scrollHeight - 2;
                 if (el.hasAttribute('data-cut') !== cut) { if (cut) el.setAttribute('data-cut', ''); else el.removeAttribute('data-cut'); }
                 if (!cut) return;

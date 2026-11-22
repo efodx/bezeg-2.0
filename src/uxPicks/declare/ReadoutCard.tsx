@@ -133,6 +133,43 @@ function useHighlightIntoView(ref: React.RefObject<HTMLElement | null>, key: str
     }, [ref, key]);
 }
 
+/**
+ * The groups after the first fold to their heading line, last first, until the card fits its column (the stack scrolls only
+ * when the first group alone overflows). Planned on mount, resize and when the rows or the lesson frame change, never while
+ * values change. `keep(id)`: a group that never folds (highlighted, or opened by the learner).
+ */
+function useFoldToFit(ref: React.RefObject<HTMLElement | null>, planKey: string, ids: readonly string[], keep: (id: string) => boolean): string[] {
+    const [epoch, setEpoch] = useState(0);
+    const sig = planKey + '@' + epoch;
+    const [plan, setPlan] = useState<{sig: string; ids: string[]}>({sig, ids: []});
+    const folded = plan.sig === sig ? plan.ids : [];
+    useEffect(() => {
+        let timer = 0;
+        const again = (ms: number) => { window.clearTimeout(timer); timer = window.setTimeout(() => setEpoch(e => e + 1), ms); };
+        const onResize = () => again(150);
+        window.addEventListener('resize', onResize);
+        // The column's own size changes with the window and with the cards opening or folding beside it, not with values.
+        const column = ref.current?.closest('.ux-dock-v')?.parentElement;
+        const watch = column ? new ResizeObserver(onResize) : null;
+        if (column) watch?.observe(column);
+        again(700); // after MathJax has typeset the values and the formula
+        return () => { window.clearTimeout(timer); window.removeEventListener('resize', onResize); watch?.disconnect(); };
+    }, [planKey]);
+    useLayoutEffect(() => {
+        const stack = ref.current?.closest<HTMLElement>('.ux-dock-v');
+        if (!stack) return;
+        // The stack is measured at its natural height: a row-snapped max-height (snapRows) is set aside for the reading.
+        const held = stack.style.maxHeight;
+        if (held) stack.style.removeProperty('max-height');
+        const over = stack.scrollHeight > stack.clientHeight + 2;
+        if (held) stack.style.maxHeight = held;
+        if (!over) return;
+        const next = [...ids].slice(1).reverse().find(id => !folded.includes(id) && !keep(id));
+        if (next) setPlan({sig, ids: [...folded, next]});
+    });
+    return folded;
+}
+
 /** A group's heading: plain, or (while the lesson focuses on other rows) a button that opens and closes the group. */
 /** "Še 5 odčitkov": the heading of a folded group that has no title of its own (Slovenian dual and plural). */
 function moreRows(n: number): string {
@@ -164,11 +201,16 @@ export function ReadoutBody(props: {ux: GraphUx; highlight: readonly string[]}) 
     const [opened, setOpened] = useState<{key: string; ids: readonly string[]}>({key, ids: []});
     const openIds = opened.key === key ? opened.ids : [];
     const toggle = (id: string) => setOpened({key, ids: openIds.includes(id) ? openIds.filter(i => i !== id) : [...openIds, id]});
+    const shape = groups.map(g => g.id + ':' + g.rows.map(r => r.id).join(',')).join('|');
+    const autoFolded = useFoldToFit(ratchet, shape + '#' + key, groups.map(g => g.id), id => {
+        const g = groups.find(x => x.id === id);
+        return !g || hasHit(g.rows) || openIds.includes(id) || (focus && groups.indexOf(g) > 0 && !hasHit(g.rows));
+    });
     useHighlightIntoView(ratchet, key);
     return <div className="ux-rc" ref={ratchet}>
         {ux.formula && <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>}
         {groups.map(group => {
-            const foldable = focus && !hasHit(group.rows);
+            const foldable = (focus && !hasHit(group.rows)) || autoFolded.includes(group.id);
             const open = !foldable || openIds.includes(group.id);
             const title = group.title ?? (foldable ? moreRows(group.rows.length) : undefined);
             return <section key={group.id} className="ux-rc-group" data-group={group.id} data-folded={!open || undefined}>

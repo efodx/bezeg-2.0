@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import {clearSnap, snapRows} from '../dock/snapRows';
 
 /**
  * Pick toolsCard: the lesson card on the graph fits its text, and when the text changes (Naprej, Nazaj, an opened
@@ -36,6 +37,8 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
             if (!held) return;
             held = false;
             for (const p of ['height', 'min-height', 'transition', 'flex-shrink']) card.style.removeProperty(p);
+            const el = reading();
+            if (el) clearSnap(el);
         };
         const docked = () => !card.classList.contains('is-floating') && !card.classList.contains('ux-btext-collapsed')
             && !!card.parentElement?.classList.contains('ux-dock-v');
@@ -60,7 +63,18 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
                 const floor = Math.min(FLOOR, full);
                 card.style.minHeight = `${Math.round(floor)}px`;
                 const fits = card.getBoundingClientRect().height;
-                const target = Math.round(Math.max(floor, fits));
+                let target = Math.round(Math.max(floor, fits));
+                // Text cut by the column ends on a whole line (a max-height, snapRows) above the "Več" bar; the card then shrinks
+                // to that, so the bar sits on its bottom edge with no blank band below.
+                const text = reading();
+                if (text) {
+                    clearSnap(text);
+                    card.style.height = `${target}px`;
+                    if (snapRows(text)) {
+                        card.style.removeProperty('height');
+                        target = Math.round(Math.max(floor, card.getBoundingClientRect().height));
+                    }
+                }
                 const glide = held && !moved && !reducedMotion.matches && Math.abs(target - now) > 2;
                 held = true;
                 if (glide) {
