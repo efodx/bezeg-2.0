@@ -44,15 +44,21 @@ const coefficient = (value: number, language: NumberLanguage): string =>
 export const shiftedArgument = (c: number, language: NumberLanguage): string =>
     c === 0 ? "x" : `x ${c > 0 ? MINUS_SIGN : "+"} ${formatNumber(Math.abs(c), language, PRECISE)}`;
 
-/**
- * The composed rule written out, y = a f(b(x - c)) + d, with the numbers filled in and identity parameters left out (a = 1, b = 1,
- * c = 0, d = 0); decimal comma in Slovenian. Mathematical notation, not prose, so it is the same sentence in both languages.
- */
-export function transformRuleText(p: TransformParams, language: NumberLanguage): string {
+/** The three numeric pieces of the rule text: `y = ` + `factor f(` + `inside` + `)` + `outside` (the declaration puts them in one catalog template). */
+export function transformRuleParts(p: TransformParams, language: NumberLanguage): {factor: string; inside: string; outside: string} {
     const inside = p.c === 0
         ? `${coefficient(p.b, language)}x`
         : p.b === 1 ? shiftedArgument(p.c, language) : `${coefficient(p.b, language)}(${shiftedArgument(p.c, language)})`;
     const outside = p.d === 0 ? "" : ` ${p.d > 0 ? "+" : MINUS_SIGN} ${formatNumber(Math.abs(p.d), language, PRECISE)}`;
     const factor = coefficient(p.a, language);
-    return `y = ${factor}${factor === "" || factor === MINUS_SIGN ? "" : " "}f(${inside})${outside}`;
+    return {factor: `${factor}${factor === "" || factor === MINUS_SIGN ? "" : " "}`, inside, outside};
+}
+
+/**
+ * The composed rule written out, y = a f(b(x - c)) + d, with the numbers filled in and identity parameters left out (a = 1, b = 1,
+ * c = 0, d = 0); decimal comma in Slovenian. Mathematical notation, not prose, so it is the same sentence in both languages.
+ */
+export function transformRuleText(p: TransformParams, language: NumberLanguage): string {
+    const {factor, inside, outside} = transformRuleParts(p, language);
+    return `y = ${factor}f(${inside})${outside}`;
 }

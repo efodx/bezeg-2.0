@@ -1,4 +1,8 @@
-import {t} from "../../../localization";
+import {currentLanguage, message, t} from "../../../localization";
+import {withDecimalSeparator} from "../../../analysis/format";
+import type {GraphDeclaration, LegendEntry} from "../../base/declare/graphDeclaration";
+import {runAs} from "../../base/writes/writeSource";
+import {comparisonCurveColor} from "../../styles/GraphPalette";
 import React from 'react';
 
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
@@ -28,6 +32,16 @@ interface DecasteljauGraphStates extends BaseGraphStates {
     wholeCurve?: boolean,
     animationStatus: DecasteljauAnimationStatus
 }
+
+/** The ids of De Casteljau's declaration (`DeclarationIds`): the parameter by arbiter key, the t row, the legend and the controls. */
+export type DecasteljauIds = {
+    param: "decasteljau-t";
+    row: "t";
+    note: never;
+    legend: "curve" | "rest" | "point" | "scheme" | "control";
+    section: never;
+    action: "play" | "reset" | "full-curve";
+};
 
 class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     /** Typed coordinates for the draggable control points (shared edit-only list). */
@@ -269,6 +283,69 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         // drawn parameter follows a store write only when the host commits, after the write's source has closed.
         const read = () => this.lessonAnimation.isRunning() ? this.parameter : this.state.t;
         return {"decasteljau-t": {read, apply: (value: number) => this.changeParameter(value)}};
+    }
+
+    // ---- Declaration (task 02: nothing renders it yet) ----------------------------------------------------------------
+
+    /**
+     * Pure data from the scene state: the parameter `t` (the arbiter key), its readout as the present panel shows it,
+     * the legend of what the board draws and the controls: play and reset on the board, the full curve in Orodja.
+     * The speed is not bound in the arbiter, so it is not declared (see the placement note).
+     */
+    protected override declaration(): GraphDeclaration<DecasteljauIds> {
+        const {t: value, animationStatus, wholeCurve} = this.state;
+        const playing = animationStatus === "playing";
+        const atStart = animationStatus === "ready" && value === 0;
+        const degreeOne = (this.getFirstCurve()?.getPoints().length ?? 3) < 3;
+        const legend: LegendEntry<DecasteljauIds>[] = [
+            {id: "curve", label: message("decasteljau_legend_curve"), kind: "line", object: "curve"},
+            {id: "rest", label: message("decasteljau_legend_rest"), kind: "dashed", object: "rest"},
+            {id: "point", label: message("decasteljau_legend_point"), kind: "point", object: "point"},
+            ...(degreeOne ? [] : [{id: "scheme" as const, label: message("decasteljau_legend_scheme"), kind: "point" as const, object: "scheme"}]),
+            {id: "control", label: message("decasteljau_legend_control"), kind: "point", object: "control"},
+        ];
+        return {
+            parameters: [{key: "decasteljau-t", kind: "range", label: message("animation_parameter"), symbol: "t", placement: "board", min: 0, max: 1, step: 0.01, maxDecimals: 2}],
+            readouts: [{id: "values", rows: [{id: "t", name: message("decasteljau_t_name"), symbol: "t", value: {kind: "formatted", text: withDecimalSeparator(value.toFixed(2), currentLanguage())}}]}],
+            legend,
+            actions: [
+                {id: "play", label: message("play"), placement: "board", enabled: true, pressed: playing},
+                {id: "reset", label: message("reset"), placement: "board", enabled: !atStart || playing},
+                {id: "full-curve", label: message("full_curve"), placement: "tools", section: "construction", enabled: true, pressed: wholeCurve === true},
+            ],
+        };
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const read = (element: JXG.GeometryElement | undefined, colorProperty: "strokecolor" | "fillcolor") => {
+            if (!element) return undefined;
+            // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+            const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            return {color: String(drawn.evalVisProp(colorProperty)), visible: Boolean(drawn.evalVisProp("visible"))};
+        };
+        const curve = this.getFirstJxgCurve();
+        if (!curve) return undefined;
+        const scheme = curve.getJXGDecasteljauPoints();
+        switch (id) {
+            case "curve": return read(curve.getJxgCurve(), "strokecolor");
+            // The remaining part exists only while the full curve is shown; absent, it is a hidden entry in its own colour.
+            case "rest": return read(this.wholeCurveElement, "strokecolor") ?? {color: comparisonCurveColor(0), visible: false};
+            case "point": return read(scheme[scheme.length - 1], "fillcolor");
+            case "scheme": return read(scheme[0] === scheme[scheme.length - 1] ? undefined : scheme[0], "fillcolor");
+            case "control": return read(curve.getJxgPoints()[0], "fillcolor");
+            default: return undefined;
+        }
+    }
+
+    override performAction(id: string): void {
+        runAs("learner", () => {
+            if (id === "play") {
+                if (this.state.animationStatus === "playing") this.pauseAnimation(); else this.playAnimation();
+            } else if (id === "reset") this.stopAnimation();
+            else if (id === "full-curve") this.setState({wholeCurve: !this.state.wholeCurve});
+            else throw new Error("Unknown action");
+        });
     }
 
     protected override stopLessonAnimations(): void {

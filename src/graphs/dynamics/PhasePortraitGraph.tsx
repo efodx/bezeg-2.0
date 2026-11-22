@@ -8,7 +8,9 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {phasePortraitPresetCollection} from "./dynamicsPresetCollection";
-import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
+import {currentLanguage, message, messageNumber, onLanguageChange, t, useT, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration, ReadoutRow, StatusLine} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
@@ -79,6 +81,31 @@ const STABILITY_KEYS = {
 const NON_ISOLATED_KEYS = {
     "line-of-equilibria": "phase_graph_type_line_of_equilibria", "shear-flow": "phase_graph_type_shear_flow", "all-fixed": "phase_graph_type_all_fixed",
 } as const;
+
+/** The exact type of a classification as a message (what the declaration shows). */
+function typeMessage(type: PlaneType): Message {
+    switch (type.kind) {
+        case "saddle": return message("phase_graph_type_saddle");
+        case "centre": return message("phase_graph_type_centre");
+        case "non-isolated": return message(NON_ISOLATED_KEYS[type.case]);
+        default: return message(STABILITY_KEYS[type.kind][type.stability]);
+    }
+}
+
+/** The ids of the phase portrait's declaration (`DeclarationIds`): parameters by arbiter key, the readout rows of `readoutRows`, legend entries and actions. */
+type SeedNumber = 1 | 2 | 3 | 4 | 5 | 6;
+export type PhasePortraitIds = {
+    param: "phase-system" | "phase-equilibrium" | "phase-a" | "phase-b" | "phase-c" | "phase-d" | "phase-seed-count" | "phase-zoom" | "phase-time";
+    row: "time" | "system" | "centre" | "type" | "tau" | "delta" | "discriminant" | "jacobian" | "hyperbolic" | "decision" | "eigen" | "view"
+        | `seed-${SeedNumber}` | `energy-${SeedNumber}` | "ring" | "ring-linear";
+    note: never;
+    legend: "trajectories" | "moving" | "ring" | "ring-linear" | "eigen" | "separatrix" | "wrap" | "frame" | "equilibrium" | "seeds" | "columns";
+    section: never;
+    action: "play-pause" | "reset-time";
+};
+
+/** The tools section that holds the seed count (a frame that uses it opens Orodja there). */
+const SEEDS_SECTION = "seeds";
 
 /** The exact type of a classification as a label in the current language. */
 export function typeLabel(type: PlaneType): string {
@@ -212,6 +239,8 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     private readonly scene = new SceneObjects();
     /** Per instance, so two mounted graphs never share the id that `aria-describedby` points at. */
     private readonly helpId = `phase-portrait-input-help-${++helpInstances}`;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawnElements = new Map<string, JXG.GeometryElement>();
     private seedHandles: JXG.Point[] = [];
     private columnHandles: JXG.Point[] = [];
     private derivedCache?: {state: PhasePortraitGraphState; value: PhaseDerived};
@@ -480,13 +509,14 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         return x >= xMin && x <= xMax && y >= yMin && y <= yMax;
     }
 
-    private curve(data: () => Poly, attributes: Partial<JXG.CurveAttributes>): JXG.Curve {
+    private curve(data: () => Poly, attributes: Partial<JXG.CurveAttributes>, legendId?: string): JXG.Curve {
         const element = this.scene.own(this.board.create("curve", [[], []], {fixed: true, highlight: false, withLabel: false, ...attributes}));
         element.updateDataArray = () => {
             const {x, y} = data();
             element.dataX = x;
             element.dataY = y;
         };
+        if (legendId) this.drawnElements.set(legendId, element);
         return element;
     }
 
@@ -498,13 +528,13 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const pendulum = () => state().system === "pendulum";
 
         // The computed region, the separatrix and the angle wrap, then the trajectories: one NaN-separated curve per style.
-        this.curve(() => this.drawn().frame, {strokeColor: GraphPalette.tick, strokeWidth: 1});
-        this.curve(() => this.drawn().wraps, {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1, dash: 2, visible: pendulum});
-        this.curve(() => this.drawn().separatrix, {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2, dash: 1, visible: pendulum});
-        this.curve(() => this.drawn().ringLinear, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: 2, visible: nonlinear});
-        this.curve(() => this.drawn().ring, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1.5, visible: nonlinear});
+        this.curve(() => this.drawn().frame, {strokeColor: GraphPalette.tick, strokeWidth: 1}, "frame");
+        this.curve(() => this.drawn().wraps, {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1, dash: 2, visible: () => pendulum() && this.drawn().wraps.x.length > 0}, "wrap");
+        this.curve(() => this.drawn().separatrix, {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2, dash: 1, visible: pendulum}, "separatrix");
+        this.curve(() => this.drawn().ringLinear, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: 2, visible: nonlinear}, "ring-linear");
+        this.curve(() => this.drawn().ring, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1.5, visible: nonlinear}, "ring");
         this.curve(() => this.drawn().seedBackward, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 2, dash: 2});
-        this.curve(() => this.drawn().seedForward, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3});
+        this.curve(() => this.drawn().seedForward, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3}, "trajectories");
 
         // Eigen-direction lines through owned hidden points (the centre, and the centre plus each direction).
         const hidden = (x: () => number, y: () => number) => this.scene.own(board.create("point", [x, y], {
@@ -514,25 +544,27 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         for (let i = 0; i < 2; i++) {
             const direction = (): Vec2 => this.eigenDirections()[i] ?? [1, 0];
             const end = hidden(() => this.derived().centre[0] + direction()[0], () => this.derived().centre[1] + direction()[1]);
-            this.scene.own(board.create("line", [centre, end], {
+            const line = this.scene.own(board.create("line", [centre, end], {
                 straightFirst: true, straightLast: true, strokeColor: GraphPalette.additionalCurves[1], strokeWidth: 1.5, dash: 3, fixed: true,
                 highlight: false, withLabel: false, visible: () => this.eigenDirections().length > i,
             }));
+            if (i === 0) this.drawnElements.set("eigen", line);
         }
 
         // The equilibrium the readout names.
-        this.scene.own(board.create("point", [() => this.derived().centre[0], () => this.derived().centre[1]], {
+        this.drawnElements.set("equilibrium", this.scene.own(board.create("point", [() => this.derived().centre[0], () => this.derived().centre[1]], {
             name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "x", strokeColor: GraphPalette.label, fillColor: GraphPalette.label,
-        }));
+        })));
         this.pixelText(() => this.derived().centre[0], () => this.derived().centre[1], () => this.equilibriumCaptionDx(), EQUILIBRIUM_CAPTION_DY,
             () => t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}), GraphPalette.label);
 
         // The moving points of the playback: hollow squares at the orbit's point at the current time.
         for (let i = 0; i < SEEDS_MAX; i++) {
-            this.scene.own(board.create("point", [() => this.movingFor(i)[0], () => this.movingFor(i)[1]], {
+            const moving = this.scene.own(board.create("point", [() => this.movingFor(i)[0], () => this.movingFor(i)[1]], {
                 name: "", withLabel: false, fixed: true, highlight: false, size: 5, face: "[]", strokeColor: GraphPalette.label, fillColor: "none",
                 visible: () => i < state().seeds.length && this.inView(...this.movingFor(i)),
             }));
+            if (i === 0) this.drawnElements.set("moving", moving);
         }
 
         // Seed handles (draggable): the stored seeds, snapped while dragged; typed values have fields in the panel.
@@ -546,6 +578,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
             }));
             this.seedHandles.push(handle);
+            if (i === 0) this.drawnElements.set("seeds", handle);
             this.wireDrag(handle, () => this.dragSeed(i, handle));
             this.pixelText(() => handle.X(), () => handle.Y(), () => this.seedCaptionOffset(i, handle)[0], () => this.seedCaptionOffset(i, handle)[1],
                 () => t("phase_graph_cap_seed", {value0: String(i + 1)}), GraphPalette.controlPoint,
@@ -565,6 +598,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
             }));
             this.columnHandles.push(handle);
+            if (i === 0) this.drawnElements.set("columns", handle);
             this.wireDrag(handle, () => this.dragColumn(i, handle));
             this.scene.own(board.create("segment", [origin, handle], {
                 strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, dash: 2, fixed: true, highlight: false, withLabel: false,
@@ -769,6 +803,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
 
     private disposeScene(): void {
         this.scene.dispose(this.hasBoard ? this.board : undefined);
+        this.drawnElements.clear();
         this.seedHandles = [];
         this.columnHandles = [];
     }
@@ -1200,6 +1235,148 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 value0: String(derived.ringLinear.length), value1: String(halves(derived.ringLinear)), value2: String(2 * derived.ringLinear.length)})});
         }
         return rows;
+    }
+
+    // ---- Declaration (task 02) ------------------------------------------------------------------------------------------
+
+    private stopMessage(stop: StopReason, points: number): Message {
+        const seconds = messageNumber((points - 1) * RK4_STEP, 2);
+        switch (stop) {
+            case "complete": return message("phase_graph_stop_complete", {value0: messageNumber(ORBIT_DURATION, 0)});
+            case "left-view": return message("phase_graph_stop_left_view", {value0: seconds});
+            case "diverged": return message("phase_graph_stop_diverged", {value0: seconds});
+            case "non-finite": return message("phase_graph_stop_non_finite", {value0: seconds});
+        }
+    }
+
+    private energyMessage(energy: EnergyStatus): Message {
+        const params = {value0: messageNumber(energy.H, 6)};
+        switch (energy.kind) {
+            case "swing": return message("phase_graph_energy_swing", params);
+            case "rotation": return message("phase_graph_energy_rotation", params);
+            case "separatrix-exact": return message("phase_graph_energy_separatrix_exact", params);
+            case "separatrix-near": return message("phase_graph_energy_separatrix_near", params);
+        }
+    }
+
+    private eigenMessage(): Message {
+        const eigen = this.eigen();
+        switch (eigen.kind) {
+            case "distinct-real": return message("phase_graph_eig_real", {value0: messageNumber(eigen.eigenvalues[0], 4), value1: messageNumber(eigen.eigenvalues[1], 4)});
+            case "complex": return message("phase_graph_eig_complex", {value0: messageNumber(eigen.real, 4), value1: messageNumber(eigen.imaginary, 4)});
+            case "repeated":
+                return message(eigen.repeated === "scalar" ? "phase_graph_eig_scalar" : "phase_graph_eig_defective", {value0: messageNumber(eigen.eigenvalue, 4)});
+        }
+    }
+
+    /**
+     * Pure data from the scene state and the cached derivation (it reads the board's own cache, never redraws): the nine
+     * bound parameters (the seed positions are dragged on the board and typed in Orodja's point list, which have no declared
+     * kind), the same readout rows as `readoutRows`, the legend of what the board draws, and playback. The matrix entries
+     * and the equilibrium are locked while the system does not use them, where the panel hides them.
+     */
+    protected override declaration(): GraphDeclaration<PhasePortraitIds> {
+        const state = this.state;
+        const derived = this.derived();
+        const linear = state.system === "linear";
+        const point = (x: number, y: number): Message => message("phase_graph_point_format", {value0: messageNumber(x, 3), value1: messageNumber(y, 3)});
+        const entryRange = {kind: "range", min: ENTRY_RANGE.min / ENTRY_SCALE, max: ENTRY_RANGE.max / ENTRY_SCALE, step: 1 / ENTRY_SCALE, maxDecimals: 2,
+            placement: "board", locked: !linear} as const;
+        const parameters: ParameterDeclaration<PhasePortraitIds["param"]>[] = [
+            {key: "phase-system", kind: "choice", label: message("phase_graph_system_label"), help: message("phase_graph_system_help"), placement: "board",
+                options: SYSTEM_IDS.map(value => ({value, label: message(SYSTEM_KEYS[value])}))},
+            {key: "phase-equilibrium", kind: "choice", label: message("phase_graph_equilibrium_label"), help: message("phase_graph_equilibrium_help"), placement: "board",
+                locked: equilibriumChoices(state.system) < 2,
+                options: [{value: "0", label: message("phase_graph_equilibrium_origin")}, {value: "1", label: message("phase_graph_equilibrium_pi")}]},
+            {key: "phase-a", label: message("phase_graph_matrix_a_label"), symbol: "a", ...entryRange},
+            {key: "phase-b", label: message("phase_graph_matrix_b_label"), symbol: "b", ...entryRange},
+            {key: "phase-c", label: message("phase_graph_matrix_c_label"), symbol: "c", ...entryRange},
+            {key: "phase-d", label: message("phase_graph_matrix_d_label"), symbol: "d", ...entryRange},
+            {key: "phase-seed-count", kind: "count", label: message("phase_graph_seeds_label"), placement: "tools", section: SEEDS_SECTION, min: SEEDS_MIN, max: SEEDS_MAX,
+                help: message("phase_graph_seeds_help", {value0: SEEDS_MIN, value1: SEEDS_MAX})},
+            {key: "phase-zoom", kind: "range", label: message("phase_graph_zoom_label"), placement: "board", min: ZOOM_RANGE.min, max: ZOOM_RANGE.max, step: 1, maxDecimals: 0,
+                help: message("phase_graph_zoom_help", {value0: ZOOM_RANGE.min, value1: ZOOM_RANGE.max, value2: messageNumber(halfWidthOf(state.zoom), 4)})},
+            {key: "phase-time", kind: "range", label: message("phase_graph_time_label"), symbol: "t", placement: "board", min: 0, max: ORBIT_DURATION, step: TIME_STEP, maxDecimals: 2,
+                unit: message("phase_graph_unit_s"), help: message("phase_graph_time_help", {value0: messageNumber(ORBIT_DURATION, 0), value1: messageNumber(TIME_STEP, 2)})},
+        ];
+        const {tau, delta, discriminant} = derived.plane;
+        const j = derived.jacobian;
+        const halves = (orbits: readonly Orbit[]) => orbits.reduce((sum, orbit) => sum + Number(stopped(orbit.forwardStop)) + Number(stopped(orbit.backwardStop)), 0);
+        const ringValue = (orbits: readonly Orbit[]): Message => message("phase_graph_ring_value", {value0: orbits.length, value1: halves(orbits), value2: 2 * orbits.length});
+        const half = halfWidthOf(state.zoom);
+        const rows: ReadoutRow<PhasePortraitIds>[] = [
+            {id: "time", name: message("phase_graph_r_time"), value: messageNumber(this.timeValue, 2), unit: message("phase_graph_unit_s")},
+            {id: "system", name: message("phase_graph_r_system"), value: message(SYSTEM_KEYS[state.system])},
+            {id: "centre", name: message("phase_graph_r_centre"), value: point(derived.centre[0], derived.centre[1]), legend: "equilibrium"},
+            {id: "type", name: message(linear ? "phase_graph_r_type_linear" : "phase_graph_r_type_linearization"), value: typeMessage(derived.plane.type)},
+            {id: "tau", name: message("phase_graph_r_tau"), value: messageNumber(tau, 4)},
+            {id: "delta", name: message("phase_graph_r_delta"), value: messageNumber(delta, 4)},
+            {id: "discriminant", name: message("phase_graph_r_discriminant"), value: messageNumber(discriminant, 4)},
+            {id: "jacobian", name: message(linear ? "phase_graph_r_matrix" : "phase_graph_r_jacobian"), value: message("phase_graph_jacobian_value", {
+                value0: messageNumber(j[0][0], 3), value1: messageNumber(j[0][1], 3), value2: messageNumber(j[1][0], 3), value3: messageNumber(j[1][1], 3)})},
+            {id: "hyperbolic", name: message("phase_graph_r_hyperbolic"), value: message(derived.hyperbolic ? "phase_graph_yes" : "phase_graph_no")},
+        ];
+        if (!linear) rows.push({id: "decision", name: message("phase_graph_r_decision"), value: message(derived.hyperbolic ? "phase_graph_decision_yes" : "phase_graph_decision_no")});
+        rows.push({id: "eigen", name: message("phase_graph_r_eigen"), value: this.eigenMessage(), legend: "eigen"});
+        rows.push({id: "view", name: message("phase_graph_r_view"), value: message("phase_graph_view_value", {
+            value0: messageNumber(derived.view.xMin, 4), value1: messageNumber(derived.view.xMax, 4), value2: messageNumber(derived.view.yMin, 4),
+            value3: messageNumber(derived.view.yMax, 4), value4: messageNumber(half, 4)}), legend: "frame"});
+        state.seeds.forEach((seed, index) => {
+            const orbit = derived.orbits[index];
+            const number = (index + 1) as SeedNumber;
+            rows.push({id: `seed-${number}`, name: message("phase_graph_r_seed", {value0: number}), value: message("phase_graph_seed_value", {
+                value0: point(seedOf(seed.X), seedOf(seed.Y)), value1: this.stopMessage(orbit.forwardStop, orbit.forward.length),
+                value2: this.stopMessage(orbit.backwardStop, orbit.backward.length)}), legend: "trajectories"});
+            const energy = derived.energies[index];
+            if (energy) rows.push({id: `energy-${number}`, name: message("phase_graph_r_energy", {value0: number}), value: this.energyMessage(energy)});
+        });
+        if (!linear) {
+            rows.push({id: "ring", name: message("phase_graph_r_ring"), value: ringValue(derived.ring), legend: "ring"});
+            rows.push({id: "ring-linear", name: message("phase_graph_r_ring_linear"), value: ringValue(derived.ringLinear), legend: "ring-linear"});
+        }
+        const stops = this.stopCounts();
+        const status: StatusLine[] = stops.stopped > 0
+            ? [{id: "stops", text: message("phase_graph_cap_stops", {value0: stops.stopped, value1: stops.halves}), tone: "warning"}] : [];
+        const actions: ActionDeclaration<PhasePortraitIds>[] = [
+            {id: "play-pause", label: message(this.playingValue ? "pause" : "play"), placement: "board", enabled: this.playingValue || !this.reducedMotion(),
+                help: this.reducedMotion() ? message("playback_block_reduced_motion_time") : undefined},
+            {id: "reset-time", label: message("reset"), placement: "board", enabled: this.playingValue || this.timeValue > 0},
+        ];
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("phase_graph_readout_title"), rows}],
+            legend: [
+                {id: "trajectories", label: message("phase_graph_cap_trajectories"), kind: "line", object: "trajectories"},
+                {id: "moving", label: message("phase_graph_cap_moving"), kind: "ring", object: "moving"},
+                {id: "ring", label: message("phase_graph_cap_ring"), kind: "line", object: "ring"},
+                {id: "ring-linear", label: message("phase_graph_cap_ring_linear"), kind: "dashed", object: "ring-linear"},
+                {id: "eigen", label: message("phase_graph_cap_eigen"), kind: "dashed", object: "eigen"},
+                {id: "separatrix", label: message("phase_graph_cap_separatrix"), kind: "dashed", object: "separatrix"},
+                {id: "wrap", label: message("phase_graph_cap_wrap"), kind: "dashed", object: "wrap"},
+                {id: "frame", label: message("phase_graph_cap_frame"), kind: "line", object: "frame"},
+                {id: "equilibrium", label: message("phase_graph_cap_equilibrium", {value0: typeMessage(derived.plane.type)}), kind: "cross", object: "equilibrium"},
+                {id: "seeds", label: message("dynamics_legend_seeds"), kind: "point", object: "seeds"},
+                {id: "columns", label: message("dynamics_legend_columns"), kind: "point", object: "columns"},
+            ],
+            actions,
+            status,
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawnElements.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it. It reads the
+        // attribute only: nothing is redrawn.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const filled = id === "seeds" || id === "columns";
+        return {color: String(element.evalVisProp(filled ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (id === "play-pause") runAs("learner", () => (this.playingValue ? this.pausePlayback() : this.play()));
+        else if (id === "reset-time") runAs("learner", () => this.resetTime());
+        else throw new Error("Unknown action");
     }
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
