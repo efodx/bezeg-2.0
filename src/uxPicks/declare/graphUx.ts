@@ -115,6 +115,8 @@ export interface GraphUx {
     readonly pucks?: readonly PuckDecl[];
     /** Absent: the view is never fitted (the graph's own view logic stays). */
     readonly focus?: FocusDecl;
+    /** The card that takes the first open slot of the card budget; default is Odčitki. Set `'tools'` when the graph's main action (Naslednji korak) lives in Orodja. */
+    readonly firstCard?: 'tools';
 }
 
 /** Card ids a lesson frame can open: the readout card, the legend card, or a declared section. */

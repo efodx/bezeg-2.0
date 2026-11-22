@@ -686,6 +686,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         };
         const notes: ReadoutNote[] = [{id: "status", text: this.statusText(), tone: "muted"}];
         return {
+            firstCard: "tools",
             pucks: [
                 ...(state.map === "affine" ? [
                     {param: "cobweb.m", help: "Naklon premice y = m·x + c."},

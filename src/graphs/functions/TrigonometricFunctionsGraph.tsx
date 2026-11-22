@@ -197,6 +197,21 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         </div>;
     }
 
+    /**
+     * What the view director keeps in the free rectangle (UX picks): two periods of the curve around the origin and its
+     * amplitude band about the midline, so the curve the learner moves does not sit under a card. The tangent has no band, so
+     * a fixed one stands in. Marks only move the view; they never change the curve.
+     */
+    protected override viewMarks(): readonly (readonly [number, number])[] | undefined {
+        const {fn, A, omega, phi, B} = this.model;
+        const p = period({fn, omega});
+        if (!(p > 0) || !Number.isFinite(p)) return undefined;
+        const half = Math.min(p, 8), shift = Number.isFinite(phi / omega) ? Math.max(-4, Math.min(4, -phi / omega)) : 0;
+        const band = fn === "tan" ? 3 : Math.abs(A);
+        const left = shift - half, right = shift + half, top = B + band, bottom = B - band;
+        return [[left, top], [right, top], [right, bottom], [left, bottom]];
+    }
+
     /** The cards' declaration (pick boardText): the equation as the formula, the derived values, the drawn curves as the legend. */
     protected override workspaceUx(): GraphUx | undefined {
         if (!pickOn("boardText")) return undefined;

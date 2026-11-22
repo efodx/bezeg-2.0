@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {DockCard} from '../dock/DockCard';
 import {budgetOpen, storedFold} from '../dock/dockBudget';
+import {useGraphUx} from '../declare/graphUxStore';
 import {useToolsSections} from './useToolsSections';
 import './toolsCard.css';
 
@@ -17,7 +18,7 @@ let lessonFold: boolean | null = null;
 const lessonIsOpen = () => !!document.querySelector('.demonstration-workspace.lesson-open');
 
 /** The learner's stored fold; with none, the card budget decides (open on a free graph from 1200 px, with Odčitki). */
-const readFold = () => storedFold(FOLD_KEY) ?? !budgetOpen(TOOLS, false);
+const readFold = () => storedFold(FOLD_KEY);
 
 /**
  * The tools column as a dock card. The tools stay mounted while folded, so their state survives a fold.
@@ -28,6 +29,7 @@ export function ToolsCard(props: {children: React.ReactNode; locked?: boolean}) 
     const locked = props.locked ?? false;
     const [body, setBody] = useState<HTMLDivElement | null>(null);
     useToolsSections(body);
+    useGraphUx(); // the budget order depends on the graph's `firstCard`, published after the first render
     const [own, setOwn] = useState(readFold);
     const [peek, setPeek] = useState(false);
     useEffect(() => { if (!locked) setPeek(false); }, [locked]);
@@ -53,7 +55,7 @@ export function ToolsCard(props: {children: React.ReactNode; locked?: boolean}) 
         setOwn(!open);
         try { localStorage.setItem(FOLD_KEY, open ? '0' : '1'); } catch { /* ignore */ }
     };
-    return <DockCard kind={TOOLS} title="Orodja" what="orodja" region="tl" order={0} collapsed={(reading ? lessonOwn ?? true : own) || (locked && !peek)} onToggle={onToggle}>
+    return <DockCard kind={TOOLS} title="Orodja" what="orodja" region="tl" order={0} collapsed={(reading ? lessonOwn ?? true : own ?? !budgetOpen(TOOLS, false)) || (locked && !peek)} onToggle={onToggle}>
         {open => <div className="ux-tools-body" ref={setBody} hidden={!open}>{props.children}</div>}
     </DockCard>;
 }

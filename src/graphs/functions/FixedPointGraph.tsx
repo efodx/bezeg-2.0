@@ -497,6 +497,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
             tone: status.id === "no-bound" || status.id === "cycle" || status.id === "stagnation" || status.id === "iteration-limit" ? "warning" : "muted",
         }));
         return {
+            firstCard: "tools",
             pucks: [
                 {param: "fixed-point.x0", help: "Začetni približek x₀ iteracije: mnogokratnik 0,01 znotraj intervala preslikave."},
                 {param: "fixed-point.digits", help: t("fixed_point_fields_help")},

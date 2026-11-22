@@ -409,6 +409,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
             ...(last !== undefined && last.retained !== "none" ? [{id: "discarded", label: t("bisection_legend_discarded"), kind: "line" as const, color: GraphPalette.referenceCurve}] : []),
         ];
         return {
+            firstCard: "tools",
             pucks: [
                 // The pucks set the starting interval; the board's a, b and the readouts follow the current bracket.
                 {param: "bisection.a", help: t("bisection_bounds_help"), label: `${t("bisection_a_label").replace(/\s+a$/, "")} a₀`},

@@ -1,4 +1,5 @@
 import {useSyncExternalStore} from 'react';
+import {getGraphUx} from '../declare/graphUxStore';
 
 /**
  * Card budget (round 11): a card with no stored fold starts open only if it is within the budget, so a first view is not
@@ -9,17 +10,20 @@ import {useSyncExternalStore} from 'react';
  */
 export const WIDE_PX = 1200;
 const OPEN_ORDER = ['readout', 'tools'];
+/** A graph whose main action lives in Orodja declares `firstCard: 'tools'` (GraphUx): Orodja then comes before Odčitki. */
+const toolsFirst = () => getGraphUx()?.firstCard === 'tools';
 
 /** Whether the budget opens this card (before any fold-before-clip). */
 export function budgetOpen(kind: string, lesson: boolean): boolean {
     const slots = (window.innerWidth >= WIDE_PX ? 2 : 1) - (lesson ? 1 : 0);
-    const i = OPEN_ORDER.indexOf(kind);
+    const order = toolsFirst() ? ['tools', 'readout'] : OPEN_ORDER;
+    const i = order.indexOf(kind);
     return i >= 0 && i < slots;
 }
 
 /** How soon a card folds when its column is too full: smaller folds first; the lesson card never. */
 function priority(kind: string): number {
-    return kind === 'guide' ? Infinity : kind === 'readout' ? 2 : kind === 'tools' ? 1 : 0;
+    return kind === 'guide' ? Infinity : kind === 'readout' ? (toolsFirst() ? 1 : 2) : kind === 'tools' ? (toolsFirst() ? 2 : 1) : 0;
 }
 
 export const storedFold = (key: string): boolean | null => {
