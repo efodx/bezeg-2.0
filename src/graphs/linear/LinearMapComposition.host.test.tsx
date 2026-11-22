@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -52,7 +53,7 @@ describe('the composition mode on the real graph', () => {
 
     test('switching modes both ways keeps the stored composition, and a stored composition is not replaced on re-entry', () => {
         const {graph} = mountGraph();
-        act(() => { graph.importPresetData({...DEFAULT_LINEAR_MAP_STATE, matrix: E, exampleId: 'custom', mode: 'basis'}); });
+        act(() => { runAs('learner', () => graph.importPresetData({...DEFAULT_LINEAR_MAP_STATE, matrix: E, exampleId: 'custom', mode: 'basis'})); });
         selectMode('composition');
         pickSource('B', 'rotation');
         act(() => { fireEvent.keyDown(angleSlider('B'), {key: 'ArrowRight', shiftKey: true}); });
@@ -141,14 +142,14 @@ describe('Presets', () => {
 
     test('a composition exports, passes the collection check, and imports into a fresh graph with the same readout', () => {
         const {graph} = mountGraph();
-        act(() => { graph.importPresetData(composed); });
+        act(() => { runAs('learner', () => graph.importPresetData(composed)); });
         const exported = JSON.parse(JSON.stringify(graph.exportPresetData()));
         expect(exported).toMatchObject({element: R, secondElement: {kind: 'reflection', k: 5}, translation: [1.25, -2], pivot: [3, 1]});
         const checked = linearMapPresetCollection.check(exported);
         expect('data' in checked).toBe(true);
         const before = readout('t');
         const fresh = mountGraph();
-        act(() => { fresh.graph.importPresetData((checked as {data: LinearMapState}).data); });
+        act(() => { runAs('learner', () => fresh.graph.importPresetData((checked as {data: LinearMapState}).data)); });
         expect(JSON.parse(JSON.stringify(fresh.graph.exportPresetData()))).toEqual(exported);
         expect(readout('t')).toBe(before);
         expect('rejection' in linearMapPresetCollection.check({...exported, element: {kind: 'rotation', k: 24}})).toBe(true);
@@ -162,7 +163,7 @@ describe('Presets', () => {
             const old = {matrix, mode: 'determinant', testAngle: 30, exampleId, probeVisible: false, curveVisible: true, squareVisible: true};
             const checked = linearMapPresetCollection.check(JSON.parse(JSON.stringify(old)));
             expect('data' in checked).toBe(true);
-            act(() => { graph.importPresetData((checked as {data: LinearMapState}).data); });
+            act(() => { runAs('learner', () => graph.importPresetData((checked as {data: LinearMapState}).data)); });
             const exported = JSON.parse(JSON.stringify(graph.exportPresetData()));
             expect(exported).toEqual(old);
             for (const key of ['element', 'secondElement', 'secondMatrix', 'translation', 'pivot']) expect(exported).not.toHaveProperty(key);

@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -20,7 +21,7 @@ class ObservedGraph extends LinearMapGraph {
     modelNow() { return this.model; }
     tip() { return this.eigenTip!; }
     handles() { return [this.handle1!, this.handle2!]; }
-    act(action: object) { this.applyLinearMapAction(action as never); }
+    act(action: object) { runAs('lesson', () => this.applyLinearMapAction(action as never)); }
     liveBoard() { return this.board; }
 }
 
@@ -33,7 +34,7 @@ function mountGraph() {
 type Evented = JXG.Point & {triggerEventHandlers(names: string[], args: unknown[]): void};
 function dragTo(point: JXG.Point, x: number, y: number) {
     point.setPosition(JXG.COORDS_BY_USER, [x, y]);
-    act(() => { (point as Evented).triggerEventHandlers(['drag'], []); });
+    act(() => { runAs('learner', () => { (point as Evented).triggerEventHandlers(['drag'], []); }); });
 }
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-linear-map-status]')].map(element => element.getAttribute('data-linear-map-status'));
@@ -109,7 +110,7 @@ describe('the eigen mode has its own view', () => {
         // a handle drag leaves the view alone until the pointer is released
         dragTo(graph.handles()[0], 1, 1);
         expect(sameBox(box(graph), afterExample)).toBe(true);
-        act(() => { (graph.handles()[0] as Evented).triggerEventHandlers(['up'], []); });
+        act(() => { runAs('learner', () => { (graph.handles()[0] as Evented).triggerEventHandlers(['up'], []); }); });
         expect(sameBox(box(graph), afterExample)).toBe(false);
         selectMode('basis');
         expect(sameBox(box(graph), basisBox)).toBe(true);
@@ -302,7 +303,7 @@ describe('Presets and both languages', () => {
         const checked = linearMapPresetCollection.check(JSON.parse(JSON.stringify(stored)));
         expect('data' in checked).toBe(true);
         const {graph} = mountGraph();
-        act(() => { graph.importPresetData((checked as {data: LinearMapState}).data); });
+        act(() => { runAs('learner', () => graph.importPresetData((checked as {data: LinearMapState}).data)); });
         expect(JSON.parse(JSON.stringify(graph.exportPresetData()))).toEqual(stored);
         expect(graph.tip().X()).toBeCloseTo(Math.cos(116.57 * Math.PI / 180), 12);
         expect(statusIds()).toContain('eigen-approx-parallel');

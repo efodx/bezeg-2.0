@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {readFileSync} from 'node:fs';
 import {act, fireEvent, render, screen} from '@testing-library/react';
@@ -42,8 +43,8 @@ class ObservedGraph extends LinearMapGraph {
     ownedObjects() { return this.generatedObjectCount; }
     startPoint() { return this.startHandle!; }
     tracePoint() { return this.traceDetHandle!; }
-    act(action: object) { this.applyLinearMapAction(action as never); }
-    typeStart(axis: 0 | 1, value: number) { return this.setStartFromInput(axis, value); }
+    act(action: object) { runAs('lesson', () => this.applyLinearMapAction(action as never)); }
+    typeStart(axis: 0 | 1, value: number) { return runAs('learner', () => this.setStartFromInput(axis, value)); }
     dispose() { this.disposeFigureScene(); }
 }
 
@@ -58,7 +59,7 @@ function mountGraph(strict = false, reduced = false) {
 type Evented = JXG.Point & {triggerEventHandlers(names: string[], args: unknown[]): void};
 function dragTo(point: JXG.Point, x: number, y: number) {
     point.setPosition(JXG.COORDS_BY_USER, [x, y]);
-    act(() => { (point as Evented).triggerEventHandlers(['drag'], []); });
+    act(() => { runAs('learner', () => { (point as Evented).triggerEventHandlers(['drag'], []); }); });
 }
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
@@ -95,7 +96,7 @@ describe('Presets stored before Batch D load unchanged', () => {
             expect(data).toEqual(old);
             expect(data).not.toHaveProperty('start');
             expect(data).not.toHaveProperty('step');
-            act(() => { graph.importPresetData(data); });
+            act(() => { runAs('learner', () => graph.importPresetData(data)); });
             expect(JSON.parse(JSON.stringify(graph.exportPresetData()))).toEqual(literal);
         }
         const checkGraphState = linearMapPresetCollection.checkGraphState;
@@ -133,7 +134,7 @@ describe('Presets stored before Batch D load unchanged', () => {
         const checked = linearMapPresetCollection.check(JSON.parse(JSON.stringify(stored)));
         expect('data' in checked).toBe(true);
         const {graph} = mountGraph();
-        act(() => { graph.importPresetData((checked as {data: LinearMapState}).data); });
+        act(() => { runAs('learner', () => graph.importPresetData((checked as {data: LinearMapState}).data)); });
         expect(JSON.parse(JSON.stringify(graph.exportPresetData()))).toEqual(stored);
         expect(field('v₀, x').value).toBe('−1,25');
         expect(counter()).toBe(t('step_counter', {value0: 7, value1: ITERATE_STEP_MAX}));
@@ -349,7 +350,7 @@ describe('playback', () => {
             removeEventListener: (_: string, listener: (event: {matches: boolean}) => void) => listeners.delete(listener),
         })) as unknown as typeof window.matchMedia;
         try {
-            class SystemGraph extends LinearMapGraph { act(action: object) { this.applyLinearMapAction(action as never); } }
+            class SystemGraph extends LinearMapGraph { act(action: object) { runAs('lesson', () => this.applyLinearMapAction(action as never)); } }
             const graph = new SystemGraph();
             const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
             iterate(graph);
@@ -395,7 +396,7 @@ describe('playback', () => {
             ['an imported Preset', (g: ObservedGraph) => g.importPresetData({...DEFAULT_LINEAR_MAP_STATE, matrix: E, mode: 'iterate'})],
         ])('%s pauses', (_name, write) => {
             const graph = playing();
-            act(() => { write(graph); });
+            act(() => { runAs('learner', () => write(graph)); });
             paused(graph);
         });
 
@@ -406,7 +407,7 @@ describe('playback', () => {
             ['a start dragged to its own place', (g: ObservedGraph) => dragTo(g.startPoint(), 1, 0)],
         ])('%s does not', (_name, write) => {
             const graph = playing();
-            act(() => { write(graph); });
+            act(() => { runAs('learner', () => write(graph)); });
             expect(graph.isPlaying()).toBe(true);
             expect(graph.clock.pending()).toBe(true);
             graph.clock.tick(10 * STEP_INTERVAL_MS);
@@ -468,7 +469,7 @@ describe('ownership', () => {
         const reference = session(false);
         const played = session(true);
         expect(played.listeners).toBe(reference.listeners);
-        expect(played.timers).toBeLessThanOrEqual(reference.timers + 1); // the one redraw of the step the played run made
+        expect(played.timers).toBeLessThanOrEqual(reference.timers + 2); // the one redraw of the step the played run made, and the learner-input tagging's end-of-gesture timer of the Play click (ADR 0064)
         expect(() => setLanguage('en')).not.toThrow();
     });
 

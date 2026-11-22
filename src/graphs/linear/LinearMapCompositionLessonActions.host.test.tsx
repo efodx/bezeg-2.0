@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -13,7 +14,7 @@ beforeEach(() => setLanguage('sl'));
 
 class ObservedGraph extends LinearMapGraph {
     modelNow() { return this.model; }
-    act(action: object) { this.applyLinearMapAction(action as never); }
+    act(action: object) { runAs('lesson', () => this.applyLinearMapAction(action as never)); }
 }
 
 function mountGraph() {

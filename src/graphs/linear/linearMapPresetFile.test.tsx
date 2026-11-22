@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -13,7 +14,7 @@ beforeAll(installBoardShims);
 
 class ViewedLinearMap extends LinearMapGraph {
     liveBoard() { return this.board; }
-    act(action: object) { this.applyLinearMapAction(action as never); }
+    act(action: object) { runAs('lesson', () => this.applyLinearMapAction(action as never)); }
 }
 const mountGraph = () => {
     const graph = new ViewedLinearMap();
@@ -42,7 +43,7 @@ describe.each(['iterate', 'tracedet'] as const)('the %s mode in a Preset', mode 
         const data = source.exportPresetData() as LinearMapState;
         expect(data.mode).toBe(mode);
         const fresh = mountGraph();
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(json(fresh.exportPresetData())).toEqual(json(data));
     });
     test('a Preset file with a stored boardState keeps that view', () => {
@@ -51,7 +52,7 @@ describe.each(['iterate', 'tracedet'] as const)('the %s mode in a Preset', mode 
         toMode(source, mode);
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph();
-        fresh.importPreset(preset); // not wrapped in act: the sync that reads keepImportedView must run inside importPreset itself
+        runAs('learner', () => fresh.importPreset(preset)); // not wrapped in act: the sync that reads keepImportedView must run inside importPreset itself
         expect((fresh.exportPresetData() as LinearMapState).mode).toBe(mode);
         expect(boxOf(fresh)).toEqual(view);
     });
@@ -61,7 +62,7 @@ describe.each(['iterate', 'tracedet'] as const)('the %s mode in a Preset', mode 
         const modeView = boxOf(source);
         const preset = json(source.exportPreset());
         const fresh = mountGraph();
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(boxOf(fresh)).toEqual(modeView);
     });
 });

@@ -11,6 +11,7 @@ import {
 import {LogisticMapGraph} from './LogisticMapGraph';
 import {PhasePortraitGraph} from './PhasePortraitGraph';
 import {logisticMapPresetCollection, phasePortraitPresetCollection} from './dynamicsPresetCollection';
+import {runAs} from '../base/writes/writeSource';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -29,7 +30,7 @@ const chaotic: LogisticState = {R: 380, X: 35, step: 12};
 describe('phase-portrait Preset collection', () => {
     test.each([['the default', DEFAULT_PHASE_STATE], ['the pendulum around its second equilibrium with two seeds', pendulum]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new PhasePortraitGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => source.setState(state)); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('phase-portrait');
         expect(preset.data).toEqual(serializePhaseState(state));
@@ -37,7 +38,7 @@ describe('phase-portrait Preset collection', () => {
         expect(phasePortraitPresetCollection().check(preset.data)).toEqual({data: serializePhaseState(state)});
 
         const fresh = mountGraph(new PhasePortraitGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(serializePhaseState(fresh.state)).toEqual(serializePhaseState(state));
         expect(fresh.playing).toBe(false);
         expect(fresh.time).toBe(0);
@@ -69,7 +70,7 @@ describe('logistic-map Preset collection', () => {
         expect(logisticMapPresetCollection().check(preset.data)).toEqual({data: serializeLogisticState(state)});
 
         const fresh = mountGraph(new LogisticMapGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(serializeLogisticState(fresh.state)).toEqual(serializeLogisticState(state));
         expect(fresh.isPlaying()).toBe(false);
     });
@@ -95,10 +96,10 @@ describe('a Preset file with a stored view keeps that view', () => {
     test('phase portrait: the pendulum with a zoom is imported with the stored boardState, not the view of the zoom', () => {
         const view: [number, number, number, number] = [-3, 4, 6, -2]; // 3:2 like the 600 x 400 board: this graph keeps equal axis units
         const source = mountGraph(new ViewedPhase());
-        act(() => { source.setState(pendulum); });
+        act(() => { runAs('learner', () => source.setState(pendulum)); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedPhase());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(fresh.state.system).toBe('pendulum');
         expect(boxOf(fresh)).toEqual(view);
     });
@@ -108,7 +109,7 @@ describe('a Preset file with a stored view keeps that view', () => {
         act(() => { source.setState(chaotic); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedLogistic());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(fresh.state).toMatchObject(chaotic);
         expect(boxOf(fresh)).toEqual(view);
     });

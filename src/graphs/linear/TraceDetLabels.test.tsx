@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -18,7 +19,7 @@ beforeEach(() => setLanguage('sl'));
 
 class Probe extends LinearMapGraph {
     liveBoard() { return this.board; }
-    act(action: object) { this.applyLinearMapAction(action as never); }
+    act(action: object) { runAs('lesson', () => this.applyLinearMapAction(action as never)); }
     handle() { return this.traceDetHandle!; }
     fontPx() { return this.displaySettings.fontSize; }
 }
@@ -36,7 +37,7 @@ function mount() {
 }
 
 function drag(graph: Probe, x: number, y: number) {
-    act(() => { graph.handle().setPosition(JXG.COORDS_BY_USER, [x, y]); (graph.handle() as Evented).triggerEventHandlers(['drag'], []); });
+    act(() => { runAs('learner', () => { graph.handle().setPosition(JXG.COORDS_BY_USER, [x, y]); (graph.handle() as Evented).triggerEventHandlers(['drag'], []); }); });
 }
 
 /** The box of the triangle's name (as anchored), of the handle's label (above and right of the handle, `pointLabel`'s offsets) and the handle marker. */

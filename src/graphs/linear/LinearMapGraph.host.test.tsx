@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -70,7 +71,7 @@ test('a real board: handles, fields, Reset, example and mode keep the model, rea
     const [h1] = graph.handles();
     act(() => {
         h1!.setPosition(1, [2.13, 0.9]);
-        (h1 as unknown as {triggerEventHandlers: (names: string[], args: unknown[]) => void}).triggerEventHandlers(["drag"], []);
+        runAs('learner', () => (h1 as unknown as {triggerEventHandlers: (names: string[], args: unknown[]) => void}).triggerEventHandlers(["drag"], []));
     });
     expect(graph.modelNow().matrix).toEqual([[2.25, 0], [1, 0.25]]);
     expect([h1!.X(), h1!.Y()]).toEqual([2.25, 1]);
@@ -100,10 +101,10 @@ test('a real board: handles, fields, Reset, example and mode keep the model, rea
     expect(statusIds()).toEqual(['zero', 'collapse-line']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     expect(svgText()).not.toMatch(/NaN|Infinity|undefined/);
-    act(() => { graph.setMatrixDirectly([[0, 0], [0, 0]]); });
+    act(() => { runAs('learner', () => graph.setMatrixDirectly([[0, 0], [0, 0]])); });
     expect(statusIds()).toEqual(['zero', 'collapse-point']);
     expect(svgText()).not.toMatch(/NaN|Infinity|undefined/);
-    act(() => { graph.setMatrixDirectly([[0.25, 0], [0, -0.25]]); });
+    act(() => { runAs('learner', () => graph.setMatrixDirectly([[0.25, 0], [0, -0.25]])); });
     expect(readout('det')).toBe('−0,0625');
     expect(statusIds()).toEqual(['negative']);
     expect(svgText()).not.toMatch(/NaN|Infinity|undefined/);
@@ -113,7 +114,7 @@ test('a real board: handles, fields, Reset, example and mode keep the model, rea
 test('the visible statuses are plain text; the graph announces them through its one settled live region (decision 63)', () => {
     const graph = new ObservedLinearMapGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-    act(() => { graph.setMatrixDirectly([[0, 0], [0, 0]]); });
+    act(() => { runAs('learner', () => graph.setMatrixDirectly([[0, 0], [0, 0]])); });
     const first = document.querySelector('[data-linear-map-status]')!;
     expect(first.closest('[role="status"], [aria-live]')).toBeNull();
     const live = document.querySelectorAll('[data-readout-live]');

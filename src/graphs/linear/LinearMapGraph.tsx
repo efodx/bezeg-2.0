@@ -18,6 +18,7 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
+import type {Lease, ParameterBinding} from "../base/writes/parameterArbiter";
 import {
     applyChooseElement, applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applySetVector, applyStep,
     CompositionSlot, compositionDefaults,
@@ -144,6 +145,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     private boardViewKey = "plane";
     private controller?: IterationController;
     private ticking = false;
+    /** The playback's lease on the step (ADR 0064); the controller's own driver is private, so the graph takes the lease itself. */
+    private stepLease?: Lease;
 
     override presetCollection() {
         return linearMapPresetCollection;
@@ -367,14 +370,19 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.controller ??= new IterationController({
             transition: () => {
                 const step = Math.min(ITERATE_STEP_MAX, stepOf(this.model) + 1);
-                this.ticking = true;
-                try { this.commitModel({...this.model, step}); } finally { this.ticking = false; }
+                const tick = () => {
+                    this.ticking = true;
+                    try { this.commitModel({...this.model, step}); } finally { this.ticking = false; }
+                };
+                // The frame is an `animation` write of the step under the playback's lease.
+                if (this.stepLease) this.stepLease.run(tick);
+                else tick();
                 this.requestRender();
                 return step >= ITERATE_STEP_MAX ? "complete" : "continue";
             },
             stepIntervalMs: STEP_INTERVAL_MS,
             maxIterations: ITERATE_STEP_MAX,
-            onComplete: () => this.requestRender(),
+            onComplete: () => { this.releaseStepLease(); this.requestRender(); },
             scheduler: this.animationScheduler(),
         });
         if (this.controller.iteration !== stepOf(this.model)) this.controller.reset(stepOf(this.model));
@@ -388,14 +396,33 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     /** Stops the playback; the step stays where it is. */
     override pausePlayback(): void {
+        this.releaseStepLease();
         if (!this.controller?.isPlaying()) return;
         this.controller.pause();
         if (this.graphSession?.isAlive) this.requestRender();
     }
 
+    private releaseStepLease(): void {
+        const lease = this.stepLease;
+        this.stepLease = undefined;
+        lease?.release();
+    }
+
     /** Plays from the step on. Under reduced motion nothing plays: the button says why and Next step stays available. */
     play(): void {
         if (this.isPlaying() || !this.graphSession?.isAlive || stepOf(this.model) >= ITERATE_STEP_MAX || this.reducedMotion()) return;
+        const arbiter = this.parameters;
+        if (arbiter) {
+            // The learner holds the step: nothing starts. A learner or lesson write of the step, or a lesson frame change, ends the lease and pauses.
+            const lease = arbiter.lease(["linear-map-step"], () => {
+                if (this.stepLease !== lease) return;
+                this.stepLease = undefined;
+                this.controller?.pause();
+                if (this.graphSession?.isAlive) this.requestRender();
+            });
+            if (!lease) return;
+            this.stepLease = lease;
+        }
         this.syncedController().play();
         this.requestRender();
     }
@@ -530,6 +557,73 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             return;
         }
         if (this.model[field] !== visible) this.commitModel({...this.model, [field]: visible});
+    }
+
+    // ---- Parameter writes ---------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064), every numeric, count and choice parameter of the seven modes (the on/off display switches are
+     * not bound). Keys: `linear-map-mode`, `linear-map-example`; `linear-map-a11` to `-a22` (the matrix, also the free entries of
+     * composition slot A); `linear-map-test-angle` (eigen); `linear-map-start` (iterate, tracedet; a {x, y} row) and
+     * `linear-map-step`; composition: `linear-map-first-source`, `-second-source`, `-first-index`, `-second-index` (the element's angle
+     * index, undefined without an element), `linear-map-b11` to `-b22` (the free entries of slot B), `linear-map-translation` and
+     * `linear-map-pivot` ({x, y} rows; the pivot is undefined while unused). Writers: the tools controls and the board handles
+     * (`learner`, tagged by their input gesture), lesson actions and scenes (`lesson`). The playback of the iteration moves
+     * `linear-map-step` as `animation` under a lease taken in `play()` (the controller's driver is private to the runtime);
+     * a learner or lesson write of the step, a learner hold or a lesson frame change ends it and pauses the playback.
+     * A setter that refuses throws a `DomainError`, which the arbiter reports as a domain refusal.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        type Point = {readonly x: number; readonly y: number};
+        const refused = (what: string): never => { throw new DomainError(`${what}: the value is refused.`); };
+        const samePoint = (a: Point | undefined, b: Point | undefined): boolean => a === b || (a !== undefined && b !== undefined && a.x === b.x && a.y === b.y);
+        const point = (value: Vec2 | undefined): Point | undefined => value && {x: value[0], y: value[1]};
+        const slots = [["first", "a"], ["second", "b"]] as const;
+        const bindings: Record<string, ParameterBinding> = {
+            "linear-map-mode": {read: () => this.model.mode, apply: (value: string) => this.setMode(value)},
+            "linear-map-example": {read: () => this.model.exampleId, apply: (value: string) => this.setExample(value)},
+            "linear-map-test-angle": {read: () => this.model.testAngle, apply: (value: number) => this.setTestAngle(value)},
+            "linear-map-start": {
+                read: () => point(startOf(this.model)),
+                apply: (value: Point) => { if (!this.setStartPointFromInput(value.x, value.y)) refused("start"); },
+                equals: samePoint,
+            },
+            "linear-map-step": {
+                read: () => stepOf(this.model),
+                apply: (value: number) => {
+                    if (!Number.isInteger(value) || value < 0 || value > ITERATE_STEP_MAX) refused("step");
+                    this.commitModel({...this.model, step: value});
+                },
+            },
+            "linear-map-translation": {
+                read: () => point(this.model.translation ?? [0, 0]),
+                apply: (value: Point) => { if (!this.setVectorPointFromInput("translation", value.x, value.y)) refused("translation"); },
+                equals: samePoint,
+            },
+            "linear-map-pivot": {
+                read: () => point(this.model.pivot),
+                apply: (value: Point | undefined) => {
+                    if (value === undefined) this.setPivotOn(false);
+                    else if (!this.setVectorPointFromInput("pivot", value.x, value.y)) refused("pivot");
+                },
+                equals: samePoint,
+            },
+        };
+        for (const row of [0, 1] as const) {
+            for (const column of [0, 1] as const) {
+                const name = `${row + 1}${column + 1}`;
+                bindings[`linear-map-a${name}`] = {read: () => this.model.matrix[row][column], apply: (value: number) => this.setEntryFromInput(row, column, value)};
+                bindings[`linear-map-b${name}`] = {
+                    read: () => freeEntriesOf(this.model, "second")[row][column],
+                    apply: (value: number) => { if (!this.setSlotEntryFromInput("second", row, column, value)) refused("entry"); },
+                };
+            }
+        }
+        for (const [slot] of slots) {
+            bindings[`linear-map-${slot}-source`] = {read: () => sourceOf(this.model, slot), apply: (value: SlotSource) => this.setSource(slot, value)};
+            bindings[`linear-map-${slot}-index`] = {read: () => elementOf(this.model, slot)?.k, apply: (value: number) => this.setAngleIndex(slot, value)};
+        }
+        return bindings;
     }
 
     // ---- Lessons ----------------------------------------------------------------------------------------------------

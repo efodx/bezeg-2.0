@@ -23,6 +23,8 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import type {Vec2} from "../../linear/matrix2";
 import {classifyEigen, type EigenClassification} from "../../linear/eigen2";
 import type {PlaneType} from "../../dynamics/classify2";
@@ -224,6 +226,8 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     // ---- Host state: not in the model, not in a Preset ------------------------------------------------------------------
     private timeValue = 0;
     private playingValue = false;
+    /** The arbiter's change channel for the time, which lives outside the scene store. */
+    private readonly timeListeners = new Set<() => void>();
     private hostVersion = 0;
     private readonly hostListeners = new Set<() => void>();
 
@@ -293,6 +297,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
 
     private notifyHost(): void {
         this.hostVersion++;
+        this.timeListeners.forEach(listener => listener());
         this.hostListeners.forEach(listener => listener());
     }
 
@@ -835,10 +840,20 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     /** Plays from the current time (from 0 at the end). Under reduced motion nothing moves; the slider still sets the time. */
     play(): void {
         if (this.playingValue || this.reducedMotion() || !this.hasBoard || !this.graphSession?.isAlive) return;
-        if (this.timeValue >= ORBIT_DURATION) this.timeValue = 0;
+        if (this.timeValue >= ORBIT_DURATION) {
+            this.timeValue = 0;
+            // Attribute the restart to the learner's Play before the lease starts, or the later notify would end that lease.
+            this.timeListeners.forEach(listener => listener());
+        }
         this.playingValue = true;
         this.driver = new AnimationDriver(delta => this.advance(delta), this.animationScheduler());
+        this.driver.useLease({arbiter: () => this.parameters, keys: ["phase-time"], onInterrupted: () => this.halt()});
         this.driver.play();
+        // The learner holds the time (dragging its slider): the driver did not start, so the control stays paused.
+        if (!this.driver.isRunning()) {
+            this.halt();
+            return;
+        }
         this.boardUpdate();
         this.notifyHost();
     }
@@ -894,6 +909,59 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     }
 
     protected override stopLessonAnimations(): void { this.halt(); }
+
+    /**
+     * Parameter writes (ADR 0064). Keys: `phase-system`, `phase-equilibrium`, `phase-a` to `phase-d` (matrix entries),
+     * `phase-seed-count`, `phase-seed-1` to `phase-seed-6` (the seed's {X, Y}, undefined past the count), `phase-zoom`
+     * and `phase-time`. Entries and seeds are in the user's units (what the typed fields take), not the stored grid integers. Writers: the tools controls and the board's seed and matrix-column handles (`learner`, tagged
+     * by their input gesture), lesson actions and scenes (`lesson`). Only `phase-time` animates: Play's frames move it
+     * as `animation` under a lease; a learner or lesson write of the time, a lesson frame change or a learner hold
+     * ends the lease and `onInterrupted` halts the playback so the control shows it paused. Refusals (setters
+     * returning false) are `DomainError`s, so the arbiter reports them as domain refusals.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const accepted = (ok: boolean, what: string): void => {
+            if (!ok) throw new DomainError(`${what}: the value is refused.`);
+        };
+        type SeedValue = {readonly X: number; readonly Y: number} | undefined;
+        const bindings: Record<string, ParameterBinding> = {
+            "phase-system": {
+                read: () => this.state.system,
+                apply: (value: unknown) => {
+                    if (!(SYSTEM_IDS as readonly unknown[]).includes(value)) throw new DomainError(`The system ${String(value)} is unknown.`);
+                    this.editSystem(value as SystemId);
+                },
+            },
+            "phase-equilibrium": {read: () => this.state.equilibrium, apply: (value: number) => accepted(this.editEquilibrium(value), "equilibrium")},
+            "phase-seed-count": {read: () => this.state.seeds.length, apply: (value: number) => accepted(this.setSeedCount(value), "seed count")},
+            "phase-zoom": {read: () => this.state.zoom, apply: (value: number) => accepted(this.editZoom(value), "zoom")},
+            "phase-time": {
+                read: () => this.timeValue,
+                apply: (value: number) => accepted(this.setTime(value), "time"),
+                subscribe: listener => {
+                    this.timeListeners.add(listener);
+                    return () => { this.timeListeners.delete(listener); };
+                },
+            },
+        };
+        for (const field of ["A", "B", "C", "D"] as const) {
+            bindings[`phase-${field.toLowerCase()}`] = {read: () => entryOf(this.state[field]), apply: (value: number) => accepted(this.editEntry(field, value), field)};
+        }
+        for (let index = 0; index < SEEDS_MAX; index++) {
+            bindings[`phase-seed-${index + 1}`] = {
+                read: (): SeedValue => {
+                    const seed = this.state.seeds[index];
+                    return seed && {X: seedOf(seed.X), Y: seedOf(seed.Y)};
+                },
+                apply: (value: SeedValue) => {
+                    if (!value) throw new DomainError("A seed needs both coordinates.");
+                    accepted(this.editSeedPoint(index, value.X, value.Y), `seed ${index + 1}`);
+                },
+                equals: (a: SeedValue, b: SeedValue) => a === b || (a !== undefined && b !== undefined && a.X === b.X && a.Y === b.Y),
+            };
+        }
+        return bindings;
+    }
 
     protected override beforeFigureCapture(): void { this.halt(); }
 

@@ -15,6 +15,7 @@ import {DEFAULT_PHASE_STATE, entryOf, ORBIT_DURATION, type PhaseState} from '../
 import {RK4_STEP} from '../../dynamics/rk4';
 import {LEGEND_BACKDROP} from '../legend/legendBackdrop';
 import {formatNumber} from '../../analysis/format';
+import {runAs} from '../base/writes/writeSource';
 import {
     HANDLE_TOUCH_RADIUS, HIT_SLACK, INSET_DELTA_MAX, INSET_TAU_MAX, legendLines, MAX_FRAME_MS, PhasePortraitGraph, STORED_FIELDS, TIME_STEP, typeLabel,
 } from './PhasePortraitGraph';
@@ -57,7 +58,7 @@ type EventedPoint = JXG.Point & {eventHandlers: Record<string, unknown[]>; trigg
 const handlerCounts = (point: JXG.Point) => (['drag', 'over', 'out'] as const).map(name => (point as EventedPoint).eventHandlers[name]?.length ?? 0);
 function dragHandleTo(point: JXG.Point, x: number, y: number) {
     point.setPosition(JXG.COORDS_BY_USER, [x, y]);
-    act(() => { (point as EventedPoint).triggerEventHandlers(['drag'], []); });
+    act(() => { runAs('learner', () => (point as EventedPoint).triggerEventHandlers(['drag'], [])); });
 }
 
 type Probe = {id: string; elType: string; plaintext?: string; dataX?: number[]; dataY?: number[]; evalVisProp(name: string): unknown};
@@ -78,11 +79,11 @@ const enter = (label: string, value: string) => act(() => { enterNumber(field(la
 const status = () => document.querySelector('[data-phase-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
-const set = (graph: ObservedGraph, patch: Partial<PhaseState>) => act(() => { graph.setState(patch); });
+const set = (graph: ObservedGraph, patch: Partial<PhaseState>) => act(() => { runAs('learner', () => graph.setState(patch)); });
 const matrix = (graph: ObservedGraph, A: number, B: number, C: number, D: number) => set(graph, {A: A * 4, B: B * 4, C: C * 4, D: D * 4});
 function go(graph: ObservedGraph, time: number): boolean {
     let accepted = false;
-    act(() => { accepted = graph.setTime(time); });
+    act(() => { runAs('learner', () => { accepted = graph.setTime(time); }); });
     return accepted;
 }
 function run(graph: ObservedGraph, limit = 400) {
@@ -225,7 +226,7 @@ describe('stops are shown, never clipped silently', () => {
 
     test('a seed caption stays clear of its own trajectory (default seeds, and a dragged seed)', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setSeedCount(3); });
+        act(() => { runAs('learner', () => graph.setSeedCount(3)); });
         const board = graph.liveBoard();
         const clearance = () => {
             const result: number[] = [];
@@ -247,13 +248,13 @@ describe('stops are shown, never clipped silently', () => {
             return result;
         };
         for (const gap of clearance()) expect(gap).toBeGreaterThanOrEqual(7.5);
-        act(() => { graph.setState({seeds: [{X: 2, Y: 1}, {X: -3, Y: 2}, {X: 1, Y: -3}]}); });
+        act(() => { runAs('learner', () => graph.setState({seeds: [{X: 2, Y: 1}, {X: -3, Y: 2}, {X: 1, Y: -3}]})); });
         for (const gap of clearance()) expect(gap).toBeGreaterThanOrEqual(7.5);
     });
 
     test('a seed handle and a caption "seed n" exist for each seed and the seed row names the same number', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setSeedCount(3); });
+        act(() => { runAs('learner', () => graph.setSeedCount(3)); });
         expect(graph.state.seeds).toHaveLength(3);
         const texts = captionTexts(graph);
         for (const n of [1, 2, 3]) {
@@ -368,11 +369,11 @@ describe('the linear handles and numeric input', () => {
         expect(graph.setSeedCount(0)).toBe(false);
         expect(graph.setSeedCount(7)).toBe(false);
         expect(graph.setSeedCount(1.5)).toBe(false);
-        act(() => { graph.setSeedCount(6); });
+        act(() => { runAs('learner', () => graph.setSeedCount(6)); });
         const keys = graph.state.seeds.map(seed => `${seed.X},${seed.Y}`);
         expect(keys).toHaveLength(6);
         expect(new Set(keys).size).toBe(6);
-        act(() => { graph.setSeedCount(2); });
+        act(() => { runAs('learner', () => graph.setSeedCount(2)); });
         expect(graph.state.seeds).toHaveLength(2);
         expect(visible(graph.seedHandle(2)! as unknown as Probe)).toBe(false);
     });
@@ -381,7 +382,7 @@ describe('the linear handles and numeric input', () => {
         vi.useFakeTimers();
         const {graph} = mountGraph();
         act(() => { vi.advanceTimersByTime(1000); });
-        act(() => { graph.setState({A: 0, B: -4, C: 4, D: 0}); });
+        act(() => { runAs('learner', () => graph.setState({A: 0, B: -4, C: 4, D: 0})); });
         expect(status()).toContain(t('phase_graph_type_centre'));
         act(() => { vi.advanceTimersByTime(1000); });
         expect(live()).toContain(t('phase_graph_type_centre'));
@@ -396,7 +397,7 @@ describe('the pendulum and the rings', () => {
         expect(document.querySelector('[data-readout="energy-1"]')).not.toBeNull();
         expect(readout('energy-1')).toContain(t('phase_graph_energy_swing', {value0: '−0,459698'}).split('=')[0]);
         expect(readout('energy-1')).toContain('<');
-        act(() => { graph.setSeedCount(3); });
+        act(() => { runAs('learner', () => graph.setSeedCount(3)); });
         enter(labels.seedTheta(1), '0');
         enter(labels.seedOmega(1), '2');
         expect(graph.derived().energies[0].kind).toBe('separatrix-exact');
@@ -481,11 +482,11 @@ describe('the pendulum and the rings', () => {
 
     test('one NaN-separated curve per style: the seeds are one curve each however many seeds there are', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setSeedCount(5); });
+        act(() => { runAs('learner', () => graph.setSeedCount(5)); });
         const before = curves(graph).length;
         expect(before).toBe(7);
         expect(polylines(curves(graph)[SEED_FORWARD])).toBe(5);
-        act(() => { graph.setSeedCount(2); });
+        act(() => { runAs('learner', () => graph.setSeedCount(2)); });
         expect(polylines(curves(graph)[SEED_FORWARD])).toBe(2);
         expect(curves(graph)).toHaveLength(7);
         expect(polylines(curves(graph)[FRAME])).toBe(1);
@@ -672,12 +673,12 @@ describe('playback', () => {
         expect(graph.playing).toBe(false);
         for (const patch of [{A: 8}, {B: 8}, {C: 4}, {D: 4}, {seeds: [{X: 10, Y: 10}]}, {zoom: 1}, {equilibrium: 0, system: 'pendulum' as const}]) {
             playing();
-            act(() => { graph.setState(patch); });
+            act(() => { runAs('learner', () => graph.setState(patch)); });
             expect(graph.playing, JSON.stringify(patch)).toBe(false);
             expect(graph.clock.pending()).toBe(false);
         }
         playing();
-        act(() => { graph.setState({initialized: true}); });
+        act(() => { runAs('learner', () => graph.setState({initialized: true})); });
         expect(graph.playing).toBe(true);
         press(t('pause'));
     });
@@ -688,16 +689,16 @@ describe('playback', () => {
         const saved = graph.capture();
         expect(saved.phaseTime).toBe(2);
         press(t('play'));
-        act(() => graph.restore(saved));
+        act(() => runAs('lesson', () => graph.restore(saved)));
         expect(graph.time).toBe(2);
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         for (const bad of [99, -1, Number.NaN, '2']) {
-            act(() => graph.restore({phaseTime: bad} as unknown as TransientState));
+            act(() => runAs('lesson', () => graph.restore({phaseTime: bad} as unknown as TransientState)));
             expect(graph.time).toBe(0);
             expect(graph.statusText()).toContain(t('phase_graph_notice_time_refused'));
         }
-        act(() => graph.restore(undefined));
+        act(() => runAs('lesson', () => graph.restore(undefined)));
         expect(graph.statusText()).not.toContain(t('phase_graph_notice_time_refused'));
     });
 
@@ -706,7 +707,7 @@ describe('playback', () => {
         // JSXGraph leaves timers of its own for redrawn text; a played run must leave the same number as a plain mount with one edit.
         const before = vi.getTimerCount();
         const reference = mountGraph();
-        act(() => { reference.graph.setState({zoom: 1}); });
+        act(() => { runAs('learner', () => reference.graph.setState({zoom: 1})); });
         reference.view.unmount();
         const plainDelta = vi.getTimerCount() - before;
         const afterPlain = vi.getTimerCount();
@@ -775,10 +776,10 @@ describe('ownership, rebuild and StrictMode', () => {
         const total = board.objectsList.length;
         chooseSystem('pendulum');
         expect(board.objectsList.length).toBe(total);
-        act(() => { graph.setSeedCount(6); });
+        act(() => { runAs('learner', () => graph.setSeedCount(6)); });
         expect(board.objectsList.length).toBe(total);
         chooseSystem('weak-spiral');
-        act(() => { graph.setSeedCount(1); });
+        act(() => { runAs('learner', () => graph.setSeedCount(1)); });
         chooseSystem('linear');
         expect(board.objectsList.length).toBe(total);
     });
@@ -804,7 +805,7 @@ describe('ownership, rebuild and StrictMode', () => {
         const count = graph.derivationCount();
         act(() => setLanguage('en'));
         act(() => setLanguage('sl'));
-        act(() => { graph.setState({initialized: true}); });
+        act(() => { runAs('learner', () => graph.setState({initialized: true})); });
         go(graph, 1);
         expect(graph.derivationCount()).toBe(count);
         set(graph, {A: 4});

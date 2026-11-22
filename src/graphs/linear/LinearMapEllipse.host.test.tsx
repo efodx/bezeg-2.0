@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -18,7 +19,7 @@ beforeEach(() => setLanguage('sl'));
 class ObservedGraph extends LinearMapGraph {
     modelNow() { return this.model; }
     handles() { return [this.handle1!, this.handle2!]; }
-    act(action: object) { this.applyLinearMapAction(action as never); }
+    act(action: object) { runAs('lesson', () => this.applyLinearMapAction(action as never)); }
     liveBoard() { return this.board; }
 }
 
@@ -251,9 +252,9 @@ describe('the ellipse mode has its own view', () => {
         expect(afterExample[2]).toBeGreaterThanOrEqual(1.2 * 3 - 1e-9);
         const point = graph.handles()[0];
         point.setPosition(JXG.COORDS_BY_USER, [1, 1]);
-        act(() => { (point as Evented).triggerEventHandlers(['drag'], []); });
+        act(() => { runAs('learner', () => { (point as Evented).triggerEventHandlers(['drag'], []); }); });
         expect(sameBox(box(graph), afterExample)).toBe(true);
-        act(() => { (point as Evented).triggerEventHandlers(['up'], []); });
+        act(() => { runAs('learner', () => { (point as Evented).triggerEventHandlers(['up'], []); }); });
         expect(sameBox(box(graph), afterExample)).toBe(false);
         const afterUp = box(graph).slice();
         // a conic with semi-axes 2 (S = I/4) needs a wider view than its image (radius 1/4)
