@@ -7,7 +7,7 @@
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-heading h1 { margin: 0; font-size: 1.35rem; letter-spacing: -.02em; line-height: 1.15; }
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-graph #jgbox { height: max(560px, calc(100vh - 260px)) !important; }
 /* Slim action row: one line, buttons at 34 px. */
-.demonstration-workspace[data-ux-compact-header="lesson"] .workspace-heading { flex-wrap: nowrap; gap: 12px; padding-bottom: 2px; }
+.demonstration-workspace[data-ux-compact-header="lesson"] .workspace-heading { flex-direction: row; flex-wrap: nowrap; gap: 12px; padding-bottom: 2px; }
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-actions { flex-wrap: nowrap; gap: 6px; }
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-actions button,
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-actions > a,
@@ -16,14 +16,20 @@
 /* Free graph, desktop (handler 10, 2026-11-22; critique round 7: at 1440×900 the board's bottom and the "Preizkusi in opazuj"
    rail sat below the fold under a 70 px title). The breadcrumb stays (the way back to the family); the generic subtitle goes,
    the title is one slim row beside the actions, and the board and rail fit the window. */
-@media (min-width: 1200px) {
+@media (min-width: 701px) {
     .demonstration-workspace[data-ux-compact-header="free"] { padding-top: 0; row-gap: 0; }
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-heading-copy > p { display: none; }
-    .demonstration-workspace[data-ux-compact-header="free"] .workspace-heading { align-items: flex-end; flex-wrap: nowrap; gap: 12px; padding-bottom: 4px; }
+    .demonstration-workspace[data-ux-compact-header="free"] .workspace-heading { flex-direction: row; align-items: flex-end; flex-wrap: nowrap; gap: 12px; padding-bottom: 4px; }
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-heading h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.02em; line-height: 1.15; }
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-actions { flex-wrap: nowrap; gap: 6px; }
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-actions button,
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-actions > a { min-height: 34px; padding-block: 2px; font-size: .85rem; white-space: nowrap; }
+    .demonstration-workspace[data-ux-compact-header="free"] .workspace-graph #jgbox { height: max(420px, calc(100vh - 300px)) !important; }
+    .demonstration-workspace[data-ux-compact-header="free"] .workspace-heading-copy { min-width: 0; flex: 1 1 auto; }
+    .demonstration-workspace[data-ux-compact-header="free"] .workspace-heading h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: normal; }
+    .demonstration-workspace[data-ux-compact-header="free"] .workspace-actions { flex-shrink: 0; }
+}
+@media (min-width: 1200px) {
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-graph #jgbox { height: max(520px, calc(100vh - 340px)) !important; }
 }
 
