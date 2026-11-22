@@ -1,0 +1,419 @@
+{
+  "graph": "linear-map-determinant",
+  "language": "sl",
+  "states": [
+    {
+      "name": "determinant identity",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 0"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(0, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(1, 1)"
+        },
+        {
+          "key": "Determinanta po formuli#0",
+          "label": "Determinanta po formuli",
+          "value": "a·d - b·c = 1·1 - 0·0 = 1"
+        },
+        {
+          "key": "Predznačena ploščina (det A)#0",
+          "label": "Predznačena ploščina (det A)",
+          "value": "1"
+        },
+        {
+          "key": "Ploščina slike kvadrata#0",
+          "label": "Ploščina slike kvadrata",
+          "value": "1"
+        },
+        {
+          "key": "Orientacija#0",
+          "label": "Orientacija",
+          "value": "ohranjena"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "Orientacija: ohranjena",
+        "a₁ = (1, 0), a₂ = (0, 1)",
+        "det A = 1"
+      ]
+    },
+    {
+      "name": "scalar 2",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "2 0"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 2"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(2, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(0, 2)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(2, 2)"
+        },
+        {
+          "key": "Determinanta po formuli#0",
+          "label": "Determinanta po formuli",
+          "value": "a·d - b·c = 2·2 - 0·0 = 4"
+        },
+        {
+          "key": "Predznačena ploščina (det A)#0",
+          "label": "Predznačena ploščina (det A)",
+          "value": "4"
+        },
+        {
+          "key": "Ploščina slike kvadrata#0",
+          "label": "Ploščina slike kvadrata",
+          "value": "4"
+        },
+        {
+          "key": "Orientacija#0",
+          "label": "Orientacija",
+          "value": "ohranjena"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "Orientacija: ohranjena",
+        "a₁ = (2, 0), a₂ = (0, 2)",
+        "det A = 4"
+      ]
+    },
+    {
+      "name": "orientation reversing",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 2"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "2 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 2)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(2, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(3, 3)"
+        },
+        {
+          "key": "Determinanta po formuli#0",
+          "label": "Determinanta po formuli",
+          "value": "a·d - b·c = 1·1 - 2·2 = -3"
+        },
+        {
+          "key": "Predznačena ploščina (det A)#0",
+          "label": "Predznačena ploščina (det A)",
+          "value": "-3"
+        },
+        {
+          "key": "Ploščina slike kvadrata#0",
+          "label": "Ploščina slike kvadrata",
+          "value": "3"
+        },
+        {
+          "key": "Orientacija#0",
+          "label": "Orientacija",
+          "value": "obrnjena"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "Orientacija: obrnjena",
+        "a₁ = (1, 2), a₂ = (2, 1)",
+        "det A = -3"
+      ]
+    },
+    {
+      "name": "singular",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 2"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0,5 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 0,5)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(2, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(3, 1,5)"
+        },
+        {
+          "key": "Determinanta po formuli#0",
+          "label": "Determinanta po formuli",
+          "value": "a·d - b·c = 1·1 - 2·0,5 = 0"
+        },
+        {
+          "key": "Predznačena ploščina (det A)#0",
+          "label": "Predznačena ploščina (det A)",
+          "value": "0"
+        },
+        {
+          "key": "Ploščina slike kvadrata#0",
+          "label": "Ploščina slike kvadrata",
+          "value": "0"
+        },
+        {
+          "key": "Orientacija#0",
+          "label": "Orientacija",
+          "value": "ni določena"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "Orientacija: ni določena",
+        "a₁ = (1, 0,5), a₂ = (2, 1)",
+        "det A = 0"
+      ]
+    },
+    {
+      "name": "shear",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 1"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(1, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(2, 1)"
+        },
+        {
+          "key": "Determinanta po formuli#0",
+          "label": "Determinanta po formuli",
+          "value": "a·d - b·c = 1·1 - 1·0 = 1"
+        },
+        {
+          "key": "Predznačena ploščina (det A)#0",
+          "label": "Predznačena ploščina (det A)",
+          "value": "1"
+        },
+        {
+          "key": "Ploščina slike kvadrata#0",
+          "label": "Ploščina slike kvadrata",
+          "value": "1"
+        },
+        {
+          "key": "Orientacija#0",
+          "label": "Orientacija",
+          "value": "ohranjena"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "Orientacija: ohranjena",
+        "a₁ = (1, 0), a₂ = (1, 1)",
+        "det A = 1"
+      ]
+    },
+    {
+      "name": "entry a11 = 3",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "3 1"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(3, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(1, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(4, 1)"
+        },
+        {
+          "key": "Determinanta po formuli#0",
+          "label": "Determinanta po formuli",
+          "value": "a·d - b·c = 3·1 - 1·0 = 3"
+        },
+        {
+          "key": "Predznačena ploščina (det A)#0",
+          "label": "Predznačena ploščina (det A)",
+          "value": "3"
+        },
+        {
+          "key": "Ploščina slike kvadrata#0",
+          "label": "Ploščina slike kvadrata",
+          "value": "3"
+        },
+        {
+          "key": "Orientacija#0",
+          "label": "Orientacija",
+          "value": "ohranjena"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "Orientacija: ohranjena",
+        "a₁ = (3, 0), a₂ = (1, 1)",
+        "det A = 3"
+      ]
+    },
+    {
+      "name": "entry a22 = -2",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "3 1"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 -2"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(3, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(1, -2)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(4, -2)"
+        },
+        {
+          "key": "Determinanta po formuli#0",
+          "label": "Determinanta po formuli",
+          "value": "a·d - b·c = 3·(-2) - 1·0 = -6"
+        },
+        {
+          "key": "Predznačena ploščina (det A)#0",
+          "label": "Predznačena ploščina (det A)",
+          "value": "-6"
+        },
+        {
+          "key": "Ploščina slike kvadrata#0",
+          "label": "Ploščina slike kvadrata",
+          "value": "6"
+        },
+        {
+          "key": "Orientacija#0",
+          "label": "Orientacija",
+          "value": "obrnjena"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "Orientacija: obrnjena",
+        "a₁ = (3, 0), a₂ = (1, -2)",
+        "det A = -6"
+      ]
+    }
+  ]
+}

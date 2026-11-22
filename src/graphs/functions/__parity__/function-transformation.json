@@ -1,0 +1,202 @@
+{
+  "graph": "function-transformation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "y = -2 f(0,5(x - 3)) + 1"
+        },
+        {
+          "key": "Točka osnovnega grafa#0",
+          "label": "Točka osnovnega grafa",
+          "value": "(2; 4)"
+        },
+        {
+          "key": "Slika točke#0",
+          "label": "Slika točke",
+          "value": "(7; -7)"
+        }
+      ],
+      "notes": [
+        "Točka (u, v) osnovnega grafa se preslika v (u/b + c, a·v + d)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(u, f(u)) = (2; 4) → (7; -7)",
+        "y = -2 f(0,5(x - 3)) + 1"
+      ]
+    },
+    {
+      "name": "stretch and shift",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "y = 1,5 f(2(x + 1)) + 0,5"
+        },
+        {
+          "key": "Točka osnovnega grafa#0",
+          "label": "Točka osnovnega grafa",
+          "value": "(2; 4)"
+        },
+        {
+          "key": "Slika točke#0",
+          "label": "Slika točke",
+          "value": "(0; 6,5)"
+        }
+      ],
+      "notes": [
+        "Točka (u, v) osnovnega grafa se preslika v (u/b + c, a·v + d)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(u, f(u)) = (2; 4) → (0; 6,5)",
+        "y = 1,5 f(2(x + 1)) + 0,5"
+      ]
+    },
+    {
+      "name": "point u 1",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "y = 1,5 f(2(x + 1)) + 0,5"
+        },
+        {
+          "key": "Točka osnovnega grafa#0",
+          "label": "Točka osnovnega grafa",
+          "value": "(1; 1)"
+        },
+        {
+          "key": "Slika točke#0",
+          "label": "Slika točke",
+          "value": "(-0,5; 2)"
+        }
+      ],
+      "notes": [
+        "Točka (u, v) osnovnega grafa se preslika v (u/b + c, a·v + d)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(u, f(u)) = (1; 1) → (-0,5; 2)",
+        "y = 1,5 f(2(x + 1)) + 0,5"
+      ]
+    },
+    {
+      "name": "reflected, compressed",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "y = -f(0,5(x - 2)) - 2"
+        },
+        {
+          "key": "Točka osnovnega grafa#0",
+          "label": "Točka osnovnega grafa",
+          "value": "(1; 1)"
+        },
+        {
+          "key": "Slika točke#0",
+          "label": "Slika točke",
+          "value": "(4; -3)"
+        }
+      ],
+      "notes": [
+        "Točka (u, v) osnovnega grafa se preslika v (u/b + c, a·v + d)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(u, f(u)) = (1; 1) → (4; -3)",
+        "y = -f(0,5(x - 2)) - 2"
+      ]
+    },
+    {
+      "name": "sqrt",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "y = -f(0,5(x - 2)) - 2"
+        },
+        {
+          "key": "Točka osnovnega grafa#0",
+          "label": "Točka osnovnega grafa",
+          "value": "(4; 2)"
+        },
+        {
+          "key": "Slika točke#0",
+          "label": "Slika točke",
+          "value": "(10; -4)"
+        }
+      ],
+      "notes": [
+        "Točka (u, v) osnovnega grafa se preslika v (u/b + c, a·v + d)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(u, f(u)) = (4; 2) → (10; -4)",
+        "y = -f(0,5(x - 2)) - 2"
+      ]
+    },
+    {
+      "name": "reciprocal",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "y = -f(0,5(x - 2)) - 2"
+        },
+        {
+          "key": "Točka osnovnega grafa#0",
+          "label": "Točka osnovnega grafa",
+          "value": "(2; 0,5)"
+        },
+        {
+          "key": "Slika točke#0",
+          "label": "Slika točke",
+          "value": "(6; -2,5)"
+        }
+      ],
+      "notes": [
+        "Točka (u, v) osnovnega grafa se preslika v (u/b + c, a·v + d)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(u, f(u)) = (2; 0,5) → (6; -2,5)",
+        "y = -f(0,5(x - 2)) - 2"
+      ]
+    },
+    {
+      "name": "abs",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "y = -f(0,5(x - 2)) - 2"
+        },
+        {
+          "key": "Točka osnovnega grafa#0",
+          "label": "Točka osnovnega grafa",
+          "value": "(-3; 3)"
+        },
+        {
+          "key": "Slika točke#0",
+          "label": "Slika točke",
+          "value": "(-4; -5)"
+        }
+      ],
+      "notes": [
+        "Točka (u, v) osnovnega grafa se preslika v (u/b + c, a·v + d)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(u, f(u)) = (-3; 3) → (-4; -5)",
+        "y = -f(0,5(x - 2)) - 2"
+      ]
+    }
+  ]
+}

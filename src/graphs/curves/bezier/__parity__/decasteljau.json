@@ -1,0 +1,51 @@
+{
+  "graph": "decasteljau",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 0,50"
+      ],
+      "captions": []
+    },
+    {
+      "name": "t 0",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 0,00"
+      ],
+      "captions": []
+    },
+    {
+      "name": "t 0,25",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 0,25"
+      ],
+      "captions": []
+    },
+    {
+      "name": "t 0,8",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 0,80"
+      ],
+      "captions": []
+    },
+    {
+      "name": "t 1",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 1,00"
+      ],
+      "captions": []
+    }
+  ]
+}

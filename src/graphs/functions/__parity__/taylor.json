@@ -1,0 +1,544 @@
+{
+  "graph": "taylor",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "0"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "1"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "2"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "2,7183"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "0,7183"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "0,7183"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "skrito"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "skrito"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vrsta konvergira k f pri vsakem x."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 2, f(x) = 2,7183",
+        "c = 0, n = 1, x = 1",
+        "f(x) = eˣ",
+        "napaka |f(x) - Tₙ(x)| = 0,7183",
+        "ocena napake: skrita",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    },
+    {
+      "name": "degree 3, x 1,5",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "0"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1,5"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "4,1875"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "4,4817"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "0,2942"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "0,2942"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "skrito"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "skrito"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vrsta konvergira k f pri vsakem x."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 4,1875, f(x) = 4,4817",
+        "c = 0, n = 3, x = 1,5",
+        "f(x) = eˣ",
+        "napaka |f(x) - Tₙ(x)| = 0,2942",
+        "ocena napake: skrita",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    },
+    {
+      "name": "centre 1, degree 6",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "1"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "6"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1,5"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "4,4817"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "4,4817"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "4,492·10⁻⁶"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "4,492·10⁻⁶"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "skrito"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "skrito"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vrsta konvergira k f pri vsakem x."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 4,4817, f(x) = 4,4817",
+        "c = 1, n = 6, x = 1,5",
+        "f(x) = eˣ",
+        "napaka |f(x) - Tₙ(x)| = 4,492·10⁻⁶",
+        "ocena napake: skrita",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    },
+    {
+      "name": "bound shown",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "1"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "6"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1,5"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "4,4817"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "4,4817"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "4,492·10⁻⁶"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "4,492·10⁻⁶"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "6,947·10⁻⁶"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "|f^(n+1)| ≤ M = max(e^c, e^x) med c in x, ker je e^t naraščajoča; ocena je M·|x - c|^(n+1)/(n+1)!"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vrsta konvergira k f pri vsakem x."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 4,4817, f(x) = 4,4817",
+        "c = 1, n = 6, x = 1,5",
+        "f(x) = eˣ",
+        "napaka |f(x) - Tₙ(x)| = 4,492·10⁻⁶",
+        "napaka ≤ 6,947·10⁻⁶ (Lagrangeeva ocena)",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    },
+    {
+      "name": "sine, degree 5, x 2",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "0"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "5"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "2"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "0,9333"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "0,9093"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "-0,02404"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "0,02404"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "skrito"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "skrito"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vrsta konvergira k f pri vsakem x."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 0,9333, f(x) = 0,9093",
+        "c = 0, n = 5, x = 2",
+        "f(x) = sin x",
+        "napaka |f(x) - Tₙ(x)| = 0,02404",
+        "ocena napake: skrita",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    },
+    {
+      "name": "geometric inside",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "0"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "4"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,5"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "1,9375"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "2"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "0,0625"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "0,0625"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "skrito"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "skrito"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vrsta konvergira k f za x med -1 in 1 (|x - c| < 1 - c); x je znotraj."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 1,9375, f(x) = 2",
+        "c = 0, n = 4, x = 0,5",
+        "f(x) = 1/(1 - x)",
+        "konvergenčni interval: -1 &lt; x &lt; 1",
+        "napaka |f(x) - Tₙ(x)| = 0,0625",
+        "ocena napake: skrita",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    },
+    {
+      "name": "geometric outside",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "0,5"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "4"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "-0,5"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "22"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "0,6667"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "-21,33"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "21,33"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "skrito"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "skrito"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vrsta konvergira le za x med 0 in 1 (|x - c| < 1 - c); x je zunaj, tam ne konvergira."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 22, f(x) = 0,6667",
+        "c = 0,5, n = 4, x = -0,5",
+        "f(x) = 1/(1 - x)",
+        "konvergenčni interval: 0 &lt; x &lt; 1",
+        "napaka |f(x) - Tₙ(x)| = 21,33",
+        "ocena napake: skrita",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    },
+    {
+      "name": "flat",
+      "rows": [
+        {
+          "key": "Središče c#0",
+          "label": "Središče c",
+          "value": "0"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "2"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1"
+        },
+        {
+          "key": "Polinom Tₙ(x)#0",
+          "label": "Polinom Tₙ(x)",
+          "value": "0"
+        },
+        {
+          "key": "Funkcija f(x)#0",
+          "label": "Funkcija f(x)",
+          "value": "0,3679"
+        },
+        {
+          "key": "Napaka f(x) - Tₙ(x)#0",
+          "label": "Napaka f(x) - Tₙ(x)",
+          "value": "0,3679"
+        },
+        {
+          "key": "Absolutna napaka |f(x) - Tₙ(x)|#0",
+          "label": "Absolutna napaka |f(x) - Tₙ(x)|",
+          "value": "0,3679"
+        },
+        {
+          "key": "Ocena napake (Lagrange)#0",
+          "label": "Ocena napake (Lagrange)",
+          "value": "skrito"
+        },
+        {
+          "key": "Predpostavka ocene#0",
+          "label": "Predpostavka ocene",
+          "value": "skrito"
+        },
+        {
+          "key": "Vrsta pri n → ∞#0",
+          "label": "Vrsta pri n → ∞",
+          "value": "Vsi členi vrste so 0, zato vrsta konvergira, a k 0 in ne k f (za x > 0 je f(x) > 0)."
+        }
+      ],
+      "notes": [
+        "Tₙ je končen polinom in vedno obstaja; ali neskončna Taylorjeva vrsta konvergira in h čemu, je ločeno vprašanje. Napaka je izračunana neposredno kot f(x) - Tₙ(x); vrednosti, manjše od 10⁻¹², so zaradi zaokroževanja prikazane kot 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Tₙ(x) = 0, f(x) = 0,3679",
+        "c = 0, n = 2, x = 1",
+        "f(x) = e^(-1/x) za x &gt; 0, 0 sicer",
+        "napaka |f(x) - Tₙ(x)| = 0,3679",
+        "ocena napake: skrita",
+        "polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+      ]
+    }
+  ]
+}
