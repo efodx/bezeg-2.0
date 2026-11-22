@@ -24,7 +24,7 @@ export function UxBoardFrame(props: {children: React.ReactNode}) {
     useQuietFormulas(boardText || toolsCard);
     const typing = useEditingParam() !== undefined;
     return <>
-        <div className="ux-board-frame" ref={frame}>
+        <div className="ux-board-frame" ref={frame} data-ux-label-halo={boardText ? '' : undefined}>
             {props.children}
             {preview && !typing && <ScrubPreview frame={frame}/>}
             {pucks && hover && !typing && <PuckHover frame={frame}/>}

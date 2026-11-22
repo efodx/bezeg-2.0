@@ -57,3 +57,9 @@
 
 /* A board text whose content a pick moved into a card is empty; do not draw its plate. */
 .ux-board-frame .JXGtext:empty { display: none; }
+
+/* Board labels (ticks, captions, point names) get a halo in the board's cream so a line or dashed guide crossing them
+   no longer cuts the glyphs (round 13 A P2-1). Text only: no plate, so the label still reads as part of the graph. */
+.ux-board-frame[data-ux-label-halo] .JXGtext {
+    text-shadow: 0 0 2px #fffdf5, 0 0 2px #fffdf5, 0 0 3px #fffdf5, 0 0 4px #fffdf5;
+}
