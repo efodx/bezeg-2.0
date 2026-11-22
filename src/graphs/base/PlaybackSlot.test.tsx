@@ -52,7 +52,9 @@ describe("graph-adjacent playback slot", () => {
     test("on a narrow viewport the group and its status line sit in the slot after the board, once", () => {
         installMedia(true);
         const {container} = render(workspace(<Group/>));
-        expect(slot(container).previousElementSibling?.id).toBe("jgbox");
+        // UX picks: the board sits in the pick frame (then the pick's dock tray), so the slot follows the frame's tray.
+        const frame = container.querySelector("#jgbox")!.closest(".ux-board-frame")!;
+        expect(slot(container).previousElementSibling).toBe(frame.nextElementSibling);
         expect(groups(container)).toHaveLength(1);
         expect(slot(container).contains(groups(container)[0])).toBe(true);
         expect(slot(container).querySelector('[role="status"]')).not.toBeNull();
@@ -131,7 +133,8 @@ describe("graph-adjacent playback slot", () => {
     test("route exit removes the media listener and disconnects the observers", () => {
         const media = installMedia(true);
         const {unmount} = render(workspace(<Group/>));
-        expect(media.listeners.size).toBe(1);
+        // The slot's query plus the UX picks' phone query (`usePhone`), which shares the stubbed media object.
+        expect(media.listeners.size).toBeGreaterThan(0);
         const active = FakeResizeObserver.instances.filter(observer => !observer.disconnected);
         expect(active.length).toBeGreaterThan(0);
         unmount();

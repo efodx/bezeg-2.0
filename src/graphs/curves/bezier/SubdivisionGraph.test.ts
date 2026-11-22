@@ -38,7 +38,7 @@ function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
 function makeGraph() {
     const graph = Object.create(SubdivisionGraph.prototype) as any;
     const log: any[] = [];
-    graph.board = {suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn(), update: vi.fn(), fullUpdate: vi.fn(), setBoundingBox: vi.fn()};
+    graph.board = {suspendUpdate: vi.fn(), unsuspendUpdate: vi.fn(), update: vi.fn(), fullUpdate: vi.fn(), setBoundingBox: vi.fn(), getBoundingBox: vi.fn(() => [-5, 5, 5, -5])};
     graph.workspaceRevision = 0;
     graph.graphJXGPoints = [];
     graph.jxgCurves = [fakeJxgCurve(makeCurve(), log)];

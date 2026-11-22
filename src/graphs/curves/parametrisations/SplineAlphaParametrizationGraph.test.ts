@@ -113,6 +113,7 @@ function fakeBoard() {
         suspendUpdate: vi.fn(),
         unsuspendUpdate: vi.fn(),
         setBoundingBox: vi.fn(),
+        getBoundingBox: vi.fn(() => [-5, 5, 5, -5]),
     };
     return board;
 }

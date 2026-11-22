@@ -1,4 +1,3 @@
-import React from 'react';
 import {DarbouxGraph} from './DarbouxGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
@@ -617,9 +616,10 @@ test('Edit order: the reveal area (lower and upper sums) sits between the contro
     expect(children).toHaveLength(5);
     expect(children[0].props?.className).toBeUndefined(); // controls
     expect(children[1].props.className).toBe('inspector-reveals');
-    const [heading, reveals] = React.Children.toArray(children[1].props.children) as any[];
-    expect(heading.type.name).toBe('ReadoutHeading');
-    expect(reveals.props.children[0].props.className).toBe('darboux-actions');
+    // The reveal area is a declared ToolSection titled by the graph (UX picks pilot 2); its children are the reveals.
+    expect(children[1].type.name).toBe('ToolSection');
+    expect(typeof children[1].props.title).toBe('string');
+    expect(children[1].props.children.props.children[0].props.className).toBe('darboux-actions');
     expect(children[2].props.className).toBeUndefined(); // readout
     expect(children[3].type.name).toBe('RefusalNotice');
     expect(children[4].type.name).toBe('FunctionLegend');
