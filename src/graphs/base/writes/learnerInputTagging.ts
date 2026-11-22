@@ -104,15 +104,14 @@ export function installLearnerInputTagging(target: Window = window, options: Lea
         endSoon(end);
     }, true);
 
-    // A context menu can swallow the pointer up; a lost key up or pointer up (focus left the window or the page was
-    // hidden) must not leave a hold open either.
+    // A context menu can swallow the pointer up; a lost key up or pointer up (focus left the window) must not leave a hold open either.
     target.addEventListener("contextmenu", () => endPointers(), true);
     const endAllNow = () => {
         endPointers(true);
         endKeys(true);
     };
+    // Switching tabs or apps blurs the window too.
     target.addEventListener("blur", endAllNow);
-    target.document?.addEventListener("visibilitychange", endAllNow);
 
     for (const type of DISCRETE_EVENTS) {
         target.addEventListener(type, startPulse, {capture: true, passive: true});

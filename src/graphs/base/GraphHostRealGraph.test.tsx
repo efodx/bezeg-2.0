@@ -3,6 +3,7 @@ import {act, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import DecasteljauGraph from '../curves/bezier/DecasteljauGraph';
 import {GraphHost} from './GraphHost';
+import {runAs} from './writes/writeSource';
 import {LessonSession} from '../../learning/runtime/LessonSession';
 import type {LessonDefinition} from '../../learning/model';
 
@@ -43,15 +44,19 @@ test('a state change on a real graph calls onStateChange once per commit and red
     const update = vi.spyOn(graph.liveBoard(), 'update');
     graph.stateChanges.length = 0;
     act(() => {
-        graph.setState({t: 0.25});
-        graph.setState({t: 0.75});
+        runAs('lesson', () => {
+            graph.setState({t: 0.25});
+            graph.setState({t: 0.75});
+        });
     });
     expect(graph.stateChanges).toEqual([[0.5, 0.75]]);
     expect(update).toHaveBeenCalled();
 
     update.mockClear();
     act(() => {
-        graph.setState({t: 0.4});
+        runAs('lesson', () => {
+            graph.setState({t: 0.4});
+        });
     });
     expect(graph.stateChanges).toEqual([[0.5, 0.75], [0.75, 0.4]]);
     expect(update).toHaveBeenCalled();

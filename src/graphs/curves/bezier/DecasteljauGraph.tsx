@@ -260,12 +260,15 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
     /**
-     * Parameter writes (ADR 0064). Key `decasteljau-t` (the lesson `t`), read as the drawn parameter. Writers: the
+     * Parameter writes (ADR 0064). Key `decasteljau-t` (the lesson `t`). Writers: the
      * parameter slider (`learner`, a seek that pauses playback) and the lesson `parameter` action (`lesson`). Playback
      * frames move it under the driver's lease (`animation`); a learner or lesson write, or a frame change, ends it.
      */
     protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
-        return {"decasteljau-t": {read: () => this.parameter, apply: (value: number) => this.changeParameter(value)}};
+        // While playing, the drawn parameter runs ahead of the store; otherwise the store's `t` is the value, because the
+        // drawn parameter follows a store write only when the host commits, after the write's source has closed.
+        const read = () => this.lessonAnimation.isRunning() ? this.parameter : this.state.t;
+        return {"decasteljau-t": {read, apply: (value: number) => this.changeParameter(value)}};
     }
 
     protected override stopLessonAnimations(): void {
