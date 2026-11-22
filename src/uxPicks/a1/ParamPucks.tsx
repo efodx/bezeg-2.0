@@ -14,7 +14,8 @@ import {jumpValue} from '../a29/track';
 import {canOscillate, isOscillating, stopAllOscillators, sweepAll, toggleOscillator, useOscillators} from '../a3/oscillators';
 import {useReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import {DockItem} from '../dock/BoardDock';
-import {ShortcutsButton, isBoardKey} from '../dock/Shortcuts';
+import {isBoardKey, toggleShortcuts, typingTarget} from '../dock/Shortcuts';
+import {HelpIcon} from '../dock/icons';
 import {ChevronDownIcon, MinusIcon, PauseIcon, PlusIcon, WaveIcon} from '../dock/icons';
 import './ParamPucks.css';
 
@@ -35,6 +36,11 @@ export function shortName(name: string): string {
 
 /** A refused tap on a locked puck: the strip's lock note says so for a moment (a touch has no hover title). */
 const LOCK_TAP = 'ux-puck-lock-tap';
+/** a29: a jump on the track tells the strip what it replaced (detail: JumpUndo); a drag or typed entry on that puck ends the offer. */
+const JUMPED = 'ux-puck-jumped';
+const JUMP_ENDED = 'ux-puck-jump-ended';
+const UNDO_MS = 4000;
+interface JumpUndo {key: string; label: string; old: number; oldText: string; set(value: number): void}
 const LOCK_REASON = 'Zaklenjeno v tem koraku razlage';
 const LockMark = () => <span className="ux-puck-lock" role="img" aria-label={LOCK_REASON} title={LOCK_REASON}><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.4"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7"/></svg></span>;
 
@@ -236,6 +242,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         const dx = event.clientX - state.lastX;
         state.lastX = event.clientX;
         if (!state.moved && Math.hypot(event.clientX - state.startX, event.clientY - state.startY) < 4) return;
+        if (!state.moved) window.dispatchEvent(new CustomEvent(JUMP_ENDED, {detail: entry.key}));
         state.moved = true;
         const lift = Math.max(0, state.startY - event.clientY);
         const level = [...FINE_LEVELS].reverse().find(l => lift >= l.distance) ?? FINE_LEVELS[0];
@@ -261,7 +268,13 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         if (!state.moved && event.type === 'pointerup' && jumps && ref.current) {
             // a29: a press on the track (the strip along the bottom of the puck) jumps to the value under the pointer.
             const target = jumpValue(entryRef.current, ref.current, event.clientX, event.clientY);
-            if (target !== undefined) { own.current = performance.now() + 500; entryRef.current.set(target); }
+            if (target !== undefined) {
+                const current = entryRef.current;
+                own.current = performance.now() + 500;
+                const old = current.value;
+                current.set(target);
+                if (target !== old) window.dispatchEvent(new CustomEvent<JumpUndo>(JUMPED, {detail: {key: current.key, label: current.label, old, oldText: current.format(old), set: current.set}}));
+            }
         }
         if (!state.moved) ref.current?.focus();
     };
@@ -291,6 +304,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
                         own.current = performance.now() + 500;
+                        window.dispatchEvent(new CustomEvent(JUMP_ENDED, {detail: entry.key}));
                         const ok = Number.isFinite(value) && (entry.cyclic !== undefined || (value >= entry.min - 1e-9 && value <= entry.max + 1e-9));
                         if (ok) { entry.set(value); setProblem(undefined); } else { refuse(); setProblem(Number.isFinite(value) ? allowedRange(entry.format, entry.min, entry.max) : 'Vpiši število'); }
                         return ok;
@@ -353,6 +367,32 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [showOscillator, collapsed, locked]);
+    // Esc stops a running sweep (the value stays where it stopped) and takes back a track jump; a field being edited keeps its own Esc.
+    const [undo, setUndo] = useState<JumpUndo>();
+    const undoRef = useRef(undo);
+    undoRef.current = undo;
+    useEffect(() => {
+        let timer = 0;
+        const onJump = (event: Event) => {
+            setUndo((event as CustomEvent<JumpUndo>).detail);
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => setUndo(undefined), UNDO_MS);
+        };
+        const onEnd = (event: Event) => {
+            if (undoRef.current && undoRef.current.key === (event as CustomEvent<string>).detail) { window.clearTimeout(timer); setUndo(undefined); }
+        };
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key !== 'Escape' || event.defaultPrevented || typingTarget(event.target)) return;
+            const pending = undoRef.current;
+            if (pending) { window.clearTimeout(timer); pending.set(pending.old); setUndo(undefined); }
+            stopAllOscillators();
+        };
+        window.addEventListener(JUMPED, onJump);
+        window.addEventListener(JUMP_ENDED, onEnd);
+        window.addEventListener('keydown', onKey);
+        return () => { window.clearTimeout(timer); window.removeEventListener(JUMPED, onJump); window.removeEventListener(JUMP_ENDED, onEnd); window.removeEventListener('keydown', onKey); };
+    }, []);
+    const undoNow = () => { if (undo) { undo.set(undo.old); setUndo(undefined); } };
     // Phone: the row scrolls sideways, so the side that has more pucks gets a chevron (and the stylesheet's fade there).
     const [flash, setFlash] = useState(false);
     useEffect(() => {
@@ -402,15 +442,21 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
         {scrubbed && scrub && <Tape entry={scrubbed} value={scrub.value} fineLabel={scrub.fine} width={Math.min(width - 24, 416)} pxPerRange={scrub.pxPerRange} detent={scrub.detent}
             anchor={document.querySelector<HTMLElement>(`.ux-puck[data-param="${CSS.escape(scrubbed.key)}"]`)}/>}
         {/* Pinned above the row and out of the layout, so the row never moves when a reading frame locks it. */}
-        {locked && !collapsed && <p className={`ux-pucks-lock${flash ? ' is-flash' : ''}`} role="status">{LOCK_NOTE}</p>}
+        {undo && !collapsed && !locked
+            ? <p className="ux-pucks-lock ux-puck-undo" role="status">{undo.label} = {undo.oldText} · <button type="button" onPointerDown={event => event.stopPropagation()} onClick={undoNow}>Razveljavi</button></p>
+            : locked && !collapsed && <p className={`ux-pucks-lock${flash ? ' is-flash' : ''}`} role="status">{LOCK_NOTE}</p>}
         <div className="ux-pucks-rowbox"><div className="ux-pucks-row" ref={rowRef} data-more={more || undefined}>
-            <span className="ux-pucks-help-wrap" role="group" aria-label="Pomoč: parametri" title="Pomoč: parametri"><ShortcutsButton className="ux-pucks-help"/></span>
+            <span className="ux-pucks-help-wrap">
+                <button type="button" className="ux-sc-button ux-pucks-help" aria-label="Pomoč za parametre" aria-describedby="ux-pucks-help-tip" aria-haspopup="dialog"
+                    onPointerDown={e => e.stopPropagation()} onClick={e => toggleShortcuts(e.currentTarget)}><HelpIcon/></button>
+                <span id="ux-pucks-help-tip" role="tooltip" className="ux-pucks-help-tip">Pomoč za parametre (?)</span>
+            </span>
             <button type="button" className="ux-pucks-toggle" aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}
                 title={collapsed ? 'Pokaži parametre na grafu' : 'Skrij parametre na grafu'}>
                 {collapsed ? <>Parametri <b>{visible.length}</b></> : <ChevronDownIcon/>}
                 <span className="visually-hidden">{collapsed ? '' : 'Skrij parametre'}</span>
             </button>
-            {!collapsed && visible.map(entry => {
+            {!collapsed && <span className="ux-pucks-items">{visible.map(entry => {
                 const moving = oscillating.has(entry.key);
                 return <span key={entry.key} className={`ux-puck-wrap${moving ? ' is-oscillating' : ''}`}>
                     {entry.kind === 'count'
@@ -424,7 +470,7 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
                 </span>;
-            })}
+            })}</span>}
         </div>
         {more.includes('start') && <button type="button" className="ux-pucks-more is-start" aria-label="Več parametrov levo" tabIndex={-1} onClick={() => nudge(-1)}><ChevronDownIcon/></button>}
         {more.includes('end') && <button type="button" className="ux-pucks-more is-end" aria-label="Več parametrov desno" tabIndex={-1} onClick={() => nudge(1)}><ChevronDownIcon/></button>}
