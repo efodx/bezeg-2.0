@@ -91,6 +91,21 @@ Preview generation also requires FFmpeg and FFprobe; set `PREVIEW_FFMPEG` and `P
 
 In PowerShell, enable streaming with `$env:BEZEG_VERBOSE='1'` and remove it afterward with `Remove-Item Env:BEZEG_VERBOSE`. On Unix, use `BEZEG_VERBOSE=1 just check`. Read logs when a summary flags warnings. Logs are retained locally until you remove them. The separate Developer tools CI workflow checks the runner on Windows and Linux when tooling/dependency files change; the existing Browser smoke deployment gate continues to use npm directly. Choose verification for the affected behavior: `just check` does not include browser checks.
 
+## Checking one converted graph
+
+`just graph-check <graph-id> [--route <path>] [--base <url>] [--seeds N]` (`scripts/graph-check.cjs`) runs, for one graph: the declaration contract test filtered to `<id>: ...` (`src/learning/content/declarationContract.test.tsx`, one test per declaring graph, named by id), the parity recording test filtered to `__parity__/<id>.json`, and the graph's `<Name>Graph.declaration.test.tsx`. With `--base <preview url>` it also runs `just probe` and a short `just fuzz` (at most 3 seeds, default 3) on `--route` (default `analysis/<id>`); the fuzzer wants a dev server, the probe a production preview, so pass the URL the route needs or run the two by hand. Without `--base` the browser part is skipped. A filter that matches no test, a missing parity recording or a missing declaration test counts as FAIL. Exit 1 on any failure; logs are in `.command-logs/graph-check/`.
+
+A converting worker pastes the summary block into its report:
+
+```
+graph-check taylor: PASS
+  pass  contract     1 passed
+  pass  parity       1 passed
+  pass  declaration  14 passed
+  pass  probe        exit 0
+  pass  fuzz         exit 0
+```
+
 ## Session process cleanup
 
 Project hooks in `.claude/settings.json` run `tools/session-cleanup/session-cleanup.ps1` (Windows). On `SessionStart` it sweeps orphaned trees that a Claude shell started and whose session has exited or crashed, such as previews, Vite servers, test runs, and wait loops. On `SessionEnd` (except `/clear`) it treats the ending session's own trees the same way. On `Stop` (each turn end) it repeats the start sweep at most once per 10 minutes machine-wide.

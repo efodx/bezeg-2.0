@@ -65,6 +65,10 @@ ci *args:
 fuzz *args:
     @process.exitCode = require('child_process').spawnSync(process.execPath, ['scripts/fuzz/fuzz.cjs', ...process.argv.slice(2)], {stdio: 'inherit'}).status ?? 1
 
+# Check one graph: declaration contract, parity, declaration test, and with --base the probe and a short fuzz (docs/commands.md).
+graph-check *args:
+    @process.exitCode = require('child_process').spawnSync(process.execPath, ['scripts/graph-check.cjs', ...process.argv.slice(2)], {stdio: 'inherit'}).status ?? 1
+
 # Measure interaction jank (long tasks, frame gaps, layout shift, flicker) against a running preview (scripts/probe/README.md).
 probe *args:
     @process.exitCode = require('child_process').spawnSync(process.execPath, ['scripts/probe/probe.cjs', ...process.argv.slice(2)], {stdio: 'inherit'}).status ?? 1
