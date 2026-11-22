@@ -58,7 +58,9 @@ export function obstacleRects(container: HTMLElement, exclude?: string): Rect[] 
         if (exclude && el.matches(exclude)) return;
         const r = el.getBoundingClientRect();
         if (r.width <= 0 || r.height <= 0) return;
-        rects.push({x: r.left - origin.left, y: r.top - origin.top, width: r.width, height: r.height});
+        // The pucks strip is a band across the whole board: the graph is fitted above it, so the x-axis and its labels never lie under a puck.
+        if (el.classList.contains('ux-pucks')) rects.push({x: 0, y: r.top - origin.top, width: origin.width, height: r.height});
+        else rects.push({x: r.left - origin.left, y: r.top - origin.top, width: r.width, height: r.height});
     });
     return rects;
 }

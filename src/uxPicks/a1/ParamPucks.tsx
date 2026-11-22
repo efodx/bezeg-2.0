@@ -18,6 +18,23 @@ import {ShortcutsButton, isBoardKey} from '../dock/Shortcuts';
 import {ChevronDownIcon, MinusIcon, PauseIcon, PlusIcon, WaveIcon} from '../dock/icons';
 import './ParamPucks.css';
 
+/** Why the pucks are held while a reading frame is on (also the strip's note); shown as the title of a locked puck. */
+const LOCK_NOTE = 'Med razlago so parametri zaklenjeni — opazuj, kateri se spremeni.';
+
+/** A puck's label when the control has no symbol: whole words up to 12 characters, never an ellipsis (the full name is the puck's title). */
+export function shortName(name: string): string {
+    const words = name.trim().split(/\s+/);
+    let out = '';
+    for (const word of words) {
+        const next = out ? `${out} ${word}` : word;
+        if (next.length > 12) break;
+        out = next;
+    }
+    return out || `${words[0].slice(0, 11)}.`;
+}
+
+const LockMark = () => <span className="ux-puck-lock" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.4"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7"/></svg></span>;
+
 type ParamEntry = RangeParam;
 
 /**
@@ -260,13 +277,13 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         else if (event.key === 'End' && !blocked) { event.preventDefault(); entry.set(entry.max); }
     };
     return <div ref={ref} role="slider" tabIndex={0} aria-label={entry.label} aria-valuemin={entry.min} aria-valuemax={entry.max} aria-valuenow={entry.value}
-        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? 'Graf je med razlago zaklenjen' : jumps ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
+        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? LOCK_NOTE : jumps ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
         className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}${moving ? ' is-moving' : ''}`}
         data-click={clicked % 2} data-param={entry.key}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
         onDoubleClick={() => { if (blocked) refuse(); else setEditing(''); }} onKeyDown={onKeyDown}>
         <span className="ux-puck-text">
-            {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{name}</span>}
+            {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{shortName(name)}</span>}
             <span className="ux-puck-valuebox" style={{width: valueBoxWidth(entry)}}>{editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
@@ -278,6 +295,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
                 : <span className="ux-puck-value">{entry.format(entry.value)}</span>}</span>
         </span>
         {moving && <MovingMark/>}
+        {locked && <LockMark/>}
         {problem && <span className="ux-puck-problem" role="alert">{problem}</span>}
         <span className="ux-puck-track" aria-hidden="true"><span style={{left: `${Math.max(0, Math.min(1, fraction)) * 100}%`}}/></span>
     </div>;
@@ -339,8 +357,9 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
         {scrubbed && scrub && <Tape entry={scrubbed} value={scrub.value} fineLabel={scrub.fine} width={Math.min(width - 24, 416)} pxPerRange={scrub.pxPerRange} detent={scrub.detent}
             anchor={document.querySelector<HTMLElement>(`.ux-puck[data-param="${CSS.escape(scrubbed.key)}"]`)}/>}
         {/* Pinned above the row and out of the layout, so the row never moves when a reading frame locks it. */}
-        {locked && !collapsed && <p className="ux-pucks-lock">Med razlago so parametri zaklenjeni — opazuj, kateri se spremeni.</p>}
+        {locked && !collapsed && <p className="ux-pucks-lock">{LOCK_NOTE}</p>}
         <div className="ux-pucks-row">
+            <span className="ux-pucks-help-wrap" role="group" aria-label="Pomoč: parametri" title="Pomoč: parametri"><ShortcutsButton className="ux-pucks-help"/></span>
             <button type="button" className="ux-pucks-toggle" aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}
                 title={collapsed ? 'Pokaži parametre na grafu' : 'Skrij parametre na grafu'}>
                 {collapsed ? <>Parametri <b>{visible.length}</b></> : <ChevronDownIcon/>}
@@ -361,7 +380,6 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                     </button>}
                 </span>;
             })}
-            <ShortcutsButton className="ux-pucks-help"/>
         </div>
     </div></DockItem>;
 }
@@ -456,13 +474,13 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     const atMax = entry.max !== undefined && entry.value >= entry.max;
     return <div ref={ref} role="spinbutton" tabIndex={0} aria-label={entry.label} aria-valuenow={entry.value} aria-valuemin={entry.min} aria-valuemax={entry.max}
         aria-valuetext={entry.format(entry.value)} aria-disabled={locked || undefined}
-        title={locked ? 'Graf je med razlago zaklenjen' : hoverCard ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
+        title={locked ? LOCK_NOTE : hoverCard ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
         className={`ux-puck ux-count-puck${locked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}${moving ? ' is-moving' : ''}`}
         data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
         onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>
         <span className="ux-puck-text">
             <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Zmanjšaj: ${entry.label}`} aria-disabled={atMin || locked || undefined} onClick={() => step(-1)}><MinusIcon/></button>
-            {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{name}</span>}
+            {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{shortName(name)}</span>}
             <span className="ux-puck-valuebox" style={{width: valueBoxWidth(entry)}}>{editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
@@ -479,6 +497,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
             <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}><PlusIcon/></button>
         </span>
         {moving && <MovingMark/>}
+        {locked && <LockMark/>}
         {problem && <span className="ux-puck-problem" role="alert">{problem}</span>}
         {dots > 0 && <span className="ux-count-dots" aria-hidden="true">
             {Array.from({length: dots}, (_, index) => {
