@@ -73,6 +73,10 @@ graph-check *args:
 probe *args:
     @process.exitCode = require('child_process').spawnSync(process.execPath, ['scripts/probe/probe.cjs', ...process.argv.slice(2)], {stdio: 'inherit'}).status ?? 1
 
+# Measure preview options A (geometry) and B (shadow board) against a running dev server (docs/commands.md).
+preview-measure *args:
+    @process.exitCode = require('child_process').spawnSync(process.execPath, ['scripts/preview-measure/measure.cjs', ...process.argv.slice(2)], {stdio: 'inherit'}).status ?? 1
+
 # Serve the provenance-validated production build in the foreground.
 preview *args:
     @require('./scripts/commands.cjs').cli(['preview', ...process.argv.slice(2)])
