@@ -7,7 +7,7 @@ import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, message, messageNumber, t, type Message} from "../../localization";
-import type {GraphDeclaration, ParameterDeclaration, ReadoutNote} from "../base/declare/graphDeclaration";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutNote} from "../base/declare/graphDeclaration";
 import {runAs} from "../base/writes/writeSource";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {
@@ -367,9 +367,9 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const view = this.viewOf(model);
         const example = view.example;
         const shown = model.boundVisible;
-        const significant = (value: number) => message("taylor_value_text", {value0: this.small(value)});
+        const significant = (value: number): FormattedValue => ({kind: "formatted", text: this.small(value)});
         const hidden = message("taylor_hidden");
-        const boundValue: Message = !shown ? hidden : view.bound.kind === "bound" ? significant(view.bound.value) : message("taylor_bound_unavailable");
+        const boundValue: Message | FormattedValue = !shown ? hidden : view.bound.kind === "bound" ? significant(view.bound.value) : message("taylor_bound_unavailable");
         const series: Message = model.example === "geometric"
             ? message(view.insideConvergence ? "taylor_series_geometric_inside" : "taylor_series_geometric_outside",
                 {value0: messageNumber(geometricConvergenceInterval(model.center).from, PRECISE), value1: messageNumber(geometricConvergenceInterval(model.center).to, PRECISE)})
