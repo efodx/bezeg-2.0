@@ -1,0 +1,64 @@
+# Parameter writes: one store, one arbiter, previews that never touch live state
+
+Status: draft (2026-11-22), first part of the app-wide plan for the UX picks (`docs/reviews/ux-picks/state.md`). Owner chose this direction on 2026-11-22 ("c": fuzzer now, this design as a requirement for the app-wide implementation).
+
+## Why
+
+On the `ux-picks` prototype the owner found, by a "weird combination of presses" (play ∿, select, drag, play again, hover), a parameter whose value flickered between several values, and concluded that "these pucks are architecturally a bit weak". He is right. A parameter value has about six writers and nothing decides between them:
+
+| Writer | Prototype path | How it writes |
+| --- | --- | --- |
+| The tools control | `src/inputs/Slider.tsx`, `CountSetter.tsx` | the control's `onChange` into the graph's state |
+| Puck drag, typing, track jump, arrow keys, undo | `src/uxPicks/a1/ParamPucks.tsx` | registry `set` → the control's `onChange` |
+| Hover previews (ghost, overview fan, the sweep's range check) | `src/uxPicks/a19/ghost.ts`, `a29/fan.ts`, `a3/oscillators.ts` | registry `setRaw` on the **live** graph, read the board, restore the value read first |
+| Sweep (∿) | `src/uxPicks/a3/oscillators.ts` | registry `set` every frame |
+| Lesson scenes, Povrni, Back/Next morph | `src/learning/runtime/**`, `src/uxPicks/b1/morph.ts` | the graph's `SceneStore` |
+| Registry read-back | `src/uxPicks/a1/paramRegistry.ts` | publishes the value on the control's next render, so every reader is a write or two late |
+
+The two prototype fixes (R21 ecc31c94: learner input stops the sweep; R22 c617da8b: no preview probes while something sweeps) work, but they are patches. One is a global flag. The other infers ownership from values ("one of the sweep's last eight writes within half a step") because reads lag writes. Every new writer reopens the problem. The app-wide implementation must not port these paths as they are.
+
+## Scope
+
+All on-graph parameter controls that the kept picks bring app-wide (pucks a1, previews a19/a29, sweep a3, morph b1) and the existing tools controls, lessons and Presentation mode that write the same parameters. Out of scope: graph geometry itself, except where a preview needs geometry evaluated from a state that is not the live one (see "Previews").
+
+## Requirements
+
+1. **One authoritative value per parameter, applied synchronously.** A graph's state already applies writes immediately through its `SceneStore` (`src/graphs/base/SceneStore.ts`; the lesson runtime relies on it), and each graph changes a parameter through its own validated setter. Each parameter is bound to its reader and that setter. Controls, pucks, readouts and previews read through the binding; there is no second published copy (no registry mirror of values). A graph may keep a per-frame live value out of React rendering (De Casteljau during playback), read through the same binding.
+2. **Every write names its source.** `write(key, value, source)` with `source` one of `learner`, `lesson`, `animation` asks the arbiter and then calls the bound setter. Its result separates applied, refused by the arbiter, and refused by the domain (the setter's `DomainError`). There is no anonymous write path: in tests and development a change to a bound parameter outside a source scope is an error. Board-dragged points are `learner` writes; existing playback (`AnimationDriver`) is an `animation` writer.
+3. **A fixed priority decides: learner > lesson > animation.** An animation (sweep, morph glide) holds a *lease* on the keys it moves. Any higher-priority write to a leased key ends the lease at once, and the animation's UI shows that it stopped. A lower-priority write to a key a higher writer holds is refused. A lesson frame change ends every animation lease.
+4. **Previews never write live state.** A preview computes what the graph would look like at a value without changing the scene: from a copy of the state (see "Previews"). A preview is therefore safe at any time, including during a sweep, a drag or a morph, and needs no restore.
+5. **Ownership is stated where a writer is defined.** Each writer's module says which keys it writes, with which source, and what ends it. Review checks that the statement exists.
+6. **Interrupt what moves.** Every moving state (sweep, morph, view glide, preview) is tested against every input that writes the same state (`docs/smoke-tests.md`, "Interrupt what moves").
+
+## Previews (options; decide in an ADR before implementation)
+
+- **A. Geometry from state.** Graphs expose a pure function from a state to the curves and points the preview draws, independent of the board. Cleanest, and it is the existing direction ("geometry independent of React, JSXGraph"), but it is per-graph work for every graph with a previewed parameter.
+- **B. Shadow board.** The preview builds the graph once more on a hidden board with a copied state and reads its paths. Generic and quick, but it doubles the board cost for previewed graphs and must be measured (docs/performance-plan.md).
+- **C. Keep probing the live board under the arbiter.** A probe takes a short `preview` lease and holds every other writer off for its duration. Smallest change, but a probe still shows on the live board if it spans a frame, and it blocks the learner for that moment, which breaks requirement 3.
+
+Recommendation: B first for the generic previews, with A for graphs whose geometry is already separable. C is listed only to be rejected explicitly.
+
+## Acceptance criteria
+
+1. The untagged-write check (requirement 2) passes across the all-graph test suites and fails on a seeded untagged write; a search for the prototype's `setRaw`/registry `set` paths finds none.
+2. Unit tests, in one synchronous sequence per case: a learner write during an animation lease ends the lease and the value is the learner's; an animation write to a learner-held key is refused; a lesson frame change ends all leases; reads right after a write return the written value.
+3. Previews: a preview taken during a sweep, a drag and a morph leaves the graph's preset export unchanged (unit test; the state reference alone is not enough, because part of a curve graph's scene lives in board objects outside the state), and the board shows no probed value in any frame (browser check with frame sampling).
+4. The randomized interaction fuzzer (`night/fuzz/` on `ux-picks` today; ported into the repo's browser checks with the implementation) passes 50 seeds per kept-pick route with invariants I1-I5: learner wins; no A→B→A flicker; Esc stills everything; no page errors; untouched parameters stay.
+5. The prototype's known failures found by the fuzzer are listed below and each has a test.
+
+## Fuzzer findings feeding this spec
+
+From `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/fuzz/RESULTS.md` and `RESULTS2.md` (2026-11-22; fuzzer `fuzz.cjs` with `--replay`/`--selftest`). Owner, 2026-11-22: the run "proves such a test is valid and we'll use it in the app-wide impl". Each finding is a test case for acceptance 4-5:
+
+- **F1, I2 flicker: a sweep's own probe values painted.** Starting ∿ probes ~21 values to find the in-view swing; on a board that redrew a frame later the probe value stayed across frames (transformations `rest, osc:u, undo, osc:b` → b showed `0,5 1 0,5 2 0,5`). Prototype fix R30: each probe is set and taken back in one task, or probing stops. In the store: previews and probes never write live state (requirement 4).
+- **F2, I1 learner wins: a probe's closing restore overwrote the learner.** A value typed or dragged while the sweep probed was replaced by the probe's start value (transformations seeds 4-5). Prototype fix R30: probing stops untouched when the sweep stops or the value changed. In the store: a lower-priority writer never restores over a higher one (requirement 3).
+- **F3, I4 page error `reading 'handler'`.** A board 'update' listener removed itself inside JSXGraph's trigger loop, which caches the handler count (taylor, waves, phase portrait, Taylor lesson). Prototype fix R30: removal deferred to a microtask. In the implementation: listeners on board events never unsubscribe from inside the event.
+- Checker artefacts, excluded: typed decimals on integer-step or step-snapped sliders (phase.zoom).
+- After R30: F1 min 5/5, F2 min 3/3, waves min 3/3, taylor seed 2 (40 steps) and Taylor lesson seed 8 (30 steps) pass. The full seed matrix was not run (owner stopped it).
+
+## Consequences
+
+- Change for graph code: each parameter is bound to its existing setter and written inside a named source (shared inputs are already controlled and own no value). Route and preset formats are unaffected.
+- The registry becomes an index of parameters (label, range, step, format, lock), not a store of values.
+- Lessons keep writing through the scene store with source `lesson`; Presentation mode and phone layouts need no special case.
+- Decided (owner, 2026-11-22): a learner write during a lesson's Back/Next morph ends the morph at once and the learner's value takes over (requirement 3 as written). "If a user wanted to watch, he wouldn't be pressing." Rejected: let the morph finish, then apply the learner's value.
