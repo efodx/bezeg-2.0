@@ -21,7 +21,8 @@ import {activeGesture, currentWrite, onLearnerGestureEnd, outranks, runAs, type 
  * Leases. An animation (playback, sweep, glide) moves its keys under a {@link Lease}. A new lease ends older leases on
  * the same keys. A `learner` or `lesson` change of a leased key, a learner hold of it, and a lesson frame change
  * ({@link endAllLeases}) end the lease at once and call its `onEnd`, so the animation's control can show that it
- * stopped. A lease cannot start on a held key.
+ * stopped. A lease cannot start on a held key, except that a lease started inside a learner gesture (pressing Play)
+ * is not blocked by what that same gesture changed.
  *
  * Outcomes of {@link write} are separate: applied; refused by the arbiter (a higher source holds the key, or the
  * animation's lease has ended); refused by the domain (the setter's own error, value and leases unchanged).
@@ -95,6 +96,8 @@ class LeaseImpl implements Lease {
         private readonly arbiter: ParameterArbiter,
         readonly keys: ReadonlySet<string>,
         readonly onEnd: (reason: LeaseEndReason) => void,
+        /** The learner gesture that started this lease (pressing Play): its own holds do not block the lease. */
+        readonly gesture: number | undefined,
     ) {
     }
 
@@ -104,7 +107,11 @@ class LeaseImpl implements Lease {
 
     run(work: () => void): boolean {
         if (!this.active) return false;
-        runAs("animation", work, this);
+        runAs("animation", () => {
+            work();
+            // Attribute the frame's changes inside its own scope, also those outside the scene store (a live value).
+            this.arbiter.observe();
+        }, this);
         return true;
     }
 
@@ -152,6 +159,14 @@ export class ParameterArbiter {
         return entry.holds > 0 || (entry.gestureHold !== undefined && entry.gestureHold === activeGesture());
     }
 
+    /** Whether the learner holds `key` against an animation: a gesture's holds do not block the lease it started. */
+    private isHeldAgainst(key: string, lease: { readonly gesture: number | undefined }): boolean {
+        const entry = this.require(key);
+        if (entry.holds > 0) return true;
+        const gesture = entry.gestureHold;
+        return gesture !== undefined && gesture === activeGesture() && gesture !== lease.gesture;
+    }
+
     /** Writes `value` to `key` as `source`; an `animation` write names its lease. */
     write(key: string, value: unknown, source: WriteSource, lease?: Lease): WriteResult {
         const entry = this.require(key);
@@ -160,9 +175,13 @@ export class ParameterArbiter {
             if (!own || !own.active) return {status: "refused-arbiter", reason: "lease-ended"};
             if (!own.keys.has(key)) return {status: "refused-arbiter", reason: "not-leased"};
         }
-        if (source !== "learner" && this.isHeld(key)) return {status: "refused-arbiter", reason: "held"};
+        if (source === "lesson" && this.isHeld(key)) return {status: "refused-arbiter", reason: "held"};
+        if (source === "animation" && this.isHeldAgainst(key, lease as LeaseImpl)) return {status: "refused-arbiter", reason: "held"};
         try {
-            runAs(source, () => entry.binding.apply(value), source === "animation" ? lease : undefined);
+            runAs(source, () => {
+                entry.binding.apply(value);
+                this.observe();
+            }, source === "animation" ? lease : undefined);
         } catch (error) {
             if (this.options.isDomainError(error)) return {status: "refused-domain", error: error as Error};
             throw error;
@@ -195,9 +214,11 @@ export class ParameterArbiter {
      */
     lease(keys: Iterable<string>, onEnd: (reason: LeaseEndReason) => void = () => undefined): Lease | undefined {
         const set = new Set(keys);
-        for (const key of set) if (this.isHeld(key)) return undefined;
+        const write = currentWrite();
+        const gesture = write?.source === "learner" ? activeGesture() : undefined;
+        for (const key of set) if (this.isHeldAgainst(key, {gesture})) return undefined;
         for (const other of [...this.leases]) if ([...set].some(key => other.keys.has(key))) this.endLease(other, "replaced");
-        const lease = new LeaseImpl(this, set, onEnd);
+        const lease = new LeaseImpl(this, set, onEnd, gesture);
         this.leases.add(lease);
         return lease;
     }

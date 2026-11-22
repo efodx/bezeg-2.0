@@ -30,6 +30,8 @@ export class GraphSession {
     private readonly readyWaiters = new Set<() => void>();
     private readonly abortController = new AbortController();
     private refreshPending = false;
+    /** How many of this session's board listeners are running now (see `on`). */
+    private dispatchDepth = 0;
     private pendingTransitions = 0;
 
     /**
@@ -115,22 +117,51 @@ export class GraphSession {
         this.registerCleanup(dispose);
     }
 
-    /** Track a JSXGraph event subscription and return its idempotent unsubscribe function. */
+    /**
+     * Track a JSXGraph event subscription and return its idempotent unsubscribe function.
+     *
+     * Rule: a board event listener never removes a handler synchronously inside that event. JSXGraph's `trigger`
+     * caches the handler count, so removal during dispatch breaks its loop (`reading 'handler'`). The listener is
+     * wrapped: it does nothing once unsubscribed, and while any listener of this session runs, `unsubscribe` defers
+     * `board.off` to a microtask; otherwise it removes at once.
+     */
     on(event: string, listener: BoardEventListener): () => void {
         const board = this.requireBoard();
-        board.on(event, listener);
         let subscribed = true;
-        const unsubscribe = () => {
+        const wrapper: BoardEventListener = (...args) => {
             if (!subscribed) return;
-            subscribed = false;
-            this.cleanups.delete(unsubscribe);
+            this.dispatchDepth++;
             try {
-                board.off(event, listener);
+                listener(...args);
+            } finally {
+                this.dispatchDepth--;
+            }
+        };
+        board.on(event, wrapper);
+        const remove = () => {
+            try {
+                board.off(event, wrapper);
             } catch {
                 // The board may already have removed this subscription while tearing down.
             }
         };
+        const unsubscribe = () => {
+            if (!subscribed) return;
+            subscribed = false;
+            this.cleanups.delete(unsubscribe);
+            if (this.dispatchDepth > 0) queueMicrotask(remove);
+            else remove();
+        };
         this.cleanups.add(unsubscribe);
+        return unsubscribe;
+    }
+
+    /** Runs `listener` on the first `event` only, then unsubscribes through the same safe path as {@link on}. */
+    once(event: string, listener: BoardEventListener): () => void {
+        const unsubscribe: () => void = this.on(event, (...args) => {
+            unsubscribe();
+            listener(...args);
+        });
         return unsubscribe;
     }
 

@@ -56,7 +56,7 @@ test('owns board subscriptions and resize observation through idempotent disposa
 
         expect(session.isAlive).toBe(false);
         expect(session.signal.aborted).toBe(true);
-        expect((board as any).off).toHaveBeenCalledWith('down', listener);
+        expect((board as any).off).toHaveBeenCalledWith('down', expect.any(Function));
         expect(disconnect).toHaveBeenCalledTimes(1);
         expect((board as any).resizeContainer).not.toHaveBeenCalled();
         expect(freeBoard).toHaveBeenCalledTimes(1);
