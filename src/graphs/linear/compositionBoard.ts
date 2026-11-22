@@ -25,6 +25,8 @@ export interface CompositionBoardContext {
     readonly active: () => boolean;
     readonly view: () => CompositionView;
     readonly pivotSet: () => boolean;
+    /** Names a drawn object for the declaration's legend (`BaseGraph.drawnObject`). */
+    readonly mark?: (id: string, element: unknown) => void;
     readonly strokeWidth: () => number;
     readonly thin: () => number;
     readonly markerSize: () => number;
@@ -42,26 +44,28 @@ type CurveLike = {updateDataArray: () => void; dataX: number[]; dataY: number[]}
 /** The curves, drawn above the two grids of the graph and below its points. */
 export function createCompositionCurves(ctx: CompositionBoardContext): void {
     const {board} = ctx;
-    const polyline = (points: () => Polyline, attributes: object) => {
-        const curve = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, ...attributes})) as unknown as CurveLike;
+    const polyline = (points: () => Polyline, attributes: object, id?: string) => {
+        const element = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, ...attributes}));
+        const curve = element as unknown as CurveLike;
         curve.updateDataArray = () => {
             const {x, y} = ctx.active() ? points() : {x: [], y: []};
             curve.dataX = x;
             curve.dataY = y;
         };
+        if (id) ctx.mark?.(id, element);
     };
-    polyline(() => ctx.view().gridA, {strokeColor: COMPOSITION_COLORS.gridA, strokeOpacity: 0.45, strokeWidth: ctx.thin, dash: 2, visible: ctx.active});
-    polyline(() => ctx.view().gridImage, {strokeColor: COMPOSITION_COLORS.gridImage, strokeOpacity: 0.68, strokeWidth: ctx.thin, visible: ctx.active});
+    polyline(() => ctx.view().gridA, {strokeColor: COMPOSITION_COLORS.gridA, strokeOpacity: 0.45, strokeWidth: ctx.thin, dash: 2, visible: ctx.active}, 'comp-grid-a');
+    polyline(() => ctx.view().gridImage, {strokeColor: COMPOSITION_COLORS.gridImage, strokeOpacity: 0.68, strokeWidth: ctx.thin, visible: ctx.active}, 'comp-grid-image');
     polyline(() => translationSegment(ctx.view()), {
         strokeColor: COMPOSITION_COLORS.translation, strokeWidth: ctx.strokeWidth, lastArrow: {type: 2, size: 6},
         visible: () => ctx.active() && (ctx.view().translation[0] !== 0 || ctx.view().translation[1] !== 0),
-    });
-    const bezier = (controls: () => readonly Vec2[], color: string) =>
-        ctx.own(board.create('curve', [
+    }, 'comp-translation');
+    const bezier = (controls: () => readonly Vec2[], color: string, id: string) =>
+        ctx.mark?.(id, ctx.own(board.create('curve', [
             (s: number) => bezierPoint(controls(), s)[0], (s: number) => bezierPoint(controls(), s)[1], 0, 1,
-        ], {strokeColor: color, strokeWidth: ctx.strokeWidth, highlight: false, fixed: true, withLabel: false, visible: ctx.active}));
-    bezier(() => ctx.view().source, COMPOSITION_COLORS.source);
-    bezier(() => ctx.view().image, COMPOSITION_COLORS.image);
+        ], {strokeColor: color, strokeWidth: ctx.strokeWidth, highlight: false, fixed: true, withLabel: false, visible: ctx.active})));
+    bezier(() => ctx.view().source, COMPOSITION_COLORS.source, 'comp-curve');
+    bezier(() => ctx.view().image, COMPOSITION_COLORS.image, 'comp-curve-image');
 }
 
 /** The control points of the two curves and the pivot handle; the handle is the one returned. */
@@ -83,6 +87,7 @@ export function createCompositionPoints(ctx: CompositionBoardContext): JXG.Point
         ...ctx.handleAttributes, name: '$$c$$', label: ctx.pointLabel(() => ctx.placement('c'), 1.1, shown), size: ctx.markerSize,
         fillColor: COMPOSITION_COLORS.pivot, highlightFillColor: COMPOSITION_COLORS.pivot, visible: shown,
     })) as JXG.Point;
+    ctx.mark?.('comp-pivot', handle);
     bindMovablePointCursor(handle, board);
     handle.on('drag', () => {
         if (!Number.isFinite(handle.X()) || !Number.isFinite(handle.Y())) return;

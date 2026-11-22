@@ -1,4 +1,6 @@
 import type {LessonAction, LessonDefinition, LessonFrame, LessonStep, LessonWorkedExample, LocalizedText} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {LinearMapIds} from '../../graphs/linear/LinearMapGraph';
 
 // Linear maps chapter-owned guided activities (spec L1 to L4). Every number is recomputed in linearMapsChapter.test.ts from the kernel.
 // Scene actions run synchronously in one tick; each scene starts from the Demonstration default and then names its state.
@@ -23,8 +25,15 @@ const pivot = (c: readonly [number, number] | null): LessonAction => ({kind: 'li
 /** The start vector v0 of the iterate mode (the quarter grid); the step is not reset by it. */
 const start = (v: readonly [number, number]): LessonAction => ({kind: 'linear-map', operation: 'set-start', start: v});
 
-function step(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[]): LessonStep {
-    return {id, title, body, prompt, scene: {actions: [defaultScene(`linear-map-${id}`), ...actions]}};
+/** Frame declarations of the linear map steps, typed by the graph's ids. */
+const frame = frameDeclarer<LinearMapIds>();
+
+/** A step with one frame (the id the synthesized frame had, so progress keeps its place); `declare` names the rows and controls the text asks about. */
+function step(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[], declare?: FrameDeclaration): LessonStep {
+    return {
+        id, title, body, prompt, scene: {actions: [defaultScene(`linear-map-${id}`), ...actions]},
+        ...(declare ? {frames: [{id: `${id}-content`, kind: 'explanation' as const, title, body, prompt, declare}]} : {}),
+    };
 }
 
 export const linearMapBasisLesson: LessonDefinition = {
@@ -40,32 +49,38 @@ export const linearMapBasisLesson: LessonDefinition = {
             words('Enotska mreža in točka \\(p\\)', 'The unit grid and the point \\(p\\)'),
             words('Začnemo z identiteto: \\(e_1=(1,0)\\) in \\(e_2=(0,1)\\) sta slika samih sebe, točka \\(p=(1,1)\\) pa je vsota \\(e_1+e_2\\). Vsako točko ravnine lahko zapišemo kot \\(x\\,e_1+y\\,e_2\\); preslikava \\(A\\) je linearna, zato velja \\(A(x,y)=x\\,Ae_1+y\\,Ae_2\\). Zadostuje torej vedeti, kam gresta \\(e_1\\) in \\(e_2\\).', 'We start with the identity: \\(e_1=(1,0)\\) and \\(e_2=(0,1)\\) are their own images, and the point \\(p=(1,1)\\) is the sum \\(e_1+e_2\\). Every point of the plane can be written as \\(x\\,e_1+y\\,e_2\\); the map \\(A\\) is linear, so \\(A(x,y)=x\\,Ae_1+y\\,Ae_2\\). It is enough to know where \\(e_1\\) and \\(e_2\\) go.'),
             words('Napovej: če se \\(e_1\\) preslika v \\((2,1)\\), \\(e_2\\) pa ostane pri \\((0,1)\\), kam gre točka \\(p=(1,1)\\)? Preveri šele nato.', 'Predict: if \\(e_1\\) is sent to \\((2,1)\\) and \\(e_2\\) stays at \\((0,1)\\), where does the point \\(p=(1,1)\\) go? Check only afterwards.'),
-            [mode('basis'), example('identity')]),
+            [mode('basis'), example('identity')],
+            frame({highlight: ['a1', 'a2', 'probe']})),
         step('basis-first-column',
             words('Prvi stolpec: povleci \\(a_1\\)', 'The first column: drag \\(a_1\\)'),
             words('Ročico \\(a_1=Ae_1\\) postavimo v \\((2,1)\\), \\(a_2\\) pa pustimo pri \\((0,1)\\). Matrika ima stolpca \\((2,1)\\) in \\((0,1)\\), zato je \\(A(1,1)=1\\cdot(2,1)+1\\cdot(0,1)=(2,2)\\). Vodoravne mrežne črte so smeri \\(e_1\\), zato se nagnejo v smer \\(a_1\\). Navpične ostanejo navpične, ker se \\(e_2\\) ni premaknil; navpična črta \\(x=c\\) se le premakne v \\(x=2c\\), zato so dvakrat bolj narazen.', 'We place the handle \\(a_1=Ae_1\\) at \\((2,1)\\) and leave \\(a_2\\) at \\((0,1)\\). The matrix has columns \\((2,1)\\) and \\((0,1)\\), so \\(A(1,1)=1\\cdot(2,1)+1\\cdot(0,1)=(2,2)\\). The horizontal grid lines have direction \\(e_1\\), so they tilt along \\(a_1\\). The vertical lines stay vertical because \\(e_2\\) did not move; the vertical line \\(x=c\\) only moves to \\(x=2c\\), so they are twice as far apart.'),
             words('Povleci \\(a_1\\) drugam in preberi nov \\(A(1,1)\\). Preveri, da je vedno enak \\(a_1+a_2\\).', 'Drag \\(a_1\\) elsewhere and read the new \\(A(1,1)\\). Check that it always equals \\(a_1+a_2\\).'),
-            [mode('basis'), matrix([[2, 0], [1, 1]])]),
+            [mode('basis'), matrix([[2, 0], [1, 1]])],
+            frame({highlight: ['a1', 'a2', 'probe'], uses: ['linear-map-a11', 'linear-map-a21']})),
         step('basis-second-column',
             words('Drugi stolpec in diagonala', 'The second column and the diagonal'),
             words('Zdaj še \\(a_2=Ae_2\\) postavimo v \\((-1,1)\\). Matrika \\(A\\) ima stolpca \\((2,1)\\) in \\((-1,1)\\), točka \\(p=(1,1)\\) pa gre v \\(a_1+a_2=(1,2)\\): to je diagonala paralelograma, ki ga napenjata \\(a_1\\) in \\(a_2\\). Enotski kvadrat se je preslikal v ta paralelogram.', 'Now place \\(a_2=Ae_2\\) at \\((-1,1)\\). The matrix \\(A\\) has columns \\((2,1)\\) and \\((-1,1)\\), and the point \\(p=(1,1)\\) goes to \\(a_1+a_2=(1,2)\\): the diagonal of the parallelogram spanned by \\(a_1\\) and \\(a_2\\). The unit square has been mapped to this parallelogram.'),
             words('Povleci \\(a_2\\) in opazuj, kako se obrne druga družina mrežnih črt, \\(a_1\\) pa ostane pri miru.', 'Drag \\(a_2\\) and watch the other family of grid lines turn while \\(a_1\\) stays put.'),
-            [mode('basis'), example('basis-default')]),
+            [mode('basis'), example('basis-default')],
+            frame({highlight: ['a1', 'a2', 'probe'], uses: ['linear-map-a12', 'linear-map-a22']})),
         step('basis-bezier',
             words('Bézierjeva krivulja sledi kontrolnim točkam', 'The Bézier curve follows its control points'),
             words('Izrek (linearnost vrednotenja): za linearno preslikavo \\(A\\) in Bézierjevo krivuljo \\(B(t)=\\sum_i B_i^n(t)P_i\\) velja \\(A\\,B(t)=\\sum_i B_i^n(t)\\,AP_i\\), ker \\(A\\) ohranja vsote in množenje s številom. Slika krivulje je zato Bézierjeva krivulja s kontrolnimi točkami \\(AP_i\\). Za \\(P=(1,0),(2,3),(4,2),(5,-1)\\) so slike \\((2,1),(1,5),(6,6),(11,4)\\), \\(B(\\tfrac12)=(3,\\tfrac74)\\) in \\(A\\,B(\\tfrac12)=(\\tfrac{17}{4},\\tfrac{19}{4})\\), kar je enako \\(B_A(\\tfrac12)\\) po slikah kontrolnih točk. Slika je ponazoritev izreka, ne dokaz.', 'Theorem (linearity of evaluation): for a linear map \\(A\\) and a Bézier curve \\(B(t)=\\sum_i B_i^n(t)P_i\\) we have \\(A\\,B(t)=\\sum_i B_i^n(t)\\,AP_i\\), because \\(A\\) preserves sums and scalar multiples. The image of the curve is therefore the Bézier curve of the control points \\(AP_i\\). For \\(P=(1,0),(2,3),(4,2),(5,-1)\\) the images are \\((2,1),(1,5),(6,6),(11,4)\\), \\(B(\\tfrac12)=(3,\\tfrac74)\\) and \\(A\\,B(\\tfrac12)=(\\tfrac{17}{4},\\tfrac{19}{4})\\), which equals \\(B_A(\\tfrac12)\\) built from the image control points. The picture illustrates the theorem; it does not prove it.'),
             words('Povleci \\(a_1\\) ali \\(a_2\\) in preveri, da slika krivulje vedno poteka po sliki kontrolnega poligona, kakor napoveduje izrek.', 'Drag \\(a_1\\) or \\(a_2\\) and check that the image curve always follows the image of the control polygon, as the theorem predicts.'),
-            [mode('basis'), example('basis-default')]),
+            [mode('basis'), example('basis-default')],
+            frame({highlight: ['probe'], uses: ['linear-map-a11', 'linear-map-a21', 'linear-map-a12', 'linear-map-a22']})),
         step('basis-invariants',
             words('Kaj se ne spremeni', 'What does not change'),
             words('Izhodišče ostane na mestu, ker je \\(A(0,0)=0\\). Vzporedne mrežne črte ostanejo vzporedne in enakomerno razmaknjene, ker \\(A\\) ohranja linearne kombinacije. Središče daljice \\(P_0P_3\\), točka \\((3,-\\tfrac12)\\), se preslika v središče slik, \\((\\tfrac{13}{2},\\tfrac52)\\).', 'The origin stays where it is because \\(A(0,0)=0\\). Parallel grid lines stay parallel and equally spaced because \\(A\\) preserves linear combinations. The midpoint of the segment \\(P_0P_3\\), the point \\((3,-\\tfrac12)\\), goes to the midpoint of the images, \\((\\tfrac{13}{2},\\tfrac52)\\).'),
             words('Poišči točko, ki se pri nobeni izbiri \\(a_1\\) in \\(a_2\\) ne premakne. Utemelji, zakaj je ena sama.', 'Find the point that does not move for any choice of \\(a_1\\) and \\(a_2\\). Explain why there is only that one in general.'),
-            [mode('basis'), example('basis-default')]),
+            [mode('basis'), example('basis-default')],
+            frame({highlight: ['a1', 'a2', 'probe']})),
         step('basis-explore',
             words('Prosto raziskovanje', 'Free exploration'),
             words('Vnesi ali povleci poljubni stolpca. Vsak vnos je večkratnik \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Tudi matrika z \\(\\det A=0\\) je dovoljena: mreža se sesede na premico ali točko, kar graf izpiše z besedami.', 'Enter or drag any two columns. Every entry is a multiple of \\(\\tfrac14\\) between \\(-4\\) and \\(4\\). A matrix with \\(\\det A=0\\) is allowed too: the grid collapses onto a line or a point, which the graph states in words.'),
             words('Izberi stolpca tako, da se mreža sesede, in opiši, kaj je potem slika kontrolnega poligona.', 'Choose the columns so that the grid collapses, and describe what the image of the control polygon is then.'),
-            [mode('basis'), example('basis-default')]),
+            [mode('basis'), example('basis-default')],
+            frame({highlight: ['row1', 'row2'], uses: ['linear-map-a11', 'linear-map-a21', 'linear-map-a12', 'linear-map-a22']})),
     ],
 };
 
@@ -82,32 +97,38 @@ export const linearMapDeterminantLesson: LessonDefinition = {
             words('Kvadrat in njegova slika', 'The square and its image'),
             words('Za \\(A\\) s stolpcema \\((2,1)\\) in \\((-1,1)\\) se oglišča kvadrata \\(0,e_1,e_1{+}e_2,e_2\\) preslikajo v \\((0,0),(2,1),(1,2),(-1,1)\\). Obrazec z determinantami (angl. shoelace; vsota \\(\\tfrac12\\sum(x_iy_{i+1}-x_{i+1}y_i)\\)) je \\(3\\), kar je \\(\\det A=2\\cdot1-(-1)\\cdot1=3\\). Ploščina je pozitivna, ker oglišča še vedno tečejo v nasprotni smeri urnega kazalca.', 'For \\(A\\) with columns \\((2,1)\\) and \\((-1,1)\\), the square vertices \\(0,e_1,e_1{+}e_2,e_2\\) go to \\((0,0),(2,1),(1,2),(-1,1)\\). The shoelace formula \\(\\tfrac12\\sum(x_iy_{i+1}-x_{i+1}y_i)\\) gives \\(3\\), which is \\(\\det A=2\\cdot1-(-1)\\cdot1=3\\). The area is positive because the vertices still run counter-clockwise.'),
             words('Napovej ploščino paralelograma, preden preberaš odčitek, nato primerjaj z \\(\\det A\\).', 'Predict the area of the parallelogram before reading the readout, then compare with \\(\\det A\\).'),
-            [mode('determinant'), example('basis-default')]),
+            [mode('determinant'), example('basis-default')],
+            frame({highlight: ['det', 'area']})),
         step('det-orientation',
             words('Predznak pove orientacijo', 'The sign tells the orientation'),
             words('Za matriko \\(B\\) s stolpcema \\((1,2)\\) in \\((2,1)\\) je \\(\\det B=1\\cdot1-2\\cdot2=-3\\). Ploščina slike je še vedno \\(3\\), vendar oglišča tečejo v smeri urnega kazalca in predznačena Gaussova ploščinska vsota je \\(-3\\). Orientacija je obrnjena.', 'For the matrix \\(B\\) with columns \\((1,2)\\) and \\((2,1)\\) we get \\(\\det B=1\\cdot1-2\\cdot2=-3\\). The image still has area \\(3\\), but the vertices now run clockwise and the signed shoelace sum is \\(-3\\). The orientation is reversed.'),
             words('Zakaj je ploščina \\(3\\), predznak pa negativen? Pogledaj oznake oglišč \\(0,e_1,e_1{+}e_2,e_2\\).', 'Why is the area \\(3\\) while the sign is negative? Look at the vertex labels \\(0,e_1,e_1{+}e_2,e_2\\).'),
-            [mode('determinant'), example('orientation-reversing')]),
+            [mode('determinant'), example('orientation-reversing')],
+            frame({highlight: ['det', 'orientation']})),
         step('det-flip',
             words('Obrat nastopi pri kolinearnosti', 'The flip happens at collinearity'),
             words('Stolpca \\((1,\\tfrac12)\\) in \\((2,\\tfrac54)\\) dasta \\(\\det=1\\cdot\\tfrac54-2\\cdot\\tfrac12=\\tfrac14\\): tanek, a nesesedeni paralelogram. Predznak se zamenja natanko takrat, ko postanejo \\(0\\), \\(a_1\\) in \\(a_2\\) kolinearne. Ker so vnosi večkratniki \\(\\tfrac14\\), sta \\(\\det\\) in predznak izračunana točno, brez tolerance.', 'The columns \\((1,\\tfrac12)\\) and \\((2,\\tfrac54)\\) give \\(\\det=1\\cdot\\tfrac54-2\\cdot\\tfrac12=\\tfrac14\\): a thin but non-degenerate parallelogram. The sign changes exactly when \\(0\\), \\(a_1\\) and \\(a_2\\) become collinear. Because the entries are multiples of \\(\\tfrac14\\), \\(\\det\\) and its sign are computed exactly, without a tolerance.'),
             words('Povleci \\(a_2\\) navzdol za en korak in nato še za enega. Katera dva odčitka se spremenita in pri katerem položaju?', 'Drag \\(a_2\\) down one step and then one more. Which two readouts change, and at which position?'),
-            [mode('determinant'), matrix([[1, 2], [1 / 2, 5 / 4]])]),
+            [mode('determinant'), matrix([[1, 2], [1 / 2, 5 / 4]])],
+            frame({highlight: ['det', 'orientation'], uses: ['linear-map-a11', 'linear-map-a21', 'linear-map-a12', 'linear-map-a22']})),
         step('det-collapse',
             words('Sesedanje: \\(\\det A=0\\)', 'The collapse: \\(\\det A=0\\)'),
             words('Za matriko \\(C\\) s stolpcema \\((1,\\tfrac12)\\) in \\((2,1)\\) je \\(\\det C=1\\cdot1-2\\cdot\\tfrac12=0\\). Kvadrat se preslika na daljico od \\((0,0)\\) do \\((3,\\tfrac32)\\), ravnina na premico. Vektor \\((2,-1)\\) se preslika v \\(2\\,(1,\\tfrac12)-1\\,(2,1)=(0,0)\\): to je smer jedra. Inverza ni, graf pa ne računa ničesar z deljenjem z \\(\\det\\).', 'For the matrix \\(C\\) with columns \\((1,\\tfrac12)\\) and \\((2,1)\\) we get \\(\\det C=1\\cdot1-2\\cdot\\tfrac12=0\\). The square lands on the segment from \\((0,0)\\) to \\((3,\\tfrac32)\\), the plane on a line. The vector \\((2,-1)\\) goes to \\(2\\,(1,\\tfrac12)-1\\,(2,1)=(0,0)\\): a direction of the kernel. There is no inverse, and the graph divides by \\(\\det\\) nowhere.'),
             words('Poišči drug vektor, ki se preslika v \\((0,0)\\), in utemelji, da so vsi takšni vektorji večkratniki \\((2,-1)\\).', 'Find another vector that goes to \\((0,0)\\) and argue that all such vectors are multiples of \\((2,-1)\\).'),
-            [mode('determinant'), example('singular')]),
+            [mode('determinant'), example('singular')],
+            frame({highlight: ['det', 'area']})),
         step('det-product',
             words('Druga matrika in produkt', 'A second matrix and the product'),
             words('Matrika \\(E\\) s stolpcema \\((4,2)\\) in \\((1,3)\\) ima \\(\\det E=4\\cdot3-1\\cdot2=10\\). Izrek o produktu pravi \\(\\det(AE)=\\det A\\cdot\\det E\\): za \\(A\\) iz prvega koraka je \\(3\\cdot10=30\\). Produkt \\(AE\\) ima vnos \\(6\\), ki je zunaj dovoljenega območja grafa, zato ga graf ne nariše; račun velja neodvisno od slike.', 'The matrix \\(E\\) with columns \\((4,2)\\) and \\((1,3)\\) has \\(\\det E=4\\cdot3-1\\cdot2=10\\). The product theorem says \\(\\det(AE)=\\det A\\cdot\\det E\\): for \\(A\\) from the first step this is \\(3\\cdot10=30\\). The product \\(AE\\) has an entry \\(6\\), outside the range the graph accepts, so the graph does not draw it; the computation holds independently of the picture.'),
             words('Izračunaj \\(AE\\) po stolpcih in preveri, da je njena determinanta \\(30\\).', 'Compute \\(AE\\) column by column and check that its determinant is \\(30\\).'),
-            [mode('determinant'), example('eigen-default')]),
+            [mode('determinant'), example('eigen-default')],
+            frame({highlight: ['det']})),
         step('det-explore',
             words('Ploščina se povsod poveča enako', 'Area scales the same everywhere'),
             words('Izrek: preslikava \\(A\\) pomnoži ploščino vsakega območja z \\(|\\det A|\\). Za enotski kvadrat to prebereš neposredno, za poljubno območje pa sledi iz seštevanja ploščin majhnih kvadratkov, ki se vsi povečajo za isti faktor. Zato je vsaka celica slike mreže paralelogram s ploščino \\(|\\det A|\\). Kvadrat je slika enega območja, ne dokaz za vsa.', 'Theorem: the map \\(A\\) multiplies the area of every region by \\(|\\det A|\\). For the unit square you read it off directly, and for an arbitrary region it follows from adding up the areas of small squares that all grow by the same factor. So every cell of the image grid is a parallelogram of area \\(|\\det A|\\). The square is a picture of one region, not a proof for all.'),
             words('Povleci ročici in primerjaj ploščino ene celice mreže z odčitkom \\(|\\det A|\\).', 'Drag the handles and compare the area of one grid cell with the readout \\(|\\det A|\\).'),
-            [mode('determinant'), example('basis-default')]),
+            [mode('determinant'), example('basis-default')],
+            frame({highlight: ['det', 'area'], uses: ['linear-map-a11', 'linear-map-a21', 'linear-map-a12', 'linear-map-a22']})),
     ],
 };
 
@@ -123,6 +144,8 @@ interface FramedStepContent {
     readonly prompt: LocalizedText;
     readonly expected: readonly LocalizedText[];
     readonly actions: readonly LessonAction[];
+    /** Declaration of the observation frame (rows and controls of the graph the prompt asks about). */
+    readonly declare?: FrameDeclaration;
 }
 
 const worked = (title: LocalizedText, calculation: string, result: string, check: LocalizedText): LessonWorkedExample =>
@@ -133,7 +156,7 @@ function framedStep(content: FramedStepContent): LessonStep {
     const frames: LessonFrame[] = [
         {id: `${id}-explanation`, kind: 'explanation', title, body: explanation},
         ...(content.worked ? [{id: `${id}-calculation`, kind: 'calculation' as const, title, workedExample: content.worked}] : []),
-        {id: `${id}-observation`, kind: 'observation', title, prompt, expectedObservations: content.expected},
+        {id: `${id}-observation`, kind: 'observation', title, prompt, expectedObservations: content.expected, ...(content.declare ? {declare: content.declare} : {})},
     ];
     return {
         id, title, body: explanation, workedExample: content.worked, prompt, frames,
@@ -266,6 +289,7 @@ export const linearMapEigenLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'eigen-explore',
+            declare: frame({highlight: ['eigenvalues', 'v', 'av'], uses: ['linear-map-test-angle'], open: ['tools']}),
             title: words('Prosto raziskovanje', 'Free exploration'),
             explanation: words(
                 'Vnose spreminjaj z ročicama ali s številskimi vnosi; vsak je večkratnik \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Graf primer (dve smeri, ena, vsaka ali nobena) in diskriminanto določi točno, lastne vrednosti, smeri, sinuse in kote pa izračuna.',
@@ -312,6 +336,7 @@ export const linearMapEllipseLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'ellipse-eigen',
+            declare: frame({highlight: ['sine', 'between'], uses: ['linear-map-test-angle']}),
             title: words('Lastne vrednosti matrike \\(S_y\\)', 'The eigenvalues of \\(S_y\\)'),
             explanation: words(
                 'Matrika \\(S_y\\) je simetrična: vnosa zunaj diagonale sta enaka. Njene lastne vrednosti in vektorje izračunamo kot v lekciji o lastnih smereh in jih nato primerjamo s singularnimi vrednostmi.',
@@ -335,6 +360,7 @@ export const linearMapEllipseLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'ellipse-conic',
+            declare: frame({highlight: ['sigma1', 'sigma2'], uses: ['toggle-conic'], open: ['tools']}),
             title: words('Kvadratna forma kot stožnica', 'The quadratic form as a conic'),
             explanation: words(
                 'Simetrični del matrike \\(A\\) je \\(S=\\tfrac12(A+A^T)\\); za vsak \\(x\\) velja \\(x^TAx=x^TSx\\), zato kvadratna forma matrike \\(A\\) pozna le \\(S\\). Množica \\(x^TSx=1\\) je stožnica. Če je \\(S\\) pozitivno definitna (obe lastni vrednosti sta pozitivni), je to elipsa, katere osi ležijo vzdolž lastnih vektorjev matrike \\(S\\) (izrek o glavnih oseh). Pri \\(S_y\\) je \\(S=S_y\\) in forma je \\(2x^2+2xy+2y^2=1\\). Narisana stožnica je ilustracija. Stikalo »Namesto slike krožnice: kvadratna forma ...« jo prikaže.',
@@ -358,6 +384,7 @@ export const linearMapEllipseLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'ellipse-nonsymmetric',
+            declare: frame({highlight: ['sine', 'between'], uses: ['linear-map-test-angle']}),
             title: words('Nesimetrična matrika \\(N\\)', 'The non-symmetric matrix \\(N\\)'),
             explanation: words(
                 'Matrika \\(N\\) s stolpcema \\((2,0)\\) in \\((1,1)\\) ni simetrična. Njen karakteristični polinom \\(\\lambda^2-3\\lambda+2\\) (\\(\\tau=3\\), \\(\\delta=2\\), \\(\\Delta=1\\)) da lastni vrednosti \\(2\\) in \\(1\\) z lastnima vektorjema \\((1,0)\\) in \\((1,-1)\\), ki sta pod kotom \\(45^\\circ\\). Izrek o singularnem razcepu velja tudi za \\(N\\).',
@@ -409,6 +436,7 @@ export const linearMapEllipseLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'ellipse-explore',
+            declare: frame({highlight: ['sigma1', 'sigma2', 'abs-det'], uses: ['toggle-conic'], open: ['tools']}),
             title: words('Prosto raziskovanje', 'Free exploration'),
             explanation: words(
                 'Vnose spreminjaj z ročicama ali s številskimi vnosi; vsak je večkratnik \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Pri stožnici graf narisano elipso nariše le, kadar je simetrični del pozitivno definiten; sicer stožnico opiše z besedami.',
@@ -444,6 +472,7 @@ export const linearMapCompositionLesson: LessonDefinition = {
     steps: [
         framedStep({
             id: 'comp-order',
+            declare: frame({highlight: ['product-row1', 'product-row2'], uses: ['linear-map-first-source', 'linear-map-second-source'], open: ['tools']}),
             title: words('Dve preslikavi, ena za drugo', 'Two maps, one after the other'),
             explanation: words(
                 'Preslikava \\(A\\) deluje prva, \\(B\\) druga: točka \\(P\\) preide v \\(B(AP)\\). Matrika sestavljene preslikave je produkt \\(BA\\), pri katerem preslikava, ki deluje prva, stoji desno; to velja za vsak par matrik. V načinu »Sestavljanje preslikav« je \\(A=R\\) četrtinski vrtež s stolpcema \\((0,1)\\) in \\((-1,0)\\), \\(B=F\\) pa zrcaljenje čez os \\(x\\) z matriko \\(F=\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}\\). Vrtež izbereš s kotom \\(k\\cdot15^\\circ\\) (četrtinski vrtež je \\(k=6\\)), premico zrcaljenja s kotom \\(k\\cdot7{,}5^\\circ\\) (os \\(x\\) je \\(k=0\\)). Graf kaže produkt \\(BA\\) in slike \\(T(P_i)\\) kontrolnih točk \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
@@ -470,6 +499,7 @@ export const linearMapCompositionLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'comp-reflections',
+            declare: frame({highlight: ['product-det', 'product-orientation'], uses: ['linear-map-first-index']}),
             title: words('Dve zrcaljenji', 'Two reflections'),
             explanation: words(
                 'Zrcaljenje čez premico skozi izhodišče ohrani dolžine in ima determinanto \\(-1\\). V grafu premico zapišemo s kotom \\(k\\cdot7{,}5^\\circ\\). Zdaj \\(A\\) zrcali čez premico pod kotom \\(22{,}5^\\circ\\) (\\(k=3\\)), \\(B\\) pa je prosta identiteta, zato je \\(BA=A\\). Ko sta obe preslikavi vrtež ali zrcaljenje, vrsto produkta imenuje odčitek »BA je«. Matrike pri kotih, ki niso večkratniki \\(90^\\circ\\), so le približne, zato graf ob njih piše »približno«.',
@@ -521,6 +551,7 @@ export const linearMapCompositionLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'comp-bezier',
+            declare: frame({highlight: ['t']}),
             title: words('Krivulja in njene kontrolne točke', 'The curve and its control points'),
             explanation: words(
                 'Kubična Bézierjeva krivulja je \\(B(t)=\\sum_{i=0}^{3}b_{i,3}(t)\\,P_i\\) z utežmi \\(b_{i,3}(t)\\); pri \\(t=\\tfrac12\\) so uteži \\(\\tfrac18,\\tfrac38,\\tfrac38,\\tfrac18\\). Zdaj je vklopljeno središče \\(c=(3,1)\\); graf riše izvorno krivuljo in njeno sliko pri \\(T\\). Graf ne izpisuje točke \\(B(\\tfrac12)\\); njen izračun je spodaj.',
@@ -547,6 +578,7 @@ export const linearMapCompositionLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'comp-affine-link',
+            declare: frame({highlight: ['t']}),
             title: words('Gumbi Demonstracije Afine transformacije', 'The buttons of the Affine transformations Demonstration'),
             explanation: words(
                 'Demonstracija Afine transformacije ima lekcijo »Afine transformacije Bézierjeve krivulje« (korak »Četrtinski obrat okoli središča«), ki isto krivuljo zavrti za četrtino obrata okoli njenega središča. Gumbi Demonstracije vrtijo po \\(18^\\circ\\); gumba za vrtenje in zrcaljenje delujeta okoli povprečja kontrolnih točk, gumb za merilo okoli središča pravokotnika, ki objame kontrolne točke; nobeden ne deluje okoli izhodišča. Rezultat gumbov se zato ujema s to lekcijo le, kadar je tukaj uporabljeno središče \\(c\\) enako njihovemu. Kontrolne točke so spet \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
@@ -620,6 +652,7 @@ export const linearMapPowerMethodLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'power-settle',
+            declare: frame({highlight: ['iterate', 'angle'], uses: ['linear-map-step', 'next-step']}),
             title: words('Kdaj se smer ustali?', 'When does the direction settle?'),
             explanation: words(
                 'Graf zdaj kaže način »Potenčna metoda«. Pike so iterati \\(v_0,Av_0,\\dots,A^kv_0\\); polna črta s puščico je normirani iterat (enotske dolžine, le za prikaz), premica pa dominantna lastna smer. Odčitek »Kot do dominantne smeri« je kot med premico iterata in to smerjo v stopinjah. Ko je kot manjši od \\(1^\\circ\\), graf javi, da se je smer ustalila; to je dogovorjena toleranca, ne točna trditev. Gumb »Naslednji korak« poveča \\(k\\) za \\(1\\), gumb »Ponastavi« med koraki iteracije pa ga vrne na \\(0\\).',
@@ -720,6 +753,7 @@ export const linearMapPowerMethodLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'power-explore',
+            declare: frame({highlight: ['iterate', 'ratio'], uses: ['linear-map-step', 'play-pause']}),
             title: words('Prosto raziskovanje', 'Free exploration'),
             explanation: words(
                 'Matriko spreminjaj z ročicama ali s številskimi vnosi, začetni vektor z ročico ali v vrstici \\(v_0\\) skupine »Začetni vektor«; vsi vnosi so večkratniki \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Graf stanje (dominantna lastna vrednost, enaka absolutna vrednost, kompleksni lastni vrednosti, večkratnik identitete, ena lastna smer) določi točno, kote, raztegnitve in razmerja pa izračuna; ustalitev smeri je dogovorjena toleranca.',
@@ -766,6 +800,7 @@ export const linearMapStabilityLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'td-parabola',
+            declare: frame({highlight: ['discriminant', 'stability']}),
             title: words('Čez parabolo', 'Across the parabola'),
             explanation: words(
                 'Graf zdaj kaže ravnino sled–determinanta z narisano parabolo \\(\\Delta=0\\) in točko matrike \\(W=\\tfrac12Z\\) s stolpcema \\((\\tfrac12,\\tfrac12)\\) in \\((-\\tfrac12,\\tfrac12)\\). Točko lahko povlečemo. Par \\((\\tau,\\delta)\\) ne določa ene matrike, zato graf po vlečenju uporabi matriko z vrsticama \\((0,1)\\) in \\((-\\delta,\\tau)\\), kar tudi izpiše; vlečemo torej po četrtinski mreži \\(\\tau\\) in \\(\\delta\\). Namesto vlečenja lahko v polja matrike vneseš stolpca \\(a_1=(0,-\\delta)\\) in \\(a_2=(1,\\tau)\\).',
@@ -806,6 +841,7 @@ export const linearMapStabilityLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'td-edges',
+            declare: frame({highlight: ['delta', 'stability']}),
             title: words('Skozi tri robove', 'Through the three edges'),
             explanation: words(
                 'Trikotnik ima tri robove: \\(\\delta=1\\), \\(\\tau=1+\\delta\\) in \\(\\tau=-(1+\\delta)\\). Na robu se katera od lastnih vrednosti dotakne enotske krožnice. Karakteristični polinom matrike je \\(p(\\lambda)=\\lambda^2-\\tau\\lambda+\\delta\\), produkt lastnih vrednosti je \\(\\delta\\). Graf kaže matriko \\(M\\) v ravnini sled–determinanta; po vlečenju točke uporabi matriko \\(\\begin{pmatrix}0&1\\\\-\\delta&\\tau\\end{pmatrix}\\).',
@@ -857,6 +893,7 @@ export const linearMapStabilityLesson: LessonDefinition = {
         }),
         framedStep({
             id: 'td-explore',
+            declare: frame({highlight: ['tau', 'delta', 'stability']}),
             title: words('Prosto raziskovanje', 'Free exploration'),
             explanation: words(
                 'Matriko spreminjaj z ročicama ali s številskimi vnosi, točko \\((\\tau,\\delta)\\) pa tudi z vlečenjem; vnosi so večkratniki \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Graf točno odloči, ali je točka znotraj, na robu ali zunaj trikotnika in ali je tok stabilen, \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\) pa so računi na četrtinski mreži.',

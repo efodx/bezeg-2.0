@@ -6,12 +6,17 @@
  * (K1: `load-example` and `move-handle`; K2: the `pascal-*` operations; K3: the `pole-polar-*` operations), and every scene sets every value it states, so it does not depend on the scene before it.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {CrossRatioIds} from '../../graphs/projective/CrossRatioGraph';
 import {fivePointLesson} from './projectiveFivePointGuidedLesson';
 import {threeViewsLesson} from './projectiveThreeViewsGuidedLesson';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+
+/** Typed by the cross-ratio graph's declaration ids: an unknown note fails the type check. */
+const crossRatioFrame = frameDeclarer<CrossRatioIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +29,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Declarations for the frames this step builds, by frame kind (the shape `guidedStep` has). */
+    readonly declare?: Readonly<{explanation?: FrameDeclaration; calculation?: FrameDeclaration; observation?: FrameDeclaration}>;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-explanation`, 'explanation', declare?.explanation),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare?.calculation)] : []),
+        frame(`${content.id}-observation`, 'observation', declare?.observation),
     ],
 });
 
@@ -138,6 +145,7 @@ const crossRatioLesson: GuidedLesson = {
         }),
         step({
             id: 'ratio-lengths', order: 2,
+            declare: {observation: crossRatioFrame({highlight: ['originals', 'images']})},
             title: text('Dolžine se spremenijo', 'Lengths change'),
             purpose: text('Videti, da dolžine in razmerja dolžin niso tisto, kar se ohrani.', 'Seeing that lengths and ratios of lengths are not what is kept.'),
             explanation: text(
@@ -153,6 +161,10 @@ const crossRatioLesson: GuidedLesson = {
         }),
         step({
             id: 'ratio-invariant', order: 3,
+            declare: {
+                explanation: crossRatioFrame({highlight: ['original-ratio', 'image-ratio']}),
+                observation: crossRatioFrame({highlight: ['original-ratio', 'image-ratio']}),
+            },
             title: text('Dvorazmerje se ohrani', 'The cross-ratio is kept'),
             purpose: text('Izračunati dvorazmerje izvirnih točk in slik ter videti, da je enako.', 'Computing the cross-ratio of the original points and of the images and seeing that it is the same.'),
             explanation: text(
@@ -169,6 +181,7 @@ const crossRatioLesson: GuidedLesson = {
         }),
         step({
             id: 'ratio-drag', order: 4,
+            declare: {observation: crossRatioFrame({highlight: ['original-ratio', 'image-ratio']})},
             title: text('Premik središča in druge premice', 'Moving the centre and the second line'),
             purpose: text('Preizkusiti izrek na drugi postavitvi; premik je ilustracija, ne dokaz.', 'Trying the theorem on another set-up; moving is an illustration, not a proof.'),
             explanation: text(
@@ -184,6 +197,7 @@ const crossRatioLesson: GuidedLesson = {
         }),
         step({
             id: 'ratio-harmonic', order: 5,
+            declare: {observation: crossRatioFrame({highlight: ['original-ratio', 'image-ratio']})},
             title: text('Harmonična četverka', 'A harmonic quadruple'),
             purpose: text('Spoznati posebno vrednost \\(-1\\).', 'Meeting the special value \\(-1\\).'),
             explanation: text(
@@ -199,6 +213,7 @@ const crossRatioLesson: GuidedLesson = {
         }),
         step({
             id: 'ratio-infinity', order: 6,
+            declare: {observation: crossRatioFrame({highlight: ['images', 'limit', 'image-ratio']})},
             title: text('Točka gre v neskončnost', 'A point goes to infinity'),
             purpose: text('Videti, da formula teče naprej, ko je ena slika točka v neskončnosti.', 'Seeing that the formula carries on when one image is a point at infinity.'),
             explanation: text(
@@ -215,6 +230,7 @@ const crossRatioLesson: GuidedLesson = {
         }),
         step({
             id: 'ratio-explore', order: 7,
+            declare: {observation: crossRatioFrame({highlight: ['original-ratio', 'image-ratio']})},
             title: text('Samostojno raziskovanje', 'Free exploration'),
             purpose: text('Preizkusiti izrek na lastnih postavitvah in videti, kdaj projekcija ni določena.', 'Testing the theorem on your own set-ups and seeing when the projection is undefined.'),
             explanation: text(

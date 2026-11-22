@@ -1,0 +1,96 @@
+{
+  "graph": "projective-cross-ratio",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Dvorazmerje izvirnih točk (A, B; C, D) = 9/8, decimalno 1,125",
+        "Dvorazmerje slik (A′, B′; C′, D′) = 9/8, decimalno 1,125",
+        "Izvirne točke na prvi premici: A = 0, B = 1, C = 3, D = 4",
+        "Slike na drugi premici: A′ = (0, 1); B′ = (8/11, 15/11); C′ = (24/13, 25/13); D′ = (16/7, 15/7)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "harmonic",
+      "rows": [],
+      "notes": [
+        "Dvorazmerje izvirnih točk (A, B; C, D) = -1, decimalno -1",
+        "Dvorazmerje slik (A′, B′; C′, D′) = -1, decimalno -1",
+        "Izvirne točke na prvi premici: A = 0, B = 6, C = 2, D = -6",
+        "Slike na drugi premici: A′ = (0, 1); B′ = (3, 5/2); C′ = (4/3, 5/3); D′ = (-12, -5)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "image at infinity",
+      "rows": [],
+      "notes": [
+        "Dvorazmerje izvirnih točk (A, B; C, D) = 33/20, decimalno 1,65",
+        "Dvorazmerje slik (A′, B′; C′, D′) = 33/20, decimalno 1,65",
+        "Mejna formula za slike: (A′, B′; C′, ∞) = (C′ - A′)/(C′ - B′) = 33/20",
+        "Izvirne točke na prvi premici: A = 0, B = 1, C = 3, D = -10",
+        "Slike na drugi premici: A′ = (0, 1); B′ = (8/11, 15/11); C′ = (24/13, 25/13); D′: točka v neskončnosti, smer (2, 1)"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$D' = \\infty$$"
+      ]
+    },
+    {
+      "name": "point D moved",
+      "rows": [],
+      "notes": [
+        "Dvorazmerje izvirnih točk (A, B; C, D) = 5/4, decimalno 1,25",
+        "Dvorazmerje slik (A′, B′; C′, D′) = 5/4, decimalno 1,25",
+        "Izvirne točke na prvi premici: A = 0, B = 1, C = 3, D = 6",
+        "Slike na drugi premici: A′ = (0, 1); B′ = (8/11, 15/11); C′ = (24/13, 25/13); D′ = (3, 5/2)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "centre and N moved",
+      "rows": [],
+      "notes": [
+        "Dvorazmerje izvirnih točk (A, B; C, D) = 5/4, decimalno 1,25",
+        "Dvorazmerje slik (A′, B′; C′, D′) = 5/4, decimalno 1,25",
+        "Izvirne točke na prvi premici: A = 0, B = 1, C = 3, D = 6",
+        "Slike na drugi premici: A′ = (1/2, 1); B′ = (4/3, 1); C′ = (3, 1); D′ = (11/2, 1)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "centre on the first line",
+      "rows": [],
+      "notes": [
+        "Izvirne točke na prvi premici: A = 0, B = 1, C = 3, D = 6"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two points coincide",
+      "rows": [],
+      "notes": [
+        "Izvirne točke na prvi premici: A = 0, B = 0, C = 3, D = 6"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "second line degenerate",
+      "rows": [],
+      "notes": [
+        "Izvirne točke na prvi premici: A = 0, B = 6, C = 2, D = -6"
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

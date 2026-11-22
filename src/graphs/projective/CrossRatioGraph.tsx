@@ -2,7 +2,8 @@ import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t} from "../../localization";
+import type {GraphDeclaration, LegendEntry, ReadoutNote, StatusLine} from "../base/declare/graphDeclaration";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import type {LessonAction} from "../../learning/model";
@@ -13,7 +14,7 @@ import {
 } from "./crossRatioModel";
 import {HANDLE_COUNT, handlePosition, isHandle, moveHandle, nudgeHandle} from "./crossRatioEdit";
 import {CrossRatioControls} from "./CrossRatioControls";
-import {describeCrossRatio} from "./crossRatioText";
+import {crossRatioMessages, describeCrossRatio} from "./crossRatioText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {crossRatioPresetCollection} from "./projectivePresetCollection";
 import {crossRatioPersistence} from "./projectivePersistence";
@@ -53,7 +54,22 @@ const HANDLE_NAMES = ["A", "B", "C", "D", "O", "M", "N"] as const;
 interface DrawnScene {
     readonly handles: readonly JXG.Point[];
     readonly all: readonly JXG.GeometryElement[];
+    /** The elements a legend entry names (`CrossRatioIds["legend"]`); an entry with several elements shows the first that is visible. */
+    readonly named: ReadonlyMap<string, readonly JXG.GeometryElement[]>;
 }
+
+/**
+ * The ids of the declaration (`DeclarationIds`). No parameters: the points, the centre and the example are not bound in the
+ * arbiter. The panel's sentences are notes (it has no label and value pairs) and its status sentence is the status line.
+ */
+export type CrossRatioIds = {
+    param: never;
+    row: never;
+    note: "original-ratio" | "image-ratio" | "limit" | "originals" | "images";
+    legend: "line-p" | "line-q" | "originals" | "centre" | "line-points" | "images" | "rays";
+    section: never;
+    action: never;
+};
 
 export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioModel> {
     private drawn?: DrawnScene;
@@ -346,6 +362,9 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         }) as JXG.GeometryElement, "p"));
         elements.set("p", lineP);
 
+        const named = new Map<string, JXG.GeometryElement[]>();
+        const name = (id: CrossRatioIds["legend"], element: JXG.GeometryElement) => { named.set(id, [...(named.get(id) ?? []), element]); };
+        name("line-p", lineP);
         const handles = Array.from({length: HANDLE_COUNT}, (_, i) => {
             const at = handlePosition(model(), i);
             const names = HANDLE_NAMES;
@@ -364,6 +383,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             });
             bindMovablePointCursor(handle, board);
             handle.on("drag", () => this.dragHandle(i, handle));
+            name(i < 4 ? "originals" : i === 4 ? "centre" : "line-points", handle);
             return handle;
         });
         const lineQ = add(typeset(board.create("line", [handles[5], handles[6]], {
@@ -371,6 +391,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             highlight: false, fixed: true, layer: 4, name: "p′", withLabel: true, label: mathLabel({offset: offsetFor("q", [-24, 10])}),
         }) as JXG.GeometryElement, "p′"));
         elements.set("q", lineQ);
+        name("line-q", lineQ);
 
         // Image i: the finite image, or the end of the ray toward an ideal one; direction unit is oriented along the ray.
         const unitOf = (i: number): readonly [number, number] | undefined => {
@@ -390,10 +411,10 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         for (let i = 0; i < 4; i++) {
             const finite = () => defined() && this.scene().imageViews?.[i]?.kind === "finite";
             const end = hidden(() => imageAt(i, 0), () => imageAt(i, 1));
-            add(board.create("segment", [handles[4], end], {
+            name("rays", add(board.create("segment", [handles[4], end], {
                 strokeColor: GraphPalette.constructionAccent, strokeWidth: 1, dash: 2, highlight: false, fixed: true, layer: 3,
                 visible: () => defined() || this.scene().status === "coincident-points",
-            }) as JXG.GeometryElement);
+            }) as JXG.GeometryElement));
             const image = add(typeset(board.create("point", [() => imageAt(i, 0), () => imageAt(i, 1)], {
                 name: `${NAMES[i]}′`, withLabel: true, size: 4, face: "o", fixed: true, showInfobox: false,
                 fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 6,
@@ -401,6 +422,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
                 visible: finite,
             }) as JXG.Point, `${NAMES[i]}′`));
             elements.set(`i${i}`, image);
+            name("images", image);
         }
 
         // The point at infinity: an arrow along the direction on the second line, with its own text label.
@@ -440,7 +462,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             return this.labelInput(frame, fontPx(), imageAt, lines, ideal && index !== undefined ? {at: ideal.to, text: `${NAMES[index]}′ = ∞`} : undefined);
         };
         ready = true;
-        return {handles, all};
+        return {handles, all, named};
     }
 
     /**
@@ -501,6 +523,47 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
     override unmount(): void {
         this.removeDrawn();
         super.unmount();
+    }
+
+    // ---- Declaration (task 02: nothing renders it yet) -------------------------------------------------------------
+
+    /**
+     * Pure data from the scene: the panel's sentences as notes and the status line, and the legend of what the board draws.
+     * The points, the centre and the example are not bound in the arbiter, so nothing is declared as a parameter.
+     */
+    protected override declaration(): GraphDeclaration<CrossRatioIds> {
+        const messages = crossRatioMessages(this.scene(), t, currentLanguage());
+        const notes: ReadoutNote<CrossRatioIds>[] = [];
+        if (messages.originalRatio) notes.push({id: "original-ratio", text: messages.originalRatio});
+        if (messages.imageRatio) notes.push({id: "image-ratio", text: messages.imageRatio});
+        if (messages.limit) notes.push({id: "limit", text: messages.limit});
+        notes.push({id: "originals", text: messages.originals});
+        if (messages.images) notes.push({id: "images", text: messages.images});
+        const status: StatusLine[] = [{id: "status", text: messages.status, ...(messages.statusKind === "undefined" ? {tone: "warning" as const} : {})}];
+        const legend: LegendEntry<CrossRatioIds>[] = [
+            {id: "line-p", label: message("projective_k1_legend_line_p"), kind: "line", object: "line-p"},
+            {id: "line-q", label: message("projective_k1_legend_line_q"), kind: "line", object: "line-q"},
+            {id: "originals", label: message("projective_k1_legend_originals"), kind: "point", object: "originals"},
+            {id: "centre", label: message("projective_k1_legend_centre"), kind: "point", object: "centre"},
+            {id: "line-points", label: message("projective_k1_legend_line_points"), kind: "point", object: "line-points"},
+            {id: "images", label: message("projective_k1_legend_images"), kind: "point", object: "images"},
+            {id: "rays", label: message("projective_k1_legend_rays"), kind: "dashed", object: "rays"},
+        ];
+        return {notes, status, legend};
+    }
+
+    /**
+     * The element a legend entry names, as the board holds it now. The images and rays are hidden while the projection is
+     * undefined (and an image at infinity is an arrow, not a point), so their entries are hidden in their own colour.
+     */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.drawn?.named.get(id);
+        if (!elements?.length) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = (element: JXG.GeometryElement) => element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const found = elements.find(element => Boolean(drawn(element).evalVisProp("visible"))) ?? elements[0];
+        const colourOf = ["originals", "centre", "line-points", "images"].includes(id) ? "fillcolor" : "strokecolor";
+        return {color: String(drawn(found).evalVisProp(colourOf)), visible: Boolean(drawn(found).evalVisProp("visible"))};
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

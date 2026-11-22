@@ -68,6 +68,16 @@ const SAMPLES: readonly Sample[] = [
         // Centres stay inside the initial view: whether a centre is outside the view is board state, which a declaration cannot hold.
         {name: 'obtuse custom', apply: graph => { runAs('learner', () => (graph as unknown as {loadModel(model: unknown): void}).loadModel({mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 7, y: 0}, {x: 3, y: 3}]})); }},
     ]},
+    {file: 'projective/__parity__/projective-cross-ratio.json', demonstration: 'projective-cross-ratio', states: [
+        state('default', {}),
+        {name: 'harmonic', apply: graph => { runAs('learner', () => (graph as unknown as {loadExample(id: string): void}).loadExample('harmonic')); }},
+        {name: 'image at infinity', apply: graph => { runAs('learner', () => (graph as unknown as {loadExample(id: string): void}).loadExample('infinity')); }},
+        {name: 'point D moved', apply: graph => { runAs('learner', () => { (graph as unknown as {loadExample(id: string): void}).loadExample('default'); (graph as unknown as {moveHandleTo(h: number, x: number, y: number): void}).moveHandleTo(3, 6, 0); }); }},
+        {name: 'centre and N moved', apply: graph => { runAs('learner', () => { const g = graph as unknown as {moveHandleTo(h: number, x: number, y: number): void}; g.moveHandleTo(4, 3, 6); g.moveHandleTo(6, 4, 1); }); }},
+        {name: 'centre on the first line', apply: graph => { runAs('learner', () => (graph as unknown as {moveHandleTo(h: number, x: number, y: number): void}).moveHandleTo(4, 2, 0)); }},
+        {name: 'two points coincide', apply: graph => { runAs('learner', () => { const g = graph as unknown as {moveHandleTo(h: number, x: number, y: number): void}; g.moveHandleTo(4, 0, 5); g.moveHandleTo(1, 0, 0); }); }},
+        {name: 'second line degenerate', apply: graph => { runAs('learner', () => { const g = graph as unknown as {loadExample(id: string): void; moveHandleTo(h: number, x: number, y: number): void}; g.loadExample('harmonic'); g.moveHandleTo(6, 0, 1); }); }},
+    ]},
     {file: 'linear/__parity__/linear-map-basis.json', demonstration: 'linear-map', states: [
         state('basis default', {'linear-map-mode': 'basis'}),
         state('shear', {'linear-map-example': 'shear'}),

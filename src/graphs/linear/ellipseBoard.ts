@@ -29,6 +29,8 @@ export interface EllipseBoardContext {
     readonly active: () => boolean;
     /** The conic of the symmetric part is shown instead of the image of the circle. */
     readonly conicShown: () => boolean;
+    /** Names a drawn object for the declaration's legend (`BaseGraph.drawnObject`). */
+    readonly mark?: (id: string, element: unknown) => void;
     readonly imageCurve: () => Polyline;
     readonly conicCurve: () => Polyline | undefined;
     readonly lines: () => readonly Vec2[];
@@ -53,32 +55,34 @@ const EMPTY: Polyline = {x: [], y: []};
 
 export function createEllipseObjects(ctx: EllipseBoardContext): void {
     const {board} = ctx;
-    const polyline = (points: () => Polyline, attributes: object) => {
-        const curve = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, cssClass: ELLIPSE_MARK, ...attributes})) as unknown as CurveLike;
+    const polyline = (points: () => Polyline, attributes: object, id?: string) => {
+        const element = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, cssClass: ELLIPSE_MARK, ...attributes}));
+        const curve = element as unknown as CurveLike;
         curve.updateDataArray = () => {
             const {x, y} = points();
             curve.dataX = x;
             curve.dataY = y;
         };
+        if (id) ctx.mark?.(id, element);
     };
-    ctx.own(board.create('circle', [[0, 0], 1], {
+    ctx.mark?.('ellipse-circle', ctx.own(board.create('circle', [[0, 0], 1], {
         strokeColor: ELLIPSE_COLORS.circle, strokeWidth: ctx.thin, fillOpacity: 0, fixed: true, highlight: false, withLabel: false, cssClass: ELLIPSE_MARK,
         visible: ctx.active,
-    }));
+    })));
     polyline(() => ctx.active() && !ctx.conicShown() ? ctx.imageCurve() : EMPTY,
-        {strokeColor: ELLIPSE_COLORS.image, strokeWidth: ctx.strokeWidth, visible: ctx.active});
+        {strokeColor: ELLIPSE_COLORS.image, strokeWidth: ctx.strokeWidth, visible: ctx.active}, 'ellipse-image');
     polyline(() => (ctx.active() && ctx.conicShown() ? ctx.conicCurve() : undefined) ?? EMPTY,
-        {strokeColor: ELLIPSE_COLORS.conic, strokeWidth: ctx.strokeWidth, visible: ctx.active});
+        {strokeColor: ELLIPSE_COLORS.conic, strokeWidth: ctx.strokeWidth, visible: ctx.active}, 'ellipse-conic');
     // One curve per possible line, so a hidden second line leaves no stale data.
     for (const index of [0, 1]) {
         polyline(() => ctx.active() ? lineThroughOrigin(ctx.lines()[index]) : EMPTY,
-            {strokeColor: ELLIPSE_COLORS.line, strokeWidth: ctx.strokeWidth, dash: 3, visible: ctx.active});
+            {strokeColor: ELLIPSE_COLORS.line, strokeWidth: ctx.strokeWidth, dash: 3, visible: ctx.active}, index === 0 ? 'ellipse-lines' : undefined);
     }
     // The segment from the origin to a tip and the fixed, labelled tip, for the axes and then the domain directions.
-    const spoke = (list: () => readonly LabelledTip[], prefix: string, index: number, color: string, shown: () => boolean) => {
+    const spoke = (list: () => readonly LabelledTip[], prefix: string, index: number, color: string, shown: () => boolean, id: string) => {
         const at = (): Vec2 => list()[index]?.tip ?? [0, 0];
         polyline(() => ctx.active() && shown() && list()[index] ? {x: [0, at()[0]], y: [0, at()[1]]} : EMPTY,
-            {strokeColor: color, strokeWidth: ctx.strokeWidth, visible: ctx.active});
+            {strokeColor: color, strokeWidth: ctx.strokeWidth, visible: ctx.active}, index === 0 ? id : undefined);
         const visible = () => ctx.active() && shown() && list()[index] !== undefined;
         ctx.own(board.create('point', [() => at()[0], () => at()[1]], {
             ...ctx.fixedPointAttributes, name: () => list()[index]?.name ?? '', size: ctx.markerSize,
@@ -86,9 +90,9 @@ export function createEllipseObjects(ctx: EllipseBoardContext): void {
             fillColor: color, highlightFillColor: color, strokeColor: color, fixed: true, visible, cssClass: ELLIPSE_MARK,
         }));
     };
-    for (const index of [0, 1]) spoke(ctx.axes, 'sigma', index, ELLIPSE_COLORS.image, () => !ctx.conicShown());
-    for (const index of [0, 1]) spoke(ctx.conicAxes, 'conic', index, ELLIPSE_COLORS.conic, ctx.conicShown);
-    for (const index of [0, 1]) spoke(ctx.directions, 'v', index, ELLIPSE_COLORS.direction, () => !ctx.conicShown());
+    for (const index of [0, 1]) spoke(ctx.axes, 'sigma', index, ELLIPSE_COLORS.image, () => !ctx.conicShown(), 'ellipse-axes');
+    for (const index of [0, 1]) spoke(ctx.conicAxes, 'conic', index, ELLIPSE_COLORS.conic, ctx.conicShown, 'ellipse-conic-axes');
+    for (const index of [0, 1]) spoke(ctx.directions, 'v', index, ELLIPSE_COLORS.direction, () => !ctx.conicShown(), 'ellipse-directions');
     ctx.own(board.create('point', [0, 0], {
         ...ctx.fixedPointAttributes, name: '', withLabel: false, size: ctx.markerSize, fillColor: ELLIPSE_COLORS.image,
         highlightFillColor: ELLIPSE_COLORS.image, strokeColor: ELLIPSE_COLORS.image, fixed: true, cssClass: ELLIPSE_MARK,

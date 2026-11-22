@@ -55,12 +55,12 @@ export function CrossRatioControls(props: CrossRatioControlsProps) {
         <div className="inspector-group">
             <div data-projective-status={text.statusKind}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
-                {text.originalRatio && <p className="inspector-help" data-projective-line="original-ratio">{text.originalRatio}</p>}
-                {text.imageRatio && <p className="inspector-help" data-projective-line="image-ratio">{text.imageRatio}</p>}
+                {text.originalRatio && <p className="inspector-help" data-projective-line="original-ratio" data-readout-note>{text.originalRatio}</p>}
+                {text.imageRatio && <p className="inspector-help" data-projective-line="image-ratio" data-readout-note>{text.imageRatio}</p>}
             </div>
-            {text.limit && <p className="inspector-help" data-projective-line="limit">{text.limit}</p>}
-            <p className="inspector-help" data-projective-line="originals">{t("projective_k1_originals", {value0: text.originals})}</p>
-            {text.images && <p className="inspector-help" data-projective-line="images">{t("projective_k1_images", {value0: text.images})}</p>}
+            {text.limit && <p className="inspector-help" data-projective-line="limit" data-readout-note>{text.limit}</p>}
+            <p className="inspector-help" data-projective-line="originals" data-readout-note>{t("projective_k1_originals", {value0: text.originals})}</p>
+            {text.images && <p className="inspector-help" data-projective-line="images" data-readout-note>{t("projective_k1_images", {value0: text.images})}</p>}
             <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">
