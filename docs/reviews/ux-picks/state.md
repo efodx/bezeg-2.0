@@ -4,7 +4,7 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 
 ## Morning report — overnight challenge 2026-11-22 (03:10 → ~11:10)
 
-Preview (all picks on): http://desktop-a0j72sv.tail2032db.ts.net:4460/bezeg-2.0/demonstrations?ux=a1,a19,a3,a29,boardText,dockTools,b1,toolsCard,viewDirector — then open a graph from the list (the `?ux=` choice is remembered). Add `?learn=1` to a graph's URL for its guided lesson. Branch `ux-picks`, 55 code commits overnight, all pushed; nothing on master.
+Preview (all picks on): http://desktop-a0j72sv.tail2032db.ts.net:4460/bezeg-2.0/demonstrations?ux=a1,a19,a3,a29,boardText,dockTools,b1,toolsCard,viewDirector — then open a graph from the list (the `?ux=` choice is remembered). Add `?learn=1` to a graph's URL for its guided lesson. Branch `ux-picks`, 58 code commits overnight, all pushed; nothing on master.
 
 **Graphs converted fresh tonight: 24/24** (target was 20 % ≈ 24). Each has pucks on the board, declared Odčitki/Legenda cards with legend links, lesson frames that highlight rows, and the view director. Tailnet links (prefix `http://desktop-a0j72sv.tail2032db.ts.net:4460/bezeg-2.0/`):
 functions/inverse · functions/rational-functions · functions/geometric-series · compgeo/voronoi · compgeo/point-in-polygon · combinatorics/lattice-paths · linear function (in the functions list) · functions/trigonometric · functions/waves · analysis/bisection (auto-zoom each step, your 03:15 request) · analysis/fixed-point · analysis/quadrature · interpolation/lagrange · spline/c1spline · bezier/subdivision-2 · circle-constructions · triangle-solver · isometries · analysis/phase-portrait · analysis/recursion · analysis/contours · analysis/fourier-series · curve-geometry/kinematics · probability/density. Pilots (earlier): analysis/taylor, functions/transformations, bezier/decasteljau.
@@ -22,6 +22,7 @@ functions/inverse · functions/rational-functions · functions/geometric-series 
 - Slim one-row header from 701 px. At 1024 the board, pucks and navigation fit the screen.
 - Phones: the lesson card head is the title plus a "⋯" menu, the pan arrows are hidden during lessons, and touch scrubbing is finer.
 - Gestures hint moved off the plot to the toolbar line. Lesson counter reads "Korak 1/8 · okvir 5/5". The activity strip is hidden during lessons.
+- Last hour (handler 12): board labels have a cream halo, so lines no longer cut tick labels or captions; section cards ("Ravnina sled–determinanta", "Vrstni red operacij") stack under Orodja with their full title instead of sitting on the x axis at 1024; the phase-portrait caption stays clear of Odčitki at 1024; kinematics "read it in Odčitki" frames open Odčitki at 1024.
 
 **Final jank table** (quiet window ~10:00, no workers, `night/probe.cjs`, all picks on; raw `Desktop/bezeg-ux-picks/night/h11/final/`; baseline `night/BASELINE.md` from 02:15, taken under load). "Cover" is the share of the board under cards; its threshold is 35 %.
 
@@ -36,7 +37,7 @@ functions/inverse · functions/rational-functions · functions/geometric-series 
 | phase-portrait free, 4× throttle | 13-20 long tasks on hover | count step to 817 ms, hover p95 100 ms (the graph's own 200-340 ms redraw; geometry untouched per the measurement rule) |
 Console errors in every run are the known dev 404 for `history-entry-bridge.js`. The 1024 lesson cover went up after the lesson card got its column's free height (R10A: reviewers found the task text hidden). The director keeps content beside the cards, so the covered part is mostly empty board.
 
-**Open / for you:** H8 at 2. Next candidates: labels colliding with cards or lines (a halo on board labels), key-row-only Odčitki (needs a flag per graph), and cards over content on dense graphs (phase portrait 1024). Release refits on Taylor feel abrupt to reviewers (your Samodejno rule; unchanged). Bisection tick labels collide with points (graph). Contours stays small (fixed ±2 window). Two reviewers called "Samodejno" ambiguous, because it named both auto-fit and the ∿ tooltip. The ∿ now reads "Zaženi gibanje: c" / "Ustavi: c" (handler 11, last commit), and "Samodejno" means only auto-fit.
+**Open / for you:** H8 at 2. Next candidates: the "Povrni" pill covers 1-2 lines at the lesson card's bottom (needs the card fit and the dock's Več bar to reserve its row; tried and reverted, see Handler 12), key-row-only Odčitki (needs a flag per graph), and cards over content on dense graphs (phase portrait 1024). Release refits on Taylor feel abrupt to reviewers (your Samodejno rule; unchanged). Bisection tick labels collide with points (graph). Contours stays small (fixed ±2 window). Two reviewers called "Samodejno" ambiguous, because it named both auto-fit and the ∿ tooltip. The ∿ now reads "Zaženi gibanje: c" / "Ustavi: c" (handler 11, last commit), and "Samodejno" means only auto-fit.
 
 ## Where
 
@@ -184,6 +185,15 @@ The challenge runs until ~11:10, and the owner wakes after that. Next, in order:
 3. Afterwards, wait for the owner's next request. The standing plan after polish is the app-wide implementation spec (see "Next steps").
 Consultant: Agent `Plan` (opus, high) used once at 08:53 on the plateau (advice recorded in "Handler 11"). Start a fresh one if needed.
 Self-spawn rule: at your own handoff, write "## Handler 12 → handler 13", commit and push the note, then start your successor with `claude --bg` from the Bash tool with `-n 'UX picks handler 13' --agent bezeg-handler --model claude-opus-5-5 --effort high --permission-mode auto`, confirm it with `claude logs <id>`, and pass this rule on.
+
+## Handler 12 (2026-11-22, from 10:05 machine time)
+
+Decisions (decision | alternatives | why); scripts and shots in `Desktop/bezeg-ux-picks/night/h12/`:
+- R16 cd30900b: board labels (`.JXGtext` ticks, captions, point names) get a text-shadow halo in the board's #fffdf5 under pick boardText (`data-ux-label-halo` on `.ux-board-frame`, rule in `declare/declare.css`) | a cream plate behind each label; clamp labels into the director's free rectangle; move captions off lines per graph | a halo keeps the label part of the graph and is one generic rule; plates read as UI chips; per-graph caption offsets are geometry work. A/B at 4× throttle on Taylor: puck-drag p95 67-83 ms with and without the halo (noise).
+- R17 7c79a980: section cards (phase portrait "Ravnina sled–determinanta", transformations "Vrstni red operacij") default to top-left under Orodja instead of middle-left; a folded chip is exempt from the 270 px cap at ~1024 | keep middle-left and shift it off the axis; allow two-line chip titles | middle-left centres the chip on the board's left edge, which is where the x axis labels are on most graphs; under Orodja it is found where the tools are. Side effect fixed in the same commit: with the left column short, the director's free rectangle turned wide and short, and the phase portrait's caption room (computed for a width-limited fit) let "Ravnovesna točka: …" run under Odčitki at 1024; `viewMarks` now iterates the fill scale min(width / hull, height / span) (same closed form when width limits).
+- R18 b6f814ca: kinematics observation frames open the cards their explanation frame opened, without the highlight | open Odčitki from any frame whose text mentions "odčitk" | the declared approach keeps "nothing guessed from text" (BoardTextCard); bisection already declares it by hand.
+- Not done: Povrni pill covering ~1.5 lines of lesson text (round 13 A' P2-3). Tried reserving the pill's height at the reading area's bottom (`:has()` margin): the card then overran its column's cut and the dock's Več bar (an overlay drawn by `BoardDock` at the stack cut, outside the card) landed mid-text. Needs the fit (`useLessonCardFit`) and the dock's cut to know about the pill; also seen: the card grows ~90 px when the pill appears (cause not traced). Reverted.
+- Critique round 14 from ~10:23: A and A' (`night/CRITIQUE14-A.md`, `CRITIQUE14-A2.md`, outputs `round14c/A/`, `round14c/A2/`), capped at 11:00.
 
 ## Handler 11 (2026-11-22, from 07:02 machine time)
 
