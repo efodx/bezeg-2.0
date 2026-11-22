@@ -30,6 +30,8 @@ const howTo = (entry: ParamEntry) => {
     return touch ? 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'
         : 'Povleci levo ali desno; kazalec nad črto spodaj pokaže predogled, dvoklik vnese število, puščice premaknejo za korak.';
 };
+/** Pointer travel (px) along the track before the previewed value is chosen again. */
+const AIM_DEADZONE_PX = 3;
 const stateSignature = () => listParams().map(p => `${p.key}=${p.value}`).join(';');
 
 export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
@@ -45,6 +47,8 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         let raf = 0;
         let hovered: HTMLElement | undefined;
         let ghostId: string | undefined;
+        // Where the preview value was last chosen: a hand's tremor at a value boundary must not flip the preview back and forth.
+        let aimed: {puck: HTMLElement; x: number} | undefined;
         const cache = new Map<string, {sig: string; fan: Fan | undefined}>();
 
         const unaim = () => {
@@ -53,7 +57,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         };
         const clear = () => {
             unaim(); hovered = undefined;
-            pending = undefined; wanted = undefined; ghostId = undefined;
+            pending = undefined; wanted = undefined; ghostId = undefined; aimed = undefined;
             setGhost(undefined); setCard(undefined); setShown(undefined);
         };
         const boxOf = (svg: SVGSVGElement) => {
@@ -130,10 +134,12 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             if (hovered !== puck) { unaim(); hovered = puck; }
             const fraction = entry.kind === 'range' ? trackFraction(puck, event.clientX, event.clientY) : undefined;
             if (entry.kind !== 'range' || fraction === undefined) {
-                unaim();
+                unaim(); aimed = undefined;
                 overview(puck, entry);
                 return;
             }
+            if (aimed && aimed.puck === puck && wanted?.startsWith('g:') && Math.abs(event.clientX - aimed.x) < AIM_DEADZONE_PX) return;
+            aimed = {puck, x: event.clientX};
             const value = valueAt(entry, fraction);
             puck.classList.add('is-aiming');
             puck.style.setProperty('--aim', String(fraction));
