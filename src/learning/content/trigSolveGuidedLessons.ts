@@ -7,10 +7,13 @@
  * `probe2.txt`) or plain arithmetic.
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -22,11 +25,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation', ux?.explanation), frame(`${content.id}-observation`, 'observation', ux?.observation)],
 });
 
 /** What a scene sets: the data type and the given fields (omitted fields take the type's defaults, see `set-data`). */
@@ -108,6 +113,7 @@ const steps: readonly GuidedLessonStep[] = [
             'Status je «Takega trikotnika ni: vsota dveh stranic mora biti večja od tretje.», odčitkov rešitve ni in nič ni narisano. Razlog: \\(2+3=5<6\\), stranici \\(a\\) in \\(b\\) skupaj ne dosežeta stranice \\(c\\). Po vpisih \\(c=6\\) in \\(b=3\\) je graf še kazal trikotnik (\\(5\\), \\(3\\), \\(6\\)): tri podatke je mogoče vpisati, trikotnik pa iz njih ni nujno mogoč.',
             'The status is "No such triangle: the sum of two sides must exceed the third.", there are no solution readouts and nothing is drawn. The reason: \\(2+3=5<6\\), the sides \\(a\\) and \\(b\\) together do not reach the side \\(c\\). After the entries \\(c=6\\) and \\(b=3\\) the graph still showed a triangle (\\(5\\), \\(3\\), \\(6\\)): three data can be typed in, but a triangle does not have to follow from them.',
         )],
+        ux: {explanation: readouts(), observation: readouts()},
         scene: scene('tr5-exists-scene', TR5_SSS_5_6_7,
             'Način Reševanje trikotnika, podatki SSS \\(a=5\\), \\(b=6\\), \\(c=7\\): ena rešitev, koti \\(\\approx44{,}4153^\\circ\\), \\(\\approx57{,}1217^\\circ\\), \\(\\approx78{,}463^\\circ\\).',
             'The mode Solve a triangle, data SSS \\(a=5\\), \\(b=6\\), \\(c=7\\): one solution, angles \\(\\approx44.4153^\\circ\\), \\(\\approx57.1217^\\circ\\), \\(\\approx78.463^\\circ\\).'),
@@ -126,6 +132,7 @@ const steps: readonly GuidedLessonStep[] = [
             'Pri \\(3\\), \\(3\\), \\(6\\) status pravi «Podatki dajo sploščen trikotnik (oglišča ležijo na premici).», odčitkov ni: \\(3+3=6\\), stranici ležita vzdolž tretje. Pri \\(4\\), \\(3\\), \\(6\\) pravi «Ena rešitev.»; kot \\(C\\) je \\(\\approx117{,}2796^\\circ\\), ker je \\(c\\) najdaljša stranica. Pravilo: trikotnik s stranicami \\(a\\), \\(b\\), \\(c\\) obstaja, ko je vsota vsakih dveh stranic večja od tretje: \\(a+b>c\\), \\(a+c>b\\), \\(b+c>a\\); dovolj je preveriti, da je najdaljša stranica krajša od vsote drugih dveh. Pri enakosti ležijo oglišča na premici, pri manjši vsoti pa trikotnika ni.',
             'For \\(3\\), \\(3\\), \\(6\\) the status says "The data give a flat triangle (the vertices lie on a line).", with no readouts: \\(3+3=6\\), the two sides lie along the third. For \\(4\\), \\(3\\), \\(6\\) it says "One solution."; the angle \\(C\\) is \\(\\approx117.2796^\\circ\\), because \\(c\\) is the longest side. The rule: a triangle with sides \\(a\\), \\(b\\), \\(c\\) exists when the sum of every two sides exceeds the third: \\(a+b>c\\), \\(a+c>b\\), \\(b+c>a\\); it is enough to check that the longest side is shorter than the sum of the other two. With equality the vertices lie on a line, and with a smaller sum there is no triangle.',
         )],
+        ux: {explanation: readouts(), observation: readouts()},
         scene: scene('tr5-inequality-scene', TR5_SSS_2_3_6,
             'Način Reševanje trikotnika, podatki SSS \\(a=2\\), \\(b=3\\), \\(c=6\\): status «Takega trikotnika ni», brez odčitkov.',
             'The mode Solve a triangle, data SSS \\(a=2\\), \\(b=3\\), \\(c=6\\): the status "No such triangle", no readouts.'),
@@ -144,6 +151,7 @@ const steps: readonly GuidedLessonStep[] = [
             'Račun: \\(a^2=5^2+7^2-2\\cdot5\\cdot7\\cdot\\tfrac12=74-35=39\\), torej \\(a=\\sqrt{39}\\approx6{,}245\\); odčitek je \\(a\\approx6{,}245\\). Kot \\(B\\) iz kosinusnega izreka: \\(\\cos B=\\dfrac{a^2+c^2-b^2}{2ac}=\\dfrac{39+49-25}{14\\sqrt{39}}=\\dfrac{9}{2\\sqrt{39}}\\approx0{,}7206\\), kar da \\(B\\approx43{,}8979^\\circ\\) kot v odčitku, in \\(C\\approx180^\\circ-60^\\circ-43{,}8979^\\circ=76{,}1021^\\circ\\). Pri SKS najprej dobiš tretjo stranico s kosinusnim izrekom, nato kota.',
             'The calculation: \\(a^2=5^2+7^2-2\\cdot5\\cdot7\\cdot\\tfrac12=74-35=39\\), so \\(a=\\sqrt{39}\\approx6.245\\); the readout is \\(a\\approx6.245\\). The angle \\(B\\) from the cosine rule: \\(\\cos B=\\dfrac{a^2+c^2-b^2}{2ac}=\\dfrac{39+49-25}{14\\sqrt{39}}=\\dfrac{9}{2\\sqrt{39}}\\approx0.7206\\), which gives \\(B\\approx43.8979^\\circ\\) as in the readout, and \\(C\\approx180^\\circ-60^\\circ-43.8979^\\circ=76.1021^\\circ\\). With SAS you first get the third side from the cosine rule, then the angles.',
         )],
+        ux: {explanation: readouts(), observation: readouts()},
         scene: scene('tr5-sas-scene', TR5_SSS_5_6_7,
             'Način Reševanje trikotnika, podatki SSS \\(a=5\\), \\(b=6\\), \\(c=7\\); izbira SKS naloži \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\).',
             'The mode Solve a triangle, data SSS \\(a=5\\), \\(b=6\\), \\(c=7\\); choosing SAS loads \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\).'),
@@ -162,6 +170,7 @@ const steps: readonly GuidedLessonStep[] = [
             'Račun: \\(C=180^\\circ-40^\\circ-60^\\circ=80^\\circ\\) in \\(a=\\dfrac{8\\sin40^\\circ}{\\sin80^\\circ}\\approx5{,}22163\\); odčitka sta \\(C=80^\\circ\\) in \\(a\\approx5{,}22163\\). Stranica \\(b=\\dfrac{8\\sin60^\\circ}{\\sin80^\\circ}\\approx7{,}03508\\) se ujema z odčitkom. Pri \\(B=150^\\circ\\) status pravi «Takega trikotnika ni: vsota kotov bi bila najmanj 180°.» in odčitkov ni: \\(40^\\circ+150^\\circ=190^\\circ\\ge180^\\circ\\), za tretji kot ni prostora.',
             'The calculation: \\(C=180^\\circ-40^\\circ-60^\\circ=80^\\circ\\) and \\(a=\\dfrac{8\\sin40^\\circ}{\\sin80^\\circ}\\approx5.22163\\); the readouts are \\(C=80^\\circ\\) and \\(a\\approx5.22163\\). The side \\(b=\\dfrac{8\\sin60^\\circ}{\\sin80^\\circ}\\approx7.03508\\) agrees with the readout. For \\(B=150^\\circ\\) the status says "No such triangle: the angles would add up to at least 180°." and there are no readouts: \\(40^\\circ+150^\\circ=190^\\circ\\ge180^\\circ\\), there is no room for a third angle.',
         )],
+        ux: {explanation: readouts(), observation: readouts()},
         scene: scene('tr5-asa-scene', TR5_SAS_5_7_60,
             'Način Reševanje trikotnika, podatki SKS \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\); izbira KSK naloži \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\).',
             'The mode Solve a triangle, data SAS \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\); choosing ASA loads \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\).'),
@@ -180,6 +189,7 @@ const steps: readonly GuidedLessonStep[] = [
             'Status je «Dve rešitvi (dvoumni primer)»: dva trikotnika, \\(B_1\\) (polna črta) s \\(c\\approx9{,}9282\\) in \\(B_2\\) (črtkana) s \\(c\\approx3{,}9282\\); krožnica seka poltrak v dveh točkah. To je argument za zgornjo mejo: premica in krožnica imata največ dve skupni točki, zato trikotnikov ni več kot dva. Kota pri \\(B\\) sta \\(\\approx53{,}1301^\\circ\\) in \\(\\approx126{,}8699^\\circ\\), vsota \\(180^\\circ\\): ker je \\(CB_1=CB_2=a\\), sta kota ob stranici \\(B_1B_2\\) v trikotniku \\(CB_1B_2\\) enaka, \\(B_2\\) pa leži med \\(A\\) in \\(B_1\\) (\\(c\\approx3{,}9282<9{,}9282\\)), zato je kot pri \\(B_2\\) dopolnilni kot kota pri \\(B_1\\) do \\(180^\\circ\\).',
             'The status is "Two solutions (the ambiguous case)": two triangles, \\(B_1\\) (solid) with \\(c\\approx9.9282\\) and \\(B_2\\) (dashed) with \\(c\\approx3.9282\\); the circle meets the ray in two points. This is the argument for the upper bound: a line and a circle have at most two common points, so there are at most two triangles. The angles at \\(B\\) are \\(\\approx53.1301^\\circ\\) and \\(\\approx126.8699^\\circ\\), with sum \\(180^\\circ\\): because \\(CB_1=CB_2=a\\), the angles at the side \\(B_1B_2\\) in the triangle \\(CB_1B_2\\) are equal, and \\(B_2\\) lies between \\(A\\) and \\(B_1\\) (\\(c\\approx3.9282<9.9282\\)), so the angle at \\(B_2\\) is the supplement of the angle at \\(B_1\\) to \\(180^\\circ\\).',
         )],
+        ux: {explanation: readouts('height'), observation: readouts()},
         scene: scene('tr5-ssa-scene', TR5_SSA_30_8_A8,
             'Način Reševanje trikotnika, podatki SSK \\(A=30^\\circ\\), \\(b=8\\), \\(a=8\\): ena rešitev, \\(B=30^\\circ\\), \\(C=120^\\circ\\), \\(c\\approx13{,}85641\\), višina \\(h\\approx4\\).',
             'The mode Solve a triangle, data SSA \\(A=30^\\circ\\), \\(b=8\\), \\(a=8\\): one solution, \\(B=30^\\circ\\), \\(C=120^\\circ\\), \\(c\\approx13.85641\\), height \\(h\\approx4\\).'),
@@ -198,6 +208,7 @@ const steps: readonly GuidedLessonStep[] = [
             'Pri \\(a=4\\): «Ena rešitev: stranica a je enaka višini h ≈ 4, zato je trikotnik pravokoten (pravi kot pri B).»; krožnica se poltraka le dotakne, \\(B=90^\\circ\\), \\(C=60^\\circ\\), \\(c\\approx6{,}9282\\). Pri \\(a=3{,}5\\): «Takega trikotnika ni: stranica a je krajša od višine h ≈ 4.»; krožnica poltraka ne doseže, narisani so poltrak, krožnica in višina, trikotnika ni. Pri \\(a=9\\): «Ena rešitev: poltrak in krožni lok se sekata v eni točki.»; \\(A\\) je znotraj krožnice (\\(b=8<9\\)), zato druga točka krožnice na premici leži na drugi strani \\(A\\), ne na poltraku. Celotno pravilo za oster kot \\(A\\), \\(h=b\\sin A\\): \\(a<h\\) nobene rešitve, \\(a=h\\) ena (pravi kot pri \\(B\\)), \\(h<a<b\\) dve, \\(a\\ge b\\) ena (pri \\(a=b\\) je drugo presečišče \\(A\\) sam, kar ni trikotnik). Za topi ali pravi kot \\(A\\) velja: ena rešitev natanko pri \\(a>b\\), sicer nobene; tega primera ta scena ne kaže.',
             'For \\(a=4\\): "One solution: side a equals the height h ≈ 4, so the triangle is right-angled (right angle at B)."; the circle only touches the ray, \\(B=90^\\circ\\), \\(C=60^\\circ\\), \\(c\\approx6.9282\\). For \\(a=3.5\\): "No such triangle: side a is shorter than the height h ≈ 4."; the circle does not reach the ray, the ray, the circle and the height are drawn but no triangle. For \\(a=9\\): "One solution: the ray and the circular arc meet in one point."; \\(A\\) is inside the circle (\\(b=8<9\\)), so the other point of the circle on the line lies on the other side of \\(A\\), not on the ray. The whole rule for an acute angle \\(A\\), \\(h=b\\sin A\\): \\(a<h\\) no solution, \\(a=h\\) one (right angle at \\(B\\)), \\(h<a<b\\) two, \\(a\\ge b\\) one (for \\(a=b\\) the other intersection is \\(A\\) itself, which is not a triangle). For an obtuse or right angle \\(A\\): one solution exactly when \\(a>b\\), otherwise none; this scene does not show that case.',
         )],
+        ux: {explanation: readouts('height'), observation: readouts()},
         scene: scene('tr5-cases-scene', TR5_SSA_30_8_A5,
             'Način Reševanje trikotnika, podatki SSK \\(A=30^\\circ\\), \\(b=8\\), \\(a=5\\): dve rešitvi, \\(c\\approx9{,}9282\\) in \\(c\\approx3{,}9282\\).',
             'The mode Solve a triangle, data SSA \\(A=30^\\circ\\), \\(b=8\\), \\(a=5\\): two solutions, \\(c\\approx9.9282\\) and \\(c\\approx3.9282\\).'),
@@ -216,6 +227,7 @@ const steps: readonly GuidedLessonStep[] = [
             'Najmanjša stranica z dvema rešitvama je \\(a=4{,}25\\), največja \\(a=7{,}75\\); pri \\(a=4\\) je ena rešitev, pri \\(a=8\\) in \\(a=8{,}25\\) tudi ena. To se ujema s pravilom \\(h<a<b\\), kjer je \\(h=4\\) in \\(b=8\\).',
             'The smallest side with two solutions is \\(a=4.25\\), the largest \\(a=7.75\\); at \\(a=4\\) there is one solution, and at \\(a=8\\) and \\(a=8.25\\) there is one too. This agrees with the rule \\(h<a<b\\), where \\(h=4\\) and \\(b=8\\).',
         )],
+        ux: {explanation: readouts(), observation: readouts()},
         scene: scene('tr5-explore-scene', TR5_SSS_5_6_7,
             'Način Reševanje trikotnika, podatki SSS \\(a=5\\), \\(b=6\\), \\(c=7\\): ena rešitev.',
             'The mode Solve a triangle, data SSS \\(a=5\\), \\(b=6\\), \\(c=7\\): one solution.'),

@@ -9,7 +9,7 @@ import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PointListInput} from "../../inputs/PointListInput";
 import Slider from "../../inputs/Slider";
-import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
+import {ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -23,7 +23,9 @@ import {Rational, RationalPoint} from "../../compgeo/rational";
 import type {TriangleShape} from "../../compgeo/triangle";
 import {angleAtAntipode, CosineRule, SineRule} from "../../trig/sineCosineRules";
 import {SolveResult, triangleFromSolution, Vertices} from "../../trig/triangleSolver";
-import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
 import {
     DEFAULT_SOLVE_DATA, DEFAULT_TRIANGLE_STATE, deriveTriangle, parseTriangleState, serializeTriangleState, SIDE_MAX, SIDE_MIN, SOLVE_DATA_TYPES, SOLVER_ANGLE_MAX,
     SOLVER_ANGLE_MIN, snapSideInput, snapSolverAngleInput, snapVertexInput, TRIANGLE_MODES, TriangleDerived, TriangleState,
@@ -540,7 +542,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         label(() => BAR_X + (squares().a2 * scale()) / 2, () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "$$a^2$$", GraphPalette.primaryCurve, barsDrawn, "raw");
         label(() => BAR_X + ((squares().a2 + squares().b2 / 2) * scale()), () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "$$b^2$$", GraphPalette.comparisonCurve, barsDrawn, "raw");
         label(() => BAR_X + BAR_LENGTH / 2, () => BAR_ROW_C + px(BAR_NAME_OFFSET + BAR_CAPTION_STEP),
-            () => `${t("triangle_solver_bar_correction")} = ${signed(this.proper()?.cosine.correction ?? 0n)}`, GraphPalette.constructionAccent, barsDrawn);
+            () => `${t("triangle_solver_bar_correction")} = ${signed(this.proper()?.cosine.correction ?? 0n)}`, GraphPalette.constructionAccent, () => barsDrawn() && !pickOn("boardText")); // the readout card has the correction row
 
         // ---- solve mode: the solved triangle(s), and for SSA the height, the ray and the circle of radius a around C
         const point = (index: number, name: "A" | "B" | "C"): Place[] => {
@@ -927,7 +929,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             for (const field of DATA_FIELDS[state.data.type]) {
                 const side = field.kind === "side";
                 commands.push(
-                    <Slider key={`${state.data.type}-${field.name}`} customText={this.dataLabel(field)} value={this.dataValue(field.name) ?? (side ? SIDE_MIN : SOLVER_ANGLE_MIN)}
+                    <Slider key={`${state.data.type}-${field.name}`} paramKey={`triangle.${field.name}`} customText={this.dataLabel(field)} value={this.dataValue(field.name) ?? (side ? SIDE_MIN : SOLVER_ANGLE_MIN)}
                             min={side ? SIDE_MIN : SOLVER_ANGLE_MIN} max={side ? SIDE_MAX : SOLVER_ANGLE_MAX}
                             step={side ? 0.25 : 1} bigStep={side ? 1 : 10} grid={side ? 0.25 : 1} decimals={side ? 2 : 0}
                             onChange={value => this.editData(field.name, field.kind, value)}/>,
@@ -935,7 +937,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             }
             return commands;
         }
-        commands.push(<div key="vertices" className="inspector-group">
+        commands.push(<ToolSection key="vertices" id="triangle-vertices" help={t("triangle_solver_vertex_help")}>
             <PointListInput title={t("triangle_solver_vertices_title")} points={VERTICES.map(vertex => [state[vertex].x, state[vertex].y] as const)}
                             pointLabel={index => t("triangle_solver_vertex_name", {value0: VERTICES[index]})} step={VERTEX_STEP} bigStep={VERTEX_BIG_STEP} integer decimals={0}
                             onCommit={(index, [x, y]) => {
@@ -946,21 +948,56 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
                                 if (x !== state[vertex].x && !this.editVertex(vertex, "x", x)) return t("number_rejected_hint");
                                 if (y !== state[vertex].y && !this.editVertex(vertex, "y", y)) return t("number_rejected_hint");
                             }}/>
-            <p className="inspector-help">{t("triangle_solver_vertex_help")}</p>
-        </div>);
+        </ToolSection>);
         return commands;
+    }
+
+    /** The cards' declaration (pick boardText): the rows of `readoutRows` in groups, the status sentence as a note, the legend as drawn. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const mode = this.state.mode;
+        const legend: LegendEntry[] = this.legendItems().map(item => ({
+            id: item.id, label: item.label, color: item.color, kind: item.kind === "dashed-line" ? "dashed" : item.kind === "line" ? "line" : "point",
+        }));
+        const linked: Record<string, string> = {"r-squared": "circumcircle", antipode: "antipode", height: "height"};
+        const rows: ReadoutRow[] = this.readoutRows().map(row => {
+            const id = row.id;
+            return {
+                id, name: String(row.label ?? ""), value: String(row.value),
+                ...(id === "identity" ? {valueTex: String(row.value).replace(/−/g, "-")} : {}),
+                ...(linked[id] && legend.some(entry => entry.id === linked[id]) ? {legend: linked[id]} : {}),
+            };
+        });
+        const pick = (...ids: string[]) => rows.filter(row => ids.includes(row.id));
+        const groups: ReadoutGroup[] = [];
+        let pucks: {param: string; help: string}[] = [];
+        if (mode === "solve") {
+            for (const n of ["1", "2"]) groups.push({id: `solution-${n}`, rows: pick(`solved-sides-${n}`, `solved-angles-${n}`, `solved-area-${n}`)});
+            groups.push({id: "height", rows: pick("height")});
+            pucks = DATA_FIELDS[this.state.data.type].map(field => ({
+                param: `triangle.${field.name}`,
+                help: field.kind === "side" ? "Podana stranica trikotnika; rešitev se sproti preračuna." : "Podani kot trikotnika; rešitev se sproti preračuna.",
+            }));
+        } else {
+            groups.push({id: "sides", rows: pick("side-a", "side-b", "side-c")}, {id: "angles", rows: pick("angle-A", "angle-B", "angle-C")},
+                {id: "ratios", rows: pick("ratio-a", "ratio-b", "ratio-c")});
+            groups.push(mode === "circle"
+                ? {id: "circle", rows: pick("two-r", "r-squared", "centre", "antipode", "thales", "apex-angle")}
+                : {id: "cosine", rows: pick("dot", "correction", "identity")});
+        }
+        const notes: ReadoutNote[] = [{id: "status", text: this.statusText(), tone: "muted"}];
+        return {readouts: groups.filter(group => group.rows.length > 0), notes, legend, pucks};
     }
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <BoardReadout><div className="inspector-group">
-                <ReadoutHeading>{t("triangle_solver_readout_title")}</ReadoutHeading>
+            {pickOn("boardText") ? <LiveReadout readout={this.status}/> : <ToolSection id="triangle-readout" title={t("triangle_solver_readout_title")} headingClassName="inspector-reveals-title">
                 <p data-triangle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("triangle_solver_readout_title")} rows={this.readoutRows()}/>
                 {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
-            </div></BoardReadout>
+            </ToolSection>}
         </>;
     }
 }

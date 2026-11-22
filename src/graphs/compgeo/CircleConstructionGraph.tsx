@@ -9,7 +9,7 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
 import {PointListInput} from "../../inputs/PointListInput";
-import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
+import {ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {FunctionLegend, LegendItem} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -27,7 +27,9 @@ import {Preset} from "../base/presets/Presets";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import {circleConstructionPresetCollection} from "./circleConstruction/circleConstructionPresetCollection";
 
-import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
 /** The scene state is the stored circle construction state (ADR 0045 sections 1 and 2); everything else is derived from it. */
 export interface CircleConstructionGraphState extends BaseGraphState, CircleConstructionState {}
 
@@ -104,6 +106,20 @@ function lineText(line: Line | InexactLine): string {
         text += text === "" ? `${coefficient < 0 ? "−" : ""}${body}` : ` ${coefficient < 0 ? "−" : "+"} ${body}`;
     }
     return `${text} = ${dec(c)}`;
+}
+
+/** A line as TeX (decimal comma `{,}`), the same numbers as `lineText`. */
+function lineTex(line: Line | InexactLine): string {
+    const [a, b, c] = coefficientsOf(line);
+    const num = (n: number) => dec(n).replace(/−/g, "-").replace(/,/g, "{,}");
+    let text = "";
+    for (const [coefficient, name] of [[a, "x"], [b, "y"]] as const) {
+        if (coefficient === 0) continue;
+        const size = Math.abs(coefficient);
+        const body = `${size === 1 ? "" : `${num(size)}\\,`}${name}`;
+        text += text === "" ? `${coefficient < 0 ? "-" : ""}${body}` : ` ${coefficient < 0 ? "-" : "+"} ${body}`;
+    }
+    return `${text} = ${num(c)}`;
 }
 
 interface Anchors {
@@ -664,7 +680,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             caption(() => {
                 const ratio = apollonius(frame())?.ratio;
                 return ratio == null ? "" : t("circle_construction_ratio_caption", {value0: dec(ratio)});
-            }, () => this.state.p.x, () => this.state.p.y, GraphPalette.primaryCurve);
+            }, () => this.state.p.x, () => this.state.p.y, GraphPalette.primaryCurve, () => !pickOn("boardText")); // the readout card has the ratio row
         } else {
             const common = (f: Frame) => (f.derived.mode === "common" ? f.derived : undefined);
             const okResult = (f: Frame) => {
@@ -993,7 +1009,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     private circleInputs(key: CircleKey, number: string): JSX.Element[] {
         return [
             this.pointRows(t("circle_construction_centre_group"), [{key, name: `O${"₁₂₃"[Number(number) - 1]}`}]),
-            <Slider key={`${key}r`} customText={t("circle_construction_radius", {value0: number})} value={this.state[key].r} min={RADIUS_MIN} max={RADIUS_MAX}
+            <Slider key={`${key}r`} paramKey={`circle.r${number}`} customText={t("circle_construction_radius", {value0: number})} value={this.state[key].r} min={RADIUS_MIN} max={RADIUS_MAX}
                     step={RADIUS_STEP} bigStep={RADIUS_BIG_STEP} grid={RADIUS_STEP} decimals={2} onChange={value => this.editRadius(key, value)}/>,
         ];
     }
@@ -1028,7 +1044,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             case "apollonius":
                 commands.push(
                     this.pointRows(t("circle_construction_points_group"), [{key: "a", name: "A"}, {key: "b", name: "B"}, {key: "p", name: "P"}]),
-                    <Slider key="ratio" customText={t("circle_construction_ratio_label")} value={state.k} min={RATIO_MIN} max={RATIO_MAX} step={RATIO_STEP}
+                    <Slider key="ratio" paramKey="circle.k" customText={t("circle_construction_ratio_label")} value={state.k} min={RATIO_MIN} max={RATIO_MAX} step={RATIO_STEP}
                             bigStep={RATIO_BIG_STEP} grid={RATIO_STEP} decimals={1} onChange={value => this.editRatio(value)}/>,
                 );
                 break;
@@ -1039,17 +1055,70 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         return commands;
     }
 
+    /** The cards' declaration (pick boardText): the rows of `readoutRows` in groups, the status sentence as a note, the legend as drawn. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const d = this.view();
+        const legend: LegendEntry[] = this.legendItems().map(item => ({
+            id: item.id, label: item.label, color: item.color,
+            kind: item.kind === "dashed-line" ? "dashed" : item.kind === "line" ? "line" : "point",
+        }));
+        const linked: Record<string, string> = {chord: "chord", thales: "thales", "axis-12": "axis-0", "axis-13": "axis-1", "axis-23": "axis-2",
+            centre: "centre", orthogonal: "orthogonal", locus: "locus", "external-centre": "external-centre", "internal-centre": "internal-centre"};
+        const lines: Record<string, Line | InexactLine | undefined> = {};
+        if (d.mode === "tangents" && d.result.status === "outside") lines.chord = d.result.chord;
+        if (d.mode === "radical") d.axes.forEach((pair, index) => { if (pair.axis.status === "line") lines[["axis-12", "axis-13", "axis-23"][index]] = pair.axis.line; });
+        if (d.mode === "apollonius" && d.locus.status === "line") lines.locus = d.locus.line;
+        const rows: ReadoutRow[] = this.readoutRows().map(row => {
+            const id = row.id;
+            const line = lines[id];
+            return {
+                id, name: String(row.label ?? ""), value: String(row.value),
+                ...(line ? {valueTex: lineTex(line)} : {}),
+                ...(linked[id] && legend.some(entry => entry.id === linked[id]) ? {legend: linked[id]} : {}),
+            };
+        });
+        const pick = (...ids: string[]) => rows.filter(row => ids.includes(row.id));
+        const groups: ReadoutGroup[] = [];
+        let pucks: {param: string; help: string}[] = [];
+        const radius = (n: number) => ({param: `circle.r${n}`, help: "Polmer krožnice; konstrukcija se sproti preračuna."});
+        switch (d.mode) {
+            case "tangents":
+                groups.push({id: "values", rows: pick("power", "length", "count")}, {id: "contacts", rows: pick("contact-1", "contact-2")},
+                    {id: "construction", rows: pick("chord", "thales")});
+                pucks = [radius(1)];
+                break;
+            case "radical":
+                groups.push({id: "powers", rows: pick("power-1", "power-2", "power-3", "on-axis")}, {id: "axes", rows: pick("axis-12", "axis-13", "axis-23", "meet")},
+                    {id: "centre", rows: pick("centre", "centre-power", "orthogonal")});
+                pucks = [radius(1), radius(2), radius(3)];
+                break;
+            case "apollonius":
+                groups.push({id: "probe", rows: pick("ratio", "on-locus")}, {id: "locus", rows: pick("internal", "external", "locus", "inverse")});
+                pucks = [{param: "circle.k", help: "Razmerje k: točke, katerih razdalji do A in B imata to razmerje, ležijo na Apolonijevi krožnici."}];
+                break;
+            case "common":
+                groups.push({id: "values", rows: pick("count", "distance2")}, {id: "centres", rows: pick("external-centre", "internal-centre")});
+                pucks = [radius(1), radius(2)];
+                break;
+        }
+        const notes: ReadoutNote[] = [
+            {id: "status", text: this.statusText(), tone: "muted"},
+            {id: "approx", text: t("circle_construction_approx_note"), tone: "muted"},
+        ];
+        return {readouts: groups.filter(group => group.rows.length > 0), notes, legend, pucks};
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <BoardReadout><div className="inspector-group">
-                <ReadoutHeading>{t("circle_construction_readout_title")}</ReadoutHeading>
+            {pickOn("boardText") ? <LiveReadout readout={this.status}/> : <ToolSection id="circle-readout" title={t("circle_construction_readout_title")} headingClassName="inspector-reveals-title">
                 <p data-circle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("circle_construction_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("circle_construction_approx_note")}</p>
                 {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
-            </div></BoardReadout>
+            </ToolSection>}
         </>;
     }
 }
