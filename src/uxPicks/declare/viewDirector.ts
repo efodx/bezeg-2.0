@@ -18,6 +18,8 @@ import {fitView, type Point} from './viewFit';
 export type Reason = 'port' | 'intent' | 'action' | 'dock' | 'resize' | 'params' | 'auto';
 
 const GLIDE_MS = 250;
+/** A card or canvas change this soon after a motion is its tail (the readouts a finished scene shows): continue at once, not as a second glide after a pause. */
+const TAIL_MS = 500, TAIL_DELAY = 0, ACTION_MS = 400;
 const DELAY: Record<Reason, number> = {port: 60, intent: 60, action: 220, dock: 140, resize: 140, params: 0, auto: 60};
 /** The morph's easing (b1/morph.ts), so scene and view share one curve. */
 const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -26,10 +28,10 @@ const same = (a: FitBox, b: FitBox) => a.every((v, i) => Math.abs(v - b[i]) < 1e
 
 export function directorOn(): boolean { return pickOn('viewDirector'); }
 
-interface Morph {from: FitBox; to: FitBox; intent: FitBox}
+interface Morph {from: FitBox; to: FitBox; intent: FitBox; key: string; e: number}
 
 const s = {
-    paused: false, down: false, applying: false, timer: 0, reason: 'auto' as Reason, dockOnly: false, pendingFit: false, pendingParams: false, frame: 0,
+    paused: false, down: false, applying: false, timer: 0, reason: 'auto' as Reason, dockOnly: false, pendingFit: false, pendingParams: false, frame: 0, movedAt: -1e9, actionAt: -1e9,
     fitKey: undefined as string | undefined, morph: undefined as Morph | undefined,
     maxOut: DEFAULT_MAX_OUT, useFocus: true, marks: [] as Point[],
 };
@@ -73,14 +75,17 @@ function goTo(target: FitBox) {
     if (!port) return;
     cancelGlide();
     const from = port.current();
-    // A difference of a few pixels (a card that grew by a line) is not worth a motion: the fit is always computed from the intent, so nothing accumulates.
-    if (same(from, target) || from.every((v, i) => Math.abs(v - target[i]) < 0.002 * Math.abs(from[2] - from[0]))) return;
+    // A difference of a pixel or ten (a card that grew by a line) is not worth a motion: the fit is always computed from the intent, so nothing accumulates.
+    if (same(from, target) || from.every((v, i) => Math.abs(v - target[i]) < 0.012 * Math.abs(from[2] - from[0]))) return;
     if (prefersReducedMotion()) { run(target); return; }
+    // A tail starts fast (the view was just moving): an eased-in start is a pause the eye reads as a second motion.
+    const tail = performance.now() - s.movedAt < TAIL_MS;
     const start = performance.now();
     const tick = (now: number) => {
         const k = Math.min(1, (now - start) / GLIDE_MS);
-        run(k >= 1 ? target : from.map((v, i) => v + (target[i] - v) * smooth(k)) as FitBox);
+        run(k >= 1 ? target : from.map((v, i) => v + (target[i] - v) * (tail ? 1 - (1 - k) * (1 - k) : smooth(k))) as FitBox);
         s.frame = k < 1 ? requestAnimationFrame(tick) : 0;
+        s.movedAt = now;
     };
     s.frame = requestAnimationFrame(tick);
 }
@@ -104,19 +109,40 @@ function fire() {
     fit();
 }
 
+/**
+ * A card that settles during the motion (the lesson card's height glide, typeset maths) changes where the fit lands. Retarget the
+ * open transition then, rebased so the box on screen does not move at that instant, so the motion ends on the settled fit and no
+ * second glide follows it. Past 98 % of the curve the end-of-morph request takes over.
+ */
+function retargetMorph(m: Morph, e: number, force = false) {
+    const port = getViewPort();
+    m.e = e;
+    if (!port || e > 0.98) return;
+    const key = obstacleKey(port.container);
+    if (key === m.key && !force) return;
+    m.key = key;
+    const to = computeTarget(m.intent);
+    if (!to) return;
+    const cur = m.from.map((v, i) => v + (m.to[i] - v) * e);
+    m.from = cur.map((c, i) => (c - to[i] * e) / (1 - e)) as FitBox;
+    m.to = to;
+}
+
 export const director = {
     /** Every cause of a view change. A new frame, a view of the graph's own or the switch coming on ends the learner's pause. */
     request(reason: Reason, delay = DELAY[reason]) {
         if (!directorOn()) return;
+        if (reason === 'action') s.actionAt = performance.now();
         if (reason === 'port' || reason === 'intent' || reason === 'action' || reason === 'auto') s.paused = false;
         if (s.morph) {
             // Interpolated restores only record intent; a card or canvas change retargets the open transition.
-            if (reason === 'dock' || reason === 'resize') { const to = computeTarget(s.morph.intent); if (to) s.morph.to = to; }
+            if (reason === 'dock' || reason === 'resize') retargetMorph(s.morph, s.morph.e, true);
             return;
         }
         // Any other trigger pending makes the fit unconditional.
         s.dockOnly = reason === 'dock' && (s.timer === 0 || s.dockOnly);
         clearTimer();
+        if ((reason === 'dock' || reason === 'resize') && performance.now() - s.movedAt < TAIL_MS) delay = Math.min(delay, TAIL_DELAY);
         s.timer = window.setTimeout(fire, delay);
     },
     /** "Prilagodi točkam": the same fit, now, and the learner's pause ends. */
@@ -150,7 +176,7 @@ export const director = {
         clearTimer(); cancelGlide();
         const to = computeTarget(intent);
         if (!to) return false;
-        s.morph = {from: port.current(), to, intent};
+        s.morph = {from: port.current(), to, intent, key: obstacleKey(port.container), e: 0};
         return true;
     },
     /** The morph's clock: `t` in 0..1, eased as the scene is. */
@@ -158,14 +184,21 @@ export const director = {
         const m = s.morph;
         if (!m) return;
         const e = t >= 1 ? 1 : ease(Math.min(1, Math.max(0, t)));
+        retargetMorph(m, e);
         run(t >= 1 ? m.to : m.from.map((v, i) => v + (m.to[i] - v) * e) as FitBox);
+        s.movedAt = performance.now();
     },
     endMorph() {
         if (!s.morph) return;
         s.morph = undefined;
         director.request('auto', 0); // a card that changed during the motion
     },
-    morphing(): boolean { return s.morph !== undefined; },
+    /**
+     * True while a lesson morph runs and for ACTION_MS after a lesson frame's action: view boxes a graph writes then (a frame that
+     * sets its view twice, a restore) are the frame's intent, not the graph animating its own view, so the seam (BaseGraph
+     * `installBoxSeam`) must not show the second one at once (Lagrange: the unfitted intent flashed for 200 ms, then glided back).
+     */
+    morphing(): boolean { return s.morph !== undefined || performance.now() - s.actionAt < ACTION_MS; },
     /** Optional must-marks: world points the fit keeps visible and clear of cards (set by a graph, one line per object). */
     setMarks(marks: readonly Point[]) { s.marks = [...marks]; },
     /** Dev and measurement: the zoom-out limit and whether a declared `focus` is used. */

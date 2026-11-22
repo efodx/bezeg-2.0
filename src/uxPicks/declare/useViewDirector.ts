@@ -34,7 +34,7 @@ export function useViewDirector() {
             const ro = new ResizeObserver(() => director.request('resize'));
             ro.observe(port.container);
             const dock = port.container.closest('.workspace-graph')?.querySelector('.ux-dock');
-            const mo = new MutationObserver(() => director.request('dock'));
+            const mo = new MutationObserver(() => { if (!recentlyProbed()) director.request('dock'); }); // a preview probe re-renders cards: not a card change
             if (dock) mo.observe(dock, {attributes: true, attributeFilter: ['class', 'style'], childList: true, subtree: true});
             observeOff = () => { ro.disconnect(); mo.disconnect(); };
         };
