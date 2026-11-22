@@ -239,6 +239,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     }
 
     private bindParameters(): void {
+        this.releaseParameterArbiter?.();
+        this.releaseParameterArbiter = undefined;
         const bindings = Object.entries(this.parameterBindings());
         if (bindings.length === 0) return;
         if (typeof window !== "undefined") installLearnerInputTagging(window);

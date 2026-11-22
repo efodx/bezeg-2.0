@@ -83,19 +83,36 @@ export function installLearnerInputTagging(target: Window = window, options: Lea
     }, true);
     target.addEventListener("keydown", endPulse);
     target.addEventListener("pointerdown", endPulse);
+    /** `now` for focus loss; otherwise after the current event's handlers, which still belong to the gesture. */
+    const endKeys = (now = false) => {
+        for (const end of keys.values()) if (now) end(); else endSoon(end);
+        keys.clear();
+    };
+    const endPointers = (now = false) => {
+        for (const end of pointers.values()) if (now) end(); else endSoon(end);
+        pointers.clear();
+    };
     target.addEventListener("keyup", event => {
+        // macOS delivers no key up for other keys while Meta is held: releasing Meta ends every key gesture.
+        if (event.key === "Meta") {
+            endKeys();
+            return;
+        }
         const end = keys.get(event.code);
         if (!end) return;
         keys.delete(event.code);
         endSoon(end);
     }, true);
 
-    // A lost key up or pointer up (focus left the window) must not leave a hold open.
-    target.addEventListener("blur", () => {
-        for (const end of [...pointers.values(), ...keys.values()]) end();
-        pointers.clear();
-        keys.clear();
-    });
+    // A context menu can swallow the pointer up; a lost key up or pointer up (focus left the window or the page was
+    // hidden) must not leave a hold open either.
+    target.addEventListener("contextmenu", () => endPointers(), true);
+    const endAllNow = () => {
+        endPointers(true);
+        endKeys(true);
+    };
+    target.addEventListener("blur", endAllNow);
+    target.document?.addEventListener("visibilitychange", endAllNow);
 
     for (const type of DISCRETE_EVENTS) {
         target.addEventListener(type, startPulse, {capture: true, passive: true});
