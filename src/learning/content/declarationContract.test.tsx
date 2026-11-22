@@ -14,7 +14,8 @@ import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../grap
 import {checkDeclaration, checkFrame, type FrameDeclaration, type GraphDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import {message, renderMessage, setLanguage} from '../../localization';
 import {GUIDED_LESSON_AVAILABLE_IDS, getLessonForDemonstration} from '../runtime/lessonCatalog';
-import {framesForLessonStep} from '../model';
+import {framesForLessonStep, type LessonDefinition} from '../model';
+import {chapterOwnerRows, getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {DemonstrationId} from '../../demonstrations';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -69,8 +70,22 @@ function contractProblems(graph: BaseGraph<BaseGraphState>, declaration: GraphDe
 const overridesDeclaration = (graph: BaseGraph<BaseGraphState>) =>
     (graph as unknown as {declaration: unknown}).declaration !== (BaseGraph.prototype as unknown as {declaration: unknown}).declaration;
 
-/** The demonstrations with a guided lesson whose graph declares, found by the hook. */
-const declaringIds = GUIDED_LESSON_AVAILABLE_IDS.filter(id => overridesDeclaration(createGraph(id as DemonstrationId))) as DemonstrationId[];
+/** Every lesson on a demonstration: the catalog one plus all chapter-owned ones (linear-map has L1 to L7). */
+function lessonsFor(id: DemonstrationId): LessonDefinition[] {
+    const lessons = new Set<LessonDefinition>();
+    const first = getLessonForDemonstration(id);
+    if (first) lessons.add(first);
+    for (const row of chapterOwnerRows()) {
+        if (row.demonstrationId !== id) continue;
+        const lesson = getChapterOwnedLessons(row.chapterId)?.lesson(row.sectionId);
+        if (lesson) lessons.add(lesson);
+    }
+    return [...lessons];
+}
+
+/** The demonstrations with a guided or chapter-owned lesson whose graph declares, found by the hook. */
+const lessonIds = new Set<DemonstrationId>([...GUIDED_LESSON_AVAILABLE_IDS, ...chapterOwnerRows().map(row => row.demonstrationId)]);
+const declaringIds = [...lessonIds].filter(id => overridesDeclaration(createGraph(id))) as DemonstrationId[];
 
 describe('declaration contract on lesson frames', () => {
     test('at least one graph declares', () => {
@@ -90,8 +105,9 @@ describe('declaration contract on lesson frames', () => {
             const checkpoint = capabilities.captureState();
             const problems: string[] = [];
             let frames = 0;
-            for (const step of getLessonForDemonstration(id)!.steps) {
+            for (const lesson of lessonsFor(id)) for (const step of lesson.steps) {
                 // Steps without a scene keep the last prepared scene, as the lesson session does.
+                if (step === lesson.steps[0] && !step.scene) act(() => capabilities.restoreState(checkpoint));
                 if (step.scene) {
                     act(() => {
                         capabilities.restoreState(checkpoint);

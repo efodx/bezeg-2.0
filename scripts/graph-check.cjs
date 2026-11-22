@@ -40,10 +40,10 @@ function unit(label, files, filter, env) {
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 unit('contract', ['src/learning/content/declarationContract.test.tsx'], ` ${esc(id)}: `);
 
-const parity = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(f => f.replace(/\\/g, '/').endsWith(`__parity__/${id}.json`));
+const parity = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(f => new RegExp(`__parity__/${esc(id)}(-[a-z0-9-]+)?\\.json$`).test(f.replace(/\\/g, '/')));
 const bare = id.replace(/-/g, '').toLowerCase();
 const declTests = fs.readdirSync('src/graphs', {recursive: true}).map(String).filter(f => /\.declaration\.test\.tsx$/.test(f) && path.basename(f).toLowerCase().startsWith(bare)).map(f => 'src/graphs/' + f.replace(/\\/g, '/'));
-if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `parity recording ${esc(id)} `, {BEZEG_PARITY_CHECK: '1'});
+if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `parity recording ${esc(id)}(-[a-z0-9-]+)? `, {BEZEG_PARITY_CHECK: '1'});
 else rows.push({label: 'parity', ok: false, detail: `no recording src/graphs/**/__parity__/${id}.json`});
 if (declTests.length) unit('declaration', declTests);
 else rows.push({label: 'declaration', ok: false, detail: `no src/graphs/**/${id}*.declaration.test.tsx`});
