@@ -20,7 +20,7 @@ export function useLessonDrift(enabled: boolean, frameKey: string, capture: () =
         const read = () => { try { return JSON.stringify(captureRef.current()); } catch { return null; } };
         const inScope = (target: EventTarget | null) => {
             const el = target instanceof Element ? target : null;
-            return !!el && !!el.closest('.workspace-graph, .ux-bcard-tools') && !el.closest('.ux-bcard-guide, .ux-lesson-menu-list');
+            return !!el && !!el.closest('.workspace-graph, .ux-bcard-tools, .ux-pucks, .ux-dock-tray') && !el.closest('.ux-bcard-guide, .ux-lesson-menu-list');
         };
         // A new frame (or Povrni) morphs the graph to the frame's state (b1) for a moment; the baseline is the state once
         // two reads 150 ms apart agree, so an input that lands mid-morph does not read the morph as the learner's change.
@@ -40,7 +40,7 @@ export function useLessonDrift(enabled: boolean, frameKey: string, capture: () =
         arm.current();
         const start = (event: Event) => { if (baseline.current === null && !arming && inScope(event.target)) baseline.current = read(); };
         const settle = (event: Event) => {
-            if (baseline.current === null || (event.type !== 'pointerup' && !inScope(event.target))) return;
+            if (baseline.current === null || (event.type !== 'pointerup' && event.type !== 'pointercancel' && !inScope(event.target))) return;
             window.clearTimeout(timer);
             // Long enough for a sweep (a3) or a slider's last write to land.
             timer = window.setTimeout(() => {
@@ -50,14 +50,14 @@ export function useLessonDrift(enabled: boolean, frameKey: string, capture: () =
         };
         const opts = {capture: true, passive: true} as const;
         for (const type of ['pointerdown', 'keydown', 'wheel'] as const) document.addEventListener(type, start, opts);
-        for (const type of ['pointerup', 'keyup', 'change', 'input', 'wheel'] as const) document.addEventListener(type, settle, opts);
+        for (const type of ['pointerup', 'pointercancel', 'keyup', 'change', 'input', 'wheel'] as const) document.addEventListener(type, settle, opts);
         return () => {
             arm.current = () => undefined;
             arming = false;
             window.clearInterval(settleTimer);
             window.clearTimeout(timer);
             for (const type of ['pointerdown', 'keydown', 'wheel'] as const) document.removeEventListener(type, start, opts);
-            for (const type of ['pointerup', 'keyup', 'change', 'input', 'wheel'] as const) document.removeEventListener(type, settle, opts);
+            for (const type of ['pointerup', 'pointercancel', 'keyup', 'change', 'input', 'wheel'] as const) document.removeEventListener(type, settle, opts);
         };
     }, [enabled]);
     return [drifted, () => { baseline.current = null; setDrifted(false); arm.current(); }];

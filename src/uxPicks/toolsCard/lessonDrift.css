@@ -16,3 +16,9 @@
 @keyframes ux-drift-in { from { opacity: 0; transform: translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .ux-lesson-drift { animation: none; } }
 @media (pointer: coarse) { .ux-lesson-drift button { min-height: 44px; } }
+/* One column: the card is below the graph, so the note floats at the window's bottom edge, above the home indicator. */
+.ux-lesson-drift-fixed {
+    position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 30; margin: 0;
+    background: color-mix(in srgb, var(--bezeg-shell-action) 8%, var(--bezeg-shell-panel, #fffdf5));
+    border: 1px solid var(--bezeg-shell-rule, #d6dccb); box-shadow: 0 4px 16px rgb(17 27 19 / 22%);
+}
