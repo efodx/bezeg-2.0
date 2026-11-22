@@ -29,6 +29,32 @@ export function useLessonMorph(capabilities: LessonGraphCapabilities, run: (oper
         const handle = morphScene(capabilities, before, {onStart: () => { director.beginMorph(); }, onFrame: t => director.progress(t)});
         morph.current = handle;
         const settle = () => requestAnimationFrame(() => { if (picture) revealChanges(picture); });
-        if (handle) void handle.done.then(() => { director.endMorph(); settle(); }); else settle();
+        if (handle) {
+            const stopListening = yieldToLearner(handle);
+            void handle.done.then(() => { stopListening(); director.endMorph(); settle(); });
+        } else settle();
     };
+}
+
+/**
+ * Who wins (owner, 2026-11-22: "if a user wanted to watch, he wouldn't be pressing"): the learner. The morph writes the whole
+ * scene every frame and its end writes the lesson's target; other writers of the same values are the learner's controls
+ * (pucks, the tools card, board drags, keys), the sweep (a3) and undo/Povrni. A pointer or key on a control or the board
+ * while the morph runs ends it at once, in the capture phase: the graph jumps to the lesson's target scene and the learner's
+ * own input then lands on that scene, never overwritten by a later morph frame. Naprej/Nazaj finish the morph themselves.
+ */
+const SKIP_KEYS = new Set(['Tab', 'Shift', 'Control', 'Alt', 'Meta', 'Escape', 'CapsLock']);
+const LEARNER_TARGET = 'input, select, textarea, button, [data-param], svg';
+function yieldToLearner(handle: MorphHandle): () => void {
+    const onInput = (event: Event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        if (!target || target.closest('.ux-bcard-guide, .guided-lesson')) return;
+        if (event instanceof KeyboardEvent && SKIP_KEYS.has(event.key)) return;
+        if (event instanceof PointerEvent && event.button !== 0) return;
+        if (!target.closest('.ux-board-frame, #workspace-inspector') || !target.closest(LEARNER_TARGET)) return;
+        handle.finish();
+    };
+    document.addEventListener('pointerdown', onInput, true);
+    document.addEventListener('keydown', onInput, true);
+    return () => { document.removeEventListener('pointerdown', onInput, true); document.removeEventListener('keydown', onInput, true); };
 }

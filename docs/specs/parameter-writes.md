@@ -55,4 +55,4 @@ To be filled from `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/fuzz/RESULTS
 - Breaking change for graph code: controls stop owning parameter values in React state; they read and write the scene store. Route and preset formats are unaffected (the stored state is the same object).
 - The registry becomes an index of parameters (label, range, step, format, lock), not a store of values.
 - Lessons keep writing through the scene store with source `lesson`; Presentation mode and phone layouts need no special case.
-- Open question for the owner: should a learner write during a lesson's morph end the morph at once (requirement 3 as written) or let the morph finish and then apply the learner's value?
+- Decided (owner, 2026-11-22): a learner write during a lesson's Back/Next morph ends the morph at once and the learner's value takes over (requirement 3 as written). "If a user wanted to watch, he wouldn't be pressing." Rejected: let the morph finish, then apply the learner's value.
