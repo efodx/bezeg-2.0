@@ -328,7 +328,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
             }
         }
         return {
-            pucks: [{param: "interp.t", help: t("interp_slider_help")}],
+            pucks: [{param: "interp.t", help: t("interp_slider_help"), label: "Položaj na krivuljah s"}],
             readouts,
             notes: [{id: "negative-weights", text: "Uteži Lagrangeevega polinoma so lahko negativne.", tone: "muted"}],
             readoutHelp: <p>{t("interp_slider_help")}</p>,

@@ -113,6 +113,14 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
             for (const k of TARGETS) {
                 const el = els[k];
                 if (!el) continue;
+                // A card whose body is a plot (no readout rows) is marked, and so is its stack: the stylesheet keeps its natural height.
+                let plot = false;
+                for (const card of Array.from(el.children) as HTMLElement[]) {
+                    const isPlot = card.classList.contains('ux-btext') && !card.classList.contains('ux-btext-collapsed') && !card.classList.contains('ux-bcard-tools') && !card.classList.contains('ux-bcard-guide') && card.querySelector('[data-readout]') === null;
+                    if (card.hasAttribute('data-plot') !== isPlot) { if (isPlot) card.setAttribute('data-plot', ''); else card.removeAttribute('data-plot'); }
+                    plot = plot || isPlot;
+                }
+                if (el.hasAttribute('data-plot') !== plot) { if (plot) el.setAttribute('data-plot', ''); else el.removeAttribute('data-plot'); }
                 const horiz = AXIS[k] === 'h';
                 const pos = horiz ? el.scrollLeft : el.scrollTop, size = horiz ? el.clientWidth : el.clientHeight, total = horiz ? el.scrollWidth : el.scrollHeight;
                 const v = [pos > 1 ? 'start' : '', pos + size < total - 1 ? 'end' : ''].filter(Boolean).join(' ');
@@ -170,10 +178,10 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             const f = host.getBoundingClientRect();
             const next: Cue[] = [];
             let i = 0;
-            const consider = (el: HTMLElement, within = false) => {
-                const skipped = !within && (getComputedStyle(el).overflowY === 'hidden' || el.classList.contains('is-floating'));
+            const consider = (el: HTMLElement, within = false, snap = true) => {
+                const skipped = !within && (getComputedStyle(el).overflowY === 'hidden' || el.closest('.is-floating') !== null);
                 // At the top an element is measured at its natural height, then ended on a whole row.
-                if (el.scrollTop <= 1) { clearSnap(el); if (!skipped) snapRows(el); }
+                if (el.scrollTop <= 1) { clearSnap(el); if (!skipped && snap) snapRows(el); }
                 const cut = !skipped && el.scrollHeight > el.clientHeight + 2 && el.scrollTop + el.clientHeight < el.scrollHeight - 2;
                 if (el.hasAttribute('data-cut') !== cut) { if (cut) el.setAttribute('data-cut', ''); else el.removeAttribute('data-cut'); }
                 if (!cut) return;
@@ -192,6 +200,8 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             };
             root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(el => consider(el));
             root.querySelectorAll<HTMLElement>('.ux-dock-h > .ux-btext').forEach(el => consider(el));
+            // The tools card's body scrolls inside the card: its bar sits in the foot of the card, the body is not snapped to rows.
+            root.querySelectorAll<HTMLElement>('.ux-bcard-tools:not(.is-floating) > .ux-tools-body').forEach(el => consider(el, false, false));
             // The lesson card's own text scrolls inside it (a docked card capped on a narrow board): the bar sits in the foot of the text.
             root.querySelectorAll<HTMLElement>('.ux-bcard-guide:not(.is-floating):not(.ux-btext-collapsed) .guided-lesson-reading').forEach(el => consider(el, true));
             setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.w === next[k].w && c.n === next[k].n) ? prev : next);

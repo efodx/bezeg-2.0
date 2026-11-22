@@ -280,9 +280,4 @@
 .ux-bcard-tools .preset-panel :is(.preset-file-button, .preset-action), .ux-bcard-tools .figure-export-actions > .btn, .ux-bcard-tools [class*="figure-batch"] button, .ux-bcard-tools .preset-batch-button {
     min-height: var(--bezeg-control-height); font-size: .8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0;
 }
-/* Round 9: the tools list's cut bottom edge fades into the card's own colour (opaque), not through a mask that let the axis labels
-   show through the card. The fade sticks to the foot of the scrolling body and adds no height. */
-.ux-bcard-tools > .ux-tools-body[data-overflow~="end"]::after {
-    content: ""; display: block; position: sticky; bottom: 0; height: 34px; margin-top: -34px; pointer-events: none; flex: none;
-    background: linear-gradient(to bottom, color-mix(in srgb, var(--bezeg-shell-panel, #fbfaf3) 0%, transparent), var(--bezeg-shell-panel, #fbfaf3));
-}
+/* Round 9: the tools list's cut bottom edge is marked by the dock's inside "Več" bar (BoardDock useOverflowCues), which brings its own opaque fade. */

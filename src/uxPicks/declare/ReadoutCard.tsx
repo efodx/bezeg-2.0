@@ -15,20 +15,23 @@ function EntryMark(props: {entry: LegendEntry}) {
     return <span className={`ux-rc-mark ux-rc-mark-${kind}`} style={style} aria-hidden="true"/>;
 }
 
-/** A value typeset from more TeX than this does not fit beside its name: it takes its own line under it. */
-const LONG_VALUE_TEX = 40;
-
-/** Plain-text values longer than this (a sentence such as "Linearni sistem x′ = A x") squeeze the name into a narrow column. */
-const LONG_VALUE_TEXT = 18;
-const isLongValue = (row: ReadoutRow) => row.valueTex ? row.valueTex.length > LONG_VALUE_TEX : row.value.length > LONG_VALUE_TEXT;
-
 function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry; reserveMark: boolean}) {
     const {row} = props;
-    // One way only: a value that once needed its own line keeps it, so a sweep whose values cross the length does not flip the
-    // row between layouts and shift every row under it (kinematics sweep: CLS 0.06).
-    const long = useRef(false);
-    if (isLongValue(row)) long.current = true;
-    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone} data-long={long.current || undefined}>
+    // A value takes its own full-width line only when it cannot fit beside its name (flex-wrap decides). One way only: once a row
+    // has wrapped it keeps its own line, so a sweep whose values cross the width does not flip the layout and shift every row
+    // under it (kinematics sweep: CLS 0.06).
+    const rowRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const el = rowRef.current;
+        if (!el || el.hasAttribute('data-wrapped')) return;
+        // After the value's formula is typeset (its raw TeX is wider than the finished formula).
+        const timer = window.setTimeout(() => {
+            const name = el.firstElementChild as HTMLElement | null, value = el.lastElementChild as HTMLElement | null;
+            if (name && value && value !== name && value.offsetTop >= name.offsetTop + name.offsetHeight - 2) el.setAttribute('data-wrapped', '');
+        }, 500);
+        return () => window.clearTimeout(timer);
+    });
+    return <div ref={rowRef} className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone}>
         <dt className="ux-rc-name">
             {props.entry ? <EntryMark entry={props.entry}/> : props.reserveMark && <span className="ux-rc-mark ux-rc-mark-none" aria-hidden="true"/>}
             <span className="ux-rc-label">

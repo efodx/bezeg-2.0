@@ -40,6 +40,9 @@
 .ux-dock-col:not(:has(> .ux-dock-region:not(:empty) ~ .ux-dock-region:not(:empty))) > .ux-dock-v:not(:empty) { max-height: calc(100% - 4px); }
 /* A folded card is only its head: in a crowded stack it keeps that height and the open cards give way. */
 .ux-dock-v > .ux-btext.ux-btext-collapsed { flex-shrink: 0; }
+/* A card whose body is a plot (no readout rows) keeps its natural height while the column has room; the tools list and the rows give way. */
+.ux-dock-v > .ux-btext[data-plot] { flex-shrink: 0; }
+.ux-dock-a-ml[data-plot], .ux-dock-a-mr[data-plot] { flex-shrink: 0; max-height: calc(100% - 158px); }
 /* A stack of folded heads only keeps its height (it was squeezed to a sliver beside an open stack in a short column). */
 .ux-dock-v:not(:empty):not(:has(> .ux-btext:not(.ux-btext-collapsed))) { flex-shrink: 0; }
 .ux-dock-a-tl, .ux-dock-a-ml { align-items: flex-start; }

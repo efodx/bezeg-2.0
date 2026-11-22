@@ -196,7 +196,7 @@ export function DockCard(props: DockCardProps) {
         if (keyboard) setSaid(m.region ? `${props.title}: ${REGION_LABEL[m.region]}. Enter pripne.` : `${props.title}: prosto.`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dragging, keyboard, floating, pos, collapsed, frame, version]);
-    useFlip(card, floating);
+    useFlip(card, floating, true);
 
     if (!dock) return null;
     const open = phone ? dock.phoneOpen === kind : !collapsed;
