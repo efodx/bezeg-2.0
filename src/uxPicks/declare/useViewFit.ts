@@ -2,6 +2,7 @@ import {useEffect, useRef, useSyncExternalStore} from 'react';
 import type {FitBox} from '../../graphs/base/fitBoundingBox';
 import {useReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import {listParams, recentlyProbed, useParams, type ParamEntry} from '../a1/paramRegistry';
+import {usePick} from '../picks';
 import {samplePoints} from './focusShapes';
 import {getGraphUx, useGraphUx} from './graphUxStore';
 import type {FocusDecl} from './graphUx';
@@ -48,12 +49,13 @@ export function reachValues(focus: FocusDecl, params: readonly ParamEntry[]): Va
 }
 
 /** Rectangles (px, origin at the board's top-left) of the open and folded cards, the pucks strip and the lesson card. */
-function obstacleRects(container: HTMLElement): Rect[] {
+export function obstacleRects(container: HTMLElement, exclude?: string): Rect[] {
     const frame = container.closest('.workspace-graph') ?? container.parentElement;
     const origin = container.getBoundingClientRect();
     const rects: Rect[] = [];
     frame?.querySelectorAll<HTMLElement>('.ux-dock [data-dock-item], .ux-dock .ux-dock-chip, .ux-dock .ux-pucks').forEach(el => {
         if (el.closest('.ux-pucks') && !el.classList.contains('ux-pucks')) return;
+        if (exclude && el.matches(exclude)) return;
         const r = el.getBoundingClientRect();
         if (r.width <= 0 || r.height <= 0) return;
         rects.push({x: r.left - origin.left, y: r.top - origin.top, width: r.width, height: r.height});
@@ -62,7 +64,7 @@ function obstacleRects(container: HTMLElement): Rect[] {
 }
 
 /** The obstacles as a comparable key (whole pixels): a dock change that leaves it equal (a hint, a hover cue) moves nothing. */
-function obstacleKey(container: HTMLElement): string {
+export function obstacleKey(container: HTMLElement): string {
     return obstacleRects(container).map(r => [r.x, r.y, r.width, r.height].map(Math.round).join(',')).join(';');
 }
 
@@ -71,9 +73,9 @@ function points(focus: FocusDecl, values: Values) {
     return {must: samplePoints(set.must), nice: samplePoints(set.nice ?? [])};
 }
 
-export function computeFit(mode: 'keep' | 'fill'): FitResult | undefined {
+export function computeFit(mode: 'keep' | 'fill', baseOverride?: FitBox): FitResult | undefined {
     const port = getViewPort(), focus = getGraphUx()?.focus;
-    const base = port?.intent();
+    const base = baseOverride ?? port?.intent();
     if (!port || !focus || !base) return undefined;
     const rect = port.container.getBoundingClientRect();
     if (rect.width < 50 || rect.height < 50) return undefined;
@@ -92,7 +94,7 @@ export function computeFit(mode: 'keep' | 'fill'): FitResult | undefined {
 }
 
 /** True when a must point of the current values is under a card or off the canvas in the view as shown. */
-function mustNeedsRefit(): boolean {
+export function mustNeedsRefit(): boolean {
     const port = getViewPort(), focus = getGraphUx()?.focus;
     if (!port || !focus) return false;
     const rect = port.container.getBoundingClientRect();
@@ -109,7 +111,8 @@ export function useViewFit() {
     const ux = useGraphUx();
     const params = useParams();
     const reduced = useReducedMotion();
-    const hasFocus = ux?.focus !== undefined;
+    const directed = usePick('viewDirector');
+    const hasFocus = ux?.focus !== undefined && !directed; // the view director (viewDirector.ts) takes over when its pick is on
     // One fit (keep mode) for the automatic triggers and "Prilagodi točkam" alike (owner, 2026-11-22), so the button after an
     // automatic fit changes nothing. `fitKey`: the obstacles the last fit cleared; `dockOnly`: the pending fit was asked for only by a dock change.
     const state = useRef({paused: false, down: false, wheelUntil: 0, applying: false, timer: 0, frame: 0, pendingCheck: false, pendingFit: false, boardDown: false,

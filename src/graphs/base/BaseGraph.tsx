@@ -7,6 +7,8 @@ import React from 'react';
 
 import {AxisAttributes, Board} from "jsxgraph";
 import {fitBoundingBox, FitBox} from "./fitBoundingBox";
+import {pickOn} from "../../uxPicks/picks";
+import {director} from "../../uxPicks/declare/viewDirector";
 import {fitOwnsView, noteNavigation, notifyLessonAction, notifyViewIntent, registerViewPort, runFitHandler} from "../../uxPicks/declare/viewPort";
 import {Commands} from "./Commands";
 import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
@@ -895,7 +897,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const [left, top, right, bottom] = this.board.getBoundingBox();
         const dx = (right - left) * (action === "left" ? -.15 : action === "right" ? .15 : 0);
         const dy = (top - bottom) * (action === "up" ? .15 : action === "down" ? -.15 : 0);
-        this.board.setBoundingBox([left + dx, top + dy, right + dx, bottom + dy], false);
+        this.rawSetBox([left + dx, top + dy, right + dx, bottom + dy], false);
     }
 
     /** Graph-specific mount/figure-entry work; a declared standalone scene is built by the host right after it. */
@@ -979,16 +981,48 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         this.viewIntentBox = undefined;
         this.fittedBox = undefined;
         const board = this.board;
+        this.installBoxSeam(board);
         registerViewPort({
             container, board, equalAxisUnits: this.equalAxisUnits,
             intent: () => this.viewIntentBox, current: () => board.getBoundingBox() as FitBox,
             apply: box => {
-                board.setBoundingBox([...box], this.equalAxisUnits);
+                this.rawSetBox([...box], this.equalAxisUnits);
                 // JSXGraph widens the box to the canvas aspect; remember what the board really shows.
                 this.fittedBox = board.getBoundingBox() as FitBox;
             },
         });
         session.registerCleanup(() => registerViewPort(undefined));
+    }
+
+    /** The board's own `setBoundingBox`, for the code that must not become a view intent (the view's own application, pan buttons). */
+    private rawSetBox: (box: [number, number, number, number], keepAspect?: boolean) => void = (box, keep) => { this.board.setBoundingBox(box, keep); };
+
+    /**
+     * The view director's seam (src/uxPicks/declare/viewDirector.ts). With pick `viewDirector` on, a view a graph sets with a raw
+     * `board.setBoundingBox` (several graphs do, none of them knowing the director) is a view INTENT like `setIntentBox`, so the
+     * director is the only code that decides what the board shows. JSXGraph's own zoom methods, which call `setBoundingBox`
+     * inside, are the learner's navigation and pass through. Installed when the board is made, only with the pick on.
+     */
+    private installBoxSeam(board: Board): void {
+        this.rawSetBox = (box, keep) => { this.board.setBoundingBox(box, keep); };
+        const raw = board.setBoundingBox;
+        if (typeof raw !== 'function' || !pickOn('viewDirector')) return;
+        this.rawSetBox = (box, keep) => { raw.call(board, box, keep); };
+        const own = board as unknown as Record<string, unknown>;
+        let depth = 0, last = -Infinity;
+        for (const name of ['zoomIn', 'zoomOut', 'zoom100', 'zoomAllPoints', 'zoomElements', 'clearZoom', 'resizeContainer']) {
+            const original = own[name];
+            if (typeof original !== 'function') continue;
+            own[name] = (...args: unknown[]) => { depth++; try { return original.apply(board, args); } finally { depth--; } };
+        }
+        board.setBoundingBox = ((box: [number, number, number, number], keep?: boolean, zoom?: 'keep' | 'update' | 'reset') => {
+            if (depth > 0 || !pickOn('viewDirector')) return raw.call(board, box, keep, zoom);
+            // A graph that animates its own view calls again within a few frames: those are shown as they come (the fit follows once it is quiet).
+            const now = performance.now(), burst = now - last < 150 && !director.morphing();
+            last = now;
+            this.setIntentBox(box, keep ?? this.equalAxisUnits, burst);
+            return board;
+        }) as Board['setBoundingBox'];
     }
 
     /** The box the graph itself chose for its view (start, lesson frame, preset); a fitted view is never stored here (see `useViewFit`). */
@@ -997,13 +1031,13 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     private fittedBox: FitBox | undefined;
 
     /** Sets a view of the graph's own choosing: the board shows it and it becomes the view intent the fit starts from. */
-    protected setIntentBox(box: readonly [number, number, number, number]): void {
+    protected setIntentBox(box: readonly [number, number, number, number], keepAspect: boolean = this.equalAxisUnits, showNow = false): void {
         // While the view fit owns the view, keep the box on screen (set and restored in one task, never painted): the fit glides
         // from it to the new intent's fit instead of the board jumping to the unfitted intent first.
-        const shown = fitOwnsView() && this.viewIntentBox !== undefined ? this.board.getBoundingBox() as FitBox : undefined;
-        this.board.setBoundingBox([...box], this.equalAxisUnits);
+        const shown = !showNow && fitOwnsView() && this.viewIntentBox !== undefined ? this.board.getBoundingBox() as FitBox : undefined;
+        this.rawSetBox([...box], keepAspect);
         this.viewIntentBox = this.board.getBoundingBox() as FitBox;
-        if (shown) this.board.setBoundingBox([...shown], false);
+        if (shown) this.rawSetBox([...shown], false);
         else this.fittedBox = undefined;
         notifyViewIntent();
     }

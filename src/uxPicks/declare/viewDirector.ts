@@ -1,0 +1,188 @@
+import type {FitBox} from '../../graphs/base/fitBoundingBox';
+import {prefersReducedMotion} from '../../graphs/base/controls/reducedMotion';
+import {pickOn} from '../picks';
+import {coveredMarks, DEFAULT_MAX_OUT, fitIntent} from './fitIntent';
+import {getGraphUx} from './graphUxStore';
+import {computeFit, mustNeedsRefit, obstacleKey, obstacleRects} from './useViewFit';
+import {autoFitOn, getViewPort} from './viewPort';
+import {fitView, type Point} from './viewFit';
+
+/**
+ * The view director (Fable consult 2026-11-22, "one shared view director"): while pick `viewDirector` is on, the ONLY code that
+ * sets the board's box after a graph has chosen its view. A graph (or a lesson frame, a preset) states an intent; every cause of
+ * a change (load, example or mode switch, lesson frame, resize, card change, parameter release, the button) is `request(reason)`.
+ * The target is computed once (`fitIntent`: the intent mapped into the largest card-free rectangle, zoom out at most `maxOut`;
+ * a graph that declares `GraphUx.focus`, or marks that stay covered, falls back to `fitView`) and ONE transition runs from the
+ * box on screen. A lesson morph drives the same transition with its own clock (`beginMorph`, `progress`, `endMorph`).
+ */
+export type Reason = 'port' | 'intent' | 'action' | 'dock' | 'resize' | 'params' | 'auto';
+
+const GLIDE_MS = 250;
+const DELAY: Record<Reason, number> = {port: 60, intent: 60, action: 220, dock: 140, resize: 140, params: 0, auto: 60};
+/** The morph's easing (b1/morph.ts), so scene and view share one curve. */
+const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const smooth = (k: number) => k * k * (3 - 2 * k);
+const same = (a: FitBox, b: FitBox) => a.every((v, i) => Math.abs(v - b[i]) < 1e-9 * (1 + Math.abs(v)));
+
+export function directorOn(): boolean { return pickOn('viewDirector'); }
+
+interface Morph {from: FitBox; to: FitBox; intent: FitBox}
+
+const s = {
+    paused: false, down: false, applying: false, timer: 0, reason: 'auto' as Reason, dockOnly: false, pendingFit: false, pendingParams: false, frame: 0,
+    fitKey: undefined as string | undefined, morph: undefined as Morph | undefined,
+    maxOut: DEFAULT_MAX_OUT, useFocus: true, marks: [] as Point[],
+};
+
+function cancelGlide() { cancelAnimationFrame(s.frame); s.frame = 0; }
+function clearTimer() { window.clearTimeout(s.timer); s.timer = 0; }
+function run(box: FitBox) {
+    const port = getViewPort();
+    if (!port) return;
+    s.applying = true;
+    try { port.apply(box); } finally { s.applying = false; }
+}
+
+/** The box the director wants for `intent` (default: the graph's current one) under the cards as they are now. */
+export function computeTarget(intentOverride?: FitBox, excludeObstacles?: string): FitBox | undefined {
+    const port = getViewPort();
+    const intent = intentOverride ?? port?.intent();
+    if (!port || !intent) return undefined;
+    const rect = port.container.getBoundingClientRect();
+    if (rect.width < 50 || rect.height < 50) return undefined;
+    if (s.useFocus && getGraphUx()?.focus) {
+        const declared = computeFit('keep', intent);
+        if (declared) return declared.box;
+    }
+    const canvas = {width: rect.width, height: rect.height};
+    const obstacles = obstacleRects(port.container, excludeObstacles);
+    const result = fitIntent({intent, canvas, obstacles, maxOut: s.maxOut, equalAxisUnits: port.equalAxisUnits});
+    if (s.marks.length > 0 && coveredMarks(result.box, s.marks, canvas, obstacles).length > 0) {
+        const marked = fitView({
+            must: s.marks, canvas, obstacles, base: intent, equalAxisUnits: port.equalAxisUnits,
+            limits: {maxOut: s.maxOut, maxIn: 1}, mode: 'keep',
+        });
+        if (marked.covered.length < coveredMarks(result.box, s.marks, canvas, obstacles).length) return marked.box;
+    }
+    return result.box;
+}
+
+/** One glide from the box on screen to `target`; a second call retargets from where the view is now. */
+function goTo(target: FitBox) {
+    const port = getViewPort();
+    if (!port) return;
+    cancelGlide();
+    const from = port.current();
+    // A difference of a few pixels (a card that grew by a line) is not worth a motion: the fit is always computed from the intent, so nothing accumulates.
+    if (same(from, target) || from.every((v, i) => Math.abs(v - target[i]) < 0.002 * Math.abs(from[2] - from[0]))) return;
+    if (prefersReducedMotion()) { run(target); return; }
+    const start = performance.now();
+    const tick = (now: number) => {
+        const k = Math.min(1, (now - start) / GLIDE_MS);
+        run(k >= 1 ? target : from.map((v, i) => v + (target[i] - v) * smooth(k)) as FitBox);
+        s.frame = k < 1 ? requestAnimationFrame(tick) : 0;
+    };
+    s.frame = requestAnimationFrame(tick);
+}
+
+function fit() {
+    const port = getViewPort();
+    s.fitKey = port ? obstacleKey(port.container) : undefined;
+    const target = computeTarget();
+    if (target) goTo(target);
+}
+
+function fire() {
+    s.timer = 0;
+    if (s.down) { s.pendingFit = true; return; }
+    if (s.paused || !autoFitOn()) return;
+    const dockOnly = s.dockOnly;
+    s.dockOnly = false;
+    // A hint or hover cue in the dock changed nothing the fit avoids: leave the view where it is.
+    const port = getViewPort();
+    if (dockOnly && port && s.fitKey !== undefined && obstacleKey(port.container) === s.fitKey) return;
+    fit();
+}
+
+export const director = {
+    /** Every cause of a view change. A new frame, a view of the graph's own or the switch coming on ends the learner's pause. */
+    request(reason: Reason, delay = DELAY[reason]) {
+        if (!directorOn()) return;
+        if (reason === 'port' || reason === 'intent' || reason === 'action' || reason === 'auto') s.paused = false;
+        if (s.morph) {
+            // Interpolated restores only record intent; a card or canvas change retargets the open transition.
+            if (reason === 'dock' || reason === 'resize') { const to = computeTarget(s.morph.intent); if (to) s.morph.to = to; }
+            return;
+        }
+        // Any other trigger pending makes the fit unconditional.
+        s.dockOnly = reason === 'dock' && (s.timer === 0 || s.dockOnly);
+        clearTimer();
+        s.timer = window.setTimeout(fire, delay);
+    },
+    /** "Prilagodi točkam": the same fit, now, and the learner's pause ends. */
+    fitNow() { s.paused = false; clearTimer(); s.dockOnly = false; s.morph = undefined; fit(); },
+    /** The learner moved the view: nothing moves it until the button or a new frame. */
+    pause() { s.paused = true; s.morph = undefined; cancelGlide(); clearTimer(); },
+    /** Pointer state: while a press is down nothing moves; the release runs what was held back. */
+    press(down: boolean) {
+        s.down = down;
+        if (down) return;
+        if (s.pendingFit) { s.pendingFit = false; director.request('resize', 0); }
+        if (s.pendingParams) { s.pendingParams = false; director.paramsChanged(); }
+    },
+    /** A parameter changed: refit only when a must point (declared focus or mark) is under a card or off the canvas. */
+    paramsChanged() {
+        if (!directorOn() || s.paused || !autoFitOn() || s.morph) return;
+        if (s.down) { s.pendingParams = true; return; }
+        const port = getViewPort();
+        if (!port) return;
+        const [left, top, right, bottom] = port.current();
+        const rect = port.container.getBoundingClientRect();
+        const covered = (getGraphUx()?.focus && mustNeedsRefit())
+            || (s.marks.length > 0 && coveredMarks([left, top, right, bottom], s.marks, {width: rect.width, height: rect.height}, obstacleRects(port.container)).length > 0);
+        if (covered) fit();
+    },
+    /** A lesson morph opens: the destination intent is already set, so the transition runs from the box on screen to its fit. */
+    beginMorph(): boolean {
+        if (!directorOn() || s.paused || !autoFitOn()) return false;
+        const port = getViewPort(), intent = port?.intent();
+        if (!port || !intent) return false;
+        clearTimer(); cancelGlide();
+        const to = computeTarget(intent);
+        if (!to) return false;
+        s.morph = {from: port.current(), to, intent};
+        return true;
+    },
+    /** The morph's clock: `t` in 0..1, eased as the scene is. */
+    progress(t: number) {
+        const m = s.morph;
+        if (!m) return;
+        const e = t >= 1 ? 1 : ease(Math.min(1, Math.max(0, t)));
+        run(t >= 1 ? m.to : m.from.map((v, i) => v + (m.to[i] - v) * e) as FitBox);
+    },
+    endMorph() {
+        if (!s.morph) return;
+        s.morph = undefined;
+        director.request('auto', 0); // a card that changed during the motion
+    },
+    morphing(): boolean { return s.morph !== undefined; },
+    /** Optional must-marks: world points the fit keeps visible and clear of cards (set by a graph, one line per object). */
+    setMarks(marks: readonly Point[]) { s.marks = [...marks]; },
+    /** Dev and measurement: the zoom-out limit and whether a declared `focus` is used. */
+    configure(options: {maxOut?: number; useFocus?: boolean}) {
+        if (options.maxOut !== undefined) s.maxOut = options.maxOut;
+        if (options.useFocus !== undefined) s.useFocus = options.useFocus;
+    },
+    /** A new board: nothing carries over. */
+    reset() { clearTimer(); cancelGlide(); s.morph = undefined; s.paused = false; s.pendingFit = false; s.pendingParams = false; s.dockOnly = false; s.fitKey = undefined; s.marks = []; },
+    /** The auto-fit switch went off: stop what is moving. */
+    stop() { cancelGlide(); clearTimer(); s.morph = undefined; },
+    /** Measurement: the intent, and its intent-fit with every card and without the cards matching `exclude` (the lesson card: `[data-kind="lesson"]`). */
+    measure(exclude: string) {
+        const port = getViewPort();
+        return {intent: port?.intent(), shown: port?.current(), all: computeTarget(), without: computeTarget(undefined, exclude)};
+    },
+    state: () => ({paused: s.paused, morphing: s.morph !== undefined, down: s.down}),
+};
+
+if (typeof window !== 'undefined') (window as unknown as {__bezegDirector?: typeof director}).__bezegDirector = director;

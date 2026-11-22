@@ -7,6 +7,7 @@ import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
 import {useGraphUxPublisher} from "../../uxPicks/declare/graphUxStore";
 import {useViewFit} from "../../uxPicks/declare/useViewFit";
+import {useViewDirector} from "../../uxPicks/declare/useViewDirector";
 import {AutoFitToggle} from "../../uxPicks/declare/AutoFitToggle";
 import type {GraphUx} from "../../uxPicks/declare/graphUx";
 import {usePick} from "../../uxPicks/picks";
@@ -208,6 +209,7 @@ export function DemonstrationWorkspace(props: {
     const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
     useGraphUxPublisher(props.ux);
     useViewFit();
+    useViewDirector();
     const bindUserActions = props.bindUserActions;
     useLayoutEffect(() => bindUserActions?.(() => userActionModeRef.current), [bindUserActions]);
     // Every commit: with pick toolsCard the tools mount a little later (when the dock is ready) and again after a move.

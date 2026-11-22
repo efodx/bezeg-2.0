@@ -114,7 +114,7 @@ export interface MorphHandle {
  * Plays the graph from `before` to its current (already applied) scene by restoring interpolated checkpoints.
  * Slow graphs (one restore over 45 ms) snap to the end. Any finish() call jumps to the exact target.
  */
-export function morphScene(capabilities: LessonGraphCapabilities, before: LessonSceneCheckpoint, options: {duration?: number; onFrame?: (t: number) => void} = {}): MorphHandle | undefined {
+export function morphScene(capabilities: LessonGraphCapabilities, before: LessonSceneCheckpoint, options: {duration?: number; onStart?: () => void; onFrame?: (t: number) => void} = {}): MorphHandle | undefined {
     let after: LessonSceneCheckpoint;
     try { after = capabilities.captureState(); } catch { return undefined; }
     if (!checkpointsDiffer(before, after) || movingLeafCount(before.value, after.value) === 0) return undefined;
@@ -129,6 +129,7 @@ export function morphScene(capabilities: LessonGraphCapabilities, before: Lesson
     let settled = false;
     const settle = () => { if (!settled) { settled = true; bumpMorphing(-1); } };
     bumpMorphing(1);
+    options.onStart?.(); // the destination scene is applied: the view director opens its transition before the first restore
     window.setTimeout(settle, duration + 3000); // a morph that is abandoned must not hold readers forever
     const done = new Promise<void>(resolve => { resolveDone = () => { settle(); resolve(); }; });
     const from = refineGrid(before.value);

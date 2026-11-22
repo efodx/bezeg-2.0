@@ -4,6 +4,7 @@ import {findMainBoard} from './board';
 import {morphScene, type MorphHandle} from './morph';
 import {captureBoardPicture, revealChanges} from './sceneReveal';
 import {usePick} from '../picks';
+import {director} from '../declare/viewDirector';
 
 /**
  * Pick b1 (from ux-challenge/b): Back and Next morph the graph from the old scene to the new one instead of jumping.
@@ -25,9 +26,9 @@ export function useLessonMorph(capabilities: LessonGraphCapabilities, run: (oper
         try { before = capabilities.captureState(); } catch { before = undefined; }
         run(operation);
         if (!before) return;
-        const handle = morphScene(capabilities, before);
+        const handle = morphScene(capabilities, before, {onStart: () => { director.beginMorph(); }, onFrame: t => director.progress(t)});
         morph.current = handle;
         const settle = () => requestAnimationFrame(() => { if (picture) revealChanges(picture); });
-        if (handle) void handle.done.then(settle); else settle();
+        if (handle) void handle.done.then(() => { director.endMorph(); settle(); }); else settle();
     };
 }
