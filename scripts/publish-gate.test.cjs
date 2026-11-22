@@ -631,6 +631,86 @@ test('status prints the latest results and pending runs', async t => {
     assert.match(backgroundStatus({cwd: path.join(f.dir, 'other')}), /No background publish/);
 });
 
+const FAILURE = worktree => JSON.stringify({ok: false, failedStage: 'verify:lint', pushedRevision: null, logPath: 'x.log', worktree, at: '2026-11-09T10:00:00.000Z'});
+
+test('wait returns at once with exit 0 on a finished success and says so on the last line', async t => {
+    const f = fixture(t);
+    const {waitForBackground} = require('./publish-gate.cjs');
+    const started = await background(f, [commitFile(f.work, 'src/a.txt', 'a\n')]).run();
+    fs.writeFileSync(started.resultPath, JSON.stringify({ok: true, failedStage: null, pushedRevision: 'abc1234', logPath: 'x.log', at: '2026-11-09T10:00:00.000Z'}));
+    const slept = [];
+    const result = await waitForBackground({cwd: f.work, sleep: async ms => { slept.push(ms); }});
+    assert.equal(result.exitCode, 0);
+    assert.equal(slept.length, 0);
+    assert.match(result.output.split('\n').at(-1), /^publish-[^:]+: ok pushed abc1234$/);
+});
+
+test('wait exits non-zero on a finished failure and names the stage and log', async t => {
+    const f = fixture(t);
+    const {waitForBackground} = require('./publish-gate.cjs');
+    const started = await background(f, [commitFile(f.work, 'src/a.txt', 'a\n')]).run();
+    fs.writeFileSync(started.resultPath, FAILURE(started.worktree));
+    const result = await waitForBackground({cwd: f.work, sleep: async () => {}});
+    assert.equal(result.exitCode, 1);
+    assert.match(result.output.split('\n').at(-1), /^publish-[^:]+: FAILED at verify:lint, log x\.log$/);
+});
+
+test('wait keeps sleeping while the pending run is alive and returns once its result appears', async t => {
+    const f = fixture(t);
+    const {waitForBackground} = require('./publish-gate.cjs');
+    const started = await background(f, [commitFile(f.work, 'src/a.txt', 'a\n')]).run();
+    let clock = 0;
+    let sleeps = 0;
+    const result = await waitForBackground({
+        cwd: f.work, now: () => clock, alive: () => true,
+        sleep: async ms => {
+            clock += ms;
+            sleeps += 1;
+            if (sleeps === 3) {
+                fs.writeFileSync(started.resultPath, JSON.stringify({ok: true, pushedRevision: 'def5678', logPath: 'x.log'}));
+                fs.rmSync(started.resultPath.replace(/\.json$/, '.pending'), {force: true});
+            }
+        },
+    });
+    assert.equal(sleeps, 3);
+    assert.equal(result.exitCode, 0);
+    assert.match(result.output.split('\n').at(-1), /: ok pushed def5678$/);
+});
+
+test('wait fails when the pending run died without writing a result', async t => {
+    const f = fixture(t);
+    const {waitForBackground} = require('./publish-gate.cjs');
+    await background(f, [commitFile(f.work, 'src/a.txt', 'a\n')], {pid: 2 ** 22 + 12345}).run();
+    const result = await waitForBackground({cwd: f.work, sleep: async () => { throw new Error('must not sleep'); }});
+    assert.equal(result.exitCode, 1);
+    assert.match(result.output.split('\n').at(-1), /^publish-[^:]+: FAILED, ended without a result$/);
+});
+
+test('wait times out on a run that stays alive and names it', async t => {
+    const f = fixture(t);
+    const {waitForBackground} = require('./publish-gate.cjs');
+    const started = await background(f, [commitFile(f.work, 'src/a.txt', 'a\n')]).run();
+    let clock = 0;
+    const result = await waitForBackground({cwd: f.work, timeoutMs: 20000, pollMs: 5000, now: () => clock, alive: () => true, sleep: async ms => { clock += ms; }});
+    assert.equal(result.exitCode, 1);
+    assert.equal(clock, 20000);
+    assert.equal(result.output.split('\n').at(-1), `publish-${started.id}: still pending after 20s, wait timed out`);
+});
+
+test('wait with no background publish prints the status line and exits 0; it rejects combined flags', async t => {
+    const f = fixture(t);
+    const {waitForBackground} = require('./publish-gate.cjs');
+    const none = await waitForBackground({cwd: f.work});
+    assert.equal(none.exitCode, 0);
+    assert.match(none.output, /No background publish/);
+    for (const extra of [['--background'], ['--recipe', 'docs'], ['--base', 'x'], ['--commits', 'y'], ['--status']]) {
+        process.exitCode = 0;
+        await cli(['--wait', ...extra], {cwd: f.work});
+        assert.equal(process.exitCode, 2, extra.join(' '));
+    }
+    process.exitCode = 0;
+});
+
 test('a foreground run given result flags never deletes its checkout, and the flags come as a pair', async t => {
     const f = fixture(t);
     const commit = commitFile(f.work, 'src/a.txt', 'a\n');

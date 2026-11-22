@@ -14,7 +14,7 @@ const {LESSON_SHARED_PATHS} = require('./transient-state-scope.cjs');
 const {alwaysRunFiles} = require('./check-changed-always-run.cjs');
 
 const PRODUCTION_ORIGINS = ['https://github.com/efodx/bezeg-2.0.git', 'https://github.com/efodx/bezeg-2.0'];
-const USAGE = 'Usage: just publish [--background] --recipe <docs|tooling|runtime> --base <commit> --commits <id,id,...> | just publish --status\n'
+const USAGE = 'Usage: just publish [--background] --recipe <docs|tooling|runtime> --base <commit> --commits <id,id,...> | just publish --status | just publish --wait [--timeout <seconds>]\n'
     + 'List the reviewed commits oldest first: every commit after --base, and no others.';
 const OUTPUT_TAIL = 2000;
 const CANCELLED_EXIT = 130;
@@ -660,12 +660,12 @@ function recordBackgroundResult({report, resultFile, origin, worktree}) {
 }
 
 /** Latest background results, newest first, after the runs that still have no result. */
-function backgroundStatus({cwd = process.cwd(), limit = 5} = {}) {
+function backgroundStatus({cwd = process.cwd(), limit = 5, alive = pidAlive} = {}) {
     const root = gitSync(cwd, ['rev-parse', '--show-toplevel']);
     const dir = backgroundDir(root);
     let files = [];
     try { files = fs.readdirSync(dir).filter(name => /^publish-.+\.json$/.test(name)).map(name => ({name, time: fs.statSync(path.join(dir, name)).mtimeMs})); } catch { /* none */ }
-    const lines = pendingRuns(root).map(run => `publish-${run.id}: ${run.pid && pidAlive(run.pid) ? 'pending' : 'ended without a result'} (pid ${run.pid}, worktree ${run.worktree})`);
+    const lines = pendingRuns(root).map(run => `publish-${run.id}: ${run.pid && alive(run.pid) ? 'pending' : 'ended without a result'} (pid ${run.pid}, worktree ${run.worktree})`);
     for (const {name} of files.sort((a, b) => b.time - a.time).slice(0, limit)) {
         const result = readJson(path.join(dir, name)) ?? {};
         const outcome = result.ok ? `ok, pushed ${result.pushedRevision}` : `FAILED at ${result.failedStage ?? 'unknown'}${result.pushedRevision ? ` (pushed ${result.pushedRevision})` : ''}`;
@@ -674,11 +674,40 @@ function backgroundStatus({cwd = process.cwd(), limit = 5} = {}) {
     return lines.length ? lines.join('\n') : 'No background publish has run from this checkout.';
 }
 
+/**
+ * Blocks while a background publish from this checkout has a live process and no result, then returns the status text with a
+ * one-line summary last. Exit code 0 only when the newest result is a success; clock, sleep and liveness check are injectable.
+ */
+async function waitForBackground({cwd = process.cwd(), timeoutMs = 3600 * 1000, pollMs = 5000, now = Date.now, sleep: wait = sleep, alive = pidAlive} = {}) {
+    const root = gitSync(cwd, ['rev-parse', '--show-toplevel']);
+    const deadline = now() + timeoutMs;
+    const status = () => backgroundStatus({cwd, alive});
+    for (;;) {
+        const live = pendingRuns(root).filter(run => run.pid && alive(run.pid));
+        if (!live.length) break;
+        if (now() >= deadline) return {exitCode: 1, output: `${status()}\npublish-${live[0].id}: still pending after ${Math.round(timeoutMs / 1000)}s, wait timed out`};
+        await wait(pollMs);
+    }
+    const dir = backgroundDir(root);
+    let files = [];
+    try { files = fs.readdirSync(dir).filter(name => /^publish-.+\.json$/.test(name)).map(name => ({name, time: fs.statSync(path.join(dir, name)).mtimeMs})); } catch { /* none */ }
+    const newest = files.sort((a, b) => b.time - a.time)[0];
+    // A dead pending file older than the newest result belongs to an earlier run that was superseded.
+    const dead = pendingRuns(root).filter(run => !newest || !(Date.parse(run.at) < newest.time));
+    if (dead.length) return {exitCode: 1, output: `${status()}\npublish-${dead[0].id}: FAILED, ended without a result`};
+    if (!newest) return {exitCode: 0, output: status()};
+    const id = newest.name.slice('publish-'.length, -'.json'.length);
+    const result = readJson(path.join(dir, newest.name)) ?? {};
+    const summary = result.ok ? `publish-${id}: ok pushed ${result.pushedRevision}` : `publish-${id}: FAILED at ${result.failedStage ?? 'unknown'}, log ${result.logPath ?? '?'}`;
+    return {exitCode: result.ok ? 0 : 1, output: `${status()}\n${summary}`};
+}
+
 async function cli(argv, options = {}) {
     let values;
     try {
         ({values} = parseArgs({args: argv, options: {
             recipe: {type: 'string'}, base: {type: 'string'}, commits: {type: 'string'}, background: {type: 'boolean'}, status: {type: 'boolean'},
+            wait: {type: 'boolean'}, timeout: {type: 'string'},
             'result-file': {type: 'string'}, origin: {type: 'string'}, 'log-path': {type: 'string'},
         }}));
     } catch (error) {
@@ -693,6 +722,21 @@ ${USAGE}`);
         return;
     }
     const commits = values.commits?.split(',').map(id => id.trim()).filter(Boolean);
+    const timeoutSeconds = values.timeout === undefined ? 3600 : Number(values.timeout);
+    if (values.wait || values.timeout !== undefined) {
+        if (!values.wait || values.background || values.recipe || values.base || values.commits || values.status
+            || !Number.isFinite(timeoutSeconds) || timeoutSeconds <= 0) {
+            console.error(USAGE);
+            process.exitCode = 2;
+            return;
+        }
+        try {
+            const {exitCode, output} = await waitForBackground({cwd: options.cwd, timeoutMs: timeoutSeconds * 1000, ...options.wait});
+            (exitCode ? console.error : console.log)(output);
+            process.exitCode = exitCode;
+        } catch (error) { console.error(error.message); process.exitCode = 1; }
+        return;
+    }
     if (values.status) {
         try { console.log(backgroundStatus({cwd: options.cwd})); } catch (error) { console.error(error.message); process.exitCode = 1; }
         return;
@@ -725,4 +769,4 @@ ${USAGE}`);
 
 if (require.main === module) cli(process.argv.slice(2));
 
-module.exports = {PRODUCTION_ORIGINS, RECIPES, backgroundStatus, cli, formatReport, launchGate, publish, publishBackground, removePublishWorktree, spawnExec};
+module.exports = {PRODUCTION_ORIGINS, RECIPES, backgroundStatus, cli, formatReport, launchGate, publish, publishBackground, removePublishWorktree, spawnExec, waitForBackground};
