@@ -6,10 +6,13 @@
  * action the text asks for, or a value of a formula shown in the same step; the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-waves-a.md.
  */
 import type {LessonAction} from '../model';
-import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
+import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -22,14 +25,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -133,6 +138,7 @@ const wv1Steps: readonly GuidedLessonStep[] = [
         scene: wavesScene('wv1-phase-scene', {components: {p2: 60}, t: 0},
             'Seštevanje valov, \\(3\\ \\mathrm{Hz}\\), razlika faz \\(60^\\circ\\): amplituda vsote približno \\(1{,}732\\), faza vsote \\(30^\\circ\\).',
             'Adding waves, \\(3\\ \\mathrm{Hz}\\), phase difference \\(60^\\circ\\): sum amplitude approximately \\(1.732\\), sum phase \\(30^\\circ\\).'),
+        ux: {explanation: readouts('sum-amplitude', 'sum-phase'), observation: readouts()},
     }),
     step({
         id: 'wv1-extremes', order: 3,
@@ -151,6 +157,7 @@ const wv1Steps: readonly GuidedLessonStep[] = [
         scene: wavesScene('wv1-extremes-scene', {components: {p2: 180}, t: 0},
             'Seštevanje valov, razlika faz \\(180^\\circ\\): vala se izničita, amplituda vsote \\(0\\), faza vsote ni določena.',
             'Adding waves, phase difference \\(180^\\circ\\): the waves cancel, sum amplitude \\(0\\), the sum phase is not defined.'),
+        ux: {explanation: readouts('sum-amplitude'), observation: readouts()},
     }),
     step({
         id: 'wv1-same-frequency', order: 4,
@@ -166,6 +173,7 @@ const wv1Steps: readonly GuidedLessonStep[] = [
         scene: wavesScene('wv1-same-frequency-scene', {t: 0},
             'Seštevanje valov, \\(3\\ \\mathrm{Hz}\\), razlika faz \\(120^\\circ\\): amplituda vsote \\(1\\), faza vsote \\(60^\\circ\\), vsota ob času \\(0\\) je \\(0{,}5\\).',
             'Adding waves, \\(3\\ \\mathrm{Hz}\\), phase difference \\(120^\\circ\\): sum amplitude \\(1\\), sum phase \\(60^\\circ\\), the sum at time \\(0\\) is \\(0.5\\).'),
+        ux: {explanation: readouts('sum-amplitude', 'sum-phase'), observation: readouts()},
     }),
     step({
         id: 'wv1-arrows', order: 5,
@@ -200,6 +208,7 @@ const wv1Steps: readonly GuidedLessonStep[] = [
         scene: wavesScene('wv1-amplitudes-scene', {components: WV1_UNEQUAL, t: 0},
             'Seštevanje valov, amplitudi \\(3\\) in \\(2\\), razlika faz \\(90^\\circ\\): amplituda vsote \\(3{,}606\\), faza vsote \\(33{,}69^\\circ\\), možna amplituda od \\(1\\) do \\(5\\).',
             'Adding waves, amplitudes \\(3\\) and \\(2\\), phase difference \\(90^\\circ\\): sum amplitude \\(3.606\\), sum phase \\(33.69^\\circ\\), possible amplitude from \\(1\\) to \\(5\\).'),
+        ux: {explanation: readouts('amplitude-range', 'sum-amplitude'), observation: readouts()},
     }),
     step({
         id: 'wv1-explore', order: 7,
@@ -293,6 +302,7 @@ const wv2Steps: readonly GuidedLessonStep[] = [
         scene: wavesScene('wv2-envelope-scene', {mode: 'beats', components: WV2_ENVELOPE, t: 0.25},
             'Utripanje, \\(10\\ \\mathrm{Hz}\\) in \\(12\\ \\mathrm{Hz}\\), ovojnica prikazana, čas \\(0{,}25\\ \\mathrm{s}\\): ovojnica \\(0\\), perioda utripanja \\(0{,}5\\ \\mathrm{s}\\).',
             'Beats, \\(10\\ \\mathrm{Hz}\\) and \\(12\\ \\mathrm{Hz}\\), envelope shown, time \\(0.25\\ \\mathrm{s}\\): envelope \\(0\\), beat period \\(0.5\\ \\mathrm{s}\\).'),
+        ux: {explanation: readouts('envelope'), observation: readouts()},
     }),
     step({
         id: 'wv2-difference', order: 4,
@@ -311,6 +321,7 @@ const wv2Steps: readonly GuidedLessonStep[] = [
         scene: wavesScene('wv2-difference-scene', {mode: 'beats', components: {f1: 10, f2: 13}, t: 0},
             'Utripanje, \\(10\\ \\mathrm{Hz}\\) in \\(13\\ \\mathrm{Hz}\\): frekvenca utripanja \\(3\\ \\mathrm{Hz}\\), povprečna frekvenca \\(11{,}5\\ \\mathrm{Hz}\\), perioda utripanja približno \\(0{,}333\\ \\mathrm{s}\\).',
             'Beats, \\(10\\ \\mathrm{Hz}\\) and \\(13\\ \\mathrm{Hz}\\): beat frequency \\(3\\ \\mathrm{Hz}\\), mean frequency \\(11.5\\ \\mathrm{Hz}\\), beat period approximately \\(0.333\\ \\mathrm{s}\\).'),
+        ux: {explanation: readouts('beat-frequency', 'mean-frequency', 'beat-period'), observation: readouts()},
     }),
     step({
         id: 'wv2-predict', order: 5,

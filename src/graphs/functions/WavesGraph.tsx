@@ -22,7 +22,9 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {travelling} from "../../waves/standing";
 import {valueAt} from "../../waves/sinusoid";
 import {envelope} from "../../waves/beats";
-import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
+import {pickOn} from "../../uxPicks/picks";
+import {ToolSection} from "../../inputs/ToolSection";
+import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
 import {
     DEFAULT_WAVES_STATE, parseWavesState, POINTS_PER_SECOND, serializeWavesState, snapWavesField, WAVES_FIELD_RANGES, WAVES_MODES, windowOf, type WavesMode, type WavesNumericField,
     type WavesState, type WavesToggleField,
@@ -142,6 +144,11 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     private drawnFrame = "";
     private builtMode?: WavesMode;
     private captionSources: (() => string)[] = [];
+    /** What the drawn captions name (UX picks: the legend card shows them instead). */
+    private captionEntries: {text: () => string; visible: () => boolean; color: string; legend?: {id: string; kind: LegendEntry["kind"]}}[] = [];
+
+    /** The caption texts the board shows; none while the UX pick moves them to the cards. */
+    private liveCaptions(): (() => string)[] { return pickOn("boardText") ? [] : this.captionSources; }
     private derivations = 0;
     private notice?: {readonly state: WavesGraphState; readonly text: () => string};
     private reconciledFor?: WavesGraphState;
@@ -372,8 +379,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     private frame(derived: WavesDerived = this.derived()): Box {
         const width = this.board.canvasWidth;
         const height = this.board.canvasHeight;
-        if (!(width > 0) || !(height > 0) || this.captionSources.length === 0) return frameFor(derived);
-        const rows = this.captionSources.reduce((sum, source) => sum + captionLines(source(), width), 0);
+        if (!(width > 0) || !(height > 0) || this.liveCaptions().length === 0) return frameFor(derived);
+        const rows = this.liveCaptions().reduce((sum, source) => sum + captionLines(source(), width), 0);
         return frameFor(derived, {roomPx: 10 + rows * CAPTION_ROW_PX, heightPx: height});
     }
 
@@ -513,8 +520,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         const wave = (identity: () => unknown, y: () => readonly number[], attributes: Partial<JXG.CurveAttributes>) =>
             curve(identity, () => [d().xs, y()], attributes);
 
-        const captions: {text: () => string; visible: () => boolean; color: string}[] = [];
-        const caption = (content: () => string, color: string = GraphPalette.label, visible: () => boolean = () => true) => captions.push({text: content, visible, color});
+        const captions: {text: () => string; visible: () => boolean; color: string; legend?: {id: string; kind: LegendEntry["kind"]}}[] = [];
+        const caption = (content: () => string, color: string = GraphPalette.label, visible: () => boolean = () => true, legend?: {id: string; kind: LegendEntry["kind"]}) => captions.push({text: content, visible, color, legend});
 
         if (mode === "sum") {
             timeCursor();
@@ -564,10 +571,10 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             text(nameAt("2", 0, () => (tip1()[0] + tip2()[0]) / 2), nameAt("2", 1, () => (tip1()[1] + tip2()[1]) / 2), () => t("waves_graph_tip_2"), nameAttributes(GraphPalette.constructionAccent));
             text(nameAt("sum", 0, () => tip2()[0] + 12 / this.scaleOf().ux), nameAt("sum", 1, () => tip2()[1]), () => t("waves_graph_tip_sum"), nameAttributes(GraphPalette.primaryCurve));
             caption(() => t("waves_graph_cap_axes_time"));
-            caption(() => t("waves_graph_cap_wave1"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_wave2"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_sum"), GraphPalette.primaryCurve);
-            caption(() => t("waves_graph_cap_phasors"), GraphPalette.label, shown);
+            caption(() => t("waves_graph_cap_wave1"), GraphPalette.comparisonCurve, undefined, {id: "w1", kind: "dashed"});
+            caption(() => t("waves_graph_cap_wave2"), GraphPalette.constructionAccent, undefined, {id: "w2", kind: "dashed"});
+            caption(() => t("waves_graph_cap_sum"), GraphPalette.primaryCurve, undefined, {id: "sum", kind: "line"});
+            caption(() => t("waves_graph_cap_phasors"), GraphPalette.label, shown, {id: "phasors", kind: "line"});
         } else if (mode === "beats") {
             timeCursor();
             const f = () => this.beatFacts();
@@ -580,10 +587,10 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             dot(playhead, () => { const b = f(); return b ? valueAt({amplitude: b.amplitude, frequency: b.f1, phase: 0}, playhead()) + valueAt({amplitude: b.amplitude, frequency: b.f2, phase: 0}, playhead()) : 0; },
                 () => true, {size: 5, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
             caption(() => t("waves_graph_cap_axes_time"));
-            caption(() => t("waves_graph_cap_wave1"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_wave2"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_sum"), GraphPalette.primaryCurve);
-            caption(() => t("waves_graph_cap_envelope"), GraphPalette.additionalCurves[3], showing("showEnvelope"));
+            caption(() => t("waves_graph_cap_wave1"), GraphPalette.comparisonCurve, undefined, {id: "w1", kind: "dashed"});
+            caption(() => t("waves_graph_cap_wave2"), GraphPalette.constructionAccent, undefined, {id: "w2", kind: "dashed"});
+            caption(() => t("waves_graph_cap_sum"), GraphPalette.primaryCurve, undefined, {id: "sum", kind: "line"});
+            caption(() => t("waves_graph_cap_envelope"), GraphPalette.additionalCurves[3], showing("showEnvelope"), {id: "envelope", kind: "dashed"});
         } else if (mode === "standing") {
             curve(() => this.standing(), () => [d().xs, this.standing().right], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2});
             curve(() => this.standing(), () => [d().xs, this.standing().left], {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3});
@@ -598,11 +605,11 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                 dot(x, y, () => n < (f()?.antinodes.length ?? 0), {size: 5, face: "diamond", strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
             }
             caption(() => t("waves_graph_cap_axes_space"));
-            caption(() => t("waves_graph_cap_right"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_left"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_standing"), GraphPalette.primaryCurve);
-            caption(() => t("waves_graph_cap_nodes"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_antinodes"), GraphPalette.primaryCurve);
+            caption(() => t("waves_graph_cap_right"), GraphPalette.comparisonCurve, undefined, {id: "right", kind: "dashed"});
+            caption(() => t("waves_graph_cap_left"), GraphPalette.constructionAccent, undefined, {id: "left", kind: "dashed"});
+            caption(() => t("waves_graph_cap_standing"), GraphPalette.primaryCurve, undefined, {id: "standing", kind: "line"});
+            caption(() => t("waves_graph_cap_nodes"), GraphPalette.constructionAccent, undefined, {id: "nodes", kind: "point"});
+            caption(() => t("waves_graph_cap_antinodes"), GraphPalette.primaryCurve, undefined, {id: "antinodes", kind: "point"});
         } else {
             timeCursor();
             const f = () => this.samplingFacts();
@@ -650,19 +657,20 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             text(() => this.panelOrigin()[0], nameRow(0), () => t("waves_graph_tip_true"), {strokeColor: GraphPalette.comparisonCurve, anchorX: "middle", anchorY: "top"});
             text(() => this.panelOrigin()[0], nameRow(1), () => t("waves_graph_tip_film"), {strokeColor: GraphPalette.primaryCurve, anchorX: "middle", anchorY: "top"});
             caption(() => t("waves_graph_cap_axes_time"));
-            caption(() => t("waves_graph_cap_wave"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_dots"), GraphPalette.primaryCurve);
+            caption(() => t("waves_graph_cap_wave"), GraphPalette.comparisonCurve, undefined, {id: "wave", kind: "line"});
+            caption(() => t("waves_graph_cap_dots"), GraphPalette.primaryCurve, undefined, {id: "dots", kind: "point"});
             caption(() => t("waves_graph_cap_strip"), GraphPalette.label);
             caption(() => t("waves_graph_cap_wheel"), GraphPalette.label);
             caption(() => { const facts = f(); const alias = facts?.alias; return facts?.relation === "above" ? t("waves_graph_cap_alias_exact") : t("waves_graph_cap_alias", {value0: dec(alias && !alias.ambiguous ? alias.signed : 0, 0)}); }, GraphPalette.constructionAccent,
-                () => state().showAlias && f()?.aliasWave != null);
-            caption(() => t("waves_graph_cap_join"), GraphPalette.additionalCurves[3], showing("showJoin"));
-            caption(() => t("waves_graph_cap_sinc"), GraphPalette.additionalCurves[2], showing("showSinc"));
+                () => state().showAlias && f()?.aliasWave != null, {id: "alias", kind: "dashed"});
+            caption(() => t("waves_graph_cap_join"), GraphPalette.additionalCurves[3], showing("showJoin"), {id: "join", kind: "dashed"});
+            caption(() => t("waves_graph_cap_sinc"), GraphPalette.additionalCurves[2], showing("showSinc"), {id: "sinc", kind: "dashed"});
         }
         caption(() => t(mode === "standing" ? "waves_graph_cap_resolution_space" : "waves_graph_cap_resolution", {value0: POINTS_PER_SECOND}));
 
         // The captions: stacked from the top left of the screen, only the visible ones take a row. They name every element a readout names.
         this.captionSources = captions.map(entry => entry.text);
+        this.captionEntries = captions;
         captions.forEach((entry, index) => {
             // A caption wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
             const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), board.canvasWidth), 0);
@@ -670,7 +678,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
                 () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * CAPTION_ROW_PX) / uy; },
                 () => entry.text(),
-            ], {strokeColor: entry.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: entry.visible}));
+            ], {strokeColor: entry.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: () => !pickOn("boardText") && entry.visible()}));
         });
     }
 
@@ -689,7 +697,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         const origin = this.panelOrigin();
         const [ox, oy] = toPx(origin[0], origin[1]), [ax, ay] = toPx(tip1[0], tip1[1]), [bx, by] = toPx(tip2[0], tip2[1]);
         const names = [t("waves_graph_tip_1"), t("waves_graph_tip_2"), t("waves_graph_tip_sum")];
-        const captionTexts = this.captionSources.map(source => source());
+        const captionTexts = this.liveCaptions().map(source => source());
         const rows = captionTexts.reduce((sum, text) => sum + captionLines(text, width), 0);
         const Q = 6;
         const key = [ux, uy, left, top, width, height, this.panel().k, Math.round(ox / Q), Math.round(oy / Q), Math.round(ax / Q), Math.round(ay / Q), Math.round(bx / Q), Math.round(by / Q), rows, names.join("|"), captionTexts.length].join(",");
@@ -743,6 +751,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         this.objects = [];
         this.builtMode = undefined;
         this.captionSources = [];
+        this.captionEntries = [];
     }
 
     // ---- Playback and the time -------------------------------------------------------------------------------------------
@@ -1069,46 +1078,85 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                           onChange={value => { const mode = WAVES_MODES.find(candidate => candidate === value); if (mode) this.editMode(mode); }}/>,
         ];
         if (state.mode === "sum") {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_sum_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+            commands.push(<Slider key="a1" paramKey="waves.a1" customText={t("waves_graph_a1_sum_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
                     onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="p1" customText={t("waves_graph_p1_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
+                <Slider key="p1" paramKey="waves.p1" customText={t("waves_graph_p1_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
                     onChange={value => this.editNumber("p1", value)}/>,
-                <Slider key="a2" customText={t("waves_graph_a2_label")} value={state.a2} min={R.a2.min} max={R.a2.max} step={R.a2.step} grid={R.a2.step} bigStep={1}
+                <Slider key="a2" paramKey="waves.a2" customText={t("waves_graph_a2_label")} value={state.a2} min={R.a2.min} max={R.a2.max} step={R.a2.step} grid={R.a2.step} bigStep={1}
                     onChange={value => this.editNumber("a2", value)}/>,
-                <Slider key="p2" customText={t("waves_graph_p2_label")} value={state.p2} min={R.p2.min} max={R.p2.max} step={R.p2.step} grid={R.p2.step} bigStep={15}
+                <Slider key="p2" paramKey="waves.p2" customText={t("waves_graph_p2_label")} value={state.p2} min={R.p2.min} max={R.p2.max} step={R.p2.step} grid={R.p2.step} bigStep={15}
                     onChange={value => this.editNumber("p2", value)}/>,
-                <Slider key="f1" customText={t("waves_graph_f_both_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
+                <Slider key="f1" paramKey="waves.f1" customText={t("waves_graph_f_both_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
                     onChange={value => this.editNumber("f1", value)}/>,
                 this.toggle("showPhasors", "waves_graph_show_phasors", "waves_graph_show_phasors_help"));
         } else if (state.mode === "beats") {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+            commands.push(<Slider key="a1" paramKey="waves.a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
                     onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="f1" customText={t("waves_graph_f1_beats_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5} help={t("waves_graph_f_beats_help")}
+                <Slider key="f1" paramKey="waves.f1" customText={t("waves_graph_f1_beats_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5} help={t("waves_graph_f_beats_help")}
                     onChange={value => this.editNumber("f1", value)}/>,
-                <Slider key="f2" customText={t("waves_graph_f2_beats_label")} value={state.f2} min={R.f2.min} max={R.f2.max} step={R.f2.step} grid={R.f2.step} bigStep={5} help={t("waves_graph_f_beats_help")}
+                <Slider key="f2" paramKey="waves.f2" customText={t("waves_graph_f2_beats_label")} value={state.f2} min={R.f2.min} max={R.f2.max} step={R.f2.step} grid={R.f2.step} bigStep={5} help={t("waves_graph_f_beats_help")}
                     onChange={value => this.editNumber("f2", value)}/>,
                 this.toggle("showEnvelope", "waves_graph_show_envelope", "waves_graph_show_envelope_help"));
         } else if (state.mode === "standing") {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+            commands.push(<Slider key="a1" paramKey="waves.a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
                     onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="halfWaves" customText={t("waves_graph_half_waves_label")} value={state.halfWaves} min={R.halfWaves.min} max={R.halfWaves.max} step={R.halfWaves.step} grid={R.halfWaves.step} bigStep={1} help={t("waves_graph_half_waves_help")}
+                <Slider key="halfWaves" paramKey="waves.halfWaves" customText={t("waves_graph_half_waves_label")} value={state.halfWaves} min={R.halfWaves.min} max={R.halfWaves.max} step={R.halfWaves.step} grid={R.halfWaves.step} bigStep={1} help={t("waves_graph_half_waves_help")}
                     onChange={value => this.editNumber("halfWaves", value)}/>);
         } else {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_tone_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+            commands.push(<Slider key="a1" paramKey="waves.a1" customText={t("waves_graph_a1_tone_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
                     onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="p1" customText={t("waves_graph_p1_tone_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
+                <Slider key="p1" paramKey="waves.p1" customText={t("waves_graph_p1_tone_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
                     onChange={value => this.editNumber("p1", value)}/>,
-                <Slider key="f1" customText={t("waves_graph_f_tone_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
+                <Slider key="f1" paramKey="waves.f1" customText={t("waves_graph_f_tone_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
                     onChange={value => this.editNumber("f1", value)}/>,
-                <Slider key="fs" customText={t("waves_graph_fs_label")} value={state.fs} min={R.fs.min} max={R.fs.max} step={R.fs.step} grid={R.fs.step} bigStep={6} help={t("waves_graph_fs_help")}
+                <Slider key="fs" paramKey="waves.fs" customText={t("waves_graph_fs_label")} value={state.fs} min={R.fs.min} max={R.fs.max} step={R.fs.step} grid={R.fs.step} bigStep={6} help={t("waves_graph_fs_help")}
                     onChange={value => this.editNumber("fs", value)}/>,
                 this.toggle("showAlias", "waves_graph_show_alias", "waves_graph_show_alias_help"),
                 this.toggle("showJoin", "waves_graph_show_join", "waves_graph_show_join_help"),
                 this.toggle("showSinc", "waves_graph_show_sinc", "waves_graph_show_sinc_help"));
-            if (state.showSinc) commands.push(<Slider key="extra" customText={t("waves_graph_extra_label")} value={state.extra} min={R.extra.min} max={R.extra.max} step={R.extra.step} grid={R.extra.step} bigStep={48}
+            if (state.showSinc) commands.push(<Slider key="extra" paramKey="waves.extra" customText={t("waves_graph_extra_label")} value={state.extra} min={R.extra.min} max={R.extra.max} step={R.extra.step} grid={R.extra.step} bigStep={48}
                     onChange={value => this.editNumber("extra", value)}/>);
         }
         return commands;
+    }
+
+    /** UX picks: the readout rows of `readoutRows()` and the drawn captions (as legend entries) on the cards instead of the board and the panel. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const entries: LegendEntry[] = this.captionEntries
+            .filter(entry => entry.legend !== undefined && entry.visible())
+            .map(entry => ({id: entry.legend?.id ?? "", label: entry.text(), kind: entry.legend?.kind ?? "line", color: entry.color}));
+        const links: Record<string, string> = {wave1: "w1", wave2: "w2", sum: "sum", envelope: "envelope", nodes: "nodes", antinodes: "antinodes", alias: "alias", "join-error": "join", "sinc-error": "sinc"};
+        const rows: ReadoutRow[] = this.readoutRows().map(row => {
+            const link = links[row.id];
+            return {id: row.id, name: String(row.label ?? row.id), value: String(row.value), ...(link && entries.some(entry => entry.id === link) ? {legend: link} : {})};
+        });
+        const groups: ReadoutGroup[] = [
+            {id: "time", rows: rows.filter(row => row.id === "time")},
+            {id: "values", title: "Količine", rows: rows.filter(row => row.id !== "time")},
+        ];
+        const notes: ReadoutNote[] = [
+            {id: "sentence", text: this.sentence(), tone: "muted"},
+            {id: "computed", text: t("waves_graph_computed_note"), tone: "muted"},
+        ];
+        const mode = this.state.mode;
+        return {
+            pucks: [
+                {param: "waves.a1", help: "Amplituda je največji odmik vala od ravnovesne lege."},
+                {param: "waves.p1", help: "Faza je začetni zamik vala, merjen v stopinjah."},
+                {param: "waves.a2", help: "Amplituda je največji odmik vala od ravnovesne lege."},
+                {param: "waves.p2", help: "Faza je začetni zamik vala, merjen v stopinjah."},
+                {param: "waves.f1", help: "Frekvenca je število nihajev na sekundo, v hercih."},
+                {param: "waves.f2", help: "Frekvenca je število nihajev na sekundo, v hercih."},
+                {param: "waves.fs", help: t("waves_graph_fs_help")},
+                ...(this.state.showSinc ? [{param: "waves.extra", help: "Dodatni vzorci levo in desno od okna, ki jih rekonstrukcija še uporabi."}] : []),
+                ...(mode === "standing" ? [{param: "waves.halfWaves", help: t("waves_graph_half_waves_help")}] : []),
+                {param: "waves.time", help: "Čas t, v katerem je valovanje narisano; predvajanje ga premika."},
+            ],
+            readouts: groups,
+            notes,
+            legend: entries,
+        };
     }
 
     protected override workspaceEdit(): React.ReactNode {
@@ -1135,16 +1183,16 @@ function WavesPlayback(props: {graph: WavesGraph}) {
     const params = {value0: dec(end, 2), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
     const reduced = !playing && graph.reducedMotion();
-    return <div className="inspector-group">
+    return <ToolSection id="waves-playback">
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("waves_graph_playback_group")} resetLabel={text("reset")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={reduced ? "reduced-motion" : undefined} describedBy={reduced ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
         {reduced && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
-        <Slider customText={text("waves_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
+        <Slider paramKey="waves.time" customText={text("waves_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 rejectedHint={text("waves_graph_time_rejected", {value0: params.value0})}
                 valueText={value => `${dec(value, 2)} ${text("waves_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
-    </div>;
+    </ToolSection>;
 }
 
 /** The status sentence, the labelled values and the one announcement region (silent while the wave plays). */
@@ -1152,13 +1200,14 @@ function WavesReadout(props: {graph: WavesGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <BoardReadout><div className="inspector-group">
+    if (pickOn("boardText")) return <LiveReadout readout={graph.status} muted={graph.playing}/>; // the readout card shows the rest
+    return <div className="inspector-group">
         <ReadoutHeading>{text("waves_graph_readout_title")}</ReadoutHeading>
         <p data-waves-status="">{graph.statusText()}</p>
         <ReadoutList label={text("waves_graph_readout_title")} rows={graph.readoutRows()}/>
         <p data-waves-note="">{text("waves_graph_computed_note")}</p>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div></BoardReadout>;
+    </div>;
 }
 
 export default WavesGraph;

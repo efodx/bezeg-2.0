@@ -7,10 +7,14 @@
  * the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-kin-a.md.
  */
 import type {LessonAction} from '../model';
-import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
+import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text states them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
+const withLegend = (...highlight: string[]): FrameUx => ({open: ['readouts', 'legend'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -23,14 +27,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -131,6 +137,7 @@ const kn1Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn1-start-scene', {params: noArrows, t: 0},
             'Cikloida ob času \\(0\\), brez puščic; lega \\((0;\\,0)\\ \\mathrm{m}\\).',
             'The cycloid at time \\(0\\), no arrows; position \\((0;\\,0)\\ \\mathrm{m}\\).'),
+        ux: {explanation: readouts('position')},
     }),
     step({
         id: 'kn1-trace', order: 2,
@@ -146,6 +153,7 @@ const kn1Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn1-trace-scene', {params: noArrows, t: Math.PI / 2},
             'Cikloida ob \\(t=\\pi/2\\), brez puščic; lega \\((0{,}571;\\,1)\\ \\mathrm{m}\\).',
             'The cycloid at \\(t=\\pi/2\\), no arrows; position \\((0.571;\\,1)\\ \\mathrm{m}\\).'),
+        ux: {explanation: readouts('time', 'position')},
     }),
     step({
         id: 'kn1-velocity', order: 3,
@@ -161,6 +169,7 @@ const kn1Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn1-velocity-scene', {params: {showVelocity: true, showAcceleration: false}, t: Math.PI / 2},
             'Cikloida ob \\(t=\\pi/2\\) s puščico hitrosti: \\(v=(1;\\,1)\\ \\mathrm{m/s}\\), \\(|v|=1{,}414\\ \\mathrm{m/s}\\).',
             'The cycloid at \\(t=\\pi/2\\) with the velocity arrow: \\(v=(1;\\,1)\\ \\mathrm{m/s}\\), \\(|v|=1.414\\ \\mathrm{m/s}\\).'),
+        ux: {explanation: withLegend('velocity', 'speed')},
     }),
     step({
         id: 'kn1-acceleration', order: 4,
@@ -177,6 +186,7 @@ const kn1Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn1-acceleration-scene', {t: Math.PI},
             'Cikloida ob \\(t=\\pi\\) s puščicama hitrosti in pospeška: \\(v=(2;\\,0)\\ \\mathrm{m/s}\\), \\(a=(0;\\,-1)\\ \\mathrm{m/s^2}\\).',
             'The cycloid at \\(t=\\pi\\) with the velocity and acceleration arrows: \\(v=(2;\\,0)\\ \\mathrm{m/s}\\), \\(a=(0;\\,-1)\\ \\mathrm{m/s^2}\\).'),
+        ux: {explanation: withLegend('velocity')},
     }),
     step({
         id: 'kn1-cusp', order: 5,
@@ -192,6 +202,7 @@ const kn1Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn1-cusp-scene', {t: 0},
             'Cikloida ob \\(t=0\\): \\(v=(0;\\,0)\\ \\mathrm{m/s}\\), \\(|v|=0\\ \\mathrm{m/s}\\), \\(a=(0;\\,1)\\ \\mathrm{m/s^2}\\); puščice hitrosti ni.',
             'The cycloid at \\(t=0\\): \\(v=(0;\\,0)\\ \\mathrm{m/s}\\), \\(|v|=0\\ \\mathrm{m/s}\\), \\(a=(0;\\,1)\\ \\mathrm{m/s^2}\\); there is no velocity arrow.'),
+        ux: {explanation: readouts('velocity', 'acceleration')},
     }),
     step({
         id: 'kn1-explore', order: 6,
@@ -282,6 +293,7 @@ const kn2Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn2-top-scene', {motion: 'circular', params: kn2Circle(noArrows), t: KN2_QUARTER_TURN},
             'Kroženje, \\(b=0{,}5\\), čas \\(1{,}12\\ \\mathrm{s}\\) (točno \\(1{,}1206\\ \\mathrm{s}\\)); polna točka na vrhu, \\((0;\\,1)\\ \\mathrm{m}\\).',
             'Circular motion, \\(b=0.5\\), time \\(1.12\\ \\mathrm{s}\\) (exactly \\(1.1206\\ \\mathrm{s}\\)); the solid point at the top, \\((0;\\,1)\\ \\mathrm{m}\\).'),
+        ux: {explanation: readouts('time', 'position')},
     }),
     step({
         id: 'kn2-speed', order: 3,
@@ -312,6 +324,7 @@ const kn2Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn2-tangent-scene', {motion: 'circular', params: kn2Circle({showVelocity: true, showAcceleration: false}), t: KN2_QUARTER_TURN},
             'Kroženje, \\(b=0{,}5\\), čas \\(1{,}12\\ \\mathrm{s}\\), polna točka na vrhu: \\(v=(-1{,}218;\\,0)\\ \\mathrm{m/s}\\).',
             'Circular motion, \\(b=0.5\\), time \\(1.12\\ \\mathrm{s}\\), the solid point at the top: \\(v=(-1.218;\\,0)\\ \\mathrm{m/s}\\).'),
+        ux: {explanation: readouts('velocity')},
     }),
     step({
         id: 'kn2-acceleration', order: 5,
@@ -328,6 +341,7 @@ const kn2Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn2-acceleration-scene', {motion: 'circular', params: kn2Circle({split: true}), t: Math.PI / 2},
             'Kroženje, \\(b=0{,}5\\), čas \\(\\pi/2\\), razstavljen pospešek: \\(a_T=-0{,}5\\ \\mathrm{m/s^2}\\), \\(a_N=1\\ \\mathrm{m/s^2}\\), \\(\\kappa=1\\ \\mathrm{1/m}\\).',
             'Circular motion, \\(b=0.5\\), time \\(\\pi/2\\), split acceleration: \\(a_T=-0.5\\ \\mathrm{m/s^2}\\), \\(a_N=1\\ \\mathrm{m/s^2}\\), \\(\\kappa=1\\ \\mathrm{1/m}\\).'),
+        ux: {explanation: withLegend('a-t', 'a-n', 'kappa')},
     }),
     step({
         id: 'kn2-invariant', order: 6,
@@ -343,6 +357,7 @@ const kn2Steps: readonly GuidedLessonStep[] = [
         scene: kinematicsScene('kn2-invariant-scene', {motion: 'circular', params: kn2Circle({split: true}), t: Math.PI},
             'Kroženje, \\(b=0{,}5\\), čas \\(\\pi\\): \\(|v|=0{,}5\\ \\mathrm{m/s}\\), \\(a_N=0{,}25\\ \\mathrm{m/s^2}\\), \\(\\kappa=1\\ \\mathrm{1/m}\\).',
             'Circular motion, \\(b=0.5\\), time \\(\\pi\\): \\(|v|=0.5\\ \\mathrm{m/s}\\), \\(a_N=0.25\\ \\mathrm{m/s^2}\\), \\(\\kappa=1\\ \\mathrm{1/m}\\).'),
+        ux: {explanation: readouts('kappa')},
     }),
     step({
         id: 'kn2-explore', order: 7,
