@@ -15,19 +15,19 @@ const seeds = Math.min(+(opt('--seeds') || 3), 3);
 const logDir = path.join('.command-logs', 'graph-check');
 fs.mkdirSync(logDir, {recursive: true});
 
-const run = (cmd, args, log) => {
-    const r = spawnSync(cmd, args, {encoding: 'utf8'});
+const run = (cmd, args, log, env) => {
+    const r = spawnSync(cmd, args, {encoding: 'utf8', env: {...process.env, ...env}});
     fs.writeFileSync(path.join(logDir, `${id}-${log}.log`), `${r.stdout ?? ''}\n${r.stderr ?? ''}`);
     return r;
 };
 const rows = [];
 
 /** One vitest run through `just unit`; fails when it fails or when the filter matched no test. */
-function unit(label, files, filter) {
+function unit(label, files, filter, env) {
     const out = path.join(logDir, `${id}-${label}.json`);
     try { fs.rmSync(out); } catch { /* none */ }
     const args = ['unit', ...files, ...(filter ? ['-t', filter] : []), '--reporter=json', `--outputFile=${out}`];
-    const r = run('just', args, label);
+    const r = run('just', args, label, env);
     let passed = 0, failed = 0;
     try {
         const j = JSON.parse(fs.readFileSync(out, 'utf8'));
@@ -43,7 +43,7 @@ unit('contract', ['src/learning/content/declarationContract.test.tsx'], ` ${esc(
 const parity = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(f => f.replace(/\\/g, '/').endsWith(`__parity__/${id}.json`));
 const bare = id.replace(/-/g, '').toLowerCase();
 const declTests = fs.readdirSync('src/graphs', {recursive: true}).map(String).filter(f => /\.declaration\.test\.tsx$/.test(f) && path.basename(f).toLowerCase().startsWith(bare)).map(f => 'src/graphs/' + f.replace(/\\/g, '/'));
-if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `parity recording ${esc(id)} `);
+if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `parity recording ${esc(id)} `, {BEZEG_PARITY_CHECK: '1'});
 else rows.push({label: 'parity', ok: false, detail: `no recording src/graphs/**/__parity__/${id}.json`});
 if (declTests.length) unit('declaration', declTests);
 else rows.push({label: 'declaration', ok: false, detail: `no src/graphs/**/${id}*.declaration.test.tsx`});
