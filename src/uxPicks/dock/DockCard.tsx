@@ -285,7 +285,7 @@ export function DockCard(props: DockCardProps) {
     const target = dock.regions[phone ? 'tl' : placement.region];
     if (!target) return null;
     const style: React.CSSProperties | undefined = floating ? {left: pos.x, top: pos.y} : phone ? undefined : {order: orderOf(kind)};
-    const label = `${open ? 'Skrij' : 'Pokaži'} ${props.what}`;
+    const label = `${open ? 'Zloži' : 'Razpni'} ${props.what}`; // the same words as the gestures hint and Bližnjice ("− zloži")
     // A phone shows a folded card as a small labelled chip.
     if (phone && !open) {
         return createPortal(<button type="button" className="ux-dock-chip" aria-expanded={false} aria-label={label} onClick={toggle}><KindIcon kind={kind}/>{props.title}</button>, target);

@@ -410,8 +410,9 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         ];
         return {
             pucks: [
-                {param: "bisection.a", help: t("bisection_bounds_help")},
-                {param: "bisection.b", help: t("bisection_bounds_help")},
+                // The pucks set the starting interval; the board's a, b and the readouts follow the current bracket.
+                {param: "bisection.a", help: t("bisection_bounds_help"), label: `${t("bisection_a_label").replace(/\s+a$/, "")} a₀`},
+                {param: "bisection.b", help: t("bisection_bounds_help"), label: `${t("bisection_b_label").replace(/\s+b$/, "")} b₀`},
             ],
             formula: `f(x)=${bisectionExample(model.example).latex}`,
             readouts: [
@@ -422,7 +423,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                     {id: "f-a", symbol: "f(a)", value: number(view.fa), tone: "comparison"},
                     {id: "f-b", symbol: "f(b)", value: number(view.fb), tone: "comparison"},
                 ]},
-                {id: "midpoint", title: t("bisection_readout_mid"), rows: [
+                {id: "midpoint", title: t("bisection_readout_mid").replace(/\s+m\s*=.*$/, ""), rows: [ // titles are set in capitals: no formula there (M = (A + B)/2)
                     {id: "mid", name: t("bisection_readout_mid"), value: last ? number(last.mid) : NOT_A_NUMBER_TEXT, tone: "accent"},
                     {id: "f-mid", symbol: "f(m)", value: last ? number(last.fMid) : NOT_A_NUMBER_TEXT, tone: "accent"},
                     {id: "retained", name: t("bisection_readout_retained"), value: retained},

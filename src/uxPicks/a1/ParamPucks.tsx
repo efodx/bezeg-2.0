@@ -332,7 +332,7 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     const declared = useGraphUx()?.pucks;
     const visible = useMemo(() => (declared ?? []).flatMap(decl => {
         const entry = params.find(e => e.key === decl.param);
-        return entry && (entry.kind === 'count' || entry.max > entry.min) ? [entry] : [];
+        return entry && (entry.kind === 'count' || entry.max > entry.min) ? [decl.label ? {...entry, label: decl.label} : entry] : [];
     }), [params, declared]);
     // The tools card hides the controls the pucks show (only while the row is open, so a folded row gives them back).
     useLayoutEffect(() => { setPuckedKeys(collapsed ? [] : visible.map(entry => entry.key)); }, [visible, collapsed]);

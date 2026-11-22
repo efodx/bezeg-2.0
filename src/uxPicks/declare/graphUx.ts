@@ -76,6 +76,9 @@ export interface PuckDecl {
     readonly param: string;
     /** The puck's help card text (replaces reading the control's help and its group's paragraphs from the page). */
     readonly help?: string;
+    /** The puck's label instead of the control's, when the board and the readouts use the control's symbol for something else
+     *  (bisection: the pucks set the starting a₀, b₀; the board's a, b are the current bracket). Plain text, "name symbol". */
+    readonly label?: string;
 }
 
 /** What the view fit keeps in view: `must` shapes stay visible and clear of cards, `nice` shapes when room allows. */
