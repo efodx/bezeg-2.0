@@ -3,7 +3,7 @@ set shell := ["node", "--eval"]
 
 # Show the available Bezeg workflows.
 default:
-    @console.log('Bezeg developer commands: just check | check-changed [ref] | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | controls-fixture [args...] | clip <id> | preview [port] | loc <pattern> | test-cost [--save] [--top N] | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
+    @console.log('Bezeg developer commands: just check | check-changed [ref] | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | controls-fixture [args...] | clip <id> | preview [port] | shot --base <url> [--selector <css>] [--sheet] <route>... | loc <pattern> | test-cost [--save] [--top N] | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
 
 # Run typecheck, lint, all unit tests, then a provenance-recorded production build.
 check:
@@ -72,6 +72,10 @@ eval *args:
 # Rebase the declared commits onto origin/master, verify that revision, and fast-forward push it. Handler only.
 publish *args:
     @require('./scripts/publish-gate.cjs').cli(process.argv.slice(2))
+
+# Screenshot routes of a running preview, cropped by --selector, optionally as contact sheets (scripts/shot.cjs).
+shot *args:
+    @require('./scripts/shot.cjs').cli(process.argv.slice(2))
 
 # Run the focused Node tests for this command runner.
 tooling-test:
