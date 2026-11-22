@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {GraphPalette} from '../../graphs/styles/GraphPalette';
 import {HelpIcon} from '../dock/icons';
 import type {GraphUx, LegendEntry, ReadoutRow} from './graphUx';
@@ -56,12 +56,34 @@ function Notes(props: {notes: NonNullable<GraphUx['notes']>}) {
     </div>;
 }
 
+/**
+ * The card only ever grows while its rows stay the same: a value whose digits change width (a sweep, a drag) would otherwise
+ * resize the card on every frame and shift the board's cards around it (night probe: CLS 0.04-0.14). The ratchet restarts
+ * when the rows change (another graph, mode or lesson scene).
+ */
+function useWidthRatchet(shape: string) {
+    const ref = useRef<HTMLDivElement>(null);
+    useLayoutEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        el.style.minWidth = '';
+        let widest = 0;
+        const grow = () => { const w = el.getBoundingClientRect().width; if (w > widest + 0.5) { widest = w; el.style.minWidth = `${Math.ceil(w)}px`; } };
+        grow();
+        const ro = new ResizeObserver(grow);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [shape]);
+    return ref;
+}
+
 /** Body of the readout card: formula, grouped readouts, notes, and the help behind "?". */
 export function ReadoutBody(props: {ux: GraphUx; highlight: readonly string[]}) {
     const {ux} = props;
     const [help, setHelp] = useState(false);
     const entries = new Map((ux.legend ?? []).map(e => [e.id, e] as const));
-    return <div className="ux-rc">
+    const ratchet = useWidthRatchet((ux.readouts ?? []).map(g => g.id + ':' + g.rows.map(r => r.id).join(',')).join('|'));
+    return <div className="ux-rc" ref={ratchet}>
         {ux.formula && <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>}
         {(ux.readouts ?? []).map(group => <section key={group.id} className="ux-rc-group" data-group={group.id}>
             {group.title && <h4 className="ux-rc-title">{group.title}</h4>}
