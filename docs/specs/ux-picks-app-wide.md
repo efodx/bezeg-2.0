@@ -1,6 +1,6 @@
 # Board workspace: the kept UX picks, rebuilt app-wide
 
-Status: accepted by the owner on 2026-11-22, then revised the same day after a second independent review (see the last section); the revision awaits his read. Implementation not started. Tasks: [docs/tasks/ux-picks-app-wide](../tasks/ux-picks-app-wide/README.md). First part, already drafted: [parameter writes](parameter-writes.md). Decisions: ADRs [0062](../adr/0062-rebuild-ux-picks-on-master.md), [0063](../adr/0063-cards-on-the-board.md), [0064](../adr/0064-source-tagged-scene-writes.md), [0065](../adr/0065-graphs-declare-presenters-render.md).
+Status: accepted by the owner on 2026-11-22, revised the same day after a second independent review (see the last section), and the revision's three owner points were confirmed by him. Implementation not started. The prototype preview on port 4460 was stopped on 2026-11-22 at the owner's request; restart it with the command in `docs/reviews/ux-picks/state.md` ("Where") when a task needs the reference. Tasks: [docs/tasks/ux-picks-app-wide](../tasks/ux-picks-app-wide/README.md). First part, already drafted: [parameter writes](parameter-writes.md). Decisions: ADRs [0062](../adr/0062-rebuild-ux-picks-on-master.md), [0063](../adr/0063-cards-on-the-board.md), [0064](../adr/0064-source-tagged-scene-writes.md), [0065](../adr/0065-graphs-declare-presenters-render.md).
 
 ## Purpose
 
@@ -181,9 +181,9 @@ The method in task 08:
 
 ## Open questions for the owner
 
-1. **Sweep and existing Play.** Some graphs already have playback for a parameter (De Casteljau's t). Should such a parameter's puck also offer the sweep (∿), or is Play its only mover? The plan assumes one mover per parameter: where playback exists, the puck shows Play and no ∿.
+None at present. Stage 09 opens with its own design questions.
 
-Stage 09 opens with its own design questions.
+Decided by the owner on 2026-11-22 after the second review: one mover per parameter (where playback exists, the puck shows Play and no ∿); touching a control of a playing parameter stops the playback; stages 03 to 07 reach `master` together as one release.
 
 ## Second independent review (2026-11-22)
 
