@@ -1,7 +1,8 @@
 /* Shared frame of the board cards (the declared bodies are styled in src/uxPicks/declare/declare.css). */
 .ux-btext-body { padding: 0 12px 9px; font-variant-numeric: tabular-nums; }
 
-/* A card the lesson frame refers to opens by itself and glows once. */
-@keyframes ux-btext-cue { 0% { box-shadow: 0 0 0 0 var(--bezeg-shell-focus); } 25% { box-shadow: 0 0 0 4px var(--bezeg-shell-focus); } 100% { box-shadow: 0 0 0 0 transparent; } }
+/* A card the lesson frame refers to opens by itself and glows once, in the lesson's ochre (the "Preizkusi in opazuj" marker),
+   not the keyboard-focus blue (owner, 2026-11-22: the blue stood out too much). */
+@keyframes ux-btext-cue { 0% { box-shadow: 0 0 0 0 rgb(184 138 67 / 0%); } 25% { box-shadow: 0 0 0 4px rgb(184 138 67 / 55%); } 100% { box-shadow: 0 0 0 0 rgb(184 138 67 / 0%); } }
 .ux-btext.ux-btext-cue { animation: ux-btext-cue 1.2s ease-out; }
 @media (prefers-reduced-motion: reduce) { .ux-btext.ux-btext-cue { animation: none; } }
