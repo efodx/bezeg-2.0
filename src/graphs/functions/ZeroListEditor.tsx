@@ -85,19 +85,19 @@ export function ZeroListEditor(props: ZeroListEditorProps) {
     return <div className="inspector-group zero-list-editor" data-zero-list={props.scope ?? "zeros"}>
         {props.scope !== undefined && <h3>{props.scope}</h3>}
         {props.zeros.map((zero, index) => <div key={index} className="zero-list-row" data-zero-row={index}>
-            <NumberInput label={`${prefix}${t("zero_list_position_label", {value0: index + 1})}`} value={zero.z}
+            <NumberInput label={t("zero_list_position_label", {value0: index + 1})} accessibleName={`${prefix}${t("zero_list_position_label", {value0: index + 1})}`} value={zero.z}
                          min={POLY_BOUNDS.z[0]} max={POLY_BOUNDS.z[1]} step={ZERO_GRID_STEP} decimals={ZERO_GRID_DECIMALS}
                          rejectedHint={t("zero_list_position_hint", range)} onChange={next => props.onMove(index, next)}/>
-            <ChoiceSelect label={`${prefix}${t("zero_list_multiplicity_label", {value0: index + 1})}`} value={String(zero.m)}
+            <ChoiceSelect label={t("zero_list_multiplicity_label", {value0: index + 1})} accessibleName={`${prefix}${t("zero_list_multiplicity_label", {value0: index + 1})}`} value={String(zero.m)}
                           options={[1, 2, 3].map(m => ({value: String(m), text: `${m} (${multiplicityName[m]})`}))}
                           onChange={next => props.onMultiplicity(index, Number(next))}/>
-            <button type="button" data-action="remove-zero" onClick={() => props.onRemove(index)}>
-                {`${prefix}${t("zero_list_remove", {value0: index + 1})}`}
+            <button type="button" data-action="remove-zero" aria-label={`${prefix}${t("zero_list_remove", {value0: index + 1})}`} onClick={() => props.onRemove(index)}>
+                {t("zero_list_remove", {value0: index + 1})}
             </button>
         </div>)}
         <div className="convexity-actions" role="group" aria-label={`${prefix}${t("zero_list_actions_label")}`}>
-            <UnavailableButton data-action="add-zero" reason={atCap ? capReason : undefined} onPress={props.onAdd} onBlockedPress={props.onBlocked}>
-                {`${prefix}${t("zero_list_add")}`}
+            <UnavailableButton data-action="add-zero" aria-label={`${prefix}${t("zero_list_add")}`} reason={atCap ? capReason : undefined} onPress={props.onAdd} onBlockedPress={props.onBlocked}>
+                {t("zero_list_add")}
             </UnavailableButton>
         </div>
         {atCap && <p className="inspector-help" data-zero-list-cap>{capReason}</p>}

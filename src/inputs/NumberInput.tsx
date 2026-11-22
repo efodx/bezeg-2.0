@@ -24,6 +24,8 @@ export interface NumberInputProps {
     integer?: boolean;
     /** Keeps the label for assistive technology only (for example when a visible label sits next to the field). */
     hideLabel?: boolean;
+    /** The accessible name when it is longer than the visible label (a group heading names the scope the label leaves out). */
+    accessibleName?: string;
     /** A narrow field for a value shown beside another label (a slider or stepper). */
     compact?: boolean;
     /** Why the model rejected a value (for example an ordering rule); replaces the generic rejection hint. */
@@ -187,7 +189,7 @@ export function NumberInput(props: NumberInputProps) {
         : hint ? props.rejectedHint ?? t("number_rejected_hint") : undefined;
     return <div className={props.compact ? "number-input number-input-compact" : "number-input"}>
         <label htmlFor={id} className={props.hideLabel ? "visually-hidden" : undefined}>{props.label}</label>
-        <input id={id} type="text" inputMode={min !== undefined && min >= 0 ? "decimal" : "text"} autoComplete="off" role="spinbutton" value={draft} disabled={props.disabled}
+        <input id={id} type="text" inputMode={min !== undefined && min >= 0 ? "decimal" : "text"} autoComplete="off" role="spinbutton" aria-label={props.accessibleName} value={draft} disabled={props.disabled}
                readOnly={unavailableReason !== undefined} aria-disabled={unavailableReason !== undefined ? true : undefined}
                title={props.reasonShownElsewhere ? undefined : unavailableReason}
                aria-valuemin={min} aria-valuemax={max}

@@ -44,7 +44,8 @@
 .ux-puck-symbol { font-family: "Source Serif 4", "Times New Roman", serif; font-style: italic; font-size: 1.2rem; line-height: 1; color: #885512; }
 .ux-puck-name { font-size: 0.8125rem; color: #526152; white-space: nowrap; }
 /* Locked by a reading frame: a small lock in the corner; the reason is the puck's title and the strip's note. */
-.ux-puck-lock { position: absolute; top: 3px; right: 4px; width: 11px; height: 11px; color: var(--bezeg-shell-ink-secondary, #526152); pointer-events: none; }
+.ux-puck:has(> .ux-puck-lock) { padding-right: 22px; }
+.ux-puck-lock { position: absolute; top: 50%; margin-top: -5.5px; right: 6px; width: 11px; height: 11px; color: var(--bezeg-shell-ink-secondary, #526152); pointer-events: none; }
 .ux-puck-lock svg { width: 11px; height: 11px; display: block; }
 .ux-puck-valuebox { display: inline-block; flex: none; text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; font-size: 0.98rem; }
 .ux-puck-valuebox > .ux-puck-input { box-sizing: border-box; width: 100%; min-width: 0; text-align: right; }
@@ -198,3 +199,11 @@
     .ux-puck-moving svg { animation: ux-moving-pulse 1.2s ease-in-out infinite; }
 }
 @keyframes ux-moving-pulse { 50% { opacity: 0.4; } }
+
+/* The sweep button's name, shown at once on hover and focus (the native title waits and does not show on touch). */
+.ux-puck-osc-tip {
+    position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 8; width: max-content; max-width: 220px; padding: 3px 8px; border-radius: 8px; pointer-events: none;
+    background: var(--bezeg-shell-panel); border: 1px solid var(--bezeg-shell-rule); color: var(--bezeg-shell-ink); font-size: 0.8125rem; line-height: 1.3;
+    box-shadow: 0 4px 14px rgba(25, 55, 47, 0.14); opacity: 0; visibility: hidden; transition: opacity 120ms ease-out;
+}
+.ux-puck-osc:hover:not(:disabled) + .ux-puck-osc-tip, .ux-puck-osc:focus-visible + .ux-puck-osc-tip { opacity: 1; visibility: visible; }

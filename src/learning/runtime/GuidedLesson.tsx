@@ -216,7 +216,8 @@ export function GuidedLesson(props: {
     // Pick boardText: the card can take a place in the graph dock (see useLessonDock). Pick toolsCard: the card is a board
     // card like the tools (a DockCard on the graph, no lesson column; see the render below), so the dock hook stands aside.
     const boardTextPick = usePick('boardText');
-    const lessonOnGraph = usePick('toolsCard') && !oneColumn;
+    const toolsCardPick = usePick('toolsCard');
+    const lessonOnGraph = toolsCardPick && !oneColumn;
     useLessonDock({enabled: boardTextPick && !oneColumn && !lessonOnGraph, lesson: props.lesson, panelDrag, tabDrag, panelRef: lessonRef, tabRef: compactTabRef, layerRef, phase: overlayPhase});
     // Once either has been moved they travel together: hiding leaves the tab at the panel's corner and
     // reopening opens the panel at the tab, so the instructions come back where they were put away.
@@ -556,9 +557,9 @@ export function GuidedLesson(props: {
     const navigate = useLessonMorph(props.capabilities, refresh, session);
     // Pick toolsCard: reading frames do not lock the graph; once the learner's changes make the graph differ from the frame,
     // the card offers "Povrni", which applies the step's scene again (as Back and Next do).
-    const [drifted, clearDrift] = useLessonDrift(lessonOnGraph && snapshot.status === 'content',
+    const [drifted, clearDrift] = useLessonDrift(toolsCardPick && snapshot.status === 'content',
         `${snapshot.stepIndex}:${snapshot.frameIndex}`, () => props.capabilities.captureState());
-    const restoreFrame = () => { if (lessonOnGraph) stopAllOscillators(); refresh(() => session.reset()); clearDrift(); };
+    const restoreFrame = () => { if (toolsCardPick) stopAllOscillators(); refresh(() => session.reset()); clearDrift(); };
     useLessonCardFit(lessonOnGraph && overlayVisible, props.lesson);
     // Pick toolsCard: Alt+Left/Right are Back/Next while focus is not in a field, and PageUp/PageDown while focus is inside the lesson card, slider or editable;
     // the same handlers as the buttons (assigned below, after the early return), so sweeps stop and the morph runs.
@@ -585,10 +586,10 @@ export function GuidedLesson(props: {
     // Pick a3: a sweep (the ∿ on a puck) belongs to the frame it was started in; any frame change, Povrni, and the lesson's
     // start and close stop every sweep, so the graph never disagrees with the frame it is showing.
     useEffect(() => {
-        if (!lessonOnGraph) return undefined;
+        if (!toolsCardPick) return undefined;
         stopAllOscillators();
         return () => stopAllOscillators();
-    }, [lessonOnGraph, snapshot.stepIndex, snapshot.frameIndex]);
+    }, [toolsCardPick, snapshot.stepIndex, snapshot.frameIndex]);
 
     const close = (restoreCompleted = false) => {
         session.close({restoreCompleted});
@@ -683,8 +684,8 @@ export function GuidedLesson(props: {
     // One fact decides Naprej's visible label, its accessible name and its fold twin: pressing it ends the lesson (session.next()
     // completes exactly when the last frame of the last step is shown).
     const nextEndsLesson = atLastFrame && !isComplete;
-    const goBack = () => { navigationFocus.current = 'back'; if (lessonOnGraph) stopAllOscillators(); navigate(() => session.back()); };
-    const goNext = () => { navigationFocus.current = 'next'; if (lessonOnGraph) stopAllOscillators(); navigate(() => session.next()); };
+    const goBack = () => { navigationFocus.current = 'back'; if (toolsCardPick) stopAllOscillators(); navigate(() => session.back()); };
+    const goNext = () => { navigationFocus.current = 'next'; if (toolsCardPick) stopAllOscillators(); navigate(() => session.next()); };
     lessonKeysRef.current = {back: () => { if (!atFirstFrame) goBack(); }, next: () => { if (!isComplete) goNext(); }};
     // Pick toolsCard: Naprej is the one verb for moving on, also on the last frame (it leads to the completion card);
     // "Končaj" is only the menu item that leaves the lesson.
@@ -737,6 +738,10 @@ export function GuidedLesson(props: {
         left: panelDrag.dragHome.left, top: panelDrag.dragHome.top,
         width: panelDrag.dragHome.right - panelDrag.dragHome.left, height: panelDrag.dragHome.bottom - panelDrag.dragHome.top,
     }}/>;
+    const driftNote = drifted && !isExploring && <p className="ux-lesson-drift" role="status">
+        <span>Graf se razlikuje od razlage.</span>
+        <button type="button" onClick={restoreFrame}>Povrni</button>
+    </p>;
     const cardBody = <>
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
         <div className="guided-lesson-reading" ref={readingRef}>
@@ -777,6 +782,7 @@ export function GuidedLesson(props: {
             </div>
         </footer>}
         {oneColumn && navigation}
+        {oneColumn && driftNote}
     </>;
     // Pick toolsCard: the card is a board card (DockCard) on the graph, like the tools: it docks at any anchor or floats, its
     // place is remembered for the whole app, and its fold is hiding the instructions (Skrij). The head carries the title
@@ -819,10 +825,7 @@ export function GuidedLesson(props: {
             </div>
             {rail}
             {navigation}
-            {drifted && !isExploring && <p className="ux-lesson-drift" role="status">
-                <span>Graf se razlikuje od razlage.</span>
-                <button type="button" onClick={restoreFrame}>Povrni</button>
-            </p>}
+            {driftNote}
         </div>;
         const menu = <LessonMenu label="Več možnosti vodenega primera">{(trigger, close) => <>
             {chapterReturnLink}

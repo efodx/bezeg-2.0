@@ -465,10 +465,10 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                     {showOscillator && canOscillate(entry) && <button type="button" className={`ux-puck-osc${locked ? ' is-held' : ''}`} aria-pressed={moving}
                         disabled={locked} aria-hidden={locked || undefined} tabIndex={locked ? -1 : undefined}
                         aria-label={moving ? `Ustavi: ${entry.label}` : `Samodejno premikaj ${entry.label}`}
-                        title={moving ? 'Ustavi' : `Samodejno premikaj ${entry.label}`}
                         onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
+                    {showOscillator && canOscillate(entry) && !locked && <span role="tooltip" aria-hidden="true" className="ux-puck-osc-tip">{moving ? 'Ustavi' : `Samodejno premikaj ${entry.label}`}</span>}
                 </span>;
             })}</span>}
         </div>

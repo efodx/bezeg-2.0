@@ -197,10 +197,12 @@ export function DemonstrationWorkspace(props: {
     const dockToolsPick = usePick('dockTools');
     // Pick toolsCard: the tools are a dock card on the graph; phones keep them under it.
     const phone = usePhone();
-    const toolsCard = usePick('toolsCard') && !phone;
+    const toolsCardPick = usePick('toolsCard');
+    const toolsCard = toolsCardPick && !phone;
     // A reading frame locks the graph and the tools, except under pick toolsCard (owner, 2026-11-21: the lock "makes it feel
     // clunky"): there everything stays live and the lesson card offers "Povrni" once the graph differs from the frame.
-    const readingLocks = lessonActive && lessonMode === 'content' && !toolsCard;
+    // Phones follow the same rule (critique round 9: locked on phone, live on desktop read as inconsistent), though their tools stay plain.
+    const readingLocks = lessonActive && lessonMode === 'content' && !toolsCardPick;
     // The one decision about user commands (Preset writes, playback), from the lesson state this workspace owns. The ref is what
     // `current()` reads at the moment of a commit; the render value only drives what controls show.
     const userActionMode: UserActionMode = !lessonActive ? 'free' : readingLocks ? 'lesson-card' : 'lesson-observe';
