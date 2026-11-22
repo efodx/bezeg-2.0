@@ -995,7 +995,10 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     }
 
     /** The board's own `setBoundingBox`, for the code that must not become a view intent (the view's own application, pan buttons). */
-    private rawSetBox: (box: [number, number, number, number], keepAspect?: boolean) => void = (box, keep) => { this.board.setBoundingBox(box, keep); };
+    private boxWriter?: (box: [number, number, number, number], keepAspect?: boolean) => void;
+    private rawSetBox(box: [number, number, number, number], keepAspect?: boolean): void {
+        if (this.boxWriter) this.boxWriter(box, keepAspect); else this.board.setBoundingBox(box, keepAspect);
+    }
 
     /**
      * The view director's seam (src/uxPicks/declare/viewDirector.ts). With pick `viewDirector` on, a view a graph sets with a raw
@@ -1004,10 +1007,10 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
      * inside, are the learner's navigation and pass through. Installed when the board is made, only with the pick on.
      */
     private installBoxSeam(board: Board): void {
-        this.rawSetBox = (box, keep) => { this.board.setBoundingBox(box, keep); };
+        this.boxWriter = undefined;
         const raw = board.setBoundingBox;
         if (typeof raw !== 'function' || !pickOn('viewDirector')) return;
-        this.rawSetBox = (box, keep) => { raw.call(board, box, keep); };
+        this.boxWriter = (box, keep) => { raw.call(board, box, keep); };
         const own = board as unknown as Record<string, unknown>;
         let depth = 0, last = -Infinity;
         for (const name of ['zoomIn', 'zoomOut', 'zoom100', 'zoomAllPoints', 'zoomElements', 'clearZoom', 'resizeContainer']) {
