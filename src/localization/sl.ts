@@ -1,3 +1,4 @@
+import {fragmentSl} from "./fragments";
 export const sl = {
     "learning": "Učenje",
     "chapter_retry": "Poskusi znova",
@@ -1600,14 +1601,6 @@ export const sl = {
     "taylor_legend_error": "Napaka med Tₙ(x) in f(x): navpična črta pri x",
     "taylor_legend_bound": "Ocena napake okoli Tₙ(x): široka prosojna črta (po prikazu ocene)",
     "taylor_legend_convergence": "Konvergenčni interval vrste za 1/(1 − x): odebeljena črta na osi x",
-    "taylor_value_text": "{value0}",
-    "taylor_formula_label": "Funkcija",
-    "taylor_example_exp": "f(x) = eˣ",
-    "taylor_example_sine": "f(x) = sin x",
-    "taylor_example_geometric": "f(x) = 1/(1 − x)",
-    "taylor_example_flat": "f(x) = e^(−1/x) za x > 0, 0 sicer",
-    "taylor_legend_center": "Središče c: točka na osi x",
-    "taylor_legend_x": "Točka x: točka na osi x",
     "sequence": "Konvergenca zaporedja",
     "prompt_sequence": "Izberi širino pasu ε in prag N ter napovej, ali od člena N naprej vsi členi zaporedja ležijo v pasu okoli kandidata L; šele nato pokaži certifikat. Zakaj končno okno členov konvergence ne dokaže in kaj se zgodi pri nihajočem ali neomejenem zaporedju?",
     "invalid_sequence_example": "polje example mora biti eno od: {value0}; popravi vrednost v datoteki",
@@ -6075,4 +6068,5 @@ export const sl = {
     "preset_check_in_preset": "zbirka {value0}, prednastavitev {value1}, polje {value2}: {value3}",
     "preset_entry_refused": "Prednastavitve ni mogoče naložiti, prikazana je ostala prejšnja slika: {value0}.",
     "preset_entry_refused_default_shown": "Prednastavitve ni mogoče naložiti, zato je prikazana privzeta slika: {value0}.",
+    ...fragmentSl,
 } as const;
