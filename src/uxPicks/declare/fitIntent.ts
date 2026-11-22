@@ -27,7 +27,8 @@ export interface FitIntentResult {
     clamped: boolean;
 }
 
-export const DEFAULT_MAX_OUT = 1.6;
+/** Cards on both sides of a small canvas leave about half of it (probability density at 1440: 0.51), so 1.6 left the curve tails under them; 2.2 keeps every such case unclamped. Labels are fixed-size text, they do not shrink. */
+export const DEFAULT_MAX_OUT = 2.2;
 const MARGIN_PX = 8;
 
 function overlaps(a: Rect, b: Rect): boolean {
@@ -64,13 +65,15 @@ export function fitIntent(input: FitIntentInput): FitIntentResult {
     const {intent, canvas, obstacles, equalAxisUnits} = input;
     const maxOut = Math.max(1, input.maxOut ?? DEFAULT_MAX_OUT);
     const rect = largestFreeRect(canvas, obstacles, input.marginPx);
-    const raw = Math.min(rect.width / canvas.width, rect.height / canvas.height);
-    const scale = Math.min(1, Math.max(1 / maxOut, raw));
     const [left, top, right, bottom] = intent;
     const iw = right - left, ih = top - bottom;
     // Pixels per unit at the intent's own scale (one for both axes when the units are equal).
     const kx0 = equalAxisUnits ? Math.min(canvas.width / iw, canvas.height / ih) : canvas.width / iw;
     const ky0 = equalAxisUnits ? kx0 : canvas.height / ih;
+    // Shrink only as far as the intent's own extent (not the whole canvas) needs: with equal units the intent may be narrower
+    // than the canvas, and then a pan into the free rectangle is enough.
+    const raw = Math.min(rect.width / (iw * kx0), rect.height / (ih * ky0));
+    const scale = Math.min(1, Math.max(1 / maxOut, raw));
     const kx = kx0 * scale, ky = ky0 * scale;
     const cx = (left + right) / 2, cy = (top + bottom) / 2;
     const rcx = rect.x + rect.width / 2, rcy = rect.y + rect.height / 2;

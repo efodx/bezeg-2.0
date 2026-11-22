@@ -38,6 +38,7 @@ function addCard() {
     dock.className = 'ux-dock';
     const card = document.createElement('div');
     card.setAttribute('data-dock-item', '');
+    card.setAttribute('data-kind', 'lesson');
     card.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 200, bottom: 400, width: 200, height: 400, toJSON: () => ({})}) as DOMRect;
     dock.appendChild(card);
     frame.appendChild(dock);

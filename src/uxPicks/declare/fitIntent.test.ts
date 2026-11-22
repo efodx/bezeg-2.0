@@ -44,9 +44,9 @@ describe('fitIntent', () => {
     });
 
     it('never zooms out below 1/maxOut and says so', () => {
-        const lesson = {x: 0, y: 0, width: 500, height: 600};
+        const lesson = {x: 0, y: 0, width: 700, height: 600};
         const result = fitIntent({...base, obstacles: [lesson]});
-        expect(result.scale).toBeCloseTo(1 / 1.6, 9);
+        expect(result.scale).toBeCloseTo(1 / 2.2, 9);
         expect(result.clamped).toBe(true);
         const tight = fitIntent({...base, obstacles: [{x: 0, y: 0, width: 200, height: 600}], maxOut: 1.1});
         expect(tight.scale).toBeCloseTo(1 / 1.1, 9);
@@ -59,7 +59,7 @@ describe('fitIntent', () => {
         const without = fitIntent({...base, obstacles: [dock]});
         const withLesson = fitIntent({...base, obstacles: [dock, lesson]});
         expect(withLesson.scale).toBeLessThanOrEqual(without.scale);
-        expect(withLesson.scale).toBeGreaterThanOrEqual(1 / 1.6);
+        expect(withLesson.scale).toBeGreaterThanOrEqual(1 / 2.2);
     });
 
     it('is idempotent: the fit of an intent does not depend on a previous fit', () => {
