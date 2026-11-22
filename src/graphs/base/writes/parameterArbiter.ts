@@ -8,7 +8,15 @@ import {activeGesture, currentWrite, onLearnerGestureEnd, onWriteScopeEnd, outra
  * ({@link ParameterBinding}); the arbiter never stores a value of its own, so a read right after a write returns
  * what the setter applied.
  *
- * Sources and priority: `learner` > `lesson` > `animation` (see `writeSource.ts`).
+ * Sources and priority: `learner` > `lesson` > `animation` (see `writeSource.ts`). Conditions on the ambient learner
+ * source (planner, 2026-11-22), each unit tested:
+ * a. an explicit source always overrides the ambient one: a playback tick, sweep or morph frame that runs while a
+ *    pointer is down writes as `animation`;
+ * b. a click on lesson Back or Next is the learner's input, but the scene actions it triggers write as `lesson`;
+ * c. work that completes after an input event (timeouts, promises, animation frames) has no ambient source: it names
+ *    its own or fails the untagged-write check, even while an unrelated pointer is held;
+ * d. holds are per key: only the keys the learner's input changed are held, so a pointer held on a card grip holds
+ *    nothing.
  *
  * What "holds" means. The learner holds a key
  * - from pointer or key down on its control or board element until release: {@link hold} for a control that knows

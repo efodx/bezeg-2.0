@@ -1,0 +1,36 @@
+# Task 01b view adapter: design (handler, 2026-11-22)
+
+Inputs: [task 01b](../../tasks/ux-picks-app-wide/01b-view-adapter.md), [view sites](view-sites.md) (75 `setBoundingBox(` calls in 49 non-test files, two zoom calls), the task 01 arbiter (`src/graphs/base/writes/`).
+
+## Shape
+
+- **One adapter per mounted board**, owned by `GraphSession` next to the board it wraps (secondary boards such as the PH hodograph get their own adapter from the session that creates them). Disposed with the session.
+- **Intent** is the board's view as the graph, the lesson, Reset, a Preset or the learner's pan and zoom last asked for it. **Fitted** is the view a fit shows (task 07); until a fit exists the shown view is the intent.
+- **The intent is a bound key of the graph's arbiter**, `view` (a secondary board: `view:<board>`), with `read` = the adapter's intent and `apply` = `setIntent`. So every graph gets an arbiter from 01b on (a graph without parameter bindings binds only its views), and the arbiter's rules apply unchanged: a learner pan ends a fit's lease on `view`, a lesson cannot move a view the learner is holding, and an intent change outside a write source fails the development check.
+- `setIntent(box, options)`: stores the intent and applies it to the board (keep-aspect per call, as today), tagged by the current write source (no source parameter: the scope says who writes). It is the only caller of `board.setBoundingBox` and `zoomIn`/`zoomOut`.
+- `setFitted(box, lease)` (for task 07): applies a box without changing the intent; refused unless the lease on `view` is active.
+- **Learner pan and zoom by gesture**: the adapter listens to the board's `boundingbox` event. A change it did not make itself becomes the new intent; the arbiter attributes it to the current source, which is the learner's gesture for wheel, drag-pan and keyboard navigation (window input tagging from task 01). Outside any source it is an untagged write and throws in development.
+- **Resize is not a write**: the session's resize handling runs inside `adapter.resizing(() => ...)`; a box change there keeps the intent (it is re-applied to the new aspect) and is not attributed.
+- **Mount**: views set while the graph is not yet ready (`initialize` during mount) set the intent without attribution, like the arbiter's baseline at bind time.
+- **Presets store the intent** (`exportPreset` reads the adapter, not `board.getBoundingBox()`); a stored box loads as an intent, so existing Presets are unchanged.
+
+## Sources by class (from the table)
+
+| Class | Source | How |
+| --- | --- | --- |
+| initial (10) | none (mount) | before ready: baseline, not attributed |
+| follows-parameter (33) | the write's own | inside the setter's scope (learner input, lesson action) |
+| reset (1), preset (4) | `learner` | already inside the `learner` scene replacement (task 01) |
+| lesson (4) | `lesson` | already inside lesson scopes |
+| fit (12) | `learner` (fit button, refit-when-outside during an edit) | the button is a learner input; a refit inside an edit takes the edit's source |
+| resize (6) | not a write | inside `adapter.resizing` |
+| export (1) | `learner` | figure export is a learner command (scene replacement source) |
+| other: zoom/pan buttons (3) | `learner` | input events |
+| other: test-support helpers (3) | test's choice | the helper names its source |
+
+## Slices
+
+1. Adapter core and its tests (handler design, worker tests): pure intent/fitted state over a minimal board interface (`setBoundingBox`, `getBoundingBox`, `on/off('boundingbox')`), so it is testable without JSXGraph.
+2. Session wiring: `GraphSession` creates the adapter for its board; resize inside `resizing`; BaseGraph binds `view`; `exportPreset` reads the intent; `BaseGraph` sites (initial view, reload, fit, zoom and pan buttons, lesson view, export) moved.
+3. Sites moved by family in worker batches with one shared brief and a worked example (BaseGraph's), the all-graph suites as the gate.
+4. Acceptance tests from the task file; contact sheets of the pilots before and after (`just shot --sheet`), judged by `bezeg-visual`.

@@ -20,7 +20,7 @@ Tasks 02 to 07 are accepted on the pilots and released to `master`; the contract
 ## Steps
 
 1. **Triage** (one worker): run the inventory; class each demonstration as plain, several modes, expensive redraw, playback, board-drawn legend, point-set, surface, controls outside `BaseGraph` (Playground), or needs a contract change. Demonstrations needing a contract change go to the handler before any lane starts.
-2. **Shared code first** (handler's workers, sequential): convert the shared panels and base classes, so their subclasses inherit bound parameters and declared controls. Rerun the inventory; many "plain" function graphs should now need only readouts, legend and frames.
+2. **Shared code first** (handler's workers, sequential): convert the shared panels and base classes, so their subclasses inherit bound parameters and declared controls. Include a `useLease` passthrough on `IterationController` (`src/learning/runtime/iterationController.ts`; its `AnimationDriver` is private, so the linear map pilot takes its own lease) before any lane uses it. Rerun the inventory; many "plain" function graphs should now need only readouts, legend and frames.
 3. **Golden values:** record every remaining demonstration's present panel values with the parity tool, in one run, before any lane removes a panel.
 4. **Partition:** connected components over shared files (graph file, lesson files, remaining shared panels, own tests). A component is never split across lanes. A component too large for one session (the 16-demonstration lesson file) is one lane's work for several consecutive sessions. Write the lane table below; order rounds so each can be published by itself.
 5. **Catalog keys per round:** the handler adds the round's keys (listed by the inventory) to `sl.ts` and `en.ts` and commits before dispatch, or uses the per-family fragments if task 02 chose them.
@@ -35,6 +35,7 @@ Not known yet. The trial's figure (about 50k context and 5 minutes per graph in 
 ## Acceptance
 
 - The contract test passes for every demonstration and lesson frame; each declaration reproduces its golden values.
+- Every demonstration's parameters are bound to the arbiter (task 01), and the untagged-write check passes for all of them in the all-graph suites.
 - No demonstration renders its own readout, legend, or range, count, choice or toggle control; controls left in Orodja by decision are listed by the inventory.
 - `just check` passes after every round; the fuzzer passes 5 seeds per route; a `just shot` sweep of every route, free and lesson, at 1440×900 shows no page error.
 - Mathematics untouched: no geometry edit in a lane's diff (checked by search per lane; the reviewer's sample confirms).

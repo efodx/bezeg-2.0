@@ -27,7 +27,7 @@ Every change of a declared parameter runs inside a named source, an arbiter deci
 ## Acceptance
 
 - Unit tests, one synchronous sequence per case: a learner write during a lease ends the lease and the value is the learner's; an animation write to a held key is refused; a domain refusal leaves the value and any lease unchanged; a lesson frame change ends all leases; a read right after an applied write returns the written value.
-- The untagged-write check passes across the all-graph suites; a seeded untagged write fails it (observed failure recorded).
+- The untagged-write check passes across the all-graph suites; a seeded untagged write fails it (observed failure recorded). The check covers bound parameters only: task 01 binds the pilots (Taylor, transformations, De Casteljau, phase portrait, linear map), so for every other graph it proves nothing until task 08 binds them, and "touching a playing parameter stops its playback" holds only on the pilots until then (handler and planner, 2026-11-22).
 - No behaviour change for a learner, with one intended exception: touching a control of a playing parameter stops its playback. That exception is checked on De Casteljau and listed for the owner.
 - Before/after frame numbers for slice 6 recorded.
 
