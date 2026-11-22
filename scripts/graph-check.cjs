@@ -38,12 +38,12 @@ function unit(label, files, filter) {
 }
 
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-unit('contract', ['src/learning/content/declarationContract.test.tsx'], `^${esc(id)}: `);
+unit('contract', ['src/learning/content/declarationContract.test.tsx'], ` ${esc(id)}: `);
 
 const parity = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(f => f.replace(/\\/g, '/').endsWith(`__parity__/${id}.json`));
 const bare = id.replace(/-/g, '').toLowerCase();
 const declTests = fs.readdirSync('src/graphs', {recursive: true}).map(String).filter(f => /\.declaration\.test\.tsx$/.test(f) && path.basename(f).toLowerCase().startsWith(bare)).map(f => 'src/graphs/' + f.replace(/\\/g, '/'));
-if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `__parity__/${esc(id)}\\.json`);
+if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `parity recording ${esc(id)} `);
 else rows.push({label: 'parity', ok: false, detail: `no recording src/graphs/**/__parity__/${id}.json`});
 if (declTests.length) unit('declaration', declTests);
 else rows.push({label: 'declaration', ok: false, detail: `no src/graphs/**/${id}*.declaration.test.tsx`});

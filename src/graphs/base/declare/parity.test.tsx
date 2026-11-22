@@ -94,7 +94,8 @@ const root = path.resolve(__dirname, '../..');
 const record = async (sample: Sample) => recordParityWithDeclarations(path.basename(sample.file, '.json'), createGraph(sample.demonstration), sample.states);
 const text = (recording: ParityRecording) => `${JSON.stringify(recording, null, 2)}\n`;
 
-describe.each(SAMPLES)('parity recording $file', sample => {
+// Named by the recording's id (not `$file`, which vitest truncates) so `just graph-check <id>` can filter to it.
+describe.each(SAMPLES.map(sample => [path.basename(sample.file, '.json'), sample] as const))('parity recording %s', (_id, sample) => {
     test('records deterministically and every state changes a shown value', async () => {
         const first = (await record(sample)).recording;
         const second = (await record(sample)).recording;
