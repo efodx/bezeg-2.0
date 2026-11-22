@@ -100,7 +100,10 @@ describe("checkDeclaration", () => {
 
     it("reports a range with min >= max", () => {
         for (const over of [{min: 1, max: 1}, {min: 2, max: 1}]) {
-            expect(checkDeclaration({parameters: [rangeA(over)]})).toEqual([{where: "parameter a", problem: "needs finite min < max"}]);
+            expect(checkDeclaration({parameters: [rangeA(over)]})).toEqual([{where: "parameter a", problem: "needs finite min < max (or locked)"}]);
+            // A locked parameter fixed in this state may have min = max, never min > max.
+            expect(checkDeclaration({parameters: [{...rangeA(over), locked: true, min: 1, max: 1}]})).toEqual([]);
+            expect(checkDeclaration({parameters: [{...rangeA(over), locked: true, min: 2, max: 1}]})).toEqual([{where: "parameter a", problem: "needs finite min <= max"}]);
         }
     });
 

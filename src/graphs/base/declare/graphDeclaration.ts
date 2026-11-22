@@ -88,8 +88,11 @@ export interface ReadoutRow<Ids extends DeclarationIds = DeclarationIds> {
     readonly id: Ids["row"];
     readonly name?: Message;
     readonly symbol?: string;
-    /** A number the language formats, or a formatted message (a point "(2; 4)", a word). */
-    readonly value: MessageNumber | Message;
+    /**
+     * A number the language formats, a formatted message (a point "(2; 4)", a word), or a number the graph formatted
+     * itself with the language's separator (significant digits, an interval) as {@link FormattedValue}.
+     */
+    readonly value: MessageNumber | Message | FormattedValue;
     /** TeX shown instead of `value` when the value is a formula; `value` stays its plain-text form. */
     readonly valueTex?: string;
     readonly unit?: Message;
@@ -97,6 +100,19 @@ export interface ReadoutRow<Ids extends DeclarationIds = DeclarationIds> {
     readonly legend?: Ids["legend"];
     readonly muted?: boolean;
 }
+
+/**
+ * Numeric text the graph already formatted for the current language (`formatNumber` and the like). It may hold only
+ * digits, signs, separators, spaces, brackets and math symbols, never words: {@link checkDeclaration} rejects letters,
+ * so words always come from the catalog.
+ */
+export interface FormattedValue {
+    readonly kind: "formatted";
+    readonly text: string;
+}
+
+/** Letters are words; the minus sign, ∞ and π are allowed. */
+const WORD = /[A-Za-zÀ-ž]/;
 
 export interface ReadoutGroup<Ids extends DeclarationIds = DeclarationIds> {
     readonly id: string;
@@ -238,11 +254,14 @@ export function checkDeclaration(declaration: GraphDeclaration): DeclarationProb
     unique("action", (declaration.actions ?? []).map(action => action.id));
     for (const row of rows) {
         if (row.legend !== undefined && !legendIds.has(row.legend)) problems.push({where: `row ${row.id}`, problem: `links unknown legend entry "${row.legend}"`});
+        if ("kind" in row.value && row.value.kind === "formatted" && WORD.test(row.value.text)) problems.push({where: `row ${row.id}`, problem: "formatted value contains words; words come from the catalog"});
     }
     for (const parameter of declaration.parameters ?? []) {
         const where = `parameter ${parameter.key}`;
         if (parameter.kind === "range" || parameter.kind === "count") {
-            if (!(Number.isFinite(parameter.min) && Number.isFinite(parameter.max) && parameter.min < parameter.max)) problems.push({where, problem: "needs finite min < max"});
+            // A parameter fixed in this state (Taylor's flat example fixes the centre) is locked with min = max.
+            const ordered = parameter.locked ? parameter.min <= parameter.max : parameter.min < parameter.max;
+            if (!(Number.isFinite(parameter.min) && Number.isFinite(parameter.max) && ordered)) problems.push({where, problem: parameter.locked ? "needs finite min <= max" : "needs finite min < max (or locked)"});
         }
         if (parameter.kind === "range" && !(parameter.step > 0)) problems.push({where, problem: "needs a positive step"});
         if (parameter.kind === "count" && !(Number.isInteger(parameter.min) && Number.isInteger(parameter.max))) problems.push({where, problem: "needs whole bounds"});
