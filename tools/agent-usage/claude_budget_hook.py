@@ -89,6 +89,43 @@ def handler_message(tokens, model, args):
     return None
 
 
+STATE_NOTE_BYTES = 10000
+
+
+def state_note_message(payload, limit=STATE_NOTE_BYTES):
+    """Warn when an Edit or Write leaves a handler state note over the limit.
+
+    A state note is read once and then re-read on every turn of every successor; the 124 KB ux-picks note
+    cost about a tenth of each session that carried it (docs/agent-workflow/handler-cost-2026-11-22.md).
+    """
+    if payload.get('tool_name') not in ('Edit', 'Write'):
+        return None
+    path = str((payload.get('tool_input') or {}).get('file_path') or '')
+    parts = path.replace('\\', '/').split('/')
+    if parts[-1] != 'state.md' or 'reviews' not in parts:
+        return None
+    try:
+        size = os.path.getsize(path)
+    except OSError:
+        return None
+    if size <= limit:
+        return None
+    return (f'STATE NOTE: {parts[-1]} is {size:,} bytes; the limit is {limit:,}. Rewrite it to the present state before '
+            'you hand off: delete resolved items and earlier handlers\' sections, which Git history keeps '
+            '(docs/agent-workflow.md#handler-context-budget-claude).')
+
+
+def budget_message(payload, args):
+    try:
+        sample = read_sample(transcript_for(payload))
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    if not sample:
+        return None
+    build = worker_message if payload.get('agent_id') else handler_message
+    return build(*sample, args)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--worker-until', type=int)
@@ -97,15 +134,13 @@ def main():
     args = parser.parse_args()
     try:
         payload = json.load(sys.stdin)
-        sample = read_sample(transcript_for(payload))
-    except (OSError, ValueError, KeyError, TypeError):
+    except ValueError:
         return
-    if not sample:
+    if not isinstance(payload, dict):
         return
-    build = worker_message if payload.get('agent_id') else handler_message
-    message = build(*sample, args)
-    if message:
-        print(json.dumps({'hookSpecificOutput': {'hookEventName': 'PostToolUse', 'additionalContext': message}}))
+    messages = [m for m in (budget_message(payload, args), state_note_message(payload)) if m]
+    if messages:
+        print(json.dumps({'hookSpecificOutput': {'hookEventName': 'PostToolUse', 'additionalContext': '\n'.join(messages)}}))
 
 
 if __name__ == '__main__':

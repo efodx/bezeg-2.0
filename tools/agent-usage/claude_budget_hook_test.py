@@ -18,10 +18,12 @@ class Hook(unittest.TestCase):
         self.worker = Path(self.dir.name) / 'session' / 'subagents' / 'agent-abc.jsonl'
         self.worker.parent.mkdir(parents=True)
 
-    def run_hook(self, agent=None, flags=(), env=None):
+    def run_hook(self, agent=None, flags=(), env=None, tool=None):
         payload = {'transcript_path': str(self.main)}
         if agent:
             payload['agent_id'] = agent
+        if tool:
+            payload['tool_name'], payload['tool_input'] = tool[0], {'file_path': str(tool[1])}
         result = subprocess.run([sys.executable, str(HOOK), *flags], input=json.dumps(payload),
                                 capture_output=True, text=True, check=True,
                                 env={**os.environ, 'BEZEG_HANDLER_BUDGET_SCALE': '', **(env or {})})
@@ -103,6 +105,34 @@ class Hook(unittest.TestCase):
         filler = json.dumps({'type': 'user', 'message': {'content': 'x' * (600 * 1024)}})
         self.worker.write_text(assistant(140000) + '\n' + filler + '\n')
         self.assertIn('HANDOFF', self.run_hook('abc'))
+
+    def state_note(self, size, name='state.md', folder='reviews'):
+        note = Path(self.dir.name) / 'docs' / folder / 'feature' / name
+        note.parent.mkdir(parents=True, exist_ok=True)
+        note.write_bytes(b'x' * size)
+        return note
+
+    def test_state_note_over_the_limit_is_flagged_after_an_edit_or_write(self):
+        self.assertIsNone(self.run_hook(tool=('Edit', self.state_note(10000))))
+        for tool in ('Edit', 'Write'):
+            message = self.run_hook(tool=(tool, self.state_note(10001)))
+            self.assertIn('STATE NOTE', message)
+            self.assertIn('10,001 bytes', message)
+
+    def test_state_note_guard_ignores_other_tools_and_other_files(self):
+        self.assertIsNone(self.run_hook(tool=('Read', self.state_note(50000))))
+        self.assertIsNone(self.run_hook(tool=('Edit', self.state_note(50000, name='notes.md'))))
+        self.assertIsNone(self.run_hook(tool=('Edit', self.state_note(50000, folder='specs'))))
+        self.assertIsNone(self.run_hook(tool=('Edit', Path(self.dir.name) / 'docs' / 'reviews' / 'gone' / 'state.md')))
+
+    def test_state_note_and_budget_messages_arrive_together(self):
+        self.main.write_text(assistant(190000) + '\n')
+        message = self.run_hook(tool=('Write', self.state_note(20000)))
+        self.assertIn('BUDGET HANDOFF', message)
+        self.assertIn('STATE NOTE', message)
+
+    def test_state_note_is_flagged_without_telemetry_and_for_workers(self):
+        self.assertIn('STATE NOTE', self.run_hook('missing', tool=('Edit', self.state_note(20000))))
 
     def test_missing_telemetry_is_silent(self):
         self.assertIsNone(self.run_hook('missing'))
