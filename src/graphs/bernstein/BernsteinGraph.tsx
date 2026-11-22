@@ -110,7 +110,7 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState, CurveCollecti
 
     initialize(): void {
         this.generateBernsteinPolynomials(this.board, this.state.n, this.state.isSumGraph);
-        this.board.setBoundingBox([-this.padding, 1 + this.padding * 2, 1 + this.padding, -this.padding], true);
+        this.boardView.setIntent([-this.padding, 1 + this.padding * 2, 1 + this.padding, -this.padding], {keepAspectRatio: true});
         this.board.fullUpdate();
     }
 

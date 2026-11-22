@@ -522,7 +522,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         }
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
-        this.board.setBoundingBox([...frame], false);
+        this.boardView.following(() => this.boardView.setIntent(frame, {keepAspectRatio: false}));
     }
 
     private own<E extends JXG.GeometryElement>(element: E): E {

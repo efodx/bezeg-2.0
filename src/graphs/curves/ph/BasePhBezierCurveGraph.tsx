@@ -144,7 +144,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
             : undefined;
         if (boundingBox) {
             if (this.hodographBoard && this.hasUsableHodographSize(this.hodographBoard)) {
-                this.hodographBoard.setBoundingBox(boundingBox, true);
+                this.hodographLifetime?.view?.setIntent(boundingBox, {keepAspectRatio: true});
                 this.pendingHodographBoundingBox = undefined;
             } else {
                 this.pendingHodographBoundingBox = [...boundingBox];
@@ -165,7 +165,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
             const xMin = Math.min(left, right, to[0]), xMax = Math.max(left, right, to[0]);
             const yMin = Math.min(top, bottom, to[1]), yMax = Math.max(top, bottom, to[1]);
             const padX = (xMax - xMin) * margin, padY = (yMax - yMin) * margin;
-            board.setBoundingBox([xMin - padX, yMax + padY, xMax + padX, yMin - padY], true);
+            this.hodographLifetime?.view?.setIntent([xMin - padX, yMax + padY, xMax + padX, yMin - padY], {keepAspectRatio: true});
         });
     }
 
@@ -251,12 +251,15 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
 
     private handleHodographBoardResize(lifetime: AuxiliaryBoardLifetime, board: JXG.Board) {
         if (this.hodographBoard !== board || !this.hasUsableHodographSize(board)) return;
-        if (this.pendingHodographBoundingBox) {
-            board.setBoundingBox(this.pendingHodographBoundingBox, true);
-            this.pendingHodographBoundingBox = undefined;
-        } else if (!this.validHodographBoundingBox()) {
-            board.setBoundingBox([-5, 5, 5, -5], true);
-        }
+        const view = lifetime.view;
+        if (view) view.resizing(() => {
+            if (this.pendingHodographBoundingBox) {
+                view.setIntent(this.pendingHodographBoundingBox, {keepAspectRatio: true});
+                this.pendingHodographBoundingBox = undefined;
+            } else if (!this.validHodographBoundingBox()) {
+                view.setIntent([-5, 5, 5, -5], {keepAspectRatio: true});
+            }
+        });
         if (this.hodographInitializedBoard === board) return;
         this.initializeHodographs(lifetime, board);
         this.hodographInitializedBoard = board;

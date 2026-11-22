@@ -114,7 +114,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         if (this.generatedObjectCount === 0) return;
         const view = fitCltView(after);
         const previous = fitCltView(before);
-        if (view.some((value, index) => value !== previous[index])) this.board.setBoundingBox(view, this.equalAxisUnits);
+        if (view.some((value, index) => value !== previous[index])) this.boardView.setIntent(view, {keepAspectRatio: this.equalAxisUnits});
     }
 
     private replaceAndRefit(next: CltModel): void {

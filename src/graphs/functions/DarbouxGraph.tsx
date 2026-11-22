@@ -123,7 +123,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         const edit = chooseDarbouxExample(this.model, value);
         if (!edit.ok) throw new DomainError(darbouxEditMessage(edit.issue));
         this.commitModel(edit.model);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[edit.model.example]], true);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(EXAMPLE_VIEWS[edit.model.example], {keepAspectRatio: true});
     }
 
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {

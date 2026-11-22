@@ -150,7 +150,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         const choice = chooseConvexityExample(value);
         if (!choice.ok) throw new DomainError(convexityEditMessage(choice.issue));
         this.commitModel(choice.model);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[choice.model.example]], true);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(EXAMPLE_VIEWS[choice.model.example], {keepAspectRatio: true});
     }
 
     protected setA(value: number, options: { syncScene?: boolean } = {}): void { this.movePoint("a", value, options); }

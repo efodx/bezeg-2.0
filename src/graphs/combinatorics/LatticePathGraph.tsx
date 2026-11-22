@@ -201,7 +201,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const box = this.state.view === "paths" ? pathsBox(this.state.a, this.state.b) : VIEW_BOX;
         const fitted = fitBoundingBox([[box[0], box[1]], [box[2], box[3]]], parseFloat(String(width)), parseFloat(String(height)));
-        if (fitted) this.board.setBoundingBox(fitted, true);
+        if (fitted) this.boardView.setIntent(fitted, {keepAspectRatio: true});
     }
 
     /** The drag ended: a target dragged out of the box (or its captions out of it) refits once; a target inside leaves the view alone. */
@@ -348,7 +348,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
         if (this.builtView !== this.state.view) this.buildScene();
         this.placeHandle();
-        this.frameBoard();
+        this.boardView.following(() => this.frameBoard());
         this.board.update();
         this.status.report(this.statusText());
     }

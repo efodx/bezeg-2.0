@@ -161,7 +161,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
 
     private fit() {
         if (!this.board) return;
-        this.board.setBoundingBox(subdivisionViewBox(this.state.points), true);
+        this.boardView.setIntent(subdivisionViewBox(this.state.points), {keepAspectRatio: true});
         this.board.fullUpdate();
     }
 

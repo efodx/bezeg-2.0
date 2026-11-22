@@ -142,7 +142,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         const next = this.accepted(chooseFourierSeriesExample(this.model, value));
         if (next === this.model) return;
         this.commitModel(next);
-        this.board.setBoundingBox([...BOARD_VIEWS[next.example]], false);
+        this.boardView.setIntent(BOARD_VIEWS[next.example], {keepAspectRatio: false});
     }
 
     /** A change of N keeps the zoom window on the peak if the board was showing it. */
@@ -172,7 +172,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
     }
 
     protected zoomToPeak(): void {
-        this.board.setBoundingBox(fourierZoomWindow(this.model.example, this.model.n), false);
+        this.boardView.setIntent(fourierZoomWindow(this.model.example, this.model.n), {keepAspectRatio: false});
         this.boardUpdate();
     }
 

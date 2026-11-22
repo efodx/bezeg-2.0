@@ -154,7 +154,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
     /** Reset and a Preset without a stored view: the view of the default data, framed as the first load frames it (see `applyView`). */
     protected override showInitialView(): void {
         const solution = solveState(DEFAULT_LP_STATE);
-        this.board.setBoundingBox(this.frameOf(solution, DEFAULT_LP_STATE.objective), true);
+        this.boardView.setIntent(this.frameOf(solution, DEFAULT_LP_STATE.objective), {keepAspectRatio: true});
         this.drawnView = this.viewKeyOf(solution);
     }
 
@@ -298,7 +298,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         const key = this.viewKeyOf(solution);
         if (key === this.drawnView) return;
         this.drawnView = key;
-        this.board.setBoundingBox(this.frameOf(solution, this.state.objective), true);
+        this.boardView.following(() => this.boardView.setIntent(this.frameOf(solution, this.state.objective), {keepAspectRatio: true}));
     }
 
     /**

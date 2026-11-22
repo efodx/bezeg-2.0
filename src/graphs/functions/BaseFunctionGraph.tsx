@@ -211,7 +211,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /** The view a persisted Preset without one starts from: the default box (or the current example's), as `initialize` sets it. */
     protected override showInitialView(): void {
-        this.board.setBoundingBox([...(this.exampleView()?.box ?? this.defaultBoundingBox())], this.equalAxisUnits);
+        this.boardView.setIntent(this.exampleView()?.box ?? this.defaultBoundingBox(), {keepAspectRatio: this.equalAxisUnits});
     }
 
     /** Closures over the live display settings, for JSXGraph attributes that must follow them. */
@@ -300,7 +300,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         if (preset.data === undefined || preset.data === null) this.importPresetData(this.defaultPreset());
         const example = this.exampleView();
         if (example && !preset.boardState && example.key !== previousExample && this.generatedObjects.length > 0) {
-            this.board.setBoundingBox([...example.box], this.equalAxisUnits);
+            this.boardView.setIntent(example.box, {keepAspectRatio: this.equalAxisUnits});
         }
     }
 
@@ -412,7 +412,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         this.generateScene();
         const keepImportedView = this.boardStateImported;
         this.boardStateImported = false;
-        if (!keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
+        if (!keepImportedView) this.boardView.setIntent(this.defaultBoundingBox(), {keepAspectRatio: this.equalAxisUnits});
         this.board.fullUpdate();
     }
 
@@ -449,7 +449,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     /** A function graph's default scene also returns to its default view. */
     protected override prepareLessonDefaultScene(): void {
         super.prepareLessonDefaultScene();
-        this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
+        this.boardView.setIntent(this.defaultBoundingBox(), {keepAspectRatio: this.equalAxisUnits});
         // Curves are sampled for the view on update; draw the default view before the host commits.
         this.boardUpdate();
     }

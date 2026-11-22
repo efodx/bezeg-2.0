@@ -226,7 +226,7 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
         const {model, query} = FIGURES[figure];
         this.loadModel(model);
         this.setState(this.patch({query: {...query}}));
-        if (this.hasBoard) this.board.setBoundingBox(viewFor(model.points, query, model.gridStepExponent), this.equalAxisUnits);
+        if (this.hasBoard) this.boardView.setIntent(viewFor(model.points, query, model.gridStepExponent), {keepAspectRatio: this.equalAxisUnits});
         this.requestRender();
     }
 

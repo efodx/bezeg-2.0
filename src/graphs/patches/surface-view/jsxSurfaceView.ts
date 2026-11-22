@@ -1,5 +1,7 @@
 import {JSXGraph} from 'jsxgraph';
 import {applyBoardTextDefaults} from '../../styles/BoardText';
+import {viewBoardOver} from '../../base/GraphSession';
+import {ViewAdapter} from '../../base/writes/viewAdapter';
 import {browserRasterServices, rasterizeBoard, type RasterServices} from './jsxCapture';
 import {meanTriangleEdge, orderBackToFront, pieceCountStale, segmentPieceCount} from './jsxDepthOrder';
 import {guardTextSizing} from './jsxTextSizing';
@@ -166,6 +168,8 @@ export class JsxSurfaceView implements SurfaceView {
     private ariaLabel = '';
     private description = '';
     private board: JxgBoard | null = null;
+    /** The board's view adapter; disposed where the board is freed. */
+    private boardView: ViewAdapter | null = null;
     private view: JxgView3D | null = null;
     private draw: Drawables | null = null;
     private pool: Pool | null = null;
@@ -512,6 +516,8 @@ export class JsxSurfaceView implements SurfaceView {
     private destroyBoard(): void {
         for (const node of this.draw?.elements ?? []) node.remove();
         this.draw?.tail.remove();
+        this.boardView?.dispose();
+        this.boardView = null;
         if (this.board) {
             try {
                 JSXGraph.freeBoard(this.board as never);
@@ -545,6 +551,11 @@ export class JsxSurfaceView implements SurfaceView {
         applyBoardTextDefaults(created);
         const board = created as unknown as JxgBoard;
         this.board = board;
+        // This board's own view adapter: a pixel frame for the 3D camera, not a mathematical view.
+        this.boardView = new ViewAdapter(viewBoardOver(created, boardOptions.boundingbox, {
+            on: (event, handler) => { if (typeof created.on === 'function') created.on(event, handler); },
+            off: (event, handler) => { if (typeof created.off === 'function') created.off(event, handler); },
+        }));
         const frame = view3dFrame({width: w, height: h});
         const view = board.create('view3d', [frame.llftCorner, frame.size, [[-1, 1], [-1, 1], [-1, 1]]], {
             projection: 'central', fov: (FOV_DEG * Math.PI) / 180, axesPosition: 'none',
@@ -873,8 +884,10 @@ export class JsxSurfaceView implements SurfaceView {
     private resizeBoard(): void {
         const board = this.board!, view = this.view as unknown as {size: number[]; llftCorner: number[]};
         const w = this.width, h = this.height;
-        board.resizeContainer(w, h, true, true, true);
-        board.setBoundingBox([-w / 2, h / 2, w / 2, -h / 2], false);
+        this.boardView!.resizing(() => {
+            board.resizeContainer(w, h, true, true, true);
+            this.boardView!.setIntent([-w / 2, h / 2, w / 2, -h / 2], {keepAspectRatio: false});
+        });
         const frame = view3dFrame({width: w, height: h});
         view.size = frame.size;
         view.llftCorner = frame.llftCorner;

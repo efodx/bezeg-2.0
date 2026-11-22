@@ -191,7 +191,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
         const choice = chooseSequenceExample(value);
         if (!choice.ok) throw new DomainError(sequenceEditMessage(choice.issue));
         this.replaceModel(choice.model);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[choice.model.example]], this.equalAxisUnits);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(EXAMPLE_VIEWS[choice.model.example], {keepAspectRatio: this.equalAxisUnits});
     }
 
     protected setEpsilon(value: number): void { this.applyEdit(setSequenceEpsilon(this.model, value)); }

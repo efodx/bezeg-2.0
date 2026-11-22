@@ -154,7 +154,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
 
     private fitToCurve() {
         if (!this.board) return;
-        this.board.setBoundingBox(widenToCanvas(curveViewBox(this.state), this.board.canvasWidth, this.board.canvasHeight), true);
+        this.boardView.setIntent(widenToCanvas(curveViewBox(this.state), this.board.canvasWidth, this.board.canvasHeight), {keepAspectRatio: true});
         this.board.fullUpdate();
     }
 

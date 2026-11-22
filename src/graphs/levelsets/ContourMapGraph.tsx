@@ -219,7 +219,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     /** Reset and a Preset without a stored view: the window of the default data, framed as the first load frames it (see `applyView`). */
     protected override showInitialView(): void {
-        this.board.setBoundingBox(this.frameOf(DEFAULT_CONTOUR_STATE), true);
+        this.boardView.setIntent(this.frameOf(DEFAULT_CONTOUR_STATE), {keepAspectRatio: true});
         this.drawnView = this.viewKeyOf(DEFAULT_CONTOUR_STATE);
         this.storedView = false;
         this.markFramed();
@@ -246,7 +246,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
     private reframeToSize(): void {
         if (!this.framePending || !this.hasBoard || !this.graphSession?.isAlive) return;
         const state = this.state;
-        this.board.setBoundingBox(this.frameOf(state), true);
+        this.boardView.resizing(() => this.boardView.setIntent(this.frameOf(state), {keepAspectRatio: true}));
         this.drawnView = this.viewKeyOf(state);
         this.board.update();
     }
@@ -507,7 +507,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         const key = this.viewKeyOf(this.state);
         if (key === this.drawnView) return;
         this.drawnView = key;
-        this.board.setBoundingBox(this.frameOf(this.state), true);
+        this.boardView.following(() => this.boardView.setIntent(this.frameOf(this.state), {keepAspectRatio: true}));
         this.markFramed();
     }
 

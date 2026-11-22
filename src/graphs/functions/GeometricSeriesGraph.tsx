@@ -151,7 +151,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         if (edit.model === this.model) return;
         const refit = edit.model.a !== this.model.a || edit.model.q !== this.model.q || edit.model.tolerance !== this.model.tolerance;
         this.replaceModel(edit.model);
-        if (refit && this.generatedObjectCount > 0) this.board.setBoundingBox(viewBox(edit.model), this.equalAxisUnits);
+        if (refit && this.generatedObjectCount > 0) this.boardView.setIntent(viewBox(edit.model), {keepAspectRatio: this.equalAxisUnits});
     }
 
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------

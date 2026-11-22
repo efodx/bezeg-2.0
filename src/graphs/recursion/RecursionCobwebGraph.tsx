@@ -130,7 +130,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
 
     /** A reset shows the exact opening window: the base passes `keepaspect` to `setBoundingBox`, which would widen a window the graph frames exactly. */
     protected override showInitialView(): void {
-        this.board.setBoundingBox([...this.initialView()], false);
+        this.boardView.setIntent(this.initialView(), {keepAspectRatio: false});
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -227,7 +227,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
     private applyFrame(): void {
         if (this.drawnMap === this.state.map) return;
         this.drawnMap = this.state.map;
-        this.board.setBoundingBox([...VIEW_BOXES[this.state.map]], false);
+        this.boardView.following(() => this.boardView.setIntent(VIEW_BOXES[this.state.map], {keepAspectRatio: false}));
     }
 
     private placeHandle(): void {

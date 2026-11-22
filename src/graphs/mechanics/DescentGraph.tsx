@@ -411,14 +411,14 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         const key = frame.map(value => value.toFixed(4)).join(",");
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
-        this.showFrame(frame);
+        this.boardView.following(() => this.showFrame(frame));
     }
 
     /** Shows the whole frame: the box is widened to the canvas aspect around the frame's centre (a plain keep-aspect box crops one side). */
     private showFrame(frame: readonly [number, number, number, number]): void {
         const [left, top, right, bottom] = frame;
         const box = fitBoundingBox([[left, top], [right, bottom]], this.board.canvasWidth, this.board.canvasHeight);
-        this.board.setBoundingBox(box ? [...box] : [...frame], true);
+        this.boardView.setIntent(box ?? frame, {keepAspectRatio: true});
         this.shownView = this.viewOf();
     }
 
@@ -434,7 +434,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         const now = this.viewOf();
         const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
         if (!now.every((value, index) => near(value, this.shownView![index]))) return;
-        this.showFrame(frameFor(this.state, this.derived()));
+        this.boardView.resizing(() => this.showFrame(frameFor(this.state, this.derived())));
         this.board.update();
     }
 

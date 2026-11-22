@@ -1,5 +1,6 @@
 import type {Board} from "jsxgraph";
 import type {GraphBoardOptions, GraphSession} from "../../base/GraphSession";
+import type {ViewAdapter} from "../../base/writes/viewAdapter";
 
 export interface AuxiliaryBoardLifetimeSpec {
     /** The session that owns the auxiliary board. It frees the board and releases this lifetime when it is disposed. */
@@ -24,6 +25,7 @@ export interface AuxiliaryBoardLifetimeSpec {
  */
 export class AuxiliaryBoardLifetime {
     private board: Board | undefined;
+    private viewAdapter: ViewAdapter | undefined;
     private releaseBoard: (() => void) | undefined;
     private observer: ResizeObserver | undefined;
     private linked = false;
@@ -50,6 +52,9 @@ export class AuxiliaryBoardLifetime {
 
     /** The board, once the host had a visible size. */
     get current(): Board | undefined { return this.board; }
+
+    /** The board's view adapter, once the board exists; the only writer of its view. */
+    get view(): ViewAdapter | undefined { return this.viewAdapter; }
 
     /** Links the board to the parent so parent updates redraw it. Safe to call repeatedly. */
     linkToParent(): void {
@@ -88,6 +93,7 @@ export class AuxiliaryBoardLifetime {
             const releaseBoard = this.releaseBoard;
             this.releaseBoard = undefined;
             this.board = undefined;
+            this.viewAdapter = undefined;
             try {
                 releaseBoard?.();
             } finally {
@@ -99,8 +105,9 @@ export class AuxiliaryBoardLifetime {
     private resize(width: number, height: number): void {
         if (this.released || width <= 0 || height <= 0) return;
         if (!this.board) {
-            const {board, release} = this.spec.session.createAuxiliaryBoard(this.spec.host, this.spec.boardOptions);
+            const {board, view, release} = this.spec.session.createAuxiliaryBoard(this.spec.host, this.spec.boardOptions);
             this.board = board;
+            this.viewAdapter = view;
             this.releaseBoard = release;
             this.spec.onBoard(board, this);
             if (this.released) return;
@@ -110,9 +117,12 @@ export class AuxiliaryBoardLifetime {
         const preservedBox: [number, number, number, number] = currentBox.length === 4 && currentBox.every(Number.isFinite)
             ? [currentBox[0], currentBox[1], currentBox[2], currentBox[3]]
             : [-5, 5, 5, -5];
-        board.resizeContainer(width, height, true, true);
-        // JSXGraph moves its origin when the container changes, even with dontSetBoundingBox. Reapply the exact finite view.
-        board.setBoundingBox(preservedBox, true);
+        const view = this.viewAdapter!;
+        view.resizing(() => {
+            board.resizeContainer(width, height, true, true);
+            // JSXGraph moves its origin when the container changes, even with dontSetBoundingBox. Reapply the exact finite view.
+            view.setIntent(preservedBox, {keepAspectRatio: true});
+        });
         this.spec.onResize?.(board, this);
     }
 }

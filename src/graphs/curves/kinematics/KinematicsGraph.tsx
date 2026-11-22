@@ -298,7 +298,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                 if (now === size) return;
                 size = now;
                 if (!this.hasBoard || !this.graphSession?.isAlive) return;
-                this.applyFrame();
+                this.boardView.resizing(() => this.applyFrame());
                 this.boardUpdate();
             };
             board.on("boundingbox", onBoundingBox);
@@ -331,7 +331,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             if (this.reframeOnBuild) {
                 this.reframeOnBuild = false;
                 this.drawnFrame = "";
-                this.applyFrame();
+                this.boardView.following(() => this.applyFrame());
             }
             this.drawnFrame = this.frameKey();
         }
@@ -346,7 +346,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
     private syncBoard(): void {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
         if (this.objects.length === 0) this.buildScene();
-        this.applyFrame();
+        this.boardView.following(() => this.applyFrame());
         this.boardUpdate();
         this.status.report(this.statusText());
         this.notifyHost();
@@ -410,7 +410,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         const key = frame.map(value => value.toFixed(4)).join(",");
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
-        this.board.setBoundingBox([...frame], true);
+        this.boardView.setIntent(frame, {keepAspectRatio: true});
     }
 
     private own<E extends JXG.GeometryElement>(element: E): E {

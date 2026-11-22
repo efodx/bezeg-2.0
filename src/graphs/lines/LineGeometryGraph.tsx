@@ -359,7 +359,7 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
             this.drawnKey = key;
             this.board.update();
         }
-        this.frameBoard();
+        this.boardView.following(() => this.frameBoard());
         this.status.report(this.statusText());
     }
 
@@ -370,7 +370,7 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const [left, top, right, bottom] = FIXED_VIEW;
         const box = fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height)));
-        if (box) this.board.setBoundingBox(box, true);
+        if (box) this.boardView.setIntent(box, {keepAspectRatio: true});
     }
 
     private placeHandle(handle: JXG.Point | undefined, target: GridXY): void {

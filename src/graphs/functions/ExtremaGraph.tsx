@@ -132,7 +132,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         const choice = chooseExtremaExample(value);
         if (!choice.ok) throw new DomainError(extremaEditMessage(choice.issue));
         this.commitModel(choice.model);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[choice.model.example]], true);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(EXAMPLE_VIEWS[choice.model.example], {keepAspectRatio: true});
     }
 
     protected setA(value: number, options: { syncScene?: boolean } = {}): void { this.moveEndpoint("a", value, options); }

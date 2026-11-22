@@ -91,7 +91,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
 
     /** Shows the curve fully: the view becomes mu +- 4 sigma wide and as high as the peak. */
     protected fitToCurve(): void {
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox(fitDensityView(this.model), this.equalAxisUnits);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(fitDensityView(this.model), {keepAspectRatio: this.equalAxisUnits});
     }
 
     protected setExample(id: unknown): void {

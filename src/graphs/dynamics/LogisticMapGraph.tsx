@@ -174,7 +174,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
 
     /** A reset shows the exact opening window: the base passes `keepaspect` to `setBoundingBox`, which would widen it. */
     protected override showInitialView(): void {
-        this.board.setBoundingBox(this.openingWindow(), false);
+        this.boardView.setIntent(this.openingWindow(), {keepAspectRatio: false});
         this.shownBox = this.board.getBoundingBox();
     }
 

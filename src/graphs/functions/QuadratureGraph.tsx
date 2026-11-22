@@ -128,7 +128,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
     protected setFunction(value: unknown): void {
         const edit = chooseQuadratureFunction(this.model, value);
         this.apply(edit);
-        if (edit.ok && this.generatedObjectCount > 0) this.board.setBoundingBox([...FUNCTION_VIEWS[edit.model.fn]], true);
+        if (edit.ok && this.generatedObjectCount > 0) this.boardView.setIntent(FUNCTION_VIEWS[edit.model.fn], {keepAspectRatio: true});
     }
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {

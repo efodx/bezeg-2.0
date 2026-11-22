@@ -94,21 +94,38 @@ export class GraphSession {
      * The board is freed exactly once: by the returned `release` (for example when the control showing it unmounts) or
      * when the session is disposed, whichever comes first.
      */
-    createAuxiliaryBoard(container: string | HTMLElement, options: GraphBoardOptions): {board: Board; release: () => void} {
+    createAuxiliaryBoard(container: string | HTMLElement, options: GraphBoardOptions): {board: Board; view: ViewAdapter; release: () => void} {
         if (!this.isAlive) throw new Error("An inactive graph session cannot create an auxiliary board.");
         const board = this.dependencies.initBoard(container, options);
         applyBoardTextDefaults(board);
         const stopRefreshingOrigin = this.refreshPointerOriginOnPointerDown(board);
+        // The board's own view adapter (task 01b); bound to the graph's arbiter as `view:<board>` from task 08.
+        const view = new ViewAdapter(viewBoardOver(board, (options as {boundingBox?: number[]} | undefined)?.boundingBox, {
+            on: (event, handler) => {
+                if (typeof board.on === "function") board.on(event, handler);
+            },
+            off: (event, handler) => {
+                // Never remove a handler during dispatch (see `on`): defer to a microtask.
+                if (typeof board.off === "function") queueMicrotask(() => {
+                    try {
+                        board.off(event, handler);
+                    } catch {
+                        // The board may already be freed.
+                    }
+                });
+            },
+        }));
         let released = false;
         const release = () => {
             if (released) return;
             released = true;
+            view.dispose();
             stopRefreshingOrigin();
             unregister();
             this.dependencies.freeBoard(board);
         };
         const unregister = this.registerCleanup(release);
-        return {board, release};
+        return {board, view, release};
     }
 
     /**

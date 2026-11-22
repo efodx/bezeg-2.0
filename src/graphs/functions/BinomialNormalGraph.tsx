@@ -102,7 +102,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
 
     /** Shows the bars fully: the view of `fitBinomialNormalView` for the current n, p and Poisson overlay. */
     protected fitToBars(): void {
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox(fitBinomialNormalView(this.model), this.equalAxisUnits);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(fitBinomialNormalView(this.model), {keepAspectRatio: this.equalAxisUnits});
     }
 
     protected setExample(id: unknown): void {

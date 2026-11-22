@@ -322,7 +322,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             this.drawnKey = key;
             this.board.update();
         }
-        this.frameBoard();
+        this.boardView.following(() => this.frameBoard());
         this.status.report(this.statusText());
     }
 
@@ -336,7 +336,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         const extent = solving ? this.view().solveExtent : [];
         const [left, top, right, bottom] = FIXED_VIEW;
         const box = fitBoundingBox(extent.length ? extent : [[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height)));
-        if (box) this.board.setBoundingBox(box, true);
+        if (box) this.boardView.setIntent(box, {keepAspectRatio: true});
     }
 
     /**

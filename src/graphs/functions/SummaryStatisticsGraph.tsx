@@ -106,7 +106,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         if (this.generatedObjectCount === 0) return;
         const [left, , right] = this.board.getBoundingBox();
         if (this.model.values.some(value => value < left || value > right)) {
-            this.board.setBoundingBox([...fitSummaryView(this.model.values)], this.equalAxisUnits);
+            this.boardView.setIntent(fitSummaryView(this.model.values), {keepAspectRatio: this.equalAxisUnits});
         }
     }
 
@@ -149,7 +149,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         const next = this.accepted(chooseSummaryExample(this.model, id));
         if (next === this.model) return;
         this.commitModel(next);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...fitSummaryView(next.values)], this.equalAxisUnits);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(fitSummaryView(next.values), {keepAspectRatio: this.equalAxisUnits});
     }
 
     /** The typed list's edit: refused with the localized message, applied otherwise. */

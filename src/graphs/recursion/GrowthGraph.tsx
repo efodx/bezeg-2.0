@@ -185,7 +185,7 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
 
     /** A reset shows the exact opening window: the base passes `keepaspect` to `setBoundingBox`, which would widen a window the graph frames exactly. */
     protected override showInitialView(): void {
-        this.board.setBoundingBox([...this.initialView()], false);
+        this.boardView.setIntent(this.initialView(), {keepAspectRatio: false});
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -284,7 +284,7 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         const box = this.current().box;
         if (sameBox(this.drawnBox, box)) return;
         this.drawnBox = box;
-        this.board.setBoundingBox([...box], false);
+        this.boardView.following(() => this.boardView.setIntent(box, {keepAspectRatio: false}));
     }
 
     private curve(data: () => Polyline, style: Style, visible: () => boolean): JXG.Curve {

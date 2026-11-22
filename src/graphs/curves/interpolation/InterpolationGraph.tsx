@@ -154,7 +154,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
 
     private fit() {
         if (!this.board) return;
-        this.board.setBoundingBox(interpolationViewBox(this.state.points), true);
+        this.boardView.setIntent(interpolationViewBox(this.state.points), {keepAspectRatio: true});
         this.board.fullUpdate();
     }
 

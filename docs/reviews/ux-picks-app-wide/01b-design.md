@@ -28,6 +28,13 @@ Inputs: [task 01b](../../tasks/ux-picks-app-wide/01b-view-adapter.md), [view sit
 | other: zoom/pan buttons (3) | `learner` | input events |
 | other: test-support helpers (3) | test's choice | the helper names its source |
 
+## Settled while moving the sites (handler, 2026-11-22)
+
+- `following(work)`: a view derived from scene state in a post-commit sync (`syncBoard`, `applyFrame`, `applyView`) is not a write, like a resize. Also used for the derived frame of `syncReplacedScene` in `WavesGraph` and `KinematicsGraph` when the replacement brought no stored view (reviewer finding: a Preset path). Task 08 re-checks each `following` site of a graph it binds: a view the lesson, Reset or a Preset asks for must stay a plain `setIntent` inside that writer's scope.
+- `setIntent(box, {zoom})` passes JSXGraph's `setZoom` mode for one call (the fit keeps `'update'`).
+- Secondary boards: `createAuxiliaryBoard` returns the board's `view` (disposed by `release`); the surface view's pixel-frame board has its own adapter. None is bound until task 08.
+- The main board's adapter is `BaseGraph.boardView` (many graphs already have a `view` member).
+
 ## Slices
 
 1. Adapter core and its tests (handler design, worker tests): pure intent/fitted state over a minimal board interface (`setBoundingBox`, `getBoundingBox`, `on/off('boundingbox')`), so it is testable without JSXGraph.

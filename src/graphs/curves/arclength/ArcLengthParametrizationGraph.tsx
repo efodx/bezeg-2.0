@@ -348,7 +348,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
         if (!this.board) return;
         const [left, top, right, bottom] = KIND_VIEW[kind];
         const box = fitBoundingBox([[left, top], [right, bottom]], this.board.canvasWidth, this.board.canvasHeight);
-        this.board.setBoundingBox(box ?? [left, top, right, bottom], this.equalAxisUnits);
+        this.boardView.setIntent(box ?? [left, top, right, bottom], {keepAspectRatio: this.equalAxisUnits});
     }
 
     /** Replaces the scene with the default of `kind` and its view, keeping the arc state; playback stops with the import. */

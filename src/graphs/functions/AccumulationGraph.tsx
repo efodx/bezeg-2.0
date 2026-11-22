@@ -123,7 +123,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     protected setFunction(value: unknown): void {
         const next = this.accept(chooseAccumulationFunction(this.model, value));
         this.commitModel(next);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...FUNCTION_VIEWS[next.fn]], true);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(FUNCTION_VIEWS[next.fn], {keepAspectRatio: true});
     }
 
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {
@@ -162,7 +162,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         const previous = this.model.fn;
         super.importPreset(preset);
         if (!preset.boardState && this.model.fn !== previous && this.generatedObjectCount > 0) {
-            this.board.setBoundingBox([...FUNCTION_VIEWS[this.model.fn]], true);
+            this.boardView.setIntent(FUNCTION_VIEWS[this.model.fn], {keepAspectRatio: true});
         }
     }
 

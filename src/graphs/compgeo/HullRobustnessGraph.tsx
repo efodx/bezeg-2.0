@@ -262,7 +262,7 @@ export class HullRobustnessGraph extends HullTraceGraph {
         if (leaving === undefined || leaving === mode || this.savedViewApplied) return;
         if (leaving === "chain") this.chainBox = this.board.getBoundingBox() as [number, number, number, number];
         // The saved chain box is already the shown view; fitting it again would add the margin and zoom out on every round trip.
-        if (mode === "chain" && this.chainBox) this.board.setBoundingBox([...this.chainBox], true);
+        if (mode === "chain" && this.chainBox) this.boardView.setIntent(this.chainBox, {keepAspectRatio: true});
         else this.showBox(mode === "kettner" ? KETTNER_VIEW : CHAIN_VIEW);
     }
 
@@ -317,7 +317,7 @@ export class HullRobustnessGraph extends HullTraceGraph {
         const [left, top, right, bottom] = view;
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const box = fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height)));
-        this.board.setBoundingBox(box ?? [...view], true);
+        this.boardView.setIntent(box ?? [...view], {keepAspectRatio: true});
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -338,7 +338,7 @@ export class HullRobustnessGraph extends HullTraceGraph {
      */
     protected override syncScene(): void {
         if (!this.graphSession?.isAlive || !this.hasBoard) return;
-        this.syncModeView();
+        this.boardView.following(() => this.syncModeView());
         if (this.robustnessMode === "chain") {
             this.removeKettner();
             super.syncScene();

@@ -194,7 +194,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         if (this.generatedObjectCount === 0) return;
         const [left, top, right, bottom] = this.board.getBoundingBox();
         if (this.model.points.some(([x, y]) => x < left || x > right || y < bottom || y > top)) {
-            this.board.setBoundingBox([...fitCorrelationView(this.model.points)], this.equalAxisUnits);
+            this.boardView.setIntent(fitCorrelationView(this.model.points), {keepAspectRatio: this.equalAxisUnits});
         }
     }
 
@@ -259,7 +259,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
     protected setExample(id: unknown): void {
         const next = this.accepted(chooseCorrelationExample(this.model, id));
         this.commitModel(next);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...fitCorrelationView(next.points)], this.equalAxisUnits);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(fitCorrelationView(next.points), {keepAspectRatio: this.equalAxisUnits});
     }
 
     /** The typed list's edit: refused with the localized message, applied otherwise. */

@@ -156,7 +156,7 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
 
     private fit() {
         if (!this.board) return;
-        this.board.setBoundingBox(basisViewBox(this.state.knots, this.state.degree, this.state.normalized), false);
+        this.boardView.setIntent(basisViewBox(this.state.knots, this.state.degree, this.state.normalized), {keepAspectRatio: false});
         this.board.fullUpdate();
     }
 

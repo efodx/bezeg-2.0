@@ -155,7 +155,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     protected setExample(value: unknown): void {
         const next = this.accepted(chooseFixedPointExample(this.model, value));
         this.replaceModel(next);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[next.example]], this.equalAxisUnits);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(EXAMPLE_VIEWS[next.example], {keepAspectRatio: this.equalAxisUnits});
     }
 
     /** The model of an accepted edit; a refused edit throws a `DomainError` whose reason is the localized rule the model named. */

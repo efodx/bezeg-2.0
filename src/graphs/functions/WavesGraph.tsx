@@ -342,7 +342,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             if (this.objects.length === 0 || this.builtMode !== this.state.mode) this.buildScene();
             if (this.reframeOnBuild) {
                 this.reframeOnBuild = false;
-                this.showFrame(this.frame());
+                this.boardView.following(() => this.showFrame(this.frame()));
             }
             this.drawnFrame = this.frameKey();
         }
@@ -357,7 +357,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     private syncBoard(): void {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
         if (this.objects.length === 0 || this.builtMode !== this.state.mode) this.buildScene();
-        this.applyFrame();
+        this.boardView.following(() => this.applyFrame());
         this.board.update();
         this.status.report(this.statusText());
         this.notifyHost();
@@ -400,20 +400,22 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
 
     private showFrame(frame: Box): void {
         this.shownFrame = frame;
-        this.board.setBoundingBox([...frame], false);
+        this.boardView.setIntent(frame, {keepAspectRatio: false});
     }
 
     /** The board's height settles after the first frame (the layout finishes): a view still on the frame we drew is framed again for the final size, so a load and a Reset agree. A view the user moved is left alone. */
     private reframeToSize(): void {
         if (!this.hasBoard || !this.graphSession?.isAlive || !this.shownFrame) return;
-        const box = this.board.getBoundingBox();
-        const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
-        if (!box.every((value, index) => near(value, this.shownFrame![index]))) return;
-        const key = this.frameKey();
-        if (key === this.drawnFrame) return;
-        this.drawnFrame = key;
-        this.showFrame(this.frame());
-        this.board.update();
+        this.boardView.resizing(() => {
+            const box = this.board.getBoundingBox();
+            const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
+            if (!box.every((value, index) => near(value, this.shownFrame![index]))) return;
+            const key = this.frameKey();
+            if (key === this.drawnFrame) return;
+            this.drawnFrame = key;
+            this.showFrame(this.frame());
+            this.board.update();
+        });
     }
 
     private own<E extends JXG.GeometryElement>(element: E): E {

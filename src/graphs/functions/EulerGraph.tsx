@@ -86,7 +86,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
     protected setExample(value: unknown): void {
         const edit = chooseEulerExample(this.model, value);
         this.apply(edit);
-        if (edit.ok && this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[edit.model.example]], true);
+        if (edit.ok && this.generatedObjectCount > 0) this.boardView.setIntent(EXAMPLE_VIEWS[edit.model.example], {keepAspectRatio: true});
     }
 
     protected setStep(value: unknown): void {

@@ -132,7 +132,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         // The drawn tangent arrows too, so their tips (Hermite-mode drag handles) start in view.
         const {points, mode, tangents, parameterRule, tension} = this.state;
         const arrows = mode === 'hermite' ? tangents : catmullRomStored(points, parameterRule, tension);
-        this.board.setBoundingBox(hermiteViewBox(points, arrows), true);
+        this.boardView.setIntent(hermiteViewBox(points, arrows), {keepAspectRatio: true});
         this.board.fullUpdate();
     }
 

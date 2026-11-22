@@ -32,7 +32,7 @@ export function mountParameterInset(session: GraphSession, container: HTMLElemen
         boundingBox: spec.boundingBox, axis: false, keepAspectRatio: true, showNavigation: false, showCopyright: false,
         showScreenshot: false, showFullscreen: false, pan: {enabled: false}, zoom: {wheel: false, pinch: false},
     };
-    const {board, release} = session.createAuxiliaryBoard(container, options);
+    const {board, view, release} = session.createAuxiliaryBoard(container, options);
     const point = spec.build(board);
     bindMovablePointCursor(point, board);
     point.on("drag", () => {
@@ -47,8 +47,10 @@ export function mountParameterInset(session: GraphSession, container: HTMLElemen
         observer = new ResizeObserver(entries => {
             const {width, height} = entries[0]?.contentRect ?? {width: 0, height: 0};
             if (!live || width <= 0 || height <= 0) return;
-            board.resizeContainer(width, height, true, true);
-            board.setBoundingBox(spec.boundingBox, true);
+            view.resizing(() => {
+                board.resizeContainer(width, height, true, true);
+                view.setIntent(spec.boundingBox, {keepAspectRatio: true});
+            });
         });
         observer.observe(container);
     }

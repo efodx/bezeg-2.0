@@ -75,7 +75,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     protected setFunction(value: unknown): void {
         if (!isFunctionId(value)) throw new DomainError(choiceRejected("integral_function_label", FUNCTION_IDS));
         this.commitModel({...this.model, fn: value});
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...FUNCTION_VIEWS[value]], true);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(FUNCTION_VIEWS[value], {keepAspectRatio: true});
     }
 
     protected setMethod(value: unknown): void {
@@ -112,7 +112,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         const previous = this.model.fn;
         super.importPreset(preset);
         if (!preset.boardState && this.model.fn !== previous && this.generatedObjectCount > 0) {
-            this.board.setBoundingBox([...FUNCTION_VIEWS[this.model.fn]], true);
+            this.boardView.setIntent(FUNCTION_VIEWS[this.model.fn], {keepAspectRatio: true});
         }
     }
 
