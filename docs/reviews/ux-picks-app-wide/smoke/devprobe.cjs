@@ -1,0 +1,22 @@
+const {chromium} = require('playwright');
+setTimeout(() => process.exit(2), 90000).unref();
+(async () => {
+    const browser = await chromium.launch();
+    const ctx = await browser.newContext({viewport: {width: 1440, height: 900}});
+    await ctx.addInitScript(() => { try { localStorage.setItem('bezeg-language', 'sl'); } catch (e) {} });
+    const page = await ctx.newPage();
+    const msgs = [];
+    page.on('console', m => msgs.push(m.type() + ': ' + m.text().slice(0, 200)));
+    page.on('pageerror', e => msgs.push('pageerror: ' + e.message.slice(0, 200)));
+    page.on('response', r => { if (r.status() >= 400) msgs.push('HTTP ' + r.status() + ' ' + r.url()); });
+    await page.goto('http://127.0.0.1:4482/bezeg-2.0/analysis/taylor');
+    await page.waitForTimeout(5000);
+    console.log('TITLE', await page.title());
+    console.log('URL', page.url());
+    console.log('BUTTONS', JSON.stringify(await page.locator('button').evaluateAll(a => a.filter(b => b.offsetParent).map(b => (b.textContent || '').trim().slice(0, 40)).slice(0, 30))));
+    console.log('RANGES', await page.locator('input[type=range]').count(), 'SELECTS', await page.locator('select').count(), 'SPIN', await page.locator('input[role=spinbutton]').count());
+    console.log('JXG', await page.evaluate(() => typeof window.JXG));
+    console.log('SVG', await page.locator('svg').count(), 'BODY', (await page.evaluate(() => document.body.innerText)).slice(0, 300).replace(/\n/g, ' | '));
+    console.log('MSGS', JSON.stringify(msgs.slice(0, 15)));
+    await browser.close();
+})();

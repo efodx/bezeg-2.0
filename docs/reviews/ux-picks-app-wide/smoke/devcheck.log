@@ -1,0 +1,86 @@
+ERROR {"route":"analysis/taylor [controls]","label":"load","kind":"console","text":"Failed to load resource: the server responded with a status of 404 (Not Found)"}
+ACTION [analysis/taylor [controls]] drag center slider 0.8
+ACTION [analysis/taylor [controls]] drag center slider 0.3
+ACTION [analysis/taylor [controls]] arrow keys x5 on center slider
+ACTION [analysis/taylor [controls]] degree + button x2
+ACTION [analysis/taylor [controls]] degree - button x1
+ACTION [analysis/taylor [controls]] type x = 1.5
+ACTION [analysis/taylor [controls]] change example (select index 1)
+ACTION [analysis/taylor [controls]] change example (select index 2)
+ACTION [analysis/taylor [controls]] board point drags
+[analysis/taylor [controls]] taylor board: 2 free board point(s)
+  point $$c$$ [0,0] -> [0.25,0] moved=true
+  point $$x$$ [0.5,0] -> [0.78,0] moved=true
+readouts {"center":"0,25","degree":"3","x":"0,78","polynomial":"3,4119","function":"4,5455","signed-error":"1,134","absolute-error":"1,134","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f za x med −0,5 in 1 (|x − c| < 1 − c); x je znotraj."}
+ERROR {"route":"analysis/taylor [lesson]","label":"load","kind":"console","text":"Failed to load resource: the server responded with a status of 404 (Not Found)"}
+ACTION [analysis/taylor [lesson]] open Taylor lesson
+ACTION [analysis/taylor [lesson]] lesson Next 1
+ACTION [analysis/taylor [lesson]] lesson Next 2
+ACTION [analysis/taylor [lesson]] lesson Next 3
+ACTION [analysis/taylor [lesson]] lesson Back 1
+ACTION [analysis/taylor [lesson]] lesson Back 2
+ERROR {"route":"analysis/taylor [preset]","label":"load","kind":"console","text":"Failed to load resource: the server responded with a status of 404 (Not Found)"}
+ACTION [analysis/taylor [preset]] preset: move center to save
+ACTION [analysis/taylor [preset]] preset: open Shrani
+ACTION [analysis/taylor [preset]] preset: Shrani trenutno stanje
+ACTION [analysis/taylor [preset]] preset: name and save
+ACTION [analysis/taylor [preset]] preset: change center
+ACTION [analysis/taylor [preset]] preset: reselect saved preset
+readouts after reselect {"center":"0,4","degree":"1","x":"1","polynomial":"2,3869","function":"2,7183","signed-error":"0,3314","absolute-error":"0,3314","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+ERROR {"route":"functions/transformations","label":"load","kind":"console","text":"Failed to load resource: the server responded with a status of 404 (Not Found)"}
+ACTION [functions/transformations] type field 1..4
+ACTION [functions/transformations] drag image marker / board points
+[functions/transformations] transformations board: 1 free board point(s)
+  point jxgBoard1P29 [2,4] -> [3.1,9.61] moved=true
+ERROR {"route":"bezier/decasteljau","label":"load","kind":"console","text":"Failed to load resource: the server responded with a status of 404 (Not Found)"}
+ACTION [bezier/decasteljau] Play
+ACTION [bezier/decasteljau] drag t slider during play
+ACTION [bezier/decasteljau] press board during play
+ACTION [bezier/decasteljau] drag control points during play
+[bezier/decasteljau] decasteljau board: 4 free board point(s)
+  point () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$` [-4,-3] -> [-3.327,-2.495] moved=true
+  point () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$` [-3,2] -> [-2.327,2.505] moved=true
+  point () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$` [0,3] -> [0.673,3.505] moved=true
+  point () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$` [3,2] -> [3.673,2.505] moved=true
+ACTION [bezier/decasteljau] Pause (Premor/Pavza) if playing
+ACTION [bezier/decasteljau] drag control points after pause
+[bezier/decasteljau] decasteljau board (paused): 3 free board point(s)
+  point () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$` [-3.327,-2.495] -> [-2.765,-2.074] moved=true
+  point () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$` [-2.327,2.505] -> [-1.653,3.01] moved=true
+  point () => this.showingDecasteljauPoints && this.showingDecasteljauScheme ? `$$p_${i}^0$$` : `$$p_${i}$$` [0.673,3.505] -> [1.347,4.01] moved=true
+ERROR {"route":"analysis/phase-portrait","label":"load","kind":"console","text":"Failed to load resource: the server responded with a status of 404 (Not Found)"}
+ACTION [analysis/phase-portrait] Play
+ACTION [analysis/phase-portrait] drag time slider during play
+ACTION [analysis/phase-portrait] drag seed/matrix board points during play
+[analysis/phase-portrait] phase board: 4 free board point(s)
+  point jxgBoard1P49 [1,0] -> [1.6,0.45] moved=true
+  point jxgBoard1P51 [0,1] -> [0,1] moved=false
+  point jxgBoard1P53 [-1,0] -> [-1,0] moved=false
+  point jxgBoard1P55 [0,-1] -> [0,-1] moved=false
+ACTION [analysis/phase-portrait] Pause if playing
+ACTION [analysis/phase-portrait] drag seed/matrix board points paused
+[analysis/phase-portrait] phase board (paused): 4 free board point(s)
+  point jxgBoard1P49 [1.6,0.45] -> [1.1,0.1] moved=true
+  point jxgBoard1P51 [0,1] -> [0,1] moved=false
+  point jxgBoard1P53 [-1,0] -> [-1,0] moved=false
+  point jxgBoard1P55 [0,-1] -> [0,-1] moved=false
+ERROR {"route":"linear-map","label":"load","kind":"console","text":"Failed to load resource: the server responded with a status of 404 (Not Found)"}
+ACTION [linear-map] select example quarter-turn
+ACTION [linear-map] select mode iterate
+ACTION [linear-map] Play (iterate)
+ACTION [linear-map] drag start point on board during play
+[linear-map] linear-map board: 2 free board point(s)
+  point $$a_1=Ae_1$$ [0,1] -> [1.25,2] moved=true
+  point $$a_2=Ae_2$$ [-1,0] -> [0.25,1] moved=true
+ACTION [linear-map] switch mode to basis
+ACTION [linear-map] switch mode to determinant
+ACTION [linear-map] switch mode to eigen
+ACTION [linear-map] switch mode to ellipse
+ACTION [linear-map] switch mode to composition
+ACTION [linear-map] switch mode to tracedet
+EXCEPTION [linear-map] switch mode to tracedet: locator.selectOption: Timeout 30000ms exceeded.
+ACTION [linear-map] drag start point after switching modes
+[linear-map] linear-map board (after modes): 2 free board point(s)
+  point $$a_1=Ae_1$$ [1.25,2] -> [1.25,2] moved=false
+  point $$a_2=Ae_2$$ [0.25,1] -> [0.25,1] moved=false
+SUMMARY [{"route":"analysis/taylor [controls]","errors":1,"exc":0},{"route":"analysis/taylor [lesson]","errors":1,"exc":0},{"route":"analysis/taylor [preset]","errors":1,"exc":0},{"route":"functions/transformations","errors":1,"exc":0},{"route":"bezier/decasteljau","errors":1,"exc":0},{"route":"analysis/phase-portrait","errors":1,"exc":0},{"route":"linear-map","errors":1,"exc":1}]

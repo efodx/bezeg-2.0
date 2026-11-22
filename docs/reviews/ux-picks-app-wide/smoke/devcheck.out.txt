@@ -1,0 +1,20 @@
+ROUTE RESULTS:
+  analysis/taylor [controls]: FAIL (errors=1, exceptions=0)
+  analysis/taylor [lesson]: FAIL (errors=1, exceptions=0)
+  analysis/taylor [preset]: FAIL (errors=1, exceptions=0)
+  functions/transformations: FAIL (errors=1, exceptions=0)
+  bezier/decasteljau: FAIL (errors=1, exceptions=0)
+  analysis/phase-portrait: FAIL (errors=1, exceptions=0)
+  linear-map: FAIL (errors=1, exceptions=1)
+ERRORS (7):
+  [analysis/taylor [controls] | load] console: Failed to load resource: the server responded with a status of 404 (Not Found)
+  [analysis/taylor [lesson] | load] console: Failed to load resource: the server responded with a status of 404 (Not Found)
+  [analysis/taylor [preset] | load] console: Failed to load resource: the server responded with a status of 404 (Not Found)
+  [functions/transformations | load] console: Failed to load resource: the server responded with a status of 404 (Not Found)
+  [bezier/decasteljau | load] console: Failed to load resource: the server responded with a status of 404 (Not Found)
+  [analysis/phase-portrait | load] console: Failed to load resource: the server responded with a status of 404 (Not Found)
+  [linear-map | load] console: Failed to load resource: the server responded with a status of 404 (Not Found)
+EXCEPTIONS (1):
+  [linear-map | switch mode to tracedet] locator.selectOption: Timeout 30000ms exceeded.
+LOG C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\board-workspace\docs\reviews\ux-picks-app-wide\smoke/devcheck.log
+DONE
