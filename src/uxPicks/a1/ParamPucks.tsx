@@ -128,8 +128,12 @@ export function Tape(props: {entry: ParamEntry; value: number; fineLabel: string
     }
     const minX = half + (entry.min - value) * pxPerUnit, maxX = half + (entry.max - value) * pxPerUnit;
     const anchor = props.anchor?.getBoundingClientRect();
+    // Kept inside the board (round 14 A' P2-1: over the page margin it covered the board's edge and looked detached), and
+    // inside the window when the board is wider than the window.
+    const board = props.anchor?.closest('.ux-board-frame')?.getBoundingClientRect();
+    const lo = Math.max(8, (board?.left ?? 0) + 8), hi = Math.min(window.innerWidth, board?.right ?? window.innerWidth) - width - 8;
     const place: React.CSSProperties = anchor ? {
-        left: Math.max(8, Math.min(window.innerWidth - width - 8, anchor.left + anchor.width / 2 - width / 2)),
+        left: Math.max(lo, Math.min(hi, anchor.left + anchor.width / 2 - width / 2)),
         bottom: Math.max(8, window.innerHeight - anchor.top + 8),
     } : {};
     return createPortal(<div className={`ux-tape${props.detent ? ' is-detent' : ''}`} style={place} aria-hidden="true">
