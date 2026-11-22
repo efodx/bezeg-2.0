@@ -65,7 +65,7 @@ interface LayoutResult {
 ## Rules, in order
 
 1. **Band.** `band.w = min(board.w, maxSpan)`, centred. Cards placed by default anchor to the band's edges. A stored docked placement anchors to the board's edges. A learner who docked a card at a far edge keeps it there (spec acceptance 4a); defaults stay within the span.
-2. **Pucks strip.** If `pucks` is given, it goes in the bottom left of the band: `x = band.x + gap`, `y = board.h - pucks.h - gap`. Its width is capped by the bottom-centre and bottom-right cards, which it never overlaps, so the strip's height comes off the bottom of those two columns.
+2. **Pucks strip.** If `pucks` is given, it goes in the bottom left of the band: `x = band.x + gap`, `y = board.h - pucks.h - gap`. It reserves height only where it sits: the left column loses the strip's height plus a gap at the bottom; the centre and right columns keep the full height. Its width is `min(pucks.w, L - strip.x - gap)`, where `L` is the left edge of the bottom-centre stack when there is a `bc` card (or any centre card reaching the strip's rows), otherwise the left edge of the right column (the band's edge if there is none). It never overlaps `bc` or `br`.
 3. **Stacks.** Docked cards are grouped by anchor and sorted by `order`, then `id`. Columns hold anchors as follows:
 
    | Column | Anchors | Width | Bottom limit |
@@ -75,6 +75,13 @@ interface LayoutResult {
    | right | `tr`, `mr`, `br` | its widest open card, at most `columnMaxFraction · band.w` | — |
 
    `tc` and `bc` grow away from their edge. `ml` and `mr` start below the `tl` and `tr` stacks. `br` and `bc` stack upwards from the bottom.
+
+   - **Centre width:** `max(0, min(widest card, band.w - leftW - rightW - 4·gap))`; side columns keep their caps. Every card takes its column's width, so the presenter measures a card's height at that width. The centre column is centred on the board, pushed aside when unequal side columns would touch it.
+   - **Column edge:** a column anchors to the board edge if any of its cards has a stored docked placement, otherwise to the band.
+   - **Stack order:** order 0 sits nearest the anchor's edge (`tl`, `tc`, `tr` stack down; `bc`, `br` stack up); `ml` and `mr` sit directly under the top stack.
+   - **Widths:** a column's width counts open cards only, unless none is open.
+   - **Cut order:** tallest open card first; each cut uses the room the other cards leave; a cut that would not shrink the card is skipped.
+   - **Free clamp:** x in `[0, board.w - w]`, y in `[0, board.h - foldedHeight]`.
 4. **Open or folded**, per card:
    - If `frozenFolds` is given, its value wins.
    - Otherwise the frame wins: a card in `frame.open` is open, and so is `tools` when `frame.usesTools`.
