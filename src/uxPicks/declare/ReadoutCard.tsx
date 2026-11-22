@@ -24,7 +24,11 @@ const isLongValue = (row: ReadoutRow) => row.valueTex ? row.valueTex.length > LO
 
 function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry; reserveMark: boolean}) {
     const {row} = props;
-    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone} data-long={isLongValue(row) || undefined}>
+    // One way only: a value that once needed its own line keeps it, so a sweep whose values cross the length does not flip the
+    // row between layouts and shift every row under it (kinematics sweep: CLS 0.06).
+    const long = useRef(false);
+    if (isLongValue(row)) long.current = true;
+    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone} data-long={long.current || undefined}>
         <dt className="ux-rc-name">
             {props.entry ? <EntryMark entry={props.entry}/> : props.reserveMark && <span className="ux-rc-mark ux-rc-mark-none" aria-hidden="true"/>}
             <span className="ux-rc-label">
