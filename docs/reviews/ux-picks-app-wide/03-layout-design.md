@@ -1,0 +1,104 @@
+# Task 03: the layout function (handler design)
+
+Task 03 slice 1 ([task](../../tasks/ux-picks-app-wide/03-layout-and-board-cards.md)). The handler owns this design. Workers implement and test it; a change to the types or the rules below goes back to the handler.
+
+The prototype's facts come from `git show aff6df6c:src/uxPicks/dock/*` (summary from 2026-11-22). What the rebuild changes:
+
+- **No layout after paint.** The prototype opened cards, painted, then folded them 120 ms later. It cut rows and snapped them on a 250 ms interval, and Odčitki folded one group per pass starting at 700 ms. Here one pure call returns every final rectangle, fold and cut before the first paint.
+- **One store for placement.** The prototype kept free positions and folds under separate localStorage keys, with conflicting scope. Here one versioned record holds them (slice 4).
+- **Integer order.** Drop order was the fractional midpoint of the two neighbours, which is unbounded. Here a drop renumbers the stack as integers.
+
+## Module
+
+Path: `src/workspace/layout/boardLayout.ts`. It has no React, JSXGraph or DOM imports, and unit tests run without a DOM. The entry point:
+
+```ts
+export function layoutBoard(input: LayoutInput): LayoutResult;
+```
+
+`layoutBoard` is deterministic: the same input gives the same output. The presenter calls it in `useLayoutEffect` or a pre-paint measure pass, and animates each card between its previous and next rectangle as one interruptible glide.
+
+## Types
+
+```ts
+type Anchor = 'tl' | 'tc' | 'tr' | 'ml' | 'mr' | 'bc' | 'br';   // centre floats; bottom left is the pucks strip
+interface Size { w: number; h: number }
+interface Rect { x: number; y: number; w: number; h: number }
+
+interface CardInput {
+  id: string;                 // 'readouts' | 'legend' | 'lesson' | 'tools' | `section:${string}`
+  natural: Size;              // from the hidden measure pass (slice 1a), open, unconstrained height
+  min: Size;                  // head plus the first row (or 100 px of height), at the card's natural width
+  foldedHeight: number;       // head only
+  rowBreaks: readonly number[]; // cumulative heights (from the card top) where a cut may fall; ascending
+  priority: number;           // lower folds first; lesson = Infinity (never folds)
+  defaultAnchor: Anchor;
+  defaultOrder: number;
+}
+
+type Placement =
+  | { kind: 'docked'; anchor: Anchor; order: number }
+  | { kind: 'free'; x: number; y: number };     // board coordinates, top-left of the card
+
+interface LayoutInput {
+  board: Size;
+  cards: readonly CardInput[];
+  stored: Readonly<Record<string, Placement>>;  // learner's placements; absent = default
+  storedFolds: Readonly<Record<string, boolean>>; // learner's explicit folds (true = folded)
+  frame?: { open: readonly string[]; usesTools: boolean }; // lesson frame: cards it opens; tools when a used control is in Orodja
+  pucks?: Size;               // natural size of the pucks strip; absent = no strip
+  maxSpan: number;            // A10: default anchors sit in a centred band of this width (value chosen in the feel slice)
+  columnMaxFraction: number;  // a side column's width cap as a fraction of the band (start 0.32)
+  gap: number;                // spacing between and around cards (start 8)
+  frozenFolds?: Readonly<Record<string, boolean>>; // during a drag: the folds to keep (no re-plan)
+}
+
+interface CardLayout { id: string; rect: Rect; folded: boolean; cut: number | null; anchor: Anchor | 'free' }
+interface LayoutResult {
+  cards: readonly CardLayout[];
+  pucks: Rect | null;
+  free: Rect;                 // the largest empty rectangle not covered by docked cards or the strip (the plot's clear area)
+  band: { x: number; w: number };
+}
+```
+
+## Rules, in order
+
+1. **Band.** `band.w = min(board.w, maxSpan)`, centred. Cards placed by default anchor to the band's edges. A stored docked placement anchors to the board's edges. A learner who docked a card at a far edge keeps it there (spec acceptance 4a); defaults stay within the span.
+2. **Pucks strip.** If `pucks` is given, it goes in the bottom left of the band: `x = band.x + gap`, `y = board.h - pucks.h - gap`. Its width is capped by the bottom-centre and bottom-right cards, which it never overlaps, so the strip's height comes off the bottom of those two columns.
+3. **Stacks.** Docked cards are grouped by anchor and sorted by `order`, then `id`. Columns hold anchors as follows:
+
+   | Column | Anchors | Width | Bottom limit |
+   | --- | --- | --- | --- |
+   | left | `tl`, `ml` | its widest open card, at most `columnMaxFraction · band.w` | the strip's top, when there is a strip |
+   | centre | `tc` at the top, `bc` at the bottom | its widest card | — |
+   | right | `tr`, `mr`, `br` | its widest open card, at most `columnMaxFraction · band.w` | — |
+
+   `tc` and `bc` grow away from their edge. `ml` and `mr` start below the `tl` and `tr` stacks. `br` and `bc` stack upwards from the bottom.
+4. **Open or folded**, per card:
+   - If `frozenFolds` is given, its value wins.
+   - Otherwise the frame wins: a card in `frame.open` is open, and so is `tools` when `frame.usesTools`.
+   - Otherwise the stored fold.
+   - Otherwise open.
+5. **Fold before clip.** When a column's open cards need more height than it has, the lowest-priority card is folded. Frame-opened cards, the lesson card and stored-open cards are never folded. This repeats until the column fits or nothing foldable is left. Skip this step when `frozenFolds` is given (a drag never re-plans folds).
+6. **Cut.** If a column still does not fit, the tallest open card is cut. The cut height is the largest `rowBreaks` value at or below the available height, never below `min.h`. A cut card scrolls inside itself, behind the overflow bar of slice 2.
+7. **Free cards** keep their stored `x, y`, clamped so the head stays inside the board. They do not take part in stacks and may overlap cards (the owner's drag rules).
+8. **Free rectangle.** The largest axis-aligned rectangle inside the board that avoids every docked card and the strip. Ties go to the one closest to the board centre. Task 07's view fit reads it.
+
+## Drag (pure helpers in the same module)
+
+- `dropTarget(input, cardId, pointer): {anchor, index} | 'free'`. The edge band is `0.28 · min(board.w, board.h)`, as on the prototype. Outside it the card floats. Inside it, the nearest anchor point wins, and the index comes from the settled centres of the target stack.
+- `applyDrop(stored, cardId, target): stored'`. Renumbers the target stack as integers.
+
+A layout during a drag is `layoutBoard({...input, stored: applyDrop(...), frozenFolds: previous folds})`. Only the cards whose rectangles change glide.
+
+## Tests (no DOM)
+
+- Per anchor: default places are inside the band at 3440×1440.
+- A stored far-edge placement stays at the board edge.
+- Fold order follows priority; frame-opened cards never fold; `frozenFolds` stops all re-planning.
+- Cuts land on row breaks and are never below `min.h`.
+- The strip never overlaps `bc` or `br`.
+- The free rectangle is correct on hand-computed boards.
+- Determinism: the same input gives the same output.
+- Property test over random inputs: no two docked cards overlap; every docked card is inside the board.
