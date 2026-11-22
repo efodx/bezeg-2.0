@@ -21,7 +21,40 @@ const IN_VIEW_SHARE = 0.4;
 const PROBE_VALUES = 21;
 const FALLBACK_SHARE = 0.25;
 
-interface Oscillator {phase: number; period: number; last: number; direction: 1 | -1; nextStep: number; lo?: number; hi?: number}
+/**
+ * Who wins (owner, 2026-11-22: "changing value of a puck when it's playing makes it go weird"): the learner. A sweep is one
+ * writer of a value among several (the puck's drag, typing and track, the tools' control, ±, keys, lesson scenes, Povrni,
+ * undo). Any of them stops that parameter's sweep and the value stays where it was put; ∿ shows unpressed again. Two ways
+ * to notice: a pointer or key on the parameter's own control (`[data-param]`, so a touch without movement counts too), and
+ * a published value that is none of the sweep's own recent writes (the registry publishes on the control's next render, so
+ * it lags the sweep by a write or two).
+ */
+interface Oscillator {phase: number; period: number; last: number; direction: 1 | -1; nextStep: number; lo?: number; hi?: number; recent?: number[]}
+const RECENT_WRITES = 8;
+
+/** The published value is the sweep's own (the start value or one of its recent writes), within half a step. */
+function isOwnValue(osc: Oscillator, entry: RangeParam): boolean {
+    const tolerance = entry.step / 2 + 1e-9;
+    const cycle = entry.cyclic;
+    const distance = (v: number) => {
+        const d = Math.abs(v - entry.value);
+        return cycle === undefined ? d : Math.min(d % cycle, cycle - (d % cycle));  // an angle published wrapped is the same angle
+    };
+    return osc.recent === undefined || osc.recent.some(v => distance(v) <= tolerance);
+}
+
+const SKIP_KEYS = new Set(['Tab', 'Shift', 'Control', 'Alt', 'Meta', 'Escape', 'CapsLock']);
+function stopFromEvent(event: Event) {
+    if (running.size === 0 || !(event.target instanceof Element)) return;
+    if (event instanceof KeyboardEvent && SKIP_KEYS.has(event.key)) return;
+    if (event instanceof PointerEvent && event.button !== 0) return;
+    const key = event.target.closest<HTMLElement>('[data-param]')?.dataset.param;
+    if (key !== undefined && running.has(key)) stopOscillator(key);
+}
+if (typeof document !== 'undefined') {
+    document.addEventListener('pointerdown', stopFromEvent, true);
+    document.addEventListener('keydown', stopFromEvent, true);
+}
 
 const running = new Map<string, Oscillator>();
 const listeners = new Set<() => void>();
@@ -85,6 +118,7 @@ function tick(now: number) {
             if (!moved) osc.direction = osc.direction > 0 ? -1 : 1;
             continue;
         }
+        if (!isOwnValue(osc, entry)) { running.delete(key); emit(); continue; } // someone else set it: they win
         if (entry.cyclic === undefined && osc.lo === undefined) continue; // still probing which values stay in view
         osc.phase += (2 * Math.PI * dt) / osc.period;
         const lo = Math.max(entry.min, osc.lo ?? entry.min), hi = Math.min(entry.max, osc.hi ?? entry.max);
@@ -93,7 +127,11 @@ function tick(now: number) {
         const base = entry.cyclic === undefined ? entry.min : 0;
         const snapped = base + Math.round((target - base) / entry.step) * entry.step;
         const value = Math.min(hi, Math.max(lo, Number(snapped.toFixed(10))));
-        if (value !== entry.value) { entry.set(value); wrote = true; }
+        if (value !== entry.value) {
+            entry.set(value);
+            wrote = true;
+            osc.recent = [...(osc.recent ?? []), value].slice(-RECENT_WRITES);
+        }
     }
     if (wrote) { measureBusy(); writeAfter = now + Math.min(125, Math.max(0, busy * 1.2 - 8)); }
     if (running.size > 0) frame = requestAnimationFrame(tick);
@@ -206,7 +244,8 @@ export function toggleOscillator(key: string) {
             phase = entry.cyclic !== undefined ? (entry.value / entry.cyclic) * 2 * Math.PI : Math.asin(Math.max(-1, Math.min(1, (entry.value - mid) / amp)));
         }
         const now = performance.now();
-        running.set(key, {phase, period: PERIODS[running.size % PERIODS.length], last: now, direction: 1, nextStep: now});
+        running.set(key, {phase, period: PERIODS[running.size % PERIODS.length], last: now, direction: 1, nextStep: now,
+            recent: entry.kind === 'range' ? [entry.value] : undefined});
         if (entry.kind === 'range' && entry.cyclic === undefined) void fitToView(key);
     }
     emit();
@@ -218,6 +257,10 @@ export function sweepAll(keys: readonly string[]) {
     if (running.size > 0) { stopAllOscillators(); return; }
     if (prefersReducedMotion() || graphLocked()) return;
     for (const key of keys) toggleOscillator(key);
+}
+
+export function stopOscillator(key: string) {
+    if (running.delete(key)) emit();
 }
 
 export function stopAllOscillators() {
