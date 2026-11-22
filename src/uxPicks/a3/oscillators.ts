@@ -1,5 +1,5 @@
 import {useSyncExternalStore} from 'react';
-import {getParam, type ParamEntry, type RangeParam} from '../a1/paramRegistry';
+import {getParam, setSweeping, type ParamEntry, type RangeParam} from '../a1/paramRegistry';
 import {prefersReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import {findBoard, settle, type JxgBoard} from '../a19/ghost';
 
@@ -67,6 +67,7 @@ const COUNT_STEP_MS = 750;
 
 function emit() {
     snapshot = new Set(running.keys());
+    setSweeping(running.size > 0);
     for (const listener of listeners) listener();
 }
 

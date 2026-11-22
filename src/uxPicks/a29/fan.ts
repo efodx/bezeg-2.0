@@ -1,4 +1,4 @@
-import {getParam, probeWindow, type CountParam, type ParamEntry, type RangeParam} from '../a1/paramRegistry';
+import {getParam, isSweeping, probeWindow, type CountParam, type ParamEntry, type RangeParam} from '../a1/paramRegistry';
 import {drawn, settle, type JxgBoard} from '../a19/ghost';
 
 /**
@@ -69,6 +69,7 @@ const near = (list: Pt[], p: Pt, r: number) => list.some(q => Math.hypot(q[0] - 
 
 /** `cancelled` is asked between the probe's steps: once true the walk stops, the values are put back, and nothing is returned. */
 export function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamEntry, cancelled: () => boolean = () => false): Promise<Fan | undefined> {
+    if (isSweeping()) return Promise.resolve(undefined); // no probe while something sweeps (see `isSweeping`)
     return probeWindow(() => walk(board, svg, entry, cancelled));
 }
 

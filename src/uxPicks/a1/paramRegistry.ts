@@ -136,6 +136,16 @@ export function onDisplayTab(element: Element | null): boolean {
     return Boolean(element?.closest('#inspector-display'));
 }
 
+/**
+ * Something sweeps (pick a3, set by src/uxPicks/a3/oscillators.ts). While it does, hover previews (a19 ghosts, the a29 track
+ * ghost and overview fan) do not probe: a probe writes the live value for a moment and restores the value it read first, and
+ * with a sweep writing every frame that restore is stale and the probe's frames show on the board (owner, 2026-11-22: the
+ * curve flickered and jumped to the mouse). The sweep owns the value until the learner takes it.
+ */
+let sweeping = false;
+export function setSweeping(next: boolean) { sweeping = next; }
+export function isSweeping(): boolean { return sweeping; }
+
 /** Previews (a19) set a value for a moment and restore it; observers skip changes made while probing. */
 let probeDepth = 0;
 let lastProbeEnd = -Infinity;

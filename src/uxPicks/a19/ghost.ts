@@ -1,5 +1,5 @@
 import {flushSync} from 'react-dom';
-import {asProbe, probeWindow} from '../a1/paramRegistry';
+import {asProbe, isSweeping, probeWindow} from '../a1/paramRegistry';
 
 /** Shared by a19 and a29: find the board inside a frame, set it to a probed value, clone what moved, restore. */
 
@@ -52,6 +52,8 @@ export async function settle(board: JxgBoard, write: () => void) {
 /** Sets the board to the probed value, clones what moved, restores the live value; undefined when nothing moved. */
 export function captureGhost(frame: HTMLElement, board: JxgBoard, svg: SVGSVGElement, apply: () => void, restore: () => void): Promise<Ghost | undefined> {
     // The probed value never reaches the pucks and the view checks: the registry publishes nothing until the live value is back.
+    // No preview while something sweeps (see `isSweeping`).
+    if (isSweeping()) return Promise.resolve(undefined);
     return probeWindow(() => timed(() => capture(frame, board, svg, apply, restore)));
 }
 

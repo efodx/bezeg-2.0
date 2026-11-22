@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {declaredPuckHelp} from '../declare/graphUxStore';
-import {getParam, listParams, splitLabel, type ParamEntry} from '../a1/paramRegistry';
+import {getParam, isSweeping, listParams, splitLabel, type ParamEntry} from '../a1/paramRegistry';
 import {captureGhost, findBoard, captureQueue, type Ghost} from '../a19/ghost';
 import {analyse, type Fan} from './fan';
 import {trackFraction, valueAt} from './track';
@@ -114,6 +114,10 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
                         const stop = () => pressed || !isWanted(job);
                         const fan = await analyse(board, svg, entry, stop);
                         if (stop()) return; // abandoned: nothing was learnt, nothing is cached
+                        if (isSweeping()) { // no probe while something sweeps: say so, cache nothing
+                            setCard(current => current && current.key === job.key ? {...current, busy: false, sentence: 'Med gibanjem ni predogleda.'} : current);
+                            return;
+                        }
                         // The probe leaves the values as they were, so the signature taken before still holds.
                         cached = {sig, fan};
                         cache.set(job.key, cached);
