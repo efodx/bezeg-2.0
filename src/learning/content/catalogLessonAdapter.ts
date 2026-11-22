@@ -143,12 +143,14 @@ function frameForStep(
     workedExamples: ReadonlyMap<string, LessonFrame['workedExample']>,
 ): LessonFrame {
     const notation = (frame.formulaIds ?? step.formulaIds).flatMap(id => formulas.get(id) ?? []);
+    const declared = frame.declare ? {declare: frame.declare} : {};
     if (frame.kind === 'calculation') {
         return {
             id: frame.id,
             kind: frame.kind,
             title: step.title,
             workedExample: step.workedExampleId ? workedExamples.get(step.workedExampleId) : undefined,
+            ...declared,
         };
     }
     if (frame.kind === 'observation') {
@@ -159,6 +161,7 @@ function frameForStep(
             prompt: step.observationPrompt,
             expectedObservations: step.expectedObservations.length > 0 ? step.expectedObservations : undefined,
             animation: step.animation ? {animationId: step.animation.animationId} : undefined,
+            ...declared,
         };
     }
     return {
@@ -167,6 +170,7 @@ function frameForStep(
         title: step.title,
         body: step.explanation,
         notation,
+        ...declared,
     };
 }
 

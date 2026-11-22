@@ -1,5 +1,6 @@
 import type {DemonstrationId} from '../demonstrations';
 import type {SystemId} from '../dynamics/systems2';
+import type {FrameDeclaration} from '../graphs/base/declare/graphDeclaration';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
 import type {SimsonExampleId, SimsonOffset} from '../compgeo/simsonLineModel';
@@ -870,6 +871,8 @@ export interface LessonFrame {
     readonly expectedObservations?: readonly LocalizedText[];
     readonly animation?: LessonAnimation;
     readonly action?: LessonStepAction;
+    /** What the frame declares about its graph; nothing reads it yet. */
+    readonly declare?: FrameDeclaration;
 }
 
 export interface LessonStep {
