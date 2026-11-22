@@ -33,20 +33,24 @@ afterEach(() => {
     expect(writeSourcesIdle()).toBe(true);
 });
 
-test("a pointer gesture stays open until pointerup and closes on the next tick", () => {
+test("a pointer span stays open until pointerup and the next tick; the source is open only during each dispatch", () => {
     let seen: ReturnType<typeof currentWrite>;
     element.addEventListener("pointerdown", () => { seen = currentWrite(); });
     element.dispatchEvent(pointer("pointerdown"));
     expect(seen?.source).toBe("learner");
     expect(seen?.gesture).toBeTypeOf("number");
-    expect(currentWrite()?.source).toBe("learner");
+    // Between events: the span is open but there is no ambient source.
+    expect(currentWrite()).toBeUndefined();
+    expect(activeGesture()).toBe(seen?.gesture);
 
     vi.runAllTimers();
-    expect(currentWrite()?.source).toBe("learner");
+    expect(currentWrite()).toBeUndefined();
+    expect(activeGesture()).toBe(seen?.gesture);
 
     element.dispatchEvent(pointer("pointerup"));
-    expect(currentWrite()?.source).toBe("learner");
+    expect(activeGesture()).toBe(seen?.gesture);
     vi.runAllTimers();
+    expect(activeGesture()).toBeUndefined();
     expect(currentWrite()).toBeUndefined();
 });
 
@@ -74,25 +78,31 @@ test("stopPropagation in an inner handler still closes the gesture on the next t
     expect(activeGesture()).toBeUndefined();
 });
 
-test("keydown opens a gesture that the keyup of the same code closes", () => {
+test("keydown opens a span that the keyup of the same code closes", () => {
+    const seen: Array<string | undefined> = [];
+    element.addEventListener("keyup", () => seen.push(currentWrite()?.source));
     element.dispatchEvent(key("keydown", "ArrowLeft"));
     vi.runAllTimers();
-    expect(currentWrite()?.source).toBe("learner");
+    expect(activeGesture()).toBeDefined();
+    expect(currentWrite()).toBeUndefined();
     element.dispatchEvent(key("keydown", "ArrowLeft"));
     element.dispatchEvent(key("keyup", "KeyA"));
     vi.runAllTimers();
-    expect(currentWrite()?.source).toBe("learner");
+    expect(activeGesture()).toBeDefined();
     element.dispatchEvent(key("keyup", "ArrowLeft"));
+    expect(seen).toEqual(["learner", "learner"]);
     vi.runAllTimers();
+    expect(activeGesture()).toBeUndefined();
     expect(currentWrite()).toBeUndefined();
 });
 
-test("window blur closes every open gesture", () => {
+test("window blur closes every open span", () => {
     element.dispatchEvent(pointer("pointerdown", 1));
     element.dispatchEvent(pointer("pointerdown", 2));
     element.dispatchEvent(key("keydown", "ArrowUp"));
-    expect(currentWrite()?.source).toBe("learner");
+    expect(activeGesture()).toBeDefined();
     window.dispatchEvent(new Event("blur"));
+    expect(activeGesture()).toBeUndefined();
     expect(currentWrite()).toBeUndefined();
     vi.runAllTimers();
     expect(writeSourcesIdle()).toBe(true);

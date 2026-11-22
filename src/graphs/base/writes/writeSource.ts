@@ -6,10 +6,19 @@
  * synchronous code that calls a graph's setter, and every graph's {@link ParameterArbiter} reads it with
  * {@link currentWrite}. Scopes nest; the innermost wins.
  *
- * A learner gesture (pointer or key down on the board or a control, until release) spans many events, so it cannot
- * be a synchronous scope. {@link beginLearnerGesture} opens an ambient `learner` source that applies whenever no
- * scope is open. An animation frame that runs during a drag opens its own `animation` scope and is not mistaken
- * for the learner.
+ * The learner has two separate things, so that nothing else is mistaken for the learner:
+ * - an ambient `learner` **source** ({@link beginLearnerInput}), open only while a learner's input event is being
+ *   dispatched (pointer down, move and up, key down, click, input, change, ...). It applies when no scope is open.
+ *   A timer, promise or animation frame that runs between those events, even during a held drag, has no ambient
+ *   source: it names its own or is an untagged write.
+ * - a **span** ({@link beginLearnerSpan}), from pointer or key down to its release. It carries no source; it only
+ *   says how long the keys the learner's input changed stay held (`ParameterArbiter`). Holds are per key: a pointer
+ *   held where no key changes (a card grip) holds nothing.
+ * An explicit scope always wins over the ambient source: a lesson action triggered by a click on Next runs as
+ * `lesson`, a playback tick inside a pointer event as `animation`.
+ *
+ * Tests that call a graph directly open the learner's source and span with {@link beginLearnerGesture}, or a scope
+ * with `runAs("learner", ...)`.
  *
  * Pure: no React, no JSXGraph.
  */
@@ -39,9 +48,10 @@ export interface ActiveWrite {
 }
 
 const scopes: ActiveWrite[] = [];
-let gestureId = 0;
-let openGestures = 0;
-let currentGestureId: number | undefined;
+let spanId = 0;
+let openSpans = 0;
+let currentSpanId: number | undefined;
+let openInputs = 0;
 const gestureEndListeners = new Set<(id: number) => void>();
 const scopeEndListeners = new Set<() => void>();
 
@@ -74,36 +84,62 @@ export function runAs<T>(source: WriteSource, work: () => T, lease?: WriteLeaseR
     }
 }
 
-/** The innermost scope, else the ambient learner gesture, else `undefined` (an untagged write). */
+/** The innermost scope, else the ambient learner source, else `undefined` (an untagged write). */
 export function currentWrite(): ActiveWrite | undefined {
     const top = scopes[scopes.length - 1];
     if (top) return top;
-    if (currentGestureId !== undefined) return {source: "learner", gesture: currentGestureId};
+    if (openInputs > 0) return {source: "learner", gesture: currentSpanId};
     return undefined;
 }
 
-/** The current learner gesture's id, if a gesture is open (whether or not a scope is open on top of it). */
+/** The current learner span's id, if one is open (whether or not a source is open). */
 export function activeGesture(): number | undefined {
-    return currentGestureId;
+    return currentSpanId;
 }
 
 /**
- * Opens the ambient learner gesture (pointer or key down) and returns its idempotent end function. Overlapping
- * gestures (two pointers) share one id until the last ends.
+ * Opens a learner span (pointer or key down until release) and returns its idempotent end function. Overlapping
+ * spans (two pointers, a key and a pointer) share one id until the last ends. A span holds, it does not write.
  */
-export function beginLearnerGesture(): () => void {
-    if (openGestures === 0) currentGestureId = ++gestureId;
-    openGestures++;
+export function beginLearnerSpan(): () => void {
+    if (openSpans === 0) currentSpanId = ++spanId;
+    openSpans++;
     let open = true;
     return () => {
         if (!open) return;
         open = false;
-        if (openGestures === 1) notifyScopeEnd();
-        openGestures--;
-        if (openGestures > 0) return;
-        const ended = currentGestureId!;
-        currentGestureId = undefined;
+        openSpans--;
+        if (openSpans > 0) return;
+        const ended = currentSpanId!;
+        currentSpanId = undefined;
         for (const listener of [...gestureEndListeners]) listener(ended);
+    };
+}
+
+/**
+ * Opens the ambient learner source for the dispatch of one input event, inside a span (its own short one when none is
+ * open). Returns the idempotent end function; changes made under it are attributed before it closes.
+ */
+export function beginLearnerInput(): () => void {
+    const endSpan = beginLearnerSpan();
+    openInputs++;
+    let open = true;
+    return () => {
+        if (!open) return;
+        open = false;
+        if (openInputs === 1) notifyScopeEnd();
+        openInputs--;
+        endSpan();
+    };
+}
+
+/** The learner's source and span together until the returned function runs (tests, and code that simulates input). */
+export function beginLearnerGesture(): () => void {
+    const endSpan = beginLearnerSpan();
+    const endInput = beginLearnerInput();
+    return () => {
+        endInput();
+        endSpan();
     };
 }
 
@@ -115,7 +151,7 @@ export function onLearnerGestureEnd(listener: (id: number) => void): () => void 
     };
 }
 
-/** Test helper: whether every scope and gesture has been closed. */
+/** Test helper: whether every scope, source and span has been closed. */
 export function writeSourcesIdle(): boolean {
-    return scopes.length === 0 && openGestures === 0;
+    return scopes.length === 0 && openInputs === 0 && openSpans === 0;
 }

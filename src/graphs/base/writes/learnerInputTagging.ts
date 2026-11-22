@@ -1,16 +1,17 @@
-import {beginLearnerGesture} from "./writeSource";
+import {beginLearnerInput, beginLearnerSpan} from "./writeSource";
 
 /**
  * Tags every write that a learner's input causes as `learner`, with one set of window capture listeners instead of
  * a wrapper per control, board handler and panel button (task 01, slice 4).
  *
- * - Pointer down opens a learner gesture until that pointer's up or cancel; key down until that key's up. While it
- *   is open, every key a write changes is held for the learner (see `ParameterArbiter`), so a board drag or a
- *   held arrow key keeps lessons and animations off the key until release.
- * - Click, input, change, wheel and the other discrete input events open a short gesture that covers their
- *   synchronous handlers (React dispatches `onChange` and `onClick` inside the native event).
+ * - Every learner input event (pointer down, move and up, key down and up, click, input, change, wheel, ...) opens
+ *   the ambient `learner` source for its own dispatch only, covering its synchronous handlers (JSXGraph's drag
+ *   handlers, React's `onChange` and `onClick`). A timer or frame between events has no ambient source.
+ * - Pointer down opens a span until that pointer's up or cancel, key down until that key's up. During a span, the keys
+ *   the learner's input changed are held (see `ParameterArbiter`), so a board drag or a held arrow key keeps lessons
+ *   and animations off those keys until release.
  *
- * Only trusted (real) pointer and key events open a spanning gesture; a synthetic one (a test's `fireEvent`, a
+ * Only trusted (real) pointer and key events open a span; a synthetic one (a test's `fireEvent`, a
  * script's `dispatchEvent`) gets a pulse, because nothing guarantees its matching up event. `holdSyntheticInput`
  * makes synthetic events behave like real ones, for this module's own tests.
  *
@@ -21,7 +22,8 @@ import {beginLearnerGesture} from "./writeSource";
  * Owner: the window; installed once, never removed (it holds no graph). Pure DOM, no React or JSXGraph.
  */
 
-const DISCRETE_EVENTS = ["click", "dblclick", "input", "change", "wheel", "contextmenu", "submit"] as const;
+/** Every learner input whose handlers may write: each opens the source for its own dispatch only. */
+const INPUT_EVENTS = ["pointermove", "pointerup", "pointercancel", "keyup", "click", "dblclick", "input", "change", "wheel", "contextmenu", "submit"] as const;
 
 let installed: Window | undefined;
 
@@ -50,7 +52,7 @@ export function installLearnerInputTagging(target: Window = window, options: Lea
     };
 
     /** A gesture for one dispatch: ended at the bubble listener of the same event, or in the next task. */
-    const pulse = () => endSoon(beginLearnerGesture());
+    const pulse = () => endSoon(beginLearnerInput());
     const pulses = new WeakMap<Event, () => void>();
     const startPulse = (event: Event) => {
         if (!pulses.has(event)) pulses.set(event, pulse());
@@ -64,8 +66,9 @@ export function installLearnerInputTagging(target: Window = window, options: Lea
             startPulse(event);
             return;
         }
+        startPulse(event);
         pointers.get(event.pointerId)?.();
-        pointers.set(event.pointerId, beginLearnerGesture());
+        pointers.set(event.pointerId, beginLearnerSpan());
     }, true);
     const pointerEnd = (event: PointerEvent) => {
         const end = pointers.get(event.pointerId);
@@ -78,7 +81,7 @@ export function installLearnerInputTagging(target: Window = window, options: Lea
     target.addEventListener("pointercancel", pointerEnd, true);
 
     target.addEventListener("keydown", event => {
-        if (spans(event) && !keys.has(event.code)) keys.set(event.code, beginLearnerGesture());
+        if (spans(event) && !keys.has(event.code)) keys.set(event.code, beginLearnerSpan());
         startPulse(event);
     }, true);
     target.addEventListener("keydown", endPulse);
@@ -113,7 +116,7 @@ export function installLearnerInputTagging(target: Window = window, options: Lea
     // Switching tabs or apps blurs the window too.
     target.addEventListener("blur", endAllNow);
 
-    for (const type of DISCRETE_EVENTS) {
+    for (const type of INPUT_EVENTS) {
         target.addEventListener(type, startPulse, {capture: true, passive: true});
         target.addEventListener(type, endPulse, {passive: true});
     }
