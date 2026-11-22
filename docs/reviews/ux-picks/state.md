@@ -18,6 +18,7 @@ Prototype playground for the ideas the owner liked from the 2026-11-21 UX challe
 - 2026-11-21 (handler 2): the owner wants all picks **except the ghost controls** implemented app-wide. Order: first polish the prototypes here (with the impeccable skill, `~/.claude/skills/impeccable/SKILL.md`, to critique and polish), then plan the app-wide implementation. "Ghost controls" = c11 "Duh pokaže" (c11 + b15) only, confirmed and removed from the branch; a19 and a29 previews stay.
 - Docked lesson: tools stay small only while the card is docked; a card carried away gives the tools the whole column. Hiding a docked card keeps its tab in the dock, not on the graph (pick dockTools).
 - Legends: a separate legend card on the graph, built on the same shell as the text card (same pick, boardText).
+- 2026-11-22 03:20: "when in doubt, you can spawn an opus 5.5 high fresh eyes to consult - read only, you can keep that session alive up to 200k context for further consultation, then a new one should be spawned if needed" → consultant = Agent `Plan` (read-only), `model: opus`, `effort: high`; reuse it with SendMessage while its context is under 200k, then spawn a fresh one with a short summary of what it already advised. Record its agent name/ID and topic in the handoff so a successor can reuse it.
 
 ## How picks are built
 
