@@ -439,7 +439,7 @@ const pp2Formulas: readonly FormulaBlock[] = [
 const pp2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'pp2-small', order: 1,
-        declare: {observation: frame({highlight: ['energy-1', 'type'], uses: ['phase-system']})},
+        declare: {observation: frame({highlight: ['type'], uses: ['phase-system']})},
         title: text('Majhen začetni odmik', 'A small start angle'),
         purpose: text('Napovedati energijo in obliko orbite nihala iz začetka \\((1,0)\\) ter jo primerjati z linearnim sistemom.', 'Predicting the energy and shape of the pendulum orbit from \\((1,0)\\) and comparing it with the linear system.'),
         explanation: text(
