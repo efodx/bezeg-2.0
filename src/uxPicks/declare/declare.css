@@ -1,6 +1,8 @@
 /* Cards rendered from a graph's declaration (src/uxPicks/declare). Calm, two-column, values right-aligned. */
 .ux-rc { padding: 0 12px 10px; font-variant-numeric: tabular-nums; font-size: 0.875rem; color: var(--bezeg-shell-ink, #2b362d); }
-.ux-rc-formula { font-size: 1.15rem; line-height: 1.35; padding: 2px 0 8px; margin-bottom: 8px; border-bottom: 1px solid var(--bezeg-shell-rule, #e3e7d9); overflow-x: auto; overflow-y: hidden; }
+.ux-rc-formula { font-size: 1.05rem; line-height: 1.35; padding: 2px 0 8px; margin-bottom: 8px; border-bottom: 1px solid var(--bezeg-shell-rule, #e3e7d9); overflow-x: auto; overflow-y: hidden; scrollbar-width: auto; scrollbar-color: auto; }
+.ux-rc-formula::-webkit-scrollbar { height: 6px; }
+.ux-rc-formula::-webkit-scrollbar-thumb { background: var(--bezeg-shell-ink-secondary, #526152); border-radius: 3px; }
 .ux-rc-group + .ux-rc-group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bezeg-shell-rule, #e3e7d9); }
 .ux-rc-title { margin: 0 0 2px; padding: 0 6px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bezeg-shell-ink-secondary, #526152); }
 .ux-rc-grid { margin: 0; display: grid; grid-template-columns: minmax(45%, 1fr) auto; column-gap: 0; }
@@ -9,6 +11,8 @@
 .ux-rc-name { font-weight: 400; display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 0 7px; color: var(--bezeg-shell-ink-secondary, #526152); }
 .ux-rc-symbol { color: var(--bezeg-shell-ink, #2b362d); }
 .ux-rc-row > .ux-rc-value { padding-left: 14px; text-align: right; font-weight: 600; text-wrap: balance; color: var(--bezeg-shell-ink, #2b362d); }
+.ux-rc-row[data-long] > .ux-rc-name { grid-column: 1 / -1; padding-bottom: 0; }
+.ux-rc-row[data-long] > .ux-rc-value { grid-column: 1 / -1; padding-top: 0; overflow-x: auto; scrollbar-width: thin; }
 .ux-rc-row[data-tone="muted"] > .ux-rc-value { font-weight: 400; color: var(--bezeg-shell-ink-secondary, #526152); }
 .ux-rc-unit { font-weight: 400; color: var(--bezeg-shell-ink-secondary, #526152); }
 /* The tone: a 10 px sample of the drawn object before the name, never a colour on the value. */

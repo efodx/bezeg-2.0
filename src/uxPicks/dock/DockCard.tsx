@@ -76,6 +76,27 @@ function writePos(kind: string, p: Pos | null) {
     try { if (p) localStorage.setItem(posKey(kind), JSON.stringify(p)); else localStorage.removeItem(posKey(kind)); } catch { /* ignore */ }
 }
 
+/** A card dropped free never lies over another card: if its place overlaps one, it moves the shortest way to a spot that clears
+ *  them all (beside or above/below the card it hit), kept inside the board. Board coordinates in and out. */
+function clearOfCards(el: HTMLElement, host: HTMLElement, at: Pos): Pos {
+    const f = host.getBoundingClientRect(), W = el.offsetWidth, H = el.offsetHeight, gap = 6;
+    const others = Array.from(host.querySelectorAll<HTMLElement>('.ux-btext')).filter(o => o !== el)
+        .map(o => o.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0)
+        .map(r => ({l: r.left - f.left, t: r.top - f.top, r: r.right - f.left, b: r.bottom - f.top}));
+    const hits = (p: Pos) => others.filter(o => p.x < o.r + 2 && p.x + W > o.l - 2 && p.y < o.b + 2 && p.y + H > o.t - 2);
+    if (hits(at).length === 0) return at;
+    const maxX = Math.max(0, host.clientWidth - W), maxY = Math.max(0, host.clientHeight - H);
+    const cands: Pos[] = [];
+    for (const o of hits(at)) cands.push({x: o.l - W - gap, y: at.y}, {x: o.r + gap, y: at.y}, {x: at.x, y: o.t - H - gap}, {x: at.x, y: o.b + gap});
+    let best: Pos | null = null, bestD = Infinity;
+    for (const c of cands) {
+        const p = {x: Math.round(Math.max(0, Math.min(c.x, maxX))), y: Math.round(Math.max(0, Math.min(c.y, maxY)))};
+        const d = Math.hypot(p.x - at.x, p.y - at.y);
+        if (hits(p).length === 0 && d < bestD) { best = p; bestD = d; }
+    }
+    return best ?? at;
+}
+
 export function DockCard(props: DockCardProps) {
     const {kind} = props;
     const dock = useDock();
@@ -231,7 +252,9 @@ export function DockCard(props: DockCardProps) {
         const host = frame?.current;
         if (!host) return;
         const r = el.getBoundingClientRect(), f = host.getBoundingClientRect();
-        writePos(kind, {x: Math.round(r.left - f.left), y: Math.round(r.top - f.top)});
+        const dropped = clearOfCards(el, host, {x: Math.round(r.left - f.left), y: Math.round(r.top - f.top)});
+        if (dropped.x !== Math.round(r.left - f.left) || dropped.y !== Math.round(r.top - f.top)) setPos(dropped);
+        writePos(kind, dropped);
     };
     const onKeyDown = (e: React.KeyboardEvent) => {
         if (phone) return;

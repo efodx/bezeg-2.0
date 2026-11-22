@@ -15,9 +15,12 @@ function EntryMark(props: {entry: LegendEntry}) {
     return <span className={`ux-rc-mark ux-rc-mark-${kind}`} style={style} aria-hidden="true"/>;
 }
 
+/** A value typeset from more TeX than this does not fit beside its name: it takes its own line under it. */
+const LONG_VALUE_TEX = 40;
+
 function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry; reserveMark: boolean}) {
     const {row} = props;
-    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone}>
+    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone} data-long={(row.valueTex?.length ?? 0) > LONG_VALUE_TEX || undefined}>
         <dt className="ux-rc-name">
             {props.entry ? <EntryMark entry={props.entry}/> : props.reserveMark && <span className="ux-rc-mark ux-rc-mark-none" aria-hidden="true"/>}
             <span className="ux-rc-label">

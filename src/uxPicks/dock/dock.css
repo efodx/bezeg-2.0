@@ -26,7 +26,8 @@
     flex-direction: column; flex-wrap: nowrap; width: max-content; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;
     scrollbar-color: var(--bezeg-shell-ink-secondary) transparent; padding: 14px; margin: -10px; /* room for the cards' soft shadow inside the scroll box (it clipped square); same 4 px outer offset */ max-height: calc(var(--ux-dock-h, 600px) * 0.45);
 }
-.ux-dock-a-tl, .ux-dock-a-tr { max-height: calc(var(--ux-dock-h, 600px) * 0.62); }
+.ux-dock-a-tl { max-height: calc(var(--ux-dock-h, 600px) * 0.8); }
+.ux-dock-a-tr { max-height: calc(var(--ux-dock-h, 600px) * 0.62); }
 .ux-dock-a-br { max-height: calc(var(--ux-dock-h, 600px) * 0.4); }
 /* A stack alone in its side column (nothing docked above or below it, no gap shown there) takes the column's whole height
    and scrolls only past it; the shares above leave room only for neighbours that exist. */
@@ -181,7 +182,7 @@
 
 /* The one-time gestures hint under the first card's head (GesturesHint). Under reduced motion it only fades. */
 .ux-gesture-hint {
-    position: absolute; z-index: 8; display: flex; align-items: center; gap: 6px; max-width: 280px; padding: 4px 4px 4px 10px;
+    position: absolute; z-index: 8; display: flex; align-items: center; gap: 6px; width: max-content; max-width: calc(100% - 12px); white-space: nowrap; padding: 4px 4px 4px 10px;
     background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink-secondary); border: 1px solid var(--bezeg-shell-rule); border-radius: 10px;
     box-shadow: 0 1px 2px rgba(25, 55, 47, 0.08), 0 4px 14px rgba(25, 55, 47, 0.08); font-size: 0.8125rem; line-height: 1.3;
     animation: ux-hint-in 240ms ease-out both;
