@@ -1,11 +1,11 @@
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, useSyncExternalStore} from 'react';
 import type {FitBox} from '../../graphs/base/fitBoundingBox';
 import {useReducedMotion} from '../../graphs/base/controls/reducedMotion';
 import {listParams, recentlyProbed, useParams, type ParamEntry} from '../a1/paramRegistry';
 import {samplePoints} from './focusShapes';
 import {getGraphUx, useGraphUx} from './graphUxStore';
 import type {FocusDecl} from './graphUx';
-import {getViewPort, setFitHandler, setNavHandler, subscribeViewPort} from './viewPort';
+import {autoFitOn, getViewPort, setFitHandler, setNavHandler, subscribeAutoFit, subscribeViewPort} from './viewPort';
 import {fitView, type FitResult, type Point, type Rect} from './viewFit';
 
 /**
@@ -110,10 +110,10 @@ export function useViewFit() {
     const params = useParams();
     const reduced = useReducedMotion();
     const hasFocus = ux?.focus !== undefined;
-    // `mode`: automatic fits keep the learner's last "Prilagodi točkam" (fill) until the graph or a lesson sets a new view.
-    // `fitKey`: the obstacles the last fit cleared; `dockOnly`: the pending fit was asked for only by a dock change.
+    // One fit (keep mode) for the automatic triggers and "Prilagodi točkam" alike (owner, 2026-11-22), so the button after an
+    // automatic fit changes nothing. `fitKey`: the obstacles the last fit cleared; `dockOnly`: the pending fit was asked for only by a dock change.
     const state = useRef({paused: false, down: false, wheelUntil: 0, applying: false, timer: 0, frame: 0, pendingCheck: false, pendingFit: false, boardDown: false,
-        mode: 'keep' as 'keep' | 'fill', fitKey: undefined as string | undefined, dockOnly: false,
+        fitKey: undefined as string | undefined, dockOnly: false,
         goTo: undefined as ((box: FitBox) => void) | undefined, checkNow: undefined as (() => void) | undefined});
     const reducedRef = useRef(reduced);
     reducedRef.current = reduced;
@@ -140,22 +140,22 @@ export function useViewFit() {
             s.frame = requestAnimationFrame(tick);
         };
         s.goTo = goTo;
-        const fit = (mode: 'keep' | 'fill') => {
+        const fit = () => {
             const port = getViewPort();
             s.fitKey = port ? obstacleKey(port.container) : undefined;
-            const result = computeFit(mode);
+            const result = computeFit('keep');
             if (result) goTo(result.box);
         };
         const run = () => {
             s.timer = 0;
             if (s.down) { s.pendingFit = true; return; }
-            if (s.paused) return;
+            if (s.paused || !autoFitOn()) return;
             const dockOnly = s.dockOnly;
             s.dockOnly = false;
             // A hint or hover cue in the dock changed nothing the fit avoids: leave the view where it is.
             const port = getViewPort();
             if (dockOnly && port && s.fitKey !== undefined && obstacleKey(port.container) === s.fitKey) return;
-            fit(s.mode);
+            fit();
         };
         const schedule = (delay = SETTLE_MS, fromDock = false) => {
             // Any other trigger pending makes the fit unconditional.
@@ -201,17 +201,18 @@ export function useViewFit() {
         window.addEventListener('pointerup', onUp, true);
         window.addEventListener('pointercancel', onUp, true);
         const off = subscribeViewPort(kind => {
-            if (kind === 'port') { bind(); resume(); s.mode = 'keep'; schedule(60); return; }
+            if (kind === 'port') { bind(); resume(); schedule(60); return; }
             resume(); // a view of the graph's own or a lesson frame: the fit starts over from the new intent
-            s.mode = 'keep';
             schedule(kind === 'action' ? 220 : 60);
         });
         bind();
         setNavHandler(pause);
-        setFitHandler(() => { resume(); window.clearTimeout(s.timer); s.timer = 0; s.dockOnly = false; s.mode = 'fill'; fit('fill'); });
+        setFitHandler(() => { resume(); window.clearTimeout(s.timer); s.timer = 0; s.dockOnly = false; fit(); });
+        // Switched on: fit now (from the intent, as on load).
+        const autoOff = subscribeAutoFit(() => { if (autoFitOn()) { resume(); schedule(60); } else { cancelGlide(); window.clearTimeout(s.timer); s.timer = 0; } });
         schedule(60);
         return () => {
-            off(); boardOff?.(); containerOff?.(); observeOff?.();
+            off(); autoOff(); boardOff?.(); containerOff?.(); observeOff?.();
             window.removeEventListener('pointerdown', onDown, true);
             window.removeEventListener('pointerup', onUp, true);
             window.removeEventListener('pointercancel', onUp, true);
@@ -226,10 +227,10 @@ export function useViewFit() {
         if (!hasFocus) return undefined;
         const s = state.current;
         const check = () => {
-            if (s.paused || recentlyProbed()) return;
+            if (s.paused || !autoFitOn() || recentlyProbed()) return;
             if (s.down) { s.pendingCheck = true; return; }
             if (mustNeedsRefit()) {
-                const result = computeFit(s.mode);
+                const result = computeFit('keep');
                 const port = getViewPort();
                 if (result && port) s.goTo?.(result.box);
             }
@@ -240,3 +241,6 @@ export function useViewFit() {
         return () => window.clearTimeout(checkTimer.current);
     }, [hasFocus, params]);
 }
+
+/** The automatic-fit switch, for the toggle beside "Prilagodi točkam". */
+export function useAutoFit(): boolean { return useSyncExternalStore(subscribeAutoFit, autoFitOn, autoFitOn); }

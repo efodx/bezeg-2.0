@@ -1,0 +1,7 @@
+/* The automatic-fit switch beside "Prilagodi točkam": a small check box inside the button, so on/off reads at a glance. */
+.ux-autofit-toggle { display: inline-flex; align-items: center; gap: 6px; }
+.ux-autofit-box {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1em; height: 1em; border: 1.5px solid currentColor; border-radius: 3px; font-size: 0.85em; line-height: 1;
+}
+.ux-autofit-toggle[aria-pressed="false"] { opacity: 0.85; }

@@ -38,7 +38,27 @@ export function subscribeViewPort(listener: (kind: Kind) => void): () => void {
     return () => { listeners.delete(listener); };
 }
 
-/** useViewFit: the declaring graph's "Prilagodi točkam" (fit, fill mode). */
+/**
+ * The learner's switch for automatic fitting (owner, 2026-11-22: "one mode, but make it turnable on/off"). On: load, lesson
+ * frames, resizes, card changes and released parameters refit. Off: the view moves only by the learner and "Prilagodi točkam".
+ * Global, remembered in localStorage `ux-autofit`.
+ */
+const AUTO_KEY = 'ux-autofit';
+let autoFit = (() => { try { return localStorage.getItem(AUTO_KEY) !== '0'; } catch { return true; } })();
+const autoListeners = new Set<() => void>();
+export function autoFitOn(): boolean { return autoFit; }
+export function setAutoFit(on: boolean) {
+    if (on === autoFit) return;
+    autoFit = on;
+    try { localStorage.setItem(AUTO_KEY, on ? '1' : '0'); } catch { /* ignore */ }
+    autoListeners.forEach(l => l());
+}
+export function subscribeAutoFit(listener: () => void): () => void {
+    autoListeners.add(listener);
+    return () => { autoListeners.delete(listener); };
+}
+
+/** useViewFit: the declaring graph's "Prilagodi točkam" (the same fit the automatic triggers run, once). */
 export function setFitHandler(handler: (() => void) | undefined) { fitHandler = handler; }
 /** BaseGraph's navigation 'fit' action: runs the handler when set; false when the original fit applies. */
 export function runFitHandler(): boolean { if (!fitHandler) return false; fitHandler(); return true; }

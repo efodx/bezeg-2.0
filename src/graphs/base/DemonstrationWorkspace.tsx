@@ -7,6 +7,7 @@ import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
 import {useGraphUxPublisher} from "../../uxPicks/declare/graphUxStore";
 import {useViewFit} from "../../uxPicks/declare/useViewFit";
+import {AutoFitToggle} from "../../uxPicks/declare/AutoFitToggle";
 import type {GraphUx} from "../../uxPicks/declare/graphUx";
 import {usePick} from "../../uxPicks/picks";
 import "../../uxPicks/dockTools/dockTools.css";
@@ -292,6 +293,7 @@ export function DemonstrationWorkspace(props: {
                     const [text, label] = navigationLabels[action];
                     return <button key={action} data-navigation={action} disabled={lessonOpen && lessonMode === 'content' && !toolsCard} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
                 })}
+                <AutoFitToggle/>
             </div>}
             <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
         </section>
