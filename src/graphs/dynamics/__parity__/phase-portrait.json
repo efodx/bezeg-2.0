@@ -1,0 +1,783 @@
+{
+  "graph": "phase-portrait",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "0 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Linearni sistem x′ = A x"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip matrike (točen)#0",
+          "label": "Tip matrike (točen)",
+          "value": "stabilno vozlišče"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "-7"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "10"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "9"
+        },
+        {
+          "key": "Matrika A#0",
+          "label": "Matrika A",
+          "value": "vrstica 1: (-4; -1); vrstica 2: (-2; -3)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "da"
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ₁ = -2, λ₂ = -5"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -4 do 4, y od -4 do 4; polovična širina 4. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej izračunana za vseh 10 s; nazaj ustavljena po 0,34 s: zapustila je izračunano območje"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kvadratki: lega ob času t (izračunana)",
+        "Lastne smeri linearizacije (izračunane)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: stabilno vozlišče",
+        "Stolpec 1 matrike A, slika točke (1, 0): (-4; -2)",
+        "Stolpec 2 matrike A, slika točke (0, 1): (-1; -3)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Zgodaj ustavljene polovice trajektorij: 1 od 2 (glej odčitek)"
+      ]
+    },
+    {
+      "name": "spiral entries",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "0 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Linearni sistem x′ = A x"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip matrike (točen)#0",
+          "label": "Tip matrike (točen)",
+          "value": "nestabilna spirala (žarišče)"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "2"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "5"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "-16"
+        },
+        {
+          "key": "Matrika A#0",
+          "label": "Matrika A",
+          "value": "vrstica 1: (1; -2); vrstica 2: (2; 1)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "da"
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ = 1 ± 2 i"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -4 do 4, y od -4 do 4; polovična širina 4. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej ustavljena po 1,44 s: zapustila je izračunano območje; nazaj izračunana za vseh 10 s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kvadratki: lega ob času t (izračunana)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: nestabilna spirala (žarišče)",
+        "Stolpec 1 matrike A, slika točke (1, 0): (1; 2)",
+        "Stolpec 2 matrike A, slika točke (0, 1): (-2; 1)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Zgodaj ustavljene polovice trajektorij: 1 od 2 (glej odčitek)"
+      ]
+    },
+    {
+      "name": "centre entries",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "0 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Linearni sistem x′ = A x"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip matrike (točen)#0",
+          "label": "Tip matrike (točen)",
+          "value": "središče (center)"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "0"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "1"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "-4"
+        },
+        {
+          "key": "Matrika A#0",
+          "label": "Matrika A",
+          "value": "vrstica 1: (0; 1); vrstica 2: (-1; 0)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "ne"
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ = 0 ± 1 i"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -4 do 4, y od -4 do 4; polovična širina 4. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej izračunana za vseh 10 s; nazaj izračunana za vseh 10 s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kvadratki: lega ob času t (izračunana)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: središče (center)",
+        "Stolpec 1 matrike A, slika točke (1, 0): (0; -1)",
+        "Stolpec 2 matrike A, slika točke (0, 1): (1; 0)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1"
+      ]
+    },
+    {
+      "name": "saddle entries",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "0 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Linearni sistem x′ = A x"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip matrike (točen)#0",
+          "label": "Tip matrike (točen)",
+          "value": "sedlo"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "1"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "-2"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "9"
+        },
+        {
+          "key": "Matrika A#0",
+          "label": "Matrika A",
+          "value": "vrstica 1: (2; 0); vrstica 2: (0; -1)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "da"
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ₁ = 2, λ₂ = -1"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -4 do 4, y od -4 do 4; polovična širina 4. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej ustavljena po 0,7 s: zapustila je izračunano območje; nazaj izračunana za vseh 10 s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kvadratki: lega ob času t (izračunana)",
+        "Lastne smeri linearizacije (izračunane)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: sedlo",
+        "Stolpec 1 matrike A, slika točke (1, 0): (2; 0)",
+        "Stolpec 2 matrike A, slika točke (0, 1): (0; -1)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Zgodaj ustavljene polovice trajektorij: 1 od 2 (glej odčitek)"
+      ]
+    },
+    {
+      "name": "time 3",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "3 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Linearni sistem x′ = A x"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip matrike (točen)#0",
+          "label": "Tip matrike (točen)",
+          "value": "sedlo"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "1"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "-2"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "9"
+        },
+        {
+          "key": "Matrika A#0",
+          "label": "Matrika A",
+          "value": "vrstica 1: (2; 0); vrstica 2: (0; -1)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "da"
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ₁ = 2, λ₂ = -1"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -4 do 4, y od -4 do 4; polovična širina 4. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej ustavljena po 0,7 s: zapustila je izračunano območje; nazaj izračunana za vseh 10 s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kvadratki: lega ob času t (izračunana)",
+        "Lastne smeri linearizacije (izračunane)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: sedlo",
+        "Stolpec 1 matrike A, slika točke (1, 0): (2; 0)",
+        "Stolpec 2 matrike A, slika točke (0, 1): (0; -1)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Zgodaj ustavljene polovice trajektorij: 1 od 2 (glej odčitek)"
+      ]
+    },
+    {
+      "name": "zoom 2",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "3 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Linearni sistem x′ = A x"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip matrike (točen)#0",
+          "label": "Tip matrike (točen)",
+          "value": "sedlo"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "1"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "-2"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "9"
+        },
+        {
+          "key": "Matrika A#0",
+          "label": "Matrika A",
+          "value": "vrstica 1: (2; 0); vrstica 2: (0; -1)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "da"
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ₁ = 2, λ₂ = -1"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -1 do 1, y od -1 do 1; polovična širina 1. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej ustavljena po 0,02 s: zapustila je izračunano območje; nazaj izračunana za vseh 10 s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kvadratki: lega ob času t (izračunana)",
+        "Lastne smeri linearizacije (izračunane)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: sedlo",
+        "Stolpec 2 matrike A, slika točke (0, 1): (0; -1)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Zgodaj ustavljene polovice trajektorij: 1 od 2 (glej odčitek)"
+      ]
+    },
+    {
+      "name": "three seeds",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "3 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Linearni sistem x′ = A x"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip matrike (točen)#0",
+          "label": "Tip matrike (točen)",
+          "value": "sedlo"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "1"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "-2"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "9"
+        },
+        {
+          "key": "Matrika A#0",
+          "label": "Matrika A",
+          "value": "vrstica 1: (2; 0); vrstica 2: (0; -1)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "da"
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ₁ = 2, λ₂ = -1"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -1 do 1, y od -1 do 1; polovična širina 1. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej ustavljena po 0,02 s: zapustila je izračunano območje; nazaj izračunana za vseh 10 s"
+        },
+        {
+          "key": "Začetna točka 2#0",
+          "label": "Začetna točka 2",
+          "value": "(0; 1): naprej izračunana za vseh 10 s; nazaj ustavljena po 0,02 s: zapustila je izračunano območje"
+        },
+        {
+          "key": "Začetna točka 3#0",
+          "label": "Začetna točka 3",
+          "value": "(-1; 0): naprej ustavljena po 0,02 s: zapustila je izračunano območje; nazaj izračunana za vseh 10 s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kvadratki: lega ob času t (izračunana)",
+        "Lastne smeri linearizacije (izračunane)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: sedlo",
+        "Stolpec 2 matrike A, slika točke (0, 1): (0; -1)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Začetna točka 2",
+        "Začetna točka 3",
+        "Zgodaj ustavljene polovice trajektorij: 3 od 6 (glej odčitek)"
+      ]
+    },
+    {
+      "name": "pendulum",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "3 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Nihalo θ′ = ω, ω′ = -sin θ"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip linearizacije (točen)#0",
+          "label": "Tip linearizacije (točen)",
+          "value": "središče (center)"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "0"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "1"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "-4"
+        },
+        {
+          "key": "Jacobijeva matrika v ravnovesni točki#0",
+          "label": "Jacobijeva matrika v ravnovesni točki",
+          "value": "vrstica 1: (0; 1); vrstica 2: (-1; 0)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "ne"
+        },
+        {
+          "key": "Kaj določa linearizacija#0",
+          "label": "Kaj določa linearizacija",
+          "value": "Ni hiperbolična: linearizacija ne določa lokalnega portreta."
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ = 0 ± 1 i"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -1 do 1, y od -1 do 1; polovična širina 1. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej izračunana za vseh 10 s; nazaj izračunana za vseh 10 s"
+        },
+        {
+          "key": "Energija začetne točke 1#0",
+          "label": "Energija začetne točke 1",
+          "value": "H = -0,540302 < 1: nihanje (sklenjena orbita)"
+        },
+        {
+          "key": "Začetna točka 2#0",
+          "label": "Začetna točka 2",
+          "value": "(0; 1): naprej ustavljena po 1,36 s: zapustila je izračunano območje; nazaj ustavljena po 1,36 s: zapustila je izračunano območje"
+        },
+        {
+          "key": "Energija začetne točke 2#0",
+          "label": "Energija začetne točke 2",
+          "value": "H = -0,5 < 1: nihanje (sklenjena orbita)"
+        },
+        {
+          "key": "Začetna točka 3#0",
+          "label": "Začetna točka 3",
+          "value": "(-1; 0): naprej izračunana za vseh 10 s; nazaj izračunana za vseh 10 s"
+        },
+        {
+          "key": "Energija začetne točke 3#0",
+          "label": "Energija začetne točke 3",
+          "value": "H = -0,540302 < 1: nihanje (sklenjena orbita)"
+        },
+        {
+          "key": "Obroč trajektorij (izračunan)#0",
+          "label": "Obroč trajektorij (izračunan)",
+          "value": "izračunane trajektorije: 12; polovice, ustavljene pred koncem: 0 od 24"
+        },
+        {
+          "key": "Linearizacija na obroču (izračunana)#0",
+          "label": "Linearizacija na obroču (izračunana)",
+          "value": "izračunane trajektorije: 12; polovice, ustavljene pred koncem: 0 od 24"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Isti začetki pri linearizaciji (črtkano, izračunano)",
+        "Kvadratki: lega ob času t (izračunana)",
+        "Obroč trajektorij okoli ravnovesne točke (polna črta, nelinearen, izračunan)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: središče (center)",
+        "Separatrisa H = 1",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Začetna točka 2",
+        "Začetna točka 3",
+        "Zgodaj ustavljene polovice trajektorij: 2 od 54 (glej odčitek)"
+      ]
+    },
+    {
+      "name": "weak spiral",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "3 s"
+        },
+        {
+          "key": "Sistem#0",
+          "label": "Sistem",
+          "value": "Šibka spirala (r′ = -r³, θ′ = 1)"
+        },
+        {
+          "key": "Središče pogleda (ravnovesna točka)#0",
+          "label": "Središče pogleda (ravnovesna točka)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Tip linearizacije (točen)#0",
+          "label": "Tip linearizacije (točen)",
+          "value": "središče (center)"
+        },
+        {
+          "key": "Sled τ#0",
+          "label": "Sled τ",
+          "value": "0"
+        },
+        {
+          "key": "Determinanta δ#0",
+          "label": "Determinanta δ",
+          "value": "1"
+        },
+        {
+          "key": "Diskriminanta Δ = τ² - 4δ#0",
+          "label": "Diskriminanta Δ = τ² - 4δ",
+          "value": "-4"
+        },
+        {
+          "key": "Jacobijeva matrika v ravnovesni točki#0",
+          "label": "Jacobijeva matrika v ravnovesni točki",
+          "value": "vrstica 1: (0; -1); vrstica 2: (1; 0)"
+        },
+        {
+          "key": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)#0",
+          "label": "Hiperbolična (nobena lastna vrednost nima realnega dela 0)",
+          "value": "ne"
+        },
+        {
+          "key": "Kaj določa linearizacija#0",
+          "label": "Kaj določa linearizacija",
+          "value": "Ni hiperbolična: linearizacija ne določa lokalnega portreta."
+        },
+        {
+          "key": "Lastni vrednosti (izračunani)#0",
+          "label": "Lastni vrednosti (izračunani)",
+          "value": "λ = 0 ± 1 i"
+        },
+        {
+          "key": "Izračunano območje#0",
+          "label": "Izračunano območje",
+          "value": "x od -1 do 1, y od -1 do 1; polovična širina 1. Trajektorije se ustavijo na robu."
+        },
+        {
+          "key": "Začetna točka 1#0",
+          "label": "Začetna točka 1",
+          "value": "(1; 0): naprej izračunana za vseh 10 s; nazaj ustavljena po 0,02 s: zapustila je izračunano območje"
+        },
+        {
+          "key": "Začetna točka 2#0",
+          "label": "Začetna točka 2",
+          "value": "(0; 1): naprej izračunana za vseh 10 s; nazaj ustavljena po 0,02 s: zapustila je izračunano območje"
+        },
+        {
+          "key": "Začetna točka 3#0",
+          "label": "Začetna točka 3",
+          "value": "(-1; 0): naprej izračunana za vseh 10 s; nazaj ustavljena po 0,02 s: zapustila je izračunano območje"
+        },
+        {
+          "key": "Obroč trajektorij (izračunan)#0",
+          "label": "Obroč trajektorij (izračunan)",
+          "value": "izračunane trajektorije: 12; polovice, ustavljene pred koncem: 12 od 24"
+        },
+        {
+          "key": "Linearizacija na obroču (izračunana)#0",
+          "label": "Linearizacija na obroču (izračunana)",
+          "value": "izračunane trajektorije: 12; polovice, ustavljene pred koncem: 0 od 24"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Isti začetki pri linearizaciji (črtkano, izračunano)",
+        "Kvadratki: lega ob času t (izračunana)",
+        "Obroč trajektorij okoli ravnovesne točke (polna črta, nelinearen, izračunan)",
+        "Okvir: izračunano območje, kjer se trajektorije ustavijo",
+        "Ravnovesna točka: središče (center)",
+        "Trajektorije iz začetnih točk (izračunane z RK4): naprej polna črta, nazaj črtkana",
+        "Začetna točka 1",
+        "Začetna točka 2",
+        "Začetna točka 3",
+        "Zgodaj ustavljene polovice trajektorij: 15 od 54 (glej odčitek)"
+      ]
+    }
+  ]
+}

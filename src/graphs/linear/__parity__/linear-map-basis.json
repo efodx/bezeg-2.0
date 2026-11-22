@@ -1,0 +1,302 @@
+{
+  "graph": "linear-map-basis",
+  "language": "sl",
+  "states": [
+    {
+      "name": "basis default",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 0"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(0, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(1, 1)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (1, 0), a₂ = (0, 1)"
+      ]
+    },
+    {
+      "name": "shear",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 1"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(1, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(2, 1)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (1, 0), a₂ = (1, 1)"
+      ]
+    },
+    {
+      "name": "quarter turn",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "0 -1"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "1 0"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(0, 1)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(-1, 0)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(-1, 1)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (0, 1), a₂ = (-1, 0)"
+      ]
+    },
+    {
+      "name": "reflection",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 0"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 -1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(0, -1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(1, -1)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (1, 0), a₂ = (0, -1)"
+      ]
+    },
+    {
+      "name": "scalar 2",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "2 0"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 2"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(2, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(0, 2)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(2, 2)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (2, 0), a₂ = (0, 2)"
+      ]
+    },
+    {
+      "name": "entry a12 = 2",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "2 2"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0 2"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(2, 0)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(2, 2)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(4, 2)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (2, 0), a₂ = (2, 2)"
+      ]
+    },
+    {
+      "name": "entry a21 = -1",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "2 2"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "-1 2"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(2, -1)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(2, 2)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(4, 1)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (2, -1), a₂ = (2, 2)"
+      ]
+    },
+    {
+      "name": "singular",
+      "rows": [
+        {
+          "key": "Matrika, 1. vrstica#0",
+          "label": "Matrika, 1. vrstica",
+          "value": "1 2"
+        },
+        {
+          "key": "Matrika, 2. vrstica#0",
+          "label": "Matrika, 2. vrstica",
+          "value": "0,5 1"
+        },
+        {
+          "key": "Slika e₁ (a₁)#0",
+          "label": "Slika e₁ (a₁)",
+          "value": "(1, 0,5)"
+        },
+        {
+          "key": "Slika e₂ (a₂)#0",
+          "label": "Slika e₂ (a₂)",
+          "value": "(2, 1)"
+        },
+        {
+          "key": "Slika točke p = (1, 1)#0",
+          "label": "Slika točke p = (1, 1)",
+          "value": "(3, 1,5)"
+        }
+      ],
+      "notes": [
+        "Matrika je linearna preslikava. Izhodišče ostane na mestu, vzporedne premice ostanejo vzporedne, ploščine se povsod pomnožijo z |det A|. Enotski kvadrat in točka p sta le primera."
+      ],
+      "outputs": [],
+      "captions": [
+        "a₁ = (1, 0,5), a₂ = (2, 1)"
+      ]
+    }
+  ]
+}
