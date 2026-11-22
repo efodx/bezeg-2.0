@@ -439,6 +439,22 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         return fitFrame(this.viewBox(), width, height);
     }
 
+    /**
+     * The picture the director keeps clear of the cards (pick `viewDirector`): the sites' box with a quarter of its size around it, so the
+     * cells show their edges; the diagram's far vertices and rays are not named (they are unbounded).
+     */
+    protected override viewMarks(): readonly (readonly [number, number])[] | undefined {
+        const sites = this.model.points.map(p => gridToBoard(p, this.model.gridStepExponent));
+        if (sites.length < 2) return undefined;
+        const xs = sites.map(p => p.x), ys = sites.map(p => p.y);
+        const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+        const size = Math.max(x1 - x0, y1 - y0, 1e-9);
+        const m = size * 0.25;
+        return [[x0 - m, y1 + m], [x1 + m, y1 + m], [x1 + m, y0 - m], [x0 - m, y0 - m]];
+    }
+
+    protected override viewFillsMarks(): boolean { return true; }
+
     /** The board's visible area as integer grid units (see `visibleGridBox`). */
     private visibleBox(): RationalBox | undefined {
         return visibleGridBox(this.board, 2 ** this.model.gridStepExponent);

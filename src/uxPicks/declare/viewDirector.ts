@@ -27,6 +27,8 @@ const DELAY: Record<Reason, number> = {port: 60, intent: 60, action: 220, dock: 
 const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 /** A picture that names its corners has no empty margin to give up first, so it may shrink further than a whole intent (2.2) before a card has to cover part of it. */
 const NAMED_MAX_OUT = 3;
+/** A picture that fills its free rectangle may grow to this many times the intent's scale (a handful of points in a canvas-wide intent). */
+const NAMED_MAX_IN = 8;
 const smooth = (k: number) => k * k * (3 - 2 * k);
 const same = (a: FitBox, b: FitBox) => a.every((v, i) => Math.abs(v - b[i]) < 1e-9 * (1 + Math.abs(v)));
 
@@ -66,9 +68,10 @@ export function computeTarget(intentOverride?: FitBox, excludeObstacles?: string
     // not the whole intent (with its margins) squeezed into the largest free rectangle.
     const content = port.marks?.();
     if (content && content.length > 0) {
+        const fills = port.fillsMarks?.() === true;
         const named = fitView({
             must: content.map(p => [p[0], p[1]] as Point), canvas, obstacles, base: intent, equalAxisUnits: port.equalAxisUnits,
-            limits: {maxOut: Math.max(s.maxOut, NAMED_MAX_OUT), maxIn: 1}, mode: 'keep',
+            limits: {maxOut: Math.max(s.maxOut, NAMED_MAX_OUT), maxIn: fills ? NAMED_MAX_IN : 1}, mode: fills ? 'fill' : 'keep',
         });
         if (named.covered.length === 0) return named.box;
     }

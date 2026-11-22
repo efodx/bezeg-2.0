@@ -162,6 +162,23 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         this.board.fullUpdate();
     }
 
+    /** The picture is the data points and the sampled Lagrange curve (its overshoot included): the director fits that hull, not the wide view box. */
+    protected override viewMarks(): readonly (readonly [number, number])[] | undefined {
+        const scene = this.scene;
+        const {points, parameterRule} = this.state;
+        if (!scene || points.length < 2 || interpolationRejection(points, parameterRule)) return undefined;
+        const parameters = parametersOf(points, parameterRule);
+        const first = parameters[0], last = parameters[parameters.length - 1];
+        const marks: [number, number][] = points.map(p => [p[0], p[1]]);
+        for (let i = 0; i <= 96; i++) {
+            const at = scene.lagrangeAt(first + (last - first) * i / 96);
+            if (Number.isFinite(at[0]) && Number.isFinite(at[1])) marks.push(at);
+        }
+        return marks;
+    }
+
+    protected override viewFillsMarks(): boolean { return true; }
+
     protected override onStateChange(prevState: Readonly<InterpolationGraphState>) {
         if (prevState === this.state || !this.board) return;
         this.boardUpdate();

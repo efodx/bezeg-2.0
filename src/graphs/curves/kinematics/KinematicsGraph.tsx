@@ -409,6 +409,16 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return frame;
     }
 
+    /** The picture is the path box and a full arrow around it (frameFor's margin, without the caption room): the director fits that, not the frame. */
+    protected override viewMarks(): readonly (readonly [number, number])[] | undefined {
+        const derived = this.derived();
+        const [minX, maxX, minY, maxY] = derived.box;
+        const margin = derived.scales.unit + 0.05 * Math.max(maxX - minX, maxY - minY, 1e-6);
+        return [[minX - margin, maxY + margin], [maxX + margin, maxY + margin], [maxX + margin, minY - margin], [minX - margin, minY - margin]];
+    }
+
+    protected override viewFillsMarks(): boolean { return true; }
+
     /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyFrame(): void {
         const frame = this.frame();

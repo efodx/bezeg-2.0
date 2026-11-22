@@ -535,6 +535,20 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         return legendBandPx(captions, this.board.canvasWidth);
     }
 
+    /**
+     * The picture is the fixed computation window (the lesson text names it: a square window, the contours exist only inside it), so the
+     * director keeps the window's own corners clear of the cards; the window's margin and legend band belong to the board's own frame.
+     */
+    protected override viewMarks(): readonly (readonly [number, number])[] | undefined {
+        const w = contourWindow(this.state.fn, this.state.mode);
+        // The outer sixth of the window is where its figure is thinnest, so the named corners are the middle 85 %: the figure around the
+        // probe reads at a larger size and the window's rim may touch a card or the board edge.
+        const mx = (w.xMin + w.xMax) / 2, my = (w.yMin + w.yMax) / 2, hx = 0.425 * (w.xMax - w.xMin), hy = 0.425 * (w.yMax - w.yMin);
+        return [[mx - hx, my + hy], [mx + hx, my + hy], [mx + hx, my - hy], [mx - hx, my - hy]];
+    }
+
+    protected override viewFillsMarks(): boolean { return true; }
+
     /** The window of the state framed with margin below the legend band. */
     private frameOf(state: ContourState): [number, number, number, number] {
         const [left, top, right, bottom] = viewBox(state);

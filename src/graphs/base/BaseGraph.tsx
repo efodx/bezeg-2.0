@@ -986,6 +986,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             container, board, equalAxisUnits: this.equalAxisUnits,
             intent: () => this.viewIntentBox, current: () => board.getBoundingBox() as FitBox,
             marks: () => this.viewMarks(),
+            fillsMarks: () => this.viewFillsMarks(),
             apply: box => {
                 this.rawSetBox([...box], this.equalAxisUnits);
                 // JSXGraph widens the box to the canvas aspect; remember what the board really shows.
@@ -1002,6 +1003,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
      */
     protected viewMarks(): readonly (readonly [number, number])[] | undefined {
         return undefined;
+    }
+
+    /** True when `viewMarks` is the whole picture and it should fill the free rectangle (the director zooms in as well as out); false keeps the intent's scale as the largest. */
+    protected viewFillsMarks(): boolean {
+        return false;
     }
 
     /** The board's own `setBoundingBox`, for the code that must not become a view intent (the view's own application, pan buttons). */

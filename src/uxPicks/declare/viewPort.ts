@@ -21,6 +21,8 @@ export interface ViewPort {
      * keeps their hull visible and clear of the cards at the least zoom-out. Absent: the whole intent is kept (BaseGraph.viewMarks).
      */
     marks?(): readonly (readonly [number, number])[] | undefined;
+    /** True when the marks are the whole picture, so the director may also zoom IN until their hull fills the free rectangle (BaseGraph.viewFillsMarks). */
+    fillsMarks?(): boolean;
 }
 
 type Kind = 'port' | 'intent' | 'action';
