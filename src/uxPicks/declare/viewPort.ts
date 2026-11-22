@@ -62,6 +62,12 @@ export function subscribeAutoFit(listener: () => void): () => void {
 export function setFitHandler(handler: (() => void) | undefined) { fitHandler = handler; }
 /** BaseGraph's navigation 'fit' action: runs the handler when set; false when the original fit applies. */
 export function runFitHandler(): boolean { if (!fitHandler) return false; fitHandler(); return true; }
+/**
+ * True while the view fit owns the shown view (a declaring graph with automatic fitting on): a view the graph or a lesson sets
+ * then becomes the fit's new intent without being shown first, and the fit glides once from the box on screen (owner, 2026-11-22:
+ * walking the Taylor lesson, the view jumped to each frame's unfitted box and glided back on frames that should not move).
+ */
+export function fitOwnsView(): boolean { return fitHandler !== undefined && autoFit; }
 /** BaseGraph's navigation buttons (zoom, pan): the learner moved the view. */
 export function setNavHandler(handler: (() => void) | undefined) { navHandler = handler; }
 export function noteNavigation() { navHandler?.(); }

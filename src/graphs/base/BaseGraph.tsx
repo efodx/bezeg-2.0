@@ -7,7 +7,7 @@ import React from 'react';
 
 import {AxisAttributes, Board} from "jsxgraph";
 import {fitBoundingBox, FitBox} from "./fitBoundingBox";
-import {noteNavigation, notifyLessonAction, notifyViewIntent, registerViewPort, runFitHandler} from "../../uxPicks/declare/viewPort";
+import {fitOwnsView, noteNavigation, notifyLessonAction, notifyViewIntent, registerViewPort, runFitHandler} from "../../uxPicks/declare/viewPort";
 import {Commands} from "./Commands";
 import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
 import type {PresetCollection} from "./presets/PresetCollection";
@@ -998,9 +998,13 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     /** Sets a view of the graph's own choosing: the board shows it and it becomes the view intent the fit starts from. */
     protected setIntentBox(box: readonly [number, number, number, number]): void {
+        // While the view fit owns the view, keep the box on screen (set and restored in one task, never painted): the fit glides
+        // from it to the new intent's fit instead of the board jumping to the unfitted intent first.
+        const shown = fitOwnsView() && this.viewIntentBox !== undefined ? this.board.getBoundingBox() as FitBox : undefined;
         this.board.setBoundingBox([...box], this.equalAxisUnits);
         this.viewIntentBox = this.board.getBoundingBox() as FitBox;
-        this.fittedBox = undefined;
+        if (shown) this.board.setBoundingBox([...shown], false);
+        else this.fittedBox = undefined;
         notifyViewIntent();
     }
 
