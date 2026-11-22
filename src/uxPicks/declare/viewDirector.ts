@@ -4,7 +4,7 @@ import {pickOn} from '../picks';
 import {coveredMarks, DEFAULT_MAX_OUT, fitIntent} from './fitIntent';
 import {getGraphUx} from './graphUxStore';
 import {computeFit, mustNeedsRefit, obstacleKey, obstacleRects} from './useViewFit';
-import {autoFitOn, getViewPort} from './viewPort';
+import {autoFitOn, getViewPort, setFreeRect} from './viewPort';
 import {fitView, type Point} from './viewFit';
 
 /**
@@ -51,6 +51,20 @@ function run(box: FitBox) {
     try { port.apply(box); } finally { s.applying = false; }
 }
 
+/** The widest-by-tallest card-free rectangle (by area) of the canvas: every rectangle bounded by canvas and obstacle edges is tried. */
+function largestFreeRect(canvas: {width: number; height: number}, obstacles: readonly {x: number; y: number; width: number; height: number}[]): {width: number; height: number} {
+    const xs = [0, canvas.width, ...obstacles.flatMap(o => [o.x, o.x + o.width])].map(v => Math.min(canvas.width, Math.max(0, v))).sort((a, b) => a - b);
+    const ys = [0, canvas.height, ...obstacles.flatMap(o => [o.y, o.y + o.height])].map(v => Math.min(canvas.height, Math.max(0, v))).sort((a, b) => a - b);
+    let best = {width: 0, height: 0};
+    for (let i = 0; i < xs.length; i++) for (let j = i + 1; j < xs.length; j++) for (let k = 0; k < ys.length; k++) for (let l = k + 1; l < ys.length; l++) {
+        const w = xs[j] - xs[i], h = ys[l] - ys[k];
+        if (w * h <= best.width * best.height) continue;
+        const hit = obstacles.some(o => o.x < xs[j] - 0.5 && o.x + o.width > xs[i] + 0.5 && o.y < ys[l] - 0.5 && o.y + o.height > ys[k] + 0.5);
+        if (!hit) best = {width: w, height: h};
+    }
+    return best;
+}
+
 /** The box the director wants for `intent` (default: the graph's current one) under the cards as they are now. */
 export function computeTarget(intentOverride?: FitBox, excludeObstacles?: string): FitBox | undefined {
     const port = getViewPort();
@@ -66,7 +80,9 @@ export function computeTarget(intentOverride?: FitBox, excludeObstacles?: string
     const obstacles = obstacleRects(port.container, excludeObstacles);
     // A graph that names the corners of its picture (`ViewPort.marks`): the least zoom-out that keeps them all clear of the cards,
     // not the whole intent (with its margins) squeezed into the largest free rectangle.
-    const content = port.marks?.();
+    setFreeRect(largestFreeRect(canvas, obstacles));
+    let content: ReturnType<NonNullable<typeof port.marks>>;
+    try { content = port.marks?.(); } finally { setFreeRect(undefined); }
     if (content && content.length > 0) {
         const fills = port.fillsMarks?.() === true;
         const named = fitView({

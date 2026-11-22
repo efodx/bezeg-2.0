@@ -19,6 +19,7 @@ import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/Read
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
+import {getFreeRect} from "../../uxPicks/declare/viewPort";
 import {GraphPalette} from "../styles/GraphPalette";
 import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
 import {SceneObjects} from "../recursion/SceneObjects";
@@ -288,6 +289,26 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     protected override initialView(): [number, number, number, number] {
         return viewBox(derivePhase(DEFAULT_PHASE_STATE));
     }
+
+    /**
+     * The picture is the orbit square around the equilibrium (the view the orbits are integrated in) with the room the equilibrium
+     * caption needs to its right: the director centres that in the free board rectangle and keeps the caption clear of the cards.
+     * The square does not depend on the seeds, so a drag moves nothing.
+     */
+    protected override viewMarks(): readonly (readonly [number, number])[] {
+        const derived = this.derived();
+        const {xMin, xMax, yMin, yMax} = derived.view;
+        const half = (xMax - xMin) / 2;
+        const free = getFreeRect();
+        const captionPx = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_equilibrium", {value0: typeLabel(derived.plane.type)}).length + 12;
+        // The caption must fit between the equilibrium and the free rectangle's right edge: with the hull of width 2 half + extra
+        // filling the rectangle (width W minus the fit margin), solve (half + extra) / (2 half + extra) = captionPx / W for extra.
+        const fraction = Math.min(0.85, captionPx / Math.max(1, (free?.width ?? 600) - 40));
+        const extra = fraction <= 0.5 ? 0 : Math.min(2 * half, half * (2 * fraction - 1) / (1 - fraction));
+        return [[xMin, yMax], [xMax + extra, yMax], [xMax + extra, yMin], [xMin, yMin]];
+    }
+
+    protected override viewFillsMarks(): boolean { return true; }
 
     // ---- Host state -----------------------------------------------------------------------------------------------------
 

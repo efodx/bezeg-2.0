@@ -25,6 +25,15 @@ export interface ViewPort {
     fillsMarks?(): boolean;
 }
 
+/**
+ * The size in px of the largest card-free rectangle of the board, set by the director just before it asks a graph for its marks
+ * (`ViewPort.marks`): a graph whose picture carries a caption of fixed pixel width (the phase portrait's equilibrium) widens its
+ * marks by the room that caption needs. Undefined outside a fit.
+ */
+let freeRect: {width: number; height: number} | undefined;
+export function setFreeRect(next: {width: number; height: number} | undefined) { freeRect = next; }
+export function getFreeRect(): {width: number; height: number} | undefined { return freeRect; }
+
 type Kind = 'port' | 'intent' | 'action';
 
 let port: ViewPort | undefined;
