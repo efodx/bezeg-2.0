@@ -3,7 +3,7 @@ set shell := ["node", "--eval"]
 
 # Show the available Bezeg workflows.
 default:
-    @console.log('Bezeg developer commands: just check | check-changed [ref] | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | controls-fixture [args...] | clip <id> | preview [port] | shot --base <url> [--selector <css>] [--sheet] <route>... | loc <pattern> | test-cost [--save] [--top N] | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
+    @console.log('Bezeg developer commands: just check | check-changed [ref] | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | controls-fixture [args...] | clip <id> | preview [port] | shot --base <url> [--selector <css>] [--sheet] <route>... | loc <pattern> | test-cost [--save] [--top N] | ci [sha] | fuzz --base <dev url> [args...] | probe --base <preview url> [args...] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
 
 # Run typecheck, lint, all unit tests, then a provenance-recorded production build.
 check:
@@ -60,6 +60,14 @@ loc pattern:
 # Show recent workflow runs for master or a commit, with a short excerpt of a failed run.
 ci *args:
     @require('./scripts/commands.cjs').cli(['ci', ...process.argv.slice(2)])
+
+# Fuzz random learner interactions against a running dev server and check invariants I1-I5 (scripts/fuzz/README.md).
+fuzz *args:
+    @process.exitCode = require('child_process').spawnSync(process.execPath, ['scripts/fuzz/fuzz.cjs', ...process.argv.slice(2)], {stdio: 'inherit'}).status ?? 1
+
+# Measure interaction jank (long tasks, frame gaps, layout shift, flicker) against a running preview (scripts/probe/README.md).
+probe *args:
+    @process.exitCode = require('child_process').spawnSync(process.execPath, ['scripts/probe/probe.cjs', ...process.argv.slice(2)], {stdio: 'inherit'}).status ?? 1
 
 # Serve the provenance-validated production build in the foreground.
 preview *args:

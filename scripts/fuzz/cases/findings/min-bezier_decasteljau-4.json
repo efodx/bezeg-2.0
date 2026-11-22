@@ -1,0 +1,46 @@
+{
+ "route": "bezier/decasteljau",
+ "seed": 4,
+ "lesson": false,
+ "invariant": "I3",
+ "actions": [
+  {
+   "a": "drag",
+   "k": "s1",
+   "f1": 0.27,
+   "f2": 0.74,
+   "hold": 132
+  },
+  {
+   "a": "boardDrag",
+   "i": 27,
+   "dx": -25,
+   "dy": -80
+  },
+  {
+   "a": "type",
+   "k": "s1",
+   "n": 0.47
+  },
+  {
+   "a": "escape"
+  },
+  {
+   "a": "escape"
+  },
+  {
+   "a": "escape"
+  },
+  {
+   "a": "type",
+   "k": "s0",
+   "n": 0.53
+  },
+  {
+   "a": "play"
+  },
+  {
+   "a": "escape"
+  }
+ ]
+}

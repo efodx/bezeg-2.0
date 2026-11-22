@@ -1,0 +1,526 @@
+{
+ "base": "http://127.0.0.1:4471/bezeg-2.0/",
+ "viewport": "1440x900",
+ "throttle": 4,
+ "started": "2026-11-22T19:18:46.305Z",
+ "thresholds": {
+  "frameP95Ms": 40,
+  "frameMaxMs": 100,
+  "longTasksOver50": null,
+  "cls": 0.02,
+  "flickerEvents": 0,
+  "valueWidthDriftPx": 1,
+  "glidesPerStep": 1,
+  "settleMs": 900,
+  "backReturnPct": 2,
+  "coverPct": 35
+ },
+ "routes": {
+  "analysis/taylor": {
+   "route": "analysis/taylor",
+   "actions": {
+    "sliderDrag": {
+     "frame": {
+      "n": 205,
+      "median": 16.7,
+      "p95": 33.3,
+      "max": 50
+     },
+     "longTasks": 1,
+     "longTasksOver50": 1,
+     "longTaskMaxMs": 64,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "boardPan": {
+     "frame": {
+      "n": 48,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "moved": true,
+     "how": "shift",
+     "coverPct": null
+    },
+    "pointDrag": {
+     "frame": {
+      "n": 180,
+      "median": 16.7,
+      "p95": 33.3,
+      "max": 33.4
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "playThenSliderTouch": {
+     "skipped": "no playback",
+     "coverPct": null
+    }
+   },
+   "errors": []
+  },
+  "analysis/phase-portrait": {
+   "route": "analysis/phase-portrait",
+   "actions": {
+    "sliderDrag": {
+     "frame": {
+      "n": 150,
+      "median": 16.7,
+      "p95": 50.1,
+      "max": 83.3
+     },
+     "longTasks": 9,
+     "longTasksOver50": 9,
+     "longTaskMaxMs": 90,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "boardPan": {
+     "frame": {
+      "n": 57,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 33.4
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "moved": true,
+     "how": "shift",
+     "coverPct": null
+    },
+    "pointDrag": {
+     "frame": {
+      "n": 114,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "playThenSliderTouch": {
+     "frame": {
+      "n": 127,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 33.4
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "touch": {
+      "frame": {
+       "n": 150,
+       "median": 16.7,
+       "p95": 49.9,
+       "max": 66.7
+      },
+      "longTasks": 8,
+      "longTasksOver50": 8,
+      "longTaskMaxMs": 69,
+      "cls": 0,
+      "flicker": 0
+     },
+     "coverPct": null
+    }
+   },
+   "errors": []
+  }
+ },
+ "rows": [
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "frame.p95Ms",
+   "value": 33.3,
+   "limit": 40,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "frame.maxMs",
+   "value": 50,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "longTasks>50ms",
+   "value": 1,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 40,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "frame.p95Ms",
+   "value": 33.3,
+   "limit": 40,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "frame.maxMs",
+   "value": 33.4,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "playThenSliderTouch",
+   "metric": "skipped",
+   "value": "no playback",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "all",
+   "metric": "valueWidthDrift",
+   "value": null,
+   "limit": 1,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "frame.p95Ms",
+   "value": 50.1,
+   "limit": 40,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "frame.maxMs",
+   "value": 83.3,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "longTasks>50ms",
+   "value": 9,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 40,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "frame.maxMs",
+   "value": 33.4,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "pointDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 40,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "pointDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "pointDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "pointDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "pointDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "pointDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 40,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "frame.maxMs",
+   "value": 33.4,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "frame.p95Ms",
+   "value": 49.9,
+   "limit": 40,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "frame.maxMs",
+   "value": 66.7,
+   "limit": 100,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "longTasks>50ms",
+   "value": 8,
+   "limit": null,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "all",
+   "metric": "valueWidthDrift",
+   "value": null,
+   "limit": 1,
+   "status": "n/a"
+  }
+ ]
+}

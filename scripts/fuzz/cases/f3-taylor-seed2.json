@@ -1,0 +1,7 @@
+{
+ "route": "analysis/taylor",
+ "seed": 2,
+ "steps": 40,
+ "lesson": false,
+ "invariant": "I4"
+}

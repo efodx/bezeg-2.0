@@ -1,0 +1,14 @@
+{
+ "route": "functions/transformations",
+ "seed": 1,
+ "lesson": false,
+ "invariant": "I2",
+ "actions": [
+  {"a": "arrow", "k": "s2", "dir": "ArrowRight", "n": 3},
+  {"a": "drag", "k": "s4", "f1": 0.61, "f2": 0.61, "hold": 0},
+  {"a": "rest", "ms": 600},
+  {"a": "drag", "k": "s1", "f1": 0.1, "f2": 0.14, "hold": 0},
+  {"a": "rest", "ms": 600},
+  {"a": "boardDrag", "i": 0, "dx": -27, "dy": -25}
+ ]
+}
