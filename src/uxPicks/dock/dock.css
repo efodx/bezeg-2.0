@@ -208,3 +208,6 @@
     box-shadow: 0 2px 6px rgb(0 0 0 / 0.14); font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .ux-dock-more:hover, .ux-dock-more:focus-visible { background: var(--bezeg-shell-control-hover, #eef0e4); }
+
+/* A narrow board (about 1024 px): the readouts card and the lesson card are slimmer, so together they leave more of the graph. */
+@media (min-width: 701px) and (max-width: 1099px) { .ux-btext:not(.ux-bcard-guide):not(.is-floating) { max-width: 270px; } }

@@ -157,9 +157,9 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             const f = host.getBoundingClientRect();
             const next: Cue[] = [];
             let i = 0;
-            const consider = (el: HTMLElement) => {
+            const consider = (el: HTMLElement, within = false) => {
                 if (el.scrollHeight <= el.clientHeight + 2 || el.scrollTop + el.clientHeight >= el.scrollHeight - 2) return;
-                if (getComputedStyle(el).overflowY === 'hidden' || el.classList.contains('is-floating')) return;
+                if (!within && (getComputedStyle(el).overflowY === 'hidden' || el.classList.contains('is-floating'))) return;
                 const r = el.getBoundingClientRect();
                 if (r.height < 60 || r.width < 40) return;
                 const rows = Array.from(el.querySelectorAll<HTMLElement>('[data-readout]')).filter(row => row.getBoundingClientRect().bottom > r.bottom - 14).length;
@@ -167,8 +167,10 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
                 next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(r.left - f.left + r.width / 2), y: Math.round(r.bottom - f.top + 2 - (el.classList.contains('ux-dock-region') ? 12 : 0)), n: rows,
                     scroll: () => el.scrollBy({top: Math.max(60, el.clientHeight * 0.8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'})});
             };
-            root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(consider);
-            root.querySelectorAll<HTMLElement>('.ux-dock-h > .ux-btext').forEach(consider);
+            root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(el => consider(el));
+            root.querySelectorAll<HTMLElement>('.ux-dock-h > .ux-btext').forEach(el => consider(el));
+            // The lesson card's own text scrolls inside it (a docked card capped on a narrow board): the cue sits over the faded foot of the text.
+            root.querySelectorAll<HTMLElement>('.ux-bcard-guide:not(.is-floating):not(.ux-btext-collapsed) .guided-lesson-reading').forEach(el => consider(el, true));
             setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.n === next[k].n) ? prev : next);
         };
         measure();

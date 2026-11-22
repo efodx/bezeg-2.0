@@ -33,6 +33,8 @@ export function shortName(name: string): string {
     return out || `${words[0].slice(0, 11)}.`;
 }
 
+/** A refused tap on a locked puck: the strip's lock note says so for a moment (a touch has no hover title). */
+const LOCK_TAP = 'ux-puck-lock-tap';
 const LOCK_REASON = 'Zaklenjeno v tem koraku razlage';
 const LockMark = () => <span className="ux-puck-lock" role="img" aria-label={LOCK_REASON} title={LOCK_REASON}><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.4"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7"/></svg></span>;
 
@@ -199,7 +201,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         return () => window.clearTimeout(timer);
     }, [entry.value]);
     const blocked = locked || entry.inert;
-    const refuse = () => { setRefused(true); window.setTimeout(() => setRefused(false), 420); };
+    const refuse = () => { setRefused(true); window.setTimeout(() => setRefused(false), 420); if (locked) window.dispatchEvent(new Event(LOCK_TAP)); };
     const stepBy = (delta: number) => {
         if (blocked) { refuse(); return; }
         entry.set(snap(entry.value + delta, entry));
@@ -351,14 +353,57 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [showOscillator, collapsed, locked]);
+    // Phone: the row scrolls sideways, so the side that has more pucks gets a chevron (and the stylesheet's fade there).
+    const [flash, setFlash] = useState(false);
+    useEffect(() => {
+        let timer = 0;
+        const on = () => { setFlash(true); window.clearTimeout(timer); timer = window.setTimeout(() => setFlash(false), 3000); };
+        window.addEventListener(LOCK_TAP, on);
+        return () => { window.removeEventListener(LOCK_TAP, on); window.clearTimeout(timer); };
+    }, []);
+    const rowRef = useRef<HTMLDivElement>(null);
+    // The lesson layer's graph catcher (tap the graph = fold the card) lies over the whole board, strip included: a tap on the
+    // strip while a reading frame is on would fold the card. The strip answers it instead: a button gets its click, a locked
+    // puck says why it is locked.
+    useEffect(() => {
+        const onClick = (event: MouseEvent) => {
+            const catcher = event.target;
+            const row = rowRef.current;
+            if (!(catcher instanceof Element) || !catcher.classList.contains('guided-lesson-graph-catcher') || !row) return;
+            const r = row.getBoundingClientRect();
+            if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) return;
+            event.stopPropagation();
+            const under = document.elementsFromPoint(event.clientX, event.clientY).find(el => el !== catcher && row.contains(el));
+            const button = under?.closest('button');
+            if (button && !button.disabled) button.click(); else if (under?.closest('.ux-puck')) window.dispatchEvent(new Event(LOCK_TAP));
+        };
+        document.addEventListener('click', onClick, true);
+        return () => document.removeEventListener('click', onClick, true);
+    }, []);
+    const [more, setMore] = useState('');
+    useEffect(() => {
+        const row = rowRef.current;
+        if (!row) return undefined;
+        const measure = () => {
+            const v = [row.scrollLeft > 2 ? 'start' : '', row.scrollLeft + row.clientWidth < row.scrollWidth - 2 ? 'end' : ''].filter(Boolean).join(' ');
+            setMore(prev => prev === v ? prev : v);
+        };
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(row);
+        Array.from(row.children).forEach(child => observer.observe(child));
+        row.addEventListener('scroll', measure, {passive: true});
+        return () => { observer.disconnect(); row.removeEventListener('scroll', measure); };
+    }, [visible.length, collapsed]);
+    const nudge = (direction: 1 | -1) => rowRef.current?.scrollBy({left: direction * Math.max(80, rowRef.current.clientWidth * 0.7), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
     if (visible.length === 0) return null;
     const scrubbed = scrub && visible.find((entry): entry is RangeParam => entry.kind === 'range' && entry.key === scrub.key);
     return <DockItem region="bottom" phoneRegion="tray"><div className={`ux-pucks${locked ? ' is-locked' : ''}${collapsed ? ' is-collapsed' : ''}`} role="group" aria-label="Parametri na grafu">
         {scrubbed && scrub && <Tape entry={scrubbed} value={scrub.value} fineLabel={scrub.fine} width={Math.min(width - 24, 416)} pxPerRange={scrub.pxPerRange} detent={scrub.detent}
             anchor={document.querySelector<HTMLElement>(`.ux-puck[data-param="${CSS.escape(scrubbed.key)}"]`)}/>}
         {/* Pinned above the row and out of the layout, so the row never moves when a reading frame locks it. */}
-        {locked && !collapsed && <p className="ux-pucks-lock">{LOCK_NOTE}</p>}
-        <div className="ux-pucks-row">
+        {locked && !collapsed && <p className={`ux-pucks-lock${flash ? ' is-flash' : ''}`} role="status">{LOCK_NOTE}</p>}
+        <div className="ux-pucks-rowbox"><div className="ux-pucks-row" ref={rowRef} data-more={more || undefined}>
             <span className="ux-pucks-help-wrap" role="group" aria-label="Pomoč: parametri" title="Pomoč: parametri"><ShortcutsButton className="ux-pucks-help"/></span>
             <button type="button" className="ux-pucks-toggle" aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}
                 title={collapsed ? 'Pokaži parametre na grafu' : 'Skrij parametre na grafu'}>
@@ -380,6 +425,9 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                     </button>}
                 </span>;
             })}
+        </div>
+        {more.includes('start') && <button type="button" className="ux-pucks-more is-start" aria-label="Več parametrov levo" tabIndex={-1} onClick={() => nudge(-1)}><ChevronDownIcon/></button>}
+        {more.includes('end') && <button type="button" className="ux-pucks-more is-end" aria-label="Več parametrov desno" tabIndex={-1} onClick={() => nudge(1)}><ChevronDownIcon/></button>}
         </div>
     </div></DockItem>;
 }
@@ -411,7 +459,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
         const timer = window.setTimeout(() => setNudged(false), 1100);
         return () => window.clearTimeout(timer);
     }, [entry.value]);
-    const refuse = () => { setRefused(true); window.setTimeout(() => setRefused(false), 420); };
+    const refuse = () => { setRefused(true); window.setTimeout(() => setRefused(false), 420); if (locked) window.dispatchEvent(new Event(LOCK_TAP)); };
     const step = (direction: 1 | -1) => {
         if (locked) { refuse(); return false; }
         own.current = performance.now() + 500;

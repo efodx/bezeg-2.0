@@ -74,6 +74,9 @@
 /* Its height and floor (min(200 px, its text)) are set by useLessonCardFit, which glides it between frames. */
 .ux-dock-v > .ux-bcard-guide:not(.ux-btext-collapsed) { flex: 0 1 auto; }
 .ux-bcard-guide.is-floating { max-height: calc(var(--ux-dock-h, 560px) - 16px); }
+/* On a narrow board (about 1024 px) the docked lesson card takes at most half the board's height; its text scrolls inside it
+   (the fade and the "Več" cue show there is more), so the curve the frame talks about stays in view. */
+@media (min-width: 701px) and (max-width: 1099px) { .ux-dock-v > .ux-bcard-guide:not(.ux-btext-collapsed) { max-height: calc(var(--ux-dock-h, 560px) * 0.5); } .ux-btext.ux-bcard-guide { width: 290px; } }
 /* Redesign (owner, 2026-11-21): the head is one row (grip, title, "⋯", reset, fold); the title wraps and is never cut
    (DESIGN.md, lesson card). Under it the progress row with Back and Next, then the text. Folded, the head is the title,
    the progress, "⋯" and the fold. */

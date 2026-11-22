@@ -12,6 +12,7 @@
 }
 .ux-pucks-help-wrap { display: flex; align-items: center; flex: none; pointer-events: auto; }
 .ux-pucks-row > * { pointer-events: auto; }
+.ux-pucks-rowbox { display: contents; }
 
 .ux-puck {
     position: relative; display: flex; flex-direction: column; justify-content: center;
@@ -73,6 +74,7 @@
 .ux-pucks-toggle svg { width: 16px; height: 16px; display: block; }
 .ux-pucks-toggle b { color: #19372f; }
 /* In the strip's flow (not over the board): the cards docked above the strip end above the note instead of covering it. */
+.ux-pucks-lock.is-flash { color: var(--bezeg-shell-ink, #2b362d); font-weight: 600; text-decoration: underline; text-decoration-color: #b8860b; text-underline-offset: 3px; }
 .ux-pucks-lock {
     display: block; width: max-content; margin: 0 0 6px; white-space: nowrap; max-width: calc(100vw - 48px); overflow: hidden; text-overflow: ellipsis;
     pointer-events: none; font-size: 0.8125rem; color: #526152; background: rgba(255, 253, 245, 0.85);
@@ -102,9 +104,19 @@
     .ux-pucks-row {
         flex-wrap: nowrap; max-height: none; gap: 8px; width: 100%; padding: 8px 14px; align-items: center;
         overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain;
-        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
-        mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
     }
+    .ux-pucks-rowbox { display: block; position: relative; width: 100%; pointer-events: none; }
+    /* More pucks past an edge: that edge fades out and carries a chevron (tap scrolls a page); no fade where the row starts or ends. */
+    .ux-pucks-row[data-more~="start"] { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40px); mask-image: linear-gradient(to right, transparent 0, #000 40px); }
+    .ux-pucks-row[data-more~="end"] { -webkit-mask-image: linear-gradient(to left, transparent 0, #000 40px); mask-image: linear-gradient(to left, transparent 0, #000 40px); }
+    .ux-pucks-row[data-more~="start"][data-more~="end"] { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%); }
+    .ux-pucks-rowbox > .ux-pucks-more, .ux-pucks-rowbox > .ux-pucks-more:is(:hover, :active, :focus-visible) {
+        position: absolute; top: 50%; width: 32px; height: 44px; margin: -22px 0 0; padding: 0; display: grid; place-items: center; pointer-events: auto;
+        border: 0; border-radius: 0; box-shadow: none; background: none; min-width: 0; color: var(--bezeg-shell-ink, #2b362d); cursor: pointer;
+    }
+    .ux-pucks-more svg { width: 18px; height: 18px; }
+    .ux-pucks-rowbox > .ux-pucks-more.is-start { left: 0; } .ux-pucks-more.is-start svg { transform: rotate(90deg); }
+    .ux-pucks-rowbox > .ux-pucks-more.is-end { right: 0; } .ux-pucks-more.is-end svg { transform: rotate(-90deg); }
     .ux-pucks-row::-webkit-scrollbar { display: none; }
     .ux-puck-wrap { flex: none; }
     .ux-puck { flex: none; min-width: 52px; padding: 3px 8px 5px; }
