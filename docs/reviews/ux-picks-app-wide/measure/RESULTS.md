@@ -46,3 +46,16 @@ Build that commit (`just build`), serve it with `vite preview --host 127.0.0.1 -
 node docs/reviews/ux-picks-app-wide/measure/measure-01.cjs --url http://127.0.0.1:4477 --label after --runs 5 --throttle 1 --out after-t1.json
 node docs/reviews/ux-picks-app-wide/measure/measure-01.cjs --url http://127.0.0.1:4477 --label after --runs 3 --throttle 4 --out after-t4.json
 ```
+
+## After task 01 (`6cb52aed`, same machine, build and settings)
+
+Raw: `after-6cb52aed-t1.json`, `after-6cb52aed-t4.json` (5 runs at 1x, 3 at 4x).
+
+| Scenario | Throttle | Frame median | p95 | max | Long tasks | Commits proxy | Input delay median / p95 (ms) |
+|---|---|---|---|---|---|---|---|
+| De Casteljau play | 1x | 16.7 | 16.7–16.8 | 16.8 | 0 | 33–34 | n/a |
+| Taylor drag | 1x | 16.7 | 16.7–16.8 | 16.8 | 0 | 80 | 4.3–4.5 / 6.0–6.9 |
+| De Casteljau play | 4x | 16.7 | 16.7–16.8 | 33–50 | 0 | 32–34 | n/a |
+| Taylor drag | 4x | 16.7 | 33.3–33.4 | 50–67 | 1–4 per run, 56–266 ms | 80 | 23.6–28.2 / 35.6–44.2 |
+
+Verdict (handler): no regression. Commit counts are unchanged, so the per-frame saving (De Casteljau's live parameter outside React rendering) is kept, and unthrottled input delay is unchanged or lower. At 4x one of three Taylor runs had a longer tail (4 long tasks, p95 44 ms); the other two sit inside the baseline range. Three runs cannot separate that from noise; rerun at 4x with more runs if task 05 needs a tighter bound. Slice 6's gate for task 05 is met.

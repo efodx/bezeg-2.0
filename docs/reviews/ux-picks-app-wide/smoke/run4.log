@@ -1,0 +1,22 @@
+  start: Korak 1 od 8 · Okvir 1 od 5 c/n/x=0/1/1 poly=2 bound=skrito nextDisabled=false
+  N1: Korak 1 od 8 · Okvir 2 od 5 c/n/x=0/1/1 poly=2 bound=skrito nextDisabled=false
+  N2: Korak 1 od 8 · Okvir 3 od 5 c/n/x=0/1/1 poly=2 bound=skrito nextDisabled=false
+  N3: Korak 1 od 8 · Okvir 4 od 5 c/n/x=0/1/1 poly=2 bound=skrito nextDisabled=false
+  B1: Korak 1 od 8 · Okvir 3 od 5 c/n/x=0/1/1 poly=2 bound=skrito nextDisabled=false
+  B2: Korak 1 od 8 · Okvir 2 od 5 c/n/x=0/1/1 poly=2 bound=skrito nextDisabled=false
+  step text: 
+1b lesson frames: DONE
+  saved center: 0,4
+  center after save: 0,4
+  spin1 val: 0,4
+6 preset: EXCEPTION Cannot read properties of null (reading 'x')
+  default: ["3","1","−2","0,5","2","0"]
+  edited: ["5","4","−2","0,5","2","0"]
+  after Ponastavi prednastavitev: ["3","1","−2","0,5","2","0"]
+2 reset: DONE
+  select 0: bezeg-language sl,en
+  select 1: :r4: identity,basis-default,orientation-reversing,singular,eigen-default,quarter-turn,shear,symmetric,non-symmetric,reflection-x,scalar-2
+  select 2: :r5: basis,determinant,eigen,ellipse,composition,iterate,tracedet
+  select 3: :rf: none,axes,axes-major,axes-minor,all
+5 linear map: DONE
+ERRORS: []

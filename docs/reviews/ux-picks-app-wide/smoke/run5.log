@@ -1,0 +1,22 @@
+  N1: Korak 1 od 8 · Okvir 2 od 5 c/n/x=0/1/1 poly=2 bound=skrito
+  N2: Korak 1 od 8 · Okvir 3 od 5 c/n/x=0/1/1 poly=2 bound=skrito
+  N3: Korak 1 od 8 · Okvir 4 od 5 c/n/x=0/1/1 poly=2 bound=skrito
+  N4: Korak 1 od 8 · Okvir 5 od 5 c/n/x=0/1/1 poly=2 bound=skrito
+  N5: Korak 2 od 8 · Okvir 1 od 2 c/n/x=0/2/1 poly=2,5 bound=skrito
+  N6: Korak 2 od 8 · Okvir 2 od 2 c/n/x=0/2/1 poly=2,5 bound=skrito
+  N7: Korak 3 od 8 · Okvir 1 od 3 c/n/x=0/6/1 poly=2,7181 bound=0,0005393
+  N8: Korak 3 od 8 · Okvir 2 od 3 c/n/x=0/6/1 poly=2,7181 bound=0,0005393
+  N9: Korak 3 od 8 · Okvir 3 od 3 c/n/x=0/6/1 poly=2,7181 bound=0,0005393
+  B1: Korak 3 od 8 · Okvir 2 od 3 c/n/x=0/6/1 poly=2,7181 bound=0,0005393
+  B2: Korak 3 od 8 · Okvir 1 od 3 c/n/x=0/6/1 poly=2,7181 bound=0,0005393
+1b lesson steps: DONE
+  saved center: 0,4
+  changed center: 1,2
+  after Privzeto: 0
+  after selecting preset: 0,4
+  preset menu buttons: 1
+6 preset: DONE
+  controls: B:Prikaz ; B:Shrani ; S:Primer matrikeIdentiteta IA: ; S:Primer matrikeIdentiteta IA: ; I:a₁: x=1 ; I:a₂: x=0 ; I:a₁: y=0 ; I:a₂: y=1 ; B:Ponastavi na identitetoPresl ; I:v₀, x=1 ; I:v₀, y=0 ; B:Naslednji korakPredvajajPona ; B:Naslednji korakPredvajajPona ; B:Naslednji korakPredvajajPona
+  readouts: {"row1":"1   0","row2":"0   1","a1":"(1, 0)","a2":"(0, 1)","start":"(1, 0)","step":"0 od 30","iterate":"(1, 0)","norm":"1","unit":"(1, 0)","angle":"ni določeno","stretch":"ni določeno","rayleigh":"1","ratio":"1"}
+5 linear map: DONE
+ERRORS: []

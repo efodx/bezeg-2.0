@@ -1,0 +1,126 @@
+== /analysis/taylor
+SELECT|select-one|bezeg-language||SLEN|
+== /functions/transformations
+SELECT|select-one|bezeg-language||SLEN|
+BUTTON|submit|||Zamenjaj demonstraci|
+BUTTON|submit|||Spoznaj to demonstra|
+BUTTON|submit|||Predstavitveni način|
+BUTTON|submit||Premakni pogled levo|←|
+BUTTON|submit||Premakni pogled gor|↑|
+BUTTON|submit||Premakni pogled dol|↓|
+BUTTON|submit||Premakni pogled desno|→|
+BUTTON|submit||Približaj graf|+|
+BUTTON|submit||Oddalji graf|−|
+BUTTON|submit|||Prilagodi točkam|
+BUTTON|submit|||Naslednji namig|
+BUTTON|submit|||Strni|
+BUTTON|submit||Uredi|Uredi|
+BUTTON|submit||Prikaz|Prikaz|
+BUTTON|submit||Shrani|Shrani|
+INPUT|text|:r5:|||spinbutton
+INPUT|range|:r4:|||
+INPUT|text|:r7:|||spinbutton
+INPUT|range|:r6:|||
+INPUT|text|:r9:|||spinbutton
+INPUT|range|:r8:|||
+INPUT|text|:rb:|||spinbutton
+INPUT|range|:ra:|||
+INPUT|text|:rd:|||spinbutton
+INPUT|range|:rc:|||
+SELECT|select-one|:re:||f(x) = x²f(x) = x³f(|
+BUTTON|button|||Skrij osnovni graf|
+== /bezier/decasteljau
+SELECT|select-one|bezeg-language||SLEN|
+BUTTON|submit|||Preberi razlago|
+BUTTON|submit|||Zamenjaj demonstraci|
+BUTTON|submit|||Spoznaj to demonstra|
+BUTTON|submit|||Predstavitveni način|
+BUTTON|submit||Premakni pogled levo|←|
+BUTTON|submit||Premakni pogled gor|↑|
+BUTTON|submit||Premakni pogled dol|↓|
+BUTTON|submit||Premakni pogled desno|→|
+BUTTON|submit||Približaj graf|+|
+BUTTON|submit||Oddalji graf|−|
+BUTTON|submit|||Prilagodi točkam|
+BUTTON|submit|||Naslednji namig|
+BUTTON|submit|||Strni|
+BUTTON|submit||Uredi|Uredi|
+BUTTON|submit||Prikaz|Prikaz|
+BUTTON|submit||Shrani|Shrani|
+BUTTON|button|||Predvajaj|
+BUTTON|button|||Ponastavi|
+INPUT|text|:r7:|||spinbutton
+INPUT|range|:r6:|||
+INPUT|text|:r9:|||spinbutton
+INPUT|range|:r8:|||
+BUTTON|submit|||Krivulja1|
+INPUT|text|:ra:|||spinbutton
+INPUT|text|:rb:|||spinbutton
+INPUT|text|:rc:|||spinbutton
+INPUT|text|:rd:|||spinbutton
+INPUT|text|:re:|||spinbutton
+INPUT|text|:rf:|||spinbutton
+INPUT|text|:rg:|||spinbutton
+INPUT|text|:rh:|||spinbutton
+INPUT|text|:ri:|||spinbutton
+INPUT|text|:rj:|||spinbutton
+== /analysis/phase-portrait
+SELECT|select-one|bezeg-language||SLEN|
+BUTTON|submit|||Zamenjaj demonstraci|
+BUTTON|submit|||Spoznaj to demonstra|
+BUTTON|submit|||Predstavitveni način|
+BUTTON|submit||Premakni pogled levo|←|
+BUTTON|submit||Premakni pogled gor|↑|
+BUTTON|submit||Premakni pogled dol|↓|
+BUTTON|submit||Premakni pogled desno|→|
+BUTTON|submit||Približaj graf|+|
+BUTTON|submit||Oddalji graf|−|
+BUTTON|submit|||Prilagodi točkam|
+BUTTON|submit|||Naslednji namig|
+BUTTON|submit|||Strni|
+BUTTON|submit||Uredi|Uredi|
+BUTTON|submit||Prikaz|Prikaz|
+BUTTON|submit||Shrani|Shrani|
+SELECT|select-one|:r4:||Linearni sistem x′ =|
+INPUT|text|:r6:|||spinbutton
+INPUT|text|:r7:|||spinbutton
+INPUT|text|:r8:|||spinbutton
+INPUT|text|:r9:|||spinbutton
+BUTTON|button||Odstrani zadnjo začetno točko|−|
+INPUT|text|:rc:|||spinbutton
+BUTTON|button||Dodaj začetno točko|+|
+INPUT|text|:re:|||spinbutton
+INPUT|text|:rf:|||spinbutton
+INPUT|text|:rh:|||spinbutton
+INPUT|range|:rg:|||
+BUTTON|button|||Predvajaj|
+BUTTON|button|||Ponastavi|
+INPUT|text|:rl:|||spinbutton
+INPUT|range|:rk:|||
+== /linear-map
+SELECT|select-one|bezeg-language||SLEN|
+BUTTON|submit|||Zamenjaj demonstraci|
+BUTTON|submit|||Spoznaj to demonstra|
+BUTTON|submit|||Predstavitveni način|
+BUTTON|submit||Premakni pogled levo|←|
+BUTTON|submit||Premakni pogled gor|↑|
+BUTTON|submit||Premakni pogled dol|↓|
+BUTTON|submit||Premakni pogled desno|→|
+BUTTON|submit||Približaj graf|+|
+BUTTON|submit||Oddalji graf|−|
+BUTTON|submit|||Prilagodi točkam|
+BUTTON|submit|||Naslednji namig|
+BUTTON|submit|||Strni|
+BUTTON|submit||Uredi|Uredi|
+BUTTON|submit||Prikaz|Prikaz|
+BUTTON|submit||Shrani|Shrani|
+SELECT|select-one|:r4:||Identiteta IA: osnov|
+SELECT|select-one|:r5:||Slika bazeDeterminan|
+INPUT|text|:r7:|||spinbutton
+INPUT|text|:r8:|||spinbutton
+INPUT|text|:r9:|||spinbutton
+INPUT|text|:ra:|||spinbutton
+BUTTON|button|||Ponastavi na identit|
+INPUT|checkbox|:rc:|||
+INPUT|checkbox|:rd:|||
+INPUT|checkbox|:re:|||

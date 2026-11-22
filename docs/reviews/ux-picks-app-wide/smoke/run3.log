@@ -1,0 +1,43 @@
+  start: Korak 1 od 8 0/1/1 poly=2 bound=skrito
+  N1: Korak 1 od 8 0/1/1 poly=2 bound=skrito
+  N2: Korak 1 od 8 0/1/1 poly=2 bound=skrito
+  N3: Korak 1 od 8 0/1/1 poly=2 bound=skrito
+  B1: Korak 1 od 8 0/1/1 poly=2 bound=skrito
+  B2: Korak 1 od 8 0/1/1 poly=2 bound=skrito
+1b lesson: DONE
+  center to save: 0,4
+  name input visible: true
+  changed center: 0,4
+  candidates: ["BUTTON:smoke-1795359178177izbrano","BUTTON:Izvozi prednastavitve","BUTTON:Uvozi prednastavitve","BUTTON:Generiraj slike za prednastavi"]
+  name visible: 1
+  restored center: 0,4
+  delete buttons: 0
+6 preset: DONE
+  fields: ["3","1","−2","0,5","2","0"]
+  pts: [[[0,0],[1,0],[0,0],[0,1],[2,4],[7,-7]]]
+  scr: [[387.62500000000006,259.875],[424.75000000000006,259.875],[387.62500000000006,259.875],[387.62500000000006,222.75],[461.87500000000006,111.375],[647.5,519.75]] bb {"x":55,"y":365.65625,"width":998,"height":594}
+  drag [387.62500000000006,259.875] fields changed: false
+  pts after: [[[0,0],[1,0],[0,0],[0,1],[2,4],[7,-7]]]
+  fields: ["3","1","−2","0,5","2","0"]
+  drag [424.75000000000006,259.875] fields changed: false
+  pts after: [[[0,0],[1,0],[0,0],[0,1],[2,4],[7,-7]]]
+  fields: ["3","1","−2","0,5","2","0"]
+  drag [387.62500000000006,259.875] fields changed: false
+  pts after: [[[0,0],[1,0],[0,0],[0,1],[2,4],[7,-7]]]
+  fields: ["3","1","−2","0,5","2","0"]
+  drag [387.62500000000006,222.75] fields changed: false
+  pts after: [[[0,0],[1,0],[0,0],[0,1],[2,4],[7,-7]]]
+  fields: ["3","1","−2","0,5","2","0"]
+  drag [461.87500000000006,111.375] fields changed: true
+  pts after: [[[0,0],[1,0],[0,0],[0,1],[2.9,8.41],[8.8,-15.82]]]
+  fields: ["3","1","−2","0,5","2,9","0"]
+  drag [647.5,519.75] fields changed: false
+  pts after: [[[0,0],[1,0],[0,0],[0,1],[2.9,8.41],[8.8,-15.82]]]
+  fields: ["3","1","−2","0,5","2,9","0"]
+  buttons: Zamenjaj demonstracijo | Spoznaj to demonstracijo | Predstavitveni način | ← | ↑ | ↓ | → | + | − | Prilagodi točkam | Naslednji namig | Strni | Uredi | Prikaz | Shrani | Skrij osnovni graf
+2 drag/reset: DONE
+  select1 options: identity=Identiteta I|basis-default=A: osnovni primer|orientation-reversing=B: obrnjena orientacija|singular=C: singularna matrika|eigen-default=E: primer za lastne smeri|quarter-turn=R: vrtež za 90°|shear=S: strig|symmetric=S_y: simetrična matrika|non-symmetric=N: nesimetrična matrika|reflection-x=F: zrcaljenje čez os x|scalar-2=2I: razteg z 2
+  select0 value: sl
+  buttons/tabs: Zamenjaj demonstracijo|Spoznaj to demonstracijo|Predstavitveni način|←|↑|↓|→|+|−|Prilagodi točkam|Naslednji namig|Strni|Uredi|Prikaz|Shrani|Ponastavi na identiteto
+5 linear map: DONE
+ERRORS: []

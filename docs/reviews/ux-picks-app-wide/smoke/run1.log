@@ -1,0 +1,40 @@
+  start: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  after drag range0: {"center":"1,4","degree":"1","x":"1","polynomial":"2,4331","function":"2,7183","signed-error":"0,2852","absolute-error":"0,2852","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  after keys range0: {"center":"1,9","degree":"1","x":"1","polynomial":"0,6686","function":"2,7183","signed-error":"2,05","absolute-error":"2,05","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  degree +2: {"center":"1,9","degree":"3","x":"1","polynomial":"2,564","function":"2,7183","signed-error":"0,1542","absolute-error":"0,1542","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  degree -1: {"center":"1,9","degree":"2","x":"1","polynomial":"3,3764","function":"2,7183","signed-error":"−0,6581","absolute-error":"0,6581","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  spin count: 4
+  typed 1.5 in spin2: {"center":"1,9","degree":"2","x":"1,5","polynomial":"4,5464","function":"4,4817","signed-error":"−0,06472","absolute-error":"0,06472","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  example idx1: {"center":"0","degree":"3","x":"2","polynomial":"0,6667","function":"0,9093","signed-error":"0,2426","absolute-error":"0,2426","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+1a taylor controls: DONE
+  panel: 1
+  start: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  N1: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  N2: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  N3: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  B1: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  B2: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+1b taylor lesson: DONE
+  text inputs after Shrani: 0
+  before: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  changed: {"center":"0","degree":"1","x":"1","polynomial":"2","function":"2,7183","signed-error":"0,7183","absolute-error":"0,7183","bound":"skrito","bound-hypothesis":"skrito","convergence":"Vrsta konvergira k f pri vsakem x."}
+  selects: ["SL|EN","f(x) = eˣ|f(x) = sin x|f(x) = 1/(1 − x)|f(x) = e^(−1/x) za x > 0, 0 sicer","Brez|Samo osi|Osi in mreža|Osi in mreža in črtice|Vse"]
+  preset select not found: smoke-1795358903840
+6 preset: DONE
+  spin count: 6
+  start: ["3","1","−2","0,5","2","0"]
+  after fields: ["2","3","4","5","2","0"]
+2 transformations: EXCEPTION locator.boundingBox: Timeout 30000ms exceeded.
+  initial buttons: Predvajaj
+  playing buttons: Premor t=0.66 status=Spremeni parameter t. Opazuj vmesne točke konstrukcije in končno točko na krivulji.|t = 0,66|||||Nobena krivulja ni izbr
+  after drag: buttons=Predvajaj t=0.28 later t=0.28 status=Spremeni parameter t. Opazuj vmesne točke konstrukcije in končno točko na krivulji.|t = 0,28|t = 0,28.||||Nobena krivulj
+  resumed: Premor t=0.4
+  after wait: Predvajaj t=1 status=Spremeni parameter t. Opazuj vmesne točke konstrukcije in končno točko na krivulji.|t = 1,00|t = 1,00.||||Nobena krivulj
+  after Ponastavi: t=0 Predvajaj
+3 decasteljau: EXCEPTION locator.boundingBox: Timeout 30000ms exceeded.
+  ranges: 3
+  playing: Premor t=0
+4 phase portrait: EXCEPTION Cannot read properties of null (reading 'x')
+  selects: ["sl=SL|en=EN","identity=Identiteta I|basis-default=A: osnovni primer|orientation-reversing=B: obrnjena orientacija|singular=C: singularna matrika|eigen-default=E: primer za lastne smeri|quarter-turn=R: vrtež za 90°|shear=S: strig|symmetric=S_y: simetrična matrika|non-symmetric=N: nesimetrična matrika|reflection-x=F: zrcaljenje čez os x|scalar-2=2I: razteg z 2","basis=Slika baze|determinant=Determinanta|eigen=Lastne smeri|ellipse=Elipsa in singularne smer|composition=Sestavljanje preslikav|iterate=Potenčna metoda|tracedet=Ravnina sled–determinanta","none=Brez|axes=Samo osi|axes-major=Osi in mr
+5 linear map: DONE
+ERRORS: []
