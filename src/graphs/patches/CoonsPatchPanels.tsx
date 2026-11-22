@@ -51,7 +51,7 @@ export interface CoonsPanelActions {
 /** The point name shown in the editor: P₁ of c₀ reads `P₁ (c₀)`. */
 export const coonsPointName = (name: CoonsBoundaryName, index: number): string => `P${subscriptDigits(index)} (${name[0]}${subscriptDigits(Number(name[1]))})`;
 
-const CORNER_COORDINATES: Record<CoonsCornerMismatch["corner"], string> = {u0v0: "(0, 0)", u1v0: "(1, 0)", u0v1: "(0, 1)", u1v1: "(1, 1)"};
+export const CORNER_COORDINATES: Record<CoonsCornerMismatch["corner"], string> = {u0v0: "(0, 0)", u1v0: "(1, 0)", u0v1: "(0, 1)", u1v1: "(1, 1)"};
 
 export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelState; selection?: CoonsSelection; actions: CoonsPanelActions}) {
     const t = useT();
@@ -92,7 +92,7 @@ export interface CoonsReadouts {
     mismatches: ReadonlyArray<CoonsCornerMismatch>;
 }
 
-const triple = (xyz: Xyz): string => `(${xyz.map(value => formatNumber(value, currentLanguage(), 3)).join("; ")})`;
+export const triple = (xyz: Xyz): string => `(${xyz.map(value => formatNumber(value, currentLanguage(), 3)).join("; ")})`;
 
 /** The interior net of the Coons patch and the corner status. A mismatch never reads as interpolation. */
 export function CoonsReadoutPanel({readouts}: {readouts: CoonsReadouts}) {

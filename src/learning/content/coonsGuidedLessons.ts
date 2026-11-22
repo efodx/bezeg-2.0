@@ -5,10 +5,14 @@
  * Scenes use the `coons` action (`set-shown`, `set-linked-corners`, `move-point`).
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {CoonsIds} from '../../graphs/patches/CoonsPatchGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** What a frame declares for the Coons graph: rows to read and the switches its text asks for (`CoonsIds`). */
+const coons = frameDeclarer<CoonsIds>();
 
 type Shown = Extract<LessonAction, {kind: 'coons'; operation: 'set-shown'}>['shown'];
 
@@ -99,7 +103,7 @@ const coonsLesson: GuidedLesson = {
                 'Four cubic Bézier curves are shown: \\(c_0\\) at \\(v=0\\), \\(c_1\\) at \\(v=1\\), \\(d_0\\) at \\(u=0\\) and \\(d_1\\) at \\(u=1\\). Each has \\(4\\) control points, \\(16\\) in all, but every corner is shared by two curves. Predict: how many distinct control points does the boundary have? It is \\(16-4=12\\). The shaded surface is one of the possible fills of this boundary; the next steps build it from three parts.',
             ),
             formulaIds: ['coons-blend'],
-            frames: [frame('coons-boundaries-explanation', 'explanation'), frame('coons-boundaries-observation', 'observation')],
+            frames: [frame('coons-boundaries-explanation', 'explanation', coons({open: ['legend']})), frame('coons-boundaries-observation', 'observation', coons({open: ['readouts']}))],
             observationPrompt: text('Povleci vogal in opazuj, da se premakneta obe krivulji, ki se tam stikata.', 'Drag a corner and watch both curves that meet there move.'),
             expectedObservations: [text('Z vklopljenimi povezanimi vogali se obe krivulji vedno stikata, polje Stik robnih krivulj pa sporoča, da se vsi štirje vogali ujemajo.', 'With linked corners on, the two curves always meet, and the Boundary corners readout reports that all four corners agree.')],
             scene: coonsScene('coons-boundaries-start', 's', true, undefined,
@@ -131,7 +135,7 @@ const coonsLesson: GuidedLesson = {
                 'Now \\(L_d(u,v)=(1-u)\\,d_0(v)+u\\,d_1(v)\\) is shown, the ruled surface between \\(d_0\\) and \\(d_1\\). In the middle \\(d_0(\\tfrac12)=(0;\\ 1.5;\\ 0)\\) and \\(d_1(\\tfrac12)=(3;\\ 1.5;\\ 0.75)\\). Predict: does \\(L_d\\) have the same centre height as \\(L_c\\)? Yes: the midpoint of the segment is \\((1.5;\\ 1.5;\\ 0.375)\\), which is a coincidence of this example and not a law. But \\(L_d\\) misses the edges \\(c_0\\) and \\(c_1\\): at \\(v=0\\) and \\(u=\\tfrac12\\) it is at height \\(0\\), while \\(c_0\\) is at \\(1.5\\).',
             ),
             formulaIds: ['coons-blend'],
-            frames: [frame('coons-ruled-d-explanation', 'explanation'), frame('coons-ruled-d-observation', 'observation')],
+            frames: [frame('coons-ruled-d-explanation', 'explanation'), frame('coons-ruled-d-observation', 'observation', coons({uses: ['shown-lc', 'shown-ld']}))],
             observationPrompt: text('Primerjaj obe premonosni ploskvi: kateri robovi so pri vsaki pravi in kateri ne?', 'Compare the two ruled surfaces: which edges are right on each and which are not?'),
             expectedObservations: [text('\\(L_c\\) ima prave robove \\(c_0\\), \\(c_1\\), \\(L_d\\) pa \\(d_0\\), \\(d_1\\); nobena nima vseh štirih.', '\\(L_c\\) has the right edges \\(c_0\\), \\(c_1\\) and \\(L_d\\) has \\(d_0\\), \\(d_1\\); neither has all four.')],
             scene: coonsScene('coons-ruled-d-ld', 'ld', true, undefined,
@@ -147,7 +151,7 @@ const coonsLesson: GuidedLesson = {
                 'The bilinear surface \\(B\\) is stretched across the four corners; all four have \\(z=0\\), so \\(B\\) is at height \\(0\\) in the centre (pick Bilinear corner surface B to see it). Predict the centre height of the blend \\(S=L_c+L_d-B\\). It is \\(0.375+0.375-0=0.75\\), so \\(S(\\tfrac12,\\tfrac12)=(1.5;\\ 1.5;\\ 0.75)\\). Why the edge is met: on the edge \\(v=0\\) we have \\(L_c=c_0\\), and \\(L_d\\) is the segment between the corners, which is exactly \\(B\\), so \\(L_d-B\\) cancels. The same holds on the other three edges.',
             ),
             formulaIds: ['coons-blend'], workedExampleId: 'coons-centre-example',
-            frames: [frame('coons-blend-explanation', 'explanation'), frame('coons-blend-calculation', 'calculation'), frame('coons-blend-observation', 'observation')],
+            frames: [frame('coons-blend-explanation', 'explanation', coons({open: ['readouts'], highlight: ['centre'], uses: ['shown-b']})), frame('coons-blend-calculation', 'calculation', coons({open: ['readouts'], highlight: ['centre']})), frame('coons-blend-observation', 'observation', coons({open: ['readouts'], highlight: ['centre'], uses: ['shown-lc', 'shown-ld']}))],
             observationPrompt: text('Preveri, da ploskev sega do vseh štirih robnih krivulj, in jo primerjaj z \\(L_c\\) in \\(L_d\\).', 'Check that the surface reaches all four boundary curves and compare it with \\(L_c\\) and \\(L_d\\).'),
             expectedObservations: [text('Mešanje \\(S\\) se dotakne vseh štirih robnih krivulj; to ni res ne za \\(L_c\\) ne za \\(L_d\\). Središče je na \\(z=0{,}75\\).', 'The blend \\(S\\) touches all four boundary curves, which is true of neither \\(L_c\\) nor \\(L_d\\). The centre is at \\(z=0.75\\).')],
             scene: coonsScene('coons-blend-s', 's', true, undefined,
@@ -163,7 +167,7 @@ const coonsLesson: GuidedLesson = {
                 'Since the edges are cubic, \\(S\\) is exactly a bicubic Bézier patch: \\(16\\) control points, \\(12\\) on the boundary and \\(4\\) interior. Predict \\(P_{11}=L_{c,11}+L_{d,11}-B_{11}\\); the three terms have \\(x=y=1\\) and \\(z\\) equal to \\(1\\), \\(\\tfrac13\\) and \\(0\\), so \\(P_{11}=(1,1,\\tfrac43)\\). The other interior points are \\((1,2,\\tfrac13)\\), \\((2,1,\\tfrac53)\\) and \\((2,2,\\tfrac23)\\); read them in the Interior control net panel. Compared with a tensor patch: its boundary depends only on these \\(12\\) points, and you could choose the four interior ones any other way and get a different surface with the same boundary. The Coons blend is the rule that picks them, one choice of many.',
             ),
             formulaIds: ['coons-net'], workedExampleId: 'coons-interior-example',
-            frames: [frame('coons-interior-explanation', 'explanation'), frame('coons-interior-calculation', 'calculation'), frame('coons-interior-observation', 'observation')],
+            frames: [frame('coons-interior-explanation', 'explanation', coons({open: ['readouts'], highlight: ['p-1-1']})), frame('coons-interior-calculation', 'calculation', coons({open: ['readouts'], highlight: ['p-1-1']})), frame('coons-interior-observation', 'observation', coons({open: ['readouts'], highlight: ['p-1-1', 'p-1-2', 'p-2-1']}))],
             observationPrompt: text('Primerjaj kontrolno mrežo na ploskvi s poljem Notranja kontrolna mreža in poišči štiri notranje točke.', 'Compare the control net on the surface with the Interior control net readout and find the four interior points.'),
             expectedObservations: [text('Notranje točke \\(P_{11}\\), \\(P_{12}\\), \\(P_{21}\\), \\(P_{22}\\) so izpisane v plošči; njihove višine so \\(1{,}333\\), \\(0{,}333\\), \\(1{,}667\\), \\(0{,}667\\).', 'The interior points \\(P_{11}\\), \\(P_{12}\\), \\(P_{21}\\), \\(P_{22}\\) are listed in the panel; their heights are \\(1.333\\), \\(0.333\\), \\(1.667\\), \\(0.667\\).')],
             scene: coonsScene('coons-interior-net', 's', true, undefined,
@@ -179,7 +183,7 @@ const coonsLesson: GuidedLesson = {
                 'Linked corners are off and the end point of \\(c_0\\) at \\(u=1\\) is raised from \\((3,0,0)\\) to \\((3,0,1)\\); \\(d_1\\) still starts at \\((3,0,0)\\). The end points are \\(1\\) apart. Predict: does the surface \\(S\\) still pass through both curves at this corner? No. The bilinear surface \\(B\\) takes the average of the end points, \\((3,0,0.5)\\), so \\(S(1,0)=(3;\\ 0;\\ 0.5)\\) and it misses each of the two curves by half the gap, \\(0.5\\). The corner moves the interior net too: \\(B\\) rises by \\(0.5\\) at this corner, so all four interior points drop, \\(P_{21}\\) the most, by \\(\\tfrac29\\), and \\(P_{12}\\) the least, by \\(\\tfrac1{18}\\). The Coons patch interpolates the boundary curves only when the corners meet; the Boundary corners panel now reports the gap and does not claim interpolation.',
             ),
             formulaIds: ['coons-blend'],
-            frames: [frame('coons-break-corner-explanation', 'explanation'), frame('coons-break-corner-observation', 'observation')],
+            frames: [frame('coons-break-corner-explanation', 'explanation'), frame('coons-break-corner-observation', 'observation', coons({open: ['readouts'], uses: ['linked-corners']}))],
             observationPrompt: text('Poglej vogal \\((u,v)=(1,0)\\) in preberi razmik v plošči Stik robnih krivulj; nato vklopi povezane vogale.', 'Look at the corner \\((u,v)=(1,0)\\) and read the gap in the Boundary corners panel; then turn linked corners on.'),
             expectedObservations: [text('Ploskev leži med obema krajiščema in nobene ne doseže; ob vklopu povezanih vogalov se krajišči združita v povprečje in ploskev spet interpolira.', 'The surface lies between the two end points and reaches neither; turning linked corners on joins the end points at their average and the surface interpolates again.')],
             scene: coonsScene('coons-break-corner-gap', 's', false, {name: 'c0', index: 3, xyz: [3, 0, 1]},
@@ -195,7 +199,7 @@ const coonsLesson: GuidedLesson = {
                 'The boundary curves are back at their start, the corners are linked and the surface \\(S\\) is shown. Move the boundary control points, switch between \\(L_c\\), \\(L_d\\), \\(B\\) and \\(S\\), turn linked corners off and on again. The blend \\(L_c+L_d-B\\) is one of many fills of the boundary: the boundary curves alone do not determine the interior, and another blending rule would give a different surface with the same boundary.',
             ),
             formulaIds: ['coons-blend', 'coons-net'],
-            frames: [frame('coons-explore-explanation', 'explanation'), frame('coons-explore-observation', 'observation')],
+            frames: [frame('coons-explore-explanation', 'explanation', coons({uses: ['shown-lc', 'shown-ld', 'shown-b', 'shown-s', 'linked-corners']})), frame('coons-explore-observation', 'observation', coons({open: ['readouts'], highlight: ['p-1-1', 'p-1-2', 'p-2-1']}))],
             observationPrompt: text('Premakni notranjo kontrolno točko roba in preveri, katere notranje točke mreže se spremenijo.', 'Move an interior control point of an edge and check which interior net points change.'),
             expectedObservations: [text('Spremenijo se notranje točke, ki jih formula \\(P_{ij}\\) izračuna iz te točke; rob ostane na krivuljah, dokler se vogali stikajo.', 'The interior points that the formula \\(P_{ij}\\) computes from this point change; the edge stays on the curves as long as the corners meet.')],
             scene: coonsScene('coons-explore-start', 's', true, undefined,

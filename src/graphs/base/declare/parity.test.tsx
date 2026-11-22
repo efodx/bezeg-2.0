@@ -78,6 +78,22 @@ const SAMPLES: readonly Sample[] = [
         {name: 'two points coincide', apply: graph => { runAs('learner', () => { const g = graph as unknown as {moveHandleTo(h: number, x: number, y: number): void}; g.moveHandleTo(4, 0, 5); g.moveHandleTo(1, 0, 0); }); }},
         {name: 'second line degenerate', apply: graph => { runAs('learner', () => { const g = graph as unknown as {loadExample(id: string): void; moveHandleTo(h: number, x: number, y: number): void}; g.loadExample('harmonic'); g.moveHandleTo(6, 0, 1); }); }},
     ]},
+    {file: 'patches/__parity__/patch-coons.json', demonstration: 'patch-coons', states: (() => {
+        type Coons = {selectBoundaryPoint(name: string, index: number): void; setSelectedCoordinates(xyz: [number, number, number]): void; setLinkedCorners(linked: boolean): void};
+        const move = (name: string, index: number, xyz: [number, number, number]) => (graph: unknown) => runAs('learner', () => {
+            (graph as Coons).selectBoundaryPoint(name, index);
+            (graph as Coons).setSelectedCoordinates(xyz);
+        });
+        const step = (name: string, apply: (graph: unknown) => void): ParityState => ({name, apply: graph => apply(graph)});
+        return [
+            state('default', {}),
+            step('inner point raised', move('c0', 1, [1, 0, 1.5])),
+            step('linked corner moved', move('c0', 0, [0.2, 0.1, 0.3])),
+            step('corners unlinked, one corner apart', graph => { runAs('learner', () => (graph as Coons).setLinkedCorners(false)); move('d0', 0, [-0.5, 0.5, 0.9])(graph); }),
+            step('far corner raised, still unlinked', move('d1', 3, [3, 3, 1])),
+            step('corners linked again, inner point moved', graph => { runAs('learner', () => (graph as Coons).setLinkedCorners(true)); move('c1', 1, [1.5, 3.4, -1])(graph); }),
+        ];
+    })()},
     {file: 'linear/__parity__/linear-map-basis.json', demonstration: 'linear-map', states: [
         state('basis default', {'linear-map-mode': 'basis'}),
         state('shear', {'linear-map-example': 'shear'}),
