@@ -25,6 +25,8 @@ const TAIL_MS = 500, TAIL_DELAY = 0, ACTION_MS = 400;
 const DELAY: Record<Reason, number> = {port: 60, intent: 60, action: 220, dock: 140, resize: 140, params: 0, auto: 60};
 /** The morph's easing (b1/morph.ts), so scene and view share one curve. */
 const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+/** A picture that names its corners has no empty margin to give up first, so it may shrink further than a whole intent (2.2) before a card has to cover part of it. */
+const NAMED_MAX_OUT = 3;
 const smooth = (k: number) => k * k * (3 - 2 * k);
 const same = (a: FitBox, b: FitBox) => a.every((v, i) => Math.abs(v - b[i]) < 1e-9 * (1 + Math.abs(v)));
 
@@ -60,6 +62,16 @@ export function computeTarget(intentOverride?: FitBox, excludeObstacles?: string
     }
     const canvas = {width: rect.width, height: rect.height};
     const obstacles = obstacleRects(port.container, excludeObstacles);
+    // A graph that names the corners of its picture (`ViewPort.marks`): the least zoom-out that keeps them all clear of the cards,
+    // not the whole intent (with its margins) squeezed into the largest free rectangle.
+    const content = port.marks?.();
+    if (content && content.length > 0) {
+        const named = fitView({
+            must: content.map(p => [p[0], p[1]] as Point), canvas, obstacles, base: intent, equalAxisUnits: port.equalAxisUnits,
+            limits: {maxOut: Math.max(s.maxOut, NAMED_MAX_OUT), maxIn: 1}, mode: 'keep',
+        });
+        if (named.covered.length === 0) return named.box;
+    }
     const result = fitIntent({intent, canvas, obstacles, maxOut: s.maxOut, equalAxisUnits: port.equalAxisUnits});
     if (s.marks.length > 0 && coveredMarks(result.box, s.marks, canvas, obstacles).length > 0) {
         const marked = fitView({

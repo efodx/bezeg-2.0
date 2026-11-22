@@ -114,6 +114,8 @@ const Y_TITLE_CLEARANCE_PX = 14;
 const NAME_GAP_PX = 24;
 const NAME_ROW_PX = 20;
 const MIN_PLOT_PX = 90;
+/** The width of the y axis numbers left of the axis ("-2" with its tick), in pixels. */
+const AXIS_NUMBERS_PX = 32;
 
 /**
  * Sampling mode, under the plot edge, top to bottom: the strip of instants (its line at `stripLevel`, in board units so that a card window keeps it), the
@@ -409,6 +411,30 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         }
         this.drawnFrame = key;
         this.showFrame(frame);
+    }
+
+    /**
+     * The corners of what the picture spans in this frame (pick `viewDirector`): the plot with its axis numbers and the "y" title,
+     * and the picture panel's circle with its two names. The frame also holds the caption room above and margins; the director
+     * keeps these corners clear of the cards (a hull, so a corner of the circle lies off a card, not only its four tips).
+     */
+    protected override viewMarks(): readonly (readonly [number, number])[] | undefined {
+        const width = this.board.canvasWidth, height = this.board.canvasHeight;
+        if (!(width > 0) || !(height > 0)) return undefined;
+        const derived = this.derived();
+        const [fl, ft, fr, fb] = this.frame(derived);
+        const ux = width / (fr - fl), uy = height / (ft - fb);
+        const span = derived.xs[derived.xs.length - 1];
+        const peak = 1.1 * derived.yPeak;
+        const top = peak + Y_TITLE_PX / uy, left = -AXIS_NUMBERS_PX / ux, right = span + 6 / ux;
+        const marks: [number, number][] = [[left, top], [right, top], [right, fb], [left, fb]];
+        if (derived.mode === "sum" || derived.mode === "sampling") {
+            const cx = -0.36 * span;
+            const radius = Math.min(uy, (0.46 * 0.56 * span * ux) / derived.yPeak) * derived.yPeak;
+            const rx = radius / ux, ry = radius / uy;
+            marks.push([cx - rx, ry], [cx + rx, ry], [cx + rx, -ry], [cx - rx, -ry], [cx, -ry - (NAME_GAP_PX + 2 * NAME_ROW_PX) / uy]);
+        }
+        return marks;
     }
 
     private shownFrame: Box | undefined;

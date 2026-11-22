@@ -985,6 +985,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         registerViewPort({
             container, board, equalAxisUnits: this.equalAxisUnits,
             intent: () => this.viewIntentBox, current: () => board.getBoundingBox() as FitBox,
+            marks: () => this.viewMarks(),
             apply: box => {
                 this.rawSetBox([...box], this.equalAxisUnits);
                 // JSXGraph widens the box to the canvas aspect; remember what the board really shows.
@@ -992,6 +993,15 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             },
         });
         session.registerCleanup(() => registerViewPort(undefined));
+    }
+
+    /**
+     * The world points the picture spans in the present state (pick `viewDirector`): a graph whose view intent holds empty margin or
+     * whose picture is narrower than the canvas names its content's corners, and the director keeps their hull clear of the cards
+     * instead of shrinking the whole intent into the free rectangle. Undefined: the intent itself.
+     */
+    protected viewMarks(): readonly (readonly [number, number])[] | undefined {
+        return undefined;
     }
 
     /** The board's own `setBoundingBox`, for the code that must not become a view intent (the view's own application, pan buttons). */

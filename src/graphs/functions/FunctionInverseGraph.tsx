@@ -73,6 +73,12 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         return [-4, 9, 11, -4];
     }
 
+    /** The picture is the default box's region (the view intent is that box widened to the canvas): the director keeps it clear of the cards. */
+    protected override viewMarks(): readonly (readonly [number, number])[] {
+        const [left, top, right, bottom] = this.defaultBoundingBox();
+        return [[left, top], [right, top], [right, bottom], [left, bottom]];
+    }
+
     // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setBase(value: number, options: { syncScene?: boolean } = {}): void {

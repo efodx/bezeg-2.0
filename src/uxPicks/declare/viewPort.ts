@@ -16,6 +16,11 @@ export interface ViewPort {
     apply(box: FitBox): void;
     /** The board's current box. */
     current(): FitBox;
+    /**
+     * World points the picture of the graph's present state spans (its content corners, not the box it was framed in): the director
+     * keeps their hull visible and clear of the cards at the least zoom-out. Absent: the whole intent is kept (BaseGraph.viewMarks).
+     */
+    marks?(): readonly (readonly [number, number])[] | undefined;
 }
 
 type Kind = 'port' | 'intent' | 'action';
