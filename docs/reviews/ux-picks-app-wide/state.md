@@ -30,9 +30,23 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 - 01/01b: global source with ambient learner input; only the five pilots bind parameters and `view` until 08; every board has a `ViewAdapter` (`boardView`); `setIntent` / `following` / `resizing` classes (08 rechecks `following` sites); Presets store the intent box.
 - 02: text is a catalog `Message` (or `FormattedValue` for numbers the graph formats; no words); ids per-graph union with `frameDeclarer<Ids>()`; the declaration reproduces the present panel (parity), new text is a later task; new declaration keys go into per-family fragments (ADR 0066); lesson files switch to `guidedStep` when their graph converts.
 
+## Handler 3 progress (2026-11-22)
+
+- Done on branch: `56414ad2` fragments (ADR 0066 built; Taylor keys moved, FormattedValue replaces pass-through); `c92616bb` slice 3 contract test `src/learning/content/declarationContract.test.tsx` + Taylor frames declared; `99afc7e8` shared pilot brief `briefs/02-pilot-declare.md`; `2212571c`+`f9250bc6` slice 6 `just graph-check <id>`; `a87ba078` pilots transformations, De Casteljau, phase portrait.
+- Running at last update: linear map and triangle-centres pilot workers; fuzz matrix (watcher prints a summary when pid 4573 exits).
+- Left in 02: pilots projective-cross-ratio, patch-coons; slice 5a (browser, after matrix); slice 7 guide (inputs: placement notes `02-*-placement.md`, the contract gaps below).
+
+## Contract gaps (decide before the freeze at the 08 gate)
+
+- Math notation with letters (rule "y = a f(...)"): `FormattedValue` rejects letters; pilots use a fragment template key with formatted pieces. A formula value kind would be cleaner.
+- No point-valued / point-set parameter kind (phase-portrait seeds, point sets, vectors).
+- Choice option values are strings; the arbiter reads `phase-equilibrium` as 0/1.
+- No place for board captions/insets (phase portrait matrix columns, trace–determinant inset).
+- Declarations read `state`, which lags the live value during playback (De Casteljau `t`); presenters need the arbiter read.
+- `RationalDecasteljauGraph` inherits De Casteljau's declaration unreviewed; De Casteljau speed `v` unbound, undeclared.
+
 ## Open items
 
-- Taylor still uses the pass-through key `taylor_value_text` ("{value0}") and added 8 keys straight into `sl.ts`/`en.ts`: replace the pass-through with `FormattedValue`, build the fragment mechanism (`src/localization/fragments/<family>.ts`, spread into `sl`/`en`, collision test) and move Taylor's keys there.
 - Probe gaps (note in `measure/probe-baseline.md`): board pan measured nothing on transformations and at 1024 on De Casteljau and phase portrait.
 - Inventory's 6 new-string candidates is implausibly low; recheck before relying on it.
 - For the owner: Esc now pauses playback on board graphs (lands with 01c); touching a playing parameter pauses it (task 01, on master).
