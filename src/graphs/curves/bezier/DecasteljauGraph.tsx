@@ -246,28 +246,39 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                 onSpeedChange={(value) => this.setState({v: value})}/>]) : [];
     }
 
+    /** Play and replay start the driver after the host commits; a pause, stop or learner write in between cancels the start. */
+    private startRequest = 0;
+
+    private startAfterCommit(start: () => void): () => void {
+        const request = ++this.startRequest;
+        return this.whileMounted(() => { if (request === this.startRequest) start(); });
+    }
+
     private playAnimation() {
         const restart = this.parameter >= 1;
-        this.setParameter(restart ? 0 : this.parameter, "playing", this.whileMounted(() => this.lessonAnimation.play()));
+        this.setParameter(restart ? 0 : this.parameter, "playing", this.startAfterCommit(() => this.lessonAnimation.play()));
     }
 
     private pauseAnimation() {
+        this.startRequest++;
         this.lessonAnimation.pause();
         this.setParameter(this.parameter, "paused");
     }
 
     private stopAnimation() {
+        this.startRequest++;
         this.lessonAnimation.stop();
         this.setParameter(0, "ready");
     }
 
     private replayAnimation() {
-        this.setParameter(0, "playing", this.whileMounted(() => this.lessonAnimation.replay()));
+        this.setParameter(0, "playing", this.startAfterCommit(() => this.lessonAnimation.replay()));
     }
 
-    /** A seek is an edit: it pauses a running animation (decision 57). */
+    /** A seek is an edit: it pauses a running animation, or a start still waiting for the commit (decision 57). */
     private changeParameter(value: number) {
-        const running = this.lessonAnimation.isRunning();
+        const running = this.lessonAnimation.isRunning() || this.state.animationStatus === "playing";
+        this.startRequest++;
         this.lessonAnimation.pause();
         this.setParameter(value, running ? "paused" : "ready");
     }

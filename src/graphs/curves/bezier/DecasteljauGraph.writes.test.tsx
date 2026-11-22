@@ -78,3 +78,17 @@ test('playback runs under a lease: a learner write of t stops it with the contro
     act(() => graph.getLessonCapabilities().stopAnimations?.());
     expect(parameters.activeLeases()).toHaveLength(0);
 });
+
+test('a learner write that lands before a pending play start commits wins: playback never starts', () => {
+    const {graph, frames} = mountRun();
+    const parameters = graph.parameters!;
+    act(() => {
+        fireEvent.click(play());
+        parameters.write(KEY, 0.2, 'learner');
+    });
+    expect(graph.state.animationStatus).not.toBe('playing');
+    expect(parameters.activeLeases()).toHaveLength(0);
+    frames(3);
+    expect(graph.state.t).toBeCloseTo(0.2);
+    expect(graph.state.animationStatus).not.toBe('playing');
+});
