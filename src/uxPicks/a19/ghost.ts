@@ -33,20 +33,27 @@ export const drawn = (board: JxgBoard) => board.objectsList.filter(object => obj
 export const shapeSignature = (node: Element) => ['d', 'points', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'rx', 'ry', 'r', 'x', 'y', 'width', 'height', 'transform']
     .map(name => node.getAttribute(name) ?? '').join('|');
 
-/** Runs `write` and waits until the board has redrawn. */
-export async function settle(board: JxgBoard, write: () => void) {
+/**
+ * Runs `write` and waits until the board has redrawn. Resolves true when the board redrew during the write itself.
+ * `syncOnly`: never wait for a later redraw (a written value that stays across frames is painted, controls included).
+ */
+export async function settle(board: JxgBoard, write: () => void, syncOnly = false): Promise<boolean> {
     let redrawn = false;
     const mark = () => { redrawn = true; };
     board.on('update', mark);
     try { asProbe(() => flushSync(write)); } finally { board.off('update', mark); }
-    if (redrawn) return;
+    if (redrawn || syncOnly) return redrawn;
     await new Promise<void>(resolve => {
         let left = 4;
-        const done = () => { board.off('update', done); resolve(); };
+        // Not removed from inside the board's own 'update' loop: JSXGraph's trigger caches the handler count, so a handler that
+        // removes itself makes the loop read past the end ("Cannot read properties of undefined (reading 'handler')", fuzzer F3).
+        let finished = false;
+        const done = () => { if (finished) return; finished = true; queueMicrotask(() => board.off('update', done)); resolve(); };
         const tick = () => { if (--left <= 0) done(); else requestAnimationFrame(tick); };
         board.on('update', done);
         requestAnimationFrame(tick);
     });
+    return false;
 }
 
 /** Sets the board to the probed value, clones what moved, restores the live value; undefined when nothing moved. */

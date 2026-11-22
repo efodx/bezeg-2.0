@@ -174,17 +174,23 @@ async function probeInterval(key: string): Promise<[number, number] | undefined>
     const at = (): Map<string, Measure> => measure(board, box.width, box.height);
     const reference = at();
     const samples: Map<string, Measure>[] = [];
+    // A probe value is set and taken back within one task, so it never reaches a paint (fuzzer F1: a board that redrew a frame
+    // later left "0,5 1 0,5 2 0,5" on the puck). Probing ends, touching nothing, as soon as the sweep stops or another writer
+    // changed the value between probes (fuzzer F2: the closing restore of `start` overwrote the learner's value).
+    const close = (v: number | undefined, w: number) => v !== undefined && Math.abs(v - w) <= step / 2 + 1e-9;
+    const live = () => getParam(key) as RangeParam | undefined;
     probing++;
     try {
         for (const value of values) {
-            await settle(board, () => (getParam(key) as RangeParam | undefined)?.setRaw(value));
-            samples.push(at());
-            // Back to the live value and a pause before the next probe: the probes never share one long task and never reach a paint.
-            await settle(board, () => (getParam(key) as RangeParam | undefined)?.setRaw(start));
+            if (!running.has(key) || !close(live()?.value, start)) return undefined;
+            const redrawn = await settle(board, () => live()?.setRaw(value), true);
+            if (redrawn) samples.push(at());
+            if (close(live()?.value, value)) await settle(board, () => live()?.setRaw(start), true);
+            if (!redrawn) return undefined; // this graph redraws later: its probes cannot be measured unseen
+            // A pause before the next probe: the probes never share one long task.
             await new Promise<void>(resolve => window.setTimeout(resolve, 0));
         }
     } finally {
-        await settle(board, () => (getParam(key) as RangeParam | undefined)?.setRaw(start));
         probing--;
     }
     const moving = [...reference.keys()].filter(id => reference.get(id)!.count > 0 && samples.some(s => s.get(id)?.sig !== reference.get(id)!.sig));

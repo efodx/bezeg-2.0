@@ -48,7 +48,13 @@ Recommendation: B first for the generic previews, with A for graphs whose geomet
 
 ## Fuzzer findings feeding this spec
 
-To be filled from `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/fuzz/RESULTS.md` (run started 2026-11-22).
+From `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/fuzz/RESULTS.md` and `RESULTS2.md` (2026-11-22; fuzzer `fuzz.cjs` with `--replay`/`--selftest`). Owner, 2026-11-22: the run "proves such a test is valid and we'll use it in the app-wide impl". Each finding is a test case for acceptance 4-5:
+
+- **F1, I2 flicker: a sweep's own probe values painted.** Starting ∿ probes ~21 values to find the in-view swing; on a board that redrew a frame later the probe value stayed across frames (transformations `rest, osc:u, undo, osc:b` → b showed `0,5 1 0,5 2 0,5`). Prototype fix R30: each probe is set and taken back in one task, or probing stops. In the store: previews and probes never write live state (requirement 4).
+- **F2, I1 learner wins: a probe's closing restore overwrote the learner.** A value typed or dragged while the sweep probed was replaced by the probe's start value (transformations seeds 4-5). Prototype fix R30: probing stops untouched when the sweep stops or the value changed. In the store: a lower-priority writer never restores over a higher one (requirement 3).
+- **F3, I4 page error `reading 'handler'`.** A board 'update' listener removed itself inside JSXGraph's trigger loop, which caches the handler count (taylor, waves, phase portrait, Taylor lesson). Prototype fix R30: removal deferred to a microtask. In the implementation: listeners on board events never unsubscribe from inside the event.
+- Checker artefacts, excluded: typed decimals on integer-step or step-snapped sliders (phase.zoom).
+- After R30: F1 min 5/5, F2 min 3/3, waves min 3/3, taylor seed 2 (40 steps) and Taylor lesson seed 8 (30 steps) pass. The full seed matrix was not run (owner stopped it).
 
 ## Consequences
 

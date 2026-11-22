@@ -77,7 +77,7 @@ async function walk(board: JxgBoard, svg: SVGSVGElement, entry: ParamEntry, canc
     const W = svg.clientWidth, H = svg.clientHeight;
     const key = entry.key;
     let offsets: number[];
-    let goTo: (offset: number) => Promise<void>;
+    let goTo: (offset: number) => Promise<unknown>;
     let sources: number;
     if (entry.kind === 'range') {
         const v0 = entry.value, span = entry.max - entry.min;
