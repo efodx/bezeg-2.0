@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {declaredPuckHelp} from '../declare/graphUxStore';
 import {getParam, listParams, splitLabel, type ParamEntry} from '../a1/paramRegistry';
-import {captureGhost, findBoard, type Ghost} from '../a19/ghost';
+import {captureGhost, findBoard, captureQueue, type Ghost} from '../a19/ghost';
 import {analyse, type Fan} from './fan';
 import {trackFraction, valueAt} from './track';
 import '../a19/ScrubPreview.css';
@@ -48,7 +48,8 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         let busy = false;
         let pending: Job | undefined;
         let wanted: string | undefined;
-        let raf = 0;
+        // The queued capture (next frame while captures are cheap, idle time once they are expensive): at most one.
+        const queued = captureQueue(() => void run());
         let dwell = 0;
         let unghost = 0;
         // A press (a drag, a jump) is under way: no probe starts, and one in flight stops at its next step.
@@ -88,8 +89,8 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         };
         const isWanted = (job: Job) => wanted === (job.kind === 'ghost' ? `g:${job.key}:${job.value}` : `o:${job.key}`);
 
+        const queue = () => queued.poke();
         const run = async () => {
-            raf = 0;
             const job = pending;
             if (!job) return;
             if (busy || pressed) return;
@@ -124,7 +125,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
                 }
             } finally {
                 busy = false;
-                if (pending && !raf) raf = requestAnimationFrame(() => void run());
+                if (pending) queue();
             }
         };
         const schedule = (job: Job) => {
@@ -132,8 +133,8 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             window.clearTimeout(dwell); dwell = 0;
             // The overview probe walks the graph through neighbouring values: it waits for the pointer to rest, so a pointer
             // crossing a puck on its way to press it never starts one (a first drag would otherwise hitch behind it).
-            if (job.kind === 'overview') { dwell = window.setTimeout(() => { dwell = 0; if (!raf) raf = requestAnimationFrame(() => void run()); }, OVERVIEW_DWELL_MS); return; }
-            if (!raf) raf = requestAnimationFrame(() => void run());
+            if (job.kind === 'overview') { dwell = window.setTimeout(() => { dwell = 0; queue(); }, OVERVIEW_DWELL_MS); return; }
+            queue();
         };
 
         const overview = (puck: HTMLElement, entry: ParamEntry) => {
@@ -243,7 +244,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             document.removeEventListener('focusin', focusIn);
             document.removeEventListener('focusout', focusOut);
             document.removeEventListener('keydown', keydown);
-            if (raf) cancelAnimationFrame(raf);
+            queued.stop();
             unaim();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps

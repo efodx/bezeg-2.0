@@ -44,14 +44,34 @@ const listeners = new Set<() => void>();
 let snapshot: readonly ParamEntry[] = [];
 let scheduled = false;
 
+// While a preview probes (probeWindow) nothing is published: pucks, readouts and view checks never see the probed value.
+let windowDepth = 0;
+let held = false;
+
 function emit() {
+    if (windowDepth > 0) { held = true; return; }
     if (scheduled) return;
     scheduled = true;
     queueMicrotask(() => {
         scheduled = false;
+        if (windowDepth > 0) { held = true; return; }
         snapshot = [...entries.values()];
         for (const listener of listeners) listener();
     });
+}
+
+/** Runs a preview's whole probe (set a value, look, restore); the registry publishes afterwards, and only if something differs. */
+export async function probeWindow<T>(run: () => Promise<T>): Promise<T> {
+    windowDepth++;
+    try { return await run(); } finally {
+        await Promise.resolve(); // effects of the restoring render
+        if (--windowDepth === 0 && held) {
+            held = false;
+            const next = [...entries.values()];
+            const unchanged = next.length === snapshot.length && next.every((entry, i) => entry.key === snapshot[i].key && same(entry, snapshot[i]));
+            if (!unchanged) { snapshot = next; for (const listener of listeners) listener(); }
+        }
+    }
 }
 
 function same(a: ParamEntry, b: ParamEntry) {

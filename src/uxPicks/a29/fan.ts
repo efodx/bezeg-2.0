@@ -1,4 +1,4 @@
-import {getParam, type CountParam, type ParamEntry, type RangeParam} from '../a1/paramRegistry';
+import {getParam, probeWindow, type CountParam, type ParamEntry, type RangeParam} from '../a1/paramRegistry';
 import {drawn, settle, type JxgBoard} from '../a19/ghost';
 
 /**
@@ -68,7 +68,11 @@ function common(own: Pt[][], neighbours: Pt[][][], still: {count: number; total:
 const near = (list: Pt[], p: Pt, r: number) => list.some(q => Math.hypot(q[0] - p[0], q[1] - p[1]) <= r);
 
 /** `cancelled` is asked between the probe's steps: once true the walk stops, the values are put back, and nothing is returned. */
-export async function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamEntry, cancelled: () => boolean = () => false): Promise<Fan | undefined> {
+export function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamEntry, cancelled: () => boolean = () => false): Promise<Fan | undefined> {
+    return probeWindow(() => walk(board, svg, entry, cancelled));
+}
+
+async function walk(board: JxgBoard, svg: SVGSVGElement, entry: ParamEntry, cancelled: () => boolean): Promise<Fan | undefined> {
     const W = svg.clientWidth, H = svg.clientHeight;
     const key = entry.key;
     let offsets: number[];

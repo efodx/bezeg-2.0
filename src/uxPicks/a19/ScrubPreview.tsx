@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {getParam, splitLabel, type ParamEntry} from '../a1/paramRegistry';
-import {captureGhost, findBoard, type Ghost, type JxgBoard} from './ghost';
+import {captureGhost, findBoard, captureQueue, type Ghost, type JxgBoard} from './ghost';
 import {PRESENTATION_LABEL} from '../a1/ParamPucks';
 import './ScrubPreview.css';
 
@@ -30,7 +30,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
         let busy = false;
         let shown: string | undefined;
         let pending: Job | undefined;
-        let raf = 0;
+        const queued = captureQueue(() => void run());
         let unghost = 0;
         const clear = () => { shown = undefined; pending = undefined; window.clearTimeout(unghost); unghost = 0; setGhost(undefined); setTip(undefined); };
         // A ghost with nothing to show (the pointer crosses the live value, or a bound) is withdrawn only if no ghost follows within
@@ -46,7 +46,6 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
         };
 
         const run = async () => {
-            raf = 0;
             const job = pending;
             pending = undefined;
             if (!job || busy) return;
@@ -92,10 +91,10 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
                 }
             } finally {
                 busy = false;
-                if (pending) raf = requestAnimationFrame(() => void run());
+                if (pending) queued.poke();
             }
         };
-        const schedule = (job: Job) => { pending = job; if (!raf) raf = requestAnimationFrame(() => void run()); };
+        const schedule = (job: Job) => { pending = job; queued.poke(); };
 
         const countJob = (target: Element | null): Job | undefined => {
             const button = target?.closest?.('.count-setter-button, .ux-count-step');
@@ -134,7 +133,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
             document.removeEventListener('pointermove', move);
             document.removeEventListener('pointerdown', down);
             document.removeEventListener('click', click);
-            if (raf) cancelAnimationFrame(raf);
+            queued.stop();
         };
     }, [props.frame]);
 
