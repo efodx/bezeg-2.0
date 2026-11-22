@@ -1,4 +1,4 @@
-import {t as translate} from "../../localization";
+import {message, messageNumber, t as translate, type Message} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {Fraction, fractionToNumber} from "../../projective/homogeneous";
 import {CrossRatioScene, fractionText, POINT_NAMES} from "./crossRatioModel";
@@ -45,5 +45,37 @@ export function describeCrossRatio(scene: CrossRatioScene, t: Translate, languag
         originals,
         images,
         limit: ideal && image ? t(LIMIT_KEYS[scene.idealIndex ?? 0], {value0: image[0]}) : undefined,
+    };
+}
+
+/** The sentences of {@link describeCrossRatio} as catalog messages, so a declaration holds data and the language renders it. */
+export interface CrossRatioMessages {
+    readonly statusKind: CrossRatioText["statusKind"];
+    readonly status: Message;
+    readonly originalRatio?: Message;
+    readonly imageRatio?: Message;
+    readonly limit?: Message;
+    readonly originals: Message;
+    readonly images?: Message;
+}
+
+export function crossRatioMessages(scene: CrossRatioScene, t: Translate, language: NumberLanguage): CrossRatioMessages {
+    const text = describeCrossRatio(scene, t, language);
+    const originals = message("projective_k1_originals", {value0: text.originals});
+    const status = scene.status === "centre-on-line" ? message("projective_k1_status_centre_on_line")
+        : scene.status === "degenerate-second-line" ? message("projective_k1_status_line2")
+        : scene.status === "coincident-points" ? message("projective_k1_status_coincident")
+        : scene.idealIndex !== undefined ? message("projective_k1_status_ideal", {value0: `${POINT_NAMES[scene.idealIndex]}′`}) : message("projective_k1_status_ok");
+    if (text.statusKind === "undefined") return {statusKind: text.statusKind, status, originals};
+    const ratio = (key: "projective_k1_ratio_originals" | "projective_k1_ratio_images", value: Fraction): Message =>
+        message(key, {value0: fractionText(value), value1: messageNumber(fractionToNumber(value), 4)});
+    const original = scene.originalRatio?.status === "ok" ? scene.originalRatio.value : undefined;
+    const image = scene.imageRatio?.status === "ok" ? scene.imageRatio.value : undefined;
+    return {
+        statusKind: text.statusKind, status, originals,
+        originalRatio: original && ratio("projective_k1_ratio_originals", original),
+        imageRatio: image && ratio("projective_k1_ratio_images", image),
+        limit: scene.idealIndex !== undefined && image ? message(LIMIT_KEYS[scene.idealIndex], {value0: fractionText(image)}) : undefined,
+        images: text.images ? message("projective_k1_images", {value0: text.images}) : undefined,
     };
 }

@@ -52,6 +52,8 @@ export interface IterationBoardContext {
     readonly step: () => number;
     readonly iteration: () => IterationView;
     readonly traceDet: () => TraceDetView;
+    /** Names a drawn object for the declaration's legend (`BaseGraph.drawnObject`). */
+    readonly mark?: (id: string, element: unknown) => void;
     readonly start: () => Vec2;
     readonly strokeWidth: () => number;
     readonly thin: () => number;
@@ -84,13 +86,15 @@ export function createIterationCurves(ctx: IterationBoardContext): void {
     const iterating = () => ctx.mode() === 'iterate';
     const tracing = () => ctx.mode() === 'tracedet';
 
-    const polyline = (points: () => Polyline, attributes: object) => {
-        const curve = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, ...attributes})) as unknown as CurveLike;
+    const polyline = (points: () => Polyline, attributes: object, id?: string) => {
+        const element = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, ...attributes}));
+        const curve = element as unknown as CurveLike;
         curve.updateDataArray = () => {
             const {x, y} = points();
             curve.dataX = x;
             curve.dataY = y;
         };
+        if (id) ctx.mark?.(id, element);
     };
     const fixedText = (x: number | (() => number), y: number, text: () => string, anchorX: string, anchorY: string, color: string) =>
         ctx.own(board.create('text', [x, y, text], {
@@ -99,21 +103,21 @@ export function createIterationCurves(ctx: IterationBoardContext): void {
 
     // ---- iterate: the orbit, the eigen-lines, the normalised iterate ------------------------------------------------
     polyline(() => lineThroughOrigin(iterating() ? ctx.iteration().otherLine : undefined),
-        {strokeColor: ITERATION_COLORS.other, strokeWidth: ctx.thin, dash: 3, visible: iterating});
+        {strokeColor: ITERATION_COLORS.other, strokeWidth: ctx.thin, dash: 3, visible: iterating}, 'other');
     polyline(() => lineThroughOrigin(iterating() ? ctx.iteration().dominantLine : undefined),
-        {strokeColor: ITERATION_COLORS.dominant, strokeWidth: ctx.strokeWidth, visible: iterating});
+        {strokeColor: ITERATION_COLORS.dominant, strokeWidth: ctx.strokeWidth, visible: iterating}, 'dominant');
     polyline(() => iterating() ? orbitPolyline(ctx.iteration(), ctx.step()) : {x: [], y: []},
         {strokeColor: ITERATION_COLORS.orbit, strokeWidth: ctx.thin, dash: 2, visible: iterating});
     polyline(() => {
         const unit = iterating() ? unitOf(ctx) : undefined;
         return unit ? {x: [0, ARROW_LENGTH * unit[0]], y: [0, ARROW_LENGTH * unit[1]]} : {x: [], y: []};
-    }, {strokeColor: ITERATION_COLORS.unit, strokeWidth: ctx.strokeWidth, lastArrow: {type: 2, size: 6}, visible: iterating});
+    }, {strokeColor: ITERATION_COLORS.unit, strokeWidth: ctx.strokeWidth, lastArrow: {type: 2, size: 6}, visible: iterating}, 'unit');
 
     // ---- tracedet: the parabola, the triangle, the stable-flow quadrant --------------------------------------------
     const [left, top, right] = TRACE_DET_VIEW;
-    polyline(() => closedPolyline([[left, 0], [0, 0], [0, top], [left, top]]), {...TRACE_DET_DRAWING.flow, strokeWidth: ctx.thin, visible: tracing});
-    polyline(() => closedPolyline(STABILITY_TRIANGLE), {...TRACE_DET_DRAWING.triangle, strokeWidth: ctx.strokeWidth, visible: tracing});
-    polyline(() => parabolaPolyline(), {...TRACE_DET_DRAWING.parabola, strokeWidth: ctx.strokeWidth, visible: tracing});
+    polyline(() => closedPolyline([[left, 0], [0, 0], [0, top], [left, top]]), {...TRACE_DET_DRAWING.flow, strokeWidth: ctx.thin, visible: tracing}, 'td-flow');
+    polyline(() => closedPolyline(STABILITY_TRIANGLE), {...TRACE_DET_DRAWING.triangle, strokeWidth: ctx.strokeWidth, visible: tracing}, 'td-triangle');
+    polyline(() => parabolaPolyline(), {...TRACE_DET_DRAWING.parabola, strokeWidth: ctx.strokeWidth, visible: tracing}, 'td-parabola');
     placedTriangleName(ctx);
     // The label starts inside the quadrant, but never left of the board's live edge: a narrow board shows less than the quadrant.
     fixedText(() => Math.max(left + 0.3, board.getBoundingBox()[0] + 8 / board.unitX), top - 0.3, ctx.text.flow, 'left', 'top', ITERATION_COLORS.flow);
@@ -133,12 +137,13 @@ export function createIterationPoints(ctx: IterationBoardContext): IterationHand
     const shown = (k: number) => iterating() && k <= ctx.step() && k <= ctx.iteration().orbit.steps
         && Math.max(Math.abs(iterateAt(k)[0]), Math.abs(iterateAt(k)[1])) <= DRAW_LIMIT;
     for (let k = 1; k <= ITERATE_STEP_MAX; k++) {
-        ctx.own(board.create('point', [() => iterateAt(k)[0], () => iterateAt(k)[1]], {
+        const iterate = ctx.own(board.create('point', [() => iterateAt(k)[0], () => iterateAt(k)[1]], {
             ...ctx.fixedPointAttributes, name: () => `$$A^{${k}}v_0$$`,
             label: ctx.pointLabel('above-right', 0.9, () => shown(k) && k === ctx.step()), size: ctx.markerSize,
             fillColor: ITERATION_COLORS.orbit, highlightFillColor: ITERATION_COLORS.orbit, strokeColor: ITERATION_COLORS.orbit,
             fixed: true, visible: () => shown(k),
         }));
+        if (k === 1) ctx.mark?.('iterates', iterate);
     }
 
     // ---- the handles --------------------------------------------------------------------------------------------------
@@ -159,6 +164,7 @@ export function createIterationPoints(ctx: IterationBoardContext): IterationHand
         ...ctx.handleAttributes, name: '$$(\\tau,\\delta)$$', label: ctx.pointLabel('above-right', 1.1, tracing), size: ctx.markerSize,
         fillColor: ITERATION_COLORS.handle, highlightFillColor: ITERATION_COLORS.handle, visible: tracing,
     })) as JXG.Point;
+    ctx.mark?.('td-point', tdHandle);
     bindMovablePointCursor(tdHandle, board);
     tdHandle.on('drag', () => {
         if (!Number.isFinite(tdHandle.X()) || !Number.isFinite(tdHandle.Y())) return;

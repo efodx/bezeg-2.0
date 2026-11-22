@@ -24,6 +24,8 @@ export interface EigenBoardContext {
     readonly active: () => boolean;
     readonly v: () => Vec2;
     readonly av: () => Vec2;
+    /** Names a drawn object for the declaration's legend (`BaseGraph.drawnObject`). */
+    readonly mark?: (id: string, element: unknown) => void;
     readonly lines: () => readonly Vec2[];
     readonly strokeWidth: () => number;
     readonly thin: () => number;
@@ -44,29 +46,31 @@ const EMPTY: Polyline = {x: [], y: []};
 
 export function createEigenCurves(ctx: EigenBoardContext): void {
     const {board} = ctx;
-    const polyline = (points: () => Polyline, attributes: object) => {
-        const curve = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, ...attributes})) as unknown as CurveLike;
+    const polyline = (points: () => Polyline, attributes: object, id?: string) => {
+        const element = ctx.own(board.create('curve', [[], []], {highlight: false, fixed: true, withLabel: false, ...attributes}));
+        const curve = element as unknown as CurveLike;
         curve.updateDataArray = () => {
             const {x, y} = points();
             curve.dataX = x;
             curve.dataY = y;
         };
+        if (id) ctx.mark?.(id, element);
     };
-    ctx.own(board.create('circle', [[0, 0], 1], {
+    ctx.mark?.('eigen-circle', ctx.own(board.create('circle', [[0, 0], 1], {
         strokeColor: EIGEN_COLORS.circle, strokeWidth: ctx.thin, fillOpacity: 0, fixed: true, highlight: false, withLabel: false,
         visible: ctx.active,
-    }));
+    })));
     // One curve per possible line, so a hidden second line leaves no stale data.
     for (const index of [0, 1]) {
         polyline(() => ctx.active() ? lineThroughOrigin(ctx.lines()[index]) : EMPTY,
-            {strokeColor: EIGEN_COLORS.line, strokeWidth: ctx.strokeWidth, dash: index === 0 ? 0 : 3, visible: ctx.active});
+            {strokeColor: EIGEN_COLORS.line, strokeWidth: ctx.strokeWidth, dash: index === 0 ? 0 : 3, visible: ctx.active}, index === 0 ? 'eigen-lines' : undefined);
     }
-    const arrow = (to: () => Vec2, color: string) => polyline(() => {
+    const arrow = (to: () => Vec2, color: string, id: string) => polyline(() => {
         const [x, y] = to();
         return ctx.active() && (x !== 0 || y !== 0) ? {x: [0, x], y: [0, y]} : EMPTY;
-    }, {strokeColor: color, strokeWidth: ctx.strokeWidth, lastArrow: {type: 2, size: 6}, visible: ctx.active});
-    arrow(ctx.av, EIGEN_COLORS.image);
-    arrow(ctx.v, EIGEN_COLORS.vector);
+    }, {strokeColor: color, strokeWidth: ctx.strokeWidth, lastArrow: {type: 2, size: 6}, visible: ctx.active}, id);
+    arrow(ctx.av, EIGEN_COLORS.image, 'eigen-av');
+    arrow(ctx.v, EIGEN_COLORS.vector, 'eigen-v');
 }
 
 /** The tip of v (the handle, kept on the circle) and the tip of Av (a labelled fixed point). */

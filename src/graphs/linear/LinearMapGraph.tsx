@@ -9,7 +9,11 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import AngleSlider from "../../inputs/AngleSlider";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t, type Message, type MessageNumber} from "../../localization";
+import type {
+    ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, StatusLine,
+} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {LessonAction} from "../../learning/model";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -79,6 +83,43 @@ type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse
     | "ellipse-symmetric" | "ellipse-nonsymmetric" | "ellipse-segment" | "ellipse-point" | "ellipse-circle" | "ellipse-no-lines"
     | "conic-ellipse" | "conic-hyperbola" | "conic-lines" | "conic-empty" | "composition-view";
 
+type MatrixEntryParam = `linear-map-${"a" | "b"}${1 | 2}${1 | 2}`;
+
+/**
+ * The ids of the linear map's declaration, one union for all seven modes: a mode declares only the ids it shows, so an id a mode does
+ * not use is simply absent from that mode's declaration (a lesson frame is checked against the declaration of its own scene).
+ * Parameters are the arbiter's keys (the start vector, the translation and the pivot are points: no declared kind, see the placement note).
+ */
+export type LinearMapIds = {
+    param: "linear-map-mode" | "linear-map-example" | MatrixEntryParam | "linear-map-test-angle" | "linear-map-step"
+        | "linear-map-first-source" | "linear-map-second-source" | "linear-map-first-index" | "linear-map-second-index";
+    row: "row1" | "row2" | "a1" | "a2" | "probe" | "det-formula" | "det" | "area" | "orientation"
+        | "start" | "step" | "iterate" | "norm" | "unit" | "angle" | "stretch" | "rayleigh" | "ratio"
+        | "tau" | "delta" | "discriminant" | "stability" | "flow"
+        | "eigenvalues" | "test-angle" | "v" | "av" | "sine" | "between"
+        | "sigma1" | "sigma2" | "abs-det" | "sigma-product" | "axis-image" | "axis-domain" | "sym-row1" | "sym-row2" | "conic-lambda" | "conic-axes"
+        | "a-source" | "a-row1" | "a-row2" | "b-source" | "b-row1" | "b-row2" | "product-row1" | "product-row2" | "product-det"
+        | "product-orientation" | "product-element" | "t" | `image-${number}`;
+    note: "note" | "note-tracedet";
+    legend: "source-grid" | "image-grid" | "square" | "curve" | "curve-image"
+        | "iterates" | "unit" | "dominant" | "other"
+        | "parabola" | "triangle" | "flow" | "point"
+        | "circle" | "v" | "av" | "lines"
+        | "image" | "conic" | "axes" | "conic-axes" | "directions"
+        | "grid-a" | "grid-image" | "translation" | "pivot";
+    section: never;
+    action: "reset" | "toggle-square" | "toggle-probe" | "toggle-curve" | "snap-eigen" | "toggle-conic" | "play-pause" | "next-step" | "reset-run"
+        | "toggle-pivot" | "reset-composition";
+};
+
+/** The Orodja section of the composition mode's two maps (a frame that uses their controls opens Orodja there). */
+const MAPS_SECTION = "maps";
+
+type DeclaredRow = ReadoutRow<LinearMapIds>;
+
+/** The legend ids whose drawn object is a filled marker: its colour is the fill, not the stroke. */
+const FILLED_OBJECTS: ReadonlySet<string> = new Set(["iterates", "td-point", "comp-pivot"]);
+
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
     matrix: Mat2;
@@ -131,6 +172,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     protected eigenTip?: JXG.Point;
     protected pivotHandle?: JXG.Point;
     private notice?: EntryNotice;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawnElements = new Map<string, JXG.GeometryElement>();
     private compositionMemo?: { model: LinearMapState; view: CompositionView };
     private readonly uid = nextInstance++;
     /** The matrix a drag of the (tau, delta) handle produced; while it is the stored matrix, the companion status is stated. */
@@ -686,49 +729,76 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         return value < 0 ? `(${this.num(value)})` : this.num(value);
     }
 
+    /** Numbers the graph formatted itself (a row of the matrix, a point): digits, signs and separators only. */
+    private formatted(text: string): FormattedValue {
+        return {kind: "formatted", text};
+    }
+
+    private vectorValue(v: Vec2): FormattedValue {
+        return this.formatted(this.vector(v));
+    }
+
     /** "a·d − b·c = 2·1 − (−1)·1 = 3" */
-    private formula(view: View): string {
+    private formulaValue(view: View): Message {
         const [[a, b], [c, d]] = view.matrix;
-        return `a·d − b·c = ${this.factor(a)}·${this.factor(d)} − ${this.factor(b)}·${this.factor(c)} = ${this.num(view.determinant, 4)}`;
+        return message("linear_map_det_formula_value", {
+            value0: this.factor(a), value1: this.factor(d), value2: this.factor(b), value3: this.factor(c), value4: messageNumber(view.determinant, 4),
+        });
+    }
+
+    private orientationValue(sign: -1 | 0 | 1): Message {
+        return message(sign > 0 ? "linear_map_orientation_kept" : sign < 0 ? "linear_map_orientation_reversed" : "linear_map_orientation_none");
     }
 
     private orientationText(sign: -1 | 0 | 1): string {
         return sign > 0 ? t("linear_map_orientation_kept") : sign < 0 ? t("linear_map_orientation_reversed") : t("linear_map_orientation_none");
     }
 
-    private exampleLabel(choice: LinearMapExampleChoice): string {
+    private exampleMessage(choice: LinearMapExampleChoice): Message {
         switch (choice) {
-            case "identity": return t("linear_map_example_identity");
-            case "basis-default": return t("linear_map_example_basis_default");
-            case "orientation-reversing": return t("linear_map_example_orientation_reversing");
-            case "singular": return t("linear_map_example_singular");
-            case "eigen-default": return t("linear_map_example_eigen_default");
-            case "quarter-turn": return t("linear_map_example_quarter_turn");
-            case "shear": return t("linear_map_example_shear");
-            case "symmetric": return t("linear_map_example_symmetric");
-            case "non-symmetric": return t("linear_map_example_non_symmetric");
-            case "reflection-x": return t("linear_map_example_reflection_x");
-            case "scalar-2": return t("linear_map_example_scalar_2");
-            case "custom": return t("linear_map_example_custom");
-            default: return t("linear_map_example_other");
+            case "identity": return message("linear_map_example_identity");
+            case "basis-default": return message("linear_map_example_basis_default");
+            case "orientation-reversing": return message("linear_map_example_orientation_reversing");
+            case "singular": return message("linear_map_example_singular");
+            case "eigen-default": return message("linear_map_example_eigen_default");
+            case "quarter-turn": return message("linear_map_example_quarter_turn");
+            case "shear": return message("linear_map_example_shear");
+            case "symmetric": return message("linear_map_example_symmetric");
+            case "non-symmetric": return message("linear_map_example_non_symmetric");
+            case "reflection-x": return message("linear_map_example_reflection_x");
+            case "scalar-2": return message("linear_map_example_scalar_2");
+            case "custom": return message("linear_map_example_custom");
+            default: return message("linear_map_example_other");
+        }
+    }
+
+    private exampleLabel(choice: LinearMapExampleChoice): string {
+        return renderMessage(this.exampleMessage(choice));
+    }
+
+    private modeMessage(mode: LinearMapGraphMode): Message {
+        switch (mode) {
+            case "basis": return message("linear_map_mode_basis");
+            case "determinant": return message("linear_map_mode_determinant");
+            case "eigen": return message("linear_map_mode_eigen");
+            case "ellipse": return message("linear_map_mode_ellipse");
+            case "composition": return message("linear_map_mode_composition");
+            case "iterate": return message("linear_map_mode_iterate");
+            case "tracedet": return message("linear_map_mode_tracedet");
         }
     }
 
     private modeLabel(mode: LinearMapGraphMode): string {
-        switch (mode) {
-            case "basis": return t("linear_map_mode_basis");
-            case "determinant": return t("linear_map_mode_determinant");
-            case "eigen": return t("linear_map_mode_eigen");
-            case "ellipse": return t("linear_map_mode_ellipse");
-            case "composition": return t("linear_map_mode_composition");
-            case "iterate": return t("linear_map_mode_iterate");
-            case "tracedet": return t("linear_map_mode_tracedet");
-        }
+        return renderMessage(this.modeMessage(mode));
+    }
+
+    private entryMessage(row: Row, column: Column): Message {
+        if (column === 0) return message(row === 0 ? "linear_map_a1_x_label" : "linear_map_a1_y_label");
+        return message(row === 0 ? "linear_map_a2_x_label" : "linear_map_a2_y_label");
     }
 
     private entryLabel(row: Row, column: Column): string {
-        if (column === 0) return row === 0 ? t("linear_map_a1_x_label") : t("linear_map_a1_y_label");
-        return row === 0 ? t("linear_map_a2_x_label") : t("linear_map_a2_y_label");
+        return renderMessage(this.entryMessage(row, column));
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -750,25 +820,29 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const colors = {...LINEAR_MAP_COLORS, polygon: GraphPalette.controlPolygon};
 
         // A curve whose points come from a function; NaN entries break the polyline (grid), finite everywhere else.
-        const polyline = (points: () => Polyline, attributes: object) => {
-            const curve = this.own(board.create("curve", [[], []], {
+        const polyline = (points: () => Polyline, attributes: object, id?: string) => {
+            const element = this.own(board.create("curve", [[], []], {
                 highlight: false, fixed: true, withLabel: false, ...attributes,
-            })) as unknown as { updateDataArray: () => void; dataX: number[]; dataY: number[] };
+            }));
+            const curve = element as unknown as { updateDataArray: () => void; dataX: number[]; dataY: number[] };
             curve.updateDataArray = () => {
                 const {x, y} = points();
                 curve.dataX = x;
                 curve.dataY = y;
             };
+            if (id) this.drawnElements.set(id, element);
         };
+        // The board helpers hand over whatever `board.create` returned; only a single element is a legend object.
+        const mark = (id: string, element: unknown) => { if (typeof element === "object" && element !== null && !Array.isArray(element)) this.drawnElements.set(id, element as JXG.GeometryElement); };
 
         // Layers, lowest first: the source grid, the image grid (one curve), the square, the Bezier curves and polygons, the points.
-        polyline(() => SOURCE_GRID, {strokeColor: colors.sourceGrid, strokeOpacity: 0.72, strokeWidth: thin, visible: gridsShown});
-        polyline(() => view().grid, {strokeColor: colors.imageGrid, strokeOpacity: 0.68, strokeWidth: thin, visible: basisPlane});
+        polyline(() => SOURCE_GRID, {strokeColor: colors.sourceGrid, strokeOpacity: 0.72, strokeWidth: thin, visible: gridsShown}, "source-grid");
+        polyline(() => view().grid, {strokeColor: colors.imageGrid, strokeOpacity: 0.68, strokeWidth: thin, visible: basisPlane}, "image-grid");
 
         // The Batch D layers sit above the grids and below the square, the curves and the basis handles.
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
         const iterationContext: IterationBoardContext = {
-            board, own: object => this.own(object), mode: () => model().mode as LinearMapGraphMode, step: () => stepOf(model()),
+            board, own: object => this.own(object), mark, mode: () => model().mode as LinearMapGraphMode, step: () => stepOf(model()),
             iteration: () => this.iterationOf(this.model), traceDet: () => this.traceDetOf(this.model), start: () => startOf(this.model),
             strokeWidth, thin, markerSize, fontSize: this.displayFontSize,
             fixedPointAttributes: this.styles.point.fixed, handleAttributes: {...this.styles.point.default, strokeColor: GraphPalette.pointOutline},
@@ -780,7 +854,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         };
         createIterationCurves(iterationContext);
         const compositionContext: CompositionBoardContext = {
-            board, own: object => this.own(object), active: () => model().mode === "composition", view: () => this.compositionOf(this.model),
+            board, own: object => this.own(object), mark, active: () => model().mode === "composition", view: () => this.compositionOf(this.model),
             pivotSet: () => model().pivot !== undefined, strokeWidth, thin, markerSize, fixedPointAttributes: this.styles.point.fixed,
             handleAttributes: {...this.styles.point.default, strokeColor: GraphPalette.pointOutline},
             placement: id => this.labelCell(id, "above-left"),
@@ -789,7 +863,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         };
         createCompositionCurves(compositionContext);
         const eigenContext: EigenBoardContext = {
-            board, own: object => this.own(object), active: () => model().mode === "eigen",
+            board, own: object => this.own(object), mark, active: () => model().mode === "eigen",
             vPlacement: () => this.labelCell("v", "above-right"), avPlacement: () => this.labelCell("av", "above-right"),
             v: () => this.eigenOf(this.model).v, av: () => this.eigenOf(this.model).av, lines: () => this.eigenOf(this.model).lines,
             strokeWidth, thin, markerSize, fixedPointAttributes: this.styles.point.fixed,
@@ -799,7 +873,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         };
         createEigenCurves(eigenContext);
         const ellipseContext: EllipseBoardContext = {
-            board, own: object => this.own(object), active: () => model().mode === "ellipse", conicShown: () => model().conicVisible === true,
+            board, own: object => this.own(object), mark, active: () => model().mode === "ellipse", conicShown: () => model().conicVisible === true,
             imageCurve: () => this.ellipseOf(this.model).imageCurve, conicCurve: () => this.ellipseOf(this.model).conic.curve,
             lines: () => this.ellipseOf(this.model).lines, axes: () => this.ellipseOf(this.model).axes,
             conicAxes: () => this.ellipseOf(this.model).conicAxes, directions: () => this.ellipseOf(this.model).directions,
@@ -811,16 +885,16 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         polyline(() => closedPolyline(unitSquareImage(IDENTITY)), {strokeColor: colors.sourcePoint, strokeWidth: strokeWidth, visible: squareShown});
         polyline(() => closedPolyline(view().square), {
             strokeColor: colors.square, strokeWidth, fillColor: colors.squareFill, fillOpacity: 0.72, visible: squareShown,
-        });
+        }, "square");
 
         polyline(() => openPolyline(FIXTURE_CONTROL_POINTS), {strokeColor: colors.polygon, strokeWidth: thin, dash: 2, visible: curveShown});
         polyline(() => openPolyline(view().imageControl), {strokeColor: colors.polygon, strokeWidth: thin, dash: 2, visible: curveShown});
-        const bezier = (controls: () => readonly Vec2[], color: string) =>
-            this.own(board.create("curve", [
+        const bezier = (controls: () => readonly Vec2[], color: string, id: string) =>
+            mark(id, this.own(board.create("curve", [
                 (s: number) => bezierPoint(controls(), s)[0], (s: number) => bezierPoint(controls(), s)[1], 0, 1,
-            ], {strokeColor: color, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: curveShown}));
-        bezier(() => FIXTURE_CONTROL_POINTS, colors.sourceCurve);
-        bezier(() => view().imageControl, colors.imageCurve);
+            ], {strokeColor: color, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: curveShown})));
+        bezier(() => FIXTURE_CONTROL_POINTS, colors.sourceCurve, "curve");
+        bezier(() => view().imageControl, colors.imageCurve, "curve-image");
 
         const fixedPoint = (x: () => number, y: () => number, name: string | (() => string), placement: LabelPlacement | (() => LabelPlacement),
                             color: string, shown: () => boolean, labelShown: () => boolean = shown) =>
@@ -941,6 +1015,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.traceDetHandle = undefined;
         this.eigenTip = undefined;
         this.pivotHandle = undefined;
+        this.drawnElements.clear();
         this.compositionMemo = undefined;
         this.eigenMemo = undefined;
         this.ellipseMemo = undefined;
@@ -1194,263 +1269,463 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     }
 
     /** The statuses to state in words; each has a stable id for tests and assistive technology. Zero never says positive or negative. */
-    private statuses(model: LinearMapState, view: View): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
+    private statuses(model: LinearMapState, view: View): { id: StatusKind; text: Message }[] {
+        const result: { id: StatusKind; text: Message }[] = [];
         if (model.mode === "iterate") return this.iterationStatuses(model);
         if (model.mode === "tracedet") return this.traceDetStatuses(model);
         if (model.mode === "eigen") return this.eigenStatuses(model);
         if (model.mode === "ellipse") return this.ellipseStatuses(model);
         if (model.mode === "composition") return this.compositionStatuses(model);
         if (model.mode === "determinant") {
-            if (view.sign > 0) result.push({id: "positive", text: t("linear_map_status_positive")});
-            else if (view.sign < 0) result.push({id: "negative", text: t("linear_map_status_negative")});
-            else result.push({id: "zero", text: t("linear_map_status_zero")});
+            if (view.sign > 0) result.push({id: "positive", text: message("linear_map_status_positive")});
+            else if (view.sign < 0) result.push({id: "negative", text: message("linear_map_status_negative")});
+            else result.push({id: "zero", text: message("linear_map_status_zero")});
         }
-        if (view.collapse === "line") result.push({id: "collapse-line", text: t("linear_map_status_collapse_line")});
-        if (view.collapse === "point") result.push({id: "collapse-point", text: t("linear_map_status_collapse_point")});
+        if (view.collapse === "line") result.push({id: "collapse-line", text: message("linear_map_status_collapse_line")});
+        if (view.collapse === "point") result.push({id: "collapse-point", text: message("linear_map_status_collapse_point")});
         return result;
     }
 
-    private compositionStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+    private compositionStatuses(model: LinearMapState): { id: StatusKind; text: Message }[] {
         const view = this.compositionOf(model);
-        const result: { id: StatusKind; text: string }[] = [];
+        const result: { id: StatusKind; text: Message }[] = [];
         const collapse = collapseOf(view.product);
-        if (collapse === "line") result.push({id: "collapse-line", text: t("linear_map_status_collapse_line")});
-        if (collapse === "point") result.push({id: "collapse-point", text: t("linear_map_status_collapse_point")});
-        if (view.viewScale > 1) result.push({id: "composition-view", text: t("linear_map_status_comp_view")});
+        if (collapse === "line") result.push({id: "collapse-line", text: message("linear_map_status_collapse_line")});
+        if (collapse === "point") result.push({id: "collapse-point", text: message("linear_map_status_collapse_point")});
+        if (view.viewScale > 1) result.push({id: "composition-view", text: message("linear_map_status_comp_view")});
         return result;
     }
 
     /** Exact statements come from the kernel's exact tests; only "settled" is a computed claim and says so. */
-    private iterationStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+    private iterationStatuses(model: LinearMapState): { id: StatusKind; text: Message }[] {
         const run = this.iterationOf(model);
         const start = startOf(model);
-        if (start[0] === 0 && start[1] === 0) return [{id: "zero-start", text: t("linear_map_status_zero_start")}];
+        if (start[0] === 0 && start[1] === 0) return [{id: "zero-start", text: message("linear_map_status_zero_start")}];
         const at = iterateAt(run, model.matrix, stepOf(model));
-        const result: { id: StatusKind; text: string }[] = [];
-        if (run.collapsed) result.push({id: "collapses", text: t("linear_map_status_collapses")});
+        const result: { id: StatusKind; text: Message }[] = [];
+        if (run.collapsed) result.push({id: "collapses", text: message("linear_map_status_collapses")});
         else if (run.outcome === "dominant") {
-            result.push(run.startToZero ? {id: "start-to-zero", text: t("linear_map_status_start_to_zero")}
+            result.push(run.startToZero ? {id: "start-to-zero", text: message("linear_map_status_start_to_zero")}
                 : run.otherEigenvector
-                ? {id: "other-eigenvector", text: t("linear_map_status_other_eigenvector")}
-                : {id: "dominant", text: t("linear_map_status_dominant")});
-        } else if (run.outcome === "equal-moduli") result.push({id: "equal-moduli", text: t("linear_map_status_equal_moduli")});
-        else if (run.outcome === "rotating") result.push({id: "rotating", text: t("linear_map_status_rotating")});
-        else if (run.outcome === "scalar") result.push({id: "scalar", text: t("linear_map_status_scalar")});
-        else result.push({id: "defective", text: t("linear_map_status_defective")});
-        if (at.zero && !run.collapsed) result.push({id: "zero-iterate", text: t("linear_map_status_zero_iterate")});
+                ? {id: "other-eigenvector", text: message("linear_map_status_other_eigenvector")}
+                : {id: "dominant", text: message("linear_map_status_dominant")});
+        } else if (run.outcome === "equal-moduli") result.push({id: "equal-moduli", text: message("linear_map_status_equal_moduli")});
+        else if (run.outcome === "rotating") result.push({id: "rotating", text: message("linear_map_status_rotating")});
+        else if (run.outcome === "scalar") result.push({id: "scalar", text: message("linear_map_status_scalar")});
+        else result.push({id: "defective", text: message("linear_map_status_defective")});
+        if (at.zero && !run.collapsed) result.push({id: "zero-iterate", text: message("linear_map_status_zero_iterate")});
         const approaches = (run.outcome === "dominant" && !run.otherEigenvector) || run.outcome === "defective";
         if (!run.collapsed && !at.zero && approaches && at.angleError !== undefined && at.angleError <= SETTLED_ANGLE_DEGREES) {
-            result.push({id: "settled", text: t("linear_map_status_settled", {value0: this.num(SETTLED_ANGLE_DEGREES, 0)})});
+            result.push({id: "settled", text: message("linear_map_status_settled", {value0: messageNumber(SETTLED_ANGLE_DEGREES, 0)})});
         }
         return result;
     }
 
     /** The parallel indicator first (approximate exactly when the kernel's tolerance test holds; exact only on the quarter grid), then the case. */
-    private eigenStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+    private eigenStatuses(model: LinearMapState): { id: StatusKind; text: Message }[] {
         const eigen = this.eigenOf(model);
-        const tolerance = this.num(EIGEN_PARALLEL_TOLERANCE, 2);
-        const result: { id: StatusKind; text: string }[] = [];
-        if (eigen.approximatelyParallel) result.push({id: "eigen-approx-parallel", text: t("linear_map_status_eigen_approx_parallel", {value0: tolerance})});
-        else result.push({id: "eigen-not-parallel", text: t("linear_map_status_eigen_not_parallel", {value0: tolerance})});
+        const tolerance = messageNumber(EIGEN_PARALLEL_TOLERANCE, 2);
+        const result: { id: StatusKind; text: Message }[] = [];
+        if (eigen.approximatelyParallel) result.push({id: "eigen-approx-parallel", text: message("linear_map_status_eigen_approx_parallel", {value0: tolerance})});
+        else result.push({id: "eigen-not-parallel", text: message("linear_map_status_eigen_not_parallel", {value0: tolerance})});
         // A zero image has no direction: v in the kernel is not "exactly parallel" to Av, it is mapped to 0 (eigenvalue 0).
-        if (eigen.av[0] === 0 && eigen.av[1] === 0) result.push({id: "eigen-v-kernel", text: t("linear_map_status_eigen_v_kernel")});
-        else if (eigen.exactlyParallel) result.push({id: "eigen-exact-parallel", text: t("linear_map_status_eigen_exact_parallel")});
+        if (eigen.av[0] === 0 && eigen.av[1] === 0) result.push({id: "eigen-v-kernel", text: message("linear_map_status_eigen_v_kernel")});
+        else if (eigen.exactlyParallel) result.push({id: "eigen-exact-parallel", text: message("linear_map_status_eigen_exact_parallel")});
         const c = eigen.classification;
-        if (c.kind === "distinct-real") result.push({id: "eigen-two", text: t("linear_map_status_eigen_two")});
+        if (c.kind === "distinct-real") result.push({id: "eigen-two", text: message("linear_map_status_eigen_two")});
         else if (c.kind === "complex") {
-            result.push({id: "eigen-none", text: t("linear_map_status_eigen_none", {value0: this.num(c.real, 4), value1: this.num(c.imaginary, 4)})});
-        } else if (c.repeated === "scalar") result.push({id: "eigen-all", text: t("linear_map_status_eigen_all", {value0: this.num(c.eigenvalue, 4)})});
-        else result.push({id: "eigen-one", text: t("linear_map_status_eigen_one")});
+            result.push({id: "eigen-none", text: message("linear_map_status_eigen_none", {value0: messageNumber(c.real, 4), value1: messageNumber(c.imaginary, 4)})});
+        } else if (c.repeated === "scalar") result.push({id: "eigen-all", text: message("linear_map_status_eigen_all", {value0: messageNumber(c.eigenvalue, 4)})});
+        else result.push({id: "eigen-one", text: message("linear_map_status_eigen_one")});
         if (eigen.delta === 0 && c.kind !== "complex" && !(c.kind === "repeated" && c.repeated === "scalar")) {
-            result.push({id: "eigen-kernel", text: t("linear_map_status_eigen_kernel")});
+            result.push({id: "eigen-kernel", text: message("linear_map_status_eigen_kernel")});
         }
         return result;
     }
 
-    private ellipseStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+    private ellipseStatuses(model: LinearMapState): { id: StatusKind; text: Message }[] {
         const ellipse = this.ellipseOf(model);
-        const result: { id: StatusKind; text: string }[] = [];
-        result.push(ellipse.symmetric ? {id: "ellipse-symmetric", text: t("linear_map_status_ellipse_symmetric")}
-            : {id: "ellipse-nonsymmetric", text: t("linear_map_status_ellipse_nonsymmetric")});
-        if (ellipse.kind === "segment") result.push({id: "ellipse-segment", text: t("linear_map_status_ellipse_segment")});
-        else if (ellipse.kind === "point") result.push({id: "ellipse-point", text: t("linear_map_status_ellipse_point")});
-        else if (ellipse.kind === "circle") result.push({id: "ellipse-circle", text: t("linear_map_status_ellipse_circle")});
-        if (ellipse.lines.length === 0) result.push({id: "ellipse-no-lines", text: t("linear_map_status_ellipse_no_lines")});
+        const result: { id: StatusKind; text: Message }[] = [];
+        result.push(ellipse.symmetric ? {id: "ellipse-symmetric", text: message("linear_map_status_ellipse_symmetric")}
+            : {id: "ellipse-nonsymmetric", text: message("linear_map_status_ellipse_nonsymmetric")});
+        if (ellipse.kind === "segment") result.push({id: "ellipse-segment", text: message("linear_map_status_ellipse_segment")});
+        else if (ellipse.kind === "point") result.push({id: "ellipse-point", text: message("linear_map_status_ellipse_point")});
+        else if (ellipse.kind === "circle") result.push({id: "ellipse-circle", text: message("linear_map_status_ellipse_circle")});
+        if (ellipse.lines.length === 0) result.push({id: "ellipse-no-lines", text: message("linear_map_status_ellipse_no_lines")});
         if (model.conicVisible === true) {
             const kind = ellipse.conic.kind;
-            result.push(kind === "ellipse" ? {id: "conic-ellipse", text: t("linear_map_status_conic_ellipse")}
-                : kind === "hyperbola" ? {id: "conic-hyperbola", text: t("linear_map_status_conic_hyperbola")}
-                : kind === "parallel-lines" ? {id: "conic-lines", text: t("linear_map_status_conic_lines")}
-                : {id: "conic-empty", text: t("linear_map_status_conic_empty")});
+            result.push(kind === "ellipse" ? {id: "conic-ellipse", text: message("linear_map_status_conic_ellipse")}
+                : kind === "hyperbola" ? {id: "conic-hyperbola", text: message("linear_map_status_conic_hyperbola")}
+                : kind === "parallel-lines" ? {id: "conic-lines", text: message("linear_map_status_conic_lines")}
+                : {id: "conic-empty", text: message("linear_map_status_conic_empty")});
         }
         return result;
     }
 
-    private eigenvaluesText(eigen: EigenView): string {
+    private eigenvaluesValue(eigen: EigenView): Message | MessageNumber {
         const c = eigen.classification;
-        if (c.kind === "distinct-real") return t("linear_map_value_eigenvalues_two", {value0: this.num(c.eigenvalues[0], 4), value1: this.num(c.eigenvalues[1], 4)});
-        if (c.kind === "complex") return t("linear_map_value_eigenvalues_complex", {value0: this.num(c.real, 4), value1: this.num(c.imaginary, 4)});
-        return this.num(c.eigenvalue, 4);
+        if (c.kind === "distinct-real") return message("linear_map_value_eigenvalues_two", {value0: messageNumber(c.eigenvalues[0], 4), value1: messageNumber(c.eigenvalues[1], 4)});
+        if (c.kind === "complex") return message("linear_map_value_eigenvalues_complex", {value0: messageNumber(c.real, 4), value1: messageNumber(c.imaginary, 4)});
+        return messageNumber(c.eigenvalue, 4);
     }
 
-    private traceDetStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+    private traceDetStatuses(model: LinearMapState): { id: StatusKind; text: Message }[] {
         const td = this.traceDetOf(model);
-        const result: { id: StatusKind; text: string }[] = [];
+        const result: { id: StatusKind; text: Message }[] = [];
         const {stability} = td;
-        if (stability.kind === "inside") result.push({id: "td-inside", text: t("linear_map_status_td_inside")});
-        else if (stability.kind === "outside") result.push({id: "td-outside", text: t("linear_map_status_td_outside")});
+        if (stability.kind === "inside") result.push({id: "td-inside", text: message("linear_map_status_td_inside")});
+        else if (stability.kind === "outside") result.push({id: "td-outside", text: message("linear_map_status_td_outside")});
         else {
-            const text = stability.edge === "determinant-one" ? t("linear_map_status_td_edge_determinant_one")
-                : stability.edge === "eigenvalue-one" ? t("linear_map_status_td_edge_eigenvalue_one") : t("linear_map_status_td_edge_eigenvalue_minus_one");
+            const text = stability.edge === "determinant-one" ? message("linear_map_status_td_edge_determinant_one")
+                : stability.edge === "eigenvalue-one" ? message("linear_map_status_td_edge_eigenvalue_one") : message("linear_map_status_td_edge_eigenvalue_minus_one");
             result.push({id: "td-edge", text});
         }
-        result.push(td.flowStable ? {id: "flow-stable", text: t("linear_map_status_flow_stable")} : {id: "flow-unstable", text: t("linear_map_status_flow_unstable")});
-        if (this.companionMatrix === model.matrix) result.push({id: "companion", text: t("linear_map_status_companion")});
-        if (Math.abs(td.tau) > TRACE_DET_DRAG_LIMIT || Math.abs(td.delta) > TRACE_DET_DRAG_LIMIT) result.push({id: "td-range", text: t("linear_map_status_td_range")});
+        result.push(td.flowStable ? {id: "flow-stable", text: message("linear_map_status_flow_stable")} : {id: "flow-unstable", text: message("linear_map_status_flow_unstable")});
+        if (this.companionMatrix === model.matrix) result.push({id: "companion", text: message("linear_map_status_companion")});
+        if (Math.abs(td.tau) > TRACE_DET_DRAG_LIMIT || Math.abs(td.delta) > TRACE_DET_DRAG_LIMIT) result.push({id: "td-range", text: message("linear_map_status_td_range")});
         return result;
     }
 
-    private readoutRows(model: LinearMapState, view: View): { id: string; label: string; value: string }[] {
+    /** The rows of the readout, as declared rows: the inspector renders these same rows (`renderReadout`), so the declaration and the panel cannot disagree. */
+    private readoutRows(model: LinearMapState, view: View): DeclaredRow[] {
         const [[a, b], [c, d]] = view.matrix;
-        const none = t("linear_map_value_none");
-        const optional = (value: number | undefined, decimals = 4) => value === undefined ? none : this.num(value, decimals);
-        const matrixRows = [
-            {id: "row1", label: t("linear_map_readout_row1"), value: `${this.num(a)}   ${this.num(b)}`},
-            {id: "row2", label: t("linear_map_readout_row2"), value: `${this.num(c)}   ${this.num(d)}`},
+        const none = message("linear_map_value_none");
+        const number = (value: number, decimals = 2) => messageNumber(value, decimals);
+        const optional = (value: number | undefined, decimals = 4) => value === undefined ? none : number(value, decimals);
+        const angleValue = (value: number | undefined) => value === undefined ? none : message("linear_map_readout_angle_value", {value0: number(value, 2)});
+        const matrixRows: DeclaredRow[] = [
+            {id: "row1", name: message("linear_map_readout_row1"), value: this.formatted(`${this.num(a)}   ${this.num(b)}`)},
+            {id: "row2", name: message("linear_map_readout_row2"), value: this.formatted(`${this.num(c)}   ${this.num(d)}`)},
         ];
-        const basisRows = [
-            {id: "a1", label: t("linear_map_readout_a1"), value: this.vector(view.a1)},
-            {id: "a2", label: t("linear_map_readout_a2"), value: this.vector(view.a2)},
+        const basisRows: DeclaredRow[] = [
+            {id: "a1", name: message("linear_map_readout_a1"), value: this.vectorValue(view.a1)},
+            {id: "a2", name: message("linear_map_readout_a2"), value: this.vectorValue(view.a2)},
         ];
         const start = startOf(model);
-        const stepRows = (at: ReturnType<typeof iterateAt>) => [
-            {id: "start", label: t("linear_map_readout_start"), value: this.vector(start)},
-            {id: "step", label: t("linear_map_readout_step"), value: t("linear_map_readout_step_value", {value0: at.step, value1: ITERATE_STEP_MAX})},
+        const stepRows = (at: ReturnType<typeof iterateAt>): DeclaredRow[] => [
+            {id: "start", name: message("linear_map_readout_start"), value: this.vectorValue(start)},
+            {id: "step", name: message("linear_map_readout_step"), value: message("linear_map_readout_step_value", {value0: at.step, value1: ITERATE_STEP_MAX})},
         ];
         if (model.mode === "composition") return this.compositionRows(model);
         if (model.mode === "tracedet") {
             const td = this.traceDetOf(model);
-            const stability = td.stability.kind === "inside" ? t("linear_map_stability_inside")
-                : td.stability.kind === "edge" ? t("linear_map_stability_edge") : t("linear_map_stability_outside");
+            const stability = td.stability.kind === "inside" ? "linear_map_stability_inside"
+                : td.stability.kind === "edge" ? "linear_map_stability_edge" : "linear_map_stability_outside";
             return [
                 ...matrixRows,
-                {id: "tau", label: t("linear_map_readout_tau"), value: this.num(td.tau, 4)},
-                {id: "delta", label: t("linear_map_readout_delta"), value: this.num(td.delta, 4)},
-                {id: "discriminant", label: t("linear_map_readout_discriminant"), value: this.num(td.discriminant, 4)},
-                {id: "stability", label: t("linear_map_readout_stability"), value: stability},
-                {id: "flow", label: t("linear_map_readout_flow"), value: td.flowStable ? t("linear_map_flow_stable") : t("linear_map_flow_unstable")},
+                {id: "tau", name: message("linear_map_readout_tau"), value: number(td.tau, 4)},
+                {id: "delta", name: message("linear_map_readout_delta"), value: number(td.delta, 4)},
+                {id: "discriminant", name: message("linear_map_readout_discriminant"), value: number(td.discriminant, 4)},
+                {id: "stability", name: message("linear_map_readout_stability"), value: message(stability)},
+                {id: "flow", name: message("linear_map_readout_flow"), value: message(td.flowStable ? "linear_map_flow_stable" : "linear_map_flow_unstable")},
             ];
         }
         if (model.mode === "eigen") {
             const eigen = this.eigenOf(model);
             return [
                 ...matrixRows,
-                {id: "tau", label: t("linear_map_readout_tau"), value: this.num(eigen.tau, 4)},
-                {id: "delta", label: t("linear_map_readout_delta"), value: this.num(eigen.delta, 4)},
-                {id: "discriminant", label: t("linear_map_readout_discriminant"), value: this.num(eigen.discriminant, 4)},
-                {id: "eigenvalues", label: t("linear_map_readout_eigenvalues"), value: this.eigenvaluesText(eigen)},
-                {id: "test-angle", label: t("linear_map_readout_eigen_angle"), value: t("linear_map_readout_angle_value", {value0: this.num(model.testAngle, 2)})},
-                {id: "v", label: t("linear_map_readout_eigen_v"), value: this.vector(eigen.v)},
-                {id: "av", label: t("linear_map_readout_eigen_av"), value: this.vector(eigen.av)},
-                {id: "sine", label: t("linear_map_readout_eigen_sine"), value: this.num(eigen.sine, 4)},
-                {
-                    id: "between", label: t("linear_map_readout_eigen_between"),
-                    value: eigen.angleBetween === undefined ? none : t("linear_map_readout_angle_value", {value0: this.num(eigen.angleBetween, 2)}),
-                },
+                {id: "tau", name: message("linear_map_readout_tau"), value: number(eigen.tau, 4)},
+                {id: "delta", name: message("linear_map_readout_delta"), value: number(eigen.delta, 4)},
+                {id: "discriminant", name: message("linear_map_readout_discriminant"), value: number(eigen.discriminant, 4)},
+                {id: "eigenvalues", name: message("linear_map_readout_eigenvalues"), value: this.eigenvaluesValue(eigen)},
+                {id: "test-angle", name: message("linear_map_readout_eigen_angle"), value: angleValue(model.testAngle)},
+                {id: "v", name: message("linear_map_readout_eigen_v"), value: this.vectorValue(eigen.v)},
+                {id: "av", name: message("linear_map_readout_eigen_av"), value: this.vectorValue(eigen.av)},
+                {id: "sine", name: message("linear_map_readout_eigen_sine"), value: number(eigen.sine, 4)},
+                {id: "between", name: message("linear_map_readout_eigen_between"), value: angleValue(eigen.angleBetween)},
             ];
         }
         if (model.mode === "ellipse") {
             const ellipse = this.ellipseOf(model);
-            const angle = (value: number | undefined) => value === undefined ? none : t("linear_map_readout_angle_value", {value0: this.num(value, 2)});
             const conic = ellipse.conic;
-            const pair = (a: number, b: number) => t("linear_map_value_eigenvalues_two", {value0: this.num(a, 4), value1: this.num(b, 4)});
+            const pair = (x: number, y: number) => message("linear_map_value_eigenvalues_two", {value0: number(x, 4), value1: number(y, 4)});
+            const conicRows: DeclaredRow[] = model.conicVisible === true ? [
+                {id: "sym-row1", name: message("linear_map_readout_sym_row1"), value: this.formatted(`${this.num(conic.symmetricPart[0][0])}   ${this.num(conic.symmetricPart[0][1])}`)},
+                {id: "sym-row2", name: message("linear_map_readout_sym_row2"), value: this.formatted(`${this.num(conic.symmetricPart[1][0])}   ${this.num(conic.symmetricPart[1][1])}`)},
+                {id: "conic-lambda", name: message("linear_map_readout_conic_lambda"), value: pair(conic.eigenvalues[0], conic.eigenvalues[1])},
+                {id: "conic-axes", name: message("linear_map_readout_conic_axes"), value: conic.semiAxes ? pair(conic.semiAxes[0], conic.semiAxes[1]) : none},
+            ] : [];
             return [
                 ...matrixRows,
-                {id: "sigma1", label: t("linear_map_readout_sigma1"), value: this.num(ellipse.singular.sigma[0], 4)},
-                {id: "sigma2", label: t("linear_map_readout_sigma2"), value: this.num(ellipse.singular.sigma[1], 4)},
-                {id: "det", label: t("linear_map_readout_det"), value: this.num(ellipse.determinant, 4)},
-                {id: "abs-det", label: t("linear_map_readout_abs_det"), value: this.num(ellipse.absDeterminant, 4)},
-                {id: "sigma-product", label: t("linear_map_readout_sigma_product"), value: this.num(ellipse.product, 4)},
-                {id: "axis-image", label: t("linear_map_readout_axis_image"), value: angle(ellipse.imageAxisAngle)},
-                {id: "axis-domain", label: t("linear_map_readout_axis_domain"), value: angle(ellipse.domainAxisAngle)},
-                ...(model.conicVisible === true ? [
-                    {id: "sym-row1", label: t("linear_map_readout_sym_row1"), value: `${this.num(conic.symmetricPart[0][0])}   ${this.num(conic.symmetricPart[0][1])}`},
-                    {id: "sym-row2", label: t("linear_map_readout_sym_row2"), value: `${this.num(conic.symmetricPart[1][0])}   ${this.num(conic.symmetricPart[1][1])}`},
-                    {id: "conic-lambda", label: t("linear_map_readout_conic_lambda"), value: pair(conic.eigenvalues[0], conic.eigenvalues[1])},
-                    {id: "conic-axes", label: t("linear_map_readout_conic_axes"), value: conic.semiAxes ? pair(conic.semiAxes[0], conic.semiAxes[1]) : none},
-                ] : []),
+                {id: "sigma1", name: message("linear_map_readout_sigma1"), value: number(ellipse.singular.sigma[0], 4)},
+                {id: "sigma2", name: message("linear_map_readout_sigma2"), value: number(ellipse.singular.sigma[1], 4)},
+                {id: "det", name: message("linear_map_readout_det"), value: number(ellipse.determinant, 4)},
+                {id: "abs-det", name: message("linear_map_readout_abs_det"), value: number(ellipse.absDeterminant, 4)},
+                {id: "sigma-product", name: message("linear_map_readout_sigma_product"), value: number(ellipse.product, 4)},
+                {id: "axis-image", name: message("linear_map_readout_axis_image"), value: angleValue(ellipse.imageAxisAngle)},
+                {id: "axis-domain", name: message("linear_map_readout_axis_domain"), value: angleValue(ellipse.domainAxisAngle)},
+                ...conicRows,
             ];
         }
         if (model.mode === "iterate") {
             const run = this.iterationOf(model);
             const at = iterateAt(run, model.matrix, stepOf(model));
+            const dominant = estimatesDominant(run);
             return [
                 ...matrixRows, ...basisRows, ...stepRows(at),
-                {id: "iterate", label: t("linear_map_readout_iterate"), value: this.vector(at.point)},
-                {id: "norm", label: t("linear_map_readout_norm"), value: this.num(at.norm, 4)},
-                {id: "unit", label: t("linear_map_readout_unit"), value: at.unit ? this.vector(at.unit) : none},
-                {id: "angle", label: t("linear_map_readout_angle"), value: at.angleError === undefined ? none : t("linear_map_readout_angle_value", {value0: this.num(at.angleError, 2)})},
-                {id: "stretch", label: t("linear_map_readout_stretch"), value: optional(at.stretch)},
-                estimatesDominant(run)
-                    ? {id: "rayleigh", label: t("linear_map_readout_rayleigh"), value: optional(at.rayleigh)}
-                    : {id: "rayleigh", label: t("linear_map_readout_rayleigh_plain"), value: optional(at.rayleigh)},
-                {
-                    id: "ratio", value: optional(run.orbit.modulusRatio),
-                    label: estimatesDominant(run) ? t("linear_map_readout_ratio") : t("linear_map_readout_ratio_plain"),
-                },
+                {id: "iterate", name: message("linear_map_readout_iterate"), value: this.vectorValue(at.point)},
+                {id: "norm", name: message("linear_map_readout_norm"), value: number(at.norm, 4)},
+                {id: "unit", name: message("linear_map_readout_unit"), value: at.unit ? this.vectorValue(at.unit) : none},
+                {id: "angle", name: message("linear_map_readout_angle"), value: angleValue(at.angleError)},
+                {id: "stretch", name: message("linear_map_readout_stretch"), value: optional(at.stretch)},
+                {id: "rayleigh", name: message(dominant ? "linear_map_readout_rayleigh" : "linear_map_readout_rayleigh_plain"), value: optional(at.rayleigh)},
+                {id: "ratio", name: message(dominant ? "linear_map_readout_ratio" : "linear_map_readout_ratio_plain"), value: optional(run.orbit.modulusRatio)},
             ];
         }
+        const determinantRows: DeclaredRow[] = model.mode === "determinant" ? [
+            {id: "det-formula", name: message("linear_map_readout_det_formula"), value: this.formulaValue(view)},
+            {id: "det", name: message("linear_map_readout_det"), value: number(view.determinant, 4)},
+            {id: "area", name: message("linear_map_readout_area"), value: number(view.area, 4)},
+            {id: "orientation", name: message("linear_map_readout_orientation"), value: this.orientationValue(view.sign)},
+        ] : [];
         return [
             ...matrixRows, ...basisRows,
-            {id: "probe", label: t("linear_map_readout_probe"), value: this.vector(view.probeImage)},
-            ...(model.mode === "determinant" ? [
-                {id: "det-formula", label: t("linear_map_readout_det_formula"), value: this.formula(view)},
-                {id: "det", label: t("linear_map_readout_det"), value: this.num(view.determinant, 4)},
-                {id: "area", label: t("linear_map_readout_area"), value: this.num(view.area, 4)},
-                {id: "orientation", label: t("linear_map_readout_orientation"), value: this.orientationText(view.sign)},
-            ] : []),
+            {id: "probe", name: message("linear_map_readout_probe"), value: this.vectorValue(view.probeImage)},
+            ...determinantRows,
         ];
     }
 
     /** The readout of the composition mode: entries to 4 decimals, "approximately" when the matrix is not exact on the quarter grid. */
-    private compositionRows(model: LinearMapState): { id: string; label: string; value: string }[] {
+    private compositionRows(model: LinearMapState): DeclaredRow[] {
         const view = this.compositionOf(model);
-        const rows = (id: string, name: string, m: Mat2) => [0, 1].map(r => {
+        const rows = (id: "a" | "b" | "product", name: string, m: Mat2): DeclaredRow[] => ([0, 1] as const).map(r => {
             const text = `${this.num(m[r][0], 4)}   ${this.num(m[r][1], 4)}`;
             return {
-                id: `${id}-row${r + 1}`, label: t("linear_map_comp_readout_row", {value0: name, value1: String(r + 1)}),
-                value: isExactMatrix(m) ? text : t("linear_map_comp_value_approx", {value0: text}),
+                id: `${id}-row${r === 0 ? 1 : 2}` as const, name: message("linear_map_comp_readout_row", {value0: name, value1: String(r + 1)}),
+                value: isExactMatrix(m) ? this.formatted(text) : message("linear_map_comp_value_approx", {value0: text}),
             };
         });
-        const sourceText = (element: MapElement | undefined) => element === undefined ? t("linear_map_comp_value_free")
-            : t(element.kind === "rotation" ? "linear_map_comp_value_rotation" : "linear_map_comp_value_reflection",
+        const sourceValue = (element: MapElement | undefined): Message => element === undefined ? message("linear_map_comp_value_free")
+            : message(element.kind === "rotation" ? "linear_map_comp_value_rotation" : "linear_map_comp_value_reflection",
                 {value0: this.num(this.angleDegrees(element.kind, element.k), 1), value1: String(element.k)});
         // Pivot, translation and the fixture lie on the quarter grid, so t, the images and the determinant are exact exactly when the product is.
         const productExact = isExactMatrix(view.product);
-        const marked = (text: string) => productExact ? text : t("linear_map_comp_value_approx", {value0: text});
+        const marked = (text: string): Message | FormattedValue => productExact ? this.formatted(text) : message("linear_map_comp_value_approx", {value0: text});
         const point = (p: Vec2) => marked(`(${this.num(p[0], 4)}, ${this.num(p[1], 4)})`);
+        const productElement: DeclaredRow[] = view.productElement
+            ? [{id: "product-element", name: message("linear_map_comp_readout_product_element"), value: sourceValue(view.productElement)}] : [];
+        const translation: DeclaredRow[] = view.pivotSet ? [{id: "t", name: message("linear_map_comp_readout_t"), value: point(view.translationForm)}] : [];
+        const images: DeclaredRow[] = view.image.map((p, i) => ({id: `image-${i}`, name: message("linear_map_comp_readout_image", {value0: String(i)}), value: point(p)}));
         return [
-            {id: "a-source", label: t("linear_map_comp_readout_source", {value0: "A"}), value: sourceText(model.element)},
+            {id: "a-source", name: message("linear_map_comp_readout_source", {value0: "A"}), value: sourceValue(model.element)},
             ...rows("a", "A", view.a),
-            {id: "b-source", label: t("linear_map_comp_readout_source", {value0: "B"}), value: sourceText(model.secondElement)},
+            {id: "b-source", name: message("linear_map_comp_readout_source", {value0: "B"}), value: sourceValue(model.secondElement)},
             ...rows("b", "B", view.b),
             ...rows("product", "BA", view.product),
-            {id: "product-det", label: t("linear_map_comp_readout_det"), value: marked(this.num(view.determinant, 4))},
-            {id: "product-orientation", label: t("linear_map_comp_readout_orientation"), value: this.orientationText(view.orientation)},
-            ...(view.productElement ? [{id: "product-element", label: t("linear_map_comp_readout_product_element"), value: sourceText(view.productElement)}] : []),
-            ...(view.pivotSet ? [{id: "t", label: t("linear_map_comp_readout_t"), value: point(view.translationForm)}] : []),
-            ...view.image.map((p, i) => ({id: `image-${i}`, label: t("linear_map_comp_readout_image", {value0: String(i)}), value: point(p)})),
+            {id: "product-det", name: message("linear_map_comp_readout_det"), value: marked(this.num(view.determinant, 4))},
+            {id: "product-orientation", name: message("linear_map_comp_readout_orientation"), value: this.orientationValue(view.orientation)},
+            ...productElement, ...translation, ...images,
         ];
+    }
+
+    private notes(model: LinearMapState): ReadoutNote<LinearMapIds>[] {
+        return [
+            {id: "note", text: message("linear_map_note")},
+            ...(model.mode === "tracedet" ? [{id: "note-tracedet" as const, text: message("linear_map_note_tracedet")}] : []),
+        ];
+    }
+
+    /**
+     * Pure data from the model (no board access): the parameters the mode shows (the start vector, the translation and the pivot are
+     * points and have no declared kind: they are readout rows and legend entries only), the readout rows the panel renders, the notes,
+     * the legend of what the mode draws, the display switches and buttons as actions, and the statuses.
+     */
+    protected override declaration(): GraphDeclaration<LinearMapIds> {
+        const model = this.model;
+        const view = this.viewOf(model);
+        const mode = model.mode;
+        const composing = mode === "composition";
+        const basisLike = mode === "basis" || mode === "determinant";
+        const parameters: ParameterDeclaration<LinearMapIds["param"]>[] = [
+            {key: "linear-map-mode", kind: "choice", label: message("linear_map_mode_label"), placement: "tools",
+                options: LINEAR_MAP_GRAPH_MODES.map(value => ({value, label: this.modeMessage(value)}))},
+        ];
+        if (!composing) {
+            const exampleOptions: LinearMapExampleChoice[] = [...EXAMPLE_IDS_OFFERED];
+            if (!exampleOptions.includes(model.exampleId)) exampleOptions.push(model.exampleId);
+            parameters.push({key: "linear-map-example", kind: "choice", label: message("linear_map_example_label"), help: message("linear_map_example_help"), placement: "tools",
+                options: exampleOptions.map(value => ({value, label: this.exampleMessage(value)}))});
+        }
+        const entryRange = {kind: "range", min: -4, max: 4, step: MATRIX_ENTRY_STEP, maxDecimals: 2} as const;
+        if (!composing) {
+            const entry = (key: MatrixEntryParam, row: Row, column: Column) => ({
+                key, label: this.entryMessage(row, column), symbol: `a_{${row + 1}${column + 1}}`, placement: "board", ...entryRange,
+            } as const);
+            parameters.push(entry("linear-map-a11", 0, 0), entry("linear-map-a21", 1, 0), entry("linear-map-a12", 0, 1), entry("linear-map-a22", 1, 1));
+        } else {
+            for (const [slot, name, prefix] of [["first", "A", "a"], ["second", "B", "b"]] as const) {
+                const element = elementOf(model, slot);
+                parameters.push({key: `linear-map-${slot}-source`, kind: "choice", label: message("linear_map_comp_source_label", {value0: name}),
+                    help: message("linear_map_comp_source_help"), placement: "tools", section: MAPS_SECTION,
+                    options: [
+                        {value: "free", label: message("linear_map_comp_source_free")},
+                        {value: "rotation", label: message("linear_map_comp_source_rotation")},
+                        {value: "reflection", label: message("linear_map_comp_source_reflection")},
+                    ]});
+                parameters.push({key: `linear-map-${slot}-index`, kind: "range", min: 0, max: ELEMENT_COUNT - 1, step: 1, maxDecimals: 0, placement: "board", locked: element === undefined,
+                    label: message(element?.kind === "reflection" ? "linear_map_comp_angle_reflection" : "linear_map_comp_angle_rotation", {value0: name}),
+                    help: message(element?.kind === "reflection" ? "linear_map_comp_angle_help_reflection" : "linear_map_comp_angle_help_rotation")});
+                for (const [row, column] of [[0, 0], [1, 0], [0, 1], [1, 1]] as const) {
+                    parameters.push({key: `linear-map-${prefix}${row + 1}${column + 1}` as MatrixEntryParam, label: message("linear_map_comp_entry_label",
+                        {value0: name, value1: String(row + 1), value2: String(column + 1)}), symbol: `${prefix}_{${row + 1}${column + 1}}`, placement: "tools",
+                        section: MAPS_SECTION, locked: element !== undefined, ...entryRange});
+                }
+            }
+        }
+        if (mode === "eigen") {
+            parameters.push({key: "linear-map-test-angle", kind: "range", label: message("linear_map_test_angle_label"), symbol: "v", placement: "board",
+                min: 0, max: 360, step: 1, maxDecimals: 2});
+        }
+        if (mode === "iterate") {
+            parameters.push({key: "linear-map-step", kind: "range", label: message("linear_map_readout_step"), placement: "board", min: 0, max: ITERATE_STEP_MAX, step: 1, maxDecimals: 0});
+        }
+
+        const kindOf = (drawing: { readonly dash?: number; readonly fillOpacity?: number }): LegendEntry["kind"] => {
+            const kind = legendKindFor(drawing);
+            return kind === "dashed-line" ? "dashed" : kind === "dashed" ? "area" : "line";
+        };
+        const entry = (id: LinearMapIds["legend"], label: Message, object: string, kind: LegendEntry["kind"] = "line"): LegendEntry<LinearMapIds> =>
+            ({id, label, kind, object});
+        const grids = [entry("source-grid", message("linear_map_legend_source_grid"), "source-grid"), entry("image-grid", message("linear_map_legend_image_grid"), "image-grid")];
+        let legend: LegendEntry<LinearMapIds>[];
+        if (mode === "tracedet") {
+            legend = [
+                entry("parabola", message("linear_map_legend_parabola"), "td-parabola", kindOf(TRACE_DET_DRAWING.parabola)),
+                entry("triangle", message("linear_map_legend_triangle"), "td-triangle", kindOf(TRACE_DET_DRAWING.triangle)),
+                entry("flow", message("linear_map_legend_flow"), "td-flow", kindOf(TRACE_DET_DRAWING.flow)),
+                entry("point", message("linear_map_legend_point"), "td-point", "point"),
+            ];
+        } else if (composing) {
+            legend = [
+                entry("source-grid", message("linear_map_legend_source_grid"), "source-grid"),
+                entry("grid-a", message("linear_map_legend_comp_grid_a"), "comp-grid-a", "dashed"),
+                entry("grid-image", message("linear_map_legend_comp_grid_image"), "comp-grid-image"),
+                entry("curve", message("linear_map_legend_comp_curve"), "comp-curve"),
+                entry("curve-image", message("linear_map_legend_comp_curve_image"), "comp-curve-image"),
+                entry("translation", message("linear_map_legend_comp_translation"), "comp-translation"),
+                entry("pivot", message("linear_map_legend_comp_pivot"), "comp-pivot", "point"),
+            ];
+        } else if (mode === "eigen") {
+            legend = [
+                ...grids,
+                entry("circle", message("linear_map_legend_eigen_circle"), "eigen-circle"),
+                entry("v", message("linear_map_legend_eigen_v"), "eigen-v"),
+                entry("av", message("linear_map_legend_eigen_av"), "eigen-av"),
+                entry("lines", message("linear_map_legend_eigen_lines"), "eigen-lines"),
+            ];
+        } else if (mode === "ellipse") {
+            const conic = model.conicVisible === true;
+            legend = [
+                ...grids,
+                entry("circle", message("linear_map_legend_eigen_circle"), "ellipse-circle"),
+                conic ? entry("conic", message("linear_map_legend_ellipse_conic"), "ellipse-conic") : entry("image", message("linear_map_legend_ellipse_image"), "ellipse-image"),
+                conic ? entry("conic-axes", message("linear_map_legend_ellipse_conic_axes"), "ellipse-conic-axes") : entry("axes", message("linear_map_legend_ellipse_axes"), "ellipse-axes"),
+                ...(conic ? [] : [entry("directions", message("linear_map_legend_ellipse_directions"), "ellipse-directions")]),
+                entry("lines", message("linear_map_legend_eigen_lines"), "ellipse-lines", "dashed"),
+            ];
+        } else if (mode === "iterate") {
+            legend = [
+                ...grids,
+                entry("iterates", message("linear_map_legend_iterates"), "iterates", "point"),
+                entry("unit", message("linear_map_legend_unit"), "unit"),
+                entry("dominant", message("linear_map_legend_dominant"), "dominant"),
+                entry("other", message("linear_map_legend_other"), "other", "dashed"),
+            ];
+        } else {
+            legend = [
+                ...grids,
+                entry("square", message("linear_map_legend_square"), "square"),
+                entry("curve", message("linear_map_legend_curve"), "curve"),
+                entry("curve-image", message("linear_map_legend_curve_image"), "curve-image"),
+            ];
+        }
+
+        const action = (id: LinearMapIds["action"], label: Message, extra: Partial<ActionDeclaration<LinearMapIds>> = {}): ActionDeclaration<LinearMapIds> =>
+            ({id, label, placement: "tools", enabled: true, ...extra});
+        const actions: ActionDeclaration<LinearMapIds>[] = [];
+        if (!composing) {
+            const atIdentity = model.exampleId === "identity" && this.notice === undefined && model.matrix.every((row, r) => row.every((value, c) => value === IDENTITY[r][c]));
+            actions.push(action("reset", message("linear_map_reset"), {enabled: !atIdentity, help: atIdentity ? message("linear_map_at_identity") : undefined}));
+        }
+        if (basisLike) {
+            actions.push(action("toggle-square", message("linear_map_toggle_square"), {pressed: model.squareVisible}),
+                action("toggle-probe", message("linear_map_toggle_probe"), {pressed: model.probeVisible}),
+                action("toggle-curve", message("linear_map_toggle_curve"), {pressed: model.curveVisible}));
+        }
+        if (mode === "eigen") {
+            const c = this.eigenOf(model).classification;
+            const reason = c.kind === "complex" ? "linear_map_snap_unavailable_complex"
+                : c.kind === "repeated" && c.repeated === "scalar" ? "linear_map_snap_unavailable_scalar" : undefined;
+            actions.push(action("snap-eigen", message("linear_map_snap_eigen"), {enabled: reason === undefined, help: reason && message(reason)}));
+        }
+        if (mode === "ellipse") actions.push(action("toggle-conic", message("linear_map_toggle_conic"), {pressed: model.conicVisible === true}));
+        if (mode === "iterate") {
+            const playing = this.isPlaying();
+            const step = stepOf(model);
+            actions.push(
+                action("play-pause", message(playing ? "pause" : "play"), {placement: "board", enabled: playing || (step < ITERATE_STEP_MAX && !this.reducedMotion())}),
+                action("next-step", message("next_step"), {placement: "board", enabled: !playing && step < ITERATE_STEP_MAX}),
+                action("reset-run", message("reset"), {placement: "board", enabled: playing || step > 0}),
+            );
+        }
+        if (composing) {
+            actions.push(action("toggle-pivot", message("linear_map_comp_pivot_toggle"), {pressed: model.pivot !== undefined, section: MAPS_SECTION}),
+                action("reset-composition", message("linear_map_comp_reset"), {enabled: !isCompositionDefault(model), section: MAPS_SECTION}));
+        }
+
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("function_readouts"), rows: this.readoutRows(model, view)}],
+            notes: this.notes(model),
+            legend,
+            actions,
+            status: this.statuses(model, view).map(({id, text}) => ({id, text})),
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawnElements.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it. It reads the
+        // attribute only: nothing is redrawn.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(FILLED_OBJECTS.has(id) ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        const model = this.model;
+        runAs("learner", () => {
+            switch (id) {
+                case "reset": return this.resetToIdentity();
+                case "toggle-square": return this.setToggle("squareVisible", !model.squareVisible);
+                case "toggle-probe": return this.setToggle("probeVisible", !model.probeVisible);
+                case "toggle-curve": return this.setToggle("curveVisible", !model.curveVisible);
+                case "toggle-conic": return this.setToggle("conicVisible", model.conicVisible !== true);
+                case "snap-eigen": return void this.snapToEigen();
+                case "play-pause": return this.isPlaying() ? this.pausePlayback() : this.play();
+                case "next-step": return this.stepOnce();
+                case "reset-run": return this.resetRun();
+                case "toggle-pivot": return this.setPivotOn(model.pivot === undefined);
+                case "reset-composition": return this.resetComposition();
+                default: throw new Error("Unknown action");
+            }
+        });
+    }
+
+    /** What a row's value shows in the current language: the inspector's text for it. */
+    private valueText(value: MessageNumber | Message | FormattedValue): string {
+        if (!("kind" in value)) return renderMessage(value);
+        return value.kind === "formatted" ? value.text : formatNumber(value.value, this.language(), value.maxDecimals);
     }
 
     protected renderReadout(): React.ReactNode {
         const model = this.model;
         const view = this.viewOf(model);
-        const notes = [t("linear_map_note"), ...(model.mode === "tracedet" ? [t("linear_map_note_tracedet")] : [])];
+        const notes = this.notes(model).map(note => renderMessage(note.text));
+        const rows = this.readoutRows(model, view).map(row => ({id: row.id, label: row.name ? renderMessage(row.name) : "", value: this.valueText(row.value)}));
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={this.readoutRows(model, view)} note={notes}/>
-            <FunctionStatus className="demo-status" dataAttribute="linear-map-status" lines={this.statuses(model, view)} muted={this.isPlaying()}/>
+            <FunctionReadout title={t("function_readouts")} rows={rows} note={notes}/>
+            <FunctionStatus className="demo-status" dataAttribute="linear-map-status" lines={this.statuses(model, view).map(({id, text}) => ({id, text: renderMessage(text)}))} muted={this.isPlaying()}/>
         </>;
     }
 }
