@@ -224,3 +224,8 @@ button.ux-dock-more.ux-dock-more:hover, button.ux-dock-more.ux-dock-more:focus-v
 
 /* Round 9: in the toolbar line under the graph the note is an ordinary flex item at the row's free right end. */
 .ux-gesture-hint.ux-gesture-hint-row { position: static; margin-left: auto; align-self: center; flex: none; }
+
+/* Round 15: beside a docked lesson card the folded tools chip sits at the bottom of its column, so it keeps one place
+   while the card's height changes from frame to frame (it stacked directly under the card and jumped 450-660 px). */
+.ux-dock-v:has(> .ux-bcard-guide):has(> .ux-bcard-tools.ux-btext-collapsed) { height: calc(100% - 4px); }
+.ux-dock-v > .ux-bcard-guide ~ .ux-bcard-tools.ux-btext-collapsed { margin-top: auto; }
