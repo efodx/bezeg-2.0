@@ -18,6 +18,9 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
 import {cleanNumber} from "../../analysis/numbers";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry} from "../../uxPicks/declare/graphUx";
 
 /** The reference graph is the plain basic function: A = 1, omega = 1, phi = 0, B = 0. */
 const REFERENCE = {A: 1, omega: 1, phi: 0, B: 0} as const;
@@ -146,8 +149,8 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
 
         // The equation, the most important readout, stays on the board; the reference has its own line while it is shown.
         this.caption("top-left", [
-            {text: () => equationText(model(), language()), scale: 1.2, math: true},
-            {text: () => `${model().fn}(x) (${t("trig_reference_legend")})`, visible: () => model().reference},
+            {text: () => equationText(model(), language()), scale: 1.2, math: true, visible: () => !pickOn("boardText")},
+            {text: () => `${model().fn}(x) (${t("trig_reference_legend")})`, visible: () => model().reference && !pickOn("boardText")},
         ]);
     }
 
@@ -157,22 +160,22 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         const {fn, A, omega, phi, B} = this.model;
         const language = currentLanguage();
         return <>
-            <div className="inspector-group">
+            <ToolSection id="trig-function" element="div" className="inspector-group">
                 <ChoiceSelect label={t("trig_function_label")} value={fn} help={t("trig_function_help")}
                               options={TRIG_FUNCTIONS.map(name => ({value: name, text: `${name} x`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("trig_amplitude_label")} min={AMPLITUDE_MIN} max={AMPLITUDE_MAX} step={AMPLITUDE_STEP} value={A}
+            </ToolSection>
+            <ToolSection id="trig-parameters" element="div" className="inspector-group" pickTitle="Parametri">
+                <Slider paramKey="trig.A" customText={t("trig_amplitude_label")} min={AMPLITUDE_MIN} max={AMPLITUDE_MAX} step={AMPLITUDE_STEP} value={A}
                         formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setAmplitude(next))}/>
-                <Slider customText={t("trig_omega_label")} min={OMEGA_MIN} max={OMEGA_MAX} step={OMEGA_STEP} value={omega}
+                <Slider paramKey="trig.omega" customText={t("trig_omega_label")} min={OMEGA_MIN} max={OMEGA_MAX} step={OMEGA_STEP} value={omega}
                         help={t("trig_omega_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setOmega(next))}/>
-                <Slider customText={t("trig_phase_label")} min={PHASE_MIN} max={PHASE_MAX} step={PHASE_STEP} value={phi}
+                <Slider paramKey="trig.phi" customText={t("trig_phase_label")} min={PHASE_MIN} max={PHASE_MAX} step={PHASE_STEP} value={phi}
                         help={t("trig_phase_help")} formatValue={value => formatPhase(value, language)}
                         onChange={next => this.ignoreOutOfDomain(() => this.setPhase(next))}/>
-                <Slider customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} value={B}
+                <Slider paramKey="trig.B" customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} value={B}
                         formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setMidline(next))}/>
-            </div>
+            </ToolSection>
         </>;
     }
 
@@ -183,7 +186,47 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         </div>;
     }
 
+    /** The cards' declaration (pick boardText): the equation as the formula, the derived values, the drawn curves as the legend. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const {fn, A, omega, phi, B, reference} = this.model;
+        const language = currentLanguage();
+        const parameters = {fn, A, omega, phi, B};
+        const number = (value: number) => formatNumber(value, language);
+        const amplitudeValue = amplitude(parameters);
+        const range = valueRange(parameters);
+        const legend: LegendEntry[] = [
+            {id: "curve", label: `${fn} x`, kind: "line", color: GraphPalette.comparisonCurve},
+            ...(reference ? [{id: "reference", label: `${fn}(x) (${t("trig_reference_legend")})`, kind: "dashed" as const, color: GraphPalette.constructionAccent}] : []),
+            {id: "midline", label: t("trig_midline_label"), kind: "dashed", color: GraphPalette.referenceCurve},
+            ...(fn === "tan" ? [{id: "asymptotes", label: "Asimptote", kind: "dashed" as const, color: GraphPalette.referenceCurve}] : []),
+        ];
+        return {
+            formula: equationText(parameters, language).replace(/,/g, "{,}"),
+            readouts: [
+                {id: "wave", rows: [
+                    {id: "phi", name: t("trig_phase_readout"), value: formatWithPi(phi, language)},
+                    {id: "amplitude", name: t("trig_amplitude_readout"), value: amplitudeValue === null ? NOT_A_NUMBER_TEXT : number(amplitudeValue)},
+                ]},
+                {id: "derived", rows: [
+                    {id: "period", name: t("trig_period_readout"), value: formatWithPi(period(parameters), language)},
+                    {id: "shift", name: t("trig_shift_readout"), value: formatWithPi(phaseShift(parameters), language)},
+                    {id: "range", name: t("trig_range_readout"), value: range === null ? t("trig_all_reals") : `[${number(range[0])}${language === "sl" ? "; " : ", "}${number(range[1])}]`},
+                ]},
+            ],
+            notes: fn === "tan" ? [{id: "tangent", text: t("trig_tangent_note"), tone: "muted"}] : [],
+            legend,
+            pucks: [
+                {param: "trig.A"},
+                {param: "trig.omega", help: t("trig_omega_help")},
+                {param: "trig.phi", help: t("trig_phase_help")},
+                {param: "trig.B"},
+            ],
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout and legend cards show it
         const {fn, A, omega, phi, B} = this.model;
         const language = currentLanguage();
         const parameters = {fn, A, omega, phi, B};

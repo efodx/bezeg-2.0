@@ -11,6 +11,9 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {cleanNumber} from "../../analysis/numbers";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry} from "../../uxPicks/declare/graphUx";
 
 /** Points snap to this grid while dragged; k and n can place them anywhere. */
 export const LINEAR_SNAP_SIZE = 0.1;
@@ -159,7 +162,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             () => model().x2, () => (model().y1 + model().y2) / 2, () => (model().x1 <= model().x2 ? "left" : "right"), () => "middle", "dy");
 
         // The equation, the most important readout, stays on the board.
-        this.caption("top-left", [{text: () => lineEquation(this.currentLine(), language()), scale: 1.2, math: true}]);
+        this.caption("top-left", [{text: () => lineEquation(this.currentLine(), language()), scale: 1.2, math: true, visible: () => !pickOn("boardText")}]);
     }
 
     protected override syncSceneToModel(): void {
@@ -201,7 +204,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
                                     }
                                 }}/>
             </div>
-            <div className="inspector-group">
+            <ToolSection id="linear-kn" element="div" className="inspector-group" pickTitle="Naklon in začetna vrednost" help={t("linear_kn_help")}>
                 <div className="function-points-grid">
                     <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} unavailableReason={knReason} reasonShownElsewhere describedBy={knReason && KN_REASON_ID} step={LINEAR_SNAP_SIZE}
                                  min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
@@ -211,12 +214,44 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
                                  onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
                 </div>
                 {knReason && <p className="inspector-help" id={KN_REASON_ID}>{knReason}</p>}
-                <p className="inspector-help">{t("linear_kn_help")}</p>
-            </div>
+            </ToolSection>
         </>;
     }
 
+    /** The cards' declaration (pick boardText): the equation as the formula, k and n, the slope triangle, the drawn objects as the legend. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const {x1, y1, x2, y2} = this.model;
+        const language = currentLanguage();
+        const line = lineThroughPoints({x: x1, y: y1}, {x: x2, y: y2});
+        const triangle = slopeTriangle({x: x1, y: y1}, {x: x2, y: y2});
+        const number = (value: number) => formatNumber(value, language);
+        const legs = line.kind !== "degenerate" && (Math.abs(triangle.dx) > COINCIDENCE_TOLERANCE || Math.abs(triangle.dy) > COINCIDENCE_TOLERANCE);
+        const legend: LegendEntry[] = [
+            ...(line.kind !== "degenerate" ? [{id: "line", label: t("linear_function"), kind: "line" as const, color: GraphPalette.comparisonCurve}] : []),
+            ...(legs ? [{id: "triangle", label: "Trikotnik naklona", kind: "dashed" as const, color: GraphPalette.constructionAccent}] : []),
+            {id: "points", label: t("function_points"), kind: "point", color: GraphPalette.controlPoint},
+        ];
+        return {
+            formula: line.kind === "degenerate" ? undefined : lineEquation(line, language).replace(/,/g, "{,}"),
+            readouts: [
+                {id: "line", rows: [
+                    {id: "k", name: t("slope_k_label"), symbol: "k", value: line.kind === "line" ? number(line.k) : t("slope_undefined"), tone: "comparison"},
+                    {id: "n", name: t("intercept_n_label"), symbol: "n", value: line.kind === "line" ? number(line.n) : t("slope_undefined"), tone: "comparison"},
+                ]},
+                {id: "triangle", rows: [
+                    {id: "dx", symbol: "\\Delta x", value: number(triangle.dx), tone: "accent"},
+                    {id: "dy", symbol: "\\Delta y", value: number(triangle.dy), tone: "accent"},
+                ]},
+            ],
+            notes: line.kind === "line" ? [] : [{id: "reason", text: t(line.kind === "vertical" ? "linear_vertical_note" : "linear_degenerate_note"), tone: "warning"}],
+            readoutHelp: <p>{t("linear_kn_help")}</p>,
+            legend,
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout and legend cards show it
         const {x1, y1, x2, y2} = this.model;
         const language = currentLanguage();
         const line = lineThroughPoints({x: x1, y: y1}, {x: x2, y: y2});

@@ -8,10 +8,13 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-comb-a.md.
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +27,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -140,6 +145,7 @@ const cb1Steps: readonly GuidedLessonStep[] = [
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato v odčitku preberi število poti in označeno pot.', 'Write down your prediction, then read the number of routes and the marked route in the readout.'),
         expectedObservations: [text('Do \\((2,2)\\) vodi \\(6\\) poti, označena pot je prva od njih.', 'There are \\(6\\) routes to \\((2,2)\\), and the marked route is the first of them.')],
+        ux: {explanation: readouts(), observation: readouts('route')},
         scene: latticeScene('cb1-predict-scene', {a: 2, b: 2},
             'Cilj \\((2,2)\\), izbrana je pot 1 od 6; število poti je \\(6\\).',
             'The target \\((2,2)\\), route 1 of 6 is selected; the number of routes is \\(6\\).'),
@@ -155,6 +161,7 @@ const cb1Steps: readonly GuidedLessonStep[] = [
         formulaIds: [],
         observationPrompt: text('Preštej poti v seznamu in primerjaj z odčitkom.', 'Count the routes in the list and compare with the readout.'),
         expectedObservations: [text('Seznam ima \\(6\\) poti, odčitek pa pri binomskem simbolu pokaže \\(6\\).', 'The list has \\(6\\) routes and the readout shows \\(6\\) at the binomial coefficient.')],
+        ux: {explanation: readouts(), observation: readouts('formula')},
         scene: latticeScene('cb1-list-scene', {a: 2, b: 2},
             'Cilj \\((2,2)\\) in seznam šestih poti; binomski simbol \\(\\binom42=6\\).',
             'The target \\((2,2)\\) and a list of six routes; the binomial coefficient \\(\\binom42=6\\).'),
@@ -170,6 +177,7 @@ const cb1Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['route-count'],
         observationPrompt: text('Preberi število poti pri \\((5,3)\\), nato pri \\((6,6)\\).', 'Read the number of routes at \\((5,3)\\), then at \\((6,6)\\).'),
         expectedObservations: [text('Pri \\((5,3)\\) je poti \\(56\\), pri \\((6,6)\\) jih je \\(924\\).', 'At \\((5,3)\\) there are \\(56\\) routes, at \\((6,6)\\) there are \\(924\\).')],
+        ux: {observation: readouts()},
         scene: latticeScene('cb1-drag-scene', {a: 5, b: 3},
             'Cilj \\((5,3)\\); število poti je \\(56\\).',
             'The target \\((5,3)\\); the number of routes is \\(56\\).'),
@@ -185,6 +193,7 @@ const cb1Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['addition-rule'],
         observationPrompt: text('Preberi števila na diagonali z vsoto \\(3\\) in števili ob cilju, nato še stanje v prikazu Pascalovega trikotnika.', 'Read the numbers on the diagonal with sum \\(3\\) and the numbers next to the target, then the status in the Pascal\'s triangle view.'),
         expectedObservations: [text('Diagonala pokaže \\(1,3,3,1\\); ob cilju je \\(35+21=56\\), v trikotniku vrstica \\(8\\), mesto \\(5\\).', 'The diagonal shows \\(1,3,3,1\\); next to the target \\(35+21=56\\), in the triangle row \\(8\\), place \\(5\\).')],
+        ux: {observation: readouts()},
         scene: latticeScene('cb1-counts-scene', {a: 5, b: 3, view: 'paths', showCounts: true},
             'Cilj \\((5,3)\\) s števili poti v vseh točkah mreže: v \\((4,3)\\) je \\(35\\), v \\((5,2)\\) je \\(21\\), v cilju \\(56\\).',
             'The target \\((5,3)\\) with the numbers of routes at all grid points: \\(35\\) at \\((4,3)\\), \\(21\\) at \\((5,2)\\), \\(56\\) at the target.'),
@@ -201,6 +210,7 @@ const cb1Steps: readonly GuidedLessonStep[] = [
         workedExampleId: 'cb1-choose',
         observationPrompt: text('Primerjaj izračun \\(\\binom83\\) z odčitkom pri cilju \\((5,3)\\).', 'Compare the computation of \\(\\binom83\\) with the readout at the target \\((5,3)\\).'),
         expectedObservations: [text('Račun in odčitek dasta \\(56\\); odčitek zapiše \\(\\binom85\\), ki je enako \\(\\binom83\\).', 'The computation and the readout both give \\(56\\); the readout writes \\(\\binom85\\), which equals \\(\\binom83\\).')],
+        ux: {observation: readouts('formula')},
         scene: latticeScene('cb1-choose-scene', {a: 5, b: 3},
             'Cilj \\((5,3)\\); število poti je \\(56\\) in binomski simbol \\(\\binom85=56\\).',
             'The target \\((5,3)\\); the number of routes is \\(56\\) and the binomial coefficient \\(\\binom85=56\\).'),
@@ -216,6 +226,7 @@ const cb1Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['route-count'],
         observationPrompt: text('Preberi stanje pri \\((10,10)\\) in število poti pri \\((20,20)\\).', 'Read the status at \\((10,10)\\) and the number of routes at \\((20,20)\\).'),
         expectedObservations: [text('Pri \\((10,10)\\) je \\(184\\,756\\) poti in graf pove, da jih ne riše; pri \\((20,20)\\) jih je \\(137\\,846\\,528\\,820\\).', 'At \\((10,10)\\) there are \\(184\\,756\\) routes and the graph says it does not draw them; at \\((20,20)\\) there are \\(137\\,846\\,528\\,820\\).')],
+        ux: {observation: readouts()},
         scene: latticeScene('cb1-cap-scene', {a: 10, b: 10},
             'Cilj \\((10,10)\\); število poti je \\(184\\,756\\), poti niso narisane.',
             'The target \\((10,10)\\); the number of routes is \\(184\\,756\\), no routes are drawn.'),
@@ -477,6 +488,7 @@ const cb3Steps: readonly GuidedLessonStep[] = [
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, vpiši \\(a=4\\), \\(b=3\\) in preberi odčitka za zadnji korak D in zadnji korak G ter njuno vsoto.', 'Write down your prediction, enter \\(a=4\\), \\(b=3\\) and read the readouts for the last step R and the last step U and their sum.'),
         expectedObservations: [text('Z D se konča \\(20\\) poti, z G jih \\(15\\); vsota \\(20+15=35\\) je število vseh poti do \\((4,3)\\).', 'Of the routes, \\(20\\) end with R and \\(15\\) end with U; the sum \\(20+15=35\\) is the number of all routes to \\((4,3)\\).')],
+        ux: {explanation: readouts(), observation: readouts()},
         scene: latticeScene('cb3-predict-scene', {a: 2, b: 2},
             'Začetni cilj \\((2,2)\\), \\(6\\) poti; odčitka za zadnji korak kažeta \\(3\\) in \\(3\\); poti še niso ločene po barvi.',
             'The starting target \\((2,2)\\), \\(6\\) routes; the readouts for the last step show \\(3\\) and \\(3\\); the routes are not yet split by colour.'),
@@ -492,6 +504,7 @@ const cb3Steps: readonly GuidedLessonStep[] = [
         formulaIds: [],
         observationPrompt: text('Vpiši \\((3,3)\\), nato \\((4,2)\\) in preberi število poti; primerjaj s skupinama D in G.', 'Enter \\((3,3)\\), then \\((4,2)\\), and read the number of routes; compare with the groups R and U.'),
         expectedObservations: [text('Do \\((3,3)\\) vodi \\(20\\) poti (skupina D), do \\((4,2)\\) pa \\(15\\) poti (skupina G); števili sta velikosti skupin.', 'There are \\(20\\) routes to \\((3,3)\\) (group R) and \\(15\\) routes to \\((4,2)\\) (group U); these numbers are the sizes of the groups.')],
+        ux: {explanation: {open: ['readouts', 'legend'], highlight: ['last-right', 'last-up']}},
         scene: latticeScene('cb3-partition-scene', {a: 4, b: 3, view: 'paths', showCounts: false, split: true},
             'Cilj \\((4,3)\\), poti ločene po zadnjem koraku: polna črta za D (\\(20\\) poti), črtkana za G (\\(15\\) poti).',
             'The target \\((4,3)\\), routes split by their last step: solid line for R (\\(20\\) routes), dashed for U (\\(15\\) routes).'),
@@ -508,6 +521,7 @@ const cb3Steps: readonly GuidedLessonStep[] = [
         workedExampleId: 'cb3-identity',
         observationPrompt: text('Preberi stanje pri \\((4,3)\\), nato vpiši \\((6,0)\\) in preberi stanje.', 'Read the status at \\((4,3)\\), then enter \\((6,0)\\) and read the status.'),
         expectedObservations: [text('Pri \\((4,3)\\) stanje pove vrstico \\(7\\), mesto \\(4\\) in \\(35=20+15\\); pri \\((6,0)\\) je vnos \\(1\\) na robu trikotnika, samo z enim staršem.', 'At \\((4,3)\\) the status gives row \\(7\\), place \\(4\\) and \\(35=20+15\\); at \\((6,0)\\) the entry is \\(1\\), on the edge of the triangle, with only one parent.')],
+        ux: {observation: readouts()},
         scene: latticeScene('cb3-identity-scene', {a: 4, b: 3, view: 'triangle', showCounts: false},
             'Pascalov trikotnik, cilj \\((4,3)\\): vrstica \\(7\\), mesto \\(4\\), \\(35=20+15\\).',
             'Pascal\'s triangle, the target \\((4,3)\\): row \\(7\\), place \\(4\\), \\(35=20+15\\).'),
@@ -523,6 +537,7 @@ const cb3Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['pascal-identity'],
         observationPrompt: text('Vpiši \\(a=3\\), \\(b=2\\) in preberi vnos in starša pri cilju \\((3,2)\\).', 'Enter \\(a=3\\), \\(b=2\\) and read the entry and the parents at the target \\((3,2)\\).'),
         expectedObservations: [text('Vrstica \\(4\\) je \\(1,4,6,4,1\\); vnos v vrstici \\(5\\), mesto \\(3\\), je \\(10=6+4\\).', 'Row \\(4\\) is \\(1,4,6,4,1\\); the entry in row \\(5\\), place \\(3\\), is \\(10=6+4\\).')],
+        ux: {observation: readouts()},
         scene: latticeScene('cb3-rows-scene', {a: 2, b: 1, view: 'triangle', showCounts: false},
             'Pascalov trikotnik, cilj \\((2,1)\\): vrstica \\(3\\), mesto \\(2\\), \\(3=2+1\\).',
             'Pascal\'s triangle, the target \\((2,1)\\): row \\(3\\), place \\(2\\), \\(3=2+1\\).'),
@@ -538,6 +553,7 @@ const cb3Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['binomial-symmetry'],
         observationPrompt: text('Vpiši \\((2,3)\\) in preberi vnos ter levega in desnega starša.', 'Enter \\((2,3)\\) and read the entry and the left and right parent.'),
         expectedObservations: [text('Pri \\((2,3)\\) je vnos spet \\(10\\), na mestu \\(2\\) vrstice \\(5\\); levi starš je \\(4\\), desni \\(6\\), torej v obratnem vrstnem redu.', 'At \\((2,3)\\) the entry is again \\(10\\), at place \\(2\\) of row \\(5\\); the left parent is \\(4\\) and the right one \\(6\\), so in the opposite order.')],
+        ux: {observation: readouts()},
         scene: latticeScene('cb3-symmetry-scene', {a: 3, b: 2, view: 'triangle', showCounts: false},
             'Pascalov trikotnik, cilj \\((3,2)\\): vrstica \\(5\\), mesto \\(3\\), \\(10=6+4\\).',
             'Pascal\'s triangle, the target \\((3,2)\\): row \\(5\\), place \\(3\\), \\(10=6+4\\).'),

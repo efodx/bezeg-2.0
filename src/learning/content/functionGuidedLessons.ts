@@ -3,10 +3,13 @@
  * Each later concept appends its lesson to `functionGuidedLessons`; availability follows from the Demonstration definition (`src/demonstrations.ts`).
  */
 import type {FunctionParameterName, LessonAction, LessonViewBox} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 
 const linearFunction: GuidedLesson = {
@@ -97,7 +100,7 @@ const linearFunction: GuidedLesson = {
                 'A linear function has the equation \\(y=kx+n\\), and its graph is a line. Two points with different \\(x\\)-coordinates determine the line: move \\(P_1\\) and \\(P_2\\) and watch the line follow them.',
             ),
             formulaIds: ['linear-function-form'],
-            frames: [frame('linear-line-through-points-explanation', 'explanation'), frame('linear-line-through-points-observation', 'observation')],
+            frames: [frame('linear-line-through-points-explanation', 'explanation'), frame('linear-line-through-points-observation', 'observation', readouts())],
             observationPrompt: text(
                 'Premakni točko \\(P_1\\) in opazuj, kaj se zgodi s premico in z enačbo na grafu.',
                 'Move point \\(P_1\\) and observe what happens to the line and to the equation on the graph.',
@@ -124,7 +127,7 @@ const linearFunction: GuidedLesson = {
                 'The slope tells how much \\(y\\) changes when \\(x\\) grows by 1. From two points we compute it as the ratio of the legs of the dashed triangle, \\(k=\\Delta y/\\Delta x\\).',
             ),
             formulaIds: ['linear-slope'], workedExampleId: 'linear-two-points',
-            frames: [frame('linear-slope-triangle-explanation', 'explanation'), frame('linear-slope-triangle-calculation', 'calculation'), frame('linear-slope-triangle-observation', 'observation')],
+            frames: [frame('linear-slope-triangle-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['dx', 'dy']}), frame('linear-slope-triangle-calculation', 'calculation'), frame('linear-slope-triangle-observation', 'observation', readouts())],
             observationPrompt: text(
                 'Odčitaj \\(\\Delta x\\) in \\(\\Delta y\\) s trikotnika ter ju deli.',
                 'Read \\(\\Delta x\\) and \\(\\Delta y\\) off the triangle and divide them.',
@@ -151,7 +154,7 @@ const linearFunction: GuidedLesson = {
                 'At \\(x=0\\) we get \\(y=n\\), so the line crosses the \\(y\\)-axis at \\((0,n)\\). If you change \\(n\\) and keep \\(k\\), the line shifts up or down in parallel while the points keep their \\(x\\)-coordinates.',
             ),
             formulaIds: ['linear-intercept'],
-            frames: [frame('linear-intercept-step-explanation', 'explanation'), frame('linear-intercept-step-observation', 'observation')],
+            frames: [frame('linear-intercept-step-explanation', 'explanation', readouts()), frame('linear-intercept-step-observation', 'observation', readouts('n'))],
             observationPrompt: text(
                 'Poišči označeno točko na osi \\(y\\) in primerjaj njeno višino z odčitkom \\(n\\).',
                 'Find the marked point on the \\(y\\)-axis and compare its height with the readout of \\(n\\).',
@@ -178,7 +181,7 @@ const linearFunction: GuidedLesson = {
                 'For \\(k>0\\) the function rises, for \\(k=0\\) it is constant and for \\(k<0\\) it falls. The larger \\(|k|\\) is, the steeper the line.',
             ),
             formulaIds: ['linear-slope'],
-            frames: [frame('linear-slope-sign-explanation', 'explanation'), frame('linear-slope-sign-observation', 'observation')],
+            frames: [frame('linear-slope-sign-explanation', 'explanation', readouts('k')), frame('linear-slope-sign-observation', 'observation', readouts('k'))],
             observationPrompt: text(
                 'Premakni točko tako, da dobiš \\(k=0\\), nato pa še tako, da dobiš \\(k>0\\).',
                 'Move a point so that \\(k=0\\), and then so that \\(k>0\\).',
@@ -205,7 +208,7 @@ const linearFunction: GuidedLesson = {
                 'Parallel lines have the same slope \\(k\\) and differ only in \\(n\\). If the points have the same \\(x\\), then \\(\\Delta x=0\\): the line is vertical with the equation \\(x=c\\), and it has no slope because we must not divide by \\(0\\). A vertical line is not the graph of any function.',
             ),
             formulaIds: ['linear-vertical'],
-            frames: [frame('linear-parallel-vertical-explanation', 'explanation'), frame('linear-parallel-vertical-observation', 'observation')],
+            frames: [frame('linear-parallel-vertical-explanation', 'explanation', readouts('dx', 'k')), frame('linear-parallel-vertical-observation', 'observation', readouts())],
             observationPrompt: text(
                 'Premakni \\(P_2\\) vodoravno stran od navpičnice in opazuj, kdaj spet dobiš naklon. Nato poskusi dobiti premico, vzporedno s prvotno.',
                 'Move \\(P_2\\) sideways away from the vertical line and observe when the slope returns. Then try to get a line parallel to the original one.',
@@ -614,7 +617,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'With the default settings \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) and \\(B=0\\) we have \\(f(x)=\\sin x\\). The wave repeats every \\(2\\pi\\approx6.28\\) and never rises above \\(1\\) or falls below \\(-1\\). Try the sliders, then return to these values.',
             ),
             formulaIds: ['trig-form'],
-            frames: [frame('trig-base-sine-explanation', 'explanation'), frame('trig-base-sine-observation', 'observation')],
+            frames: [frame('trig-base-sine-explanation', 'explanation', readouts()), frame('trig-base-sine-observation', 'observation', readouts('range', 'period'))],
             observationPrompt: text(
                 'Poišči najvišjo in najnižjo točko grafa ter dve točki, kjer se val začne ponavljati, in primerjaj z odčitkoma zaloge vrednosti in periode.',
                 'Find the highest and the lowest point of the graph and two points where the wave starts to repeat, and compare them with the readouts of the range and the period.',
@@ -641,7 +644,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(A\\): for \\(A=2\\) we have \\(f(x)=2\\sin x\\), and the wave reaches \\(|A|=2\\) above the midline \\(y=0\\) and \\(2\\) below it. The range is therefore \\([B-|A|,B+|A|]=[-2,2]\\), while the period \\(2\\pi\\) and the midline stay the same as for the reference graph.',
             ),
             formulaIds: ['trig-range'],
-            frames: [frame('trig-amplitude-midline-explanation', 'explanation'), frame('trig-amplitude-midline-observation', 'observation')],
+            frames: [frame('trig-amplitude-midline-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['amplitude', 'range']}), frame('trig-amplitude-midline-observation', 'observation', readouts('amplitude'))],
             observationPrompt: text(
                 'Primerjaj višino vrhov polnega in črtkanega grafa ter njuna prečkanja osi \\(x\\). Nato premakni drsnik \\(A\\) čez \\(0\\) v negativne vrednosti in opazuj graf ter odčitek amplitude.',
                 'Compare the height of the peaks of the solid and the dashed graph and where they cross the \\(x\\)-axis. Then move the slider \\(A\\) across \\(0\\) to negative values and watch the graph and the amplitude readout.',
@@ -668,7 +671,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The reference graph is again the basic \\(\\sin x\\). We change only \\(B\\): for \\(B=1\\) we have \\(f(x)=\\sin x+1\\), the midline is \\(y=1\\), the maximum is \\(B+|A|=1+1=2\\) and the minimum is \\(B-|A|=1-1=0\\). The height of the wave above the midline is still \\(|A|=1\\) and the period is \\(2\\pi\\).',
             ),
             formulaIds: ['trig-range'],
-            frames: [frame('trig-vertical-shift-explanation', 'explanation'), frame('trig-vertical-shift-observation', 'observation')],
+            frames: [frame('trig-vertical-shift-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['range']}), frame('trig-vertical-shift-observation', 'observation', readouts('range'))],
             observationPrompt: text(
                 'Izberi točko na črtkanem grafu in poišči točko polnega grafa z istim \\(x\\): za koliko je višja? Primerjaj še srednjo črto in odčitek zaloge vrednosti.',
                 'Pick a point on the dashed graph and find the point of the solid graph with the same \\(x\\): how much higher is it? Also compare the midline and the range readout.',
@@ -695,7 +698,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The reference graph is the basic \\(\\sin x\\). We change only \\(\\omega\\): for \\(\\omega=2\\) we have \\(f(x)=\\sin 2x\\). The argument \\(2x\\) runs through \\(2\\pi\\) already when \\(x\\) grows by \\(\\pi\\), so the period is \\(2\\pi/\\omega=\\pi\\) and the wave repeats twice in the same distance \\(2\\pi\\). The height of the wave does not change, and the range stays \\([-1,1]\\).',
             ),
             formulaIds: ['trig-period-shift'],
-            frames: [frame('trig-frequency-explanation', 'explanation'), frame('trig-frequency-observation', 'observation')],
+            frames: [frame('trig-frequency-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['period']}), frame('trig-frequency-observation', 'observation', readouts('period'))],
             observationPrompt: text(
                 'Preštej vrhove črtkanega in polnega grafa na razmiku od \\(0\\) do \\(2\\pi\\) in primerjaj razmik med dvema zaporednima vrhovoma polnega grafa z odčitkom periode.',
                 'Count the peaks of the dashed and of the solid graph between \\(0\\) and \\(2\\pi\\) and compare the distance between two consecutive peaks of the solid graph with the period readout.',
@@ -722,7 +725,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(\\varphi\\): the solid graph is \\(\\sin(x+\\pi/2)\\) for \\(\\varphi=\\pi/2\\). A positive \\(\\varphi\\) moves the graph to the left and a negative one to the right. The solid graph is shifted by \\(-\\varphi/\\omega=-\\pi/2\\), that is to the left, and has its maximum \\(1\\) at \\(x=0\\), just like \\(\\cos x\\). Check it: choose \\(\\cos\\) and set \\(\\varphi=0\\); you get the same graph.',
             ),
             formulaIds: ['trig-cos-sin'],
-            frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation'), frame('trig-cosine-shifted-sine-observation', 'observation')],
+            frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['shift', 'phi']}), frame('trig-cosine-shifted-sine-observation', 'observation', readouts())],
             observationPrompt: text(
                 'Primerjaj polni graf s črtkanim: za koliko in v katero smer je zamaknjen? Nato nastavi \\(\\varphi=-\\pi/2\\) in preveri, da se graf zamakne v desno, nato pa izberi \\(\\cos\\), nastavi \\(\\varphi=0\\) in preveri, da se polni graf ne spremeni.',
                 'Compare the solid graph with the dashed one: by how much and in which direction is it shifted? Then set \\(\\varphi=-\\pi/2\\) and check that the graph moves to the right, and finally choose \\(\\cos\\), set \\(\\varphi=0\\) and check that the solid graph does not change.',
@@ -749,7 +752,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The factor \\(\\omega\\) squeezes the graph horizontally: the period is \\(2\\pi/\\omega\\). Since \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), the graph is shifted by \\(-\\varphi/\\omega\\). For \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) and \\(B=1\\) the maximum is \\(1+2=3\\), the minimum \\(1-2=-1\\), the period \\(2\\pi/2=\\pi\\) and the shift \\(-(\\pi/2)/2=-\\pi/4\\).',
             ),
             formulaIds: ['trig-period-shift'], workedExampleId: 'trig-period-shift-example',
-            frames: [frame('trig-period-shift-explanation', 'explanation'), frame('trig-period-shift-calculation', 'calculation'), frame('trig-period-shift-observation', 'observation')],
+            frames: [frame('trig-period-shift-explanation', 'explanation', readouts('period', 'shift', 'range')), frame('trig-period-shift-calculation', 'calculation'), frame('trig-period-shift-observation', 'observation', readouts('period'))],
             observationPrompt: text(
                 'Poišči najvišjo točko grafa blizu \\(x=0\\) in preveri njeno višino. Primerjaj razmik med dvema zaporednima vrhovoma z odčitkom periode.',
                 'Find the highest point of the graph near \\(x=0\\) and check its height. Compare the distance between two consecutive peaks with the period readout.',
@@ -776,7 +779,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'For \\(\\tan\\) the period is \\(\\pi/\\omega\\). The graph has vertical asymptotes where \\(\\cos(\\omega x+\\varphi)=0\\), that is at \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) for integers \\(m\\). For \\(\\omega=1\\) and \\(\\varphi=0\\) the visible asymptotes are at \\(x=\\pm\\pi/2\\approx\\pm1.57\\) and \\(x=\\pm3\\pi/2\\approx\\pm4.71\\). Between asymptotes the graph (for \\(A>0\\)) rises through all values, so it has no maximum, no minimum and no amplitude, and its range is all real numbers. The branches are not joined across asymptotes.',
             ),
             formulaIds: ['trig-tan-asymptotes'],
-            frames: [frame('trig-tangent-explanation', 'explanation'), frame('trig-tangent-observation', 'observation')],
+            frames: [frame('trig-tangent-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['amplitude', 'range', 'period']}), frame('trig-tangent-observation', 'observation', readouts())],
             observationPrompt: text(
                 'Spremeni \\(\\omega\\) in \\(\\varphi\\) ter opazuj, kako se premikajo asimptote in kako se spreminja razmik med njimi.',
                 'Change \\(\\omega\\) and \\(\\varphi\\) and watch how the asymptotes move and how the distance between them changes.',
