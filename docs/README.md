@@ -7,6 +7,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Guardrails](guardrails.md): product and engineering constraints, including current release policy.
 - [Current architecture](current-architecture.md), [capabilities](capabilities.md) and [UI functionality](ui-functionality.md): how the app works today.
 - [Commands](commands.md) and [browser checklist](smoke-tests.md): scoped verification and build workflows.
+- [Converting a graph to declarations](guides/converting-a-graph.md): step-by-step conversion, placement rule, catalog rules and known contract gaps (task 02).
 - [Localization](localization.md): language behavior and contributor workflow.
 - [GitHub Pages SPA playbook](github-pages-spa-playbook.md): hosting, routing and publication.
 - [Agent workflow](agent-workflow.md): delegation and evidence requirements when assigning work.
