@@ -7,11 +7,14 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-kin-c.md ("Slice 2").
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 import {kinematicsSceneActions, type KinematicsSceneSpec} from './kinematicsGuidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +27,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -107,6 +112,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         scene: scene('kn5-along-scene', {t: KN5_ARCH_TIME},
             'Cikloida, čas \\(\\pi/2\\), stikalo za razstavitev pospeška izklopljeno; \\(a_T\\approx0{,}707\\ \\mathrm{m/s^2}\\), hitrost \\(\\approx1{,}414\\ \\mathrm{m/s}\\). Izhodišče, od koder premaknemo čas.',
             'Cycloid, time \\(\\pi/2\\), the switch for splitting the acceleration off; \\(a_T\\approx0.707\\ \\mathrm{m/s^2}\\), speed \\(\\approx1.414\\ \\mathrm{m/s}\\). The starting point from which the time is moved.'),
+        ux: {explanation: readouts('speed', 'a-t'), observation: readouts('time')},
     }),
     step({
         id: 'kn5-axes', order: 2,
@@ -128,6 +134,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         scene: scene('kn5-axes-scene', {t: KN5_TOP_TIME},
             'Cikloida, čas \\(3{,}14\\), stikalo za razstavitev pospeška izklopljeno; \\(a_T=0{,}001\\ \\mathrm{m/s^2}\\), \\(a_N=-1\\ \\mathrm{m/s^2}\\). Izhodišče, od koder vklopimo stikalo.',
             'Cycloid, time \\(3.14\\), the switch for splitting the acceleration off; \\(a_T=0.001\\ \\mathrm{m/s^2}\\), \\(a_N=-1\\ \\mathrm{m/s^2}\\). The starting point from which the switch is turned on.'),
+        ux: {explanation: readouts(), observation: {open: ['readouts', 'legend'], highlight: []}},
     }),
     step({
         id: 'kn5-projection', order: 3,
@@ -149,6 +156,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         scene: scene('kn5-projection-scene', {params: {split: true}, t: KN5_ARCH_TIME},
             'Cikloida, čas \\(\\pi/2\\), razstavitev vklopljena: \\(a=(1;\\,0)\\ \\mathrm{m/s^2}\\), \\(a_T\\approx0{,}707\\), \\(a_N\\approx-0{,}707\\ \\mathrm{m/s^2}\\). Izhodišče, od koder premaknemo čas.',
             'Cycloid, time \\(\\pi/2\\), the split switched on: \\(a=(1;\\,0)\\ \\mathrm{m/s^2}\\), \\(a_T\\approx0.707\\), \\(a_N\\approx-0.707\\ \\mathrm{m/s^2}\\). The starting point from which the time is moved.'),
+        ux: {explanation: {open: ['readouts', 'legend'], highlight: ['acceleration', 'a-t', 'a-n']}, observation: readouts('time')},
     }),
     step({
         id: 'kn5-speed', order: 4,
@@ -170,6 +178,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         scene: scene('kn5-speed-scene', {params: {split: true}, t: KN5_SPEED_TIME},
             'Cikloida, čas \\(1\\), razstavitev vklopljena: hitrost \\(\\approx0{,}959\\ \\mathrm{m/s}\\), \\(a_T\\approx0{,}878\\), \\(a_N\\approx-0{,}479\\ \\mathrm{m/s^2}\\). Izhodišče, od koder premaknemo čas na \\(1{,}1\\).',
             'Cycloid, time \\(1\\), the split switched on: speed \\(\\approx0.959\\ \\mathrm{m/s}\\), \\(a_T\\approx0.878\\), \\(a_N\\approx-0.479\\ \\mathrm{m/s^2}\\). The starting point from which the time is moved to \\(1.1\\).'),
+        ux: {explanation: readouts('time', 'a-t'), observation: readouts('time')},
     }),
     step({
         id: 'kn5-circle', order: 5,
@@ -191,6 +200,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         scene: scene('kn5-circle-scene', {params: {split: true}, t: KN5_OSCULATING_TIME},
             'Cikloida, čas \\(0{,}5\\), razstavitev vklopljena, krivinska krožnica izklopljena; \\(\\kappa\\approx-1{,}010\\ \\mathrm{1/m}\\). Izhodišče, od koder vklopimo krožnico.',
             'Cycloid, time \\(0.5\\), the split switched on, the osculating circle off; \\(\\kappa\\approx-1.010\\ \\mathrm{1/m}\\). The starting point from which the circle is switched on.'),
+        ux: {explanation: readouts('kappa'), observation: readouts('kappa')},
     }),
     step({
         id: 'kn5-kappa-v2', order: 6,
@@ -212,6 +222,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         scene: scene('kn5-kappa-v2-scene', {motion: 'circular', params: KN5_CIRCLE_PARAMS, t: KN5_CIRCLE_TIME},
             'Kroženje, \\(R=1\\ \\mathrm{m}\\), \\(\\omega=1\\ \\mathrm{rad/s}\\), čas \\(1\\), razstavitev in krivinska krožnica vklopljeni: hitrost \\(1\\ \\mathrm{m/s}\\), \\(\\kappa=1\\ \\mathrm{1/m}\\), \\(a_N=1\\ \\mathrm{m/s^2}\\). Izhodišče, od koder zmanjšamo \\(\\omega\\).',
             'Circular motion, \\(R=1\\ \\mathrm{m}\\), \\(\\omega=1\\ \\mathrm{rad/s}\\), time \\(1\\), the split and the osculating circle switched on: speed \\(1\\ \\mathrm{m/s}\\), \\(\\kappa=1\\ \\mathrm{1/m}\\), \\(a_N=1\\ \\mathrm{m/s^2}\\). The starting point from which \\(\\omega\\) is reduced.'),
+        ux: {explanation: readouts(), observation: readouts()},
     }),
     step({
         id: 'kn5-explore', order: 7,
@@ -234,6 +245,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         scene: scene('kn5-explore-scene', {params: {split: true, osculating: true}, t: KN5_EXPLORE_TIME},
             'Začetni primer: cikloida, čas \\(2\\), razstavitev in krivinska krožnica vklopljeni.',
             'The starting case: cycloid, time \\(2\\), the split and the osculating circle switched on.'),
+        ux: {explanation: readouts(), observation: readouts()},
     }),
 ];
 

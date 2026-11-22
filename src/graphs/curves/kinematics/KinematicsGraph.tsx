@@ -22,7 +22,9 @@ import {AnimationDriver, AnimationScheduler} from "../../../learning/runtime/ani
 import type {LessonAction} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {circularSource} from "../../../kinematics/motion";
-import {BoardReadout} from "../../../uxPicks/boardText/BoardReadout";
+import {ToolSection} from "../../../inputs/ToolSection";
+import {pickOn} from "../../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutNote, ReadoutRow} from "../../../uxPicks/declare/graphUx";
 import {
     arrowEnd, componentVectors, DEFAULT_KINEMATICS_STATE, deriveKinematics, Evaluation, evaluateAt, FIELD_RANGES, GRAVITY,
     KinematicsDerived, KinematicsState, MotionChoice, MOTION_IDS, NumericField, parseKinematicsState, SAMPLES, serializeKinematicsState, snapField, ToggleField, withMotion,
@@ -42,6 +44,8 @@ const TIME_SLACK = 1e-9;
 const MIN_ARROW = 1e-3;
 
 const STORED_FIELDS = Object.keys(DEFAULT_KINEMATICS_STATE) as (keyof KinematicsState)[];
+
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 const dec = (value: number, digits = 3): string => formatNumber(value, currentLanguage(), digits);
 
@@ -653,7 +657,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         const regular = () => this.evaluation().kind === "regular";
         const referenceVisible = () => live().motion === "circular" && live().b > 0;
         const row = (text: () => string, visible: () => boolean, color: string, reserve: boolean | (() => boolean) = visible, texts?: () => string[]) =>
-            ({text, texts: texts ?? (() => [text()]), visible, reserve: typeof reserve === "boolean" ? () => reserve : reserve, color});
+            ({text, texts: texts ?? (() => [text()]), visible: () => boardTextOnBoard() && visible(), reserve: () => boardTextOnBoard() && (typeof reserve === "boolean" ? reserve : reserve()), color});
         const r = reserved;
         return [
             row(() => t("kinematics_graph_cap_point"), () => true, GraphPalette.primaryCurve, true),
@@ -747,6 +751,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         // While playing only a change of the wording is announced; the moment the run stops the full sentence is.
         this.status.report(finished ? this.statusText() : this.sentence());
         this.notifyHost();
+        if (pickOn("boardText")) this.requestRender(); // the readout card is declared from the graph, not from host state
     }
 
     /** The time slider and the lesson actions: a time inside the motion; anything else is refused. Setting it pauses the playback. */
@@ -959,12 +964,85 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return rows;
     }
 
+    /** A vector as undelimited TeX with decimal commas: the same numbers as `vectorText`. */
+    private vectorTex(vector: readonly [number, number], unit: "m" | "speed" | "accel"): string {
+        const tex = (value: number) => dec(value, 3).replace(/,/g, "{,}");
+        const unitTex = {m: "\\mathrm{m}", speed: "\\mathrm{m/s}", accel: "\\mathrm{m/s^2}"}[unit];
+        return `\\left(${tex(vector[0])};\\ ${tex(vector[1])}\\right)\\,${unitTex}`;
+    }
+
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const state = this.state;
+        const derived = this.derived();
+        const e = this.evaluation();
+        const regular = e.kind === "regular";
+        const rows = new Map(this.readoutRows().map(row => [row.id, row]));
+        const row = (id: string, extra: Partial<ReadoutRow> = {}): ReadoutRow[] => {
+            const base = rows.get(id);
+            return base && typeof base.label === "string" && typeof base.value === "string" ? [{id, name: base.label, value: base.value, ...extra}] : [];
+        };
+        const showAcceleration = state.showAcceleration;
+        const velocityDrawn = state.showVelocity && !this.standstill();
+        const splitDrawn = state.split && regular;
+        const osculating = this.osculatingCircleNow() !== undefined;
+        const legend: LegendEntry[] = [
+            {id: "point", label: t("kinematics_graph_cap_point"), kind: "point", color: GraphPalette.primaryCurve},
+            {id: "path", label: t("kinematics_graph_cap_path"), kind: "line", color: GraphPalette.referenceCurve},
+            ...(state.trace ? [{id: "trace", label: t("kinematics_graph_cap_trace"), kind: "line" as const, color: GraphPalette.primaryCurve}] : []),
+            ...(velocityDrawn ? [{id: "velocity", label: this.scaleCaption("velocity"), kind: "line" as const, color: GraphPalette.comparisonCurve}] : []),
+            ...(showAcceleration ? [{id: "acceleration", label: this.scaleCaption("acceleration"), kind: "dashed" as const, color: GraphPalette.constructionAccent}] : []),
+            ...(splitDrawn ? [
+                {id: "at", label: t("kinematics_graph_r_at"), kind: "dashed" as const, color: GraphPalette.additionalCurves[3]},
+                {id: "an", label: t("kinematics_graph_r_an"), kind: "dashed" as const, color: GraphPalette.additionalCurves[2]},
+                {id: "axes", label: t("kinematics_graph_cap_axes"), kind: "line" as const, color: GraphPalette.label},
+            ] : []),
+            ...(osculating ? [{id: "osculating", label: t("kinematics_graph_cap_osculating"), kind: "line" as const, color: GraphPalette.additionalCurves[0]}] : []),
+            ...(state.motion === "circular" && state.b > 0 ? [{id: "reference", label: t("kinematics_graph_cap_reference"), kind: "point" as const, color: GraphPalette.constructionAccent}] : []),
+        ];
+        const ended = e.t >= derived.tEnd && !this.playingValue;
+        const notes: ReadoutNote[] = [
+            {id: "status", text: this.sentence(), tone: "muted"},
+            ...(ended ? [{id: "ended", text: t("kinematics_graph_status_ended", {value0: dec(e.t, 2)}), tone: "muted" as const}] : []),
+            {id: "sign", text: t("kinematics_graph_sign_hint"), tone: "muted"},
+            ...(state.osculating && regular && !osculating ? [{id: "osculating-far", text: t("kinematics_graph_cap_osculating_far"), tone: "muted" as const}] : []),
+            ...((state.showVelocity && this.standstill()) || ((state.split || state.osculating) && !regular)
+                ? [{id: "cusp", text: t("kinematics_graph_cap_cusp"), tone: "muted" as const}] : []),
+        ];
+        const pucks = state.motion === "projectile" ? ["v0", "alpha"] : state.motion === "circular" ? ["radius", "omega", "b"] : [];
+        return {
+            pucks: [
+                {param: "kinematics.t", help: t("kinematics_graph_motion_help")},
+                ...pucks.map(field => ({param: `kinematics.${field}`, help: field === "b" ? t("kinematics_graph_b_help") : t("kinematics_graph_motion_help")})),
+            ],
+            readouts: [
+                {id: "values", title: t("kinematics_graph_readout_title"), rows: [
+                    ...row("time"),
+                    ...row("position", {valueTex: this.vectorTex(e.point, "m"), legend: "point"}),
+                    ...row("velocity", {valueTex: this.vectorTex(e.velocity, "speed"), legend: velocityDrawn ? "velocity" : undefined}),
+                    ...row("speed"),
+                    ...row("acceleration", {valueTex: this.vectorTex(e.acceleration, "accel"), legend: showAcceleration ? "acceleration" : undefined}),
+                ]},
+                {id: "parts", title: "Razcep pospeška", rows: [
+                    ...row("a-t", {legend: splitDrawn ? "at" : undefined}),
+                    ...row("a-n", {legend: splitDrawn ? "an" : undefined}),
+                    ...row("kappa", {legend: osculating ? "osculating" : undefined}),
+                    ...row("kappa-v2"),
+                ]},
+                {id: "motion", title: "Gibanje", rows: [...row("period"), ...row("flight"), ...row("range"), ...row("height"), ...row("gravity")]},
+                {id: "scales", title: "Merili", rows: [...row("scale-velocity"), ...row("scale-acceleration")]},
+            ].filter(group => group.rows.length > 0),
+            notes,
+            legend,
+        };
+    }
+
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
     private slider(field: NumericField, labelKey: "kinematics_graph_v0_label" | "kinematics_graph_alpha_label" | "kinematics_graph_radius_label"
         | "kinematics_graph_omega_label" | "kinematics_graph_b_label", decimals: number, bigStep: number, help?: string): JSX.Element {
         const range = FIELD_RANGES[field];
-        return <Slider key={field} customText={t(labelKey)} value={this.state[field]} step={range.step} bigStep={bigStep} min={range.min} max={range.max}
+        return <Slider key={field} paramKey={`kinematics.${field}`} customText={t(labelKey)} value={this.state[field]} step={range.step} bigStep={bigStep} min={range.min} max={range.max}
                        grid={range.step} decimals={decimals} fieldDecimals={decimals} help={help}
                        rejectedHint={t("kinematics_graph_field_rejected", {value0: dec(range.min, decimals), value1: dec(range.max, decimals)})}
                        onChange={value => this.editNumber(field, value)}/>;
@@ -1020,15 +1098,15 @@ function KinematicsPlayback(props: {graph: KinematicsGraph}) {
     const playing = graph.playing;
     const params = {value0: dec(end, 2), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
-    return <div className="inspector-group">
+    return <ToolSection id="kinematics-time" pickTitle={text("kinematics_graph_playback_group")}>
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("kinematics_graph_playback_group")} resetLabel={text("kinematics_graph_reset_label")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={!playing && graph.reducedMotion() ? "reduced-motion" : undefined}/>
-        <Slider customText={text("kinematics_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
+        <Slider paramKey="kinematics.t" customText={text("kinematics_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 rejectedHint={text("kinematics_graph_time_rejected", {value0: params.value0})}
                 valueText={value => `${dec(value, 2)} ${text("kinematics_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
-    </div>;
+    </ToolSection>;
 }
 
 /** The status sentence, the labelled values and the one announcement region (silent while the motion plays). */
@@ -1036,13 +1114,15 @@ function KinematicsReadout(props: {graph: KinematicsGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <BoardReadout><div className="inspector-group">
+    // The readout card shows the values and the sentences; only the announcement region stays in the panel.
+    if (pickOn("boardText")) return <LiveReadout readout={graph.status} muted={graph.playing}/>;
+    return <div className="inspector-group">
         <ReadoutHeading>{text("kinematics_graph_readout_title")}</ReadoutHeading>
         <p data-kinematics-status="">{graph.statusText()}</p>
         <ReadoutList label={text("kinematics_graph_readout_title")} rows={graph.readoutRows()}/>
         <p data-kinematics-sign="">{text("kinematics_graph_sign_hint")}</p>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div></BoardReadout>;
+    </div>;
 }
 
 export default KinematicsGraph;

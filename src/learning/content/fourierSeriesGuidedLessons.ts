@@ -9,10 +9,13 @@
  * `uniform-convergence` (a source entry and the prerequisite text name it); that lesson is not changed.
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 /** A scene from the default scene: the example, N, x and epsilon, all four set so that no scene depends on the one before it. */
 const fourierScene = (
@@ -39,14 +42,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -142,6 +147,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-wave-one-sine', 'square', 1, 1.57, 0.1,
                 'Pravokotni val, \\(N=1\\), \\(x=1{,}57\\): \\(S_1(x)=1{,}27324\\).',
                 'The square wave, \\(N=1\\), \\(x=1.57\\): \\(S_1(x)=1.27324\\).'),
+            ux: {explanation: readouts('sum', 'target'), observation: {open: ['readouts'], highlight: []}},
         }),
         step({
             id: 'fourier-third', order: 2,
@@ -158,6 +164,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-third-term', 'square', 3, 1.57, 0.1,
                 'Pravokotni val, \\(N=3\\), \\(x=1{,}57\\): \\(S_3(x)=0{,}84883\\).',
                 'The square wave, \\(N=3\\), \\(x=1.57\\): \\(S_3(x)=0.84883\\).'),
+            ux: {explanation: readouts('sum', 'target'), observation: readouts('sum')},
         }),
         step({
             id: 'fourier-more', order: 3,
@@ -173,6 +180,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-more-terms', 'square', 11, 1.57, 0.1,
                 'Pravokotni val, \\(N=11\\), \\(x=1{,}57\\): \\(S_{11}(x)=0{,}94731\\).',
                 'The square wave, \\(N=11\\), \\(x=1.57\\): \\(S_{11}(x)=0.94731\\).'),
+            ux: {explanation: readouts('sum'), observation: readouts('n', 'order')},
         }),
         step({
             id: 'fourier-error', order: 4,
@@ -188,6 +196,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-error-at-point', 'square', 101, 0.5, 0.1,
                 'Pravokotni val, \\(N=101\\), \\(x=0{,}5\\): napaka \\(0{,}00981\\).',
                 'The square wave, \\(N=101\\), \\(x=0.5\\): error \\(0.00981\\).'),
+            ux: {explanation: readouts('x', 'error'), observation: readouts('x', 'n')},
         }),
         step({
             id: 'fourier-jump', order: 5,
@@ -203,6 +212,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-jump-midpoint', 'square', 11, 0, 0.1,
                 'Pravokotni val, \\(N=11\\), \\(x=0\\): \\(S_{11}(0)=0\\), sredina limit \\(-1\\) in \\(1\\).',
                 'The square wave, \\(N=11\\), \\(x=0\\): \\(S_{11}(0)=0\\), the midpoint of the limits \\(-1\\) and \\(1\\).'),
+            ux: {explanation: readouts('jump-left', 'jump-right', 'sum'), observation: readouts('sum')},
         }),
         step({
             id: 'fourier-sawtooth', order: 6,
@@ -218,6 +228,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-sawtooth-wave', 'sawtooth', 11, 1, 0.1,
                 'Žagasti val, \\(N=11\\), \\(x=1\\): \\(S_{11}(1)=0{,}91464\\), napaka \\(0{,}08536\\).',
                 'The sawtooth wave, \\(N=11\\), \\(x=1\\): \\(S_{11}(1)=0.91464\\), error \\(0.08536\\).'),
+            ux: {explanation: readouts('sum', 'error'), observation: readouts('error')},
         }),
         step({
             id: 'fourier-gibbs-predict', order: 7,
@@ -233,6 +244,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-gibbs-predict-start', 'square', 11, 0.5, 0.1,
                 'Pravokotni val, \\(N=11\\), \\(x=0{,}5\\); vrh ob skoku je označen.',
                 'The square wave, \\(N=11\\), \\(x=0.5\\); the peak near the jump is marked.'),
+            ux: {explanation: {open: ['readouts'], highlight: []}, observation: {open: ['readouts'], highlight: []}},
         }),
         step({
             id: 'fourier-gibbs-peak', order: 8,
@@ -249,6 +261,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-gibbs-read-peak', 'square', 11, 0.26, 0.1,
                 'Pravokotni val, \\(N=11\\), \\(x=0{,}26\\): vrh \\(1{,}18130\\) pri \\(x=0{,}2618\\), preseg \\(9{,}07\\,\\%\\) skoka.',
                 'The square wave, \\(N=11\\), \\(x=0.26\\): the peak \\(1.18130\\) at \\(x=0.2618\\), an overshoot of \\(9.07\\,\\%\\) of the jump.'),
+            ux: {explanation: readouts('peak-x', 'peak-value', 'overshoot'), observation: readouts('peak-x', 'peak-value', 'overshoot')},
         }),
         step({
             id: 'fourier-gibbs-narrow', order: 9,
@@ -264,6 +277,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-gibbs-narrower-peak', 'square', 101, 0.03, 0.1,
                 'Pravokotni val, \\(N=101\\), \\(x=0{,}03\\): vrh \\(1{,}17901\\) pri \\(x=0{,}0308\\), preseg \\(8{,}95\\,\\%\\) skoka.',
                 'The square wave, \\(N=101\\), \\(x=0.03\\): the peak \\(1.17901\\) at \\(x=0.0308\\), an overshoot of \\(8.95\\,\\%\\) of the jump.'),
+            ux: {explanation: readouts('peak-x', 'peak-value', 'overshoot'), observation: readouts('peak-value')},
         }),
         step({
             id: 'fourier-gibbs-fixed', order: 10,
@@ -279,6 +293,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-gibbs-fixed-point', 'square', 101, 0.5, 0.1,
                 'Pravokotni val, \\(N=101\\), \\(x=0{,}5\\): napaka \\(0{,}00981\\).',
                 'The square wave, \\(N=101\\), \\(x=0.5\\): error \\(0.00981\\).'),
+            ux: {explanation: readouts('x', 'error'), observation: readouts('error')},
         }),
         step({
             id: 'fourier-gibbs-band', order: 11,
@@ -294,6 +309,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-gibbs-band-escape', 'square', 1001, 0.5, 0.1,
                 'Pravokotni val, \\(N=1001\\), \\(\\varepsilon=0{,}1\\): vrh \\(1{,}17898\\) je izven pasu \\(f\\pm\\varepsilon\\).',
                 'The square wave, \\(N=1001\\), \\(\\varepsilon=0.1\\): the peak \\(1.17898\\) is outside the band \\(f\\pm\\varepsilon\\).'),
+            ux: {explanation: readouts('peak-value', 'epsilon'), observation: readouts('epsilon')},
         }),
         step({
             id: 'fourier-gibbs-sawtooth', order: 12,
@@ -309,6 +325,7 @@ const fourierLesson: GuidedLesson = {
             scene: fourierScene('fourier-gibbs-sawtooth-peak', 'sawtooth', 101, 1, 0.1,
                 'Žagasti val, \\(N=101\\), \\(x=1\\): vrh \\(3{,}67302\\), preseg \\(8{,}46\\,\\%\\) skoka, napaka v \\(x=1\\) je \\(0{,}00927\\).',
                 'The sawtooth wave, \\(N=101\\), \\(x=1\\): the peak \\(3.67302\\), an overshoot of \\(8.46\\,\\%\\) of the jump, the error at \\(x=1\\) is \\(0.00927\\).'),
+            ux: {explanation: readouts('peak-value', 'overshoot'), observation: readouts('peak-value', 'overshoot')},
         }),
         step({
             id: 'fourier-explore', order: 13,

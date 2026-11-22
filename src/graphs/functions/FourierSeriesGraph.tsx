@@ -5,6 +5,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
+import {ToolSection} from "../../inputs/ToolSection";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
@@ -19,6 +20,10 @@ import {
 import {fourierSeriesEditMessage, fourierTermsText} from "./fourierSeriesMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, ReadoutNote} from "../../uxPicks/declare/graphUx";
+
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** The most linear pieces of f on the drawn domain (the square wave has four, the sawtooth three). */
 const MAX_PIECES = 4;
@@ -291,11 +296,11 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         });
 
         this.caption("top-left", [
-            {text: () => t("fourier_board_title", {value0: EXAMPLE_FORMULA[model().example]}), scale: 1.2, math: true},
-            {text: () => t("fourier_board_parameters", {value0: model().n, value1: this.number(model().x), value2: this.number(model().epsilon)})},
-            {text: () => t("fourier_board_values", {value0: this.precise(view().sum), value1: this.number(view().target), value2: this.small(view().error)}), color: GraphPalette.warningText},
-            {text: () => t("fourier_board_peak", {value0: this.precise(view().peak.x), value1: this.precise(view().peak.value), value2: this.overshootText(view())})},
-            {text: () => t("fourier_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
+            {text: () => t("fourier_board_title", {value0: EXAMPLE_FORMULA[model().example]}), scale: 1.2, math: true, visible: boardTextOnBoard},
+            {text: () => t("fourier_board_parameters", {value0: model().n, value1: this.number(model().x), value2: this.number(model().epsilon)}), visible: boardTextOnBoard},
+            {text: () => t("fourier_board_values", {value0: this.precise(view().sum), value1: this.number(view().target), value2: this.small(view().error)}), color: GraphPalette.warningText, visible: boardTextOnBoard},
+            {text: () => t("fourier_board_peak", {value0: this.precise(view().peak.x), value1: this.precise(view().peak.value), value2: this.overshootText(view())}), visible: boardTextOnBoard},
+            {text: () => t("fourier_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH, visible: boardTextOnBoard},
         ], () => board.getBoundingBox()[0] + 0.02 * (board.getBoundingBox()[2] - board.getBoundingBox()[0]));
     }
 
@@ -320,26 +325,26 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         const language = currentLanguage();
         const nHelp = state.example === "square" && state.n % 2 === 0 ? t("fourier_n_help_even", {value0: state.n, value1: state.n - 1}) : t("fourier_n_help", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX});
         return <>
-            <div className="inspector-group">
+            <ToolSection id="fourier-example" pickTitle={t("fourier_example_label")}>
                 <ChoiceSelect label={t("fourier_example_label")} value={state.example} help={t("fourier_example_help")}
                               options={FOURIER_SERIES_EXAMPLE_IDS.map(id => ({value: id, text: id === "square" ? t("fourier_example_square") : t("fourier_example_sawtooth")}))}
                               onChange={next => this.guarded(() => this.setExample(next))}/>
-            </div>
-            <div className="inspector-group">
-                <CountSetter label={t("fourier_n_label")} n={state.n} min={FOURIER_N_MIN} max={FOURIER_N_MAX} help={nHelp}
+            </ToolSection>
+            <ToolSection id="fourier-n" pickTitle={t("fourier_n_label")}>
+                <CountSetter paramKey="fourier.n" label={t("fourier_n_label")} n={state.n} min={FOURIER_N_MIN} max={FOURIER_N_MAX} help={nHelp}
                              rejectedHint={t("fourier_n_rejected_hint", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX})}
                              onPlus={() => this.guarded(() => this.setN(this.model.n + 1))}
                              onMinus={() => this.guarded(() => this.setN(this.model.n - 1))}
                              onSet={next => guardField(this.refusals, () => this.setN(next))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("fourier_x_label")} value={state.x} min={FOURIER_X_MIN} max={FOURIER_X_MAX} step={FOURIER_X_STEP}
+            </ToolSection>
+            <ToolSection id="fourier-points" pickTitle="Točka in toleranca">
+                <Slider paramKey="fourier.x" customText={t("fourier_x_label")} value={state.x} min={FOURIER_X_MIN} max={FOURIER_X_MAX} step={FOURIER_X_STEP}
                         rejectedHint={t("fourier_x_rejected_hint", {value0: formatNumber(FOURIER_X_MIN, language), value1: formatNumber(FOURIER_X_MAX, language)})}
                         onChange={next => guardField(this.refusals, () => this.setX(next))}/>
-                <Slider customText={t("fourier_epsilon_label")} value={state.epsilon} min={FOURIER_EPSILON_MIN} max={FOURIER_EPSILON_MAX} step={FOURIER_EPSILON_STEP}
+                <Slider paramKey="fourier.epsilon" customText={t("fourier_epsilon_label")} value={state.epsilon} min={FOURIER_EPSILON_MIN} max={FOURIER_EPSILON_MAX} step={FOURIER_EPSILON_STEP}
                         rejectedHint={t("fourier_epsilon_rejected_hint", {value0: formatNumber(FOURIER_EPSILON_MIN, language), value1: formatNumber(FOURIER_EPSILON_MAX, language)})}
                         onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
-            </div>
+            </ToolSection>
         </>;
     }
 
@@ -348,11 +353,15 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("fourier_actions_label")}>
                 <button type="button" data-action="fourier-zoom-peak" onClick={() => this.zoomToPeak()}>{t("fourier_zoom_peak")}</button>
             </div>
-            <p className="inspector-help">{t("fourier_zoom_help")}</p>
         </>;
     }
 
+    protected override revealsHelp(): React.ReactNode {
+        return t("fourier_zoom_help");
+    }
+
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the legend card shows it
         return <FunctionLegend items={[
             {id: "sum", color: GraphPalette.primaryCurve, label: t("fourier_legend_sum"), kind: "line"},
             {id: "target", color: GraphPalette.comparisonCurve, label: t("fourier_legend_target"), kind: "dashed-line"},
@@ -378,7 +387,60 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         return result;
     }
 
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const view = this.viewOf(model);
+        const notes: ReadoutNote[] = [
+            {id: "terms", text: `${t("fourier_readout_terms")}: ${fourierTermsText(fourierTermList(model.example, model.n))}`, tone: "muted"},
+            ...this.statuses(model, view).map(status => ({id: status.id, text: status.text, tone: "muted" as const})),
+        ];
+        return {
+            pucks: [
+                {param: "fourier.n", help: t("fourier_n_help", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX})},
+                {param: "fourier.x", help: "Točka, v kateri beremo vrednost Sₙ(x) in napako."},
+                {param: "fourier.epsilon", help: "Širina pasu f − ε do f + ε okoli funkcije f."},
+            ],
+            formula: model.example === "square" ? "f(x)=\\operatorname{sgn}x,\\; x\\in(-\\pi,\\pi)" : "f(x)=x,\\; x\\in(-\\pi,\\pi)",
+            readouts: [
+                {id: "setup", title: "Nastavitev", rows: [
+                    {id: "n", name: t("fourier_n_label"), value: String(model.n)},
+                    {id: "order", name: t("fourier_readout_order"), value: String(view.order)},
+                    {id: "x", name: t("fourier_x_label"), value: this.number(model.x), tone: "error"},
+                    {id: "epsilon", name: t("fourier_epsilon_label"), value: formatNumber(model.epsilon, currentLanguage(), 2), legend: "band"},
+                ]},
+                {id: "values", title: "Vrednosti v x", rows: [
+                    {id: "sum", name: t("fourier_readout_sum"), value: this.precise(view.sum), tone: "primary", legend: "sum"},
+                    {id: "target", name: t("fourier_readout_target"), value: this.number(view.target), tone: "comparison", legend: "target"},
+                    {id: "error", name: t("fourier_readout_error"), value: this.small(view.error), tone: "error", legend: view.error > 0 ? "error" : undefined},
+                ]},
+                {id: "jump", title: "Skok", rows: [
+                    {id: "jump-left", name: t("fourier_readout_jump_left"), value: this.number(view.jump.left), legend: "jump"},
+                    {id: "jump-right", name: t("fourier_readout_jump_right"), value: this.number(view.jump.right), legend: "jump"},
+                ]},
+                {id: "peak", title: "Vrh ob skoku", rows: [
+                    {id: "peak-x", name: t("fourier_readout_peak_x"), value: this.precise(view.peak.x), legend: "peak"},
+                    {id: "peak-value", name: t("fourier_readout_peak_value"), value: this.precise(view.peak.value), legend: "peak"},
+                    {id: "overshoot", name: t("fourier_readout_overshoot"), value: this.overshootText(view)},
+                    {id: "overshoot-limit", name: t("fourier_readout_overshoot_limit"), value: this.percent(view.limitOvershoot)},
+                ]},
+            ],
+            notes,
+            readoutHelp: <p>{t("fourier_note")}</p>,
+            legend: [
+                {id: "sum", label: t("fourier_legend_sum"), kind: "line", color: GraphPalette.primaryCurve},
+                {id: "target", label: t("fourier_legend_target"), kind: "dashed", color: GraphPalette.comparisonCurve},
+                {id: "jump", label: t("fourier_legend_jump"), kind: "point", color: GraphPalette.comparisonCurve},
+                {id: "band", label: t("fourier_legend_band"), kind: "area", color: GraphPalette.additionalCurves[0]},
+                ...(view.error > 0 ? [{id: "error", label: t("fourier_legend_error"), kind: "line" as const, color: GraphPalette.warningText}] : []),
+                {id: "peak", label: t("fourier_legend_peak"), kind: "point", color: GraphPalette.warningText},
+                {id: "window", label: t("fourier_legend_window"), kind: "dashed", color: GraphPalette.label},
+            ],
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout card shows it
         const model = this.model;
         const view = this.viewOf(model);
         const rows = [
