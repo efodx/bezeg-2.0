@@ -719,7 +719,7 @@ export function GuidedLesson(props: {
             <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <div className="guided-lesson-progress" role="status" aria-live="polite">
                 {toolsCardPick ? <>
-                    <span aria-hidden="true" className="ux-lesson-frame-count">Korak {snapshot.stepIndex + 1}/{props.lesson.steps.length}{frames.length > 1 && ` · okvir ${snapshot.frameIndex + 1}/${frames.length}`}</span>
+                    <span aria-hidden="true" className="ux-lesson-frame-count">Korak {snapshot.stepIndex + 1}/{props.lesson.steps.length}{frames.length > 1 && ` · del ${snapshot.frameIndex + 1}/${frames.length}`}</span>
                     <span className="visually-hidden">{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}{frames.length > 1 && `, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}`}</span>
                 </> : <>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</>}
                 {/* A task card leaves the graph and the tools live; a reading card locks them, so the change is announced. */}
@@ -822,7 +822,7 @@ export function GuidedLesson(props: {
         const cardProgress = isComplete ? completeProgress : <div className="ux-lesson-progress">
             <div className="guided-lesson-progress" role="status" aria-live="polite">
                 <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
-                <span aria-hidden="true"> · </span><span aria-hidden="true" className="ux-lesson-frame-count">Korak {snapshot.stepIndex + 1}/{props.lesson.steps.length}{frames.length > 1 && ` · okvir ${snapshot.frameIndex + 1}/${frames.length}`}</span>
+                <span aria-hidden="true"> · </span><span aria-hidden="true" className="ux-lesson-frame-count">Korak {snapshot.stepIndex + 1}/{props.lesson.steps.length}{frames.length > 1 && ` · del ${snapshot.frameIndex + 1}/${frames.length}`}</span>
                 <span className="visually-hidden">{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}{frames.length > 1 && `, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}`}</span>
                 {isExploring && <span className="visually-hidden"> {t('guided_lesson_tools_live')}</span>}
             </div>
