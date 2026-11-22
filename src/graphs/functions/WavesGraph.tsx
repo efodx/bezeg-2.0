@@ -25,6 +25,7 @@ import {envelope} from "../../waves/beats";
 import {pickOn} from "../../uxPicks/picks";
 import {ToolSection} from "../../inputs/ToolSection";
 import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
+import {recentlyProbed} from "../../uxPicks/a1/paramRegistry";
 import {
     DEFAULT_WAVES_STATE, parseWavesState, POINTS_PER_SECOND, serializeWavesState, snapWavesField, WAVES_FIELD_RANGES, WAVES_MODES, windowOf, type WavesMode, type WavesNumericField,
     type WavesState, type WavesToggleField,
@@ -400,6 +401,12 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             return;
         }
         if (key === this.drawnFrame) return;
+        // A puck preview sets a value and restores it: the board does not refit for it (every label would move); a real change
+        // right after it is still framed when the probe is over.
+        if (recentlyProbed()) {
+            window.setTimeout(() => { if (this.hasBoard && this.graphSession?.isAlive) this.applyFrame(); }, 300);
+            return;
+        }
         this.drawnFrame = key;
         this.showFrame(frame);
     }
