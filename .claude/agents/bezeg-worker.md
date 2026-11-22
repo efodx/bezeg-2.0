@@ -28,6 +28,7 @@ Shell calls that this machine accepts first time (the rejected forms cost about 
 - Create every file with Write, scratch scripts and patches included, then run it. Change source with Edit.
 - Run `just` checks in the foreground with a Bash `timeout` of up to 600000 ms, so one call returns the result.
 - To wait on anything else, make one call: `timeout 500 bash -c 'until <check>; do sleep 5; done'`. A bare `sleep`, Monitor and TaskStop are unavailable to you.
+- Use the preview your brief names. You cannot stop a background shell, and one you leave running keeps you listed as running after your reply; when a check needs a server the brief did not give, say so in your reply.
 - Take screenshots with `just shot` ([commands](../../docs/commands.md)), cropped with `--selector` to the element under check.
 
 The project budget hook delivers `HANDOFF: ...` as a PostToolUse hook note beside a tool result; the handler may also send it as a message. Both are authoritative: stop at a consistent point, write the handoff note to the named path, and return it as partial.
