@@ -204,7 +204,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         apply: action => this.applyLessonAction(action),
         stopAnimations: () => {
             // Every lesson step and frame change passes here: it ends every animation lease (ADR 0064).
-            this.parameterArbiter?.endAllLeases("frame");
+            // What a lease's end handler writes (a playback pausing) is the lesson's doing.
+            runAs("lesson", () => this.parameterArbiter?.endAllLeases("frame"));
             this.stopLessonAnimations();
         },
         pauseAnimations: () => this.pausePlayback(),

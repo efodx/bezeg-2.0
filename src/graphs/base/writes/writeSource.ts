@@ -43,13 +43,32 @@ let gestureId = 0;
 let openGestures = 0;
 let currentGestureId: number | undefined;
 const gestureEndListeners = new Set<(id: number) => void>();
+const scopeEndListeners = new Set<() => void>();
+
+/** Lets every observer attribute changes made inside a scope or gesture before it closes (values outside a store). */
+function notifyScopeEnd(): void {
+    for (const listener of [...scopeEndListeners]) listener();
+}
+
+/**
+ * Subscribes to the end of every write scope and learner gesture; the listener runs while the ending source is still
+ * current. Returns the unsubscribe function.
+ */
+export function onWriteScopeEnd(listener: () => void): () => void {
+    scopeEndListeners.add(listener);
+    return () => {
+        scopeEndListeners.delete(listener);
+    };
+}
 
 /** Runs `work` as a write from `source`. An `animation` scope must name its lease. */
 export function runAs<T>(source: WriteSource, work: () => T, lease?: WriteLeaseRef): T {
     if (source === "animation" && !lease) throw new Error("An animation write scope needs its lease.");
     scopes.push(lease ? {source, lease} : {source});
     try {
-        return work();
+        const result = work();
+        notifyScopeEnd();
+        return result;
     } finally {
         scopes.pop();
     }
@@ -79,6 +98,7 @@ export function beginLearnerGesture(): () => void {
     return () => {
         if (!open) return;
         open = false;
+        if (openGestures === 1) notifyScopeEnd();
         openGestures--;
         if (openGestures > 0) return;
         const ended = currentGestureId!;

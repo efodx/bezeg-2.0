@@ -9,6 +9,7 @@ import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {t} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -87,7 +88,7 @@ describe('decasteljau steering', () => {
         expect(graph.state.t).toBe(graph.parameter);
         act(() => { fireEvent.click(play()); });
         frames(2);
-        act(() => { graph.setLessonAnimation!('stop'); });
+        act(() => { runAs('lesson', () => graph.setLessonAnimation!('stop')); });
         expect(graph.state.t).toBe(0);
         expect(graph.parameter).toBe(0);
         expect(graph.state.animationStatus).toBe('ready');
@@ -95,9 +96,9 @@ describe('decasteljau steering', () => {
 
     test('lesson pause and replay publish the drawn parameter', () => {
         const {graph, frames} = mountRun(key);
-        act(() => { graph.setLessonAnimation?.('replay'); });
+        act(() => { runAs('lesson', () => graph.setLessonAnimation?.('replay')); });
         frames(4);
-        act(() => { graph.setLessonAnimation?.('pause'); });
+        act(() => { runAs('lesson', () => graph.setLessonAnimation?.('pause')); });
         expect(graph.state.t).toBe(graph.parameter);
         expect(graph.state.t).toBeGreaterThan(0);
         expect(graph.state.animationStatus).toBe('paused');

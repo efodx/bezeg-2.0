@@ -17,6 +17,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RevealButton} from "../../inputs/RevealButton";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
 
 /** Positions show four decimals, so that 0.25 and 1.5 are read off exactly. */
 const PRECISE = 4;
@@ -85,6 +86,20 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
 
     protected setGhostVisible(visible: boolean): void {
         if (visible !== this.model.ghostVisible) this.commitModel({...this.model, ghostVisible: visible});
+    }
+
+    /**
+     * Parameter writes (ADR 0064). Keys are the lesson names. Writers: the tools fields, the base selector and the two
+     * board markers (u) (`learner`, tagged by their input gesture), lesson actions and scenes (`lesson`); nothing animates them.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const parameter = (field: TransformParameter): ParameterBinding =>
+            ({read: () => this.model[field], apply: (value: number) => this.setParameter(field, value)});
+        return {
+            "transform-a": parameter("a"), "transform-b": parameter("b"), "transform-c": parameter("c"), "transform-d": parameter("d"),
+            "transform-u": {read: () => this.model.u, apply: (value: number) => this.setU(value)},
+            "transform-base": {read: () => this.model.base, apply: (value: unknown) => this.setBase(value)},
+        };
     }
 
     protected override lessonFunctionActions(): FunctionLessonActions {

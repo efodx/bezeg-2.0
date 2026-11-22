@@ -3,6 +3,7 @@
  * a lesson would, and what it compares afterwards (scene observation plus transient state and child-board view).
  * Graphs come from `graphFactories` through `realGraphTestHarness`; nothing here mocks a graph.
  */
+import {runAs} from './writes/writeSource';
 import {CROSS_RATIO_EXAMPLES} from '../projective/crossRatioModel';
 import {PASCAL_EXAMPLES} from '../projective/pascalModel';
 import {SUMMARY_EXAMPLES} from '../../analysis/summaryStatisticsModel';
@@ -83,7 +84,12 @@ function perturbCoons(graph: CoonsPatchGraph, variant: 'a' | 'b'): void {
 }
 
 /** Edits a function graph's model the way its controls would: each numeric field the graph accepts a nearby value for. */
+/** Changes the graph's model directly, standing in for learner edits, so it runs as a `learner` write (ADR 0064). */
 export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b'): void {
+    runAs('learner', () => perturbModelDirectly(graph, variant));
+}
+
+function perturbModelDirectly(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b'): void {
     if (graph instanceof TensorPatchGraph || graph instanceof TriangularPatchGraph) { perturbPatch(graph, variant); return; }
     if (graph instanceof CoonsPatchGraph) { perturbCoons(graph, variant); return; }
     const g = internals(graph);

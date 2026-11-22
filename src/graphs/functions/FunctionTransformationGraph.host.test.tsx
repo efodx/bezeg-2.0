@@ -10,6 +10,7 @@ import {LessonAction} from '../../learning/model';
 import {DEFAULT_FUNCTION_TRANSFORMATION_MODEL} from '../../analysis/functionTransformationModel';
 import {transformRuleText} from './functionTransformationMessages';
 import {enterNumber} from '../../inputs/testEntry';
+import {runAs} from '../base/writes/writeSource';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -122,10 +123,11 @@ test('fields move the image, a base change keeps the parameters, b = 0 is refuse
 test('dragging the image marker sets u on the grid and the base marker follows', () => {
     const graph = mount();
     const image = graph['imageDot']!;
-    act(() => {
+    // A synthetic board event has no DOM input event, so the learner source is named here.
+    act(() => runAs('learner', () => {
         image.moveTo([9.03, 0]);
         (image as unknown as JsxPoint).triggerEventHandlers(['drag'], []);
-    });
+    }));
     // u = b (x - c) = 0.5 * 6.03 = 3.015 -> 3.0 on the 0.1 grid
     expect(graph.modelNow().u).toBeCloseTo(3, 9);
     near(graph.markers().base, [3, 9]);
@@ -138,7 +140,7 @@ test('Reset, a restored Preset and the ghost toggle restore every field, the con
     const baseline = boardObjects(graph);
     const stored = {base: 'abs', a: 1.5, b: -2, c: -3, d: 4, ghostVisible: false, u: 1.2};
 
-    act(() => { graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-8, 8, 12, -10]}}); });
+    act(() => { runAs('learner', () => graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-8, 8, 12, -10]}})); });
     expect(graph.modelNow()).toEqual(stored);
     expect((screen.getByLabelText('Osnovna funkcija f') as HTMLSelectElement).value).toBe('abs');
     expect(field('Navpična raztegnitev a').value).toBe('1,5');

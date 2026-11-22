@@ -105,6 +105,21 @@ test("a read right after an applied write returns the written value", () => {
     expect(store.getState().b).toBe(6);
 });
 
+test("a lease started in the gesture that changed its key is granted; one requested by a lesson in that gesture is refused", () => {
+    const {arbiter, setA} = fixture;
+    const endGesture = beginLearnerGesture();
+    try {
+        setA(5);
+        expect(arbiter.isHeld("a")).toBe(true);
+        expect(runAs("lesson", () => arbiter.lease(["a"]))).toBeUndefined();
+        const lease = arbiter.lease(["a"]);
+        expect(lease).toBeDefined();
+        expect(lease!.active).toBe(true);
+    } finally {
+        endGesture();
+    }
+});
+
 test("inside a learner gesture an unscoped setter call is the learner's and holds the key", () => {
     const {arbiter, store, setA} = fixture;
     const onEnd = vi.fn();

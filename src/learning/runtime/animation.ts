@@ -38,8 +38,9 @@ export class AnimationDriver {
     ) {}
 
     /** Frames then run as `animation` writes under a lease on `spec.keys`, taken at each play. */
-    useLease(spec: AnimationLeaseSpec) {
+    useLease(spec: AnimationLeaseSpec): this {
         this.leaseSpec = spec;
+        return this;
     }
 
     /** Starts or resumes; does nothing while the learner holds one of the leased keys. */

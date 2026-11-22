@@ -15,6 +15,7 @@ import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSce
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {decasteljauPresetCollection} from "./collections";
 import {reuseSamplesAcrossIntervalChanges} from "../object/intervalSampling";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
@@ -50,7 +51,6 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     private readonly lessonAnimation = new AnimationDriver((delta, time) => {
         const next = Math.min(1, this.parameter + 0.015 * this.state.v * delta / 100 * 2);
         const finished = next >= 1;
-        if (finished) this.lessonAnimation.stop();
         this.drawParameter(next);
         if (finished || time - this.lastPublishTime >= PARAMETER_PUBLISH_INTERVAL_MS) {
             this.lastPublishTime = time;
@@ -60,6 +60,15 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                 this.setState({t: next, animationStatus: "finished"});
             } else this.liveParameter.report(next);
         }
+        // The final write above still belongs to the lease, so the driver stops after it.
+        if (finished) this.lessonAnimation.stop();
+    }).useLease({
+        // Frames write `decasteljau-t` under a lease; when a higher write takes it, the control shows the run paused.
+        arbiter: () => this.parameters,
+        keys: ["decasteljau-t"],
+        onInterrupted: () => {
+            if (this.state.animationStatus === "playing") this.setParameter(this.parameter, "paused");
+        },
     });
 
     override getInitialState(): DecasteljauGraphStates {
@@ -248,6 +257,15 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         const running = this.lessonAnimation.isRunning();
         this.lessonAnimation.pause();
         this.setParameter(value, running ? "paused" : "ready");
+    }
+
+    /**
+     * Parameter writes (ADR 0064). Key `decasteljau-t` (the lesson `t`), read as the drawn parameter. Writers: the
+     * parameter slider (`learner`, a seek that pauses playback) and the lesson `parameter` action (`lesson`). Playback
+     * frames move it under the driver's lease (`animation`); a learner or lesson write, or a frame change, ends it.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {"decasteljau-t": {read: () => this.parameter, apply: (value: number) => this.changeParameter(value)}};
     }
 
     protected override stopLessonAnimations(): void {

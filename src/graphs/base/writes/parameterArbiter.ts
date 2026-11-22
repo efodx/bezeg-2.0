@@ -1,4 +1,4 @@
-import {activeGesture, currentWrite, onLearnerGestureEnd, outranks, runAs, type WriteLeaseRef, type WriteSource} from "./writeSource";
+import {activeGesture, currentWrite, onLearnerGestureEnd, onWriteScopeEnd, outranks, runAs, type WriteLeaseRef, type WriteSource} from "./writeSource";
 
 /**
  * Decides between the writers of one graph's declared parameters ([parameter writes](../../../../docs/specs/parameter-writes.md),
@@ -27,8 +27,8 @@ import {activeGesture, currentWrite, onLearnerGestureEnd, outranks, runAs, type 
  * Outcomes of {@link write} are separate: applied; refused by the arbiter (a higher source holds the key, or the
  * animation's lease has ended); refused by the domain (the setter's own error, value and leases unchanged).
  *
- * Untagged writes. {@link observe} runs after every scene store change (and whenever a binding's own change channel
- * fires). A bound key whose value changed while no source is open is an untagged write; in strict mode (tests and
+ * Untagged writes. {@link observe} runs after every scene store change, at the end of every write scope and learner
+ * gesture (while its source is still current), and whenever a binding's own change channel fires. A bound key whose value changed while no source is open is an untagged write; in strict mode (tests and
  * development) it throws {@link UntaggedWriteError}. An `animation` scope that changes a key outside its lease throws
  * too. Outside strict mode both are accepted silently.
  */
@@ -124,10 +124,13 @@ export class ParameterArbiter {
     private readonly entries = new Map<string, Entry>();
     private readonly leases = new Set<LeaseImpl>();
     private readonly stopGestureListener: () => void;
+    private readonly stopScopeListener: () => void;
     private observing = false;
     private observeAgain = false;
 
     constructor(private readonly options: ParameterArbiterOptions) {
+        // A setter may change a bound value outside the scene store (a drawn parameter); attribute it before the scope closes.
+        this.stopScopeListener = onWriteScopeEnd(() => this.observe());
         this.stopGestureListener = onLearnerGestureEnd(id => {
             for (const entry of this.entries.values()) if (entry.gestureHold === id) entry.gestureHold = undefined;
         });
@@ -300,6 +303,7 @@ export class ParameterArbiter {
     dispose(): void {
         this.endAllLeases("disposed");
         this.stopGestureListener();
+        this.stopScopeListener();
         for (const entry of [...this.entries.values()]) entry.unbind?.();
         this.entries.clear();
     }
