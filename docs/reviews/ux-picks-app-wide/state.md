@@ -33,7 +33,8 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 ## Running (handler 3)
 
 - Fuzz matrix `.command-logs/fuzz-matrix-resume.sh` against handler 3's dev server `http://127.0.0.1:4483/bezeg-2.0/` (handler 2's run died of low memory; 4471 is down, 4482 is handler 2's). Taylor 50 seeds: 49 pass + seed 49 failed with a Vite HMR error ("frame is not defined") from a worker editing lesson files; replaying `min-analysis_taylor-49.json` passed 5/5. Transformations: seed 17 the same HMR artefact ("frameDeclarer is not defined"), replay passed 5/5. Then De Casteljau, phase portrait, Taylor lesson. Any failure: replay its `min-*.json` first; an HMR "[vite] ReferenceError" is a harness artefact of live edits.
-- `patch-coons` pilot worker (shared patch base; reports what the eight other patch graphs inherit).
+- De Casteljau seed 27 was a real I1 bug (pending play start survived a learner write), fixed `057fc189` mid-run: rerun De Casteljau's 50 seeds after the matrix ends. Open: `DecasteljauGraph2.tsx` has the same start-after-commit pattern (check in 08).
+- Since: `0c3422fb` patch-coons (all 8 pilots declared); `4ee51098` preview harness (`just preview-measure --base http://127.0.0.1:4483/bezeg-2.0/ --n 30 --throttle 1,4`, needs the dev server; smoke: A ≈0.2 ms, B cold 31-51 ms, warm 6-19 ms); task 03 slice 1 started early: design `03-layout-design.md` `425c7030`, pure `src/workspace/layout/boardLayout.ts` `0acfc95b` (18 tests).
 
 ## Contract gaps (decide before the freeze at the 08 gate)
 
@@ -53,7 +54,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 ## Next slice's brief inputs
 
-1. Accept `patch-coons` (review its diff; `just graph-check patch-coons`; commit).
-2. When the matrix ends: all routes pass (or only replay-passing HMR artefacts) → write the 01c evaluation entry. 01c and 02 publish together (02 commits sit on top of 01c's): after 5a, run full `just check` on the branch, smoke the pilot routes (phase portrait's wrap curve visibility changed; linear map inspector now renders from the declaration), then `just publish --background` + `just publish --wait`.
+1. (done: patch-coons accepted.)
+2. When the matrix ends (then rerun De Casteljau): all routes pass (or only replay-passing HMR artefacts) → write the 01c evaluation entry. 01c and 02 publish together (02 commits sit on top of 01c's): after 5a, run full `just check` on the branch, smoke the pilot routes (phase portrait's wrap curve visibility changed; linear map inspector now renders from the declaration), then `just publish --background` + `just publish --wait`.
 3. Slice 5a (browser, only after the matrix ends so measurements do not share CPU): shadow board (option B) vs geometry from state (option A) for Taylor, De Casteljau, phase portrait; capture cost and frame gaps at 1× and 4× CPU throttle (docs/performance-plan.md; probe in scripts/probe/); new ADR with the numbers. Worker brief; handler owns the ADR decision.
 4. Then 02 acceptance against the task file's Acceptance list (files touched per pilot are in each worker's report and the guide's table), and on to task 03 (layout function: handler-owned core).
