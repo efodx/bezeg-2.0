@@ -31,42 +31,42 @@ class Ear extends EarClippingGraph {
     figureStateOf(preset: Preset) { return this.figurePresetGraphState(preset.graphState, preset.data); }
     lessonDefault(data: PointSetModel) { return this.lessonDefaultState(data); }
     resetToDefaultScene() { this.prepareLessonDefaultScene(); }
-    declaration(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
+    stepForTest(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
 }
 class Interval extends IntervalSweepGraph {
     figureScene(preset: Preset) { this.importFigurePresetData(preset); return this.figurePresetGraphState(preset.graphState, preset.data); }
     figureStateOf(preset: Preset) { return this.figurePresetGraphState(preset.graphState, preset.data); }
     lessonDefault(data: PointSetModel) { return this.lessonDefaultState(data); }
     resetToDefaultScene() { this.prepareLessonDefaultScene(); }
-    declaration(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
+    stepForTest(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
 }
 class Bentley extends BentleyOttmannGraph {
     figureScene(preset: Preset) { this.importFigurePresetData(preset); return this.figurePresetGraphState(preset.graphState, preset.data); }
     figureStateOf(preset: Preset) { return this.figurePresetGraphState(preset.graphState, preset.data); }
     lessonDefault(data: PointSetModel) { return this.lessonDefaultState(data); }
     resetToDefaultScene() { this.prepareLessonDefaultScene(); }
-    declaration(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
+    stepForTest(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
 }
 class Partition extends MonotonePartitionGraph {
     figureScene(preset: Preset) { this.importFigurePresetData(preset); return this.figurePresetGraphState(preset.graphState, preset.data); }
     figureStateOf(preset: Preset) { return this.figurePresetGraphState(preset.graphState, preset.data); }
     lessonDefault(data: PointSetModel) { return this.lessonDefaultState(data); }
     resetToDefaultScene() { this.prepareLessonDefaultScene(); }
-    declaration(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
+    stepForTest(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
 }
 class Triangulation extends MonotoneTriangulationGraph {
     figureScene(preset: Preset) { this.importFigurePresetData(preset); return this.figurePresetGraphState(preset.graphState, preset.data); }
     figureStateOf(preset: Preset) { return this.figurePresetGraphState(preset.graphState, preset.data); }
     lessonDefault(data: PointSetModel) { return this.lessonDefaultState(data); }
     resetToDefaultScene() { this.prepareLessonDefaultScene(); }
-    declaration(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
+    stepForTest(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
 }
 class Fortune extends FortuneGraph {
     figureScene(preset: Preset) { this.importFigurePresetData(preset); return this.figurePresetGraphState(preset.graphState, preset.data); }
     figureStateOf(preset: Preset) { return this.figurePresetGraphState(preset.graphState, preset.data); }
     lessonDefault(data: PointSetModel) { return this.lessonDefaultState(data); }
     resetToDefaultScene() { this.prepareLessonDefaultScene(); }
-    declaration(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
+    stepForTest(): PointSetStepDeclaration | undefined { return this.persistenceStep(); }
 }
 
 type Rows = Ear | Interval | Bentley | Partition | Triangulation | Fortune;
@@ -269,7 +269,7 @@ describe.each(ROWS)('$name step persistence', row => {
     });
 
     test('a model, an unknown overlay or an extra key in the permitted state cannot reach the result', () => {
-        const declaration = row.create().declaration();
+        const declaration = row.create().stepForTest();
         expect(declaration).toBeDefined();
         const persistence = pointSetPersistence(['grid', ...Object.keys(row.defaultOverlays)], declaration);
         const defaults: PointSetSceneState = {initialized: false, model: row.other, overlays: row.defaultOverlays, step: 2};

@@ -6,7 +6,9 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t, type Message} from "../../localization";
+import type {GraphDeclaration, ParameterDeclaration, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {
     evaluateTaylorCoefficients, geometricConvergenceInterval, isInsideGeometricConvergence,
@@ -74,6 +76,26 @@ const exampleFormula = (id: TaylorExampleId): string => {
 };
 const exampleTitle = (id: TaylorExampleId): string => `f(x) = ${exampleFormula(id)}`;
 
+/** The headline formula as TeX, undelimited (the same four functions as `exampleFormula`). */
+const formulaTex = (id: TaylorExampleId): string => {
+    switch (id) {
+        case "exp": return "f(x)=e^{x}";
+        case "sine": return "f(x)=\\sin x";
+        case "geometric": return "f(x)=\\frac{1}{1-x}";
+        case "flat": return "f(x)=\\begin{cases}e^{-1/x}&x>0\\\\0&x\\le 0\\end{cases}";
+    }
+};
+
+/** The ids of Taylor's declaration (`DeclarationIds`): its parameters by arbiter key, rows, notes, legend entries and action. */
+export type TaylorIds = {
+    param: "taylor-center" | "taylor-degree" | "taylor-x" | "taylor-example";
+    row: "center" | "degree" | "x" | "polynomial" | "function" | "signed-error" | "absolute-error" | "bound" | "hypothesis";
+    note: "series";
+    legend: "function" | "polynomial" | "error" | "bound" | "convergence" | "center" | "x";
+    section: never;
+    action: "show-error";
+};
+
 /** The function as drawn: 1/(1 - x) only exists left of 1. */
 const drawnValue = (example: TaylorExample, x: number): number => example.id === "geometric" && x >= 1 ? NaN : example.value(x);
 
@@ -98,6 +120,8 @@ const drawnValue = (example: TaylorExample, x: number): number => example.id ===
 export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     private pointCenter?: JXG.Point;
     private pointX?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections.taylor;
@@ -242,12 +266,12 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         };
 
         // Layers, lowest first: the convergence interval, the bound band, the drop line, f, T_n, the error, the markers.
-        this.own(board.create("segment", [
+        this.drawn.set("convergence", this.own(board.create("segment", [
             [() => convergence().from, 0], [() => convergence().to, 0],
         ], {
             strokeColor: GraphPalette.additionalCurves[0], strokeWidth: () => Math.max(6, this.displaySettings.strokeWidth * 3), strokeOpacity: 0.55,
             highlight: false, fixed: true, withLabel: false, visible: isGeometric,
-        }));
+        })));
         this.own(board.create("text", [
             () => {
                 const [left] = board.getBoundingBox();
@@ -266,26 +290,26 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             anchorX: "middle", anchorY: "bottom", fixed: true, highlight: false, parse: false, strokeColor: GraphPalette.label,
             fontSize: () => Math.max(10, fontSize() * 0.9), cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE, visible: isGeometric,
         }));
-        this.own(board.create("segment", [
+        this.drawn.set("bound", this.own(board.create("segment", [
             [() => model().x, () => view().polynomial - (boundValue() ?? 0)], [() => model().x, () => view().polynomial + (boundValue() ?? 0)],
         ], {
             strokeColor: GraphPalette.constructionAccent, strokeWidth: () => Math.max(8, this.displaySettings.strokeWidth * 4), strokeOpacity: 0.3,
             highlight: false, fixed: true, withLabel: false, visible: () => boundValue() !== undefined,
-        }));
+        })));
         this.own(board.create("segment", [[() => model().center, 0], [() => model().center, () => f(model().center)]], {
             strokeColor: GraphPalette.referenceCurve, dash: 2, strokeWidth: thin, highlight: false, fixed: true, withLabel: false,
         }));
 
-        this.own(board.create("functiongraph", [f], {
+        this.drawn.set("function", this.own(board.create("functiongraph", [f], {
             strokeColor: GraphPalette.primaryCurve, dash: FUNCTION_DASH, highlight: false, fixed: true, strokeWidth,
-        }));
-        this.own(board.create("functiongraph", [polynomial], {
+        })));
+        this.drawn.set("polynomial", this.own(board.create("functiongraph", [polynomial], {
             strokeColor: GraphPalette.comparisonCurve, dash: POLYNOMIAL_DASH, highlight: false, fixed: true, strokeWidth,
-        }));
-        this.own(board.create("segment", [[() => model().x, () => view().polynomial], [() => model().x, () => view().value]], {
+        })));
+        this.drawn.set("error", this.own(board.create("segment", [[() => model().x, () => view().polynomial], [() => model().x, () => view().value]], {
             strokeColor: GraphPalette.warningText, strokeWidth: () => Math.max(2.5, this.displaySettings.strokeWidth * 1.4), highlight: false, fixed: true,
             withLabel: false, visible: () => view().absoluteError > 0,
-        }));
+        })));
 
         // The values of f at c and at x, and of T_n at x.
         const valuePoint = (x: () => number, y: () => number, color: string) => this.own(board.create("point", [x, y], {
@@ -305,6 +329,8 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             x: model().x, name: "$$x$$", placement: "below-right", color: GraphPalette.warningText, step: X_GRID,
             min: () => view().example.xMin, max: () => view().example.xMax, write: value => this.setX(value, {syncScene: false}),
         });
+        this.drawn.set("center-point", this.pointCenter);
+        this.drawn.set("x-point", this.pointX);
 
         // The formula, the numbers, the bound (or the word hidden) and the key stay on the board (projection needs them).
         this.caption("top-left", [
@@ -326,6 +352,84 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     protected override onSceneRemoved(): void {
         this.pointCenter = undefined;
         this.pointX = undefined;
+        this.drawn.clear();
+    }
+
+    // ---- Declaration (task 02: the worked example; nothing renders it yet) ------------------------------------------
+
+    /**
+     * Pure data from the model: the parameters (the arbiter keys), the same readout values the inspector shows, the notes
+     * (series, hypothesis and the state sentences of `statuses`), the legend of everything the board draws, and the action.
+     * The flat function's center is fixed, so it declares no center parameter there (the contract has no locked range).
+     */
+    protected override declaration(): GraphDeclaration<TaylorIds> {
+        const model = this.model;
+        const view = this.viewOf(model);
+        const example = view.example;
+        const shown = model.boundVisible;
+        const significant = (value: number) => message("taylor_value_text", {value0: this.small(value)});
+        const hidden = message("taylor_hidden");
+        const boundValue: Message = !shown ? hidden : view.bound.kind === "bound" ? significant(view.bound.value) : message("taylor_bound_unavailable");
+        const series: Message = model.example === "geometric"
+            ? message(view.insideConvergence ? "taylor_series_geometric_inside" : "taylor_series_geometric_outside",
+                {value0: messageNumber(geometricConvergenceInterval(model.center).from, PRECISE), value1: messageNumber(geometricConvergenceInterval(model.center).to, PRECISE)})
+            : message(model.example === "flat" ? "taylor_series_flat" : "taylor_series_everywhere");
+        const hypothesis = message(model.example === "exp" ? "taylor_hypothesis_exp" : model.example === "sine" ? "taylor_hypothesis_sine"
+            : model.example === "geometric" ? "taylor_hypothesis_geometric" : "taylor_hypothesis_flat");
+        const notes: ReadoutNote<TaylorIds>[] = [{id: "series", text: series, tone: "muted"}];
+        const parameters: ParameterDeclaration<TaylorIds["param"]>[] = [
+            {key: "taylor-example", kind: "choice", label: message("taylor_example_label"), help: message("taylor_example_help"), placement: "board",
+                options: TAYLOR_EXAMPLE_IDS.map(id => ({value: id, label: message(`taylor_example_${id}`)}))},
+            {key: "taylor-degree", kind: "count", label: message("taylor_degree_label"), symbol: "n", help: message("taylor_degree_help"), placement: "board",
+                min: TAYLOR_DEGREE_MIN, max: TAYLOR_DEGREE_MAX},
+            {key: "taylor-x", kind: "range", label: message("taylor_x_label"), symbol: "x", help: message("taylor_points_help"), placement: "board",
+                min: example.xMin, max: example.xMax, step: X_GRID, maxDecimals: PRECISE},
+        ];
+        if (example.centerMin < example.centerMax) {
+            parameters.unshift({key: "taylor-center", kind: "range", label: message("taylor_center_label"), symbol: "c", help: message("taylor_points_help"),
+                placement: "board", min: example.centerMin, max: example.centerMax, step: CENTER_GRID, maxDecimals: PRECISE});
+        }
+        const fixed = (value: number) => messageNumber(value, PRECISE);
+        return {
+            parameters,
+            formula: {label: message("taylor_formula_label"), tex: formulaTex(model.example)},
+            readouts: [{id: "values", title: message("function_readouts"), rows: [
+                {id: "center", name: message("taylor_center_label"), symbol: "c", value: fixed(model.center)},
+                {id: "degree", name: message("taylor_degree_label"), symbol: "n", value: messageNumber(model.degree, 0)},
+                {id: "x", name: message("taylor_x_label"), symbol: "x", value: fixed(model.x)},
+                {id: "polynomial", name: message("taylor_readout_polynomial"), value: fixed(view.polynomial), legend: "polynomial"},
+                {id: "function", name: message("taylor_readout_function"), value: fixed(view.value), legend: "function"},
+                {id: "signed-error", name: message("taylor_readout_signed_error"), value: significant(view.signedError), legend: "error"},
+                {id: "absolute-error", name: message("taylor_readout_absolute_error"), value: significant(view.absoluteError), legend: "error"},
+                {id: "bound", name: message("taylor_readout_bound"), value: boundValue, legend: "bound", muted: !shown},
+                {id: "hypothesis", name: message("taylor_readout_hypothesis"), value: shown ? hypothesis : hidden, muted: !shown},
+            ]}],
+            notes,
+            readoutHelp: message("taylor_note"),
+            legend: [
+                {id: "function", label: message("taylor_legend_function"), kind: "line", object: "function"},
+                {id: "polynomial", label: message("taylor_legend_polynomial"), kind: "dashed", object: "polynomial"},
+                {id: "error", label: message("taylor_legend_error"), kind: "line", object: "error"},
+                {id: "bound", label: message("taylor_legend_bound"), kind: "area", object: "bound"},
+                {id: "convergence", label: message("taylor_legend_convergence"), kind: "area", object: "convergence"},
+                {id: "center", label: message("taylor_legend_center"), kind: "point", object: "center-point"},
+                {id: "x", label: message("taylor_legend_x"), kind: "point", object: "x-point"},
+            ],
+            actions: [{id: "show-error", label: message("show_error_bound"), help: message("taylor_bound_help"), placement: "board", enabled: true, pressed: shown}],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(element.elType === "point" ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (id !== "show-error") throw new Error("Unknown action");
+        runAs("learner", () => this.setBoundVisible(!this.model.boundVisible));
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

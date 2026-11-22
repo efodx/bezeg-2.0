@@ -30,6 +30,7 @@ import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatc
 import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
 import {ParameterArbiter, type ParameterBinding} from "./writes/parameterArbiter";
 import {runAs} from "./writes/writeSource";
+import type {GraphDeclaration} from "./declare/graphDeclaration";
 import {ViewAdapter} from "./writes/viewAdapter";
 import {installLearnerInputTagging} from "./writes/learnerInputTagging";
 import {SceneSlot, type SceneDeclaration} from "./OwnedScene";
@@ -249,6 +250,36 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
      */
     protected parameterBindings(): Readonly<Record<string, ParameterBinding>> {
         return {};
+    }
+
+    /**
+     * What this graph declares for the board workspace (task 02): parameters, readouts, legend, actions. `undefined` is an
+     * undeclared graph. Must be a pure function of `this.state` and the bound parameters: no board reads, no functions in
+     * the result (see `declare/graphDeclaration.ts`).
+     */
+    protected declaration(): GraphDeclaration | undefined {
+        return undefined;
+    }
+
+    getDeclaration(): GraphDeclaration | undefined {
+        return this.declaration();
+    }
+
+    /**
+     * Resolves a declared legend entry's `object` id to the element the graph drew: its colour (stroke or fill) and whether
+     * it is visible now. `undefined` for an id the graph did not draw; the contract test fails a legend entry that resolves
+     * to nothing. A declaring graph overrides it.
+     */
+    drawnObject(_id: string): {color: string; visible: boolean} | undefined {
+        return undefined;
+    }
+
+    /**
+     * Runs a declared action by id as the learner (inside `runAs("learner", ...)`), through the method its button calls today.
+     * A declaring graph overrides it; the default knows no action.
+     */
+    performAction(_id: string): void {
+        throw new Error("Unknown action");
     }
 
     private bindParameters(): void {
