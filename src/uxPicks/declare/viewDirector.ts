@@ -18,6 +18,8 @@ import {fitView, type Point} from './viewFit';
 export type Reason = 'port' | 'intent' | 'action' | 'dock' | 'resize' | 'params' | 'auto';
 
 const GLIDE_MS = 250;
+/** Where on the morph's easing curve the view stands when the scene's clock ends (see `progress`). */
+const VIEW_END = 0.8;
 /** A card or canvas change this soon after a motion is its tail (the readouts a finished scene shows): continue at once, not as a second glide after a pause. */
 const TAIL_MS = 500, TAIL_DELAY = 0, ACTION_MS = 400;
 const DELAY: Record<Reason, number> = {port: 60, intent: 60, action: 220, dock: 140, resize: 140, params: 0, auto: 60};
@@ -70,16 +72,18 @@ export function computeTarget(intentOverride?: FitBox, excludeObstacles?: string
 }
 
 /** One glide from the box on screen to `target`; a second call retargets from where the view is now. */
-function goTo(target: FitBox) {
+function goTo(target: FitBox, finish = false) {
     const port = getViewPort();
     if (!port) return;
     cancelGlide();
     const from = port.current();
     // A difference of a pixel or ten (a card that grew by a line) is not worth a motion: the fit is always computed from the intent, so nothing accumulates.
-    if (same(from, target) || from.every((v, i) => Math.abs(v - target[i]) < 0.012 * Math.abs(from[2] - from[0]))) return;
-    if (prefersReducedMotion()) { run(target); return; }
-    // A tail starts fast (the view was just moving): an eased-in start is a pause the eye reads as a second motion.
+    // A tail (the view was just moving) skips a bit more: a card that slides a few tens of pixels after a motion is not worth a second one.
     const tail = performance.now() - s.movedAt < TAIL_MS;
+    const small = (tail ? 0.025 : 0.012) * Math.abs(from[2] - from[0]);
+    if (same(from, target) || (!finish && from.every((v, i) => Math.abs(v - target[i]) < small))) return;
+    if (prefersReducedMotion()) { run(target); return; }
+    // A tail starts fast: an eased-in start is a pause the eye reads as a second motion.
     const start = performance.now();
     const tick = (now: number) => {
         const k = Math.min(1, (now - start) / GLIDE_MS);
@@ -90,11 +94,11 @@ function goTo(target: FitBox) {
     s.frame = requestAnimationFrame(tick);
 }
 
-function fit() {
+function fit(finish = false) {
     const port = getViewPort();
     s.fitKey = port ? obstacleKey(port.container) : undefined;
     const target = computeTarget();
-    if (target) goTo(target);
+    if (target) goTo(target, finish);
 }
 
 function fire() {
@@ -183,15 +187,22 @@ export const director = {
     progress(t: number) {
         const m = s.morph;
         if (!m) return;
-        const e = t >= 1 ? 1 : ease(Math.min(1, Math.max(0, t)));
+        // The view's clock stops at VIEW_END of the curve: a card that settles only when the scene ends (the readouts of the finished
+        // scene) moves the fit after the motion has eased to rest, which read as a second glide. The view is still moving then, and
+        // endMorph carries it on to the settled fit in one tail glide.
+        const e = ease(VIEW_END * Math.min(1, Math.max(0, t)));
         retargetMorph(m, e);
-        run(t >= 1 ? m.to : m.from.map((v, i) => v + (m.to[i] - v) * e) as FitBox);
+        run(m.from.map((v, i) => v + (m.to[i] - v) * e) as FitBox);
         s.movedAt = performance.now();
     },
     endMorph() {
         if (!s.morph) return;
         s.morph = undefined;
-        director.request('auto', 0); // a card that changed during the motion
+        s.movedAt = performance.now();
+        clearTimer();
+        if (s.down) { s.pendingFit = true; return; }
+        if (s.paused || !autoFitOn()) return;
+        fit(true); // the continuation of the morph to the fit under the cards as they are now (a tail glide: fast start, eases out)
     },
     /**
      * True while a lesson morph runs and for ACTION_MS after a lesson frame's action: view boxes a graph writes then (a frame that
