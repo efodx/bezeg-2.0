@@ -12,7 +12,12 @@
  *
  * Disposal happens here, exactly once per replacement, and never inside a family's `importPresetData`. This module
  * knows neither React nor JSXGraph: the board is reached through `SceneReplacementHost`.
+ *
+ * A replacement is a parameter write of the whole scene (ADR 0064): with `plan.source` set, every host and plan step,
+ * including the deferred ones that run after the host commits, runs inside that write source.
  */
+
+import {runAs, type WriteSource} from "./writes/writeSource";
 
 /** What the replacement needs from the graph. BaseGraph builds this adapter per replacement. */
 export interface SceneReplacementHost<S, T> {
@@ -52,6 +57,11 @@ export interface DeferredStateReplacement<S> {
 
 export interface SceneReplacementPlan<S, T> {
     /**
+     * Who replaces the scene: `learner` for Preset selection, Reset, import and figure batches; `lesson` for lesson
+     * scenes and checkpoints. Absent only for mount, which runs before the graph binds its parameters.
+     */
+    source?: WriteSource;
+    /**
      * Whether `disposeFigureScene` runs. The figure path always disposes. Mount and the lesson paths dispose for
      * families whose `importPresetData` used to do it (`BaseGraph.disposesBeforeNonFigureImport`, true for curve
      * families) and not otherwise, so every family keeps its previous behavior.
@@ -85,6 +95,7 @@ export interface SceneReplacementPlan<S, T> {
  * scene is drawn (or the replacement was cancelled), and rejects with what initialize, sync or finish threw.
  */
 export function replaceScene<S, T>(host: SceneReplacementHost<S, T>, plan: SceneReplacementPlan<S, T>): Promise<void> | undefined {
+    if (plan.source) return replaceTagged(host, plan, plan.source);
     const batch = plan.suspendBoard || plan.dispose;
     if (batch) host.suspendBoard();
     try {
@@ -158,5 +169,38 @@ function replaceDeferred<S, T>(
         } catch (error) {
             finish(() => reject(error));
         }
+    });
+}
+
+/** Runs `work` inside `source`; keeps `this` free functions only (host and plan steps are closures). */
+function inSource<A extends unknown[], R>(source: WriteSource, work: (...args: A) => R): (...args: A) => R {
+    return (...args: A) => runAs(source, () => work(...args));
+}
+
+function replaceTagged<S, T>(host: SceneReplacementHost<S, T>, plan: SceneReplacementPlan<S, T>, source: WriteSource): Promise<void> | undefined {
+    const tag = <A extends unknown[], R>(work: (...args: A) => R) => inSource(source, work);
+    const taggedHost: SceneReplacementHost<S, T> = {
+        disposeScene: tag(() => host.disposeScene()),
+        suspendBoard: tag(() => host.suspendBoard()),
+        resumeBoard: tag(() => host.resumeBoard()),
+        replaceState: tag((state: S) => host.replaceState(state)),
+        replaceSceneState: tag((next: () => S | null, afterCommit: () => void) => host.replaceSceneState(next, tag(afterCommit))),
+        restoreTransientState: tag((saved: T | undefined) => host.restoreTransientState(saved)),
+        initialize: tag(() => host.initialize()),
+        syncReplacedScene: tag(() => host.syncReplacedScene()),
+        bumpWorkspaceRevision: tag(() => host.bumpWorkspaceRevision()),
+    };
+    const state = plan.state;
+    const taggedState: SceneReplacementPlan<S, T>["state"] = state?.mode === 'deferred'
+        ? {...state, next: tag(state.next)}
+        : state && {...state, state: tag(state.state)};
+    return replaceScene(taggedHost, {
+        ...plan,
+        source: undefined,
+        importData: tag(plan.importData),
+        afterImport: plan.afterImport && tag(plan.afterImport),
+        state: taggedState,
+        afterState: plan.afterState && tag(plan.afterState),
+        finish: plan.finish && tag(plan.finish),
     });
 }

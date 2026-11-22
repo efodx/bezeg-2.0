@@ -28,6 +28,9 @@ import type {FigureCaptureTarget} from "./export/FigureCapture";
 import {FigureExportScope} from "./export/FigureExportOperation";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
+import {ParameterArbiter, type ParameterBinding} from "./writes/parameterArbiter";
+import {runAs} from "./writes/writeSource";
+import {installLearnerInputTagging} from "./writes/learnerInputTagging";
 import {SceneSlot, type SceneDeclaration} from "./OwnedScene";
 
 
@@ -105,6 +108,8 @@ export interface GraphWorkspacePanels {
  */
 abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown> {
     private sceneStore?: SceneStore<S>;
+    private parameterArbiter?: ParameterArbiter;
+    private releaseParameterArbiter?: () => void;
     private presetServiceInstance?: PresetService;
     private lessonActionRegistry?: LessonActionRegistry;
     /** State from before the first update that `onStateChange` has not seen yet. */
@@ -197,7 +202,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         captureState: () => this.captureLessonState(),
         restoreState: checkpoint => this.restoreLessonState(checkpoint),
         apply: action => this.applyLessonAction(action),
-        stopAnimations: () => this.stopLessonAnimations(),
+        stopAnimations: () => {
+            // Every lesson step and frame change passes here: it ends every animation lease (ADR 0064).
+            this.parameterArbiter?.endAllLeases("frame");
+            this.stopLessonAnimations();
+        },
         pauseAnimations: () => this.pausePlayback(),
         isAvailable: () => this.graphSession?.isReady === true,
     };
@@ -209,6 +218,42 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     get store(): SceneStore<S> {
         if (!this.sceneStore) this.sceneStore = new SceneStore<S>(this.getInitialState());
         return this.sceneStore;
+    }
+
+    /**
+     * The arbiter over this graph's bound parameters while it is mounted and binds any (ADR 0064). Writers outside the
+     * graph's own input handling go through it: `parameters.write(key, value, source)`, `parameters.lease(keys)`.
+     */
+    get parameters(): ParameterArbiter | undefined {
+        return this.parameterArbiter;
+    }
+
+    /**
+     * Binds each declared parameter key to its reader and the graph's existing validated setter (task 01, slice 3).
+     * Keys reuse `FUNCTION_PARAMETER_NAMES` where a lesson name exists. Read once per mount, after the first scene
+     * is loaded. A change of a bound value is then checked: outside a write source it throws in tests and development.
+     */
+    protected parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {};
+    }
+
+    private bindParameters(): void {
+        const bindings = Object.entries(this.parameterBindings());
+        if (bindings.length === 0) return;
+        if (typeof window !== "undefined") installLearnerInputTagging(window);
+        const arbiter = new ParameterArbiter({
+            isDomainError: error => error instanceof Error && error.name === "DomainError",
+            strict: import.meta.env.DEV,
+            owner: this.constructor.name,
+        });
+        for (const [key, binding] of bindings) arbiter.bind(key, binding);
+        const unsubscribe = this.store.subscribe(() => arbiter.observe());
+        this.parameterArbiter = arbiter;
+        this.releaseParameterArbiter = () => {
+            unsubscribe();
+            arbiter.dispose();
+            if (this.parameterArbiter === arbiter) this.parameterArbiter = undefined;
+        };
     }
 
     /** The current state. Updates are applied synchronously, so a later read in the same tick sees them. */
@@ -637,7 +682,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     protected applyLessonAction(action: LessonAction): void {
         try {
-            this.lessonActions.apply(action);
+            runAs("lesson", () => this.lessonActions.apply(action));
         } finally {
             // Handlers change adapters and boards outside the scene store; controls read those values live.
             this.store.notify();
@@ -706,6 +751,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         transientState: TransientState | undefined;
     }): void {
         replaceScene(this.sceneReplacementHost(), {
+            source: "lesson",
             suspendBoard: false,
             initialize: false,
             ...scene,
@@ -935,6 +981,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             });
             session.observeResize(container);
             session.markReady();
+            this.bindParameters();
         }
     }
 
@@ -1000,6 +1047,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const session = this.graphSession;
         this.graphSession = undefined;
         this.board = undefined as unknown as Board;
+        this.releaseParameterArbiter?.();
+        this.releaseParameterArbiter = undefined;
         session?.dispose();
         // The session disposal released the scene; a disposed graph keeps no slot, and `mount` declares a new one.
         this.sceneSlot = undefined;
@@ -1278,6 +1327,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             try {
                 this.stopLessonAnimations();
                 await replaceScene(this.sceneReplacementHost(session), {
+                    // Preset selection, Reset, import and figure batches are learner commands.
+                    source: "learner",
                     dispose: true,
                     suspendBoard: true,
                     // `restoreEntryState` imports the entry scene captured from the live graph, so there is no stored
