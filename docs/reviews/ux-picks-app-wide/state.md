@@ -33,7 +33,8 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 ## Handler 3 progress (2026-11-22)
 
 - Done on branch: `56414ad2` fragments (ADR 0066 built; Taylor keys moved, FormattedValue replaces pass-through); `c92616bb` slice 3 contract test `src/learning/content/declarationContract.test.tsx` + Taylor frames declared; `99afc7e8` shared pilot brief `briefs/02-pilot-declare.md`; `2212571c`+`f9250bc6` slice 6 `just graph-check <id>`; `a87ba078` pilots transformations, De Casteljau, phase portrait.
-- Running at last update: linear map and triangle-centres pilot workers; fuzz matrix (watcher prints a summary when pid 4573 exits).
+- Matrix: handler 2's run died of low memory (Taylor 43 valid passes, 7 invalid; transformations 50 invalid, browser crashed). Handler 3 runs `.command-logs/fuzz-matrix-resume.sh` against its own dev server on 4483 (Taylor seeds 44-50, then each route, then the lesson, one at a time). Port 4471 is down; 4482 is handler 2's.
+- Running at last update: linear map (continuation) and triangle-centres pilot workers.
 - Left in 02: pilots projective-cross-ratio, patch-coons; slice 5a (browser, after matrix); slice 7 guide (inputs: placement notes `02-*-placement.md`, the contract gaps below).
 
 ## Contract gaps (decide before the freeze at the 08 gate)

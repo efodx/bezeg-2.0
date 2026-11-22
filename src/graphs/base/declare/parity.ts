@@ -116,6 +116,8 @@ export interface RenderedDeclaration {
     readonly rows: readonly {readonly id: string; readonly name: string; readonly symbol: string; readonly value: string; readonly unit: string; readonly text: string}[];
     readonly notes: readonly string[];
     readonly formula: string;
+    /** Declared parameters' symbols: a recorded control read-off "symbol = value" is that parameter's. */
+    readonly parameterSymbols: readonly string[];
 }
 
 export function renderDeclaration(declaration: GraphDeclaration | undefined): RenderedDeclaration {
@@ -131,7 +133,8 @@ export function renderDeclaration(declaration: GraphDeclaration | undefined): Re
         ...(declaration?.readoutHelp ? [normalise(renderMessage(declaration.readoutHelp))] : []),
     ];
     const formula = declaration?.formula ? normalise(`${renderMessage(declaration.formula.label)} ${declaration.formula.tex}`) : '';
-    return {rows, notes, formula};
+    const parameterSymbols = (declaration?.parameters ?? []).flatMap(parameter => parameter.symbol ? [normalise(parameter.symbol)] : []);
+    return {rows, notes, formula, parameterSymbols};
 }
 
 export interface ParityDifference {
@@ -195,6 +198,9 @@ export function checkParity(recording: ParityRecording, declarations: readonly (
             if (at >= 0) { usedRows.add(at); continue; }
             const note = rendered.notes.findIndex((text, i) => !usedNotes.has(i) && text.includes(output));
             if (note >= 0) usedNotes.add(note);
+            // A control's own read-off ("t = 0,50" beside a slider) is the declared parameter's value, which the presenter shows
+            // from the binding; the declaration carries no value to compare, so the symbol must match.
+            else if (rendered.parameterSymbols.some(symbol => output.startsWith(`${symbol} =`))) continue;
             else add({kind: 'missing', where: 'output', recorded: output});
         }
         for (const caption of state.captions) {

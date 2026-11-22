@@ -1,5 +1,4 @@
-import {currentLanguage, message, t} from "../../../localization";
-import {withDecimalSeparator} from "../../../analysis/format";
+import {message, t} from "../../../localization";
 import type {GraphDeclaration, LegendEntry} from "../../base/declare/graphDeclaration";
 import {runAs} from "../../base/writes/writeSource";
 import {comparisonCurveColor} from "../../styles/GraphPalette";
@@ -33,10 +32,10 @@ interface DecasteljauGraphStates extends BaseGraphStates {
     animationStatus: DecasteljauAnimationStatus
 }
 
-/** The ids of De Casteljau's declaration (`DeclarationIds`): the parameter by arbiter key, the t row, the legend and the controls. */
+/** The ids of De Casteljau's declaration (`DeclarationIds`): the parameter by arbiter key, the legend and the controls. */
 export type DecasteljauIds = {
     param: "decasteljau-t";
-    row: "t";
+    row: never;
     note: never;
     legend: "curve" | "rest" | "point" | "scheme" | "control";
     section: never;
@@ -306,7 +305,6 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         ];
         return {
             parameters: [{key: "decasteljau-t", kind: "range", label: message("animation_parameter"), symbol: "t", placement: "board", min: 0, max: 1, step: 0.01, maxDecimals: 2}],
-            readouts: [{id: "values", rows: [{id: "t", name: message("decasteljau_t_name"), symbol: "t", value: {kind: "formatted", text: withDecimalSeparator(value.toFixed(2), currentLanguage())}}]}],
             legend,
             actions: [
                 {id: "play", label: message("play"), placement: "board", enabled: true, pressed: playing},

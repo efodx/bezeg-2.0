@@ -2,6 +2,8 @@ import type {LessonAction, LessonDefinition, LessonPoint, LessonStep, LessonView
 import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
 import type {SimsonExampleId, SimsonOffset} from '../../compgeo/simsonLineModel';
 import type {InversionExampleId} from '../../compgeo/inversionModel';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {NotablePointsIds} from '../../graphs/compgeo/NotablePointsGraph';
 
 // Triangle geometry chapter-owned guided activities (spec T1 to T5). Every number is recomputed in triangleGeometryChapter.test.ts
 // from the triangle and circle kernel. Scene actions run synchronously in one tick; each scene starts from the Demonstration
@@ -17,6 +19,9 @@ const overlays = (names: readonly PointSetOverlayName[], all: readonly PointSetO
     all.map(overlay => ({kind: 'point-set', operation: 'set-overlay', overlay, visible: names.includes(overlay)}));
 const glider = (value: number): LessonAction => ({kind: 'parameter', name: 't', value});
 
+/** Typed by the triangle centres' declaration ids: an unknown note fails the type check. */
+const notableFrame = frameDeclarer<NotablePointsIds>();
+
 const NOTABLE_OVERLAYS = ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'] as const;
 const INSCRIBED_OVERLAYS = ['radii', 'angles'] as const;
 
@@ -31,9 +36,11 @@ export const THALES_TRIANGLE: readonly LessonPoint[] = [[0, 0], [8, 6], [1, 7]];
 export const THALES_VIEW: LessonViewBox = [-3, 10, 11, -4];
 
 function notableStep(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, shown: readonly (typeof NOTABLE_OVERLAYS)[number][],
-                     options: {points?: readonly LessonPoint[]; view?: LessonViewBox} = {}): LessonStep {
+                     options: {points?: readonly LessonPoint[]; view?: LessonViewBox; declare?: FrameDeclaration} = {}): LessonStep {
     return {
         id, title, body, prompt,
+        // The step's one frame, as the runtime would make it, carrying what the text asks the learner to read.
+        ...(options.declare ? {frames: [{id: `${id}-content`, kind: 'explanation' as const, title, body, prompt, declare: options.declare}]} : {}),
         scene: {actions: [defaultScene(`triangle-centres-${id}`, options.view), ...(options.points ? [triangle(...options.points)] : []), ...overlays(shown, NOTABLE_OVERLAYS)]},
     };
 }
@@ -60,43 +67,43 @@ export const triangleCentresLesson: LessonDefinition = {
             words('Trikotnik z oglišči \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2) in \\(C=(2,5)\\) (P3) ima ploščino \\(S=35/2\\). Težiščnica povezuje oglišče s središčem nasprotne stranice. Težišče \\(G\\) je presečišče težiščnic: \\(G=(3,\\,5/3)\\), kjer je \\(5/3\\approx1{,}6667\\). Izrek (H. S. M. Coxeter, Introduction to Geometry): vse tri težiščnice se sekajo v eni točki, ki vsako od njih razdeli v razmerju \\(2:1\\) od oglišča proti stranici. Sekanje v eni točki in razmerje dveh tretjin sta izreka; vlečenje ju ponazarja, ne dokazuje.',
                 'The triangle with vertices \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2) and \\(C=(2,5)\\) (P3) has area \\(S=35/2\\). A median joins a vertex to the midpoint of the opposite side. The centroid \\(G\\) is where the medians meet: \\(G=(3,\\,5/3)\\), where \\(5/3\\approx1.6667\\). Theorem (H. S. M. Coxeter, Introduction to Geometry): all three medians meet in one point, which divides each of them in the ratio \\(2:1\\) from the vertex towards the side. That the medians meet in one point and the ratio of two thirds are theorems; dragging illustrates them and does not prove them.'),
             words('Napovej, ali lahko težišče zapusti trikotnik, nato povleci oglišča in preveri.', 'Predict whether the centroid can leave the triangle, then drag the vertices and check.'),
-            ['triangle', 'centroid']),
+            ['triangle', 'centroid'], {declare: notableFrame({highlight: ['centroid']})}),
         notableStep('circumcentre',
             words('Središče očrtane krožnice iz simetral stranic', 'The circumcentre from the perpendicular bisectors'),
             words('Središče očrtane krožnice \\(O\\) je presečišče simetral stranic. Za isti trikotnik je \\(O=(7/2,\\,3/2)\\) in \\(R^2=29/2\\), torej \\(R\\approx3{,}8079\\). Točka \\(O\\) je enako oddaljena od vseh treh oglišč: \\(|OA|^2=|OB|^2=|OC|^2=29/2\\). Izrek (Coxeter): simetrale stranic se sekajo v eni točki, zato skozi oglišča trikotnika gre natanko ena krožnica.',
                 'The circumcentre \\(O\\) is where the perpendicular bisectors of the sides meet. For the same triangle \\(O=(7/2,\\,3/2)\\) and \\(R^2=29/2\\), so \\(R\\approx3.8079\\). The point \\(O\\) is equally far from all three vertices: \\(|OA|^2=|OB|^2=|OC|^2=29/2\\). Theorem (Coxeter): the perpendicular bisectors meet in one point, so exactly one circle passes through the vertices of a triangle.'),
             words('Pokaži \\(O\\) in očrtano krožnico ter povleci eno oglišče: kako se premika \\(O\\)?', 'Show \\(O\\) and the circumcircle and drag one vertex: how does \\(O\\) move?'),
-            ['triangle', 'centroid', 'circumcentre']),
+            ['triangle', 'centroid', 'circumcentre'], {declare: notableFrame({highlight: ['circumcentre', 'circumradius'], uses: ['circumcentre']})}),
         notableStep('incentre',
             words('Središče včrtane krožnice iz simetral kotov', 'The incentre from the angle bisectors'),
             words('Središče včrtane krožnice \\(I\\) je presečišče simetral kotov in je enako oddaljeno od vseh treh stranic. Tu je \\(I\\approx(2{,}6570;\\,1{,}7989)\\) in polmer včrtane krožnice \\(r=S/s\\approx1{,}7989\\) (\\(s\\) je polovica obsega). Koordinata \\(y\\) točke \\(I\\) je enaka \\(r\\), ker stranica \\(AB\\) leži na osi \\(x\\). Točka \\(I\\) je v splošnem iracionalna, zato je prikazana kot decimalno število; za razliko od drugih treh točk ni natančen ulomek. Izrek (Coxeter): simetrale kotov se sekajo v eni točki.',
                 'The incentre \\(I\\) is where the angle bisectors meet and is equally far from all three sides. Here \\(I\\approx(2.6570,\\,1.7989)\\) and the inradius is \\(r=S/s\\approx1.7989\\) (\\(s\\) is the semiperimeter). The \\(y\\)-coordinate of \\(I\\) equals \\(r\\) because the side \\(AB\\) lies on the \\(x\\)-axis. In general \\(I\\) is irrational, so it is shown as a decimal; unlike the other three points it is not an exact fraction. Theorem (Coxeter): the angle bisectors meet in one point.'),
             words('Pokaži \\(I\\) in včrtano krožnico. Ali se dotika vseh treh stranic?', 'Show \\(I\\) and the incircle. Does it touch all three sides?'),
-            ['triangle', 'centroid', 'circumcentre', 'incentre']),
+            ['triangle', 'centroid', 'circumcentre', 'incentre'], {declare: notableFrame({highlight: ['incentre', 'inradius'], uses: ['incentre']})}),
         notableStep('orthocentre',
             words('Višinska točka iz višin', 'The orthocentre from the altitudes'),
             words('Višina je pravokotnica iz oglišča na nasprotno stranico. Višinska točka \\(H\\) je presečišče višin: \\(H=(2,\\,2)\\). Višina iz \\(C\\) je premica \\(x=2\\), višina iz \\(A\\) pa \\(y=x\\), ker je stranica \\(BC\\) v smeri \\((-1,1)\\). Izrek (Coxeter): tri višine se sekajo v eni točki. Pri tem ostrokotnem trikotniku so vse štiri točke \\(G\\), \\(O\\), \\(I\\) in \\(H\\) znotraj trikotnika.',
                 'An altitude is the perpendicular from a vertex to the opposite side. The orthocentre \\(H\\) is where the altitudes meet: \\(H=(2,\\,2)\\). The altitude from \\(C\\) is the line \\(x=2\\) and the altitude from \\(A\\) is \\(y=x\\), because the side \\(BC\\) points in the direction \\((-1,1)\\). Theorem (Coxeter): the three altitudes meet in one point. In this acute triangle all four points \\(G\\), \\(O\\), \\(I\\) and \\(H\\) are inside the triangle.'),
             words('Pokaži \\(H\\) in višine ter ugotovi, kaj imajo skupnega vse štiri točke pri tem trikotniku.', 'Show \\(H\\) and the altitudes and find what the four points have in common in this triangle.'),
-            ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre']),
+            ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'], {declare: notableFrame({highlight: ['orthocentre'], uses: ['orthocentre']})}),
         notableStep('right-angle',
             words('Pravi kot: središče na hipotenuzi', 'The right angle: the centre on the hypotenuse'),
             words('Za trikotnik \\(A=(0,0)\\), \\(B=(4,0)\\), \\(C=(0,3)\\) je skalarni produkt \\(\\vec{AB}\\cdot\\vec{AC}=0\\), zato je pri \\(A\\) pravi kot; graf to presodi natančno s celoštevilskimi skalarnimi produkti, ne s toleranco. Središče očrtane krožnice je \\(O=(2,\\,3/2)\\), sredina hipotenuze \\(BC\\), s polmerom \\(R=5/2\\); višinska točka \\(H=(0,0)\\) je pravokotno oglišče. Polmer včrtane krožnice je \\(r=1\\) in \\(I=(1,1)\\). Izrek (Coxeter): središče očrtane krožnice je znotraj trikotnika natanko tedaj, ko je ostrokoten, na hipotenuzi natanko tedaj, ko je pravokoten, in zunaj natanko tedaj, ko je topokoten. Vlečenje to le ponazarja.',
                 'For the triangle \\(A=(0,0)\\), \\(B=(4,0)\\), \\(C=(0,3)\\) the dot product \\(\\vec{AB}\\cdot\\vec{AC}=0\\), so the angle at \\(A\\) is right; the graph decides this exactly from integer dot products, not with a tolerance. The circumcentre is \\(O=(2,\\,3/2)\\), the midpoint of the hypotenuse \\(BC\\), with radius \\(R=5/2\\); the orthocentre \\(H=(0,0)\\) is the right-angle vertex. The inradius is \\(r=1\\) and \\(I=(1,1)\\). Theorem (Coxeter): the circumcentre is inside the triangle exactly when it is acute, on the hypotenuse exactly when it is right-angled, and outside exactly when it is obtuse. Dragging only illustrates this.'),
             words('Povleci \\(C\\) (P3) za en korak desno in nato za en korak levo od osi \\(y\\). Kam gre \\(O\\) in kakšna je oznaka trikotnika?', 'Drag \\(C\\) (P3) one step to the right and then one step to the left of the \\(y\\)-axis. Where does \\(O\\) go and what is the triangle labelled?'),
-            ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'], {points: RIGHT_TRIANGLE}),
+            ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'], {points: RIGHT_TRIANGLE, declare: notableFrame({highlight: ['chip', 'circumcentre']})}),
         notableStep('obtuse',
             words('Topokotni trikotnik', 'An obtuse triangle'),
             words('Za \\(A=(0,0)\\), \\(B=(7,0)\\), \\(C=(1,1)\\) je skalarni produkt pri \\(C\\) enak \\((-1)(6)+(-1)(-1)=-5<0\\), zato je kot pri \\(C\\) topi. Središče očrtane krožnice \\(O=(7/2,\\,-5/2)\\) in višinska točka \\(H=(1,\\,6)\\) sta zunaj trikotnika, težišče \\(G=(8/3,\\,1/3)\\) pa znotraj. Pogled je razširjen, da sta \\(O\\) in \\(H\\) vidna. Zunaj je središče očrtane krožnice zato, ker je trikotnik topokoten, kar pove izrek iz prejšnjega koraka.',
                 'For \\(A=(0,0)\\), \\(B=(7,0)\\), \\(C=(1,1)\\) the dot product at \\(C\\) is \\((-1)(6)+(-1)(-1)=-5<0\\), so the angle at \\(C\\) is obtuse. The circumcentre \\(O=(7/2,\\,-5/2)\\) and the orthocentre \\(H=(1,\\,6)\\) are outside the triangle, while the centroid \\(G=(8/3,\\,1/3)\\) is inside. The view is widened so that \\(O\\) and \\(H\\) are visible. The circumcentre is outside because the triangle is obtuse, as the theorem of the previous step says.'),
             words('Ali sta \\(O\\) in \\(H\\) na isti strani trikotnika? Povleci \\(C\\) in opazuj, kdaj \\(O\\) preide čez stranico \\(AB\\).', 'Are \\(O\\) and \\(H\\) on the same side of the triangle? Drag \\(C\\) and watch when \\(O\\) crosses the side \\(AB\\).'),
-            ['triangle', 'centroid', 'circumcentre', 'orthocentre'], {points: OBTUSE_TRIANGLE, view: OBTUSE_VIEW}),
+            ['triangle', 'centroid', 'circumcentre', 'orthocentre'], {points: OBTUSE_TRIANGLE, view: OBTUSE_VIEW, declare: notableFrame({highlight: ['chip', 'circumcentre', 'orthocentre']})}),
         notableStep('explore',
             words('Prosto raziskovanje', 'Free exploration'),
             words('Pokazane so vse znamenite točke. Povleci oglišča, zapiši koordinate v polja in preizkusi tudi tri točke na isti premici: tedaj trikotnik ni določen in graf pove, zakaj ni očrtane krožnice ali višinske točke. Vsak položaj je primer izreka, ne njegov dokaz.',
                 'All notable points are shown. Drag the vertices, type coordinates into the fields and also try three points on one line: then the triangle is degenerate and the graph says why there is no circumcircle or orthocentre. Each position is an instance of a theorem, not a proof of it.'),
             words('Poišči trikotnik, pri katerem je \\(O\\) zunaj, in trikotnik, pri katerem je na stranici.', 'Find a triangle whose \\(O\\) is outside and a triangle whose \\(O\\) is on a side.'),
-            ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre']),
+            ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'], {declare: notableFrame({highlight: ['chip']})}),
     ],
 };
 

@@ -27,24 +27,24 @@ export function NotablePointsPanel(props: NotablePointsPanelProps) {
     const liveReadout = useStatusReadout(stateText, true);
     if (analysis.kind === "missing" || !texts) {
         return <div className="inspector-group" data-notable-state="missing">
-            <p className="inspector-help pointset-status">{stateText}</p>
+            <p className="inspector-help pointset-status" data-readout-note>{stateText}</p>
             <LiveReadout readout={liveReadout} dataAttribute="notable-live"/>
         </div>;
     }
     return <div className="inspector-group notable-panel" data-notable-state={analysis.classification.kind === "degenerate" ? "degenerate" : analysis.classification.shape}>
-        <p className="inspector-help pointset-status" data-notable-chip>{texts.chip}</p>
-        {texts.degenerateWhy && <p className="inspector-help" data-notable-degenerate>{texts.degenerateWhy}</p>}
+        <p className="inspector-help pointset-status" data-notable-chip data-readout-note>{texts.chip}</p>
+        {texts.degenerateWhy && <p className="inspector-help" data-notable-degenerate data-readout-note>{texts.degenerateWhy}</p>}
         <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
         <ul className="pointset-list notable-readouts">
-            <li data-notable-readout="area">{texts.area}</li>
-            {texts.circumradius && <li data-notable-readout="R">{texts.circumradius}</li>}
-            {texts.inradius && <li data-notable-readout="r">{texts.inradius}</li>}
-            {texts.rows.map(row => <li key={row.id} data-notable-centre={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
+            <li data-notable-readout="area" data-readout-note>{texts.area}</li>
+            {texts.circumradius && <li data-notable-readout="R" data-readout-note>{texts.circumradius}</li>}
+            {texts.inradius && <li data-notable-readout="r" data-readout-note>{texts.inradius}</li>}
+            {texts.rows.map(row => <li key={row.id} data-notable-centre={row.id} data-outside-view={row.outsideView} data-readout-note>{row.text}</li>)}
         </ul>
-        {texts.tooFar.map(note => <p key={note} className="inspector-help" data-notable-too-far>{note}</p>)}
+        {texts.tooFar.map(note => <p key={note} className="inspector-help" data-notable-too-far data-readout-note>{note}</p>)}
         <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
         <ul className="pointset-list" data-notable-coordinates>
-            {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
+            {texts.vertices.map((text, i) => <li key={i} data-readout-note>{text}</li>)}
         </ul>
         <LiveReadout readout={liveReadout} dataAttribute="notable-live"/>
     </div>;

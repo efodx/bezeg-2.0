@@ -3,7 +3,7 @@ import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import DecasteljauGraph, {type DecasteljauIds} from './DecasteljauGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {checkDeclaration, type GraphDeclaration} from '../../base/declare/graphDeclaration';
-import {valueText} from '../../base/declare/parity';
+
 import {setLanguage} from '../../../localization';
 import {currentWrite} from '../../base/writes/writeSource';
 
@@ -18,7 +18,7 @@ function setup(...ts: number[]) {
     return {graph, view, declaration: () => graph.getDeclaration() as GraphDeclaration<DecasteljauIds>};
 }
 
-const panelOutput = (view: {container: HTMLElement}) => view.container.querySelector('.decasteljau-animation-heading output')?.textContent;
+
 
 describe('De Casteljau declaration', () => {
     for (const t of [0, 0.25, 0.5, 0.8, 1]) {
@@ -39,9 +39,8 @@ describe('De Casteljau declaration', () => {
                 }
                 expect(current.legend!.map(entry => entry.id)).toEqual(['curve', 'rest', 'point', 'scheme', 'control']);
 
-                // the t row shows what the panel's output shows
-                const row = current.readouts![0].rows[0];
-                expect(`t = ${valueText(row.value)}`).toBe(panelOutput(view));
+                // the panel has no t readout row: the slider shows t, so the declaration declares no readouts
+                expect(current.readouts ?? []).toEqual([]);
                 expect(current.actions!.find(action => action.id === 'full-curve')).toMatchObject({placement: 'tools', section: 'construction', pressed: whole});
                 expect(current.parameters).toMatchObject([{key: 'decasteljau-t', kind: 'range', min: 0, max: 1, placement: 'board'}]);
             });
@@ -64,7 +63,7 @@ describe('De Casteljau declaration', () => {
         act(() => graph.performAction('play'));
         expect(action('play').pressed).toBe(false);
         act(() => graph.performAction('reset'));
-        expect(graph.getDeclaration()!.readouts![0].rows[0].value).toMatchObject({text: '0,00'});
+        expect(graph.state.t).toBe(0);
         expect(action('reset').enabled).toBe(false);
         expect(() => graph.performAction('nothing')).toThrow('Unknown action');
     });
