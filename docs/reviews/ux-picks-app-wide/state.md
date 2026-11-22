@@ -22,7 +22,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 - **01, 01b accepted, on master** (master head `14690f6b`, CI green for `38fc48c3`).
 - **01c**: implemented, acceptance pending the fuzz matrix. On master: `81b5eaad` bridge path. Branch only: `9abecba9` fuzzer/probe/cases/baseline/smoke checklist, `ea78cdc9` Esc pauses playback and ends leases on board graphs (user-visible; fuzzer finding I3). Full `just check` passed at `ea78cdc9`.
-- **02**: slices 1 (`44437c66` contract, `2c648640` FormattedValue + locked min = max), 2 (`cf0fb2cf` frame `declare` field, shared `guidedStep`, transformations and phase portrait lessons use it; 43 local copies switch in 08), 4 (`c63246f2` parity recorder and six recordings), 5 (`98e6f0ee` inventory: 138 demonstrations, 29 components), 5b (ADR 0066 catalog fragments, in `c63246f2`; mechanism not built), 8 Taylor (`d34e9f9b` hooks `declaration()/getDeclaration()/drawnObject()/performAction()` on BaseGraph, Taylor declares, parity passes). Pilots named in the README: `projective-cross-ratio`, `patch-coons`, `triangle-centres`.
+- **02**: done on branch except slice 5a and the `patch-coons` pilot. Slices 1 `44437c66`/`2c648640`; 2 `cf0fb2cf`; 3 contract test `c92616bb` (+ chapter-lesson discovery `3779b47e`); 4 parity `c63246f2` (+ check-mode coverage of a control's read-off by parameter symbol, `cd31e769`); 5 inventory `98e6f0ee`; 5b fragments ADR 0066 built `56414ad2`; 6 `just graph-check <graph-id>` `2212571c`/`f9250bc6`/`2698e33f`/`3779b47e`; 7 guide `docs/guides/converting-a-graph.md` `07c84123`; 8 pilots: Taylor `d34e9f9b`, transformations/De Casteljau/phase portrait `a87ba078`, triangle centres `cd31e769`, linear map + projective cross-ratio `18c97a67` (each passes `just graph-check`). Shared pilot brief `briefs/02-pilot-declare.md`.
 - 03 to 10: not started.
 
 ## Decisions in force (handler)
@@ -30,12 +30,10 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 - 01/01b: global source with ambient learner input; only the five pilots bind parameters and `view` until 08; every board has a `ViewAdapter` (`boardView`); `setIntent` / `following` / `resizing` classes (08 rechecks `following` sites); Presets store the intent box.
 - 02: text is a catalog `Message` (or `FormattedValue` for numbers the graph formats; no words); ids per-graph union with `frameDeclarer<Ids>()`; the declaration reproduces the present panel (parity), new text is a later task; new declaration keys go into per-family fragments (ADR 0066); lesson files switch to `guidedStep` when their graph converts.
 
-## Handler 3 progress (2026-11-22)
+## Running (handler 3)
 
-- Done on branch: `56414ad2` fragments (ADR 0066 built; Taylor keys moved, FormattedValue replaces pass-through); `c92616bb` slice 3 contract test `src/learning/content/declarationContract.test.tsx` + Taylor frames declared; `99afc7e8` shared pilot brief `briefs/02-pilot-declare.md`; `2212571c`+`f9250bc6` slice 6 `just graph-check <id>`; `a87ba078` pilots transformations, De Casteljau, phase portrait.
-- Matrix: handler 2's run died of low memory (Taylor 43 valid passes, 7 invalid; transformations 50 invalid, browser crashed). Handler 3 runs `.command-logs/fuzz-matrix-resume.sh` against its own dev server on 4483 (Taylor seeds 44-50, then each route, then the lesson, one at a time). Port 4471 is down; 4482 is handler 2's.
-- Running at last update: linear map (continuation) and triangle-centres pilot workers.
-- Left in 02: pilots projective-cross-ratio, patch-coons; slice 5a (browser, after matrix); slice 7 guide (inputs: placement notes `02-*-placement.md`, the contract gaps below).
+- Fuzz matrix `.command-logs/fuzz-matrix-resume.sh` against handler 3's dev server `http://127.0.0.1:4483/bezeg-2.0/` (handler 2's run died of low memory; 4471 is down, 4482 is handler 2's). Taylor 50 seeds: 49 pass + seed 49 failed with a Vite HMR error ("frame is not defined") from a worker editing lesson files; replaying `min-analysis_taylor-49.json` passed 5/5. Transformations: seed 17 the same HMR artefact ("frameDeclarer is not defined"), replay passed 5/5. Then De Casteljau, phase portrait, Taylor lesson. Any failure: replay its `min-*.json` first; an HMR "[vite] ReferenceError" is a harness artefact of live edits.
+- `patch-coons` pilot worker (shared patch base; reports what the eight other patch graphs inherit).
 
 ## Contract gaps (decide before the freeze at the 08 gate)
 
@@ -45,6 +43,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 - No place for board captions/insets (phase portrait matrix columns, trace–determinant inset).
 - Declarations read `state`, which lags the live value during playback (De Casteljau `t`); presenters need the arbiter read.
 - `RationalDecasteljauGraph` inherits De Casteljau's declaration unreviewed; De Casteljau speed `v` unbound, undeclared.
+- Parity does not compare `status`; a legend entry for several objects resolves to the first visible one; the linear map's inspector now renders from its declaration and only basis/determinant are recorded (reviewer read-through found no panel change in all seven modes, both languages). Full list in the guide, section 6.
 
 ## Open items
 
@@ -54,5 +53,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 ## Next slice's brief inputs
 
-1. Read the matrix logs. All pass: write the 01c evaluation entry, then publish `9abecba9..` with 02's commits only once 02 is accepted, or publish 01c now from base `14690f6b` (declare exactly base..HEAD; 02 commits are on top, so publishing 01c alone needs 02 accepted too or a separate branch: simplest is to publish 01c and 02 together). A failure: replay the `min-*.json`, decide app bug or harness artefact, fix, rerun that route.
-2. 02 remaining: Taylor follow-up (open item 1); slice 3 contract test over every declaring graph's lesson frames (build on `src/learning/content/sceneContentAgainstGraphs.test.tsx`; Taylor step 1 part 3 "Pokaži oceno napake" `uses: ['show-error']` is the worked frame example; seeded wrong id, hidden highlighted row, undrawn legend entry must fail); slice 5a preview mechanism measurement + ADR (browser; after the matrix); slice 6 per-graph recipe; slice 7 conversion guide (inputs: `02-taylor-placement.md`, `02-parity.md`, `02-shared-inputs.md`, night-tooling `GUIDE.md`); slice 8 the other seven pilots with one shared brief and Taylor (`d34e9f9b`) as the worked example.
+1. Accept `patch-coons` (review its diff; `just graph-check patch-coons`; commit).
+2. When the matrix ends: all routes pass (or only replay-passing HMR artefacts) → write the 01c evaluation entry. 01c and 02 publish together (02 commits sit on top of 01c's): after 5a, run full `just check` on the branch, smoke the pilot routes (phase portrait's wrap curve visibility changed; linear map inspector now renders from the declaration), then `just publish --background` + `just publish --wait`.
+3. Slice 5a (browser, only after the matrix ends so measurements do not share CPU): shadow board (option B) vs geometry from state (option A) for Taylor, De Casteljau, phase portrait; capture cost and frame gaps at 1× and 4× CPU throttle (docs/performance-plan.md; probe in scripts/probe/); new ADR with the numbers. Worker brief; handler owns the ADR decision.
+4. Then 02 acceptance against the task file's Acceptance list (files touched per pilot are in each worker's report and the guide's table), and on to task 03 (layout function: handler-owned core).
