@@ -30,7 +30,7 @@
 .ux-rc-label { min-width: 0; }
 .ux-rc-value mjx-container { white-space: nowrap; font-size: 92%; }
 /* A row the lesson frame talks about: a tint and a mark on the left, no motion. */
-.ux-rc-row[data-highlight] > * { background: rgba(88, 116, 69, 0.14); }
+.ux-rc-row[data-highlight] > * { background: rgba(88, 116, 69, 0.14); align-self: stretch; }
 .ux-rc-row[data-highlight] > .ux-rc-name { box-shadow: inset 3px 0 0 #587445; padding-left: 9px; border-radius: 3px 0 0 3px; color: var(--bezeg-shell-ink, #2b362d); font-weight: 500; }
 .ux-rc-row[data-highlight] > .ux-rc-value { border-radius: 0 3px 3px 0; }
 .ux-rc-notes { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bezeg-shell-rule, #e3e7d9); }

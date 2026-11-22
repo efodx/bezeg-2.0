@@ -452,7 +452,8 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 {id: "function", label: t("taylor_legend_function"), kind: "line", color: GraphPalette.primaryCurve},
                 {id: "polynomial", label: t("taylor_legend_polynomial"), kind: "dashed", color: GraphPalette.comparisonCurve},
                 {id: "error", label: t("taylor_legend_error"), kind: "line", color: GraphPalette.warningText},
-                {id: "bound", label: t("taylor_legend_bound"), kind: "area", color: GraphPalette.constructionAccent},
+                // Drawn entries only: the error band appears after "Pokaži oceno napake", and so does its entry.
+                ...(bound === undefined ? [] : [{id: "bound", label: t("taylor_legend_bound"), kind: "area" as const, color: GraphPalette.constructionAccent}]),
                 ...(model.example === "geometric" ? [{id: "convergence", label: t("taylor_legend_convergence"), kind: "area" as const, color: GraphPalette.additionalCurves[0]}] : []),
             ],
         };
