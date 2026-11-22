@@ -214,7 +214,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             ...(fn === "tan" ? [{id: "asymptotes", label: "Asimptote", kind: "dashed" as const, color: GraphPalette.referenceCurve}] : []),
         ];
         return {
-            formula: equationText(parameters, language).replace(/,/g, "{,}"),
+            formula: equationText(parameters, language).replace(/,/g, "{,}").replace(/\b(sin|cos|tan)\b/g, "\\$1 ").replace(/π/g, "\\pi ").replace(/·/g, "\\cdot "),
             readouts: [
                 {id: "wave", rows: [
                     {id: "phi", name: t("trig_phase_readout"), value: formatWithPi(phi, language), ...texOf(formatWithPi(phi, language)), legend: "curve"},
