@@ -118,6 +118,24 @@ function Test-Inherited($top) {
     return $false
 }
 
+# A background server started through Git Bash loses its link to claude.exe: bash execs the `npx` shell script as
+# a new process and the wrapper exits, so the live owner looks exited. Keep an orphaned tree that listens on a TCP
+# port (a dev server or preview) while any live session, older or newer, works in the same home; orphaned test and
+# typecheck runs hold no listener and are still swept.
+$listening = @{}
+try { foreach ($c in Get-NetTCPConnection -State Listen -ErrorAction Stop) { $listening[[int]$c.OwningProcess] = $true } } catch {}
+function Test-Listens($p) {
+    if ($listening[[int]$p.ProcessId]) { return $true }
+    foreach ($k in Get-Kids $p) { if (Test-Listens $k) { return $true } }
+    return $false
+}
+function Test-LiveServer($top) {
+    $treeHome = Get-Home (Get-TreeCwd $top)
+    if (-not $treeHome -or -not (Test-Listens $top)) { return $false }
+    foreach ($s in $sessions) { if ((Get-Home $s.Cwd) -eq $treeHome) { return $true } }
+    return $false
+}
+
 $log = Join-Path $(if ($env:CLAUDE_PROJECT_DIR) { $env:CLAUDE_PROJECT_DIR } else { '.' }) '.command-logs'
 New-Item -ItemType Directory -Force $log | Out-Null
 $log = Join-Path $log 'session-cleanup.log'
@@ -180,7 +198,7 @@ if ($Mode -ne 'end') {
 }
 
 foreach ($t in $targets.Values) {
-    $keep = Test-Inherited $t[0]
+    $keep = (Test-Inherited $t[0]) -or ($t[1] -like 'orphaned*' -and (Test-LiveServer $t[0]))
     if ($DryRun) { '{0} {1} {2} cwd={3}' -f $(if ($keep) { 'keep' } else { 'kill' }), $t[0].ProcessId, $t[0].Name, (Get-TreeCwd $t[0]); continue }
     if ($keep) { continue }
     Stop-Tree $t[0] $t[1]
