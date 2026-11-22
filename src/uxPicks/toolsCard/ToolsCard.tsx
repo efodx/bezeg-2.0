@@ -3,6 +3,8 @@ import {DockCard} from '../dock/DockCard';
 import {budgetOpen, storedFold} from '../dock/dockBudget';
 import {useGraphUx} from '../declare/graphUxStore';
 import {useToolsSections} from './useToolsSections';
+import {setToolsExpanded, useToolsExpanded} from './toolsExpand';
+import {ToolTabs, type ToolTab} from './ToolTabs';
 import './toolsCard.css';
 
 /**
@@ -25,7 +27,7 @@ const readFold = () => storedFold(FOLD_KEY);
  * While a reading frame locks the tools (`locked`) the card folds by itself (owner, 2026-11-21), giving the lesson the
  * room; opening it then only peeks until the frame ends. The learner's own fold is stored and comes back after.
  */
-export function ToolsCard(props: {children: React.ReactNode; locked?: boolean}) {
+export function ToolsCard(props: {children: React.ReactNode; locked?: boolean; tabs?: {tabs: ToolTab[]; current: string; label: string; onPick: (id: string) => void}}) {
     const locked = props.locked ?? false;
     const [body, setBody] = useState<HTMLDivElement | null>(null);
     useToolsSections(body);
@@ -55,7 +57,16 @@ export function ToolsCard(props: {children: React.ReactNode; locked?: boolean}) 
         setOwn(!open);
         try { localStorage.setItem(FOLD_KEY, open ? '0' : '1'); } catch { /* ignore */ }
     };
-    return <DockCard kind={TOOLS} title="Orodja" what="orodja" region="tl" order={0} collapsed={(reading ? lessonOwn ?? true : own ?? !budgetOpen(TOOLS, false)) || (locked && !peek)} onToggle={onToggle}>
+    const folded = (reading ? lessonOwn ?? true : own ?? !budgetOpen(TOOLS, false)) || (locked && !peek);
+    const expanded = useToolsExpanded();
+    // Folding Orodja, or leaving the page, returns the stack to its previous split.
+    useEffect(() => { if (folded) setToolsExpanded(false); }, [folded]);
+    useEffect(() => () => setToolsExpanded(false), []);
+    // An icon in the head picks its tab; on the folded card it also opens the card.
+    const pick = (id: string) => { props.tabs?.onPick(id); if (folded) onToggle(true); };
+    const tabs = props.tabs && <ToolTabs tabs={props.tabs.tabs} current={props.tabs.current} label={props.tabs.label} onPick={pick}/>;
+    return <DockCard kind={TOOLS} title="Orodja" what="orodja" region="tl" order={0} collapsed={folded} onToggle={onToggle}
+        headExtra={tabs} className={expanded && !folded ? 'is-expanded' : undefined}>
         {open => <div className="ux-tools-body" ref={setBody} hidden={!open}>{props.children}</div>}
     </DockCard>;
 }

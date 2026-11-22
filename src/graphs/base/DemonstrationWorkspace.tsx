@@ -333,6 +333,9 @@ export function DemonstrationWorkspace(props: {
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
         </aside>;
-        return toolsCard && inspectorVisible ? <ToolsCard locked={readingLocks}>{tools}</ToolsCard> : tools; })()}
+        return toolsCard && inspectorVisible ? <ToolsCard locked={readingLocks} tabs={{tabs: sections, current: section, label: t("tool_groups"), onPick: id => {
+            setSection(id as Section); setExpanded(true);
+            if (inspectorContent.current) inspectorContent.current.scrollTop = 0;
+        }}}>{tools}</ToolsCard> : tools; })()}
     </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PlaybackSlotContext.Provider></PresetLockContext.Provider>;
 }

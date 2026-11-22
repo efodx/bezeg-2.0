@@ -10,6 +10,7 @@ import {
 import {useFlip} from './dockFlip';
 import {ANCHOR_AT, REGION_LABEL} from './dockMeasure';
 import {ScrollIcon} from './icons';
+import {setToolsExpanded} from '../toolsCard/toolsExpand';
 import {GesturesHint} from './GesturesHint';
 import {ShortcutsHost} from './Shortcuts';
 import {BAR, FADE, blockBands, clearSnap, footOf, pageStep, snapRows} from './snapRows';
@@ -159,7 +160,8 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
         {frameEl && !phone && cues.map(c => <React.Fragment key={c.id}>
             <span className="ux-dock-more-fade" style={{left: c.x, top: c.y - FADE, width: c.w, height: FADE}} aria-hidden="true"/>
             <button type="button" className="ux-dock-more" style={{left: c.x, top: c.y, width: c.w, height: BAR}}
-                aria-label={c.n ? `Še ${c.n} odčitkov: pomakni navzdol` : 'Pomakni navzdol'} onClick={() => c.scroll()}>{c.n ? `še ${c.n}` : 'Več'}<ChevronDown/></button>
+                aria-label={c.less ? 'Manj: vrni prejšnjo razdelitev' : c.more ? 'Več: razpni orodja v stolpcu' : c.n ? `Še ${c.n} odčitkov: pomakni navzdol` : 'Pomakni navzdol'}
+                aria-expanded={c.less ? true : c.more ? false : undefined} onClick={() => c.scroll()}>{c.less ? 'Manj' : c.n ? `še ${c.n}` : 'Več'}{c.less ? <ChevronUp/> : <ChevronDown/>}</button>
         </React.Fragment>)}
         {view && frameEl && !api.phone && <DragPreview frame={frameEl} dock={dockEl.current} view={view} version={layoutVersion}/>}
         {layoutVersion >= 0 && !phone && <LessonGap api={api}/>}
@@ -169,11 +171,15 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
     </DockContext.Provider>;
 }
 
+function ChevronUp() {
+    return <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.5 7.5 6 4l3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
 function ChevronDown() {
     return <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 
-interface Cue { id: string; x: number; y: number; w: number; n: number; scroll: () => void; }
+interface Cue { id: string; x: number; y: number; w: number; n: number; scroll: () => void; /** Orodja's bar that expands it in its stack. */ more?: boolean; /** Orodja's bar while expanded. */ less?: boolean; }
 
 /**
  * A card or stack whose body is cut at the bottom says so with an opaque footer bar ("še N" rows, or "Več") along the inside
@@ -198,7 +204,13 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
                 if (el.scrollTop <= 1 && !el.classList.contains('guided-lesson-reading')) { clearSnap(el); if (!skipped && snap) snapRows(el, el.classList.contains('ux-tools-body') ? blockBands : undefined, el.classList.contains('ux-tools-body') ? 120 : undefined); }
                 const cut = !skipped && el.scrollHeight > el.clientHeight + 2 && el.scrollTop + el.clientHeight < el.scrollHeight - 2;
                 if (el.hasAttribute('data-cut') !== cut) { if (cut) el.setAttribute('data-cut', ''); else el.removeAttribute('data-cut'); }
-                if (!cut) return;
+                // Orodja, expanded: "Manj" shows at the foot of its body whether or not the body is cut. Cut and sharing its stack with open
+                // cards: "Več" expands it there instead of scrolling.
+                const toolsCard = el.classList.contains('ux-tools-body') ? el.closest<HTMLElement>('.ux-bcard-tools') : null;
+                const less = !!toolsCard && !skipped && toolsCard.classList.contains('is-expanded');
+                const more = !!toolsCard && cut && !less
+                    && Array.from(toolsCard.parentElement?.children ?? []).some(c => c !== toolsCard && c.classList.contains('ux-btext') && !c.classList.contains('ux-btext-collapsed') && (c as HTMLElement).offsetHeight > 0);
+                if (!cut && !less) return;
                 const r = el.getBoundingClientRect();
                 if (r.height < 60 || r.width < 40) return;
                 const barTop = r.bottom - footOf(el) - BAR;
@@ -209,8 +221,8 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
                     const reach = Array.from(el.children).map(c => c.getBoundingClientRect()).filter(c => c.width > 0 && c.top < barTop + BAR).pop();
                     if (reach) { left = Math.max(r.left, reach.left); right = Math.min(r.right, reach.right); }
                 }
-                next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(left - f.left), y: Math.round(barTop - f.top), w: Math.round(right - left), n: rows,
-                    scroll: () => el.scrollBy({top: pageStep(el), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'})});
+                next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(left - f.left), y: Math.round(barTop - f.top), w: Math.round(right - left), n: rows, more, less,
+                    scroll: () => less ? setToolsExpanded(false) : more ? setToolsExpanded(true) : el.scrollBy({top: pageStep(el), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'})});
             };
             root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(el => consider(el));
             root.querySelectorAll<HTMLElement>('.ux-dock-h > .ux-btext').forEach(el => consider(el));
@@ -218,7 +230,7 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
             root.querySelectorAll<HTMLElement>('.ux-bcard-tools:not(.is-floating) > .ux-tools-body').forEach(el => consider(el));
             // The lesson card's own text scrolls inside it (a docked card capped on a narrow board): the bar sits in the foot of the text.
             root.querySelectorAll<HTMLElement>('.ux-bcard-guide:not(.is-floating):not(.ux-btext-collapsed) .guided-lesson-reading').forEach(el => consider(el, true));
-            setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.w === next[k].w && c.n === next[k].n) ? prev : next);
+            setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.w === next[k].w && c.n === next[k].n && c.more === next[k].more && c.less === next[k].less) ? prev : next);
         };
         measure();
         const timer = window.setInterval(measure, 250);

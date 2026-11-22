@@ -290,3 +290,33 @@
     min-height: var(--bezeg-control-height); font-size: .8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0;
 }
 /* Round 9: the tools list's cut bottom edge is marked by the dock's inside "Več" bar (BoardDock useOverflowCues), which brings its own opaque fade. */
+
+/* ---- Round 23 (owner, 2026-11-22): the tabs are three icons in the head; "Več" on Orodja gives it its stack ---- */
+/* The text tab row inside the body is gone (its hints stay in the DOM for the head icons' aria-describedby). */
+.ux-bcard-tools .inspector-toolbar { display: none; }
+.ux-bcard-tools > .ux-tools-body[data-overflow~="start"] { -webkit-mask-image: linear-gradient(transparent, #000 28px); mask-image: linear-gradient(transparent, #000 28px); }
+.ux-tool-tabs { flex: none; display: inline-flex; align-items: center; gap: 2px; padding: 2px; border-radius: 8px; background: color-mix(in srgb, var(--workspace-canvas-deep, #d8dccb) 35%, var(--bezeg-shell-panel)); }
+.ux-btext .ux-tool-tab {
+    min-height: 0; min-width: 0; box-shadow: none; flex: none; display: grid; place-items: center; width: 28px; height: 24px; padding: 0; border: 0; border-radius: 6px;
+    background: transparent; color: var(--bezeg-shell-ink-secondary); box-sizing: border-box; cursor: pointer; touch-action: manipulation;
+}
+.ux-tool-tab svg { width: 16px; height: 16px; display: block; }
+.ux-btext .ux-tool-tab:hover { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
+.ux-btext .ux-tool-tab[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
+.ux-tool-tab:focus-visible { outline: 2px solid var(--bezeg-shell-focus); outline-offset: 1px; }
+@media (pointer: coarse) { .ux-btext .ux-tool-tab { width: 40px; height: 32px; } }
+.ux-tool-tab-tip {
+    position: fixed; z-index: 60; transform: translateX(-50%); width: max-content; padding: 3px 8px; border-radius: 8px; pointer-events: none;
+    background: var(--bezeg-shell-panel, #fbfaf3); border: 1px solid var(--bezeg-shell-rule, #d8dccb); color: var(--bezeg-shell-ink, #2b362d); font-size: 0.8125rem; line-height: 1.3;
+    box-shadow: 0 4px 14px rgba(25, 55, 47, 0.14);
+}
+.is-presenting .ux-bcard-tools .ux-tool-tab { color: var(--bezeg-night-panel); }
+.is-presenting .ux-bcard-tools .ux-tool-tabs { background: #2a3c58; }
+
+/* Expanded ("Več" on Orodja): Orodja takes the height its content needs (the free height of the stack at most), the lesson card
+   gives way first, down to its floor (useLessonCardFit), and the other cards of the stack show folded (DockCard). */
+.ux-dock-v > .ux-bcard-tools.is-expanded:not(.ux-btext-collapsed) { flex: 0 1 auto; min-height: 120px; }
+.ux-dock-v:has(> .ux-bcard-guide:not(.ux-btext-collapsed)) > .ux-bcard-tools.is-expanded:not(.ux-btext-collapsed) { flex: 0 1 auto; min-height: 120px; }
+.ux-dock-v:has(> .ux-bcard-tools.is-expanded:not(.ux-btext-collapsed)) > .ux-bcard-guide:not(.ux-btext-collapsed) { flex-shrink: 100; }
+/* The "Manj" bar lies over the foot of the body: the body keeps its room. */
+.ux-bcard-tools.is-expanded > .ux-tools-body { padding-bottom: 26px; }

@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {clearSnap, snapRows} from '../dock/snapRows';
+import {onToolsExpandedChange, setToolsExpanded} from './toolsExpand';
 
 /**
  * Pick toolsCard: the lesson card on the graph fits its text, and when the text changes (Naprej, Nazaj, an opened
@@ -43,9 +44,15 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
         const docked = () => !card.classList.contains('is-floating') && !card.classList.contains('ux-btext-collapsed')
             && !!card.parentElement?.classList.contains('ux-dock-v');
 
+        // Naprej/Nazaj (or Alt+arrows): the new frame's text must be readable, so an expanded Orodja gives the stack back.
+        const frameKey = () => card.querySelector('.ux-lesson-frame-count')?.textContent ?? '';
+        let frame = frameKey();
+        const frameMoved = () => { const now = frameKey(); if (now !== frame) { frame = now; setToolsExpanded(false); } };
+
         let busy = false, settling = 0, settlePass = false;
         const apply = () => {
             if (busy) return;
+            frameMoved();
             // One more pass once the glide and MathJax have settled: a snap measured mid-glide can leave a line cut (round 14).
             if (!settlePass) { window.clearTimeout(settling); settling = window.setTimeout(() => { settlePass = true; try { apply(); } finally { settlePass = false; } }, 320); }
             if (!docked()) { release(); markScroll(); return; }
@@ -99,6 +106,8 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
         // (One observe call: a second call on the same node would replace these options.) Our own writes are to `style`
         // and `data-overflow`, which are not watched.
         const mutations = new MutationObserver(() => { rewatch(); apply(); });
+        // Orodja expands or returns the stack: the card is fitted again (it shrinks to its floor, or comes back).
+        const offExpand = onToolsExpandedChange(() => schedule());
         mutations.observe(card, {childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'open', 'hidden']});
         const contentSize = new ResizeObserver(() => apply());
         const layoutSize = new ResizeObserver(schedule);
@@ -121,6 +130,7 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
             if (raf) cancelAnimationFrame(raf);
             window.clearInterval(timer); window.clearTimeout(settling);
             window.removeEventListener('resize', onResize);
+            offExpand();
             mutations.disconnect(); contentSize.disconnect(); layoutSize.disconnect();
             card.removeEventListener('scroll', onScroll, true);
             release();

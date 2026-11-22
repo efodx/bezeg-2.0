@@ -11,6 +11,7 @@ import {REGION_LABEL, measureDrag} from './dockMeasure';
 import {useFlip} from './dockFlip';
 import {useAutoOpen} from '../boardText/autoOpenStore';
 import {budgetOpen, storedFold, useBudgetFolded} from './dockBudget';
+import {setToolsExpanded, useToolsExpanded} from '../toolsCard/toolsExpand';
 
 /**
  * A movable, foldable card in the board dock. Docked, it sits at one of seven anchors around the board's edge and never
@@ -39,6 +40,10 @@ export interface DockCardProps {
     head?: React.ReactNode;
     /** Extra controls in the head, before the fold button (e.g. the lesson's Končaj). */
     actions?: React.ReactNode;
+    /** Controls in the head right after the title, open or folded (the tools card's Uredi/Prikaz/Shrani icons). */
+    headExtra?: React.ReactNode;
+    /** An extra class on the card element (the tools card marks its expanded state). */
+    className?: string;
     /** A fold the owner controls (the lesson card: folding is hiding the instructions); not stored. */
     collapsed?: boolean;
     onToggle?: (open: boolean) => void;
@@ -131,7 +136,10 @@ export function DockCard(props: DockCardProps) {
     const byAll = foldAllRules(kind);
     const budgetFolded = useBudgetFolded(kind);
     const budgetOpens = kind !== 'guide' && budgetOpen(kind, inLesson) && !budgetFolded;
-    const collapsed = byAll ? foldAllFold(kind) : props.collapsed ?? (inLesson ? lessonFold ?? !(auto || budgetOpens) : ownCollapsed ?? !budgetOpens);
+    // Pick toolsCard: while Orodja has its stack to itself ("Več" on Orodja) the other cards of that stack show folded (the lesson card shrinks instead).
+    const toolsExpanded = useToolsExpanded();
+    const squeezed = toolsExpanded && kind !== 'tools' && kind !== 'guide' && (placedRegion(kind) ?? props.region) === (placedRegion('tools') ?? 'tl');
+    const collapsed = byAll ? foldAllFold(kind) : squeezed ? true : props.collapsed ?? (inLesson ? lessonFold ?? !(auto || budgetOpens) : ownCollapsed ?? !budgetOpens);
     // The lesson frame refers to this card: it opens by itself (unless the learner chose) and glows briefly.
     const cueNow = auto && inLesson && lessonFold === null;
     useEffect(() => {
@@ -199,6 +207,7 @@ export function DockCard(props: DockCardProps) {
 
     const toggle = () => {
         if (phone) { dock.setPhoneOpen(open ? null : kind); return; }
+        if (squeezed) { setToolsExpanded(false); return; }
         const next = !collapsed;
         if (byAll) { setFoldAllCard(kind, next); return; }
         if (props.onToggle) { props.onToggle(!next); return; }
@@ -293,7 +302,7 @@ export function DockCard(props: DockCardProps) {
     const resetTip = 'Vrni kartico na privzeto mesto';
     return <>
         {g && gapTarget && createPortal(<GapSlot w={g.w} h={g.h} order={2 * g.index} target={g.isTarget}/>, gapTarget)}
-        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}${cue ? ' ux-btext-cue' : ''}`} style={style}>
+        {createPortal(<div ref={card} data-dock-item="" data-kind={kind} className={`ux-btext ux-bcard-${kind}${props.className ? ` ${props.className}` : ''}${open ? '' : ' ux-btext-collapsed'}${floating ? ' is-floating' : ''}${cue ? ' ux-btext-cue' : ''}`} style={style}>
             <div className="ux-btext-head" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                  onPointerCancel={onPointerUp} onDoubleClick={e => { if (!(e.target as HTMLElement).closest('button, a')) reset(); }}>
                 {!phone && <span className="ux-btext-grip" role="button" tabIndex={0} onKeyDown={onKeyDown} onBlur={() => { setKeyboard(false); clearGap(kind); }}
@@ -301,6 +310,7 @@ export function DockCard(props: DockCardProps) {
                       title="Povleci za premik, dvoklik pripne"><GripIcon/></span>}
                 {!open && <KindIcon kind={kind}/>}
                 <span className="ux-btext-title" title={typeof (props.head ?? props.title) === 'string' ? String(props.head ?? props.title) : undefined}>{props.head ?? props.title}</span>
+                {props.headExtra}
                 {props.actions}
                 {moved && <button type="button" className="ux-btext-toggle ux-btext-reset" onClick={reset} aria-label={`${resetTip}: ${props.title}`} title={resetTip}><HomeIcon/></button>}
                 <button type="button" className="ux-btext-toggle" onClick={toggle} aria-expanded={open}
