@@ -1,0 +1,7 @@
+analysis/fourier-series 16/16 FAIL:
+functions/waves 15/15 FAIL:
+analysis/contours 15/15 FAIL:
+analysis/logistic-map 15/15 FAIL:
+ph/cubic 15/15 FAIL:
+patches/tensor 0/1 FAIL: route-level [page.waitForSelector: Timeout 15000ms exceeded.]
+ERRORS 0

@@ -1,0 +1,11 @@
+OK analysis/taylor select 1 -> sine
+OK analysis/taylor select 1 -> geometric
+OK functions/transformations select 1 -> cube
+OK functions/transformations select 1 -> sqrt
+FAIL bezier/decasteljau select 1 -> axes: locator.selectOption: Timeout 5000ms exceeded.
+FAIL bezier/decasteljau select 1 -> axes-major: locator.selectOption: Timeout 5000ms exceeded.
+OK linear-map select 1 -> basis-default
+OK linear-map select 1 -> orientation-reversing
+OK analysis/phase-portrait select 1 -> pendulum
+OK analysis/phase-portrait select 1 -> weak-spiral
+DONE errors=0
