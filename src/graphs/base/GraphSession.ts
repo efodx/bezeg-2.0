@@ -1,6 +1,7 @@
 import {Board, JSXGraph} from "jsxgraph";
 import {DisplaySettings} from "./DisplaySettings";
 import {applyBoardTextDefaults} from "../styles/BoardText";
+import {ViewAdapter, type ViewBoard} from "./writes/viewAdapter";
 
 export type GraphBoardOptions = Parameters<typeof JSXGraph.initBoard>[1];
 
@@ -21,6 +22,8 @@ const sessionsByBoard = new WeakMap<Board, GraphSession>();
 /** Owns one JSXGraph board and every lifecycle resource attached by the graph. */
 export class GraphSession {
     private board?: Board;
+    private viewAdapter?: ViewAdapter;
+    private readonly viewSubscriptions = new Map<() => void, () => void>();
     private adoptedMainView = false;
     private disposed = false;
     private ready = false;
@@ -66,7 +69,24 @@ export class GraphSession {
         this.board = board;
         sessionsByBoard.set(board, this);
         this.refreshPointerOriginOnPointerDown(board);
+        // The adapter listens through the session's safe `on`, so its unsubscribe never removes a handler during dispatch.
+        this.viewAdapter = new ViewAdapter(viewBoardOver(board, (options as {boundingBox?: number[]} | undefined)?.boundingBox, {
+            on: (event, handler) => {
+                // A test fake board may have no event API.
+                if (typeof board.on === "function") this.viewSubscriptions.set(handler, this.on(event, handler));
+            },
+            off: (_event, handler) => {
+                this.viewSubscriptions.get(handler)?.();
+                this.viewSubscriptions.delete(handler);
+            },
+        }));
         return board;
+    }
+
+    /** The main board's view adapter (task 01b): the only writer of its view. */
+    get view(): ViewAdapter {
+        if (!this.viewAdapter) throw new Error("This graph session has no board, so no view.");
+        return this.viewAdapter;
     }
 
     /**
@@ -190,7 +210,10 @@ export class GraphSession {
             const entry = entries[0];
             if (!this.isAlive || !board || !entry) return;
             const {width, height} = entry.contentRect;
-            if (width > 0 && height > 0) board.resizeContainer(width, height, true);
+            if (width <= 0 || height <= 0) return;
+            const resize = () => board.resizeContainer(width, height, true);
+            if (this.viewAdapter) this.viewAdapter.resizing(resize);
+            else resize();
         });
         this.resizeObserver = observer;
         observer.observe(container);
@@ -260,6 +283,9 @@ export class GraphSession {
             }
         }
         this.cleanups.clear();
+        this.viewAdapter?.dispose();
+        this.viewAdapter = undefined;
+        this.viewSubscriptions.clear();
         this.adoptedMainView = false;
         const board = this.board;
         this.board = undefined;
@@ -279,6 +305,33 @@ export class GraphSession {
     private resolveReadyWaitersIfSettled(): void {
         if (this.isSettled) this.resolveReadyWaiters();
     }
+}
+
+/**
+ * The adapter's view of a JSXGraph board. A board without a size (hidden or zero-size container, jsdom) reports a NaN
+ * box: the adapter then keeps the last finite box, starting from `requested` (the box the board was made with).
+ * Tolerates a board that lacks a method (the test fakes of graphs mounted without a session).
+ */
+export function viewBoardOver(
+    board: Board,
+    requested: readonly number[] | undefined,
+    events: Pick<ViewBoard, "on" | "off"> = {on: () => undefined, off: () => undefined},
+): ViewBoard {
+    const finite = (box: readonly number[] | undefined): box is readonly number[] => box?.length === 4 && box.every(Number.isFinite);
+    let lastFinite: number[] = finite(requested) ? [...requested] : [-1, 1, 1, -1];
+    return {
+        getBoundingBox: () => {
+            const box = typeof board.getBoundingBox === "function" ? board.getBoundingBox() : undefined;
+            if (finite(box)) lastFinite = [...box];
+            return lastFinite;
+        },
+        setBoundingBox: (box, keepAspectRatio, zoom) => (zoom === undefined
+            ? board.setBoundingBox(box as [number, number, number, number], keepAspectRatio)
+            : board.setBoundingBox(box as [number, number, number, number], keepAspectRatio, zoom)),
+        zoomIn: () => board.zoomIn(),
+        zoomOut: () => board.zoomOut(),
+        ...events,
+    };
 }
 
 /** Finds the owner for an adapter callback without retaining disposed boards. */

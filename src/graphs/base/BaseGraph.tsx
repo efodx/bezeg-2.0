@@ -19,7 +19,7 @@ import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
 import {ReplacementRevision} from "../../inputs/replacementRevision";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
 import {LessonAction, LessonCurveFixture, LessonGraphCapabilities, LessonPatchFixture, LessonSceneCheckpoint, LessonView3D, LessonViewBox, UnsupportedLessonActionError} from '../../learning/model';
-import {GraphSession} from "./GraphSession";
+import {GraphSession, viewBoardOver} from "./GraphSession";
 import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
 import {AxisSelect, DisplaySettings} from "./DisplaySettings";
 import {GraphStyles, stylesFor} from "../styles/GraphStyles";
@@ -30,6 +30,7 @@ import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatc
 import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
 import {ParameterArbiter, type ParameterBinding} from "./writes/parameterArbiter";
 import {runAs} from "./writes/writeSource";
+import {ViewAdapter} from "./writes/viewAdapter";
 import {installLearnerInputTagging} from "./writes/learnerInputTagging";
 import {SceneSlot, type SceneDeclaration} from "./OwnedScene";
 
@@ -137,6 +138,18 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     protected get hasBoard(): boolean {
         return this.board !== undefined;
     }
+
+    /** The main board's view adapter, the only writer of its view (task 01b). Only for a graph with a board. */
+    protected get boardView(): ViewAdapter {
+        const sessionView = this.graphSession?.view;
+        if (sessionView) return sessionView;
+        // A graph whose board was set without a session (the unit tests' fake boards) gets a standalone adapter over it.
+        if (!this.standaloneView || this.standaloneView.board !== this.board) {
+            this.standaloneView = {board: this.board, adapter: new ViewAdapter(viewBoardOver(this.board, undefined))};
+        }
+        return this.standaloneView.adapter;
+    }
+    private standaloneView?: {board: Board; adapter: ViewAdapter};
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
 
@@ -250,10 +263,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             owner: this.constructor.name,
         });
         for (const [key, binding] of bindings) arbiter.bind(key, binding);
+        const unbindView = this.hasBoard ? this.boardView.bindTo(arbiter, "view") : undefined;
         const unsubscribe = this.store.subscribe(() => arbiter.observe());
         this.parameterArbiter = arbiter;
         this.releaseParameterArbiter = () => {
             unsubscribe();
+            unbindView?.();
             arbiter.dispose();
             if (this.parameterArbiter === arbiter) this.parameterArbiter = undefined;
         };
@@ -487,7 +502,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         }
         this.requestRender();
         // A new board starts at the default view; a stored preset's own view is applied after the scene.
-        if (this.hasBoard) this.board.setBoundingBox(this.startingBox(this.board.container), this.equalAxisUnits);
+        // This runs before the scene replacement's own scope, as the learner's Reset, selection or import.
+        if (this.hasBoard) runAs("learner", () => this.boardView.setIntent(this.startingBox(this.board.container), {keepAspectRatio: this.equalAxisUnits}));
         // No stored Preset (Reset, a deleted selection): the default scene, which follows the chosen example. A stored
         // Preset that omits its data starts from `persistedDefaultData()` instead (see `importFigurePresetData`).
         return this.applyFigurePreset(session, stored ?? {id: "", data: cloneLessonValue(this.defaultPreset())}, session.signal)
@@ -871,7 +887,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         this.runLessonReplacement({
             dispose: state.data !== undefined && this.disposesBeforeNonFigureImport(),
             importData: () => { if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data) as D); },
-            afterImport: () => { if (this.hasBoard && state.boardState) this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits); },
+            afterImport: () => { if (this.hasBoard && state.boardState) this.boardView.setIntent(state.boardState.boundingBox, {keepAspectRatio: this.equalAxisUnits}); },
             // Replaced, not merged: optional keys set after the checkpoint was captured must not survive the restore.
             state: () => ({...this.getInitialState(), ...cloneLessonValue(state.graphState) as S, initialized: true}),
             afterState: () => {
@@ -902,7 +918,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const [left, top, right, bottom] = view;
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const box = this.equalAxisUnits ? fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height))) : undefined;
-        this.board.setBoundingBox(box ?? [...view], this.equalAxisUnits);
+        this.boardView.setIntent(box ?? [...view], {keepAspectRatio: this.equalAxisUnits});
     }
 
     /**
@@ -919,7 +935,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const box = this.fitView(points, parseFloat(String(width)), parseFloat(String(height)));
         if (box) {
-            this.board.setBoundingBox(box, this.equalAxisUnits, 'update');
+            this.boardView.setIntent(box, {keepAspectRatio: this.equalAxisUnits, zoom: "update"});
             this.board.applyZoom();
         }
     }
@@ -927,12 +943,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     private navigateBoard(action: string) {
         if (!this.hasBoard) return;
         if (action === 'fit') { this.fitToVisiblePoints(); return; }
-        if (action === "in") { this.board.zoomIn(); return; }
-        if (action === "out") { this.board.zoomOut(); return; }
+        if (action === "in") { this.boardView.zoom("in"); return; }
+        if (action === "out") { this.boardView.zoom("out"); return; }
         const [left, top, right, bottom] = this.board.getBoundingBox();
         const dx = (right - left) * (action === "left" ? -.15 : action === "right" ? .15 : 0);
         const dy = (top - bottom) * (action === "up" ? .15 : action === "down" ? -.15 : 0);
-        this.board.setBoundingBox([left + dx, top + dy, right + dx, bottom + dy], false);
+        this.boardView.setIntent([left + dx, top + dy, right + dx, bottom + dy], {keepAspectRatio: false});
     }
 
     /** Graph-specific mount/figure-entry work; a declared standalone scene is built by the host right after it. */
@@ -1011,7 +1027,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         // JSXGraph widened that box to the canvas aspect, and it was made before the board had a size (which an initial view may read,
         // a band under the axis). A graph whose axes mean different things starts at its exact box: a lesson captures the view of a
         // new board before the scene frames it.
-        if (!this.equalAxisUnits) this.board.setBoundingBox(this.startingBox(container), false);
+        if (!this.equalAxisUnits) session.view.setIntent(this.startingBox(container), {keepAspectRatio: false});
         // Tick labels use the language's decimal separator and are rebuilt only by a full update.
         session.registerCleanup(onLanguageChange(() => this.board?.fullUpdate()));
     }
@@ -1138,7 +1154,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         return {
             id: this.presets()!,
             // A view the board cannot show (a hidden or zero-size container) is left out: the check would refuse the whole collection.
-            ...(this.hasBoard && isBoundingBox(this.board.getBoundingBox()) ? {boardState: this.boardState()} : {}),
+            ...(this.hasBoard && isBoundingBox(this.boardView.intent().box) ? {boardState: this.boardState()} : {}),
             graphState: projected ? projected.graphState : this.savedGraphState(),
             data: projected ? projected.data : this.exportPresetData()
         };
@@ -1182,7 +1198,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     /** Shows the view a persisted Preset without `boardState` starts from: the graph's initial view, as a new board has it. */
     protected showInitialView(): void {
-        this.board.setBoundingBox(this.startingBox(this.board.container), this.equalAxisUnits);
+        this.boardView.setIntent(this.startingBox(this.board.container), {keepAspectRatio: this.equalAxisUnits});
     }
 
     /**
@@ -1196,7 +1212,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     /** The visible box of the board; undefined when the main view is not a board. */
     boardState(): BoardState | undefined {
         if (!this.hasBoard) return undefined;
-        return {boundingBox: this.board.getBoundingBox()};
+        return {boundingBox: [...this.boardView.intent().box]};
     }
 
     exportPresetData(): D | undefined {
@@ -1360,7 +1376,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
                     initialize: true,
                     finish: () => {
                         const boardState = (checked ?? preset).boardState;
-                        if (boardState && this.hasBoard) this.board.setBoundingBox(boardState.boundingBox, this.equalAxisUnits);
+                        if (boardState && this.hasBoard) this.boardView.setIntent(boardState.boundingBox, {keepAspectRatio: this.equalAxisUnits});
                         this.boardUpdate();
                         session.requestFullUpdate();
                     },
@@ -1398,7 +1414,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     private importBoardState(boardState: BoardState) {
         if (!this.hasBoard) return;
-        this.board.setBoundingBox(boardState.boundingBox, this.equalAxisUnits);
+        this.boardView.setIntent(boardState.boundingBox, {keepAspectRatio: this.equalAxisUnits});
         this.board.fullUpdate();
     }
 

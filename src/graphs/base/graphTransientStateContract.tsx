@@ -13,6 +13,7 @@ import BaseGraph, {BaseGraphState} from './BaseGraph';
 import BaseFunctionGraph from '../functions/BaseFunctionGraph';
 import type {LessonAction} from '../../learning/model';
 import {appStorage} from '../../storage/appStorage';
+import {runAs} from './writes/writeSource';
 import {capturePNGBlob} from './export/FigureCapture';
 import {inject, type Mock} from 'vitest';
 import {classNames, selectEntries, skippedPlaceholder, TRANSIENT_STATE_SAMPLE} from './catalogSweepScope';
@@ -102,13 +103,14 @@ function resetDisplay(graph: BaseGraph<BaseGraphState>, reference: BaseGraph<Bas
         return;
     }
     if (!internals(graph).board) return;
-    act(() => {
+    // The learner's own view and display settings, so the view change is attributed to the learner.
+    act(() => runAs('learner', () => {
         // Keep the aspect only for graphs with equal axis units; a plot with free axes would be rescaled to the container.
         internals(graph).board.setBoundingBox(internals(reference).board.getBoundingBox() as [number, number, number, number], internals(graph).equalAxisUnits !== false);
         graph.setElementSize(reference.displaySettings.getSize());
         graph.setAxisSelect(reference.displaySettings.getAxisSelect());
         graph.setPointLabelsVisible(reference.displaySettings.pointLabelsVisible);
-    });
+    }));
 }
 
 /** Mounts a graph, changes its scene and returns it as a stored Preset with Preset data and scene state. */

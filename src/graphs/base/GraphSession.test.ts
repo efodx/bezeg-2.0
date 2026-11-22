@@ -8,6 +8,7 @@ function createBoard(inUpdate = false) {
         cPos: [20, 30],
         on: vi.fn(),
         off: vi.fn(),
+        getBoundingBox: vi.fn(() => [-1, 1, 1, -1]),
         fullUpdate: vi.fn(),
         resizeContainer: vi.fn(),
     }, {}) as unknown as Board & {inUpdate: boolean};
@@ -239,5 +240,46 @@ describe('auxiliary boards', () => {
         session.dispose();
         expect(() => session.createAuxiliaryBoard(document.createElement('div'), {} as any)).toThrow();
         aux.release();
+    });
+});
+
+describe('view adapter', () => {
+    test('follows a resize without changing the intent, and is disposed with the session', () => {
+        const handlers: Array<() => void> = [];
+        let box = [-1, 1, 1, -1];
+        const board = Object.assign(createBoard(), {
+            getBoundingBox: vi.fn(() => box),
+            setBoundingBox: vi.fn((next: number[]) => { box = next; }),
+            on: vi.fn((event: string, handler: () => void) => { if (event === 'boundingbox') handlers.push(handler); }),
+            resizeContainer: vi.fn(() => {
+                box = [-2, 2, 2, -2];
+                for (const handler of handlers) handler();
+            }),
+        });
+        const {dependencies} = createDependencies(board);
+        const session = new GraphSession(dependencies);
+        const originalResizeObserver = globalThis.ResizeObserver;
+        let resizeCallback: ResizeObserverCallback | undefined;
+        class ResizeObserverStub {
+            constructor(callback: ResizeObserverCallback) { resizeCallback = callback; }
+            observe = vi.fn();
+            disconnect = vi.fn();
+        }
+        Object.defineProperty(globalThis, 'ResizeObserver', {configurable: true, value: ResizeObserverStub});
+        try {
+            expect(() => session.view).toThrow();
+            session.createBoard('jgbox', {} as any);
+            session.observeResize(document.createElement('div'));
+            session.markReady();
+            const intent = session.view.intent();
+            resizeCallback?.([{contentRect: {width: 100, height: 100}} as ResizeObserverEntry], {} as ResizeObserver);
+            expect(board.resizeContainer).toHaveBeenCalledTimes(1);
+            expect(box).toEqual([-2, 2, 2, -2]);
+            expect(session.view.intent()).toBe(intent);
+            session.dispose();
+            expect(() => session.view).toThrow();
+        } finally {
+            Object.defineProperty(globalThis, 'ResizeObserver', {configurable: true, value: originalResizeObserver});
+        }
     });
 });

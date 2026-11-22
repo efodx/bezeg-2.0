@@ -39,7 +39,7 @@ const slider = () => screen.getByRole('slider', {name: t('animation_parameter')}
 test('De Casteljau t is source-tagged: a seeded untagged write throws, the slider and a lesson write apply, a held key refuses the lesson', () => {
     const {graph} = mountRun();
     const parameters = graph.parameters!;
-    expect(parameters.keys()).toEqual([KEY]);
+    expect(parameters.keys()).toEqual([KEY, 'view']);
 
     expect(() => act(() => graph['setParameter'](0.3, 'ready'))).toThrow(UntaggedWriteError);
     act(() => runAs('learner', () => graph['setParameter'](0.3, 'ready')));

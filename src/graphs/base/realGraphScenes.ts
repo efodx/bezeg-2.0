@@ -245,11 +245,12 @@ export function changeScene(mounted: MountedGraph, variant: 'a' | 'b'): void {
     if (variant === 'a') selectFirstCurve(mounted);
     flipSwitches(mounted);
     if (!internals(graph).board) return;
-    act(() => {
+    // The learner's own view change (a pan or zoom), so it is attributed to the learner.
+    act(() => runAs('learner', () => {
         internals(graph).board.setBoundingBox(variant === 'a' ? [-6, 4, 6, -4] : [-3, 6, 6, 0], true);
         graph.setElementSize(variant === 'a' ? 4 : 2);
         hodograph(graph)?.setBoundingBox(variant === 'a' ? [-3, 2, 3, -2] : [-6, 7, 6, -1], true);
-    });
+    }));
 }
 
 /** A figure Preset that carries only the view: the board's bounding box, or nothing for a graph without a board. */

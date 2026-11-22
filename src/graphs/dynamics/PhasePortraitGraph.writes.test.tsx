@@ -45,7 +45,7 @@ const field = (label: string) => screen.getByLabelText(label) as HTMLInputElemen
 test('phase portrait parameters are source-tagged: a seeded untagged write throws, tools controls and lesson writes apply, a held key refuses the lesson', () => {
     const {graph} = mountRun();
     const parameters = graph.parameters!;
-    expect([...parameters.keys()].sort()).toEqual([...KEYS].sort());
+    expect([...parameters.keys()].sort()).toEqual([...KEYS, 'view'].sort());
 
     expect(() => act(() => graph.setTimeDirectly(1))).toThrow(UntaggedWriteError);
     act(() => runAs('learner', () => graph.setTimeDirectly(1)));

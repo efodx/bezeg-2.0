@@ -141,7 +141,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const edit = chooseTaylorExample(value);
         if (!edit.ok) throw new DomainError(taylorEditMessage(edit.issue));
         this.commitModel(edit.model);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[edit.model.example]], true);
+        if (this.generatedObjectCount > 0) this.boardView.setIntent(EXAMPLE_VIEWS[edit.model.example], {keepAspectRatio: true});
     }
 
     protected setCenter(value: number, options: { syncScene?: boolean } = {}): void {

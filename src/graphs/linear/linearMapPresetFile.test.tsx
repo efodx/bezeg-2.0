@@ -71,7 +71,7 @@ test('the stable-flow label of the trace-determinant plane stays inside a board 
     const graph = mountGraph();
     toMode(graph, 'tracedet');
     const board = graph.liveBoard();
-    act(() => { board.setBoundingBox([-6, 11, 12, -4], false); });
+    act(() => { runAs('learner', () => board.setBoundingBox([-6, 11, 12, -4], false)); });
     const label = (board.objectsList as unknown as Array<{elType: string; plaintext?: string; X(): number}>)
         .find(o => o.elType === 'text' && o.plaintext === t('linear_map_area_flow'));
     expect(label).toBeDefined();

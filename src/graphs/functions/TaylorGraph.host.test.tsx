@@ -133,7 +133,7 @@ test('parameter writes are source-tagged: a seeded untagged write throws, a tagg
     const graph = new ObservedTaylorGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     const parameters = graph.parameters!;
-    expect(parameters.keys()).toEqual(['taylor-center', 'taylor-degree', 'taylor-x', 'taylor-example']);
+    expect(parameters.keys()).toEqual(['taylor-center', 'taylor-degree', 'taylor-x', 'taylor-example', 'view']);
 
     // seeded untagged write (ADR 0064): a setter called outside any write source fails the development check
     expect(() => act(() => graph.setCenterDirectly(0.5))).toThrow(UntaggedWriteError);

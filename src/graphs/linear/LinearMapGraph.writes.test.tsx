@@ -51,7 +51,7 @@ const lesson = (graph: WritesGraph, key: string, value: unknown) => {
 test('linear map parameters are source-tagged: a seeded untagged write throws, the tools control and lesson writes apply, a held key refuses the lesson', () => {
     const graph = mountGraph();
     const parameters = graph.parameters!;
-    expect([...parameters.keys()].sort()).toEqual([...KEYS].sort());
+    expect([...parameters.keys()].sort()).toEqual([...KEYS, 'view'].sort());
 
     expect(() => act(() => graph.setModeDirectly('iterate'))).toThrow(UntaggedWriteError);
     act(() => runAs('learner', () => graph.setModeDirectly('iterate')));

@@ -32,7 +32,7 @@ test('parameter writes are source-tagged: a seeded untagged write throws, the to
     const graph = new ObservedTransformationGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     const parameters = graph.parameters!;
-    expect(parameters.keys()).toEqual(['transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'transform-base']);
+    expect(parameters.keys()).toEqual(['transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'transform-base', 'view']);
 
     expect(() => act(() => graph.setCDirectly(0.5))).toThrow(UntaggedWriteError);
     act(() => runAs('learner', () => graph.setCDirectly(1)));

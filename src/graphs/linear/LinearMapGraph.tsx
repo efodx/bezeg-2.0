@@ -931,7 +931,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const key = this.viewKey();
         if (key === this.boardViewKey) return;
         this.boardViewKey = key;
-        if (!this.keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
+        if (!this.keepImportedView) this.boardView.following(() => this.boardView.setIntent(this.defaultBoundingBox(), {keepAspectRatio: this.equalAxisUnits}));
     }
 
     protected override onSceneRemoved(): void {

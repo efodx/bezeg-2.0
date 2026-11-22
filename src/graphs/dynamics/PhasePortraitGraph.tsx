@@ -438,7 +438,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const key = viewKey(box);
         if (key === this.drawnView) return;
         this.drawnView = key;
-        this.board.setBoundingBox([...box], true);
+        this.boardView.following(() => this.boardView.setIntent(box, {keepAspectRatio: true}));
     }
 
     /** Moves every handle to the stored value (idempotent). */

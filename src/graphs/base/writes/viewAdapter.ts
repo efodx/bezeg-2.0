@@ -32,12 +32,15 @@ export interface ViewIntent {
 /** The part of a JSXGraph board the adapter uses. */
 export interface ViewBoard {
     getBoundingBox(): number[];
-    setBoundingBox(box: number[], keepAspectRatio?: boolean): unknown;
+    setBoundingBox(box: number[], keepAspectRatio?: boolean, zoom?: ViewZoomMode): unknown;
     zoomIn?(): unknown;
     zoomOut?(): unknown;
     on(event: "boundingbox", handler: () => void): unknown;
     off(event: "boundingbox", handler: () => void): unknown;
 }
+
+/** JSXGraph's `setZoom` argument of `setBoundingBox`: what happens to the board's zoom factors. */
+export type ViewZoomMode = "reset" | "update" | "keep";
 
 const APPLIED: WriteResult = {status: "applied"};
 
@@ -62,7 +65,10 @@ export class ViewAdapter {
     /** The box the board showed after the adapter's last change, to recognise changes it did not make. */
     private lastShown: ViewBox;
     private applying = 0;
-    private resizingDepth = 0;
+    /** Open {@link resizing} and {@link following} blocks: view changes there are not writes. */
+    private derivedDepth = 0;
+    /** The zoom mode of the {@link setIntent} call being applied (not part of the intent). */
+    private pendingZoom: ViewZoomMode | undefined;
     private applyingFromArbiter = false;
     private arbiter: ParameterArbiter | undefined;
     private boundKey: string | undefined;
@@ -89,11 +95,21 @@ export class ViewAdapter {
     /**
      * Sets the intent and shows it, as the current write source. Bound to an arbiter, a `learner` or `lesson` write
      * goes through it (a lesson write to a view the learner holds is refused; a deliberate write ends the leases on
-     * the view even when the box is unchanged). Inside {@link resizing} it is not a write.
+     * the view even when the box is unchanged). Inside {@link resizing} or {@link following} it is not a write.
+     * `zoom` is passed to the board for this call only (JSXGraph's `setZoom`; default `"reset"`).
      */
-    setIntent(box: readonly number[], options: { keepAspectRatio?: boolean } = {}): WriteResult {
+    setIntent(box: readonly number[], options: { keepAspectRatio?: boolean; zoom?: ViewZoomMode } = {}): WriteResult {
         const intent: ViewIntent = {box: toBox(box), keepAspectRatio: options.keepAspectRatio ?? false};
-        if (this.resizingDepth > 0) {
+        this.pendingZoom = options.zoom;
+        try {
+            return this.writeIntent(intent);
+        } finally {
+            this.pendingZoom = undefined;
+        }
+    }
+
+    private writeIntent(intent: ViewIntent): WriteResult {
+        if (this.derivedDepth > 0) {
             // Not a write: no change notification, and the arbiter takes the new intent as its baseline.
             this.applyIntent(intent, false);
             if (this.boundKey) this.arbiter?.adoptCurrentValue(this.boundKey);
@@ -141,12 +157,25 @@ export class ViewAdapter {
      * an intent set inside becomes the baseline.
      */
     resizing<T>(work: () => T): T {
-        this.resizingDepth++;
+        return this.derived(work);
+    }
+
+    /**
+     * Runs `work`, a view that follows scene state whose own write was already attributed (a key-gated sync after the
+     * host commit), without treating its view change as a write. Like {@link resizing}; never use it to silence a
+     * view a lesson, Reset, a Preset or the learner asks for.
+     */
+    following<T>(work: () => T): T {
+        return this.derived(work);
+    }
+
+    private derived<T>(work: () => T): T {
+        this.derivedDepth++;
         try {
             return work();
         } finally {
-            this.resizingDepth--;
-            if (this.resizingDepth === 0 && !this.disposed) this.lastShown = toBox(this.board.getBoundingBox());
+            this.derivedDepth--;
+            if (this.derivedDepth === 0 && !this.disposed) this.lastShown = toBox(this.board.getBoundingBox());
         }
     }
 
@@ -193,14 +222,15 @@ export class ViewAdapter {
         const changed = !viewIntentsEqual(intent, this.intentValue);
         this.intentValue = intent;
         this.fittedBox = undefined;
-        this.show(intent.box, intent.keepAspectRatio);
+        this.show(intent.box, intent.keepAspectRatio, this.pendingZoom);
         if (changed && notify) this.emit();
     }
 
-    private show(box: ViewBox, keepAspectRatio: boolean): void {
+    private show(box: ViewBox, keepAspectRatio: boolean, zoom?: ViewZoomMode): void {
         this.applying++;
         try {
-            this.board.setBoundingBox([...box], keepAspectRatio);
+            if (zoom === undefined) this.board.setBoundingBox([...box], keepAspectRatio);
+            else this.board.setBoundingBox([...box], keepAspectRatio, zoom);
         } finally {
             this.applying--;
         }
@@ -209,7 +239,7 @@ export class ViewAdapter {
 
     /** A board view change: the adapter's own (ignored) or the library's from learner input (the new intent). */
     private boardChanged(): void {
-        if (this.disposed || this.applying > 0 || this.resizingDepth > 0) return;
+        if (this.disposed || this.applying > 0 || this.derivedDepth > 0) return;
         const shown = toBox(this.board.getBoundingBox());
         if (viewBoxesEqual(shown, this.lastShown)) return;
         this.lastShown = shown;
