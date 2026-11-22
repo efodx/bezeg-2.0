@@ -365,6 +365,7 @@ const inverseLesson: GuidedLesson = {
     steps: [
         step({
             id: 'inverse-mirror', order: 1,
+            ux: {explanation: readouts('point', 'mirror')},
             title: text('Premica \\(y=x\\) in zrcalna točka', 'The line \\(y=x\\) and the mirror point'),
             purpose: text('Napovedati zrcalno krivuljo, preden se pokaže.', 'Predicting the mirrored curve before it is shown.'),
             explanation: text(
@@ -380,6 +381,7 @@ const inverseLesson: GuidedLesson = {
         }),
         step({
             id: 'inverse-reveal', order: 2,
+            ux: {explanation: readouts('mirror'), observation: readouts('mirror')},
             title: text('Razkritje zrcalne krivulje', 'Revealing the mirrored curve'),
             purpose: text('Primerjati napoved z zrcalno sliko grafa.', 'Comparing the prediction with the mirror image of the graph.'),
             explanation: text(
@@ -395,6 +397,7 @@ const inverseLesson: GuidedLesson = {
         }),
         step({
             id: 'inverse-restrict', order: 3,
+            ux: {explanation: readouts()},
             title: text('Zakaj omejitev \\(x\\ge0\\)', 'Why the restriction \\(x\\ge0\\)'),
             purpose: text('Razumeti, da inverz obstaja le tam, kjer je funkcija ena na ena.', 'Understanding that an inverse exists only where the function is one-to-one.'),
             explanation: text(
@@ -410,6 +413,7 @@ const inverseLesson: GuidedLesson = {
         }),
         step({
             id: 'inverse-tangent', order: 4,
+            ux: {explanation: readouts('forward-slope', 'inverse-slope', 'product'), observation: readouts()},
             title: text('Tangenta in zrcalna tangenta', 'The tangent and the mirrored tangent'),
             purpose: text('Videti, da sta smerna koeficienta v zrcalnih točkah obratni vrednosti.', 'Seeing that the slopes at mirrored points are reciprocals.'),
             explanation: text(
@@ -426,6 +430,7 @@ const inverseLesson: GuidedLesson = {
         }),
         step({
             id: 'inverse-base', order: 5,
+            ux: {explanation: readouts('point', 'mirror', 'product'), observation: readouts()},
             title: text('Osnova \\(a\\): \\(a^x\\) in \\(\\log_a\\)', 'The base \\(a\\): \\(a^x\\) and \\(\\log_a\\)'),
             purpose: text('Povezati eksponentno funkcijo in logaritem pri isti osnovi.', 'Connecting the exponential function and the logarithm to the same base.'),
             explanation: text(
@@ -441,6 +446,7 @@ const inverseLesson: GuidedLesson = {
         }),
         step({
             id: 'inverse-ln', order: 6,
+            ux: {explanation: readouts('forward-slope', 'inverse-slope'), observation: readouts()},
             title: text('Naravni logaritem, domena in asimptota', 'The natural logarithm, domain and asymptote'),
             purpose: text('Videti, da je \\(\\ln\\) inverz funkcije \\(e^x\\), definiran le za \\(x>0\\).', 'Seeing that \\(\\ln\\) is the inverse of \\(e^x\\), defined only for \\(x>0\\).'),
             explanation: text(
@@ -456,6 +462,7 @@ const inverseLesson: GuidedLesson = {
         }),
         step({
             id: 'inverse-explore', order: 7,
+            ux: {observation: readouts()},
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno preizkusiti zrcaljenje in obratni vrednosti smernih koeficientov.', 'Trying the reflection and the reciprocal slopes on your own.'),
             explanation: text(

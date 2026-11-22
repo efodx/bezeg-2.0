@@ -8,10 +8,13 @@
  * Kept apart from `schoolFunctionGraphsGuidedLessons.ts` (batch A) to keep both files short.
  */
 import type {LessonAction, LessonViewBox} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +27,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -346,6 +351,7 @@ const rationalLesson: GuidedLesson = {
     steps: [
         step({
             id: 'rat-pole', order: 1,
+            ux: {explanation: readouts('zeros', 'pole-0', 'asymptote'), observation: readouts()},
             title: text('Pol in obnašanje ob njem', 'A pole and the behaviour beside it'),
             purpose: text('Napovedati, kako se funkcija obnaša levo in desno od pola, še preden pogledaš graf.', 'Predicting how the function behaves to the left and to the right of a pole before looking at the graph.'),
             explanation: text(
@@ -361,6 +367,7 @@ const rationalLesson: GuidedLesson = {
         }),
         step({
             id: 'rat-hole', order: 2,
+            ux: {explanation: readouts('zeros', 'holes'), observation: readouts()},
             title: text('Luknja namesto pola', 'A hole instead of a pole'),
             purpose: text('Videti, da skupni faktor števca in imenovalca da luknjo, ne pola.', 'Seeing that a factor common to the numerator and the denominator gives a hole, not a pole.'),
             explanation: text(
@@ -377,6 +384,7 @@ const rationalLesson: GuidedLesson = {
         }),
         step({
             id: 'rat-vertical', order: 3,
+            ux: {explanation: readouts('zeros', 'holes', 'pole-0'), observation: readouts()},
             title: text('Navpična asimptota je pol okrajšanega ulomka', 'A vertical asymptote is a pole of the reduced fraction'),
             purpose: text('Navpične asimptote brati iz okrajšanega ulomka: od dveh ničel imenovalca je ena lahko luknja.', 'Reading vertical asymptotes from the reduced fraction: of two zeros of the denominator one can be a hole.'),
             explanation: text(
@@ -392,6 +400,7 @@ const rationalLesson: GuidedLesson = {
         }),
         step({
             id: 'rat-degrees', order: 4,
+            ux: {explanation: readouts('zeros', 'asymptote'), observation: readouts()},
             title: text('Stopnji določita asimptoto', 'The degrees decide the asymptote'),
             purpose: text('S primerjavo stopenj števca in imenovalca ugotoviti, ali je asimptota vodoravna ali poševna.', 'Using the degrees of the numerator and the denominator to decide whether the asymptote is horizontal or oblique.'),
             explanation: text(
@@ -407,6 +416,7 @@ const rationalLesson: GuidedLesson = {
         }),
         step({
             id: 'rat-remainder', order: 5,
+            ux: {explanation: readouts('asymptote', 'remainder'), observation: readouts()},
             title: text('Ostanek se manjša', 'The remainder term shrinks'),
             purpose: text('Videti, da se graf asimptoti približuje, ker se člen z ostankom manjša.', 'Seeing that the graph approaches the asymptote because the remainder term shrinks.'),
             explanation: text(
@@ -422,6 +432,7 @@ const rationalLesson: GuidedLesson = {
         }),
         step({
             id: 'rat-double-pole', order: 6,
+            ux: {explanation: readouts('zeros', 'pole-0', 'pole-1'), observation: readouts()},
             title: text('Pol lihe in pol sode večkratnosti', 'A pole of odd and of even multiplicity'),
             purpose: text('Primerjati pol, ki spremeni predznak, s polom, ki ga ne; in videti, da graf lahko seka vodoravno asimptoto.', 'Comparing a pole that changes the sign with one that does not; and seeing that the graph can cross a horizontal asymptote.'),
             explanation: text(
@@ -437,6 +448,7 @@ const rationalLesson: GuidedLesson = {
         }),
         step({
             id: 'rat-explore', order: 7,
+            ux: {observation: readouts()},
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno premikati ničle in pole ter poskusiti luknjo, pol in asimptoto.', 'Moving zeros and poles on your own and trying a hole, a pole and the asymptote.'),
             explanation: text(

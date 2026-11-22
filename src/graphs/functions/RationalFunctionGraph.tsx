@@ -22,6 +22,12 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {TransientState} from "../base/BaseGraph";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx} from "../../uxPicks/declare/graphUx";
+
+/** Board captions move into the cards while pick `boardText` is on (the graph decides). */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** Step of the arrow keys in the k field and of the probe slider. */
 const K_STEP = 0.5;
@@ -313,7 +319,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         this.label(() => [this.model.probe + 6 / this.board.unitX, (onAsymptote() + onCurve()) / 2], () => {
             const term = this.factsOf(this.model).probe.remainderTerm;
             return t("rational_function_board_remainder", {value0: formatNumber(term ?? 0, currentLanguage(), 4)});
-        }, shown, "left", "middle");
+        }, () => shown() && boardTextOnBoard(), "left", "middle");
     }
 
     /**
@@ -377,7 +383,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         };
         this.syncSceneToModel();
 
-        // The rule, and the statement that there is no asymptote, stay on the board (projection needs them).
+        // The rule, the degrees and the statement that there is no asymptote move into the cards while pick `boardText` is on.
         this.caption("bottom-right", [
             {
                 text: () => {
@@ -385,9 +391,10 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
                     return rationalRuleText(numerator, denominator, currentLanguage());
                 },
                 scale: 1.2,
+                visible: boardTextOnBoard,
             },
-            {text: () => t("rational_function_board_degrees", {value0: facts().degreeNumerator, value1: facts().degreeDenominator}), minBoardWidth: 520},
-            {text: () => t("rational_function_board_no_asymptote"), visible: () => facts().analysis.asymptote.kind === "none"},
+            {text: () => t("rational_function_board_degrees", {value0: facts().degreeNumerator, value1: facts().degreeDenominator}), minBoardWidth: 520, visible: boardTextOnBoard},
+            {text: () => t("rational_function_board_no_asymptote"), visible: () => boardTextOnBoard() && facts().analysis.asymptote.kind === "none"},
         ]);
     }
 
@@ -483,19 +490,20 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         return <>
             {lists}
             <ZeroListNoticeView store={this.notices} describe={describeNotice}/>
-            <div className="inspector-group">
+            <ToolSection id="rational-function-parameters">
                 <ChoiceSelect label={t("rational_function_example_label")} value={current ?? "custom"} help={t("rational_function_example_help")}
                               options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
-                <Slider customText={t("rational_function_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
+                <Slider paramKey="rational.k" customText={t("rational_function_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
                              rejectedHint={t("rational_function_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
-                <Slider customText={t("rational_function_probe_label")} min={PROBE_BOUNDS[0]} max={PROBE_BOUNDS[1]} step={PROBE_STEP} value={state.probe}
+                <Slider paramKey="rational.probe" customText={t("rational_function_probe_label")} min={PROBE_BOUNDS[0]} max={PROBE_BOUNDS[1]} step={PROBE_STEP} value={state.probe}
                         help={t("rational_function_probe_help")} rejectedHint={t("rational_function_probe_hint", probeRange)}
                         onChange={next => guardField(this.refusals, () => this.setProbe(next))}/>
-            </div>
+            </ToolSection>
         </>;
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the legend card shows it
         return <FunctionLegend items={[
             {id: "curve", color: GraphPalette.primaryCurve, label: t("rational_function_legend_curve"), kind: "line"},
             {id: "numerator-zero", color: GraphPalette.constructionAccent, label: t("rational_function_legend_numerator_zero"), kind: "dot"},
@@ -505,7 +513,69 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         ]}/>;
     }
 
+    /**
+     * The cards' declaration (pick boardText): zeros and holes, poles, the asymptote and the remainder at the probe as short values;
+     * the long sentences (rule, pole behaviour, asymptote, division) are notes. The legend lists what is drawn.
+     */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const facts = this.factsOf(model);
+        const language = currentLanguage();
+        const {numerator, denominator} = rationalSpecsOf(model);
+        const {analysis} = facts;
+        const asymptote = analysis.asymptote;
+        const asymptoteValue = asymptote.kind === "oblique" ? asymptoteEquationText(asymptote.slope, asymptote.intercept, language)
+            : asymptote.kind === "horizontal" ? asymptoteEquationText(0, asymptote.y, language) : undefined;
+        const kRange = {value0: formatNumber(POLY_BOUNDS.k[0], language), value1: formatNumber(POLY_BOUNDS.k[1], language)};
+        const remainder = facts.probe.remainderTerm;
+        const note = (id: string, label: string, text: string) => ({id, text: `${label}: ${text}`});
+        return {
+            pucks: [
+                {param: "rational.k", help: t("rational_function_k_hint", kRange)},
+                {param: "rational.probe", help: t("rational_function_probe_help")},
+            ],
+            readouts: [
+                {id: "zeros-holes", rows: [
+                    {id: "zeros", name: t("rational_function_readout_zeros"), value: this.zerosText(facts), tone: "accent"},
+                    {id: "holes", name: t("rational_function_readout_holes"), value: analysis.holes.length === 0 ? t("rational_function_holes_none")
+                        : analysis.holes.map(hole => t("rational_function_board_point", {value0: this.position(hole.x), value1: this.number(hole.y)})).join(", "), tone: "primary"},
+                ]},
+                {id: "poles", rows: facts.poles.length === 0
+                    ? [{id: "poles", name: t("rational_function_readout_poles"), value: t("rational_function_poles_none"), tone: "comparison"}]
+                    : facts.poles.map((pole, index) => ({
+                        id: `pole-${index}`, name: t("rational_function_readout_pole", {value0: index + 1}),
+                        value: `x = ${this.position(pole.x)}`, tone: "comparison" as const,
+                    }))},
+                ...(asymptoteValue === undefined ? [] : [{id: "asymptote-group", rows: [
+                    {id: "asymptote", name: t("rational_function_readout_asymptote"), value: asymptoteValue, tone: "comparison" as const},
+                    ...(remainder === undefined ? [] : [{id: "remainder", name: t("rational_function_readout_remainder", {value0: this.number(model.probe)}), value: this.number(remainder), tone: "accent" as const}]),
+                ]}]),
+            ],
+            notes: [
+                note("rule", t("rational_function_readout_rule"), rationalRuleText(numerator, denominator, language)),
+                ...(facts.cancelled ? [note("reduced", t("rational_function_readout_reduced"), rationalRuleText(analysis.reducedNumerator, analysis.reducedDenominator, language))] : []),
+                ...facts.poles.map((pole, index) => note(`pole-${index}-note`, t("rational_function_readout_pole", {value0: index + 1}), this.poleText(pole))),
+                note("asymptote-note", t("rational_function_readout_asymptote"), this.asymptoteText(facts)),
+                ...(asymptote.kind === "none" ? [] : [note("division", t("rational_function_readout_division"), t("rational_function_division_value", {
+                    value0: coefficientsText(analysis.quotient, language), value1: coefficientsText(analysis.remainder, language),
+                    value2: productText(analysis.reducedDenominator, language),
+                }))]),
+                ...(asymptote.kind !== "none" && remainder === undefined ? [{id: "remainder-note", text: t("rational_function_remainder_undefined", {value0: this.number(model.probe)})}] : []),
+            ],
+            readoutHelp: <p>{t("rational_function_note")}</p>,
+            legend: [
+                {id: "curve", label: t("rational_function_legend_curve"), kind: "line", color: GraphPalette.primaryCurve},
+                ...(model.numerator.length > 0 ? [{id: "numerator-zero", label: t("rational_function_legend_numerator_zero"), kind: "point" as const, color: GraphPalette.constructionAccent}] : []),
+                ...(model.denominator.length > 0 ? [{id: "denominator-zero", label: t("rational_function_legend_denominator_zero"), kind: "point" as const, color: GraphPalette.comparisonCurve}] : []),
+                ...(analysis.holes.length > 0 ? [{id: "hole", label: t("rational_function_legend_hole"), kind: "point" as const, color: GraphPalette.primaryCurve}] : []),
+                ...(asymptote.kind !== "none" ? [{id: "asymptote", label: t("rational_function_legend_asymptote"), kind: "dashed" as const, color: GraphPalette.comparisonCurve}] : []),
+            ],
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout card shows it
         const model = this.model;
         const facts = rationalFacts(model);
         const language = currentLanguage();

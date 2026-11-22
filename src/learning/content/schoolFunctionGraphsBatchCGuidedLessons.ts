@@ -7,10 +7,15 @@
  * no band), then n, then the tolerance, so it does not depend on the scene before it. A scene is a state: none of them starts playback.
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
+/** The legend card, for frames that read the bars. */
+const legend: FrameUx = {open: ['legend']};
 
 interface StepContent {
     readonly id: string;
@@ -23,14 +28,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -115,6 +122,7 @@ const seriesLesson: GuidedLesson = {
     steps: [
         step({
             id: 'series-bars', order: 1,
+            ux: {explanation: readouts('sum', 'limit'), observation: legend},
             title: text('Členi in delne vsote', 'Terms and partial sums'),
             purpose: text('Ločiti člen vrste od delne vsote in oboje prebrati iz stolpcev.', 'Telling a term of the series from a partial sum and reading both from the bars.'),
             explanation: text(
@@ -130,6 +138,7 @@ const seriesLesson: GuidedLesson = {
         }),
         step({
             id: 'series-predict', order: 2,
+            ux: {explanation: readouts(), observation: readouts()},
             title: text('Napovej naslednjo delno vsoto', 'Predict the next partial sum'),
             purpose: text('Napovedati \\(S_5\\), še preden se peti člen pokaže.', 'Predicting \\(S_5\\) before the fifth term appears.'),
             explanation: text(
@@ -145,6 +154,7 @@ const seriesLesson: GuidedLesson = {
         }),
         step({
             id: 'series-reveal', order: 3,
+            ux: {explanation: readouts('sum'), observation: legend},
             title: text('Člene razkrivamo enega za drugim', 'Revealing the terms one by one'),
             purpose: text('Preveriti napoved in videti, da zaprta oblika da isto kot seštevanje.', 'Checking the prediction and seeing that the closed form gives the same as adding.'),
             explanation: text(
@@ -160,6 +170,7 @@ const seriesLesson: GuidedLesson = {
         }),
         step({
             id: 'series-limit', order: 4,
+            ux: {explanation: readouts('limit', 'error'), observation: readouts()},
             title: text('Limita \\(\\dfrac a{1-q}\\)', 'The limit \\(\\dfrac a{1-q}\\)'),
             purpose: text('Videti, da se delne vsote približujejo črti \\(\\dfrac a{1-q}\\), in izračunati napako.', 'Seeing that the partial sums approach the line \\(\\dfrac a{1-q}\\), and computing the error.'),
             explanation: text(
@@ -175,6 +186,7 @@ const seriesLesson: GuidedLesson = {
         }),
         step({
             id: 'series-alternating', order: 5,
+            ux: {explanation: readouts('limit', 'sum'), observation: readouts()},
             title: text('Negativen količnik niha okoli limite', 'A negative ratio oscillates around the limit'),
             purpose: text('Videti, da pri \\(q<0\\) delne vsote izmenično presegajo limito in ne dosežejo njene vrednosti.', 'Seeing that for \\(q<0\\) the partial sums alternately overshoot and fall short of the limit.'),
             explanation: text(
@@ -190,6 +202,7 @@ const seriesLesson: GuidedLesson = {
         }),
         step({
             id: 'series-divergence', order: 6,
+            ux: {explanation: readouts('limit'), observation: readouts()},
             title: text('Pri \\(|q|\\ge1\\) vrsta ne konvergira', 'For \\(|q|\\ge1\\) the series does not converge'),
             purpose: text('Videti, da pri \\(q=-1\\) delne vsote nihajo in limite ni.', 'Seeing that at \\(q=-1\\) the partial sums oscillate and there is no limit.'),
             explanation: text(
@@ -205,6 +218,7 @@ const seriesLesson: GuidedLesson = {
         }),
         step({
             id: 'series-decimals', order: 7,
+            ux: {explanation: readouts('sum', 'limit'), observation: readouts()},
             title: text('Periodični decimalni zapis', 'Repeating decimals'),
             purpose: text('Z geometrijsko vrsto pretvoriti \\(0{,}333\\dots\\) v ulomek in razumeti, zakaj je \\(0{,}999\\dots=1\\).', 'Converting \\(0.333\\dots\\) to a fraction with a geometric series and understanding why \\(0.999\\dots=1\\).'),
             explanation: text(
@@ -221,6 +235,7 @@ const seriesLesson: GuidedLesson = {
         }),
         step({
             id: 'series-explore', order: 8,
+            ux: {explanation: readouts('first-within', 'error'), observation: readouts()},
             title: text('Prosto raziskovanje s pasom odstopanja', 'Free exploration with a tolerance band'),
             purpose: text('Z odstopanjem poiskati prvi \\(n\\), od katerega so vse delne vsote dovolj blizu limite.', 'Using a tolerance to find the first \\(n\\) from which all partial sums are close enough to the limit.'),
             explanation: text(

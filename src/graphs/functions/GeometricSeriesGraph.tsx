@@ -19,6 +19,12 @@ import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx} from "../../uxPicks/declare/graphUx";
+
+/** Board captions move into the cards while pick `boardText` is on (the graph decides). */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** Time between two playback steps: one term per interval, never more than one per frame (see ADR 0012). */
 export const SERIES_STEP_INTERVAL_MS = 500;
@@ -228,21 +234,22 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         }));
 
         this.caption("top-right", [
-            {text: () => t("series_board_formula"), scale: 1.2, math: true},
-            {text: () => t("series_board_parameters", {value0: this.number(model().a), value1: this.number(model().q), value2: model().terms})},
-            {text: () => t("series_board_sum", {value0: this.number(view().partialSum)})},
+            {text: () => t("series_board_formula"), scale: 1.2, math: true, visible: boardTextOnBoard},
+            {text: () => t("series_board_parameters", {value0: this.number(model().a), value1: this.number(model().q), value2: model().terms}), visible: boardTextOnBoard},
+            {text: () => t("series_board_sum", {value0: this.number(view().partialSum)}), visible: boardTextOnBoard},
             {
                 text: () => {
                     const limitNow = view().limit;
                     return limitNow === null ? t("series_board_no_limit") : t("series_board_limit", {value0: this.number(limitNow)});
                 },
                 color: () => view().limit === null ? GraphPalette.warningText : GraphPalette.label,
+                visible: boardTextOnBoard,
             },
             {text: () => {
                 const error = view().error;
                 return error === null ? "" : t("series_board_error", {value0: this.number(error)});
-            }, visible: hasLimit},
-            {text: () => t("series_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH, visible: () => !compact()},
+            }, visible: () => boardTextOnBoard() && hasLimit()},
+            {text: () => t("series_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH, visible: () => boardTextOnBoard() && !compact()},
         ]);
     }
 
@@ -257,43 +264,44 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         const options = SERIES_EXAMPLE_IDS.map(id => ({value: id as string, text: exampleText(id)}));
         const rangeHint = (min: number, max: number) => ({value0: formatNumber(min, language), value1: formatNumber(max, language)});
         return <>
-            <div className="inspector-group">
-                <Slider customText={t("series_q_label")} min={SERIES_Q_MIN} max={SERIES_Q_MAX} step={0.05} value={state.q}
+            <ToolSection id="geometric-series-ratio" pickTitle={t("series_q_label")}>
+                <Slider paramKey="series.q" customText={t("series_q_label")} min={SERIES_Q_MIN} max={SERIES_Q_MAX} step={0.05} value={state.q}
                         rejectedHint={t("series_q_rejected_hint", rangeHint(SERIES_Q_MIN, SERIES_Q_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setQ(next))}/>
-                <CountSetter label={t("series_terms_label")} n={state.terms} min={SERIES_TERMS_MIN} max={SERIES_TERMS_MAX}
+                <CountSetter paramKey="series.n" label={t("series_terms_label")} n={state.terms} min={SERIES_TERMS_MIN} max={SERIES_TERMS_MAX}
                              rejectedHint={t("series_terms_rejected_hint", {value0: SERIES_TERMS_MIN, value1: SERIES_TERMS_MAX})}
                              onPlus={() => this.ignoreOutOfDomain(() => this.setTerms(state.terms + 1))}
                              onMinus={() => this.ignoreOutOfDomain(() => this.setTerms(state.terms - 1))}
                              onSet={next => this.ignoreOutOfDomain(() => this.setTerms(next))}/>
-            </div>
-            <div className="inspector-group">
+            </ToolSection>
+            <ToolSection id="geometric-series-playback">
                 <PlaybackButtons placement="graph" groupLabel={t("series_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.terms <= SERIES_TERMS_MIN, atEnd: !canAdvance, playing})}/>
                 <p className="inspector-help">{t("series_playback_note", {value0: SERIES_TERMS_MAX})}</p>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("series_a_label")} min={SERIES_A_MIN} max={SERIES_A_MAX} step={0.1} value={state.a}
+            </ToolSection>
+            <ToolSection id="geometric-series-first-term" pickTitle={t("series_a_label")}>
+                <Slider paramKey="series.a" customText={t("series_a_label")} min={SERIES_A_MIN} max={SERIES_A_MAX} step={0.1} value={state.a}
                         rejectedHint={t("series_a_rejected_hint", rangeHint(SERIES_A_MIN, SERIES_A_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
                 <p className="inspector-help">{t("series_fields_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("series_tolerance_label")} min={SERIES_TOLERANCE_MIN} max={SERIES_TOLERANCE_MAX} step={0.01} decimals={3} value={state.tolerance}
+            </ToolSection>
+            <ToolSection id="geometric-series-tolerance" pickTitle={t("series_tolerance_label")}>
+                <Slider paramKey="series.tolerance" customText={t("series_tolerance_label")} min={SERIES_TOLERANCE_MIN} max={SERIES_TOLERANCE_MAX} step={0.01} decimals={3} value={state.tolerance}
                         rejectedHint={t("series_tolerance_rejected_hint", rangeHint(SERIES_TOLERANCE_MIN, SERIES_TOLERANCE_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setTolerance(next))}/>
-            </div>
-            <div className="inspector-group">
+            </ToolSection>
+            <ToolSection id="geometric-series-example" pickTitle={t("series_example_label")}>
                 <ChoiceSelect label={t("series_example_label")} value={example ?? "custom"} help={t("series_example_help")}
                               options={example === undefined ? [...options, {value: "custom", text: t("series_example_custom")}] : options}
                               onChange={next => { if (next !== "custom") this.ignoreOutOfDomain(() => this.setExample(next)); }}/>
-            </div>
+            </ToolSection>
         </>;
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the legend card shows it
         return <FunctionLegend items={[
             {id: "term", color: GraphPalette.additionalCurves[0], label: t("series_legend_term")},
             {id: "sum", color: GraphPalette.primaryCurve, label: t("series_legend_sum")},
@@ -302,9 +310,53 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         ]}/>;
     }
 
+    /** The cards' declaration (pick boardText): the formula, the parameters, the partial sum, the limit and the error; the legend lists what is drawn. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const view = this.viewOf(model);
+        const first = view.limit !== null && model.tolerance > 0 ? firstTermWithinTolerance(model.a, model.q, model.tolerance) : null;
+        const behaviour = view.behaviour === "convergent" ? t("series_behaviour_convergent")
+            : view.behaviour === "oscillating" ? t("series_behaviour_oscillating") : t("series_behaviour_divergent");
+        const bandShown = view.limit !== null && model.tolerance > 0;
+        return {
+            pucks: [
+                {param: "series.q", help: t("series_fields_help")},
+                {param: "series.n", help: t("series_playback_note", {value0: SERIES_TERMS_MAX})},
+                {param: "series.a", help: t("series_fields_help")},
+                {param: "series.tolerance", help: t("series_legend_band")},
+            ],
+            formula: "S_n=\\frac{a(1-q^{n})}{1-q}",
+            readouts: [
+                {id: "setup", rows: [
+                    {id: "a", name: t("series_a_label"), value: this.number(model.a)},
+                    {id: "q", name: t("series_q_label"), value: this.number(model.q)},
+                    {id: "terms", name: t("series_readout_terms", {value0: SERIES_TERMS_MAX}), value: String(model.terms)},
+                ]},
+                {id: "values", rows: [
+                    {id: "last-term", name: t("series_readout_last_term"), value: this.number(view.lastTerm)},
+                    {id: "sum", name: t("series_readout_sum"), value: this.number(view.partialSum), tone: "primary"},
+                    {id: "limit", name: t("series_readout_limit"), value: view.limit === null ? t("series_no_limit") : this.number(view.limit), tone: "comparison"},
+                    {id: "error", name: t("series_readout_error"), value: view.error === null ? NOT_A_NUMBER_TEXT : this.number(view.error)},
+                    {id: "first-within", name: t("series_readout_first_within"), value: first === null ? NOT_A_NUMBER_TEXT : String(first)},
+                    {id: "behaviour", name: t("series_readout_behaviour"), value: behaviour, tone: "muted"},
+                ]},
+            ],
+            readoutHelp: <p>{t("series_note", {value0: SERIES_TERMS_MAX})}</p>,
+            legend: [
+                {id: "term", label: t("series_legend_term"), kind: "area", color: GraphPalette.additionalCurves[0]},
+                {id: "sum", label: t("series_legend_sum"), kind: "area", color: GraphPalette.primaryCurve},
+                ...(view.limit !== null ? [{id: "limit", label: t("series_legend_limit"), kind: "line" as const, color: GraphPalette.comparisonCurve}] : []),
+                ...(bandShown ? [{id: "band", label: t("series_legend_band"), kind: "dashed" as const, color: GraphPalette.additionalCurves[0]}] : []),
+            ],
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
         const model = this.model;
         const view = this.viewOf(model);
+        // The status lines stay in the inspector (they are the announcement region); the readout card carries the values.
+        if (pickOn("boardText")) return <FunctionStatus className="demo-status" dataAttribute="series-status" lines={this.statuses(model, view)} muted={this.playback.isPlaying}/>;
         const first = view.limit !== null && model.tolerance > 0 ? firstTermWithinTolerance(model.a, model.q, model.tolerance) : null;
         const behaviour = view.behaviour === "convergent" ? t("series_behaviour_convergent")
             : view.behaviour === "oscillating" ? t("series_behaviour_oscillating") : t("series_behaviour_divergent");

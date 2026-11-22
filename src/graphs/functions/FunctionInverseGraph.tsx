@@ -16,6 +16,12 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RevealButton} from "../../inputs/RevealButton";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx} from "../../uxPicks/declare/graphUx";
+
+/** Board captions move into the cards while pick `boardText` is on (the graph decides). */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /** Positions and slopes show four decimals, so that 0.25 and 5.5452 are read off. */
 const PRECISE = 4;
@@ -201,11 +207,11 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         })) as JXG.Point;
         this.syncSceneToModel();
 
-        // The pair, the points and the slopes stay on the board (projection needs them).
+        // The pair, the points and the slopes move into the cards while pick `boardText` is on.
         this.caption("bottom-right", [
-            {text: () => this.ruleText(model()), scale: 1.2},
-            {text: () => this.boardPointText(model()), minBoardWidth: 520},
-            {text: () => this.boardSlopeText(model()), minBoardWidth: 520},
+            {text: () => this.ruleText(model()), scale: 1.2, visible: boardTextOnBoard},
+            {text: () => this.boardPointText(model()), minBoardWidth: 520, visible: boardTextOnBoard},
+            {text: () => this.boardSlopeText(model()), minBoardWidth: 520, visible: boardTextOnBoard},
         ]);
     }
 
@@ -265,31 +271,32 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         const language = currentLanguage();
         const [x0Min, x0Max] = inverseX0Range(state.restriction, state.base);
         return <>
-            <div className="inspector-group">
-                <Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
+            <ToolSection id="function-inverse-point" pickTitle={t("function_inverse_x0_label")}>
+                <Slider paramKey="inverse.x0" customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
                              onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
-            </div>
+            </ToolSection>
             <div className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>
                 <RevealButton action="toggle-inverse" revealed={state.inverseVisible} showLabel={t("function_inverse_inverse_show")} hideLabel={t("function_inverse_inverse_hide")}
                               onToggle={() => this.setInverseVisible(!this.model.inverseVisible)}/>
                 <RevealButton action="toggle-tangent" revealed={state.tangentVisible} showLabel={t("function_inverse_tangent_show")} hideLabel={t("function_inverse_tangent_hide")}
                               onToggle={() => this.setTangentVisible(!this.model.tangentVisible)}/>
             </div>
-            <div className="inspector-group">
+            <ToolSection id="function-inverse-restriction" pickTitle={t("function_inverse_restriction_label")}>
                 <ChoiceSelect label={t("function_inverse_restriction_label")} value={state.restriction} help={t("function_inverse_restriction_help")}
                               options={INVERSE_RESTRICTION_IDS.map(id => ({value: id, text: t(RESTRICTION_KEYS[id])}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setRestriction(next))}/>
-            </div>
-            <div className="inspector-group">
+            </ToolSection>
+            <ToolSection id="function-inverse-base" pickTitle={state.restriction === "exp" ? t("function_inverse_base_label") : undefined}>
                 {state.restriction === "exp" &&
-                    <Slider customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
+                    <Slider paramKey="inverse.base" customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
                                  rejectedHint={t("function_inverse_base_hint", {value0: formatNumber(INVERSE_BASE_MIN, language), value1: formatNumber(INVERSE_BASE_MAX, language)})}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>}
-            </div>
+            </ToolSection>
         </>;
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the legend card shows it
         return <FunctionLegend items={[
             {id: "forward", color: GraphPalette.primaryCurve, label: t("function_inverse_legend_forward"), kind: "line"},
             {id: "inverse", color: GraphPalette.comparisonCurve, label: t("function_inverse_legend_inverse"), kind: "line"},
@@ -298,7 +305,48 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         ]}/>;
     }
 
+    /** The cards' declaration (pick boardText): the pair, the point P and its mirror P', the slopes, the legend. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const s = inverseSlopesOf(model);
+        return {
+            pucks: [
+                {param: "inverse.x0", help: t("function_inverse_note")},
+                ...(model.restriction === "exp" ? [{param: "inverse.base", help: t("function_inverse_hypothesis_exp")}] : []),
+            ],
+            readouts: [
+                {id: "setup", rows: [
+                    {id: "pair", name: t("function_inverse_readout_pair"), value: this.ruleText(model)},
+                    {id: "domain", name: t("function_inverse_readout_domain"), value: t(model.restriction === "square" ? "function_inverse_domain_sqrt" : "function_inverse_domain_log"), tone: "muted"},
+                ]},
+                {id: "points", title: t("function_inverse_legend_point"), rows: [
+                    {id: "point", name: t("function_inverse_readout_point"), value: s ? this.pointText(s.point) : "", tone: "primary"},
+                    {id: "mirror", name: t("function_inverse_readout_mirror"), value: s ? this.pointText(s.mirror) : "", tone: "comparison"},
+                ]},
+                {id: "slopes", rows: [
+                    {id: "forward-slope", name: t("function_inverse_readout_forward_slope"), value: s ? this.slopeText(s.forwardSlope) : "", tone: "primary"},
+                    {id: "inverse-slope", name: t("function_inverse_readout_inverse_slope"), value: s ? this.slopeText(s.inverseSlope) : "", tone: "comparison"},
+                    {id: "product", name: t("function_inverse_readout_product"), value: s?.product === undefined ? t("function_inverse_product_none") : this.number(s.product)},
+                ]},
+            ],
+            // Long sentences are notes: a value box is too narrow for them.
+            notes: [
+                {id: "hypothesis", text: `${t("function_inverse_readout_hypothesis")}: ${t(HYPOTHESIS_KEYS[model.restriction])}`},
+                ...(hasAsymptotes(model) ? [{id: "asymptote", text: `${t("function_inverse_readout_asymptote")}: ${t("function_inverse_asymptote_value")}`}] : []),
+            ],
+            readoutHelp: <p>{t("function_inverse_note")}</p>,
+            legend: [
+                {id: "forward", label: t("function_inverse_legend_forward"), kind: "line", color: GraphPalette.primaryCurve},
+                ...(model.inverseVisible ? [{id: "inverse", label: t("function_inverse_legend_inverse"), kind: "line" as const, color: GraphPalette.comparisonCurve}] : []),
+                {id: "mirror-line", label: t("function_inverse_legend_mirror_line"), kind: "dashed", color: GraphPalette.axis},
+                {id: "point", label: t("function_inverse_legend_point"), kind: "point", color: GraphPalette.constructionAccent},
+            ],
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout card shows it
         const model = this.model;
         const s = inverseSlopesOf(model);
         const rows = [
