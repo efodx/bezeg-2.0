@@ -13,6 +13,11 @@
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 import {guidedStep as step} from './guidedStep';
+import {frameDeclarer} from '../../graphs/base/declare/graphDeclaration';
+import type {PhasePortraitIds} from '../../graphs/dynamics/PhasePortraitGraph';
+
+/** Frame declarations of the `phase-portrait` steps (PP1 to PP3), typed by the graph's ids. */
+const frame = frameDeclarer<PhasePortraitIds>();
 
 /** The lesson text is written once with decimal commas in math (`{,}`); the English text gets decimal points. */
 const text = (sl: string, en: string): LocalizedText => ({sl, en: en.replace(/\{,\}/g, '.')});
@@ -235,6 +240,7 @@ const pp1Example: WorkedExample = {
 const pp1Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'pp1-reverse', order: 1,
+        declare: {observation: frame({highlight: ['type', 'eigen', 'seed-1'], uses: ['phase-a', 'phase-b', 'phase-c', 'phase-d']})},
         title: text('Matrika \\(-E\\)', 'The matrix \\(-E\\)'),
         purpose: text('Napovedati, kaj zamenjava matrike \\(E\\) z \\(-E\\) stori s trajektorijami, tipom in lastnimi vrednostmi.', 'Predicting what replacing the matrix \\(E\\) by \\(-E\\) does to trajectories, type and eigenvalues.'),
         explanation: text(
@@ -256,6 +262,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-slow', order: 2,
+        declare: {observation: frame({open: ['legend', 'tools'], highlight: ['eigen', 'seed-1'], uses: ['phase-seed-count']})},
         title: text('Trajektorije in lastni smeri', 'Trajectories and the two eigen-directions'),
         purpose: text('Napovedati, k kateri lastni smeri se trajektorije bližajo ob izhodišču.', 'Predicting which eigen-direction trajectories approach near the origin.'),
         explanation: text(
@@ -277,6 +284,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-saddle', order: 3,
+        declare: {observation: frame({highlight: ['type', 'eigen', 'seed-1'], uses: ['phase-a', 'phase-b', 'phase-c', 'phase-d']})},
         title: text('Diagonalna matrika z elementoma \\(1\\) in \\(-1\\)', 'The diagonal matrix with entries \\(1\\) and \\(-1\\)'),
         purpose: text('Napovedati tip in kateri trajektoriji se bližata izhodišču.', 'Predicting the type and which trajectories approach the origin.'),
         explanation: text(
@@ -298,6 +306,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-parabola', order: 4,
+        declare: {observation: frame({highlight: ['type', 'discriminant', 'eigen'], uses: ['phase-c']})},
         title: text('Spreminjanje elementa \\(c\\)', 'Changing the entry \\(c\\)'),
         purpose: text('Napovedati, pri katerem \\(c\\) se tip vozlišča spremeni, in preveriti, kam pade oznaka v ravnini sled–determinanta.', 'Predicting at which \\(c\\) the node type changes and checking where the mark falls in the trace–determinant plane.'),
         explanation: text(
@@ -319,6 +328,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-centre', order: 5,
+        declare: {observation: frame({highlight: ['type', 'eigen', 'seed-1'], uses: ['phase-d']})},
         title: text('Matrika z \\(a=0\\) in \\(b=-1\\)', 'The matrix with \\(a=0\\) and \\(b=-1\\)'),
         purpose: text('Napovedati, kakšen je tip, ko je sled \\(0\\), in kakšne so trajektorije.', 'Predicting the type when the trace is \\(0\\) and what the trajectories look like.'),
         explanation: text(
@@ -340,6 +350,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-euler', order: 6,
+        declare: {observation: frame({highlight: ['seed-1'], uses: ['phase-time']})},
         title: text('Euler in RK4 na istem sistemu', 'Euler and RK4 on the same system'),
         purpose: text('Napovedati smer odklona Eulerjeve metode na središču in ga izračunati.', 'Predicting the direction of the drift of the Euler method on the centre and computing it.'),
         explanation: text(
@@ -362,6 +373,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-free', order: 7,
+        declare: {observation: frame({highlight: ['type'], uses: ['phase-a', 'phase-b', 'phase-c', 'phase-d']})},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno poiskati matrike z danimi tipi.', 'Finding matrices with given types on your own.'),
         explanation: text(
@@ -427,6 +439,7 @@ const pp2Formulas: readonly FormulaBlock[] = [
 const pp2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'pp2-small', order: 1,
+        declare: {observation: frame({highlight: ['energy-1', 'type'], uses: ['phase-system']})},
         title: text('Majhen začetni odmik', 'A small start angle'),
         purpose: text('Napovedati energijo in obliko orbite nihala iz začetka \\((1,0)\\) ter jo primerjati z linearnim sistemom.', 'Predicting the energy and shape of the pendulum orbit from \\((1,0)\\) and comparing it with the linear system.'),
         explanation: text(
@@ -448,6 +461,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-larger', order: 2,
+        declare: {observation: frame({open: ['tools'], highlight: ['energy-1'], uses: ['phase-seed-count']})},
         title: text('Večji začetni odmik', 'A larger start angle'),
         purpose: text('Napovedati, kako se orbita razlikuje od kroga pri večji energiji.', 'Predicting how the orbit differs from a circle at higher energy.'),
         explanation: text(
@@ -469,6 +483,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-cross', order: 3,
+        declare: {observation: frame({highlight: ['energy-1', 'seed-1']})},
         title: text('Višja energija z začetkom na osi \\(\\omega\\)', 'Higher energy with a start on the \\(\\omega\\)-axis'),
         purpose: text('Napovedati, kaj odčitek pove pri \\(\\omega=2\\) in \\(\\omega=2{,}25\\).', 'Predicting what the readout says at \\(\\omega=2\\) and \\(\\omega=2{,}25\\).'),
         explanation: text(
@@ -490,6 +505,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-separatrix', order: 4,
+        declare: {observation: frame({open: ['legend'], highlight: ['energy-1', 'seed-1'], uses: ['phase-time']})},
         title: text('Orbita na separatrisi', 'The orbit on the separatrix'),
         purpose: text('Napovedati, ali orbita na separatrisi doseže sedlo, in preveriti, kje se po \\(10\\) s konča.', 'Predicting whether the orbit on the separatrix reaches the saddle and checking where it ends after \\(10\\) s.'),
         explanation: text(
@@ -511,6 +527,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-free', order: 5,
+        declare: {observation: frame({open: ['tools'], highlight: ['energy-1'], uses: ['phase-seed-count']})},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno preizkusiti energijo, nihanje in vrtenje.', 'Trying energy, swing and rotation on your own.'),
         explanation: text(
@@ -564,6 +581,7 @@ const pp3Formulas: readonly FormulaBlock[] = [
 const pp3Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'pp3-jacobian', order: 1,
+        declare: {observation: frame({highlight: ['type', 'jacobian', 'eigen'], uses: ['phase-system']})},
         title: text('Jacobijeva matrika v zgornji legi nihala', 'The Jacobian at the upright position of the pendulum'),
         purpose: text('Napovedati Jacobijevo matriko, tip in lastni vrednosti linearizacije nihala v \\((\\pi,0)\\) in jih primerjati z odčitki.', 'Predicting the Jacobian, the type and the eigenvalues of the linearization of the pendulum at \\((\\pi,0)\\) and comparing them with the readouts.'),
         explanation: text(
@@ -585,6 +603,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-zoom', order: 2,
+        declare: {observation: frame({open: ['legend'], highlight: ['view', 'ring', 'ring-linear'], uses: ['phase-zoom']})},
         title: text('Povečava okoli sedla', 'Magnifying around the saddle'),
         purpose: text('Napovedati, kaj se zgodi s polnimi in črtkanimi krivuljami obroča pri večji povečavi, in primerjati sliko z odčitki.', 'Predicting what happens to the solid and dashed curves of the ring under a larger zoom and comparing the picture with the readouts.'),
         explanation: text(
@@ -606,6 +625,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-centre', order: 3,
+        declare: {observation: frame({highlight: ['type', 'jacobian', 'decision'], uses: ['phase-equilibrium']})},
         title: text('Jacobijeva matrika v spodnji legi nihala', 'The Jacobian at the lower position of the pendulum'),
         purpose: text('Napovedati Jacobijevo matriko in tip v \\((0,0)\\), kaj linearizacija tam določa, in ločiti to od energijskega argumenta.', 'Predicting the Jacobian and the type at \\((0,0)\\), what the linearization decides there, and separating this from the energy argument.'),
         explanation: text(
@@ -627,6 +647,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-weak', order: 4,
+        declare: {observation: frame({highlight: ['type', 'jacobian', 'hyperbolic'], uses: ['phase-system', 'phase-time']})},
         title: text('Šibka spirala', 'The weak spiral'),
         purpose: text('Napovedati Jacobijevo matriko in tip šibke spirale in ali so njene orbite sklenjene, ter primerjati z nihalom.', 'Predicting the Jacobian and the type of the weak spiral and whether its orbits are closed, and comparing with the pendulum.'),
         explanation: text(
@@ -648,6 +669,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-undecided', order: 5,
+        declare: {observation: frame({highlight: ['ring', 'ring-linear', 'decision'], uses: ['phase-zoom', 'phase-time']})},
         title: text('Povečava okoli šibke spirale', 'Magnifying around the weak spiral'),
         purpose: text('Napovedati, ali povečava naredi šibko spiralo podobno linearnemu središču, in ločiti sliko od računa.', 'Predicting whether magnifying makes the weak spiral resemble the linear centre, and separating the picture from the computation.'),
         explanation: text(
@@ -669,6 +691,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-free', order: 6,
+        declare: {observation: frame({highlight: ['type', 'jacobian', 'ring'], uses: ['phase-system', 'phase-equilibrium', 'phase-zoom']})},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno preizkusiti sistem, ravnovesno točko in povečavo.', 'Trying the system, the equilibrium and the zoom on your own.'),
         explanation: text(

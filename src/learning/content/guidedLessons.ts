@@ -11,7 +11,8 @@
  */
 
 import type {DemonstrationId} from '../../demonstrations';
-import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {DecasteljauIds} from '../../graphs/curves/bezier/DecasteljauGraph';
 import type {LessonAction, LessonAnimation, LessonCurveFixture, LessonFrameKind, LessonLanguage, LessonPatchFixture, LessonView3D, LessonViewBox, LocalizedText} from '../model';
 export type {LocalizedText} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
@@ -183,7 +184,9 @@ const decasteljauScene = (id: string, curve: LessonCurveFixture, t: number, sl: 
     expectedState: text(sl, en),
 });
 
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by De Casteljau's declaration ids: an unknown row or control fails the type check. */
+const decasteljauFrame = frameDeclarer<DecasteljauIds>();
 
 const bezierFormulaBlocks: readonly FormulaBlock[] = [
     {
@@ -510,7 +513,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 purpose: text('Algoritem kot zaporedje linearnih interpolacij.', 'The algorithm as a sequence of linear interpolations.'),
                 explanation: text('De Casteljaujeva konstrukcija vsako vrstico zgradi z linearno interpolacijo sosednjih točk pri istem \\(t\\). Začnemo s kvadratno krivuljo s kontrolnimi točkami \\((-3,-2)\\), \\((0,4)\\), \\((3,-2)\\) pri \\(t=1/2\\).', 'De Casteljau’s construction builds each row by linearly interpolating neighboring points at the same \\(t\\). We start with the quadratic curve with control points \\((-3,-2)\\), \\((0,4)\\), \\((3,-2)\\) at \\(t=1/2\\).'),
                 formulaIds: ['decasteljau-interpolation'],
-                frames: [frame('decasteljau-introduction-explanation', 'explanation'), frame('decasteljau-introduction-observation', 'observation')],
+                frames: [frame('decasteljau-introduction-explanation', 'explanation', decasteljauFrame({highlight: ['t']})), frame('decasteljau-introduction-observation', 'observation')],
                 animation: {animationId: 'decasteljau'},
                 observationPrompt: text('Določi število novih točk v prvi interpolacijski vrstici.', 'Determine the number of new points in the first interpolation row.'),
                 expectedObservations: [text('Pri treh začetnih točkah nastaneta dve točki v prvi novi vrstici, nato ena končna točka.', 'With three starting points, two points appear in the first new row, then one final point.')],
@@ -523,7 +526,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Za vsak sosednji par \\(P_i\\) in \\(P_{i+1}\\) se izračuna interpolirana točka \\((1-t)P_i+tP_{i+1}\\); pri \\(t=1/2\\) rezultat predstavlja sredino odseka. Prva vrstica je \\((-3/2,1)\\) in \\((3/2,1)\\).', 'For each neighboring pair \\(P_i\\) and \\(P_{i+1}\\), the interpolated point is \\((1-t)P_i+tP_{i+1}\\); at \\(t=1/2\\), this point is the segment midpoint. The first row is \\((-3/2,1)\\) and \\((3/2,1)\\).'),
                 formulaIds: ['decasteljau-interpolation'],
                 workedExampleId: 'decasteljau-quadratic-midpoint',
-                frames: [frame('decasteljau-one-step-explanation', 'explanation'), frame('decasteljau-one-step-calculation', 'calculation'), frame('decasteljau-one-step-observation', 'observation')],
+                frames: [frame('decasteljau-one-step-explanation', 'explanation'), frame('decasteljau-one-step-calculation', 'calculation'), frame('decasteljau-one-step-observation', 'observation', decasteljauFrame({highlight: ['t']}))],
                 observationPrompt: text('Pri \\(t=1/2\\) preveri, ali prvi vmesni točki sovpadata s sredinama odsekov.', 'At \\(t=1/2\\), verify whether the first intermediate points coincide with the segment midpoints.'),
                 expectedObservations: [text('Prva vrstica je sestavljena iz sredin obeh sosednjih odsekov: \\((-3/2,1)\\) in \\((3/2,1)\\).', 'The first row consists of the midpoints of the two neighboring segments: \\((-3/2,1)\\) and \\((3/2,1)\\).')],
                 scene: decasteljauScene('decasteljau-first-row', decasteljauQuadraticFixture, 0.5, 'Parameter ostane pri \\(t=0{,}5\\), da lahko primerjaš sredini.', 'The parameter stays at \\(t=0.5\\) for midpoint comparison.'),
@@ -558,7 +561,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Ko spremeniš \\(t\\), se vmesne točke in končna točka premaknejo po isti konstrukciji kontrolnih točk. Pri \\(t=1/4\\) vrstice niso več sredine: prva vrstica je \\((-3,-1),(-3/2,2),(3,1)\\), končna točka pa \\((-33/16,1/4)\\). Kontrolne točke ostanejo na mestu.', 'When \\(t\\) changes, the intermediate and final points move through the same control-point construction. At \\(t=1/4\\) the rows are no longer midpoints: the first row is \\((-3,-1),(-3/2,2),(3,1)\\) and the final point is \\((-33/16,1/4)\\). The control points stay fixed.'),
                 formulaIds: ['decasteljau-curve-point'],
                 workedExampleId: 'decasteljau-cubic-quarter',
-                frames: [frame('decasteljau-change-parameter-explanation', 'explanation'), frame('decasteljau-change-parameter-calculation', 'calculation'), frame('decasteljau-change-parameter-observation', 'observation')],
+                frames: [frame('decasteljau-change-parameter-explanation', 'explanation'), frame('decasteljau-change-parameter-calculation', 'calculation'), frame('decasteljau-change-parameter-observation', 'observation', decasteljauFrame({highlight: ['t'], uses: ['decasteljau-t']}))],
                 observationPrompt: text('Primerjaj končno točko pri \\(t=1/4\\) s tisto pri \\(t=1/2\\) in določi, katere točke se premaknejo.', 'Compare the final point at \\(t=1/4\\) with the one at \\(t=1/2\\) and determine which points move.'),
                 expectedObservations: [text('Premaknejo se vse vmesne konstrukcijske točke in končna točka, ki je zdaj bliže \\(P_0\\); začetne kontrolne točke se ne.', 'All intermediate construction points and the final point move, and the final point is now closer to \\(P_0\\); the starting control points do not.')],
                 scene: decasteljauScene('decasteljau-quarter', bezierSymmetricFixture, 0.25, 'Kubična konstrukcija je pripravljena pri \\(t=0{,}25\\).', 'The cubic construction is prepared at \\(t=0.25\\).'),
@@ -570,7 +573,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Pri \\(t=3/4\\) je prva vrstica \\((-3,1),(3/2,2),(3,-1)\\), končna točka pa \\((33/16,1/4)\\). Zaradi simetrije kontrolnih točk je cela konstrukcija zrcalna slika konstrukcije pri \\(t=1/4\\) čez os \\(y\\), vrstni red točk v vrsticah pa je obrnjen.', 'At \\(t=3/4\\) the first row is \\((-3,1),(3/2,2),(3,-1)\\) and the final point is \\((33/16,1/4)\\). By the symmetry of the control points the whole construction is the mirror image of the one at \\(t=1/4\\) across the \\(y\\)-axis, with the order of the points in each row reversed.'),
                 formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'],
                 workedExampleId: 'decasteljau-cubic-three-quarter',
-                frames: [frame('decasteljau-three-quarter-explanation', 'explanation'), frame('decasteljau-three-quarter-calculation', 'calculation'), frame('decasteljau-three-quarter-observation', 'observation')],
+                frames: [frame('decasteljau-three-quarter-explanation', 'explanation'), frame('decasteljau-three-quarter-calculation', 'calculation'), frame('decasteljau-three-quarter-observation', 'observation', decasteljauFrame({highlight: ['t'], uses: ['decasteljau-t']}))],
                 observationPrompt: text('Primerjaj končni točki pri \\(t=1/4\\) in \\(t=3/4\\).', 'Compare the final points at \\(t=1/4\\) and \\(t=3/4\\).'),
                 expectedObservations: [text('Končni točki \\((-33/16,1/4)\\) in \\((33/16,1/4)\\) ležita na krivulji in sta simetrični; vrstice pri \\(t=3/4\\) so zrcalne slike vrstic pri \\(t=1/4\\) z obrnjenim vrstnim redom točk.', 'The final points \\((-33/16,1/4)\\) and \\((33/16,1/4)\\) lie on the curve and are symmetric; the rows at \\(t=3/4\\) are the mirror images of the rows at \\(t=1/4\\) with the point order reversed.')],
                 scene: decasteljauScene('decasteljau-three-quarter', bezierSymmetricFixture, 0.75, 'Kubična konstrukcija je pripravljena pri \\(t=0{,}75\\).', 'The cubic construction is prepared at \\(t=0.75\\).'),
@@ -582,7 +585,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 explanation: text('Privzeta kvartična krivulja s petimi točkami ima štiri vrstice; pri \\(t=1/2\\) se konstrukcija konča v točki \\((0,7/4)\\). Sistematična sprememba parametra \\(t\\) in prikaz celotne krivulje omogočata analizo vmesnih vrstic.', 'The default quartic curve with five points has four rows; at \\(t=1/2\\) the construction ends at \\((0,7/4)\\). Systematic variation of \\(t\\) and display of the whole curve allow analysis of the intermediate rows.'),
                 formulaIds: ['decasteljau-interpolation', 'decasteljau-curve-point'],
                 workedExampleId: 'decasteljau-degree-four-midpoint',
-                frames: [frame('decasteljau-free-exploration-explanation', 'explanation'), frame('decasteljau-free-exploration-calculation', 'calculation'), frame('decasteljau-free-exploration-observation', 'observation')],
+                frames: [frame('decasteljau-free-exploration-explanation', 'explanation', decasteljauFrame({open: ['tools'], highlight: ['t'], uses: ['decasteljau-t', 'full-curve']})), frame('decasteljau-free-exploration-calculation', 'calculation'), frame('decasteljau-free-exploration-observation', 'observation')],
                 observationPrompt: text('Kateri del konstrukcije najbolje poveže numerični izračun z grafom?', 'Which part of the construction best relates the numerical evaluation to the graph?'),
                 expectedObservations: [text('Pri vsakem \\(t\\) je zadnja točka na krivulji, vmesne vrstice pa razložijo, kako do nje pridemo.', 'For every \\(t\\) the final point is on the curve, while the intermediate rows explain how it is reached.')],
                 scene: scene('decasteljau-default', [{kind: 'curve-visibility', target: 'decasteljau-scheme', visible: true}, {kind: 'parameter', name: 't', value: 0.5}], 'Vrne se privzeta kvartična krivulja s petimi točkami pri \\(t=0{,}5\\).', 'The default quartic curve with five points returns at \\(t=0.5\\).'),

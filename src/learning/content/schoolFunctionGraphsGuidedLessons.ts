@@ -10,6 +10,11 @@
 import type {LessonAction} from '../model';
 import type {GuidedLesson, LessonScene, LocalizedText} from './guidedLessons';
 import {guidedStep as step} from './guidedStep';
+import {frameDeclarer} from '../../graphs/base/declare/graphDeclaration';
+import type {TransformationIds} from '../../graphs/functions/FunctionTransformationGraph';
+
+/** Typed by the transformation graph's declaration ids: an unknown row or control fails the type check. */
+const transformFrame = frameDeclarer<TransformationIds>();
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 
@@ -110,6 +115,7 @@ const transformationLesson: GuidedLesson = {
             formulaIds: ['transform-rule'],
             observationPrompt: text('Poišči sledeno točko \\((2,4)\\) in preveri, da je njena slika na istem mestu.', 'Find the tracked point \\((2,4)\\) and check that its image is in the same place.'),
             expectedObservations: [text('Z vsemi parametri na izhodišču se novi graf in duh sklapljata, slika točke \\((2,4)\\) je \\((2,4)\\).', 'With every parameter at its neutral value the new graph and the ghost coincide, and the image of \\((2,4)\\) is \\((2,4)\\).')],
+            declare: {observation: transformFrame({highlight: ['base-point', 'image-point']})},
             scene: transformScene('transform-original-ghost', 'square', 1, 1, 0, 0, 2,
                 'Osnova \\(x^2\\), \\(a=1\\), \\(b=1\\), \\(c=0\\), \\(d=0\\); slika točke \\((2,4)\\) je \\((2,4)\\); duh je viden.',
                 'Base \\(x^2\\), \\(a=1\\), \\(b=1\\), \\(c=0\\), \\(d=0\\); the image of \\((2,4)\\) is \\((2,4)\\); the ghost is visible.'),
@@ -125,6 +131,7 @@ const transformationLesson: GuidedLesson = {
             formulaIds: ['transform-point-map'],
             observationPrompt: text('Pred razkritjem napovej, kam se premakne teme, in potem preveri.', 'Before looking, predict where the vertex moves, then check.'),
             expectedObservations: [text('Teme je v \\((0,1)\\), vsaka točka se je premaknila za \\(1\\) navzgor; \\((2,4)\\) gre v \\((2,5)\\).', 'The vertex is at \\((0,1)\\), every point moved up by \\(1\\); \\((2,4)\\) goes to \\((2,5)\\).')],
+            declare: {observation: transformFrame({highlight: ['image-point'], uses: ['transform-d']})},
             scene: transformScene('transform-shift-d-scene', 'square', 1, 1, 0, 1, 2,
                 'Osnova \\(x^2\\), \\(d=1\\) (ostali \\(a=1\\), \\(b=1\\), \\(c=0\\)); teme \\((0,1)\\), slika točke \\((2,4)\\) je \\((2,5)\\).',
                 'Base \\(x^2\\), \\(d=1\\) (the others \\(a=1\\), \\(b=1\\), \\(c=0\\)); the vertex \\((0,1)\\), the image of \\((2,4)\\) is \\((2,5)\\).'),
@@ -140,6 +147,7 @@ const transformationLesson: GuidedLesson = {
             formulaIds: ['transform-point-map'],
             observationPrompt: text('Primerjaj smer prenosa s predznakom v \\(x-c\\).', 'Compare the direction of the shift with the sign in \\(x-c\\).'),
             expectedObservations: [text('Teme se je premaknilo iz \\((0,1)\\) v \\((3,1)\\): višina je ista, graf je \\(3\\) v desno.', 'The vertex moved from \\((0,1)\\) to \\((3,1)\\): the same height, the graph is \\(3\\) to the right.')],
+            declare: {observation: transformFrame({highlight: ['rule'], uses: ['transform-c']})},
             scene: transformScene('transform-shift-c-scene', 'square', 1, 1, 3, 1, 2,
                 'Osnova \\(x^2\\), \\(c=3\\), \\(d=1\\) (\\(a=1\\), \\(b=1\\)); teme \\((3,1)\\), slika točke \\((2,4)\\) je \\((5,5)\\).',
                 'Base \\(x^2\\), \\(c=3\\), \\(d=1\\) (\\(a=1\\), \\(b=1\\)); the vertex \\((3,1)\\), the image of \\((2,4)\\) is \\((5,5)\\).'),
@@ -155,6 +163,7 @@ const transformationLesson: GuidedLesson = {
             formulaIds: ['transform-point-map'],
             observationPrompt: text('Poišči, kaj ostane na mestu (teme), in kaj se obrne.', 'Find what stays in place (the vertex) and what turns over.'),
             expectedObservations: [text('Teme \\((3,1)\\) ostane, graf se odpira navzdol in je dvakrat strmejši; \\((2,4)\\) gre v \\((5,-7)\\).', 'The vertex \\((3,1)\\) stays, the graph opens downward and is twice as steep; \\((2,4)\\) goes to \\((5,-7)\\).')],
+            declare: {observation: transformFrame({highlight: ['image-point'], uses: ['transform-a']})},
             scene: transformScene('transform-scale-a-scene', 'square', -2, 1, 3, 1, 2,
                 'Osnova \\(x^2\\), \\(a=-2\\), \\(c=3\\), \\(d=1\\) (\\(b=1\\)); teme \\((3,1)\\), slika točke \\((2,4)\\) je \\((5,-7)\\).',
                 'Base \\(x^2\\), \\(a=-2\\), \\(c=3\\), \\(d=1\\) (\\(b=1\\)); the vertex \\((3,1)\\), the image of \\((2,4)\\) is \\((5,-7)\\).'),
@@ -170,6 +179,7 @@ const transformationLesson: GuidedLesson = {
             formulaIds: ['transform-point-map'],
             observationPrompt: text('Pred pogledom napovej, na kateri strani črte \\(x=3\\) je zdaj slika točke.', 'Before looking, predict on which side of the line \\(x=3\\) the image of the point now lies.'),
             expectedObservations: [text('Slika točke \\((1,1)\\) je \\((1,2)\\): ista višina kot pri \\(b=\\tfrac12\\), a na drugi strani črte \\(x=3\\).', 'The image of the point \\((1,1)\\) is \\((1,2)\\): the same height as for \\(b=\\tfrac12\\), but on the other side of the line \\(x=3\\).')],
+            declare: {observation: transformFrame({highlight: ['image-point'], uses: ['transform-b']})},
             scene: transformScene('transform-scale-b-scene', 'cube', 1, -0.5, 3, 1, 1,
                 'Osnova \\(x^3\\), \\(a=1\\), \\(b=-\\tfrac12\\), \\(c=3\\), \\(d=1\\); slika točke \\((1,1)\\) je \\((1,2)\\).',
                 'Base \\(x^3\\), \\(a=1\\), \\(b=-\\tfrac12\\), \\(c=3\\), \\(d=1\\); the image of \\((1,1)\\) is \\((1,2)\\).'),
@@ -185,6 +195,7 @@ const transformationLesson: GuidedLesson = {
             formulaIds: ['transform-rule', 'transform-point-map'],
             observationPrompt: text('Izračunaj sliko točke \\((1,1)\\) po pravilu in preveri na grafu.', 'Compute the image of the point \\((1,1)\\) by the rule and check it on the graph.'),
             expectedObservations: [text('Slika \\((2,4)\\) je \\((7,-7)\\), teme \\((3,1)\\), vrednost pri \\(x=5\\) je \\(-1\\).', 'The image of \\((2,4)\\) is \\((7,-7)\\), the vertex \\((3,1)\\), and the value at \\(x=5\\) is \\(-1\\).')],
+            declare: {observation: transformFrame({highlight: ['rule', 'image-point']})},
             scene: transformScene('transform-combine-scene', 'square', -2, 0.5, 3, 1, 2,
                 'Osnova \\(x^2\\), \\(a=-2\\), \\(b=\\tfrac12\\), \\(c=3\\), \\(d=1\\); teme \\((3,1)\\), slika točke \\((2,4)\\) je \\((7,-7)\\), vrednost pri \\(x=5\\) je \\(-1\\).',
                 'Base \\(x^2\\), \\(a=-2\\), \\(b=\\tfrac12\\), \\(c=3\\), \\(d=1\\); the vertex \\((3,1)\\), the image of \\((2,4)\\) is \\((7,-7)\\), the value at \\(x=5\\) is \\(-1\\).'),
@@ -201,6 +212,7 @@ const transformationLesson: GuidedLesson = {
             workedExampleId: 'transform-default-value',
             observationPrompt: text('Izberi drugo osnovo in preveri, da pravilo za sliko točke velja tudi zanjo.', 'Choose another base and check that the rule for the image of a point holds for it too.'),
             expectedObservations: [text('Pravilo za sliko točke ne zavisi od osnovne funkcije; \\(b=0\\) program zavrne.', 'The rule for the image of a point does not depend on the base function; the program rejects \\(b=0\\).')],
+            declare: {observation: transformFrame({highlight: ['image-point'], uses: ['transform-base']})},
             scene: transformScene('transform-explore-free', 'square', -2, 0.5, 3, 1, 2,
                 'Osnova \\(x^2\\), \\(a=-2\\), \\(b=\\tfrac12\\), \\(c=3\\), \\(d=1\\); vse je prosto za raziskovanje.',
                 'Base \\(x^2\\), \\(a=-2\\), \\(b=\\tfrac12\\), \\(c=3\\), \\(d=1\\); everything is free to explore.'),
