@@ -121,6 +121,25 @@ Overnight decisions (log here: decision | alternatives | why):
 - Legacy `step()` lessons carry `ux` by copying the schoolFunctionGraphs pattern per lesson file (guide rule) | a shared step builder in guidedLessons.ts for all ~40 files | a shared builder would touch every lesson family for 24 graphs' worth of need; per-file copy is 10 lines and stays inside the converter's owned files.
 - The 24 graphs exclude the 16 trial graphs and the 3 pilots | reconvert some trial graphs fresh | the owner judges new coverage in the morning; trial branches already show those 16.
 
+## Handler 9 → handler 10 (2026-11-22 ~05:10)
+
+Read first: "Overnight challenge" above (plan, Watcher, the 24 graphs and sessions, Progress lines, Overnight decisions), then this. Owner is asleep; "Decide and log" holds; the watcher session `UX picks watcher` nudges and launches successors (keep this heading form for your own handoff).
+
+State at handoff:
+- Graphs converted and committed: 23/24 — function-inverse, rational-function, geometric-series (8a97c93e); voronoi, point-in-polygon (da80dc45); lattice-paths, linear-function, trigonometric-functions (c02653cc); interp-lagrange, spline-c1, subdivision (e20a99a4); circle-construction, triangle-solver (0cea28e2); bisection with autozoom (65c05a81); isometries, phase-portrait (24be0a74); fourier-series, curve-kinematics (5b26abc9); fixed-point, quadrature, recursion-cobweb (607fe9cb); prob-density, contour-map (1b5609a4). Routes `night/ROUTES.md`.
+- 24th = waves: `src/graphs/functions/WavesGraph.tsx` is converted but UNCOMMITTED and unverified (no unit run, no shots, no lesson frames; planned highlights in `night/conv/waves/NOTES.md`). Finish it first (one Sonnet worker: verify, wavesGuidedLessons.ts frames, shots), then the kinematics frames in kinematicsGuidedLessons.ts (the plain ?learn=1 lesson has none).
+- Jank: controls fixed (0b749d8b, 5f9c739d); probe `night/probe.cjs` (+ CHECKLIST, HAIKU-BRIEF; back-return measure fixed by handler 9). Before/after: puck width 3.7-4.7 px → 0; first-drag long task 75-101 ms → 0; Taylor count stall 4 → 0; hover flicker → 0; sweep CLS 0.08 → 0.017.
+- Cards: Odčitki redesign + legend links (4ddf9677, d6c86960), polish 6A (71a03175).
+- Critique round 6 A: 28/40 (`round6c/A/assessment.md`). 6A done; 6B committed 8f48e954 (strip is a view obstacle with backdrop, whole-word labels, "?" inside the strip, one sideways-scrolling row on phones, lock glyph). Not seen: lock glyph in a lesson; strip at 1024 is below the fold.
+
+Next, in order:
+1. Phase-portrait hover jank (queued line above): a29/a19 previews back off on expensive graphs; measure at --throttle 4 (owner's "older machines" fallback direction).
+2. Bisection hunt (`night/hunt/analysis_bisection/`): puckHover 39 flicker events in one run (a29/PuckHover.tsx ~127-136; the bracket pucks a/b move with every step?), sweep scenario throws a probe TypeError (reading 'id') — fix the probe; cards cover 48-61 % at 1024.
+3. Haiku hunts (one per converted graph, `night/HAIKU-BRIEF.md`, ~25k tokens / 2.5 min each; findings `night/findings.jsonl`), triage into fix batches by file owner.
+4. Critique round 7: fresh unanchored reviewer A (`night/CRITIQUE6-A.md` as template, output `round6c/A2/`), plus B detector and C audit re-measuring `round5/audit/audit.md` if time allows; fix P1/P2 until ≥ 32 or 11:10.
+5. Remaining known items: bisection — after a learner pan a step is skipped and "Prilagodi" fits the old step; director with tools+Odčitki open can leave f(a) just past the edge (zoom-out limit 1.6); Taylor legend lists the error band before it is shown; linear-map 7 modes not walked with the director; contract gaps list above.
+6. 11:10: morning report at the top of this note (plan step 7) + chat.
+
 ## Handler 8 → handler 9 (2026-11-22 03:10)
 
 Handler 8 integration done (~03:45): d2c2257a flicker fix; 21394dcb view director behind pick `viewDirector` (off by default; acceptance partial, see the commit message and `h8/director/NOTES.md`). Handler 9 owns all paths from here.
