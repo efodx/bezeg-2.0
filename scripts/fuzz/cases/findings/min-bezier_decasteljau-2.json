@@ -1,0 +1,14 @@
+{
+ "route": "bezier/decasteljau",
+ "seed": 2,
+ "lesson": false,
+ "invariant": "I3",
+ "actions": [
+  {
+   "a": "play"
+  },
+  {
+   "a": "escape"
+  }
+ ]
+}

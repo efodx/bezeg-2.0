@@ -1,0 +1,70 @@
+{
+ "route": "analysis/phase-portrait",
+ "seed": 4,
+ "lesson": false,
+ "invariant": "I1",
+ "actions": [
+  {
+   "a": "boardDrag",
+   "i": 37,
+   "dx": -41,
+   "dy": 43
+  },
+  {
+   "a": "boardDrag",
+   "i": 30,
+   "dx": 5,
+   "dy": -25
+  },
+  {
+   "a": "boardDrag",
+   "i": 18,
+   "dx": 37,
+   "dy": -5
+  },
+  {
+   "a": "rest",
+   "ms": 877
+  },
+  {
+   "a": "rest",
+   "ms": 519
+  },
+  {
+   "a": "boardDrag",
+   "i": 21,
+   "dx": 13,
+   "dy": -43
+  },
+  {
+   "a": "boardDrag",
+   "i": 9,
+   "dx": 51,
+   "dy": -32
+  },
+  {
+   "a": "rest",
+   "ms": 736
+  },
+  {
+   "a": "wheel",
+   "dy": 300
+  },
+  {
+   "a": "arrow",
+   "k": "s0",
+   "dir": "ArrowRight",
+   "n": 1
+  },
+  {
+   "a": "play"
+  },
+  {
+   "a": "drag",
+   "k": "s1",
+   "f1": 0.69,
+   "f2": 0.16,
+   "hold": 188
+  }
+ ]
+}

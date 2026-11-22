@@ -1,0 +1,17 @@
+{
+ "route": "functions/transformations",
+ "seed": 4,
+ "lesson": false,
+ "invariant": "I1",
+ "actions": [
+  {"a": "arrow", "k": "s1", "dir": "ArrowLeft", "n": 2},
+  {"a": "escape"},
+  {"a": "type", "k": "s4", "n": 3.2},
+  {"a": "rest", "ms": 581},
+  {"a": "clickTrack", "k": "s4", "f": 0.61},
+  {"a": "escape"},
+  {"a": "rest", "ms": 357},
+  {"a": "type", "k": "s0", "n": 12.2},
+  {"a": "drag", "k": "s1", "f1": 0.5, "f2": 0.3, "hold": 143}
+ ]
+}

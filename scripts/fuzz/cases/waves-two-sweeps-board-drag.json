@@ -1,0 +1,16 @@
+{
+ "route": "functions/waves",
+ "seed": 1,
+ "lesson": false,
+ "invariant": "I2",
+ "actions": [
+  {"a": "arrow", "k": "s4", "dir": "ArrowRight", "n": 3},
+  {"a": "play"},
+  {"a": "drag", "k": "s2", "f1": 0.1, "f2": 0.14, "hold": 0},
+  {"a": "clickTrack", "k": "s4", "f": 0.17},
+  {"a": "drag", "k": "s3", "f1": 0.4, "f2": 0.6, "hold": 34},
+  {"a": "play"},
+  {"a": "play"},
+  {"a": "boardDrag", "i": 0, "dx": -27, "dy": -25}
+ ]
+}

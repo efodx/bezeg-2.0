@@ -1,0 +1,2314 @@
+{
+ "base": "http://127.0.0.1:4471/bezeg-2.0/",
+ "viewport": "1024x768",
+ "throttle": 1,
+ "started": "2026-11-22T19:17:17.839Z",
+ "thresholds": {
+  "frameP95Ms": 20,
+  "frameMaxMs": 50,
+  "longTasksOver50": 0,
+  "cls": 0.02,
+  "flickerEvents": 0,
+  "valueWidthDriftPx": 1,
+  "glidesPerStep": 1,
+  "settleMs": 900,
+  "backReturnPct": 2,
+  "coverPct": 35
+ },
+ "routes": {
+  "analysis/taylor": {
+   "route": "analysis/taylor",
+   "actions": {
+    "sliderDrag": {
+     "frame": {
+      "n": 135,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "boardPan": {
+     "frame": {
+      "n": 25,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.7
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "moved": true,
+     "how": "shift",
+     "coverPct": null
+    },
+    "pointDrag": {
+     "frame": {
+      "n": 118,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "playThenSliderTouch": {
+     "skipped": "no playback",
+     "coverPct": null
+    }
+   },
+   "errors": []
+  },
+  "functions/transformations": {
+   "route": "functions/transformations",
+   "actions": {
+    "sliderDrag": {
+     "frame": {
+      "n": 131,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "boardPan": {
+     "frame": {
+      "n": 25,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "moved": false,
+     "how": "shift",
+     "coverPct": null
+    },
+    "pointDrag": {
+     "frame": {
+      "n": 110,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "playThenSliderTouch": {
+     "skipped": "no playback",
+     "coverPct": null
+    }
+   },
+   "errors": []
+  },
+  "bezier/decasteljau": {
+   "route": "bezier/decasteljau",
+   "actions": {
+    "sliderDrag": {
+     "frame": {
+      "n": 133,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "boardPan": {
+     "frame": {
+      "n": 25,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "moved": false,
+     "how": "shift",
+     "coverPct": null
+    },
+    "pointDrag": {
+     "frame": {
+      "n": 116,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "playThenSliderTouch": {
+     "frame": {
+      "n": 124,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0.0049,
+     "touch": {
+      "frame": {
+       "n": 130,
+       "median": 16.7,
+       "p95": 16.7,
+       "max": 16.8
+      },
+      "longTasks": 0,
+      "longTasksOver50": 0,
+      "longTaskMaxMs": 0,
+      "cls": 0,
+      "flicker": 0
+     },
+     "coverPct": null
+    }
+   },
+   "errors": []
+  },
+  "analysis/phase-portrait": {
+   "route": "analysis/phase-portrait",
+   "actions": {
+    "sliderDrag": {
+     "frame": {
+      "n": 128,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "boardPan": {
+     "frame": {
+      "n": 25,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "moved": false,
+     "how": "shift",
+     "coverPct": null
+    },
+    "pointDrag": {
+     "skipped": "no draggable point",
+     "coverPct": null
+    },
+    "playThenSliderTouch": {
+     "frame": {
+      "n": 123,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "touch": {
+      "frame": {
+       "n": 125,
+       "median": 16.7,
+       "p95": 16.7,
+       "max": 16.8
+      },
+      "longTasks": 0,
+      "longTasksOver50": 0,
+      "longTaskMaxMs": 0,
+      "cls": 0,
+      "flicker": 0
+     },
+     "coverPct": null
+    }
+   },
+   "errors": []
+  },
+  "analysis/taylor?lesson": {
+   "route": "analysis/taylor?lesson",
+   "actions": {
+    "sliderDrag": {
+     "frame": {
+      "n": 139,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "boardPan": {
+     "frame": {
+      "n": 25,
+      "median": 16.7,
+      "p95": 16.7,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "moved": true,
+     "how": "shift",
+     "coverPct": null
+    },
+    "pointDrag": {
+     "frame": {
+      "n": 117,
+      "median": 16.7,
+      "p95": 16.8,
+      "max": 16.8
+     },
+     "longTasks": 0,
+     "longTasksOver50": 0,
+     "longTaskMaxMs": 0,
+     "cls": 0,
+     "flicker": 0,
+     "coverPct": null
+    },
+    "playThenSliderTouch": {
+     "skipped": "no playback",
+     "coverPct": null
+    },
+    "lessonWalk": {
+     "steps": [
+      {
+       "kind": "next",
+       "step": 1,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 100,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 2,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 3,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 100,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 4,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 99,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 5,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 6,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 100,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 7,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 50
+       },
+       "longTasksOver50": 1,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 8,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 33.3
+       },
+       "longTasksOver50": 1,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 9,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 10,
+       "glides": 1,
+       "jump": true,
+       "settleMs": 72,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 11,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 100,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0
+      },
+      {
+       "kind": "next",
+       "step": 12,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 33.4
+       },
+       "longTasksOver50": 1,
+       "cls": 0
+      },
+      {
+       "kind": "back",
+       "step": 11,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 102,
+        "median": 16.7,
+        "p95": 16.8,
+        "max": 33.3
+       },
+       "longTasksOver50": 1,
+       "cls": 0,
+       "backReturnPct": 0
+      },
+      {
+       "kind": "back",
+       "step": 10,
+       "glides": 0,
+       "jump": false,
+       "settleMs": 0,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 16.8
+       },
+       "longTasksOver50": 0,
+       "cls": 0,
+       "backReturnPct": 0
+      },
+      {
+       "kind": "back",
+       "step": 9,
+       "glides": 1,
+       "jump": true,
+       "settleMs": 88,
+       "frame": {
+        "n": 101,
+        "median": 16.7,
+        "p95": 16.7,
+        "max": 33.3
+       },
+       "longTasksOver50": 1,
+       "cls": 0,
+       "backReturnPct": 0
+      }
+     ],
+     "coverPct": null
+    }
+   },
+   "errors": []
+  }
+ },
+ "rows": [
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "sliderDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "frame.maxMs",
+   "value": 16.7,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "boardPan",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "pointDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "playThenSliderTouch",
+   "metric": "skipped",
+   "value": "no playback",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor",
+   "action": "all",
+   "metric": "valueWidthDrift",
+   "value": null,
+   "limit": 1,
+   "status": "n/a"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "sliderDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "sliderDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "sliderDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "sliderDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "sliderDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "sliderDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "boardPan",
+   "metric": "board did not pan",
+   "value": "shift",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "boardPan",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "boardPan",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "boardPan",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "boardPan",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "boardPan",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "pointDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "pointDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "pointDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "pointDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "pointDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "pointDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "playThenSliderTouch",
+   "metric": "skipped",
+   "value": "no playback",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "functions/transformations",
+   "action": "all",
+   "metric": "valueWidthDrift",
+   "value": null,
+   "limit": 1,
+   "status": "n/a"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "sliderDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "sliderDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "sliderDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "sliderDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "sliderDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "sliderDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "boardPan",
+   "metric": "board did not pan",
+   "value": "shift",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "boardPan",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "boardPan",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "boardPan",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "boardPan",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "boardPan",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "pointDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "pointDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "pointDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "pointDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "pointDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "pointDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch",
+   "metric": "cls",
+   "value": 0.0049,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch.touch",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch.touch",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch.touch",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch.touch",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch.touch",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "playThenSliderTouch",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "bezier/decasteljau",
+   "action": "all",
+   "metric": "valueWidthDrift",
+   "value": null,
+   "limit": 1,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "sliderDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "board did not pan",
+   "value": "shift",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "boardPan",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "pointDrag",
+   "metric": "skipped",
+   "value": "no draggable point",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch.touch",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "playThenSliderTouch",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/phase-portrait",
+   "action": "all",
+   "metric": "valueWidthDrift",
+   "value": null,
+   "limit": 1,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "sliderDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "sliderDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "sliderDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "sliderDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "sliderDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "sliderDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "boardPan",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "boardPan",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "boardPan",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "boardPan",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "boardPan",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "pointDrag",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "pointDrag",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "pointDrag",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "pointDrag",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "pointDrag",
+   "metric": "flickerEvents",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "pointDrag",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "playThenSliderTouch",
+   "metric": "skipped",
+   "value": "no playback",
+   "limit": "",
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk",
+   "metric": "coverPct",
+   "value": null,
+   "limit": 35,
+   "status": "n/a"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next1",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next1",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next1",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next1",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next1",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next1",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next1",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next2",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next2",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next2",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next2",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next2",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next2",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next2",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next3",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next3",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next3",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next3",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next3",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next3",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next3",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next4",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next4",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next4",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next4",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next4",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next4",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next4",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next5",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next5",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next5",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next5",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next5",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next5",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next5",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next6",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next6",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next6",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next6",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next6",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next6",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next6",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next7",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next7",
+   "metric": "frame.maxMs",
+   "value": 50,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next7",
+   "metric": "longTasks>50ms",
+   "value": 1,
+   "limit": 0,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next7",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next7",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next7",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next7",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next8",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next8",
+   "metric": "frame.maxMs",
+   "value": 33.3,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next8",
+   "metric": "longTasks>50ms",
+   "value": 1,
+   "limit": 0,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next8",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next8",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next8",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next8",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next9",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next9",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next9",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next9",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next9",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next9",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next9",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next10",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next10",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next10",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next10",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next10",
+   "metric": "glidesPerStep",
+   "value": 1,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next10",
+   "metric": "jump",
+   "value": 1,
+   "limit": 0,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next10",
+   "metric": "settleMs",
+   "value": 72,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next11",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next11",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next11",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next11",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next11",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next11",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next11",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next12",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next12",
+   "metric": "frame.maxMs",
+   "value": 33.4,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next12",
+   "metric": "longTasks>50ms",
+   "value": 1,
+   "limit": 0,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next12",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next12",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next12",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.next12",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "frame.p95Ms",
+   "value": 16.8,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "frame.maxMs",
+   "value": 33.3,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "longTasks>50ms",
+   "value": 1,
+   "limit": 0,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back11",
+   "metric": "backReturnPct",
+   "value": 0,
+   "limit": 2,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "frame.maxMs",
+   "value": 16.8,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "longTasks>50ms",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "glidesPerStep",
+   "value": 0,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "jump",
+   "value": 0,
+   "limit": 0,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "settleMs",
+   "value": 0,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back10",
+   "metric": "backReturnPct",
+   "value": 0,
+   "limit": 2,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "frame.p95Ms",
+   "value": 16.7,
+   "limit": 20,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "frame.maxMs",
+   "value": 33.3,
+   "limit": 50,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "longTasks>50ms",
+   "value": 1,
+   "limit": 0,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "cls",
+   "value": 0,
+   "limit": 0.02,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "glidesPerStep",
+   "value": 1,
+   "limit": 1,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "jump",
+   "value": 1,
+   "limit": 0,
+   "status": "FAIL"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "settleMs",
+   "value": 88,
+   "limit": 900,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "lessonWalk.back9",
+   "metric": "backReturnPct",
+   "value": 0,
+   "limit": 2,
+   "status": "ok"
+  },
+  {
+   "route": "analysis/taylor?lesson",
+   "action": "all",
+   "metric": "valueWidthDrift",
+   "value": null,
+   "limit": 1,
+   "status": "n/a"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "route": "functions/transformations",
+ "seed": 2,
+ "lesson": false,
+ "invariant": "I2",
+ "actions": [
+  {"a": "rest", "ms": 976},
+  {"a": "drag", "k": "s4", "f1": 0.3, "f2": 0.7, "hold": 100},
+  {"a": "escape"},
+  {"a": "drag", "k": "s3", "f1": 0.3, "f2": 0.7, "hold": 100}
+ ]
+}
