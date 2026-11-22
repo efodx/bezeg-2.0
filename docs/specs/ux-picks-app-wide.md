@@ -26,7 +26,7 @@ The owner kept nine prototypes from the `ux-picks` branch and wants them in the 
 6. All graphs are converted. The conversion must run efficiently with parallel workers.
 7. Aim high on quality, but do not loop on a critique score.
 8. Phones may get their own controls, tools and lesson design. The architecture must let a phone presenter supply its own controls. Pucks are a good direction there. The phone redesign comes last. Until then phone layouts are not a target and phone checks are not maintained for the changed workspace.
-9. The prototype is frozen at `628dd1f3` (`ux-picks`, R29). The plan refers to that commit.
+9. The prototype is frozen at `aff6df6c` (`ux-picks`, R30, the last prototype code change: the fuzzer fixes). The plan refers to that commit.
 10. The rebuild may improve on the prototype's UI and UX, not only reproduce it. "The docking is nice and a feature I want, but it could feel better/smoother."
 11. Controls other than sliders and counts (choices, toggles, point lists, text entry) are placed with taste, graph by graph: some belong on the board as a puck or a standalone control, others stay in Orodja.
 12. A sweep swings a narrower range than the whole slider by default.
@@ -127,7 +127,7 @@ The method in task 08:
 2. [Parameter writes](parameter-writes.md) acceptance 1 to 5 hold, with the view box covered by the same unit tests (learner pan ends a director glide; a fit never changes the stored intent).
 3. The layout function has unit tests without a DOM for: budget on first view (two open cards from 1200 px, one below), fold before clip, whole-row cuts, the learner's stored fold winning, and a frame's opened cards. In the browser, opening, folding and dropping a card reaches its final rectangle with no intermediate size (frame sampling).
 4. The contract test passes for every graph and every lesson frame.
-5. Fuzzer: 50 seeds per pilot route and 5 seeds per other route pass invariants I1 to I5. The failure classes found on the prototype each have a test: a typed value overwritten by a stale writer; a value alternating A → B → A; the JSXGraph "reading 'handler'" page error after undo, sweep and Esc in sequence.
+5. Fuzzer: 50 seeds per pilot route and 5 seeds per other route pass invariants I1 to I5. The findings F1 to F3 in [parameter writes](parameter-writes.md#fuzzer-findings-feeding-this-spec) each have a test: a sweep's probe values painted (A → B → A); a probe's restore overwriting a typed or dragged value; the JSXGraph "reading 'handler'" page error from a board listener that unsubscribes inside its own event. On the prototype they were patched in R30 and only the minimised cases were rerun; the full seed matrix has never passed, so the first full pass is this rebuild's.
 6. Jank probe on the pilots at 1440×900 and 1024×768, quiet machine, against the thresholds in the ported checklist: no long task in a puck drag, sweep CLS under the threshold, puck width drift 0, at most one glide per lesson step, Back returns to the step's view within 2 %. Taylor and phase portrait are also run at 4× CPU throttle and reported.
 7. Keyboard: every puck, card move, fold and lesson control is reachable and operable; card moves and resets are announced. Reduced motion: no glide.
 8. A changed panel is looked at as a screenshot at 310 px card width before acceptance (AGENTS.md).

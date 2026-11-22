@@ -2,7 +2,7 @@
 
 Source: [board workspace spec](../../specs/ux-picks-app-wide.md) and [parameter writes](../../specs/parameter-writes.md). Decisions: ADRs [0062](../../adr/0062-rebuild-ux-picks-on-master.md), [0063](../../adr/0063-cards-on-the-board.md), [0064](../../adr/0064-source-tagged-scene-writes.md), [0065](../../adr/0065-graphs-declare-presenters-render.md). The spec is a draft awaiting owner review; no task has started.
 
-Reference prototype: branch `ux-picks` frozen at `628dd1f3` (never merged), preview on the tailnet at port 4460. Prototype paths in the task files are read-only references at that commit. Night tooling (probe, fuzzer, guide, briefs) is in `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/`.
+Reference prototype: branch `ux-picks` frozen at `aff6df6c` (R30; prototype code never merged), preview on the tailnet at port 4460. Prototype paths in the task files are read-only references at that commit. Night tooling (probe, fuzzer, guide, briefs) is in `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/`.
 
 Branches (owner, 2026-11-22): planning files stay on `ux-picks`. Code is built on a work branch cut from `master`; a finished, accepted stage is carried to `master` by the normal publish sequence. The first handler names the work branch here and brings these planning files to it as a documentation-only cherry-pick.
 

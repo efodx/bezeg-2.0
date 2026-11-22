@@ -4,7 +4,7 @@ Accepted on 2026-11-22 (owner decision in the planning session for [the board wo
 
 ## Context
 
-The `ux-picks` branch holds nine prototypes the owner kept. At its frozen commit `628dd1f3` it is 201 commits ahead of `master`: 190 files, about 12,400 added lines, 34 files outside `src/uxPicks/` gated on a pick flag, 28 of 116 graphs converted. It was built under the rule "works enough so I can see if I like it", so it has almost no unit or smoke coverage. Its parameter write paths are known to be unsound ([parameter writes](../specs/parameter-writes.md)), and its layout is measured after paint by several observers.
+The `ux-picks` branch holds nine prototypes the owner kept. At its frozen commit `aff6df6c` it is about 200 commits ahead of `master`: 190 files, about 12,400 added lines, 34 files outside `src/uxPicks/` gated on a pick flag, 28 of 116 graphs converted. It was built under the rule "works enough so I can see if I like it", so it has almost no unit or smoke coverage. Its parameter write paths are known to be unsound ([parameter writes](../specs/parameter-writes.md)), and its layout is measured after paint by several observers.
 
 ## Decision
 
