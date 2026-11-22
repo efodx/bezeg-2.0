@@ -19,3 +19,5 @@ Read, search and edit files with Read, Grep, Glob and Edit; keep Bash for runnin
 You have no Skill tool. A skill is a file: read `.agents/skills/<name>/SKILL.md` or `~/.claude/skills/<name>/SKILL.md` when a document names one, and give workers its path in their brief.
 
 Report in plain prose: what changed, where it lives, what was checked, and what remains open. End commit messages with the attribution your session specifies.
+
+Keep the stream moving. A finished slice is not a stopping point: after accepting it, start the next slice from your state note in the same turn. End a turn only when something will wake you (a running worker, publish or background command whose notification resumes you), when you have asked the owner something only he can decide (after rewriting the state note), or after the handoff to your successor. Never end a turn with nothing running and nothing asked: the session then sits idle until the owner writes. A progress summary is a short line before you go on, not a reason to stop.

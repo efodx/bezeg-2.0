@@ -31,4 +31,6 @@ A running Claude handler's working summary of [the workflow](../agent-workflow.m
 
 **Item batches.** Work that applies one change to many existing items starts with a [blocker triage](../tasks/feature-streams/README.md#item-batches) before any item is written.
 
+**Keep moving.** After a slice is accepted, start the next one from the state note in the same turn. End a turn only when a running worker, publish or background command will notify you, when you have asked the owner a question that is his to decide (state note rewritten first), or after handing off. A turn that ends with nothing running and nothing asked leaves the stream idle until the owner writes (owner, 2026-11-22).
+
 **Close out.** Commit verified work, rewrite the [state note](../agent-workflow.md#handler-context-budget-claude) (`docs/reviews/<feature>/state.md`) with the next slice's brief inputs, and launch the successor with `--agent bezeg-handler`. Rewrite the note to the present state, about 8 KB: the budget hook flags a note over 10,000 bytes, because every successor re-reads it on every turn. Launch every lane or side session you start with `--agent bezeg-handler` too. Before you stop to wait for the owner, bring the note up to date, so a reply that comes more than an hour later can start a fresh successor instead of rebuilding your whole context.
