@@ -9,7 +9,8 @@ import type {SurfaceView} from "../patches/surface-view/surfaceScene";
 import type ContourMapGraph from "./ContourMapGraph";
 import {FUNCTION_KEYS} from "./ContourMapGraph";
 
-import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
 const REDUCED_REASON_ID = "contour-play-reduced-reason";
 
 /** Play or pause, reset and the step slider of the descent: host state, so only this part re-renders on a step. */
@@ -25,17 +26,17 @@ export function ContourPlayback(props: {graph: ContourMapGraph}) {
     const params = {value0: "0", value1: String(last)};
     const blocks = playbackBlocks({atStart: step === 0, atEnd: step === last, playing});
     const playBlock = blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined);
-    return <div className="inspector-group">
+    return <ToolSection id="contour-playback">
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_step_slider")}
                          placement="graph" groupLabel={text("levelsets_graph_playback_group")} nextLabel={text("next_step")}
                          playing={playing} onNext={() => graph.nextStep()} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())}
                          onReset={() => graph.resetSteps()}
                          {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
         {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_step_slider")}</p>}
-        <Slider customText={text("levelsets_graph_steps_label")} min={0} max={last} step={1} grid={1} bigStep={5} decimals={0} value={step}
+        <Slider paramKey="contour.steps" customText={text("levelsets_graph_steps_label")} min={0} max={last} step={1} grid={1} bigStep={5} decimals={0} value={step}
                 rejectedHint={text("levelsets_graph_steps_rejected", params)}
                 onChange={value => graph.setStepIndex(Math.round(value))}/>
-    </div>;
+    </ToolSection>;
 }
 
 /** The status sentence, the labelled readout rows and the legend of the drawn elements. */
@@ -43,7 +44,8 @@ export function ContourReadout(props: {graph: ContourMapGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <BoardReadout><div className="inspector-group">
+    if (pickOn("boardText")) return <LiveReadout readout={graph.status} muted={graph.playing}/>; // the readout card shows the rest
+    return <div className="inspector-group">
         <ReadoutHeading>{text("levelsets_graph_readout_title")}</ReadoutHeading>
         <p data-contour-status="">{graph.statusText()}</p>
         <ReadoutList label={text("levelsets_graph_readout_title")} rows={graph.readoutRows()}/>
@@ -51,7 +53,7 @@ export function ContourReadout(props: {graph: ContourMapGraph}) {
             {graph.legend().map(row => <li key={row.id} data-legend={row.id}>{row.text}</li>)}
         </ul>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div></BoardReadout>;
+    </div>;
 }
 
 /** The surface z = f(x, y) with the chosen-level contour, in the workspace beside the map; the camera edits are stored. */

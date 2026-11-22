@@ -14,6 +14,8 @@ import Slider from "../../inputs/Slider";
 import type {ReadoutListRow} from "../base/controls/ReadoutParts";
 import {SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {CATALOGUE, CATALOGUE_IDS, type CatalogueId} from "../../levelsets/functions2";
@@ -521,6 +523,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
      * the mode can show, stacked, whatever the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
      */
     private legendBand(mode: ContourState["mode"]): number {
+        if (pickOn("boardText")) return 0; // the legend card shows the legend; the board keeps no strip for it
         const captions = [t("levelsets_graph_cap_levels"), t("levelsets_graph_cap_levels_more")];
         if (mode !== "descent") captions.push(t("levelsets_graph_cap_through"));
         if (mode === "level-sets" || mode === "gradient") captions.push(t("levelsets_graph_cap_probe"));
@@ -707,7 +710,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                 () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.legend().map(row => row.text), index, board.canvasWidth) / uy; },
                 () => this.legend()[index]?.text ?? "",
             ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
-                withLabel: false, visible: () => index < this.legend().length});
+                withLabel: false, visible: () => index < this.legend().length && !pickOn("boardText")});
             this.scene.own(legendText);
         }
     }
@@ -1223,11 +1226,11 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
             <ChoiceSelect key="fn" label={t("levelsets_graph_fn")} value={state.fn} help={t("levelsets_graph_fn_help")}
                           options={CATALOGUE_IDS.map(value => ({value, text: t(FUNCTION_KEYS[value])}))}
                           onChange={value => { const fn = CATALOGUE_IDS.find(candidate => candidate === value); if (fn) this.setFunction(fn); }}/>,
-            <Slider key="level" customText={t("levelsets_graph_level")} min={LEVEL_RANGE.min / LEVEL_SCALE} max={LEVEL_RANGE.max / LEVEL_SCALE} step={1 / LEVEL_SCALE}
+            <Slider key="level" paramKey="contour.level" customText={t("levelsets_graph_level")} min={LEVEL_RANGE.min / LEVEL_SCALE} max={LEVEL_RANGE.max / LEVEL_SCALE} step={1 / LEVEL_SCALE}
                     bigStep={1} decimals={3} value={levelOf(state.level)}
                     rejectedHint={t("levelsets_graph_level_rejected", {value0: dec(LEVEL_RANGE.min / LEVEL_SCALE, 0), value1: dec(LEVEL_RANGE.max / LEVEL_SCALE, 0), value2: dec(1 / LEVEL_SCALE, 3)})}
                     valueText={value => t("levelsets_graph_level_value", {value0: dec(value, 3)})} onChange={value => this.setLevel(value)}/>,
-            <CountSetter key="count" label={t("levelsets_graph_count")} n={state.levelCount} min={LEVEL_COUNT_RANGE.min} max={LEVEL_COUNT_RANGE.max} bigStep={1}
+            <CountSetter key="count" paramKey="contour.count" label={t("levelsets_graph_count")} n={state.levelCount} min={LEVEL_COUNT_RANGE.min} max={LEVEL_COUNT_RANGE.max} bigStep={1}
                          minusLabel={t("levelsets_graph_count_minus")} plusLabel={t("levelsets_graph_count_plus")}
                          help={t("levelsets_graph_count_help", {value0: String(LEVEL_COUNT_RANGE.min), value1: String(LEVEL_COUNT_RANGE.max)})}
                          onPlus={() => this.setLevelCount(state.levelCount + 1)} onMinus={() => this.setLevelCount(state.levelCount - 1)}
@@ -1248,7 +1251,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
             commands.push(<PointListInput key="start" title={t("levelsets_graph_start_title")} points={[start]} pointLabel={() => "P0"}
                                           min={-this.half()} max={this.half()} step={1 / START_SCALE} bigStep={1} decimals={2}
                                           onCommit={(_index, value) => commitPoint(start, value, START_SCALE, (axis, next) => this.setStart(axis, next))}/>,
-                <Slider key="step" customText={t("levelsets_graph_step")} min={STEP_RANGE.min} max={STEP_RANGE.max} step={1} grid={1} bigStep={1} decimals={0} value={state.step}
+                <Slider key="step" paramKey="contour.step" customText={t("levelsets_graph_step")} min={STEP_RANGE.min} max={STEP_RANGE.max} step={1} grid={1} bigStep={1} decimals={0} value={state.step}
                         help={t("levelsets_graph_step_help", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max), value2: dec(STEP_RANGE.min / STEP_SCALE, 2), value3: dec(STEP_RANGE.max / STEP_SCALE, 2)})}
                         rejectedHint={t("levelsets_graph_step_rejected", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max)})}
                         valueText={value => t("levelsets_graph_step_value", {value0: dec(value, 0), value1: dec(stepOf(Math.round(value)), 2)})}
@@ -1261,13 +1264,13 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                                         reason={hills ? t("levelsets_graph_constraint_hills_reason") : undefined}
                                         onChange={value => { const id = CONSTRAINT_IDS.find(candidate => candidate === value); if (id) this.setConstraint(id); }}/>);
             if (this.constraint() === "line") {
-                commands.push(<Slider key="line-x" customText={t("levelsets_graph_line_x")} value={lineParamOf(state.lineParam)} step={1 / LINE_PARAM_SCALE} bigStep={1}
+                commands.push(<Slider key="line-x" paramKey="contour.line" customText={t("levelsets_graph_line_x")} value={lineParamOf(state.lineParam)} step={1 / LINE_PARAM_SCALE} bigStep={1}
                                       min={lineParamOf(LINE_PARAM_RANGE.min)} max={lineParamOf(LINE_PARAM_RANGE.max)} decimals={2}
                                       onChange={value => this.setLineX(value)}/>);
             } else {
                 const stepDegrees = 360 / CIRCLE_STEPS;
                 const degreesText = {value0: dec(CIRCLE_PARAM_RANGE.min * stepDegrees, 1), value1: dec(CIRCLE_PARAM_RANGE.max * stepDegrees, 1), value2: dec(stepDegrees, 1)};
-                commands.push(<Slider key="circle" customText={t("levelsets_graph_circle_angle")} min={CIRCLE_PARAM_RANGE.min * stepDegrees} max={CIRCLE_PARAM_RANGE.max * stepDegrees}
+                commands.push(<Slider key="circle" paramKey="contour.circle" customText={t("levelsets_graph_circle_angle")} min={CIRCLE_PARAM_RANGE.min * stepDegrees} max={CIRCLE_PARAM_RANGE.max * stepDegrees}
                                       step={stepDegrees} bigStep={45} decimals={1} value={state.circleParam * stepDegrees}
                                       help={t("levelsets_graph_circle_help", degreesText)}
                                       rejectedHint={t("levelsets_graph_circle_rejected", degreesText)}
@@ -1278,6 +1281,50 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         // The first task leads: the level value and its contour, then the marked point; mode, function and overlay count follow.
         const lead = ["level", "probe"];
         return [...lead.flatMap(key => commands.filter(command => command.key === key)), ...commands.filter(command => !lead.includes(String(command.key)))];
+    }
+
+    /** UX picks: the readout rows of `readoutRows()` in groups, the legend as swatches (drawn elements only) and the status sentence. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const state = this.state;
+        const legend = this.legend();
+        const kinds: Record<string, LegendEntry["kind"]> = {
+            probe: "point", start: "point", current: "point", cut: "point", point: "point", tangency: "point", through: "dashed", "grad-g": "dashed",
+        };
+        const entries: LegendEntry[] = legend.filter(row => row.id !== "scale").map(row => ({id: row.id, label: row.text, kind: kinds[row.id] ?? "line", color: row.color}));
+        const has = (id: string): string | undefined => entries.some(entry => entry.id === id) ? id : undefined;
+        const links: Record<string, string> = {
+            level: "levels", probe: "probe", gradient: "gradient", tangent: "tangent", start: "start", iterate: "current", constraint: "constraint",
+            point: "point", "grad-f": "grad-f", "grad-g": "grad-g", tangency: "tangency",
+        };
+        const groupOf = (id: string): string => {
+            if (["function", "level", "length", "window", "zscale"].includes(id)) return "setup";
+            if (["probe", "probe-f", "gradient", "norm", "tangent", "dot", "scale", "numeric", "numeric-error"].includes(id) && state.mode !== "lagrange") return "probe";
+            if (["start", "step", "steps", "iterate", "iterate-f", "settled", "claim", "stop", "drawn"].includes(id)) return "descent";
+            return "lagrange";
+        };
+        const titles: Record<string, string> = {setup: "Funkcija in nivoji", probe: "Označena točka", descent: "Spust", lagrange: "Vezani ekstrem"};
+        const groups: ReadoutGroup[] = [];
+        for (const row of this.readoutRows()) {
+            const id = groupOf(row.id);
+            const link = links[row.id];
+            const entry: ReadoutRow = {id: row.id, name: String(row.label ?? row.id), value: String(row.value), ...(link && has(link) ? {legend: link} : {})};
+            const group = groups.find(candidate => candidate.id === id);
+            if (group) groups[groups.indexOf(group)] = {...group, rows: [...group.rows, entry]};
+            else groups.push({id, title: titles[id], rows: [entry]});
+        }
+        const notes: ReadoutNote[] = [{id: "status", text: this.statusText(), tone: "muted"}];
+        return {
+            pucks: [
+                {param: "contour.level", help: t("levelsets_graph_mode_help_level_sets")},
+                {param: "contour.count", help: t("levelsets_graph_count_help", {value0: String(LEVEL_COUNT_RANGE.min), value1: String(LEVEL_COUNT_RANGE.max)})},
+                {param: "contour.steps", help: t("levelsets_graph_mode_help_descent")},
+                {param: "contour.step", help: t("levelsets_graph_step_help", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max), value2: dec(STEP_RANGE.min / STEP_SCALE, 2), value3: dec(STEP_RANGE.max / STEP_SCALE, 2)})},
+            ],
+            readouts: groups,
+            notes,
+            legend: entries,
+        };
     }
 
     protected override workspaceEdit(): React.ReactNode {

@@ -9,10 +9,13 @@
  * tangent in the picture are an illustration.
  */
 import type {LessonAction} from '../model';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -24,11 +27,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}). */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation', ux?.explanation), frame(`${content.id}-observation`, 'observation', ux?.observation)],
 });
 
 /**
@@ -154,6 +159,7 @@ const ls1Steps: readonly GuidedLessonStep[] = [
         scene: contourScene('ls1-probe-scene', LS1_BOWL_THREE,
             'Skleda, nivojnice pri \\(c=1\\), \\(2\\), \\(3\\), sonda v \\((0{,}6;\\ 0{,}8)\\), kjer je \\(f=1\\).',
             'The bowl, level sets at \\(c=1\\), \\(2\\), \\(3\\), the probe at \\((0.6,\\ 0.8)\\), where \\(f=1\\).'),
+        ux: {explanation: readouts('probe-f')},
     }),
     step({
         id: 'ls1-valley', order: 3,
@@ -238,6 +244,7 @@ const ls1Steps: readonly GuidedLessonStep[] = [
         scene: contourScene('ls1-explore-scene', LS1_EXPLORE,
             'Začetno stanje: skleda, \\(c=1\\), ena nivojnica, sonda v \\((0{,}6;\\ 0{,}8)\\); vse nastavitve so proste.',
             'The starting state: the bowl, \\(c=1\\), one level set, the probe at \\((0.6,\\ 0.8)\\); every setting is free.'),
+        ux: {explanation: readouts('probe-f')},
     }),
 ];
 
@@ -387,6 +394,7 @@ const ls2Steps: readonly GuidedLessonStep[] = [
         scene: contourScene('ls2-numeric-scene', LS2_NUMERIC_OPEN,
             'Griči \\(\\sin x\\sin y\\), \\(c=0{,}625\\), sonda v \\((1;\\ 1)\\), način Gradient, numerična ocena izklopljena; točni gradient je \\((0{,}4546487;\\ 0{,}4546487)\\).',
             'The hills \\(\\sin x\\sin y\\), \\(c=0.625\\), the probe at \\((1,\\ 1)\\), the mode Gradient, the numeric estimate off; the exact gradient is \\((0.4546487,\\ 0.4546487)\\).'),
+        ux: {explanation: readouts('gradient')},
     }),
     step({
         id: 'ls2-explore', order: 6,

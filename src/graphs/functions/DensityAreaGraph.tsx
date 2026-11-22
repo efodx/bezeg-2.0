@@ -17,8 +17,12 @@ import {
 } from "./densityAreaMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, ReadoutNote} from "../../uxPicks/declare/graphUx";
 
 const AREA_COLOR = GraphPalette.comparisonCurve;
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
 
 /**
  * Density and probability as area (lesson P1): the density of X ~ N(mu, sigma^2) with the area between two draggable ends a and b
@@ -142,9 +146,9 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         this.pointB = end("b");
 
         this.caption("top-left", [
-            {text: () => t("prob_density_board_title", {value0: densityNumber(model().mu, language()), value1: densityNumber(model().sigma, language())}), scale: 1.2},
-            {text: () => t("prob_density_board_area", {value0: densityPercent(this.viewOf(model()).probability, language())})},
-            {text: () => densityStatus(this.viewOf(model()).kind, language()), color: GraphPalette.warningText},
+            {text: () => t("prob_density_board_title", {value0: densityNumber(model().mu, language()), value1: densityNumber(model().sigma, language())}), scale: 1.2, visible: boardTextOnBoard},
+            {text: () => t("prob_density_board_area", {value0: densityPercent(this.viewOf(model()).probability, language())}), visible: boardTextOnBoard},
+            {text: () => densityStatus(this.viewOf(model()).kind, language()), color: GraphPalette.warningText, visible: boardTextOnBoard},
         ]);
     }
 
@@ -172,27 +176,27 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         const muRejected = t("prob_density_mu_rejected", {value0: DENSITY_MU_LIMIT});
         const sigmaRejected = t("prob_density_sigma_rejected");
         return <>
-            <div className="inspector-group">
+            <ToolSection id="density-bounds" help={t("prob_density_bounds_help")}>
                 <NumberInput label={t("prob_density_a_label")} value={state.a} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
                 <NumberInput label={t("prob_density_b_label")} value={state.b} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
-                <p className="inspector-help">{t("prob_density_bounds_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("prob_density_mu_label")} min={-DENSITY_MU_LIMIT} max={DENSITY_MU_LIMIT} step={0.1} value={state.mu}
+            </ToolSection>
+            <ToolSection id="density-normal">
+                <Slider paramKey="density.mu" customText={t("prob_density_mu_label")} min={-DENSITY_MU_LIMIT} max={DENSITY_MU_LIMIT} step={0.1} value={state.mu}
                         rejectedHint={muRejected} onChange={next => this.ignoreOutOfDomain(() => this.setMu(next))}/>
-                <Slider customText={t("prob_density_sigma_label")} min={DENSITY_SIGMA_MIN} max={DENSITY_SIGMA_MAX} step={0.1} value={state.sigma}
+                <Slider paramKey="density.sigma" customText={t("prob_density_sigma_label")} min={DENSITY_SIGMA_MIN} max={DENSITY_SIGMA_MAX} step={0.1} value={state.sigma}
                         rejectedHint={sigmaRejected} onChange={next => this.ignoreOutOfDomain(() => this.setSigma(next))}/>
-            </div>
-            <div className="inspector-group">
+            </ToolSection>
+            <ToolSection id="density-example">
                 <ChoiceSelect label={t("prob_density_example_label")} value={example ?? "custom"} help={t("prob_density_example_help")} options={options}
                               onChange={next => { if (next === "standard" || next === "iq") this.setExample(next); }}/>
-            </div>
+            </ToolSection>
         </>;
     }
 
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the readout card shows it
         const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
@@ -210,10 +214,50 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null; // the legend card shows it
         return <FunctionLegend items={[
             {id: "curve", color: GraphPalette.primaryCurve, label: t("prob_density_legend_curve"), kind: "line"},
             {id: "area", color: AREA_COLOR, label: t("prob_density_legend_area"), kind: "area"},
         ]}/>;
+    }
+
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const view = this.viewOf(model);
+        const language = currentLanguage();
+        const status = densityStatus(view.kind, language);
+        const notes: ReadoutNote[] = [{id: "note", text: t("prob_density_note"), tone: "muted"}];
+        if (status) notes.unshift({id: "status", text: status, tone: "muted"});
+        const areaLink = model.a < model.b ? {legend: "area"} : {};
+        return {
+            pucks: [
+                {param: "density.mu", help: "Povprečje μ je središče zvona: krivulja se premakne, njena oblika ostane."},
+                {param: "density.sigma", help: "Standardni odklon σ določa širino zvona: večji σ pomeni nižjo in širšo krivuljo."},
+            ],
+            formula: "f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}\\,e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}",
+            readouts: [
+                {id: "setup", title: "Porazdelitev", rows: [
+                    {id: "mu", name: t("prob_density_mu_label"), value: densityNumber(model.mu, language), tone: "primary", legend: "curve"},
+                    {id: "sigma", name: t("prob_density_sigma_label"), value: densityNumber(model.sigma, language), tone: "primary", legend: "curve"},
+                    {id: "a", name: t("prob_density_a_label"),value: densityNumber(model.a, language)},
+                    {id: "b", name: t("prob_density_b_label"),value: densityNumber(model.b, language)},
+                ]},
+                {id: "areas", title: "Ploščina", rows: [
+                    {id: "area-percent", name: t("prob_density_readout_area_percent"), value: densityPercent(view.probability, language), tone: "comparison", ...areaLink},
+                    {id: "area", name: t("prob_density_readout_area"), value: densityFraction(view.probability, language), tone: "comparison", ...areaLink},
+                ]},
+                {id: "standard", title: "Standardizirani meji", rows: [
+                    {id: "za", name: t("prob_density_readout_za"), value: densityZ(view.za, language)},
+                    {id: "zb", name: t("prob_density_readout_zb"), value: densityZ(view.zb, language)},
+                ]},
+            ],
+            notes,
+            legend: [
+                {id: "curve", label: t("prob_density_legend_curve"), kind: "line", color: GraphPalette.primaryCurve},
+                ...(model.a < model.b ? [{id: "area", label: t("prob_density_legend_area"), kind: "area" as const, color: AREA_COLOR}] : []),
+            ],
+        };
     }
 }
 
