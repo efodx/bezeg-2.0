@@ -26,13 +26,14 @@ export function BoardCards(_props: {frame?: React.RefObject<HTMLDivElement | nul
     if (!ux) return null;
     const linked = linkedLegendIds(ux);
     const legend = (ux.legend ?? []).filter(e => !linked.has(e.id));
+    // A legend of one entry only names the graph's own curve: not shown.
     const hasReadouts = (ux.readouts?.length ?? 0) > 0 || (ux.notes?.length ?? 0) > 0;
     const hasReadoutCard = hasReadouts || !!ux.formula;
     return <>
         {hasReadoutCard && <DockCard kind="readout" title={hasReadouts ? 'Odčitki' : 'Formula'} what={hasReadouts ? 'odčitke' : 'formulo'} region="tr" order={1} foldWhenNarrow foldInLesson>
             {isOpen => isOpen && <ReadoutBody ux={ux} highlight={frame?.highlight ?? []}/>}
         </DockCard>}
-        {legend.length > 0 && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow foldInLesson>
+        {legend.length > 1 && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow foldInLesson>
             {isOpen => isOpen && <LegendBody entries={legend}/>}
         </DockCard>}
         {(ux.sections ?? []).map((s, i) => <DockCard key={s.id} kind={`section-${s.id}`} title={s.title} what={s.title.toLowerCase()} region="ml" order={i} foldWhenNarrow foldInLesson>

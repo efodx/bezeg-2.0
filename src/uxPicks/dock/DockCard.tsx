@@ -10,6 +10,7 @@ import {
 import {REGION_LABEL, measureDrag} from './dockMeasure';
 import {useFlip} from './dockFlip';
 import {useAutoOpen} from '../boardText/autoOpenStore';
+import {budgetOpen, storedFold, useBudgetFolded} from './dockBudget';
 
 /**
  * A movable, foldable card in the board dock. Docked, it sits at one of seven anchors around the board's edge and never
@@ -41,7 +42,7 @@ export interface DockCardProps {
     /** A fold the owner controls (the lesson card: folding is hiding the instructions); not stored. */
     collapsed?: boolean;
     onToggle?: (open: boolean) => void;
-    /** Kept for callers; every card but the lesson card now starts folded on a narrow window (see NARROW_PX), so it changes nothing. */
+    /** Kept for callers; it changes nothing (the card budget decides what starts open). */
     foldWhenNarrow?: boolean;
     /** Starts folded while a guided lesson is open (its card and the tools need the column) until the learner unfolds it during that lesson; the fold is kept apart from the one set outside lessons. */
     foldInLesson?: boolean;
@@ -54,18 +55,11 @@ const DRAG_THRESHOLD = 4;
 const collapsedKey = (kind: string) => kind === 'text' ? 'ux-boardtext-collapsed' : `ux-boardcard-collapsed:${kind}`;
 const posKey = (kind: string) => kind === 'text' ? 'ux-boardtext-pos' : `ux-boardcard-pos:${kind}`;
 
-/** Below this window width the board is crowded (tools, three cards, pucks): every card but the lesson card (and the tools card,
- *  which folds by its own rules) starts folded until the learner sets its fold. */
-const NARROW_PX = 1200;
+/** Folds with no stored choice come from the card budget (`dockBudget.ts`). */
 /** Lesson-time folds, per card, until the lesson closes. */
 const lessonFolds = new Map<string, boolean>();
 const lessonIsOpen = () => !!document.querySelector('.demonstration-workspace.lesson-open');
-function readCollapsed(kind: string): boolean {
-    try {
-        const stored = localStorage.getItem(collapsedKey(kind));
-        return stored === null ? kind !== 'guide' && window.innerWidth < NARROW_PX : stored === '1';
-    } catch { return false; }
-}
+const readCollapsed = (kind: string): boolean | null => storedFold(collapsedKey(kind));
 function readPos(kind: string): Pos | null {
     try {
         const v = JSON.parse(localStorage.getItem(posKey(kind)) ?? 'null') as Pos | null;
@@ -135,7 +129,9 @@ export function DockCard(props: DockCardProps) {
     // Fold-all (key Z) decides every card's fold but the lesson card's while it is on; the card's own fold comes back after it.
     useFoldAll();
     const byAll = foldAllRules(kind);
-    const collapsed = byAll ? foldAllFold(kind) : props.collapsed ?? (inLesson ? lessonFold ?? !auto : ownCollapsed);
+    const budgetFolded = useBudgetFolded(kind);
+    const budgetOpens = kind !== 'guide' && budgetOpen(kind, inLesson) && !budgetFolded;
+    const collapsed = byAll ? foldAllFold(kind) : props.collapsed ?? (inLesson ? lessonFold ?? !(auto || budgetOpens) : ownCollapsed ?? !budgetOpens);
     // The lesson frame refers to this card: it opens by itself (unless the learner chose) and glows briefly.
     const cueNow = auto && inLesson && lessonFold === null;
     useEffect(() => {

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {DockCard} from '../dock/DockCard';
+import {budgetOpen, storedFold} from '../dock/dockBudget';
 import {useToolsSections} from './useToolsSections';
 import './toolsCard.css';
 
@@ -15,7 +16,8 @@ const FOLD_KEY = 'ux-boardcard-collapsed:tools';
 let lessonFold: boolean | null = null;
 const lessonIsOpen = () => !!document.querySelector('.demonstration-workspace.lesson-open');
 
-const readFold = () => { try { return localStorage.getItem(FOLD_KEY) === '1'; } catch { return false; } };
+/** The learner's stored fold; with none, the card budget decides (open on a free graph from 1200 px, with Odčitki). */
+const readFold = () => storedFold(FOLD_KEY) ?? !budgetOpen(TOOLS, false);
 
 /**
  * The tools column as a dock card. The tools stay mounted while folded, so their state survives a fold.

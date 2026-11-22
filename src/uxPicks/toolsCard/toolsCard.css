@@ -34,6 +34,7 @@
         linear-gradient(transparent, var(--bezeg-shell-panel) 70%) 0 100% / 100% 20px no-repeat local,
         linear-gradient(rgba(25, 55, 47, .16), transparent) 0 0 / 100% 8px no-repeat scroll,
         linear-gradient(transparent, rgba(25, 55, 47, .16)) 0 100% / 100% 8px no-repeat scroll;
+    background-color: var(--bezeg-shell-panel);
 }
 .is-presenting .ux-bcard-tools > .ux-tools-body { background: none; }
 .ux-bcard-tools > .ux-tools-body::-webkit-scrollbar { width: 6px; }

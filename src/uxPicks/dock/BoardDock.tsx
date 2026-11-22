@@ -1,3 +1,5 @@
+import {planFolds} from './dockBudget';
+import {onAutoOpenChange} from '../boardText/autoOpenStore';
 import React, {createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
 import {createPortal} from 'react-dom';
 import './dock.css';
@@ -107,6 +109,17 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
     }, [props.frame, els]);
     // The graph dock is known to the lesson card (outside this tree) through the layout module.
     useEffect(() => { setHost({regions: api.regions, frame: props.frame.current}); return () => setHost(null); }, [api, props.frame]);
+    // Fold before clip: on mount, window resize and a lesson frame change the lowest-priority open card of a column that cannot show its cards whole folds.
+    useEffect(() => {
+        const dock = dockEl.current;
+        if (!dock || phone) return undefined;
+        let timer = 0;
+        const replan = () => { window.clearTimeout(timer); timer = window.setTimeout(() => planFolds(dock, k => `ux-boardcard-collapsed:${k}`), 250); };
+        replan();
+        window.addEventListener('resize', replan);
+        const off = onAutoOpenChange(replan);
+        return () => { window.clearTimeout(timer); window.removeEventListener('resize', replan); off(); };
+    }, [phone]);
     // A stack that scrolls says so: data-overflow tells the stylesheet which edges are cut (scrollbar and fade).
     useEffect(() => {
         const mark = () => {
