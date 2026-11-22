@@ -12,15 +12,18 @@ The tools column is gone. Orodja and the Guided lesson are board cards on the sh
 2. **Lesson card:** on the board, placed and folded like other cards and stored globally; `GuidedLesson` is never remounted by a move; text ends on whole lines; the Povrni pill and the "Več" bar are part of the layout function's input, so neither covers text nor changes the card's height when it appears (unsolved on the prototype).
 3. **Reading frames do not lock controls**; "Povrni" appears when the graph differs from the frame; one rule on every screen size.
 4. **Card budget on first view:** two open cards from 1200 px (lesson, then Odčitki, then Orodja; a graph whose main action is in the tools opens Orodja first), one below; Legenda and section cards start folded.
-5. **Header and surroundings:** slim one-row header from 701 px; lesson counter "Korak 1/8 · del 5/5"; activity strip hidden during lessons; gestures hint on the toolbar line.
-6. **Documents:** mark ADR 0061 superseded; update DESIGN.md (no fixed 310 px inspector column) and the lesson layout spec that describes the docked card.
+5. **A frame's controls in reach** (spec A9; independent review, Taylor step 1, part 3 of 5): when a frame declares a control or action in Orodja, the frame opens Orodja at that section inside the budget. Whether such an action is instead shown on the lesson card or on the board is a taste choice made here on the pilots (Taylor's "Pokaži oceno napake", bisection's "Naslednji korak") and shown to the owner.
+6. **Header and surroundings:** Presentation mode's title and header leave room for the plot and the pucks strip at 1440×900 (independent review: both were pushed below the fold); slim one-row header from 701 px; lesson counter "Korak 1/8 · del 5/5"; activity strip hidden during lessons; gestures hint on the toolbar line.
+7. **Documents:** mark ADR 0061 superseded; update DESIGN.md (no fixed 310 px inspector column) and the lesson layout spec that describes the docked card.
 
 ## Acceptance
 
 - At 1440×900 and 1024×768 the board, pucks strip area and lesson navigation fit the screen on the pilots, free and in a lesson.
 - Opening Orodja from its folded chip reaches its resting height in one glide (frame sampling).
 - A lesson walk on each pilot: no remount of the lesson, the frame's task text is never hidden behind "Več" with free board below, the folded Orodja chip does not move between frames.
-- Presentation mode and chapter activity pages work with the card layout.
+- Presentation mode and chapter activity pages work with the card layout. In Presentation at 1440×900 the plot and the pucks strip fit the screen together during a lesson.
+- On every pilot lesson frame that names a control, the learner can use it without opening anything (Taylor "Pokaži oceno napake" reveals the bound and updates the readout).
+- Behaviour the independent review verified on the prototype, kept: all 8 Taylor steps and 22 frames complete at 1440×900 and 3440×1440; Back, and Enter on Next, work; folding and reopening the lesson keeps the frame and an edited degree; raising the degree from 1 to 2 changes the shown error from 0,7183 to 0,2183; returning to the chapter midway and after completion restores focus to the Taylor lesson link; entering Presentation keeps the frame.
 - Keyboard and touch pointer moves of both cards; reduced motion.
 - Critique: at most two rounds; P1s fixed, P2s fixed or logged here.
 

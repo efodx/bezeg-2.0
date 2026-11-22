@@ -8,7 +8,7 @@ Odčitki, Legenda and section cards render from the declaration as cards on the 
 
 ## Slices
 
-1. **Layout function** (handler-owned design): inputs are the board size, the cards with measured natural size and minimum, stored placements and folds, the budget, and the frame's opened cards; outputs are each card's rectangle, fold and cut height, the pucks strip rectangle, and the free rectangle. Anchors as on the prototype: top left, top centre, top right, middle left, middle right, bottom centre, bottom right; centre area floats; bottom left is the pucks strip.
+1. **Layout function** (handler-owned design): inputs are the board size, the cards with measured natural size and minimum, stored placements and folds, the budget, the frame's opened cards and the controls the frame uses (spec A9), and the maximum span for default places (spec A10: on an ultrawide board the default anchors sit in a centred band; the independent review measured about 2,590 px between the lesson card and Odčitki at 3440×1440); outputs are each card's rectangle, fold and cut height, the pucks strip rectangle, and the free rectangle. Anchors as on the prototype: top left, top centre, top right, middle left, middle right, bottom centre, bottom right; centre area floats; bottom left is the pucks strip.
 2. **Card shell:** head, grip, fold, reset, keyboard moves with announcements, drag rules the owner settled (pickup moves nothing; only cards a drop would move glide; outside all targets a card floats), touch dragging, opaque cards, overflow bar inside the card on a whole row.
 3. **Odčitki, Legenda, section cards** from the declaration: labelled formula row, groups, `valueTex`, legend-linked swatches, later groups folding before the card scrolls, first note shown and the rest behind "Opombe (n)", a single-entry Legenda hidden, highlighted rows from the lesson frame scrolled into view.
 4. **Stored layout:** one versioned, validated global record; unreadable data falls back to defaults.
@@ -22,6 +22,7 @@ Odčitki, Legenda and section cards render from the declaration as cards on the 
 - Value cells do not change a card's width during a sweep of the tools slider (CLS under the probe threshold).
 - Keyboard: a card can be moved to each anchor, folded and reset, with announcements.
 - Presentation mode and a chapter activity page are checked with cards.
+- Spec acceptance 4a at 3440×1440: default places within the maximum span, plot not smaller than at 1440×900, a card the learner moved to a far edge stays there. The span's value is chosen here and shown to the owner in the feel slice.
 - Critique: at most two rounds; P1s fixed, P2s fixed or logged here.
 
 ## Known from the prototype, to settle here
