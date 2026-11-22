@@ -308,6 +308,15 @@ export class ParameterArbiter {
         for (const entry of this.entries.values()) entry.last = entry.binding.read();
     }
 
+    /**
+     * Takes one key's current value as its baseline without attributing it: a change that is not a write, such as a
+     * view re-applied to a resized board. Never call it to silence an untagged write.
+     */
+    adoptCurrentValue(key: string): void {
+        const entry = this.require(key);
+        entry.last = entry.binding.read();
+    }
+
     dispose(): void {
         this.endAllLeases("disposed");
         this.stopGestureListener();
