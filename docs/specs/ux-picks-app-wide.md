@@ -1,6 +1,6 @@
 # Board workspace: the kept UX picks, rebuilt app-wide
 
-Status: draft for owner review (2026-11-22). Tasks: [docs/tasks/ux-picks-app-wide](../tasks/ux-picks-app-wide/README.md). First part, already drafted: [parameter writes](parameter-writes.md). Decisions: ADRs [0062](../adr/0062-rebuild-ux-picks-on-master.md), [0063](../adr/0063-cards-on-the-board.md), [0064](../adr/0064-source-tagged-scene-writes.md), [0065](../adr/0065-graphs-declare-presenters-render.md).
+Status: accepted by the owner on 2026-11-22; implementation not started. Tasks: [docs/tasks/ux-picks-app-wide](../tasks/ux-picks-app-wide/README.md). First part, already drafted: [parameter writes](parameter-writes.md). Decisions: ADRs [0062](../adr/0062-rebuild-ux-picks-on-master.md), [0063](../adr/0063-cards-on-the-board.md), [0064](../adr/0064-source-tagged-scene-writes.md), [0065](../adr/0065-graphs-declare-presenters-render.md).
 
 ## Purpose
 
