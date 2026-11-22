@@ -158,7 +158,7 @@ const bisection: GuidedLesson = {
                 'The function \\(f(x)=x^2-2\\) is continuous, and at the ends of the interval \\([1,2]\\) we have \\(f(1)=-1<0\\) and \\(f(2)=2>0\\). A continuous function cannot skip the value \\(0\\), so by the intermediate value theorem the interval contains at least one root. The theorem guarantees existence, not uniqueness: there may be several roots. Bisection looks for a root by halving the interval and always keeping the half in which the endpoint values still have opposite signs.',
             ),
             formulaIds: ['bisection-ivt'],
-            frames: [frame('bisection-bracket-explanation', 'explanation'), frame('bisection-bracket-observation', 'observation')],
+            frames: [frame('bisection-bracket-explanation', 'explanation', readouts('f-a', 'f-b')), frame('bisection-bracket-observation', 'observation', readouts('f-a', 'f-b'))],
             observationPrompt: text(
                 'Preberi odčitka \\(f(a)\\) in \\(f(b)\\). Napovej, v kateri polovici, \\([1;\\,1{,}5]\\) ali \\([1{,}5;\\,2]\\), leži ničla, in šele nato pritisni Naslednji korak.',
                 'Read the readouts \\(f(a)\\) and \\(f(b)\\). Predict which half, \\([1,\\,1.5]\\) or \\([1.5,\\,2]\\), holds the root, and only then press Next step.',
@@ -185,7 +185,7 @@ const bisection: GuidedLesson = {
                 'The midpoint of the interval \\([1,2]\\) is \\(m=\\frac{1+2}{2}=1.5\\) and \\(f(1.5)=1.5^2-2=0.25>0\\). The value \\(f(1)=-1\\) is negative and \\(f(1.5)\\) is positive, so the values at the endpoints of the left half \\([1,\\,1.5]\\) have opposite signs and a root lies in it. We discard the right half. The width has halved from \\(1\\) to \\(0.5\\).',
             ),
             formulaIds: ['bisection-midpoint-width'],
-            frames: [frame('bisection-first-step-explanation', 'explanation'), frame('bisection-first-step-observation', 'observation')],
+            frames: [frame('bisection-first-step-explanation', 'explanation', readouts('mid', 'f-mid', 'retained')), frame('bisection-first-step-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text(
                 'Napovej, katero polovico intervala \\([1;\\,1{,}5]\\) bo obdržal naslednji korak, in pritisni Naslednji korak, da preveriš.',
                 'Predict which half of the interval \\([1,\\,1.5]\\) the next step will keep, and press Next step to check.',
@@ -212,7 +212,7 @@ const bisection: GuidedLesson = {
                 'In step 2 we have \\(m=1.25\\) and \\(f(1.25)=-0.4375<0\\), the same sign as \\(f(1)\\), so we keep the right half \\([1.25,\\,1.5]\\). In step 3 we have \\(m=1.375\\) and \\(f(1.375)=-0.109375<0\\), so we keep \\([1.375,\\,1.5]\\) with width \\(0.125\\). The rule: the midpoint replaces the endpoint whose value has the same sign. The values at the endpoints therefore still have opposite signs after every step, and the width after \\(k\\) steps is \\(\\frac{1}{2^k}\\).',
             ),
             formulaIds: ['bisection-midpoint-width', 'bisection-sign-invariant'], workedExampleId: 'bisection-x2-minus-2',
-            frames: [frame('bisection-three-steps-explanation', 'explanation'), frame('bisection-three-steps-calculation', 'calculation'), frame('bisection-three-steps-observation', 'observation')],
+            frames: [frame('bisection-three-steps-explanation', 'explanation', readouts('mid', 'f-mid', 'width')), frame('bisection-three-steps-calculation', 'calculation'), frame('bisection-three-steps-observation', 'observation', readouts('f-a', 'f-b'))],
             observationPrompt: text(
                 'Po vsakem koraku primerjaj predznaka \\(f(a)\\) in \\(f(b)\\). Napovej predznak vrednosti v naslednjem razpolovišču \\(1{,}4375\\) in pritisni Naslednji korak.',
                 'After every step compare the signs of \\(f(a)\\) and \\(f(b)\\). Predict the sign of the value at the next midpoint \\(1.4375\\) and press Next step.',
@@ -239,7 +239,7 @@ const bisection: GuidedLesson = {
                 'After \\(5\\) steps the root \\(\\sqrt{2}\\approx1.41421\\) lies in the interval \\([1.40625,\\,1.4375]\\) of width \\(\\frac{1}{32}=0.03125\\). The number \\(\\sqrt{2}\\) is irrational, so no midpoint is an exact root: \\(f(m)\\) can be very small, but it is never exactly \\(0\\). The iteration stops when \\(f(m)=0\\) exactly (for example for \\(x^3-x\\)), when the midpoint equals an endpoint in double precision, or when the limit of \\(60\\) steps is reached. The last two stops do not mean an exact root; they are limits of computer number representation and of the number of steps.',
             ),
             formulaIds: [],
-            frames: [frame('bisection-exact-explanation', 'explanation'), frame('bisection-exact-observation', 'observation')],
+            frames: [frame('bisection-exact-explanation', 'explanation', readouts('interval', 'width')), frame('bisection-exact-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text(
                 'Pritisni Predvajaj in opazuj širino intervala. Kdaj se iteracija ustavi in kaj o tem pravi sporočilo o stanju? Premor predvajanje ustavi, Ponastavi iteracijo pa ga vrne na začetek.',
                 'Press Play and watch the interval width. When does the iteration stop, and what does the status message say about it? Pause stops playback and Reset iteration returns to the start.',
@@ -266,7 +266,7 @@ const bisection: GuidedLesson = {
                 'Let \\(f(x)=-1\\) for \\(x<0\\) and \\(f(x)=1\\) otherwise. On \\([-1,1]\\) we have \\(f(-1)=-1\\) and \\(f(1)=1\\), so the signs are opposite, but \\(f\\) jumps from \\(-1\\) to \\(1\\) at \\(x=0\\) and takes no value in between. The function has no root at all. The continuity hypothesis of the theorem is not satisfied, so a root is not guaranteed; the graph is drawn from two separate pieces with an open and a filled circle at the jump. Bisection can still run, but it closes in on the jump at \\(x=0\\), where \\(f(m)\\) is never \\(0\\).',
             ),
             formulaIds: ['bisection-ivt'],
-            frames: [frame('bisection-counterexample-explanation', 'explanation'), frame('bisection-counterexample-observation', 'observation')],
+            frames: [frame('bisection-counterexample-explanation', 'explanation', readouts('f-a', 'f-b')), frame('bisection-counterexample-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text(
                 'Napovej, kam se bodo stiskala razpolovišča in ali bo \\(f(m)\\) kdaj enak \\(0\\); nato pritisni Naslednji korak in preberi sporočilo o stanju.',
                 'Predict where the midpoints will close in and whether \\(f(m)\\) will ever equal \\(0\\); then press Next step and read the status message.',
@@ -293,7 +293,7 @@ const bisection: GuidedLesson = {
                 'The function \\(f(x)=x^3-x\\) has three roots \\(-1\\), \\(0\\) and \\(1\\). On the interval \\([-1.5,\\,2]\\) we have \\(f(-1.5)=-1.875<0\\) and \\(f(2)=6>0\\), so the theorem guarantees at least one root, and in fact all three lie in it. Bisection finds only one of them; which one depends on the choice of endpoints. Now explore on your own: change the example or the endpoints, press Next step or Play, and check when the interval is a bracket and where bisection closes in.',
             ),
             formulaIds: ['bisection-sign-invariant'],
-            frames: [frame('bisection-free-explanation', 'explanation'), frame('bisection-free-observation', 'observation')],
+            frames: [frame('bisection-free-explanation', 'explanation', readouts('f-a', 'f-b')), frame('bisection-free-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text(
                 'Poskusi krajišči \\(a=-1{,}5\\) in \\(b=2\\) ter druge pare. Katero ničlo najde bisekcija in kdaj ničla ni zagotovljena?',
                 'Try the endpoints \\(a=-1.5\\) and \\(b=2\\) and other pairs. Which root does bisection find, and when is a root not guaranteed?',

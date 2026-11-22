@@ -1,5 +1,5 @@
 import React from "react";
-import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import {DomainError, FunctionGraphState, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
@@ -17,6 +17,10 @@ import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {pickOn} from "../../uxPicks/picks";
+import {director} from "../../uxPicks/declare/viewDirector";
+import type {GraphUx, LegendEntry, ReadoutNote} from "../../uxPicks/declare/graphUx";
+import {bisectionIntentBox, ViewBox} from "./bisectionView";
 
 /**
  * Time between two playback steps. One step per interval, never more than one per frame, whatever the display refresh
@@ -48,6 +52,9 @@ interface View {
     a: number; b: number; fa: number; fb: number;
 }
 
+/** UX pick boardText: the formula, progress and status move into the cards, so the board stops drawing them. */
+const boardTextOnBoard = (): boolean => !pickOn("boardText");
+
 type StatusKind = "ready" | "bracket" | "invalid-bracket" | "endpoint-root" | "exact-midpoint-root" | "stagnation" | "iteration-limit" | "hypothesis";
 
 /**
@@ -72,6 +79,65 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
 
     protected defaultBoundingBox(): [number, number, number, number] {
         return [-2.5, 4, 3.5, -3];
+    }
+
+    // ---- View (pick viewDirector): each step's intent box follows the bracket -------------------------------------------
+
+    /** The scene's own view (start, lesson frame, preset): what step 0 shows and what no step exceeds. */
+    private baseBox: ViewBox | undefined;
+    private ownBox = false;
+    private zoomKey = "";
+
+    /** A view set by anyone but the step zoom is the scene's own; the zoom follows from it and the state. */
+    protected override setIntentBox(box: readonly [number, number, number, number], keepAspect?: boolean, showNow?: boolean): void {
+        if (this.ownBox) { super.setIntentBox(box, keepAspect, showNow); return; }
+        this.baseBox = [...box];
+        this.zoomKey = "";
+        const target = this.stepBox(this.model);
+        super.setIntentBox(target ?? box, keepAspect, showNow);
+    }
+
+    /** Checkpoints and presets keep the scene's own view, never the zoomed one, so Back and reload start from the same base. */
+    override boardState() {
+        const state = super.boardState();
+        return state && this.baseBox && this.zoomOn() ? {...state, boundingBox: [...this.baseBox] as ViewBox} : state;
+    }
+
+    private zoomOn(): boolean {
+        return pickOn("viewDirector") && this.hasBoard;
+    }
+
+    private stepBox(model: BisectionModel): ViewBox | undefined {
+        if (!this.baseBox || !this.zoomOn()) return undefined;
+        const view = this.viewOf(model);
+        const {currentA, currentB} = view.history;
+        const sample = bisectionExample(model.example);
+        // Equal axis units: the box carries the canvas aspect, so the board shows the bracket and both value points as computed.
+        const aspect = this.equalAxisUnits && this.board.canvasHeight > 0 ? this.board.canvasWidth / this.board.canvasHeight : undefined;
+        return bisectionIntentBox({base: this.baseBox, step: view.history.steps.length, a: currentA, b: currentB, f: x => sample.value(x), aspect});
+    }
+
+    /** One intent box per state: Next, Back, reset, playback and lesson actions all end here, and the director glides once. */
+    private applyStepZoom(): void {
+        const target = this.stepBox(this.model);
+        if (!target) return;
+        const key = `${this.model.example}|${this.model.a}|${this.model.b}|${this.model.step}|${this.baseBox!.join(",")}`;
+        if (key === this.zoomKey) return;
+        this.zoomKey = key;
+        // A learner's pan or zoom pauses the fit like any other; a step then leaves the view where they put it.
+        if (director.state().paused) return;
+        this.ownBox = true;
+        try { super.setIntentBox(target); } finally { this.ownBox = false; }
+    }
+
+    protected override commitModel(next: BisectionModel, options: { syncScene?: boolean } = {}): void {
+        super.commitModel(next, options);
+        this.applyStepZoom();
+    }
+
+    protected override onStateChange(previousState: Readonly<FunctionGraphState<BisectionModel>>): void {
+        super.onStateChange(previousState);
+        this.applyStepZoom();
     }
 
     // ---- Iteration -----------------------------------------------------------------------------------------------
@@ -251,11 +317,11 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
 
         // The formula, the progress and the status, in text as well as colour, in the corner no default curve reaches.
         this.caption("bottom-right", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {text: () => t("bisection_board_progress", {value0: model().step, value1: formatPrecise(view().history.currentWidth, language())})},
+            {text: () => exampleTitle(model().example), scale: 1.2, math: true, visible: boardTextOnBoard},
+            {text: () => t("bisection_board_progress", {value0: model().step, value1: formatPrecise(view().history.currentWidth, language())}), visible: boardTextOnBoard},
             {
                 text: () => this.boardStatus(model(), language())?.text ?? "",
-                visible: () => this.boardStatus(model(), language()) !== undefined,
+                visible: () => boardTextOnBoard() && this.boardStatus(model(), language()) !== undefined,
                 color: () => this.boardStatus(model(), language())?.ok ? GraphPalette.primaryCurve : GraphPalette.warningText,
             },
         ]);
@@ -282,9 +348,9 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("bisection_a_label")} value={a} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
+                <Slider paramKey="bisection.a" customText={t("bisection_a_label")} value={a} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
                         rejectedHint={t("bisection_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
+                <Slider paramKey="bisection.b" customText={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
                         rejectedHint={t("bisection_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <p className="inspector-help">{t("bisection_bounds_help")}</p>
             </div>
@@ -292,6 +358,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     }
 
     protected override renderLegend(): React.ReactNode {
+        if (pickOn("boardText")) return null;
         return <FunctionLegend items={[
             {id: "function", color: GraphPalette.primaryCurve, label: t("bisection_legend_function"), kind: "line"},
             {id: "retained", color: GraphPalette.constructionAccent, label: t("bisection_legend_retained"), kind: "line"},
@@ -319,7 +386,60 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         return result;
     }
 
+    // ---- Declarations (pick boardText) ---------------------------------------------------------------------------
+
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const language = currentLanguage();
+        const view = this.viewOf(model);
+        const {history, last} = view;
+        const number = (value: number) => formatPrecise(value, language);
+        const pending = history.bracket === "opposite-signs" ? t("bisection_retained_pending") : NOT_A_NUMBER_TEXT;
+        const retained = !last ? pending
+            : last.retained === "left" ? t("bisection_retained_left")
+                : last.retained === "right" ? t("bisection_retained_right") : t("bisection_retained_none");
+        const separator = language === "sl" ? "; " : ", ";
+        const notes: ReadoutNote[] = this.statuses(model, language).map(status => ({
+            id: status.id, text: status.text, tone: status.id === "ready" || status.id === "bracket" || status.id === "exact-midpoint-root" ? "muted" : "warning",
+        }));
+        const legend: LegendEntry[] = [
+            {id: "function", label: t("bisection_legend_function"), kind: "line", color: GraphPalette.primaryCurve},
+            ...(history.bracket === "opposite-signs" ? [{id: "retained", label: t("bisection_legend_retained"), kind: "line" as const, color: GraphPalette.constructionAccent}] : []),
+            ...(last !== undefined && last.retained !== "none" ? [{id: "discarded", label: t("bisection_legend_discarded"), kind: "line" as const, color: GraphPalette.referenceCurve}] : []),
+        ];
+        return {
+            pucks: [
+                {param: "bisection.a", help: t("bisection_bounds_help")},
+                {param: "bisection.b", help: t("bisection_bounds_help")},
+            ],
+            formula: `f(x)=${bisectionExample(model.example).latex}`,
+            readouts: [
+                {id: "bracket", title: t("bisection_readout_interval"), rows: [
+                    {id: "step", name: t("bisection_readout_step", {value0: BISECTION_MAX_STEPS}), value: String(history.steps.length)},
+                    {id: "a", name: t("bisection_readout_a"), value: number(view.a), tone: "comparison"},
+                    {id: "b", name: t("bisection_readout_b"), value: number(view.b), tone: "comparison"},
+                    {id: "f-a", symbol: "f(a)", value: number(view.fa), tone: "comparison"},
+                    {id: "f-b", symbol: "f(b)", value: number(view.fb), tone: "comparison"},
+                ]},
+                {id: "midpoint", title: t("bisection_readout_mid"), rows: [
+                    {id: "mid", name: t("bisection_readout_mid"), value: last ? number(last.mid) : NOT_A_NUMBER_TEXT, tone: "accent"},
+                    {id: "f-mid", symbol: "f(m)", value: last ? number(last.fMid) : NOT_A_NUMBER_TEXT, tone: "accent"},
+                    {id: "retained", name: t("bisection_readout_retained"), value: retained},
+                ]},
+                {id: "result", title: t("bisection_readout_width"), rows: [
+                    {id: "interval", name: t("bisection_readout_interval"), value: `[${number(history.currentA)}${separator}${number(history.currentB)}]`, tone: "accent"},
+                    {id: "width", name: t("bisection_readout_width"), value: number(history.currentWidth)},
+                ]},
+            ],
+            notes,
+            readoutHelp: <p>{t("bisection_note")}</p>,
+            legend,
+        };
+    }
+
     protected renderReadout(): React.ReactNode {
+        if (pickOn("boardText")) return null;
         const model = this.model;
         const language = currentLanguage();
         const view = this.viewOf(model);
