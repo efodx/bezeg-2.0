@@ -8,7 +8,7 @@ Nothing of the old workspace paths or the prototype scaffolding remains, and the
 
 ## Steps
 
-1. Remove the old tools column layout, per-graph readout and legend render paths, the visible-points fit, and the parity test helper.
+1. Remove the old tools column layout, per-graph readout and legend render paths, the undeclared-graph fallback of task 04, the visible-points fit, and the parity tool with its golden recordings.
 2. Search for leftovers: pick flags, the param registry mirror, `setRaw`, prototype storage keys, inline Slovenian UI text outside the catalogs.
 3. Documentation: architecture, capabilities, DESIGN.md, the controls catalogue, the smoke checklist, GLOSSARY entries for new domain terms (puck, board card, sweep, if they count as domain vocabulary), localization table for new Slovenian terms.
 4. Full checks: `just check`, the full smoke checklist (shared shell, workspace and lesson runtime all changed), fuzzer at the spec's seed counts, probe table on the pilots against the `master` baseline from task 01.

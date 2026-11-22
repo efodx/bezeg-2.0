@@ -8,7 +8,7 @@ Today a graph renders its own controls, readout and legend as React markup insid
 
 ## Decision
 
-- A graph declares, as a pure function of its scene state: its parameters (key, kind, range, step, format, label, help), formula, readout rows, legend entries, section cards, main-action card and the content marks the view keeps visible. Ids are typed per graph, so a lesson frame naming a row or card is type checked.
+- A graph declares, as a pure function of its scene state: its parameters (key, kind, range, step, format, label, help), formula, readout rows, legend entries, section cards, main-action card and the content marks the view keeps visible. Ids are typed per graph, and each lesson content file builds its frames with a builder typed by its graph's ids, so a frame naming an unknown row, card or control fails the type check. A parameter is bound to the graph's existing validated setter.
 - A parameter is declared once. The tools control, the puck, the preview and any phone control are renderings of that declaration and write through the store of [ADR 0064](0064-source-tagged-scene-writes.md).
 - A legend entry takes colour and visibility from the drawn object it names.
 - Presenters consume only the declaration and the store. The desktop presenter renders board cards and the pucks strip ([ADR 0063](0063-cards-on-the-board.md)). The phone presenter is designed separately and may use different controls, card arrangement and lesson layout.
@@ -22,7 +22,7 @@ Today a graph renders its own controls, readout and legend as React markup insid
 
 ## Consequences
 
-- Every graph is converted once (116 classes). The declaration is the only path for a converted graph, with no flag, which removes the double UI that slowed the prototype's conversions.
+- Every registered demonstration is converted once (138 by the review's count of 2026-11-22). The declaration is the only path for a converted graph, with no flag, which removes the double UI that slowed the prototype's conversions.
 - A contract test can run every lesson scene against its graph's declaration and fail on a highlighted row the scene hides or an id that does not exist.
 - The phone design needs its own spec and owner review before it is built.
 - Controls that are not a range or a count are placed with taste, graph by graph (owner, 2026-11-22: "some do make sense as standalones/pucks"). The contract has `choice` and `toggle` kinds and a per-parameter placement (board or Orodja); large or setup controls such as point lists and function entry stay in Orodja. The pilots and the conversion guide give the examples converters follow.

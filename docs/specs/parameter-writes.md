@@ -23,8 +23,8 @@ All on-graph parameter controls that the kept picks bring app-wide (pucks a1, pr
 
 ## Requirements
 
-1. **One synchronous store per graph scene.** Parameter values live in the graph's `SceneStore` (`src/graphs/base/SceneStore.ts`), which already applies writes immediately (the lesson runtime relies on it). Controls, pucks, readouts and previews read from it directly; there is no second published copy (no registry mirror of values).
-2. **Every write names its source.** `write(key, value, source)` with `source` one of `learner`, `lesson`, `animation`. There is no anonymous write path.
+1. **One authoritative value per parameter, applied synchronously.** A graph's state already applies writes immediately through its `SceneStore` (`src/graphs/base/SceneStore.ts`; the lesson runtime relies on it), and each graph changes a parameter through its own validated setter. Each parameter is bound to its reader and that setter. Controls, pucks, readouts and previews read through the binding; there is no second published copy (no registry mirror of values). A graph may keep a per-frame live value out of React rendering (De Casteljau during playback), read through the same binding.
+2. **Every write names its source.** `write(key, value, source)` with `source` one of `learner`, `lesson`, `animation` asks the arbiter and then calls the bound setter. Its result separates applied, refused by the arbiter, and refused by the domain (the setter's `DomainError`). There is no anonymous write path: in tests and development a change to a bound parameter outside a source scope is an error. Board-dragged points are `learner` writes; existing playback (`AnimationDriver`) is an `animation` writer.
 3. **A fixed priority decides: learner > lesson > animation.** An animation (sweep, morph glide) holds a *lease* on the keys it moves. Any higher-priority write to a leased key ends the lease at once, and the animation's UI shows that it stopped. A lower-priority write to a key a higher writer holds is refused. A lesson frame change ends every animation lease.
 4. **Previews never write live state.** A preview computes what the graph would look like at a value without changing the scene: from a copy of the state (see "Previews"). A preview is therefore safe at any time, including during a sweep, a drag or a morph, and needs no restore.
 5. **Ownership is stated where a writer is defined.** Each writer's module says which keys it writes, with which source, and what ends it. Review checks that the statement exists.
@@ -40,9 +40,9 @@ Recommendation: B first for the generic previews, with A for graphs whose geomet
 
 ## Acceptance criteria
 
-1. No module writes a parameter except through `write(key, value, source)`; a search for the prototype's `setRaw`/registry `set` paths finds none.
+1. The untagged-write check (requirement 2) passes across the all-graph test suites and fails on a seeded untagged write; a search for the prototype's `setRaw`/registry `set` paths finds none.
 2. Unit tests, in one synchronous sequence per case: a learner write during an animation lease ends the lease and the value is the learner's; an animation write to a learner-held key is refused; a lesson frame change ends all leases; reads right after a write return the written value.
-3. Previews: a preview taken during a sweep, a drag and a morph leaves the scene's state object unchanged, compared by reference (unit test), and the board shows no probed value in any frame (browser check with frame sampling).
+3. Previews: a preview taken during a sweep, a drag and a morph leaves the graph's preset export unchanged (unit test; the state reference alone is not enough, because part of a curve graph's scene lives in board objects outside the state), and the board shows no probed value in any frame (browser check with frame sampling).
 4. The randomized interaction fuzzer (`night/fuzz/` on `ux-picks` today; ported into the repo's browser checks with the implementation) passes 50 seeds per kept-pick route with invariants I1-I5: learner wins; no A→B→A flicker; Esc stills everything; no page errors; untouched parameters stay.
 5. The prototype's known failures found by the fuzzer are listed below and each has a test.
 
@@ -58,7 +58,7 @@ From `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/fuzz/RESULTS.md` and `RES
 
 ## Consequences
 
-- Breaking change for graph code: controls stop owning parameter values in React state; they read and write the scene store. Route and preset formats are unaffected (the stored state is the same object).
+- Change for graph code: each parameter is bound to its existing setter and written inside a named source (shared inputs are already controlled and own no value). Route and preset formats are unaffected.
 - The registry becomes an index of parameters (label, range, step, format, lock), not a store of values.
 - Lessons keep writing through the scene store with source `lesson`; Presentation mode and phone layouts need no special case.
 - Decided (owner, 2026-11-22): a learner write during a lesson's Back/Next morph ends the morph at once and the learner's value takes over (requirement 3 as written). "If a user wanted to watch, he wouldn't be pressing." Rejected: let the morph finish, then apply the learner's value.

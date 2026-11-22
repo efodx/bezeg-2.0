@@ -8,8 +8,11 @@ On the prototype a parameter value had about six writers (tools control, puck, h
 
 ## Decision
 
-- Parameter values and the view box live in the graph's `SceneStore`, which applies writes synchronously. Readers read the store; there is no second copy.
-- Every write names its source: `learner`, `lesson` or `animation`. Priority is fixed in that order.
+- A graph keeps its own validated setters (they refuse bad values with a `DomainError` and may do more than store a number). Each declared parameter is bound to its reader and setter, and every call runs through `write(key, value, source)`, which asks an arbiter first. The result tells an arbiter refusal from a domain refusal. A key has one authoritative value; a per-frame live value kept out of React rendering is read through the same binding.
+- Every write names its source: `learner`, `lesson` or `animation`. Priority is fixed in that order. Board-dragged points and typed entries are `learner`; existing playback (`AnimationDriver`) is `animation`, like a sweep.
+- The learner holds a key from pointer or key down on its control or board element until release.
+- The view goes through an adapter, because JSXGraph owns the bounding box: the adapter is the only caller of `setBoundingBox`, tags a learner pan or zoom by its gesture, and treats Reset, preset restore and fit-to-points as learner commands.
+- In tests and development, a change to a bound parameter or the view outside a source scope is an error.
 - An animation (sweep, morph, view glide) holds a lease on the keys it moves. A higher-priority write to a leased key ends the lease at once and the animation's control shows that it stopped. A lower-priority write to a key a higher writer holds is refused. A lesson frame change ends every lease.
 - A preview never writes live state.
 - The intended view (from the graph or the lesson) and the fitted view are separate values; a fit reads only the intent.
@@ -24,7 +27,9 @@ On the prototype a parameter value had about six writers (tools control, puck, h
 
 ## Consequences
 
-- Graph controls stop owning parameter values in React state. Route and preset formats do not change, because the stored state object is the same.
+- Graph code binds each parameter to its setter; setters are not rewritten. Route and preset formats do not change; a preset stores the intended view, not a fitted one.
+- Touching a control of a playing parameter stops the playback.
+- Alternative considered after the second review and rejected: **move every parameter into one generic store and delete the per-graph setters.** It matches the first draft's wording but would rewrite 392 `setState` call sites in 87 graph files and lose the setters' validation and side effects.
 - The parameter registry becomes an index of declared parameters, not a store of values.
 - The preview mechanism is a separate decision, taken by measurement before previews are built.
 - The fuzzer and the "interrupt what moves" checklist become part of the repository's checks.

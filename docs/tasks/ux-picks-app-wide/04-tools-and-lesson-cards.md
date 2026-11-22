@@ -14,7 +14,10 @@ The tools column is gone. Orodja and the Guided lesson are board cards on the sh
 4. **Card budget on first view:** two open cards from 1200 px (lesson, then Odčitki, then Orodja; a graph whose main action is in the tools opens Orodja first), one below; Legenda and section cards start folded.
 5. **A frame's controls in reach** (spec A9; independent review, Taylor step 1, part 3 of 5): when a frame declares a control or action in Orodja, the frame opens Orodja at that section inside the budget. Whether such an action is instead shown on the lesson card or on the board is a taste choice made here on the pilots (Taylor's "Pokaži oceno napake", bisection's "Naslednji korak") and shown to the owner.
 6. **Header and surroundings:** Presentation mode's title and header leave room for the plot and the pucks strip at 1440×900 (independent review: both were pushed below the fold); slim one-row header from 701 px; lesson counter "Korak 1/8 · del 5/5"; activity strip hidden during lessons; gestures hint on the toolbar line.
-7. **Documents:** mark ADR 0061 superseded; update DESIGN.md (no fixed 310 px inspector column) and the lesson layout spec that describes the docked card.
+7. **Undeclared graphs** (until task 08 converts them): the Orodja card starts open and holds the graph's present panels unchanged (controls, readout, legend); the card budget counts it first; in a lesson, a frame of an undeclared graph opens Orodja beside the lesson card, also below 1200 px. The view is the graph's own; no fit runs.
+8. **Existing workspace features in the card layout:** Uredi (editing) mode and its panels; the playback slot (`PlaybackSlot` in `src/graphs/base/DemonstrationWorkspace.tsx`) and animation controls; Presentation's `inspectorVisible` switch, which becomes the Orodja card's fold; chapter activity pages (their context row and notice).
+9. **Test migration:** the 11 files under `tests/` that address the inspector (`tests/lesson-smoke-helpers.cjs` and the others found by searching for `inspector`) and the unit tests that assert the tools column move to the card layout in this task. Handler-owned; workers get them by file list.
+10. **Documents:** mark ADR 0061 superseded; update DESIGN.md (no fixed 310 px inspector column) and the lesson layout spec that describes the docked card.
 
 ## Acceptance
 
@@ -25,6 +28,9 @@ The tools column is gone. Orodja and the Guided lesson are board cards on the sh
 - On every pilot lesson frame that names a control, the learner can use it without opening anything (Taylor "Pokaži oceno napake" reveals the bound and updates the readout).
 - Behaviour the independent review verified on the prototype, kept: all 8 Taylor steps and 22 frames complete at 1440×900 and 3440×1440; Back, and Enter on Next, work; folding and reopening the lesson keeps the frame and an edited degree; raising the degree from 1 to 2 changes the shown error from 0,7183 to 0,2183; returning to the chapter midway and after completion restores focus to the Taylor lesson link; entering Presentation keeps the frame.
 - Keyboard and touch pointer moves of both cards; reduced motion.
+- An undeclared graph, free and in a lesson at 1440×900 and 1024×768: every control it has today is reachable without unfolding anything (checked on three unconverted graphs by `bezeg-visual` contact sheets and one lesson walk).
+- Uredi mode, playback controls and Presentation's tools switch work on the pilots.
+- `just check` and the full smoke checklist pass on the work branch with the migrated tests; no desktop check is skipped.
 - Critique: at most two rounds; P1s fixed, P2s fixed or logged here.
 
 ## Not in this task

@@ -1,6 +1,6 @@
 # Board workspace: the kept UX picks, rebuilt app-wide
 
-Status: accepted by the owner on 2026-11-22; implementation not started. Tasks: [docs/tasks/ux-picks-app-wide](../tasks/ux-picks-app-wide/README.md). First part, already drafted: [parameter writes](parameter-writes.md). Decisions: ADRs [0062](../adr/0062-rebuild-ux-picks-on-master.md), [0063](../adr/0063-cards-on-the-board.md), [0064](../adr/0064-source-tagged-scene-writes.md), [0065](../adr/0065-graphs-declare-presenters-render.md).
+Status: accepted by the owner on 2026-11-22, then revised the same day after a second independent review (see the last section); the revision awaits his read. Implementation not started. Tasks: [docs/tasks/ux-picks-app-wide](../tasks/ux-picks-app-wide/README.md). First part, already drafted: [parameter writes](parameter-writes.md). Decisions: ADRs [0062](../adr/0062-rebuild-ux-picks-on-master.md), [0063](../adr/0063-cards-on-the-board.md), [0064](../adr/0064-source-tagged-scene-writes.md), [0065](../adr/0065-graphs-declare-presenters-render.md).
 
 ## Purpose
 
@@ -53,15 +53,17 @@ Each row is a class of defects that cost repeated fix rounds on the prototype, a
 
 ## Architecture requirements
 
-**A1. Graphs declare; nothing is guessed.** A graph declares its parameters (key, kind `range` or `count`, range, step, format, label, help), formula, readout groups and rows, legend entries, section cards, the card that holds its main action, and the content marks the view keeps visible. The starting point is `GraphUx` at the frozen commit (`src/uxPicks/declare/graphUx.ts`), with these changes: parameters carry their own range and format instead of pointing at a rendered control; row, legend and card ids are a per-graph string union so lesson frames that name them are type checked; a legend entry takes its colour and visibility from the drawn object it names. The declaration is a pure function of the scene state. It lives outside React and JSXGraph.
+**A1. Graphs declare; nothing is guessed.** A graph declares its parameters (key, kind `range` or `count`, range, step, format, label, help), formula, readout groups and rows, legend entries, section cards, the card that holds its main action, and the content marks the view keeps visible. The starting point is `GraphUx` at the frozen commit (`src/uxPicks/declare/graphUx.ts`), with these changes: parameters carry their own range and format instead of pointing at a rendered control; row, legend, card and control ids are a per-graph string union, and each lesson content file builds its frames with a builder typed by that union, so a frame that names an unknown id fails the type check (`LessonFrame` itself stays non-generic; no central id map); parameter keys reuse the existing lesson vocabulary `FUNCTION_PARAMETER_NAMES` where a name exists; a legend entry takes its colour and visibility from the drawn object it names. The declaration is a pure function of the scene state. It lives outside React and JSXGraph.
 
 Parameter kinds are not limited to `range` and `count`. The contract also covers `choice` (a few named options) and `toggle`, and each declared parameter says where it is shown: on the board (a puck, or a standalone board control for kinds a puck does not suit) or in Orodja. Where a control goes is a judgement per graph (decision 11), guided by the conversion guide: on the board when the learner changes it often while watching the graph and it fits a puck's size; in Orodja when it is setup, rarely changed, or large (point lists, function entry). The pilots set the first examples. Every kind writes through the same store.
 
-**A2. One store, one arbiter.** As [parameter writes](parameter-writes.md) specifies, extended to the view: the view box is a key with the same sources and priority (learner pan or zoom > lesson > animation). The lesson's or graph's intended view and the fitted view are stored separately, and a fit never reads a fitted view.
+**A2. One arbiter over the graphs' own setters.** As [parameter writes](parameter-writes.md) specifies. On `master` a graph already changes a parameter through its own validated setter, shared by the tools control, lesson actions and board-dragged points; the rebuild keeps those setters and makes every call run inside a named source that an arbiter decides between. Existing playback (`AnimationDriver`) is an `animation` writer like a sweep. The view gets the same treatment through an adapter, because JSXGraph owns the bounding box: the intended view (from the graph, the lesson, Reset, a preset, or the learner's pan and zoom) and the fitted view are stored separately, a fit never reads a fitted view, a learner pan is recognised by its gesture and not by timing, and a preset stores the intent.
 
-**A3. Previews never write live state.** The mechanism (geometry from state, or a shadow board) is chosen by measurement in task 06 and recorded in an ADR. Graphs whose redraw costs more than the frame budget get the idle back-off the prototype measured (capture after a pointer rest, latest value wins).
+**A3. Previews never write live state.** The mechanism (geometry from state, or a shadow board) is chosen by measurement in task 02, before the contract is frozen, because geometry from state adds work to every graph's conversion; it is recorded in an ADR. Part of a curve graph's scene lives outside its state object (board points, De Casteljau's live parameter), so "unchanged" is judged on the graph's preset export, not on the state reference. Graphs whose redraw costs more than the frame budget get the idle back-off the prototype measured (capture after a pointer rest, latest value wins).
 
 **A4. One layout function.** A pure function takes the board size, the cards present (each with a measured natural size and a minimum), the stored placements and folds, the card budget and the lesson frame's opened cards. It returns every card's rectangle, fold state and cut height, the pucks strip's rectangle and the free rectangle. It runs before paint. Card components render the result and measure nothing themselves. Overflow cues, the Povrni pill and the lesson card's whole-line snap are inputs to it, not overlays added afterwards.
+
+Natural sizes need a render, and card content has typeset math that MathJax loads and typesets asynchronously. The protocol: a card's content is rendered in a hidden measure pass; a card is first shown only after its math is typeset and fonts are ready; the layout runs once more when a typeset or font event changes a measured size, as one glide. No other code path re-measures. Unit tests of the layout function use fixture sizes.
 
 **A5. One motion per step.** A lesson step, a card move or a released parameter starts at most one glide of scene and view together, driven by one clock, ended by any higher-priority write. Reduced motion jumps.
 
@@ -98,28 +100,32 @@ The prototype fixes *what* each feature is. *How it feels* is open in every stag
 
 ## Stages
 
-Each stage is one task file and passes its own acceptance before the next depends on it. Planning files stay on `ux-picks`. Code is built on a work branch cut from `master` (the prototype's tree differs from `master` in about 100 shared files, so rebuild commits made on top of it would not apply to `master`), and a stage is carried to `master` only when it is finished and accepted; there it is live, behind no switch. Stages 03 to 07 are built and proven on six pilot graphs: Taylor, transformations and De Casteljau (the prototype's pilots) plus linear map (seven modes), phase portrait (expensive redraw) and one graph whose lesson uses the legacy `step()` builder.
+Each stage is one task file and passes its own acceptance before the next depends on it. Planning files stay on `ux-picks`. Code is built on a work branch cut from `master` (the prototype's tree differs from `master` in about 100 shared files, so rebuild commits made on top of it would not apply to `master`), and a stage is carried to `master` only when it is finished and accepted; there it is live, behind no switch. Stages 03 to 07 are built and proven on eight pilot graphs: Taylor, transformations and De Casteljau (the prototype's pilots; De Casteljau has playback) plus linear map (seven modes), phase portrait (expensive redraw), one graph whose lesson uses the legacy `step()` builder, one surface demonstration (WebGL and a camera, not a 2D bounding box) and one point-set graph where the learner clicks the board to add points (cards must not swallow those clicks).
 
 | # | Stage | Depends on |
 | --- | --- | --- |
-| 01 | Scene store with source-tagged writes; fuzzer and probe in the repo | — |
-| 02 | Declaration contract, contract tests, conversion inventory and check tooling | 01 |
+| 01 | Source-tagged parameter writes over the graphs' setters | — |
+| 01b | View adapter (intent and fitted view) | 01 |
+| 01c | Fuzzer and probe in the repo | — |
+| 02 | Declaration contract, contract tests, preview mechanism decision, conversion inventory and check tooling | 01 |
 | 03 | Layout function, board cards (Odčitki, Legenda, sections), stored layout | 02 |
 | 04 | Orodja and the lesson card as board cards; card budget; slim header | 03 |
 | 05 | Pucks | 01, 03 |
 | 06 | Previews and sweeps | 05 |
-| 07 | Lesson morph and view director | 03, 04 |
-| 08 | Convert all graphs (parallel lanes) | 02 to 07 accepted on the pilots |
+| 07 | Lesson morph and view director | 01b, 03, 04, 05 |
+| 08 | Convert all demonstrations (parallel lanes) | 02 to 07 on `master` |
 | 09 | Phone presenter (own spec, written with the owner) | 08 |
 | 10 | Remove the old paths; documentation | 08, 09 |
 
-Between a stage landing and stage 08 finishing, an unconverted graph keeps its present readout, legend and sliders inside the Orodja card. That mixed period is accepted (decision 2).
+Stages 01 to 02 show a learner nothing new and reach `master` one by one. Stages 03 to 07 reach `master` together, as one release, when all are accepted on the pilots: landing 04 alone would take the tools column from every graph before pucks and the view fit exist. From that release until stage 08 finishes, an undeclared graph falls back to its present panels inside an Orodja card that starts open, with its own view logic and no fit. That mixed period is accepted (decision 2). Every stage that changes the workspace migrates the desktop tests that describe it in the same publish, because CI deploys only when every job passes.
 
 Until stage 09, phones get whatever the desktop presenter gives at a narrow width. Phone-specific unit, smoke and browser checks that the changed workspace breaks are skipped with a reference to task 09, not repaired; each skip is listed in that task file so stage 09 replaces or restores it. Checks unrelated to the workspace (routes, landing pages, catalog) keep running on phone sizes.
 
 ## Converting all graphs
 
-116 graph classes; 28 have a declaration on the prototype to port, 88 have none. 96 graph files use a slider or count. 68 lesson content files.
+The unit of conversion is the registered demonstration, not the graph file. The independent review counted 138 registered demonstrations (about 141 concrete classes); 29 graph files carry a prototype declaration to port; 96 graph files use a slider or count; 68 lesson content files. The inventory script of task 02 produces the authoritative list. (An earlier draft said 116, which counted graph files extending a base class.)
+
+Facts that shape the lanes, from the review: lesson files do not partition the demonstrations (one lesson file covers 16, fifteen cover three or more, and 11 demonstrations span several files); 18 shared panel files hold sliders (for example `src/graphs/base/controls/BezierCurveControls.tsx`); `BaseFunctionGraph` has 35 subclasses; catalog keys are type checked, so a lane cannot pass `tsc` with a new string unless its key exists.
 
 Why it was slow on the prototype, from the logs:
 
@@ -131,18 +137,20 @@ Why it was slow on the prototype, from the logs:
 
 The method in task 08:
 
-- **Freeze first.** Stage 08 starts only when stages 02 to 07 are accepted on the six pilots. A contract change after that is a blocker for the handler, not something a converter works around.
+- **Freeze first.** Stage 08 starts only when stages 02 to 07 are accepted on the eight pilots and released. A contract change after that is a blocker for the handler, not something a converter works around.
 - **Inventory.** A script lists, per graph: its controls with ranges, readout rows with their catalog keys, legend entries, board captions, its lesson file and the frames naming values, and its blocker class. This is the [item-batch blocker triage](../tasks/feature-streams/README.md#item-batches). One worker clears the shared blockers before any lane starts.
-- **Machine checks.** One command per graph runs the contract test (ids, every lesson scene against the declaration, legend against drawn objects), a parity test (declared values equal the old panel's values over sampled states, while the old panel exists) and a browser probe (no page errors, puck drag, lesson walk, board cover, screenshots to a file). The worker's report is that command's summary.
-- **Lanes.** Graphs are partitioned by lesson content file so no two lanes share a file. Three lanes run at once, each in its own worktree and branch with its own dev server, four graphs per Sonnet session (the trial measured about 50k context and 5 minutes per graph in a long session). Catalog edits belong to the handler. The handler merges a lane when its checks are green, looks at one graph in four, sends one in four to a reviewer, and publishes per round.
-- **Estimate.** About 29 sessions in 10 rounds of three. The trial's worker time was about 5 minutes per graph; the prototype's night needed several times that through the five causes above. The estimate is checked after the first round and the method adjusted before the second.
+- **Machine checks.** One command per demonstration runs the contract test (ids, every lesson scene against the declaration, legend against drawn objects), a parity test and a browser probe (no page errors, puck drag, lesson walk, board cover). Parity uses golden values: before a demonstration's old panel is removed, the tool records the values it shows over sampled states; the declaration must reproduce them. The worker's report is that command's summary.
+- **Shared code first.** Shared panels and base classes (`BaseFunctionGraph`, the 18 shared control panels) are converted by the handler's own workers before the lanes start, so a lane never edits a file another lane's demonstrations use.
+- **Lanes.** Demonstrations are grouped into connected components over shared files (graph file, lesson files, panels, tests); a component is never split across lanes. Three lanes run at once, each in its own worktree and branch with its own dev server. Catalog keys a lane needs are listed by the inventory and added by the handler before the round starts; a lane that finds it needs another key reports it and does not edit the catalogs. The handler merges a lane when its checks are green and publishes per round.
+- **Estimate.** Unknown until measured. The trial (12 conversions, all "accept with fixes", about 50k context per graph in a long session) kept the old UI, edited no tests and wrote no catalog keys, so it understates this work; plan two or three demonstrations per Sonnet session, which gives roughly 45 to 65 sessions for the demonstrations left after the pilots and shared code. Round one's measured time, context and repairs replace this figure before round two.
 
 ## Acceptance criteria
 
-1. Every graph declares itself through A1; no graph renders a readout, legend or parameter control of its own outside the declaration, and a search finds no pick flag, param registry mirror or `setRaw`.
-2. [Parameter writes](parameter-writes.md) acceptance 1 to 5 hold, with the view box covered by the same unit tests (learner pan ends a director glide; a fit never changes the stored intent).
+1. Every demonstration declares itself through A1; none renders a readout, legend, or range, count, choice or toggle control of its own outside the declaration (controls that stay in Orodja by decision 11, such as point lists and function entry, are exempt and listed by the inventory), and a search finds no pick flag, param registry mirror or `setRaw`.
+2. [Parameter writes](parameter-writes.md) acceptance 1 to 5 hold, the untagged-write check passes across the all-graph suites, and the view is covered by the same kind of unit tests (a learner gesture ends a director glide; a fit never changes the stored intent; a preset stores the intent).
+2a. Existing playback and a sweep never move the same key at once, and a learner write stops either.
 3. The layout function has unit tests without a DOM for: budget on first view (two open cards from 1200 px, one below), fold before clip, whole-row cuts, the learner's stored fold winning, and a frame's opened cards. In the browser, opening, folding and dropping a card reaches its final rectangle with no intermediate size (frame sampling).
-4. The contract test passes for every graph and every lesson frame, and for every frame each control it declares as used is visible and operable when the frame opens, at 1440×900 and 1024×768, with the default layout (browser check on the pilots, layout unit test for all).
+4. The contract test passes for every graph and every lesson frame, and for every frame each control it declares as used is visible and operable when the frame opens, at 1440×900 and 1024×768, with the default layout (browser check on the pilots; for all frames a unit test that the layout opens the card holding each used control, with fixture sizes).
 4a. At 3440×1440 with the default layout, the lesson card and Odčitki are within the maximum span of A10 on the pilots, and the plot is not smaller than at 1440×900.
 5. Fuzzer: 50 seeds per pilot route and 5 seeds per other route pass invariants I1 to I5. The findings F1 to F3 in [parameter writes](parameter-writes.md#fuzzer-findings-feeding-this-spec) each have a test: a sweep's probe values painted (A → B → A); a probe's restore overwriting a typed or dragged value; the JSXGraph "reading 'handler'" page error from a board listener that unsubscribes inside its own event. On the prototype they were patched in R30 and only the minimised cases were rerun; the full seed matrix has never passed, so the first full pass is this rebuild's.
 6. Jank probe on the pilots at 1440×900 and 1024×768, quiet machine, against the thresholds in the ported checklist: no long task in a puck drag, sweep CLS under the threshold, puck width drift 0, at most one glide per lesson step, Back returns to the step's view within 2 %. Taylor and phase portrait are also run at 4× CPU throttle and reported.
@@ -151,6 +159,8 @@ The method in task 08:
 9. Board cover by cards is measured per pilot route and reported against the 35 % target. It is a reported number, not a gate.
 10. Critique: each of stages 03 to 07 gets at most two rounds with the impeccable method's rubric on the fixed main path. Every P1 is fixed; P2s are fixed or logged in the task file with a reason. The work does not wait for a score.
 11. Phones: no acceptance before stage 09 beyond "the page loads without a page error"; the skipped phone checks are listed in task 09. After stage 09: its own spec's criteria.
+11a. The existing desktop unit and smoke suites pass at every publish, migrated where they described the tools column; no desktop check is skipped.
+11b. Presets and file import and export round-trip as before; figure export shows the graph without cards; Uredi (editing) mode, Presentation mode, chapter activity pages, surface demonstrations and point-set graphs each work with the card layout (pilot or named check in tasks 03 and 04).
 12. Documentation matches: DESIGN.md (no fixed 310 px inspector column), the controls catalogue (pucks, cards), architecture, the smoke checklist, ADR 0061 marked superseded.
 
 ## Out of scope
@@ -164,10 +174,17 @@ The method in task 08:
 
 - The workspace layout changes for every graph: the tools column is gone, tools and lesson are cards on the board, sliders appear as pucks. A learner's muscle memory for the tools column no longer applies.
 - No route changes. No preset format change. A new browser-local layout record is added.
-- Graph code: controls stop owning parameter values in React state.
+- Graph code: every parameter is bound to its setter and written inside a named source; `board.setBoundingBox` is called only by the view adapter.
+- Touching a control of a parameter that is playing stops the playback (today the two can fight).
 
 - Phones are worse than today between the first workspace stage reaching `master` and stage 09 (decision 8).
 
 ## Open questions for the owner
 
-None at present. Stage 09 opens with its own design questions.
+1. **Sweep and existing Play.** Some graphs already have playback for a parameter (De Casteljau's t). Should such a parameter's puck also offer the sweep (∿), or is Play its only mover? The plan assumes one mover per parameter: where playback exists, the puck shows Play and no ∿.
+
+Stage 09 opens with its own design questions.
+
+## Second independent review (2026-11-22)
+
+A read-only reviewer checked this plan against `master`'s code. Its findings changed: requirement A2 and task 01 (writes go through the graphs' existing setters; existing playback and board-dragged points are writers), the new tasks 01b (view adapter) and 01c (tooling, which lived outside Git), A4's measurement protocol, the preview decision moving to task 02, the 03-to-07 release going to `master` together with a fallback for undeclared graphs, desktop test migration, the conversion unit, counts, lanes and estimate, two more pilots, and typed ids through per-file builders.

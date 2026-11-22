@@ -8,13 +8,16 @@ Every declared range and count parameter is a puck in the board's bottom-left st
 
 ## Slices
 
+0. **Gate:** task 01 slice 6's measurement (selector reads; a playing De Casteljau costs no more than on `master`) is recorded before pucks subscribe to values.
 1. **Puck strip** as a region of the layout function; pucks in declared order; constant puck width (the value box reserves the widest formatted value).
 2. **Range puck:** drag left and right, finer when the finger lifts away, drag ruler kept inside the board, wheel, arrow keys with Home/End/PageUp/PageDown, typed entry (double-click, Enter or start typing; out of range refused with a reason).
 3. **Count puck:** − and +, keys, typed entry.
 4. **Track-jump undo:** "Razveljavi" pill above the strip for 4 s, Esc also undoes.
 5. **Help card** per puck from the declared help; tooltips only on hover or keyboard focus.
 6. **Other kinds on the board** (owner: placed with taste; "some do make sense as standalones/pucks"): design and build the board form of a `choice` and a `toggle`, as a puck where it fits the strip and as a standalone board control where it does not. Try them on the pilots' real controls (for example linear map's modes and a visibility toggle), show the owner the candidates on a preview, and record the placement rule in the conversion guide.
-7. **Controls catalogue:** add the puck to `docs/controls.md` with when to use it; the tools card no longer shows a slider for a parameter that has a puck.
+7. **Roles and test migration:** a range puck is `role="slider"` and a count puck `role="spinbutton"`, each with the accessible name its tools control had, so the unit and smoke tests that find controls by role keep working. Tests that depended on the control sitting in the tools column are migrated here (handler-owned list). A domain refusal from the setter shows its message at the puck.
+8. **Playback and pucks:** a parameter with existing playback (De Casteljau's t) shows its Play control with its puck; a learner write to it stops playback (task 01). Whether it also gets a sweep is the spec's open question 1.
+9. **Controls catalogue:** add the puck to `docs/controls.md` with when to use it; the tools card no longer shows a slider for a parameter that has a puck.
 
 ## Acceptance
 
