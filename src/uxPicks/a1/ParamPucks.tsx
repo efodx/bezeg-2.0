@@ -420,6 +420,7 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
         document.addEventListener('click', onClick, true);
         return () => document.removeEventListener('click', onClick, true);
     }, []);
+    const [lastSwept, setLastSwept] = useState<string>();
     const [more, setMore] = useState('');
     useEffect(() => {
         const row = rowRef.current;
@@ -459,14 +460,14 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
             {!collapsed && <span className="ux-pucks-items">{visible.map(entry => {
                 const moving = oscillating.has(entry.key);
                 const oscName = splitLabel(entry.label).symbol ?? splitLabel(entry.label).name;
-                return <span key={entry.key} className={`ux-puck-wrap${moving ? ' is-oscillating' : ''}`}>
+                return <span key={entry.key} className={`ux-puck-wrap${moving ? ' is-oscillating' : ''}${lastSwept === entry.key ? ' is-last-swept' : ''}`}>
                     {entry.kind === 'count'
                         ? <CountPuck entry={entry} locked={locked}/>
                         : <Puck entry={entry} locked={locked} boardWidth={width} onScrub={state => setScrub(state && {key: entry.key, ...state})}/>}
                     {showOscillator && canOscillate(entry) && <button type="button" className={`ux-puck-osc${locked ? ' is-held' : ''}`} aria-pressed={moving}
                         disabled={locked} aria-hidden={locked || undefined} tabIndex={locked ? -1 : undefined}
                         aria-label={moving ? `Ustavi: ${entry.label}` : `Samodejno premikaj ${entry.label}`}
-                        onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
+                        onPointerDown={event => event.stopPropagation()} onClick={() => { setLastSwept(entry.key); toggleOscillator(entry.key); }}>
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
                     {showOscillator && canOscillate(entry) && !locked && <span role="tooltip" aria-hidden="true" className="ux-puck-osc-tip">{moving ? `Ustavi: ${oscName}` : `Samodejno: ${oscName}`}</span>}

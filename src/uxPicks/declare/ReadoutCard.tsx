@@ -65,7 +65,7 @@ function Notes(props: {notes: NonNullable<GraphUx['notes']>}) {
     const note = (n: typeof first) => <p key={n.id} data-note={n.id} className={n.tone === 'warning' ? 'is-warning' : undefined}>{n.text}</p>;
     return <div className="ux-rc-notes">
         {note(first)}
-        {rest.length > 0 && <button type="button" className="ux-rc-more" aria-expanded={more} onClick={toggle}>{more ? 'Manj' : `Več (${rest.length})`}</button>}
+        {rest.length > 0 && <button type="button" className="ux-rc-more" aria-expanded={more} onClick={toggle}>{more ? 'Skrij opombe' : `Opombe (${rest.length})`}</button>}
         {more && rest.map(note)}
     </div>;
 }

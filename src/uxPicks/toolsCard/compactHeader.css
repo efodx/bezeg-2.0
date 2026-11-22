@@ -26,3 +26,6 @@
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-actions > a { min-height: 34px; padding-block: 2px; font-size: .85rem; white-space: nowrap; }
     .demonstration-workspace[data-ux-compact-header="free"] .workspace-graph #jgbox { height: max(520px, calc(100vh - 340px)) !important; }
 }
+
+/* R11B: while a guided lesson is open the "Preizkusi in opazuj" strip repeats the lesson (and is cut off at the screen's bottom). */
+.demonstration-workspace.lesson-open .workspace-learning { display: none; }
