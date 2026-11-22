@@ -111,20 +111,6 @@ export function usePucked(key: string): boolean {
     return useSyncExternalStore(listener => { puckedListeners.add(listener); return () => { puckedListeners.delete(listener); }; },
         () => pucked.has(key), () => false);
 }
-/**
- * The text that went with a control in the tools, for its puck's tooltip: the control's own help and the help paragraphs
- * of the tools group it sits in (e.g. the order of operations under the transformation sliders).
- */
-export function accompanyingText(key: string): string[] {
-    if (typeof document === 'undefined') return [];
-    const control = document.getElementById(key)?.closest('.slider-field') ?? document.querySelector(`.count-setter[data-param="${CSS.escape(key)}"]`);
-    if (!control) return [];
-    const own = document.getElementById(`${key}-help`)?.textContent?.trim();
-    const group = control.closest('.inspector-group');
-    const shared = group ? Array.from(group.querySelectorAll(':scope > p.inspector-help')).map(p => p.textContent?.trim() ?? '') : [];
-    return [own ?? '', ...shared].filter(text => text !== '');
-}
-
 /** Whether the control's element sits on the inspector's Display tab. */
 export function onDisplayTab(element: Element | null): boolean {
     return Boolean(element?.closest('#inspector-display'));

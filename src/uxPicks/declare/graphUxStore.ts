@@ -27,6 +27,10 @@ export function useGraphUxPublisher(ux: GraphUx | undefined) {
     useEffect(() => () => publish(graph, undefined), []);
 }
 export function useGraphUx(): GraphUx | undefined { return use(graph); }
+/** Non-React reader of the published declaration. */
+export function getGraphUx(): GraphUx | undefined { return graph.value; }
+/** The declared help text of the puck on `param`, if the graph gave one. */
+export function declaredPuckHelp(param: string): string | undefined { return graph.value?.pucks?.find(p => p.param === param)?.help; }
 
 /** Called by the lesson card with the shown frame's `ux` (undefined when it has none). */
 export function useFrameUxPublisher(ux: FrameUx | undefined) {

@@ -4,6 +4,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
+import {ToolSection} from "../../inputs/ToolSection";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
@@ -19,7 +20,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {RevealButton} from "../../inputs/RevealButton";
 import {pickOn} from "../../uxPicks/picks";
-import type {GraphUx, ReadoutNote} from "../../uxPicks/declare/graphUx";
+import type {FocusDecl, GraphUx, ReadoutNote} from "../../uxPicks/declare/graphUx";
 
 /** Positions show four decimals; values of T_n and f show four as well, errors and the bound use significant digits. */
 const PRECISE = 4;
@@ -145,7 +146,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const edit = chooseTaylorExample(value);
         if (!edit.ok) throw new DomainError(taylorEditMessage(edit.issue));
         this.commitModel(edit.model);
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[edit.model.example]], true);
+        if (this.generatedObjectCount > 0) this.setIntentBox([...EXAMPLE_VIEWS[edit.model.example]]);
     }
 
     protected setCenter(value: number, options: { syncScene?: boolean } = {}): void {
@@ -327,28 +328,27 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const example = taylorExample(state.example);
         const fixedCenter = example.centerMin === example.centerMax;
         return <>
-            <div className="inspector-group">
-                <CountSetter label={t("taylor_degree_label")} n={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} help={t("taylor_degree_help")}
+            <ToolSection id="taylor-degree" pickTitle={t("taylor_degree_label")}>
+                <CountSetter paramKey="taylor.n" label={t("taylor_degree_label")} n={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} help={t("taylor_degree_help")}
                              rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
                              onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
                              onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
                              onSet={next => guardField(this.refusals, () => this.setDegree(next))}/>
-            </div>
-            <div className="inspector-group">
+            </ToolSection>
+            <ToolSection id="taylor-example" pickTitle={t("taylor_example_label")}>
                 <ChoiceSelect label={t("taylor_example_label")} value={state.example} help={t("taylor_example_help")}
                               options={TAYLOR_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.guarded(() => this.setExample(next))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} fieldDecimals={PRECISE}
+            </ToolSection>
+            <ToolSection id="taylor-points" pickTitle={t("taylor_points_title")} help={t("taylor_points_help")}>
+                <Slider paramKey="taylor.c" customText={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} fieldDecimals={PRECISE}
                         unavailableReason={fixedCenter ? t("taylor_center_fixed_help") : undefined}
                         rejectedHint={t("taylor_center_rejected_hint", {value0: formatNumber(example.centerMin, language), value1: formatNumber(example.centerMax, language)})}
                         onChange={next => guardField(this.refusals, () => this.setCenter(next))}/>
-                <Slider customText={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} fieldDecimals={PRECISE}
+                <Slider paramKey="taylor.x" customText={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} fieldDecimals={PRECISE}
                         rejectedHint={t("taylor_x_rejected_hint", {value0: formatNumber(example.xMin, language), value1: formatNumber(example.xMax, language)})}
                         onChange={next => guardField(this.refusals, () => this.setX(next))}/>
-                <p className="inspector-help">{t("taylor_points_help")}</p>
-            </div>
+            </ToolSection>
         </>;
     }
 
@@ -359,8 +359,11 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 <RevealButton action="toggle-taylor-bound" revealed={state.boundVisible} showLabel={t("show_error_bound")} hideLabel={t("hide_error_bound")}
                               onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
-            <p className="inspector-help">{t("taylor_bound_help")}</p>
         </>;
+    }
+
+    protected override revealsHelp(): React.ReactNode {
+        return t("taylor_bound_help");
     }
 
     protected override renderLegend(): React.ReactNode {
@@ -421,7 +424,14 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             if (status.id === "bound-not-sharp" || status.id === "no-bound" || status.id === "flat") notes.push({id: status.id, text: status.text, tone: "muted"});
         }
         const bound = shown && view.bound.kind === "bound" ? view.bound.value : undefined;
+        const example = model.example;
         return {
+            pucks: [
+                {param: "taylor.c", help: t("taylor_points_help")},
+                {param: "taylor.x", help: t("taylor_points_help")},
+                {param: "taylor.n", help: t("taylor_degree_help")},
+            ],
+            focus: this.focusDecl(example),
             formula: this.formulaTex(model.example),
             readouts: [
                 {id: "setup", title: "Razvoj", rows: [
@@ -446,6 +456,36 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 {id: "bound", label: t("taylor_legend_bound"), kind: "area", color: GraphPalette.constructionAccent},
                 ...(model.example === "geometric" ? [{id: "convergence", label: t("taylor_legend_convergence"), kind: "area" as const, color: GraphPalette.additionalCurves[0]}] : []),
             ],
+        };
+    }
+
+    /**
+     * What the view keeps in view: c, x and the error segment between f(x) and T_n(x) (must); f and T_n over the stretch between
+     * c and x, with their y clamped to the example's default view (nice). A pure function of c, x and n; n is predicted up to 6.
+     */
+    private focusDecl(id: TaylorExampleId): FocusDecl {
+        const example = taylorExample(id);
+        const [, top, , bottom] = EXAMPLE_VIEWS[id];
+        const clamp = (y: number) => Math.min(top, Math.max(bottom, y));
+        return {
+            at: values => {
+                const c = values["taylor.c"] ?? this.model.center, x = values["taylor.x"] ?? this.model.x;
+                const n = Math.round(values["taylor.n"] ?? this.model.degree);
+                const fx = drawnValue(example, x), tx = taylorPolynomial(example, c, n, x);
+                const from = Math.min(c, x), to = Math.max(c, x);
+                return {
+                    must: [
+                        {kind: "point", at: [c, 0]}, {kind: "point", at: [x, 0]}, {kind: "point", at: [c, drawnValue(example, c)]},
+                        {kind: "segment", from: [x, fx], to: [x, clamp(tx)]},
+                    ],
+                    nice: [
+                        {kind: "curve", f: u => drawnValue(example, u), from, to},
+                        {kind: "curve", f: u => clamp(taylorPolynomial(example, c, n, u)), from, to},
+                    ],
+                };
+            },
+            reach: {"taylor.n": [4, 5, 6]},
+            limits: {maxOut: 1.6, maxIn: 1.6},
         };
     }
 

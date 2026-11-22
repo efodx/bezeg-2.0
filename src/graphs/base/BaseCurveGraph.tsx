@@ -7,6 +7,7 @@ import React from 'react';
 import {PointControlledCurve} from "../../bezeg/api/curve/point-controlled-curve";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
+import {ToolSection} from "../../inputs/ToolSection";
 import {Commands} from "./Commands";
 import BaseGraph, {BaseGraphState, TransientState} from "./BaseGraph";
 import {Preset} from "./presets/Presets";
@@ -211,7 +212,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         const selectableCurves = this.jxgCurves.filter(curve => curve.getAttributes().selectable !== false);
         if (selectableCurves.length === 0) { return null; }
         const selected = this.getSelectedCurve();
-        return <div className="inspector-group curve-selection"><h3>{t("curve_selection")}</h3>
+        return <ToolSection id="curve-selection" className="curve-selection" title={t("curve_selection")}>
             <p role="status">{selected ? t("selected_curve", {value0: this.jxgCurves.indexOf(selected) + 1}) : t("no_curve_selected")}</p>
             <div className="workspace-curve-picker">{selectableCurves.map(curve => {
                 const index = this.jxgCurves.indexOf(curve);
@@ -223,7 +224,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
                 }}>{t("curve")}{index + 1}</button>;
             })}{selected && <button onClick={() => {this.deselectSelectedCurve(); this.board.update();}}>{t("clear_selection")}</button>}</div>
             {!selected && <p>{t("select_a_curve_on_the_graph_or_with_a_button_to_access_its_operations")}</p>}
-        </div>;
+        </ToolSection>;
     }
 
     /** Adds a point to `curve` from the count control: without coordinates one unit right of the last (decision 1), else exactly there. */
@@ -298,12 +299,12 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {
-        return <><div className="inspector-group"><h3>{t("graph_view")}</h3>
+        return <><ToolSection id="graph-view" title={t("graph_view")}>
             <OnOffSwitch label={t("point_labels")} checked={this.displaySettings.pointLabelsVisible}
-                onChange={checked => this.setPointLabelsVisible(checked)}/></div>
-            {this.jxgCurves.map((curve, i) => <div className="inspector-group" key={i}><h3>{t("curve_display")} {i + 1}</h3>
+                onChange={checked => this.setPointLabelsVisible(checked)}/></ToolSection>
+            {this.jxgCurves.map((curve, i) => <ToolSection id={`curve-display-${i + 1}`} key={i} title={`${t("curve_display")} ${i + 1}`}>
                 <CurveDisplayControls curve={curve} onChanged={() => this.store.notify()}/>
-            </div>)}</>;
+            </ToolSection>)}</>;
     }
 
     override importPreset(preset: Preset) {

@@ -37,7 +37,7 @@ const listeners = new Set<() => void>();
 let enabled: ReadonlySet<string> = initialSet();
 
 function initialSet(): ReadonlySet<string> {
-    if (typeof window === 'undefined') return new Set();
+    if (typeof window === 'undefined' || import.meta.env.MODE === 'test') return new Set(); // unit tests see the plain app; a test that wants a pick calls setPicks
     const fromUrl = new URLSearchParams(window.location.search).get('ux');
     if (fromUrl !== null) {
         const set = new Set(fromUrl === 'none' ? [] : fromUrl.split(/[,\s]+/).filter(Boolean));

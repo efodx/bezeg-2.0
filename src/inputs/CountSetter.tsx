@@ -34,6 +34,8 @@ interface CountSetterProps {
     typedMin?: number;
     /** A short explanation shown under the stepper and linked to its group by aria-describedby. */
     help?: string;
+    /** UX picks: the stable key a graph's `GraphUx.pucks` names this control by (also its param-registry key and element id); default is a generated id. */
+    paramKey?: string;
     /** Id of an element that also explains the count (for example a panel's shared help paragraph); joined with the help already linked. */
     describedBy?: string;
     /** Why minus is unavailable at the lower bound; defaults to "At least {min}.". */
@@ -48,7 +50,8 @@ interface CountSetterProps {
  */
 export function CountSetter(props: CountSetterProps) {
     const t = useT();
-    const id = useId();
+    const generatedId = useId();
+    const id = props.paramKey ?? generatedId;
     const language = currentLanguage();
     const {n} = props;
     const min = typeof props.min === "function" ? props.min() : props.min;

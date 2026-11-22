@@ -17,6 +17,7 @@
  * already formatted by the graph's own number formatting (decimal comma, units), never TeX.
  */
 import type React from 'react';
+import type {FocusShape} from './focusShapes';
 
 /** One read-off value: "Napaka |f(x) − Tₙ(x)|  0,7183". */
 export interface ReadoutRow {
@@ -29,6 +30,8 @@ export interface ReadoutRow {
     /** Formatted plain text, e.g. "0,7183" or "(2; 4)". */
     readonly value: string;
     readonly unit?: string;
+    /** TeX shown instead of `value` (which stays the plain-text form), for values that are formulas, e.g. `x^{2}`. */
+    readonly valueTex?: string;
     /**
      * Colour role of the value, named after the curve it belongs to: `primary` the graph's main curve, `comparison` the
      * second curve, `error` the error or warning colour, `accent` the construction accent, `muted` a quieter value.
@@ -74,6 +77,27 @@ export interface PuckDecl {
     readonly help?: string;
 }
 
+/** What the view fit keeps in view: `must` shapes stay visible and clear of cards, `nice` shapes when room allows. */
+export interface FocusSet {
+    readonly must: readonly FocusShape[];
+    readonly nice?: readonly FocusShape[];
+}
+
+/**
+ * What a graph keeps in view (docs/reviews/ux-picks/view-fit.md). `at` is a PURE function of the parameter values (keys of the
+ * param registry, current values), so the layer can also evaluate it at nearby values to see where the picture may go.
+ */
+export interface FocusDecl {
+    at(values: Readonly<Record<string, number>>): FocusSet;
+    /**
+     * Parameter values to predict at, per param key, instead of the default (a slider: +-25 % of its range around the value,
+     * clamped; a count: +-2 steps). Taylor: `{n: [5, 6]}`.
+     */
+    readonly reach?: Readonly<Record<string, readonly number[]>>;
+    /** How far the fit may zoom out (>= 1, 1.6 = to 1/1.6 of the default scale) and in (>= 1, 'fill' mode only). */
+    readonly limits: {readonly maxOut: number; readonly maxIn: number};
+}
+
 export interface GraphUx {
     /** The headline formula of the current state, TeX. */
     readonly formula?: string;
@@ -85,6 +109,8 @@ export interface GraphUx {
     readonly sections?: readonly BoardSectionDecl[];
     /** Absent: no pucks. Present (even empty): exactly these, in this order. */
     readonly pucks?: readonly PuckDecl[];
+    /** Absent: the view is never fitted (the graph's own view logic stays). */
+    readonly focus?: FocusDecl;
 }
 
 /** Card ids a lesson frame can open: the readout card, the legend card, or a declared section. */

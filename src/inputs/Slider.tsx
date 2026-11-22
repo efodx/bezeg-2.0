@@ -45,6 +45,8 @@ interface SliderProps {
     valueText?: (value: number) => string
     /** Leaves out the min and max labels, for a cyclic slider whose two ends are neighbours rather than extremes. */
     hideBounds?: boolean
+    /** UX picks: the stable key a graph's `GraphUx.pucks` names this control by (also its param-registry key and element id); default is a generated id. */
+    paramKey?: string
     /** Ids of elements that describe the slider (for example a readout of what it controls); added to the range input's and the exact field's own descriptions. */
     describedBy?: string
 }
@@ -61,7 +63,8 @@ function stepDecimals(step: number): number {
 
 export default function Slider(props: SliderProps) {
     const t = useT();
-    const id = useId();
+    const generatedId = useId();
+    const id = props.paramKey ?? generatedId;
     const language = currentLanguage();
     const {step = (props.max - props.min) / 100} = props;
     const integer = Number.isInteger(step) && step > 0;

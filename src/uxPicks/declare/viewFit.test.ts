@@ -156,6 +156,17 @@ describe('fitView', () => {
         expectClear(r.box, [[0, -1]], [card]);
     });
 
+    it('tries must+nice+reach first, then must+nice, then must', () => {
+        const card: Rect = {x: 0, y: 0, width: 800, height: 100};
+        const lim = {maxOut: 1, maxIn: 1};
+        const ok = fitView(input({must: [[0, -1]], nice: [[0, -2]], reach: [[0, -3]], obstacles: [card], limits: lim}));
+        expect(ok.tier).toBe('reach');
+        const noReach = fitView(input({must: [[0, -1]], nice: [[0, -2]], reach: [[0, 5.5], [0, -5.5]], obstacles: [card], limits: lim}));
+        expect(noReach.tier).toBe('all');
+        const mustOnly = fitView(input({must: [[0, -1]], nice: [[0, 5.5], [0, -5.5]], reach: [[0, -3]], obstacles: [card], limits: lim}));
+        expect(mustOnly.tier).toBe('must');
+    });
+
     it('returns tier none and the covered must points when nothing clears', () => {
         const wall: Rect = {x: 0, y: 0, width: W, height: H};
         const r = fitView(input({must: [[0, 0], [1, 1]], obstacles: [wall]}));

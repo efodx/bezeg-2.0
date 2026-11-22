@@ -1,3 +1,4 @@
+import {ToolSection} from "../../inputs/ToolSection";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, Message, onLanguageChange, renderMessage, t} from "../../localization";
@@ -10,7 +11,6 @@ import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
-import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {BOARD_TEXT_STYLE} from "../styles/BoardText";
 
 /**
@@ -211,7 +211,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /** The view a persisted Preset without one starts from: the default box (or the current example's), as `initialize` sets it. */
     protected override showInitialView(): void {
-        this.board.setBoundingBox([...(this.exampleView()?.box ?? this.defaultBoundingBox())], this.equalAxisUnits);
+        this.setIntentBox([...(this.exampleView()?.box ?? this.defaultBoundingBox())]);
     }
 
     /** Closures over the live display settings, for JSXGraph attributes that must follow them. */
@@ -300,7 +300,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         if (preset.data === undefined || preset.data === null) this.importPresetData(this.defaultPreset());
         const example = this.exampleView();
         if (example && !preset.boardState && example.key !== previousExample && this.generatedObjects.length > 0) {
-            this.board.setBoundingBox([...example.box], this.equalAxisUnits);
+            this.setIntentBox([...example.box]);
         }
     }
 
@@ -412,7 +412,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         this.generateScene();
         const keepImportedView = this.boardStateImported;
         this.boardStateImported = false;
-        if (!keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
+        if (!keepImportedView) this.setIntentBox(this.defaultBoundingBox());
         this.board.fullUpdate();
     }
 
@@ -449,7 +449,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     /** A function graph's default scene also returns to its default view. */
     protected override prepareLessonDefaultScene(): void {
         super.prepareLessonDefaultScene();
-        this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
+        this.setIntentBox(this.defaultBoundingBox());
         // Curves are sampled for the view on update; draw the default view before the host commits.
         this.boardUpdate();
     }
@@ -460,14 +460,16 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
      * Edit order: controls, then the reveal area (only when the graph has reveals), then the readout with its caveats,
      * then the legend. The reveal area sits right before the results it reveals.
      */
+    /** Section-level help of the reveal area (a "?" with the toolsCard pick, a paragraph after the reveals without it). */
+    protected revealsHelp(): React.ReactNode { return undefined; }
+
     protected override workspaceEdit(): React.ReactNode {
         const reveals = this.renderReveals();
         return <div className="function-inspector">
             {this.renderControls()}
-            {reveals && <div className="inspector-reveals">
-                <ReadoutHeading>{t("inspector_reveals")}</ReadoutHeading>
+            {reveals && <ToolSection id="reveals" title={t("inspector_reveals")} help={this.revealsHelp()} element="div" className="inspector-reveals" headingClassName="inspector-reveals-title">
                 {reveals}
-            </div>}
+            </ToolSection>}
             {this.renderReadout()}
             <RefusalNotice channel={this.refusals}/>
             {this.renderLegend()}

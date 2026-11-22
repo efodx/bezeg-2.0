@@ -1,11 +1,13 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {createPortal} from 'react-dom';
-import {accompanyingText, getParam, recentlyProbed, setEditingParam, setPuckedKeys, splitLabel, useParams, type CountParam, type ParamEntry as AnyParam, type RangeParam} from './paramRegistry';
+import {getParam, recentlyProbed, setEditingParam, setPuckedKeys, splitLabel, useParams, type CountParam, type ParamEntry as AnyParam, type RangeParam} from './paramRegistry';
 
-/** Without the a29 hover card, the native tooltip carries the text that went with the control in the tools (now hidden there). */
+import {declaredPuckHelp, useGraphUx} from '../declare/graphUxStore';
+
+/** Without the a29 hover card, the native tooltip carries the help the graph declared for the puck (`PuckDecl.help`). */
 function puckTip(entry: AnyParam, first: string, usage: string): string {
-    return [first, ...accompanyingText(entry.key), usage].filter(Boolean).join('\n\n');
+    return [first, declaredPuckHelp(entry.key), usage].filter(Boolean).join('\n\n');
 }
 import {usePick} from '../picks';
 import {jumpValue} from '../a29/track';
@@ -17,6 +19,19 @@ import {ChevronDownIcon, MinusIcon, PauseIcon, PlusIcon, WaveIcon} from '../dock
 import './ParamPucks.css';
 
 type ParamEntry = RangeParam;
+
+/**
+ * The width a puck reserves for its value, once, from the widest string its range can format (sign, integer digits, the step's
+ * decimals, decimal comma, unit), so the puck and the ∿ button beside it never change size while the value moves.
+ */
+export function valueBoxWidth(entry: AnyParam): string {
+    const lo = entry.min ?? 0, hi = entry.max ?? 0;
+    const values = [lo, hi, -Math.abs(lo), -Math.abs(hi)];
+    for (let i = 1; i < 9; i++) values.push(lo + (hi - lo) * i / 9);
+    let width = 1;
+    for (const v of values) width = Math.max(width, entry.format(v).length);
+    return `${width + 0.4}ch`;
+}
 
 /**
  * a1 — Parameter pucks on the board. Every ranged parameter of the graph (each mounted shared Slider) appears as a puck
@@ -252,7 +267,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         onDoubleClick={() => { if (blocked) refuse(); else setEditing(''); }} onKeyDown={onKeyDown}>
         <span className="ux-puck-text">
             {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{name}</span>}
-            {editing !== undefined
+            <span className="ux-puck-valuebox" style={{width: valueBoxWidth(entry)}}>{editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
                         own.current = performance.now() + 500;
@@ -260,7 +275,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
                         if (ok) { entry.set(value); setProblem(undefined); } else { refuse(); setProblem(Number.isFinite(value) ? allowedRange(entry.format, entry.min, entry.max) : 'Vpiši število'); }
                         return ok;
                     }} onInput={() => setProblem(undefined)}/>
-                : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
+                : <span className="ux-puck-value">{entry.format(entry.value)}</span>}</span>
         </span>
         {moving && <MovingMark/>}
         {problem && <span className="ux-puck-problem" role="alert">{problem}</span>}
@@ -295,8 +310,12 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
         if (section) mutation?.observe(section, {attributes: true, attributeFilter: ['data-lesson-locked']});
         return () => { resize.disconnect(); mutation?.disconnect(); };
     }, [props.frame]);
-    const visible = useMemo(() => params.filter(entry => !entry.display && !PRESENTATION_LABEL.test(entry.label)
-        && (entry.kind === 'count' || entry.max > entry.min)), [params]);
+    // Exactly the pucks the graph declares (`GraphUx.pucks`), in its order; nothing is guessed from the registry.
+    const declared = useGraphUx()?.pucks;
+    const visible = useMemo(() => (declared ?? []).flatMap(decl => {
+        const entry = params.find(e => e.key === decl.param);
+        return entry && (entry.kind === 'count' || entry.max > entry.min) ? [entry] : [];
+    }), [params, declared]);
     // The tools card hides the controls the pucks show (only while the row is open, so a folded row gives them back).
     useLayoutEffect(() => { setPuckedKeys(collapsed ? [] : visible.map(entry => entry.key)); }, [visible, collapsed]);
     useLayoutEffect(() => () => setPuckedKeys([]), []);
@@ -444,7 +463,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
         <span className="ux-puck-text">
             <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Zmanjšaj: ${entry.label}`} aria-disabled={atMin || locked || undefined} onClick={() => step(-1)}><MinusIcon/></button>
             {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{name}</span>}
-            {editing !== undefined
+            <span className="ux-puck-valuebox" style={{width: valueBoxWidth(entry)}}>{editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
                     accept={value => {
                         own.current = performance.now() + 500;
@@ -456,7 +475,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
                         }
                         return ok;
                     }} onInput={() => setProblem(undefined)}/>
-                : <span className="ux-puck-value">{entry.format(entry.value)}</span>}
+                : <span className="ux-puck-value">{entry.format(entry.value)}</span>}</span>
             <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}><PlusIcon/></button>
         </span>
         {moving && <MovingMark/>}

@@ -18,6 +18,7 @@ import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSce
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {decasteljauPresetCollection} from "./collections";
+import {ToolSection} from "../../../inputs/ToolSection";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
@@ -216,8 +217,23 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         const end = curve.eval(t0);
         const degree = curve.getPoints().length - 1;
         const separator = language === "sl" ? "; " : ", ";
+        const pointsOf = (): [number, number][] => this.getFirstCurve().getPoints().map(p => [p.X(), p.Y()]);
         return {
-            formula: "P_i^{(r)}=(1-t)P_i^{(r-1)}+tP_{i+1}^{(r-1)}",
+            pucks: [{param: "decasteljau.t", help: "Vsaka vrstica deli daljice prejšnje vrstice v razmerju t : (1 − t); zadnja točka leži na krivulji."}],
+            focus: {
+                at: values => {
+                    const current = this.getFirstCurve();
+                    const tv = values["decasteljau.t"] ?? this.parameter;
+                    const at = current.eval(tv);
+                    return {
+                        must: [...pointsOf().map(p => ({kind: "point" as const, at: p})), {kind: "point" as const, at: [at.X(), at.Y()]}],
+                        nice: [{kind: "parametric", p: s => { const q = current.eval(s); return [q.X(), q.Y()]; }, from: 0, to: 1}],
+                    };
+                },
+                limits: {maxOut: 1.6, maxIn: 1.6},
+            },
+            // Two lines: the recurrence must fit the card width without sideways scrolling.
+            formula: "\\begin{aligned}P_i^{(r)}&=(1-t)\\,P_i^{(r-1)}\\\\&\\quad+\\,t\\,P_{i+1}^{(r-1)}\\end{aligned}",
             readouts: [
                 {id: "parameter", rows: [
                     {id: "t", name: "parameter", symbol: "t", value: number(t0), tone: "accent"},
@@ -242,9 +258,9 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {
-        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
+        return <>{super.workspaceGraphDisplay()}<ToolSection id="decasteljau-construction-display" title={t("construction")} name={`${t("construction")}: ${t("display")}`}>
             <OnOffSwitch checked={this.state.wholeCurve ? this.state.wholeCurve : false}
-                onChange={checked => this.setState({wholeCurve: checked})} label={t("full_curve")}/></div></>;
+                onChange={checked => this.setState({wholeCurve: checked})} label={t("full_curve")}/></ToolSection></>;
     }
 
     override getGraphCommands(): JSX.Element[] {

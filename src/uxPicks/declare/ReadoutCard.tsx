@@ -22,7 +22,7 @@ function Row(props: {row: ReadoutRow; highlighted: boolean}) {
             {row.symbol && <Tex tex={row.symbol} className="ux-rc-symbol"/>}
         </dt>
         <dd className="ux-rc-value" style={row.tone ? {color: TONE_COLOR[row.tone]} : undefined}>
-            {row.value}{row.unit && <span className="ux-rc-unit">{' '}{row.unit}</span>}
+            {row.valueTex ? <Tex tex={row.valueTex}/> : row.value}{row.unit && <span className="ux-rc-unit">{' '}{row.unit}</span>}
         </dd>
     </div>;
 }

@@ -10,6 +10,8 @@ export interface FitInput {
     must: readonly Point[];
     /** Points that should be visible when possible. */
     nice?: readonly Point[];
+    /** Points the parameters may reach nearby (predicted); tried first, dropped before `nice`. */
+    reach?: readonly Point[];
     canvas: {width: number; height: number};
     obstacles: readonly Rect[];
     /** The graph's default view, [left, top, right, bottom] in user units, y up. */
@@ -23,7 +25,7 @@ export interface FitInput {
 
 export interface FitResult {
     box: FitBox;
-    tier: 'all' | 'must' | 'none';
+    tier: 'reach' | 'all' | 'must' | 'none';
     /** Must points still inside an obstacle or outside the canvas. */
     covered: Point[];
     /** Scale relative to base (1 = base scale, 0.5 = zoomed out twofold). */
@@ -221,6 +223,10 @@ export function fitView(input: FitInput): FitResult {
     if (mustHull.length === 0) return finish(1, [0, 0], 'all');
     const allHull = input.nice?.length ? convexHull([...input.must, ...input.nice]) : mustHull;
 
+    if (input.reach?.length) {
+        const r = attempt(convexHull([...input.must, ...(input.nice ?? []), ...input.reach]));
+        if (r) return finish(r.f, r.d, 'reach');
+    }
     if (input.nice?.length) {
         const r = attempt(allHull);
         if (r) return finish(r.f, r.d, 'all');

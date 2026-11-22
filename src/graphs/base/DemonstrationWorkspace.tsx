@@ -6,6 +6,7 @@ import {PresetLockContext, type UserActionMode, type UserActionPolicy} from "../
 import {JGBox} from "../../JGBox";
 import {UxBoardFrame} from "../../uxPicks/BoardLayer";
 import {useGraphUxPublisher} from "../../uxPicks/declare/graphUxStore";
+import {useViewFit} from "../../uxPicks/declare/useViewFit";
 import type {GraphUx} from "../../uxPicks/declare/graphUx";
 import {usePick} from "../../uxPicks/picks";
 import "../../uxPicks/dockTools/dockTools.css";
@@ -205,6 +206,7 @@ export function DemonstrationWorkspace(props: {
     useLayoutEffect(() => { userActionModeRef.current = userActionMode; }, [userActionMode]);
     const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
     useGraphUxPublisher(props.ux);
+    useViewFit();
     const bindUserActions = props.bindUserActions;
     useLayoutEffect(() => bindUserActions?.(() => userActionModeRef.current), [bindUserActions]);
     // Every commit: with pick toolsCard the tools mount a little later (when the dock is ready) and again after a move.

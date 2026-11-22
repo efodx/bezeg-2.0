@@ -17,8 +17,11 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RevealButton} from "../../inputs/RevealButton";
+import {ToolSection} from "../../inputs/ToolSection";
 import {pickOn} from "../../uxPicks/picks";
-import type {GraphUx} from "../../uxPicks/declare/graphUx";
+import type {FocusDecl, GraphUx} from "../../uxPicks/declare/graphUx";
+import type {FocusShape} from "../../uxPicks/declare/focusShapes";
+import {schoolFunctionModel} from "../../analysis/schoolFunctions";
 
 /** Board captions move into the cards while pick `boardText` is on (the graph decides). */
 const boardTextOnBoard = (): boolean => !pickOn("boardText");
@@ -32,6 +35,11 @@ const FIELD_STEP = 0.1;
 /** The base shapes as they are written in the selector. */
 const PRETTY_BASE: Readonly<Record<TransformBaseId, string>> = {
     square: "x²", cube: "x³", sqrt: "√x", reciprocal: "1/x", abs: "|x|", exp: "eˣ", ln: "ln x",
+};
+
+/** The base shapes as TeX, for the readout card. */
+const BASE_TEX: Readonly<Record<TransformBaseId, string>> = {
+    square: "x^{2}", cube: "x^{3}", sqrt: "\\sqrt{x}", reciprocal: "\\frac{1}{x}", abs: "|x|", exp: "e^{x}", ln: "\\ln x",
 };
 
 /** Dash style (JSXGraph numbering) of the ghost: the base graph is dashed, so it differs from the transformed graph by pattern and not only by colour. */
@@ -226,23 +234,22 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         const state = this.model;
         const hint = (min: number, max: number) => ({value0: formatNumber(min, currentLanguage()), value1: formatNumber(max, currentLanguage())});
         return <>
-            <div className="inspector-group">
+            <ToolSection id="function-transformation-parameters" pickTitle={t("function_transformation_parameters_title")} help={t("function_transformation_order_help")}>
                 {TRANSLATIONS_FIRST.map(field => {
                     const [min, max] = TRANSFORM_BOUNDS[field];
-                    return <Slider key={field} customText={t(LABEL_KEYS[field])} value={state[field]} min={min} max={max} step={FIELD_STEP} decimals={PRECISE}
+                    return <Slider key={field} paramKey={`transform.${field}`} customText={t(LABEL_KEYS[field])} value={state[field]} min={min} max={max} step={FIELD_STEP} decimals={PRECISE}
                                         rejectedHint={field === "b" ? t("function_transformation_b_hint", hint(min, max)) : t("function_transformation_range_hint", hint(min, max))}
                                         onChange={next => this.ignoreOutOfDomain(() => this.setParameter(field, next))}/>;
                 })}
-                <Slider customText={t("function_transformation_u_label")} value={state.u} min={TRANSFORM_U_MIN} max={TRANSFORM_U_MAX} step={TRANSFORM_U_STEP}
+                <Slider paramKey="transform.u" customText={t("function_transformation_u_label")} value={state.u} min={TRANSFORM_U_MIN} max={TRANSFORM_U_MAX} step={TRANSFORM_U_STEP}
                              decimals={PRECISE} rejectedHint={t("function_transformation_range_hint", hint(TRANSFORM_U_MIN, TRANSFORM_U_MAX))}
                              onChange={next => this.ignoreOutOfDomain(() => this.setU(next))}/>
-                <p className="inspector-help">{t("function_transformation_order_help")}</p>
-            </div>
-            <div className="inspector-group">
+            </ToolSection>
+            <ToolSection id="function-transformation-base" pickTitle={t("function_transformation_base_label")}>
                 <ChoiceSelect label={t("function_transformation_base_label")} value={state.base} help={t("function_transformation_base_help")}
                               options={TRANSFORM_BASE_IDS.map(id => ({value: id, text: `f(x) = ${PRETTY_BASE[id]}`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
-            </div>
+            </ToolSection>
             <div className="convexity-actions" role="group" aria-label={t("function_transformation_actions_label")}>
                 <RevealButton action="toggle-ghost" revealed={state.ghostVisible} showLabel={t("function_transformation_ghost_show")} hideLabel={t("function_transformation_ghost_hide")}
                               onToggle={() => this.setGhostVisible(!this.model.ghostVisible)}/>
@@ -266,11 +273,19 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         const point = trackedPointOf(model);
         const undefinedText = t("function_transformation_point_undefined");
         return {
+            pucks: [
+                {param: "transform.c", help: t("function_transformation_order_help")},
+                {param: "transform.d", help: t("function_transformation_order_help")},
+                {param: "transform.a", help: t("function_transformation_order_help")},
+                {param: "transform.b", help: t("function_transformation_order_help")},
+                {param: "transform.u", help: t("function_transformation_note")},
+            ],
+            focus: this.focusDecl(),
             // TeX: the decimal comma of the rule text must not get a space after it.
             formula: transformRuleText(model, currentLanguage()).replace(/,/g, "{,}"),
             readouts: [
                 {id: "rule", title: t("function_transformation_readout_rule"), rows: [
-                    {id: "base", name: t("function_transformation_base_label"), value: PRETTY_BASE[model.base], tone: "muted"},
+                    {id: "base", name: t("function_transformation_base_label").replace(/\s+f$/, ""), symbol: "f(x)", value: PRETTY_BASE[model.base], valueTex: BASE_TEX[model.base], tone: "muted"},
                 ]},
                 {id: "point", title: t("function_transformation_legend_point"), rows: [
                     {id: "u", name: t("function_transformation_u_label"), value: this.number(model.u)},
@@ -285,6 +300,35 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
                 {id: "point", label: t("function_transformation_legend_point"), kind: "point", color: GraphPalette.constructionAccent},
             ],
             sections: [{id: "steps", title: t("function_transformation_steps_title"), body: this.stepsList(model)}],
+        };
+    }
+
+    /**
+     * What the view keeps in view: the anchor (c, d) (image of the origin of the base shape), the traced point (u, f(u)) and its
+     * image (must); the transformed curve around the anchor, y clamped to the default view (nice). A pure function of a, b, c, d, u.
+     */
+    private focusDecl(): FocusDecl {
+        const [, top, , bottom] = this.defaultBoundingBox();
+        const clamp = (y: number) => Math.min(top, Math.max(bottom, y));
+        return {
+            at: values => {
+                const m = this.model;
+                const model = {
+                    ...m, a: values["transform.a"] ?? m.a, b: values["transform.b"] ?? m.b, c: values["transform.c"] ?? m.c,
+                    d: values["transform.d"] ?? m.d, u: values["transform.u"] ?? m.u,
+                };
+                const tracked = trackedPointOf(model);
+                const value = schoolFunctionModel(transformedFunctionOf(model)).value;
+                const half = Math.min(6, 3 / Math.max(Math.abs(model.b), 0.5));
+                const from = Math.min(model.c, tracked?.image.x ?? model.c) - half, to = Math.max(model.c, tracked?.image.x ?? model.c) + half;
+                const must: FocusShape[] = [{kind: "point", at: [model.c, model.d]}];
+                if (tracked) must.push({kind: "point", at: [tracked.base.x, tracked.base.y]}, {kind: "point", at: [tracked.image.x, tracked.image.y]});
+                return {
+                    must,
+                    nice: [{kind: "curve", f: x => { const y = value(x); return y === undefined ? NaN : clamp(y); }, from, to}],
+                };
+            },
+            limits: {maxOut: 1.6, maxIn: 1.6},
         };
     }
 
@@ -307,9 +351,9 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("function_transformation_note")}/>
             
-            <div className="inspector-group"><h3>{t("function_transformation_steps_title")}</h3>
+            <ToolSection id="function-transformation-steps" title={t("function_transformation_steps_title")}>
                 {this.stepsList(model)}
-            </div>
+            </ToolSection>
         </>;
     }
 }

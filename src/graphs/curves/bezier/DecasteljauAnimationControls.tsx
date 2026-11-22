@@ -48,7 +48,7 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
                          onPlayPause={playing ? props.onPause : props.onPlay} onReset={props.onStop}
                          companion={{label: t("animation_parameter"), children:
                              <div className="decasteljau-animation-slider">
-                                 <Slider customText={t("animation_parameter")} min={0} max={1} value={props.parameter}
+                                 <Slider paramKey="decasteljau.t" customText={t("animation_parameter")} min={0} max={1} value={props.parameter}
                                          onChange={props.onParameterChange}/>
                              </div>}}/>
         <div className="decasteljau-animation-slider">

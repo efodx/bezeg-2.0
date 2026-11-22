@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {accompanyingText, getParam, listParams, splitLabel, type ParamEntry} from '../a1/paramRegistry';
+import {declaredPuckHelp} from '../declare/graphUxStore';
+import {getParam, listParams, splitLabel, type ParamEntry} from '../a1/paramRegistry';
 import {captureGhost, findBoard, type Ghost} from '../a19/ghost';
 import {analyse, type Fan} from './fan';
 import {trackFraction, valueAt} from './track';
@@ -113,7 +114,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             setGhost(undefined); setShown(undefined);
             const cached = cache.get(entry.key);
             const fresh = cached && cached.sig === stateSignature();
-            setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh, name: entry.label, about: accompanyingText(entry.key), how: howTo(entry),
+            setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh, name: entry.label, about: declaredPuckHelp(entry.key) ? [declaredPuckHelp(entry.key)!] : [], how: howTo(entry),
                 sentence: fresh ? (cached.fan ? cached.fan.sentence : noFanHint(entry)) : undefined});
             schedule({kind: 'overview', key: entry.key});
         };

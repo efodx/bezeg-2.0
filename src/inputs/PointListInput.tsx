@@ -3,6 +3,7 @@ import {currentLanguage, useT} from "../localization";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
 import {UnavailableButton} from "./UnavailableButton";
+import {ToolSection} from "./ToolSection";
 import "./PointListInput.css";
 
 /**
@@ -116,8 +117,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
     const requestRemoveFocus = useRemoveFocus(root, ".point-list-remove", () => root.current?.parentElement?.querySelector<HTMLElement>(".point-collection button, .point-collection input"));
     const atMinimum = props.minCount !== undefined && points.length <= props.minCount;
     const removeReason = atMinimum ? t("count_at_minimum", {value0: formatNumber(props.minCount ?? 0, currentLanguage(), 0)}) : undefined;
-    return <fieldset className="point-list" ref={root} aria-describedby={props.describedBy}>
-        <legend>{props.title}</legend>
+    return <ToolSection id={`point-list-${props.title}`} title={props.title} element="fieldset" className="point-list" headingElement="legend" rootRef={root as React.Ref<HTMLElement>} rootProps={{"aria-describedby": props.describedBy}}>
         {/* The body measures the room for the rows (a container query); a fieldset cannot. */}
         <div className="point-list-body"><div className="point-list-rows" data-axes={axes.length} data-remove={props.onRemove ? "" : undefined}>
         {/* The axis letters once, above their columns; every field still carries its own name ("<point>, <axis>"). */}
@@ -150,7 +150,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
         {props.onRemove && <div role="status" aria-live="polite">
             {blocked && removeReason && <p key={blocked.count} className="point-list-reason" data-point-reason>{removeReason}</p>}
         </div>}
-    </fieldset>;
+    </ToolSection>;
 }
 
 export default PointListInput;

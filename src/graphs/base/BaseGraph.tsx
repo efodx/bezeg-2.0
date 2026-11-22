@@ -6,7 +6,8 @@ import React from 'react';
 
 
 import {AxisAttributes, Board} from "jsxgraph";
-import {fitBoundingBox} from "./fitBoundingBox";
+import {fitBoundingBox, FitBox} from "./fitBoundingBox";
+import {noteNavigation, notifyLessonAction, notifyViewIntent, registerViewPort, runFitHandler} from "../../uxPicks/declare/viewPort";
 import {Commands} from "./Commands";
 import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
 import type {PresetCollection} from "./presets/PresetCollection";
@@ -17,6 +18,7 @@ import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
 import {SizeRange} from "./SizeRange";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
+import {ToolSection} from "../../inputs/ToolSection";
 import {ReplacementRevision} from "../../inputs/replacementRevision";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
 import {LessonAction, LessonCurveFixture, LessonGraphCapabilities, LessonPatchFixture, LessonSceneCheckpoint, LessonView3D, LessonViewBox, UnsupportedLessonActionError} from '../../learning/model';
@@ -442,7 +444,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         }
         this.requestRender();
         // A new board starts at the default view; a stored preset's own view is applied after the scene.
-        if (this.hasBoard) this.board.setBoundingBox(this.startingBox(this.board.container), this.equalAxisUnits);
+        if (this.hasBoard) this.setIntentBox(this.startingBox(this.board.container));
         // No stored Preset (Reset, a deleted selection): the default scene, which follows the chosen example. A stored
         // Preset that omits its data starts from `persistedDefaultData()` instead (see `importFigurePresetData`).
         return this.applyFigurePreset(session, stored ?? {id: "", data: cloneLessonValue(this.defaultPreset())}, session.signal)
@@ -546,18 +548,18 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
                 <SizeRange size={this.displaySettings.getSize()} onChange={size => this.setElementSize(size)}/></InspectorDisclosure></>;
     }
     protected workspaceSave(): React.ReactNode {
-        return <><div className="inspector-group"><h3>{t("presets_in_this_browser")}</h3>
+        return <><ToolSection id="presets" title={t("presets_in_this_browser")}>
             {this.presetService && <PresetSelector presetService={this.presetService}
                 selectedPresetId={this.selectedPresetId} presetListVersion={this.presetListVersion} notice={this.presetNoticeValue}
                 onSelect={id => { void this.selectPreset(id); }} onReset={() => { void this.reset(); }}
                 onSave={name => this.saveCurrentPreset(name)} onDelete={id => { void this.deletePreset(id); }} onRename={(id, name) => this.renamePreset(id, name)}
-                onImported={() => { void this.reloadAfterImport(); }}/>}</div>
-            <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage showLabel={false} presetId={this.selectedPresetId} saveAsSVG={name => this.saveAsSVG(name)}
+                onImported={() => { void this.reloadAfterImport(); }}/>}</ToolSection>
+            <ToolSection id="export-figure" title={t("export_figure")}><SaveImage showLabel={false} presetId={this.selectedPresetId} saveAsSVG={name => this.saveAsSVG(name)}
                 saveAsPNG={name => this.saveAsPNG2(name)}/>
                 {this.presetService && <PresetFigureBatchDialog presetService={this.presetService} onConfirm={selectedIds => {
                     const selected = this.presetService?.loadPresets().data.filter(preset => selectedIds.includes(preset.id)) ?? [];
                     return this.exportPresetFigures(selected);
-                }}/>}</div></>;
+                }}/>}</ToolSection></>;
     }
 
     /** Exposes graph-owned behavior without leaking boards, controls, or Preset DTOs. */
@@ -646,6 +648,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     protected applyLessonAction(action: LessonAction): void {
         try {
             this.lessonActions.apply(action);
+            notifyLessonAction();
         } finally {
             // Handlers change adapters and boards outside the scene store; controls read those values live.
             this.store.notify();
@@ -830,7 +833,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         this.runLessonReplacement({
             dispose: state.data !== undefined && this.disposesBeforeNonFigureImport(),
             importData: () => { if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data) as D); },
-            afterImport: () => { if (this.hasBoard && state.boardState) this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits); },
+            afterImport: () => { if (this.hasBoard && state.boardState) this.setIntentBox(state.boardState.boundingBox); },
             // Replaced, not merged: optional keys set after the checkpoint was captured must not survive the restore.
             state: () => ({...this.getInitialState(), ...cloneLessonValue(state.graphState) as S, initialized: true}),
             afterState: () => {
@@ -861,7 +864,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const [left, top, right, bottom] = view;
         const {width, height} = JXG.getDimensions(this.board.container, document);
         const box = this.equalAxisUnits ? fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height))) : undefined;
-        this.board.setBoundingBox(box ?? [...view], this.equalAxisUnits);
+        this.setIntentBox(box ?? [...view]);
     }
 
     /**
@@ -885,7 +888,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     private navigateBoard(action: string) {
         if (!this.hasBoard) return;
-        if (action === 'fit') { this.fitToVisiblePoints(); return; }
+        if (action === 'fit') { if (!runFitHandler()) this.fitToVisiblePoints(); return; }
+        noteNavigation();
         if (action === "in") { this.board.zoomIn(); return; }
         if (action === "out") { this.board.zoomOut(); return; }
         const [left, top, right, bottom] = this.board.getBoundingBox();
@@ -972,6 +976,32 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         if (!this.equalAxisUnits) this.board.setBoundingBox(this.startingBox(container), false);
         // Tick labels use the language's decimal separator and are rebuilt only by a full update.
         session.registerCleanup(onLanguageChange(() => this.board?.fullUpdate()));
+        this.viewIntentBox = undefined;
+        this.fittedBox = undefined;
+        const board = this.board;
+        registerViewPort({
+            container, board, equalAxisUnits: this.equalAxisUnits,
+            intent: () => this.viewIntentBox, current: () => board.getBoundingBox() as FitBox,
+            apply: box => {
+                board.setBoundingBox([...box], this.equalAxisUnits);
+                // JSXGraph widens the box to the canvas aspect; remember what the board really shows.
+                this.fittedBox = board.getBoundingBox() as FitBox;
+            },
+        });
+        session.registerCleanup(() => registerViewPort(undefined));
+    }
+
+    /** The box the graph itself chose for its view (start, lesson frame, preset); a fitted view is never stored here (see `useViewFit`). */
+    private viewIntentBox: FitBox | undefined;
+    /** The box the view fit last applied, while the board still shows it. */
+    private fittedBox: FitBox | undefined;
+
+    /** Sets a view of the graph's own choosing: the board shows it and it becomes the view intent the fit starts from. */
+    protected setIntentBox(box: readonly [number, number, number, number]): void {
+        this.board.setBoundingBox([...box], this.equalAxisUnits);
+        this.viewIntentBox = this.board.getBoundingBox() as FitBox;
+        this.fittedBox = undefined;
+        notifyViewIntent();
     }
 
     /**
@@ -1139,7 +1169,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     /** Shows the view a persisted Preset without `boardState` starts from: the graph's initial view, as a new board has it. */
     protected showInitialView(): void {
-        this.board.setBoundingBox(this.startingBox(this.board.container), this.equalAxisUnits);
+        this.setIntentBox(this.startingBox(this.board.container));
     }
 
     /**
@@ -1153,7 +1183,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     /** The visible box of the board; undefined when the main view is not a board. */
     boardState(): BoardState | undefined {
         if (!this.hasBoard) return undefined;
-        return {boundingBox: this.board.getBoundingBox()};
+        const shown = this.board.getBoundingBox();
+        // A view the fit applied is not stored (a lesson or preset keeps the intent, so refitting never compounds): unless
+        // the learner moved the view since, the intent stands in for it.
+        const fitted = this.fittedBox;
+        if (fitted && this.viewIntentBox && fitted.every((v, i) => Math.abs(v - shown[i]) < 1e-9 * (1 + Math.abs(v)))) return {boundingBox: [...this.viewIntentBox]};
+        return {boundingBox: shown};
     }
 
     exportPresetData(): D | undefined {
@@ -1315,7 +1350,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
                     initialize: true,
                     finish: () => {
                         const boardState = (checked ?? preset).boardState;
-                        if (boardState && this.hasBoard) this.board.setBoundingBox(boardState.boundingBox, this.equalAxisUnits);
+                        if (boardState && this.hasBoard) this.setIntentBox(boardState.boundingBox);
                         this.boardUpdate();
                         session.requestFullUpdate();
                     },
@@ -1353,7 +1388,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     private importBoardState(boardState: BoardState) {
         if (!this.hasBoard) return;
-        this.board.setBoundingBox(boardState.boundingBox, this.equalAxisUnits);
+        this.setIntentBox(boardState.boundingBox);
         this.board.fullUpdate();
     }
 
