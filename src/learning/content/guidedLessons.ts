@@ -11,6 +11,7 @@
  */
 
 import type {DemonstrationId} from '../../demonstrations';
+import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {LessonAction, LessonAnimation, LessonCurveFixture, LessonFrameKind, LessonLanguage, LessonPatchFixture, LessonView3D, LessonViewBox, LocalizedText} from '../model';
 export type {LocalizedText} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
@@ -85,6 +86,7 @@ export type GuidedLessonFrame = Readonly<{
     id: string;
     kind: GuidedLessonFrameKind;
     formulaIds?: readonly string[];
+    readonly declare?: FrameDeclaration;
 }>;
 
 export type GuidedLessonAnimation = LessonAnimation;

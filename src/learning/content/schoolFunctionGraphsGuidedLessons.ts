@@ -8,32 +8,10 @@
  * `inverse-curve`). Every scene sets every value it states, so it does not depend on the scene before it.
  */
 import type {LessonAction} from '../model';
-import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
+import type {GuidedLesson, LessonScene, LocalizedText} from './guidedLessons';
+import {guidedStep as step} from './guidedStep';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
-
-interface StepContent {
-    readonly id: string;
-    readonly order: number;
-    readonly title: LocalizedText;
-    readonly purpose: LocalizedText;
-    readonly explanation: LocalizedText;
-    readonly formulaIds: readonly string[];
-    readonly workedExampleId?: string;
-    readonly observationPrompt: LocalizedText;
-    readonly expectedObservations: readonly LocalizedText[];
-    readonly scene: LessonScene;
-}
-
-const step = (content: StepContent): GuidedLessonStep => ({
-    ...content,
-    frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
-    ],
-});
 
 // ---------------------------------------------------------------------------------------------------------------- S1
 

@@ -11,33 +11,11 @@
  * before the learner makes it. Numbers per step: docs/reviews/feature-streams/families-prep/notes/pp-a-s2.md. PP3 (linearization) belongs to batch B.
  */
 import type {LessonAction} from '../model';
-import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import type {FormulaBlock, GuidedLesson, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import {guidedStep as step} from './guidedStep';
 
 /** The lesson text is written once with decimal commas in math (`{,}`); the English text gets decimal points. */
 const text = (sl: string, en: string): LocalizedText => ({sl, en: en.replace(/\{,\}/g, '.')});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
-
-interface StepContent {
-    readonly id: string;
-    readonly order: number;
-    readonly title: LocalizedText;
-    readonly purpose: LocalizedText;
-    readonly explanation: LocalizedText;
-    readonly formulaIds: readonly string[];
-    readonly workedExampleId?: string;
-    readonly observationPrompt: LocalizedText;
-    readonly expectedObservations: readonly LocalizedText[];
-    readonly scene: LessonScene;
-}
-
-const step = (content: StepContent): GuidedLessonStep => ({
-    ...content,
-    frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
-    ],
-});
 
 /** What a logistic-map scene sets on top of the Demonstration default: the stored integers `R` (r times 100), `X` (x0 times 100) and the number of drawn cobweb steps. */
 export interface PhaseSceneSpec {
