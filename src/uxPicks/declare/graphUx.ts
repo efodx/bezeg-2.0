@@ -32,10 +32,11 @@ export interface ReadoutRow {
     readonly unit?: string;
     /** TeX shown instead of `value` (which stays the plain-text form), for values that are formulas, e.g. `x^{2}`. */
     readonly valueTex?: string;
+    /** Id of a `legend` entry this row's value belongs to: the row shows that entry's swatch and the legend card drops the entry. */
+    readonly legend?: string;
     /**
-     * Colour role of the value, named after the curve it belongs to: `primary` the graph's main curve, `comparison` the
-     * second curve, `error` the error or warning colour, `accent` the construction accent, `muted` a quieter value.
-     * (Refined 2026-11-22: `primary` and `comparison` added, see NOTES.)
+     * Quiet role of the value: only `muted` changes anything (muted text). A tone colours nothing; the colour of a row
+     * comes from the legend entry it links with `legend`.
      */
     readonly tone?: 'primary' | 'comparison' | 'error' | 'accent' | 'muted';
 }

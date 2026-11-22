@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {DockCard} from '../dock/DockCard';
 import {useFrameUx, useGraphUx} from '../declare/graphUxStore';
-import {LegendBody, ReadoutBody} from '../declare/ReadoutCard';
+import {LegendBody, linkedLegendIds, ReadoutBody} from '../declare/ReadoutCard';
 import type {CardRef} from '../declare/graphUx';
 import {setAutoOpen} from './autoOpenStore';
 import './BoardTextCard.css';
@@ -24,14 +24,16 @@ export function BoardCards(_props: {frame?: React.RefObject<HTMLDivElement | nul
         return () => setAutoOpen(new Set());
     }, [open]);
     if (!ux) return null;
+    const linked = linkedLegendIds(ux);
+    const legend = (ux.legend ?? []).filter(e => !linked.has(e.id));
     const hasReadouts = (ux.readouts?.length ?? 0) > 0 || (ux.notes?.length ?? 0) > 0;
     const hasReadoutCard = hasReadouts || !!ux.formula;
     return <>
         {hasReadoutCard && <DockCard kind="readout" title={hasReadouts ? 'Odčitki' : 'Formula'} what={hasReadouts ? 'odčitke' : 'formulo'} region="tr" order={1} foldWhenNarrow foldInLesson>
             {isOpen => isOpen && <ReadoutBody ux={ux} highlight={frame?.highlight ?? []}/>}
         </DockCard>}
-        {(ux.legend?.length ?? 0) > 0 && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow foldInLesson>
-            {isOpen => isOpen && <LegendBody entries={ux.legend!}/>}
+        {legend.length > 0 && <DockCard kind="legend" title="Legenda" what="legendo" region="br" order={1} foldWhenNarrow foldInLesson>
+            {isOpen => isOpen && <LegendBody entries={legend}/>}
         </DockCard>}
         {(ux.sections ?? []).map((s, i) => <DockCard key={s.id} kind={`section-${s.id}`} title={s.title} what={s.title.toLowerCase()} region="ml" order={i} foldWhenNarrow foldInLesson>
             {isOpen => isOpen && <div className="ux-rc-section">{s.body}</div>}

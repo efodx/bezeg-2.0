@@ -897,7 +897,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         if (!refusal) {
             const nearest = status.query.nearest;
             readouts.push({id: "query", title: t("vor_query_group"), rows: [
-                {id: "query-point", name: "točka", symbol: "q", value: pair(status.query.x, status.query.y), tone: "accent"},
+                {id: "query-point", name: "točka", symbol: "q", value: pair(status.query.x, status.query.y), tone: "accent", legend: "query"},
                 {id: "nearest", name: "najbližje mesto", value: siteList(nearest), tone: "error"},
             ]});
         }

@@ -5,25 +5,54 @@ import type {GraphUx, LegendEntry, ReadoutRow} from './graphUx';
 import {Tex} from './Tex';
 import './declare.css';
 
-/** The colour of a row's value for each tone: the same colours the graph draws its curves in. */
-const TONE_COLOR: Record<NonNullable<ReadoutRow['tone']>, string> = {
-    primary: GraphPalette.primaryCurve,
-    comparison: GraphPalette.comparisonCurve,
-    error: GraphPalette.warningText,
-    accent: GraphPalette.constructionAccent,
-    muted: '#526152',
-};
+/** The 10 px sample of a legend entry shown before the name of a row that links it: same kind and colour as in the legend. */
+function EntryMark(props: {entry: LegendEntry}) {
+    const {kind, color} = props.entry;
+    const style: React.CSSProperties = kind === 'line' ? {borderTop: `2.5px solid ${color}`}
+        : kind === 'dashed' ? {borderTop: `2.5px dashed ${color}`}
+        : kind === 'area' ? {background: color, opacity: 0.45, borderRadius: 2}
+        : {background: color, borderRadius: '50%'};
+    return <span className={`ux-rc-mark ux-rc-mark-${kind}`} style={style} aria-hidden="true"/>;
+}
 
-function Row(props: {row: ReadoutRow; highlighted: boolean}) {
+function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry; reserveMark: boolean}) {
     const {row} = props;
-    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined}>
+    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone}>
         <dt className="ux-rc-name">
-            {row.name && <span>{row.name}</span>}
-            {row.symbol && <Tex tex={row.symbol} className="ux-rc-symbol"/>}
+            {props.entry ? <EntryMark entry={props.entry}/> : props.reserveMark && <span className="ux-rc-mark ux-rc-mark-none" aria-hidden="true"/>}
+            <span className="ux-rc-label">
+                {row.name && <span>{row.name}</span>}{row.name && row.symbol && ' '}
+                {row.symbol && <Tex tex={row.symbol} className="ux-rc-symbol"/>}
+            </span>
         </dt>
-        <dd className="ux-rc-value" style={row.tone ? {color: TONE_COLOR[row.tone]} : undefined}>
-            {row.valueTex ? <Tex tex={row.valueTex}/> : row.value}{row.unit && <span className="ux-rc-unit">{' '}{row.unit}</span>}
+        <dd className="ux-rc-value">
+            {row.valueTex ? <Tex tex={row.valueTex}/> : row.value}{row.unit && <span className="ux-rc-unit">{' '}{row.unit}</span>}
         </dd>
+    </div>;
+}
+
+/** The legend entries a visible readout row links: the legend card leaves these out, the rows draw their swatch. */
+export function linkedLegendIds(ux: GraphUx): Set<string> {
+    const ids = new Set<string>();
+    for (const group of ux.readouts ?? []) for (const row of group.rows) if (row.legend) ids.add(row.legend);
+    return ids;
+}
+
+const MORE_KEY = 'bezeg.ux.readoutMore';
+
+/** The notes: the first one always, the rest behind a quiet "Več" that is remembered for the card. */
+function Notes(props: {notes: NonNullable<GraphUx['notes']>}) {
+    const [first, ...rest] = props.notes;
+    const [more, setMore] = useState(() => { try { return localStorage.getItem(MORE_KEY) === '1'; } catch { return false; } });
+    const toggle = () => setMore(m => {
+        try { localStorage.setItem(MORE_KEY, m ? '0' : '1'); } catch { /* storage unavailable: stays per visit */ }
+        return !m;
+    });
+    const note = (n: typeof first) => <p key={n.id} data-note={n.id} className={n.tone === 'warning' ? 'is-warning' : undefined}>{n.text}</p>;
+    return <div className="ux-rc-notes">
+        {note(first)}
+        {rest.length > 0 && <button type="button" className="ux-rc-more" aria-expanded={more} onClick={toggle}>{more ? 'Manj' : `Več (${rest.length})`}</button>}
+        {more && rest.map(note)}
     </div>;
 }
 
@@ -31,17 +60,16 @@ function Row(props: {row: ReadoutRow; highlighted: boolean}) {
 export function ReadoutBody(props: {ux: GraphUx; highlight: readonly string[]}) {
     const {ux} = props;
     const [help, setHelp] = useState(false);
+    const entries = new Map((ux.legend ?? []).map(e => [e.id, e] as const));
     return <div className="ux-rc">
         {ux.formula && <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>}
         {(ux.readouts ?? []).map(group => <section key={group.id} className="ux-rc-group" data-group={group.id}>
             {group.title && <h4 className="ux-rc-title">{group.title}</h4>}
             <dl className="ux-rc-grid">
-                {group.rows.map(row => <Row key={row.id} row={row} highlighted={props.highlight.includes(row.id)}/>)}
+                {group.rows.map(row => <Row key={row.id} row={row} highlighted={props.highlight.includes(row.id)} entry={row.legend ? entries.get(row.legend) : undefined} reserveMark={group.rows.some(r => r.legend && entries.has(r.legend))}/>)}
             </dl>
         </section>)}
-        {(ux.notes?.length ?? 0) > 0 && <div className="ux-rc-notes">
-            {ux.notes!.map(note => <p key={note.id} data-note={note.id} className={note.tone === 'warning' ? 'is-warning' : undefined}>{note.text}</p>)}
-        </div>}
+        {(ux.notes?.length ?? 0) > 0 && <Notes notes={ux.notes!}/>}
         {ux.readoutHelp && <div className="ux-rc-helpbar">
             <button type="button" className="ux-sec-help" aria-expanded={help} aria-label="Pomoč: odčitki" title="Pomoč: odčitki" onClick={() => setHelp(o => !o)}><HelpIcon/></button>
         </div>}

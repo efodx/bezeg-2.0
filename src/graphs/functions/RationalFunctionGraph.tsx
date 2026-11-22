@@ -529,6 +529,8 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             : asymptote.kind === "horizontal" ? asymptoteEquationText(0, asymptote.y, language) : undefined;
         const kRange = {value0: formatNumber(POLY_BOUNDS.k[0], language), value1: formatNumber(POLY_BOUNDS.k[1], language)};
         const remainder = facts.probe.remainderTerm;
+        // TeX of the same text: the minus sign and decimal comma in math form ("−0,5" becomes "-0{,}5").
+        const texOf = (text: string) => text.split(MINUS_SIGN).join("-").split(",").join("{,}");
         const note = (id: string, label: string, text: string) => ({id, text: `${label}: ${text}`});
         return {
             pucks: [
@@ -537,18 +539,20 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             ],
             readouts: [
                 {id: "zeros-holes", rows: [
-                    {id: "zeros", name: t("rational_function_readout_zeros"), value: this.zerosText(facts), tone: "accent"},
+                    {id: "zeros", name: t("rational_function_readout_zeros"), value: this.zerosText(facts), tone: "accent", legend: "numerator-zero",
+                        ...(facts.zeros.length > 0 && facts.zeros.every(zero => zero.m === 1)
+                            ? {valueTex: facts.zeros.map(zero => `x = ${texOf(this.position(zero.z))}`).join(",\\; ")} : {})},
                     {id: "holes", name: t("rational_function_readout_holes"), value: analysis.holes.length === 0 ? t("rational_function_holes_none")
-                        : analysis.holes.map(hole => t("rational_function_board_point", {value0: this.position(hole.x), value1: this.number(hole.y)})).join(", "), tone: "primary"},
+                        : analysis.holes.map(hole => t("rational_function_board_point", {value0: this.position(hole.x), value1: this.number(hole.y)})).join(", "), tone: "primary", legend: "hole"},
                 ]},
                 {id: "poles", rows: facts.poles.length === 0
                     ? [{id: "poles", name: t("rational_function_readout_poles"), value: t("rational_function_poles_none"), tone: "comparison"}]
                     : facts.poles.map((pole, index) => ({
                         id: `pole-${index}`, name: t("rational_function_readout_pole", {value0: index + 1}),
-                        value: `x = ${this.position(pole.x)}`, tone: "comparison" as const,
+                        value: `x = ${this.position(pole.x)}`, valueTex: `x = ${texOf(this.position(pole.x))}`, tone: "comparison" as const, legend: "denominator-zero",
                     }))},
                 ...(asymptoteValue === undefined ? [] : [{id: "asymptote-group", rows: [
-                    {id: "asymptote", name: t("rational_function_readout_asymptote"), value: asymptoteValue, tone: "comparison" as const},
+                    {id: "asymptote", name: t("rational_function_readout_asymptote"), value: asymptoteValue, valueTex: texOf(asymptoteValue), tone: "comparison" as const, legend: "asymptote"},
                     ...(remainder === undefined ? [] : [{id: "remainder", name: t("rational_function_readout_remainder", {value0: this.number(model.probe)}), value: this.number(remainder), tone: "accent" as const}]),
                 ]}]),
             ],

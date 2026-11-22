@@ -1,31 +1,40 @@
 /* Cards rendered from a graph's declaration (src/uxPicks/declare). Calm, two-column, values right-aligned. */
 .ux-rc { padding: 0 12px 10px; font-variant-numeric: tabular-nums; font-size: 0.875rem; color: var(--bezeg-shell-ink, #2b362d); }
 .ux-rc-formula { font-size: 1.15rem; line-height: 1.35; padding: 2px 0 8px; margin-bottom: 8px; border-bottom: 1px solid var(--bezeg-shell-rule, #e3e7d9); overflow-x: auto; overflow-y: hidden; }
-.ux-rc-group + .ux-rc-group { margin-top: 10px; }
-.ux-rc-title { margin: 0 0 3px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bezeg-shell-ink-secondary, #526152); }
-.ux-rc-grid { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 0; }
+.ux-rc-group + .ux-rc-group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bezeg-shell-rule, #e3e7d9); }
+.ux-rc-title { margin: 0 0 2px; padding: 0 6px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bezeg-shell-ink-secondary, #526152); }
+.ux-rc-grid { margin: 0; display: grid; grid-template-columns: minmax(45%, 1fr) auto; column-gap: 0; }
 .ux-rc-row { display: contents; }
-.ux-rc-row > * { padding: 3px 6px; margin: 0; align-self: baseline; }
-.ux-rc-name { font-weight: 400; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; color: var(--bezeg-shell-ink-secondary, #526152); }
+.ux-rc-row > * { padding: 4px 6px; margin: 0; align-self: baseline; min-height: 1.5rem; box-sizing: border-box; line-height: 1.35; }
+.ux-rc-name { font-weight: 400; display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 0 7px; color: var(--bezeg-shell-ink-secondary, #526152); }
 .ux-rc-symbol { color: var(--bezeg-shell-ink, #2b362d); }
-.ux-rc-row > .ux-rc-value { padding-left: 16px; text-align: right; font-weight: 600; white-space: nowrap; }
+.ux-rc-row > .ux-rc-value { padding-left: 14px; text-align: right; font-weight: 600; text-wrap: balance; color: var(--bezeg-shell-ink, #2b362d); }
+.ux-rc-row[data-tone="muted"] > .ux-rc-value { font-weight: 400; color: var(--bezeg-shell-ink-secondary, #526152); }
 .ux-rc-unit { font-weight: 400; color: var(--bezeg-shell-ink-secondary, #526152); }
-/* A row the lesson frame talks about: a quiet tint and a mark on the left, no motion. */
-.ux-rc-row[data-highlight] > * { background: rgba(88, 116, 69, 0.11); }
-.ux-rc-row[data-highlight] > .ux-rc-name { box-shadow: inset 3px 0 0 #587445; padding-left: 9px; border-radius: 3px 0 0 3px; }
+/* The tone: a 10 px sample of the drawn object before the name, never a colour on the value. */
+.ux-rc-mark { flex: none; display: inline-block; width: 10px; height: 10px; align-self: flex-start; margin-top: calc(0.675em - 5px); box-sizing: border-box; }
+.ux-rc-mark-point { border-radius: 50%; }
+.ux-rc-mark-area { height: 10px; }
+.ux-rc-mark-line, .ux-rc-mark-dashed { height: 0; margin-top: calc(0.675em - 1px); }
+.ux-rc-label { min-width: 0; }
+.ux-rc-value mjx-container { white-space: nowrap; font-size: 92%; }
+/* A row the lesson frame talks about: a tint and a mark on the left, no motion. */
+.ux-rc-row[data-highlight] > * { background: rgba(88, 116, 69, 0.14); }
+.ux-rc-row[data-highlight] > .ux-rc-name { box-shadow: inset 3px 0 0 #587445; padding-left: 9px; border-radius: 3px 0 0 3px; color: var(--bezeg-shell-ink, #2b362d); font-weight: 500; }
 .ux-rc-row[data-highlight] > .ux-rc-value { border-radius: 0 3px 3px 0; }
-.ux-rc-notes { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--bezeg-shell-rule, #e3e7d9); }
-.ux-rc-notes p, .ux-rc-help { margin: 0; font-size: 0.8125rem; line-height: 1.4; color: var(--bezeg-shell-ink-secondary, #526152); }
-.ux-rc-notes p + p { margin-top: 5px; }
-.ux-rc-notes p.is-warning { color: #9c5d48; }
+.ux-rc-notes { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bezeg-shell-rule, #e3e7d9); }
+.ux-rc-notes p, .ux-rc-help { margin: 0; padding: 0 6px; font-size: 0.8125rem; line-height: 1.4; color: var(--bezeg-shell-ink-secondary, #526152); overflow-wrap: anywhere; }
+.ux-rc-notes p + p { margin-top: 6px; }
+.ux-rc-notes p.is-warning { color: #8a4a35; }
+.ux-rc-notes button.ux-rc-more { display: block; margin: 4px 0 4px 6px; min-height: 0; min-width: 0; padding: 0 2px; border: 0; box-shadow: none; background: transparent; font: inherit; font-size: 0.78rem; color: var(--bezeg-shell-ink-secondary, #526152); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.ux-rc-notes button.ux-rc-more:hover { color: var(--bezeg-shell-ink, #2b362d); background: transparent; }
 .ux-rc-helpbar { display: flex; justify-content: flex-end; margin-top: 4px; }
 .ux-rc-helpbar button.ux-sec-help { margin: 0; min-height: 0; min-width: 0; width: 24px; height: 24px; padding: 0; border: 0; box-shadow: none; background: transparent; }
 .ux-rc-helpbar button.ux-sec-help:is(:hover, [aria-expanded="true"]) { background: var(--bezeg-shell-control-hover); }
 @media (pointer: coarse) { .ux-rc-helpbar button.ux-sec-help { width: 44px; height: 44px; } }
 .ux-rc-help { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--bezeg-shell-rule, #e3e7d9); }
 .ux-rc-help p { margin: 0 0 5px; }
-.ux-bcard-readout { max-width: 400px; }
-.ux-bcard-readout .ux-rc { max-height: min(56vh, 460px); overflow: auto; }
+.ux-bcard-readout { max-width: 320px; }
 
 .ux-rc-legend { list-style: none; margin: 0; padding: 0 12px 10px; display: grid; gap: 6px; font-size: 0.8125rem; line-height: 1.3; }
 .ux-rc-legend li { display: flex; align-items: center; gap: 9px; }
