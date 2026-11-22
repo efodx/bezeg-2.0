@@ -21,12 +21,10 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 - Setup: done. Planning files on the branch (`67d7f160`); night tooling copied (`9e1e58ce`, `docs/reviews/ux-picks-app-wide/night-tooling/`, excluded from ESLint).
 - 01c: step 1 (copy) done; slices 1 to 5 not started (after 01 and 01b, as the README orders).
-- 01: implemented and reviewed on the work branch, head `2ab68635` (pushed); NOT yet on master.
-  - Code: `src/graphs/base/writes/` (`writeSource.ts` ambient source, learner gesture, scope-end notification; `parameterArbiter.ts` holds, leases, outcomes, untagged check; `learnerInputTagging.ts` window capture listeners). BaseGraph `parameterBindings()`/`parameters`; lesson actions and scenes `lesson`; Preset/Reset/import/figure batch `learner` via `SceneReplacementPlan.source`; a lesson step/frame change ends all leases (as `lesson`); `AnimationDriver.useLease` (chainable). GraphSession `on` defers removal during dispatch, `once()`.
-  - Bound pilots: Taylor, transformations, De Casteljau (+ rational, inherits), phase portrait, linear map. Each has a writes test with a seeded untagged write (observed failures recorded). Test harness `perturbModel` runs as learner.
-  - Checks done: focused unit runs per file; all-graph suites (GraphTransientState*, graphTeardownContract, PresetRoundTrip.contract, controlsSignature) passed at `694a655c` and at `90f5da1b` per worker; tsc and eslint clean. Engineering review (Sonnet): no blocker; two should-fix applied in `2ab68635` (gesture leaks: context menu, Meta key up, focus loss; rebind releases the old arbiter).
-  - NOT done: full `just check` (stopped by Claude Code for low system memory on 2026-11-22 ~14:15; owner asked before restarting), smoke of the five pilot routes plus one lesson, the slice 6 "after" measurement (`measure/RESULTS.md` has the rerun command; needs a build and a preview the handler runs), publish to master.
-  - For the owner (behaviour change list): touching a control of a playing parameter stops (pauses) its playback. De Casteljau already paused on seek and on board press on master; phase portrait and linear map now pause when the learner writes the played value. Play does not start while the learner is holding the played value.
+- 01: accepted 2026-11-22 on the work branch; being published to master with the whole branch so far (planning docs, night tooling, task 01) by `just publish --background --recipe runtime`. If the result line says FAILED, read its log first; on success check `just ci <sha>` once.
+  - Code: `src/graphs/base/writes/` (`writeSource.ts`, `parameterArbiter.ts`, `learnerInputTagging.ts`); BaseGraph `parameterBindings()`/`parameters`; `SceneReplacementPlan.source`; `AnimationDriver.useLease`; GraphSession `on` deferred removal and `once()`. Pilots bound: Taylor, transformations, De Casteljau (+ rational), phase portrait, linear map, each with a writes test (seeded untagged write, observed failure).
+  - Checks: full `just check` (2 failures found and fixed in `6cb52aed`, focused reruns passed); smoke of the five pilots + a Taylor lesson 7/7 (`smoke/`); measurement before/after no regression (`measure/RESULTS.md`); engineering review, should-fix applied (`2ab68635`).
+  - For the owner: touching a control of a playing parameter pauses its playback (De Casteljau already did on master; phase portrait and linear map now do); Play does not start while the learner holds the played value.
 - 01b, 02 to 10: not started.
 
 ## Decisions taken in 01 (handler)
@@ -47,5 +45,5 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 ## Next slice's brief inputs
 
-- When the owner allows heavy runs: `just check` on `board-workspace`; then build, preview (handler), `bezeg-smoke` Sonnet on Taylor, transformations, De Casteljau (play, seek during play), phase portrait (play, slider during play), linear map (iteration play), one Taylor lesson Next/Back; then the measurement rerun; then `just publish --background` of 01 (commits `815e3ac5`..`2ab68635` plus docs), `just publish --wait` in the background.
+- Owner allowed heavy runs (2026-11-22); run them one at a time, never in parallel (memory).
 - After 01 on master: 01b (view adapter), worker table of the 149 `setBoundingBox(` sites first (`docs/reviews/ux-picks-app-wide/view-sites.md`).

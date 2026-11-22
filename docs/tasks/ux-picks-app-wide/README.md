@@ -1,6 +1,6 @@
 # Board workspace (kept UX picks, app-wide): implementation tasks
 
-Source: [board workspace spec](../../specs/ux-picks-app-wide.md) and [parameter writes](../../specs/parameter-writes.md). Decisions: ADRs [0062](../../adr/0062-rebuild-ux-picks-on-master.md), [0063](../../adr/0063-cards-on-the-board.md), [0064](../../adr/0064-source-tagged-scene-writes.md), [0065](../../adr/0065-graphs-declare-presenters-render.md). The owner accepted the spec on 2026-11-22; no task has started.
+Source: [board workspace spec](../../specs/ux-picks-app-wide.md) and [parameter writes](../../specs/parameter-writes.md). Decisions: ADRs [0062](../../adr/0062-rebuild-ux-picks-on-master.md), [0063](../../adr/0063-cards-on-the-board.md), [0064](../../adr/0064-source-tagged-scene-writes.md), [0065](../../adr/0065-graphs-declare-presenters-render.md). The owner accepted the spec on 2026-11-22; work runs on the branch `board-workspace` (see Branches and the task table).
 
 Reference prototype: branch `ux-picks` frozen at `aff6df6c` (R30; prototype code never merged), preview on the tailnet at port 4460. Prototype paths in the task files are read-only references at that commit. Night tooling (probe, fuzzer, guide, briefs) is in `C:/Users/1337Hacker/Desktop/bezeg-ux-picks/night/`.
 
@@ -31,9 +31,9 @@ Tasks 03 to 07 each end with a feel slice ([room to improve](../../specs/ux-pick
 
 | Task | Depends on | Status |
 | --- | --- | --- |
-| [01 Source-tagged parameter writes](01-scene-store-and-fuzzer.md) | — | not started |
+| [01 Source-tagged parameter writes](01-scene-store-and-fuzzer.md) | — | accepted 2026-11-22 (five 2D pilots bound; other graphs bind in 08) |
 | [01b View adapter](01b-view-adapter.md) | 01 | not started |
-| [01c Check tooling in the repository](01c-check-tooling.md) | — (its acceptance run needs 01, 01b) | not started |
+| [01c Check tooling in the repository](01c-check-tooling.md) | — (its acceptance run needs 01, 01b) | step 1 (copy) done |
 | [02 Declaration contract and conversion tooling](02-declaration-contract.md) | 01 | not started |
 | [03 Layout function and board cards](03-layout-and-board-cards.md) | 02 | not started |
 | [04 Tools and lesson cards](04-tools-and-lesson-cards.md) | 03 | not started |
