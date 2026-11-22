@@ -22,7 +22,7 @@ const rawControlSyntax = [
 ];
 
 export default tseslint.config(
-    {ignores: ['build/**', 'node_modules/**', 'test-results/**', 'playwright-report/**', '.claude/**', '.command-logs/**', 'docs/reviews/ux-picks-app-wide/night-tooling/**']},
+    {ignores: ['build/**', 'node_modules/**', 'test-results/**', 'playwright-report/**', '.claude/**', '.command-logs/**', 'docs/reviews/ux-picks-app-wide/**']},
     {linterOptions: {reportUnusedDisableDirectives: 'error'}},
     {
         // Node scripts and Playwright specs; page.evaluate callbacks run in the browser.
