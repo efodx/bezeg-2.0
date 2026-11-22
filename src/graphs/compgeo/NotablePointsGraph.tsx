@@ -2,7 +2,8 @@ import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t} from "../../localization";
+import {runAs} from "../base/writes/writeSource";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointLabelMath} from "../styles/pointLabelMath";
@@ -13,7 +14,8 @@ import {
 } from "../../compgeo/notablePointsModel";
 import {NOTABLE_POINT_COUNT, NOTABLE_POINTS_OVERLAY_IDS, notablePointsCollection} from "./notablePointsPresetCollection";
 import {NotablePointsPanel, NotablePointsExampleSelect} from "./NotablePointsPanel";
-import {CENTRE_SYMBOL, notableTexts} from "./notablePointsText";
+import {CENTRE_SYMBOL, notableNotes, type NotableNoteId, notableTexts} from "./notablePointsText";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry} from "../base/declare/graphDeclaration";
 
 /**
  * Notable points of a triangle (spec triangle-geometry-lessons T1, task triangle-geometry/04): a `PointSetGraph` limited
@@ -64,6 +66,32 @@ function mathLabelled<T extends JXG.GeometryElement>(point: T, name: string): T 
 const NOTABLE_EXTENSION: PointSetExtension = Object.freeze({
     fields: [{name: "exampleId", fallback: "default", parse: (value: unknown) => isNotableExampleId(value) ? value : undefined}],
 });
+
+/**
+ * The ids of the declaration (`DeclarationIds`). No parameters: the vertices, the overlay switches and the example are not
+ * bound in the arbiter. The inspector's sentences are notes (the panel has no label and value pairs), the legend names the
+ * triangle and the four centre markers.
+ */
+export type NotablePointsIds = {
+    param: never;
+    row: never;
+    note: NotableNoteId;
+    legend: NotableOverlayId;
+    section: never;
+    /** One switch per overlay, the same ids as the overlays. */
+    action: NotableOverlayId;
+};
+
+/** The switch's label as a catalog message (the panel's `overlayLabel` is the text of the same keys). */
+function overlayMessage(id: NotableOverlayId) {
+    switch (id) {
+        case "triangle": return message("notable_overlay_triangle");
+        case "centroid": return message("notable_overlay_centroid");
+        case "circumcentre": return message("notable_overlay_circumcentre");
+        case "incentre": return message("notable_overlay_incentre");
+        case "orthocentre": return message("notable_overlay_orthocentre");
+    }
+}
 
 export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
     private unsubscribeLanguage?: () => void;
@@ -307,6 +335,51 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
             point(analysis.orthocentre?.board);
         }
         return objects;
+    }
+
+    // ---- Declaration (task 02: nothing renders it yet) -------------------------------------------------------------
+
+    /**
+     * Pure data from the scene state: the inspector's sentences as notes and the legend of the triangle and the four
+     * centre markers (their labels are the overlay switches' labels).
+     */
+    protected override declaration(): GraphDeclaration<NotablePointsIds> {
+        const legend: LegendEntry<NotablePointsIds>[] = [
+            {id: "triangle", label: message("notable_overlay_triangle"), kind: "line", object: "triangle"},
+            {id: "centroid", label: message("notable_overlay_centroid"), kind: "cross", object: "centroid"},
+            {id: "circumcentre", label: message("notable_overlay_circumcentre"), kind: "cross", object: "circumcentre"},
+            {id: "incentre", label: message("notable_overlay_incentre"), kind: "point", object: "incentre"},
+            {id: "orthocentre", label: message("notable_overlay_orthocentre"), kind: "point", object: "orthocentre"},
+        ];
+        // The four centre switches are board actions (the lessons ask to show a centre while dragging a vertex); the triangle
+        // switch is a plain display setting in Orodja. The switch label is the panel's.
+        const actions: ActionDeclaration<NotablePointsIds>[] = (["triangle", ...CENTRE_IDS] as NotableOverlayId[]).map(id => ({
+            id, label: overlayMessage(id), placement: id === "triangle" ? "tools" : "board",
+            ...(id === "triangle" ? {section: "display"} : {}), enabled: true, pressed: this.overlayShown(id),
+        }));
+        return {notes: notableNotes(this.analysis(), currentLanguage()), legend, actions};
+    }
+
+    /** A switch pressed as the learner: the same method the panel's switch calls. */
+    override performAction(id: string): void {
+        if (id !== "triangle" && !(CENTRE_IDS as readonly string[]).includes(id)) throw new Error("Unknown action");
+        runAs("learner", () => this.setOverlay(id as NotableOverlayId, !this.overlayShown(id as NotableOverlayId)));
+    }
+
+    /**
+     * The element a legend entry names, as the board holds it now. An overlay that is off, or a centre a degenerate triangle
+     * does not have, is not drawn: its entry is hidden in its own colour.
+     */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== "triangle" && !(CENTRE_IDS as readonly string[]).includes(id)) return undefined;
+        const colour = id === "triangle" ? GraphPalette.primaryCurve : CENTRE_COLOUR[id as CentreId];
+        if (!this.hasBoard) return {color: colour, visible: false};
+        const wanted = id === "triangle" ? "triangle-side-AB" : CENTRE_SYMBOL[id as CentreId];
+        const found = (this.board.objectsList as unknown as JXG.GeometryElement[]).find(element => element.name === wanted);
+        if (!found) return {color: colour, visible: false};
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = found as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(id === "triangle" ? "strokecolor" : "fillcolor")), visible: Boolean(drawn.evalVisProp("visible"))};
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

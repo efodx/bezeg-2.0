@@ -1,6 +1,5 @@
 // Declaration text of the Bézier-family graphs (ADR 0066), starting with De Casteljau. `en` must have exactly `sl`'s keys.
 const sl = {
-    "decasteljau_t_name": "Parameter",
     "decasteljau_legend_curve": "Krivulja do parametra t",
     "decasteljau_legend_rest": "Preostanek krivulje",
     "decasteljau_legend_point": "Točka B(t) na krivulji",
@@ -11,7 +10,6 @@ const sl = {
 export const bezier = {
     sl,
     en: {
-        "decasteljau_t_name": "Parameter",
         "decasteljau_legend_curve": "Curve up to the parameter t",
         "decasteljau_legend_rest": "Rest of the curve",
         "decasteljau_legend_point": "Point B(t) on the curve",

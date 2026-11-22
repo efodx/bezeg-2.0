@@ -58,6 +58,16 @@ const SAMPLES: readonly Sample[] = [
         state('t 0,8', {'decasteljau-t': 0.8}),
         state('t 1', {'decasteljau-t': 1}),
     ]},
+    {file: 'compgeo/__parity__/triangle-centres.json', demonstration: 'triangle-centres', states: [
+        state('default', {}),
+        {name: 'obtuse example', apply: graph => { runAs('learner', () => (graph as unknown as {loadExample(id: string): void}).loadExample('obtuse')); }},
+        {name: 'right example', apply: graph => { runAs('learner', () => (graph as unknown as {loadExample(id: string): void}).loadExample('right')); }},
+        {name: 'degenerate example', apply: graph => { runAs('learner', () => (graph as unknown as {loadExample(id: string): void}).loadExample('degenerate')); }},
+        {name: 'scalene acute', apply: graph => { runAs('learner', () => (graph as unknown as {loadModel(model: unknown): void}).loadModel({mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 5, y: 1}, {x: 1, y: 4}]})); }},
+        {name: 'two points', apply: graph => { runAs('learner', () => (graph as unknown as {loadModel(model: unknown): void}).loadModel({mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 5, y: 1}]})); }},
+        // Centres stay inside the initial view: whether a centre is outside the view is board state, which a declaration cannot hold.
+        {name: 'obtuse custom', apply: graph => { runAs('learner', () => (graph as unknown as {loadModel(model: unknown): void}).loadModel({mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 7, y: 0}, {x: 3, y: 3}]})); }},
+    ]},
     {file: 'linear/__parity__/linear-map-basis.json', demonstration: 'linear-map', states: [
         state('basis default', {'linear-map-mode': 'basis'}),
         state('shear', {'linear-map-example': 'shear'}),
@@ -159,5 +169,13 @@ describe('checker on a fake declaration', () => {
         expect(checkParity(rec, [declaration(0.7183)]).differences).toEqual([]);
         const different = checkParity(rec, [declaration(0.7184)]).differences;
         expect(different).toEqual([{state: 0, stateName: 's', kind: 'different', where: 'row Napaka f(x) - Tₙ(x)#0', recorded: '0,7183', declared: '0,7184'}]);
+    });
+
+    test("a control's read-off is covered by the declared parameter with that symbol, and missing without it", () => {
+        const rec: ParityRecording = {graph: 'fake', language: 'sl', states: [{name: 's', rows: [], notes: [], outputs: ['t = 0,50'], captions: []}]};
+        const withT: GraphDeclaration = {parameters: [{key: 't', kind: 'range', label: message('animation_parameter'), symbol: 't', placement: 'board', min: 0, max: 1, step: 0.01}]};
+        const withS: GraphDeclaration = {parameters: [{key: 's', kind: 'range', label: message('animation_parameter'), symbol: 's', placement: 'board', min: 0, max: 1, step: 0.01}]};
+        expect(checkParity(rec, [withT]).differences).toEqual([]);
+        expect(checkParity(rec, [withS]).differences).toEqual([{state: 0, stateName: 's', kind: 'missing', where: 'output', recorded: 't = 0,50'}]);
     });
 });

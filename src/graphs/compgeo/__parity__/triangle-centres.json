@@ -1,0 +1,140 @@
+{
+  "graph": "triangle-centres",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Vrsta trikotnika: ostrokotni",
+        "Ploščina S = 35/2",
+        "Polmer očrtane krožnice R = 3,80789",
+        "Polmer včrtane krožnice r = 1,79891",
+        "G = (3, 5/3), znotraj trikotnika",
+        "O = (7/2, 3/2), znotraj trikotnika",
+        "I ≈ (2,65705; 1,79891), znotraj trikotnika",
+        "H = (2, 2), znotraj trikotnika",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Vrsta trikotnika: ostrokotni"
+      ]
+    },
+    {
+      "name": "obtuse example",
+      "rows": [],
+      "notes": [
+        "Vrsta trikotnika: topokotni",
+        "Ploščina S = 7/2",
+        "Polmer očrtane krožnice R = 4,30116",
+        "Polmer včrtane krožnice r = 0,48286",
+        "G = (8/3, 1/3), znotraj trikotnika",
+        "O = (7/2, -5/2), zunaj trikotnika",
+        "I ≈ (1,16573; 0,48286), znotraj trikotnika",
+        "H = (1, 6), zunaj trikotnika",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (1, 1)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Vrsta trikotnika: topokotni"
+      ]
+    },
+    {
+      "name": "right example",
+      "rows": [],
+      "notes": [
+        "Vrsta trikotnika: pravokotni",
+        "Ploščina S = 6",
+        "Polmer očrtane krožnice R = 2,5",
+        "Polmer včrtane krožnice r = 1",
+        "G = (4/3, 1), znotraj trikotnika",
+        "O = (2, 3/2), na robu trikotnika",
+        "I ≈ (1; 1), znotraj trikotnika",
+        "H = (0, 0), na robu trikotnika",
+        "A (P1) = (0, 0)",
+        "B (P2) = (4, 0)",
+        "C (P3) = (0, 3)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Vrsta trikotnika: pravokotni"
+      ]
+    },
+    {
+      "name": "degenerate example",
+      "rows": [],
+      "notes": [
+        "Vrsta trikotnika: izrojen",
+        "Točke so kolinearne ali sovpadajo, zato trikotnik ne obstaja: očrtana krožnica, včrtana krožnica in višinska točka niso določene. Težišče leži na daljici, ki jo razpenjajo točke.",
+        "Ploščina S = 0",
+        "G = (4/3, 4/3), na robu trikotnika",
+        "O: ni določena (izrojen trikotnik)",
+        "I: ni določena (izrojen trikotnik)",
+        "H: ni določena (izrojen trikotnik)",
+        "A (P1) = (0, 0)",
+        "B (P2) = (1, 1)",
+        "C (P3) = (3, 3)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Vrsta trikotnika: izrojen"
+      ]
+    },
+    {
+      "name": "scalene acute",
+      "rows": [],
+      "notes": [
+        "Vrsta trikotnika: ostrokotni",
+        "Ploščina S = 19/2",
+        "Polmer očrtane krožnice R = 2,76629",
+        "Polmer včrtane krožnice r = 1,33595",
+        "G = (2, 5/3), znotraj trikotnika",
+        "O = (87/38, 59/38), znotraj trikotnika",
+        "I ≈ (1,80807; 1,72402), znotraj trikotnika",
+        "H = (27/19, 36/19), znotraj trikotnika",
+        "A (P1) = (0, 0)",
+        "B (P2) = (5, 1)",
+        "C (P3) = (1, 4)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Vrsta trikotnika: ostrokotni"
+      ]
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Trikotnik potrebuje tri točke. Dodaj še točke; manjka jih: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "obtuse custom",
+      "rows": [],
+      "notes": [
+        "Vrsta trikotnika: topokotni",
+        "Ploščina S = 21/2",
+        "Polmer očrtane krožnice R = 3,53553",
+        "Polmer včrtane krožnice r = 1,29289",
+        "G = (10/3, 1), znotraj trikotnika",
+        "O = (7/2, -1/2), zunaj trikotnika",
+        "I ≈ (3,12132; 1,29289), znotraj trikotnika",
+        "H = (3, 4), zunaj trikotnika",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (3, 3)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Vrsta trikotnika: topokotni"
+      ]
+    }
+  ]
+}

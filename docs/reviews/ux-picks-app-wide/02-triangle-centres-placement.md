@@ -1,0 +1,9 @@
+# Triangle centres: placement (task 02, slice 8)
+
+No parameter is declared (the overlay switches are actions, below). The contract requires a declared parameter's key to be bound in the arbiter (`graphDeclaration.ts:17-19`, checked by the declaration tests), and task 01 bound none for this graph. Each control that exists today, with where Taylor's rule would put it once bound:
+
+- **Vertices A, B, C (three points the learner clicks or drags, or types).** The learner moves them while watching the centres, so they belong on the board as draggable points; the typed coordinates belong in Orodja. There is no point-valued parameter kind to declare them with.
+- **Overlay switches (triangle, G, O, I, H).** Handler decision: a display switch without an arbiter key is declared as an action with `pressed`, as in the linear map; `performAction` runs the same `setOverlay` the panel switch calls, as the learner. The four centre switches are board actions: the lessons ask the learner to show O, I or H while dragging a vertex, so they flip them while watching, and the centroid is the same kind of switch. The triangle switch is a plain display setting no lesson asks for, so it sits in Orodja, section `display`. Labels reuse the `notable_overlay_*` keys, so no fragment was needed. The circumcentre, incentre and orthocentre lesson frames declare `uses` for their switch (board actions, so `tools` stays closed).
+- **Example (default, obtuse, right, collinear, custom).** A choice with a few named options: board. No arbiter key, so it is not declared.
+
+Readouts: the panel is sentences ("Ploščina S = 35/2"), not label and value pairs, so each sentence is a declared note with the catalog text the panel uses (no new keys). Legend: the triangle and the four centre markers, labelled with the overlay switches' existing labels.
