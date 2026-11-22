@@ -36,7 +36,9 @@ const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     frames: [
         frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation', ux?.observation),
+        // The observation prompts ask the learner to read the same cards ("Preberi lego in čas v odčitku"): without a declaration
+        // of its own, the observation frame opens what the explanation opened, without its row highlight.
+        frame(`${content.id}-observation`, 'observation', ux?.observation ?? (ux?.explanation?.open ? {open: ux.explanation.open} : undefined)),
     ],
 });
 
