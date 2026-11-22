@@ -32,7 +32,7 @@ Tasks 03 to 07 each end with a feel slice ([room to improve](../../specs/ux-pick
 | Task | Depends on | Status |
 | --- | --- | --- |
 | [01 Source-tagged parameter writes](01-scene-store-and-fuzzer.md) | — | accepted 2026-11-22 (five 2D pilots bound; other graphs bind in 08) |
-| [01b View adapter](01b-view-adapter.md) | 01 | not started |
+| [01b View adapter](01b-view-adapter.md) | 01 | accepted 2026-11-22 (every board has an adapter; the five pilots bind `view`; other graphs bind in 08) |
 | [01c Check tooling in the repository](01c-check-tooling.md) | — (its acceptance run needs 01, 01b) | step 1 (copy) done |
 | [02 Declaration contract and conversion tooling](02-declaration-contract.md) | 01 | not started |
 | [03 Layout function and board cards](03-layout-and-board-cards.md) | 02 | not started |
