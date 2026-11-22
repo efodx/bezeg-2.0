@@ -21,13 +21,25 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 - Setup: done. Planning files on the branch (`67d7f160`); night tooling copied (`9e1e58ce`, `docs/reviews/ux-picks-app-wide/night-tooling/`, excluded from ESLint).
 - 01c: step 1 (copy) done; slices 1 to 5 not started (after 01 and 01b, as the README orders).
-- 01: in progress — exploring master's write paths for the arbiter core design.
+- 01: in progress on the work branch (not yet on master).
+  - Done: arbiter core `src/graphs/base/writes/` (`writeSource.ts` ambient source + learner gesture; `parameterArbiter.ts` holds, leases, outcomes, untagged check; `learnerInputTagging.ts` window capture listeners, trusted pointer/key events hold, synthetic ones pulse). BaseGraph `parameterBindings()`/`parameters`, bound at mount, observed on every store change; lesson actions/scenes `lesson`, Preset/Reset/import/figure batch `learner` via `SceneReplacementPlan.source`; lesson step/frame change ends all leases; `AnimationDriver.useLease`. GraphSession `on` defers removal during dispatch, `once()` (slice 7). Taylor bound (worked example `015c05a4`) with seeded untagged-write test (observed failure recorded). Commits `815e3ac5`, `71bb7bce`, `015c05a4`, `ad0487fa`.
+  - Running: pilot bindings (brief `briefs/01-bind-pilots.md`): De Casteljau + transformations; then phase portrait + linear map. Measurement baseline at `057d8d22` done (`measure/RESULTS.md`; only the 4x Taylor drag rows and Taylor input delay are sensitive; rerun command there).
+  - Remaining: phase portrait + linear map bindings; all-graph suites with bindings; slice 6 "after" measurement and the selector-read question (De Casteljau's LiveParameter already gives per-key subscription); De Casteljau playback exception check for the owner; review; publish 01 to master.
 - 01b, 02 to 10: not started.
+
+## Decisions taken in 01 (handler)
+
+- Source is global (one JS thread): `runAs` scopes plus an ambient learner gesture from window capture listeners, instead of wrapping each control and the 68 board-handler files.
+- The untagged check compares bound readers' values after each store change and at the end of each write/frame scope; strict = `import.meta.env.DEV` (tests and dev).
+- In 01 only the pilot graphs bind; every other graph binds in task 08 (its declaration). Unbound graphs run exactly as before.
+- Holds: explicit `hold(key)` (for controls that know their key, used from task 05) and gesture holds (keys changed during an open trusted gesture). A lease started inside a learner gesture is not blocked by that gesture's holds (Play click).
 
 ## Open items
 
 - Daily scheduled run 2026-11-22: success.
+- Workers restoring files by backup once reverted a handler edit: briefs now say keep `cp` backups only of owned files and never restore others.
+- 2026-11-22: the measurement worker wiped the shared `node_modules` when removing its worktree (junction); restored with `npm ci --prefix <main checkout>`. Only the handler creates or removes worktrees now; briefs forbid it.
 
 ## Next slice's brief inputs
 
-- Task 01 slice 1 (arbiter core): handler-owned design, pure TS, no React/JSXGraph.
+- Pilot binding dispatch for phase portrait (`src/graphs/dynamics/PhasePortraitGraph.tsx`, has AnimationDriver) and linear map (`src/graphs/linear/LinearMapGraph.tsx`), same brief.
