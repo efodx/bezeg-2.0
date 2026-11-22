@@ -1,0 +1,23 @@
+{
+ "route": "functions/transformations",
+ "seed": 2,
+ "lesson": false,
+ "invariant": "I2",
+ "actions": [
+  {
+   "a": "rest",
+   "ms": 976
+  },
+  {
+   "a": "osc",
+   "k": "transform.u"
+  },
+  {
+   "a": "undo"
+  },
+  {
+   "a": "osc",
+   "k": "transform.b"
+  }
+ ]
+}

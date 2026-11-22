@@ -1,0 +1,20 @@
+FAIL functions/transformations seed=1 step=13 I2: 0,5 -> 2 -> 0,5 within 300 ms
+  detail={"param":"transform.b","at":1795346611425,"a":"0,5","b":"2","window":"0,5 1 0,5 2 0,5"}
+  actions=["arrow:transform.a","hoverTrack:transform.u","osc:transform.u","hoverValue:transform.u","moveTrack:transform.d","clickTrack:transform.a","drag:transform.a","osc:transform.d","dockdrag","hoverTrack:transform.d","escape","osc:transform.a","click:transform.c","osc:transform.b"]
+  shot=fail-functions_transformations-1.png
+  shrunk 14 -> 6 actions in 13 replays: min-functions_transformations-1.json
+FAIL functions/transformations seed=2 step=7 I2: 0,5 -> 3 -> 0,5 within 300 ms
+  detail={"param":"transform.b","at":1795346820006,"a":"0,5","b":"3","window":"2 0,5 3 0,5 4 0,5"}
+  actions=["drag:transform.u","drag:transform.u","rest","osc:transform.u","undo","hoverTrack:transform.u","osc:transform.b","click:transform.b"]
+  shot=fail-functions_transformations-2.png
+  shrunk 8 -> 4 actions in 7 replays: min-functions_transformations-2.json
+PASS functions/transformations seed=3 steps=40
+FAIL functions/transformations seed=4 step=18 I1: value moved −5,5 -> −2
+  detail={"param":"transform.d","why":"value moved −5,5 -> −2","at":183,"v":"−2","samples":"−5,5 −5,5 −2 −5,5 −5,5 2 −5,5 −5,5 6 −5,5 −5,5 10 −5,5"}
+  actions=["hoverValue:transform.b","click:transform.b","click:transform.a","arrow:transform.d","escape","type:transform.u","rest","click:transform.a","osc:transform.d","hoverValue:transform.c","undo","clickTrack:transform.u","undo","undo","osc:transform.u","rest","rest","type:transform.c","drag:transform.d"]
+  shot=fail-functions_transformations-4.png
+  shrunk 19 -> 19 actions in 15 replays: min-functions_transformations-4.json
+FAIL functions/transformations seed=5 step=19 I1: typed 4.5 shows 17,4
+  detail={"param":"transform.d","why":"typed 4.5 shows 17,4","at":0,"v":"17,4","samples":"4,5 17,4 17,4 17,4 17,4 17,4 17,4 17,4 17,4 17,4 17,4"}
+  actions=["clickTrack:transform.d","click:transform.u","hoverValue:transform.u","hoverValue:transform.u","click:transform.b","undo","rest","undo","osc:transform.d","arrow:transform.a","type:transform.c","rest","undo","type:transform.a","osc:transform.a","click:transform.u","arrow:transform.u","hoverTrack:transform.b","click:transform.b","type:transform.d"]
+  shot=fail-functions_transformations-5.png

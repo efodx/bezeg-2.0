@@ -1,0 +1,25 @@
+{
+ "route": "functions/waves",
+ "seed": 4,
+ "lesson": false,
+ "invariant": "I1",
+ "actions": [
+  {
+   "a": "hoverValue",
+   "k": "waves.f1"
+  },
+  {
+   "a": "click",
+   "k": "waves.f1"
+  },
+  {
+   "a": "rest",
+   "ms": 357
+  },
+  {
+   "a": "type",
+   "k": "waves.p1",
+   "n": 110.1
+  }
+ ]
+}

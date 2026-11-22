@@ -1,0 +1,13 @@
+{
+ "route": "analysis/phase-portrait",
+ "seed": 1,
+ "lesson": false,
+ "invariant": "I1",
+ "actions": [
+  {
+   "a": "type",
+   "k": "phase.zoom",
+   "n": 4.4
+  }
+ ]
+}

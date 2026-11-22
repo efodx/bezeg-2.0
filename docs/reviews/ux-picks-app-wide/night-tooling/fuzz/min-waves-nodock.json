@@ -1,0 +1,1 @@
+{"route": "functions/waves", "seed": 1, "lesson": false, "invariant": "I2", "actions": [{"a": "arrow", "k": "waves.p2", "dir": "ArrowRight", "n": 3}, {"a": "osc", "k": "waves.time"}, {"a": "hoverValue", "k": "waves.time"}, {"a": "moveTrack", "k": "waves.p1", "f1": 0.1, "f2": 0.14}, {"a": "clickTrack", "k": "waves.p2", "f": 0.17}, {"a": "osc", "k": "waves.p1"}]}

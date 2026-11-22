@@ -1,0 +1,8 @@
+# waves: DONE
+Files: src/graphs/functions/WavesGraph.tsx, src/learning/content/wavesGuidedLessons.ts.
+Declared: readouts groups time / "Količine" (ids from readoutRows(): time, frequency, phase-difference, sum-amplitude, sum-phase, amplitude-range, wave1, wave2, sum, f1, f2, beat-frequency, mean-frequency, beat-period, envelope, half-waves, wavelength, period, nodes, antinodes, antinode-amplitude, rate, samples-per-period, nyquist, alias, alias-frequency, frame, ambiguous-samples, join-error, sinc-error, resolution); legend of drawn captions; notes; ToolSection waves-playback; pucks a1,p1,a2,p2,f1,f2,fs,time, halfWaves (standing), extra (only while sinc shown; added this session).
+Frames (legacy step pattern copied): explanation frames highlight the given values, observation frames open readouts only (they ask to read/predict): wv1-phase sum-amplitude,sum-phase; wv1-extremes sum-amplitude; wv1-same-frequency sum-amplitude,sum-phase; wv1-amplitudes amplitude-range,sum-amplitude; wv2-envelope envelope; wv2-difference beat-frequency,mean-frequency,beat-period.
+Inline strings: group title "Količine"; puck helps for a/p/f/time/extra.
+Gaps: no legend kinds for strip/wheel.
+Checks: tsc clean; just unit WavesGraph.test, WavesLessonActions.host.test, wavesGuidedLessons.test passed (before the extra puck line; tsc re-run clean after). Shots p1440/p1024/none1440 + mode-*.png: no page errors; card values in all four modes (sum, beats, standing, sampling, SL+EN default state) equal the ?ux=none panel text. Lesson walk 1440x900: 23 frames, no errors, highlights as listed.
+Not verified: sampling-mode legend toggles (join/sinc/alias) by hand; 1024 shot not inspected visually; left-panel empty bordered rows under pucks are shared Slider behaviour.

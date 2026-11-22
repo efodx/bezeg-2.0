@@ -1,0 +1,53 @@
+{
+ "route": "functions/waves",
+ "seed": 1,
+ "lesson": false,
+ "invariant": "I2",
+ "actions": [
+  {
+   "a": "arrow",
+   "k": "waves.p2",
+   "dir": "ArrowRight",
+   "n": 3
+  },
+  {
+   "a": "hoverTrack",
+   "k": "waves.f1",
+   "f": 0.61
+  },
+  {
+   "a": "osc",
+   "k": "waves.time"
+  },
+  {
+   "a": "hoverValue",
+   "k": "waves.time"
+  },
+  {
+   "a": "moveTrack",
+   "k": "waves.p1",
+   "f1": 0.1,
+   "f2": 0.14
+  },
+  {
+   "a": "clickTrack",
+   "k": "waves.p2",
+   "f": 0.17
+  },
+  {
+   "a": "drag",
+   "k": "waves.a2",
+   "dx": 55,
+   "hold": 34
+  },
+  {
+   "a": "osc",
+   "k": "waves.p1"
+  },
+  {
+   "a": "dockdrag",
+   "dx": -27,
+   "dy": -25
+  }
+ ]
+}

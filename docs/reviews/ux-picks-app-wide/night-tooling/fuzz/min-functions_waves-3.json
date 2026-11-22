@@ -1,0 +1,13 @@
+{
+ "route": "functions/waves",
+ "seed": 3,
+ "lesson": false,
+ "invariant": "I1",
+ "actions": [
+  {
+   "a": "type",
+   "k": "waves.f1",
+   "n": 39.9
+  }
+ ]
+}

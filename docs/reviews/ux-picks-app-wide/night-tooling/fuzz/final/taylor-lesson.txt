@@ -1,0 +1,15 @@
+PASS analysis/taylor seed=1 steps=30
+PASS analysis/taylor seed=2 steps=30
+PASS analysis/taylor seed=3 steps=30
+PASS analysis/taylor seed=4 steps=30
+PASS analysis/taylor seed=5 steps=30
+PASS analysis/taylor seed=6 steps=30
+PASS analysis/taylor seed=7 steps=30
+FAIL analysis/taylor seed=8 step=24 I4: page error: Cannot read properties of undefined (reading 'handler') | STACK TypeError: Cannot read properties of undefined (reading 'handler') ;     at jxg_default.Board.trigger (http://127.0.0.1:4460/bezeg-2.0/node_modules/.vite/deps/jsxgraph.js?v=89948b61:3941:9) ;     at jxg_default.Board.update (http://127.0.0.1:4460/bezeg-2.0/node_modules/.vite/deps/jsxgraph.js?v=89948b61:50221:9) ;     at jxg_default.Point.moveTo (http://127.0.0.1:4460/bezeg-2.0/node_modules/.vite/deps/jsxgraph.js?v=89948b61:36920:23) ;     at TaylorGraph.syncSceneToModel (http://127.0.0.1:4460/bezeg-2.0/src/graphs/functions/TaylorGraph.tsx?t=1795346052279:370:21) ;     at TaylorGraph.commitModel (http://127.0.0.1:4460/bezeg-2.0/src/graphs/functions/BaseFunctionGraph.tsx?t=1795346052279:158:77)
+  detail=undefined
+  actions=["click:taylor.c","drag:taylor.c","click:taylor.x","undo","click:taylor.c","escape","count:taylor.n","type:taylor.c","osc:taylor.n","osc:taylor.x","hoverValue:taylor.x","drag:taylor.x","rest","rest","click:taylor.x","escape","clickTrack:taylor.c","hoverValue:taylor.x","count:taylor.n","escape","next","arrow:taylor.x","back","osc:taylor.c","arrow:taylor.c"]
+  shot=fail-analysis_taylor-lesson-8.png
+  shrunk 25 -> 20 actions in 15 replays: min-analysis_taylor-lesson-8.json
+PASS analysis/taylor seed=9 steps=30
+PASS analysis/taylor seed=10 steps=30
+SUMMARY analysis/taylor --lesson pass=9 fail=1 invalid=0

@@ -1,0 +1,95 @@
+{
+ "route": "analysis/taylor",
+ "seed": 8,
+ "lesson": true,
+ "invariant": "I4",
+ "actions": [
+  {
+   "a": "click",
+   "k": "taylor.c"
+  },
+  {
+   "a": "drag",
+   "k": "taylor.c",
+   "dx": -68,
+   "hold": 333
+  },
+  {
+   "a": "click",
+   "k": "taylor.x"
+  },
+  {
+   "a": "undo"
+  },
+  {
+   "a": "click",
+   "k": "taylor.c"
+  },
+  {
+   "a": "escape"
+  },
+  {
+   "a": "count",
+   "k": "taylor.n",
+   "s": 1
+  },
+  {
+   "a": "type",
+   "k": "taylor.c",
+   "n": -1.9
+  },
+  {
+   "a": "osc",
+   "k": "taylor.n"
+  },
+  {
+   "a": "osc",
+   "k": "taylor.x"
+  },
+  {
+   "a": "drag",
+   "k": "taylor.x",
+   "dx": -16,
+   "hold": 270
+  },
+  {
+   "a": "rest",
+   "ms": 1098
+  },
+  {
+   "a": "rest",
+   "ms": 642
+  },
+  {
+   "a": "click",
+   "k": "taylor.x"
+  },
+  {
+   "a": "escape"
+  },
+  {
+   "a": "count",
+   "k": "taylor.n",
+   "s": 1
+  },
+  {
+   "a": "arrow",
+   "k": "taylor.x",
+   "dir": "ArrowLeft",
+   "n": 3
+  },
+  {
+   "a": "back"
+  },
+  {
+   "a": "osc",
+   "k": "taylor.c"
+  },
+  {
+   "a": "arrow",
+   "k": "taylor.c",
+   "dir": "ArrowRight",
+   "n": 2
+  }
+ ]
+}

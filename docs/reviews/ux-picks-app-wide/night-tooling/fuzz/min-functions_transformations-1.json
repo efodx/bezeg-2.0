@@ -1,0 +1,38 @@
+{
+ "route": "functions/transformations",
+ "seed": 1,
+ "lesson": false,
+ "invariant": "I2",
+ "actions": [
+  {
+   "a": "arrow",
+   "k": "transform.a",
+   "dir": "ArrowRight",
+   "n": 3
+  },
+  {
+   "a": "hoverTrack",
+   "k": "transform.u",
+   "f": 0.61
+  },
+  {
+   "a": "osc",
+   "k": "transform.u"
+  },
+  {
+   "a": "moveTrack",
+   "k": "transform.d",
+   "f1": 0.1,
+   "f2": 0.14
+  },
+  {
+   "a": "osc",
+   "k": "transform.d"
+  },
+  {
+   "a": "dockdrag",
+   "dx": -27,
+   "dy": -25
+  }
+ ]
+}

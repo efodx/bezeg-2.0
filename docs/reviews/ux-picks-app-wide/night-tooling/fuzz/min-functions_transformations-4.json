@@ -1,0 +1,87 @@
+{
+ "route": "functions/transformations",
+ "seed": 4,
+ "lesson": false,
+ "invariant": "I1",
+ "actions": [
+  {
+   "a": "hoverValue",
+   "k": "transform.b"
+  },
+  {
+   "a": "click",
+   "k": "transform.b"
+  },
+  {
+   "a": "click",
+   "k": "transform.a"
+  },
+  {
+   "a": "arrow",
+   "k": "transform.d",
+   "dir": "ArrowLeft",
+   "n": 2
+  },
+  {
+   "a": "escape"
+  },
+  {
+   "a": "type",
+   "k": "transform.u",
+   "n": 3.2
+  },
+  {
+   "a": "rest",
+   "ms": 581
+  },
+  {
+   "a": "click",
+   "k": "transform.a"
+  },
+  {
+   "a": "osc",
+   "k": "transform.d"
+  },
+  {
+   "a": "hoverValue",
+   "k": "transform.c"
+  },
+  {
+   "a": "undo"
+  },
+  {
+   "a": "clickTrack",
+   "k": "transform.u",
+   "f": 0.61
+  },
+  {
+   "a": "undo"
+  },
+  {
+   "a": "undo"
+  },
+  {
+   "a": "osc",
+   "k": "transform.u"
+  },
+  {
+   "a": "rest",
+   "ms": 357
+  },
+  {
+   "a": "rest",
+   "ms": 750
+  },
+  {
+   "a": "type",
+   "k": "transform.c",
+   "n": 12.2
+  },
+  {
+   "a": "drag",
+   "k": "transform.d",
+   "dx": -109,
+   "hold": 143
+  }
+ ]
+}

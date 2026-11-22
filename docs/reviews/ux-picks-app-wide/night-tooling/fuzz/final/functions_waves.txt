@@ -1,0 +1,29 @@
+FAIL functions/waves seed=1 step=15 I2: −55 -> −180 -> −55 within 300 ms
+  detail={"param":"waves.p2","at":1795346615922,"a":"−55","b":"−180","window":"−65 −60 −55 −180 −55 −160"}
+  actions=["arrow:waves.p2","hoverTrack:waves.f1","osc:waves.time","hoverValue:waves.time","moveTrack:waves.p1","clickTrack:waves.p2","drag:waves.a2","osc:waves.p1","dockdrag","hoverTrack:waves.p1","escape","osc:waves.a2","click:waves.a1","osc:waves.p2","osc:waves.time","clickTrack:waves.p1"]
+  shot=fail-functions_waves-1.png
+  shrunk 16 -> 9 actions in 15 replays: min-functions_waves-1.json
+FAIL functions/waves seed=2 step=8 I2: 7 -> 11 -> 7 within 300 ms
+  detail={"param":"waves.f1","at":1795346898667,"a":"7","b":"11","window":"7 9 7 11 7 13 7"}
+  actions=["drag:waves.time","drag:waves.time","rest","osc:waves.time","undo","hoverTrack:waves.time","osc:waves.f1","click:waves.p2","arrow:waves.a1"]
+  shot=fail-functions_waves-2.png
+  shrunk 9 -> 7 actions in 8 replays: min-functions_waves-2.json
+FAIL functions/waves seed=3 step=3 I1: typed 39.9 shows 40
+  detail={"param":"waves.f1","why":"typed 39.9 shows 40","at":0,"v":"40","samples":"40 40 40 40 40 40 40 40 40 40 40 40 40 40"}
+  actions=["escape","drag:waves.p2","arrow:waves.time","type:waves.f1"]
+  shot=fail-functions_waves-3.png
+  shrunk 4 -> 1 actions in 3 replays: min-functions_waves-3.json
+FAIL functions/waves seed=4 step=17 I1: typed 110.1 shows 110
+  detail={"param":"waves.p1","why":"typed 110.1 shows 110","at":0,"v":"110","samples":"110 110 110 110 110 110 110 110 110 110 110 110 110 110"}
+  actions=["hoverValue:waves.f1","click:waves.f1","click:waves.p2","arrow:waves.a2","escape","type:waves.time","rest","click:waves.a2","osc:waves.p1","hoverValue:waves.p1","undo","clickTrack:waves.time","undo","undo","osc:waves.time","rest","rest","type:waves.p1"]
+  shot=fail-functions_waves-4.png
+  shrunk 18 -> 4 actions in 15 replays: min-functions_waves-4.json
+FAIL functions/waves seed=5 step=10 I1: typed 2.6 shows 2,5
+  detail={"param":"waves.a1","why":"typed 2.6 shows 2,5","at":0,"v":"2,5","samples":"2,5 2,5 2,5 2,5 2,5 2,5 2,5 2,5 2,5 2,5 2,5 2,5 2,5"}
+  actions=["clickTrack:waves.p1","click:waves.time","hoverValue:waves.time","hoverValue:waves.time","click:waves.f1","undo","rest","undo","osc:waves.a2","arrow:waves.p2","type:waves.a1"]
+  shot=fail-functions_waves-5.png
+  shrunk 11 -> 1 actions in 10 replays: min-functions_waves-5.json
+FAIL functions/waves seed=6 step=32 I4: page error: Cannot read properties of undefined (reading 'handler') | STACK TypeError: Cannot read properties of undefined (reading 'handler') ;     at jxg_default.Board.trigger (http://127.0.0.1:4460/bezeg-2.0/node_modules/.vite/deps/jsxgraph.js?v=89948b61:3941:9) ;     at jxg_default.Board.update (http://127.0.0.1:4460/bezeg-2.0/node_modules/.vite/deps/jsxgraph.js?v=89948b61:50221:9) ;     at WavesGraph.syncBoard (http://127.0.0.1:4460/bezeg-2.0/src/graphs/functions/WavesGraph.tsx?t=1795346052279:396:14) ;     at WavesGraph.onStateChange (http://127.0.0.1:4460/bezeg-2.0/src/graphs/functions/WavesGraph.tsx?t=1795346052279:372:8) ;     at http://127.0.0.1:4460/bezeg-2.0/src/graphs/base/BaseGraph.tsx?t=1795346052279:189:10
+  detail=undefined
+  actions=["hoverValue:waves.a2","hoverValue:waves.a2","undo","hoverTrack:waves.p2","click:waves.f1","moveTrack:waves.p1","arrow:waves.f1","rest","hoverValue:waves.f1","escape","drag:waves.f1","hoverTrack:waves.a2","rest","click:waves.a1","click:waves.a1","click:waves.f1","arrow:waves.time","arrow:waves.p2","undo","dockdrag","type:waves.time","drag:waves.f1","rest","rest","osc:waves.p2","moveTrack:waves.f1","rest","escape","click:waves.p1","dockdrag","click:waves.p1","osc:waves.a2","osc:waves.f1"]
+  shot=fail-functions_waves-6.png
