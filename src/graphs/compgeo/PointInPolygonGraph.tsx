@@ -1,6 +1,9 @@
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import {PointListInput} from "../../inputs/PointListInput";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote} from "../../uxPicks/declare/graphUx";
 import {StatusLive} from "../base/controls/StatusLive";
 import {ExampleSelect, matchingExample} from "./ExampleSelect";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
@@ -98,7 +101,9 @@ const windingText = (winding: number): string => (winding < 0 ? `−${-winding}`
 
 function PointInPolygonStatus({model, query, valuesShown}: {model: PointSetModel; query: GridPoint; valuesShown: boolean}) {
     const translate = useT();
+    const onCards = pickOn("boardText"); // the cards show the verdict and the rows; the live line stays for screen readers
     if (!valuesShown) {
+        if (onCards) return <StatusLive text={translate("pointinpolygon_values_hidden")}/>;
         return <><div className="inspector-help pointset-status" data-pip-readout="" data-pip-location="" data-pip-crossings="" data-pip-winding="">
             <p className="mb-1" data-pip-live="">{translate("pointinpolygon_values_hidden")}</p>
         </div><StatusLive text={translate("pointinpolygon_values_hidden")}/></>;
@@ -123,6 +128,7 @@ function PointInPolygonStatus({model, query, valuesShown}: {model: PointSetModel
             ...(readout.simple ? [] : [translate("pointinpolygon_not_simple")]),
         ];
     }
+    if (onCards) return <StatusLive text={live}/>;
     return <><div className="inspector-help pointset-status" data-pip-readout={readout.kind}
                 data-pip-location={readout.kind === "located" ? readout.location : readout.kind === "boundary" ? "boundary" : ""}
                 data-pip-crossings={readout.kind === "located" ? String(readout.crossings) : ""}
@@ -145,19 +151,19 @@ interface QueryControlsProps {
 function QueryControls({model, query, active, coordinateLimit, onSelect, onMove, onLoadFigure}: QueryControlsProps) {
     const translate = useT();
     return <>
-        <div className="inspector-group">
+        <ToolSection id="pip-query">
             {/* A single-point list: no add or remove. Its name button selects q for the arrow keys; Escape and the keys are the graph's. */}
             <PointListInput title={translate("pointinpolygon_query_group")} points={[[query.x, query.y] as const]} pointLabel={() => "q"}
                             min={-coordinateLimit} max={coordinateLimit} integer selected={active ? 0 : undefined}
                             onSelect={index => onSelect(index === 0)}
                             onCommit={(_, [x, y]) => { onMove({x, y}); }}/>
-        </div>
-        <div className="inspector-group">
+        </ToolSection>
+        <ToolSection id="pip-examples">
             <ExampleSelect<PointInPolygonFigure> label={translate("pointinpolygon_examples")} onChoose={onLoadFigure}
                            current={matchingExample(model, [{id: "notched", points: NOTCHED_MODEL.points}, {id: "pentagram", points: PENTAGRAM_MODEL.points}])}
                            options={[{id: "notched", text: translate("pointinpolygon_example_notched")}, {id: "pentagram", text: translate("pointinpolygon_example_pentagram")}]}/>
             <p className="inspector-help">{translate("pointinpolygon_pentagram_note")}</p>
-        </div>
+        </ToolSection>
     </>;
 }
 
@@ -503,6 +509,54 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
+
+    /** The cards' declaration (pick boardText): the verdict, the crossing count and the winding number of `PointInPolygonStatus`, same texts. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const model = this.model;
+        const notes: ReadoutNote[] = [];
+        const readouts: ReadoutGroup[] = [];
+        const legend: LegendEntry[] = [];
+        // "Sodo-liho pravilo: znotraj (...)": the part before the first colon names the row, the rest is its value.
+        const split = (sentence: string) => {
+            const at = sentence.indexOf(":");
+            return {name: sentence.slice(0, at), value: sentence.slice(at + 1).trim()};
+        };
+        const label = (sentence: string) => sentence.replace(/:\s*$/, "");
+        if (!this.overlayShown("values")) {
+            notes.push({id: "values-hidden", text: t("pointinpolygon_values_hidden"), tone: "muted"});
+        } else {
+            const readout = pointInPolygonReadout(model, this.query);
+            if (readout.kind === "message") {
+                notes.push({id: "message", text: readout.reason === "open" ? t("pointinpolygon_open") : t("pointinpolygon_too_few", {value0: readout.missing}), tone: "muted"});
+            } else if (readout.kind === "boundary") {
+                readouts.push({id: "verdict", title: t("pointinpolygon_query_group"), rows: [{id: "location", name: "lega točke q", value: "na robu", tone: "accent"}]});
+                notes.push({id: "boundary", text: t("pointinpolygon_boundary_note"), tone: "muted"});
+            } else {
+                const evenOdd = split(readout.evenOdd === "inside" ? t("pointinpolygon_even_odd_inside") : t("pointinpolygon_even_odd_outside"));
+                const nonzero = split(readout.nonzero === "inside" ? t("pointinpolygon_nonzero_inside") : t("pointinpolygon_nonzero_outside"));
+                readouts.push({id: "verdict", title: t("pointinpolygon_query_group"), rows: [
+                    {id: "location", name: "lega točke q", value: readout.location === "inside" ? "znotraj" : readout.location === "outside" ? "zunaj" : "odvisno od pravila", tone: "accent"},
+                    {id: "crossings", name: label(t("pointinpolygon_crossings", {value0: ""})), value: String(readout.crossings), tone: "comparison"},
+                    {id: "even-odd", name: evenOdd.name, value: evenOdd.value},
+                    {id: "winding", name: label(t("pointinpolygon_winding", {value0: ""})), value: windingText(readout.winding), tone: "primary"},
+                    {id: "nonzero", name: nonzero.name, value: nonzero.value},
+                ]});
+                if (!readout.simple) notes.push({id: "not-simple", text: t("pointinpolygon_not_simple"), tone: "muted"});
+            }
+        }
+        const located = pointInPolygonReadout(model, this.query).kind === "located";
+        legend.push({id: "query", label: t("pointinpolygon_query_group"), kind: "point", color: GraphPalette.derivedPoint});
+        if (this.overlayShown("ray") && located) {
+            legend.push({id: "ray", label: t("pointinpolygon_overlay_ray"), kind: "dashed", color: GraphPalette.comparisonCurve});
+            legend.push({id: "crossing", label: "presečišče poltraka z robom", kind: "point", color: GraphPalette.primaryCurve});
+        }
+        if (this.overlayShown("winding") && located) {
+            legend.push({id: "winding-up", label: "rob, ovojno +1", kind: "line", color: GraphPalette.primaryCurve});
+            legend.push({id: "winding-down", label: "rob, ovojno −1", kind: "line", color: GraphPalette.comparisonCurve});
+        }
+        return {readouts, notes, legend, pucks: []};
+    }
 
     protected override workspaceEdit(): React.ReactNode {
         return <>

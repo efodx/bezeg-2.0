@@ -6,10 +6,13 @@
  */
 import type {LessonAction, LessonPoint, LessonViewBox} from '../model';
 import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the readout card a frame opens and the rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -1354,7 +1357,7 @@ const voronoi: GuidedLesson = {
                 'The site \\(P_6\\) is selected. Press Show bisector: each perpendicular bisector of the segment between \\(P_6\\) and another site splits the plane into the half-plane nearer to \\(P_6\\) and the half-plane nearer to the other site. The graph keeps the half-plane of \\(P_6\\) and shows what remains. When all bisectors are applied, what remains is the cell of \\(P_6\\). Compare it with your prediction; the diagram of the other cells is still hidden.',
             ),
             formulaIds: ['vor-cell-formula'],
-            frames: [frame('vor-cell-explanation', 'explanation'), frame('vor-cell-observation', 'observation')],
+            frames: [frame('vor-cell-explanation', 'explanation', readouts()), frame('vor-cell-observation', 'observation', readouts())],
             observationPrompt: text('Pritisni Pokaži simetralo, dokler izpis ne pove, da so uporabljene vse simetrale, in primerjaj ostanek z napovedjo.', 'Press Show bisector until the readout says all bisectors are applied and compare what remains with your prediction.'),
             expectedObservations: [text('Po zadnji simetrali ostane omejen večkotnik, celica mesta \\(P_6\\); izpis pove, da je presek polravnin celica.', 'After the last bisector a bounded polygon remains, the cell of \\(P_6\\); the readout says the intersection of the half-planes is the cell.')],
             scene: voronoiScene('vor-cell', [], VORONOI_QUERY_AWAY, [selectSite(VORONOI_CELL_SITE), setConstruction(0)],
@@ -1370,7 +1373,7 @@ const voronoi: GuidedLesson = {
                 'The graph now shows the whole diagram. The readout counts \\(7\\) Voronoi vertices, \\(8\\) finite edges and \\(5\\) rays. The cells of the five sites on the edge of the set, \\(P_1\\), \\(P_2\\), \\(P_3\\), \\(P_4\\) and \\(P_5\\), are unbounded: rays continue their borders to infinity. The cells of \\(P_6\\) and \\(P_7\\), which lie inside, are bounded (readout: bounded cells \\(2\\), unbounded cells \\(5\\)).',
             ),
             formulaIds: ['vor-cell-formula'],
-            frames: [frame('vor-diagram-explanation', 'explanation'), frame('vor-diagram-observation', 'observation')],
+            frames: [frame('vor-diagram-explanation', 'explanation', readouts('vertices', 'edges', 'rays')), frame('vor-diagram-observation', 'observation', readouts())],
             observationPrompt: text('Preberi števila v izpisu in poišči na grafu poltrake, ki kažejo, da celica sega v neskončnost.', 'Read the numbers in the readout and find on the graph the rays that show a cell reaching infinity.'),
             expectedObservations: [text('Izpis pokaže \\(7\\) oglišč, \\(8\\) končnih robov, \\(5\\) poltrakov, \\(2\\) omejeni in \\(5\\) neomejenih celic; celica mesta \\(P_6\\) je enaka tisti iz prejšnjega koraka.', 'The readout shows \\(7\\) vertices, \\(8\\) finite edges, \\(5\\) rays, \\(2\\) bounded and \\(5\\) unbounded cells; the cell of \\(P_6\\) equals the one from the previous step.')],
             scene: voronoiScene('vor-diagram', ['diagram'], VORONOI_QUERY_AWAY, [],
@@ -1386,7 +1389,7 @@ const voronoi: GuidedLesson = {
                 'The Delaunay triangulation of the same sites is switched on. The triangle \\(P_1P_2P_6\\) is selected: the centre of its circumcircle is \\((4,-1)\\), and the graph marks it as a Voronoi vertex. By calculation: the squared distance from \\((4,-1)\\) to each of \\(P_1\\), \\(P_2\\) and \\(P_6\\) is \\(17\\). The interior edges of the triangulation (\\(8\\)) match the finite edges of the diagram, the hull edges (\\(5\\)) match the rays. This is duality. A picture of a few sites illustrates duality and does not prove it; the proof rests on the empty-circle property of the Delaunay triangulation.',
             ),
             formulaIds: ['vor-cell-formula'], workedExampleId: 'vor-vertex-example',
-            frames: [frame('vor-dual-explanation', 'explanation'), frame('vor-dual-calculation', 'calculation'), frame('vor-dual-observation', 'observation')],
+            frames: [frame('vor-dual-explanation', 'explanation', readouts('triangle-vertex')), frame('vor-dual-calculation', 'calculation'), frame('vor-dual-observation', 'observation', readouts())],
             observationPrompt: text('Izberi še en trikotnik na seznamu in preveri, da je njegovo središče očrtane krožnice oglišče diagrama.', 'Select another triangle in the list and check that the centre of its circumcircle is a vertex of the diagram.'),
             expectedObservations: [text('Izpis pri trikotniku \\(P_1P_2P_6\\) pokaže središče \\((4,-1)\\) kot Voronojevo oglišče, enako oddaljeno od mest \\(P_1\\), \\(P_2\\) in \\(P_6\\).', 'For the triangle \\(P_1P_2P_6\\) the readout shows the centre \\((4,-1)\\) as a Voronoi vertex equally far from the sites \\(P_1\\), \\(P_2\\) and \\(P_6\\).')],
             scene: voronoiScene('vor-dual', ['diagram', 'delaunay'], VORONOI_QUERY_AWAY, [{kind: 'point-set', operation: 'select-triangle', triangle: VORONOI_TRIANGLE_INDEX}],
@@ -1418,7 +1421,7 @@ const voronoi: GuidedLesson = {
                 'The query point is now in the cell of \\(P_6\\). Drag it, type its coordinates or use the arrow buttons: the readout names the nearest site and highlights its cell. On the border of two cells two sites are nearest, at a Voronoi vertex at least three. Move the sites too and look for when a cell is bounded and when not.',
             ),
             formulaIds: ['vor-cell-formula'],
-            frames: [frame('vor-explore-explanation', 'explanation'), frame('vor-explore-observation', 'observation')],
+            frames: [frame('vor-explore-explanation', 'explanation', readouts('nearest')), frame('vor-explore-observation', 'observation', readouts())],
             observationPrompt: text('Postavi točko poizvedbe na mejo dveh celic in preberi, katera mesta izpis imenuje.', 'Put the query point on the border of two cells and read which sites the readout names.'),
             expectedObservations: [text('Na meji izpis imenuje dve enako oddaljeni mesti; v celici mesta \\(P_6\\) imenuje \\(P_6\\).', 'On a border the readout names two equally near sites; inside the cell of \\(P_6\\) it names \\(P_6\\).')],
             scene: voronoiScene('vor-explore', ['diagram', 'delaunay'], VORONOI_QUERY_FREE, [],
@@ -2792,7 +2795,7 @@ const pointInPolygon: GuidedLesson = {
                 'The notched pentagon has the vertices \\((0,0)\\), \\((6,0)\\), \\((6,4)\\), \\((3,2)\\) and \\((0,4)\\). Drag the point \\(q\\), now at \\((3,1)\\), with the mouse or the arrow keys and read the readout under the graph: it says whether \\(q\\) is inside or outside. You do not see the ray yet.',
             ),
             formulaIds: [],
-            frames: [frame('pip-drag-explanation', 'explanation'), frame('pip-drag-observation', 'observation')],
+            frames: [frame('pip-drag-explanation', 'explanation', readouts('location')), frame('pip-drag-observation', 'observation', readouts())],
             observationPrompt: text('Premakni \\(q\\) v zarezo pri vrhu in opazuj, kdaj se izpis spremeni.', 'Move \\(q\\) into the notch at the top and watch when the readout changes.'),
             expectedObservations: [text('V \\((3,1)\\) je \\(q\\) znotraj; v zarezi, na primer v \\((3,3)\\), je zunaj.', 'At \\((3,1)\\) the point \\(q\\) is inside; in the notch, for example at \\((3,3)\\), it is outside.')],
             scene: pipScene('pip-drag', 'notched', PIP_QUERY.drag, ['values'],
@@ -2824,7 +2827,7 @@ const pointInPolygon: GuidedLesson = {
                 'The ray from \\(q=(1,3)\\) to the right crosses the boundary in \\(3\\) points, numbered outwards from \\(q\\). The number is odd, so \\(q\\) is inside: the ray enters the notch, leaves it and finally leaves the polygon. The readout says the same.',
             ),
             formulaIds: ['pip-ray-rule'],
-            frames: [frame('pip-ray-reveal-explanation', 'explanation'), frame('pip-ray-reveal-observation', 'observation')],
+            frames: [frame('pip-ray-reveal-explanation', 'explanation', readouts('crossings', 'location')), frame('pip-ray-reveal-observation', 'observation', readouts())],
             observationPrompt: text('Primerjaj napoved s številom presečišč in premakni \\(q\\) navzgor v zarezo.', 'Compare your prediction with the number of crossings and move \\(q\\) up into the notch.'),
             expectedObservations: [text('Tri presečišča (liho) pomenijo znotraj; ko je \\(q\\) v zarezi, jih je sodo mnogo in točka je zunaj.', 'Three crossings (odd) mean inside; when \\(q\\) is in the notch the count is even and the point is outside.')],
             scene: pipScene('pip-ray-reveal', 'notched', PIP_QUERY.predict, ['ray', 'values'],
@@ -2840,7 +2843,7 @@ const pointInPolygon: GuidedLesson = {
                 'We move the point to \\((1,2)\\): the ray now passes through the vertex \\((3,2)\\). The half-open rule treats a vertex on the ray as lying just below it: an edge counts if exactly one of its endpoints is strictly above the ray. Both edges at \\((3,2)\\) have their other endpoint above the ray, so both count and the readout shows \\(3\\) crossings; the answer stays inside, as for a nearby ray. A horizontal edge on the ray never counts. If you drag \\(q\\) onto an edge, for example to \\((3,0)\\), the readout says the point is on the boundary: that is neither inside nor outside, and there is no crossing count or winding number.',
             ),
             formulaIds: ['pip-ray-rule'],
-            frames: [frame('pip-boundary-explanation', 'explanation'), frame('pip-boundary-observation', 'observation')],
+            frames: [frame('pip-boundary-explanation', 'explanation', readouts('crossings', 'location')), frame('pip-boundary-observation', 'observation', readouts())],
             observationPrompt: text('Povleci \\(q\\) na spodnji rob in nazaj ter opazuj, kaj se zgodi z izpisom.', 'Drag \\(q\\) onto the bottom edge and back and watch what happens to the readout.'),
             expectedObservations: [text('Na robu izpis pove "na robu" in ne pokaže števila presečišč; tik ob robu je točka spet znotraj ali zunaj.', 'On an edge the readout says "on the boundary" and shows no crossing count; right next to the edge the point is inside or outside again.')],
             scene: pipScene('pip-boundary', 'notched', PIP_QUERY.vertexRay, ['ray', 'values'],
@@ -2856,7 +2859,7 @@ const pointInPolygon: GuidedLesson = {
                 'The winding number counts how many times the boundary goes around \\(q\\) counter-clockwise. Each crossing counts \\(+1\\) if the edge crosses the ray upwards and \\(-1\\) if downwards. For \\(q=(3,3)\\) in the notch there are two crossings, one up and one down, so the winding number is \\(0\\) and the point is outside. At \\((1,3)\\) the winding number is \\(1\\).',
             ),
             formulaIds: ['pip-winding-rule'], workedExampleId: 'pip-notch-example',
-            frames: [frame('pip-winding-explanation', 'explanation'), frame('pip-winding-calculation', 'calculation'), frame('pip-winding-observation', 'observation')],
+            frames: [frame('pip-winding-explanation', 'explanation', readouts('crossings', 'winding')), frame('pip-winding-calculation', 'calculation'), frame('pip-winding-observation', 'observation', readouts())],
             observationPrompt: text('Primerjaj število presečišč in ovojno število na več točkah.', 'Compare the crossing count and the winding number at several points.'),
             expectedObservations: [text('Število presečišč in ovojno število sta vedno iste parnosti; v zarezi je ovojno število \\(0\\), v petkotniku \\(1\\).', 'The crossing count and the winding number always have the same parity; in the notch the winding number is \\(0\\), in the pentagon \\(1\\).')],
             scene: pipScene('pip-winding', 'notched', PIP_QUERY.notch, ['ray', 'winding', 'values'],
@@ -2872,7 +2875,7 @@ const pointInPolygon: GuidedLesson = {
                 'The pentagram crosses itself. At the centre \\((0,0)\\) the ray crosses two edges in the same direction, so \\(c=2\\) and \\(w=2\\): the even–odd rule says outside, the nonzero rule says inside. In a tip, for example at \\((0,12)\\), we have \\(c=1\\) and \\(w=1\\) and the rules agree. The figure is a lattice approximation of the regular pentagram, because its vertices are not lattice points: the vertices \\((0,16)\\), \\((-9,-13)\\), \\((15,5)\\), \\((-15,5)\\) and \\((9,-13)\\) are integers, and the winding numbers are checked by an exact test.',
             ),
             formulaIds: ['pip-winding-rule'], workedExampleId: 'pip-pentagram-example',
-            frames: [frame('pip-pentagram-explanation', 'explanation'), frame('pip-pentagram-calculation', 'calculation'), frame('pip-pentagram-observation', 'observation')],
+            frames: [frame('pip-pentagram-explanation', 'explanation', readouts('crossings', 'winding')), frame('pip-pentagram-calculation', 'calculation'), frame('pip-pentagram-observation', 'observation', readouts())],
             observationPrompt: text('Povleci \\(q\\) iz središča v konico in opazuj, kdaj se pravili ujemata.', 'Drag \\(q\\) from the centre into a tip and watch when the rules agree.'),
             expectedObservations: [text('V središču je ovojno število \\(2\\) in pravili se razlikujeta; v konici je \\(1\\) in se ujemata.', 'At the centre the winding number is \\(2\\) and the rules differ; in a tip it is \\(1\\) and they agree.')],
             scene: pipScene('pip-pentagram', 'pentagram', PIP_QUERY.pentagramCentre, ['ray', 'winding', 'values'],
@@ -2888,7 +2891,7 @@ const pointInPolygon: GuidedLesson = {
                 'Move \\(q\\) around the notched pentagon and the pentagram (the Examples buttons) and switch the ray, the winding number and the readout on and off. Try to find a point where the crossing count is odd but the winding number is not \\(1\\), and a point on the boundary.',
             ),
             formulaIds: ['pip-ray-rule', 'pip-winding-rule'],
-            frames: [frame('pip-explore-explanation', 'explanation'), frame('pip-explore-observation', 'observation')],
+            frames: [frame('pip-explore-explanation', 'explanation', readouts()), frame('pip-explore-observation', 'observation', readouts())],
             observationPrompt: text('Poišči točko, kjer se sodo-liho in neničelno pravilo razlikujeta.', 'Find a point where the even–odd and the nonzero rule differ.'),
             expectedObservations: [text('Pravili se razlikujeta le na pentagramu, v njegovem središčnem petkotniku, kjer je ovojno število \\(2\\).', 'The rules differ only on the pentagram, in its central pentagon, where the winding number is \\(2\\).')],
             scene: pipScene('pip-explore', 'notched', PIP_QUERY.drag, ['ray', 'winding', 'values'],

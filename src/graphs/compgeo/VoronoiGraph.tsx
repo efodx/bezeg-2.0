@@ -18,7 +18,9 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {CompgeoRegionPalette, voronoiCellFill} from "./CompgeoRegionPalette";
 import {drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
-import {VoronoiControlActions, VoronoiControls, VoronoiExampleId, VoronoiStatus, VoronoiTriangles} from "./VoronoiControls";
+import {fourPointText, siteList, VoronoiControlActions, VoronoiControls, VoronoiExampleId, VoronoiStatus, VoronoiTriangles} from "./VoronoiControls";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
 import {fourPointReadout} from "./degenerateSites";
 import {bisectorOrder, constructionRegion, parseRationalText} from "./voronoiConstruction";
 import {boardFrameOf, fitFrame} from "./frameFit";
@@ -864,6 +866,67 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
                 ? {corners: sortedTriple(corners), x: centre.point.x.format(), y: centre.point.y.format(), sites: vertex.sites}
                 : undefined,
         };
+    }
+
+    /** The cards' declaration (pick boardText): the counts, the vertices, the query answer, the construction text and the four-point sentences of `VoronoiControls`, same texts. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const status = this.status();
+        const refusal = status.refusal;
+        const {counts, construction} = status;
+        const label = (sentence: string) => sentence.replace(/:\s*$/, "");
+        const pair = (x: string, y: string) => `(${x}, ${y})`;
+        const readouts: ReadoutGroup[] = [];
+        if (!refusal && status.diagramShown) {
+            const count = (id: string, key: "vor_count_sites" | "vor_count_vertices" | "vor_count_edges" | "vor_count_rays" | "vor_count_lines" | "vor_count_bounded" | "vor_count_unbounded", value: number): ReadoutRow =>
+                ({id, name: label(t(key, {value0: ""})), value: String(value)});
+            readouts.push({id: "diagram", title: t("vor_readout_label"), rows: [
+                count("sites", "vor_count_sites", counts.sites),
+                count("vertices", "vor_count_vertices", counts.vertices),
+                count("edges", "vor_count_edges", counts.finite),
+                count("rays", "vor_count_rays", counts.rays),
+                ...(counts.lines > 0 ? [count("lines", "vor_count_lines", counts.lines)] : []),
+                count("bounded", "vor_count_bounded", counts.bounded),
+                count("unbounded", "vor_count_unbounded", counts.unbounded),
+            ]});
+            if (status.vertices.length > 0) {
+                readouts.push({id: "vertex-list", title: t("vor_vertices_label"), rows: status.vertices.map((vertex, index) => (
+                    {id: `vertex-${index + 1}`, name: `V${index + 1}`, value: pair(vertex.x, vertex.y), tone: "accent" as const}))});
+            }
+        }
+        if (!refusal) {
+            const nearest = status.query.nearest;
+            readouts.push({id: "query", title: t("vor_query_group"), rows: [
+                {id: "query-point", name: "točka", symbol: "q", value: pair(status.query.x, status.query.y), tone: "accent"},
+                {id: "nearest", name: "najbližje mesto", value: siteList(nearest), tone: "error"},
+            ]});
+        }
+        const selected = status.selectedVertex;
+        if (status.overlayShown && selected) {
+            readouts.push({id: "triangle", title: t("vor_overlay_delaunay"), rows: [
+                {id: "triangle-vertex", name: `središče trikotnika ${siteList(selected.corners)}`, value: pair(selected.x, selected.y), tone: "accent"},
+                {id: "triangle-sites", name: "enako oddaljeno od mest", value: siteList(selected.sites)},
+            ]});
+        }
+        const notes: ReadoutNote[] = [];
+        if (!refusal && status.collinear) notes.push({id: "collinear", text: t("vor_collinear_note"), tone: "muted"});
+        if (construction && status.cellSite !== null) {
+            const text = construction.count === 0 ? t("vor_construct_start", {value0: status.cellSite + 1, value1: construction.total})
+                : construction.done ? t("vor_construct_done", {value0: status.cellSite + 1, value1: construction.count})
+                : t("vor_construct_step", {value0: construction.count, value1: construction.total, value2: status.cellSite + 1, value3: (construction.other ?? 0) + 1});
+            notes.push({id: "construction", text, tone: "muted"});
+        }
+        const four = fourPointText(t, status);
+        if (four) {
+            notes.push({id: "four-incircle", text: four.incircle, tone: "muted"}, {id: "four-vertices", text: four.vertices, tone: "muted"});
+            for (const diagonal of four.diagonals) notes.push({id: `four-diagonal-${diagonal.key}`, text: diagonal.text, tone: "muted"});
+            if (four.verdict) notes.push({id: "four-verdict", text: four.verdict, tone: "muted"});
+        }
+        const legend: LegendEntry[] = [];
+        if (status.diagramShown && !refusal) legend.push({id: "diagram", label: t("vor_overlay_diagram"), kind: "line", color: GraphPalette.primaryCurve});
+        if (status.overlayShown && status.triangles.length > 0) legend.push({id: "delaunay", label: t("vor_overlay_delaunay"), kind: "dashed", color: GraphPalette.constructionAccent});
+        if (!refusal) legend.push({id: "query", label: t("vor_query_group"), kind: "point", color: GraphPalette.derivedPoint});
+        return {readouts, notes, legend, pucks: []};
     }
 
     protected override workspaceEdit(): React.ReactNode {
