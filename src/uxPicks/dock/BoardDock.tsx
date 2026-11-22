@@ -163,8 +163,8 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
                 const r = el.getBoundingClientRect();
                 if (r.height < 60 || r.width < 40) return;
                 const rows = Array.from(el.querySelectorAll<HTMLElement>('[data-readout]')).filter(row => row.getBoundingClientRect().bottom > r.bottom - 14).length;
-                // Centred over the visible part of the card, just above its bottom edge.
-                next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(r.left - f.left + r.width / 2), y: Math.round(r.bottom - f.top - 18 - (el.classList.contains('ux-dock-region') ? 14 : 4)), n: rows,
+                // Centred on the card's bottom edge (half over the fade, half below), so it never covers a readable row.
+                next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(r.left - f.left + r.width / 2), y: Math.round(r.bottom - f.top - 14 - (el.classList.contains('ux-dock-region') ? 10 : 0)), n: rows,
                     scroll: () => el.scrollBy({top: Math.max(60, el.clientHeight * 0.8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'})});
             };
             root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(consider);

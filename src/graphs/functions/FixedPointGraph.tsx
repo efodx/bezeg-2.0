@@ -513,8 +513,9 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                 ]},
                 {id: "bound", title: t("fixed_point_bound_actions_label"), rows: [
                     {id: "q", name: t("fixed_point_readout_q"), value: !shown ? hidden : contraction ? formatNumber(history.q ?? 0, language, 6) : t("fixed_point_no_bound")},
-                    {id: "a-priori", name: t("fixed_point_readout_a_priori"), value: bound(history.current.aPriori)},
-                    {id: "a-posteriori", name: t("fixed_point_readout_a_posteriori"), value: bound(history.current.aPosteriori), ...(boundDrawn ? {legend: "bound"} : {})},
+                    // The catalog names carry the bound as plain text ("q^k/(1 − q) · …"): the words stay the name, the bound is set as TeX.
+                    {id: "a-priori", name: t("fixed_point_readout_a_priori").split(" q")[0], symbol: "\\frac{q^{k}}{1-q}\\,|x_1-x_0|", value: bound(history.current.aPriori)},
+                    {id: "a-posteriori", name: t("fixed_point_readout_a_posteriori").split(" q")[0], symbol: "\\frac{q}{1-q}\\,|x_k-x_{k-1}|", value: bound(history.current.aPosteriori), ...(boundDrawn ? {legend: "bound"} : {})},
                 ]},
             ],
             notes,

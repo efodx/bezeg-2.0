@@ -29,6 +29,9 @@
 .ux-dock-a-tl { max-height: calc(var(--ux-dock-h, 600px) * 0.8); }
 .ux-dock-a-tr { max-height: calc(var(--ux-dock-h, 600px) * 0.62); }
 .ux-dock-a-br { max-height: calc(var(--ux-dock-h, 600px) * 0.4); }
+/* Below the top-right stack only folded heads (the Legenda chip): the stack takes the column down to them instead of
+   stopping at its 62 % share and cutting rows behind a fade with free board under it (critique round 7, P1). */
+.ux-dock-col-r:not(:has(> :is(.ux-dock-a-mr, .ux-dock-a-br) > .ux-btext:not(.ux-btext-collapsed))) > .ux-dock-a-tr { max-height: calc(100% - 4px); }
 /* A stack alone in its side column (nothing docked above or below it, no gap shown there) takes the column's whole height
    and scrolls only past it; the shares above leave room only for neighbours that exist. */
 .ux-dock-col:not(:has(> .ux-dock-region:not(:empty) ~ .ux-dock-region:not(:empty))) > .ux-dock-v:not(:empty) { max-height: calc(100% - 4px); }
