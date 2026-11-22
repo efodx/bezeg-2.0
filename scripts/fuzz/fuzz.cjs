@@ -135,6 +135,12 @@ async function exec(p, act, c) {
     const sl = c.sliders.find(x => x.k === act.k);
     const needsSlider = ['drag', 'clickTrack', 'arrow', 'type'].includes(act.a);
     if (needsSlider && !sl) return {...none, skipped: true};
+    // The slider may sit inside a scrolled inspector (an earlier focus scrolled it away): bring it into view and read its box
+    // again, or the pointer lands on whatever is at the old coordinates and the "learner write" never happens.
+    if (sl && ['drag', 'clickTrack'].includes(act.a)) {
+        const b = await p.locator(`[data-fzs="${sl.k}"]`).evaluate(e => { e.scrollIntoView({block: 'nearest'}); const r = e.getBoundingClientRect(); return {x: r.x, y: r.y, w: r.width, h: r.height}; }).catch(() => null);
+        if (b) Object.assign(sl, b);
+    }
     const midY = sl ? sl.y + sl.h / 2 : 0;
     // `stale`: a slider write is followed by a delayed write of the previous value (acceptance check for I1).
     const withStale = async fn => {

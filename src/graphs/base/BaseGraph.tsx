@@ -1030,6 +1030,25 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         if (!this.equalAxisUnits) session.view.setIntent(this.startingBox(container), {keepAspectRatio: false});
         // Tick labels use the language's decimal separator and are rebuilt only by a full update.
         session.registerCleanup(onLanguageChange(() => this.board?.fullUpdate()));
+        if (typeof window !== "undefined") session.registerCleanup(this.listenForEscape());
+    }
+
+    /**
+     * Escape stills everything (docs/specs/parameter-writes.md, acceptance 4): playback pauses and the leases end. Escape that
+     * something else already used (`defaultPrevented`) or that belongs to an open dialog, menu, listbox or combobox popup is left alone.
+     */
+    private listenForEscape(): () => void {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== "Escape" || event.defaultPrevented) return;
+            const target = event.target;
+            if (target instanceof Element && target.closest('[role="dialog"], dialog, [role="menu"], [role="listbox"], [role="combobox"][aria-expanded="true"]')) return;
+            runAs("learner", () => {
+                this.pausePlayback();
+                this.parameterArbiter?.endAllLeases("learner");
+            });
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
     }
 
     /**
