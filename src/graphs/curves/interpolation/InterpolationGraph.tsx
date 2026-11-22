@@ -20,8 +20,12 @@ import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     DEFAULT_INTERPOLATION_PRESET, INTERPOLATION_COORDINATE_LIMIT, interpolationRejection, InterpolationPresetData,
-    isParameterRule, ParameterRule, readoutLines,
+    isParameterRule, ParameterRule, parametersOf, readoutAt, readoutLines,
 } from "./interpolationModel";
+import {pickOn} from "../../../uxPicks/picks";
+import type {GraphUx, ReadoutGroup} from "../../../uxPicks/declare/graphUx";
+import {GraphPalette} from "../../styles/GraphPalette";
+import {formatNumber} from "../../../analysis/format";
 import {interpolationPresetCollection} from "./interpolationPresetCollection";
 import {InterpolationScene} from "./InterpolationScene";
 
@@ -41,7 +45,7 @@ export interface InterpolationGraphState extends BaseGraphState {
 function InterpolationReadout({lines}: {lines: readonly string[]}) {
     const readout = useStatusReadout(lines.join("\n"), true);
     return <>
-        <div className="inspector-help">{lines.map((line, i) => <p key={i}>{line}</p>)}</div>
+        {!pickOn("boardText") && <div className="inspector-help">{lines.map((line, i) => <p key={i}>{line}</p>)}</div>}
         <LiveReadout readout={readout}/>
     </>;
 }
@@ -295,6 +299,48 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         });
     }
 
+    /** The cards' declaration: the weights readout of the Lagrange (and Bezier) curve at the shared position s, as rows. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const {points, parameterRule, showHull, showBezier, t: position} = this.state;
+        if (!this.state.initialized) return undefined;
+        const language = currentLanguage();
+        const num = (value: number) => formatNumber(value, language, 4);
+        const list = (values: readonly number[]) => values.map(num).join("; ");
+        const separator = language === "sl" ? "; " : ", ";
+        const valid = !interpolationRejection(points, parameterRule);
+        const readouts: ReadoutGroup[] = [];
+        if (valid) {
+            const {lagrange, bezier} = readoutAt(points, parameterRule, position);
+            const parameters = parametersOf(points, parameterRule);
+            readouts.push({id: "lagrange", title: "Lagrangeev polinom", rows: [
+                {id: "lagrange-t", name: "parameter", symbol: "t", value: num(lagrange.parameter)},
+                {id: "lagrange-interval", name: "interval", symbol: "t", value: `[0; ${num(parameters[parameters.length - 1])}]`},
+                {id: "lagrange-weights", name: "uteži", value: list(lagrange.weights)},
+                {id: "lagrange-point", name: "točka", value: `(${num(lagrange.point[0])}${separator}${num(lagrange.point[1])})`, legend: "lagrange"},
+            ]});
+            if (showBezier) {
+                readouts.push({id: "bezier", title: "Bézierova krivulja", rows: [
+                    {id: "bezier-t", name: "parameter", symbol: "t", value: num(bezier.parameter)},
+                    {id: "bezier-weights", name: "uteži", value: list(bezier.weights)},
+                    {id: "bezier-point", name: "točka", value: `(${num(bezier.point[0])}${separator}${num(bezier.point[1])})`, legend: "bezier"},
+                ]});
+            }
+        }
+        return {
+            pucks: [{param: "interp.t", help: t("interp_slider_help")}],
+            readouts,
+            notes: [{id: "negative-weights", text: "Uteži Lagrangeevega polinoma so lahko negativne.", tone: "muted"}],
+            readoutHelp: <p>{t("interp_slider_help")}</p>,
+            legend: [
+                {id: "lagrange", label: "Lagrangeev polinom", kind: "line", color: GraphPalette.primaryCurve},
+                ...(showBezier ? [{id: "bezier", label: "Bézierova krivulja", kind: "dashed" as const, color: GraphPalette.comparisonCurve}] : []),
+                ...(showHull ? [{id: "hull", label: "Konveksna ovojnica", kind: "dashed" as const, color: GraphPalette.controlPolygon}] : []),
+                {id: "points", label: "Interpolacijske točke", kind: "point", color: GraphPalette.controlPoint},
+            ],
+        };
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
@@ -316,7 +362,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
             <div key="basis"><OnOffSwitch checked={showBasis} label={t("interp_show_basis")} onChange={checked => this.setShowBasis(checked)}/></div>,
             ...(showBasis ? [<div key="basis-plot"><BasisPlot data={basisPlotData(points, parameterRule, position)} fontSize={this.displaySettings.fontSize}/></div>] : []),
             <div key="position"><Slider min={0} max={1} step={0.01} value={position} customText={t("interp_slider_position")}
-                                        help={t("interp_slider_help")} onChange={value => this.setPosition(value)}/></div>,
+                                        help={t("interp_slider_help")} paramKey="interp.t" onChange={value => this.setPosition(value)}/></div>,
             <InterpolationReadout key="readout" lines={lines}/>,
             <RefusalNotice key="notice" channel={this.refusals}/>,
         );

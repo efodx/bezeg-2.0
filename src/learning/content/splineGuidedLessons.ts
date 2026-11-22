@@ -1,4 +1,5 @@
 import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {LessonCurveFixture, LessonViewBox} from '../model';
 
 /**
@@ -14,7 +15,7 @@ import type {LessonCurveFixture, LessonViewBox} from '../model';
  */
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
 
 const thesisSource = (id: string, where: string, implementationCorrespondence?: string): ContentSource => ({
     id,
@@ -295,7 +296,7 @@ const splineC1: GuidedLesson = {
                 'The smallest symmetric spline has \\(4\\) free points and \\(2\\) quadratic pieces. In the symmetric construction (Algorithm 4, section 4.2.2) all points are free; the joint between the pieces is derived and found by the program.',
             ),
             formulaIds: ['c1-junction'],
-            frames: [frame('c1-pieces-explanation', 'explanation'), frame('c1-pieces-observation', 'observation')],
+            frames: [frame('c1-pieces-explanation', 'explanation'), frame('c1-pieces-observation', 'observation', {open: ['legend']})],
             observationPrompt: text('Preštej odseka in stično točko ter poglej, katere točke lahko vlečeš.', 'Count the two pieces and the joint and see which points you can drag.'),
             expectedObservations: [text('Odsekov je \\(2\\), stična točka je ena, \\((0;\\ 2)\\); vsak odsek ima tri kontrolne točke, od tega je ena stična.', 'There are \\(2\\) pieces and one joint, \\((0,\\ 2)\\); every piece has three control points, one of which is the joint.')],
             scene: {
@@ -315,7 +316,7 @@ const splineC1: GuidedLesson = {
                 'The joint \\(J_l\\) lies on the edge \\(p_lp_{l+1}\\) of the control polygon and divides it in the ratio \\(\\Delta u_{l-1}:\\Delta u_l\\). The spline has uniform spacing (each piece takes \\(\\tfrac12\\) of the parameter), so \\(J_l\\) is the midpoint: \\(J_1=(0,\\ 2)\\), the middle of the edge between \\(p_1=(-2,\\ 2)\\) and \\(p_2=(2,\\ 2)\\).',
             ),
             formulaIds: ['c1-junction'],
-            frames: [frame('c1-midpoint-explanation', 'explanation'), frame('c1-midpoint-calculation', 'calculation'), frame('c1-midpoint-observation', 'observation')],
+            frames: [frame('c1-midpoint-explanation', 'explanation', {open: ['legend']}), frame('c1-midpoint-calculation', 'calculation'), frame('c1-midpoint-observation', 'observation', {open: ['legend']})],
             workedExampleId: 'c1-first-junction',
             observationPrompt: text('Preveri s kontrolnim poligonom, da stična točka leži na sredini stranice \\(p_1p_2\\).', 'Use the control polygon to check that the joint lies at the middle of the edge \\(p_1p_2\\).'),
             expectedObservations: [text('Stična točka \\((0;\\ 2)\\) je na sredini stranice \\(p_1p_2\\); stranici \\(p_0p_1\\) in \\(p_2p_3\\) nimata stične točke.', 'The joint \\((0,\\ 2)\\) is at the middle of the edge \\(p_1p_2\\); the edges \\(p_0p_1\\) and \\(p_2p_3\\) have no joint.')],
@@ -336,7 +337,7 @@ const splineC1: GuidedLesson = {
                 'The pieces before and after a joint have their tangent along the edge \\(p_lp_{l+1}\\) there: the segments \\(p_lJ_l\\) and \\(J_lp_{l+1}\\) are parts of the same edge and the ratio of their lengths equals the ratio of the parameter intervals. So the derivatives agree (condition (4.3)) and the curve touches the control polygon at the joint. Here the derivative at the joint is nonzero and horizontal, parallel to the edge \\(p_1p_2\\).',
             ),
             formulaIds: ['c1-tangent'],
-            frames: [frame('c1-tangent-step-explanation', 'explanation'), frame('c1-tangent-step-observation', 'observation')],
+            frames: [frame('c1-tangent-step-explanation', 'explanation', {open: ['legend']}), frame('c1-tangent-step-observation', 'observation', {open: ['legend']})],
             observationPrompt: text('Sledi krivulji skozi stično točko in preveri, da se tam ne zlomi ter da se dotika poligona.', 'Follow the curve through the joint and check that it does not break there and that it touches the polygon.'),
             expectedObservations: [text('V stični točki je krivulja gladka in se dotika vodoravne stranice poligona \\(p_1p_2\\).', 'At the joint the curve is smooth and touches the horizontal edge \\(p_1p_2\\) of the polygon.')],
             scene: {
@@ -356,7 +357,7 @@ const splineC1: GuidedLesson = {
                 'For comparison we return to the default spline with \\(6\\) free points and \\(4\\) pieces. A joint \\(J_l\\) depends only on two neighbouring free points, so moving a point reaches only the pieces next to those joints. Figure 25 of the thesis shows that such a spline is much friendlier to the user than the one-sided one.',
             ),
             formulaIds: ['c1-junction'],
-            frames: [frame('c1-local-explanation', 'explanation'), frame('c1-local-observation', 'observation')],
+            frames: [frame('c1-local-explanation', 'explanation', {open: ['readouts'], highlight: ['pieces', 'free-points']}), frame('c1-local-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text('Povleci \\(p_5\\), nato \\(p_2\\) in opazuj, kateri odseki se spremenijo.', 'Drag \\(p_5\\), then \\(p_2\\), and watch which pieces change.'),
             expectedObservations: [text('Premik \\(p_5\\) spremeni samo zadnji odsek; premik \\(p_2\\) spremeni prve tri odseke, četrti ostane.', 'Moving \\(p_5\\) changes only the last piece; moving \\(p_2\\) changes the first three pieces and the fourth stays.')],
             scene: {

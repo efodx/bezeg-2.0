@@ -113,13 +113,15 @@ interface OperationToolProps {
     applyReason?: string;
     applyClassName?: string;
     applyIcon?: React.ReactNode;
+    /** Key under which the operation's parameter slider publishes itself as a puck (optional). */
+    paramKey?: string;
 }
 
 /**
  * One curve operation: its parameter `Slider`, a pressed Preview button and an Apply `UnavailableButton`. Applying clears the
  * preview first. Used by the selected-curve panel, the Edit tab and the operation graphs.
  */
-export function OperationTool({curve, tool, onChanged, onApplied = onChanged, previews, parameter, onApply, applyReason, applyClassName, applyIcon}: OperationToolProps) {
+export function OperationTool({curve, tool, onChanged, onApplied = onChanged, previews, parameter, onApply, applyReason, applyClassName, applyIcon, paramKey}: OperationToolProps) {
     const t = useT();
     const [blocked, setBlocked] = useState(0);
     const apply = (action: () => void) => {
@@ -135,14 +137,14 @@ export function OperationTool({curve, tool, onChanged, onApplied = onChanged, pr
     if (tool === "subdivision") {
         const p = parameter === undefined ? {value: curve.getSubdivisionT(), min: 0, max: 1,
             onChange: (value: number) => curve.setSubdivisionT(value)} : parameter;
-        slider = p && <Slider min={p.min} max={p.max} value={p.value} customText={t("subdivision_parameter_t")}
+        slider = p && <Slider min={p.min} max={p.max} value={p.value} customText={t("subdivision_parameter_t")} paramKey={paramKey}
                               onChange={value => {p.onChange(value); onChanged();}}/>;
         action = () => curve.subdivide();
         previewLabel = t("preview_subdivision");
     } else if (tool === "extrapolation") {
         const p = parameter === undefined ? {value: curve.getExtrapolationT(), min: EXTRAPOLATION_T_MIN, max: EXTRAPOLATION_T_MAX,
             onChange: (value: number) => curve.setExtrapolationT(value)} : parameter;
-        slider = p && <Slider min={p.min} max={p.max} value={p.value} customText={t("extrapolation_parameter_t")}
+        slider = p && <Slider min={p.min} max={p.max} value={p.value} customText={t("extrapolation_parameter_t")} paramKey={paramKey}
                               onChange={value => {p.onChange(value); onChanged();}}/>;
         action = () => curve.extrapolate(curve.getExtrapolationT());
         previewLabel = t("preview_extrapolation");

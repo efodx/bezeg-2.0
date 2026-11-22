@@ -1,4 +1,4 @@
-import {t} from "../../../localization";
+import {currentLanguage, t} from "../../../localization";
 import React from 'react';
 
 import {GraphPalette} from "../../styles/GraphPalette";
@@ -11,6 +11,9 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {subdivisionPresetCollection} from "./collections";
+import {pickOn} from "../../../uxPicks/picks";
+import type {GraphUx} from "../../../uxPicks/declare/graphUx";
+import {formatNumber} from "../../../analysis/format";
 
 /** The subdivision parameter t stays strictly inside (0, 1) so both pieces are real curves. The lesson action, the slider and subdivide all use these. */
 export const SUBDIVISION_T_MIN = 0.01;
@@ -160,10 +163,39 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                 label={t("show_scheme")}/></div></>;
     }
 
+    /** The cards' declaration: the cut parameter, the point where the curve is cut, the number of pieces and what is drawn. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        if (!this.state.initialized || !this.getFirstJxgCurve()) return undefined;
+        const language = currentLanguage();
+        const number = (value: number) => formatNumber(value, language, 3);
+        const separator = language === "sl" ? "; " : ", ";
+        const pieces = this.jxgCurves.length;
+        const cut = this.getFirstCurve().eval(pieces === 1 ? this.state.t : 1);
+        const schemeShown = this.getFirstJxgCurve().isShowingDecasteljauScheme() || !!this.state.showDecasteljau;
+        return {
+            pucks: [{param: "subdivision.t", help: "Parameter t določa, kje krivuljo razrežemo: levi del je krivulja na [0, t], desni del pa na [t, 1]."}],
+            readouts: [
+                {id: "cut", title: "Rez", rows: [
+                    ...(pieces === 1 ? [{id: "t", name: t("subdivision_parameter_t"), value: number(this.state.t)}] : []),
+                    {id: "cut-point", name: "točka reza", symbol: "B(t)", value: `(${number(cut.X())}${separator}${number(cut.Y())})`},
+                    {id: "pieces", name: "odsekov", value: String(pieces)},
+                ]},
+            ],
+            notes: [{id: "pieces-are-bezier", text: "Oba dela sta spet Bézierjevi krivulji iste stopnje.", tone: "muted"}],
+            legend: [
+                {id: "left", label: "Levi del [0, t]", kind: "line", color: GraphPalette.comparisonCurve},
+                ...(pieces === 1 && this.state.t >= 1 ? [] : [{id: "right", label: "Desni del [t, 1]", kind: "line" as const, color: GraphPalette.constructionAccent}]),
+                ...(schemeShown ? [{id: "scheme", label: "Točke sheme", kind: "point" as const, color: GraphPalette.constructionAccent}] : []),
+            ],
+        };
+    }
+
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([
             <CurveOperation key="subdivision" curve={this.getFirstJxgCurve()} tool="subdivision" permanentPreview
                             parameter={{value: this.state.t, min: SUBDIVISION_T_MIN, max: SUBDIVISION_T_MAX, onChange: value => this.setT(value, this.state)}}
+                            paramKey="subdivision.t"
                             onChanged={() => undefined} onApply={() => this.subdivide()}/>]) : [];
     }
 

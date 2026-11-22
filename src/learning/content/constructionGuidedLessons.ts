@@ -1,8 +1,9 @@
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
 import type {LessonCurveFixture, LessonViewBox} from '../model';
 import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
 
 const farinSource = (implementationCorrespondence?: string): ContentSource => ({
     id: 'farin-cagd-construction',
@@ -95,7 +96,7 @@ const subdivision: GuidedLesson = {
                 'The default curve is shown with its scheme at \\(t=\\tfrac12\\). The scheme has three rows of intermediate points and ends with the point \\(B(t)\\) on the curve. We will use the same scheme for the cut.',
             ),
             formulaIds: ['sd-decasteljau-rows'],
-            frames: [frame('sd-whole-curve-explanation', 'explanation'), frame('sd-whole-curve-observation', 'observation')],
+            frames: [frame('sd-whole-curve-explanation', 'explanation', {open: ['legend']}), frame('sd-whole-curve-observation', 'observation')],
             observationPrompt: text('Poišči točko \\(B(t)\\), kjer se shema konča, in preštej vrstice vmesnih točk.', 'Find the point \\(B(t)\\) where the scheme ends and count the rows of intermediate points.'),
             expectedObservations: [text('Prikazana je ena krivulja s štirimi kontrolnimi točkami in shemo; točka sheme na krivulji je na sredini.', 'One curve with four control points and its scheme is shown; the scheme point on the curve is at the middle.')],
             scene: {
@@ -113,7 +114,7 @@ const subdivision: GuidedLesson = {
                 'The parameter \\(t\\) decides where the curve is cut. At \\(t=\\tfrac{3}{10}\\) the cut is nearer the start, and the orange part is the rest of the curve on \\([t,1]\\).',
             ),
             formulaIds: ['sd-reparameterization'],
-            frames: [frame('sd-choose-t-explanation', 'explanation'), frame('sd-choose-t-observation', 'observation')],
+            frames: [frame('sd-choose-t-explanation', 'explanation', {open: ['readouts', 'legend'], highlight: ['t']}), frame('sd-choose-t-observation', 'observation', {open: ['readouts', 'legend'], highlight: ['t']})],
             observationPrompt: text('Premakni drsnik \\(t\\) in spremljaj, kako se premika točka reza in kako se spreminja oranžni del.', 'Move the \\(t\\) slider and watch how the cut point moves and how the orange part changes.'),
             expectedObservations: [text('Točka reza je pri \\(t=\\tfrac{3}{10}\\) bliže začetku krivulje; oranžni del je daljši od modrega.', 'At \\(t=\\tfrac{3}{10}\\) the cut point is nearer the start of the curve; the orange part is longer than the blue one.')],
             scene: {
@@ -131,7 +132,7 @@ const subdivision: GuidedLesson = {
                 'At \\(t=\\tfrac12\\) the first point of each row is a control point of the left part, and the last point of each row is a control point of the right part. For the default curve the left part gets \\((-4,-3)\\), \\(\\bigl(-\\tfrac72,0\\bigr)\\), \\(\\bigl(-\\tfrac74,\\tfrac32\\bigr)\\), \\(\\bigl(0,\\tfrac32\\bigr)\\).',
             ),
             formulaIds: ['sd-split-points'],
-            frames: [frame('sd-read-rows-explanation', 'explanation'), frame('sd-read-rows-calculation', 'calculation'), frame('sd-read-rows-observation', 'observation')],
+            frames: [frame('sd-read-rows-explanation', 'explanation', {open: ['legend']}), frame('sd-read-rows-calculation', 'calculation'), frame('sd-read-rows-observation', 'observation')],
             workedExampleId: 'sd-half',
             observationPrompt: text('Poišči v shemi točke \\(\\bigl(-\\tfrac72,0\\bigr)\\) in \\(\\bigl(0,\\tfrac32\\bigr)\\) ter ugotovi, kateri vrstici pripadata.', 'Find the points \\(\\bigl(-\\tfrac72,0\\bigr)\\) and \\(\\bigl(0,\\tfrac32\\bigr)\\) in the scheme and decide which rows they belong to.'),
             expectedObservations: [text('Točka \\(\\bigl(-\\tfrac72,0\\bigr)\\) je prva točka prve vrstice, točka \\(\\bigl(0,\\tfrac32\\bigr)\\) pa je zadnja vrstica, torej \\(B(\\tfrac12)\\) na krivulji.', 'The point \\(\\bigl(-\\tfrac72,0\\bigr)\\) is the first point of the first row, and the point \\(\\bigl(0,\\tfrac32\\bigr)\\) is the last row, that is \\(B(\\tfrac12)\\) on the curve.')],
@@ -150,7 +151,7 @@ const subdivision: GuidedLesson = {
                 'The Subdivide button at \\(t=\\tfrac12\\) replaces the curve with two. The left part is \\(L(u)=B(\\tfrac{u}{2})\\) and the right part is \\(R(u)=B\\bigl(\\tfrac{1+u}{2}\\bigr)\\). Together they cover the original curve exactly, and it has not changed.',
             ),
             formulaIds: ['sd-reparameterization'],
-            frames: [frame('sd-split-half-explanation', 'explanation'), frame('sd-split-half-observation', 'observation')],
+            frames: [frame('sd-split-half-explanation', 'explanation', {open: ['readouts', 'legend']}), frame('sd-split-half-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text('Preveri, da je oblika enaka kot pred rezom, in poišči skupno točko obeh delov.', 'Check that the shape is the same as before the cut and find the point shared by the two parts.'),
             expectedObservations: [text('Prikazani sta dve krivulji z osmimi kontrolnimi točkami; oblika je enaka, skupna točka je \\(\\bigl(0,\\tfrac32\\bigr)\\).', 'Two curves with eight control points are shown; the shape is the same, and the shared point is \\(\\bigl(0,\\tfrac32\\bigr)\\).')],
             scene: {
@@ -168,7 +169,7 @@ const subdivision: GuidedLesson = {
                 'At \\(t=\\tfrac{3}{10}\\) the left part is \\(B(\\tfrac{3u}{10})\\), a shorter parameter interval, and the right part is \\(B(\\tfrac{3}{10}+\\tfrac{7u}{10})\\). After a cut the parameter \\(t\\) is set to 1 and the scheme is hidden; choose a new \\(t\\) before another cut. The slider only spans 0.01 to 0.99 because at \\(t=0\\) or \\(t=1\\) one part collapses to a point.',
             ),
             formulaIds: ['sd-reparameterization'],
-            frames: [frame('sd-split-uneven-explanation', 'explanation'), frame('sd-split-uneven-observation', 'observation')],
+            frames: [frame('sd-split-uneven-explanation', 'explanation', {open: ['readouts', 'legend']}), frame('sd-split-uneven-observation', 'observation', {open: ['readouts']})],
             observationPrompt: text('Primerjaj velikost obeh delov in preveri, da ima njuna skupna točka koordinate \\(B(\\tfrac{3}{10})\\).', 'Compare the size of the two parts and check that their shared point is \\(B(\\tfrac{3}{10})\\).'),
             expectedObservations: [text('Levi del je krajši od desnega; skupna točka je približno \\((-2{,}02;\\ 0{,}78)\\), shema je skrita, drsnik pa je na 1.', 'The left part is shorter than the right one; the shared point is about \\((-2.02,\\ 0.78)\\), the scheme is hidden, and the slider is at 1.')],
             scene: {

@@ -1,6 +1,7 @@
 import type {Board, GeometryElement, Point, Text} from "jsxgraph";
 import {currentLanguage, onLanguageChange} from "../../../localization";
 import {barycentricWeights, bezierCurvePoint, lagrangeBasis, ParameterRule, Point2} from "../../../analysis/interpolation";
+import {pickOn} from "../../../uxPicks/picks";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {convexHullOf, interpolationRejection, parametersOf, readoutAt, readoutLines} from "./interpolationModel";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
@@ -155,7 +156,7 @@ export class InterpolationScene {
             () => box()[1] - 0.02 * (box()[1] - box()[3]),
             () => readoutLines(this.settings.points(), this.settings.rule(), this.settings.position(), this.settings.showBezier(), currentLanguage()).join("\n"),
         ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
-            strokeColor: GraphPalette.label, visible: () => this.board.canvasWidth >= 480});
+            strokeColor: GraphPalette.label, visible: () => !pickOn("boardText") && this.board.canvasWidth >= 480});
 
         // Board text is recomputed only on board update, which a language change does not trigger.
         this.stopLanguageUpdates = onLanguageChange(() => {
