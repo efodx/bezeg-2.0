@@ -13,6 +13,7 @@ import {ChevronLeftIcon, ChevronRightIcon} from '../../uxPicks/dock/icons';
 import {LessonMenu} from '../../uxPicks/toolsCard/LessonMenu';
 import {openShortcuts} from '../../uxPicks/dock/Shortcuts';
 import {useFrameUxPublisher} from '../../uxPicks/declare/graphUxStore';
+import {TexText, texPlain} from '../../uxPicks/declare/Tex';
 import {useLessonDrift} from '../../uxPicks/toolsCard/useLessonDrift';
 import {stopAllOscillators} from '../../uxPicks/a3/oscillators';
 import {useLessonCardFit} from '../../uxPicks/toolsCard/useLessonCardFit';
@@ -829,9 +830,9 @@ export function GuidedLesson(props: {
             <button type="button" className="guided-lesson-exit" onClick={() => { close(); requestExit(trigger()); }}>{t('exit_lesson')}</button>
         </>}</LessonMenu>;
         return <>
-            <DockCard kind="guide" title={cardTitle} what="navodila" region="tl" order={-1}
+            <DockCard kind="guide" title={texPlain(cardTitle)} what="navodila" region="tl" order={-1}
                 collapsed={!cardOpen} onToggle={open => { if (open) showOverlay(); else hideOverlay(); }}
-                head={<><span id="guided-lesson-title" className="ux-lesson-card-title" title={lessonTitle}>{cardTitle}</span>
+                head={<><TexText id="guided-lesson-title" className="ux-lesson-card-title" title={texPlain(lessonTitle)} text={cardTitle}/>
                     {!cardOpen && !isComplete && <span className="ux-lesson-card-progress">{progress}</span>}
                     {!cardOpen && !isComplete && <span className="ux-lesson-fold-nav">
                         <button type="button" className="ux-btext-toggle" aria-label={t('guided_lesson_previous_frame_accessible')} title="Nazaj (Alt+←)" aria-keyshortcuts="Alt+ArrowLeft" disabled={atFirstFrame}
