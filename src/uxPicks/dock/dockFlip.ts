@@ -3,6 +3,15 @@ import {useLayoutEffect, useRef, type RefObject} from 'react';
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 const HEIGHT_GLIDE = 'height 340ms ease-out';
 const GLIDE = 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)';
+/**
+ * Marks a card whose height is gliding: its box is not its resting size, so the dock's overflow measure (cut, Več bar,
+ * row snapping) leaves it and its stack alone until the glide ends, and is told then (`SETTLED`) to measure at once.
+ * Without this the measure saw a half-open Orodja as cut, snapped it short, and the card dropped and grew again.
+ */
+export const GLIDING = 'data-gliding';
+export const SETTLED = 'ux-dock-settled';
+/** On the board frame while a dock card is dragged: the overflow measure draws no bars and snaps nothing until the drop. */
+export const CARD_DRAG = 'data-ux-card-drag';
 
 /**
  * FLIP: after each render, a docked element whose layout position changed glides from where it was last seen to its new
@@ -17,7 +26,7 @@ export function useFlip(ref: RefObject<HTMLElement | null>, floating: boolean, g
         if (!el) { last.current = null; return; }
         // A height glide in flight: note where the card visibly is, then measure its natural height.
         const visible = growing.current ? el.getBoundingClientRect().height : null;
-        if (growing.current) { window.clearTimeout(growing.current.timer); growing.current = null; el.style.transition = ''; el.style.height = ''; el.style.boxSizing = ''; }
+        if (growing.current) { window.clearTimeout(growing.current.timer); growing.current = null; el.style.transition = ''; el.style.height = ''; el.style.boxSizing = ''; el.removeAttribute(GLIDING); }
         const x = el.offsetLeft, y = el.offsetTop, h = el.offsetHeight;
         const prev = last.current;
         last.current = {x, y, h};
@@ -32,7 +41,12 @@ export function useFlip(ref: RefObject<HTMLElement | null>, floating: boolean, g
             void el.offsetWidth;
             el.style.transition = HEIGHT_GLIDE;
             el.style.height = `${h}px`;
-            const done = () => { if (growing.current) growing.current = null; el.style.transition = ''; el.style.height = ''; el.style.boxSizing = ''; };
+            el.setAttribute(GLIDING, '');
+            const done = () => {
+                if (growing.current) growing.current = null;
+                el.style.transition = ''; el.style.height = ''; el.style.boxSizing = ''; el.removeAttribute(GLIDING);
+                window.dispatchEvent(new Event(SETTLED));
+            };
             growing.current = {target: h, timer: window.setTimeout(done, 380)};
             return;
         }

@@ -25,6 +25,8 @@ function selectedTextClipped(select: HTMLSelectElement): string | null {
     measuringContext ??= document.createElement('canvas').getContext('2d') ?? undefined;
     const canvas = measuringContext;
     if (!shown || typeof canvas?.measureText !== 'function') return null; // no canvas (JSDOM stubs)
+    // Not laid out (inside a folded or hidden card): nothing is clipped yet; the resize observer measures again once it is shown.
+    if (select.clientWidth === 0) return null;
     const style = getComputedStyle(select);
     canvas.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
     // The right padding already reserves the arrow, and the text may run up to 24 px short of the right edge, clear of the arrow (measured: a 218 px text in a 255 px select is drawn complete).

@@ -8,7 +8,7 @@ import {
     useDockLayout, type Target,
 } from './dockLayout';
 import {REGION_LABEL, measureDrag} from './dockMeasure';
-import {useFlip} from './dockFlip';
+import {CARD_DRAG, SETTLED, useFlip} from './dockFlip';
 import {useAutoOpen} from '../boardText/autoOpenStore';
 import {budgetOpen, storedFold, useBudgetFolded} from './dockBudget';
 import {setToolsExpanded, useToolsExpanded} from '../toolsCard/toolsExpand';
@@ -201,6 +201,15 @@ export function DockCard(props: DockCardProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dragging, keyboard, floating, pos, collapsed, frame, version]);
     useFlip(card, floating, true);
+    // While this card is carried (pointer or keyboard), the dock's Več bars and row snapping wait for the drop.
+    const carried = dragging || (keyboard && floating);
+    useEffect(() => {
+        const host = frame?.current;
+        if (!host || !carried) return undefined;
+        host.setAttribute(CARD_DRAG, '');
+        window.dispatchEvent(new Event(SETTLED));
+        return () => { host.removeAttribute(CARD_DRAG); window.dispatchEvent(new Event(SETTLED)); };
+    }, [carried, frame]);
 
     if (!dock) return null;
     const open = phone ? dock.phoneOpen === kind : !collapsed;

@@ -7,7 +7,7 @@ import {
     AXIS, LESSON, TARGETS, currentGap, getLessonSize, getOutlines, getPlaceholderEl, lessonLifted, lessonSlotted, orderOf, placementOf,
     setHost, setPlaceholderEl, useDockLayout, type DragView, type Target,
 } from './dockLayout';
-import {useFlip} from './dockFlip';
+import {CARD_DRAG, GLIDING, SETTLED, useFlip} from './dockFlip';
 import {ANCHOR_AT, REGION_LABEL} from './dockMeasure';
 import {ScrollIcon} from './icons';
 import {setToolsExpanded} from '../toolsCard/toolsExpand';
@@ -194,10 +194,15 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
         const measure = () => {
             const host = frame.current, root = dock.current;
             if (!host || !root) return;
+            // While a card is dragged the stacks hold its gap slot and change shape under the pointer: no bars, no snapping (a bar
+            // was left behind at the card's old place, owner 2026-11-22). The drop measures again.
+            if (host.hasAttribute(CARD_DRAG)) { setCues(prev => prev.length ? [] : prev); return; }
             const f = host.getBoundingClientRect();
             const next: Cue[] = [];
             let i = 0;
             const consider = (el: HTMLElement, within = false, snap = true) => {
+                // A card gliding to a new height (or a stack holding one) is not at its resting size: measured when the glide ends.
+                if (el.closest(`[${GLIDING}]`) || el.querySelector(`[${GLIDING}]`)) return;
                 const skipped = !within && (getComputedStyle(el).overflowY === 'hidden' || el.closest('.is-floating') !== null);
                 // At the top an element is measured at its natural height, then ended on a whole row.
                 // The docked lesson text is ended on a line by useLessonCardFit, which also shrinks the card to it.
@@ -235,7 +240,8 @@ function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React
         measure();
         const timer = window.setInterval(measure, 250);
         document.addEventListener('scroll', measure, true);
-        return () => { window.clearInterval(timer); document.removeEventListener('scroll', measure, true); };
+        window.addEventListener(SETTLED, measure);
+        return () => { window.clearInterval(timer); document.removeEventListener('scroll', measure, true); window.removeEventListener(SETTLED, measure); };
     }, [frame, dock]);
     return cues;
 }
