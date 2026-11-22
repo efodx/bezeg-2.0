@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {GraphPalette} from '../../graphs/styles/GraphPalette';
 import {HelpIcon} from '../dock/icons';
 import type {GraphUx, LegendEntry, ReadoutRow} from './graphUx';
@@ -84,20 +84,81 @@ function useWidthRatchet(shape: string) {
     return ref;
 }
 
-/** Body of the readout card: formula, grouped readouts, notes, and the help behind "?". */
+/** The scrollable ancestors of `el` inside the dock (the card, its stack); the page is never one of them. */
+function dockScrollers(el: HTMLElement): HTMLElement[] {
+    const out: HTMLElement[] = [];
+    for (let p = el.parentElement; p && !p.classList.contains('ux-dock') && p !== document.body; p = p.parentElement) {
+        const oy = getComputedStyle(p).overflowY;
+        if ((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight + 1) out.push(p);
+    }
+    return out;
+}
+
+/** Scrolls the first highlighted row into view inside the card's own scrollers (never the page): after a highlight change and after the card opens. */
+function useHighlightIntoView(ref: React.RefObject<HTMLElement | null>, key: string) {
+    useEffect(() => {
+        if (!key) return undefined;
+        const timer = window.setTimeout(() => {
+            const row = ref.current?.querySelector<HTMLElement>('[data-highlight]');
+            if (!row) return;
+            const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            for (const sc of dockScrollers(row)) {
+                const r = row.getBoundingClientRect(), s = sc.getBoundingClientRect();
+                const head = sc.querySelector<HTMLElement>(':scope > .ux-btext-head')?.offsetHeight ?? 0;
+                const top = r.top - (s.top + head + 28), bottom = r.bottom - (s.bottom - 36);
+                const delta = top < 0 ? top : bottom > 0 ? bottom : 0;
+                if (delta) sc.scrollBy({top: delta, behavior: smooth ? 'smooth' : 'auto'});
+            }
+        }, 80);
+        return () => window.clearTimeout(timer);
+    }, [ref, key]);
+}
+
+/** A group's heading: plain, or (while the lesson focuses on other rows) a button that opens and closes the group. */
+/** "Še 5 odčitkov": the heading of a folded group that has no title of its own (Slovenian dual and plural). */
+function moreRows(n: number): string {
+    const m = n % 100;
+    return `Še ${n} ${m === 1 ? 'odčitek' : m === 2 ? 'odčitka' : m === 3 || m === 4 ? 'odčitki' : 'odčitkov'}`;
+}
+
+function GroupHead(props: {title: string; count?: number; fold?: {open: boolean; toggle: () => void}}) {
+    if (!props.fold) return <h4 className="ux-rc-title">{props.title}</h4>;
+    return <h4 className="ux-rc-title ux-rc-title-fold">
+        <button type="button" aria-expanded={props.fold.open} onClick={props.fold.toggle}>
+            <span>{props.title}</span>{props.count !== undefined && <span className="ux-rc-count">· {props.count}</span>}
+            <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true" className="ux-rc-chev"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+    </h4>;
+}
+
+/** Body of the readout card: formula, grouped readouts, notes, and the help behind "?".
+ *  While the lesson frame highlights rows, the groups without one fold to their heading (the learner may open them until the highlight changes). */
 export function ReadoutBody(props: {ux: GraphUx; highlight: readonly string[]}) {
     const {ux} = props;
     const [help, setHelp] = useState(false);
     const entries = new Map((ux.legend ?? []).map(e => [e.id, e] as const));
     const ratchet = useWidthRatchet((ux.readouts ?? []).map(g => g.id + ':' + g.rows.map(r => r.id).join(',')).join('|'));
+    const groups = ux.readouts ?? [];
+    const hasHit = (rows: readonly ReadoutRow[]) => rows.some(r => props.highlight.includes(r.id));
+    const focus = groups.some(g => hasHit(g.rows));
+    const key = focus ? props.highlight.join(',') : '';
+    const [opened, setOpened] = useState<{key: string; ids: readonly string[]}>({key, ids: []});
+    const openIds = opened.key === key ? opened.ids : [];
+    const toggle = (id: string) => setOpened({key, ids: openIds.includes(id) ? openIds.filter(i => i !== id) : [...openIds, id]});
+    useHighlightIntoView(ratchet, key);
     return <div className="ux-rc" ref={ratchet}>
         {ux.formula && <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>}
-        {(ux.readouts ?? []).map(group => <section key={group.id} className="ux-rc-group" data-group={group.id}>
-            {group.title && <h4 className="ux-rc-title">{group.title}</h4>}
-            <dl className="ux-rc-grid">
-                {group.rows.map(row => <Row key={row.id} row={row} highlighted={props.highlight.includes(row.id)} entry={row.legend ? entries.get(row.legend) : undefined} reserveMark={group.rows.some(r => r.legend && entries.has(r.legend))}/>)}
-            </dl>
-        </section>)}
+        {groups.map(group => {
+            const foldable = focus && !hasHit(group.rows);
+            const open = !foldable || openIds.includes(group.id);
+            const title = group.title ?? (foldable ? moreRows(group.rows.length) : undefined);
+            return <section key={group.id} className="ux-rc-group" data-group={group.id} data-folded={!open || undefined}>
+                {title && <GroupHead title={title} count={group.title ? group.rows.length : undefined} fold={foldable ? {open, toggle: () => toggle(group.id)} : undefined}/>}
+                {open && <dl className="ux-rc-grid">
+                    {group.rows.map(row => <Row key={row.id} row={row} highlighted={props.highlight.includes(row.id)} entry={row.legend ? entries.get(row.legend) : undefined} reserveMark={group.rows.some(r => r.legend && entries.has(r.legend))}/>)}
+                </dl>}
+            </section>;
+        })}
         {(ux.notes?.length ?? 0) > 0 && <Notes notes={ux.notes!}/>}
         {ux.readoutHelp && <div className="ux-rc-helpbar">
             <button type="button" className="ux-sec-help" aria-expanded={help} aria-label="Pomoč: odčitki" title="Pomoč: odčitki" onClick={() => setHelp(o => !o)}><HelpIcon/></button>

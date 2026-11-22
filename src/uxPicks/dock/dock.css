@@ -197,3 +197,11 @@
 .ux-gesture-hint.ux-gesture-hint button svg { width: 16px; height: 16px; display: block; margin: auto; }
 @keyframes ux-hint-in { from { opacity: 0; transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) { .ux-gesture-hint { animation-name: ux-hint-fade; } @keyframes ux-hint-fade { from { opacity: 0; } } }
+
+/* The cue on a card or stack cut at the bottom: a small panel-coloured pill with a chevron, 28 px tall, over the fade. */
+.ux-dock-more {
+    position: absolute; z-index: 6; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 5px; min-height: 28px; min-width: 28px; margin: 0; padding: 0 11px;
+    border: 1px solid var(--bezeg-shell-rule, #d8dccb); border-radius: 14px; background: var(--bezeg-shell-panel, #fbfaf3); color: var(--bezeg-shell-ink, #2b362d);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.14); font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.ux-dock-more:hover, .ux-dock-more:focus-visible { background: var(--bezeg-shell-control-hover, #eef0e4); }

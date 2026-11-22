@@ -5,6 +5,13 @@
 .ux-rc-formula::-webkit-scrollbar-thumb { background: var(--bezeg-shell-ink-secondary, #526152); border-radius: 3px; }
 .ux-rc-group + .ux-rc-group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bezeg-shell-rule, #e3e7d9); }
 .ux-rc-title { margin: 0 0 2px; padding: 0 6px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bezeg-shell-ink-secondary, #526152); }
+.ux-rc-title-fold { padding: 0; }
+.ux-rc-title-fold button { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 26px; margin: 0; padding: 0 6px; border: 0; box-shadow: none; background: transparent; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; cursor: pointer; text-align: left; border-radius: 4px; }
+.ux-rc-title-fold button:hover { background: var(--bezeg-shell-control-hover); }
+.ux-rc-count { font-weight: 400; }
+.ux-rc-chev { margin-left: auto; transition: transform 0.15s; transform: rotate(-90deg); }
+.ux-rc-title-fold button[aria-expanded="true"] .ux-rc-chev { transform: none; }
+.ux-rc-group[data-folded] .ux-rc-title { margin-bottom: 0; }
 .ux-rc-grid { margin: 0; display: grid; grid-template-columns: minmax(45%, 1fr) auto; column-gap: 0; }
 .ux-rc-row { display: contents; }
 .ux-rc-row > * { padding: 4px 6px; margin: 0; align-self: baseline; min-height: 1.5rem; box-sizing: border-box; line-height: 1.35; }

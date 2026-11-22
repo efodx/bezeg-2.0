@@ -116,6 +116,7 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
         document.addEventListener('scroll', mark, true);
         return () => { window.clearInterval(timer); document.removeEventListener('scroll', mark, true); };
     }, [els]);
+    const cues = useOverflowCues(props.frame, dockEl);
     const layoutVersion = useDockLayout();
     const view = getOutlines();
     const frameEl = props.frame.current;
@@ -126,12 +127,56 @@ export function BoardDock(props: {frame: React.RefObject<HTMLElement | null>; tr
             {region('bottom')}
         </div>
         {props.children}
+        {frameEl && !phone && cues.map(c => <button key={c.id} type="button" className="ux-dock-more" style={{left: c.x, top: c.y}}
+            aria-label={c.n ? `Še ${c.n} odčitkov: pomakni navzdol` : 'Pomakni navzdol'} onClick={() => c.scroll()}>{c.n ? `še ${c.n}` : 'Več'}<ChevronDown/></button>)}
         {view && frameEl && !api.phone && <DragPreview frame={frameEl} dock={dockEl.current} view={view} version={layoutVersion}/>}
         {layoutVersion >= 0 && !phone && <LessonGap api={api}/>}
         {frameEl && <GesturesHint frame={frameEl} phone={phone}/>}
         <ShortcutsHost/>
         {layoutVersion >= 0 && lessonSlotted() && !lessonLifted() && !phone && <LessonPlaceholder api={api}/>}
     </DockContext.Provider>;
+}
+
+function ChevronDown() {
+    return <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+interface Cue { id: string; x: number; y: number; n: number; scroll: () => void; }
+
+/**
+ * A card or stack whose body is cut at the bottom says so with a clickable cue ("še N" rows, or "Več") over its lower edge,
+ * which scrolls one page down and goes away at the end (the fade alone left rows cut mid-way with nothing to click).
+ * Positions are in board coordinates; the cue is drawn in the board's frame, outside the scroller and its fade.
+ */
+function useOverflowCues(frame: React.RefObject<HTMLElement | null>, dock: React.RefObject<HTMLElement | null>): Cue[] {
+    const [cues, setCues] = useState<Cue[]>([]);
+    useEffect(() => {
+        const measure = () => {
+            const host = frame.current, root = dock.current;
+            if (!host || !root) return;
+            const f = host.getBoundingClientRect();
+            const next: Cue[] = [];
+            let i = 0;
+            const consider = (el: HTMLElement) => {
+                if (el.scrollHeight <= el.clientHeight + 2 || el.scrollTop + el.clientHeight >= el.scrollHeight - 2) return;
+                if (getComputedStyle(el).overflowY === 'hidden' || el.classList.contains('is-floating')) return;
+                const r = el.getBoundingClientRect();
+                if (r.height < 60 || r.width < 40) return;
+                const rows = Array.from(el.querySelectorAll<HTMLElement>('[data-readout]')).filter(row => row.getBoundingClientRect().bottom > r.bottom - 14).length;
+                // Centred over the visible part of the card, just above its bottom edge.
+                next.push({id: `${el.getAttribute('data-region') ?? el.getAttribute('data-kind') ?? 'x'}-${i++}`, x: Math.round(r.left - f.left + r.width / 2), y: Math.round(r.bottom - f.top - 18 - (el.classList.contains('ux-dock-region') ? 14 : 4)), n: rows,
+                    scroll: () => el.scrollBy({top: Math.max(60, el.clientHeight * 0.8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'})});
+            };
+            root.querySelectorAll<HTMLElement>('.ux-dock-v').forEach(consider);
+            root.querySelectorAll<HTMLElement>('.ux-dock-h > .ux-btext').forEach(consider);
+            setCues(prev => prev.length === next.length && prev.every((c, k) => c.id === next[k].id && c.x === next[k].x && c.y === next[k].y && c.n === next[k].n) ? prev : next);
+        };
+        measure();
+        const timer = window.setInterval(measure, 250);
+        document.addEventListener('scroll', measure, true);
+        return () => { window.clearInterval(timer); document.removeEventListener('scroll', measure, true); };
+    }, [frame, dock]);
+    return cues;
 }
 
 interface Box { x: number; y: number; w: number; h: number; }

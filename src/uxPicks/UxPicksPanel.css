@@ -12,3 +12,6 @@
 .ux-picks-sheet small { color: #7a7458; }
 .ux-picks-sheet a { white-space: nowrap; font-size: 12px; }
 .ux-picks-empty { margin: 0; color: #7a7458; }
+
+/* A phone has no room for the tab; `?ux=` still switches the picks. */
+@media (max-width: 479px) { .ux-picks { display: none; } }
