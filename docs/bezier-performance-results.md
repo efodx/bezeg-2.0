@@ -731,3 +731,20 @@ The remaining-cost split above showed React at about 12% of playback main-thread
 | `/rational/rational-decasteljau` | 111, 120, 138 (83.4, 83.4, 83.3 ms) | 144, 144, 125 (66.6, 66.7, 66.6 ms) |
 
 React self time in one matched rational run fell from 393 to 255 ms. The gain is modest and mostly in the tail. A browser check on all three De Casteljau routes found the slider following playback, slider and readout equal after pause, and no console errors. The next candidate is the per-frame re-sampling of the growing curve (about 22%). Limits as above: a throttled desktop CPU, not a phone.
+
+## De Casteljau playback without per-frame curve sampling — 2026-11-22
+
+After the two changes above, the largest JavaScript cost of playback was JSXGraph's adaptive plot re-sampling the growing curve `[0, t]` (and the remaining-curve overlay `[t, 1]` when "whole curve" is on) on every frame. With the plot's starting points changing each frame, the evaluator cache could not help, and the evaluator ran about 4 100 times per frame.
+
+**Change.** `reuseSamplesAcrossIntervalChanges` (`src/graphs/curves/object/intervalSampling.ts`) wraps a JSXGraph curve's `updateCurve`. While the source curve's version, the bounding box, the canvas size and `board.updateQuality` are unchanged, it samples `[0, 1]` once with JSXGraph's own adaptive plot. Each later update draws the cached polyline cut to the current interval, with both ends evaluated exactly. It falls back to JSXGraph's sampling for a volatile source, curve transformations, an interval outside `[0, 1]`, and a plot that JSXGraph limited to the visible area. It is opt-in: only the De Casteljau graphs (`DecasteljauGraph`, its rational subclass and `DecasteljauGraph2`) turn it on, for the drawn curve and the overlay. `intervalSampling.test.ts` fails with the wrapper disabled (4 098 evaluator calls per frame against a limit of 8, and no resampling after a weight change) and passes with it. A read-only review found no mathematical, invalidation or ownership defects. Its one suggestion, clearing JSXGraph's shared `Plot._visibleArea` before sampling, is applied.
+
+**Picture.** 28 screenshot pairs, both routes at 1280×800 and 390×844: paused at t = 0.25, 0.5 and 0.9, after a control-point drag, and with "whole curve" on. The only differences are along the curve's anti-aliased edge, at most 1 155 pixels and a maximum channel delta of 35/255. The path and the end point at C(t) are unchanged, because the samples sit at different parameters.
+
+**Results.** Same profile as the sections above. Baseline `2f4c8483` against the change, three alternating runs per build, frames drawn in 5 s (machine load was lower than in the earlier sections, so compare within this table):
+
+| Route | Baseline frames (median / p95) | Change frames (median / p95) |
+|---|---|---|
+| `/bezier/decasteljau` | 130, 132, 146 (33.4 / 50–66.6 ms) | 255, 246, 266 (16.7 / 33.4 ms) |
+| `/rational/rational-decasteljau` | 180, 172, 152 (33.3 / 33.4–50 ms) | 297, 294, 295 (16.7 / 16.8 ms) |
+
+Self time of application code (mostly the evaluator) fell from 1 400–1 780 ms to 185–230 ms per 5 s. Limits as above: a throttled desktop CPU and the software compositor, not a phone.

@@ -14,6 +14,7 @@ import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./Decast
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {decasteljauPresetCollection} from "./collections";
+import {reuseSamplesAcrossIntervalChanges} from "../object/intervalSampling";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
@@ -160,6 +161,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         super.importPresetData(data);
         const curve = this.getFirstJxgCurve();
         curve.setIntervalEnd(() => this.state.wholeCurve ? 1 : this.parameter);
+        curve.reuseSamplesAcrossIntervalChanges();
         curve.setAttributes(Attributes.bezierDisabled);
         curve.showDecasteljauPoints();
     }
@@ -183,6 +185,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                     1
                 ], this.styles.curve.comparison(0)
             ) as JXG.Curve;
+            reuseSamplesAcrossIntervalChanges(this.wholeCurveElement, () => this.getFirstCurve());
         } else if (!this.state.wholeCurve && this.wholeCurveElement) {
             this.board.removeObject(this.wholeCurveElement);
             this.wholeCurveElement = undefined;

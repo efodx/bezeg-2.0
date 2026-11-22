@@ -1,4 +1,5 @@
 import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
+import {reuseSamplesAcrossIntervalChanges} from "./intervalSampling";
 import type {DisplaySettings} from "../../base/DisplaySettings";
 import {GraphStyles, settingsForBoard, stylesForBoard} from "../../styles/GraphStyles";
 import {Board, PointAttributes, SegmentAttributes} from "jsxgraph";
@@ -401,6 +402,11 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
 
     getJxgCurve() {
         return this.jxgCurve;
+    }
+
+    /** Opt-in: moving only the interval end or start no longer samples the curve again (see `reuseSamplesAcrossIntervalChanges`). */
+    reuseSamplesAcrossIntervalChanges() {
+        reuseSamplesAcrossIntervalChanges(this.jxgCurve, () => this.pointControlledCurve);
     }
 
     getJxgPoints(): JXG.Point[] {

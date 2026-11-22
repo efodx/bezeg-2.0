@@ -5,6 +5,7 @@ import {Attributes} from '../../attributes/Attributes';
 test('keeps the De Casteljau curve clipped after preset data is restored', () => {
     const curve = {
         setIntervalEnd: vi.fn(),
+        reuseSamplesAcrossIntervalChanges: vi.fn(),
         setAttributes: vi.fn(),
         showDecasteljauPoints: vi.fn(),
     };

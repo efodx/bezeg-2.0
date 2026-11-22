@@ -169,6 +169,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.generateInterpolatingBezierCurves(jxgCurve);
 
         jxgCurve.setIntervalEnd(() => this.parameter);
+        jxgCurve.reuseSamplesAcrossIntervalChanges();
         jxgCurve.setAttributes(Attributes.bezierDisabled);
         jxgCurve.setDecasteljauT(this.parameter);
     }

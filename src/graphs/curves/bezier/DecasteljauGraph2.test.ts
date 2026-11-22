@@ -34,6 +34,7 @@ function fakeJxgCurve(curve: any) {
         isSelected: () => false,
         getJxgPoints: () => [],
         setIntervalEnd: vi.fn(),
+        reuseSamplesAcrossIntervalChanges: vi.fn(),
         setAttributes: vi.fn(),
         setDecasteljauT: vi.fn(),
         dispose: vi.fn(),
