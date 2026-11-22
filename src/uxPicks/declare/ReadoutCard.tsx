@@ -208,7 +208,10 @@ export function ReadoutBody(props: {ux: GraphUx; highlight: readonly string[]}) 
     });
     useHighlightIntoView(ratchet, key);
     return <div className="ux-rc" ref={ratchet}>
-        {ux.formula && <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>}
+        {ux.formula && <section className="ux-rc-formula-group">
+            {ux.formulaLabel && <GroupHead title={ux.formulaLabel}/>}
+            <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>
+        </section>}
         {groups.map(group => {
             const foldable = (focus && !hasHit(group.rows)) || autoFolded.includes(group.id);
             const open = !foldable || openIds.includes(group.id);

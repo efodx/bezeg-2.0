@@ -502,6 +502,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                 {param: "fixed-point.x0", help: "Začetni približek x₀ iteracije: mnogokratnik 0,01 znotraj intervala preslikave."},
                 {param: "fixed-point.digits", help: t("fixed_point_fields_help")},
             ],
+            formulaLabel: "Iteracijska funkcija",
             formula: `T(x)=${fixedPointExample(model.example).latex}`,
             readouts: [
                 {id: "iteration", title: "Iteracija", rows: [

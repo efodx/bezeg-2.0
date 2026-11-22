@@ -233,6 +233,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             {id: "points", label: t("function_points"), kind: "point", color: GraphPalette.controlPoint},
         ];
         return {
+            formulaLabel: "Enačba premice",
             formula: line.kind === "degenerate" ? undefined : lineEquation(line, language).replace(/,/g, "{,}"),
             readouts: [
                 {id: "line", rows: [

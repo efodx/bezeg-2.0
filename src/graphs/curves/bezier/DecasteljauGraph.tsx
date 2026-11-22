@@ -234,6 +234,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                 limits: {maxOut: 1.6, maxIn: 1.6},
             },
             // Two lines: the recurrence must fit the card width without sideways scrolling.
+            formulaLabel: "Rekurzivna formula",
             formula: "\\begin{aligned}P_i^{(r)}&=(1-t)\\,P_i^{(r-1)}\\\\&\\quad+\\,t\\,P_{i+1}^{(r-1)}\\end{aligned}",
             readouts: [
                 {id: "parameter", rows: [

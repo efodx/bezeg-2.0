@@ -326,6 +326,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
                 {param: "series.a", help: t("series_fields_help")},
                 {param: "series.tolerance", help: t("series_legend_band")},
             ],
+            formulaLabel: "Delna vsota",
             formula: "S_n=\\frac{a(1-q^{n})}{1-q}",
             readouts: [
                 {id: "setup", rows: [

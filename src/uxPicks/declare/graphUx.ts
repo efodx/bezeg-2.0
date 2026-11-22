@@ -105,6 +105,11 @@ export interface FocusDecl {
 export interface GraphUx {
     /** The headline formula of the current state, TeX. */
     readonly formula?: string;
+    /**
+     * What the formula is ("Funkcija", "Enačba premice", "Rekurzivna formula"), shown as the heading above it like a readout
+     * group's title. Without it a bare formula reads like a stray statement (owner, 2026-11-22, bisection).
+     */
+    readonly formulaLabel?: string;
     readonly readouts?: readonly ReadoutGroup[];
     readonly notes?: readonly ReadoutNote[];
     /** Help behind the readout card's "?". */

@@ -277,6 +277,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
                 {param: "quadrature.b", help: t("quadrature_bounds_help")},
                 {param: "quadrature.n", help: model.rule === "simpson" ? t("quadrature_n_help_simpson") : t("quadrature_n_help_trapezoid")},
             ],
+            formulaLabel: "Funkcija",
             formula: `f(x)=${catalogFunction(model.fn).latex}`,
             readouts: [
                 {id: "setup", title: "Delitev", rows: [

@@ -235,6 +235,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
                 {param: "density.mu", help: "Povprečje μ je središče zvona: krivulja se premakne, njena oblika ostane."},
                 {param: "density.sigma", help: "Standardni odklon σ določa širino zvona: večji σ pomeni nižjo in širšo krivuljo."},
             ],
+            formulaLabel: "Gostota porazdelitve",
             formula: "f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}\\,e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}",
             readouts: [
                 {id: "setup", title: "Porazdelitev", rows: [

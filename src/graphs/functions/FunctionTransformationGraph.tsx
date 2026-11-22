@@ -289,6 +289,7 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
             ],
             focus: this.focusDecl(),
             // TeX: the decimal comma of the rule text must not get a space after it.
+            formulaLabel: "Transformirana funkcija",
             formula: transformRuleText(model, currentLanguage()).replace(/,/g, "{,}"),
             readouts: [
                 {id: "rule", title: t("function_transformation_readout_rule"), rows: [

@@ -401,6 +401,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
                 {param: "fourier.x", help: "Točka, v kateri beremo vrednost Sₙ(x) in napako."},
                 {param: "fourier.epsilon", help: "Širina pasu f − ε do f + ε okoli funkcije f."},
             ],
+            formulaLabel: "Funkcija",
             formula: model.example === "square" ? "f(x)=\\operatorname{sgn}x,\\; x\\in(-\\pi,\\pi)" : "f(x)=x,\\; x\\in(-\\pi,\\pi)",
             readouts: [
                 {id: "setup", title: "Nastavitev", rows: [

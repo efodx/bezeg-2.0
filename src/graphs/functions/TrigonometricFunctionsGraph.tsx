@@ -229,6 +229,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             ...(fn === "tan" ? [{id: "asymptotes", label: "Asimptote", kind: "dashed" as const, color: GraphPalette.referenceCurve}] : []),
         ];
         return {
+            formulaLabel: "Funkcija",
             formula: equationText(parameters, language).replace(/,/g, "{,}").replace(/\b(sin|cos|tan)\b/g, "\\$1 ").replace(/π/g, "\\pi ").replace(/·/g, "\\cdot "),
             readouts: [
                 {id: "wave", rows: [

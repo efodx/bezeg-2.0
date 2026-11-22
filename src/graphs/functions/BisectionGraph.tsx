@@ -415,6 +415,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                 {param: "bisection.a", help: t("bisection_bounds_help"), label: `${t("bisection_a_label").replace(/\s+a$/, "")} a₀`},
                 {param: "bisection.b", help: t("bisection_bounds_help"), label: `${t("bisection_b_label").replace(/\s+b$/, "")} b₀`},
             ],
+            formulaLabel: "Funkcija",
             formula: `f(x)=${bisectionExample(model.example).latex}`,
             readouts: [
                 {id: "bracket", title: t("bisection_readout_interval"), rows: [

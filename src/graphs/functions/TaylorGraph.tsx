@@ -431,6 +431,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 {param: "taylor.n", help: t("taylor_degree_help")},
             ],
             focus: this.focusDecl(example),
+            formulaLabel: "Funkcija",
             formula: this.formulaTex(model.example),
             readouts: [
                 {id: "setup", title: "Razvoj", rows: [
