@@ -28,7 +28,9 @@ import {classifyEigen, type EigenClassification} from "../../linear/eigen2";
 import type {PlaneType} from "../../dynamics/classify2";
 import {RK4_STEP, type StopReason} from "../../dynamics/rk4";
 import {SYSTEM_IDS, type SystemId} from "../../dynamics/systems2";
-import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
+import {ToolSection} from "../../inputs/ToolSection";
 import {
     DEFAULT_PHASE_STATE, derivePhase, ENTRY_RANGE, ENTRY_SCALE, entryOf, equilibriumChoices, halfWidthOf, ORBIT_DURATION, parsePhaseState, PhaseDerived, PhaseState, serializePhaseState,
     SEEDS_MAX, SEEDS_MIN, SEED_RANGE, SEED_SCALE, seedOf, snapDragInteger, typedInteger, withSystem, ZOOM_RANGE, EnergyStatus, Orbit, SeedState,
@@ -179,6 +181,8 @@ const viewBox = (derived: PhaseDerived): [number, number, number, number] => {
 };
 
 type LegendRow = {text: () => string; visible: () => boolean; color: string};
+/** The board text stacks are drawn only while the boardText pick is off (the cards show them under it). */
+const onBoardOnly = (row: LegendRow): LegendRow => ({...row, visible: () => !pickOn("boardText") && row.visible()});
 /** A board narrower than this sets the legend smaller (12 px, 18 px a line): the eleven wrapped lines of the pendulum's legend at 14 px reached the x axis. */
 const NARROW_BOARD_PX = 500;
 export const isNarrowBoard = (width: number): boolean => width < NARROW_BOARD_PX;
@@ -577,6 +581,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
 
         this.compactLegend = isNarrowBoard(board.canvasWidth);
         // The legend: stacked from the top left, only the visible rows take a place. It names every element the readout names.
+        // Under the boardText pick the legend card and the readout card carry these lines, so the board stacks are not drawn.
         const rows: readonly LegendRow[] = [
             {text: () => t("phase_graph_cap_trajectories"), visible: () => true, color: GraphPalette.primaryCurve},
             {text: () => t("phase_graph_cap_moving"), visible: () => true, color: GraphPalette.label},
@@ -586,12 +591,13 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             {text: () => t("phase_graph_cap_separatrix"), visible: pendulum, color: GraphPalette.additionalCurves[3]},
             {text: () => t("phase_graph_cap_wrap"), visible: () => pendulum() && this.drawn().wraps.x.length > 0, color: GraphPalette.label},
             {text: () => t("phase_graph_cap_frame"), visible: () => true, color: GraphPalette.label},
-        ];
+        ].map(onBoardOnly);
         // The count of stopped halves heads the bottom stack: as a fifth top row it fell on the x axis on a small board and hid every x number.
         columnRows.unshift({
             text: () => { const c = this.stopCounts(); return t("phase_graph_cap_stops", {value0: String(c.stopped), value1: String(c.halves)}); },
             visible: () => this.stopCounts().stopped > 0, color: GraphPalette.warningText,
         });
+        columnRows.forEach((row, index) => { columnRows[index] = onBoardOnly(row); });
         this.legendRows = rows;
         rows.forEach((row, index) => {
             // A row wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
@@ -1136,6 +1142,74 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         return rows;
     }
 
+    /**
+     * The cards' declaration (pick boardText): the rows of `readoutRows` in groups, the legend lines and the column captions of the
+     * board as legend entries and rows, the notes of the status sentence and the (tau, delta) inset as a section. The time is host
+     * state (the playback slider shows it and re-renders on a frame, the workspace does not), so it is not a row here.
+     */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const state = this.state;
+        const derived = this.derived();
+        const linear = state.system === "linear";
+        const tex = (value: number): string => dec(value).replace(/,/g, "{,}");
+        const j = derived.jacobian;
+        const columns = [0, 1].map(i => ({id: `column-${i + 1}`, shown: this.columnShown(i === 0 ? 0 : 1),
+            name: i === 0 ? "Stolpec 1 matrike A, slika točke (1, 0)" : "Stolpec 2 matrike A, slika točke (0, 1)",
+            value: point(this.columnHandles[i]?.X() ?? 0, this.columnHandles[i]?.Y() ?? 0)}));
+        const eigenShown = this.eigenDirections().length > 0;
+        const rows = new Map<string, ReadoutRow>(this.readoutRows().filter(row => row.id !== "time").map(row => [row.id, {
+            id: row.id, name: String(row.label ?? ""), value: String(row.value),
+            ...(row.id === "jacobian" ? {valueTex: `\\begin{pmatrix}${tex(j[0][0])} & ${tex(j[0][1])} \\\\ ${tex(j[1][0])} & ${tex(j[1][1])}\\end{pmatrix}`} : {}),
+            ...(row.id === "ring" ? {legend: "ring"} : {}),
+            ...(row.id === "ring-linear" ? {legend: "ring-linear"} : {}),
+            ...(row.id === "eigen" && eigenShown ? {legend: "eigen"} : {}),
+            ...(row.id === "view" ? {legend: "frame"} : {}),
+        }]));
+        const pick = (...ids: string[]): ReadoutRow[] => ids.flatMap(id => rows.get(id) ?? []);
+        const columnRows: ReadoutRow[] = columns.filter(column => column.shown)
+            .map(column => ({id: column.id, name: column.name, value: column.value, legend: column.id}));
+        const seedRows = state.seeds.flatMap((_, index) => pick(`seed-${index + 1}`, `energy-${index + 1}`));
+        const readouts: ReadoutGroup[] = [
+            {id: "setup", rows: [...pick("system", "centre", "jacobian"), ...columnRows]},
+            {id: "type", rows: pick("type", "tau", "delta", "discriminant", "hyperbolic", "decision", "eigen")},
+            {id: "view", rows: pick("view")},
+            {id: "seeds", title: t("phase_graph_seeds_title"), rows: seedRows},
+            {id: "ring", rows: pick("ring", "ring-linear")},
+        ].filter(group => group.rows.length > 0);
+        const notes: ReadoutNote[] = [];
+        if (this.notice && this.notice.state === state) notes.push({id: "notice", text: this.notice.text(), tone: "warning"});
+        const counts = this.stopCounts();
+        if (counts.stopped > 0) notes.push({id: "stops", text: t("phase_graph_cap_stops", {value0: String(counts.stopped), value1: String(counts.halves)}), tone: "warning"});
+        const parked = this.parkedCount();
+        if (parked > 0) notes.push({id: "parked", text: t("phase_graph_status_parked", {value0: String(parked), value1: String(state.seeds.length)}), tone: "muted"});
+        const nonlinear = !linear;
+        const pendulum = state.system === "pendulum";
+        const legend: LegendEntry[] = [
+            {id: "trajectories", label: t("phase_graph_cap_trajectories"), kind: "line", color: GraphPalette.primaryCurve},
+            {id: "moving", label: t("phase_graph_cap_moving"), kind: "point", color: GraphPalette.label},
+            ...(nonlinear ? [
+                {id: "ring", label: t("phase_graph_cap_ring"), kind: "line" as const, color: GraphPalette.comparisonCurve},
+                {id: "ring-linear", label: t("phase_graph_cap_ring_linear"), kind: "dashed" as const, color: GraphPalette.constructionAccent},
+            ] : []),
+            ...(eigenShown ? [{id: "eigen", label: t("phase_graph_cap_eigen"), kind: "dashed" as const, color: GraphPalette.additionalCurves[1]}] : []),
+            ...(pendulum ? [{id: "separatrix", label: t("phase_graph_cap_separatrix"), kind: "dashed" as const, color: GraphPalette.additionalCurves[3]}] : []),
+            ...(pendulum && this.drawn().wraps.x.length > 0 ? [{id: "wrap", label: t("phase_graph_cap_wrap"), kind: "dashed" as const, color: GraphPalette.label}] : []),
+            {id: "frame", label: t("phase_graph_cap_frame"), kind: "line", color: GraphPalette.tick},
+            ...columns.filter(column => column.shown).map(column => ({id: column.id, label: column.name, kind: "point" as const, color: GraphPalette.comparisonCurve})),
+        ];
+        const half = halfWidthOf(state.zoom);
+        return {
+            readouts, notes, legend,
+            sections: [{id: "trace-determinant", title: t("phase_graph_inset_title"), body: <TraceDeterminantInset tau={derived.plane.tau} delta={derived.plane.delta}/>}],
+            pucks: [
+                {param: "phase.seeds", help: t("phase_graph_seeds_help", {value0: String(SEEDS_MIN), value1: String(SEEDS_MAX)})},
+                {param: "phase.zoom", help: t("phase_graph_zoom_help", {value0: String(ZOOM_RANGE.min), value1: String(ZOOM_RANGE.max), value2: dec(half, 4)})},
+                {param: "phase.time", help: t("phase_graph_time_help", {value0: dec(ORBIT_DURATION, 0), value1: dec(TIME_STEP, 2)})},
+            ],
+        };
+    }
+
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
     private entryField(field: "A" | "B" | "C" | "D", labelKey: "phase_graph_matrix_a_label" | "phase_graph_matrix_b_label" | "phase_graph_matrix_c_label"
@@ -1175,14 +1249,14 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                                           this.entryField("C", "phase_graph_matrix_c_label"), this.entryField("D", "phase_graph_matrix_d_label")]}/>);
         }
         commands.push(
-            <CountSetter key="seeds" label={t("phase_graph_seeds_label")} n={state.seeds.length} min={SEEDS_MIN} max={SEEDS_MAX} bigStep={1}
+            <CountSetter key="seeds" paramKey="phase.seeds" label={t("phase_graph_seeds_label")} n={state.seeds.length} min={SEEDS_MIN} max={SEEDS_MAX} bigStep={1}
                          minusLabel={t("phase_graph_seeds_minus")} plusLabel={t("phase_graph_seeds_plus")} help={t("phase_graph_seeds_help", {value0: String(SEEDS_MIN), value1: String(SEEDS_MAX)})}
                          onPlus={() => this.setSeedCount(state.seeds.length + 1)} onMinus={() => this.setSeedCount(state.seeds.length - 1)}
                          onSet={value => this.setSeedCount(value)}/>,
         );
         commands.push(this.seedList());
         commands.push(
-            <Slider key="zoom" customText={t("phase_graph_zoom_label")} min={ZOOM_RANGE.min} max={ZOOM_RANGE.max} step={1} grid={1} bigStep={1} value={state.zoom}
+            <Slider key="zoom" paramKey="phase.zoom" customText={t("phase_graph_zoom_label")} min={ZOOM_RANGE.min} max={ZOOM_RANGE.max} step={1} grid={1} bigStep={1} value={state.zoom}
                     decimals={0} help={t("phase_graph_zoom_help", {value0: String(ZOOM_RANGE.min), value1: String(ZOOM_RANGE.max), value2: dec(halfWidthOf(state.zoom), 4)})}
                     rejectedHint={t("phase_graph_zoom_rejected", {value0: String(ZOOM_RANGE.min), value1: String(ZOOM_RANGE.max)})}
                     valueText={value => t("phase_graph_zoom_value", {value0: dec(halfWidthOf(Math.round(value)), 4)})} onChange={value => this.editZoom(value)}/>,
@@ -1215,16 +1289,16 @@ function PhasePlayback(props: {graph: PhasePortraitGraph}) {
     const params = {value0: dec(ORBIT_DURATION, 0), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
     const playBlock = blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined);
-    return <div className="inspector-group">
+    return <ToolSection id="phase-playback" pickTitle={text("phase_graph_playback_group")}>
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("phase_graph_playback_group")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
         {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
-        <Slider customText={text("phase_graph_time_label")} min={0} max={ORBIT_DURATION} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
+        <Slider paramKey="phase.time" customText={text("phase_graph_time_label")} min={0} max={ORBIT_DURATION} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 help={text("phase_graph_time_help", params)} rejectedHint={text("phase_graph_time_rejected", {value0: params.value0})}
                 valueText={value => `${dec(value, 2)} ${text("phase_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
-    </div>;
+    </ToolSection>;
 }
 
 const INSET_SIZE = 180;
@@ -1266,13 +1340,15 @@ function PhaseReadout(props: {graph: PhasePortraitGraph}) {
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
     const {plane} = graph.derived();
-    return <BoardReadout><div className="inspector-group">
+    // The readout card, the legend card and the inset section carry the values under the pick; only the announcement region stays.
+    if (pickOn("boardText")) return <LiveReadout readout={graph.status} muted={graph.playing}/>;
+    return <div className="inspector-group">
         <ReadoutHeading>{text("phase_graph_readout_title")}</ReadoutHeading>
         <p data-phase-status="">{graph.statusText()}</p>
         <ReadoutList label={text("phase_graph_readout_title")} rows={graph.readoutRows()}/>
         <TraceDeterminantInset tau={plane.tau} delta={plane.delta}/>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
-    </div></BoardReadout>;
+    </div>;
 }
 
 export default PhasePortraitGraph;

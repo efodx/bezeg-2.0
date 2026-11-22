@@ -11,11 +11,16 @@
  * before the learner makes it. Numbers per step: docs/reviews/feature-streams/families-prep/notes/pp-a-s2.md. PP3 (linearization) belongs to batch B.
  */
 import type {LessonAction} from '../model';
-import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import type {CardRef, FrameUx} from '../../uxPicks/declare/graphUx';
+import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 /** The lesson text is written once with decimal commas in math (`{,}`); the English text gets decimal points. */
 const text = (sl: string, en: string): LocalizedText => ({sl, en: en.replace(/\{,\}/g, '.')});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
+/** The same, with further cards opened (legend, `section:<id>`). */
+const readoutsAnd = (more: readonly CardRef[]): FrameUx => ({open: ['readouts', ...more], highlight: []});
 
 interface StepContent {
     readonly id: string;
@@ -28,14 +33,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', ux?.explanation),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', ux?.observation),
     ],
 });
 
@@ -257,6 +264,7 @@ const pp1Example: WorkedExample = {
 const pp1Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'pp1-reverse', order: 1,
+        ux: {explanation: readouts('type', 'tau', 'delta'), observation: readouts()},
         title: text('Matrika \\(-E\\)', 'The matrix \\(-E\\)'),
         purpose: text('Napovedati, kaj zamenjava matrike \\(E\\) z \\(-E\\) stori s trajektorijami, tipom in lastnimi vrednostmi.', 'Predicting what replacing the matrix \\(E\\) by \\(-E\\) does to trajectories, type and eigenvalues.'),
         explanation: text(
@@ -278,6 +286,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-slow', order: 2,
+        ux: {explanation: readoutsAnd(['legend']), observation: readouts()},
         title: text('Trajektorije in lastni smeri', 'Trajectories and the two eigen-directions'),
         purpose: text('Napovedati, k kateri lastni smeri se trajektorije bližajo ob izhodišču.', 'Predicting which eigen-direction trajectories approach near the origin.'),
         explanation: text(
@@ -299,6 +308,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-saddle', order: 3,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Diagonalna matrika z elementoma \\(1\\) in \\(-1\\)', 'The diagonal matrix with entries \\(1\\) and \\(-1\\)'),
         purpose: text('Napovedati tip in kateri trajektoriji se bližata izhodišču.', 'Predicting the type and which trajectories approach the origin.'),
         explanation: text(
@@ -320,6 +330,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-parabola', order: 4,
+        ux: {explanation: readoutsAnd(['section:trace-determinant']), observation: readoutsAnd(['section:trace-determinant'])},
         title: text('Spreminjanje elementa \\(c\\)', 'Changing the entry \\(c\\)'),
         purpose: text('Napovedati, pri katerem \\(c\\) se tip vozlišča spremeni, in preveriti, kam pade oznaka v ravnini sled–determinanta.', 'Predicting at which \\(c\\) the node type changes and checking where the mark falls in the trace–determinant plane.'),
         explanation: text(
@@ -341,6 +352,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-centre', order: 5,
+        ux: {explanation: readouts(), observation: readoutsAnd(['section:trace-determinant'])},
         title: text('Matrika z \\(a=0\\) in \\(b=-1\\)', 'The matrix with \\(a=0\\) and \\(b=-1\\)'),
         purpose: text('Napovedati, kakšen je tip, ko je sled \\(0\\), in kakšne so trajektorije.', 'Predicting the type when the trace is \\(0\\) and what the trajectories look like.'),
         explanation: text(
@@ -362,6 +374,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-euler', order: 6,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Euler in RK4 na istem sistemu', 'Euler and RK4 on the same system'),
         purpose: text('Napovedati smer odklona Eulerjeve metode na središču in ga izračunati.', 'Predicting the direction of the drift of the Euler method on the centre and computing it.'),
         explanation: text(
@@ -384,6 +397,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp1-free', order: 7,
+        ux: {explanation: readouts(), observation: readoutsAnd(['section:trace-determinant'])},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno poiskati matrike z danimi tipi.', 'Finding matrices with given types on your own.'),
         explanation: text(
@@ -449,6 +463,7 @@ const pp2Formulas: readonly FormulaBlock[] = [
 const pp2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'pp2-small', order: 1,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Majhen začetni odmik', 'A small start angle'),
         purpose: text('Napovedati energijo in obliko orbite nihala iz začetka \\((1,0)\\) ter jo primerjati z linearnim sistemom.', 'Predicting the energy and shape of the pendulum orbit from \\((1,0)\\) and comparing it with the linear system.'),
         explanation: text(
@@ -470,6 +485,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-larger', order: 2,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Večji začetni odmik', 'A larger start angle'),
         purpose: text('Napovedati, kako se orbita razlikuje od kroga pri večji energiji.', 'Predicting how the orbit differs from a circle at higher energy.'),
         explanation: text(
@@ -491,6 +507,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-cross', order: 3,
+        ux: {explanation: readouts(), observation: readoutsAnd(['legend'])},
         title: text('Višja energija z začetkom na osi \\(\\omega\\)', 'Higher energy with a start on the \\(\\omega\\)-axis'),
         purpose: text('Napovedati, kaj odčitek pove pri \\(\\omega=2\\) in \\(\\omega=2{,}25\\).', 'Predicting what the readout says at \\(\\omega=2\\) and \\(\\omega=2{,}25\\).'),
         explanation: text(
@@ -512,6 +529,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-separatrix', order: 4,
+        ux: {explanation: readoutsAnd(['legend']), observation: readoutsAnd(['legend'])},
         title: text('Orbita na separatrisi', 'The orbit on the separatrix'),
         purpose: text('Napovedati, ali orbita na separatrisi doseže sedlo, in preveriti, kje se po \\(10\\) s konča.', 'Predicting whether the orbit on the separatrix reaches the saddle and checking where it ends after \\(10\\) s.'),
         explanation: text(
@@ -533,6 +551,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp2-free', order: 5,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno preizkusiti energijo, nihanje in vrtenje.', 'Trying energy, swing and rotation on your own.'),
         explanation: text(
@@ -586,6 +605,7 @@ const pp3Formulas: readonly FormulaBlock[] = [
 const pp3Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'pp3-jacobian', order: 1,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Jacobijeva matrika v zgornji legi nihala', 'The Jacobian at the upright position of the pendulum'),
         purpose: text('Napovedati Jacobijevo matriko, tip in lastni vrednosti linearizacije nihala v \\((\\pi,0)\\) in jih primerjati z odčitki.', 'Predicting the Jacobian, the type and the eigenvalues of the linearization of the pendulum at \\((\\pi,0)\\) and comparing them with the readouts.'),
         explanation: text(
@@ -607,6 +627,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-zoom', order: 2,
+        ux: {explanation: readoutsAnd(['legend']), observation: readoutsAnd(['legend'])},
         title: text('Povečava okoli sedla', 'Magnifying around the saddle'),
         purpose: text('Napovedati, kaj se zgodi s polnimi in črtkanimi krivuljami obroča pri večji povečavi, in primerjati sliko z odčitki.', 'Predicting what happens to the solid and dashed curves of the ring under a larger zoom and comparing the picture with the readouts.'),
         explanation: text(
@@ -628,6 +649,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-centre', order: 3,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Jacobijeva matrika v spodnji legi nihala', 'The Jacobian at the lower position of the pendulum'),
         purpose: text('Napovedati Jacobijevo matriko in tip v \\((0,0)\\), kaj linearizacija tam določa, in ločiti to od energijskega argumenta.', 'Predicting the Jacobian and the type at \\((0,0)\\), what the linearization decides there, and separating this from the energy argument.'),
         explanation: text(
@@ -649,6 +671,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-weak', order: 4,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Šibka spirala', 'The weak spiral'),
         purpose: text('Napovedati Jacobijevo matriko in tip šibke spirale in ali so njene orbite sklenjene, ter primerjati z nihalom.', 'Predicting the Jacobian and the type of the weak spiral and whether its orbits are closed, and comparing with the pendulum.'),
         explanation: text(
@@ -670,6 +693,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-undecided', order: 5,
+        ux: {explanation: readoutsAnd(['legend']), observation: readoutsAnd(['legend'])},
         title: text('Povečava okoli šibke spirale', 'Magnifying around the weak spiral'),
         purpose: text('Napovedati, ali povečava naredi šibko spiralo podobno linearnemu središču, in ločiti sliko od računa.', 'Predicting whether magnifying makes the weak spiral resemble the linear centre, and separating the picture from the computation.'),
         explanation: text(
@@ -691,6 +715,7 @@ const pp3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp3-free', order: 6,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno preizkusiti sistem, ravnovesno točko in povečavo.', 'Trying the system, the equilibrium and the zoom on your own.'),
         explanation: text(

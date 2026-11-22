@@ -12,7 +12,7 @@ import {CountSetter} from "../../inputs/CountSetter";
 import {PointListInput} from "../../inputs/PointListInput";
 import {BooleanField} from "../../inputs/BooleanField";
 import {CheckboxGroup} from "../../inputs/CheckboxGroup";
-import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
+import {ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointLabelMath} from "../styles/pointLabelMath";
@@ -32,7 +32,9 @@ import type {IsometryClass} from "../../isometry/isometry2";
 import type {RosetteImage} from "../../isometry/rosette";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
-import {BoardReadout} from "../../uxPicks/boardText/BoardReadout";
+import {ToolSection} from "../../inputs/ToolSection";
+import {pickOn} from "../../uxPicks/picks";
+import type {GraphUx, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
 /** The scene state is the stored isometry state (ADR 0047 sections 1 to 3); everything else is derived from it. */
 export interface IsometryGraphState extends BaseGraphState, IsometryState {}
 
@@ -95,6 +97,19 @@ function lineText(line: Line): string {
         text += text === "" ? `${coefficient < 0 ? "−" : ""}${body}` : ` ${coefficient < 0 ? "−" : "+"} ${body}`;
     }
     return `${text} = ${dec(line.c.toNumber())}`;
+}
+
+/** A line as TeX (decimal comma `{,}`), the same numbers as `lineText`. */
+function lineTex(line: Line): string {
+    const num = (n: number) => dec(n).replace(/−/g, "-").replace(/,/g, "{,}");
+    let text = "";
+    for (const [coefficient, name] of [[line.a.toNumber(), "x"], [line.b.toNumber(), "y"]] as const) {
+        if (coefficient === 0) continue;
+        const size = Math.abs(coefficient);
+        const body = `${size === 1 ? "" : `${num(size)}\\,`}${name}`;
+        text += text === "" ? `${coefficient < 0 ? "-" : ""}${body}` : ` ${coefficient < 0 ? "-" : "+"} ${body}`;
+    }
+    return `${text} = ${num(line.c.toNumber())}`;
 }
 
 type Poly = {readonly x: readonly number[]; readonly y: readonly number[]};
@@ -707,7 +722,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const bracketA = hidden(0, -0.8);
             const bracketB = hidden(() => period(), -0.8);
             segment(bracketA, bracketB, GraphPalette.constructionAccent, 2, 0);
-            caption(() => t("isometry_graph_cap_period", {value0: String(period())}), atPoint(() => period() / 2 - 1, -1.8), GraphPalette.constructionAccent);
+            caption(() => t("isometry_graph_cap_period", {value0: String(period())}), atPoint(() => period() / 2 - 1, -1.8), GraphPalette.constructionAccent,
+                () => !pickOn("boardText")); // the readout card has the period row
             curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period !== 0)), GraphPalette.referenceCurve, 2, 0);
             curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element !== 0)), GraphPalette.comparisonCurve, 2, 0);
             curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period === 0)), GraphPalette.primaryCurve, 3, 0);
@@ -715,7 +731,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             caption(() => {
                 const d = frieze();
                 return d && d.status !== "reducesPeriod" ? t("isometry_graph_cap_frieze_type", {value0: d.type}) : "";
-            }, atPoint(() => period() / 2 - 1, 3.4), GraphPalette.label);
+            }, atPoint(() => period() / 2 - 1, 3.4), GraphPalette.label, () => !pickOn("boardText")); // the readout card has the type row
         }
 
         for (const [id, point] of this.handleMap) this.wireDrag(id, point);
@@ -1196,7 +1212,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                                       const id = CLASSIFY_EXAMPLE_IDS.find(candidate => candidate === value);
                                       if (id) this.setState({...CLASSIFY_EXAMPLES[id]});
                                   }}/>,
-                    <CountSetter key="length" label={t("isometry_graph_length_label")} n={state.motionLength} min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX}
+                    <CountSetter key="length" paramKey="iso.length" label={t("isometry_graph_length_label")} n={state.motionLength} min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX}
                                  onPlus={() => this.editMotionLength(this.state.motionLength + 1)}
                                  onMinus={() => this.editMotionLength(this.state.motionLength - 1)}
                                  onSet={value => this.editMotionLength(value)}/>,
@@ -1213,7 +1229,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                                     pointLabel={() => "C"} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP}
                                     grid={1} decimals={0}
                                     onCommit={(_index, value) => this.commitPoint(this.state.dilationCentre, value, (axis, next) => this.editCentre(axis, next))}/>,
-                    <Slider key="k" customText={t("isometry_graph_k_label")} value={state.dilationK} step={RATIO_STEP} bigStep={RATIO_BIG_STEP} min={-K_MAX}
+                    <Slider key="k" paramKey="iso.k" customText={t("isometry_graph_k_label")} value={state.dilationK} step={RATIO_STEP} bigStep={RATIO_BIG_STEP} min={-K_MAX}
                             max={K_MAX} grid={RATIO_STEP} decimals={2} onChange={value => this.stepRatio(value)} onTypedChange={value => this.editRatio(value)}
                             rejectedHint={t("isometry_graph_k_rejected", {value0: dec(K_MIN), value1: dec(K_MAX)})}/>,
                     <ChoiceSelect key="turn" label={t("isometry_graph_turn_label")} value={state.dilationTurn}
@@ -1227,7 +1243,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 break;
             case "rosette":
                 commands.push(
-                    <CountSetter key="n" label={t("isometry_graph_n_label")} n={state.rosetteN} min={ROSETTE_N_MIN} max={ROSETTE_N_MAX}
+                    <CountSetter key="n" paramKey="iso.n" label={t("isometry_graph_n_label")} n={state.rosetteN} min={ROSETTE_N_MIN} max={ROSETTE_N_MAX}
                                  onPlus={() => this.editRosetteN(this.state.rosetteN + 1)} onMinus={() => this.editRosetteN(this.state.rosetteN - 1)}
                                  onSet={value => this.editRosetteN(value)}/>,
                     <BooleanField key="mirrors" variant="switch" label={t("isometry_graph_rosette_mirrors_label")} checked={state.rosetteMirrors}
@@ -1245,7 +1261,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                                                  const name = FEATURE_NAMES.find(candidate => candidate === key);
                                                  if (name) this.setFeature(name, checked);
                                              }}/>);
-                commands.push(<Slider key="period" customText={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
+                commands.push(<Slider key="period" paramKey="iso.period" customText={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
                                       bigStep={SMALL_INTEGER_BIG_STEP} min={PERIOD_MIN} max={PERIOD_MAX} grid={1} decimals={0}
                                       onChange={value => this.editPeriod(value)}/>);
                 break;
@@ -1253,16 +1269,56 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         return commands;
     }
 
+    /** The cards' declaration (pick boardText): the rows of `readoutRows` in groups, the status sentence and the approximation note as notes. */
+    protected override workspaceUx(): GraphUx | undefined {
+        if (!pickOn("boardText")) return undefined;
+        const d = this.view();
+        const axis = (d.mode === "mirrors" || d.mode === "classify") && d.motion.status !== "coincident"
+            && (d.motion.cls.kind === "reflection" || d.motion.cls.kind === "glide") ? d.motion.cls.axis : undefined;
+        const rows: ReadoutRow[] = this.readoutRows().map(row => ({
+            id: row.id, name: String(row.label ?? ""), value: String(row.value),
+            ...(row.id === "axis" && axis ? {valueTex: lineTex(axis)} : {}),
+        }));
+        const pick = (...ids: string[]) => rows.filter(row => ids.includes(row.id));
+        const groups: ReadoutGroup[] = [];
+        let pucks: {param: string; help: string}[] = [];
+        switch (d.mode) {
+            case "mirrors":
+            case "classify":
+                groups.push({id: "composite", rows: pick("composite", "centre", "angle", "half-angle", "vector", "axis")},
+                    {id: "fixed", rows: pick("fixed", "orientation")}, {id: "images", rows: pick("first-image", "last-image")});
+                if (d.mode === "classify") pucks = [{param: "iso.length", help: "Število zrcal v sestavljenem gibanju; razred gibanja se sproti preračuna."}];
+                break;
+            case "similarity":
+                groups.push({id: "ratios", rows: pick("side-ratio", "area-ratio", "area")}, {id: "fixed", rows: pick("orientation", "fixed", "isometry")},
+                    {id: "image", rows: pick("image-1")});
+                pucks = [{param: "iso.k", help: "Razmerje raztega k; negativno razmerje obrne sliko skozi središče."}];
+                break;
+            case "rosette":
+                groups.push({id: "group", rows: pick("group", "order", "distinct")}, {id: "images", rows: pick("point", "image-1", "image-2")});
+                pucks = [{param: "iso.n", help: "Red vrtenja n rozete: kolikokrat se motiv zavrti okoli središča."}];
+                break;
+            case "frieze":
+                groups.push({id: "type", rows: pick("type", "copies", "period")}, {id: "features", rows: rows.filter(row => row.id.startsWith("has-"))});
+                pucks = [{param: "iso.period", help: "Perioda friza: dolžina, po kateri se vzorec ponovi."}];
+                break;
+        }
+        const notes: ReadoutNote[] = [
+            {id: "status", text: this.statusText(), tone: "muted"},
+            {id: "approx", text: t("isometry_graph_approx_note"), tone: "muted"},
+        ];
+        return {readouts: groups.filter(group => group.rows.length > 0), notes, pucks};
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <BoardReadout><div className="inspector-group">
-                <ReadoutHeading>{t("isometry_graph_readout_title")}</ReadoutHeading>
+            {pickOn("boardText") ? <LiveReadout readout={this.status}/> : <ToolSection id="isometry-readout" title={t("isometry_graph_readout_title")} headingClassName="inspector-reveals-title">
                 <p data-isometry-status="">{this.statusText()}</p>
                 <ReadoutList label={t("isometry_graph_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("isometry_graph_approx_note")}</p>
                 <LiveReadout readout={this.status}/>
-            </div></BoardReadout>
+            </ToolSection>}
         </>;
     }
 }

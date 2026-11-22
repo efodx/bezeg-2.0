@@ -5,10 +5,13 @@
  * quotes are exact integers read from the graph's rows; the coordinates of the images are computed approximations.
  */
 import type {LessonAction} from '../model';
-import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
+import type {FrameUx} from '../../uxPicks/declare/graphUx';
+import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, ux?: FrameUx): GuidedLessonFrame => ux ? {id, kind, ux} : {id, kind};
+/** UX picks: the cards a frame opens and the readout rows it highlights, only where its text talks about them. */
+const readouts = (...highlight: string[]): FrameUx => ({open: ['readouts'], highlight});
 
 interface StepContent {
     readonly id: string;
@@ -20,11 +23,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** Per-frame declarations (see {@link FrameUx}); the calculation frame declares none. */
+    readonly ux?: {readonly explanation?: FrameUx; readonly observation?: FrameUx};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({ux, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation', ux?.explanation), frame(`${content.id}-observation`, 'observation', ux?.observation)],
 });
 
 /** What a scene sets: the number of rotations n, whether the mirrors are on, and the point of the figure (grid coordinates). */
@@ -99,6 +104,7 @@ const formulas: readonly FormulaBlock[] = [
 const steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l4-rotations', order: 1,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Vrtenje okoli središča', 'Rotating about the centre'),
         purpose: text('Napovedati število gibanj in slik pri rozeti brez zrcal, preden ga odčitamo.', 'Predicting the numbers of motions and images of a rosette without mirrors before reading them.'),
         explanation: text(
@@ -122,6 +128,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-mirrors', order: 2,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Rozeta z zrcali', 'A rosette with mirrors'),
         purpose: text('Napovedati število gibanj in navadnih ter zrcaljenih slik, ko rozeta dobi zrcala.', 'Predicting the number of motions and of direct and mirrored images when the rosette gets mirrors.'),
         explanation: text(
@@ -145,6 +152,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-on-mirror', order: 3,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Točka na zrcalu in središče', 'A point on a mirror and the centre'),
         purpose: text('Napovedati, koliko različnih slik ima točka na zrcalu in točka v središču, in v središču.', 'Predicting how many distinct images a point on a mirror and the point at the centre have.'),
         explanation: text(
@@ -168,6 +176,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-free', order: 4,
+        ux: {explanation: readouts(), observation: readouts()},
         title: text('Prosto raziskovanje', 'Try for yourself'),
         purpose: text('Sami primerjati red grupe s številom različnih slik pri različnih \\(n\\) in legah točke.', 'Comparing the order of the group with the number of distinct images for different values of \\(n\\) and positions of the point.'),
         explanation: text(
