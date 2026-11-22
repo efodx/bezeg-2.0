@@ -43,9 +43,11 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
         const docked = () => !card.classList.contains('is-floating') && !card.classList.contains('ux-btext-collapsed')
             && !!card.parentElement?.classList.contains('ux-dock-v');
 
-        let busy = false;
+        let busy = false, settling = 0, settlePass = false;
         const apply = () => {
             if (busy) return;
+            // One more pass once the glide and MathJax have settled: a snap measured mid-glide can leave a line cut (round 14).
+            if (!settlePass) { window.clearTimeout(settling); settling = window.setTimeout(() => { settlePass = true; try { apply(); } finally { settlePass = false; } }, 320); }
             if (!docked()) { release(); markScroll(); return; }
             busy = true;
             try {
@@ -70,7 +72,7 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
                 if (text) {
                     clearSnap(text);
                     card.style.height = `${target}px`;
-                    if (snapRows(text)) {
+                    if (snapRows(text)) {  // floors to the last whole line above the bar
                         card.style.removeProperty('height');
                         target = Math.round(Math.max(floor, card.getBoundingClientRect().height));
                     }
@@ -117,7 +119,7 @@ export function useLessonCardFit(enabled: boolean, lesson: unknown) {
         apply();
         return () => {
             if (raf) cancelAnimationFrame(raf);
-            window.clearInterval(timer);
+            window.clearInterval(timer); window.clearTimeout(settling);
             window.removeEventListener('resize', onResize);
             mutations.disconnect(); contentSize.disconnect(); layoutSize.disconnect();
             card.removeEventListener('scroll', onScroll, true);

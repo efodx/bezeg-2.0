@@ -18,7 +18,9 @@
     background: var(--bezeg-shell-panel); border: 1px solid var(--bezeg-shell-rule); color: var(--bezeg-shell-ink); font-size: 0.8125rem; line-height: 1.3;
     box-shadow: 0 4px 14px rgba(25, 55, 47, 0.14); opacity: 0; visibility: hidden; transition: opacity 120ms ease-out;
 }
-.ux-pucks-help-wrap:hover .ux-pucks-help-tip, .ux-pucks-help-wrap:focus-within .ux-pucks-help-tip { opacity: 1; visibility: visible; }
+/* Hover (a fine pointer only) or keyboard focus; a click or tap never leaves it showing. */
+.ux-pucks-help-wrap:focus-visible .ux-pucks-help-tip, .ux-pucks-help-wrap:has(:focus-visible) .ux-pucks-help-tip { opacity: 1; visibility: visible; }
+@media (hover: hover) { .ux-pucks-help-wrap:hover .ux-pucks-help-tip { opacity: 1; visibility: visible; } }
 .ux-puck-undo button {
     pointer-events: auto; font: inherit; color: var(--bezeg-shell-action); background: none; border: 0; padding: 2px 4px; margin: -2px 0; cursor: pointer; text-decoration: underline; min-height: 24px;
 }
@@ -206,7 +208,8 @@
     background: var(--bezeg-shell-panel); border: 1px solid var(--bezeg-shell-rule); color: var(--bezeg-shell-ink); font-size: 0.8125rem; line-height: 1.3;
     box-shadow: 0 4px 14px rgba(25, 55, 47, 0.14); opacity: 0; visibility: hidden; transition: opacity 120ms ease-out;
 }
-.ux-puck-osc:hover:not(:disabled) + .ux-puck-osc-tip, .ux-puck-osc:focus-visible + .ux-puck-osc-tip { opacity: 1; visibility: visible; }
+.ux-puck-osc:focus-visible + .ux-puck-osc-tip { opacity: 1; visibility: visible; }
+@media (hover: hover) { .ux-puck-osc:hover:not(:disabled) + .ux-puck-osc-tip { opacity: 1; visibility: visible; } }
 
 /* R11B: the sweep buttons are quiet on a fine pointer. A puck's ∿ shows while the puck (or the ∿) is hovered or focused, while its
    sweep runs, and on the last puck swept in this page view. The slot stays (opacity/visibility only), so nothing shifts. */
