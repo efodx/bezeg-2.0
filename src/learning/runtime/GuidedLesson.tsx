@@ -864,7 +864,13 @@ export function GuidedLesson(props: {
                 aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
             {/* The page heading already names the lesson; the card then says what it is, so its first row is never bare. */}
             {pageHeadingHasLessonTitle ? completionHeading || <span className="guided-lesson-title guided-lesson-kind">{t('guided_example')}</span> : lessonHeading}
-            <div className="guided-lesson-utilities">{chapterReturnLink}{!docked && dockButton}{hideButton}{closeButton}</div>
+            {/* Pick toolsCard, phone: the head is the title row; the lesson-level actions sit behind the same "⋯" menu as the docked card. */}
+            {toolsCardPick && oneColumn ? <div className="guided-lesson-utilities"><LessonMenu label="Več možnosti vodenega primera">{(trigger, close) => <>
+                {chapterReturnLink}
+                <button type="button" className="guided-lesson-hide" onClick={() => { close(); hideOverlay(); }}>{t('hide_lesson_short')}</button>
+                <button type="button" className="guided-lesson-exit" onClick={() => { close(); requestExit(trigger()); }}>{t('exit_lesson')}</button>
+            </>}</LessonMenu></div>
+            : <div className="guided-lesson-utilities">{chapterReturnLink}{!docked && dockButton}{hideButton}{closeButton}</div>}
         </div>
         {navigationToolbar}
         </div>

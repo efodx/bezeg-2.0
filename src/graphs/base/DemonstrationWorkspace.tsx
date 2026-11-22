@@ -227,6 +227,7 @@ export function DemonstrationWorkspace(props: {
         data-ux-dock-tools={dockToolsPick ? '' : undefined}
         data-ux-tools-card={toolsCard ? '' : undefined}
         data-ux-compact-header={toolsCard && !fullScreen ? (lessonActive ? 'lesson' : 'free') : undefined}
+        data-ux-tools-pick={toolsCardPick ? '' : undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode === 'content' && !readingLocks ? 'reading' : lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>

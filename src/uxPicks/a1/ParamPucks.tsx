@@ -233,7 +233,10 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         if (event.button !== 0) return;
         if (blocked) { refuse(); return; }
         (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-        const pxPerRange = Math.max(220, Math.min(620, props.boardWidth * 0.75));
+        let pxPerRange = Math.max(220, Math.min(620, props.boardWidth * 0.75));
+        // R12A: a finger is coarse (40 px moved c by 5.9 of 40 on a phone), so the default drag maps the whole range to at least
+        // 2.5 strip widths; the lift-for-fine levels still divide it further. A mouse or pen keeps the board-width mapping.
+        if (event.pointerType === 'touch') pxPerRange = Math.max(pxPerRange, 2.5 * ((event.currentTarget as HTMLElement).closest('.ux-pucks')?.clientWidth ?? 0));
         scrub.current = {pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, lastX: event.clientX, raw: entry.value, home: entry.value, moved: false, fine: 0, pxPerRange};
     };
     const onPointerMove = (event: React.PointerEvent) => {

@@ -11,7 +11,7 @@
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-actions { flex-wrap: nowrap; gap: 6px; }
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-actions button,
 .demonstration-workspace[data-ux-compact-header="lesson"] .workspace-actions > a,
-.demonstration-workspace.lesson-open[data-ux-compact-header="lesson"] .workspace-actions .workspace-lesson-action { min-height: 34px; padding-block: 2px; font-size: .85rem; white-space: nowrap; }
+.demonstration-workspace[data-ux-tools-pick].lesson-open[data-ux-compact-header="lesson"] .workspace-actions .workspace-lesson-action { min-height: 34px; padding-block: 2px; font-size: .85rem; white-space: nowrap; }
 
 /* Free graph, desktop (handler 10, 2026-11-22; critique round 7: at 1440×900 the board's bottom and the "Preizkusi in opazuj"
    rail sat below the fold under a 70 px title). The breadcrumb stays (the way back to the family); the generic subtitle goes,
@@ -28,4 +28,12 @@
 }
 
 /* R11B: while a guided lesson is open the "Preizkusi in opazuj" strip repeats the lesson (and is cut off at the screen's bottom). */
-.demonstration-workspace.lesson-open .workspace-learning { display: none; }
+.demonstration-workspace[data-ux-tools-pick].lesson-open .workspace-learning { display: none; }
+
+/* R12A, phone with a lesson open: the pan and zoom arrows go (pinch and drag still pan and zoom; critique round 12 found the lesson
+   card pushed far down); "Prilagodi točkam" and "Samodejno" stay on one line. */
+@media (max-width: 700px) {
+    .demonstration-workspace[data-ux-tools-pick].lesson-open .workspace-navigation { flex-wrap: nowrap; align-items: center; }
+    .demonstration-workspace[data-ux-tools-pick].lesson-open .workspace-navigation button[data-navigation]:not([data-navigation="fit"], [data-navigation="autofit"]) { display: none; }
+    .demonstration-workspace[data-ux-tools-pick].lesson-open .workspace-navigation button[data-navigation="fit"] { margin-inline-start: 0; }
+}
