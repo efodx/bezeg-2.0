@@ -2,7 +2,7 @@ import {act} from '@testing-library/react';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {TaylorGraph, type TaylorIds} from './TaylorGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
-import {checkDeclaration, type GraphDeclaration, type ReadoutRow} from '../base/declare/graphDeclaration';
+import {checkDeclaration, type FormattedValue, type GraphDeclaration, type ReadoutRow} from '../base/declare/graphDeclaration';
 import {formatNumber} from '../../analysis/format';
 import {taylorAbsoluteError, taylorExample, type TaylorExampleId} from '../../analysis/taylor';
 import type {TaylorModel} from '../../analysis/taylorModel';
@@ -24,7 +24,8 @@ function setup(...writes: Write[]) {
     return {graph, view, declaration: () => graph.getDeclaration() as GraphDeclaration<TaylorIds>};
 }
 
-const text = (value: MessageNumber | Message): string => 'kind' in value ? formatNumber(value.value, 'sl', value.maxDecimals) : renderMessage(value);
+const text = (value: MessageNumber | Message | FormattedValue): string =>
+    !('kind' in value) ? renderMessage(value) : value.kind === 'formatted' ? value.text : formatNumber(value.value, 'sl', value.maxDecimals);
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const rowsOf = (declaration: GraphDeclaration<TaylorIds>): ReadoutRow<TaylorIds>[] => (declaration.readouts ?? []).flatMap(group => [...group.rows]);
 

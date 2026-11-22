@@ -11,7 +11,7 @@ import type {BaseGraphState} from '../BaseGraph';
 import {mountGraph} from '../realGraphTestHarness';
 import {formatNumber} from '../../../analysis/format';
 import {isMessageNumber, renderMessage, setLanguage, type Message, type MessageNumber} from '../../../localization';
-import type {GraphDeclaration} from './graphDeclaration';
+import type {FormattedValue, GraphDeclaration} from './graphDeclaration';
 
 /** One sampled state: a name and the writes that bring the graph into it from the previous state. */
 export interface ParityState {
@@ -105,8 +105,10 @@ export async function recordParityWithDeclarations(id: string, graph: BaseGraph<
 }
 
 /** Text of a declared value: a number in the language's format, a message rendered. */
-export const valueText = (value: MessageNumber | Message): string =>
-    normalise(isMessageNumber(value as never) ? formatNumber((value as MessageNumber).value, 'sl', (value as MessageNumber).maxDecimals) : renderMessage(value as Message));
+export const valueText = (value: MessageNumber | Message | FormattedValue): string => {
+    if ('kind' in value && value.kind === 'formatted') return normalise(value.text);
+    return normalise(isMessageNumber(value as never) ? formatNumber((value as MessageNumber).value, 'sl', (value as MessageNumber).maxDecimals) : renderMessage(value as Message));
+};
 
 /** A declaration as the text a presenter would show. */
 export interface RenderedDeclaration {
