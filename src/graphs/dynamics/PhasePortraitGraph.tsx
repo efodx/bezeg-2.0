@@ -28,6 +28,7 @@ import {classifyEigen, type EigenClassification} from "../../linear/eigen2";
 import type {PlaneType} from "../../dynamics/classify2";
 import {RK4_STEP, type StopReason} from "../../dynamics/rk4";
 import {SYSTEM_IDS, type SystemId} from "../../dynamics/systems2";
+import {recentlyProbed} from "../../uxPicks/a1/paramRegistry";
 import {pickOn} from "../../uxPicks/picks";
 import type {GraphUx, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from "../../uxPicks/declare/graphUx";
 import {ToolSection} from "../../inputs/ToolSection";
@@ -437,6 +438,12 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const box = viewBox(this.derived());
         const key = viewKey(box);
         if (key === this.drawnView) return;
+        // A preview probe (hover over a puck) sets a value and restores it: the board must not refit for it (every label would move),
+        // so the refit waits until the probe is over; a real change right after it is still framed.
+        if (recentlyProbed()) {
+            window.setTimeout(() => { if (this.hasBoard && this.graphSession?.isAlive) this.applyView(); }, 300);
+            return;
+        }
         this.drawnView = key;
         this.board.setBoundingBox([...box], true);
     }

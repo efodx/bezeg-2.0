@@ -338,7 +338,9 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         // A replacement (checkpoint restore, Preset import) brings its own view; only a later change of the grid refits. Build a
         // changed view first: the build clears `framedKey`, so marking the view framed before it would refit over the stored view.
         if (this.hasBoard && this.graphSession?.isAlive && this.builtView !== this.state.view) this.buildScene();
-        this.framedKey = this.frameKey();
+        // A morph (a lesson step's Back) restores states through here: a changed grid frames, as the step's own change does, so Back
+        // returns to the view the step settled on. Without the morph (`ux=none`) a replacement keeps its own view as before.
+        if (!pickOn("b1")) this.framedKey = this.frameKey();
         this.syncBoard();
     }
 
