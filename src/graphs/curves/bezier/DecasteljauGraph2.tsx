@@ -10,7 +10,6 @@ import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./Decast
 import {PolynomialBezierCurve} from "../../../bezeg/impl/curve/polynomial-bezier-curve";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {Point} from "../../../bezeg/api/point/point";
-import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {decasteljauAlternativePresetCollection} from "./collections";
@@ -125,7 +124,6 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     override initialize() {
         super.initialize();
-        skipRedundantHtmlTextClipping(this.board);
         this.bindSceneToFirstCurve();
         this.boardUpdate();
     }

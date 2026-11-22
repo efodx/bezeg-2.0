@@ -330,6 +330,9 @@ subclass, and `DecasteljauGraph2`); shared drag and slider paths are unchanged.
   texts with the default zero viewport; the board container already clips
   overflow. Earlier clip paths are cleared; other viewports and SVG elements
   keep JSXGraph behavior.
+  (Silently inactive from the JSXGraph 1.14.1 upgrade on 2026-10-26 until
+  2026-11-22, and now applied to every board; see
+  [HTML label clipping on every board](#html-label-clipping-on-every-board--2026-11-22).)
 - In the alternative demonstration, the two interpolating curves are sampled
   again only when their control points, the board view, or JSXGraph's
   drag/settled plot quality change.
@@ -694,3 +697,22 @@ Desktop stays at the two-frame floor (about 32,5 ms). Screenshots: 0 differing p
 **Rejected: candidate 2 as fewer ring points (2026-11-17).** Measured with `RING_POINTS` 24 and 16 (same method; the base column was noisy that run, sphere phone 165 ms up, 134 ms down). The surface view splits each ring segment into `ceil(length / mean mesh edge)` depth pieces (`segmentPieceCount` in [jsxDepthOrder.ts](../src/graphs/patches/surface-view/jsxDepthOrder.ts)), so the slot count follows the ring's length, not its point count: at 60 discs 24 points gave more SVG nodes than 32 on the sphere (4 099 vs 3 635) and the parabola about y (4 475 vs 3 499), fewer only on the cone (2 213 vs 2 693); 16 points left the sphere and parabola about where they were (3 507, 3 499) and drew visible corners on the one-disc cone ring. Phone medians moved within the noise except the cone (91 → 78 / 69 ms). Neither is kept. The remaining lever is the piece split itself (coarser pieces for rings), which is shared by every surface graph and changes occlusion: it needs its own measurement and visual check. Data: `.command-logs/h39-rings/note.md` (local).
 
 **Rejected: coarser depth pieces for rings (2026-11-17, owner-approved measurement).** A per-polyline piece length of 2 and 3 mesh edges on the ring polylines changed nothing: every ring segment (circumference / 32) is already shorter than one mean mesh edge, so each is one piece already, and longer pieces cannot merge segments. SVG node counts were identical and all 24 screenshots (sphere, cone, parabola about y at 10 and 60 discs, desktop and 390 px) had 0 differing pixels; phone ×4 sphere medians 123–126 ms against interleaved base runs of 125 and 132 ms (noise about 5 %). With 32 one-piece segments per ring, fewer slots per ring now need either fewer ring points (visible corners, see above) or a ring drawn as one path, which gives up per-segment depth order against the translucent solid: a design change, not a tuning step. The phone sphere step stays about 125 ms. Data: `.command-logs/h39-pieces/note.md` (local).
+
+## HTML label clipping on every board — 2026-11-22
+
+The owner reported that De Casteljau playback is still slow on phones. Playback had regressed since the October fix: production build, Chromium 156 headless, 384×704 at DPR 2.8125 with touch and 6× CPU throttling (the Nord N10 stand-in from 2026-10-10), with Play pressed again whenever a run finished. `/bezier/decasteljau` drew 74–90 frames in 5 s at a 66.7 ms median, against 138–144 frames and 33 ms after the October fix.
+
+**Cause.** The JSXGraph 1.14.1 upgrade (`e0191c0a`, 2026-10-26) renamed the renderer hook that `skipRedundantHtmlTextClipping` patched, from `setObjectViewport` to `updateClipPath`. The guard checked for the old name and returned without patching anything. In 1.14.1, `updateClipPath` reads each HTML text's `offsetWidth` and `offsetHeight` before it checks the `clip` attribute, so every label forces a synchronous layout on every board update, even with `clip: false`. A source-mapped CPU profile attributed about 18% of main-thread time to `get offsetWidth`, all called from `updateClipPath`. The upgrade review measured only an idle desktop drag (update median 1.7 → 2.9 ms) and did not identify a cause.
+
+**Change.** `skipRedundantHtmlTextClipping` now replaces `updateClipPath` on the board's renderer. On a board whose container has `overflow: hidden`, the replacement only clears a clip set earlier. The SVG renderer sets that overflow on every board container, so the per-label clip duplicates the container's own clipping. A board whose container does not clip keeps JSXGraph's behavior. The guard is installed through `applyBoardTextDefaults`, which every board creation path calls (`GraphSession` main and auxiliary boards, the surface view). Before, it applied only to the two De Casteljau graphs. The unit test drives a real JSXGraph board, so a future rename of the hook fails a test instead of silently disabling the fix.
+
+**Results.** Same profile, baseline `origin/master` at `0856df01` against the change, three alternating runs per build, frames drawn in 5 s:
+
+| Route | Baseline frames (median frame) | Change frames (median frame) |
+|---|---|---|
+| `/bezier/decasteljau` | 80, 85, 74 (66.7 ms) | 112, 100, 122 (50 ms) |
+| `/rational/rational-decasteljau` | 86, 89, 81 (66.6 ms) | 107, 136, 118 (50, 33.4, 49.9 ms) |
+
+`get offsetWidth` no longer appears in the change's profiles. Screenshots of seven routes (both De Casteljau routes, integral, unit circle, quintic PH, Bézier curve, solids) at 1280×800 and 390×844 are pixel-identical between the builds, with one exception. On `/functions/integral` at 390 px, 6 pixels in the bottom row of the label "b" differ, where the label touches the board's lower edge: the old clip cut that row about 1 px inside the container edge, and the container now clips it at the edge.
+
+**Remaining cost** (change build, timeline trace, about 37 ms of main-thread time per frame at 6×): browser style, layout and paint about 30%; JSXGraph's own update code about 25%; adaptive sampling of the growing curve about 22% (the curve evaluator called from JSXGraph's `_plotRecursive_v2`; the prefix `[0, t]` is re-sampled each frame); React about 12%, mostly the whole-workspace re-render on each 100 ms readout publish, which sets the p95; SVG attribute writes and GC about 8%. These are the next candidates, to be measured in the same way. Limits: a desktop CPU slowed down, not a phone; the headless browser uses the software compositor; no physical phone was measured.

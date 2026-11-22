@@ -11,7 +11,6 @@ import {LessonAnimationCommand} from '../../../learning/model';
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
-import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {decasteljauPresetCollection} from "./collections";
 
@@ -158,7 +157,6 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     override initialize() {
         super.initialize();
-        skipRedundantHtmlTextClipping(this.board);
         this.graphJXGPoints = this.getFirstJxgCurve().getJxgPoints();
     }
 

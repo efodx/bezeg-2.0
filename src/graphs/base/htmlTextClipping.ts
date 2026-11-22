@@ -1,38 +1,27 @@
-import {Board} from "jsxgraph";
+import type {Board} from "jsxgraph";
 
 const patchedRenderers = new WeakSet<object>();
 
-function evaluate(value: unknown): unknown {
-    return typeof value === "function" ? value() : value;
-}
-
-function isZeroViewport(viewport: unknown): boolean {
-    return Array.isArray(viewport) && viewport.length === 4 && viewport.every(side => parseFloat(String(side)) === 0);
-}
-
 /**
- * JSXGraph 1.9.2 clips every HTML text to the board viewport on each style update. It reads the
- * text's and the container's bounding rectangles and then writes a clip path, forcing a synchronous
- * layout per label on every board update. With the default zero viewport that clip only repeats the
- * board container's own overflow clipping, so this board skips it for HTML texts. Non-zero
- * viewports and SVG elements keep JSXGraph's behavior.
+ * JSXGraph 1.14 calls `updateClipPath` for every HTML text on every board update. It reads the text's `offsetWidth` and
+ * `offsetHeight` before it checks the `clip` attribute, so each label forces a synchronous layout, even with
+ * `clip: false`. The clip only limits the label to the board canvas, which the SVG renderer already does by giving the
+ * board container `overflow: hidden` (`renderer/svg.js`). On `/bezier/decasteljau` playback at 6× CPU throttling the
+ * forced layouts took about 18% of main-thread time (docs/bezier-performance-results.md).
+ *
+ * On a board whose container clips its overflow, this skips the label clip and clears one set earlier. A board whose
+ * container does not clip keeps JSXGraph's behavior. JSXGraph 1.9.2 named the hook `setObjectViewport`; the upgrade to
+ * 1.14.1 renamed it and an earlier version of this patch silently stopped applying. `htmlTextClipping.test.ts` runs a
+ * real board so that a future rename fails a test.
  */
 export function skipRedundantHtmlTextClipping(board: Board): void {
     const renderer = board.renderer as any;
-    if (!renderer || typeof renderer.setObjectViewport !== "function" || patchedRenderers.has(renderer)) return;
+    if (!renderer || typeof renderer.updateClipPath !== "function" || patchedRenderers.has(renderer)) return;
+    const container = renderer.container as HTMLElement | undefined;
+    if (container?.style?.overflow !== "hidden") return;
     patchedRenderers.add(renderer);
-    const original = renderer.setObjectViewport;
-    renderer.setObjectViewport = function (element: any, isHtml?: boolean) {
-        if (isHtml) {
-            let viewport = evaluate(element.visProp?.viewport);
-            if (viewport === "inherit") viewport = evaluate((board as any).attr?.viewport);
-            if (isZeroViewport(viewport)) {
-                // Clear a clip computed before this board was patched; it would no longer follow the label.
-                const node = element.rendNode as HTMLElement | undefined;
-                if (node?.style.clipPath) node.style.clipPath = "";
-                return;
-            }
-        }
-        return original.call(this, element, isHtml);
+    renderer.updateClipPath = function (element: any) {
+        const style = element?.rendNode?.style as CSSStyleDeclaration | undefined;
+        if (style?.clipPath) style.removeProperty("clip-path");
     };
 }

@@ -1,4 +1,5 @@
 import type {Board} from "jsxgraph";
+import {skipRedundantHtmlTextClipping} from "../base/htmlTextClipping";
 
 /**
  * The face of plain (non-MathJax) board text: the site's display face Literata, then the Georgia fallback that the
@@ -12,9 +13,12 @@ export const BOARD_TEXT_STYLE = `font-family:${BOARD_FONT_FAMILY};font-variant-n
 
 /**
  * Gives every text the board creates without its own `cssStyle` the shared face. JSXGraph copies `JXG.Options` per
- * board (`board.options`), so this changes this board only; texts and labels read it when they are created.
+ * board (`board.options`), so this changes this board only; texts and labels read it when they are created. Every board
+ * gets this call when it is created, so it also skips JSXGraph's redundant per-label clipping
+ * (`skipRedundantHtmlTextClipping`).
  */
 export function applyBoardTextDefaults(board: Board): void {
+    skipRedundantHtmlTextClipping(board);
     const text = board.options?.text; // absent on the stub boards of session tests
     if (!text) return;
     text.cssDefaultStyle = BOARD_TEXT_STYLE;
