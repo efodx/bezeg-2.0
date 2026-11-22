@@ -469,11 +469,11 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                         : <Puck entry={entry} locked={locked} boardWidth={width} onScrub={state => setScrub(state && {key: entry.key, ...state})}/>}
                     {showOscillator && canOscillate(entry) && <button type="button" className={`ux-puck-osc${locked ? ' is-held' : ''}`} aria-pressed={moving}
                         disabled={locked} aria-hidden={locked || undefined} tabIndex={locked ? -1 : undefined}
-                        aria-label={moving ? `Ustavi: ${entry.label}` : `Samodejno premikaj ${entry.label}`}
+                        aria-label={moving ? `Ustavi: ${entry.label}` : `Zaženi gibanje: ${entry.label}`}
                         onPointerDown={event => event.stopPropagation()} onClick={() => { setLastSwept(entry.key); toggleOscillator(entry.key); }}>
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
-                    {showOscillator && canOscillate(entry) && !locked && <span role="tooltip" aria-hidden="true" className="ux-puck-osc-tip">{moving ? `Ustavi: ${oscName}` : `Samodejno: ${oscName}`}</span>}
+                    {showOscillator && canOscillate(entry) && !locked && <span role="tooltip" aria-hidden="true" className="ux-puck-osc-tip">{moving ? `Ustavi: ${oscName}` : `Zaženi gibanje: ${oscName}`}</span>}
                 </span>;
             })}</span>}
         </div>
