@@ -18,9 +18,13 @@ function EntryMark(props: {entry: LegendEntry}) {
 /** A value typeset from more TeX than this does not fit beside its name: it takes its own line under it. */
 const LONG_VALUE_TEX = 40;
 
+/** Plain-text values longer than this (a sentence such as "Linearni sistem x′ = A x") squeeze the name into a narrow column. */
+const LONG_VALUE_TEXT = 18;
+const isLongValue = (row: ReadoutRow) => row.valueTex ? row.valueTex.length > LONG_VALUE_TEX : row.value.length > LONG_VALUE_TEXT;
+
 function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry; reserveMark: boolean}) {
     const {row} = props;
-    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone} data-long={(row.valueTex?.length ?? 0) > LONG_VALUE_TEX || undefined}>
+    return <div className="ux-rc-row" data-readout={row.id} data-highlight={props.highlighted || undefined} data-tone={row.tone} data-long={isLongValue(row) || undefined}>
         <dt className="ux-rc-name">
             {props.entry ? <EntryMark entry={props.entry}/> : props.reserveMark && <span className="ux-rc-mark ux-rc-mark-none" aria-hidden="true"/>}
             <span className="ux-rc-label">
