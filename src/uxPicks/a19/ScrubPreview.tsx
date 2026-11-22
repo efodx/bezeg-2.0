@@ -31,11 +31,18 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
         let shown: string | undefined;
         let pending: Job | undefined;
         let raf = 0;
-        const clear = () => { shown = undefined; pending = undefined; setGhost(undefined); setTip(undefined); };
+        let unghost = 0;
+        const clear = () => { shown = undefined; pending = undefined; window.clearTimeout(unghost); unghost = 0; setGhost(undefined); setTip(undefined); };
+        // A ghost with nothing to show (the pointer crosses the live value, or a bound) is withdrawn only if no ghost follows within
+        // a moment, so crossing it does not blink the preview off and on.
+        const showGhost = (next: Ghost | undefined) => {
+            window.clearTimeout(unghost); unghost = 0;
+            if (next) setGhost(next); else unghost = window.setTimeout(() => { unghost = 0; setGhost(undefined); }, 170);
+        };
 
         /** Sets the board to the probed value, clones what moved, and restores the live value. */
         const capture = async (board: JxgBoard, svg: SVGSVGElement, apply: () => void, restore: () => void) => {
-            setGhost(await captureGhost(props.frame.current!, board, svg, apply, restore));
+            showGhost(await captureGhost(props.frame.current!, board, svg, apply, restore));
         };
 
         const run = async () => {
@@ -64,7 +71,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
                     const id = `${entry.key}:${value}`;
                     if (shown === id) return;
                     shown = id;
-                    if (Math.abs(value - entry.value) < 1e-12) { setGhost(undefined); return; }
+                    if (Math.abs(value - entry.value) < 1e-12) { showGhost(undefined); return; }
                     const start = entry.value;
                     await capture(board, svg, () => entry.setRaw(value), () => entry.setRaw(start));
                 } else {
@@ -77,7 +84,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
                     const id = `${entry.key}:${target}`;
                     if (shown === id) return;
                     shown = id;
-                    if (blocked) { setGhost(undefined); return; }
+                    if (blocked) { showGhost(undefined); return; }
                     const forward = job.direction > 0 ? () => entry.plus() : () => entry.minus();
                     const back = job.direction > 0 ? () => getParam(entry.key)?.kind === 'count' && (getParam(entry.key) as typeof entry).minus()
                         : () => getParam(entry.key)?.kind === 'count' && (getParam(entry.key) as typeof entry).plus();
@@ -112,7 +119,7 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
             const input = (event.target as Element | null)?.closest?.('input[type="range"]') as HTMLInputElement | null;
             const value = shown?.startsWith(`${input?.id}:`) ? Number(shown.slice(shown.lastIndexOf(':') + 1)) : undefined;
             jump = input && value !== undefined ? {key: input.id, value, x: event.clientX} : undefined;
-            shown = undefined; setGhost(undefined); setTip(undefined);
+            shown = undefined; window.clearTimeout(unghost); unghost = 0; setGhost(undefined); setTip(undefined);
         };
         const click = (event: MouseEvent) => {
             const input = (event.target as Element | null)?.closest?.('input[type="range"]');

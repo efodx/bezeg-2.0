@@ -32,6 +32,10 @@ const howTo = (entry: ParamEntry) => {
 };
 /** Pointer travel (px) along the track before the previewed value is chosen again. */
 const AIM_DEADZONE_PX = 3;
+/** How long (ms) an empty ghost waits before the previous one is withdrawn. */
+const GHOST_HOLD_MS = 170;
+/** How long (ms) the pointer rests on a puck before its overview probe starts. */
+const OVERVIEW_DWELL_MS = 220;
 const stateSignature = () => listParams().map(p => `${p.key}=${p.value}`).join(';');
 
 export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
@@ -45,6 +49,10 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         let pending: Job | undefined;
         let wanted: string | undefined;
         let raf = 0;
+        let dwell = 0;
+        let unghost = 0;
+        // A press (a drag, a jump) is under way: no probe starts, and one in flight stops at its next step.
+        let pressed = false;
         let hovered: HTMLElement | undefined;
         let ghostId: string | undefined;
         // Where the preview value was last chosen: a hand's tremor at a value boundary must not flip the preview back and forth.
@@ -58,7 +66,15 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         const clear = () => {
             unaim(); hovered = undefined;
             pending = undefined; wanted = undefined; ghostId = undefined; aimed = undefined;
+            window.clearTimeout(dwell); dwell = 0;
+            window.clearTimeout(unghost); unghost = 0;
             setGhost(undefined); setCard(undefined); setShown(undefined);
+        };
+        // A ghost that has nothing to show (the pointer crosses the live value, or a value where the graph does not differ) is
+        // withdrawn only if no ghost follows within a moment, so crossing it does not blink the preview off and on.
+        const showGhost = (next: Ghost | undefined) => {
+            window.clearTimeout(unghost); unghost = 0;
+            if (next) setGhost(next); else unghost = window.setTimeout(() => { unghost = 0; setGhost(undefined); }, GHOST_HOLD_MS);
         };
         const boxOf = (svg: SVGSVGElement) => {
             const frame = props.frame.current!.getBoundingClientRect(), box = svg.getBoundingClientRect();
@@ -76,7 +92,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             raf = 0;
             const job = pending;
             if (!job) return;
-            if (busy) return;
+            if (busy || pressed) return;
             pending = undefined;
             const board = findBoard(props.frame.current);
             const svg = board?.renderer.svgRoot;
@@ -86,15 +102,17 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             try {
                 if (job.kind === 'ghost') {
                     if (entry.kind !== 'range') return;
-                    if (Math.abs(job.value - entry.value) < 1e-12) { setGhost(undefined); return; }
+                    if (Math.abs(job.value - entry.value) < 1e-12) { showGhost(undefined); return; }
                     const start = entry.value;
                     const result = await captureGhost(props.frame.current!, board, svg, () => entry.setRaw(job.value), () => (getParam(job.key) as typeof entry | undefined)?.setRaw(start));
-                    if (isWanted(job)) setGhost(result);
+                    if (isWanted(job)) showGhost(result);
                 } else {
                     const sig = stateSignature();
                     let cached = cache.get(job.key);
                     if (!cached || cached.sig !== sig) {
-                        const fan = await analyse(board, svg, entry);
+                        const stop = () => pressed || !isWanted(job);
+                        const fan = await analyse(board, svg, entry, stop);
+                        if (stop()) return; // abandoned: nothing was learnt, nothing is cached
                         // The probe leaves the values as they were, so the signature taken before still holds.
                         cached = {sig, fan};
                         cache.set(job.key, cached);
@@ -109,13 +127,20 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
                 if (pending && !raf) raf = requestAnimationFrame(() => void run());
             }
         };
-        const schedule = (job: Job) => { pending = job; if (!raf) raf = requestAnimationFrame(() => void run()); };
+        const schedule = (job: Job) => {
+            pending = job;
+            window.clearTimeout(dwell); dwell = 0;
+            // The overview probe walks the graph through neighbouring values: it waits for the pointer to rest, so a pointer
+            // crossing a puck on its way to press it never starts one (a first drag would otherwise hitch behind it).
+            if (job.kind === 'overview') { dwell = window.setTimeout(() => { dwell = 0; if (!raf) raf = requestAnimationFrame(() => void run()); }, OVERVIEW_DWELL_MS); return; }
+            if (!raf) raf = requestAnimationFrame(() => void run());
+        };
 
         const overview = (puck: HTMLElement, entry: ParamEntry) => {
             const id = `o:${entry.key}`;
             if (wanted === id) return;
             wanted = id; ghostId = undefined;
-            setGhost(undefined); setShown(undefined);
+            window.clearTimeout(unghost); unghost = 0; setGhost(undefined); setShown(undefined);
             const cached = cache.get(entry.key);
             const fresh = cached && cached.sig === stateSignature();
             setCard({key: entry.key, ...anchor(puck), symbol: symbolOf(entry), busy: !fresh, name: entry.label, about: declaredPuckHelp(entry.key) ? [declaredPuckHelp(entry.key)!] : [], how: howTo(entry),
@@ -172,6 +197,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
         // Touch has no hover: a tap on a puck's name (not its value, track or buttons) toggles the same overview card, a tap anywhere else closes it.
         let touch: {id: number; x: number; y: number; puck: HTMLElement; wasOpen: boolean} | undefined;
         const down = (event: PointerEvent) => {
+            pressed = true;
             const puck = (event.target as Element | null)?.closest?.('.ux-puck[data-param]') as HTMLElement | null;
             if (event.pointerType === 'touch') {
                 touching = true;
@@ -188,6 +214,7 @@ export function PuckHover(props: {frame: React.RefObject<HTMLDivElement>}) {
             return !value || event.clientX < value.left;
         };
         const up = (event: PointerEvent) => {
+            pressed = false;
             if (event.pointerType !== 'touch') return;
             const start = touch;
             touch = undefined;

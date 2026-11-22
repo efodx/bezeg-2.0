@@ -20,7 +20,8 @@
 }
 .ux-puck:hover { border-color: #9fb08f; }
 .ux-puck:focus-visible { outline: 3px solid #456db0; outline-offset: 2px; }
-.ux-puck:active:not(.is-blocked) { transform: scale(1.04); border-color: #244c37; box-shadow: 0 6px 22px rgba(36, 76, 55, 0.22); }
+/* Pressed: a darker border and a deeper shadow, never a scale (a scaled puck is a puck that changes width under the finger). */
+.ux-puck:active:not(.is-blocked) { border-color: #244c37; box-shadow: 0 0 0 1px #244c37, 0 6px 22px rgba(36, 76, 55, 0.22); }
 .ux-puck-text { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
 .ux-puck-symbol { font-family: "Source Serif 4", "Times New Roman", serif; font-style: italic; font-size: 1.2rem; line-height: 1; color: #885512; }
 .ux-puck-name { font-size: 0.8125rem; color: #526152; max-width: 9em; overflow: hidden; text-overflow: ellipsis; }

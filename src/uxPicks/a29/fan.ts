@@ -67,7 +67,8 @@ function common(own: Pt[][], neighbours: Pt[][][], still: {count: number; total:
 }
 const near = (list: Pt[], p: Pt, r: number) => list.some(q => Math.hypot(q[0] - p[0], q[1] - p[1]) <= r);
 
-export async function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamEntry): Promise<Fan | undefined> {
+/** `cancelled` is asked between the probe's steps: once true the walk stops, the values are put back, and nothing is returned. */
+export async function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamEntry, cancelled: () => boolean = () => false): Promise<Fan | undefined> {
     const W = svg.clientWidth, H = svg.clientHeight;
     const key = entry.key;
     let offsets: number[];
@@ -116,6 +117,7 @@ export async function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamE
     try {
         for (const k of offsets) {
             await goTo(k);
+            if (cancelled()) break;
             const shapes = new Map<string, {d: string; lines: Pt[][]}>();
             for (const object of curves) {
                 const node = shape(object.rendNode!.id);
@@ -127,6 +129,7 @@ export async function analyse(board: JxgBoard, svg: SVGSVGElement, entry: ParamE
     } finally {
         await goTo(0);
     }
+    if (cancelled()) return undefined;
     const moved = curves.filter(object => neighbours.some(n => n.shapes.has(object.id)) && (base.get(object.id)?.lines.length ?? 0) > 0);
     if (!moved.length) return undefined;
     const [, ox, oy] = board.origin?.scrCoords ?? [1, 0, 0];
