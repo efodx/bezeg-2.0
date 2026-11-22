@@ -582,7 +582,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
         data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
         onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>
         <span className="ux-puck-text">
-            <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Zmanjšaj: ${entry.label}`} aria-disabled={atMin || locked || undefined} onClick={() => step(-1)}><MinusIcon/></button>
+            <button type="button" tabIndex={-1} className="ux-count-step" data-step="-1" aria-label={`Zmanjšaj: ${entry.label}`} aria-disabled={atMin || locked || undefined} onClick={() => step(-1)}><MinusIcon/></button>
             {symbol ? <span className="ux-puck-symbol">{symbol}</span> : <span className="ux-puck-name">{shortName(name)}</span>}
             <span className="ux-puck-valuebox" style={{width: valueBoxWidth(entry)}}>{editing !== undefined
                 ? <TypedValue initial={editing} shown={entry.format(entry.value)} label={entry.label} onDone={() => { setEditing(undefined); ref.current?.focus(); }}
@@ -597,7 +597,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
                         return ok;
                     }} onInput={() => setProblem(undefined)}/>
                 : <span className="ux-puck-value">{entry.format(entry.value)}</span>}</span>
-            <button type="button" tabIndex={-1} className="ux-count-step" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}><PlusIcon/></button>
+            <button type="button" tabIndex={-1} className="ux-count-step" data-step="1" aria-label={`Povečaj: ${entry.label}`} aria-disabled={atMax || locked || undefined} onClick={() => step(1)}><PlusIcon/></button>
         </span>
         {moving && <MovingMark/>}
         {locked && <LockMark/>}

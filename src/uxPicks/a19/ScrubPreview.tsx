@@ -101,7 +101,10 @@ export function ScrubPreview(props: {frame: React.RefObject<HTMLDivElement>}) {
             const owner = button?.closest('[data-param]');
             const key = owner?.getAttribute('data-param');
             if (!button || !key || !getParam(key)) return undefined;
-            return {kind: 'count', key, direction: button.textContent?.trim() === '+' ? 1 : -1, button};
+            // Puck steps are icons and say their direction in data-step; the inspector's CountSetter buttons are the glyphs − and +.
+            const step = button.getAttribute('data-step');
+            const direction = step ? (Number(step) > 0 ? 1 : -1) : button.textContent?.trim() === '+' ? 1 : -1;
+            return {kind: 'count', key, direction, button};
         };
         const move = (event: PointerEvent) => {
             if (event.pointerType === 'touch' || event.buttons !== 0) { if (shown || pending) clear(); return; }
