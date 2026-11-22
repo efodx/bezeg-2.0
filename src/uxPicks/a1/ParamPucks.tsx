@@ -33,7 +33,8 @@ export function shortName(name: string): string {
     return out || `${words[0].slice(0, 11)}.`;
 }
 
-const LockMark = () => <span className="ux-puck-lock" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.4"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7"/></svg></span>;
+const LOCK_REASON = 'Zaklenjeno v tem koraku razlage';
+const LockMark = () => <span className="ux-puck-lock" role="img" aria-label={LOCK_REASON} title={LOCK_REASON}><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.4"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7"/></svg></span>;
 
 type ParamEntry = RangeParam;
 
@@ -277,7 +278,7 @@ export function Puck(props: {entry: ParamEntry; locked: boolean; onScrub(state: 
         else if (event.key === 'End' && !blocked) { event.preventDefault(); entry.set(entry.max); }
     };
     return <div ref={ref} role="slider" tabIndex={0} aria-label={entry.label} aria-valuemin={entry.min} aria-valuemax={entry.max} aria-valuenow={entry.value}
-        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? LOCK_NOTE : jumps ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
+        aria-valuetext={entry.format(entry.value)} aria-disabled={blocked || undefined} title={entry.unavailable ?? (locked ? LOCK_REASON : jumps ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno, za fino nastavljanje dvigni prst.'))}
         className={`ux-puck${blocked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}${moving ? ' is-moving' : ''}`}
         data-click={clicked % 2} data-param={entry.key}
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
@@ -311,7 +312,6 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
     const reducedMotion = useReducedMotion();
     // Reduced motion: nothing moves by itself, so the sweep button is not offered and a running sweep stops.
     const showOscillator = usePick('a3') && !reducedMotion;
-    const hoverCard = usePick('a29');
     useEffect(() => { if (reducedMotion) stopAllOscillators(); }, [reducedMotion]);
     useLayoutEffect(() => {
         const frame = props.frame.current;
@@ -373,8 +373,8 @@ export function ParamPucks(props: {frame: React.RefObject<HTMLElement>}) {
                         : <Puck entry={entry} locked={locked} boardWidth={width} onScrub={state => setScrub(state && {key: entry.key, ...state})}/>}
                     {showOscillator && canOscillate(entry) && <button type="button" className={`ux-puck-osc${locked ? ' is-held' : ''}`} aria-pressed={moving}
                         disabled={locked} aria-hidden={locked || undefined} tabIndex={locked ? -1 : undefined}
-                        aria-label={moving ? `Ustavi: ${entry.label}` : `Naj se sam spreminja: ${entry.label}`}
-                        title={hoverCard ? undefined : moving ? 'Ustavi' : entry.kind === 'count' ? 'Premikaj sam: števec šteje gor in dol' : 'Premikaj sam: drsnik niha med mejama'}
+                        aria-label={moving ? `Ustavi: ${entry.label}` : `Samodejno premikaj ${entry.label}`}
+                        title={moving ? 'Ustavi' : `Samodejno premikaj ${entry.label}`}
                         onPointerDown={event => event.stopPropagation()} onClick={() => toggleOscillator(entry.key)}>
                         {moving ? <PauseIcon/> : <WaveIcon/>}
                     </button>}
@@ -474,7 +474,7 @@ export function CountPuck(props: {entry: CountParam; locked: boolean}) {
     const atMax = entry.max !== undefined && entry.value >= entry.max;
     return <div ref={ref} role="spinbutton" tabIndex={0} aria-label={entry.label} aria-valuenow={entry.value} aria-valuemin={entry.min} aria-valuemax={entry.max}
         aria-valuetext={entry.format(entry.value)} aria-disabled={locked || undefined}
-        title={locked ? LOCK_NOTE : hoverCard ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
+        title={locked ? LOCK_REASON : hoverCard ? undefined : puckTip(entry, entry.label, 'Povleci levo ali desno ali pritisni − in +.')}
         className={`ux-puck ux-count-puck${locked ? ' is-blocked' : ''}${nudged ? ' is-nudged' : ''}${refused ? ' is-refused' : ''}${moving ? ' is-moving' : ''}`}
         data-param={entry.key} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={onKeyDown}
         onDoubleClick={event => { if ((event.target as Element).closest('button')) return; if (locked) refuse(); else setEditing(''); }}>
