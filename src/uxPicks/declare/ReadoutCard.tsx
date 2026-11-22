@@ -76,10 +76,22 @@ function useWidthRatchet(shape: string) {
         el.style.minWidth = '';
         let widest = 0;
         const grow = () => { const w = el.getBoundingClientRect().width; if (w > widest + 0.5) { widest = w; el.style.minWidth = `${Math.ceil(w)}px`; } };
+        // Each value cell ratchets too: at the card's 320 px cap a wider value would take width from the names column and
+        // rewrap the names on every sweep frame (recursion, circle constructions: values 38↔124 px, CLS 0.03-0.12).
+        const cells = new WeakMap<HTMLElement, number>();
+        const growCell = (cell: HTMLElement) => {
+            if (!cell.querySelector('mjx-container') && cell.textContent?.includes('\\')) return; // TeX source before MathJax: wider than the value
+            const w = cell.getBoundingClientRect().width;
+            if (w > (cells.get(cell) ?? 0) + 0.5) { cells.set(cell, w); cell.style.minWidth = `${Math.ceil(w)}px`; }
+        };
+        const ro = new ResizeObserver(records => { for (const r of records) if (r.target === el) grow(); else growCell(r.target as HTMLElement); });
+        const watchCells = () => el.querySelectorAll<HTMLElement>('.ux-rc-row:not([data-long]) > .ux-rc-value').forEach(cell => { if (!cells.has(cell)) { growCell(cell); ro.observe(cell); } });
         grow();
-        const ro = new ResizeObserver(grow);
         ro.observe(el);
-        return () => ro.disconnect();
+        watchCells();
+        const mo = new MutationObserver(watchCells);
+        mo.observe(el, {childList: true, subtree: true});
+        return () => { ro.disconnect(); mo.disconnect(); };
     }, [shape]);
     return ref;
 }
