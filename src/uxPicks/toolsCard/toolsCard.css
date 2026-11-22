@@ -154,7 +154,8 @@
    pucks for sliders"); its help, and its group's help, are in the puck's tooltip. The control stays mounted (hidden) so
    the puck still drives it. A group left with nothing but help text goes too. */
 .ux-bcard-tools [data-ux-pucked] { display: none !important; }
-.ux-bcard-tools .inspector-group:has([data-ux-pucked]):not(:has(> :not([data-ux-pucked]):not(p.inspector-help))) { display: none; }
+/* The heading of a titled section (with its fold and help buttons) and a help paragraph do not count as content. */
+.ux-bcard-tools :is(.inspector-group, .inspector-reveals, fieldset.point-list, .card-body):has([data-ux-pucked]):not(:has(> :not([data-ux-pucked], [data-ux-sec], .inspector-help))) { display: none; }
 
 /* ---- Tools card redesign (owner, 2026-11-21) ----
    1. The tabs are the head: grip, a compact Uredi/Prikaz/Shrani switch, fold. The tab bar is laid under the head row (round 6: the head keeps its title "Orodja" open and folded). */

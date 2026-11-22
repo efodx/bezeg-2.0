@@ -236,12 +236,12 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             formula: line.kind === "degenerate" ? undefined : lineEquation(line, language).replace(/,/g, "{,}"),
             readouts: [
                 {id: "line", rows: [
-                    {id: "k", name: t("slope_k_label"), symbol: "k", value: line.kind === "line" ? number(line.k) : t("slope_undefined"), tone: "comparison"},
-                    {id: "n", name: t("intercept_n_label"), symbol: "n", value: line.kind === "line" ? number(line.n) : t("slope_undefined"), tone: "comparison"},
+                    {id: "k", name: t("slope_k_label"), symbol: "k", value: line.kind === "line" ? number(line.k) : t("slope_undefined"), tone: "comparison", ...(line.kind === "line" ? {legend: "line"} : {})},
+                    {id: "n", name: t("intercept_n_label"), symbol: "n", value: line.kind === "line" ? number(line.n) : t("slope_undefined"), tone: "comparison", ...(line.kind === "line" ? {legend: "line"} : {})},
                 ]},
                 {id: "triangle", rows: [
-                    {id: "dx", symbol: "\\Delta x", value: number(triangle.dx), tone: "accent"},
-                    {id: "dy", symbol: "\\Delta y", value: number(triangle.dy), tone: "accent"},
+                    {id: "dx", symbol: "\\Delta x", value: number(triangle.dx), tone: "accent", ...(legs ? {legend: "triangle"} : {})},
+                    {id: "dy", symbol: "\\Delta y", value: number(triangle.dy), tone: "accent", ...(legs ? {legend: "triangle"} : {})},
                 ]},
             ],
             notes: line.kind === "line" ? [] : [{id: "reason", text: t(line.kind === "vertical" ? "linear_vertical_note" : "linear_degenerate_note"), tone: "warning"}],

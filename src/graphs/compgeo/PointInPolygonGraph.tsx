@@ -530,14 +530,14 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
             if (readout.kind === "message") {
                 notes.push({id: "message", text: readout.reason === "open" ? t("pointinpolygon_open") : t("pointinpolygon_too_few", {value0: readout.missing}), tone: "muted"});
             } else if (readout.kind === "boundary") {
-                readouts.push({id: "verdict", title: t("pointinpolygon_query_group"), rows: [{id: "location", name: "lega točke q", value: "na robu", tone: "accent"}]});
+                readouts.push({id: "verdict", title: t("pointinpolygon_query_group"), rows: [{id: "location", name: "lega točke q", value: "na robu", tone: "accent", legend: "query"}]});
                 notes.push({id: "boundary", text: t("pointinpolygon_boundary_note"), tone: "muted"});
             } else {
                 const evenOdd = split(readout.evenOdd === "inside" ? t("pointinpolygon_even_odd_inside") : t("pointinpolygon_even_odd_outside"));
                 const nonzero = split(readout.nonzero === "inside" ? t("pointinpolygon_nonzero_inside") : t("pointinpolygon_nonzero_outside"));
                 readouts.push({id: "verdict", title: t("pointinpolygon_query_group"), rows: [
-                    {id: "location", name: "lega točke q", value: readout.location === "inside" ? "znotraj" : readout.location === "outside" ? "zunaj" : "odvisno od pravila", tone: "accent"},
-                    {id: "crossings", name: label(t("pointinpolygon_crossings", {value0: ""})), value: String(readout.crossings), tone: "comparison"},
+                    {id: "location", name: "lega točke q", value: readout.location === "inside" ? "znotraj" : readout.location === "outside" ? "zunaj" : "odvisno od pravila", tone: "accent", legend: "query"},
+                    {id: "crossings", name: label(t("pointinpolygon_crossings", {value0: ""})), value: String(readout.crossings), tone: "comparison", ...(this.overlayShown("ray") ? {legend: "crossing"} : {})},
                     {id: "even-odd", name: evenOdd.name, value: evenOdd.value},
                     {id: "winding", name: label(t("pointinpolygon_winding", {value0: ""})), value: windingText(readout.winding), tone: "primary"},
                     {id: "nonzero", name: nonzero.name, value: nonzero.value},

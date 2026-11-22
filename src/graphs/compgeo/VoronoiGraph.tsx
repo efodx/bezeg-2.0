@@ -876,35 +876,37 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         const {counts, construction} = status;
         const label = (sentence: string) => sentence.replace(/:\s*$/, "");
         const pair = (x: string, y: string) => `(${x}, ${y})`;
+        const texNumber = (value: string) => value.replace(/\u2212/g, "-").replace(/,/g, "{,}");
+        const pairTex = (x: string, y: string) => `\\left(${texNumber(x)};\\,${texNumber(y)}\\right)`;
         const readouts: ReadoutGroup[] = [];
         if (!refusal && status.diagramShown) {
-            const count = (id: string, key: "vor_count_sites" | "vor_count_vertices" | "vor_count_edges" | "vor_count_rays" | "vor_count_lines" | "vor_count_bounded" | "vor_count_unbounded", value: number): ReadoutRow =>
-                ({id, name: label(t(key, {value0: ""})), value: String(value)});
+            const count = (id: string, key: "vor_count_sites" | "vor_count_vertices" | "vor_count_edges" | "vor_count_rays" | "vor_count_lines" | "vor_count_bounded" | "vor_count_unbounded", value: number, legend?: string): ReadoutRow =>
+                ({id, name: label(t(key, {value0: ""})), value: String(value), ...(legend ? {legend} : {})});
             readouts.push({id: "diagram", title: t("vor_readout_label"), rows: [
                 count("sites", "vor_count_sites", counts.sites),
                 count("vertices", "vor_count_vertices", counts.vertices),
-                count("edges", "vor_count_edges", counts.finite),
-                count("rays", "vor_count_rays", counts.rays),
-                ...(counts.lines > 0 ? [count("lines", "vor_count_lines", counts.lines)] : []),
+                count("edges", "vor_count_edges", counts.finite, "diagram"),
+                count("rays", "vor_count_rays", counts.rays, "diagram"),
+                ...(counts.lines > 0 ? [count("lines", "vor_count_lines", counts.lines, "diagram")] : []),
                 count("bounded", "vor_count_bounded", counts.bounded),
                 count("unbounded", "vor_count_unbounded", counts.unbounded),
             ]});
             if (status.vertices.length > 0) {
                 readouts.push({id: "vertex-list", title: t("vor_vertices_label"), rows: status.vertices.map((vertex, index) => (
-                    {id: `vertex-${index + 1}`, name: `V${index + 1}`, value: pair(vertex.x, vertex.y), tone: "accent" as const}))});
+                    {id: `vertex-${index + 1}`, name: `V${index + 1}`, value: pair(vertex.x, vertex.y), valueTex: pairTex(vertex.x, vertex.y), tone: "accent" as const}))});
             }
         }
         if (!refusal) {
             const nearest = status.query.nearest;
             readouts.push({id: "query", title: t("vor_query_group"), rows: [
-                {id: "query-point", name: "točka", symbol: "q", value: pair(status.query.x, status.query.y), tone: "accent", legend: "query"},
+                {id: "query-point", name: "točka", symbol: "q", value: pair(status.query.x, status.query.y), valueTex: pairTex(status.query.x, status.query.y), tone: "accent", legend: "query"},
                 {id: "nearest", name: "najbližje mesto", value: siteList(nearest), tone: "error"},
             ]});
         }
         const selected = status.selectedVertex;
         if (status.overlayShown && selected) {
             readouts.push({id: "triangle", title: t("vor_overlay_delaunay"), rows: [
-                {id: "triangle-vertex", name: `središče trikotnika ${siteList(selected.corners)}`, value: pair(selected.x, selected.y), tone: "accent"},
+                {id: "triangle-vertex", name: `središče trikotnika ${siteList(selected.corners)}`, value: pair(selected.x, selected.y), valueTex: pairTex(selected.x, selected.y), tone: "accent"},
                 {id: "triangle-sites", name: "enako oddaljeno od mest", value: siteList(selected.sites)},
             ]});
         }

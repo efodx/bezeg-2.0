@@ -208,6 +208,13 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         return `(${this.number(x, language)}${language === "sl" ? "; " : ", "}${this.number(y, language)})`;
     }
 
+    /** TeX of `pointText`: the decimal comma and the minus sign in math form. */
+    private pointTex(x: number, y: number): string {
+        const language = currentLanguage();
+        const tex = (value: number) => this.number(value, language).replace(/−/g, "-").replace(/,/g, "{,}");
+        return `\\left(${tex(x)}${language === "sl" ? ";" : ","}\\,${tex(y)}\\right)`;
+    }
+
     private boardPointText(model: FunctionTransformationModel): string {
         const point = trackedPointOf(model);
         if (!point) return t("function_transformation_board_point_undefined", {value0: this.number(model.u)});
@@ -289,8 +296,10 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
                 ]},
                 {id: "point", title: t("function_transformation_legend_point"), rows: [
                     {id: "u", name: t("function_transformation_u_label"), value: this.number(model.u)},
-                    {id: "base-point", name: t("function_transformation_readout_base_point"), value: point ? this.pointText(point.base.x, point.base.y) : undefinedText, tone: "muted"},
-                    {id: "image-point", name: t("function_transformation_readout_image_point"), value: point ? this.pointText(point.image.x, point.image.y) : undefinedText, tone: "primary"},
+                    {id: "base-point", name: t("function_transformation_readout_base_point"), value: point ? this.pointText(point.base.x, point.base.y) : undefinedText,
+                        ...(point ? {valueTex: this.pointTex(point.base.x, point.base.y)} : {}), tone: "muted", ...(model.ghostVisible ? {legend: "ghost"} : {})},
+                    {id: "image-point", name: t("function_transformation_readout_image_point"), value: point ? this.pointText(point.image.x, point.image.y) : undefinedText,
+                        ...(point ? {valueTex: this.pointTex(point.image.x, point.image.y)} : {}), tone: "primary", legend: "point"},
                 ]},
             ],
             readoutHelp: <p>{t("function_transformation_note")}</p>,

@@ -415,11 +415,10 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const model = this.model;
         const view = this.viewOf(model);
         const shown = model.boundVisible;
-        const notes: ReadoutNote[] = [];
+        const notes: ReadoutNote[] = [{id: "series", text: this.seriesText(model, view), tone: "muted"}];
         if (!shown) notes.push({id: "bound-state", text: "Ocena napake je skrita.", tone: "muted"});
         else if (view.bound.kind !== "bound") notes.push({id: "bound-state", text: t("taylor_bound_unavailable"), tone: "muted"});
         else notes.push({id: "bound-hypothesis", text: `${t("taylor_readout_hypothesis")}: ${this.hypothesisText(model.example)}`, tone: "muted"});
-        notes.push({id: "series", text: this.seriesText(model, view), tone: "muted"});
         for (const status of this.statuses(model, view)) {
             if (status.id === "bound-not-sharp" || status.id === "no-bound" || status.id === "flat") notes.push({id: status.id, text: status.text, tone: "muted"});
         }
@@ -440,11 +439,11 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                     {id: "x", name: "točka", symbol: "x", value: this.number(model.x), tone: "error"},
                 ]},
                 {id: "values", title: "Vrednosti v x", rows: [
-                    {id: "function", name: "funkcija", symbol: "f(x)", value: this.number(view.value), tone: "primary"},
-                    {id: "polynomial", name: "polinom", symbol: "T_n(x)", value: this.number(view.polynomial), tone: "comparison"},
-                    {id: "signed-error", name: "napaka", symbol: "f(x)-T_n(x)", value: this.small(view.signedError), tone: "error"},
-                    {id: "absolute-error", name: "absolutna napaka", symbol: "|f(x)-T_n(x)|", value: this.small(view.absoluteError), tone: "error"},
-                    ...(bound === undefined ? [] : [{id: "bound", name: "ocena napake", symbol: "\\le", value: this.small(bound), tone: "accent" as const}]),
+                    {id: "function", name: "funkcija", symbol: "f(x)", value: this.number(view.value), tone: "primary", legend: "function"},
+                    {id: "polynomial", name: "polinom", symbol: "T_n(x)", value: this.number(view.polynomial), tone: "comparison", legend: "polynomial"},
+                    {id: "signed-error", name: "napaka", symbol: "f(x)-T_n(x)", value: this.small(view.signedError), tone: "error", legend: "error"},
+                    {id: "absolute-error", name: "absolutna napaka", symbol: "|f(x)-T_n(x)|", value: this.small(view.absoluteError), tone: "error", legend: "error"},
+                    ...(bound === undefined ? [] : [{id: "bound", name: "ocena napake", symbol: "\\le", value: this.small(bound), tone: "accent" as const, legend: "bound"}]),
                 ]},
             ],
             notes,

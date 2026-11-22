@@ -59,6 +59,12 @@
 .ux-dock-region:has(> .is-floating) { -webkit-mask-image: none !important; mask-image: none !important; }
 .ux-dock-region::-webkit-scrollbar { width: 6px; height: 6px; }
 .ux-dock-region::-webkit-scrollbar-thumb { background: var(--bezeg-shell-ink-secondary); border-radius: 3px; }
+/* A card body that scrolls under a fade (the lesson reading, the horizontal docks' text card) shows an always-visible themed scrollbar (the
+   ::-webkit-scrollbar form, which stays a classic bar where overlay ones hide): the fade alone ends mid-row with nothing to say that the body goes on. */
+.ux-dock-region :is(.guided-lesson-reading, .ux-btext) { scrollbar-width: auto; scrollbar-color: auto; } /* the stack's inherited standard properties would switch the ::-webkit-scrollbar form off */
+.ux-dock-region :is(.guided-lesson-reading, .ux-btext)::-webkit-scrollbar { width: 6px; }
+.ux-dock-region :is(.guided-lesson-reading, .ux-btext)::-webkit-scrollbar-button { display: none; }
+.ux-dock-region :is(.guided-lesson-reading, .ux-btext)::-webkit-scrollbar-thumb { background: var(--bezeg-shell-ink-secondary); border-radius: 3px; }
 /* The place a picked-up card leaves, or would take: only reserves room. The ghost (below) is what shows. */
 .ux-dock-gap { flex: none; pointer-events: none; visibility: hidden; }
 

@@ -829,6 +829,23 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         }
     }
 
+    /** TeX of the readout values that are formulas or lists, keyed by row id: the same numbers `readoutRows` shows. */
+    private readoutTex(id: string): {valueTex?: string} {
+        const {a, b, n, c} = this.state;
+        const tex = (value: bigint) => value.toString();
+        const sep = ";\\ ";
+        switch (id) {
+            case "formula": return this.state.view === "paths" ? {valueTex: `\\binom{${a + b}}{${a}} = ${tex(binomial(a + b, a))}`} : {};
+            case "last-sum": { const lattice = this.lattice(); return {valueTex: `${tex(lattice.lastR)} + ${tex(lattice.lastU)} = ${tex(lattice.lastR + lattice.lastU)}`}; }
+            case "entry": { const v = this.triangle(); return {valueTex: `\\binom{${v.n}}{${v.k}} = ${tex(v.entry)}`}; }
+            case "row-sum": { const v = this.triangle(); return {valueTex: `${tex(v.rowSum)} = 2^{${v.n}}`}; }
+            case "binomial": return {valueTex: `(x ${c < 0 ? "-" : "+"} ${Math.abs(c)})^{${n}}`};
+            case "coefficients": return {valueTex: this.expansion().coefficients.map(tex).join(sep)};
+            case "coefficient-sum": return {valueTex: `${1 + c < 0 ? `(${1 + c})` : `${1 + c}`}^{${n}} = ${tex(this.expansion().sum)}`};
+            default: return {};
+        }
+    }
+
     private readoutRows(): ReadoutListRow[] {
         const {a, b, n, c} = this.state;
         switch (this.state.view) {
@@ -1003,17 +1020,18 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     protected override workspaceUx(): GraphUx | undefined {
         if (!pickOn("boardText")) return undefined;
         const {view, split} = this.state;
-        const rows: ReadoutRow[] = this.readoutRows().map(row => ({id: row.id, name: String(row.label ?? ""), value: String(row.value)}));
+        const rows: ReadoutRow[] = this.readoutRows().map(row => ({id: row.id, name: String(row.label ?? ""), value: String(row.value), ...this.readoutTex(row.id)}));
         const pick = (...ids: string[]) => rows.filter(row => ids.includes(row.id));
         const tone = (list: ReadoutRow[], id: string, tone: ReadoutRow["tone"]) => list.map(row => row.id === id ? {...row, tone} : row);
+        const link = (list: ReadoutRow[], id: string, legendId: string) => list.map(row => row.id === id && legendId !== "" ? {...row, legend: legendId} : row);
         const groups: ReadoutGroup[] = [];
         const notes: ReadoutNote[] = [];
         const legend: LegendEntry[] = [];
         let help: React.ReactNode = undefined;
         if (view === "paths") {
-            groups.push({id: "target", title: t("combinatorics_lattice_target_title"), rows: pick("target", "count", "formula")});
-            if (this.selectedRoute()) groups.push({id: "route", rows: tone(pick("route"), "route", "accent")});
-            groups.push({id: "last", rows: pick("last-right", "last-up", "last-sum")});
+            groups.push({id: "target", title: t("combinatorics_lattice_target_title"), rows: link(link(link(pick("target", "count", "formula"), "target", "target"), "count", split ? "" : "paths"), "formula", split ? "" : "paths")});
+            if (this.selectedRoute()) groups.push({id: "route", rows: link(tone(pick("route"), "route", "accent"), "route", "route")});
+            groups.push({id: "last", rows: split ? link(link(pick("last-right", "last-up", "last-sum"), "last-right", "last-right"), "last-up", "last-up") : pick("last-right", "last-up", "last-sum")});
             if (!this.lattice().enumerable) notes.push({id: "cap", text: this.capMessage(), tone: "warning"});
             if (this.notice && this.notice.state === this.state) notes.push({id: "notice", text: this.notice.text(), tone: "muted"});
             if (split) {
@@ -1025,8 +1043,8 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         } else if (view === "triangle") {
             const v = this.triangle();
             const parents = tone(tone(pick("parent-left", "parent-right", "parents-sum"), "parent-left", "comparison"), "parent-right", "comparison");
-            groups.push({id: "entry", title: t("combinatorics_lattice_readout_entry"), rows: tone(pick("entry", "position"), "entry", "accent")});
-            groups.push({id: "parents", title: "Starša", rows: parents});
+            groups.push({id: "entry", title: t("combinatorics_lattice_readout_entry"), rows: v.inView ? link(tone(pick("entry", "position"), "entry", "accent"), "entry", "entry") : tone(pick("entry", "position"), "entry", "accent")});
+            groups.push({id: "parents", title: "Starša", rows: v.inView && (v.left !== undefined || v.right !== undefined) ? link(link(parents, "parent-left", "parents"), "parent-right", "parents") : parents});
             groups.push({id: "row", rows: pick("row-sum")});
             if (!v.inView) notes.push({id: "off", text: t("combinatorics_lattice_cap_triangle_off", {value0: smallText(v.n)}), tone: "warning"});
             else {
@@ -1035,7 +1053,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             }
         } else {
             groups.push({id: "expansion", title: t("combinatorics_lattice_readout_expansion"), rows: tone(pick("binomial"), "binomial", "primary")});
-            groups.push({id: "coefficients", rows: pick("coefficients", "coefficient-sum")});
+            groups.push({id: "coefficients", rows: link(pick("coefficients", "coefficient-sum"), "coefficients", "bars")});
             legend.push({id: "bars", label: t("combinatorics_lattice_readout_coefficients"), kind: "line", color: GraphPalette.primaryCurve});
             help = <p>{t("combinatorics_lattice_cap_expansion")}</p>;
         }

@@ -240,6 +240,22 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         return `(${this.number(p.x, language)}${language === "sl" ? "; " : ", "}${this.number(p.y, language)})`;
     }
 
+    /** TeX of `pointText`. */
+    private pointTex(p: Point2): string {
+        const language = currentLanguage();
+        const tex = (value: number) => this.number(value, language).replace(/−/g, "-").replace(/,/g, "{,}");
+        return `\\left(${tex(p.x)}${language === "sl" ? ";" : ","}\\,${tex(p.y)}\\right)`;
+    }
+
+    /** TeX of `ruleText`: the pair f and its inverse. */
+    private ruleTex(model: FunctionInverseModel): string {
+        switch (model.restriction) {
+            case "square": return "f(x)=x^{2}\\;(x\\ge 0),\\;f^{-1}(x)=\\sqrt{x}";
+            case "exp": return `f(x)=a^{x},\\;f^{-1}(x)=\\log_{a}x,\\;a={${this.number(model.base).replace(/,/g, "{,}")}}`;
+            case "natural": return "f(x)=e^{x},\\;f^{-1}(x)=\\ln x";
+        }
+    }
+
     /** A slope: the number, or the words for a vertical tangent (never a number there). */
     private slopeText(slope: SlopeResult): string {
         if (slope.kind === "slope") return this.number(slope.value);
@@ -301,7 +317,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
             {id: "forward", color: GraphPalette.primaryCurve, label: t("function_inverse_legend_forward"), kind: "line"},
             {id: "inverse", color: GraphPalette.comparisonCurve, label: t("function_inverse_legend_inverse"), kind: "line"},
             {id: "mirror-line", color: GraphPalette.axis, label: t("function_inverse_legend_mirror_line"), kind: "dashed-line"},
-            {id: "point", color: GraphPalette.constructionAccent, label: t("function_inverse_legend_point"), kind: "dot"},
+            {id: "connector", color: GraphPalette.constructionAccent, label: "Daljica PP′", kind: "dashed-line"},
         ]}/>;
     }
 
@@ -317,16 +333,16 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
             ],
             readouts: [
                 {id: "setup", rows: [
-                    {id: "pair", name: t("function_inverse_readout_pair"), value: this.ruleText(model)},
+                    {id: "pair", name: t("function_inverse_readout_pair"), value: this.ruleText(model), valueTex: this.ruleTex(model)},
                     {id: "domain", name: t("function_inverse_readout_domain"), value: t(model.restriction === "square" ? "function_inverse_domain_sqrt" : "function_inverse_domain_log"), tone: "muted"},
                 ]},
                 {id: "points", title: t("function_inverse_legend_point"), rows: [
-                    {id: "point", name: t("function_inverse_readout_point"), value: s ? this.pointText(s.point) : "", tone: "primary"},
-                    {id: "mirror", name: t("function_inverse_readout_mirror"), value: s ? this.pointText(s.mirror) : "", tone: "comparison"},
+                    {id: "point", name: t("function_inverse_readout_point"), value: s ? this.pointText(s.point) : "", ...(s ? {valueTex: this.pointTex(s.point)} : {}), tone: "primary", legend: "forward"},
+                    {id: "mirror", name: t("function_inverse_readout_mirror"), value: s ? this.pointText(s.mirror) : "", ...(s ? {valueTex: this.pointTex(s.mirror)} : {}), tone: "comparison", ...(model.inverseVisible ? {legend: "inverse"} : {})},
                 ]},
                 {id: "slopes", rows: [
-                    {id: "forward-slope", name: t("function_inverse_readout_forward_slope"), value: s ? this.slopeText(s.forwardSlope) : "", tone: "primary"},
-                    {id: "inverse-slope", name: t("function_inverse_readout_inverse_slope"), value: s ? this.slopeText(s.inverseSlope) : "", tone: "comparison"},
+                    {id: "forward-slope", name: t("function_inverse_readout_forward_slope"), value: s ? this.slopeText(s.forwardSlope) : "", tone: "primary", legend: "forward"},
+                    {id: "inverse-slope", name: t("function_inverse_readout_inverse_slope"), value: s ? this.slopeText(s.inverseSlope) : "", tone: "comparison", ...(model.inverseVisible ? {legend: "inverse"} : {})},
                     {id: "product", name: t("function_inverse_readout_product"), value: s?.product === undefined ? t("function_inverse_product_none") : this.number(s.product)},
                 ]},
             ],
@@ -340,7 +356,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
                 {id: "forward", label: t("function_inverse_legend_forward"), kind: "line", color: GraphPalette.primaryCurve},
                 ...(model.inverseVisible ? [{id: "inverse", label: t("function_inverse_legend_inverse"), kind: "line" as const, color: GraphPalette.comparisonCurve}] : []),
                 {id: "mirror-line", label: t("function_inverse_legend_mirror_line"), kind: "dashed", color: GraphPalette.axis},
-                {id: "point", label: t("function_inverse_legend_point"), kind: "point", color: GraphPalette.constructionAccent},
+                {id: "connector", label: "Daljica PP′", kind: "dashed", color: GraphPalette.constructionAccent},
             ],
         };
     }

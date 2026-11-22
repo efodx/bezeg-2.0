@@ -216,6 +216,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         const t0 = this.parameter;
         const end = curve.eval(t0);
         const degree = curve.getPoints().length - 1;
+        const texNumber = (value: number) => number(value).replace(/−/g, "-").replace(/,/g, "{,}");
         const separator = language === "sl" ? "; " : ", ";
         const pointsOf = (): [number, number][] => this.getFirstCurve().getPoints().map(p => [p.X(), p.Y()]);
         return {
@@ -239,7 +240,8 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                     {id: "t", name: "parameter", symbol: "t", value: number(t0), tone: "accent"},
                 ]},
                 {id: "point", title: "Točka na krivulji", rows: [
-                    {id: "curve-point", name: "končna točka", symbol: "B(t)=P_0^{(n)}", value: `(${number(end.X())}${separator}${number(end.Y())})`, tone: "primary"},
+                    {id: "curve-point", name: "končna točka", symbol: "B(t)=P_0^{(n)}", value: `(${number(end.X())}${separator}${number(end.Y())})`,
+                        valueTex: `\\left(${texNumber(end.X())}${language === "sl" ? ";" : ","}\\,${texNumber(end.Y())}\\right)`, tone: "primary", legend: "curve"},
                 ]},
                 {id: "construction", title: "Konstrukcija", rows: [
                     {id: "degree", name: "stopnja", symbol: "n", value: String(degree)},

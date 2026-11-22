@@ -23,6 +23,17 @@ import {pickOn} from "../../uxPicks/picks";
 import type {GraphUx, LegendEntry} from "../../uxPicks/declare/graphUx";
 
 /** The reference graph is the plain basic function: A = 1, omega = 1, phi = 0, B = 0. */
+/** TeX of a `formatWithPi` text such as "1,57 (π/2)": the number, then the exact multiple of pi as a fraction. Undefined when the text is not of that shape. */
+function withPiTex(text: string): string | undefined {
+    const plain = text.replace(/\u2212/g, "-");
+    const match = /^(-?[0-9.,]+)(?: [(](-?)([0-9]*)π(?:[/]([0-9]+))?[)])?$/.exec(plain);
+    if (!match) return undefined;
+    const number = match[1].replace(/,/g, "{,}");
+    if (match[3] === undefined && match[2] === undefined) return number;
+    const top = `${match[2]}${match[3]}\\pi`;
+    return `${number}\\ (${match[4] === undefined ? top : `\\frac{${top}}{${match[4]}}`})`;
+}
+
 const REFERENCE = {A: 1, omega: 1, phi: 0, B: 0} as const;
 
 /**
@@ -195,6 +206,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         const number = (value: number) => formatNumber(value, language);
         const amplitudeValue = amplitude(parameters);
         const range = valueRange(parameters);
+        const texOf = (text: string): {valueTex?: string} => { const tex = withPiTex(text); return tex === undefined ? {} : {valueTex: tex}; };
         const legend: LegendEntry[] = [
             {id: "curve", label: `${fn} x`, kind: "line", color: GraphPalette.comparisonCurve},
             ...(reference ? [{id: "reference", label: `${fn}(x) (${t("trig_reference_legend")})`, kind: "dashed" as const, color: GraphPalette.constructionAccent}] : []),
@@ -205,13 +217,14 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             formula: equationText(parameters, language).replace(/,/g, "{,}"),
             readouts: [
                 {id: "wave", rows: [
-                    {id: "phi", name: t("trig_phase_readout"), value: formatWithPi(phi, language)},
-                    {id: "amplitude", name: t("trig_amplitude_readout"), value: amplitudeValue === null ? NOT_A_NUMBER_TEXT : number(amplitudeValue)},
+                    {id: "phi", name: t("trig_phase_readout"), value: formatWithPi(phi, language), ...texOf(formatWithPi(phi, language)), legend: "curve"},
+                    {id: "amplitude", name: t("trig_amplitude_readout"), value: amplitudeValue === null ? NOT_A_NUMBER_TEXT : number(amplitudeValue), legend: "curve"},
                 ]},
                 {id: "derived", rows: [
-                    {id: "period", name: t("trig_period_readout"), value: formatWithPi(period(parameters), language)},
-                    {id: "shift", name: t("trig_shift_readout"), value: formatWithPi(phaseShift(parameters), language)},
-                    {id: "range", name: t("trig_range_readout"), value: range === null ? t("trig_all_reals") : `[${number(range[0])}${language === "sl" ? "; " : ", "}${number(range[1])}]`},
+                    {id: "period", name: t("trig_period_readout"), value: formatWithPi(period(parameters), language), ...texOf(formatWithPi(period(parameters), language)), legend: "curve"},
+                    {id: "shift", name: t("trig_shift_readout"), value: formatWithPi(phaseShift(parameters), language), ...texOf(formatWithPi(phaseShift(parameters), language)), legend: "curve"},
+                    {id: "range", name: t("trig_range_readout"), value: range === null ? t("trig_all_reals") : `[${number(range[0])}${language === "sl" ? "; " : ", "}${number(range[1])}]`,
+                        ...(range === null ? {} : {valueTex: `\\left[${number(range[0]).replace(/\u2212/g, "-").replace(/,/g, "{,}")};\\,${number(range[1]).replace(/\u2212/g, "-").replace(/,/g, "{,}")}\\right]`}), legend: "curve"},
                 ]},
             ],
             notes: fn === "tan" ? [{id: "tangent", text: t("trig_tangent_note"), tone: "muted"}] : [],
