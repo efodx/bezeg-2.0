@@ -13,9 +13,10 @@ A running Claude handler's working summary of [the workflow](../agent-workflow.m
 | Routine review slice: one concern, bounded diff, named checklist | `bezeg-reviewer` | Haiku `medium` |
 | Broad or first-pass smoke of new UI | `bezeg-smoke` | Sonnet `medium` |
 | Named routes, repair rechecks, catalog or asset checks | `bezeg-smoke` | Haiku `medium` |
-| Read-only research | `Explore` | Haiku `medium` |
+| Screenshot verdicts: named routes, elements and expected appearance | `bezeg-visual` | Sonnet `medium` |
+| Read-only research and code exploration | `Explore` | Haiku `medium` |
 
-Keep tightly coupled cores with you; delegate tests and smoke. Run at most three workers at once, two in a stream. Give shared files one owner.
+**Your turns.** One handler turn costs about four worker turns, and 58% of handler cost was hands-on reading and patching ([evidence](handler-cost-2026-11-22.md)). Delegate exploration, implementation, tests, smoke and screenshot verdicts; keep a small or tightly coupled core. Send independent reads, searches and commands in one message. Open a screenshot yourself only at acceptance, cropped with `just shot --selector` ([command guide](../commands.md)). Run at most three workers at once, two in a stream. Give shared files one owner.
 
 **Brief (handoff-v13).** Role and edit permission; goal, source spec and checkable acceptance; owned paths and changes to preserve; entry files and settled decisions; checks per criterion, with an observed failure for each new assertion; a capped return (≤N words, `file:line`, bulky evidence to a named file); a handoff note path. Workers cannot invoke skills, so name skill and checklist paths. The [full field list](../agent-workflow.md#assignment-brief-handoff-v13) covers Presets, routes, UI and browser checks.
 
@@ -26,8 +27,8 @@ Keep tightly coupled cores with you; delegate tests and smoke. Run at most three
 
 **Accept.** Diff against acceptance, confirm observed pre-change failures, apply [review routing](../agent-workflow.md#review-routing), run focused `just` checks (`just --list`; never bare `npm test`, `npx vitest` or `npx playwright`), and smoke when a route, control, lesson or rendering path changes. Record the [evaluation entry](../../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log).
 
-**Commit and push.** Stage explicit paths, fetch, rebase your new commits onto `origin/master`, recheck, `git push origin HEAD:master`, or run all of that with `just publish` ([command guide](../commands.md)). `just publish --background` runs the same gate in a detached worktree and returns at once, so you can continue the next slice; check `just publish --status` before you report a slice published or start a publish that depends on it ([ADR 0043](../adr/0043-background-publish-worktree.md)). Never force-push.
+**Commit and push.** Stage explicit paths, fetch, rebase your new commits onto `origin/master`, recheck, `git push origin HEAD:master`, or run all of that with `just publish` ([command guide](../commands.md)). `just publish --background` runs the same gate in a detached worktree and returns at once, so you can continue the next slice. Publish once per accepted batch, then start `just publish --wait` as a background shell command: it exits when the run has a result and you are notified once, with the outcome on its last line. Read that line before you report a slice published or start a publish that depends on it ([ADR 0043](../adr/0043-background-publish-worktree.md)). Check the deployment once, with `just ci <sha>`, at close out. Never force-push.
 
 **Item batches.** Work that applies one change to many existing items starts with a [blocker triage](../tasks/feature-streams/README.md#item-batches) before any item is written.
 
-**Close out.** Commit verified work, rewrite the [state note](../agent-workflow.md#handler-context-budget-claude) (`docs/reviews/<feature>/state.md`) with the next slice's brief inputs, and launch the successor with `--agent bezeg-handler`.
+**Close out.** Commit verified work, rewrite the [state note](../agent-workflow.md#handler-context-budget-claude) (`docs/reviews/<feature>/state.md`) with the next slice's brief inputs, and launch the successor with `--agent bezeg-handler`. Rewrite the note to the present state, about 8 KB: the budget hook flags a note over 10,000 bytes, because every successor re-reads it on every turn. Launch every lane or side session you start with `--agent bezeg-handler` too. Before you stop to wait for the owner, bring the note up to date, so a reply that comes more than an hour later can start a fresh successor instead of rebuilding your whole context.

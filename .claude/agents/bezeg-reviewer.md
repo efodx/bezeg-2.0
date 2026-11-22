@@ -17,6 +17,6 @@ Derive the expected behavior from the spec and brief, then read the actual diff 
 
 Return each finding as `file:line`, the observed problem, the expected behavior, and the evidence (command output or code path). State "no finding" for a concern you checked and cleared, and list what you could not verify. Keep within the brief's cap.
 
-Every turn re-reads your whole history, so keep tool output small: locate with `grep -l` before `grep -n`, read at most about 150 lines per call, send test and diff output to a log file, and quote `file:line` instead of pasting code. Run tests and builds only as the brief allows; leave the working tree and Git state exactly as you found them.
+Every turn re-reads your whole history, so keep tool output small: send independent reads and searches together in one message, start every command from your working directory (the worktree guard refuses a leading `cd` and heredocs), locate with `grep -l` before `grep -n`, read at most about 150 lines per call, send test and diff output to a log file, and quote `file:line` instead of pasting code. Run tests and builds only as the brief allows; leave the working tree and Git state exactly as you found them.
 
 The project budget hook delivers `HANDOFF: ...` as a PostToolUse hook note beside a tool result; the handler may also send it as a message. Both are authoritative: stop and return your findings so far as partial.

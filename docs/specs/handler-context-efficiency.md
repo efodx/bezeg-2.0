@@ -33,3 +33,15 @@ Compare the next ten stream handlers with the [baseline](../agent-workflow/handl
 - **Keep the hook** if worker overshoot past the signal stays within about 15k and no worker ignores `HANDOFF`.
 - **Then** trial a soft threshold near 120k, changing nothing else.
 - **Reject** the card if handlers re-read the workflow anyway or briefs lose required fields.
+
+## Follow-up, 2026-11-22
+
+The trial measured 72k at first dispatch, above the 60k bound, and handlers at 652 units against 203 for workers ([evidence](../agent-workflow/handler-cost-2026-11-22.md)). The owner kept the raised thresholds and chose to slow context growth and remove failed calls instead.
+
+- The agent definitions tell handlers and workers to batch independent calls, start commands from the working directory, create files with Write, and run checks in the foreground. Observed in the definitions.
+- `bezeg-visual` returns screenshot verdicts as text. Not yet trialled in a stream.
+- `just shot` captures routes cropped to a selector and composes contact sheets. Unit tested and run against a preview.
+- `just publish --wait` blocks until a background publish has a result and ends with one summary line. Unit tested.
+- The budget hook adds `STATE NOTE` beside an Edit or Write that leaves a state note over 10,000 bytes. Unit tested.
+
+Re-measure after the next ten stream handlers: handler share of cost, lone read-only turns (17% of handler turns, 25% of worker turns), failed calls (3%), screenshots read per handler session, and `--status` polls per publish.
