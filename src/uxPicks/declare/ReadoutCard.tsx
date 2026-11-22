@@ -208,10 +208,13 @@ export function ReadoutBody(props: {ux: GraphUx; highlight: readonly string[]}) 
     });
     useHighlightIntoView(ratchet, key);
     return <div className="ux-rc" ref={ratchet}>
-        {ux.formula && <section className="ux-rc-formula-group">
-            {ux.formulaLabel && <GroupHead title={ux.formulaLabel}/>}
-            <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>
-        </section>}
+        {/* With a label the formula is an ordinary first row (name left, formula right, on its own line when it does not fit);
+            owner 2026-11-22: a second small-caps heading under the card's own looked odd. Without one, the bare formula line. */}
+        {ux.formula && (ux.formulaLabel
+            ? <section className="ux-rc-group ux-rc-formula-group"><dl className="ux-rc-grid">
+                <Row row={{id: 'formula', name: ux.formulaLabel, value: ux.formula, valueTex: ux.formula}} highlighted={false} reserveMark={false}/>
+            </dl></section>
+            : <div className="ux-rc-formula"><Tex tex={ux.formula}/></div>)}
         {groups.map(group => {
             const foldable = (focus && !hasHit(group.rows)) || autoFolded.includes(group.id);
             const open = !foldable || openIds.includes(group.id);
