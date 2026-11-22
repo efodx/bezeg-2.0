@@ -1,14 +1,17 @@
 import {t, useLanguage, useT} from "../../../localization";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useSyncExternalStore} from "react";
 import {withDecimalSeparator} from "../../../analysis/format";
 import Slider from "../../../inputs/Slider";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
+import {LiveParameter} from "./decasteljauLiveParameter";
 
 export type DecasteljauAnimationStatus = "ready" | "playing" | "paused" | "finished";
 
 interface DecasteljauAnimationControlsProps {
     parameter: number;
+    /** The drawn parameter while playing; the controls follow it without a scene-store write. */
+    live?: LiveParameter;
     speed: number;
     status: DecasteljauAnimationStatus;
     onPlay: () => void;
@@ -18,6 +21,9 @@ interface DecasteljauAnimationControlsProps {
     onParameterChange: (value: number) => void;
     onSpeedChange: (value: number) => void;
 }
+
+const noSubscribe = () => () => undefined;
+const noSnapshot = (): number | undefined => undefined;
 
 function statusLabel(status: DecasteljauAnimationStatus): string {
     if (status === "playing") return t("animation_playing");
@@ -30,7 +36,9 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
     const t = useT();
     const {language} = useLanguage();
     const playing = props.status === "playing";
-    const readoutText = `t = ${withDecimalSeparator(props.parameter.toFixed(2), language)}`;
+    const liveValue = useSyncExternalStore(props.live?.subscribe ?? noSubscribe, props.live?.getSnapshot ?? noSnapshot);
+    const parameter = playing && liveValue !== undefined ? liveValue : props.parameter;
+    const readoutText = `t = ${withDecimalSeparator(parameter.toFixed(2), language)}`;
     const [readout] = useState(() => new SettledReadout());
     useEffect(() => { readout.report(readoutText); }, [readout, readoutText]);
     useEffect(() => () => readout.cancel(), [readout]);
@@ -48,7 +56,7 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
                          onPlayPause={playing ? props.onPause : props.onPlay} onReset={props.onStop}
                          companion={{label: t("animation_parameter"), children:
                              <div className="decasteljau-animation-slider">
-                                 <Slider customText={t("animation_parameter")} min={0} max={1} value={props.parameter}
+                                 <Slider customText={t("animation_parameter")} min={0} max={1} value={parameter}
                                          onChange={props.onParameterChange}/>
                              </div>}}/>
         <div className="decasteljau-animation-slider">

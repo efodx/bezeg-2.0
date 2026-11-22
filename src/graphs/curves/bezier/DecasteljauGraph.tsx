@@ -9,6 +9,7 @@ import {Attributes} from "../../attributes/Attributes";
 import {AnimationDriver} from '../../../learning/runtime/animation';
 import {LessonAnimationCommand} from '../../../learning/model';
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import {LiveParameter} from "./decasteljauLiveParameter";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
@@ -38,6 +39,10 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
      */
     protected parameter = 0.5;
     private publishedParameter?: number;
+    /** The playing parameter for the controls; frames report here and the scene store is written at state changes only. */
+    private liveStore?: LiveParameter;
+    /** Created on first use: scene replacement can reach it before this subclass's fields are initialised. */
+    private get liveParameter(): LiveParameter { return this.liveStore ??= new LiveParameter(); }
     private lastPublishTime = -Infinity;
     private wholeCurveElement?: JXG.Curve;
 
@@ -48,8 +53,11 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.drawParameter(next);
         if (finished || time - this.lastPublishTime >= PARAMETER_PUBLISH_INTERVAL_MS) {
             this.lastPublishTime = time;
-            this.publishedParameter = next;
-            this.setState({t: next, animationStatus: finished ? "finished" : "playing"});
+            if (finished) {
+                this.publishedParameter = next;
+                this.liveParameter.report(undefined);
+                this.setState({t: next, animationStatus: "finished"});
+            } else this.liveParameter.report(next);
         }
     });
 
@@ -101,6 +109,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         super.syncReplacedScene();
         this.publishedParameter = undefined;
         this.lastPublishTime = -Infinity;
+        this.liveParameter.report(undefined);
         this.drawParameter(this.state.t);
         this.syncWholeCurve();
     }
@@ -193,6 +202,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     private setParameter(t: number, animationStatus: DecasteljauAnimationStatus, callback?: () => void) {
         this.drawParameter(t);
         this.publishedParameter = t;
+        this.liveParameter.report(animationStatus === "playing" ? t : undefined);
         this.setState({t, animationStatus}, callback);
     }
 
@@ -204,7 +214,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([
-            <DecasteljauAnimationControls status={this.state.animationStatus} parameter={this.state.t} speed={this.state.v}
+            <DecasteljauAnimationControls status={this.state.animationStatus} parameter={this.state.t} live={this.liveParameter} speed={this.state.v}
                 onPlay={() => this.playAnimation()} onPause={() => this.pauseAnimation()}
                 onStop={() => this.stopAnimation()}
                 onParameterChange={(value) => this.changeParameter(value)}

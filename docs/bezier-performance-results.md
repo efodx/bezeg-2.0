@@ -716,3 +716,18 @@ The owner reported that De Casteljau playback is still slow on phones. Playback 
 `get offsetWidth` no longer appears in the change's profiles. Screenshots of seven routes (both De Casteljau routes, integral, unit circle, quintic PH, Bézier curve, solids) at 1280×800 and 390×844 are pixel-identical between the builds, with one exception. On `/functions/integral` at 390 px, 6 pixels in the bottom row of the label "b" differ, where the label touches the board's lower edge: the old clip cut that row about 1 px inside the container edge, and the container now clips it at the edge.
 
 **Remaining cost** (change build, timeline trace, about 37 ms of main-thread time per frame at 6×): browser style, layout and paint about 30%; JSXGraph's own update code about 25%; adaptive sampling of the growing curve about 22% (the curve evaluator called from JSXGraph's `_plotRecursive_v2`; the prefix `[0, t]` is re-sampled each frame); React about 12%, mostly the whole-workspace re-render on each 100 ms readout publish, which sets the p95; SVG attribute writes and GC about 8%. These are the next candidates, to be measured in the same way. Limits: a desktop CPU slowed down, not a phone; the headless browser uses the software compositor; no physical phone was measured.
+
+## De Casteljau playback without workspace re-renders — 2026-11-22
+
+The remaining-cost split above showed React at about 12% of playback main-thread time, mostly from the scene-store write of `t` every 100 ms. `GraphHost` subscribes to the whole store, so each write re-rendered the whole workspace.
+
+**Change.** While playing, `DecasteljauGraph` and `DecasteljauGraph2` report the drawn parameter to a per-graph `LiveParameter` external store (`decasteljauLiveParameter.ts`) instead of calling `setState`. `DecasteljauAnimationControls` reads that store with `useSyncExternalStore` while the status is "playing", so only the slider and the `t = …` readout re-render. The scene store is still written on play, pause, finish, stop, slider and speed input, lesson actions and scene replacement. Presets, figure capture and checkpoints read the drawn parameter as before. `DecasteljauPlaybackPublish.test.tsx` counts host renders across playback frames: it failed on the old code (5 renders after 4 frames instead of 1) and passes now. `ExportPausesPlayback.test.tsx` now probes the drawn value (`parameter`) instead of `state.t`, which during playback is the last published value, by design.
+
+**Results.** Same profile and method as the section above. Baseline `e5612322` (master with the clipping fix) against the change, three alternating runs per build, frames drawn in 5 s:
+
+| Route | Baseline frames (p95) | Change frames (p95) |
+|---|---|---|
+| `/bezier/decasteljau` | 115, 120, 114 (83.4, 66.7, 83.3 ms) | 113, 128, 150 (83.3, 66.6, 66.7 ms) |
+| `/rational/rational-decasteljau` | 111, 120, 138 (83.4, 83.4, 83.3 ms) | 144, 144, 125 (66.6, 66.7, 66.6 ms) |
+
+React self time in one matched rational run fell from 393 to 255 ms. The gain is modest and mostly in the tail. A browser check on all three De Casteljau routes found the slider following playback, slider and readout equal after pause, and no console errors. The next candidate is the per-frame re-sampling of the growing curve (about 22%). Limits as above: a throttled desktop CPU, not a phone.

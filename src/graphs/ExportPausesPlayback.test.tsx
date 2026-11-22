@@ -44,7 +44,7 @@ type Case = {
 };
 const cases: Case[] = [
     {name: 'DecasteljauGraph2', create: () => new DecasteljauGraph2() as unknown as BaseGraph<BaseGraphState>,
-        play: g => g.playAnimation(), running: g => g.animation.isRunning(), value: g => g.state.t},
+        play: g => g.playAnimation(), running: g => g.animation.isRunning(), value: g => g.parameter},
     {name: 'ParametricCurveGraph', create: () => new ParametricCurveGraph() as unknown as BaseGraph<BaseGraphState>,
         play: g => g.playRoll(), running: g => g.rolling, value: g => g.state.parameter},
     {name: 'RecursionCobwebGraph', create: () => new RecursionCobwebGraph() as unknown as BaseGraph<BaseGraphState>,
@@ -60,7 +60,7 @@ const cases: Case[] = [
     {name: 'EulerCircleGraph', create: () => new EulerCircleGraph() as unknown as BaseGraph<BaseGraphState>,
         play: g => g.play(), running: g => g.isPlaying(), value: g => g.state.degrees},
     {name: 'DecasteljauGraph', create: allGraphFactories.decasteljau,
-        play: g => g.playAnimation(), running: g => g.lessonAnimation.isRunning(), value: g => g.state.t},
+        play: g => g.playAnimation(), running: g => g.lessonAnimation.isRunning(), value: g => g.parameter},
     {name: 'LogisticMapGraph', create: () => new LogisticMapGraph() as unknown as BaseGraph<BaseGraphState>,
         play: g => g.play(), running: g => g.isPlaying(), value: g => g.state.step},
     {name: 'LinearMapGraph', create: () => new LinearMapGraph() as unknown as BaseGraph<BaseGraphState>,
