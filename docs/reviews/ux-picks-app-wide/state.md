@@ -22,7 +22,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 - **01 accepted, on master** (`a70174c2`, follow-ups `f271c708`, CI green for `a70174c2`).
 - **01b accepted** 2026-11-22: `ac5f963b` adapter core, `d8bcbb5f` session/BaseGraph/pilot wiring, `14210c0c` remaining 60 sites, `38fc48c3` smoke evidence and evaluation entry. On master with `d124fc82` (cleanup fix). Design and settled rules: [`01b-design.md`](01b-design.md).
-- 01c: step 1 done (copy in `night-tooling/`); slices 1-5 now unblocked (fuzzer, replay cases, probe, doubled `history-entry-bridge.js` path, smoke checklist text).
+- 01c: all slices implemented on the branch: `81b5eaad` bridge path (on master), `9abecba9` fuzzer + probe + cases + baseline (`measure/probe-baseline.md`) + smoke checklist "interrupt what moves", `ea78cdc9` Esc pauses playback and ends leases on board graphs (fuzzer finding; user-visible). Full `just check` passed at `ea78cdc9`. Remaining for acceptance: the 50-seed matrix (`bash .command-logs/fuzz-matrix.sh` against the dev server on 4482; logs in `.command-logs/fuzz/matrix/`), then the evaluation entry and a publish (runtime, base `14690f6b`). Probe gaps to note in the baseline: board pan measured nothing on transformations and at 1024 on De Casteljau and phase portrait (the probe's pan target).
 - 02 to 10: not started.
 
 ## Decisions in force (01 and 01b, handler)
@@ -41,6 +41,6 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 ## Next slice's brief inputs
 
-1. 01c slice 4 first (small, removes the one console error every dev smoke sees): the dev server requests `/bezeg-2.0/bezeg-2.0/history-entry-bridge.js`; find the script tag in `index.html`/Vite config and fix the URL; check in dev and production preview.
-2. 01c slices 1-3: port the fuzzer, replay cases and probe from `night-tooling/` behind `just` recipes (task file `01c-check-tooling.md`); the strict dev smoke harness `smoke/devcheck-01b.cjs` is a reference for real-input Playwright on the pilots.
-3. Then task 02 (declaration contract; handler keeps the contract types' design).
+1. Finish 01c acceptance (matrix above); a failing seed is shrunk into `.command-logs/fuzz/matrix/min-*.json`: replay it, decide app bug versus harness artefact, fix, rerun that route.
+2. Then task 02 (declaration contract; handler keeps the contract types' design).
+3. Owner rule since `14690f6b`: never end a turn with nothing running and nothing asked.
