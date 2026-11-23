@@ -32,7 +32,7 @@ Rules that the table implies:
 
 ## Layout in the inspector
 
-The inspector is 310 px wide on desktop (about 286 px of content) and the full width of a phone. Check a new panel at both.
+The Orodja card and the panels in it are about 310 px wide on desktop (about 286 px of content; ADR 0063 replaced the fixed column with a board card) and the full width of a phone. Check a new panel at both.
 
 - One value per line where it fits; a point is one line, never two.
 - Fields in one group share their left and right edges.
