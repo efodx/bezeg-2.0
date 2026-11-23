@@ -56,7 +56,9 @@
 .workspace-graph { border: 1px solid var(--workspace-rule); border-radius: 16px; box-shadow: var(--bezeg-shell-shadow-card); }
 .workspace-graph-heading { padding: 14px 18px 6px; }
 .workspace-eyebrow { color: var(--workspace-ink-soft); font-size: .65rem; letter-spacing: .09em; }
-.workspace-graph #jgbox { height: min(66vh, 720px) !important; }
+/* The board fits the viewport under the header (about 300-350 px of title and actions at desktop widths): the card layer is laid out
+   in this box, so a taller one would put cards below the fold. The floor keeps a small window usable. */
+.workspace-graph #jgbox { height: clamp(400px, calc(100svh - 360px), 720px) !important; min-height: 400px; }
 .workspace-navigation { padding: 12px 16px 0; gap: 6px; }
 .workspace-navigation button {
     min-width: 38px; min-height: 38px; border-color: transparent; border-radius: 6px;

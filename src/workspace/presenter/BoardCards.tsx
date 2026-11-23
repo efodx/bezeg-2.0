@@ -12,6 +12,7 @@ import {
 } from '../layout/storedLayout';
 import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
+import {moreBarHeight} from '../layout/measureCards';
 import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
 import {buildCardSpecs, toolsCardSpec, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
 import type {ToolsSection, WorkspaceCardHost} from './cardHost';
@@ -103,9 +104,10 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
 
   const inputs = useMemo<CardInput[]>(() => {
     const byId = new Map((measured ?? []).map(card => [card.id, card]));
+    const reserve = moreBarHeight(); // the "Več" bar of a cut card sits under the scroll area: a cut adds it to the block it keeps
     return specs.flatMap(spec => {
       const card = byId.get(spec.id);
-      return card ? [{...card, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
+      return card ? [{...card, reserve, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
     });
   }, [measured, specs]);
   // First-view budget (04-design section 9): lesson, readouts, tools; an undeclared graph has only Orodja, which starts open.

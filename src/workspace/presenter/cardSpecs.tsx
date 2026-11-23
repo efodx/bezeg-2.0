@@ -30,7 +30,9 @@ export const LEGEND_ID = 'legend';
 export const TOOLS_ID = 'tools';
 export const sectionCardId = (id: string): string => `section:${id}`;
 
-const PRIORITY = {legend: 1, section: 2, readouts: 3, tools: 4} as const;
+// Odčitki outranks Orodja (spec: lesson, then Odčitki, then Orodja): under height pressure Orodja folds before Odčitki;
+// a column's last open card never folds, so an undeclared graph's only Orodja card stays open.
+const PRIORITY = {legend: 1, section: 2, tools: 2.5, readouts: 3} as const;
 
 /** The Orodja card (task 04): every graph has one. It is a live item: it has no measure copy and no body here; the presenter renders
  *  the live panels from the host on every render and reads the card's size from the shown card. */

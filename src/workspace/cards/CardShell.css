@@ -41,10 +41,11 @@
 .board-card--cut .board-card-body { overflow-y: auto; }
 .board-card-body[hidden] { display: none; }
 .board-card-head { -webkit-touch-callout: none; }
-.board-card-more {
-    flex: none; min-height: 28px; border: 0; border-top: 1px solid var(--bezeg-shell-rule); background: var(--bezeg-shell-control-hover);
+.board-card > button.board-card-more {
+    /* Exactly 28 px (44 on touch): measureCards.ts `moreBarHeight` adds it to the block a cut keeps, so the bar never covers content. */
+    flex: none; box-sizing: border-box; height: 28px; min-height: 0; padding: 0; border: 0; border-top: 1px solid var(--bezeg-shell-rule); background: var(--bezeg-shell-control-hover);
     color: var(--bezeg-shell-action); font: inherit; font-size: .8rem; cursor: pointer;
 }
 .board-card-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-@media (pointer: coarse) { .board-card-more { min-height: 44px; } }
+@media (pointer: coarse) { .board-card > button.board-card-more { height: 44px; min-height: 0; } }
 @media (prefers-reduced-motion: reduce) { .board-card, .board-card-ghost, .board-card-fold svg { transition: none; } }
