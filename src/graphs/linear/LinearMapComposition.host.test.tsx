@@ -3,13 +3,15 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 import {LinearMapGraph} from './LinearMapGraph';
 import {linearMapPresetCollection} from './linearMapPresetCollection';
 import {enterNumber} from '../../inputs/testEntry';
 import {DEFAULT_LINEAR_MAP_STATE, type LinearMapState} from '../../linear/linearMapModel';
 import {LINEAR_MAP_EXAMPLES, type Mat2} from '../../linear/matrix2';
 import {setLanguage, t} from '../../localization';
+
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -31,7 +33,9 @@ const readout = (id: string) => document.querySelector(`[data-readout="${id}"] d
 const selectMode = (mode: string) => act(() => { fireEvent.change(screen.getByLabelText(t('linear_map_mode_label')), {target: {value: mode}}); });
 const pickSource = (name: 'A' | 'B', value: string) =>
     act(() => { fireEvent.change(screen.getByLabelText(t('linear_map_comp_source_label', {value0: name})), {target: {value}}); });
-const angleSlider = (name: 'A' | 'B') => screen.getByRole('slider', {name: new RegExp(t('linear_map_comp_angle_rotation', {value0: name}))});
+/** The angle of an element is a puck on the board (key `linear-map-first-index` for A, `-second-index` for B); it stands once the board has laid out. */
+const angleKey = (name: 'A' | 'B') => `linear-map-${name === 'A' ? 'first' : 'second'}-index`;
+const angleSlider = (name: 'A' | 'B') => puckControl(angleKey(name));
 const reset = () => act(() => { fireEvent.click(document.querySelector('[data-action="linear-map-reset-composition"]')!); });
 const entry = (name: string, row: number, column: number) =>
     screen.getByLabelText(t('linear_map_comp_entry_label', {value0: name, value1: String(row), value2: String(column)})) as HTMLInputElement;
@@ -51,13 +55,15 @@ describe('the composition mode on the real graph', () => {
         expect(readout('t')).toBeUndefined();
     });
 
-    test('switching modes both ways keeps the stored composition, and a stored composition is not replaced on re-entry', () => {
+    test('switching modes both ways keeps the stored composition, and a stored composition is not replaced on re-entry', async () => {
         const {graph} = mountGraph();
         act(() => { runAs('learner', () => graph.importPresetData({...DEFAULT_LINEAR_MAP_STATE, matrix: E, exampleId: 'custom', mode: 'basis'})); });
         selectMode('composition');
         pickSource('B', 'rotation');
+        await waitForPucks(angleKey('B'));
         act(() => { fireEvent.keyDown(angleSlider('B'), {key: 'ArrowRight', shiftKey: true}); });
         const inComposition = graph.modelNow();
+        // The big step is six steps: a quarter turn, so Shift+Right goes from k = 0 to 6.
         expect(inComposition.secondElement).toEqual({kind: 'rotation', k: 6});
         selectMode('basis');
         expect(graph.modelNow()).toMatchObject({mode: 'basis', matrix: inComposition.matrix, secondElement: inComposition.secondElement});
@@ -86,13 +92,19 @@ describe('the composition mode on the real graph', () => {
         expect(readout('product-element')).toBeUndefined();
     });
 
-    test('the keyboard moves the angle control by one step, a big step with Shift, and stops at the ends', () => {
+    test('the keyboard moves the angle control by one step, a big step with Shift, and stops at the ends', async () => {
         const {graph} = mountGraph();
         selectMode('composition');
+        await waitForPucks(angleKey('A'));
         const slider = angleSlider('A');
+        // The big step is six steps: a quarter turn.
         act(() => { fireEvent.keyDown(slider, {key: 'ArrowRight', shiftKey: true}); });
         expect(graph.modelNow().element).toEqual({kind: 'rotation', k: 12});
-        act(() => { fireEvent.keyDown(slider, {key: 'PageDown'}); });
+        act(() => { fireEvent.keyDown(angleSlider('A'), {key: 'PageDown'}); });
+        expect(graph.modelNow().element).toEqual({kind: 'rotation', k: 6});
+        act(() => { fireEvent.keyDown(angleSlider('A'), {key: 'ArrowRight'}); });
+        expect(graph.modelNow().element).toEqual({kind: 'rotation', k: 7});
+        act(() => { fireEvent.keyDown(angleSlider('A'), {key: 'ArrowLeft'}); });
         expect(graph.modelNow().element).toEqual({kind: 'rotation', k: 6});
         act(() => { fireEvent.keyDown(angleSlider('A'), {key: 'ArrowUp', shiftKey: true}); });
         act(() => { fireEvent.keyDown(angleSlider('A'), {key: 'PageUp'}); });

@@ -1,14 +1,16 @@
 import React from 'react';
-import {act, render, screen} from '@testing-library/react';
+import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {FunctionTransformationGraph} from './FunctionTransformationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {installBoardShims, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {UntaggedWriteError} from '../base/writes/parameterArbiter';
 import {runAs} from '../base/writes/writeSource';
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 beforeAll(() => {
+    installBoardShims();
     const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
     HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
     window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
@@ -28,9 +30,10 @@ class ObservedTransformationGraph extends FunctionTransformationGraph {
     }
 }
 
-test('parameter writes are source-tagged: a seeded untagged write throws, the tools field and a lesson write apply, a held key refuses the lesson', () => {
+test('parameter writes are source-tagged: a seeded untagged write throws, the tools field and a lesson write apply, a held key refuses the lesson', async () => {
     const graph = new ObservedTransformationGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('transform-c');
     const parameters = graph.parameters!;
     expect(parameters.keys()).toEqual(['transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'transform-base', 'view']);
 
@@ -38,7 +41,7 @@ test('parameter writes are source-tagged: a seeded untagged write throws, the to
     act(() => runAs('learner', () => graph.setCDirectly(1)));
     expect(graph.modelNow().c).toBe(1);
 
-    act(() => { enterNumber(screen.getByLabelText('Vodoravni premik c, vrednost'), '1,5'); });
+    typePuck('transform-c', '1,5');
     expect(graph.modelNow().c).toBe(1.5);
 
     act(() => { expect(parameters.write('transform-d', 2, 'lesson')).toEqual({status: 'applied'}); });

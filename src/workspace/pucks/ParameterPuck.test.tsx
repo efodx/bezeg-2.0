@@ -61,6 +61,30 @@ describe('ParameterPuck', () => {
         expect(screen.getByRole('status')).toHaveTextContent('Vrednost mora biti med 0 in 10.');
     });
 
+    it('a typed value on the grid shows no notice; an off-grid one is snapped, written as learner and says so', () => {
+        const quarter: RangeParameter = {...range, min: 0, max: 4, step: 0.25, maxDecimals: 2};
+        const {graph, write} = fakeGraph();
+        render(<ParameterPuck graph={graph} parameter={quarter}/>);
+        fireEvent.doubleClick(screen.getByRole('slider'));
+        fireEvent.change(screen.getByRole('textbox'), {target: {value: '1,5'}});
+        fireEvent.keyDown(screen.getByRole('textbox'), {key: 'Enter'});
+        expect(write).toHaveBeenLastCalledWith('a', 1.5, 'learner');
+        expect(screen.getByRole('status')).toBeEmptyDOMElement();
+        fireEvent.doubleClick(screen.getByRole('slider'));
+        fireEvent.change(screen.getByRole('textbox'), {target: {value: '1,3'}});
+        fireEvent.keyDown(screen.getByRole('textbox'), {key: 'Enter'});
+        expect(write).toHaveBeenLastCalledWith('a', 1.25, 'learner');
+        expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', '1.25');
+        expect(screen.getByRole('status')).toHaveTextContent('Zaokroženo na 1,25.');
+    });
+
+    it('the big step is the declared bigStep in value units', () => {
+        const {graph, write} = fakeGraph();
+        render(<ParameterPuck graph={graph} parameter={{...range, bigStep: 6}}/>);
+        fireEvent.keyDown(screen.getByRole('slider'), {key: 'PageUp'});
+        expect(write).toHaveBeenLastCalledWith('a', 9, 'learner');
+    });
+
     it('a change of one key does not render another key\'s puck', () => {
         const {graph, set} = fakeGraph();
         render(<><ParameterPuck graph={graph} parameter={range}/><ParameterPuck graph={graph} parameter={count}/></>);

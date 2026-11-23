@@ -2,7 +2,7 @@
  * Functions routes, first task first (graph-control first use, batch 2): each route's own first task is the first control of the
  * Edit panel on a fresh visit; the controls the plan places after it follow.
  */
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import FunctionTransformationGraph from './FunctionTransformationGraph';
@@ -18,6 +18,7 @@ import FunctionInverseGraph from './FunctionInverseGraph';
 import PolynomialZerosGraph from './PolynomialZerosGraph';
 import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
 
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 beforeEach(() => { appStorage.clear(); setLanguage('sl'); });
@@ -63,9 +64,25 @@ const editControls = (): string[] => {
     });
 };
 
+/** The puck strip's parameters in order, by key (a parameter with a puck leaves the Orodja panel, task 05). */
+const puckOrder = (): string[] => [...document.querySelectorAll('.puck-strip [data-puck-key]')].map(element => element.getAttribute('data-puck-key')!);
+
 describe.each(Object.keys(routes))('%s', key => {
-    test('the first task leads the Edit panel', () => {
+    test('the first task leads the Edit panel', async () => {
         mountGraph(routes[key]());
+        if (key === 'transformations') {
+            // c, a and b are pucks: the horizontal shift leads the strip, a and b follow; the base function stays in Edit
+            await waitForPucks('transform-c');
+            const order = puckOrder();
+            expect(order.indexOf('transform-c')).toBe(0);
+            for (const param of ['transform-a', 'transform-b']) expect(order.indexOf(param), param).toBeGreaterThan(0);
+            const names = editControls();
+            expect(names.some(name => name.startsWith(t('function_transformation_base_label')))).toBe(true);
+            for (const label of [t('function_transformation_c_label'), t('function_transformation_a_label'), t('function_transformation_b_label')]) {
+                expect(names.some(name => name.startsWith(label)), label).toBe(false);
+            }
+            return;
+        }
         const names = editControls();
         const at = (label: Label) => names.findIndex(name => name.startsWith(label()));
         const {first, later} = plan[key];

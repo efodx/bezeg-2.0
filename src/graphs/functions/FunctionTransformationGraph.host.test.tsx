@@ -1,7 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {settle} from '../base/realGraphTestHarness';
+import {installBoardShims, openTools, puckControl, settle, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {FunctionTransformationGraph} from './FunctionTransformationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
@@ -9,11 +9,14 @@ import {DomainError} from './BaseFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {DEFAULT_FUNCTION_TRANSFORMATION_MODEL} from '../../analysis/functionTransformationModel';
 import {transformRuleText} from './functionTransformationMessages';
-import {enterNumber} from '../../inputs/testEntry';
+
 import {runAs} from '../base/writes/writeSource';
+
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
+    installBoardShims();
     const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
     HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
     window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
@@ -55,12 +58,15 @@ class ObservedTransformationGraph extends FunctionTransformationGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const steps = () => [...document.querySelectorAll('[data-step]')].map(element => element.getAttribute('data-step'));
-const field = (label: string) => screen.getByLabelText((name: string) => [label, label + ', vrednost', label + ', value'].includes(name), {selector: 'input:not([type="range"])'}) as HTMLInputElement;
+const puckNow = (key: string) => Number(puckControl(key).getAttribute('aria-valuenow'));
+const KEYS: Record<string, string> = {'Navpična raztegnitev a': 'transform-a', 'Vodoravna raztegnitev b': 'transform-b', 'Vodoravni premik c': 'transform-c', 'Navpični premik d': 'transform-d', 'Označena točka u': 'transform-u'};
+const PN = (text: string) => Number(text.replace('−', '-').replace(',', '.'));
 const near = (actual: number[] | undefined, expected: number[]) => {
     expect(actual).toBeDefined();
     expected.forEach((value, index) => expect(actual![index]).toBeCloseTo(value, 9));
 };
-const boardObjects = (graph: ObservedTransformationGraph) => graph.liveBoard().objectsList.length;
+// JSXGraph creates and drops axis tick labels as the view changes; they are not the graph's objects.
+const boardObjects = (graph: ObservedTransformationGraph) => graph.liveBoard().objectsList.filter(object => !String((object as {id?: string}).id).includes('_ticks_')).length;
 
 const mount = () => {
     const graph = new ObservedTransformationGraph();
@@ -69,8 +75,10 @@ const mount = () => {
     return graph;
 };
 
-test('a real board shows the default transformation: the rule, the tracked point and its image', () => {
+test('a real board shows the default transformation: the rule, the tracked point and its image', async () => {
     const graph = mount();
+    await waitForPucks('transform-c');
+    await openTools();
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     expect(graph.modelNow()).toEqual(DEFAULT_FUNCTION_TRANSFORMATION_MODEL);
     expect(readout('rule')).toBe('y = −2 f(0,5(x − 3)) + 1');
@@ -82,11 +90,13 @@ test('a real board shows the default transformation: the rule, the tracked point
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
 
-test('fields move the image, a base change keeps the parameters, b = 0 is refused with an actionable message and b < 0 mirrors', () => {
+test('fields move the image, a base change keeps the parameters, b = 0 is refused with an actionable message and b < 0 mirrors', async () => {
     const graph = mount();
+    await waitForPucks('transform-c');
+    await openTools();
     const baseline = boardObjects(graph);
 
-    act(() => { enterNumber(field('Vodoravni premik c'), '1,5'); });
+    typePuck(KEYS['Vodoravni premik c'], '1,5');
     expect(graph.modelNow()).toMatchObject({c: 1.5});
     expect(readout('image-point')).toBe('(5,5; −7)');
     near(graph.markers().image, [5.5, -7]);
@@ -98,13 +108,13 @@ test('fields move the image, a base change keeps the parameters, b = 0 is refuse
     near(graph.markers().base, [2, 8]);
 
     // b = 0 is refused: the model and the board stay, the field explains the rule
-    act(() => { enterNumber(field('Vodoravna raztegnitev b'), '0'); });
+    typePuck(KEYS['Vodoravna raztegnitev b'], '0');
     expect(graph.modelNow()).toMatchObject({b: 0.5});
-    expect(screen.getByText('Vrednost b ne sme biti 0 in mora biti med −10 in 10.')).toBeInTheDocument();
+    expect(document.querySelector('.puck-strip [data-puck-key="transform-b"] .puck-notice')?.textContent).toBe('Faktor b ne sme biti 0: pri b = 0 se vsak x preslika v isto točko osnovnega grafa in graf ni več preslikava osnovne funkcije. Izberi b, različen od 0; negativen b graf zrcali čez premico x = c.');
     expect(document.body.textContent).not.toMatch(/must not be 0/);
 
     // a negative b mirrors about x = c: the image abscissa is c - |u/b|
-    act(() => { enterNumber(field('Vodoravna raztegnitev b'), '-0,5'); });
+    typePuck(KEYS['Vodoravna raztegnitev b'], '-0,5');
     expect(graph.modelNow()).toMatchObject({b: -0.5});
     expect(readout('image-point')).toBe('(−2,5; −15)');
     expect(steps()).toContain('scale-inside');
@@ -112,7 +122,7 @@ test('fields move the image, a base change keeps the parameters, b = 0 is refuse
 
     // a point outside the base domain withdraws the markers instead of showing NaN
     act(() => { fireEvent.change(screen.getByLabelText('Osnovna funkcija f'), {target: {value: 'sqrt'}}); });
-    act(() => { enterNumber(field('Označena točka u'), '-1'); });
+    typePuck(KEYS['Označena točka u'], '-1');
     expect(graph.modelNow()).toMatchObject({base: 'sqrt', u: -1});
     expect(readout('image-point')).toMatch(/ni definirana/);
     expect(graph.markers()).toEqual({base: undefined, image: undefined});
@@ -120,8 +130,10 @@ test('fields move the image, a base change keeps the parameters, b = 0 is refuse
     expect(boardObjects(graph)).toBe(baseline);
 });
 
-test('dragging the image marker sets u on the grid and the base marker follows', () => {
+test('dragging the image marker sets u on the grid and the base marker follows', async () => {
     const graph = mount();
+    await waitForPucks('transform-c');
+    await openTools();
     const image = graph['imageDot']!;
     // A synthetic board event has no DOM input event, so the learner source is named here.
     act(() => runAs('learner', () => {
@@ -137,17 +149,19 @@ test('dragging the image marker sets u on the grid and the base marker follows',
 
 test('Reset, a restored Preset and the ghost toggle restore every field, the controls and the board objects', async () => {
     const graph = mount();
+    await waitForPucks('transform-c');
+    await openTools();
     const baseline = boardObjects(graph);
     const stored = {base: 'abs', a: 1.5, b: -2, c: -3, d: 4, ghostVisible: false, u: 1.2};
 
     act(() => { runAs('learner', () => graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-8, 8, 12, -10]}})); });
     expect(graph.modelNow()).toEqual(stored);
     expect((screen.getByLabelText('Osnovna funkcija f') as HTMLSelectElement).value).toBe('abs');
-    expect(field('Navpična raztegnitev a').value).toBe('1,5');
-    expect(field('Vodoravna raztegnitev b').value).toBe('−2');
-    expect(field('Vodoravni premik c').value).toBe('−3');
-    expect(field('Navpični premik d').value).toBe('4');
-    expect(field('Označena točka u').value).toBe('1,2');
+    expect(puckNow(KEYS['Navpična raztegnitev a'])).toBe(PN('1,5'));
+    expect(puckNow(KEYS['Vodoravna raztegnitev b'])).toBe(PN('−2'));
+    expect(puckNow(KEYS['Vodoravni premik c'])).toBe(PN('−3'));
+    expect(puckNow(KEYS['Navpični premik d'])).toBe(PN('4'));
+    expect(puckNow(KEYS['Označena točka u'])).toBe(PN('1,2'));
     expect(screen.getByRole('button', {name: 'Pokaži osnovni graf'})).toBeInTheDocument();
     expect(readout('rule')).toBe('y = 1,5 f(−2(x + 3)) + 4');
     expect(graph.markers().base).toBeUndefined(); // the ghost is hidden, so is its marker
@@ -161,24 +175,26 @@ test('Reset, a restored Preset and the ghost toggle restore every field, the con
     await settle(() => graph.reset()); // the host Reset (the local Reset button was removed)
     expect(graph.modelNow()).toEqual(DEFAULT_FUNCTION_TRANSFORMATION_MODEL);
     expect((screen.getByLabelText('Osnovna funkcija f') as HTMLSelectElement).value).toBe('square');
-    expect(field('Navpična raztegnitev a').value).toBe('−2');
-    expect(field('Vodoravna raztegnitev b').value).toBe('0,5');
-    expect(field('Vodoravni premik c').value).toBe('3');
-    expect(field('Navpični premik d').value).toBe('1');
-    expect(field('Označena točka u').value).toBe('2');
+    expect(puckNow(KEYS['Navpična raztegnitev a'])).toBe(PN('−2'));
+    expect(puckNow(KEYS['Vodoravna raztegnitev b'])).toBe(PN('0,5'));
+    expect(puckNow(KEYS['Vodoravni premik c'])).toBe(PN('3'));
+    expect(puckNow(KEYS['Navpični premik d'])).toBe(PN('1'));
+    expect(puckNow(KEYS['Označena točka u'])).toBe(PN('2'));
     expect(screen.getByRole('button', {name: 'Skrij osnovni graf'})).toBeInTheDocument();
     near(graph.markers().base, [2, 4]);
     near(graph.markers().image, [7, -7]);
     expect(boardObjects(graph)).toBe(baseline);
 });
 
-test('both languages: labels, steps and number format follow a live language switch', () => {
+test('both languages: labels, steps and number format follow a live language switch', async () => {
     const graph = mount();
-    act(() => { enterNumber(field('Vodoravna raztegnitev b'), '-0,5'); });
+    await waitForPucks('transform-c');
+    await openTools();
+    typePuck(KEYS['Vodoravna raztegnitev b'], '-0,5');
     expect(graph.modelNow().b).toBe(-0.5);
     expect(readout('rule')).toBe('y = −2 f(−0,5(x − 3)) + 1');
     act(() => { setLanguage('en'); });
-    expect(screen.getByLabelText('Horizontal shift c')).toBeInTheDocument();
+    expect(puckControl('transform-c').getAttribute('aria-label')).toBe('Horizontal shift c');
     expect(screen.getByLabelText('Base function f')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: 'Hide base graph'})).toBeInTheDocument();
     expect(readout('rule')).toBe('y = −2 f(−0.5(x − 3)) + 1');
@@ -190,8 +206,10 @@ test('both languages: labels, steps and number format follow a live language swi
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
 
-test('a multi-action lesson scene runs in one synchronous sequence; a rejected value is refused, not clamped', () => {
+test('a multi-action lesson scene runs in one synchronous sequence; a rejected value is refused, not clamped', async () => {
     const graph = mount();
+    await waitForPucks('transform-c');
+    await openTools();
     for (const action of [
         {kind: 'function-choice', name: 'transform-base', value: 'cube'},
         {kind: 'function-parameter', name: 'transform-a', value: 3},

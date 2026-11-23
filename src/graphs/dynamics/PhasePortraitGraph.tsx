@@ -1281,7 +1281,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const derived = this.derived();
         const linear = state.system === "linear";
         const point = (x: number, y: number): Message => message("phase_graph_point_format", {value0: messageNumber(x, 3), value1: messageNumber(y, 3)});
-        const entryRange = {kind: "range", min: ENTRY_RANGE.min / ENTRY_SCALE, max: ENTRY_RANGE.max / ENTRY_SCALE, step: 1 / ENTRY_SCALE, maxDecimals: 2,
+        const entryRange = {kind: "range", min: ENTRY_RANGE.min / ENTRY_SCALE, max: ENTRY_RANGE.max / ENTRY_SCALE, step: 1 / ENTRY_SCALE, bigStep: 1, maxDecimals: 2,
             placement: "board", locked: !linear} as const;
         const parameters: ParameterDeclaration<PhasePortraitIds["param"]>[] = [
             {key: "phase-system", kind: "choice", label: message("phase_graph_system_label"), help: message("phase_graph_system_help"), placement: "board",
@@ -1295,9 +1295,9 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             {key: "phase-d", label: message("phase_graph_matrix_d_label"), symbol: "d", ...entryRange},
             {key: "phase-seed-count", kind: "count", label: message("phase_graph_seeds_label"), placement: "tools", section: SEEDS_SECTION, min: SEEDS_MIN, max: SEEDS_MAX,
                 help: message("phase_graph_seeds_help", {value0: SEEDS_MIN, value1: SEEDS_MAX})},
-            {key: "phase-zoom", kind: "range", label: message("phase_graph_zoom_label"), placement: "board", min: ZOOM_RANGE.min, max: ZOOM_RANGE.max, step: 1, maxDecimals: 0,
+            {key: "phase-zoom", kind: "range", label: message("phase_graph_zoom_label"), placement: "board", min: ZOOM_RANGE.min, max: ZOOM_RANGE.max, step: 1, bigStep: 1, maxDecimals: 0,
                 help: message("phase_graph_zoom_help", {value0: ZOOM_RANGE.min, value1: ZOOM_RANGE.max, value2: messageNumber(halfWidthOf(state.zoom), 4)})},
-            {key: "phase-time", kind: "range", label: message("phase_graph_time_label"), symbol: "t", placement: "board", min: 0, max: ORBIT_DURATION, step: TIME_STEP, maxDecimals: 2,
+            {key: "phase-time", kind: "range", label: message("phase_graph_time_label"), symbol: "t", placement: "board", min: 0, max: ORBIT_DURATION, step: TIME_STEP, bigStep: TIME_BIG_STEP, maxDecimals: 2,
                 unit: message("phase_graph_unit_s"), help: message("phase_graph_time_help", {value0: messageNumber(ORBIT_DURATION, 0), value1: messageNumber(TIME_STEP, 2)})},
         ];
         const {tau, delta, discriminant} = derived.plane;

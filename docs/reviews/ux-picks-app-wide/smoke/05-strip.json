@@ -1,0 +1,464 @@
+{
+ "check1 1440 taylor": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 63,
+   "right": 439,
+   "top": 677.78125,
+   "bottom": 762.78125
+  },
+  "layer": {
+   "left": 55,
+   "right": 1385,
+   "top": 201.75,
+   "bottom": 770.78125
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Središče c:slider",
+   "Stopnja n:spinbutton",
+   "Točka x:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check2 1440": {
+  "name": "Stopnja n",
+  "before": "1",
+  "after": "2",
+  "readoutChanged": true,
+  "errs": []
+ },
+ "check1 1440 linear": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 63,
+   "right": 567,
+   "top": 701,
+   "bottom": 772
+  },
+  "layer": {
+   "left": 55,
+   "right": 1385,
+   "top": 201.75,
+   "bottom": 780
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "a₁: x:slider",
+   "a₁: y:slider",
+   "a₂: x:slider",
+   "a₂: y:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check5 1440 enterErr": "locator.waitFor: Timeout 3000ms exceeded.",
+ "check5 1440 pucks": {
+  "entered": false,
+  "pk": [
+   "linear-map-a11|a₁: x|1",
+   "linear-map-a21|a₁: y|0",
+   "linear-map-a12|a₂: x|0",
+   "linear-map-a22|a₂: y|1"
+  ]
+ },
+ "check5 1440": "no angle puck found",
+ "check5-strip 1440": {
+  "inside": true,
+  "a": [
+   63,
+   701,
+   567,
+   772
+  ],
+  "rows": 1
+ },
+ "check1 1440 decasteljau": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 63,
+   "right": 206,
+   "top": 655,
+   "bottom": 772
+  },
+  "layer": {
+   "left": 55,
+   "right": 1385,
+   "top": 201.75,
+   "bottom": 780
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Parameter t:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Hitrost animacije, vrednost",
+   "Hitrost animacije",
+   "p₀, x",
+   "p₀, y",
+   "p₁, x",
+   "p₁, y",
+   "p₂, x",
+   "p₂, y",
+   "p₃, x",
+   "p₃, y",
+   "p₄, x",
+   "p₄, y",
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check3 1440": {
+  "label": "Parameter t",
+  "v0": "0.5",
+  "v1": "0.56498",
+  "v2": "0.8699600000000003",
+  "afterKey": "0.88",
+  "later": "0.88",
+  "errs": []
+ },
+ "check1 1440 phase": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 63,
+   "right": 943.40625,
+   "top": 594,
+   "bottom": 772
+  },
+  "layer": {
+   "left": 55,
+   "right": 1385,
+   "top": 201.75,
+   "bottom": 780
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Matrika A: a (vrstica 1, stolpec 1):slider",
+   "Matrika A: b (vrstica 1, stolpec 2):slider",
+   "Matrika A: c (vrstica 2, stolpec 1):slider",
+   "Matrika A: d (vrstica 2, stolpec 2):slider",
+   "Povečava okoli ravnovesne točke:slider",
+   "Čas t:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Število začetnih točk",
+   "Začetna točka 1, x",
+   "Začetna točka 1, y",
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check4 1440": {
+  "label": "Matrika A: a (vrstica 1, stolpec 1)",
+  "valuetext": "1,25",
+  "valuenow": "1.25",
+  "text": "1,25",
+  "notice": [
+   "Zaokroženo na 1,25.",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "errs": []
+ },
+ "check1 1440 transf": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 63,
+   "right": 770,
+   "top": 691.78125,
+   "bottom": 762.78125
+  },
+  "layer": {
+   "left": 55,
+   "right": 1385,
+   "top": 201.75,
+   "bottom": 770.78125
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Vodoravni premik c:slider",
+   "Navpični premik d:slider",
+   "Navpična raztegnitev a:slider",
+   "Vodoravna raztegnitev b:slider",
+   "Označena točka u:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check1 1024 taylor": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 33,
+   "right": 409,
+   "top": 524.171875,
+   "bottom": 609.171875
+  },
+  "layer": {
+   "left": 25,
+   "right": 999,
+   "top": 194.078125,
+   "bottom": 617.171875
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Središče c:slider",
+   "Stopnja n:spinbutton",
+   "Točka x:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check2 1024": {
+  "name": "Stopnja n",
+  "before": "1",
+  "after": "2",
+  "readoutChanged": true,
+  "errs": []
+ },
+ "check1 1024 linear": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 33,
+   "right": 537,
+   "top": 559.78125,
+   "bottom": 630.78125
+  },
+  "layer": {
+   "left": 25,
+   "right": 999,
+   "top": 194.078125,
+   "bottom": 638.78125
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "a₁: x:slider",
+   "a₁: y:slider",
+   "a₂: x:slider",
+   "a₂: y:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check5 1024 enterErr": "locator.waitFor: Timeout 3000ms exceeded.",
+ "check5 1024 pucks": {
+  "entered": false,
+  "pk": [
+   "linear-map-a11|a₁: x|1",
+   "linear-map-a21|a₁: y|0",
+   "linear-map-a12|a₂: x|0",
+   "linear-map-a22|a₂: y|1"
+  ]
+ },
+ "check5 1024": "no angle puck found",
+ "check5-strip 1024": {
+  "inside": true,
+  "a": [
+   33,
+   559.78125,
+   537,
+   630.78125
+  ],
+  "rows": 1
+ },
+ "check1 1024 decasteljau": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 33,
+   "right": 176,
+   "top": 523,
+   "bottom": 640
+  },
+  "layer": {
+   "left": 25,
+   "right": 999,
+   "top": 234,
+   "bottom": 648
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Parameter t:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Hitrost animacije, vrednost",
+   "Hitrost animacije",
+   "p₀, x",
+   "p₀, y",
+   "p₁, x",
+   "p₁, y",
+   "p₂, x",
+   "p₂, y",
+   "p₃, x",
+   "p₃, y",
+   "p₄, x",
+   "p₄, y",
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check3 1024": {
+  "label": "Parameter t",
+  "v0": "0.5",
+  "v1": "0.56498",
+  "v2": "0.8749700000000004",
+  "afterKey": "0.88",
+  "later": "0.88",
+  "errs": []
+ },
+ "check1 1024 phase": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 33,
+   "right": 671.328125,
+   "top": 466.78125,
+   "bottom": 630.78125
+  },
+  "layer": {
+   "left": 25,
+   "right": 999,
+   "top": 194.078125,
+   "bottom": 638.78125
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Matrika A: a (vrstica 1, stolpec 1):slider",
+   "Matrika A: b (vrstica 1, stolpec 2):slider",
+   "Matrika A: c (vrstica 2, stolpec 1):slider",
+   "Matrika A: d (vrstica 2, stolpec 2):slider",
+   "Povečava okoli ravnovesne točke:slider",
+   "Čas t:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Število začetnih točk",
+   "Začetna točka 1, x",
+   "Začetna točka 1, y",
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ },
+ "check4 1024": {
+  "label": "Matrika A: a (vrstica 1, stolpec 1)",
+  "valuetext": "1,25",
+  "valuenow": "1.25",
+  "text": "1,25",
+  "notice": [
+   "Zaokroženo na 1,25.",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "errs": []
+ },
+ "check1 1024 transf": {
+  "errs": [],
+  "hasStrip": true,
+  "stripVisible": true,
+  "hasTools": true,
+  "inside": true,
+  "stripRect": {
+   "visible": true,
+   "left": 33,
+   "right": 740,
+   "top": 566,
+   "bottom": 637
+  },
+  "layer": {
+   "left": 25,
+   "right": 999,
+   "top": 234,
+   "bottom": 645
+  },
+  "overlaps": [],
+  "puckTops": 1,
+  "pucks": [
+   "Vodoravni premik c:slider",
+   "Navpični premik d:slider",
+   "Navpična raztegnitev a:slider",
+   "Vodoravna raztegnitev b:slider",
+   "Označena točka u:slider"
+  ],
+  "toolsDup": [],
+  "toolNames": [
+   "Velikost elementov grafa, vrednost",
+   "Velikost elementov grafa"
+  ]
+ }
+}
