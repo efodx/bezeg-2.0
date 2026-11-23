@@ -16,16 +16,16 @@ function apiOnWindow(): MathJaxApi | undefined {
 }
 
 async function waitForStartup(api: MathJaxApi): Promise<MathJaxApi> {
-    let timeout = 0;
+    let timeout: ReturnType<typeof globalThis.setTimeout> | undefined;
     try {
         await Promise.race([
             api.startup?.promise ?? Promise.resolve(),
             new Promise<never>((_, reject) => {
-                timeout = window.setTimeout(() => reject(new Error('MathJax startup timed out.')), LOAD_TIMEOUT_MS);
+                timeout = globalThis.setTimeout(() => reject(new Error('MathJax startup timed out.')), LOAD_TIMEOUT_MS);
             }),
         ]);
     } finally {
-        window.clearTimeout(timeout);
+        globalThis.clearTimeout(timeout);
     }
     if (!api.typesetPromise) throw new Error('MathJax started without a typesetting API.');
     return api;
@@ -49,7 +49,7 @@ function loadFromScript(): Promise<MathJaxApi> {
         const finish = (error?: Error, api?: MathJaxApi) => {
             if (settled) return;
             settled = true;
-            window.clearTimeout(timeout);
+            globalThis.clearTimeout(timeout);
             script.removeEventListener('load', onLoad);
             script.removeEventListener('error', onError);
             if (error) {
@@ -72,7 +72,7 @@ function loadFromScript(): Promise<MathJaxApi> {
             );
         };
         const onError = () => finish(new Error('MathJax failed to load.'));
-        const timeout = window.setTimeout(
+        const timeout = globalThis.setTimeout(
             () => finish(new Error('MathJax loading timed out.')),
             LOAD_TIMEOUT_MS,
         );
