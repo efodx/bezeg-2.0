@@ -37,6 +37,9 @@ const SAMPLER = () => {
         for (const f of document.querySelectorAll('form.slider-field')) { const r = f.querySelector('input[type=range]'); if (r && vis(r)) p['s' + ix] = r.value; ix++; }
         let n = 0;
         for (const s of document.querySelectorAll('input[role=spinbutton]')) { if (s.closest('form.slider-field')) continue; if (vis(s)) p['n' + n] = s.value; n++; }
+        // Pucks (task 05): the live value of each puck in the board strip, by position; an open typed entry has no role and is skipped.
+        let px = 0;
+        for (const h of document.querySelectorAll('.puck-strip .puck-host[data-puck-key]')) { const b = h.querySelector('[role=slider],[role=spinbutton]'); if (b && vis(b)) p['p' + px] = b.getAttribute('aria-valuenow'); px++; }
         const pl = [...document.querySelectorAll('button')].some(b => /^Premor$/.test((b.getAttribute('aria-label') || b.textContent || '').trim()));
         return {p, pl};
     };
@@ -91,6 +94,17 @@ const info = p => p.evaluate(() => {
         }
         n++;
     }
+    const pucks = []; let px = 0;
+    for (const h of document.querySelectorAll('.puck-strip .puck-host[data-puck-key]')) {
+        const b = h.querySelector('[role=slider],[role=spinbutton]');
+        if (b && vis(b)) {
+            h.setAttribute('data-fzp', 'p' + px);
+            const r = b.getBoundingClientRect();
+            pucks.push({k: 'p' + px, count: b.getAttribute('role') === 'spinbutton', min: +b.getAttribute('aria-valuemin'), max: +b.getAttribute('aria-valuemax'), x: r.x, y: r.y, w: r.width, h: r.height, track: (() => { const t = h.querySelector('.puck-track'); if (!t) return null; const q = t.getBoundingClientRect(); return {x: q.x, y: q.y, w: q.width, h: q.height}; })()});
+        }
+        px++;
+    }
+    const pplay = !!document.querySelector('.puck-strip [data-action=play-pause]'), preset = !!document.querySelector('.puck-strip [data-action=reset]');
     const play = [...document.querySelectorAll('button')].filter(b => /^(Predvajaj|Premor)$/.test((b.getAttribute('aria-label') || b.textContent || '').trim()) && vis(b)).length;
     const board = window.JXG && Object.values(window.JXG.boards)[0];
     let rect = null;
@@ -102,9 +116,19 @@ const info = p => p.evaluate(() => {
             if (sx > r.left + 4 && sx < r.right - 4 && sy > r.top + 4 && sy < r.bottom - 4) points.push({x: sx, y: sy});
         });
     }
-    return {sliders, counts, play, rect, points};
+    return {sliders, counts, play, rect, points, pucks, pplay, preset};
 });
 
+const PRANGE_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Shift+ArrowLeft', 'Shift+ArrowRight', 'PageUp', 'PageDown', 'Home', 'End'];
+const PCOUNT_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+// A typed puck entry: the text for a mode (in range, out of range, off the step grid, not a number) and whether it ends in a write.
+function puckText(q, act) {
+    const span = q.max - q.min;
+    if (act.mode === 'nan') return {text: 'abc', writes: false};
+    if (act.mode === 'out') return {text: fmt(+(q.max + span * 0.5 + 1).toFixed(3)), writes: false};
+    if (act.mode === 'off') return {text: fmt(+(q.min + span * act.f + span * 0.0137).toFixed(4)), writes: true};
+    return {text: fmt(Math.round(q.min + span * act.f)), writes: true};
+}
 // --- generator ---------------------------------------------------------------------------------------------------
 function genAction(rnd, c, extra) {
     const R = (a, b) => a + rnd() * (b - a), I = (a, b) => Math.floor(R(a, b + 1));
@@ -122,6 +146,16 @@ function genAction(rnd, c, extra) {
     }, typable.length, 2);
     add('count', () => ({a: 'count', k: pick(c.counts).k, s: I(0, 1)}), c.counts.length);
     add('play', () => ({a: 'play'}), c.play > 0, 2);
+    // Puck actions (task 05). Range pucks take keys, drags (with a vertical offset for the fine levels), a track click and typed entry;
+    // count pucks take keys, the minus and plus buttons and typed entry; a puck that carries playback takes Play/Pause and Reset.
+    const pk = c.pucks || [], rangeP = pk.filter(x => !x.count), countP = pk.filter(x => x.count);
+    add('pkey', () => { const q = pick(pk); return {a: 'pkey', k: q.k, key: pick(q.count ? PCOUNT_KEYS : PRANGE_KEYS), n: I(1, 3)}; }, pk.length, 3);
+    add('pdrag', () => ({a: 'pdrag', k: pick(rangeP).k, dx: I(-260, 260), dy: pick([0, 0, 0, 30, 90, 200]), hold: I(0, 400)}), rangeP.length, 3);
+    add('ptrack', () => ({a: 'ptrack', k: pick(rangeP).k, f: +R(0.15, 0.9).toFixed(2)}), rangeP.length);
+    add('pbtn', () => ({a: 'pbtn', k: pick(countP).k, s: I(0, 1), n: I(1, 2)}), countP.length, 2);
+    add('ptype', () => ({a: 'ptype', k: pick(pk).k, mode: pick(['in', 'in', 'out', 'off', 'nan']), f: +R(0, 1).toFixed(3), via: pick(['dbl', 'dbl', 'key']), end: pick(['Enter', 'Enter', 'Escape'])}), pk.length, 3);
+    add('pplay', () => ({a: 'pplay'}), !!c.pplay, 2);
+    add('preset', () => ({a: 'preset'}), !!c.preset);
     add('boardDrag', () => ({a: 'boardDrag', i: I(0, 50), dx: I(-80, 80), dy: I(-80, 80)}), c.points.length, 2);
     add('pan', () => ({a: 'pan', dx: I(-90, 90), dy: I(-60, 60)}), !!c.rect);
     add('wheel', () => ({a: 'wheel', dy: pick([-300, -150, 150, 300])}), !!c.rect);
@@ -136,6 +170,8 @@ const readSlider = (p, k) => p.evaluate(k => document.querySelector(`[data-fzs="
 async function exec(p, act, c) {
     const m = p.mouse, none = {write: null};
     const sl = c.sliders.find(x => x.k === act.k);
+    const pq = act.k && act.a[0] === 'p' && act.a !== 'play' && act.a !== 'pplay' ? (c.pucks || []).find(x => x.k === act.k) : null;
+    if (act.a[0] === 'p' && act.k && !pq) return {...none, skipped: true};
     const needsSlider = ['drag', 'clickTrack', 'arrow', 'type'].includes(act.a);
     if (needsSlider && !sl) return {...none, skipped: true};
     // The slider may sit inside a scrolled inspector (an earlier focus scrolled it away): bring it into view and read its box
@@ -179,6 +215,50 @@ async function exec(p, act, c) {
             if (!(await b.count())) return {...none, skipped: true};
             await b.click({timeout: 3000, force: true}); return {write: {k: act.k}};
         }
+        case 'pkey': {
+            await p.evaluate(k => document.querySelector(`[data-fzp="${k}"] [role=slider],[data-fzp="${k}"] [role=spinbutton]`)?.focus(), pq.k);
+            for (let s = 0; s < act.n; s++) { await p.keyboard.press(act.key); await sleep(40); }
+            return {write: {k: pq.k}};
+        }
+        case 'pdrag': {
+            const x = pq.x + pq.w / 2, y = pq.y + pq.h / 2;
+            await m.move(x, y, {steps: 3}); await m.down();
+            for (let s = 1; s <= 8; s++) { await m.move(x + act.dx * s / 8, y - act.dy * Math.min(1, s / 3)); await sleep(25); }
+            await sleep(act.hold); await m.up(); return {write: {k: pq.k}};
+        }
+        case 'ptrack': {
+            // A click only jumps when it lands on the track element (a thin bar inside the body), not on the value text.
+            const t = pq.track; if (!t) return {...none, skipped: true};
+            const x = t.x + t.w * act.f, y = t.y + t.h / 2;
+            await m.move(x, y, {steps: 3}); await m.click(x, y); return {write: {k: pq.k}};
+        }
+        case 'pbtn': {
+            const b = p.locator(`[data-fzp="${pq.k}"] .puck-step`).nth(act.s ? 1 : 0);
+            for (let s = 0; s < act.n; s++) { if (await b.count()) await b.click({timeout: 3000, force: true}); await sleep(60); }
+            return {write: {k: pq.k}};
+        }
+        case 'ptype': {
+            const {text, writes} = puckText(pq, act);
+            const body = p.locator(`[data-fzp="${pq.k}"] [role=slider],[data-fzp="${pq.k}"] [role=spinbutton]`).first();
+            if (act.via === 'key') { await body.focus(); await p.keyboard.type(text, {delay: 30}); }
+            // Double-click the value text: a click on the track would jump the value (a learner write the step does not expect).
+            else { await body.locator('.puck-value').dblclick({timeout: 3000}); await p.keyboard.press('Control+A'); await p.keyboard.type(text, {delay: 20}); }
+            await p.keyboard.press(act.end);
+            // A refused Enter leaves the entry open (with the reason); close it, or the next click lands on a puck that shifted width.
+            if (act.end === 'Enter' && !writes) { await sleep(150); await p.keyboard.press('Escape'); }
+            // An Escape, a refused value or a non-number leaves the store alone (checked as I5); a valid Enter is a learner write.
+            return act.end === 'Enter' && writes ? {write: {k: pq.k}} : {...none, esc: false};
+        }
+        case 'pplay': {
+            const b = p.locator('.puck-strip [data-action=play-pause]').first();
+            if (!(await b.isVisible().catch(() => false))) return {...none, skipped: true};
+            await b.click({timeout: 3000}); return {...none, anyWrite: true};
+        }
+        case 'preset': {
+            const b = p.locator('.puck-strip [data-action=reset]').first();
+            if (!(await b.isVisible().catch(() => false))) return {...none, skipped: true};
+            await b.click({timeout: 3000, force: true}); return {...none, anyWrite: true};
+        }
         case 'play': {
             const b = p.getByRole('button', {name: /^(Predvajaj|Premor)$/}).first();
             if (!(await b.isVisible().catch(() => false))) return {...none, skipped: true};
@@ -193,13 +273,18 @@ async function exec(p, act, c) {
         }
         case 'pan': {
             if (!c.rect) return {...none, skipped: true};
-            const x = c.rect.x + 25, y = c.rect.y + c.rect.h - 25;
+            // The bottom-left corner is the puck strip: a pan started there would drag a puck, so start at the top-right.
+            const x = c.rect.x + c.rect.w - 25, y = c.rect.y + 25;
             await m.move(x, y); await m.down();
             for (let s = 1; s <= 6; s++) { await m.move(x + act.dx * s / 6, y + act.dy * s / 6); await sleep(20); }
             await m.up(); return none;
         }
         case 'wheel': if (!c.rect) return {...none, skipped: true}; await m.move(c.rect.x + c.rect.w / 2, c.rect.y + c.rect.h / 2); await m.wheel(0, act.dy); return none;
-        case 'escape': await p.keyboard.press('Escape'); return {...none, esc: true};
+        case 'escape': {
+            // While a puck's "Razveljavi" pill shows (4 s after a jump), Esc restores the previous value by design: not an untouched change.
+            const undo = (await p.locator('.puck-undo').count()) > 0;
+            await p.keyboard.press('Escape'); return {...none, esc: true, anyWrite: undo};
+        }
         case 'rest': await m.move(5, 5); await sleep(act.ms); return none;
         case 'next': case 'back': {
             const b = p.locator(act.a === 'next' ? 'section.guided-lesson .guided-lesson-nav-next' : 'section.guided-lesson .guided-lesson-nav-back').first();

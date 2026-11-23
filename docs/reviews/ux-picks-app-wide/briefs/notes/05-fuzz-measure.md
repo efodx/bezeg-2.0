@@ -1,0 +1,6 @@
+# 05 fuzz + measure worker note
+
+Fuzzer: scripts/fuzz/fuzz.cjs puck actions (sampler `p<i>` from aria-valuenow, info() pucks, genAction pkey/pdrag/ptrack/pbtn/ptype/pplay/preset, exec cases), README updated. No unit test (the fuzzer has only `--selftest` of inv.cjs, unchanged).
+Runs (dev server 4483): transformations, linear-map, Taylor lesson, Taylor, phase portrait, De Casteljau, 50 seeds each, all 50/50 after fuzzer-artefact fixes. Logs: docs/reviews/ux-picks-app-wide/fuzz/05-*.log (`-final` logs are the runs with the final fuzzer for Taylor, phase, De Casteljau; transformations, linear-map and Taylor lesson ran with an earlier fuzzer version whose later fixes only remove false positives).
+Fuzzer artefacts fixed along the way: pan started on the puck strip (bottom-left), track click aimed at the body not the thin track, double-click on body centre hit the track, refused Enter leaves entry open (strip width shifts), Esc undoes a jump while the undo pill shows.
+Product observations (not fixed): RangePuck.tsx:198 entry input width is widthCh+2 vs value span widthCh, so opening a typed entry widens the puck and shifts later pucks (task item "constant puck width"); Taylor drag at 4x CPU: 45-48 long tasks per run (baseline 1-4), see measure/RESULTS-05-final.md.
