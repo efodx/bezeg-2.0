@@ -56,6 +56,12 @@ export async function waitForFontsAndMath(layer: HTMLElement): Promise<void> {
 
 const signature = (cards: readonly MeasuredCard[]) => JSON.stringify(cards);
 
+const READING_TOLERANCE = 0.5;
+const near = (a: number, b: number) => Math.abs(a - b) < READING_TOLERANCE;
+const sameReading = (a: MeasuredCard, b: MeasuredCard) =>
+  near(a.natural.w, b.natural.w) && near(a.natural.h, b.natural.h) && near(a.min.w, b.min.w) && near(a.min.h, b.min.h) &&
+  near(a.foldedHeight, b.foldedHeight) && a.rowBreaks.length === b.rowBreaks.length && a.rowBreaks.every((v, i) => near(v, b.rowBreaks[i]));
+
 const LAYER_STYLE = {
   position: 'fixed',
   left: -100000,
@@ -75,10 +81,18 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
     whenReadyRef.current = whenReady;
   });
   const [liveCards, setLiveCards] = useState<Readonly<Record<string, MeasuredCard>>>({});
+  const liveRef = useRef<Readonly<Record<string, MeasuredCard>>>({});
   const measureLive = useCallback((id: string, element: HTMLElement | null) => {
     if (!element) return;
     const next = measureLiveCard(element);
-    setLiveCards((prev) => (prev[id] && signature([prev[id]]) === signature([next]) ? prev : {...prev, [id]: {...next, id}}));
+    // Compared against a ref, not inside a state updater: an updater that returns the old state still schedules a render, and from
+    // a layout effect that read again after every commit it ended in "Maximum update depth exceeded". Readings within half a pixel
+    // are the same reading, so a size that follows the layout's own output by a fraction cannot keep it going either.
+    const read = liveRef.current[id];
+    if (read && sameReading(read, next)) return;
+    const merged = {...liveRef.current, [id]: {...next, id}};
+    liveRef.current = merged;
+    setLiveCards(merged);
   }, []);
   const key = items.map((i) => `${i.id}:${i.width ?? ''}${i.live ? ':live' : ''}`).join('|') + `#${options.contentKey ?? ''}`;
 
