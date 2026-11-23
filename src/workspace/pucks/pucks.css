@@ -70,3 +70,13 @@
     .puck-fill { transition: none; }
     .puck-undo { animation: none; }
 }
+
+/* The strip: bottom-left of the board, pucks in a row at their natural width; past the width the layout gives it, the slots wrap to a further row. */
+.puck-strip {
+    position: absolute; left: 0; top: 0; box-sizing: border-box; display: flex; flex-wrap: wrap; align-content: flex-end; align-items: flex-end; gap: 8px;
+    overflow: visible; pointer-events: auto; z-index: 3;
+}
+.puck-strip:not([style*="width"]) { width: max-content; }
+.puck-slot { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.puck-host { display: contents; }
+.puck-playback { display: flex; gap: 4px; }

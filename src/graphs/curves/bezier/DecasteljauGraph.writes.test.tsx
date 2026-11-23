@@ -1,7 +1,7 @@
 import {act, fireEvent, screen} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import {appStorage} from '../../../storage/appStorage';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../base/realGraphTestHarness';
 import {UntaggedWriteError} from '../../base/writes/parameterArbiter';
 import {runAs} from '../../base/writes/writeSource';
 import {t} from '../../../localization';
@@ -14,7 +14,7 @@ afterEach(() => vi.restoreAllMocks());
 
 const KEY = 'decasteljau-t';
 
-function mountRun() {
+async function mountRun() {
     let time = 0;
     let pending: FrameRequestCallback[] = [];
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { pending.push(callback); return pending.length; });
@@ -30,14 +30,14 @@ function mountRun() {
             act(() => due.forEach(callback => callback(time)));
         }
     };
+    await waitForPucks(KEY);
     return {graph, frames};
 }
 
 const play = () => screen.getByRole('button', {name: t('play')});
-const slider = () => screen.getByRole('slider', {name: t('animation_parameter')}) as HTMLInputElement;
 
-test('De Casteljau t is source-tagged: a seeded untagged write throws, the slider and a lesson write apply, a held key refuses the lesson', () => {
-    const {graph} = mountRun();
+test('De Casteljau t is source-tagged: a seeded untagged write throws, the slider and a lesson write apply, a held key refuses the lesson', async () => {
+    const {graph} = await mountRun();
     const parameters = graph.parameters!;
     expect(parameters.keys()).toEqual([KEY, 'view']);
 
@@ -45,7 +45,7 @@ test('De Casteljau t is source-tagged: a seeded untagged write throws, the slide
     act(() => runAs('learner', () => graph['setParameter'](0.3, 'ready')));
     expect(parameters.read(KEY)).toBe(0.3);
 
-    act(() => { fireEvent.change(slider(), {target: {value: '0.6'}}); });
+    typePuck(KEY, '0.6');
     expect(parameters.read(KEY)).toBeCloseTo(0.6);
 
     act(() => { expect(parameters.write(KEY, 0.2, 'lesson')).toEqual({status: 'applied'}); });
@@ -56,8 +56,8 @@ test('De Casteljau t is source-tagged: a seeded untagged write throws, the slide
     release();
 });
 
-test('playback runs under a lease: a learner write of t stops it with the control paused, a lesson frame change ends it', () => {
-    const {graph, frames} = mountRun();
+test('playback runs under a lease: a learner write of t stops it with the control paused, a lesson frame change ends it', async () => {
+    const {graph, frames} = await mountRun();
     const parameters = graph.parameters!;
     act(() => { fireEvent.click(play()); });
     expect(graph.state.animationStatus).toBe('playing');
@@ -79,8 +79,8 @@ test('playback runs under a lease: a learner write of t stops it with the contro
     expect(parameters.activeLeases()).toHaveLength(0);
 });
 
-test('a learner write that lands before a pending play start commits wins: playback never starts', () => {
-    const {graph, frames} = mountRun();
+test('a learner write that lands before a pending play start commits wins: playback never starts', async () => {
+    const {graph, frames} = await mountRun();
     const parameters = graph.parameters!;
     act(() => {
         fireEvent.click(play());

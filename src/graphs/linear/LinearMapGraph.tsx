@@ -34,6 +34,7 @@ import {
 import {ELEMENT_COUNT, ELEMENT_STEP_DEGREES, MapElement} from "../../linear/composition2";
 import {CompositionView, compositionViewBox, deriveComposition, isExactMatrix} from "./compositionScene";
 import {COMPOSITION_COLORS, CompositionBoardContext, createCompositionCurves, createCompositionPoints} from "./compositionBoard";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import {
     companionOfDrag, deriveIteration, deriveTraceDet, estimatesDominant, iterateAt, IterationView, SETTLED_ANGLE_DEGREES, TRACE_DET_DRAG_LIMIT, TRACE_DET_VIEW, TraceDetView,
@@ -1071,8 +1072,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             </div>
             {composing && this.compositionControls(state)}
             {!composing && <div className="inspector-group">
-                <NumberGrid label={t("linear_map_matrix_caption")} columns={2} cells={[entry(0, 0), entry(0, 1), entry(1, 0), entry(1, 1)]}
-                            describedBy="linear-map-entries-help linear-map-notice"/>
+                <PuckOwned param="linear-map-a11"><NumberGrid label={t("linear_map_matrix_caption")} columns={2} cells={[entry(0, 0), entry(0, 1), entry(1, 0), entry(1, 1)]}
+                            describedBy="linear-map-entries-help linear-map-notice"/></PuckOwned>
                 <p id="linear-map-entries-help" className="inspector-help">{t("linear_map_entries_help")}</p>
                 <div id="linear-map-notice" role="status" aria-live="polite">
                     {notice && <p className="inspector-help" data-linear-map-notice={notice.kind}>
@@ -1149,11 +1150,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                                       {value: "reflection", text: t("linear_map_comp_source_reflection")},
                                   ]}
                                   onChange={next => this.ignoreOutOfDomain(() => this.setSource(slot, next as SlotSource))}/>
-                    {element && <Slider min={0} max={ELEMENT_COUNT - 1} step={1} bigStep={6} decimals={0} value={element.k}
+                    {element && <PuckOwned param={`linear-map-${slot}-index`}><Slider min={0} max={ELEMENT_COUNT - 1} step={1} bigStep={6} decimals={0} value={element.k}
                                         customText={t(element.kind === "rotation" ? "linear_map_comp_angle_rotation" : "linear_map_comp_angle_reflection", {value0: name})}
                                         help={t(element.kind === "rotation" ? "linear_map_comp_angle_help_rotation" : "linear_map_comp_angle_help_reflection")}
                                         formatValue={k => this.angleText(element.kind, k)} valueText={k => this.angleText(element.kind, k)}
-                                        onChange={next => this.ignoreOutOfDomain(() => this.setAngleIndex(slot, next))}/>}
+                                        onChange={next => this.ignoreOutOfDomain(() => this.setAngleIndex(slot, next))}/></PuckOwned>}
                     {!element && <>
                         <NumberGrid label={t("linear_map_comp_matrix_caption", {value0: name})} columns={2} describedBy={entriesHelpId}
                                     cells={[entry(0, 0), entry(0, 1), entry(1, 0), entry(1, 1)]}/>

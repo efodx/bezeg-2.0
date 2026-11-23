@@ -1,7 +1,7 @@
 import {act, fireEvent, screen} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import {appStorage} from '../../storage/appStorage';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from './realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from './realGraphTestHarness';
 import {t} from '../../localization';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -9,7 +9,7 @@ beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 
-function mountPlaying() {
+async function mountPlaying() {
     let time = 0;
     let pending: FrameRequestCallback[] = [];
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { pending.push(callback); return pending.length; });
@@ -24,14 +24,15 @@ function mountPlaying() {
             act(() => due.forEach(callback => callback(time)));
         }
     };
+    await waitForPucks('decasteljau-t');
     act(() => { fireEvent.click(screen.getByRole('button', {name: t('play')})); });
     frames(2);
     expect(graph.state.animationStatus).toBe('playing');
     return {graph, frames, unmount: () => mounted.view.unmount()};
 }
 
-test('Escape pauses a playing graph and ends its leases', () => {
-    const {graph, frames} = mountPlaying();
+test('Escape pauses a playing graph and ends its leases', async () => {
+    const {graph, frames} = await mountPlaying();
     expect(graph.parameters!.activeLeases()).toHaveLength(1);
     act(() => { fireEvent.keyDown(document.body, {key: 'Escape'}); });
     expect(graph.state.animationStatus).toBe('paused');
@@ -41,8 +42,8 @@ test('Escape pauses a playing graph and ends its leases', () => {
     expect(graph.parameters!.read('decasteljau-t')).toBe(at);
 });
 
-test('Escape inside a dialog or a menu, or already used by a control, leaves the playback running', () => {
-    const {graph} = mountPlaying();
+test('Escape inside a dialog or a menu, or already used by a control, leaves the playback running', async () => {
+    const {graph} = await mountPlaying();
     const dialog = document.createElement('div');
     dialog.setAttribute('role', 'dialog');
     const inner = document.createElement('button');
@@ -65,9 +66,9 @@ test('Escape inside a dialog or a menu, or already used by a control, leaves the
     handled.remove();
 });
 
-test('the Escape listener is removed with the graph', () => {
+test('the Escape listener is removed with the graph', async () => {
     const remove = vi.spyOn(window, 'removeEventListener');
-    const {unmount} = mountPlaying();
+    const {unmount} = await mountPlaying();
     unmount();
     expect(remove.mock.calls.some(([type]) => type === 'keydown')).toBe(true);
 });

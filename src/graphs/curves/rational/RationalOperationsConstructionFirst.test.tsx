@@ -6,7 +6,7 @@ import {act, fireEvent, screen, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../base/realGraphTestHarness';
 import {t} from '../../../localization';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -23,7 +23,12 @@ interface Curve {
 type Run = BaseGraph<BaseGraphState> & {editing: {select(curve: unknown): void}; jxgCurves: Curve[]};
 type Key = 'rational-decasteljau' | 'rational-elevation' | 'rational-extrapolation' | 'rational-subdivision';
 
-const mount = (key: Key) => mountGraph(graphFactories[key]()).graph as Run;
+// The rational De Casteljau route's t is a puck on the board (task 05), shown once the board has laid out.
+const mount = async (key: Key) => {
+    const graph = mountGraph(graphFactories[key]()).graph as Run;
+    if (key === 'rational-decasteljau') await waitForPucks('decasteljau-t');
+    return graph;
+};
 const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('#inspector-edit'));
 const firstCard = () => (screen.getAllByText(t('construction')).find(element => element.closest('.tools')))!.closest('.tools') as HTMLElement;
 const select = (graph: Run) => {
@@ -37,21 +42,26 @@ const xy = (p: Pt) => [p.X(), p.Y()];
 const inButton = (r: HTMLElement, name: string | RegExp) => within(r).getByRole('button', {name});
 const inSlider = (r: HTMLElement, name: string) => within(r).getByRole('slider', {name});
 const firstTask: Record<Key, Array<(root: HTMLElement) => HTMLElement>> = {
-    'rational-decasteljau': [r => inSlider(r, t('animation_parameter'))],
+    // Its parameter is a puck on the board: once there, and not in the group (checked below).
+    'rational-decasteljau': [],
     'rational-elevation': [r => inButton(r, t('elevate_degree'))],
     'rational-extrapolation': [r => inSlider(r, t('extrapolation_parameter_t')), r => inButton(r, t('extrapolate'))],
     'rational-subdivision': [r => inSlider(r, t('subdivision_parameter_t')), r => inButton(r, t('subdivide'))],
 };
 
 describe.each(Object.keys(firstTask) as Key[])('%s construction first', key => {
-    test('the first task is the first Edit group, before the later controls, and stays while the curve is selected', () => {
-        const graph = mount(key);
+    test('the first task is the first Edit group, before the later controls, and stays while the curve is selected', async () => {
+        const graph = await mount(key);
         const follows = (card: HTMLElement, element: Element) =>
             expect(card.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
         const check = () => {
             const card = firstCard();
             expect(card.parentElement!.querySelector('.tools')).toBe(card);
             for (const control of firstTask[key]) expect(card.contains(control(card))).toBe(true);
+            if (key === 'rational-decasteljau') {
+                expect(document.querySelector('.puck-strip')!.contains(slider(t('animation_parameter')))).toBe(true);
+                expect(card.contains(slider(t('animation_parameter')))).toBe(false);
+            }
             for (const heading of inEdit(t('curve_selection'))) if (!card.contains(heading)) follows(card, heading);
             for (const typed of screen.queryAllByRole('spinbutton')) if (!card.contains(typed)) follows(card, typed);
             expect(inEdit(t('graph_commands'))).toEqual([]);
@@ -63,8 +73,8 @@ describe.each(Object.keys(firstTask) as Key[])('%s construction first', key => {
 });
 
 describe('route acceptance', () => {
-    test('decasteljau: the parameter moves the constructed point along the curve and a weight edit follows at the same t', () => {
-        const graph = mount('rational-decasteljau');
+    test('decasteljau: the parameter moves the constructed point along the curve and a weight edit follows at the same t', async () => {
+        const graph = await mount('rational-decasteljau');
         const curve = graph.jxgCurves[0];
         const final = () => {
             const scheme = curve.getDecasteljauScheme(curve.getDecasteljauT());
@@ -73,7 +83,7 @@ describe('route acceptance', () => {
         const onCurve = (u: number) => xy(curve.getCurve().eval(u));
         const placed: number[][] = [];
         for (const value of ['0.25', '0.75']) {
-            act(() => { fireEvent.change(slider(t('animation_parameter')), {target: {value}}); });
+            typePuck('decasteljau-t', value);
             expect(curve.getDecasteljauT()).toBeCloseTo(Number(value), 6);
             const p = final();
             expect(p[0]).toBeCloseTo(onCurve(Number(value))[0], 8);
@@ -89,8 +99,8 @@ describe('route acceptance', () => {
         expect(after[1]).toBeCloseTo(onCurve(0.75)[1], 8);
     });
 
-    test('elevation: one elevation adds a point and keeps the curve at interior samples', () => {
-        const graph = mount('rational-elevation');
+    test('elevation: one elevation adds a point and keeps the curve at interior samples', async () => {
+        const graph = await mount('rational-elevation');
         const before = graph.jxgCurves[0].getCurve();
         const us = [0, 0.2, 0.5, 0.8, 1];
         const samples = us.map(u => xy(before.eval(u)));
@@ -104,8 +114,8 @@ describe('route acceptance', () => {
         });
     });
 
-    test('extrapolation: moving the parameter past 1 changes the represented interval, and Extrapolate keeps it', () => {
-        const graph = mount('rational-extrapolation');
+    test('extrapolation: moving the parameter past 1 changes the represented interval, and Extrapolate keeps it', async () => {
+        const graph = await mount('rational-extrapolation');
         const curve = graph.jxgCurves[0];
         const target = xy(curve.getCurve().eval(1.5));
         act(() => { fireEvent.change(slider(t('extrapolation_parameter_t')), {target: {value: '1.5'}}); });
@@ -116,8 +126,8 @@ describe('route acceptance', () => {
         expect(end[1]).toBeCloseTo(target[1], 6);
     });
 
-    test('subdivision: an interior split gives two weighted pieces sharing the split point and reproducing the curve', () => {
-        const graph = mount('rational-subdivision');
+    test('subdivision: an interior split gives two weighted pieces sharing the split point and reproducing the curve', async () => {
+        const graph = await mount('rational-subdivision');
         // Subdividing rewrites the curve in place, so sample the original before pressing.
         const wanted = new Map<number, number[]>();
         for (const u of [0.3, 0.3 * 0.25, 0.3 * 0.5, 0.3 + 0.7 * 0.25, 0.3 + 0.7 * 0.5]) wanted.set(u, xy(graph.jxgCurves[0].getCurve().eval(u)));

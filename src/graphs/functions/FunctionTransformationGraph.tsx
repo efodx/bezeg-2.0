@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, messageNumber, renderMessage, t, type Message} from "../../localization";
@@ -323,13 +324,13 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
             <div className="inspector-group">
                 {TRANSLATIONS_FIRST.map(field => {
                     const [min, max] = TRANSFORM_BOUNDS[field];
-                    return <Slider key={field} customText={t(LABEL_KEYS[field])} value={state[field]} min={min} max={max} step={FIELD_STEP} decimals={PRECISE}
+                    return <PuckOwned key={field} param={`transform-${field}`}><Slider customText={t(LABEL_KEYS[field])} value={state[field]} min={min} max={max} step={FIELD_STEP} decimals={PRECISE}
                                         rejectedHint={field === "b" ? t("function_transformation_b_hint", hint(min, max)) : t("function_transformation_range_hint", hint(min, max))}
-                                        onChange={next => this.ignoreOutOfDomain(() => this.setParameter(field, next))}/>;
+                                        onChange={next => this.ignoreOutOfDomain(() => this.setParameter(field, next))}/></PuckOwned>;
                 })}
-                <Slider customText={t("function_transformation_u_label")} value={state.u} min={TRANSFORM_U_MIN} max={TRANSFORM_U_MAX} step={TRANSFORM_U_STEP}
+                <PuckOwned param="transform-u"><Slider customText={t("function_transformation_u_label")} value={state.u} min={TRANSFORM_U_MIN} max={TRANSFORM_U_MAX} step={TRANSFORM_U_STEP}
                              decimals={PRECISE} rejectedHint={t("function_transformation_range_hint", hint(TRANSFORM_U_MIN, TRANSFORM_U_MAX))}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setU(next))}/>
+                             onChange={next => this.ignoreOutOfDomain(() => this.setU(next))}/></PuckOwned>
                 <p className="inspector-help">{t("function_transformation_order_help")}</p>
             </div>
             <div className="inspector-group">

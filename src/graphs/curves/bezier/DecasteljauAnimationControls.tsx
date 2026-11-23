@@ -3,6 +3,7 @@ import React, {useEffect, useState, useSyncExternalStore} from "react";
 import {withDecimalSeparator} from "../../../analysis/format";
 import Slider from "../../../inputs/Slider";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
+import {usePuckOwns} from "../../base/controls/PuckOwnership";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {LiveParameter} from "./decasteljauLiveParameter";
 
@@ -36,6 +37,8 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
     const t = useT();
     const {language} = useLanguage();
     const playing = props.status === "playing";
+    // The board's puck strip carries t with its Play and Reset (task 05): these are then left out of Orodja.
+    const puckOwned = usePuckOwns("decasteljau-t");
     const liveValue = useSyncExternalStore(props.live?.subscribe ?? noSubscribe, props.live?.getSnapshot ?? noSnapshot);
     const parameter = playing && liveValue !== undefined ? liveValue : props.parameter;
     const readoutText = `t = ${withDecimalSeparator(parameter.toFixed(2), language)}`;
@@ -51,14 +54,14 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
             <output aria-live="off">{readoutText}</output>
             <LiveReadout readout={readout} muted={playing}/>
         </div>
-        <PlaybackButtons placement="graph" groupLabel={t("animation_controls")} className="decasteljau-animation-actions" playing={playing}
+        {!puckOwned && <PlaybackButtons placement="graph" groupLabel={t("animation_controls")} className="decasteljau-animation-actions" playing={playing}
                          {...playbackBlocks({atStart: props.status === "ready" && props.parameter === 0, atEnd: false, playing})}
                          onPlayPause={playing ? props.onPause : props.onPlay} onReset={props.onStop}
                          companion={{label: t("animation_parameter"), children:
                              <div className="decasteljau-animation-slider">
                                  <Slider customText={t("animation_parameter")} min={0} max={1} value={parameter}
                                          onChange={props.onParameterChange}/>
-                             </div>}}/>
+                             </div>}}/>}
         <div className="decasteljau-animation-slider">
             <Slider customText={t("animation_speed")} min={0} max={1} value={props.speed}
                     onChange={props.onSpeedChange}/>

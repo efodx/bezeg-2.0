@@ -16,6 +16,7 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {NumberGrid, type NumberGridCell} from "../../inputs/NumberGrid";
 import {PointListInput} from "../../inputs/PointListInput";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
@@ -1413,9 +1414,9 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                                         onChange={value => this.editEquilibrium(Number(value))}/>);
         }
         if (state.system === "linear") {
-            commands.push(<NumberGrid key="matrix" label={t("phase_graph_matrix_caption")} columns={2} describedBy={this.helpId}
+            commands.push(<PuckOwned key="matrix" param="phase-a"><NumberGrid label={t("phase_graph_matrix_caption")} columns={2} describedBy={this.helpId}
                                       cells={[this.entryField("A", "phase_graph_matrix_a_label"), this.entryField("B", "phase_graph_matrix_b_label"),
-                                          this.entryField("C", "phase_graph_matrix_c_label"), this.entryField("D", "phase_graph_matrix_d_label")]}/>);
+                                          this.entryField("C", "phase_graph_matrix_c_label"), this.entryField("D", "phase_graph_matrix_d_label")]}/></PuckOwned>);
         }
         commands.push(
             <CountSetter key="seeds" label={t("phase_graph_seeds_label")} n={state.seeds.length} min={SEEDS_MIN} max={SEEDS_MAX} bigStep={1}
@@ -1425,10 +1426,10 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         );
         commands.push(this.seedList());
         commands.push(
-            <Slider key="zoom" customText={t("phase_graph_zoom_label")} min={ZOOM_RANGE.min} max={ZOOM_RANGE.max} step={1} grid={1} bigStep={1} value={state.zoom}
+            <PuckOwned key="zoom" param="phase-zoom"><Slider customText={t("phase_graph_zoom_label")} min={ZOOM_RANGE.min} max={ZOOM_RANGE.max} step={1} grid={1} bigStep={1} value={state.zoom}
                     decimals={0} help={t("phase_graph_zoom_help", {value0: String(ZOOM_RANGE.min), value1: String(ZOOM_RANGE.max), value2: dec(halfWidthOf(state.zoom), 4)})}
                     rejectedHint={t("phase_graph_zoom_rejected", {value0: String(ZOOM_RANGE.min), value1: String(ZOOM_RANGE.max)})}
-                    valueText={value => t("phase_graph_zoom_value", {value0: dec(halfWidthOf(Math.round(value)), 4)})} onChange={value => this.editZoom(value)}/>,
+                    valueText={value => t("phase_graph_zoom_value", {value0: dec(halfWidthOf(Math.round(value)), 4)})} onChange={value => this.editZoom(value)}/></PuckOwned>,
             <p key="help" id={this.helpId} className="form-text">{t("phase_graph_input_help", {
                 value0: dec(ENTRY_RANGE.min / ENTRY_SCALE, 0), value1: dec(ENTRY_RANGE.max / ENTRY_SCALE, 0), value2: dec(1 / ENTRY_SCALE, 2),
                 value3: dec(SEED_RANGE.min / SEED_SCALE, 0), value4: dec(SEED_RANGE.max / SEED_SCALE, 0), value5: dec(1 / SEED_SCALE, 2)})}</p>,
@@ -1464,9 +1465,9 @@ function PhasePlayback(props: {graph: PhasePortraitGraph}) {
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
         {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
-        <Slider customText={text("phase_graph_time_label")} min={0} max={ORBIT_DURATION} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
+        <PuckOwned param="phase-time"><Slider customText={text("phase_graph_time_label")} min={0} max={ORBIT_DURATION} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 help={text("phase_graph_time_help", params)} rejectedHint={text("phase_graph_time_rejected", {value0: params.value0})}
-                valueText={value => `${dec(value, 2)} ${text("phase_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
+                valueText={value => `${dec(value, 2)} ${text("phase_graph_unit_s")}`} onChange={value => graph.setTime(value)}/></PuckOwned>
     </div>;
 }
 

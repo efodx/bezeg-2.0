@@ -58,6 +58,8 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     private liveStore?: LiveParameter;
     /** Created on first use: scene replacement can reach it before this subclass's fields are initialised. */
     private get liveParameter(): LiveParameter { return this.liveStore ??= new LiveParameter(); }
+    /** The t puck follows the playing parameter (PuckLiveValues). */
+    puckLiveValue(key: string): LiveParameter | undefined { return key === "decasteljau-t" ? this.liveParameter : undefined; }
     private lastPublishTime = -Infinity;
     private wholeCurveElement?: JXG.Curve;
 
