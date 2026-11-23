@@ -92,7 +92,7 @@ test('offers content-first navigation and preserves step identity when language 
     const close = vi.fn();
     const {container} = render(<GuidedLesson lesson={lesson} capabilities={capabilities()} onClose={close}/>);
     expect(screen.getByRole('heading', {name: 'Prvi korak'})).toBeVisible();
-    expect(screen.getByRole('status')).toHaveTextContent('Korak 1 od 2');
+    expect(screen.getByRole('status')).toHaveTextContent('Korak 1/2');
     expect(screen.getAllByRole('button', {name: 'Končaj vodeni primer'})[0]).toHaveClass('guided-lesson-exit');
     const backButton = screen.getByRole('button', {name: 'Nazaj: prejšnji okvir'});
     const nextButton = screen.getByRole('button', {name: 'Naprej: naslednji okvir'});
@@ -112,7 +112,7 @@ test('offers content-first navigation and preserves step identity when language 
     expect(screen.getByRole('heading', {name: 'Drugi korak'})).toBeVisible();
     act(() => setLanguage('en'));
     expect(screen.getByRole('heading', {name: 'Second step'})).toBeVisible();
-    expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 2');
+    expect(screen.getByRole('status')).toHaveTextContent('Step 2/2');
     fireEvent.click(screen.getAllByRole('button', {name: 'Exit example'})[0]);
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
     fireEvent.click(screen.getByRole('button', {name: 'Continue example'}));
@@ -226,7 +226,7 @@ test('hides instructions without ending the session and reopens the same frame',
         expect(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'})).toBeVisible();
         expect(screen.queryByRole('button', {name: 'Opazuj na grafu'})).not.toBeInTheDocument();
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('status')).toHaveTextContent('del 3/3');
         expect(screen.getByRole('button', {name: 'Končaj in raziskuj graf'})).toBeVisible();
         expect(started).toHaveBeenCalledTimes(1);
     } finally {
@@ -292,7 +292,7 @@ test('an observation frame is a task card: the graph is unlocked, no catcher hid
 
         expect(onModeChange).toHaveBeenLastCalledWith('explore');
         // The progress live region tells a screen reader that the tools are live now.
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3 Graf in orodja lahko zdaj uporabljaš.');
+        expect(screen.getByRole('status')).toHaveTextContent('del 3/3 Graf in orodja lahko zdaj uporabljaš.');
         expect(container.querySelector('.guided-lesson-graph-catcher')).not.toBeInTheDocument();
         const card = container.querySelector('.guided-lesson') as HTMLElement;
         expect(card).toHaveClass('guided-lesson-task');
@@ -390,7 +390,7 @@ test('keeps the page and enlarged controls in place when navigation is fractiona
 
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
 
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 2');
+        expect(screen.getByRole('status')).toHaveTextContent('del 2/3');
         expect(reading.scrollTop).toBe(0);
         expect(panel.scrollTop).toBe(11);
         expect(panel.scrollIntoView).not.toHaveBeenCalled();
@@ -461,7 +461,7 @@ test('in one column Back and Next are the last row of the card and a frame chang
         layer.scrollIntoView = vi.fn();
         const readingBox = vi.spyOn(reading, 'getBoundingClientRect').mockReturnValue(new DOMRect(12, -300, 366, 900));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 2');
+        expect(screen.getByRole('status')).toHaveTextContent('del 2/3');
         expect(layer.scrollIntoView).toHaveBeenCalledTimes(1);
         expect(layer.scrollIntoView).toHaveBeenCalledWith({block: 'start'});
         expect(screen.getByRole('button', {name: 'Naprej: naslednji okvir'})).toHaveFocus();
@@ -470,7 +470,7 @@ test('in one column Back and Next are the last row of the card and a frame chang
         // Back pressed with the start of the text in the window moves nothing.
         readingBox.mockReturnValue(new DOMRect(12, 420, 366, 900));
         fireEvent.click(screen.getByRole('button', {name: 'Nazaj: prejšnji okvir'}));
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 1');
+        expect(screen.getByRole('status')).toHaveTextContent('del 1/3');
         expect(layer.scrollIntoView).toHaveBeenCalledTimes(1);
 
         // Beside the graph the row is back in the toolbar, before the text.
@@ -499,7 +499,7 @@ test('rapidly reopening during the closing handoff restores panel focus without 
         render(<GuidedLesson lesson={denseLesson} capabilities={caps} onClose={vi.fn()}/>);
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('status')).toHaveTextContent('del 3/3');
 
         fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'}));
         expect(document.querySelector('.guided-lesson-handoff-closing')).toBeInTheDocument();
@@ -512,7 +512,7 @@ test('rapidly reopening during the closing handoff restores panel focus without 
         expect((panel as HTMLElement).inert).toBe(false);
         expect(panel).toHaveClass('guided-lesson-handoff-opening');
         expect(panel).toHaveFocus();
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('status')).toHaveTextContent('del 3/3');
         expect(screen.getByText('Opazuj', {selector: 'p'})).toBeVisible();
         expect(started).toHaveBeenCalledTimes(1);
         expect(caps.apply).not.toHaveBeenCalled();
@@ -542,7 +542,7 @@ test('reduced motion hides and reopens instructions immediately without a handof
         expect(panel).toBeInTheDocument();
         expect(panel).not.toHaveClass('guided-lesson-handoff-opening');
         expect(panel).toHaveFocus();
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('status')).toHaveTextContent('del 3/3');
     } finally {
         vi.unstubAllGlobals();
         vi.useRealTimers();
@@ -644,7 +644,7 @@ test('observation advancement uses Next inside the expanded overlay', () => {
         fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
         act(() => vi.advanceTimersByTime(250));
         expect(screen.getByRole('heading', {name: 'Zaključek'})).toBeVisible();
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('status')).toHaveTextContent('del 3/3');
         expect(screen.queryByRole('button', {name: 'Opazuj na grafu'})).not.toBeInTheDocument();
         expect(screen.queryByText('Opazuj', {selector: 'p'})).not.toBeInTheDocument();
     } finally {
@@ -791,7 +791,7 @@ describe('session subscription', () => {
 
         act(() => sessions[0].next());
         expect(screen.getByRole('heading', {name: 'Drugi korak'})).toBeVisible();
-        expect(screen.getByRole('status')).toHaveTextContent('Korak 2 od 2');
+        expect(screen.getByRole('status')).toHaveTextContent('Korak 2/2');
     });
 
     test('creates a new session when the lesson prop changes', () => {
@@ -1080,10 +1080,10 @@ test('repeated Next keeps focus on Next, and completion moves focus to the compl
         const next = screen.getByRole('button', {name: 'Naprej: naslednji okvir'});
         next.focus();
         fireEvent.click(next);
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 2 od 3');
+        expect(screen.getByRole('status')).toHaveTextContent('del 2/3');
         expect(next).toHaveFocus();
         fireEvent.click(next);
-        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('status')).toHaveTextContent('del 3/3');
         expect(screen.getByRole('button', {name: 'Končaj in raziskuj graf'})).toHaveFocus();
         // Back stays focused too, until it is disabled at the first frame.
         const back = screen.getByRole('button', {name: 'Nazaj: prejšnji okvir'});
