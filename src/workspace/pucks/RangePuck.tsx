@@ -35,6 +35,8 @@ const RULER_HEIGHT = 44;
 interface Drag {
     startX: number; startY: number; lastX: number; raw: number; moved: boolean; trackHit: boolean;
     pxPerRange: number; width: number; anchor: DOMRect;
+    /** The board's rectangle, read once at pointer down: reading it per move forces a layout after every graph redraw. */
+    bounds?: PuckBounds;
 }
 interface Entry {text: string; select: boolean}
 interface RulerState {value: number; fine?: string; anchor: DOMRect; width: number; pxPerRange: number; bounds?: PuckBounds}
@@ -134,7 +136,7 @@ export function RangePuck(props: RangePuckProps) {
         const width = rulerWidth(bounds, window.innerWidth);
         drag.current = {
             startX: event.clientX, startY: event.clientY, lastX: event.clientX, raw: latest.current, moved: false,
-            trackHit: trackRef.current?.contains(event.target as Node) === true, pxPerRange: width, width, anchor: body.getBoundingClientRect(),
+            trackHit: trackRef.current?.contains(event.target as Node) === true, pxPerRange: width, width, anchor: body.getBoundingClientRect(), bounds,
         };
     };
     const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -152,7 +154,7 @@ export function RangePuck(props: RangePuckProps) {
         d.lastX = event.clientX;
         const next = snapValue(d.raw, parameter);
         write(next);
-        setRuler({value: next, fine: level.label ? t(level.label) : undefined, anchor: d.anchor, width: d.width, pxPerRange: d.pxPerRange, bounds: props.bounds?.()});
+        setRuler({value: next, fine: level.label ? t(level.label) : undefined, anchor: d.anchor, width: d.width, pxPerRange: d.pxPerRange, bounds: d.bounds});
     };
     const endDrag = (event: ReactPointerEvent<HTMLDivElement>, cancelled: boolean) => {
         const d = drag.current;
@@ -194,14 +196,18 @@ export function RangePuck(props: RangePuckProps) {
         tip={tip.shown ? help : undefined} tipId={tipId} className="puck-range"
         pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>
         {entry
-            ? <input ref={inputRef} className="puck-input" style={{width: `${widthCh + 2}ch`}} inputMode="decimal" autoComplete="off" value={entry.text}
-                aria-label={t('puck_entry_label', {value0: name})} aria-invalid={notice !== undefined}
-                onChange={event => setEntry({text: event.target.value, select: false})}
-                onKeyDown={event => {
-                    if (event.key === 'Enter') { event.preventDefault(); submitEntry(); }
-                    else if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setNotice(undefined); closeEntry(); }
-                }}
-                onBlur={() => { setEntry(null); setNotice(undefined); }}/>
+            // The entry keeps the body's structure (value line over the track) so the puck's height does not change either.
+            ? <div className="puck-body puck-body-entry">
+                <input ref={inputRef} className="puck-input" style={{width: `${widthCh}ch`}} inputMode="decimal" autoComplete="off" value={entry.text}
+                    aria-label={t('puck_entry_label', {value0: name})} aria-invalid={notice !== undefined}
+                    onChange={event => setEntry({text: event.target.value, select: false})}
+                    onKeyDown={event => {
+                        if (event.key === 'Enter') { event.preventDefault(); submitEntry(); }
+                        else if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setNotice(undefined); closeEntry(); }
+                    }}
+                    onBlur={() => { setEntry(null); setNotice(undefined); }}/>
+                <div className="puck-track" aria-hidden="true"><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, span > 0 ? (value - parameter.min) / span : 0))})`}}/></div>
+            </div>
             : <div ref={bodyRef} {...tip.handlers} className="puck-body" role="slider" tabIndex={0} aria-label={name} aria-orientation="horizontal"
                 aria-valuemin={parameter.min} aria-valuemax={parameter.max} aria-valuenow={value} aria-valuetext={valueText}
                 aria-disabled={locked || undefined} aria-describedby={describedBy}
