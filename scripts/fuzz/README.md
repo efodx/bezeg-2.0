@@ -29,6 +29,12 @@ no navigation and can have no sliders, so they match on the board stage. A route
 Inspector sliders (pointer drag, click on the track, arrow keys, typed entry in the slider's number field, typed
 values aligned to the slider step so an integer-step parameter never gets a decimal), count setters (plus and minus),
 playback Play/Pause where the graph has it, board point drags, board pan and wheel, lesson Back/Next, Esc, and rests.
+Pucks (`.puck-strip .puck-host[data-puck-key]`, keyed `p<i>` by position and sampled from `aria-valuenow`): `pkey` (arrows, Shift+arrows,
+PageUp/PageDown, Home, End on a focused puck), `pdrag` (pointer drag with a vertical offset for the fine levels), `ptrack` (click on the
+track element, which jumps), `pbtn` (count puck minus and plus), `ptype` (double-click the value or start typing; a value in range, out of
+range, off the step grid or not a number; ended with Enter or Escape; a refused Enter is closed with Escape), `pplay` and `preset` (the
+Play/Pause and Reset buttons a puck carries). A refused or cancelled entry must leave every puck unchanged (I5). While a "Razveljavi" pill
+shows, `escape` is the undo and counts as a write. `pan` starts at the board's top-right corner, since the bottom-left is the puck strip.
 Controls are keyed by position (`s<i>` is the i-th slider field of the inspector, `n<i>` the i-th standalone number
 field) so a case file survives a reload; a key that no longer exists is skipped.
 
