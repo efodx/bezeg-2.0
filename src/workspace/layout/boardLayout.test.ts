@@ -3,6 +3,7 @@ import {
   applyDrop,
   dropTarget,
   layoutBoard,
+  wrappedStripHeight,
   type Anchor,
   type CardInput,
   type LayoutInput,
@@ -193,6 +194,91 @@ describe('layoutBoard', () => {
     const r = layoutBoard(input([card('bc', 'bc'), card('br', 'br'), card('bl', 'ml')], { pucks }));
     expect(r.pucks).toEqual({ x: 828, y: 1440 - 60 - 8, w: 400, h: 60 });
     for (const id of ['bc', 'br', 'bl']) expect(overlaps(r.pucks!, byId(r, id).rect)).toBe(false);
+  });
+
+  it('moves the strip right of a left column that cannot fit above it, never laying a card over it', () => {
+    const board = { w: 1200, h: 445 };
+    const pucks = { w: 600, h: 100 };
+    // A pinned card whose smallest cut (340) needs more than the room above the strip (445 - 16 - 108 = 321).
+    const tall = card('lesson', 'tl', { natural: { w: 380, h: 420 }, min: { w: 380, h: 340 }, priority: Infinity, defaultOrder: -1 });
+    const r = layoutBoard(input([tall], { board, pucks }));
+    const lesson = byId(r, 'lesson').rect;
+    expect(lesson.y + lesson.h).toBeLessThanOrEqual(board.h - 8);
+    expect(overlaps(r.pucks!, lesson)).toBe(false);
+    expect(r.pucks!.x).toBeGreaterThanOrEqual(lesson.x + lesson.w);
+    expect(r.pucks!.y + r.pucks!.h).toBe(board.h - 8);
+  });
+
+  describe('strip beside a tall left column (rules 2, 2b, 2c)', () => {
+    const slots = Array.from({ length: 6 }, () => ({ w: 132, h: 64 }));
+    const natural = { w: 6 * 132 + 5 * 8, h: 64 };
+    // The presenter's two passes: the strip's width from the first, laid out again at the height it wraps to in that width.
+    const presenterLayout = (board: { w: number; h: number }, cards: CardInput[]) => {
+      const base = input(cards, { board, maxSpan: 1800, columnMaxFraction: 0.32, pucks: natural, puckSlots: slots });
+      const given = layoutBoard(base).pucks!;
+      const wrapped = given.w < natural.w ? wrappedStripHeight(slots, given.w) : 0;
+      return layoutBoard({ ...base, pucks: wrapped > natural.h ? { w: natural.w, h: wrapped } : natural });
+    };
+    const lesson = card('lesson', 'tl', { natural: { w: 380, h: 900 }, min: { w: 380, h: 520 }, anchorMin: 170, reserve: 30, priority: Infinity, defaultOrder: -1 });
+    const right = card('right', 'tr', { natural: { w: 300, h: 300 } });
+
+    for (const [w, h] of [[1024, 768], [1280, 720], [1440, 900], [1100, 380], [900, 600], [1024, 520], [1024, 440]]) {
+      it(`keeps the strip on the board and clear of every card at ${w}x${h}`, () => {
+        const board = { w, h };
+        const r = presenterLayout(board, [lesson, right]);
+        const strip = r.pucks!;
+        expect(strip.x).toBeGreaterThanOrEqual(0);
+        expect(strip.y).toBeGreaterThanOrEqual(0);
+        expect(strip.x + strip.w).toBeLessThanOrEqual(board.w);
+        expect(strip.y + strip.h).toBeLessThanOrEqual(board.h);
+        for (const c of r.cards) expect(overlaps(strip, c.rect), `${c.id} under the strip`).toBe(false);
+        const l = byId(r, 'lesson');
+        expect(l.rect.y).toBeGreaterThanOrEqual(0);
+        expect(l.rect.y + l.rect.h).toBeLessThanOrEqual(board.h);
+        expect(l.rect.h).toBeGreaterThanOrEqual(lesson.anchorMin!);
+      });
+    }
+
+    it('moves the strip beside the card when even the anchor sliver does not fit above it', () => {
+      const tallSlots = Array.from({ length: 6 }, () => ({ w: 132, h: 113 }));
+      const pucks = { w: 6 * 132 + 40, h: 113 };
+      const sliverCard = { ...lesson, anchorMin: 288 };
+      const board = { w: 1024, h: 445 };
+      const base = input([sliverCard, right], { board, pucks, puckSlots: tallSlots });
+      const given = layoutBoard(base).pucks!;
+      const r = layoutBoard({ ...base, pucks: { w: pucks.w, h: wrappedStripHeight(tallSlots, given.w) } });
+      for (const c of r.cards) expect(overlaps(r.pucks!, c.rect), `${c.id} under the strip`).toBe(false);
+      expect(r.pucks!.y).toBeGreaterThanOrEqual(0);
+      expect(byId(r, 'lesson').rect.h).toBeGreaterThanOrEqual(288);
+    });
+
+    it('never cuts below the anchor sliver, even when the strip fits neither under nor beside the card (1024, step 2)', () => {
+      const realSlots = [160, 160, 160, 160, 160, 120].map((w, i) => ({ w, h: i < 4 ? 109 : 85 }));
+      const board = { w: 974, h: 445 };
+      const pucks = { w: 960, h: 226 };
+      const real = card('lesson', 'tl', { natural: { w: 312, h: 1081 }, min: { w: 312, h: 321 }, anchorMin: 288, reserve: 61, foldedHeight: 39, priority: Infinity, defaultOrder: -1 });
+      const side = ['readouts', 'tools', 'legend'].map((id, i) => card(id, 'tr', { natural: { w: 312, h: 400 }, min: { w: 312, h: 100 }, foldedHeight: 39, defaultFolded: true, defaultOrder: i }));
+      const r = layoutBoard(input([real, ...side], { board, maxSpan: 1600, pucks, puckSlots: realSlots }));
+      // 288 + 226 + 3 gaps > 445 and beside the card the strip wraps too tall: it runs right of the card, under the folded right column (2f).
+      expect(r.pucks!.y).toBeGreaterThanOrEqual(0);
+      expect(r.pucks!.x + r.pucks!.w).toBeLessThanOrEqual(board.w);
+      for (const c of r.cards) expect(overlaps(r.pucks!, c.rect), `${c.id} under the strip`).toBe(false);
+      expect(byId(r, 'lesson').rect.h).toBeGreaterThanOrEqual(288);
+    });
+
+    it('cuts the lesson card to the room above a full-width strip when the strip would wrap too tall beside it', () => {
+      const r = presenterLayout({ w: 1024, h: 500 }, [lesson, right]);
+      const l = byId(r, 'lesson');
+      expect(r.pucks!.x).toBeLessThan(l.rect.x + l.rect.w);
+      expect(l.rect.y + l.rect.h).toBeLessThanOrEqual(r.pucks!.y - 8);
+      expect(l.cut).not.toBeNull();
+      expect(l.rect.h).toBeGreaterThanOrEqual(lesson.anchorMin!);
+    });
+  });
+
+  it('keeps the strip under a left column that does fit above it', () => {
+    const r = layoutBoard(input([card('a', 'tl')], { board: { w: 1200, h: 445 }, pucks: { w: 600, h: 100 } }));
+    expect(r.pucks!.x).toBe(byId(r, 'a').rect.x);
   });
 
   it('lets a tall right column keep its full height next to the strip, with the strip capped by it', () => {

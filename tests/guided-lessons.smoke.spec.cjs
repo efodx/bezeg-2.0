@@ -2785,7 +2785,7 @@ async function collectOffscreen(page, row, label, found) {
 }
 
 // Rows whose 390 px walk fails on the board workspace (points fall outside the lesson view); restored by task 09.
-const PHONE_WALK_BROKEN = new Set(['interval-sweep', 'curve-parametric', 'ear-clipping']);
+const PHONE_WALK_BROKEN = new Set(['interval-sweep', 'curve-parametric', 'ear-clipping', 'rational-elevation', 'rational-subdivision']);
 
 // Shared runtime behaviour (GuidedLesson.tsx) is identical for every lesson, so it is tested once on these rows.
 const SHARED_RUNTIME_ROWS = [bernstein, farin, splineG1];

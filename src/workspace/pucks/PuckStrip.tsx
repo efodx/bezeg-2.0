@@ -9,6 +9,7 @@ import {useT} from '../../localization';
 import {ParameterPuck} from './ParameterPuck';
 import type {PuckBounds} from './RangePuck';
 import type {Rect} from '../layout/boardLayout';
+import {wrappedStripHeight} from '../layout/boardLayout';
 import './pucks.css';
 
 /** A parameter whose puck carries its run's playback: the declared actions that start and reset it (slice 8). */
@@ -27,15 +28,7 @@ export function puckParameters(declaration: GraphDeclaration | undefined, bound:
 export const estimateStrip = (count: number): {w: number; h: number} => ({w: count * 132 + Math.max(0, count - 1) * 8, h: 64});
 
 /** The strip's height when its slots wrap into rows within `width` (8 px between slots and rows); one row when they all fit. */
-export function wrappedStripHeight(slots: readonly {w: number; h: number}[], width: number): number {
-    let total = 0, rowW = 0, rowH = 0, rows = 0;
-    for (const slot of slots) {
-        if (rowW > 0 && rowW + 8 + slot.w > width) { total += rowH; rows += 1; rowW = 0; rowH = 0; }
-        rowW += (rowW > 0 ? 8 : 0) + slot.w;
-        rowH = Math.max(rowH, slot.h);
-    }
-    return total + rowH + 8 * rows;
-}
+export {wrappedStripHeight};
 
 function Playback(props: {graph: BaseGraph<BaseGraphState>; actions: readonly ActionDeclaration[]; play: string; reset: string}) {
     const t = useT();

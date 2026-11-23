@@ -35,6 +35,8 @@ export interface LayoutInput {
   storedFolds: Readonly<Record<string, boolean>>;
   frame?: { open: readonly string[]; usesTools: boolean };
   pucks?: Size;
+  /** The strip's slots (measured), to know how tall it wraps in a narrower width. Default: one slot of the strip's size. */
+  puckSlots?: readonly Size[];
   maxSpan: number;
   columnMaxFraction: number;
   gap: number;
@@ -55,7 +57,18 @@ export interface LayoutResult {
   band: { x: number; w: number };
 }
 
-type Column = 'left' | 'centre' | 'right';
+/** The strip's height when its slots wrap into rows within `width` (8 px between slots and rows); one row when they all fit. */
+export function wrappedStripHeight(slots: readonly Size[], width: number): number {
+  let total = 0, rowW = 0, rowH = 0, rows = 0;
+  for (const slot of slots) {
+    if (rowW > 0 && rowW + 8 + slot.w > width) { total += rowH; rows += 1; rowW = 0; rowH = 0; }
+    rowW += (rowW > 0 ? 8 : 0) + slot.w;
+    rowH = Math.max(rowH, slot.h);
+  }
+  return total + rowH + 8 * rows;
+}
+
+type Column ='left' | 'centre' | 'right';
 const COLUMN_OF: Record<Anchor, Column> = { tl: 'left', ml: 'left', tc: 'centre', bc: 'centre', tr: 'right', mr: 'right', br: 'right' };
 // Anchors of a column from the top sequence (stacking down) and the bottom sequence (stacking up).
 const TOP_ANCHORS: Record<Column, Anchor[]> = { left: ['tl', 'ml'], centre: ['tc'], right: ['tr', 'mr'] };
@@ -81,7 +94,23 @@ const FREE_MIN_BODY = 50;
 
 const heightOf = (s: State): number => s.cut ?? (s.folded ? s.card.foldedHeight : s.card.natural.h);
 
+const overlaps = (a: Rect, b: Rect): boolean => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
 export function layoutBoard(input: LayoutInput): LayoutResult {
+  const plain = layoutOnce(input, false);
+  if (!plain.pucks || !input.pucks) return plain;
+  const strip = plain.pucks;
+  const left = plain.cards.filter((c) => c.anchor === 'tl' || c.anchor === 'ml');
+  if (!left.some((c) => overlaps(strip, c.rect))) return plain;
+  // Rule 2f/2g: the strip covers a left-column card (nothing fit). Try it right of the left column, running under the other columns,
+  // which give up its height at the bottom (folding lowest priority first, rule 5) so that their heads stay above it.
+  const alt = layoutOnce(input, true);
+  const s = alt.pucks;
+  const ok = s !== null && s.w > 0 && s.y >= 0 && s.x + s.w <= input.board.w && s.y + s.h <= input.board.h && !alt.cards.some((c) => overlaps(s, c.rect));
+  return ok ? alt : plain;
+}
+
+function layoutOnce(input: LayoutInput, beside: boolean): LayoutResult {
   const { board, cards, stored, storedFolds, frame, pucks, maxSpan, columnMaxFraction, gap, frozenFolds, budget, expanded } = input;
 
   // Rule 1: band.
@@ -93,6 +122,11 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   const reserve = pucks ? pucks.h + gap : 0;
   const colWidth: Partial<Record<Column, number>> = {};
   const colX: Partial<Record<Column, number>> = {};
+  // Beside mode: the strip's x, width and wrapped height when it starts right of the left column and runs to the band's edge.
+  const besideX = (): number => (colX.left ?? 0) + (colWidth.left ?? 0) + gap;
+  const besideW = (): number => Math.max(0, Math.min(pucks?.w ?? 0, band.x + band.w - besideX() - gap));
+  const besideH = (): number => pucks ? Math.max(pucks.h, wrappedStripHeight(input.puckSlots ?? [pucks], besideW())) : 0;
+  let stripAfterLeft = false; // the left column did not fit above the strip: the strip starts right of it
 
   // Rule 4: open or folded.
   const frameOpen = new Set(frame?.open ?? []);
@@ -121,12 +155,41 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   for (const col of ['left', 'right', 'centre'] as Column[]) {
     const members = states.filter(docked).filter((s) => COLUMN_OF[s.placement.anchor] === col);
     if (members.length === 0) continue;
-    const colReserve = col === 'left' ? reserve : 0;
-    const avail = board.h - 2 * gap - colReserve;
     const total = (): number => members.reduce((sum, s) => sum + heightOf(s), 0) + (members.length - 1) * gap;
+    const wide = members.find((s) => s.card.id === expanded); // "Več": never cut (until nothing else is left to give)
+    // The left column gives up the strip's height. When even its smallest cuts do not fit that, the strip gives way instead (it moves
+    // right of the column, below), so a card is never laid over it: the column is planned again at the full height.
+    // Rule 2b: the strip moves right of the column only when it still fits the board's height wrapped in the width that leaves it.
+    // Rule 2c: else it stays at the bottom, full width, and the column is cut to the room above it, down to each card's anchor sliver.
+    const stripRightFits = (): boolean => {
+      if (!pucks) return false;
+      const open = members.filter((s) => !s.folded);
+      const leftW = Math.min(Math.max(...(open.length ? open : members).map((s) => s.card.natural.w)), columnMaxFraction * band.w);
+      const rightMembers = states.filter(docked).filter((s) => COLUMN_OF[s.placement.anchor] === 'right');
+      const rightEdge = rightMembers.length === 0
+        ? band.x + band.w
+        : (rightMembers.some((s) => s.stored) ? board.w - gap : band.x + band.w - gap)
+          - Math.min(Math.max(...rightMembers.map((s) => s.card.natural.w)), columnMaxFraction * band.w);
+      const x0 = (members.some((s) => s.stored) ? gap : band.x + gap) + leftW + gap;
+      const w = Math.min(pucks.w, rightEdge - x0 - gap);
+      return w > 0 && wrappedStripHeight(input.puckSlots ?? [pucks], w) <= board.h - 2 * gap;
+    };
+    const attempts: { reserve: number; sliver: 0 | 1 }[] = col === 'left' && reserve > 0
+      // Order: strip under the column; strip beside it; column cut to its anchor slivers above the strip; strip beside the slivers;
+      // last, when nothing fits (nothing left to fold), the slivers again above the strip: the kept nav row stays reachable, so the
+      // strip may cover the sliver's body (open question, task 09). Nothing is ever cut below the anchor sliver.
+      ? beside ? [{ reserve: 0, sliver: 0 }] : [{ reserve, sliver: 0 }, { reserve: 0, sliver: 0 }, { reserve, sliver: 1 }, { reserve: 0, sliver: 1 }, { reserve, sliver: 1 }]
+      : [{ reserve: col === 'left' ? reserve : beside && pucks && colX.left !== undefined ? besideH() + gap : 0, sliver: 0 }];
+    const before = members.map((s) => ({ folded: s.folded, cut: s.cut }));
+    let colReserve = attempts[0].reserve;
+    let avail = 0;
+    for (const [attemptIndex, attempt] of attempts.entries()) {
+    colReserve = attempt.reserve;
+    avail = board.h - 2 * gap - colReserve;
+    const floorOf = (s: State): number => attempt.sliver === 0 ? s.card.min.h : Math.min(s.card.min.h, s.card.anchorMin ?? s.card.min.h);
+    members.forEach((s, i) => { s.folded = before[i].folded; s.cut = before[i].cut; });
 
     // Rule 5: fold before clip (skipped while a drag freezes the folds).
-    const wide = members.find((s) => s.card.id === expanded); // "Več": never cut (until nothing else is left to give)
     if (!frozenFolds) {
       while (total() > avail) {
         // With an expanded card only lower-priority cards of its column give way to it.
@@ -142,7 +205,7 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
     const exhausted = new Set<State>();
     let exempt = wide;
     while (total() > avail) {
-      const open = members.filter((s) => !s.folded && !exhausted.has(s) && s !== exempt && heightOf(s) > s.card.min.h);
+      const open = members.filter((s) => !s.folded && !exhausted.has(s) && s !== exempt && heightOf(s) > floorOf(s));
       if (open.length === 0) {
         if (exempt) { exempt = undefined; continue; } // last resort: cut the expanded card too
         break;
@@ -152,10 +215,14 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
       const room = avail - (total() - heightOf(s));
       const bar = s.card.reserve ?? 0;
       const fitting = s.card.rowBreaks.filter((b) => b <= room - bar);
-      const cut = Math.max(s.card.min.h, fitting.length ? Math.max(...fitting) + bar : 0);
+      const cut = Math.max(floorOf(s), fitting.length ? Math.max(...fitting) + bar : 0);
       if (cut >= heightOf(s)) exhausted.add(s);
       else s.cut = cut;
     }
+    if (total() <= avail && (attempt.reserve > 0 || col !== 'left' || stripRightFits())) break;
+    if (attemptIndex === attempts.length - 1) break;
+    }
+    if (col === 'left' && reserve > 0 && colReserve === 0) stripAfterLeft = true;
 
     // Column width and x.
     const openOnes = members.filter((s) => !s.folded);
@@ -199,14 +266,21 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   // (else the band's edge). Extension: a centre card reaching down into the strip's rows caps it too.
   let stripRect: Rect | null = null;
   if (pucks) {
-    const y = board.h - pucks.h - gap;
-    const x = band.x + gap;
+    const x = stripAfterLeft && colX.left !== undefined ? besideX() : band.x + gap;
+    let h = pucks.h;
+    if (beside && stripAfterLeft) h = besideH();
+    else if (stripAfterLeft && input.puckSlots) {
+      // Beside the left column the strip wraps in what is left of the width: its height is that of the wrapped rows.
+      const limitX = colX.right ?? band.x + band.w;
+      h = Math.max(h, wrappedStripHeight(input.puckSlots, Math.min(pucks.w, limitX - x - gap)));
+    }
+    const y = board.h - h - gap;
     const centreBlocks = states.some((s) => {
       const r = rects.get(s.card.id);
       return s.placement.kind === 'docked' && COLUMN_OF[s.placement.anchor] === 'centre' && r !== undefined && r.y + r.h > y;
     });
-    const limit = centreBlocks && colX.centre !== undefined ? colX.centre : (colX.right ?? band.x + band.w);
-    stripRect = { x, y, w: Math.max(0, Math.min(pucks.w, limit - x - gap)), h: pucks.h };
+    const limit = beside ? band.x + band.w : centreBlocks && colX.centre !== undefined ? colX.centre : (colX.right ?? band.x + band.w);
+    stripRect = { x, y, w: Math.max(0, Math.min(pucks.w, limit - x - gap)), h };
   }
 
   // Rule 7: free cards.
