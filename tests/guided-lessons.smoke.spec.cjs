@@ -3212,7 +3212,8 @@ test.describe('Observation flow', () => {
         const after = await progress(page);
         expect(after, 'Next advanced past the observation frame').not.toBe(observationLabel);
         expect(stepNumber(after)).toBe(stepNumber(observationLabel) + 1);
-        expect(await locked(page), 'graph locked again on a reading frame, free on another observation frame').toBe(await h.observationFrame(page).count() === 0);
+        // Task 04 slice 3a: reading frames leave the graph and the tools operable, so no frame locks the graph any more.
+        expect(await locked(page), 'reading frames leave the graph unlocked').toBe(false);
         expect(await nextFocused(page), 'Next keeps focus after advancing').toBe(true);
         // Back from the next frame returns to the observation frame.
         await back(page);

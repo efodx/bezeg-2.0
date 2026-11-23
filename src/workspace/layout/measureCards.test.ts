@@ -31,7 +31,7 @@ describe('measureCards', () => {
     expect(c.natural).toEqual({w: 200, h: 220});
     expect(c.foldedHeight).toBe(30);
     expect(c.rowBreaks).toEqual([80, 120]);
-    expect(c.min).toEqual({w: 200, h: 80});
+    expect(c.min).toEqual({w: 200, h: 80 + 29});
   });
 
   it('uses 100px min without rows, capped by natural height', () => {

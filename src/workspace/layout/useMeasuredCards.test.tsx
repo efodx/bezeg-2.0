@@ -112,7 +112,7 @@ describe('useMeasuredCards', () => {
     await act(async () => { latest.current?.measureLive('lesson', host.querySelector<HTMLElement>('[data-testid="card"]')); });
     const lesson = latest.current?.measured?.find((m) => m.id === 'lesson');
     expect(lesson).toMatchObject({foldedHeight: 30, rowBreaks: [70, 110], natural: {w: 50, h: 112}});
-    expect(lesson?.min.h).toBe(70);
+    expect(lesson?.min.h).toBe(70 + 29);
     const before = latest.current?.measured;
     await act(async () => { latest.current?.measureLive('lesson', host.querySelector<HTMLElement>('[data-testid="card"]')); });
     expect(latest.current?.measured).toBe(before); // unchanged reading: no new array

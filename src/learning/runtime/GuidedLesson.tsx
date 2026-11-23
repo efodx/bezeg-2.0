@@ -85,6 +85,8 @@ export function GuidedLesson(props: {
     presentation?: 'card';
     /** Card presentation: a task frame asks the card layer to fold (`true`) or open (`false`) the card instead of hiding the lesson itself. */
     onRequestFold?: (folded: boolean) => void;
+    /** Card presentation: the card's actual fold state (by the lesson's request or the learner's chevron). Folding pauses playback; reopening focuses the panel. */
+    cardFolded?: boolean;
     visiblePageTitle?: string;
     chapterOwner?: {returnPath: string; returnLabel: string; onReturn: () => void};
 }) {
@@ -218,7 +220,7 @@ export function GuidedLesson(props: {
     const mode: LessonMode = overlayPhase === 'visible' || overlayPhase === 'opening' ? cardMode : 'explore';
     const onModeChange = props.onModeChange;
     // The task card carries the animation controls itself; the workspace header offers them only while the card is away.
-    const cardOpen = overlayPhase === 'visible' || overlayPhase === 'opening';
+    const cardOpen = props.presentation === 'card' ? !props.cardFolded : overlayPhase === 'visible' || overlayPhase === 'opening';
 
     // On a phone or a short window the page is brought to the graph's top edge, so the board stays in view above
     // (or beside) the card's first rows. The layer shares the graph's cell; without it the card itself is aligned.
@@ -265,7 +267,13 @@ export function GuidedLesson(props: {
     const asCard = props.presentation === 'card';
     const hideOverlay = () => {
         // A card is folded by the card layer; the lesson keeps its own phase.
-        if (asCard) { props.onRequestFold?.(true); return; }
+        if (asCard) {
+            // The card's fold button is the reopen control: focus rests there, as it did on the compact tab. Playback pauses with the fold.
+            const reopen = lessonRef.current?.closest('.board-card')?.querySelector<HTMLElement>('.board-card-fold');
+            props.onRequestFold?.(true);
+            reopen?.focus({preventScroll: true});
+            return;
+        }
         if (readingRef.current) readingPosition.current.panel = readingRef.current.scrollTop;
         if (lessonRef.current) readingPosition.current.outer = lessonRef.current.scrollTop;
         readingPosition.current.page = window.scrollY;
@@ -494,6 +502,24 @@ export function GuidedLesson(props: {
         }
     }, [overlayPhase]);
 
+    // A card folded or reopened behaves as the old overlay hide/show: either way stops playback; reopening returns focus to the panel.
+    const previousCardFolded = useRef(Boolean(props.cardFolded));
+    useEffect(() => {
+        if (props.presentation !== 'card') return;
+        const folded = Boolean(props.cardFolded);
+        if (folded === previousCardFolded.current) return;
+        previousCardFolded.current = folded;
+        pausePlayback();
+        if (!folded) {
+            lessonRef.current?.focus({preventScroll: true});
+            // As the old overlay did on reopening: the reading position is kept (a folded card is not rendered, so it is put back).
+            const saved = readingPosition.current.panel;
+            if (readingRef.current) readingRef.current.scrollTop = saved;
+            const restore = ++readingRestore.current;
+            void latestTypeset.current?.then(() => { if (readingRestore.current === restore && readingRef.current) readingRef.current.scrollTop = saved; });
+        }
+    }, [props.cardFolded]); // eslint-disable-line react-hooks/exhaustive-deps -- pausePlayback is re-created every render and reads the latest frame.
+
     useEffect(() => {
         if (overlayPhase === 'visible' && readingRef.current) {
             const saved = readingPosition.current.panel;
@@ -713,7 +739,7 @@ export function GuidedLesson(props: {
     return <>
     {!asCard && homeSlot}
     {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={asCard ? undefined : sectionStyle} className={`guided-lesson${asCard ? ' guided-lesson-card' : ''} guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
-        <div className="guided-lesson-controls" data-card-row="">
+        <div className="guided-lesson-controls" data-card-row="" data-card-keep="">
         <div className="guided-lesson-heading" {...(asCard ? {} : panelPointerHandlers)} onPointerDown={asCard ? undefined : startPanelDrag} onDoubleClick={asCard ? undefined : dockOnDoubleClick}>
             {!asCard && <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
                 aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>}
@@ -724,7 +750,7 @@ export function GuidedLesson(props: {
         {navigationToolbar}
         </div>
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
-        <div className="guided-lesson-reading" ref={readingRef}>
+        <div className="guided-lesson-reading" data-card-scroll="" ref={readingRef} onScroll={asCard && !props.cardFolded ? event => { readingPosition.current.panel = event.currentTarget.scrollTop; } : undefined}>
         {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary" data-card-row="" data-card-lines="" data-tex={localized(props.lesson.summary, language)}>{localized(props.lesson.summary, language)}</p>}
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
             <h3 data-card-row="">{localized(frame.title, language)}</h3>
@@ -753,10 +779,10 @@ export function GuidedLesson(props: {
             <button type="button" className="guided-lesson-primary" onClick={continueInChapter}>{t('continue_in_chapter')}</button>
         </div>}
         {/* Povrni: always a reserved row in a card, so its appearance never changes the card's height. */}
-        {!isComplete && (asCard || graphDiffers) && <div className="guided-lesson-restore-row" data-card-row="">
+        {!isComplete && (asCard || graphDiffers) && <div className="guided-lesson-restore-row" data-card-row="" data-card-pinned="">
             {graphDiffers && <button type="button" className="guided-lesson-restore" title={t('guided_lesson_restore_title')} onClick={restoreFrame}>{t('guided_lesson_restore')}</button>}
         </div>}
-        {!isComplete && frameAction && <footer className="guided-lesson-footer" data-card-row="">
+        {!isComplete && frameAction && <footer className="guided-lesson-footer" data-card-row="" data-card-pinned="">
             <div className="guided-lesson-actions">
                 <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>
             </div>

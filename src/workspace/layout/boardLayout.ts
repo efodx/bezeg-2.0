@@ -9,6 +9,9 @@ export interface CardInput {
   id: string;
   natural: Size;
   min: Size;
+  /** What a cut free card keeps on the board at the learner's top edge, independent of the frame's text (the kept controls row, the
+   *  pinned rows and the bar). Default: head, bar and a short body. Never above `min.h`. */
+  anchorMin?: number;
   foldedHeight: number;
   rowBreaks: readonly number[];
   priority: number;
@@ -72,6 +75,9 @@ const byOrderThenId = (a: State, b: State): number => {
   const ob = b.placement.kind === 'docked' ? b.placement.order : 0;
   return oa - ob || (a.card.id < b.card.id ? -1 : a.card.id > b.card.id ? 1 : 0);
 };
+
+/** Body a free card keeps on the board under its head and "Več" bar when it is cut at the learner's top edge. */
+const FREE_MIN_BODY = 50;
 
 const heightOf = (s: State): number => s.cut ?? (s.folded ? s.card.foldedHeight : s.card.natural.h);
 
@@ -207,9 +213,24 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   for (const s of states) {
     if (s.placement.kind !== 'free') continue;
     const w = s.card.natural.w;
-    const h = heightOf(s);
     const x = Math.max(0, Math.min(s.placement.x, board.w - w));
-    const y = Math.max(0, Math.min(s.placement.y, board.h - s.card.foldedHeight));
+    // An open card keeps its smallest cut on the board (a head alone is no card); a folded one only its head.
+    // Anchor rule: the learner's top edge stays put when the card's height changes (a taller frame, a longer first line). What
+    // must remain on the board is therefore a frame-independent sliver (head, "Več" bar and a line or two of body), never the
+    // frame's own minimum, which varies; the card is cut to the room instead of moving up.
+    const sliver = Math.min(s.card.min.h, s.card.anchorMin ?? s.card.foldedHeight + (s.card.reserve ?? 0) + FREE_MIN_BODY);
+    const y = Math.max(0, Math.min(s.placement.y, board.h - (s.folded ? s.card.foldedHeight : Math.min(sliver, Math.max(s.card.foldedHeight, board.h - gap)))));
+    // A free card taller than the board room under its top is cut like a docked one: its body scrolls behind "Več", so all of it
+    // stays reachable instead of running off the board.
+    const room = board.h - y - gap;
+    const floor = Math.min(s.card.min.h, Math.max(room, sliver));
+    if (!s.folded && heightOf(s) > room && heightOf(s) > floor) {
+      const bar = s.card.reserve ?? 0;
+      const fitting = s.card.rowBreaks.filter((b) => b <= room - bar);
+      const cut = Math.max(floor, fitting.length ? Math.max(...fitting) + bar : 0);
+      if (cut < heightOf(s)) s.cut = cut;
+    }
+    const h = heightOf(s);
     rects.set(s.card.id, { x, y, w, h });
   }
 

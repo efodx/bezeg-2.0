@@ -14,6 +14,8 @@ import {appStorage} from '../../storage/appStorage';
 vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 
+/** The lesson card's measured height follows its number of rows (the default stand-in is a fixed 150 px). */
+let rowHeights = false;
 beforeAll(() => {
     installBoardShims();
     const box = (w: number, h: number, top = 0): DOMRect => ({x: 0, y: top, left: 0, top, right: w, bottom: top + h, width: w, height: h, toJSON: () => ({})}) as DOMRect;
@@ -23,6 +25,8 @@ beforeAll(() => {
             const assigned = parseFloat(this.style.width || this.parentElement?.style.width || '');
             return box(Number.isFinite(assigned) ? assigned : 300, 150);
         }
+        // The lesson card's body content is as tall as its rows, when a test asks for it (the live card's natural height is read from it).
+        if (rowHeights && this.classList.contains('lesson-card-body')) return box(300, 30 * this.querySelectorAll('[data-card-row]').length);
         if (this.hasAttribute('data-card-head')) return box(200, 32);
         if (this.hasAttribute('data-card-row')) {
             const rows = [...(this.closest('[data-card-id]')?.querySelectorAll('[data-card-row]') ?? [])];
@@ -32,6 +36,7 @@ beforeAll(() => {
     };
 });
 beforeEach(() => {
+    rowHeights = false;
     setLanguage('sl');
     window.localStorage.clear();
     (window as Window & {MathJax?: unknown}).MathJax = {startup: {promise: Promise.resolve()}, typesetClear: vi.fn(), typesetPromise: vi.fn().mockResolvedValue(undefined)};
@@ -90,6 +95,23 @@ describe('the lesson card', () => {
         fireEvent.click(card('lesson')!.querySelector<HTMLElement>('.board-card-fold')!);
         await waitUntil(() => bodyShown('lesson'));
         expect(frameTitle()).toBe(title);
+    });
+});
+
+describe('the card keeps its height across frames', () => {
+    test('the first frame has the summary row, and the card does not shrink when Next leads to a shorter frame', async () => {
+        rowHeights = true;
+        await mountLesson();
+        const rows = () => card('lesson')!.querySelectorAll('[data-card-row]').length;
+        const height = () => card('lesson')!.style.height;
+        const firstRows = rows();
+        const firstHeight = height();
+        expect(firstHeight, 'the lesson card has a height of its own').not.toBe('');
+        await act(async () => { next(); });
+        await waitUntil(() => rows() !== firstRows);
+        expect(rows(), 'the next frame is shorter (no summary row), so an unheld card would shrink').toBeLessThan(firstRows);
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 50)); });
+        expect(height()).toBe(firstHeight);
     });
 });
 

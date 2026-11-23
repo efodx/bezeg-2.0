@@ -235,10 +235,43 @@ describe('layoutBoard', () => {
     expect(JSON.stringify(layoutBoard(i))).toBe(JSON.stringify(layoutBoard(i)));
   });
 
-  it('clamps free cards so the head stays inside the board', () => {
+  it('clamps free cards so the smallest cut of an open card (its head when folded) stays inside the board', () => {
     const r = layoutBoard(input([card('f', 'tl')], { stored: { f: { kind: 'free', x: 9999, y: 9999 } } }));
-    expect(byId(r, 'f').rect).toMatchObject({ x: 3440 - 300, y: 1440 - 30 });
+    expect(byId(r, 'f').rect).toMatchObject({ x: 3440 - 300, y: 1440 - 80 });
+    const folded = layoutBoard(input([card('g', 'tl')], { stored: { g: { kind: 'free', x: 9999, y: 9999 } }, storedFolds: { g: true } }));
+    expect(byId(folded, 'g').rect).toMatchObject({ y: 1440 - 30 });
     expect(byId(r, 'f').anchor).toBe('free');
+  });
+
+  it('cuts a free card taller than the board room under its top, so its body scrolls instead of running off the board', () => {
+    const tall = card('f', 'tl', { natural: { w: 300, h: 900 }, min: { w: 300, h: 80 }, rowBreaks: [100, 200, 300, 400], reserve: 28 });
+    const r = layoutBoard(input([tall], { board: { w: 1000, h: 500 }, stored: { f: { kind: 'free', x: 50, y: 100 } } }));
+    const f = byId(r, 'f');
+    expect(f.cut).not.toBeNull();
+    expect(f.rect.y + f.rect.h).toBeLessThanOrEqual(500);
+    expect(f.rect.h).toBe(300 + 28); // the largest break that fits above the 28 px bar in 500 - 100 - gap
+    // A card that fits is left alone.
+    const fits = layoutBoard(input([card('g', 'tl')], { board: { w: 1000, h: 500 }, stored: { g: { kind: 'free', x: 50, y: 100 } } }));
+    expect(byId(fits, 'g').cut).toBeNull();
+  });
+
+  it('keeps the learner\'s top edge when the card grows (a taller frame, a larger minimum): the card is cut, not moved up', () => {
+    const stored = { f: { kind: 'free' as const, x: 50, y: 300 } };
+    const frame = (naturalH: number, minH: number) => card('f', 'tl', { natural: { w: 300, h: naturalH }, min: { w: 300, h: minH }, rowBreaks: [60, 120, 180, 240, 300, 360], reserve: 28 });
+    const first = byId(layoutBoard(input([frame(180, 120)], { board: { w: 1000, h: 500 }, stored })), 'f');
+    const taller = byId(layoutBoard(input([frame(380, 380)], { board: { w: 1000, h: 500 }, stored })), 'f');
+    expect(first.rect.y).toBe(300);
+    expect(taller.rect.y).toBe(300);
+    expect(taller.cut).not.toBeNull();
+    expect(taller.rect.y + taller.rect.h).toBeLessThanOrEqual(500);
+    // A card that declares what it must keep (its controls row) is never cut below that, so it moves up only past it.
+    const keeps = (y: number) => byId(layoutBoard(input([{ ...frame(380, 380), anchorMin: 250 }], { board: { w: 1000, h: 500 }, stored: { f: { kind: 'free', x: 50, y } } })), 'f');
+    expect(keeps(250).rect.y).toBe(250);
+    expect(keeps(250).rect.h).toBeGreaterThanOrEqual(250);
+    expect(keeps(400).rect.y).toBe(250);
+    // A card that cannot keep even its head and bar on the board still moves up.
+    const low = byId(layoutBoard(input([frame(380, 380)], { board: { w: 1000, h: 500 }, stored: { f: { kind: 'free', x: 50, y: 495 } } })), 'f');
+    expect(low.rect.y).toBeLessThan(495);
   });
 });
 

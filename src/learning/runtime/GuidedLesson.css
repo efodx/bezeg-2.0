@@ -53,13 +53,27 @@
     z-index: auto;
     align-self: stretch;
     max-height: none;
-    height: 100%;
+    height: auto;
+    flex: 0 1 auto;
+    min-height: 0;
     padding: 0;
     border: 0;
     border-radius: 0;
     background: transparent;
     box-shadow: none;
+    overflow: clip; /* the section never scrolls (not even by focus): only the reading text does, so the controls above and the actions below hold their place */
 }
+/* The card is a column: controls on top, the reading text in the middle (the one scroller), Povrni and the frame action at the foot.
+   The chain from the card body down is flex, so a cut card hands its height to the text. These beat the narrow-window rules above. */
+.board-card[data-card-id="lesson"] .board-card-body,
+.board-card[data-card-id="lesson"] .lesson-card-body,
+.board-card[data-card-id="lesson"] .lesson-card-body > .guided-lesson-slot { display: flex; flex-direction: column; }
+.board-card[data-card-id="lesson"] .lesson-card-body { flex: 0 1 auto; min-height: 0; overflow: clip; }
+.board-card[data-card-id="lesson"] .lesson-card-body > .guided-lesson-slot { flex: 0 1 auto; min-height: 0; }
+.board-card--cut[data-card-id="lesson"] .board-card-body { overflow-y: hidden; }
+.guided-lesson.guided-lesson-card .guided-lesson-controls { position: static; flex: none; margin: 0; padding: 0; }
+.guided-lesson.guided-lesson-card .guided-lesson-reading { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.guided-lesson.guided-lesson-card > .guided-lesson-restore-row, .guided-lesson.guided-lesson-card > .guided-lesson-footer { flex: none; }
 /* Povrni: the row keeps its height whether or not the button is shown, so it never moves the card's edge or its text. */
 .guided-lesson-restore-row { flex: 0 0 auto; display: flex; justify-content: flex-end; align-items: center; min-height: 32px; padding-top: 4px; }
 .guided-lesson-card .guided-lesson-restore-row { height: 32px; }

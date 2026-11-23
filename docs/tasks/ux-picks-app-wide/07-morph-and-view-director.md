@@ -17,6 +17,7 @@ Lesson Back and Next glide the scene and the view together in one motion. On eve
 ## Acceptance
 
 - Unit tests: a learner pan ends a director glide and the view is the learner's; a fit never changes the stored intent; repeated fits of an unchanged state return the same box (no drift); a learner write during a morph ends it and the value is the learner's.
+- The wider board of task 04 breaks a lesson whose view is fixed: at step 4 of `interp-runge` (1440x900, board 1330x569) three Chebyshev semicircle markers sit above the fixed `DEFAULT_VIEW` top (2.5), because the semicircle is drawn as a true circle (`RungeInterpolationGraph.tsx:141`) and its height grows with the canvas aspect. The guided-lessons smoke walk fails on it on the work branch until the view fit shows the whole semicircle, which needs a wider x range rather than a squashed arc. Evidence: `docs/reviews/ux-picks-app-wide/smoke/04-runge-probe.log`.
 - Probe on the pilots and bisection, both sizes: at most one glide per lesson step, no jump after a lesson action, Back returns to the step's view within 2 %.
 - Visual check per pilot and frame, as the owner asked: the content the learner needs is visible and clear of cards (screenshots judged, not only numbers). Board cover is reported against the 35 % target.
 - A preview taken during a morph leaves the preset export unchanged, and a preview causes no refit (moved here from task 06).
