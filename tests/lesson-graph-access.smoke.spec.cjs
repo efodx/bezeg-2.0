@@ -77,9 +77,14 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     const beforeHide = await boardSnapshot(page);
 
     await h.hideButton(page).click();
-    await expect(h.lessonPanel(page)).toHaveCount(0);
+    // Hide folds the lesson card to its title bar (it stays mounted); its controls are no longer shown.
+    await expect(h.nextButton(page)).toBeHidden();
     await expect(degreePuck, 'Hide brings the frame control back').toBeInViewport();
-    await expect(page.locator('[data-readout="degree"] dd'), 'a tool readout is visible after Hide').toBeVisible();
+    // The readouts card is folded by default; open it to see the readout.
+    const readoutsFold = page.locator('#board-card-readouts .board-card-fold');
+    if ((await readoutsFold.getAttribute('aria-expanded')) !== 'true') await readoutsFold.click();
+    // The degree is the puck itself, so the card lists the derived values.
+    await expect(page.locator('#board-card-readouts').getByText('Function f(x)', {exact: true}), 'a tool readout is visible after Hide').toBeVisible();
     await expect(page.locator('section.workspace-graph')).not.toHaveAttribute('data-lesson-locked', 'true');
     const reopen = h.reopenButton(page);
     await expect(reopen).toBeVisible();

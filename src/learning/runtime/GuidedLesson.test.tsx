@@ -189,6 +189,9 @@ test('completion offers chapter continuation and keeps the final graph scene', (
     expect(screen.getByRole('heading', {name: 'Example complete'})).toHaveFocus();
     expect(screen.queryByRole('link', {name: 'Return to chapter'})).not.toBeInTheDocument();
     expect(screen.getByRole('button', {name: 'Continue in chapter'})).toBeVisible();
+    // A card measures rows: the completion message and the pinned Continue row, or the card is cut to a sliver.
+    expect(screen.getByRole('button', {name: 'Continue in chapter'}).parentElement).toHaveAttribute('data-card-pinned');
+    expect(document.querySelector('.guided-lesson-completion-message')).toHaveAttribute('data-card-row');
     expect(caps.restoreState).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', {name: 'Continue in chapter'}));
 
