@@ -24,8 +24,13 @@ export function installBoardShims(): void {
     for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) {
         Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
     }
-    HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400,
-        width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    // The board layout reads card and layer rects: a 600 x 400 layer holding 600 x 400 cards would fold the Orodja card
+    // (no room), hiding its controls. The layer and stage get a desktop size and cards a card-like one.
+    HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+        const [width, height] = this.classList.contains('board-cards-layer') || this.classList.contains('board-stage') ? [1400, 900]
+            : this.hasAttribute('data-card-id') ? [300, 300] : [600, 400];
+        return {x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})} as DOMRect;
+    };
     // Child boards (the PH hodograph) size themselves on mount; nothing resizes afterwards.
     window.ResizeObserver ??= class {
         observe() {}

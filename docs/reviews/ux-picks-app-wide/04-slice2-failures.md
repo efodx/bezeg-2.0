@@ -15,3 +15,7 @@ Trial (reverted, not committed): in `installBoardShims` replace the rect with
 2. Remaining files after 1: open Orodja with the helper used in `BoardCards.test.tsx` (`openTools`), or assert on the card, per file.
 
 Files still failing at this run (count of failing tests): see the list kept in the run log `.command-logs/2026-11-23T08-50-02-888Z-40452-952dc344.log`; top: SimulationGraph 36, RecursionCobwebGraph 35, GrowthGraph 32, typedPointPaths 29, LinearMapIteration.host 24, EulerCircleGraph 24, PointSet.sharedControls 22, TriangularPatchGraph 21, ContourMapGraph 20. By folder: `src/learning/content` 15 files, `graphs/compgeo` 14, `functions` 11, `patches` 10, `projective` 7, `curves/bezier` 7, others <= 6.
+
+## Final state (suite migration pass)
+
+Harness change applied (`realGraphTestHarness.tsx installBoardShims`, `getBoundingClientRect`: `.board-cards-layer`/`.board-stage` 1400 x 900, `[data-card-id]` 300 x 300, others 600 x 400). `just unit src/graphs src/learning`: 763 files pass, 4 skipped (pre-existing), 1 failed with 1 test, which was then fixed: `TensorPatchExport.test.tsx` "is cancelled by unmounting" got a BoardCards act() warning after the PNG click; `await started` is now wrapped in `act`. That file passes (25 tests). No other file needed `openTools()`; no product bugs found. `tsc` reports one error outside this slice: `src/workspace/layout/useMeasuredCards.ts(88,43) TS2783`.
