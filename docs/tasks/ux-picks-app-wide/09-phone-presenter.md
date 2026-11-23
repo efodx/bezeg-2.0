@@ -27,3 +27,4 @@ Each earlier task adds a row when it skips a phone check. This task replaces or 
 
 | Check (file, name) | Skipped by task | Why it broke |
 | --- | --- | --- |
+| De Casteljau Play/Reset beside the t puck at phone width: the narrow-viewport playback slot no longer receives the buttons (`DecasteljauAnimationControls` omits them when the t puck exists); give them a place in the phone presenter | 05 (wire strip) | The buttons moved from Orodja into the strip slot; the phone layout has no strip |

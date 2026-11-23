@@ -5,7 +5,7 @@
  * id) lives in `createTestGraph`, so that importing this harness does not import every graph.
  */
 import React from 'react';
-import {act, render, RenderResult} from '@testing-library/react';
+import {act, fireEvent, render, RenderResult} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
@@ -22,7 +22,9 @@ export const REAL_GRAPH_TEST_TIMEOUT = 60_000;
 export function installBoardShims(): void {
     // jsdom lays nothing out; give every element a canvas-like size so boards get a finite view.
     for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) {
-        Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        // A puck slot measures like a real one (the strip is laid out from it), not like a canvas.
+        const puck = name.endsWith('Width') ? 132 : 64;
+        Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get(this: HTMLElement) { return name.startsWith('offset') && this.classList.contains('puck-slot') ? puck : size; }});
     }
     // The board layout reads card and layer rects: a 600 x 400 layer holding 600 x 400 cards would fold the Orodja card
     // (no room), hiding its controls. The layer and stage get a desktop size and cards a card-like one.
@@ -82,6 +84,24 @@ export async function waitUntil(condition: () => boolean): Promise<void> {
     const deadline = Date.now() + 1000;
     while (!condition() && Date.now() < deadline) await act(async () => { await new Promise(resolve => setTimeout(resolve, 1)); });
     if (!condition()) throw new Error('The condition did not hold in time.');
+}
+
+/** The parameter pucks sit in a strip on the board once the board has laid out (hidden until it has a place): wait before a test reaches for a puck. */
+export const waitForPucks = (key?: string): Promise<void> =>
+    waitUntil(() => document.querySelector(`.puck-strip [data-puck-key${key ? `="${key}"` : ''}]`) !== null
+        && document.querySelector<HTMLElement>('.puck-strip')?.style.visibility !== 'hidden');
+
+/** The puck's own accessible control (a slider or a spinbutton) by the parameter key. */
+export const puckControl = (key: string): HTMLElement =>
+    document.querySelector<HTMLElement>(`.puck-strip [data-puck-key="${key}"] [role="slider"], .puck-strip [data-puck-key="${key}"] [role="spinbutton"]`)!;
+
+/** A learner's typed entry on a puck: double-click opens the entry, Enter commits it. */
+export function typePuck(key: string, value: string): void {
+    const open = document.querySelector(`.puck-strip [data-puck-key="${key}"] input`) !== null;
+    if (!open) act(() => { fireEvent.doubleClick(puckControl(key)); });
+    const entry = document.querySelector<HTMLInputElement>(`.puck-strip [data-puck-key="${key}"] input`)!;
+    act(() => { fireEvent.change(entry, {target: {value}}); });
+    act(() => { fireEvent.keyDown(entry, {key: 'Enter'}); });
 }
 
 /** Protected graph members the observations read. Tests only. */

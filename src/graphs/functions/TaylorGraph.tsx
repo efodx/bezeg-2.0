@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
@@ -440,12 +441,12 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const example = taylorExample(state.example);
         const fixedCenter = example.centerMin === example.centerMax;
         return <>
-            <div className="inspector-group">
+            <div className="inspector-group"><PuckOwned param="taylor-degree">
                 <CountSetter label={t("taylor_degree_label")} n={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} help={t("taylor_degree_help")}
                              rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
                              onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
                              onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
-                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/>
+                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/></PuckOwned>
             </div>
             <div className="inspector-group">
                 <ChoiceSelect label={t("taylor_example_label")} value={state.example} help={t("taylor_example_help")}
@@ -453,13 +454,13 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                               onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} fieldDecimals={PRECISE}
+                <PuckOwned param={fixedCenter ? undefined : "taylor-center"}><Slider customText={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} fieldDecimals={PRECISE}
                         unavailableReason={fixedCenter ? t("taylor_center_fixed_help") : undefined}
                         rejectedHint={t("taylor_center_rejected_hint", {value0: formatNumber(example.centerMin, language), value1: formatNumber(example.centerMax, language)})}
-                        onChange={next => guardField(this.refusals, () => this.setCenter(next))}/>
-                <Slider customText={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} fieldDecimals={PRECISE}
+                        onChange={next => guardField(this.refusals, () => this.setCenter(next))}/></PuckOwned>
+                <PuckOwned param="taylor-x"><Slider customText={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} fieldDecimals={PRECISE}
                         rejectedHint={t("taylor_x_rejected_hint", {value0: formatNumber(example.xMin, language), value1: formatNumber(example.xMax, language)})}
-                        onChange={next => guardField(this.refusals, () => this.setX(next))}/>
+                        onChange={next => guardField(this.refusals, () => this.setX(next))}/></PuckOwned>
                 <p className="inspector-help">{t("taylor_points_help")}</p>
             </div>
         </>;

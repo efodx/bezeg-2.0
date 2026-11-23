@@ -7,7 +7,7 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../base/realGraphTestHarness';
 import {t} from '../../../localization';
 import {runAs} from '../../base/writes/writeSource';
 
@@ -23,7 +23,7 @@ type Run = BaseGraph<BaseGraphState> & {
     setLessonAnimation?(action: 'play' | 'pause' | 'replay' | 'stop'): void;
 };
 
-function mountRun(key: 'decasteljau' | 'decasteljau-alternative') {
+async function mountRun(key: 'decasteljau' | 'decasteljau-alternative') {
     let time = 0;
     let pending: FrameRequestCallback[] = [];
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { pending.push(callback); return pending.length; });
@@ -39,31 +39,35 @@ function mountRun(key: 'decasteljau' | 'decasteljau-alternative') {
             act(() => due.forEach(callback => callback(time)));
         }
     };
+    // De Casteljau's t is a puck on the board (a slider role with aria-valuenow); the alternative keeps its slider in Orodja.
+    if (key === 'decasteljau') await waitForPucks('decasteljau-t');
     return {graph, frames, hostRenders};
 }
 
 const play = () => screen.getByRole('button', {name: t('play')});
-const slider = () => screen.getByRole('slider', {name: t('animation_parameter')}) as HTMLInputElement;
+const slider = () => screen.getByRole('slider', {name: t('animation_parameter')});
+/** The shown parameter: the puck's aria-valuenow, or the alternative's slider value. */
+const sliderValue = () => (slider().getAttribute('aria-valuenow') ?? (slider() as HTMLInputElement).value);
 const readoutText = () => document.querySelector('.decasteljau-animation-heading output')!.textContent;
 
 describe.each(['decasteljau', 'decasteljau-alternative'] as const)('%s playback publishing', key => {
-    test('playing frames move the slider and readout without re-rendering the host or writing the store', () => {
-        const {graph, frames, hostRenders} = mountRun(key);
+    test('playing frames move the slider and readout without re-rendering the host or writing the store', async () => {
+        const {graph, frames, hostRenders} = await mountRun(key);
         act(() => { fireEvent.click(play()); });
         const storeT = graph.state.t;
         const rendersAfterPlay = hostRenders.mock.calls.length;
-        const sliderAtStart = Number(slider().value);
+        const sliderAtStart = Number(sliderValue());
         const readoutAtStart = readoutText();
         const seen = new Set<string>();
         for (let i = 0; i < 4; i++) {
             frames(1);
-            seen.add(slider().value);
+            seen.add(sliderValue());
             // The readout and the slider show the same drawn parameter.
-            expect(readoutText()).toBe(`t = ${Number(slider().value).toFixed(2).replace('.', ',')}`);
+            expect(readoutText()).toBe(`t = ${Number(sliderValue()).toFixed(2).replace('.', ',')}`);
         }
         expect(graph.parameter).toBeGreaterThan(storeT);
-        expect(Number(slider().value)).toBeCloseTo(graph.parameter, 6);
-        expect(Number(slider().value)).toBeGreaterThan(sliderAtStart);
+        expect(Number(sliderValue())).toBeCloseTo(graph.parameter, 6);
+        expect(Number(sliderValue())).toBeGreaterThan(sliderAtStart);
         expect(readoutText()).not.toBe(readoutAtStart);
         expect(seen.size).toBeGreaterThanOrEqual(3);
         expect(hostRenders.mock.calls.length).toBe(rendersAfterPlay);
@@ -73,17 +77,17 @@ describe.each(['decasteljau', 'decasteljau-alternative'] as const)('%s playback 
 
 describe('decasteljau steering', () => {
     const key = 'decasteljau';
-    test('pause, slider input and stop leave the store t equal to the drawn parameter', () => {
-        const {graph, frames} = mountRun(key);
+    test('pause, slider input and stop leave the store t equal to the drawn parameter', async () => {
+        const {graph, frames} = await mountRun(key);
         act(() => { fireEvent.click(play()); });
         frames(4);
         act(() => { fireEvent.click(screen.getByRole('button', {name: t('pause')})); });
         expect(graph.state.animationStatus).toBe('paused');
         expect(graph.state.t).toBe(graph.parameter);
-        expect(Number(slider().value)).toBeCloseTo(graph.parameter, 6);
+        expect(Number(sliderValue())).toBeCloseTo(graph.parameter, 6);
         act(() => { fireEvent.click(play()); });
         frames(2);
-        act(() => { fireEvent.change(slider(), {target: {value: '0.4'}}); });
+        typePuck('decasteljau-t', '0.4');
         expect(graph.state.t).toBeCloseTo(0.4, 6);
         expect(graph.state.t).toBe(graph.parameter);
         act(() => { fireEvent.click(play()); });
@@ -94,8 +98,8 @@ describe('decasteljau steering', () => {
         expect(graph.state.animationStatus).toBe('ready');
     });
 
-    test('lesson pause and replay publish the drawn parameter', () => {
-        const {graph, frames} = mountRun(key);
+    test('lesson pause and replay publish the drawn parameter', async () => {
+        const {graph, frames} = await mountRun(key);
         act(() => { runAs('lesson', () => graph.setLessonAnimation?.('replay')); });
         frames(4);
         act(() => { runAs('lesson', () => graph.setLessonAnimation?.('pause')); });
@@ -105,13 +109,13 @@ describe('decasteljau steering', () => {
     });
 });
 
-test('a playing run that finishes publishes t = 1', () => {
-    const {graph, frames} = mountRun('decasteljau');
-    act(() => { fireEvent.change(slider(), {target: {value: '0.99'}}); });
+test('a playing run that finishes publishes t = 1', async () => {
+    const {graph, frames} = await mountRun('decasteljau');
+    typePuck('decasteljau-t', '0.99');
     act(() => { fireEvent.click(play()); });
     frames(3);
     expect(graph.state.animationStatus).toBe('finished');
     expect(graph.state.t).toBe(1);
     expect(graph.parameter).toBe(1);
-    expect(Number(slider().value)).toBe(1);
+    expect(Number(sliderValue())).toBe(1);
 });

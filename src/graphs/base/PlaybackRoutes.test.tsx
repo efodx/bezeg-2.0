@@ -57,7 +57,6 @@ describe.each(families)("playback slot on a phone: %s", (_name, create) => {
 // Companion control (docs/specs/mobile-graph-playback.md): opted-in routes keep one live slider, in the slot disclosure on a phone.
 const companions: readonly [string, () => BaseGraph<any, any>, string][] = [
     ["epicycles", () => new EpicycleGraph(), "Čas t (rad)"],
-    ["De Casteljau", () => new DecasteljauGraph(), "Parameter t"],
 ];
 
 describe.each(companions)("playback companion: %s", (_name, create, label) => {
@@ -77,6 +76,24 @@ describe.each(companions)("playback companion: %s", (_name, create, label) => {
         const companion = container.querySelectorAll(".playback-companion");
         expect(companion).toHaveLength(1);
         expect(container.querySelector("#board-card-tools")!.contains(companion[0])).toBe(true);
+    }, REAL_GRAPH_TEST_TIMEOUT);
+});
+
+// De Casteljau's t, Play and Reset are a puck on the board (task 05), not a companion in Orodja.
+describe("playback companion: De Casteljau (a puck)", () => {
+    // Skipped until task 09 (phone presenter): the phone slot no longer receives De Casteljau's buttons.
+    test.skip("on a phone the slider is once, in the closed slot disclosure, and not in the inspector", () => undefined);
+
+    test("on a wide viewport the slider is once, in the puck strip, with Play and Reset; Orodja and the slot hold none", async () => {
+        const {container} = await mount(() => new DecasteljauGraph());
+        await waitUntil(() => container.querySelector('.puck-strip [data-puck-key="decasteljau-t"]') !== null);
+        expect(slot(container).childElementCount).toBe(0);
+        expect(container.querySelectorAll('[role="slider"][aria-label="Parameter t"]')).toHaveLength(1);
+        expect(container.querySelector('.puck-strip [role="slider"][aria-label="Parameter t"]')).not.toBeNull();
+        expect(container.querySelector('.puck-strip [data-action="play-pause"]')).not.toBeNull();
+        expect(container.querySelector('.puck-strip [data-action="reset"]')).not.toBeNull();
+        expect(container.querySelector("#board-card-tools .playback-companion")).toBeNull();
+        expect(container.querySelector('#board-card-tools [data-action="play-pause"]')).toBeNull();
     }, REAL_GRAPH_TEST_TIMEOUT);
 });
 

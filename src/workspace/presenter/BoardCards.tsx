@@ -1,6 +1,6 @@
 // The card presenter of the board workspace (task 03): renders the cards a graph's declaration asks for over the board.
 // Measure (hidden layer) -> layoutBoard -> CardShell. Design: docs/reviews/ux-picks-app-wide/03-layout-design.md.
-import {useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
 import {currentLanguage, useT} from '../../localization';
 import {CardShell, type BoardPoint} from '../cards/CardShell';
 import {
@@ -15,6 +15,8 @@ import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards'
 import {moreBarHeight} from '../layout/measureCards';
 import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
 import {LessonCardBody} from '../cards/LessonCardBody';
+import {PuckOwnershipContext} from '../../graphs/base/controls/PuckOwnership';
+import {PuckStrip, estimateStrip, puckParameters, wrappedStripHeight} from '../pucks/PuckStrip';
 import {buildCardSpecs, lessonCardSpec, toolsCardSpec, LESSON_ID, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
 import type {ToolsSection, WorkspaceCardHost} from './cardHost';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
@@ -35,6 +37,7 @@ interface Drag { id: string; target: DropIndex | 'free'; first: BoardPoint | nul
 
 const NO_WIDTHS: Readonly<Record<string, number>> = {};
 const noop = () => undefined;
+const keySet = (joined: string): ReadonlySet<string> => new Set(joined === '' ? [] : joined.split('|'));
 const stableDiffers = (a: readonly Placed[], b: readonly Placed[]) => JSON.stringify(a) !== JSON.stringify(b);
 
 /** A stable default: a fresh `[]` per render would rerun specs, inputs and layoutBoard on every render, each drag move included. */
@@ -79,6 +82,9 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   const [drag, setDrag] = useState<Drag | null>(null);
   const [widthState, setWidthState] = useState<{key: string; widths: Readonly<Record<string, number>>}>({key: '', widths: NO_WIDTHS});
   const layerRef = useRef<HTMLDivElement>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [measuredStrip, setMeasuredStrip] = useState<(Size & {slots: readonly Size[]}) | null>(null);
+  const [stableStrip, setStableStrip] = useState<Rect | null>(null);
   // Where the pointer went down in the card: the free drop keeps this grab offset (not the first move's).
   const pickupRef = useRef<{id: string; point: BoardPoint} | null>(null);
 
@@ -159,11 +165,26 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   const toolsSectionToShow = usedToolsSection.section;
   const setToolsSection = host.tools.setSection;
   useEffect(() => { if (toolsSectionToShow) setToolsSection(toolsSectionToShow); }, [frame, toolsSectionToShow, setToolsSection]);
-  const layoutInput: LayoutInput = {
-    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget, frame: frameInput,
+  // The pucks (task 05): the declared board range and count parameters the graph binds, in declared order. The strip is laid out at its
+  // natural size (measured from its pucks, whose widths are constant), estimated until the first reading.
+  const puckList = puckParameters(declaration, graph.parameters?.keys());
+  const puckCount = puckList.length;
+  const puckKeyList = puckList.map(parameter => parameter.key).join('|');
+  const puckKeys = keySet(puckKeyList);
+  const natural: Size | undefined = puckCount === 0 ? undefined : measuredStrip ?? estimateStrip(puckCount);
+  const boardBounds = useCallback(() => {
+    const box = layerRef.current?.getBoundingClientRect();
+    return box ? {left: box.left, right: box.right, width: box.width} : undefined;
+  }, []);
+  const inputWith = (pucks: Size | undefined): LayoutInput => ({
+    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget, frame: frameInput, pucks,
     maxSpan: MAX_SPAN, columnMaxFraction: COLUMN_MAX_FRACTION, gap: GAP,
-  };
+  });
   const laidOut = board.w > 0 && board.h > 0 && inputs.length > 0;
+  // Wider than the width the layout gives it, the strip wraps to further rows: lay out again at the wrapped height.
+  const given = laidOut && natural ? layoutBoard(inputWith(natural)).pucks : null;
+  const wrapped = given &&measuredStrip && given.w < measuredStrip.w ? wrappedStripHeight(measuredStrip.slots, given.w) : 0;
+  const layoutInput = inputWith(natural && wrapped > natural.h ? {w: natural.w, h: wrapped} : natural);
   const base: LayoutResult | null = laidOut ? layoutBoard(layoutInput) : null;
 
   // Second measurement: a card whose assigned width differs from its natural one is measured again at that width, once,
@@ -228,6 +249,8 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   };
 
   const final = ready && !pending && preview !== null;
+  const stripRect = final ? preview.pucks : stableStrip;
+  if (final && JSON.stringify(stableStrip) !== JSON.stringify(preview.pucks)) setStableStrip(preview.pucks);
   // Where the dragged card would land, drawn under the cards when a drop would dock it; a free drop floats and shows none.
   const ghost = final && drag && drag.target !== 'free' ? preview.cards.find(card => card.id === drag.id)?.rect ?? null : null;
   // Before the first final layout only Orodja is shown: placed from what has been read of it, or unpositioned (no rect) while the board
@@ -239,6 +262,17 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   const liveSpecs = specs.filter(spec => isLive(spec.id));
   const entries = [...shown.map(placed => ({id: placed.id, placed: placed as Placed | null})),
     ...liveSpecs.filter(spec => !shown.some(card => card.id === spec.id)).map(spec => ({id: spec.id, placed: null as Placed | null}))];
+
+  // The strip's natural size: its slots side by side (the strip itself is given the layout's width). Puck widths are constant, so it
+  // changes with the declared parameters and the language only.
+  const puckShape = `${language}|${JSON.stringify(puckList)}`;
+  useLayoutEffect(() => {
+    const slots = [...(stripRef.current?.querySelectorAll<HTMLElement>('.puck-slot') ?? [])];
+    const w = slots.reduce((sum, slot) => sum + slot.offsetWidth, 0) + 8 * Math.max(0, slots.length - 1);
+    const h = Math.max(0, ...slots.map(slot => slot.offsetHeight));
+    const sizes = slots.map(slot => ({w: slot.offsetWidth, h: slot.offsetHeight}));
+    if (w > 0 && h > 0) setMeasuredStrip(previous => previous && previous.w === w && previous.h === h && JSON.stringify(previous.slots) === JSON.stringify(sizes) ? previous : {w, h, slots: sizes});
+  }, [puckShape]);
 
   // Read the live cards from the shown cards before paint; a changed reading re-renders synchronously. Folded, a body is hidden and
   // says nothing about its size, so the last reading stands.
@@ -268,10 +302,11 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
           onDragMove={pointer => onDragMove(spec.id, pointer)}
           onDrop={pointer => onDrop(spec.id, pointer)}
           onDragCancel={() => { pickupRef.current = null; setDrag(null); }}>
-          {isTools ? <ToolsBody panels={host.tools.panels} section={host.tools.section} declared={declared} locked={host.tools.locked}/>
+          {isTools ? <PuckOwnershipContext.Provider value={puckKeys}><ToolsBody panels={host.tools.panels} section={host.tools.section} declared={declared} locked={host.tools.locked}/></PuckOwnershipContext.Provider>
             : isLesson ? <LessonCardBody slot={host.lesson.slot}/> : spec.body}
         </CardShell>;
       })}
+      {puckCount > 0 && <PuckStrip ref={stripRef} graph={graph} parameters={puckList} actions={declaration?.actions ?? []} bounds={boardBounds} rect={stripRect}/>}
     </div>
   </>;
 }

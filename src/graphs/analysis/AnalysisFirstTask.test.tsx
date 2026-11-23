@@ -4,10 +4,11 @@
  */
 import {act, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {t} from '../../localization';
 
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
@@ -24,7 +25,6 @@ const routes: Record<string, Route> = {
     'euler-method': {lead: button(t('next_step')), later: [labelled(t('euler_ode_example_label')), labelled(t('euler_ode_end_label'))]},
     'mean-value': {lead: labelled(t('mean_value_c_label')), later: [labelled(t('mean_value_example_label')), labelled(t('mean_value_a_label'))]},
     'darboux': {lead: labelled(t('darboux_n_label')), later: [labelled(t('darboux_example_label')), labelled(t('darboux_a_label'))]},
-    'taylor': {lead: labelled(t('taylor_degree_label')), later: [labelled(t('taylor_example_label')), labelled(t('taylor_center_label'))]},
     'sequence': {lead: labelled(t('sequence_epsilon_label')), later: [labelled(t('sequence_example_label'))]},
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
     'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label')), labelled(t('fixed_point_x0_label'))]},
@@ -48,6 +48,23 @@ describe.each(Object.keys(routes))('%s first task', id => {
         for (const find of later) {
             expect(first.compareDocumentPosition(find(root)) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
         }
+    });
+});
+
+describe('taylor first task', () => {
+    // The degree (the first task) and the centre are pucks on the board (task 05): there once, and not in Edit, whose first control is the example.
+    test('the degree and the centre are pucks, Edit holds no second copy and leads with the example', async () => {
+        mountGraph(graphFactories['taylor']());
+        await waitForPucks('taylor-degree');
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const label of [t('taylor_degree_label'), t('taylor_center_label')]) {
+            expect(within(strip).queryAllByRole('spinbutton', {name: label}).length + within(strip).queryAllByRole('slider', {name: label}).length).toBeGreaterThan(0);
+            expect(within(root).queryAllByLabelText(label)).toEqual([]);
+        }
+        const first = root.querySelector<HTMLElement>(FOCUSABLE)!;
+        const example = labelled(t('taylor_example_label'))(root);
+        expect(first === example || example.contains(first) || first.closest('.inspector-group, .tools')?.contains(example)).toBe(true);
     });
 });
 
