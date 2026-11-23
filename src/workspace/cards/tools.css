@@ -1,0 +1,11 @@
+/* Orodja card body: the panels of the former tools column, scrolling inside the card. */
+.board-card:has(.tools-body) .board-card-body { overflow-y: auto; overscroll-behavior: contain; padding: 0; }
+.tools-body { min-width: 0; color: var(--workspace-ink, var(--bezeg-shell-ink)); }
+.tools-body .tools { max-height: none; overflow: visible; }
+.tools-body[data-declared] [data-declared-panel] { display: none; }
+.tools-head-button { width: 32px; }
+.tools-head-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tools-head-button[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
+/* A host without the card layer (a bare workspace) shows the card in the board's corner. */
+.workspace-static-tools { position: absolute; top: 8px; right: 8px; width: 330px; max-height: calc(100% - 16px); display: flex; z-index: 2; }
+.workspace-static-tools > .board-card { flex: 1; max-height: 100%; }

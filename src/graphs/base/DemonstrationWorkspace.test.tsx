@@ -48,7 +48,7 @@ function preferReducedMotion() {
         addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn()})));
 }
 
-test("inspector sections remain mounted and retain values when switched or collapsed", () => {
+test("inspector sections remain mounted and retain values when switched", () => {
     render(<MemoryRouter><DemonstrationWorkspace description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
         display={<p>Koordinatni sistem</p>} save={<p>Prednastavitve</p>} navigate={vi.fn()}/></MemoryRouter>);
     const parameter = screen.getByLabelText("Parameter");
@@ -58,10 +58,8 @@ test("inspector sections remain mounted and retain values when switched or colla
     expect(parameter).not.toBeVisible();
     fireEvent.click(screen.getByRole("button", {name: "Uredi"}));
     expect(parameter).toHaveValue(".7");
-    fireEvent.click(screen.getByRole("button", {name: "Strni"}));
-    expect(parameter).not.toBeVisible();
-    fireEvent.click(screen.getByRole("button", {name: "Odpri"}));
-    expect(parameter).toBeVisible();
+    expect(parameter).toBeInTheDocument();
+    expect(parameter).toHaveValue(".7");
 });
 
 test('the inspector heading has no introductory paragraph and tab hints stay available to assistive technology', () => {
@@ -80,13 +78,10 @@ test('switching tabs resets the inspector content scroll owner and keeps hidden 
     setLanguage('sl');
     render(<MemoryRouter><DemonstrationWorkspace description="Raziskuj" edit={<input aria-label="Parameter" defaultValue=".5"/>}
         display={<p>Koordinatni sistem</p>} save={null} navigate={vi.fn()}/></MemoryRouter>);
-    const content = document.getElementById('inspector-content')!;
+    const content = document.querySelector<HTMLElement>('#board-card-tools [data-card-body]')!;
     Object.defineProperty(content, 'scrollTop', {value: 120, writable: true, configurable: true});
     fireEvent.click(screen.getByRole('button', {name: 'Prikaz'}));
     expect(content.scrollTop).toBe(0);
-    fireEvent.click(screen.getByRole('button', {name: 'Strni'}));
-    expect(content).toHaveAttribute('hidden');
-    expect(screen.getByRole('button', {name: 'Odpri'})).toHaveAttribute('aria-expanded', 'false');
     expect(screen.getByText('Koordinatni sistem')).toBeInTheDocument();
     expect(screen.getByLabelText('Parameter')).toBeInTheDocument();
 });
@@ -338,6 +333,7 @@ test("presentation offers controls and exit without hover, and pan is explicit",
         <DemonstrationWorkspace description="Raziskuj" edit={<p>Urejanje</p>} display={null} save={null} navigate={navigate}/>
     </SiteContext.Provider></MemoryRouter>);
     expect(screen.getByText("Urejanje")).not.toBeVisible();
+    expect(screen.getByRole("button", {name: "Odpri orodja"})).toHaveAttribute("aria-controls", "board-card-tools");
     fireEvent.click(screen.getByRole("button", {name: "Odpri orodja"}));
     expect(screen.getByText("Urejanje")).toBeVisible();
     fireEvent.click(screen.getByRole("button", {name: "Premakni pogled levo"}));

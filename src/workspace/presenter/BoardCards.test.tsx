@@ -11,6 +11,10 @@ import {appStorage} from '../../storage/appStorage';
 import {readoutValueText} from '../cards/ReadoutsBody';
 import {readFileSync} from 'node:fs';
 const cardCss = readFileSync('src/workspace/cards/CardShell.css', 'utf8');
+import {MemoryRouter} from 'react-router-dom';
+import {render} from '@testing-library/react';
+import {GraphHost} from '../../graphs/base/GraphHost';
+import {SiteContext} from '../../graphs/context/react/SiteContext';
 import {BOARD_LAYOUT_KEY, loadBoardLayout} from '../layout/storedLayout';
 
 // The measure pass waits for MathJax; jsdom has none.
@@ -42,6 +46,12 @@ afterEach(cleanup);
 
 const live = (selector: string) => document.querySelector<HTMLElement>(`.board-cards-layer ${selector}`);
 const shown = (id: string) => live(`[data-card-id="${id}"]`);
+/** The tools card starts folded on a board under 1200 px; the head icon unfolds it. */
+async function openTools() {
+    if (live('[data-card-id="tools"] .board-card-body:not([hidden])')) return;
+    fireEvent.click(live('[data-card-id="tools"] button[aria-controls="inspector-edit"]')!);
+    await waitUntil(() => live('[data-card-id="tools"] .board-card-body:not([hidden])') !== null);
+}
 const declarationOf = (graph: TaylorGraph) => graph.getDeclaration() as GraphDeclaration<TaylorIds>;
 
 async function mountTaylor() {
@@ -79,15 +89,60 @@ describe('the card presenter on a declared graph', () => {
         expect(layer.parentElement).toBe(container.parentElement);
     });
 
-    test('the inspector keeps its tabs while its readout and legend panels are hidden', async () => {
+    test('Orodja holds the marked readout and legend panels; there is no inspector aside or tabs', async () => {
         await mountTaylor();
-        expect(document.querySelector('main')?.hasAttribute('data-board-cards')).toBe(true);
-        expect(document.querySelector('#workspace-inspector .inspector-tabs')).not.toBeNull();
-        // The stylesheet hides marked panels under [data-board-cards] (DemonstrationWorkspace.css); jsdom loads no CSS.
-        const panels = [...document.querySelectorAll('#workspace-inspector [data-declared-panel]')];
+        await openTools();
+        expect(document.querySelector('#workspace-inspector')).toBeNull();
+        expect(document.querySelector('.inspector-tabs')).toBeNull();
+        // The stylesheet hides marked panels under [data-declared] (tools.css); jsdom loads no CSS.
+        const panels = [...document.querySelectorAll('.tools-body [data-declared-panel]')];
         expect(panels.length).toBeGreaterThan(0);
-        for (const panel of panels) expect(panel.closest('[data-board-cards]'), 'declared panel is inside the hiding scope').not.toBeNull();
-        expect(document.querySelector('#workspace-inspector .inspector-tabs')?.closest('[data-declared-panel]')).toBeNull();
+        for (const panel of panels) expect(panel.closest('[data-declared]'), 'declared panel is inside the hiding scope').not.toBeNull();
+    });
+
+    test('a declared graph shows Orodja and Odčitki', async () => {
+        await mountTaylor();
+        expect(shown('tools')).not.toBeNull();
+        expect(shown('readouts')).not.toBeNull();
+    });
+
+    test('the budget opens two cards at a board of 1200 px or more, one below', async () => {
+        const wide = HTMLElement.prototype.getBoundingClientRect;
+        HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+            const r = wide.call(this);
+            return this.classList.contains('board-cards-layer') ? {...r, width: 1300, right: 1300} as DOMRect : r;
+        };
+        try {
+            await mountTaylor();
+            await waitUntil(() => shown('tools') !== null);
+            expect(live('[data-card-id="readouts"] .board-card-body')).not.toBeNull();
+            expect(live('[data-card-id="tools"] .board-card-body:not([hidden])')).not.toBeNull();
+        } finally { HTMLElement.prototype.getBoundingClientRect = wide; }
+        cleanup();
+        await mountTaylor();
+        await waitUntil(() => shown('tools') !== null);
+        expect(live('[data-card-id="readouts"] .board-card-body')).not.toBeNull();
+        expect(live('[data-card-id="tools"] .board-card-body:not([hidden])')).toBeNull();
+    });
+
+    test('the head icons switch the panel and unfold the card', async () => {
+        await mountTaylor();
+        expect(live('[data-card-id="tools"] .board-card-body:not([hidden])')).toBeNull();
+        const save = live('[data-card-id="tools"] button[aria-controls="inspector-save"]')!;
+        fireEvent.click(save);
+        await waitUntil(() => live('[data-card-id="tools"] .board-card-body:not([hidden])') !== null);
+        expect(document.getElementById('inspector-save')!.hidden).toBe(false);
+        expect(document.getElementById('inspector-edit')!.hidden).toBe(true);
+        expect(live('[data-card-id="tools"] button[aria-controls="inspector-save"]')!.getAttribute('aria-pressed')).toBe('true');
+    });
+
+    test('the Orodja card is the labelled complementary region and the id aria-controls points to', async () => {
+        await mountTaylor();
+        const card = document.getElementById('board-card-tools')!;
+        expect(card.getAttribute('role')).toBe('complementary');
+        expect(card.getAttribute('aria-label')).toBe('Orodja demonstracije');
+        expect(card.querySelector('button[aria-pressed]')).not.toBeNull();
+        expect(document.querySelectorAll('#board-card-tools').length).toBe(1);
     });
 
     test('a fold persists through the stored layout and survives a remount', async () => {
@@ -204,31 +259,51 @@ describe('the card presenter on a declared graph', () => {
     });
 });
 
+describe('Presentation', () => {
+    test('the header toggle folds and unfolds Orodja without writing the stored layout', async () => {
+        render(<MemoryRouter><SiteContext.Provider value={{fullScreen: {fullScreen: true, setFullScreen: vi.fn()}}}>
+            <GraphHost create={() => new TaylorGraph()}/></SiteContext.Provider></MemoryRouter>);
+        await waitUntil(() => shown('tools') !== null);
+        const toggle = document.querySelector<HTMLElement>('button[aria-controls="board-card-tools"]')!;
+        expect(toggle.getAttribute('aria-expanded')).toBe('false');
+        expect(live('[data-card-id="tools"] .board-card-body:not([hidden])')).toBeNull();
+        fireEvent.click(toggle);
+        await waitUntil(() => live('[data-card-id="tools"] .board-card-body:not([hidden])') !== null);
+        fireEvent.click(toggle);
+        await waitUntil(() => live('[data-card-id="tools"] .board-card-body:not([hidden])') === null);
+        expect(appStorage.getItem(BOARD_LAYOUT_KEY)).toBeNull();
+    });
+});
+
 describe('the old panels of other declared pilots', () => {
     test.each([
         ['CrossRatio', () => new CrossRatioGraph()],
         ['NotablePoints', () => new NotablePointsGraph()],
     ])('%s marks its old panel for hiding and shows a card', async (_name, make) => {
         mountGraph(make());
-        await waitUntil(() => document.querySelector('.board-cards-layer [data-card-id]') !== null);
-        expect(document.querySelector('main')?.hasAttribute('data-board-cards')).toBe(true);
-        expect(document.querySelectorAll('#workspace-inspector [data-declared-panel]').length).toBeGreaterThan(0);
-        expect(document.querySelector('.board-cards-layer [data-declared-panel]')).toBeNull();
-        for (const panel of document.querySelectorAll('#workspace-inspector [data-declared-panel]')) expect(panel.closest('[data-board-cards]')).not.toBeNull();
-        expect(document.querySelector('#workspace-inspector .inspector-tabs')).not.toBeNull();
+        await waitUntil(() => shown('tools') !== null);
+        await openTools();
+        expect(document.querySelectorAll('.tools-body [data-declared-panel]').length).toBeGreaterThan(0);
+        expect(document.querySelector('.board-cards-layer [data-card-id]:not([data-card-id="tools"]) [data-declared-panel]')).toBeNull();
+        for (const panel of document.querySelectorAll('.tools-body [data-declared-panel]')) expect(panel.closest('[data-declared]')).not.toBeNull();
+        expect(document.querySelector('.inspector-tabs')).toBeNull();
     });
 
     test('the Taylor readout and legend panels carry the marker', async () => {
         await mountTaylor();
-        expect(document.querySelectorAll('#workspace-inspector .function-readout[data-declared-panel], #workspace-inspector .function-legend[data-declared-panel]').length).toBeGreaterThan(0);
+        await openTools();
+        expect(document.querySelectorAll('.tools-body .function-readout[data-declared-panel], .tools-body .function-legend[data-declared-panel]').length).toBeGreaterThan(0);
     });
 });
 
 describe('the presenter on an undeclared graph', () => {
-    test('renders no card layer', () => {
+    test('Orodja is the only card, starts open and holds the panels', async () => {
         mountGraph(new RootFindingGraph());
-        expect(document.querySelector('.board-cards-layer')).toBeNull();
-        expect(document.querySelector('[data-board-cards]')).toBeNull();
+        await waitUntil(() => shown('tools') !== null);
+        expect([...document.querySelectorAll('.board-cards-layer [data-card-id]')].map(el => (el as HTMLElement).dataset.cardId)).toEqual(['tools']);
+        expect(live('[data-card-id="tools"] .board-card-body:not([hidden])')).not.toBeNull();
+        expect(document.querySelector('.tools-body')!.hasAttribute('data-declared')).toBe(false);
+        expect(document.querySelector('[data-testid="inspector-edit"]')).not.toBeNull();
         expect(document.querySelectorAll('[data-declared-panel]').length).toBe(0);
         expect(document.getElementById('jgbox')).not.toBeNull();
     });

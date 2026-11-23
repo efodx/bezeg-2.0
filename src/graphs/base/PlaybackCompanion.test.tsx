@@ -42,14 +42,14 @@ describe("playback companion control", () => {
         expect(details.open).toBe(false);
         expect(details.textContent).toContain("Ročno: Čas t");
         expect(details.contains(sliders(container)[0])).toBe(true);
-        expect(container.querySelector("#workspace-inspector")!.querySelector('input[aria-label="Čas t"]')).toBeNull();
+        expect(container.querySelector("#board-card-tools")!.querySelector('input[aria-label="Čas t"]')).toBeNull();
     });
 
     test("slot inactive: the slider stays in the inspector, with no disclosure", () => {
         installMedia(false);
         const {container} = render(workspace(<Group/>));
         expect(sliders(container)).toHaveLength(1);
-        expect(container.querySelector("#workspace-inspector")!.contains(sliders(container)[0])).toBe(true);
+        expect(container.querySelector("#board-card-tools")!.contains(sliders(container)[0])).toBe(true);
         expect(container.querySelector("details")).toBeNull();
     });
 

@@ -39,6 +39,7 @@
 /* Content wider than the width the layout gave the card scrolls sideways inside it instead of spilling over the board. */
 .board-card-body { flex: 1 1 auto; min-height: 0; padding: 6px 10px 8px; overflow-x: auto; overflow-y: hidden; }
 .board-card--cut .board-card-body { overflow-y: auto; }
+.board-card-body[hidden] { display: none; }
 .board-card-head { -webkit-touch-callout: none; }
 .board-card-more {
     flex: none; min-height: 28px; border: 0; border-top: 1px solid var(--bezeg-shell-rule); background: var(--bezeg-shell-control-hover);
