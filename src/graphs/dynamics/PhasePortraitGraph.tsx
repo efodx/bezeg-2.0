@@ -1509,7 +1509,7 @@ function PhaseReadout(props: {graph: PhasePortraitGraph}) {
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
     const {plane} = graph.derived();
-    return <div className="inspector-group">
+    return <div className="inspector-group" data-declared-panel="">
         <ReadoutHeading>{text("phase_graph_readout_title")}</ReadoutHeading>
         <p data-phase-status="">{graph.statusText()}</p>
         <ReadoutList label={text("phase_graph_readout_title")} rows={graph.readoutRows()}/>

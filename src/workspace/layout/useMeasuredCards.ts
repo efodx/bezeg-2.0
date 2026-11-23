@@ -20,9 +20,13 @@ export interface MeasuredCards {
   measured: readonly MeasuredCard[] | null;
   /** 0 after the first measurement, 1 after the single remeasure (if any size changed). */
   generation: number;
+  /** True when `measured` was taken for the items and content key of this render (false while a newer pass is pending). */
+  settled: boolean;
 }
 
 export interface MeasureOptions {
+  /** Anything that changes the cards' content (language, ids, highlights): a new value measures again. */
+  contentKey?: string;
   /** Resolves when fonts and formulas inside the layer are final. Default: fonts + MathJax. */
   whenReady?: (layer: HTMLElement) => Promise<void>;
 }
@@ -57,14 +61,14 @@ const LAYER_STYLE = {
 
 export function useMeasuredCards(items: readonly MeasureItem[], options: MeasureOptions = {}): MeasuredCards {
   const [layerNode, setLayerNode] = useState<HTMLDivElement | null>(null);
-  const [state, setState] = useState<{measured: readonly MeasuredCard[] | null; generation: number}>(
-    {measured: null, generation: 0});
+  const [state, setState] = useState<{measured: readonly MeasuredCard[] | null; generation: number; key: string | null}>(
+    {measured: null, generation: 0, key: null});
   const whenReadyRef = useRef(options.whenReady ?? waitForFontsAndMath);
   const whenReady = options.whenReady ?? waitForFontsAndMath;
   useEffect(() => {
     whenReadyRef.current = whenReady;
   });
-  const key = items.map((i) => `${i.id}:${i.width ?? ''}`).join('|');
+  const key = items.map((i) => `${i.id}:${i.width ?? ''}`).join('|') + `#${options.contentKey ?? ''}`;
 
   useEffect(() => {
     const layer = layerNode;
@@ -73,10 +77,11 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
     let cancelled = false;
     let teardown: (() => void) | null = null;
 
-    void whenReadyRef.current(layer).then(() => {
+    // A formula engine that fails to load (offline) must not leave the cards unmeasured: measure what is there.
+    void whenReadyRef.current(layer).catch(() => undefined).then(() => {
       if (cancelled) return;
       const first = measureCards(layer);
-      setState((prev) => ({measured: first, generation: prev.measured ? prev.generation : 0}));
+      setState((prev) => ({measured: first, generation: prev.measured ? prev.generation : 0, key}));
 
       // At most one remeasure: the first observed change in any size.
       const check = () => {
@@ -85,7 +90,7 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
         if (signature(next) === signature(first)) return;
         teardown?.();
         teardown = null;
-        setState((prev) => ({measured: next, generation: prev.generation + 1}));
+        setState((prev) => ({measured: next, generation: prev.generation + 1, key}));
       };
       const fonts = document.fonts;
       fonts?.addEventListener?.('loadingdone', check);
@@ -119,5 +124,5 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
     ),
   );
 
-  return {layer, measured: state.measured, generation: state.generation};
+  return {layer, measured: state.measured, generation: state.generation, settled: state.key === key};
 }

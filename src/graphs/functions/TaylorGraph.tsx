@@ -483,7 +483,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             {id: "error", color: GraphPalette.warningText, label: t("taylor_legend_error"), kind: "line"},
             {id: "bound", color: GraphPalette.constructionAccent, label: t("taylor_legend_bound"), kind: "area"},
             {id: "convergence", color: GraphPalette.additionalCurves[0], label: t("taylor_legend_convergence"), kind: "area"},
-        ]}/>;
+        ]} declaredPanel/>;
     }
 
     /** The statuses to state in words (no changing numbers); each has a stable id. */
@@ -529,7 +529,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             {id: "convergence", label: t("taylor_readout_series"), value: this.seriesText(model, view)},
         ];
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("taylor_note")}/>
+            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("taylor_note")} declaredPanel/>
             <FunctionStatus className="taylor-status" lines={this.statuses(model, view)} dataAttribute="taylor-status"/>
         </>;
     }

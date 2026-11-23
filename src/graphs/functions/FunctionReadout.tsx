@@ -15,10 +15,12 @@ export interface ReadoutRow {
  * Inspector readout for numeric results of a function demonstration. Values are formatted by the caller with
  * `formatNumber` from src/analysis/format so the board and the inspector agree.
  */
-export function FunctionReadout(props: { title: string; rows: readonly ReadoutRow[]; note?: string | readonly string[] }) {
+export function FunctionReadout(props: { title: string; rows: readonly ReadoutRow[]; note?: string | readonly string[];
+    /** A declared graph's old panel: hidden while its board cards are shown (`data-declared-panel`). */
+    declaredPanel?: boolean }) {
     useT();
     const notes = props.note === undefined ? [] : typeof props.note === "string" ? [props.note] : props.note;
-    return <div className="inspector-group function-readout">
+    return <div className="inspector-group function-readout" data-declared-panel={props.declaredPanel ? "" : undefined}>
         <ReadoutHeading>{props.title}</ReadoutHeading>
         {props.rows.length > 0 && <ReadoutList label={props.title} rows={props.rows}/>}
         {notes.map(note => <ReadoutHelp key={note} hooks={{"data-readout-note": ""}}>{note}</ReadoutHelp>)}
@@ -48,9 +50,9 @@ function swatchStyle(item: LegendItem): React.CSSProperties {
 }
 
 /** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */
-export function FunctionLegend(props: { items: readonly LegendItem[] }) {
+export function FunctionLegend(props: { items: readonly LegendItem[]; declaredPanel?: boolean }) {
     const t = useT();
-    return <div className="inspector-group function-legend">
+    return <div className="inspector-group function-legend" data-declared-panel={props.declaredPanel ? "" : undefined}>
         <h3>{t("function_legend")}</h3>
         <ul>
             {props.items.map(item => <li key={item.id} data-legend={item.id}>

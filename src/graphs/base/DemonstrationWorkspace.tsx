@@ -37,6 +37,8 @@ export function DemonstrationWorkspace(props: {
     disposeFailedGraph?: () => void,
     /** Gives the graph the workspace's decision reader, for commits that arrive through callbacks retained from an earlier render. Returns the release. */
     bindUserActions?: (current: () => UserActionMode) => () => void,
+    /** The card layer of a graph that declares cards (task 03). A sibling of the board container, never inside it, so figure export does not see it. Its presence also hides the graph's own readout and legend panels. */
+    boardOverlay?: React.ReactNode,
 }) {
     const t = useT();
     const closeLesson = useRef<(() => void) | undefined>();
@@ -198,6 +200,7 @@ export function DemonstrationWorkspace(props: {
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
+        data-board-cards={props.boardOverlay ? "" : undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
@@ -260,7 +263,9 @@ export function DemonstrationWorkspace(props: {
             }}/>}
         <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
-            <JGBox ref={setGraphContainer}/>
+            {props.boardOverlay
+                ? <div className="workspace-board-stage"><JGBox ref={setGraphContainer}/>{props.boardOverlay}</div>
+                : <JGBox ref={setGraphContainer}/>}
             <div ref={setSlotElement} data-playback-slot=""/>
             {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {

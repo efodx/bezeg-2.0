@@ -42,13 +42,13 @@ describe('ReadoutsBody', () => {
         const expected = renderDeclaration(declaration).rows;
         expect(expected.length).toBeGreaterThan(0);
         for (const row of expected) {
-            const cell = container.querySelector(`[data-readout="${row.id}"]`);
+            const cell = container.querySelector(`[data-card-readout="${row.id}"]`);
             expect(cell, row.id).not.toBeNull();
             expect(normalise(cell!.querySelector('.ws-value')!.textContent!), row.id).toContain(row.value);
         }
-        expect(container.querySelectorAll('[data-readout]')).toHaveLength(expected.length);
+        expect(container.querySelectorAll('[data-card-readout]')).toHaveLength(expected.length);
         expect(container.querySelector('[data-formula]')).not.toBeNull();
-        for (const row of container.querySelectorAll('[data-readout]')) expect(row.hasAttribute('data-card-row')).toBe(true);
+        for (const row of container.querySelectorAll('[data-card-readout]')) expect(row.hasAttribute('data-card-row')).toBe(true);
     });
 
     test('rows that link a legend entry show a swatch in the drawn colour', () => {
@@ -58,7 +58,7 @@ describe('ReadoutsBody', () => {
         expect(linked.length).toBeGreaterThan(0);
         for (const row of linked) {
             const entry = declaration.legend!.find(candidate => candidate.id === row.legend)!;
-            expect(container.querySelector(`[data-readout="${row.id}"] [data-swatch]`)?.getAttribute('data-color'), row.id).toBe(drawnObject(entry.object)?.color);
+            expect(container.querySelector(`[data-card-readout="${row.id}"] [data-swatch]`)?.getAttribute('data-color'), row.id).toBe(drawnObject(entry.object)?.color);
         }
     });
 
@@ -66,7 +66,7 @@ describe('ReadoutsBody', () => {
         const {declaration} = taylor();
         const ids = (declaration.readouts ?? []).flatMap(group => group.rows).map(row => row.id);
         const {container} = render(<ReadoutsBody groups={declaration.readouts ?? []} highlight={[ids[0], ids[1]]}/>);
-        const marked = [...container.querySelectorAll('[data-highlight]')].map(element => element.getAttribute('data-readout'));
+        const marked = [...container.querySelectorAll('[data-highlight]')].map(element => element.getAttribute('data-card-readout'));
         expect(marked).toEqual([ids[0], ids[1]]);
     });
 
@@ -97,10 +97,10 @@ describe('ReadoutsBody', () => {
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {configurable: true, get() { return heights[(this as HTMLElement).className.split(' ')[0]] ?? 0; }});
         try {
             const {container} = render(<ReadoutsBody groups={groups} available={70}/>);
-            expect(container.querySelector('[data-readout="r1"]')).not.toBeNull();
-            expect(container.querySelector('[data-readout="r2"]')).toBeNull();
+            expect(container.querySelector('[data-card-readout="r1"]')).not.toBeNull();
+            expect(container.querySelector('[data-card-readout="r2"]')).toBeNull();
             fireEvent.click(within(container.querySelector('[data-group="two"]') as HTMLElement).getByRole('button'));
-            expect(container.querySelector('[data-readout="r2"]')).not.toBeNull();
+            expect(container.querySelector('[data-card-readout="r2"]')).not.toBeNull();
         } finally {
             Object.defineProperty(HTMLElement.prototype, 'offsetHeight', original);
         }

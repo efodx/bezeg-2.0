@@ -20,6 +20,8 @@ export interface CardShellProps {
   onReset: () => void;
   /** The parent runs `dropTarget` / `applyDrop`; the shell only reports where the pointer is. */
   onDragMove: (pointer: BoardPoint) => void;
+  /** The pointer went down on the card (before any move): where it grabbed, for a free drop's offset. */
+  onPickup?: (pointer: BoardPoint | null) => void;
   onDrop: (pointer: BoardPoint) => void;
   onDragCancel: () => void;
   children?: ReactNode;
@@ -50,7 +52,7 @@ const ResetIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" aria-hid
 
 interface Drag { start: BoardPoint; at: BoardPoint; active: boolean; keyboard: boolean }
 
-export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onDrop, onDragCancel, children}: CardShellProps) {
+export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onPickup, onDrop, onDragCancel, children}: CardShellProps) {
   const t = useT();
   const root = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -71,6 +73,7 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
     if ((event.target as HTMLElement).closest('button')) return;
     const start = toBoard(event.clientX, event.clientY);
     update({start, at: start, active: false, keyboard: false});
+    onPickup?.(start);
     try { event.currentTarget.setPointerCapture?.(event.pointerId); } catch { /* not capturable */ }
   };
   const onPointerMove = (event: PointerEvent<HTMLElement>) => {
@@ -88,12 +91,14 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
     update(null);
     try { event.currentTarget.releasePointerCapture?.(event.pointerId); } catch { /* already released */ }
     if (current.active) onDrop(current.at);
+    else onPickup?.(null);
   };
   const onPointerCancel = () => {
     const current = dragRef.current;
     if (!current || current.keyboard) return;
     update(null);
     if (current.active) onDragCancel();
+    else onPickup?.(null);
   };
 
   const onGripKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {

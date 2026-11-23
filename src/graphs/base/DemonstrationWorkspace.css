@@ -414,3 +414,8 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
         min-height: 0;
     }
 }
+
+/* The board hosts the card layer over the board container; the cards replace the inspector's readout and legend panels
+   (task 03). Hiding keeps the panels' markup, so graphs that still build them are unchanged. */
+.workspace-board-stage { position: relative; }
+[data-board-cards] .workspace-inspector [data-declared-panel] { display: none; }

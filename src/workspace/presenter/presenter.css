@@ -1,0 +1,4 @@
+/* The card layer lies over the board but is not part of it: it ignores the pointer except on the cards themselves,
+   so board drags and clicks outside a card reach JSXGraph. */
+.board-cards-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.board-cards-layer > .board-card { pointer-events: auto; }

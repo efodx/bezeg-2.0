@@ -402,7 +402,7 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         // What the inspector shows is what a later view change is compared with.
         this.outsideKey = [...outside].join(",");
         return <>
-            <NotablePointsPanel analysis={analysis} outsideView={outside}/>
+            <div data-declared-panel=""><NotablePointsPanel analysis={analysis} outsideView={outside}/></div>
             {super.workspaceEdit()}
         </>;
     }

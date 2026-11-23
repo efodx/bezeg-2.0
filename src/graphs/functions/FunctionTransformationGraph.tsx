@@ -349,7 +349,7 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
             {id: "curve", color: GraphPalette.primaryCurve, label: t("function_transformation_legend_curve"), kind: "line"},
             {id: "ghost", color: GraphPalette.referenceCurve, label: t("function_transformation_legend_ghost"), kind: "dashed-line"},
             {id: "point", color: GraphPalette.constructionAccent, label: t("function_transformation_legend_point"), kind: "dot"},
-        ]}/>;
+        ]} declaredPanel/>;
     }
 
     protected renderReadout(): React.ReactNode {
@@ -362,7 +362,7 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
             {id: "image-point", label: t("function_transformation_readout_image_point"), value: point ? this.pointText(point.image.x, point.image.y) : undefinedText},
         ];
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("function_transformation_note")}/>
+            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("function_transformation_note")} declaredPanel/>
             <div className="inspector-group">
                 <h3>{t("function_transformation_steps_title")}</h3>
                 <ol data-transform-steps>

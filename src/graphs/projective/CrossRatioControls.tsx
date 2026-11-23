@@ -52,7 +52,7 @@ export function CrossRatioControls(props: CrossRatioControlsProps) {
         return [positions.slice(0, 4).map(at => [at.x] as const), positions.slice(4).map(at => [at.x, at.y] as const)] as const;
     }, [model]);
     return <div className="function-inspector pointset-inspector">
-        <div className="inspector-group">
+        <div className="inspector-group" data-declared-panel="">
             <div data-projective-status={text.statusKind}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
                 {text.originalRatio && <p className="inspector-help" data-projective-line="original-ratio" data-readout-note>{text.originalRatio}</p>}
