@@ -6,7 +6,7 @@ import {normalise, renderDeclaration} from '../../graphs/base/declare/parity';
 import type {GraphDeclaration, LegendEntry, ReadoutGroup} from '../../graphs/base/declare/graphDeclaration';
 import {message, setLanguage} from '../../localization';
 import {isLegendHidden, LegendBody, shownLegendEntries} from './LegendBody';
-import {planGroupFolds, ReadoutsBody} from './ReadoutsBody';
+import {numberReserve, planGroupFolds, ReadoutsBody} from './ReadoutsBody';
 import {SectionBody} from './SectionBody';
 
 vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
@@ -165,5 +165,15 @@ describe('SectionBody', () => {
         render(<SectionBody read={() => undefined} write={vi.fn()} perform={vi.fn()}
             actions={[{id: 'go', label: message('workspace_notes_less'), placement: 'tools', enabled: true}]}/>);
         expect(screen.getByRole('button').hasAttribute('aria-pressed')).toBe(false);
+    });
+});
+
+describe('numberReserve', () => {
+    test('a formatted number reserves one width whatever its digits, so a sweep does not widen the card', () => {
+        const reserve = (text: string) => numberReserve({kind: 'formatted', text});
+        const widths = ['0', '0,8', '2,6706', '−0,0001234', '1,234e-5', '−1,234·10⁻⁷', '12 345,5'].map(reserve);
+        expect(new Set(widths).size).toBe(1);
+        expect(widths[0]).toBeGreaterThanOrEqual('−0,0001234'.length);
+        expect(reserve('ni definirano')).toBe(0);
     });
 });

@@ -7,6 +7,7 @@
 .ws-row[data-highlight], .ws-note[data-highlight] { background: rgba(255, 213, 79, 0.28); outline: 1px solid rgba(179, 136, 0, 0.55); }
 .ws-row[data-muted] { opacity: 0.65; }
 .ws-name { display: flex; align-items: center; gap: 0.4rem; margin: 0; font-weight: normal; }
+.ws-number { display: inline-block; text-align: right; }
 .ws-value { margin: 0; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ws-unit { color: var(--bs-secondary-color, #5c6a66); }
 .ws-group-title { display: block; width: 100%; padding: 0.15rem 0.25rem; border: 0; background: none; text-align: left; font-weight: 600; font-size: 0.8rem; text-transform: none; color: inherit; }
