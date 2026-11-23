@@ -1,0 +1,61 @@
+== functions/transformations load; panel: Bezeg ; Učenje ; Demonstracije ; Jezik ; SL ; EN ; Demonstracije / Funkcije in analiza / Premiki, raztegnitve in zrcaljenja grafa ; Premiki, raztegnitve in zrcaljenja grafa ;  ; Spreminjaj nastavitve in opazuj njihov vpliv na graf. ;  ; Zamenjaj demonstracijo ; Spoznaj to demonstracijo ; Predstavitveni način ; GRAF ; 2 ; 4 ; 6 ; 8 ; 10 ; 12 ; 14 ; 16 ; 2 ; 4 ; 6 ; −2 ; −4 ; −6 ; −8 ; y = −2 f(0,5(x − 3)) + 1 ; (u, f(u)) = (2; 4) → (7; −7) ; −2 ; −4 ; −6 ; −8 ; −10 ; ← ; ↑ ; ↓ ; → ; + ; − ; Prilagodi točkam ;  ; Premik: Shift + povlek · Povečava: Shift + kolešček ;  ; PREIZKUSI IN OPAZUJ ;  ; Napovej, kako se bo graf osnovne funkcije premaknil ali raztegnil, ko spremeniš a, b, c ali d; nato s
+  select :re: -> square changed=false
+  select :re: -> cube changed=true
+  select :re: -> sqrt changed=true
+  select :re: -> reciprocal changed=true
+  select :re: -> abs changed=true
+  select :re: -> exp changed=true
+  button "Skrij osnovni graf" -> "Pokaži osnovni graf" changed=true
+  errors on route: 0
+== triangle-centres load; panel: Bezeg ; Učenje ; Demonstracije ; Jezik ; SL ; EN ; Demonstracije / Geometrija ravnine / Znamenite točke trikotnika ; Znamenite točke trikotnika ;  ; Spreminjaj nastavitve in opazuj njihov vpliv na graf. ;  ; Zamenjaj demonstracijo ; Spoznaj to demonstracijo ; Predstavitveni način ; GRAF ; 2 ; 4 ; 6 ; 8 ; 10 ; 12 ; −2 ; −4 ; 1 ; 2 ; 3 ; 4 ; 5 ; 6 ; −1 ; −2 ; −3 ; Vrsta trikotnika: ostrokotni ; 𝑃 ; 1 ; 𝑃 ; 2 ; 𝑃 ; 3 ; 𝐺 ; ← ; ↑ ; ↓ ; → ; + ; − ; Prilagodi točkam ;  ; Premik: Shift + povlek · Povečava: Shift + kolešček ;  ; PREIZKUSI IN OPAZUJ ;  ; Premakni oglišča trikotnika, napovej, kje leži središče očrtane krožnice (znotraj trikotnika, na robu ali zunaj) in kdaj se višinska točka znajd
+  select :rh: -> default changed=false
+  select :rh: -> obtuse changed=true
+  select :rh: -> right changed=true
+  select :rh: -> degenerate changed=true
+  checkbox 0 (Mreža) false->true changed=true
+  checkbox 1 (Trikotnik) true->false changed=true
+  checkbox 2 (Težišče G (težiščnice)) true->false changed=true
+  checkbox 3 (Središče očrtane krožnice O (simetrale s) false->true changed=true
+  checkbox 4 (Središče včrtane krožnice I (simetrale k) false->true changed=true
+  checkbox 5 (Višinska točka H (višine)) false->true changed=true
+  errors on route: 0
+== projective/cross-ratio load; panel: Bezeg ; Učenje ; Demonstracije ; Jezik ; SL ; EN ; Demonstracije / Projektivna geometrija stožnic / Dvorazmerje in središčna projekcija ; Dvorazmerje in središčna projekcija ;  ; Spreminjaj nastavitve in opazuj njihov vpliv na graf. ;  ; Zamenjaj demonstracijo ; Spoznaj to demonstracijo ; Predstavitveni način ; GRAF ; 5 ; 10 ; 15 ; −5 ; −10 ; −15 ; 2 ; 4 ; 6 ; 8 ; 10 ; −2 ; −4 ; −6 ; −8 ; 𝑝 ; 𝐴 ; 𝐵 ; 𝐶 ; 𝐷 ; 𝑂 ; 𝑀 ; 𝑁 ; 𝑝 ; ′ ; 𝐴 ; ′ ; 𝐵 ; ′ ; 𝐶 ; ′ ; 𝐷 ; ′ ; Dvorazmerje izvirnih točk (A, B; C, D) = 9/8, decimalno 1,125 ; Dvorazmerje slik (A′, B′; C′, D′) = 9/8, decimalno 1,125 ; ← ; ↑ ; ↓ ; → ; + ; − ; Prilagodi točkam ;  ; Premik: Shift + povlek · Povečava: Shift + kolešček ; 
+  select :re: -> default changed=false
+  select :re: -> harmonic changed=true
+  select :re: -> infinity changed=true
+  errors on route: 0
+== patches/coons load; panel: Bezeg ; Učenje ; Demonstracije ; Jezik ; SL ; EN ; Demonstracije / Bézierjeve krpe / Coonsova ploskev ; Coonsova ploskev ;  ; Spreminjaj nastavitve in opazuj njihov vpliv na graf. ;  ; Zamenjaj demonstracijo ; Spoznaj to demonstracijo ; Predstavitveni način ; GRAF ;  ; Povleci prazen prostor za vrtenje pogleda, kolesce miške ali ščipanje za povečavo, povleci točko za premik. Shift premika točko po višini. ;  ; PREIZKUSI IN OPAZUJ ;  ; Premikaj točke robnih krivulj. Kako se ploskev prilagodi robovom in ali jih še vedno natančno doseže? ;  ; Naslednji namig ; Orodja ; Strni ; Uredi ; Prikaz ; Shrani ; krivulja ; pogled ; primer ; Točke robnih krivulj ; Robna krivulja ; Brez izbire ; c₀ (rob v 
+  select :r5: ->  changed=false
+  select :r5: -> c0 changed=true
+  select :r5: -> c1 changed=true
+  select :r5: -> d0 changed=true
+  select :r5: -> d1 changed=true
+  select :r6: ->  changed=false
+  select :r6: -> 0 changed=true
+  select :r6: -> 1 changed=true
+  select :r6: -> 2 changed=true
+  select :r6: -> 3 changed=true
+  select :r7: -> lc changed=true
+  select :r7: -> ld changed=true
+  select :r7: -> b changed=true
+  select :r7: -> s changed=true
+  checkbox 0 (Povezani vogali) true->false changed=true
+  coons container {"x":55,"y":305.1875,"width":998,"height":594} canvases=0
+  coons camera drag changed=true
+  errors on route: 0
+WIDTH 390 linear-map: errors=0  boards=1 scrollWidth=390 title=Linearna preslikava
+WIDTH 390 analysis/phase-portrait: errors=0  boards=1 scrollWidth=390 title=Fazni portret
+WIDTH 390 bezier/decasteljau: errors=0  boards=1 scrollWidth=390 title=De Casteljau
+WIDTH 390 analysis/taylor: errors=0  boards=1 scrollWidth=390 title=Taylorjev polinom
+WIDTH 390 functions/transformations: errors=0  boards=1 scrollWidth=390 title=Premiki, raztegnitve in zrcaljenja grafa
+WIDTH 390 triangle-centres: errors=0  boards=1 scrollWidth=390 title=Znamenite točke trikotnika
+WIDTH 390 projective/cross-ratio: errors=0  boards=1 scrollWidth=390 title=Dvorazmerje in središčna projekcija
+WIDTH 390 patches/coons: errors=0  boards=1 scrollWidth=390 title=Coonsova ploskev
+WIDTH 1024 linear-map: errors=0  boards=1 scrollWidth=1024 title=Linearna preslikava
+WIDTH 1024 analysis/phase-portrait: errors=0  boards=1 scrollWidth=1024 title=Fazni portret
+WIDTH 1024 bezier/decasteljau: errors=0  boards=1 scrollWidth=1024 title=De Casteljau
+WIDTH 1024 analysis/taylor: errors=0  boards=1 scrollWidth=1024 title=Taylorjev polinom
+WIDTH 1024 functions/transformations: errors=0  boards=1 scrollWidth=1024 title=Premiki, raztegnitve in zrcaljenja grafa
+WIDTH 1024 triangle-centres: errors=0  boards=1 scrollWidth=1024 title=Znamenite točke trikotnika
+WIDTH 1024 projective/cross-ratio: errors=0  boards=1 scrollWidth=1024 title=Dvorazmerje in središčna projekcija
+WIDTH 1024 patches/coons: errors=0  boards=1 scrollWidth=1024 title=Coonsova ploskev
