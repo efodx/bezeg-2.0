@@ -20,4 +20,4 @@ Option 2. A fragment exports `{sl: {...} as const, en: {...}}` with `en` checked
 
 - A conversion touches its graph file, its lesson files, its tests and its family's fragment, and no shared file: lanes do not conflict on text, and the handler adds no keys.
 - Finding a string now means searching two places; the localization guide names both.
-- The `loc` command and the localization tests read the merged objects, so they need no change.
+- The `loc` command and the localization tests read the merged objects, so they need no change. `tests/smoke-catalog.cjs` parses the catalog source instead; it skips the fragment spread, since no catalog row reads declaration text (missing this turned master's CI red at `901f055c` until `f9043d0d`).
