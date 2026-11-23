@@ -19,6 +19,11 @@ Options: `--seeds N` runs seeds 1..N, `--seed S` one seed, `--steps K` (default 
 on any invariant failure or any replay case that did not pass every repeat. A failing seed writes
 `fail-<route>-<seed>.json` (full trace) and a shrunk `min-<route>-<seed>.json` (replay with `--replay`) to the out dir.
 
+Readiness: a route counts as mounted when `[data-navigation]`, an `input[type=range]`, or the shared `.workspace-board-stage`
+is present (`MOUNTED` in `fuzz.cjs`). 2D routes match on navigation and sliders; surface routes such as `patches/coons` have
+no navigation and can have no sliders, so they match on the board stage. A route that never mounts is reported `INVALID`
+(launch timeout after 20 s), not `FAIL`.
+
 ## Actions
 
 Inspector sliders (pointer drag, click on the track, arrow keys, typed entry in the slider's number field, typed

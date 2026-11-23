@@ -22,6 +22,9 @@ const mulberry = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const fmt = n => String(n).replace('.', ',');
 const slugOf = (route, lesson) => route.replace(/\//g, '_') + (lesson ? '-lesson' : '');
+// "Workspace mounted" on every route kind: 2D routes have navigation buttons and sliders, surface routes (patches/coons)
+// have no navigation and may have no sliders, but always render the shared board stage (DemonstrationWorkspace).
+const MOUNTED = '[data-navigation], input[type=range], .workspace-board-stage';
 
 // --- page ------------------------------------------------------------------------------------------------------
 // The sampler runs once per animation frame in the page and records every visible slider (range value) and every
@@ -49,7 +52,7 @@ async function launchPage(browser, route, lesson) {
     p.on('pageerror', e => errs.push('pageerror: ' + e.message + ' | ' + String(e.stack || '').split('\n').slice(0, 6).join(' ; ')));
     p.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text().slice(0, 300)); });
     await p.goto(BASE + route);
-    await p.waitForSelector('[data-navigation], canvas', {timeout: 20000});
+    await p.waitForSelector(`${MOUNTED}, canvas`, {timeout: 20000});
     await p.waitForTimeout(3000);
     if (lesson) {
         await p.getByRole('button', {name: /Spoznaj to demonstracijo/}).first().click({timeout: 8000});
@@ -231,7 +234,7 @@ async function runOnce(browser, route, lesson, seed, getAction, nSteps) {
             done.push({...act});
             await sleep((r.write || r.esc) ? 1250 : 600);
             const tEnd = Date.now();
-            const fl = await p.evaluate(() => ({tok: window.__fzTok, board: !!document.querySelector('input[type=range], [data-navigation]'), log: window.__fz.splice(0)}));
+            const fl = await p.evaluate(sel => ({tok: window.__fzTok, board: !!document.querySelector(sel), log: window.__fz.splice(0)}), MOUNTED);
             if (st.reloaded || !fl.tok) { await ctx.close(); return {status: 'INVALID', actions: done, err: 'page reloaded'}; }
             const log = fl.log;
             const mkFail = (invariant, why, detail) => ({seed, step, route, lesson, invariant, why, detail, actions: done.slice()});

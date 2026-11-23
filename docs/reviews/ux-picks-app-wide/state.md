@@ -33,7 +33,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 ## Contract gaps (decide at the 08 gate; list in the guide, section 6)
 
-Formula value kind; `FormattedValue` has no width hint (cards reserve 12ch by sniffing numeric text, `ReadoutsBody.tsx` `numberReserve`); point and point-set parameters; numeric choice values; board captions and insets; highlighting a status line; the 3-highlight cap (Coons interior net); live value during playback (state lags); parity ignores `status`; multi-object legend entries; `RationalDecasteljauGraph` inherits De Casteljau's declaration; Coons legend visibility derives from switches, not meshes; linear map's five unrecorded modes now render from the declaration.
+Section placement (no field says a section lives in Orodja, so all declared sections stay `section:` cards); no field names a graph's main action in Orodja (budget puts tools first only for undeclared graphs); frame lock reason (pucks take a `lockReason` prop); Formula value kind; `FormattedValue` has no width hint (cards reserve 12ch by sniffing numeric text, `ReadoutsBody.tsx` `numberReserve`); point and point-set parameters; numeric choice values; board captions and insets; highlighting a status line; the 3-highlight cap (Coons interior net); live value during playback (state lags); parity ignores `status`; multi-object legend entries; `RationalDecasteljauGraph` inherits De Casteljau's declaration; Coons legend visibility derives from switches, not meshes; linear map's five unrecorded modes now render from the declaration.
 
 ## Open items
 
