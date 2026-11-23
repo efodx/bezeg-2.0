@@ -35,7 +35,8 @@ function mount(entry = ROUTE) {
 }
 
 const startLesson = () => act(() => { fireEvent.click(document.querySelector(".workspace-action-lesson")!); });
-const hideCard = () => act(() => { fireEvent.click(document.querySelector(".guided-lesson-hide")!); });
+// Folding the lesson card is explore: Escape folds it (a card has no hide button) and hands the graph back like the old hide button.
+const hideCard = () => act(() => { document.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true})); });
 const openSave = () => act(() => { fireEvent.click(document.querySelector("button.preset-save")!); });
 const saveName = () => screen.getByLabelText("Ime stanja") as HTMLInputElement;
 const next = () => document.querySelector<HTMLElement>('[data-action="next-step"]')!;
@@ -88,7 +89,7 @@ describe("Preset writes are decided when they commit (UA1)", () => {
         expect((row("alpha").querySelector(".preset-rename-input") as HTMLInputElement).value).toBe("gamma");
     }, REAL_GRAPH_TEST_TIMEOUT);
 
-    test("hiding the card keeps writes refused", () => {
+    test("folding the card keeps writes refused", () => {
         const graph = mount();
         startLesson();
         hideCard();
@@ -124,7 +125,7 @@ describe("relocated playback follows the lesson mode (UA2, UA3)", () => {
         expect(JSON.stringify(graph.modelNow())).toBe(model);
     }, REAL_GRAPH_TEST_TIMEOUT);
 
-    test("hidden card allows playback again, and so does leaving the lesson", () => {
+    test("a folded card allows playback again, and so does leaving the lesson", () => {
         phone();
         const graph = mount();
         startLesson();

@@ -1,13 +1,14 @@
 // Stored board layout: one versioned, validated, app-wide record of the learner's
 // card placements and folds. Spec: docs/reviews/ux-picks-app-wide/03-layout-design.md.
 // Pattern follows src/localization/index.ts: appStorage access wrapped in try/catch,
-// failure never throws. The lesson card's placement and fold are never stored.
+// failure never throws. The lesson card's placement is stored like any card's (task 04); its fold is
+// never stored, because folding the lesson card is its explore mode.
 import {appStorage} from '../../storage/appStorage';
 import type {Anchor, Placement} from './boardLayout';
 
 export const BOARD_LAYOUT_KEY = 'board-layout';
 export const BOARD_LAYOUT_VERSION = 1;
-/** The lesson card follows the prototype rule: always default placement, never stored. */
+/** The lesson card: placement stored, fold never stored (a fold is the lesson's explore mode, session-only). */
 export const LESSON_CARD_ID = 'lesson';
 
 export interface StoredBoardLayout {
@@ -46,7 +47,6 @@ export function parseBoardLayout(raw: unknown): StoredBoardLayout {
     if (!isRecord(raw) || raw.version !== BOARD_LAYOUT_VERSION) return result;
     if (isRecord(raw.placements)) {
         for (const [id, value] of Object.entries(raw.placements)) {
-            if (id === LESSON_CARD_ID) continue;
             const placement = parsePlacement(value);
             if (placement) result.placements[id] = placement;
         }
@@ -83,7 +83,6 @@ export function saveBoardLayout(layout: StoredBoardLayout, storage: Storage = ap
 }
 
 export function setPlacement(layout: StoredBoardLayout, id: string, placement: Placement): StoredBoardLayout {
-    if (id === LESSON_CARD_ID) return layout;
     return {...layout, placements: {...layout.placements, [id]: placement}};
 }
 

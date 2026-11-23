@@ -22,6 +22,8 @@ export interface WorkspaceCardHost {
         mode: 'content' | 'explore' | 'complete' | 'closed';
         /** The lesson's latest request to fold (`true`) or open its card, from a task (explore) frame; `seq` changes on every request so the same value can repeat. Undefined until one is made. */
         foldRequest: {folded: boolean; seq: number} | undefined;
+        /** The card layer reports whether the lesson card is folded to its chip: folded is explore (the graph is handed back). */
+        reportCardFolded: (folded: boolean) => void;
     };
     /** The open lesson frame's declaration (highlight, used controls), undefined when the frame declares none or no lesson is open. */
     frame: FrameDeclaration | undefined;
