@@ -24,12 +24,17 @@ export interface BoardCardsProps {
   whenReady?: MeasureOptions['whenReady'];
 }
 
+type Placed = LayoutResult['cards'][number];
 interface Drag { id: string; target: DropIndex | 'free'; first: BoardPoint | null }
 
 const NO_WIDTHS: Readonly<Record<string, number>> = {};
 const noop = () => undefined;
+const stableDiffers = (a: readonly Placed[], b: readonly Placed[]) => JSON.stringify(a) !== JSON.stringify(b);
 
-export function BoardCards({graph, highlight = [], whenReady}: BoardCardsProps) {
+/** A stable default: a fresh `[]` per render would rerun specs, inputs and layoutBoard on every render, each drag move included. */
+const NO_HIGHLIGHT: readonly string[] = [];
+
+export function BoardCards({graph, highlight = NO_HIGHLIGHT, whenReady}: BoardCardsProps) {
   useT(); // a language switch re-renders the cards
   useSyncExternalStore(graph.store.subscribe, () => graph.store.getVersion());
   const declaration = graph.getDeclaration();
@@ -39,6 +44,9 @@ export function BoardCards({graph, highlight = [], whenReady}: BoardCardsProps) 
   const [stored, setStored] = useState<StoredBoardLayout>(() => loadBoardLayout());
   const [board, setBoard] = useState<Size>({w: 0, h: 0});
   const [ready, setReady] = useState(false);
+  // The last layout that was final (measured for the current content and every width assigned). It stays on screen while a
+  // fold, language or highlight change measures again, so nothing in between is painted and the swap is one glide.
+  const [stable, setStable] = useState<readonly Placed[]>([]);
   const [drag, setDrag] = useState<Drag | null>(null);
   const [widthState, setWidthState] = useState<{key: string; widths: Readonly<Record<string, number>>}>({key: '', widths: NO_WIDTHS});
   const layerRef = useRef<HTMLDivElement>(null);
@@ -94,6 +102,7 @@ export function BoardCards({graph, highlight = [], whenReady}: BoardCardsProps) 
   // Second measurement: a card whose assigned width differs from its natural one is measured again at that width, once,
   // before anything is shown. Widths are only ever added for an arrangement, so this settles.
   // Derived during render (a state update before commit, not an effect), so nothing unsettled is ever painted.
+  let pending = !settled;
   if (base && settled) {
     const next: Record<string, number> = {...widths};
     let changed = false;
@@ -101,8 +110,11 @@ export function BoardCards({graph, highlight = [], whenReady}: BoardCardsProps) 
       const natural = inputs.find(card => card.id === placed.id)?.natural.w ?? placed.rect.w;
       if (Math.abs(placed.rect.w - natural) > 0.5 && widths[placed.id] !== placed.rect.w) { next[placed.id] = placed.rect.w; changed = true; }
     }
+    // A card whose content is wider than its assigned width (min-content) is not retried again: the layout width wins and the
+    // card's body scrolls sideways inside it (CardShell.css, `overflow-x: auto`), so content never spills over the board.
     if (changed) setWidthState({key: widthsKey, widths: next});
     else if (!ready) setReady(true);
+    pending = changed;
   }
 
   const commit = (next: StoredBoardLayout) => { setStored(next); saveBoardLayout(next); };
@@ -137,10 +149,16 @@ export function BoardCards({graph, highlight = [], whenReady}: BoardCardsProps) 
     commit(next);
   };
 
-  const shown = ready && preview ? preview.cards : [];
+  const final = ready && !pending && preview !== null;
+  // Where the dragged card would land, drawn under the cards when a drop would dock it; a free drop floats and shows none.
+  const ghost = final && drag && drag.target !== 'free' ? preview.cards.find(card => card.id === drag.id)?.rect ?? null : null;
+  const shown = final ? preview.cards : stable;
+  if (final && stableDiffers(stable, preview.cards)) setStable(preview.cards);
   return <>
     {measureLayer}
     <div ref={layerRef} className="board-cards-layer" data-board-cards-layer="">
+      {ghost && <div className="board-card-ghost" data-board-drop-target="" aria-hidden="true"
+        style={{width: ghost.w, height: ghost.h, transform: `translate(${ghost.x}px, ${ghost.y}px)`}}/>}
       {shown.map(placed => {
         const spec = specs.find(entry => entry.id === placed.id);
         if (!spec) return null;

@@ -38,3 +38,16 @@ Culprit: the signed-error and absolute-error rows on Taylor are FormattedValue (
 | analysis/phase-portrait, slider 0 over [0,6], 21 steps | 319.36 constant | 319.36 constant |
 
 Linear map and phase portrait have no FormattedValue numbers in their card, so they were already constant. localStorage key bezeg-2.0:board-layout cleared in each run.
+
+## Recheck 3 (after feel)
+
+Script: 03-recheck3.cjs; log 03-recheck3.log (raw stdout 03-recheck3.out). Fresh context per route; board-layout key 0 keys at start and end.
+
+1. Grip drag: free drop keeps grab offset. Taylor err 0.0,0.0 PASS; decasteljau err 0.0,0.0 PASS; triangle-centres err 0.0,0.0 PASS; linear-map FAIL (card x 55 instead of 498, expected offset kept). Corner drag to 170,700 moved the card on all four (x 63). Fold, Odcitki and legend buttons pointer-drag +100,+200: card unmoved on all four routes (dx 0, dy 0).
+2. Keyboard: Home returns to the default on all four routes (PASS). Taylor Shift+Left/Down/Right reached x 63 / 388,490 / 726; Up from the right anchor did not move (top anchor not reached). Decasteljau: Shift+Down and Shift+Up did not move the legend (63,313 and 438,313 unchanged). Announcements present on each step (Slovenian text).
+3. Fold/unfold: settled unfolded Taylor readouts scrollHeight 416 = clientHeight 416; clip-path none on visible content. Only visually-hidden / MathJax assistive elements have clip-path inset(50%). Folded card scrollHeight 39 vs clientHeight 37 (2 px hidden overflow on the folded card, minor).
+4. Horizontal scrollbar: scrollWidth = clientWidth on every shown card, all four routes (taylor readouts 317/317, legend 317/317; linear-map 317/317; decasteljau legend 230/230; triangle-centres readouts 189/189). PASS.
+5. Taylor slider sweep [-2,2], 21 steps: readouts width 319.36 constant (min = max). PASS.
+6. Triangle centres: 2 points -> card click 2 -> empty-board click 3. PASS.
+7. Console and page errors: none on all four routes and the triangle context.
+

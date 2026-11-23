@@ -1,0 +1,18 @@
+{
+ "frames": 105,
+ "span": 3868,
+ "readouts": {
+  "sizes": [
+   "319x418",
+   "332x401"
+  ],
+  "maxPosStepPerRaf": 30
+ },
+ "legend": {
+  "sizes": [
+   "319x101",
+   "194x101"
+  ],
+  "maxPosStepPerRaf": 34
+ }
+}

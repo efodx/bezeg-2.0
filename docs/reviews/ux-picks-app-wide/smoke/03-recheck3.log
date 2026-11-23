@@ -1,0 +1,70 @@
+## Recheck 3 run 2026-11-23T03:58:03.074Z
+clear start: removed 0 board-layout keys
+## analysis/taylor visible cards 2: readouts,legend
+start card0 {"id":"readouts","x":725.6,"y":313.2,"w":319.4,"h":417.6,"folded":false}
+1a button "Vrni kartico »Odčitki« na priv" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1a button "Odčitki" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1a button "Odčitki" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1b grip free drop to 520,560 (grab offset 22.0,20.0): card 725.6,313.2 -> 498,540 expected 498.0,540.0 err 0.0,-0.0 => PASS
+1c grip drag to 170,700: card -> 63,313.2 MOVED
+2 kbd Left: card 63,313.2 focusOnGrip=true live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči" after-drop live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči"
+2 kbd Down: card 387.9,490.1 focusOnGrip=true live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči" after-drop live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči"
+2 kbd Right: card 725.6,313.2 focusOnGrip=true live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči" after-drop live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči"
+2 kbd Up: card 725.6,313.2 focusOnGrip=true live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči" after-drop live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči"
+2 Home: card 725.6,313.2 default 725.6,313.2 => PASS live="Središče c 0. Stopnja n 1. Točka x 1. Polinom Tₙ(x) 2. Funkcija f(x) 2,7183. Napaka f(x) − Tₙ(x) 0,7183. Absolutna napaka |f(x) − Tₙ(x)| 0,7183. | Kartica »Odči"
+3 folded settled: {"folded":true,"sh":39,"ch":37,"clipPaths":{"inset(50%)":1},"clippedText":["board-card board-card--folded sh39 ch37","board-card-status sh24 ch1"]}
+3 unfolded settled: {"folded":false,"sh":416,"ch":416,"clipPaths":{"inset(50%)":2},"clippedText":["MJX-ASSISTIVE-MML sh19 ch16","MJX-ASSISTIVE-MML sh14 ch8","MJX-ASSISTIVE-MML sh14 ch8","MJX-ASSISTIVE-MML sh14 ch8","visually-hidden sh21 ch1"]}
+4 horizontal (card sw/cw): readouts 317/317 ; legend 317/317
+5 Taylor sweep [-2,2] 21 steps readouts width min 319.36 max 319.36 => CONSTANT per-step 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36 319.36
+7 errors analysis/taylor: none
+## linear-map visible cards 2: readouts,legend
+start card0 {"id":"readouts","x":725.6,"y":313.2,"w":319.4,"h":309.9,"folded":false}
+1a button "Vrni kartico »Odčitki« na priv" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1a button "Odčitki" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1a button "Odčitki" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1b grip free drop to 520,560 (grab offset 22.0,20.0): card 725.6,313.2 -> 55,540 expected 498.0,540.0 err -443.0,-0.0 => FAIL
+1c grip drag to 170,700: card -> 63,313.2 MOVED
+2 kbd Left: card 63,313.2 focusOnGrip=true live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je izbrana za p" after-drop live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je odložena."
+2 kbd Down: card 71,623.3 focusOnGrip=true live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je izbrana za p" after-drop live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je odložena."
+2 kbd Right: card 725.6,376.3 focusOnGrip=true live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je izbrana za p" after-drop live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je odložena."
+2 kbd Up: card 725.6,313.2 focusOnGrip=true live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je izbrana za p" after-drop live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je odložena."
+2 Home: card 725.6,313.2 default 725.6,313.2 => PASS live="Matrika, 1. vrstica 1 0. Matrika, 2. vrstica 0 1. Slika e₁ (a₁) (1, 0). Slika e₂ (a₂) (0, 1). Slika točke p = (1, 1) (1, 1). | Kartica »Odčitki« je spet na priv"
+3 folded settled: {"folded":true,"sh":39,"ch":37,"clipPaths":{"inset(50%)":1},"clippedText":["board-card board-card--folded sh39 ch37","board-card-status sh24 ch1"]}
+3 unfolded settled: {"folded":false,"sh":308,"ch":308,"clipPaths":{"inset(50%)":2},"clippedText":["visually-hidden sh21 ch1","board-card-status sh24 ch1"]}
+4 horizontal (card sw/cw): readouts 317/317 ; legend 317/317
+7 errors linear-map: none
+## bezier/decasteljau visible cards 1: legend
+start card0 {"id":"legend","x":812.5,"y":740.2,"w":232.5,"h":151,"folded":false}
+1a button "Vrni kartico »Legenda« na priv" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1a button "Legenda" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1b grip free drop to 520,560 (grab offset 22.0,20.0): card 812.5,740.2 -> 498,540 expected 498.0,540.0 err 0.0,-0.0 => PASS
+1c grip drag to 170,700: card -> 63,313.2 MOVED
+2 kbd Left: card 63,313.2 focusOnGrip=true live="Kartica »Legenda« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Legenda« je odložena."
+2 kbd Down: card 63,313.2 focusOnGrip=true live="Kartica »Legenda« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Legenda« je odložena."
+2 kbd Right: card 437.8,313.2 focusOnGrip=true live="Kartica »Legenda« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Legenda« je odložena."
+2 kbd Up: card 437.8,313.2 focusOnGrip=true live="Kartica »Legenda« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Legenda« je odložena."
+2 Home: card 812.5,740.2 default 812.5,740.2 => PASS live="Kartica »Legenda« je spet na privzetem mestu."
+3 folded settled: {"folded":true,"sh":39,"ch":37,"clipPaths":{"inset(50%)":1},"clippedText":["board-card board-card--folded sh39 ch37","board-card-status sh24 ch1"]}
+3 unfolded settled: {"folded":false,"sh":149,"ch":149,"clipPaths":{"inset(50%)":1},"clippedText":["board-card-status sh24 ch1"]}
+4 horizontal (card sw/cw): legend 230/230
+7 errors bezier/decasteljau: none
+## triangle-centres visible cards 2: readouts,legend
+start card0 {"id":"readouts","x":854.1,"y":313.2,"w":190.9,"h":114,"folded":false}
+1a button "Vrni kartico »Odčitki« na priv" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1a button "Odčitki" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1a button "Opombe (10)" pointer-drag +100,+200: card unmoved dx 0.0 dy 0.0 folded false->false
+1b grip free drop to 520,560 (grab offset 22.0,20.0): card 854.1,313.2 -> 498,540 expected 498.0,540.0 err 0.0,-0.0 => PASS
+1c grip drag to 170,700: card -> 63,313.2 MOVED
+2 kbd Left: card 63,313.2 focusOnGrip=true live="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Odčitki« je odložena."
+2 kbd Down: card 63,313.2 focusOnGrip=true live="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Odčitki« je odložena."
+2 kbd Right: card 461.5,313.2 focusOnGrip=true live="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Odčitki« je odložena."
+2 kbd Up: card 461.5,313.2 focusOnGrip=true live="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter jo odloži, Esc prekliče." after-drop live="Kartica »Odčitki« je odložena."
+2 Home: card 854.1,313.2 default 854.1,313.2 => PASS live="Kartica »Odčitki« je spet na privzetem mestu."
+3 folded settled: {"folded":true,"sh":39,"ch":37,"clipPaths":{"inset(50%)":1},"clippedText":["board-card board-card--folded sh39 ch37","board-card-status sh24 ch1"]}
+3 unfolded settled: {"folded":false,"sh":112,"ch":112,"clipPaths":{"inset(50%)":2},"clippedText":["board-card-status sh24 ch1"]}
+4 horizontal (card sw/cw): readouts 189/189 ; legend 189/189
+7 errors triangle-centres: none
+6 triangle centres: points after removing P3 2, after card click 2, after empty-board click 3 => PASS (board click reaches board)
+7 errors triangle-centres (tri ctx): none
+clear end: removed 0 board-layout keys
+7 all errors: none
