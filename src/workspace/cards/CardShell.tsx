@@ -70,7 +70,8 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
 
   const onPointerDown = (event: PointerEvent<HTMLElement>) => {
     if (event.button !== undefined && event.button !== 0) return;
-    if ((event.target as HTMLElement).closest('button')) return;
+    const button = (event.target as HTMLElement).closest('button');
+    if (button && !button.classList.contains('board-card-grip')) return;
     const start = toBoard(event.clientX, event.clientY);
     update({start, at: start, active: false, keyboard: false});
     onPickup?.(start);
@@ -167,7 +168,7 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
       </div>
       {!folded && <div ref={body} className="board-card-body">{children}</div>}
       {!folded && cut !== null && <button type="button" className="board-card-more" onClick={scrollMore}>{t('shell_more')}</button>}
-      <div className="board-card-status" role="status" aria-live="polite">{said}</div>
+      {rect && <div className="board-card-status" role="status" aria-live="polite">{said}</div>}
     </div>
   );
 }

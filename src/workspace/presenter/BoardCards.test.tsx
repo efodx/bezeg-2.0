@@ -14,13 +14,19 @@ import {BOARD_LAYOUT_KEY, loadBoardLayout} from '../layout/storedLayout';
 // The measure pass waits for MathJax; jsdom has none.
 vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+/** Natural card widths by id for the jsdom layout stand-in; absent means 200. */
+let naturalWidths: Record<string, number> = {};
 beforeAll(() => {
     installBoardShims();
     // jsdom lays nothing out: a board of 1000 x 700 and cards of 200 x 150 with 32 px heads and 24 px rows.
     const box = (w: number, h: number, top = 0): DOMRect => ({x: 0, y: top, left: 0, top, right: w, bottom: top + h, width: w, height: h, toJSON: () => ({})}) as DOMRect;
     HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
         if (this.classList.contains('board-cards-layer')) return box(1000, 700);
-        if (this.hasAttribute('data-card-id')) return box(this.style.width ? parseFloat(this.style.width) : 200, 150);
+        if (this.hasAttribute('data-card-id')) {
+            // A shown card has its width; a card in the measure layer fills its wrapper, whose width is set once assigned.
+            const assigned = parseFloat(this.style.width || this.parentElement?.style.width || '');
+            return box(Number.isFinite(assigned) ? assigned : naturalWidths[this.dataset.cardId ?? ''] ?? 200, 150);
+        }
         if (this.hasAttribute('data-card-head')) return box(200, 32);
         if (this.hasAttribute('data-card-row')) {
             const rows = [...(this.closest('[data-card-id]')?.querySelectorAll('[data-card-row]') ?? [])];
@@ -29,7 +35,7 @@ beforeAll(() => {
         return box(600, 400);
     };
 });
-beforeEach(() => { setLanguage('sl'); window.localStorage.clear(); });
+beforeEach(() => { setLanguage('sl'); window.localStorage.clear(); naturalWidths = {}; });
 afterEach(cleanup);
 
 const live = (selector: string) => document.querySelector<HTMLElement>(`.board-cards-layer ${selector}`);
@@ -87,6 +93,48 @@ describe('the card presenter on a declared graph', () => {
         await mountTaylor();
         expect(live('[data-card-id="readouts"] .board-card-body')).toBeNull();
         expect(loadBoardLayout().folds.readouts).toBe(true);
+    });
+
+    test('a card folded before a reload is as wide as when open once it is unfolded', async () => {
+        naturalWidths = {readouts: 282, legend: 194};
+        appStorage.setItem(BOARD_LAYOUT_KEY, JSON.stringify({version: 1, placements: {}, folds: {readouts: true}}));
+        await mountTaylor();
+        const width = () => parseFloat(shown('readouts')!.style.width);
+        expect(live('[data-card-id="readouts"] .board-card-body')).toBeNull();
+        fireEvent.click(live('[data-card-id="readouts"] .board-card-fold')!);
+        await waitUntil(() => live('[data-card-id="readouts"] .board-card-body') !== null);
+        await waitUntil(() => width() === 282).catch(() => undefined);
+        expect(width()).toBe(282);
+    });
+
+    test('value cells reserve a width from the value format, so longer numbers do not change it', async () => {
+        const {graph} = await mountTaylor();
+        const reserved = () => [...document.querySelectorAll<HTMLElement>('.board-cards-layer [data-card-id="readouts"] .ws-number')].map(el => el.style.minWidth);
+        const before = reserved();
+        expect(before.length).toBeGreaterThan(1);
+        expect(before.filter(Boolean).every(width => /^\d+ch$/.test(width))).toBe(true);
+        const widthBefore = shown('readouts')!.style.width;
+        act(() => { graph.parameters!.write('taylor-degree', 9, 'lesson'); });
+        expect(reserved()).toEqual(before);
+        expect(shown('readouts')!.style.width).toBe(widthBefore);
+    });
+
+    test('one settled polite live region announces the new value after a parameter write; the measure layer has none', async () => {
+        {
+            const {graph} = await mountTaylor();
+            const regions = () => document.querySelectorAll('.board-cards-layer [data-card-id="readouts"] [aria-live="polite"][data-card-readouts-live]');
+            expect(regions().length).toBe(1);
+            expect(document.querySelector('[data-measure-layer] [aria-live]')).toBeNull();
+            const before = regions()[0].textContent;
+            expect(before).toContain('.');
+            act(() => { graph.parameters!.write('taylor-degree', 4, 'lesson'); });
+            expect(regions()[0].textContent).toBe(before);
+            await act(async () => { await new Promise(resolve => setTimeout(resolve, 700)); });
+            const after = regions()[0].textContent;
+            expect(after).not.toBe(before);
+            const rows = (declarationOf(graph).readouts ?? []).flatMap(group => [...group.rows]).filter(row => !row.unit && !row.valueTex && !row.muted && row.name);
+            expect(after).toContain(readoutValueText(rows[0].value));
+        }
     });
 
     test('a keyboard move persists through the stored layout and survives a remount', async () => {

@@ -10,6 +10,7 @@ import {
 import {
   loadBoardLayout, resetCard, saveBoardLayout, setFold, setPlacement, type StoredBoardLayout,
 } from '../layout/storedLayout';
+import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
 import {buildCardSpecs, type PresentedGraph} from './cardSpecs';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
@@ -64,13 +65,15 @@ export function BoardCards({graph, highlight = [], whenReady}: BoardCardsProps) 
   const placementKey = JSON.stringify(stored.placements);
   const contentKey = `${shapeKey}|${highlight.join(',')}|${JSON.stringify(stored.folds)}`;
   // Fixed widths belong to the arrangement they were assigned for: a new arrangement or content measures from scratch.
-  const widthsKey = `${shapeKey}|${placementKey}`;
+  // A fold changes the column width (it counts open cards only), so it ends the widths assigned under the old fold state:
+  // a card folded at load would otherwise be measured at the narrow column and stay that wide once unfolded.
+  const widthsKey = `${shapeKey}|${placementKey}|${JSON.stringify(stored.folds)}`;
   const widths = widthState.key === widthsKey ? widthState.widths : NO_WIDTHS;
 
   const items = specs.map(spec => ({
     id: spec.id,
     width: widths[spec.id],
-    node: <CardShell id={spec.id} title={spec.title} folded={false} onFold={noop} onReset={noop} onDragMove={noop} onDrop={noop} onDragCancel={noop}>{spec.body}</CardShell>,
+    node: <CardShell id={spec.id} title={spec.title} folded={false} onFold={noop} onReset={noop} onDragMove={noop} onDrop={noop} onDragCancel={noop}><MeasurePassContext.Provider value={true}>{spec.body}</MeasurePassContext.Provider></CardShell>,
   }));
   const {layer: measureLayer, measured, settled} = useMeasuredCards(items, {contentKey, whenReady});
 

@@ -63,6 +63,25 @@ describe('CardShell', () => {
     expect(handlers.onDrop).toHaveBeenCalledWith({x: 55, y: 50});
   });
 
+  it('starts a pointer drag from the grip button, but not from the fold and reset buttons', () => {
+    render();
+    const grip = q<HTMLElement>('.board-card-grip');
+    fire(grip, 'pointerdown', {clientX: 30, clientY: 40});
+    fire(grip, 'pointermove', {clientX: 60, clientY: 40});
+    expect(handlers.onDragMove).toHaveBeenCalledWith({x: 60, y: 40});
+    fire(grip, 'pointerup', {clientX: 60, clientY: 40});
+    expect(handlers.onDrop).toHaveBeenCalledWith({x: 60, y: 40});
+
+    handlers.onDragMove.mockClear();
+    const others = [...host.querySelectorAll<HTMLElement>('.board-card-head button:not(.board-card-grip)')];
+    expect(others.length).toBe(2);
+    for (const button of others) {
+      fire(button, 'pointerdown', {clientX: 30, clientY: 40});
+      fire(button, 'pointermove', {clientX: 90, clientY: 40});
+      expect(handlers.onDragMove).not.toHaveBeenCalled();
+    }
+  });
+
   it('never starts a drag from the body', () => {
     render();
     const body = q<HTMLElement>('[data-testid="body"]');

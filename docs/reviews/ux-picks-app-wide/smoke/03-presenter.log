@@ -1,0 +1,122 @@
+## taylor default {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+fold: aria-expanded true -> false {"readouts":"763,313,282,39 [board-card--folded]","legend":"763,790,282,101"}
+unfold: true {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+kbd left while picked: {"readouts":"-837,313,282,401 [board-card--dragging]","legend":"763,790,282,101"} said="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter"
+kbd left dropped: {"readouts":"63,313,282,401","legend":"851,790,194,101"} said="Kartica »Odčitki« je odložena. || "
+kbd down while picked: {"readouts":"63,1913,282,401 [board-card--dragging]","legend":"851,790,194,101"} said="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter"
+kbd down dropped: {"readouts":"413,490,282,401","legend":"851,790,194,101"} said="Kartica »Odčitki« je odložena. || "
+kbd up while picked: {"readouts":"413,-1110,282,401 [board-card--dragging]","legend":"851,790,194,101"} said="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter"
+kbd up dropped: {"readouts":"413,313,282,401","legend":"851,790,194,101"} said="Kartica »Odčitki« je odložena. || "
+kbd right while picked: {"readouts":"2013,313,282,401 [board-card--dragging]","legend":"789,790,256,101"} said="Kartica »Odčitki« je izbrana za premik. Puščice jo premikajo, s tipko Shift hitreje; Enter"
+kbd right dropped: {"readouts":"763,313,282,401","legend":"763,790,282,101"} said="Kartica »Odčitki« je odložena. || "
+kbd esc: said="Premik kartice »Odčitki« je preklican. || " {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+pointer drag -> top-left-ish (120,300): {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+pointer drag -> free (560,520): {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+pre-reload (readouts folded): {"readouts":"763,313,282,39 [board-card--folded]","legend":"763,790,282,101"}
+localStorage keys: ["bezeg-2.0:board-layout"]
+after reload: {"readouts":"851,313,194,39 [board-card--folded]","legend":"851,790,194,101"} persist=false
+reset click: {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+legend moved: {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+Home reset: {"readouts":"763,313,282,401","legend":"763,790,282,101"} said=" || Kartica »Legenda« je spet na privzetem mestu."
+range inputs: 3
+slider 0 [-2,2] readouts width x height set: 282.2x401 ; 290x401 ; 290.2x401 ; distinct readout texts=11
+slider 1 [-3,3] readouts width x height set: 290.2x401 ; distinct readout texts=1
+presentation on: {"readouts":"1087,313,290,401","legend":"1087,816,290,101"}
+presentation fold: true -> false
+presentation kbd said=" || Kartica »Legenda« je izbrana za premik. Puščice jo premi"
+presentation drag legend: {"readouts":"1087,313,290,39 [board-card--folded]","legend":"1087,816,290,101"}
+presentation off: {"readouts":"1087,313,290,39 [board-card--folded]","legend":"1087,816,290,101"}
+errors: 0 
+## T4 pointer (title) default {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+title drag to (150,330): {"readouts":"63,313,282,401","legend":"851,790,194,101"}
+title drag to right (1300,330): {"readouts":"763,313,282,401","legend":"763,790,282,101"}
+title drag to free (560,560): {"readouts":"441,540,282,401","legend":"851,790,194,101"}
+before reload: {"readouts":"441,540,282,401","legend":"851,852,194,39 [folded]"}
+after reload: {"readouts":"441,540,282,401","legend":"851,852,194,39 [folded]"}
+reset readouts: {"readouts":"763,313,282,401","legend":"763,852,282,39 [folded]"}
+unfold legend: {"readouts":"763,313,282,401","legend":"763,790,282,101"} stored={"version":1,"placements":{},"folds":{"legend":false}}
+taylor errs 0
+## T1 cards {"readouts":"854,313,191,114","legend":"854,790,191,101"}
+jgbox {"x":55,"y":305.1875,"w":998,"h":594}
+empty-board clicks: point count 4 -> 4 -> 4
+card clicks (readouts body, legend body): 4 -> 4 -> 4
+triangle errs 0 
+## T1 cards {"readouts":"854,313,191,114","legend":"854,790,191,101"}
+jgbox {"x":55,"y":305.1875,"w":998,"h":594}
+## T1 cards {"readouts":"854,313,191,114","legend":"854,790,191,101"}
+jgbox {"x":55,"y":305.1875,"w":998,"h":594}
+empty-board clicks: point count 3 -> 3 -> 3
+card clicks (readouts body, legend body): 3 -> 3 -> 3
+triangle errs 0 
+## T2 coons canvas {"x":55,"y":305.1875,"w":998,"h":594} cards {"readouts":"726,313,319,257","legend":"726,715,319,176"}
+drag starting on card body: view region changed=true
+drag starting on empty board: view region changed=true
+coons errs 0 
+## T1 cards {"readouts":"854,313,191,114","legend":"854,790,191,101"}
+jgbox {"x":55,"y":305.1875,"w":998,"h":594}
+pts after remove: 2
+after add-btn: 3 mode btn pressed=null
+pts after remove+add-click: 3
+empty-board clicks: point count 3 -> 3 -> 3
+card clicks (readouts body, legend body): 3 -> 3 -> 3
+triangle errs 0 
+## T2 coons canvas {"x":55,"y":305.1875,"w":998,"h":594} cards {"readouts":"726,313,319,257","legend":"726,715,319,176"}
+idle control: changed=false
+drag starting on card body: view region changed=true
+drag starting on empty board: view region changed=true
+coons errs 0 
+## T1 cards {"readouts":"854,313,191,114","legend":"854,790,191,101"}
+jgbox {"x":55,"y":305.1875,"w":998,"h":594}
+pts after remove: 2
+after add-btn: 3 mode btn pressed=null
+pts after remove+add-click: 3
+## T1 start n=3 pts P1:0.00,0.00 P2:7.00,0.00 P3:2.00,5.00
+after dragging P1 by (+60,-40) px: P1:1.00,1.00 P2:7.00,0.00 P3:2.00,5.00
+after removing P3 n=2
+click-add toggle matches=1 tag=BUTTON  button
+click on readouts card body: n=2
+## T1 start n=3 pts P1:0.00,0.00 P2:7.00,0.00 P3:2.00,5.00
+after dragging P1 by (+60,-40) px: P1:1.00,1.00 P2:7.00,0.00 P3:2.00,5.00
+after removing P3 n=2
+click-add toggle matches=1 tag=BUTTON  button
+click on readouts card body: n=2
+legend card present with 2 pts: 0
+click on empty board: n=3 pts P1:1.00,1.00 P2:7.00,0.00 P3:-3.00,-3.00
+## T1 cards {"readouts":"854,313,191,114","legend":"854,790,191,101"}
+jgbox {"x":55,"y":305.1875,"w":998,"h":594}
+pts after remove: 2
+after add-btn: 3 mode btn pressed=null
+pts after remove+add-click: 3
+## T2 coons canvas {"x":55,"y":305.1875,"w":998,"h":594} cards {"readouts":"726,313,319,257","legend":"726,715,319,176"}
+idle control: changed=false
+drag starting on card body: view region changed=true
+drag starting on empty board: view region changed=true
+coons errs 0 
+## T2 coons canvas {"x":55,"y":305.1875,"w":998,"h":594} cards {"readouts":"726,313,319,257","legend":"726,715,319,176"}
+idle control: changed=false
+drag starting on card body: view region changed=true
+drag starting on empty board: view region changed=true
+coons errs 0 
+## export analysis/taylor buttons: ["BUTTON:Shrani","BUTTON:Shrani trenutno stanje …","BUTTON:Izvozi prednastavitve","BUTTON:SVG","BUTTON:PNG","BUTTON:Generiraj slike za prednastavitve"]
+ /SVG/i -> analysis-taylor-izvoz.svg 29368B hasOdcitki=false hasLegenda=false hasBoardCard=false head=<svg xmlns="http://www.w3.org/2000/svg" width="998" height="
+ /PNG/i -> analysis-taylor-izvoz.png 82739B
+## export triangle-centres buttons: ["BUTTON:Shrani","BUTTON:Shrani trenutno stanje …","BUTTON:Izvozi prednastavitve","BUTTON:SVG","BUTTON:PNG","BUTTON:Generiraj slike za prednastavitve"]
+ /SVG/i -> triangle-centres-izvoz.svg 33199B hasOdcitki=false hasLegenda=false hasBoardCard=false head=<svg xmlns="http://www.w3.org/2000/svg" width="998" height="
+ /PNG/i -> triangle-centres-izvoz.png 47362B
+## chapter: jgbox count=0 cards=0
+activity-ish elements: ["SECTION#parameter ","H2#parameter-heading ","A#example-bezier-curves-parameter-bezier-curves.parameter.decasteljau-parameter "]
+after scroll: jgbox=0 cards=0 layers=0
+buttons: ["Razveljavi","Ponovi","Počisti","Dodaj točko","Zapri obliko","Naloži primer","Izbriši točko","Kotna","Gladka (G1)","Gladka (C1)","Razveljavi","Ponovi","Počisti","Dodaj točko","Zapri obliko","Naloži primer","Izbriši točko","Kotna","Gladka (G1)","Gladka (C1)","Prejšnji odsek","Naslednji odsek"]
+errs 0 
+## chapter link text="Vodeni primer
+→" href=/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.parameter.decasteljau
+url=http://127.0.0.1:4483/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.parameter.decasteljau jgbox=1 cards=["legend@690,715,232,176"]
+## chapter link text="Vodeni primer
+→" href=/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.parameter.decasteljau
+url=http://127.0.0.1:4483/bezeg-2.0/bezier/decasteljau?example=activity.bezier-curves.parameter.decasteljau jgbox=1 cards=["legend@690,715,232,176"]
+elementFromPoint at legend card head: guided-lesson-graph-catcher / in card=false
+catcher count=1
+after catcher click: elementFromPoint in card=true
+fold true -> false
+lesson/guided chrome: "De Casteljau"
+errs 0 

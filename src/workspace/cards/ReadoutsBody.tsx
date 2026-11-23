@@ -2,6 +2,8 @@ import {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {formatNumber} from '../../analysis/format';
 import {currentLanguage, isMessageNumber, renderMessage, useT, type Message, type MessageNumber} from '../../localization';
 import type {FormattedValue, FormulaDeclaration, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from '../../graphs/base/declare/graphDeclaration';
+import {LiveReadout, SettledReadout} from '../../graphs/base/controls/LiveReadout';
+import {useIsMeasurePass} from './MeasurePass';
 import {Swatch, type DrawnObject} from './Swatch';
 import {Tex} from './Tex';
 import './cards.css';
@@ -11,6 +13,23 @@ export function readoutValueText(value: MessageNumber | Message | FormattedValue
     if ('kind' in value && value.kind === 'formatted') return value.text;
     if (isMessageNumber(value as MessageNumber)) return formatNumber((value as MessageNumber).value, currentLanguage(), (value as MessageNumber).maxDecimals);
     return renderMessage(value as Message);
+}
+
+const RESERVED_INTEGER_DIGITS = 4;
+const FORMATTED_RESERVE = 12;
+const NUMERIC_TEXT = /^[\d\s.,+−·×e⁰¹²³⁴⁵⁶⁷⁸⁹⁻—–∞-]+$/i;
+
+/**
+ * The width in `ch` a numeric value reserves: a sign, four integer digits and the declared decimals. It depends on the
+ * value's format, never on its current digits, so a sweep does not widen the card (0 for values that are not numbers).
+ */
+export function numberReserve(value: MessageNumber | Message | FormattedValue): number {
+    // A formatted number carries no format, only its text: reserve the widest a four-significant-digit number takes
+    // ("−0,0001234"), so a sweep through rounding or exponent forms does not widen the card. Other text reserves nothing.
+    if ('kind' in value && value.kind === 'formatted') return NUMERIC_TEXT.test(value.text) ? FORMATTED_RESERVE : 0;
+    if (!isMessageNumber(value as MessageNumber)) return 0;
+    const decimals = (value as MessageNumber).maxDecimals ?? 2;
+    return 1 + RESERVED_INTEGER_DIGITS + (decimals > 0 ? 1 + decimals : 0);
 }
 
 /**
@@ -73,7 +92,7 @@ function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry;
             </span>
         </dt>
         <dd className="ws-value" ref={cell as never}>
-            {row.valueTex ? <Tex tex={row.valueTex}/> : readoutValueText(row.value)}
+            {row.valueTex ? <Tex tex={row.valueTex}/> : <span className="ws-number" data-reserve={numberReserve(row.value)} style={numberReserve(row.value) ? {minWidth: `${numberReserve(row.value)}ch`} : undefined}>{readoutValueText(row.value)}</span>}
             {row.unit && <span className="ws-unit">{' '}{renderMessage(row.unit)}</span>}
         </dd>
     </div>;
@@ -92,9 +111,25 @@ export interface ReadoutsBodyProps {
     available?: number;
 }
 
+/** The sentence the card announces: each shown plain-text row as "name value unit". */
+function announcement(groups: readonly ReadoutGroup[]): string {
+    return groups.flatMap(group => group.rows).filter(row => !row.muted && !row.valueTex && row.name)
+        .map(row => `${renderMessage(row.name!)} ${readoutValueText(row.value)}${row.unit ? ` ${renderMessage(row.unit)}` : ''}`).join('\n');
+}
+
+/** The card's single polite, settled live region. Not rendered in the measure layer (the caller checks). */
+function ReadoutsLive({groups}: {groups: readonly ReadoutGroup[]}) {
+    const [readout] = useState(() => new SettledReadout());
+    const text = announcement(groups);
+    useEffect(() => { readout.report(text); }, [readout, text]);
+    useEffect(() => () => readout.cancel(), [readout]);
+    return <LiveReadout readout={readout} dataAttribute="card-readouts-live"/>;
+}
+
 /** The Odčitki card body: formula row, titled groups of read-off rows, then the notes. */
 export function ReadoutsBody(props: ReadoutsBodyProps) {
     const t = useT();
+    const measurePass = useIsMeasurePass();
     const highlight = new Set(props.highlight ?? []);
     const root = useRef<HTMLDivElement>(null);
     const entries = new Map((props.legend ?? []).map(entry => [entry.id as string, entry]));
@@ -144,5 +179,6 @@ export function ReadoutsBody(props: ReadoutsBodyProps) {
             </section>;
         })}
         {props.notes && props.notes.length > 0 && <Notes notes={props.notes} highlight={highlight}/>}
+        {!measurePass && <ReadoutsLive groups={props.groups}/>}
     </div>;
 }
