@@ -14,6 +14,11 @@ export interface CardInput {
   priority: number;
   defaultAnchor: Anchor;
   defaultOrder: number;
+  /** Height of a bar row inside the card under its scroll area ("Več", the Povrni row). Already part of `natural.h` and `min.h`;
+   *  a cut lands on the largest rowBreak that fits above it, then adds it back. Default 0. */
+  reserve?: number;
+  /** Starts folded when nothing else decides (rule 4, after the budget): Legenda and `section:` cards. */
+  defaultFolded?: boolean;
 }
 
 export type Placement =
@@ -31,6 +36,12 @@ export interface LayoutInput {
   columnMaxFraction: number;
   gap: number;
   frozenFolds?: Readonly<Record<string, boolean>>;
+  /** First view: of the ids in `order` that are present, only the first `open` start open, the rest start folded.
+   *  Applies to cards without a stored fold that are not frame-opened. */
+  budget?: { open: number; order: readonly string[] };
+  /** "Več" on a cut card: it is not cut, and lower-priority open cards of its column fold to make room (never frame-opened,
+   *  learner-opened or lesson cards). Not stored. */
+  expanded?: string;
 }
 
 export interface CardLayout { id: string; rect: Rect; folded: boolean; cut: number | null; anchor: Anchor | 'free' }
@@ -65,7 +76,7 @@ const byOrderThenId = (a: State, b: State): number => {
 const heightOf = (s: State): number => s.cut ?? (s.folded ? s.card.foldedHeight : s.card.natural.h);
 
 export function layoutBoard(input: LayoutInput): LayoutResult {
-  const { board, cards, stored, storedFolds, frame, pucks, maxSpan, columnMaxFraction, gap, frozenFolds } = input;
+  const { board, cards, stored, storedFolds, frame, pucks, maxSpan, columnMaxFraction, gap, frozenFolds, budget, expanded } = input;
 
   // Rule 1: band.
   const bandW = Math.min(board.w, maxSpan);
@@ -80,6 +91,9 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   // Rule 4: open or folded.
   const frameOpen = new Set(frame?.open ?? []);
   if (frame?.usesTools) frameOpen.add('tools');
+  const present = new Set(cards.map((c) => c.id));
+  const budgeted = budget ? budget.order.filter((id) => present.has(id)) : [];
+  const budgetOpen = new Set(budgeted.slice(0, budget?.open ?? 0));
   const states: State[] = cards.map((card) => {
     const placement: Placement = stored[card.id] ?? { kind: 'docked', anchor: card.defaultAnchor, order: card.defaultOrder };
     const frozen = frozenFolds?.[card.id];
@@ -87,7 +101,9 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
     let folded: boolean;
     if (frozen !== undefined) folded = frozen;
     else if (frameOpen.has(card.id)) folded = false;
-    else folded = learner ?? false;
+    else if (learner !== undefined) folded = learner;
+    else if (budgeted.includes(card.id)) folded = !budgetOpen.has(card.id);
+    else folded = card.defaultFolded ?? false;
     const pinned = card.priority === Infinity || frameOpen.has(card.id) || learner === false;
     return { card, placement, stored: card.id in stored, folded, pinned, cut: null };
   });
@@ -104,9 +120,11 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
     const total = (): number => members.reduce((sum, s) => sum + heightOf(s), 0) + (members.length - 1) * gap;
 
     // Rule 5: fold before clip (skipped while a drag freezes the folds).
+    const wide = members.find((s) => s.card.id === expanded); // "Več": never cut (until nothing else is left to give)
     if (!frozenFolds) {
       while (total() > avail) {
-        const open = members.filter((s) => !s.folded && !s.pinned);
+        // With an expanded card only lower-priority cards of its column give way to it.
+        const open = members.filter((s) => !s.folded && !s.pinned && (!wide || (s !== wide && s.card.priority < wide.card.priority)));
         if (open.length === 0) break;
         open.sort((a, b) => a.card.priority - b.card.priority || (a.card.id < b.card.id ? -1 : 1));
         open[0].folded = true;
@@ -115,14 +133,19 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
 
     // Rule 6: cut the tallest open card until the column fits.
     const exhausted = new Set<State>();
+    let exempt = wide;
     while (total() > avail) {
-      const open = members.filter((s) => !s.folded && !exhausted.has(s) && heightOf(s) > s.card.min.h);
-      if (open.length === 0) break;
+      const open = members.filter((s) => !s.folded && !exhausted.has(s) && s !== exempt && heightOf(s) > s.card.min.h);
+      if (open.length === 0) {
+        if (exempt) { exempt = undefined; continue; } // last resort: cut the expanded card too
+        break;
+      }
       open.sort((a, b) => heightOf(b) - heightOf(a) || (a.card.id < b.card.id ? -1 : 1));
       const s = open[0];
       const room = avail - (total() - heightOf(s));
-      const fitting = s.card.rowBreaks.filter((b) => b <= room);
-      const cut = Math.max(s.card.min.h, fitting.length ? Math.max(...fitting) : 0);
+      const bar = s.card.reserve ?? 0;
+      const fitting = s.card.rowBreaks.filter((b) => b <= room - bar);
+      const cut = Math.max(s.card.min.h, fitting.length ? Math.max(...fitting) + bar : 0);
       if (cut >= heightOf(s)) exhausted.add(s);
       else s.cut = cut;
     }

@@ -32,6 +32,7 @@
 }
 .board-card-button:hover { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
 .board-card-button:focus-visible, .board-card-more:focus-visible { outline: var(--bezeg-control-focus); outline-offset: calc(-1 * var(--bezeg-control-focus-offset)); }
+.board-card-actions { display: contents; }
 .board-card-grip { cursor: grab; touch-action: none; }
 .board-card-fold svg { transition: transform .15s ease; }
 .board-card-fold[aria-expanded="false"] svg { transform: rotate(-90deg); }

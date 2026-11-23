@@ -82,6 +82,24 @@ describe('CardShell', () => {
     }
   });
 
+  it('renders head actions between title and fold/reset, in tab order, without starting a drag', () => {
+    act(() => {
+      root.render(createElement(CardShell, {
+        id: 'lesson', title: message('shell_card_readouts'), rect: {x: 20, y: 30, w: 200, h: 120}, folded: false, ...handlers,
+        headActions: createElement('span', {role: 'button', tabIndex: 0, 'data-testid': 'act'}, 'A'),
+      }));
+    });
+    const labels = [...host.querySelectorAll<HTMLElement>('.board-card-head button, [data-testid="act"]')].map((b) =>
+      b.classList.contains('board-card-grip') ? 'grip' : b.dataset.testid === 'act' ? 'act' : b.classList.contains('board-card-fold') ? 'fold' : 'reset');
+    expect(labels).toEqual(['grip', 'act', 'fold', 'reset']);
+    const title = q<HTMLElement>('.board-card-title');
+    expect(title.nextElementSibling?.querySelector('[data-testid="act"]')).not.toBeNull();
+    const act1 = q<HTMLElement>('[data-testid="act"]');
+    fire(act1, 'pointerdown', {clientX: 30, clientY: 40});
+    fire(act1, 'pointermove', {clientX: 90, clientY: 40});
+    expect(handlers.onDragMove).not.toHaveBeenCalled();
+  });
+
   it('never starts a drag from the body', () => {
     render();
     const body = q<HTMLElement>('[data-testid="body"]');

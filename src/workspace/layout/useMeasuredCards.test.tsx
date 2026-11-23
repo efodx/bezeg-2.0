@@ -82,6 +82,42 @@ describe('useMeasuredCards', () => {
     expect(removeSpy).toHaveBeenCalledWith('loadingdone', expect.any(Function));
   });
 
+  it('keeps a live item out of the hidden layer and merges its on-board reading into measured', async () => {
+    const rects: Record<string, [number, number]> = {card: [0, 120], head: [0, 30], body: [30, 119], row1: [40, 70], row2: [80, 110]};
+    const rectOf = (el: Element) => rects[(el as HTMLElement).dataset.testid ?? ''] ?? [0, 100];
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const [top, bottom] = rectOf(this);
+      return {top, bottom, height: bottom - top, width: 50, left: 0, right: 50, x: 0, y: top, toJSON: () => ({})} as DOMRect;
+    });
+    function LiveProbe() {
+      const value = useMeasuredCards([
+        {id: 'a', node: createElement('div', {'data-card-id': 'a'}, 'x')},
+        {id: 'lesson', live: true, node: createElement('div', {'data-card-id': 'lesson', 'data-testid': 'hidden-lesson'}, 'y')},
+      ], {whenReady: () => Promise.resolve()});
+      useEffect(() => {
+        latest.current = value;
+      });
+      return createElement('div', null, value.layer,
+        createElement('div', {'data-card-id': 'lesson', 'data-testid': 'card'},
+          createElement('div', {'data-card-head': '', 'data-testid': 'head'}),
+          createElement('div', {'data-card-body': '', 'data-testid': 'body'},
+            createElement('div', {'data-testid': 'content'}, createElement('p', {'data-card-row': '', 'data-testid': 'row1'}), createElement('p', {'data-card-row': '', 'data-testid': 'row2'})))));
+    }
+    rects.content = [40, 112];
+    await act(async () => { root.render(createElement(LiveProbe)); });
+    await flush();
+    expect(host.querySelectorAll('[data-measure-layer] [data-card-id="lesson"]').length).toBe(0);
+    expect(latest.current?.measured?.map((m) => m.id)).toEqual(['a']);
+
+    await act(async () => { latest.current?.measureLive('lesson', host.querySelector<HTMLElement>('[data-testid="card"]')); });
+    const lesson = latest.current?.measured?.find((m) => m.id === 'lesson');
+    expect(lesson).toMatchObject({foldedHeight: 30, rowBreaks: [70, 110], natural: {w: 50, h: 112}});
+    expect(lesson?.min.h).toBe(70);
+    const before = latest.current?.measured;
+    await act(async () => { latest.current?.measureLive('lesson', host.querySelector<HTMLElement>('[data-testid="card"]')); });
+    expect(latest.current?.measured).toBe(before); // unchanged reading: no new array
+  });
+
   it('removes the font listener on unmount', async () => {
     const removeSpy = vi.spyOn(fontsEvents, 'removeEventListener');
     await act(async () => { root.render(createElement(Probe, {whenReady: () => Promise.resolve()})); });

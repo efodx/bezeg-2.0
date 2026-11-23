@@ -1,8 +1,8 @@
-import {createElement, useEffect, useRef, useState} from 'react';
+import {createElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {ReactElement, ReactNode} from 'react';
 import {loadMathJax} from '../../mathjax/loadMathJax';
 import type {MathJaxApi} from '../../mathjax/loadMathJax';
-import {measureCards} from './measureCards';
+import {measureCards, measureLiveCard} from './measureCards';
 import type {MeasuredCard} from './measureCards';
 
 export interface MeasureItem {
@@ -11,6 +11,9 @@ export interface MeasureItem {
   width?: number;
   /** Must render a card root following the markup contract in measureCards.ts. */
   node: ReactNode;
+  /** The card is shown on the board and measured there: it is not rendered in the hidden layer; the presenter calls
+   *  `measureLive(id, cardRoot)` from a layout effect instead. */
+  live?: true;
 }
 
 export interface MeasuredCards {
@@ -22,6 +25,9 @@ export interface MeasuredCards {
   generation: number;
   /** True when `measured` was taken for the items and content key of this render (false while a newer pass is pending). */
   settled: boolean;
+  /** Reads a live item's card (`[data-card-id]` root with `data-card-body`, rows and head) at its assigned width and merges it into
+   *  `measured`. Call from a layout effect (it re-renders before paint); an unchanged reading does nothing. Stable identity. */
+  measureLive: (id: string, element: HTMLElement | null) => void;
 }
 
 export interface MeasureOptions {
@@ -68,7 +74,13 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
   useEffect(() => {
     whenReadyRef.current = whenReady;
   });
-  const key = items.map((i) => `${i.id}:${i.width ?? ''}`).join('|') + `#${options.contentKey ?? ''}`;
+  const [liveCards, setLiveCards] = useState<Readonly<Record<string, MeasuredCard>>>({});
+  const measureLive = useCallback((id: string, element: HTMLElement | null) => {
+    if (!element) return;
+    const next = measureLiveCard(element);
+    setLiveCards((prev) => (prev[id] && signature([prev[id]]) === signature([next]) ? prev : {...prev, [id]: {...next, id}}));
+  }, []);
+  const key = items.map((i) => `${i.id}:${i.width ?? ''}${i.live ? ':live' : ''}`).join('|') + `#${options.contentKey ?? ''}`;
 
   useEffect(() => {
     const layer = layerNode;
@@ -115,7 +127,7 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
   const layer = createElement(
     'div',
     {ref: setLayerNode, 'aria-hidden': true, style: LAYER_STYLE, 'data-measure-layer': ''},
-    items.map((item) =>
+    items.filter((item) => !item.live).map((item) =>
       createElement(
         'div',
         {key: item.id, style: {width: item.width ?? 'max-content', position: 'relative'}},
@@ -124,5 +136,13 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
     ),
   );
 
-  return {layer, measured: state.measured, generation: state.generation, settled: state.key === key};
+  const liveIds = items.filter((i) => i.live).map((i) => i.id).join('|');
+  const measured = useMemo(() => {
+    if (!state.measured) return null;
+    const ids = liveIds ? liveIds.split('|') : [];
+    const live = ids.flatMap((id) => (liveCards[id] ? [liveCards[id]] : []));
+    return live.length ? [...state.measured, ...live] : state.measured;
+  }, [state.measured, liveCards, liveIds]);
+
+  return {layer, measured, generation: state.generation, settled: state.key === key, measureLive};
 }

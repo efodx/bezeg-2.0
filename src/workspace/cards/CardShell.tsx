@@ -24,6 +24,8 @@ export interface CardShellProps {
   onPickup?: (pointer: BoardPoint | null) => void;
   onDrop: (pointer: BoardPoint) => void;
   onDragCancel: () => void;
+  /** Controls in the head between the title and the fold/reset buttons (tab order: grip, actions, fold, reset). They never start a drag. */
+  headActions?: ReactNode;
   children?: ReactNode;
 }
 
@@ -63,7 +65,7 @@ export function visibleSize(full: {w: number; h: number}, clip: string): {w: num
 
 interface Drag { start: BoardPoint; at: BoardPoint; active: boolean; keyboard: boolean }
 
-export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onPickup, onDrop, onDragCancel, children}: CardShellProps) {
+export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onPickup, onDrop, onDragCancel, headActions, children}: CardShellProps) {
   const t = useT();
   const root = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -83,6 +85,7 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
     if (event.button !== undefined && event.button !== 0) return;
     const button = (event.target as HTMLElement).closest('button');
     if (button && !button.classList.contains('board-card-grip')) return;
+    if ((event.target as HTMLElement).closest('[data-card-action]')) return; // head actions never start a drag
     const start = toBoard(event.clientX, event.clientY);
     update({start, at: start, active: false, keyboard: false});
     onPickup?.(start);
@@ -218,11 +221,12 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
         <button type="button" className="board-card-button board-card-grip" aria-label={t('shell_grip', {value0: name})}
                 onKeyDown={onGripKeyDown} onBlur={onGripBlur}><GripIcon/></button>
         <h3 className="board-card-title">{name}</h3>
-        <button type="button" className="board-card-button" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>
+        {headActions && <span className="board-card-actions" data-card-action>{headActions}</span>}
         <button type="button" className="board-card-button board-card-fold" aria-expanded={!folded} aria-label={name}
                 onClick={() => onFold(!folded)}><Chevron/></button>
+        <button type="button" className="board-card-button" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>
       </div>
-      {!folded && <div ref={body} className="board-card-body">{children}</div>}
+      {!folded && <div ref={body} className="board-card-body" data-card-body>{children}</div>}
       {!folded && cut !== null && <button type="button" className="board-card-more" onClick={scrollMore}>{t('shell_more')}</button>}
       {rect && <div className="board-card-status" role="status" aria-live="polite">{said}</div>}
     </div>
