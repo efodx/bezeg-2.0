@@ -3,10 +3,21 @@
     position: absolute; left: 0; top: 0; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden;
     background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink);
     border: 1px solid var(--bezeg-shell-rule); border-radius: var(--bezeg-control-radius); box-shadow: var(--bezeg-shell-shadow-card);
-    transition: transform .16s ease, width .16s ease, height .16s ease;
+    /* One glide between two known rectangles, on the compositor. Size is never animated: the content is laid out at its final size
+       (a growing card is revealed with a clip, see CardShell.tsx), so no card shows an intermediate size or reflows mid-glide. */
+    transition: transform var(--board-glide) var(--board-ease), box-shadow .14s ease;
+    --board-glide: .26s; --board-ease: cubic-bezier(.22, 1, .36, 1);
 }
 .board-card--static { position: relative; }
-.board-card--dragging { z-index: 10; transition: none; cursor: grabbing; }
+.board-card--dragging { z-index: 10; transition: box-shadow .14s ease; cursor: grabbing; box-shadow: 0 10px 28px rgba(10, 30, 20, .28), 0 2px 6px rgba(10, 30, 20, .18); will-change: transform; }
+.board-card--settling { z-index: 9; }
+/* Where a drop would land: a quiet outline under the cards; it carries no content, so its size may glide. */
+.board-card-ghost {
+    position: absolute; left: 0; top: 0; box-sizing: border-box; pointer-events: none; z-index: 0;
+    border: 2px dashed var(--bezeg-shell-action); border-radius: var(--bezeg-control-radius);
+    background: color-mix(in srgb, var(--bezeg-shell-action) 9%, transparent);
+    transition: transform var(--board-glide, .26s) cubic-bezier(.22, 1, .36, 1), width .18s ease, height .18s ease, opacity .12s ease;
+}
 .board-card--instant { transition: none; }
 .board-card-head {
     display: flex; align-items: center; gap: 4px; flex: none; min-height: var(--bezeg-control-height); padding: 0 4px 0 2px;
@@ -24,12 +35,14 @@
 .board-card-grip { cursor: grab; touch-action: none; }
 .board-card-fold svg { transition: transform .15s ease; }
 .board-card-fold[aria-expanded="false"] svg { transform: rotate(-90deg); }
-.board-card-body { flex: 1 1 auto; min-height: 0; padding: 6px 10px 8px; }
+/* Content wider than the width the layout gave the card scrolls sideways inside it instead of spilling over the board. */
+.board-card-body { flex: 1 1 auto; min-height: 0; padding: 6px 10px 8px; overflow-x: auto; overflow-y: hidden; }
 .board-card--cut .board-card-body { overflow-y: auto; }
+.board-card-head { -webkit-touch-callout: none; }
 .board-card-more {
     flex: none; min-height: 28px; border: 0; border-top: 1px solid var(--bezeg-shell-rule); background: var(--bezeg-shell-control-hover);
     color: var(--bezeg-shell-action); font: inherit; font-size: .8rem; cursor: pointer;
 }
 .board-card-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (pointer: coarse) { .board-card-more { min-height: 44px; } }
-@media (prefers-reduced-motion: reduce) { .board-card, .board-card-fold svg { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .board-card, .board-card-ghost, .board-card-fold svg { transition: none; } }

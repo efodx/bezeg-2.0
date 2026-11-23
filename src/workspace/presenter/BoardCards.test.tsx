@@ -9,6 +9,8 @@ import type {GraphDeclaration} from '../../graphs/base/declare/graphDeclaration'
 import {setLanguage} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
 import {readoutValueText} from '../cards/ReadoutsBody';
+import {readFileSync} from 'node:fs';
+const cardCss = readFileSync('src/workspace/cards/CardShell.css', 'utf8');
 import {BOARD_LAYOUT_KEY, loadBoardLayout} from '../layout/storedLayout';
 
 // The measure pass waits for MathJax; jsdom has none.
@@ -81,6 +83,11 @@ describe('the card presenter on a declared graph', () => {
         await mountTaylor();
         expect(document.querySelector('main')?.hasAttribute('data-board-cards')).toBe(true);
         expect(document.querySelector('#workspace-inspector .inspector-tabs')).not.toBeNull();
+        // The stylesheet hides marked panels under [data-board-cards] (DemonstrationWorkspace.css); jsdom loads no CSS.
+        const panels = [...document.querySelectorAll('#workspace-inspector [data-declared-panel]')];
+        expect(panels.length).toBeGreaterThan(0);
+        for (const panel of panels) expect(panel.closest('[data-board-cards]'), 'declared panel is inside the hiding scope').not.toBeNull();
+        expect(document.querySelector('#workspace-inspector .inspector-tabs')?.closest('[data-declared-panel]')).toBeNull();
     });
 
     test('a fold persists through the stored layout and survives a remount', async () => {
@@ -88,7 +95,7 @@ describe('the card presenter on a declared graph', () => {
         expect(live('[data-card-id="readouts"] .board-card-body')).not.toBeNull();
         fireEvent.click(live('[data-card-id="readouts"] .board-card-fold')!);
         expect(loadBoardLayout().folds.readouts).toBe(true);
-        expect(live('[data-card-id="readouts"] .board-card-body')).toBeNull();
+        await waitUntil(() => live('[data-card-id="readouts"] .board-card-body') === null);
         view.unmount();
         await mountTaylor();
         expect(live('[data-card-id="readouts"] .board-card-body')).toBeNull();
@@ -105,6 +112,34 @@ describe('the card presenter on a declared graph', () => {
         await waitUntil(() => live('[data-card-id="readouts"] .board-card-body') !== null);
         await waitUntil(() => width() === 282).catch(() => undefined);
         expect(width()).toBe(282);
+    });
+
+    test('a fold keeps the old layout on screen until the new one is final: no intermediate rect is ever rendered', async () => {
+        naturalWidths = {readouts: 282, legend: 194};
+        await mountTaylor();
+        await waitUntil(() => shown('legend') !== null);
+        const snapshot = () => ['readouts', 'legend'].map(id => `${id}:${shown(id)?.style.width}|${shown(id)?.style.height}|${shown(id)?.style.transform}|${shown(id)?.querySelector('.board-card-body') ? 'open' : 'folded'}`).join(' ');
+        const seen: string[] = [snapshot()];
+        const layer = document.querySelector('.board-cards-layer')!;
+        const observer = new MutationObserver(() => { const now = snapshot(); if (now !== seen[seen.length - 1]) seen.push(now); });
+        observer.observe(layer, {attributes: true, childList: true, subtree: true});
+        fireEvent.click(live('[data-card-id="readouts"] .board-card-fold')!);
+        await waitUntil(() => live('[data-card-id="readouts"] .board-card-body') === null);
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 300)); });
+        observer.disconnect();
+        // old layout, then the final one: nothing between (a fold re-assigns the column width, which would show as extra states)
+        expect(seen.length).toBe(2);
+    });
+
+    test('a card wider than the column is shown at the layout width and the pass terminates', async () => {
+        naturalWidths = {readouts: 900, legend: 194};
+        await mountTaylor();
+        const wide = parseFloat(shown('readouts')!.style.width);
+        expect(wide).toBeLessThan(900);
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 200)); });
+        expect(parseFloat(shown('readouts')!.style.width)).toBe(wide);
+        // Content wider than the assigned width scrolls inside the card; it never spills over the board.
+        expect(cardCss).toMatch(/\.board-card-body\s*\{[^}]*overflow-x:\s*auto/);
     });
 
     test('value cells reserve a width from the value format, so longer numbers do not change it', async () => {
@@ -179,6 +214,7 @@ describe('the old panels of other declared pilots', () => {
         expect(document.querySelector('main')?.hasAttribute('data-board-cards')).toBe(true);
         expect(document.querySelectorAll('#workspace-inspector [data-declared-panel]').length).toBeGreaterThan(0);
         expect(document.querySelector('.board-cards-layer [data-declared-panel]')).toBeNull();
+        for (const panel of document.querySelectorAll('#workspace-inspector [data-declared-panel]')) expect(panel.closest('[data-board-cards]')).not.toBeNull();
         expect(document.querySelector('#workspace-inspector .inspector-tabs')).not.toBeNull();
     });
 
@@ -193,6 +229,7 @@ describe('the presenter on an undeclared graph', () => {
         mountGraph(new RootFindingGraph());
         expect(document.querySelector('.board-cards-layer')).toBeNull();
         expect(document.querySelector('[data-board-cards]')).toBeNull();
+        expect(document.querySelectorAll('[data-declared-panel]').length).toBe(0);
         expect(document.getElementById('jgbox')).not.toBeNull();
     });
 });

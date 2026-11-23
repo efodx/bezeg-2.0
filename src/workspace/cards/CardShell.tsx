@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import type {KeyboardEvent, PointerEvent, ReactNode} from 'react';
 import {renderMessage, useT} from '../../localization';
 import type {Message} from '../../localization';
@@ -49,6 +49,17 @@ function usePrefersReducedMotion(): boolean {
 const Chevron = () => <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const GripIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="currentColor">{[5, 11].flatMap(x => [3, 8, 13].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3"/>))}</svg>;
 const ResetIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2.5v3h3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+
+const REVEAL_MS = 260;
+const REVEAL_EASING = 'cubic-bezier(.22, 1, .36, 1)';
+const SETTLE_MS = 280;
+
+/** The width and height currently visible, given the card's laid-out size and a running reveal clip (computed `inset(t r b l)`). */
+export function visibleSize(full: {w: number; h: number}, clip: string): {w: number; h: number} {
+  const m = /inset\(\s*(-?[\d.]+)(?:px)?\s+(-?[\d.]+)(?:px)?\s+(-?[\d.]+)(?:px)?\s+(-?[\d.]+)/.exec(clip);
+  if (!m) return full;
+  return {w: full.w - parseFloat(m[2]) - parseFloat(m[4]), h: full.h - parseFloat(m[1]) - parseFloat(m[3])};
+}
 
 interface Drag { start: BoardPoint; at: BoardPoint; active: boolean; keyboard: boolean }
 
@@ -142,16 +153,61 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
   };
 
   const dragging = drag?.active === true;
+  // After a drop the card keeps its place above the others for the length of its glide.
+  const [settling, setSettling] = useState(false);
+  const wasDragging = useRef(false);
+  useEffect(() => {
+    if (wasDragging.current && !dragging && !reduced) {
+      setSettling(true);
+      const timer = window.setTimeout(() => setSettling(false), SETTLE_MS);
+      wasDragging.current = dragging;
+      return () => window.clearTimeout(timer);
+    }
+    wasDragging.current = dragging;
+    return undefined;
+  }, [dragging, reduced]);
+
+  // Size changes never animate width or height (that would reflow the text mid-glide): the box takes its final size at once and
+  // a card that grew is revealed by a clip from the size it showed to its full size. A new change while one runs starts from what
+  // is visible now (read from the running animation), so interruption never jumps. A card that shrank simply ends at its size.
+  const width = rect?.w;
+  const height = rect?.h;
+  const shown = useRef<{w: number; h: number} | null>(null);
+  const reveal = useRef<Animation | null>(null);
+  useLayoutEffect(() => {
+    const el = root.current;
+    if (!el || width === undefined || height === undefined) return;
+    const full = {w: width, h: height};
+    const previous = shown.current;
+    let from = previous;
+    if (reveal.current && previous) {
+      from = visibleSize(previous, getComputedStyle(el).clipPath);
+      reveal.current.cancel();
+      reveal.current = null;
+    }
+    shown.current = full;
+    if (!from || reduced || dragging || typeof el.animate !== 'function') return;
+    const right = Math.max(0, full.w - from.w);
+    const bottom = Math.max(0, full.h - from.h);
+    if (right < 0.5 && bottom < 0.5) return;
+    const animation = el.animate(
+      [{clipPath: `inset(0px ${right}px ${bottom}px 0px)`}, {clipPath: 'inset(0px 0px 0px 0px)'}],
+      {duration: REVEAL_MS, easing: REVEAL_EASING});
+    reveal.current = animation;
+    const done = () => { if (reveal.current === animation) reveal.current = null; };
+    animation.onfinish = done;
+    animation.oncancel = done;
+  }, [width, height, reduced, dragging]);
   const offset = dragging && drag ? {x: drag.at.x - drag.start.x, y: drag.at.y - drag.start.y} : {x: 0, y: 0};
   const style = rect
     ? {
       width: rect.w,
       height: rect.h,
       transform: `translate(${rect.x + offset.x}px, ${rect.y + offset.y}px)`,
-      ...(reduced || dragging ? {transition: 'none'} : {}),
+      ...(reduced ? {transition: 'none'} : {}),
     }
     : undefined;
-  const classes = ['board-card', rect ? '' : 'board-card--static', folded ? 'board-card--folded' : '', cut !== null ? 'board-card--cut' : '', dragging ? 'board-card--dragging' : '']
+  const classes = ['board-card', rect ? '' : 'board-card--static', folded ? 'board-card--folded' : '', cut !== null ? 'board-card--cut' : '', dragging ? 'board-card--dragging' : '', settling ? 'board-card--settling' : '']
     .filter(Boolean).join(' ');
   const scrollMore = () => body.current?.scrollBy?.({top: Math.max(40, body.current.clientHeight - 24), behavior: reduced ? 'auto' : 'smooth'});
 
