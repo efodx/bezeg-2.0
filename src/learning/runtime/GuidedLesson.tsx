@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect,useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
+import React, {useCallback, useEffect,useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
@@ -94,7 +94,8 @@ export function GuidedLesson(props: {
     const normalizeTitle = (title: string) => title.replace(/\s+/g, ' ').trim().toLocaleLowerCase(language);
     const visiblePageTitle = normalizeTitle(props.visiblePageTitle ?? '');
     const pageHeadingHasLessonTitle = !!visiblePageTitle && visiblePageTitle === normalizeTitle(lessonTitle);
-    const [startupError, setStartupError] = useState<Error>();
+    // A startup failure belongs to the session that raised it, so a new session starts without one and no effect has to clear it.
+    const [startupFailure, setStartupFailure] = useState<{session: LessonSession; error: Error}>();
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
     const [exitRequested, setExitRequested] = useState(false);
     const [exitError, setExitError] = useState(false);
@@ -123,12 +124,16 @@ export function GuidedLesson(props: {
     if (held.lesson !== props.lesson || held.capabilities !== props.capabilities) {
         current = {lesson: props.lesson, capabilities: props.capabilities, session: new LessonSession(props.lesson, props.capabilities)};
         setHeld(current);
+        setOverlayPhase('visible');
     }
     const session = current.session;
+    const startupError = startupFailure?.session === session ? startupFailure.error : undefined;
+    const setStartupError = (error: Error | undefined) => setStartupFailure(error && {session, error});
+    const {registerClose, registerExit, registerGraphActions, registerFrameDeclaration} = props;
     useEffect(() => {
-        props.registerClose?.(() => session.close({restoreCompleted: true}));
-        return () => props.registerClose?.(undefined);
-    }, [session, props.registerClose]);
+        registerClose?.(() => session.close({restoreCompleted: true}));
+        return () => registerClose?.(undefined);
+    }, [session, registerClose]);
     const snapshot: LessonSessionSnapshot = useSyncExternalStore(session.subscribe, session.getSnapshot);
     const step = props.lesson.steps[snapshot.stepIndex];
     const frames = framesForLessonStep(step);
@@ -248,6 +253,15 @@ export function GuidedLesson(props: {
         }, LESSON_HANDOFF_DURATION_MS);
     };
 
+    const pausePlayback = () => {
+        try {
+            if (frame.animation && animationPlaying.current) animateFrame('pause');
+            props.capabilities.stopAnimations?.();
+        } catch (error) {
+            setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
+        }
+    };
+
     const asCard = props.presentation === 'card';
     const hideOverlay = () => {
         // A card is folded by the card layer; the lesson keeps its own phase.
@@ -277,14 +291,8 @@ export function GuidedLesson(props: {
         scheduleOverlayPhase('visible');
     };
 
-    const pausePlayback = () => {
-        try {
-            if (frame.animation && animationPlaying.current) animateFrame('pause');
-            props.capabilities.stopAnimations?.();
-        } catch (error) {
-            setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
-        }
-    };
+    const hideOverlayRef = useRef(hideOverlay);
+    useLayoutEffect(() => { hideOverlayRef.current = hideOverlay; });
 
     const requestExit = (invoker?: HTMLElement | null) => {
         pausePlayback();
@@ -321,9 +329,9 @@ export function GuidedLesson(props: {
     useEffect(() => {
         try {
             session.start();
-            setStartupError(undefined);
         } catch (error) {
-            setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- starting the scene is the external step; its failure is reported for this session.
+            setStartupFailure({session, error: error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error'))});
         }
         return () => {
             try { session.close({restoreCompleted: true}); } catch { /* A failed restoration remains recoverable while the host is mounted. */ }
@@ -344,8 +352,7 @@ export function GuidedLesson(props: {
     }, [overlayPhase, startupError]);
 
     useEffect(() => {
-        clearHandoffTimer();
-        setOverlayPhase('visible');
+        // The phase itself is reset during render when the lesson changes; the pending handoff of the old lesson ends here.
         return clearHandoffTimer;
     }, [props.lesson]);
 
@@ -358,11 +365,11 @@ export function GuidedLesson(props: {
             const target = event.target;
             if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) return;
             event.preventDefault();
-            hideOverlay();
+            hideOverlayRef.current();
         };
         document.addEventListener('keydown', handleEscape);
         return () => document.removeEventListener('keydown', handleEscape);
-    }, [overlayVisible, hideOverlay]);
+    }, [overlayVisible]);
 
     useEffect(() => {
         if (!exitRequested) return;
@@ -539,31 +546,32 @@ export function GuidedLesson(props: {
     </div>;
 
     const exitRef = useRef<(invoker?: HTMLElement | null) => void>(requestExit);
-    exitRef.current = requestExit;
+    useLayoutEffect(() => { exitRef.current = requestExit; });
 
     useEffect(() => {
-        props.registerExit?.(() => exitRef.current());
+        registerExit?.(() => exitRef.current());
         return () => {
-            props.registerExit?.(undefined);
+            registerExit?.(undefined);
         };
-    }, [session, props.registerExit]);
+    }, [session, registerExit]);
 
     useEffect(() => {
-        props.registerGraphActions?.(isExploring && animationControls && !cardOpen ? {animationControls} : undefined);
-        return () => props.registerGraphActions?.(undefined);
-    }, [session, props.registerGraphActions, isExploring, cardOpen, frame.id, frame.animation?.animationId, language]);
+        registerGraphActions?.(isExploring && animationControls && !cardOpen ? {animationControls} : undefined);
+        return () => registerGraphActions?.(undefined);
+    }, [session, registerGraphActions, isExploring, cardOpen, frame.id, frame.animation?.animationId, language]); // eslint-disable-line react-hooks/exhaustive-deps -- animationControls is new JSX every render; the frame and language deps stand for it.
 
     // The card layer reads the open frame's declaration; the effect follows the frame and clears it when the lesson goes.
     const frameDeclaration = frame.declare;
     useEffect(() => {
-        props.registerFrameDeclaration?.(frameDeclaration);
-        return () => props.registerFrameDeclaration?.(undefined);
-    }, [props.registerFrameDeclaration, frame.id, frameDeclaration]);
+        registerFrameDeclaration?.(frameDeclaration);
+        return () => registerFrameDeclaration?.(undefined);
+    }, [registerFrameDeclaration, frame.id, frameDeclaration]);
 
     // "Povrni": offered whenever the graph differs from the state this frame prepared. The prepared state is read after every
     // frame transition (the scene is applied synchronously by then); the graph is compared after the events that edit it.
     const preparedState = useRef<string>();
-    const [graphDiffers, setGraphDiffers] = useState(false);
+    // The flag belongs to the frame transition that prepared the state, so a new transition starts without it and no effect resets it.
+    const [graphDiff, setGraphDiff] = useState<{transition: object; differs: boolean}>();
     const capabilities = props.capabilities;
     const readGraphState = useCallback(() => {
         try {
@@ -572,11 +580,12 @@ export function GuidedLesson(props: {
         } catch { return undefined; }
     }, [capabilities]);
     const status = snapshot.status;
+    const transition = useMemo(() => ({}), [session, status, snapshot.stepIndex, snapshot.frameIndex, snapshot.error, readGraphState]); // eslint-disable-line react-hooks/exhaustive-deps -- the deps are the transition; the token's identity marks it.
+    const graphDiffers = graphDiff?.transition === transition && graphDiff.differs;
     useEffect(() => {
-        if (status !== 'content' && status !== 'explore') { preparedState.current = undefined; setGraphDiffers(false); return; }
+        if (status !== 'content' && status !== 'explore') { preparedState.current = undefined; return; }
         preparedState.current = readGraphState();
-        setGraphDiffers(false);
-    }, [session, status, snapshot.stepIndex, snapshot.frameIndex, snapshot.error, readGraphState]);
+    }, [transition, status, readGraphState]);
     useEffect(() => {
         let timer: number | undefined;
         const compare = () => {
@@ -584,7 +593,7 @@ export function GuidedLesson(props: {
             const prepared = preparedState.current;
             if (prepared === undefined) return;
             const now = readGraphState();
-            setGraphDiffers(now !== undefined && now !== prepared);
+            setGraphDiff({transition, differs: now !== undefined && now !== prepared});
         };
         const schedule = () => { if (timer === undefined) timer = window.setTimeout(compare, 0); };
         const events = ['pointerup', 'keyup', 'input', 'change', 'click'] as const;
@@ -593,11 +602,11 @@ export function GuidedLesson(props: {
             events.forEach(name => document.removeEventListener(name, schedule, true));
             if (timer !== undefined) window.clearTimeout(timer);
         };
-    }, [session, readGraphState]);
+    }, [transition, readGraphState]);
     const restoreFrame = () => {
         refresh(() => session.reset());
         preparedState.current = readGraphState() ?? preparedState.current;
-        setGraphDiffers(false);
+        setGraphDiff({transition, differs: false});
     };
 
     // Short visible labels keep the heading to one row; each stays contained in its full accessible name.

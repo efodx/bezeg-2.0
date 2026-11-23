@@ -292,17 +292,6 @@
       "count": 1
     }
   },
-  "src/learning/runtime/GuidedLesson.tsx": {
-    "react-hooks/exhaustive-deps": {
-      "count": 4
-    },
-    "react-hooks/refs": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 2
-    }
-  },
   "tools/agent-usage/codex_worker_watch.cjs": {
     "no-useless-assignment": {
       "count": 2
