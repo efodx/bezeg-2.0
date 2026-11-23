@@ -1,4 +1,4 @@
-import {act, createElement} from 'react';
+import {act, createElement, useEffect} from 'react';
 import {createRoot} from 'react-dom/client';
 import type {Root} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -19,12 +19,15 @@ class FakeObserver {
 
 let root: Root;
 let host: HTMLElement;
-let result: MeasuredCards;
+const latest: {current: MeasuredCards | null} = {current: null};
 
 function Probe({whenReady}: {whenReady: () => Promise<void>}) {
   const items = [{id: 'a', node: createElement('div', {'data-card-id': 'a'}, 'x')}];
-  result = useMeasuredCards(items, {whenReady});
-  return result.layer;
+  const value = useMeasuredCards(items, {whenReady});
+  useEffect(() => {
+    latest.current = value;
+  });
+  return value.layer;
 }
 
 const flush = () => act(async () => { await Promise.resolve(); await Promise.resolve(); });
@@ -54,28 +57,28 @@ describe('useMeasuredCards', () => {
     const ready = new Promise<void>((r) => { release = r; });
     const removeSpy = vi.spyOn(fontsEvents, 'removeEventListener');
     await act(async () => { root.render(createElement(Probe, {whenReady: () => ready})); });
-    expect(result.measured).toBeNull();
+    expect(latest.current?.measured).toBeNull();
     const layerEl = host.firstElementChild as HTMLElement;
     expect(layerEl.getAttribute('aria-hidden')).toBe('true');
     expect(layerEl.hasAttribute('inert')).toBe(true);
 
     release();
     await flush();
-    expect(result.measured?.[0].natural.h).toBe(100);
-    expect(result.generation).toBe(0);
+    expect(latest.current?.measured?.[0].natural.h).toBe(100);
+    expect(latest.current?.generation).toBe(0);
 
     observerCallbacks[0]?.(); // no size change: ignored
     await flush();
-    expect(result.generation).toBe(0);
+    expect(latest.current?.generation).toBe(0);
 
     height = 140;
     await act(async () => { fontsEvents.dispatchEvent(new Event('loadingdone')); });
-    expect(result.generation).toBe(1);
-    expect(result.measured?.[0].natural.h).toBe(140);
+    expect(latest.current?.generation).toBe(1);
+    expect(latest.current?.measured?.[0].natural.h).toBe(140);
 
     height = 180;
     await act(async () => { fontsEvents.dispatchEvent(new Event('loadingdone')); });
-    expect(result.generation).toBe(1); // at most one remeasure
+    expect(latest.current?.generation).toBe(1); // at most one remeasure
     expect(removeSpy).toHaveBeenCalledWith('loadingdone', expect.any(Function));
   });
 
