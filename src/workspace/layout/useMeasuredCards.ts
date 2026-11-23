@@ -1,4 +1,4 @@
-import {createElement, useEffect, useMemo, useRef, useState} from 'react';
+import {createElement, useEffect, useRef, useState} from 'react';
 import type {ReactElement, ReactNode} from 'react';
 import {loadMathJax} from '../../mathjax/loadMathJax';
 import type {MathJaxApi} from '../../mathjax/loadMathJax';
@@ -56,15 +56,18 @@ const LAYER_STYLE = {
 } as const;
 
 export function useMeasuredCards(items: readonly MeasureItem[], options: MeasureOptions = {}): MeasuredCards {
-  const layerRef = useRef<HTMLDivElement | null>(null);
+  const [layerNode, setLayerNode] = useState<HTMLDivElement | null>(null);
   const [state, setState] = useState<{measured: readonly MeasuredCard[] | null; generation: number}>(
     {measured: null, generation: 0});
   const whenReadyRef = useRef(options.whenReady ?? waitForFontsAndMath);
-  whenReadyRef.current = options.whenReady ?? waitForFontsAndMath;
+  const whenReady = options.whenReady ?? waitForFontsAndMath;
+  useEffect(() => {
+    whenReadyRef.current = whenReady;
+  });
   const key = items.map((i) => `${i.id}:${i.width ?? ''}`).join('|');
 
   useEffect(() => {
-    const layer = layerRef.current;
+    const layer = layerNode;
     if (!layer) return undefined;
     layer.setAttribute('inert', '');
     let cancelled = false;
@@ -102,23 +105,18 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
       teardown?.();
       teardown = null;
     };
-  }, [key]);
+  }, [key, layerNode]);
 
-  const layer = useMemo(
-    () =>
+  const layer = createElement(
+    'div',
+    {ref: setLayerNode, 'aria-hidden': true, style: LAYER_STYLE, 'data-measure-layer': ''},
+    items.map((item) =>
       createElement(
         'div',
-        {ref: layerRef, 'aria-hidden': true, style: LAYER_STYLE, 'data-measure-layer': ''},
-        items.map((item) =>
-          createElement(
-            'div',
-            {key: item.id, style: {width: item.width ?? 'max-content', position: 'relative'}},
-            item.node,
-          ),
-        ),
+        {key: item.id, style: {width: item.width ?? 'max-content', position: 'relative'}},
+        item.node,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- items are rendered on every change
-    [items],
+    ),
   );
 
   return {layer, measured: state.measured, generation: state.generation};
