@@ -770,12 +770,13 @@ export function GuidedLesson(props: {
             {animationControls}
             {expectedObservations}
         </div>}
-        {isComplete && <div className="guided-lesson-completion-message">
+        {isComplete && <div className="guided-lesson-completion-message" data-card-row="">
             {!pageHeadingHasLessonTitle && completionHeading}
             <p>{t('guided_lesson_free_exploration')}</p>
         </div>}
         </div>
-        {isComplete && props.chapterOwner && <div className="guided-lesson-actions guided-lesson-completion-actions">
+        {/* A card rows the completion too, else the layout measures no row and cuts the card to a sliver that hides this button. */}
+        {isComplete && props.chapterOwner && <div className="guided-lesson-actions guided-lesson-completion-actions" data-card-row="" data-card-pinned="">
             <button type="button" className="guided-lesson-primary" onClick={continueInChapter}>{t('continue_in_chapter')}</button>
         </div>}
         {/* Povrni: always a reserved row in a card, so its appearance never changes the card's height. */}
