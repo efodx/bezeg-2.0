@@ -8,14 +8,14 @@ function inspector(page) {
 
 // Hidden inspector sections stay mounted, so their controls are reachable by role only after their tab is pressed.
 async function openInspectorTab(page, name) {
-    await inspector(page).locator('.inspector-tabs').getByRole('button', {name, exact: true}).click();
+    await page.locator('#board-card-tools').getByRole('button', {name, exact: true}).click();
 }
 const openDisplayTab = page => openInspectorTab(page, 'Display');
 const openEditTab = page => openInspectorTab(page, 'Edit');
 
 async function openSaveTools(page) {
     const panel = inspector(page);
-    await panel.locator('.inspector-tabs').getByRole('button', {name: 'Save', exact: true}).click();
+    await page.locator('#board-card-tools button[aria-controls="inspector-save"]').click();
     const save = panel.locator('#inspector-save');
     await expect(save).toBeVisible();
     return save;
@@ -147,7 +147,7 @@ async function firstHodographPointPosition(page) {
 
 async function selectFirstCurve(page) {
     const edit = inspector(page);
-    await edit.locator('.inspector-tabs').getByRole('button', {name: 'Edit', exact: true}).click();
+    await page.locator('#board-card-tools').getByRole('button', {name: 'Edit', exact: true}).click();
     const selection = edit.locator('.curve-selection');
     await selection.getByRole('button').first().click();
     await expect(selection.locator('button[aria-pressed="true"]')).toHaveCount(1);
@@ -242,7 +242,7 @@ test('batch restore preserves live Farin weights, rational curve, and standard-f
     await expect(standardForm).toBeChecked();
 
     await generatePresetFigures(page, ['ownership-rational-default']);
-    await inspector(page).locator('.inspector-tabs').getByRole('button', {name: 'Edit', exact: true}).click();
+    await page.locator('#board-card-tools').getByRole('button', {name: 'Edit', exact: true}).click();
     const restoredCurve = await boardSnapshot(page);
     const {visibleCurves: restoredPaths, ...restoredBoardState} = restoredCurve;
     const {visibleCurves: expectedPaths, ...expectedBoardState} = beforeCurve;
@@ -328,7 +328,7 @@ test('PH child board and model points survive batch scene disposal and restorati
     expect(childBefore.points.length).toBeGreaterThan(0);
     const before = await boardSnapshot(page);
     await generatePresetFigures(page, ['ownership-ph']);
-    await inspector(page).locator('.inspector-tabs').getByRole('button', {name: 'Edit', exact: true}).click();
+    await page.locator('#board-card-tools').getByRole('button', {name: 'Edit', exact: true}).click();
     await expect.poll(async () => {
         const snapshot = await boardChildSnapshot(page);
         return snapshot && snapshot.boundingBox.every(Number.isFinite) ? snapshot : undefined;

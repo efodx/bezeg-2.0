@@ -35,7 +35,7 @@ async function boardState(page) {
 
 async function selectCurveAndEdit(page) {
     const inspector = page.getByRole('complementary', {name: 'Demonstration tools'});
-    await inspector.locator('.inspector-tabs').getByRole('button', {name: 'Edit', exact: true}).click();
+    await page.locator('#board-card-tools button[aria-controls="inspector-edit"]').click();
     const selection = inspector.locator('.curve-selection');
     await selection.getByRole('button').first().click();
     await expect(selection.locator('button[aria-pressed="true"]')).toHaveCount(1);

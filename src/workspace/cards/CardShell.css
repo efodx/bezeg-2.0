@@ -34,6 +34,8 @@
 .board-card-button:focus-visible, .board-card-more:focus-visible { outline: var(--bezeg-control-focus); outline-offset: calc(-1 * var(--bezeg-control-focus-offset)); }
 .board-card-actions { display: contents; }
 .board-card-grip { cursor: grab; touch-action: none; }
+/* Hide/reopen target is at least 44x44; negative block margins keep the head at the control height. */
+.board-card-fold { width: max(44px, var(--bezeg-control-height)); height: max(44px, var(--bezeg-control-height)); margin-block: calc((var(--bezeg-control-height) - max(44px, var(--bezeg-control-height))) / 2); }
 .board-card-fold svg { transition: transform .15s ease; }
 .board-card-fold[aria-expanded="false"] svg { transform: rotate(-90deg); }
 /* Content wider than the width the layout gave the card scrolls sideways inside it instead of spilling over the board. */

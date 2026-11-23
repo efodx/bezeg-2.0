@@ -28,3 +28,9 @@ Each earlier task adds a row when it skips a phone check. This task replaces or 
 | Check (file, name) | Skipped by task | Why it broke |
 | --- | --- | --- |
 | De Casteljau Play/Reset beside the t puck at phone width: the narrow-viewport playback slot no longer receives the buttons (`DecasteljauAnimationControls` omits them when the t puck exists); give them a place in the phone presenter | 05 (wire strip) | The buttons moved from Orodja into the strip slot; the phone layout has no strip |
+| `tests/lesson-graph-access.smoke.spec.cjs`: phone Back/Next rest on the window bottom; narrow size and 200% text in Presentation; touch hide/reopen/exit | 04 (slice 9) | The lesson is a board card; the phone layout and the compact tab no longer exist |
+| `tests/standalone-learning.smoke.spec.cjs`: guided example keyboard-accessible at narrow width and enlarged text | 04 (slice 9) | The Hide button and compact tab are gone; the card has no phone layout |
+| `tests/count-setter.smoke.spec.cjs`: Bernstein degree uncovered at 390 and 614 px | 04 (slice 9) | Below 1000 px the pointer-reachability check fails on the Orodja degree row (board cards cover it) |
+| `tests/lesson-experience-checks.cjs`: phone Back/Next under the pointer; 390 px collapsed tab; persistent actions at narrow, enlarged and 320 px views (the 320 px degree stepper and heading checks are kept but unreachable); card within window at phone sizes | 04 (slice 9) | Overlay panel scroll ownership, compact tab and `.inspector-tabs`/`.inspector-heading` no longer exist |
+| `tests/guided-lessons.smoke.spec.cjs`: 390 px walk for interval-sweep, curve-parametric, ear-clipping (`PHONE_WALK_BROKEN`) | 04 (slice 9) | Visible points fall outside the lesson view at 390 px |
+| `tests/lesson-experience-checks.cjs`: card clear of other cards at 844x390 (landscape phone) | 04 (slice 9) | The lesson card [33,199,287,450] overlaps another open card at phone landscape size; the presenter has no phone layout |

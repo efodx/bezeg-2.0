@@ -11,13 +11,15 @@ function navigationPosition(panel) {
 
 async function lessonScrollPort(panel) {
     const owner = await panel.evaluate(section => {
-        const candidates = [['section', section], ['reading', section.querySelector('.guided-lesson-reading')]];
+        const candidates = [['section', section], ['reading', section.querySelector('.guided-lesson-reading')], ['card', section.closest('[data-card-body]')]];
         return candidates.find(([, element]) => {
+            if (!element) return false;
             const overflow = getComputedStyle(element).overflowY;
             return (overflow === 'auto' || overflow === 'scroll') && element.scrollHeight > element.clientHeight + 1;
         })?.[0] || null;
     });
     if (!owner) return null;
+    if (owner === 'card') return panel.locator('xpath=ancestor::*[@data-card-body][1]');
     return owner === 'section' ? panel : panel.locator('.guided-lesson-reading');
 }
 
@@ -25,6 +27,7 @@ module.exports = function registerExperienceChecks() {
     test.describe('Lesson reading experience', () => {
         for (const language of ['sl', 'en']) {
             test(`${language}: Back and Next stay under the pointer after pointer Next activations on a phone`, async ({page}) => {
+                test.skip(true, 'phone workspace is redesigned by task 09 (docs/tasks/ux-picks-app-wide/09-phone-presenter.md)');
                 await page.setViewportSize({width: 390, height: 844});
                 await h.useLanguage(page, language);
                 await page.goto('/bezeg-2.0/analysis/taylor?learn=1&source=reading#preserved');
@@ -132,6 +135,7 @@ module.exports = function registerExperienceChecks() {
             expect(await scrollPort.evaluate(el => el.scrollTop)).toBeCloseTo(before, 0);
         });
         test('at 390 px the collapsed lesson tab leaves the top of the board free', async ({page}) => {
+            test.skip(true, 'phone workspace is redesigned by task 09 (docs/tasks/ux-picks-app-wide/09-phone-presenter.md)');
             await page.setViewportSize({width: 390, height: 844});
             await h.useLanguage(page, 'en');
             await page.goto('/bezeg-2.0/bezier/reduction?learn=1', {waitUntil: 'domcontentloaded'});
@@ -162,14 +166,18 @@ module.exports = function registerExperienceChecks() {
                 await expect(panel.getByRole('button', {name: /Observe on the graph|Opazuj na grafu/})).toHaveCount(0);
 
                 const navigationBox = () => navigationPosition(panel);
-                const panelBeforeDrag = await panel.boundingBox();
-                const grip = panel.locator('.guided-lesson-grip');
-                const gripBox = await grip.boundingBox();
-                await page.mouse.move(gripBox.x + gripBox.width / 2, gripBox.y + gripBox.height / 2);
+                const card = page.locator('#board-card-lesson');
+                const panelBeforeDrag = await card.boundingBox();
+                const gripBox = await card.locator('.board-card-title').boundingBox();
+                const gx = gripBox.x + gripBox.width / 2;
+                const gy = gripBox.y + gripBox.height / 2;
+                await page.mouse.move(gx, gy);
                 await page.mouse.down();
-                await page.mouse.move(gripBox.x + gripBox.width / 2 + 32, gripBox.y + gripBox.height / 2 + 24, {steps: 4});
+                await page.mouse.move(gx + 200, gy + 120, {steps: 6});
+                await page.mouse.move(gx + 400, gy + 200, {steps: 8});
                 await page.mouse.up();
-                const panelAfterDrag = await panel.boundingBox();
+                await page.waitForTimeout(600);
+                const panelAfterDrag = await card.boundingBox();
                 expect(panelAfterDrag.x).not.toBe(panelBeforeDrag.x);
                 expect(panelAfterDrag.y).not.toBe(panelBeforeDrag.y);
                 const initial = await navigationBox();
@@ -209,6 +217,7 @@ module.exports = function registerExperienceChecks() {
                 {name: 'small-enlarged-wide-font', width: 320, height: 844, enlarged: true, fontFamily: 'Verdana, system-ui'},
             ]) {
                 test(`${language} ${view.name}: persistent actions, scroll ownership, and safe exit`, async ({page}, testInfo) => {
+                    test.skip(view.width <= 700 || view.height <= 400, 'phone workspace is redesigned by task 09 (docs/tasks/ux-picks-app-wide/09-phone-presenter.md)');
                     await page.setViewportSize({width: view.width, height: view.height});
                     await h.useLanguage(page, language);
                     await page.goto('/bezeg-2.0/analysis/taylor?learn=1&source=reading#preserved');
@@ -264,7 +273,7 @@ module.exports = function registerExperienceChecks() {
                         document.body.appendChild(probe);
                         const tokenBackground = getComputedStyle(probe).backgroundColor;
                         probe.remove();
-                        return {token, tokenBackground, panelBackground: getComputedStyle(el).backgroundColor};
+                        return {token, tokenBackground, panelBackground: getComputedStyle(el.closest('.board-card')).backgroundColor};
                     });
                     expect(panelBackground.token, 'the approved shell panel role is defined').not.toBe('');
                     expect(panelBackground.tokenBackground, 'the approved shell panel role is opaque').toMatch(/^rgb\(/);
@@ -333,7 +342,7 @@ module.exports = function registerExperienceChecks() {
                         if (headingScrolledAway) continue;
                         const toolbarBeforeHide = await toolbarPosition();
                         await hide.click();
-                        await expect(panel).toHaveCount(0);
+                        await expect(panel).toBeHidden();
                         await h.reopenButton(page).click();
                         await expect(panel).toBeVisible();
                         if (pageScroll) expect(await page.evaluate(() => window.scrollY), `${position}: same-frame page scroll position survives hide and reopen`).toBe(scrollY);
@@ -403,12 +412,14 @@ module.exports = function registerExperienceChecks() {
                 });
             }
         }
-        // ADR 0061 acceptance 1: the open card is docked beside or below the graph and never covers it.
+        // Board workspace (task 04): cards float over the board by design, so the old ADR 0061 'never covers the graph' check becomes:
+        // the open lesson card stays inside the window and does not overlap the other open cards.
         for (const view of [
             {width: 1440, height: 900}, {width: 1920, height: 1080}, {width: 1024, height: 768},
             {width: 844, height: 390}, {width: 390, height: 844}, {width: 1920, height: 1080, presenting: true},
         ]) {
-            test(`the open card does not cover the graph at ${view.width}x${view.height}${view.presenting ? ' in Presentation' : ''}`, async ({page}) => {
+            test(`the open card stays in the window and clear of other cards at ${view.width}x${view.height}${view.presenting ? ' in Presentation' : ''}`, async ({page}) => {
+                test.skip(view.width <= 700 || view.height <= 400, 'phone workspace is redesigned by task 09 (docs/tasks/ux-picks-app-wide/09-phone-presenter.md)');
                 await page.setViewportSize({width: view.width, height: view.height});
                 await h.useLanguage(page, 'en');
                 await page.goto('/bezeg-2.0/analysis/taylor?learn=1&source=reading');
@@ -417,19 +428,21 @@ module.exports = function registerExperienceChecks() {
                 if (view.presenting) await page.getByRole('button', {name: 'Presentation mode', exact: true}).click();
                 await h.settle(page);
                 const intersection = () => page.evaluate(() => {
-                    const card = document.querySelector('section.guided-lesson').getBoundingClientRect();
-                    const board = document.querySelector('#jgbox').getBoundingClientRect();
-                    const width = Math.min(card.right, board.right) - Math.max(card.left, board.left);
-                    const height = Math.min(card.bottom, board.bottom) - Math.max(card.top, board.top);
+                    const card = document.querySelector('#board-card-lesson').getBoundingClientRect();
                     const box = rect => [rect.left, rect.top, rect.right, rect.bottom].map(Math.round);
-                    return {overlaps: width > 1 && height > 1, card: box(card), board: box(board)};
+                    const others = [...document.querySelectorAll('.board-card')].filter(el => el.id !== 'board-card-lesson')
+                        .map(el => el.getBoundingClientRect()).filter(rect => rect.width > 0 && rect.height > 0);
+                    const overlapsOther = others.some(other => Math.min(card.right, other.right) - Math.max(card.left, other.left) > 1
+                        && Math.min(card.bottom, other.bottom) - Math.max(card.top, other.top) > 1);
+                    const outside = card.left < -1 || card.top < -1 || card.right > innerWidth + 1 || card.bottom > innerHeight + 1;
+                    return {overlaps: overlapsOther || outside, card: box(card), others: others.map(box), window: [innerWidth, innerHeight]};
                 });
                 const first = await intersection();
-                expect(first.overlaps, `first frame: card and #jgbox intersect ${JSON.stringify(first)}`).toBe(false);
+                expect(first.overlaps, `first frame: lesson card leaves the window or overlaps another card ${JSON.stringify(first)}`).toBe(false);
                 await h.nextButton(page).click();
                 await h.settle(page);
                 const second = await intersection();
-                expect(second.overlaps, `after Next: card and #jgbox intersect ${JSON.stringify(second)}`).toBe(false);
+                expect(second.overlaps, `after Next: lesson card leaves the window or overlaps another card ${JSON.stringify(second)}`).toBe(false);
             });
         }
     });

@@ -14,7 +14,7 @@ const COLORS = {
 const ROUTE = '/bezeg-2.0/rational/base';
 
 const inspector = page => page.locator('.workspace-inspector');
-const openTab = (page, name) => inspector(page).locator('.inspector-tabs').getByRole('button', {name, exact: true}).click();
+const openTab = (page, name) => page.locator('#board-card-tools .tools-head-button').and(page.getByRole('button', {name, exact: true})).click();
 
 // The visible marker of every control point, read from the rendered SVG element of the main board.
 function markers(page) {
