@@ -24,7 +24,7 @@ describe('De Casteljau declaration', () => {
     for (const t of [0, 0.25, 0.5, 0.8, 1]) {
         for (const whole of [false, true]) {
             test(`t ${t}, full curve ${whole ? 'shown' : 'hidden'}: consistent, bound, drawn and equal to the panel`, () => {
-                const {graph, view, declaration} = setup(t);
+                const {graph, declaration} = setup(t);
                 if (whole) act(() => graph.performAction('full-curve'));
                 const current = declaration();
 

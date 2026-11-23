@@ -11,7 +11,7 @@ import {UnavailableButton} from "../../inputs/UnavailableButton";
 import AngleSlider from "../../inputs/AngleSlider";
 import {currentLanguage, message, messageNumber, renderMessage, t, type Message, type MessageNumber} from "../../localization";
 import type {
-    ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, StatusLine,
+    ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow,
 } from "../base/declare/graphDeclaration";
 import {runAs} from "../base/writes/writeSource";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
