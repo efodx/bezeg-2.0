@@ -1,0 +1,35 @@
+/* Board card shell: positioned by its rect, moved by transform so a presenter can glide it between rects. */
+.board-card {
+    position: absolute; left: 0; top: 0; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden;
+    background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink);
+    border: 1px solid var(--bezeg-shell-rule); border-radius: var(--bezeg-control-radius); box-shadow: var(--bezeg-shell-shadow-card);
+    transition: transform .22s ease, width .22s ease, height .22s ease;
+}
+.board-card--static { position: relative; }
+.board-card--dragging { z-index: 10; transition: none; cursor: grabbing; }
+.board-card--instant { transition: none; }
+.board-card-head {
+    display: flex; align-items: center; gap: 4px; flex: none; min-height: var(--bezeg-control-height); padding: 0 4px 0 2px;
+    border-bottom: 1px solid var(--bezeg-shell-rule); touch-action: none; cursor: grab; user-select: none;
+}
+.board-card--folded .board-card-head { border-bottom-color: transparent; }
+.board-card-title { flex: 1; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .92rem; font-weight: var(--bezeg-type-title-weight); }
+.board-card-button {
+    display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; padding: 0;
+    width: var(--bezeg-control-height); height: var(--bezeg-control-height); background: transparent; border: 0; border-radius: var(--bezeg-control-radius);
+    color: var(--bezeg-shell-ink-secondary); cursor: pointer;
+}
+.board-card-button:hover { background: var(--bezeg-shell-control-hover); color: var(--bezeg-shell-ink); }
+.board-card-button:focus-visible, .board-card-more:focus-visible { outline: var(--bezeg-control-focus); outline-offset: calc(-1 * var(--bezeg-control-focus-offset)); }
+.board-card-grip { cursor: grab; touch-action: none; }
+.board-card-fold svg { transition: transform .15s ease; }
+.board-card-fold[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.board-card-body { flex: 1 1 auto; min-height: 0; padding: 6px 10px 8px; }
+.board-card--cut .board-card-body { overflow-y: auto; }
+.board-card-more {
+    flex: none; min-height: 28px; border: 0; border-top: 1px solid var(--bezeg-shell-rule); background: var(--bezeg-shell-control-hover);
+    color: var(--bezeg-shell-action); font: inherit; font-size: .8rem; cursor: pointer;
+}
+.board-card-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (pointer: coarse) { .board-card-more { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .board-card, .board-card-fold svg { transition: none; } }
