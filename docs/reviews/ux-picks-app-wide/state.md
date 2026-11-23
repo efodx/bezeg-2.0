@@ -45,7 +45,7 @@ Formula value kind; point and point-set parameters; numeric choice values; board
 
 ## Next slice's brief inputs
 
-1. Confirm the CI fix publish: `just publish --status` from the worktree `.claude/worktrees/board-workspace/.claude/worktrees/publish-catalog-fix` (nested; when done, unlink its `node_modules` junction with PowerShell `(Get-Item <path>\node_modules).Delete()`, then `git worktree remove` and `git branch -D publish-catalog-fix`), then `just ci <sha>`: both workflows green and deploy ran. If red, fix before anything else is pushed.
+1. The CI fix is on master (`f9043d0d`, publish worktree removed). Run `just ci f9043d0d`: both workflows green and deploy ran. If red, fix before anything else is pushed.
 2. Task 03 presenter: mount the cards on the pilots only, wired to `layoutBoard`, `useMeasuredCards`, `CardShell`, the bodies and `storedLayout`. An undeclared graph keeps its present panels until task 04's fallback. Prototype references: `git show aff6df6c:src/uxPicks/dock/DockCard.tsx`, `.../declare/ReadoutCard.tsx` (behaviour only, not visuals). The owner's drag rules are in task 03 slice 2. Tests that address the inspector move in the same publish as the 03-07 release.
 3. Slice 1b: point-set board clicks (triangle centres), surface camera drags (Coons), figure export without cards.
 4. Slice 6 feel and the `maxSpan` value: show the owner a tailnet preview (`tailscale serve`) after rewriting this note.
