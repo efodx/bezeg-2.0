@@ -181,7 +181,10 @@ export function DemonstrationWorkspace(props: {
     const lessonActive = lessonOpen && Boolean(lesson && props.lessonCapabilities);
     // The one decision about user commands (Preset writes, playback), from the lesson state this workspace owns. The ref is what
     // `current()` reads at the moment of a commit; the render value only drives what controls show.
-    const userActionMode: UserActionMode = !lessonActive ? 'free' : lessonMode === 'content' ? 'lesson-card' : 'lesson-observe';
+    // A lesson card folded to its chip is explore: the graph is handed back as the old hide button did.
+    const [lessonCardFolded, setLessonCardFolded] = useState(false);
+    const shownLessonMode: LessonMode = lessonActive && lessonCardFolded ? 'explore' : lessonMode;
+    const userActionMode: UserActionMode = !lessonActive ? 'free' : shownLessonMode === 'content' ? 'lesson-card' : 'lesson-observe';
     const userActionModeRef = useRef(userActionMode);
     useLayoutEffect(() => { userActionModeRef.current = userActionMode; }, [userActionMode]);
     const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
@@ -196,11 +199,13 @@ export function DemonstrationWorkspace(props: {
         return slot;
     });
     const lessonRendered = lessonActive;
+    // With a lesson card the card layer appends the slot into the card and the workspace never places it (the lesson mounts there once).
     useLayoutEffect(() => {
+        if (props.lessonCard) return;
         if (lessonRendered) {
             if (!lessonSlot.isConnected) workspaceRoot.current?.insertBefore(lessonSlot, graphSection.current);
         } else if (lessonSlot.parentElement === workspaceRoot.current) lessonSlot.remove();
-    }, [lessonRendered, lessonSlot]);
+    }, [lessonRendered, lessonSlot, props.lessonCard]);
     useLayoutEffect(() => () => { lessonSlot.remove(); }, [lessonSlot]);
     const [frameDeclaration, setFrameDeclaration] = useState<FrameDeclaration>();
     const [lessonFoldRequest, setLessonFoldRequest] = useState<{folded: boolean; seq: number}>();
@@ -208,7 +213,7 @@ export function DemonstrationWorkspace(props: {
     const cardHost: WorkspaceCardHost = {
         // Reading frames leave the graph and the tools operable; "Povrni" in the lesson restores the frame's prepared state.
         tools: {panels: {edit: props.edit, display: props.display, save: props.save}, section, setSection, locked: false},
-        lesson: {slot: lessonSlot, active: lessonActive, mode: lessonMode, foldRequest: lessonFoldRequest},
+        lesson: {slot: lessonSlot, active: lessonActive, mode: shownLessonMode, foldRequest: lessonFoldRequest, reportCardFolded: setLessonCardFolded},
         frame: lessonActive ? frameDeclaration : undefined,
         fullScreen,
         toolsFolded: fullScreen ? !presentationControls : undefined,
@@ -219,7 +224,7 @@ export function DemonstrationWorkspace(props: {
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
-        className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
+        className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${shownLessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
                 <Link to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={forwardedState}>{t('demonstrations')}</Link>
@@ -241,7 +246,7 @@ export function DemonstrationWorkspace(props: {
                     }}>{t('library_switch')}</button>}
                 {props.pickerUnavailable && <span id="workspace-picker-unavailable" role="status">{t('library_picker_busy')}</span>}
                 {lesson && props.lessonCapabilities && !lessonActive && <button ref={learnButton} className="workspace-action-lesson" onClick={openGuidedLesson} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
-                {lessonActive && lessonMode === 'explore' && <>
+                {lessonActive && shownLessonMode === 'explore' && <>
                     {lessonGraphActions?.animationControls}
                 </>}
                 {fullScreen && <button onClick={() => setPresentationControls(!presentationControls)}

@@ -48,5 +48,5 @@ export function GraphHost({create}: { create: () => BaseGraph<BaseGraphState> })
     // Every graph gets the card layer over its board: Orodja at least, and the cards its declaration asks for (task 03, 04).
     return <DemonstrationWorkspace {...graph.getWorkspacePanels()}
         boardOverlay={host => <BoardCards graph={graph} host={host}/>}
-        graphContainerRef={container} beforeDispose={beforeDispose} disposeFailedGraph={disposeFailedGraph}/>;
+        lessonCard graphContainerRef={container} beforeDispose={beforeDispose} disposeFailedGraph={disposeFailedGraph}/>;
 }

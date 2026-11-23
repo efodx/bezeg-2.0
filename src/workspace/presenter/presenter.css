@@ -4,3 +4,8 @@
 .board-cards-layer > .board-card { pointer-events: auto; }
 /* Orodja before its first placement: in flow at its natural width (that is the size the layout is given), never wider than the board. */
 .board-cards-layer > .board-card--static { width: max-content; max-width: 100%; }
+/* The lesson card holds the lesson slot (task 04 slice 3b). Unplaced, it is a reading width, not the text's max-content width. */
+.board-cards-layer > .board-card--static[data-card-id="lesson"] { width: min(26rem, 100%); }
+.lesson-card-body, .lesson-card-body > .guided-lesson-slot { display: block; min-width: 0; }
+/* A folded lesson card is a chip: its body stays mounted (the lesson keeps its frame) but takes no room. */
+.board-card--folded[data-card-id="lesson"] .board-card-body { display: none; }

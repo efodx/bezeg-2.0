@@ -61,15 +61,14 @@ describe('stored board layout', () => {
         expect(loadBoardLayout(withRecord({version: 1, placements: [], folds: 'x'}))).toEqual(emptyBoardLayout());
     });
 
-    it('never stores the lesson card, even from a hand-edited record', () => {
+    it('stores the lesson card\'s placement but never its fold (a fold is the lesson\'s explore mode)', () => {
         const storage = fakeStorage();
         let layout = setPlacement(emptyBoardLayout(), 'lesson', {kind: 'free', x: 1, y: 1});
         layout = setFold(layout, 'lesson', true);
-        expect(layout).toEqual(emptyBoardLayout());
+        expect(layout).toEqual({placements: {lesson: {kind: 'free', x: 1, y: 1}}, folds: {}});
         const forced = {placements: {lesson: {kind: 'free', x: 1, y: 1}}, folds: {lesson: true}} as never;
         saveBoardLayout(forced, storage);
-        expect(storage.getItem(BOARD_LAYOUT_KEY)).not.toContain('lesson');
-        expect(loadBoardLayout(withRecord({version: 1, ...(forced as object)}))).toEqual(emptyBoardLayout());
+        expect(loadBoardLayout(storage)).toEqual({placements: {lesson: {kind: 'free', x: 1, y: 1}}, folds: {}});
     });
 
     it('reports a storage failure instead of throwing', () => {

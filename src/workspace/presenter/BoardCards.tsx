@@ -1,6 +1,6 @@
 // The card presenter of the board workspace (task 03): renders the cards a graph's declaration asks for over the board.
 // Measure (hidden layer) -> layoutBoard -> CardShell. Design: docs/reviews/ux-picks-app-wide/03-layout-design.md.
-import {useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
+import {useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
 import {currentLanguage, useT} from '../../localization';
 import {CardShell, type BoardPoint} from '../cards/CardShell';
 import {
@@ -14,7 +14,8 @@ import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
 import {moreBarHeight} from '../layout/measureCards';
 import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
-import {buildCardSpecs, toolsCardSpec, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
+import {LessonCardBody} from '../cards/LessonCardBody';
+import {buildCardSpecs, lessonCardSpec, toolsCardSpec, LESSON_ID, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
 import type {ToolsSection, WorkspaceCardHost} from './cardHost';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
 import './presenter.css';
@@ -23,7 +24,7 @@ export interface BoardCardsProps {
   graph: PresentedGraph;
   /** What the workspace hands the layer: Orodja's panels and Presentation's fold. */
   host: WorkspaceCardHost;
-  /** The lesson frame's highlighted row and note ids. TODO(task 07): fed from the active frame once the host can reach it. */
+  /** Overrides the open lesson frame's highlighted row and note ids (`host.frame.highlight`). Tests inject. */
   highlight?: readonly string[];
   /** Resolves when fonts and formulas inside the measure layer are final (default: fonts and MathJax). Tests inject. */
   whenReady?: MeasureOptions['whenReady'];
@@ -42,16 +43,32 @@ const NO_HIGHLIGHT: readonly string[] = [];
 /** First view: two cards start open on a board at least this wide, one below (04-design section 9). */
 const BUDGET_WIDE_BOARD = 1200;
 
-export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: BoardCardsProps) {
+/** The Povrni row of the lesson card (GuidedLesson.css `.guided-lesson-card .guided-lesson-restore-row`): always there, so a cut keeps it. */
+const LESSON_RESTORE_ROW = 32;
+
+/** Live cards render from the host in the shown card and are read there; they have no hidden measure copy. */
+const isLive = (id: string) => id === TOOLS_ID || id === LESSON_ID;
+
+/** Orodja sections a used control can name (`ParameterBase.section` when `placement` is `tools`). */
+const TOOLS_SECTIONS: readonly ToolsSection[] = ['edit', 'display', 'save'];
+
+export function BoardCards({graph, host, highlight: highlightOverride, whenReady}: BoardCardsProps) {
   const t = useT(); // a language switch re-renders the cards
   useSyncExternalStore(graph.store.subscribe, () => graph.store.getVersion());
   const declaration = graph.getDeclaration();
   const declared = declaration !== undefined;
   const language = currentLanguage();
-  // Every graph has Orodja; a declared one adds the cards its declaration asks for. Specs hold the layout facts only: Orodja's live
-  // panels come from the host on each render (below), never from this memo.
-  const specs = useMemo(() => [...(declaration ? buildCardSpecs(graph, declaration, highlight) : []), toolsCardSpec(declared)],
-    [declaration, declared, graph, highlight]);
+  const lessonActive = host.lesson.active;
+  // The open frame's highlighted rows and notes (design section 4); the object is stable per frame, so this memoises on it.
+  const frame = lessonActive ? host.frame : undefined;
+  const highlight = highlightOverride ?? frame?.highlight ?? NO_HIGHLIGHT;
+  // Every graph has Orodja; a declared one adds the cards its declaration asks for; an open lesson adds its card. Specs hold the layout
+  // facts only: the live cards' content (Orodja's panels, the lesson slot) comes from the host on each render, never from this memo.
+  const specs = useMemo(() => [
+    ...(lessonActive ? [lessonCardSpec()] : []),
+    ...(declaration ? buildCardSpecs(graph, declaration, highlight) : []),
+    toolsCardSpec(declared),
+  ], [declaration, declared, graph, highlight, lessonActive]);
 
   const [stored, setStored] = useState<StoredBoardLayout>(() => loadBoardLayout());
   const [board, setBoard] = useState<Size>({w: 0, h: 0});
@@ -85,8 +102,23 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
   const placementKey = JSON.stringify(stored.placements);
   // Presentation's Orodja fold overrides the stored one and is never written back.
   const presentedFold = host.toolsFolded;
-  const effectiveFolds = useMemo(() => presentedFold === undefined ? stored.folds : {...stored.folds, [TOOLS_ID]: presentedFold},
-    [stored.folds, presentedFold]);
+  // The lesson card's fold belongs to the lesson (explore = folded chip, the lesson's own requests): it is never stored, so a later
+  // lesson does not open folded. A request from the lesson wins until the learner folds or opens the card; folding keeps the frame.
+  const [lessonFold, setLessonFold] = useState<boolean>();
+  const request = host.lesson.foldRequest;
+  const handledRequest = useRef(request?.seq);
+  useEffect(() => {
+    if (request && request.seq !== handledRequest.current) { handledRequest.current = request.seq; setLessonFold(request.folded); }
+  }, [request]);
+  const [wasActive, setWasActive] = useState(lessonActive);
+  if (wasActive !== lessonActive) { setWasActive(lessonActive); if (!lessonActive) setLessonFold(undefined); }
+  const lessonCardFolded = lessonActive && lessonFold === true;
+  const reportCardFolded = host.lesson.reportCardFolded;
+  useEffect(() => { reportCardFolded(lessonCardFolded); }, [lessonCardFolded, reportCardFolded]);
+  const effectiveFolds = useMemo(() => {
+    const folds = presentedFold === undefined ? stored.folds : {...stored.folds, [TOOLS_ID]: presentedFold};
+    return lessonActive && lessonFold !== undefined ? {...folds, [LESSON_ID]: lessonFold} : folds;
+  }, [stored.folds, presentedFold, lessonFold, lessonActive]);
   const contentKey = `${shapeKey}|${highlight.join(',')}|${JSON.stringify(effectiveFolds)}`;
   // Fixed widths belong to the arrangement they were assigned for: a new arrangement or content measures from scratch.
   // A fold changes the column width (it counts open cards only), so it ends the widths assigned under the old fold state:
@@ -95,7 +127,7 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
   const widths = widthState.key === widthsKey ? widthState.widths : NO_WIDTHS;
 
   // Orodja is live: it never waits for the measure pass. It renders in the first commit and is read from the shown card.
-  const items = specs.map(spec => spec.id === TOOLS_ID ? {id: spec.id, node: null, live: true as const} : ({
+  const items = specs.map(spec => isLive(spec.id) ? {id: spec.id, node: null, live: true as const} : ({
     id: spec.id,
     width: widths[spec.id],
     node: <CardShell id={spec.id} title={spec.title} measure folded={false} onFold={noop} onReset={noop} onDragMove={noop} onDrop={noop} onDragCancel={noop}><MeasurePassContext.Provider value={true}>{spec.body}</MeasurePassContext.Provider></CardShell>,
@@ -104,17 +136,31 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
 
   const inputs = useMemo<CardInput[]>(() => {
     const byId = new Map((measured ?? []).map(card => [card.id, card]));
-    const reserve = moreBarHeight(); // the "Več" bar of a cut card sits under the scroll area: a cut adds it to the block it keeps
+    const bar = moreBarHeight(); // the "Več" bar of a cut card sits under the scroll area: a cut adds it to the block it keeps
     return specs.flatMap(spec => {
       const card = byId.get(spec.id);
+      const reserve = spec.id === LESSON_ID ? bar + LESSON_RESTORE_ROW : bar; // the lesson's Povrni row is always there, cut or not
       return card ? [{...card, reserve, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
     });
   }, [measured, specs]);
   // First-view budget (04-design section 9): lesson, readouts, tools; an undeclared graph has only Orodja, which starts open.
-  const budget = useMemo(() => ({open: board.w >= BUDGET_WIDE_BOARD ? 2 : 1, order: declared ? ['lesson', READOUTS_ID, TOOLS_ID] : [TOOLS_ID]}),
-    [board.w, declared]);
+  const budget = useMemo(() => ({open: board.w >= BUDGET_WIDE_BOARD ? 2 : 1, order: [LESSON_ID, READOUTS_ID, TOOLS_ID]}),
+    [board.w]);
+  // The open frame (design section 4): the cards it opens, and Orodja when a control it uses lives there. A graph without a
+  // declaration names no controls, so its lesson keeps Orodja open for as long as the lesson is active, at any width.
+  const usedToolsSection = useMemo(() => {
+    const uses = new Set<string>(frame?.uses ?? []);
+    const used = [...(declaration?.parameters ?? []), ...(declaration?.actions ?? [])].filter(control => uses.has('key' in control ? control.key : control.id));
+    const inTools = used.filter(control => control.placement === 'tools');
+    return {usesTools: lessonActive && (declaration === undefined || inTools.length > 0), section: inTools.map(control => control.section).find(section => TOOLS_SECTIONS.includes(section as ToolsSection)) as ToolsSection | undefined};
+  }, [declaration, frame, lessonActive]);
+  const frameInput = useMemo(() => lessonActive ? {open: frame?.open ?? [], usesTools: usedToolsSection.usesTools} : undefined,
+    [lessonActive, frame, usedToolsSection.usesTools]);
+  const toolsSectionToShow = usedToolsSection.section;
+  const setToolsSection = host.tools.setSection;
+  useEffect(() => { if (toolsSectionToShow) setToolsSection(toolsSectionToShow); }, [frame, toolsSectionToShow, setToolsSection]);
   const layoutInput: LayoutInput = {
-    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget,
+    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget, frame: frameInput,
     maxSpan: MAX_SPAN, columnMaxFraction: COLUMN_MAX_FRACTION, gap: GAP,
   };
   const laidOut = board.w > 0 && board.h > 0 && inputs.length > 0;
@@ -128,7 +174,7 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
     const next: Record<string, number> = {...widths};
     let changed = false;
     for (const placed of base.cards) {
-      if (placed.id === TOOLS_ID) continue; // live: read at its shown width, never assigned one
+      if (isLive(placed.id)) continue; // live: read at its shown width, never assigned one
       const natural = inputs.find(card => card.id === placed.id)?.natural.w ?? placed.rect.w;
       if (Math.abs(placed.rect.w - natural) > 0.5 && widths[placed.id] !== placed.rect.w) { next[placed.id] = placed.rect.w; changed = true; }
     }
@@ -142,7 +188,8 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
   const commit = (next: StoredBoardLayout) => { setStored(next); saveBoardLayout(next); };
   // In Presentation the header button owns Orodja's fold: it is not stored. Everywhere else a fold is the learner's stored choice.
   const setToolsOrCardFold = (id: string, folded: boolean) => {
-    if (id === TOOLS_ID && host.toolsFolded !== undefined) host.setToolsFolded(folded);
+    if (id === LESSON_ID) setLessonFold(folded);
+    else if (id === TOOLS_ID && host.toolsFolded !== undefined) host.setToolsFolded(folded);
     else commit(setFold(stored, id, folded));
   };
   const chooseToolsSection = (section: ToolsSection) => {
@@ -185,29 +232,35 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
   const ghost = final && drag && drag.target !== 'free' ? preview.cards.find(card => card.id === drag.id)?.rect ?? null : null;
   // Before the first final layout only Orodja is shown: placed from what has been read of it, or unpositioned (no rect) while the board
   // or the card is not measured yet. It keeps one element throughout, so its panels never remount.
-  const provisional = (base?.cards ?? []).filter(card => card.id === TOOLS_ID);
+  const provisional = (base?.cards ?? []).filter(card => isLive(card.id));
   const shown = final ? preview.cards : stable.length > 0 ? stable : provisional;
   if (final && stableDiffers(stable, preview.cards)) setStable(preview.cards);
-  const toolsPlaced = shown.find(card => card.id === TOOLS_ID);
+  // A live card always has its one element, placed or not: its content (panels, the lesson slot) must never be re-created.
+  const liveSpecs = specs.filter(spec => isLive(spec.id));
+  const entries = [...shown.map(placed => ({id: placed.id, placed: placed as Placed | null})),
+    ...liveSpecs.filter(spec => !shown.some(card => card.id === spec.id)).map(spec => ({id: spec.id, placed: null as Placed | null}))];
 
-  // Read Orodja from the shown card before paint; a changed reading re-renders synchronously. Folded, its body is hidden and says
-  // nothing about its size, so the last reading stands.
+  // Read the live cards from the shown cards before paint; a changed reading re-renders synchronously. Folded, a body is hidden and
+  // says nothing about its size, so the last reading stands.
   useLayoutEffect(() => {
-    const element = layerRef.current?.querySelector<HTMLElement>(`[data-card-id="${TOOLS_ID}"]`) ?? null;
-    if (element && !toolsPlaced?.folded) measureLive(TOOLS_ID, element);
+    for (const spec of liveSpecs) {
+      const element = layerRef.current?.querySelector<HTMLElement>(`[data-card-id="${spec.id}"]`) ?? null;
+      if (element && !shown.find(card => card.id === spec.id)?.folded) measureLive(spec.id, element);
+    }
   });
   return <>
     {measureLayer}
     <div ref={layerRef} className="board-cards-layer" data-board-cards-layer="">
       {ghost && <div className="board-card-ghost" data-board-drop-target="" aria-hidden="true"
         style={{width: ghost.w, height: ghost.h, transform: `translate(${ghost.x}px, ${ghost.y}px)`}}/>}
-      {[...shown, ...(toolsPlaced ? [] : [null])].map(placed => {
-        const spec = specs.find(entry => entry.id === (placed?.id ?? TOOLS_ID));
+      {entries.map(({id, placed}) => {
+        const spec = specs.find(entry => entry.id === id);
         if (!spec) return null;
         const dragging = placed !== null && drag?.id === placed.id;
         const own = placed && dragging ? base?.cards.find(card => card.id === placed.id) ?? placed : placed;
         const isTools = spec.id === TOOLS_ID;
-        return <CardShell key={spec.id} id={spec.id} title={spec.title} keepMounted={isTools} role={isTools ? 'complementary' : 'region'} label={isTools ? t('demonstration_tools') : undefined} rect={own?.rect} folded={own?.folded ?? false} cut={own?.cut}
+        const isLesson = spec.id === LESSON_ID;
+        return <CardShell key={spec.id} id={spec.id} title={spec.title} keepMounted={isTools || isLesson} role={isTools ? 'complementary' : 'region'} label={isTools ? t('demonstration_tools') : undefined} rect={own?.rect} folded={own?.folded ?? false} cut={own?.cut}
           headActions={isTools ? <ToolsHeadActions section={host.tools.section} onChoose={chooseToolsSection}/> : undefined}
           onFold={folded => setToolsOrCardFold(spec.id, folded)}
           onReset={() => commit(resetCard(stored, spec.id))}
@@ -215,7 +268,8 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
           onDragMove={pointer => onDragMove(spec.id, pointer)}
           onDrop={pointer => onDrop(spec.id, pointer)}
           onDragCancel={() => { pickupRef.current = null; setDrag(null); }}>
-          {isTools ? <ToolsBody panels={host.tools.panels} section={host.tools.section} declared={declared} locked={host.tools.locked}/> : spec.body}
+          {isTools ? <ToolsBody panels={host.tools.panels} section={host.tools.section} declared={declared} locked={host.tools.locked}/>
+            : isLesson ? <LessonCardBody slot={host.lesson.slot}/> : spec.body}
         </CardShell>;
       })}
     </div>

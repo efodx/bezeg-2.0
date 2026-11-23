@@ -28,6 +28,7 @@ export interface CardSpec {
 export const READOUTS_ID = 'readouts';
 export const LEGEND_ID = 'legend';
 export const TOOLS_ID = 'tools';
+export const LESSON_ID = 'lesson';
 export const sectionCardId = (id: string): string => `section:${id}`;
 
 // Odčitki outranks Orodja (spec: lesson, then Odčitki, then Orodja): under height pressure Orodja folds before Odčitki;
@@ -42,6 +43,12 @@ export function toolsCardSpec(declared: boolean): CardSpec {
     shape: `tools;${declared ? 'declared' : 'undeclared'}`,
     body: null,
   };
+}
+
+/** The lesson card (task 04 slice 3b): present while a lesson is active, never folded for height (priority Infinity). Live like Orodja:
+ *  the presenter renders the host's lesson slot in the shown card and reads its size there; `body` is unused. */
+export function lessonCardSpec(): CardSpec {
+  return {id: LESSON_ID, title: message('shell_card_lesson'), priority: Infinity, defaultAnchor: 'tl', defaultOrder: -1, shape: 'lesson', body: null};
 }
 
 /** The cards the declaration asks for in the graph's current state, in a fixed order (readouts, legend, sections). */

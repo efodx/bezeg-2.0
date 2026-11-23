@@ -535,11 +535,11 @@ export function GuidedLesson(props: {
     };
 
     const expectedObservations = frame.kind === 'observation' && frame.expectedObservations && frame.expectedObservations.length > 0
-        && <details className="guided-lesson-expected" key={`expected-${frame.id}`}>
+        && <details className="guided-lesson-expected" data-card-row="" key={`expected-${frame.id}`}>
             <summary>{t('guided_lesson_expected_observations')}</summary>
             {frame.expectedObservations.map((text, index) => <p key={index} data-tex={localized(text, language)}>{localized(text, language)}</p>)}
         </details>;
-    const animationControls = frame.animation && <div className="guided-lesson-animation-controls" role="group" aria-label={t('guided_lesson_animation_controls')}>
+    const animationControls = frame.animation && <div className="guided-lesson-animation-controls" data-card-row="" role="group" aria-label={t('guided_lesson_animation_controls')}>
         {(['play', 'pause', 'replay'] as const).map(command => <button type="button" key={command} onClick={() => refresh(() => animateFrame(command))}>
             <AnimationIcon command={command}/>{t(command)}
         </button>)}
@@ -713,7 +713,7 @@ export function GuidedLesson(props: {
     return <>
     {!asCard && homeSlot}
     {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={asCard ? undefined : sectionStyle} className={`guided-lesson${asCard ? ' guided-lesson-card' : ''} guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
-        <div className="guided-lesson-controls">
+        <div className="guided-lesson-controls" data-card-row="">
         <div className="guided-lesson-heading" {...(asCard ? {} : panelPointerHandlers)} onPointerDown={asCard ? undefined : startPanelDrag} onDoubleClick={asCard ? undefined : dockOnDoubleClick}>
             {!asCard && <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
                 aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>}
@@ -725,12 +725,12 @@ export function GuidedLesson(props: {
         </div>
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
         <div className="guided-lesson-reading" ref={readingRef}>
-        {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary" data-tex={localized(props.lesson.summary, language)}>{localized(props.lesson.summary, language)}</p>}
+        {!isExploring && !isComplete && snapshot.stepIndex === 0 && snapshot.frameIndex === 0 && <p className="guided-lesson-summary" data-card-row="" data-card-lines="" data-tex={localized(props.lesson.summary, language)}>{localized(props.lesson.summary, language)}</p>}
         {!isComplete && !isExploring && <div className="guided-lesson-frame" key={frame.id}>
-            <h3>{localized(frame.title, language)}</h3>
-            {frame.body && <p data-tex={localized(frame.body, language)}>{localized(frame.body, language)}</p>}
-            {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index} data-tex={localized(formula, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(formula, language)}</div>)}
-            {frame.kind === 'calculation' && frame.workedExample && <div className="guided-lesson-worked-example">
+            <h3 data-card-row="">{localized(frame.title, language)}</h3>
+            {frame.body && <p data-card-row="" data-card-lines="" data-tex={localized(frame.body, language)}>{localized(frame.body, language)}</p>}
+            {frame.notation?.map((formula, index) => <div className="guided-lesson-notation" key={index} data-card-row="" data-tex={localized(formula, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(formula, language)}</div>)}
+            {frame.kind === 'calculation' && frame.workedExample && <div className="guided-lesson-worked-example" data-card-row="">
                 <h4>{localized(frame.workedExample.title, language)}</h4>
                 <div className="guided-lesson-notation" data-tex={localized(frame.workedExample.calculation, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.calculation, language)}</div>
                 <div className="guided-lesson-notation" data-tex={localized(frame.workedExample.result, language)} role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.result, language)}</div>
@@ -739,8 +739,8 @@ export function GuidedLesson(props: {
             {expectedObservations}
         </div>}
         {!isComplete && isExploring && <div className="guided-lesson-exploration" key={frame.id}>
-            <strong>{localized(frame.title, language)}</strong>
-            {frame.prompt && <p data-tex={localized(frame.prompt, language)}>{localized(frame.prompt, language)}</p>}
+            <strong data-card-row="">{localized(frame.title, language)}</strong>
+            {frame.prompt && <p data-card-row="" data-card-lines="" data-tex={localized(frame.prompt, language)}>{localized(frame.prompt, language)}</p>}
             {animationControls}
             {expectedObservations}
         </div>}
@@ -753,10 +753,10 @@ export function GuidedLesson(props: {
             <button type="button" className="guided-lesson-primary" onClick={continueInChapter}>{t('continue_in_chapter')}</button>
         </div>}
         {/* Povrni: always a reserved row in a card, so its appearance never changes the card's height. */}
-        {!isComplete && (asCard || graphDiffers) && <div className="guided-lesson-restore-row">
+        {!isComplete && (asCard || graphDiffers) && <div className="guided-lesson-restore-row" data-card-row="">
             {graphDiffers && <button type="button" className="guided-lesson-restore" title={t('guided_lesson_restore_title')} onClick={restoreFrame}>{t('guided_lesson_restore')}</button>}
         </div>}
-        {!isComplete && frameAction && <footer className="guided-lesson-footer">
+        {!isComplete && frameAction && <footer className="guided-lesson-footer" data-card-row="">
             <div className="guided-lesson-actions">
                 <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>
             </div>
