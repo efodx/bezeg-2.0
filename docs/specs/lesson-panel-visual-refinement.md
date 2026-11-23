@@ -88,6 +88,8 @@ When the graph area is at least about twice the reading card’s desktop width, 
 
 ## Docked beside the graph — 2026-11-20
 
+> Superseded 2026-11-22 by [ADR 0063](../adr/0063-cards-on-the-board.md): there is no tools column; the card is a board card placed by the layout function and reading frames do not lock controls. Kept as history; items 1 and 2 below no longer hold.
+
 The lesson crawl ([triage](../reviews/lesson-bug-crawl/triage.md), sections 1 and 5) found the floating card over the board's upper part in nearly every lesson at 1440×900, formula rows cut at the card's edge and titles cut to one line. [ADR 0061](../adr/0061-lesson-card-docks-beside-the-graph.md) records the decision and its alternatives; this section is its acceptance. It supersedes "Opening placement on wide boards" and "Ultrawide spacing" above (the card's home and the view pan) and the one-line title of "Lean, movable overlay"; dragging, the tab hand-over, focus, Escape, exit and reading-position contracts stand.
 
 ### Acceptance

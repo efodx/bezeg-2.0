@@ -1,5 +1,7 @@
 # The lesson reading card docks beside the graph
 
+Status: superseded by [ADR 0063](0063-cards-on-the-board.md), 2026-11-22: the tools column and the docked lesson column are gone; tools and the lesson are cards on the board.
+
 Accepted on 2026-11-20 (owner instruction of the same day: decide the design and implement it; evidence in [the lesson bug crawl](../reviews/lesson-bug-crawl/triage.md), section 1, and [the stream's handoff note](../reviews/lesson-card-layout/handler-handoff-1.md)).
 
 ## Context
