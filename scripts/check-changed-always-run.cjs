@@ -38,6 +38,8 @@ const STYLESHEET_READERS = [
     'src/graphs/base/controls/OperationApplyReason.test.tsx',
     'src/inputs/ControlRow.test.ts',
     'src/learning/playground/LookUnderneath.test.tsx',
+    'src/workspace/cards/CardShellMotion.test.tsx',
+    'src/workspace/presenter/BoardCards.test.tsx',
 ];
 
 const STYLESHEET = /\.(css|scss)$/i;
