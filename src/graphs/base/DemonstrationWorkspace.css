@@ -25,8 +25,8 @@
     background: var(--workspace-canvas);
     display: grid;
     align-content: start;
-    grid-template-columns: minmax(0, 1fr) 310px;
-    grid-template-areas: "heading heading" "graph inspector" "learning learning";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "heading" "graph" "learning";
     gap: 18px;
     padding: clamp(20px, 4vw, 52px) clamp(14px, 4vw, 54px) 90px;
     text-align: left;
@@ -88,7 +88,6 @@
     font-size: .84rem;
     font-weight: 700;
 }
-.workspace-inspector h2 { margin: 0; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
 
 .workspace-graph {
     grid-area: graph;
@@ -122,38 +121,8 @@
 .workspace-navigation button { min-width: 36px; }
 .workspace-gesture-hint { margin: 8px 14px; color: var(--workspace-ink-soft); font-size: .72rem; }
 
-/* Desktop: the card's top and bottom follow the graph row, including its navigation footer. The zero height with
-   min-height: 100% takes the row's height without letting expanded content stretch the row. The card never scrolls:
-   the heading and tabs stay fixed and only #inspector-content scrolls. */
-.workspace-inspector {
-    grid-area: inspector;
-    align-self: stretch;
-    box-sizing: border-box;
-    height: 0;
-    min-height: 100%;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid var(--workspace-rule);
-    border-top: 4px solid var(--workspace-ink);
-    background: var(--workspace-panel);
-    color: var(--workspace-ink);
-}
-.workspace-inspector[hidden] { display: none; }
-
-.inspector-toolbar { flex: 0 0 auto; background: var(--workspace-panel); }
-#inspector-content {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-}
-.workspace-inspector .tools { max-height: none; overflow: visible; }
-.inspector-heading { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 4px; }
-.inspector-heading button { font-size: .78rem; }
-.inspector-tabs { display: flex; gap: 0; padding: 8px 12px 10px; border-bottom: 1px solid var(--workspace-rule); background: var(--workspace-panel); }
-.inspector-tabs button { flex: 1; }
+/* The Orodja card body (`.workspace-inspector`, see src/workspace/cards/tools.css) holds the panels; the card scrolls, not the page. */
+.workspace-inspector { min-width: 0; color: var(--workspace-ink); }
 #inspector-content > section { padding: 12px 14px; }
 .inspector-group { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--workspace-rule); }
 .inspector-group:last-child { border-bottom: 0; margin-bottom: 0; }
@@ -344,8 +313,7 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 .is-presenting {
     background: var(--bezeg-night);
     color: var(--bezeg-night-panel);
-    grid-template-columns: minmax(0, 1fr) 330px;
-    grid-template-areas: "heading heading" "graph inspector";
+    grid-template-areas: "heading" "graph";
 }
 .is-presenting .workspace-topics, .is-presenting .workspace-learning { display: none; }
 .is-presenting .workspace-heading { position: sticky; top: 0; z-index: 4; background: var(--bezeg-night); padding-bottom: 8px; }
@@ -361,7 +329,6 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 .is-presenting .workspace-navigation button:hover { background: #e9dfbd; }
 .is-presenting .workspace-gesture-hint { color: #5e614f; }
 .is-presenting .workspace-inspector { border-color: #50617b; border-top-color: #d9b461; background: var(--bezeg-night); color: var(--bezeg-night-panel); }
-.is-presenting .inspector-toolbar, .is-presenting .inspector-tabs { background: var(--bezeg-night); border-color: #50617b; }
 .is-presenting .workspace-inspector .form-label, .is-presenting .inspector-group h3 { color: var(--bezeg-night-panel); }
 .is-presenting .inspector-group { border-color: #50617b; }
 .is-presenting .inspector-group p, .is-presenting .inspector-help, .is-presenting .slider-bound { color: #b5bfd0; }
@@ -378,11 +345,8 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 }
 .is-presenting .workspace-inspector .workspace-inspector-kicker { color: #d9b461; }
 .is-presenting .workspace-inspector .curve-editing-mode-buttons button:not([aria-pressed="true"]) { color: var(--bezeg-control-ink); }
-.is-presenting:has(.workspace-inspector[hidden]) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "heading" "graph"; }
 
 @media (max-width: 1100px) {
-    .demonstration-workspace { grid-template-columns: minmax(0, 1fr) 310px; grid-template-areas: "heading heading" "graph inspector" "learning learning"; }
-    .is-presenting { grid-template-areas: "heading heading" "graph inspector"; }
     .workspace-topics { display: none; }
 }
 
@@ -392,18 +356,14 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
         padding: 16px 12px 70px;
         gap: 12px;
         grid-template-columns: minmax(0, 1fr);
-        grid-template-areas: "heading" "graph" "inspector";
+        grid-template-areas: "heading" "graph";
     }
     .workspace-heading { align-items: stretch; flex-direction: column; gap: 10px; }
     .workspace-heading h1 { font-size: 1.7rem; }
     .workspace-heading p, .workspace-eyebrow { display: none; }
     .workspace-actions button, .workspace-actions > a { font-size: .74rem; }
     .workspace-graph #jgbox, .is-presenting .workspace-graph #jgbox { height: 35vh !important; min-height: 260px; }
-    /* Phone: the inspector flows in the page, with no fixed height and no inner scroller. */
-    .workspace-inspector { width: 100%; height: auto; min-height: 0; display: block; overflow: visible; }
-    #inspector-content { flex: none; overflow: visible; }
     .workspace-learning { display: none; }
-    .is-presenting { grid-template-areas: "heading" "graph" "inspector"; }
     .workspace-gesture-hint { display: none; }
 }
 
@@ -418,4 +378,3 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 /* The board hosts the card layer over the board container; the cards replace the inspector's readout and legend panels
    (task 03). Hiding keeps the panels' markup, so graphs that still build them are unchanged. */
 .workspace-board-stage { position: relative; }
-[data-board-cards] .workspace-inspector [data-declared-panel] { display: none; }

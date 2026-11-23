@@ -12,12 +12,16 @@ import {
 } from '../layout/storedLayout';
 import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
-import {buildCardSpecs, type PresentedGraph} from './cardSpecs';
+import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
+import {buildCardSpecs, toolsCardSpec, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
+import type {ToolsSection, WorkspaceCardHost} from './cardHost';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
 import './presenter.css';
 
 export interface BoardCardsProps {
   graph: PresentedGraph;
+  /** What the workspace hands the layer: Orodja's panels and Presentation's fold. */
+  host: WorkspaceCardHost;
   /** The lesson frame's highlighted row and note ids. TODO(task 07): fed from the active frame once the host can reach it. */
   highlight?: readonly string[];
   /** Resolves when fonts and formulas inside the measure layer are final (default: fonts and MathJax). Tests inject. */
@@ -34,12 +38,19 @@ const stableDiffers = (a: readonly Placed[], b: readonly Placed[]) => JSON.strin
 /** A stable default: a fresh `[]` per render would rerun specs, inputs and layoutBoard on every render, each drag move included. */
 const NO_HIGHLIGHT: readonly string[] = [];
 
-export function BoardCards({graph, highlight = NO_HIGHLIGHT, whenReady}: BoardCardsProps) {
-  useT(); // a language switch re-renders the cards
+/** First view: two cards start open on a board at least this wide, one below (04-design section 9). */
+const BUDGET_WIDE_BOARD = 1200;
+
+export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: BoardCardsProps) {
+  const t = useT(); // a language switch re-renders the cards
   useSyncExternalStore(graph.store.subscribe, () => graph.store.getVersion());
   const declaration = graph.getDeclaration();
+  const declared = declaration !== undefined;
   const language = currentLanguage();
-  const specs = useMemo(() => (declaration ? buildCardSpecs(graph, declaration, highlight) : []), [declaration, graph, highlight]);
+  // Every graph has Orodja; a declared one adds the cards its declaration asks for. Specs hold the layout facts only: Orodja's live
+  // panels come from the host on each render (below), never from this memo.
+  const specs = useMemo(() => [...(declaration ? buildCardSpecs(graph, declaration, highlight) : []), toolsCardSpec(declared)],
+    [declaration, declared, graph, highlight]);
 
   const [stored, setStored] = useState<StoredBoardLayout>(() => loadBoardLayout());
   const [board, setBoard] = useState<Size>({w: 0, h: 0});
@@ -71,17 +82,21 @@ export function BoardCards({graph, highlight = NO_HIGHLIGHT, whenReady}: BoardCa
   // Remeasure on what changes the cards' content, not on every value: language, the declared shapes, highlights, folds.
   const shapeKey = `${language}|${specs.map(spec => `${spec.id}=${spec.shape}`).join('|')}`;
   const placementKey = JSON.stringify(stored.placements);
-  const contentKey = `${shapeKey}|${highlight.join(',')}|${JSON.stringify(stored.folds)}`;
+  // Presentation's Orodja fold overrides the stored one and is never written back.
+  const presentedFold = host.toolsFolded;
+  const effectiveFolds = useMemo(() => presentedFold === undefined ? stored.folds : {...stored.folds, [TOOLS_ID]: presentedFold},
+    [stored.folds, presentedFold]);
+  const contentKey = `${shapeKey}|${highlight.join(',')}|${JSON.stringify(effectiveFolds)}`;
   // Fixed widths belong to the arrangement they were assigned for: a new arrangement or content measures from scratch.
   // A fold changes the column width (it counts open cards only), so it ends the widths assigned under the old fold state:
   // a card folded at load would otherwise be measured at the narrow column and stay that wide once unfolded.
-  const widthsKey = `${shapeKey}|${placementKey}|${JSON.stringify(stored.folds)}`;
+  const widthsKey = `${shapeKey}|${placementKey}|${JSON.stringify(effectiveFolds)}`;
   const widths = widthState.key === widthsKey ? widthState.widths : NO_WIDTHS;
 
   const items = specs.map(spec => ({
     id: spec.id,
     width: widths[spec.id],
-    node: <CardShell id={spec.id} title={spec.title} folded={false} onFold={noop} onReset={noop} onDragMove={noop} onDrop={noop} onDragCancel={noop}><MeasurePassContext.Provider value={true}>{spec.body}</MeasurePassContext.Provider></CardShell>,
+    node: <CardShell id={spec.id} title={spec.title} measure folded={false} onFold={noop} onReset={noop} onDragMove={noop} onDrop={noop} onDragCancel={noop}><MeasurePassContext.Provider value={true}>{spec.body}</MeasurePassContext.Provider></CardShell>,
   }));
   const {layer: measureLayer, measured, settled} = useMeasuredCards(items, {contentKey, whenReady});
 
@@ -89,11 +104,14 @@ export function BoardCards({graph, highlight = NO_HIGHLIGHT, whenReady}: BoardCa
     const byId = new Map((measured ?? []).map(card => [card.id, card]));
     return specs.flatMap(spec => {
       const card = byId.get(spec.id);
-      return card ? [{...card, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder}] : [];
+      return card ? [{...card, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
     });
   }, [measured, specs]);
+  // First-view budget (04-design section 9): lesson, readouts, tools; an undeclared graph has only Orodja, which starts open.
+  const budget = useMemo(() => ({open: board.w >= BUDGET_WIDE_BOARD ? 2 : 1, order: declared ? ['lesson', READOUTS_ID, TOOLS_ID] : [TOOLS_ID]}),
+    [board.w, declared]);
   const layoutInput: LayoutInput = {
-    board, cards: inputs, stored: stored.placements, storedFolds: stored.folds,
+    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget,
     maxSpan: MAX_SPAN, columnMaxFraction: COLUMN_MAX_FRACTION, gap: GAP,
   };
   const laidOut = board.w > 0 && board.h > 0 && inputs.length > 0;
@@ -118,6 +136,15 @@ export function BoardCards({graph, highlight = NO_HIGHLIGHT, whenReady}: BoardCa
   }
 
   const commit = (next: StoredBoardLayout) => { setStored(next); saveBoardLayout(next); };
+  // In Presentation the header button owns Orodja's fold: it is not stored. Everywhere else a fold is the learner's stored choice.
+  const setToolsOrCardFold = (id: string, folded: boolean) => {
+    if (id === TOOLS_ID && host.toolsFolded !== undefined) host.setToolsFolded(folded);
+    else commit(setFold(stored, id, folded));
+  };
+  const chooseToolsSection = (section: ToolsSection) => {
+    host.tools.setSection(section);
+    setToolsOrCardFold(TOOLS_ID, false);
+  };
   const folds = Object.fromEntries((base?.cards ?? []).map(card => [card.id, card.folded]));
   const dragStored = (state: Drag, rect: Rect | undefined, pointer: BoardPoint, target: DropIndex | 'free'): Record<string, Placement> => {
     const first = state.first ?? pointer;
@@ -164,14 +191,16 @@ export function BoardCards({graph, highlight = NO_HIGHLIGHT, whenReady}: BoardCa
         if (!spec) return null;
         const dragging = drag?.id === placed.id;
         const own = dragging ? base?.cards.find(card => card.id === placed.id) ?? placed : placed;
-        return <CardShell key={spec.id} id={spec.id} title={spec.title} rect={own.rect} folded={own.folded} cut={own.cut}
-          onFold={folded => commit(setFold(stored, spec.id, folded))}
+        const isTools = spec.id === TOOLS_ID;
+        return <CardShell key={spec.id} id={spec.id} title={spec.title} keepMounted={isTools} role={isTools ? 'complementary' : 'region'} label={isTools ? t('demonstration_tools') : undefined} rect={own.rect} folded={own.folded} cut={own.cut}
+          headActions={isTools ? <ToolsHeadActions section={host.tools.section} onChoose={chooseToolsSection}/> : undefined}
+          onFold={folded => setToolsOrCardFold(spec.id, folded)}
           onReset={() => commit(resetCard(stored, spec.id))}
           onPickup={point => { pickupRef.current = point ? {id: spec.id, point} : null; }}
           onDragMove={pointer => onDragMove(spec.id, pointer)}
           onDrop={pointer => onDrop(spec.id, pointer)}
           onDragCancel={() => { pickupRef.current = null; setDrag(null); }}>
-          {spec.body}
+          {isTools ? <ToolsBody panels={host.tools.panels} section={host.tools.section} declared={declared} locked={host.tools.locked}/> : spec.body}
         </CardShell>;
       })}
     </div>

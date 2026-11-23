@@ -52,7 +52,7 @@ describe("graph-adjacent playback slot", () => {
     test("on a narrow viewport the group and its status line sit in the slot after the board, once", () => {
         installMedia(true);
         const {container} = render(workspace(<Group/>));
-        expect(slot(container).previousElementSibling?.id).toBe("jgbox");
+        expect(slot(container).previousElementSibling?.querySelector("#jgbox")).not.toBeNull();
         expect(groups(container)).toHaveLength(1);
         expect(slot(container).contains(groups(container)[0])).toBe(true);
         expect(slot(container).querySelector('[role="status"]')).not.toBeNull();
@@ -62,7 +62,7 @@ describe("graph-adjacent playback slot", () => {
         installMedia(false);
         const {container} = render(workspace(<Group/>));
         expect(slot(container).childElementCount).toBe(0);
-        expect(container.querySelector("#workspace-inspector")!.contains(groups(container)[0])).toBe(true);
+        expect(container.querySelector("#board-card-tools")!.contains(groups(container)[0])).toBe(true);
         expect(groups(container)).toHaveLength(1);
     });
 
@@ -82,7 +82,7 @@ describe("graph-adjacent playback slot", () => {
         expect(groups(container)).toHaveLength(1);
         expect(container.querySelector('[data-action="play-pause"]')!.getAttribute("data-playing")).toBe("true");
         media.flip(false);
-        expect(container.querySelector("#workspace-inspector")!.contains(groups(container)[0])).toBe(true);
+        expect(container.querySelector("#board-card-tools")!.contains(groups(container)[0])).toBe(true);
         expect(groups(container)).toHaveLength(1);
         expect(container.querySelector('[data-action="play-pause"]')!.getAttribute("data-playing")).toBe("true");
         expect(mounts.count).toBe(1);
@@ -97,7 +97,7 @@ describe("graph-adjacent playback slot", () => {
         media.flip(true);
         expect(document.activeElement).toBe(slot(container).querySelector('[data-action="next-step"]'));
         media.flip(false);
-        expect(document.activeElement).toBe(container.querySelector("#workspace-inspector")!.querySelector('[data-action="next-step"]'));
+        expect(document.activeElement).toBe(container.querySelector("#board-card-tools")!.querySelector('[data-action="next-step"]'));
     });
 
     test("a group that had no focus does not take it when it moves", () => {
@@ -113,7 +113,7 @@ describe("graph-adjacent playback slot", () => {
         const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
         const {container} = render(workspace(<><Group/><Group/></>));
         expect(slot(container).querySelectorAll('[role="group"]')).toHaveLength(1);
-        expect(container.querySelector("#workspace-inspector")!.querySelectorAll('[aria-label="Iteracija"]')).toHaveLength(1);
+        expect(container.querySelector("#board-card-tools")!.querySelectorAll('[aria-label="Iteracija"]')).toHaveLength(1);
         expect(warn).toHaveBeenCalledTimes(1);
     });
 
@@ -131,7 +131,7 @@ describe("graph-adjacent playback slot", () => {
     test("route exit removes the media listener and disconnects the observers", () => {
         const media = installMedia(true);
         const {unmount} = render(workspace(<Group/>));
-        expect(media.listeners.size).toBe(1);
+        expect(media.listeners.size).toBeGreaterThanOrEqual(1); // the slot query and the card shell's reduced-motion query share this double
         const active = FakeResizeObserver.instances.filter(observer => !observer.disconnected);
         expect(active.length).toBeGreaterThan(0);
         unmount();

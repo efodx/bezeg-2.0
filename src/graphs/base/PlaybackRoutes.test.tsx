@@ -3,7 +3,7 @@ import {render} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {afterEach, beforeAll, beforeEach, describe, expect, test, vi} from "vitest";
 import {GraphHost} from "./GraphHost";
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from "./realGraphTestHarness";
+import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from "./realGraphTestHarness";
 import {BisectionGraph} from "../functions/BisectionGraph";
 import {EpicycleGraph} from "../functions/EpicycleGraph";
 import DecasteljauGraph from "../curves/bezier/DecasteljauGraph";
@@ -22,7 +22,12 @@ function phone() {
     vi.stubGlobal("matchMedia", (query: string) => ({...original(query), matches: query.includes("max-width: 700px")}));
 }
 
-const mount = (create: () => BaseGraph<any, any>) => render(<MemoryRouter><GraphHost create={create}/></MemoryRouter>);
+/** The Orodja card, and with it the playback group, appears after the board's measure pass; wait for its open body. */
+const mount = async (create: () => BaseGraph<any, any>) => {
+    const view = render(<MemoryRouter><GraphHost create={create}/></MemoryRouter>);
+    await waitUntil(() => view.container.querySelector("#board-card-tools [data-card-body]") !== null);
+    return view;
+};
 const slot = (container: HTMLElement) => container.querySelector<HTMLElement>("[data-playback-slot]")!;
 
 // One route per family; every inventoried route passes the same placement="graph" prop to the same PlaybackButtons.
@@ -33,19 +38,19 @@ const families: readonly [string, () => BaseGraph<any, any>][] = [
 ];
 
 describe.each(families)("playback slot on a phone: %s", (_name, create) => {
-    test("the one playback group sits in the slot under the board", () => {
+    test("the one playback group sits in the slot under the board", async () => {
         phone();
-        const {container} = mount(create);
+        const {container} = await mount(create);
         const playButtons = container.querySelectorAll('[data-action="play-pause"]');
         expect(playButtons).toHaveLength(1);
         expect(slot(container).contains(playButtons[0])).toBe(true);
     }, REAL_GRAPH_TEST_TIMEOUT);
 
-    test("on a wide viewport the group stays in the inspector", () => {
-        const {container} = mount(create);
+    test("on a wide viewport the group stays in the inspector", async () => {
+        const {container} = await mount(create);
         const playButton = container.querySelector('[data-action="play-pause"]')!;
         expect(slot(container).childElementCount).toBe(0);
-        expect(container.querySelector("#workspace-inspector")!.contains(playButton)).toBe(true);
+        expect(container.querySelector("#board-card-tools")!.contains(playButton)).toBe(true);
     }, REAL_GRAPH_TEST_TIMEOUT);
 });
 
@@ -56,9 +61,9 @@ const companions: readonly [string, () => BaseGraph<any, any>, string][] = [
 ];
 
 describe.each(companions)("playback companion: %s", (_name, create, label) => {
-    test("on a phone the slider is once, in the closed slot disclosure, and not in the inspector", () => {
+    test("on a phone the slider is once, in the closed slot disclosure, and not in the inspector", async () => {
         phone();
-        const {container} = mount(create);
+        const {container} = await mount(create);
         const details = slot(container).querySelector("details")!;
         expect(details.open).toBe(false);
         expect(details.textContent).toContain("Ročno: " + label);
@@ -66,18 +71,18 @@ describe.each(companions)("playback companion: %s", (_name, create, label) => {
         expect(container.querySelectorAll(".playback-companion")).toHaveLength(1);
     }, REAL_GRAPH_TEST_TIMEOUT);
 
-    test("on a wide viewport the slider stays in the inspector with nothing in the slot", () => {
-        const {container} = mount(create);
+    test("on a wide viewport the slider stays in the inspector with nothing in the slot", async () => {
+        const {container} = await mount(create);
         expect(slot(container).childElementCount).toBe(0);
         const companion = container.querySelectorAll(".playback-companion");
         expect(companion).toHaveLength(1);
-        expect(container.querySelector("#workspace-inspector")!.contains(companion[0])).toBe(true);
+        expect(container.querySelector("#board-card-tools")!.contains(companion[0])).toBe(true);
     }, REAL_GRAPH_TEST_TIMEOUT);
 });
 
-test("bisection has no companion on a phone", () => {
+test("bisection has no companion on a phone", async () => {
     phone();
-    const {container} = mount(() => new BisectionGraph());
+    const {container} = await mount(() => new BisectionGraph());
     expect(slot(container).querySelector("details")).toBeNull();
     expect(container.querySelector(".playback-companion")).toBeNull();
 }, REAL_GRAPH_TEST_TIMEOUT);

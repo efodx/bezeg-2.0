@@ -26,6 +26,13 @@ export interface CardShellProps {
   onDragCancel: () => void;
   /** Controls in the head between the title and the fold/reset buttons (tab order: grip, actions, fold, reset). They never start a drag. */
   headActions?: ReactNode;
+  /** Landmark role of the card root (default `region`); the name is `label` or the title. */
+  role?: 'region' | 'complementary';
+  label?: string;
+  /** The hidden measure copy: carries no id and no landmark, so the live card is the only one. */
+  measure?: boolean;
+  /** Folded, the body stays mounted but hidden (its controls keep state and feed the playback slot) instead of unmounting. */
+  keepMounted?: boolean;
   children?: ReactNode;
 }
 
@@ -65,7 +72,7 @@ export function visibleSize(full: {w: number; h: number}, clip: string): {w: num
 
 interface Drag { start: BoardPoint; at: BoardPoint; active: boolean; keyboard: boolean }
 
-export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onPickup, onDrop, onDragCancel, headActions, children}: CardShellProps) {
+export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onPickup, onDrop, onDragCancel, headActions, role = 'region', label, measure = false, keepMounted = false, children}: CardShellProps) {
   const t = useT();
   const root = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -215,7 +222,8 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
   const scrollMore = () => body.current?.scrollBy?.({top: Math.max(40, body.current.clientHeight - 24), behavior: reduced ? 'auto' : 'smooth'});
 
   return (
-    <div ref={root} className={classes} data-card-id={id} style={style}>
+    <div ref={root} className={classes} data-card-id={id} style={style}
+         {...(measure ? {} : {id: `board-card-${id}`, role, 'aria-label': label ?? name})}>
       <div className="board-card-head" data-card-head
            onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerCancel}>
         <button type="button" className="board-card-button board-card-grip" aria-label={t('shell_grip', {value0: name})}
@@ -226,7 +234,7 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
                 onClick={() => onFold(!folded)}><Chevron/></button>
         <button type="button" className="board-card-button" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>
       </div>
-      {!folded && <div ref={body} className="board-card-body" data-card-body>{children}</div>}
+      {(!folded || keepMounted) && <div ref={body} className="board-card-body" data-card-body hidden={folded || undefined}>{children}</div>}
       {!folded && cut !== null && <button type="button" className="board-card-more" onClick={scrollMore}>{t('shell_more')}</button>}
       {rect && <div className="board-card-status" role="status" aria-live="polite">{said}</div>}
     </div>

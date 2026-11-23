@@ -17,7 +17,6 @@ export function GraphHost({create}: { create: () => BaseGraph<BaseGraphState> })
     // for a language switch to re-render them.
     const t = useT();
     const [graph] = useState(create);
-    const [declared] = useState(() => graph.getDeclaration() !== undefined);
     const [failed, setFailed] = useState(false);
     const disposeFailedGraph = useCallback(() => { graph.unmount(); setFailed(true); }, [graph]);
     const container = useRef<HTMLDivElement>(null);
@@ -46,9 +45,8 @@ export function GraphHost({create}: { create: () => BaseGraph<BaseGraphState> })
 
     if (failed) return <main><p role="alert">{t('chapter_scene_error')}</p>
         <a href="/bezeg-2.0/learn/bezier-curves">{t('chapter_return')}</a> · <a href={window.location.pathname}>{t('chapter_free_exploration')}</a></main>;
-    // A graph that declares cards gets the card layer over its board (task 03); an undeclared graph renders as before.
-    // Latched at creation: the overlay changes the board's wrapper, so it must never appear or vanish after the board mounted.
+    // Every graph gets the card layer over its board: Orodja at least, and the cards its declaration asks for (task 03, 04).
     return <DemonstrationWorkspace {...graph.getWorkspacePanels()}
-        boardOverlay={declared ? <BoardCards graph={graph}/> : undefined}
+        boardOverlay={host => <BoardCards graph={graph} host={host}/>}
         graphContainerRef={container} beforeDispose={beforeDispose} disposeFailedGraph={disposeFailedGraph}/>;
 }

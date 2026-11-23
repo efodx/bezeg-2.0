@@ -24,8 +24,10 @@ import {guidedLessonReturnPath, resolveGuidedLessonOwner} from '../../learning/c
 import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
 import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
 import {WorkspaceElder} from './WorkspaceElder';
+import type {ToolsSection, WorkspaceCardHost} from '../../workspace/presenter/cardHost';
+import {StaticToolsCard} from '../../workspace/presenter/StaticToolsCard';
 
-type Section = "edit" | "display" | "save";
+type Section = ToolsSection;
 type LessonMode = "content" | "explore" | "complete" | "closed";
 
 
@@ -37,8 +39,8 @@ export function DemonstrationWorkspace(props: {
     disposeFailedGraph?: () => void,
     /** Gives the graph the workspace's decision reader, for commits that arrive through callbacks retained from an earlier render. Returns the release. */
     bindUserActions?: (current: () => UserActionMode) => () => void,
-    /** The card layer of a graph that declares cards (task 03). A sibling of the board container, never inside it, so figure export does not see it. Its presence also hides the graph's own readout and legend panels. */
-    boardOverlay?: React.ReactNode,
+    /** The card layer (task 03/04), given what the workspace owns (Orodja's panels, Presentation's fold). A sibling of the board container, never inside it, so figure export does not see it. Absent: a bare Orodja card in the board's corner. */
+    boardOverlay?: (host: WorkspaceCardHost) => React.ReactNode,
 }) {
     const t = useT();
     const closeLesson = useRef<(() => void) | undefined>();
@@ -88,19 +90,10 @@ export function DemonstrationWorkspace(props: {
         right: ['→', t('pan_right')], in: ['+', t('zoom_in')], out: ['−', t('zoom_out')],
     };
     const actions = demonstration?.navigationActions ?? ['left', 'up', 'down', 'right', 'in', 'out'] as const;
-    const sections: {id: Section, label: string, hint: string}[] = [
-    {id: "edit", label: t("edit"), hint: t("tool_group_edit_hint")},
-    {id: "display", label: t("display"), hint: t("tool_group_display_hint")},
-    {id: "save", label: t("save"), hint: t("tool_group_save_hint")}
-];
     const {fullScreen: presentation} = useContext(SiteContext);
     const [section, setSection] = useState<Section>("edit");
-    const [expanded, setExpanded] = useState(true);
     const [presentationControls, setPresentationControls] = useState(false);
     const [lessonMode, setLessonMode] = useState<LessonMode>(() => lessonOpen ? 'content' : 'closed');
-    const inspector = useRef<HTMLElement>(null);
-    // The content region is the inspector's only scroll owner; tab changes return it to the top.
-    const inspectorContent = useRef<HTMLDivElement>(null);
     const workspaceRoot = useRef<HTMLElement>(null);
     const learnButton = useRef<HTMLButtonElement>(null);
     const openGuidedLesson = () => {
@@ -177,7 +170,6 @@ export function DemonstrationWorkspace(props: {
             section.style.removeProperty("--playback-board-top");
         };
     }, [slotElementActive]);
-    const inspectorVisible = !fullScreen || presentationControls;
     const workspaceTitle = demonstration?.workspaceTitle ?? 'Bezeg';
     // A requested lesson may arrive before a graph has finished creating its
     // board. Keep the normal workspace interactive until the graph-owned
@@ -191,16 +183,19 @@ export function DemonstrationWorkspace(props: {
     const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
     const bindUserActions = props.bindUserActions;
     useLayoutEffect(() => bindUserActions?.(() => userActionModeRef.current), [bindUserActions]);
-    useEffect(() => {
-        const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
-        if (element) element.inert = lessonActive && lessonMode === 'content';
-    }, [lessonActive, lessonMode]);
+    // What the card layer needs from this workspace. Presentation: Orodja is folded until the header button unfolds it (not stored).
+    const toolsLocked = lessonActive && lessonMode === 'content';
+    const cardHost: WorkspaceCardHost = {
+        tools: {panels: {edit: props.edit, display: props.display, save: props.save}, section, setSection, locked: toolsLocked},
+        fullScreen,
+        toolsFolded: fullScreen ? !presentationControls : undefined,
+        setToolsFolded: folded => setPresentationControls(!folded),
+    };
     useLayoutEffect(() => {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
     return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
-        data-board-cards={props.boardOverlay ? "" : undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
@@ -227,7 +222,7 @@ export function DemonstrationWorkspace(props: {
                     {lessonGraphActions?.animationControls}
                 </>}
                 {fullScreen && <button onClick={() => setPresentationControls(!presentationControls)}
-                    aria-expanded={presentationControls} aria-controls="workspace-inspector">{presentationControls ? t("hide_tools") : t("open_tools")}</button>}
+                    aria-expanded={presentationControls} aria-controls="board-card-tools">{presentationControls ? t("hide_tools") : t("open_tools")}</button>}
                 <button onClick={() => presentation.setFullScreen(!fullScreen)} aria-pressed={fullScreen}>
                     {fullScreen ? t("exit_presentation") : t("presentation_mode")}</button>
                 {!fullScreen && <WorkspaceElder/>}
@@ -263,9 +258,7 @@ export function DemonstrationWorkspace(props: {
             }}/>}
         <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
-            {props.boardOverlay
-                ? <div className="workspace-board-stage"><JGBox ref={setGraphContainer}/>{props.boardOverlay}</div>
-                : <JGBox ref={setGraphContainer}/>}
+            <div className="workspace-board-stage"><JGBox ref={setGraphContainer}/>{props.boardOverlay ? props.boardOverlay(cardHost) : <StaticToolsCard host={cardHost}/>}</div>
             <div ref={setSlotElement} data-playback-slot=""/>
             {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {
@@ -277,33 +270,5 @@ export function DemonstrationWorkspace(props: {
             <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
         </section>
         <LearningPrompt key={pathname} pathname={pathname}/>
-        <aside ref={inspector} id="workspace-inspector" className="workspace-inspector" hidden={!inspectorVisible}
-            aria-disabled={lessonActive && lessonMode === 'content' ? true : undefined} aria-label={t("demonstration_tools")}>
-            <div className="inspector-toolbar">
-            <div className="inspector-heading">
-                <div><h2>{t("tools")}</h2></div>
-                <button aria-expanded={expanded} aria-controls="inspector-content" onClick={() => setExpanded(!expanded)}>
-                    {expanded ? t("collapse") : t("open")}
-                    <svg aria-hidden="true" focusable="false" className="inspector-collapse-chevron" viewBox="0 0 16 16">
-                        <path d={expanded ? 'M4 10 L8 6 L12 10' : 'M4 6 L8 10 L12 6'}/>
-                    </svg>
-                </button>
-            </div>
-            <div className="inspector-tabs" role="group" aria-label={t("tool_groups")}>
-                {sections.map(tab => <button key={tab.id} aria-label={tab.label} aria-pressed={section === tab.id}
-                    aria-describedby={`inspector-tab-hint-${tab.id}`} aria-controls={`inspector-${tab.id}`} title={tab.hint} onClick={() => {
-                        setSection(tab.id); setExpanded(true);
-                        if (inspectorContent.current) inspectorContent.current.scrollTop = 0;
-                    }}>
-                    <span>{tab.label}</span>
-                </button>)}
-                {sections.map(tab => <span key={tab.id} id={`inspector-tab-hint-${tab.id}`} className="visually-hidden">{tab.hint}</span>)}
-            </div>
-            </div>
-            <div id="inspector-content" ref={inspectorContent} hidden={!expanded}>
-                {sections.map(tab => <section key={tab.id} id={`inspector-${tab.id}`} hidden={section !== tab.id}
-                    aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
-            </div>
-        </aside>
     </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PlaybackSlotContext.Provider></PresetLockContext.Provider>;
 }

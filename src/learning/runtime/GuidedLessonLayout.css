@@ -18,7 +18,7 @@
     grid-template-areas: "heading heading" "graph inspector";
 }
 
-.demonstration-workspace.is-presenting.lesson-open:has(.workspace-inspector[hidden]):not(:has(> .guided-lesson)) {
+.demonstration-workspace.is-presenting.lesson-open:not(:has(> .guided-lesson)) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "heading" "graph";
 }
