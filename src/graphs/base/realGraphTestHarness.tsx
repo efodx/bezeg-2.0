@@ -91,6 +91,14 @@ export const waitForPucks = (key?: string): Promise<void> =>
     waitUntil(() => document.querySelector(`.puck-strip [data-puck-key${key ? `="${key}"` : ''}]`) !== null
         && document.querySelector<HTMLElement>('.puck-strip')?.style.visibility !== 'hidden');
 
+/** Opens the Orodja card when the jsdom board left it folded, and waits until its body shows. */
+export async function openTools(): Promise<void> {
+    await waitUntil(() => document.querySelector('#board-card-tools [data-card-body]') !== null);
+    const fold = document.querySelector<HTMLButtonElement>('#board-card-tools .board-card-fold')!;
+    if (fold.getAttribute('aria-expanded') === 'false') act(() => { fireEvent.click(fold); });
+    await waitUntil(() => !document.querySelector('#board-card-tools [data-card-body]')!.hasAttribute('hidden'));
+}
+
 /** The puck's own accessible control (a slider or a spinbutton) by the parameter key. */
 export const puckControl = (key: string): HTMLElement =>
     document.querySelector<HTMLElement>(`.puck-strip [data-puck-key="${key}"] [role="slider"], .puck-strip [data-puck-key="${key}"] [role="spinbutton"]`)!;

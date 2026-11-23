@@ -2,12 +2,14 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import PhasePortraitGraph, {MAX_FRAME_MS} from './PhasePortraitGraph';
+
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -48,7 +50,8 @@ const field = (label: string) => screen.getByLabelText(label) as HTMLInputElemen
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const chooseSystem = (system: string) => act(() => { fireEvent.change(field(t('phase_graph_system_label')), {target: {value: system}}); });
-const entry = (name: 'a' | 'b' | 'c' | 'd', value: string) => type(t(`phase_graph_matrix_${name}_label`), value);
+/** The four matrix entries and the zoom are pucks on the board. */
+const entry = (name: 'a' | 'b' | 'c' | 'd', value: string) => typePuck(`phase-${name}`, value);
 const seedX = (n: number, value: string) => type(`${t('phase_graph_seed_point', {value0: String(n)})}, x`, value);
 const seedY = (n: number, value: string) => type(`${t('phase_graph_seed_point', {value0: String(n)})}, y`, value);
 const seedTheta = (n: number, value: string) => type(`${t('phase_graph_seed_point', {value0: String(n)})}, θ`, value);
@@ -57,6 +60,18 @@ const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node
 const status = () => document.querySelector('[data-phase-status]')?.textContent;
 const inset = () => document.querySelector('[data-phase-inset]')?.getAttribute('aria-label');
 const stateOf = (graph: PhasePortraitGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
+
+/**
+ * The pucks stand once the board has laid out; the layout may fold Orodja at load (a budget of open cards), so open it with its fold
+ * button as a learner would: the seed fields and the chooser live there.
+ */
+async function ready() {
+    await waitForPucks('phase-a');
+    await waitUntil(() => document.querySelector('#board-card-tools .board-card-fold') !== null);
+    const fold = document.querySelector<HTMLElement>('#board-card-tools .board-card-fold')!;
+    if (fold.getAttribute('aria-expanded') === 'false') act(() => { fold.click(); });
+    await waitUntil(() => document.querySelector('#board-card-tools [data-card-body]')?.hasAttribute('hidden') === false);
+}
 
 /** The state, the readouts, the status and the inset after running `edit` on a fresh graph and then unmounting it. */
 function after(edit: (graph: ClockedGraph) => void) {
@@ -67,9 +82,19 @@ function after(edit: (graph: ClockedGraph) => void) {
     return result;
 }
 
-test('set-matrix reaches the state, readouts, status and inset of typing the four entries', () => {
-    const viaAction = after(graph => apply(graph, setMatrix(4, -4, 4, 0)));
-    expect(viaAction).toEqual(after(() => { entry('a', '1'); entry('b', '-1'); entry('c', '1'); entry('d', '0'); }));
+/** Like `after`, for edits that drive a puck: the graph is mounted, laid out and Orodja opened first. */
+async function afterReady(edit: (graph: ClockedGraph) => void) {
+    const graph = mount();
+    await ready();
+    edit(graph);
+    const result = {state: stateOf(graph), readouts: readouts(), status: status(), inset: inset()};
+    cleanup();
+    return result;
+}
+
+test('set-matrix reaches the state, readouts, status and inset of typing the four entries', async () => {
+    const viaAction = await afterReady(graph => apply(graph, setMatrix(4, -4, 4, 0)));
+    expect(viaAction).toEqual(await afterReady(() => { entry('a', '1'); entry('b', '-1'); entry('c', '1'); entry('d', '0'); }));
     expect(viaAction.state).toEqual(expect.objectContaining({system: 'linear', A: 4, B: -4, C: 4, D: 0}));
 });
 
@@ -92,12 +117,12 @@ test('set-system returns the equilibrium to 0 where the system has no such one, 
 });
 
 const chooseEquilibrium = (value: string) => act(() => { fireEvent.change(field(t('phase_graph_equilibrium_label')), {target: {value}}); });
-const typeZoom = (value: string) => type(t('phase_graph_zoom_label'), value);
+const typeZoom = (value: string) => typePuck('phase-zoom', value);
 
-test('set-zoom reaches the state, readouts, status and inset of the zoom control', () => {
+test('set-zoom reaches the state, readouts, status and inset of the zoom control', async () => {
     for (const zoom of [0, 1, 3, 6]) {
-        const viaAction = after(graph => apply(graph, setZoom(zoom)));
-        expect(viaAction, String(zoom)).toEqual(after(() => typeZoom(String(zoom))));
+        const viaAction = await afterReady(graph => apply(graph, setZoom(zoom)));
+        expect(viaAction, String(zoom)).toEqual(await afterReady(() => typeZoom(String(zoom))));
         expect(viaAction.state, String(zoom)).toEqual(expect.objectContaining({zoom}));
     }
 });
@@ -109,7 +134,7 @@ test('set-equilibrium reaches the state, readouts, status and inset of the equil
     expect(after(graph => { apply(graph, setSystem('pendulum')); apply(graph, setEquilibrium(1)); apply(graph, setEquilibrium(0)); })).toEqual(after(() => chooseSystem('pendulum')));
 });
 
-test('set-zoom and set-equilibrium run in one synchronous sequence with set-system', () => {
+test('set-zoom and set-equilibrium run in one synchronous sequence with set-system', async () => {
     const graph = mount();
     act(() => {
         const capabilities = graph.getLessonCapabilities();
@@ -120,7 +145,7 @@ test('set-zoom and set-equilibrium run in one synchronous sequence with set-syst
     expect(graph.state).toEqual(expect.objectContaining({system: 'pendulum', equilibrium: 1, zoom: 3}));
     const here = {state: stateOf(graph), readouts: readouts(), status: status(), inset: inset()};
     cleanup();
-    expect(after(() => { chooseSystem('pendulum'); chooseEquilibrium('1'); typeZoom('3'); })).toEqual(here);
+    expect(await afterReady(() => { chooseSystem('pendulum'); chooseEquilibrium('1'); typeZoom('3'); })).toEqual(here);
 });
 
 test('set-zoom and set-equilibrium refuse invalid values and change nothing', () => {
@@ -181,7 +206,7 @@ test('set-seeds takes 1 to 6 seeds; the pendulum seeds are (theta, omega) typed 
         .toEqual(after(() => { chooseSystem('pendulum'); seedTheta(1, '0'); seedOmega(1, '2'); }));
 });
 
-test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', () => {
+test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', async () => {
     const graph = mount();
     const free = stateOf(graph);
     act(() => {
@@ -197,7 +222,7 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     expect(stateOf(graph)).not.toEqual(free);
     const here = {state: stateOf(graph), readouts: readouts(), status: status(), inset: inset()};
     cleanup();
-    const viaControl = after(() => { entry('a', '1'); entry('b', '0'); entry('c', '0'); entry('d', '-1'); seedX(1, '2'); seedY(1, '0'); });
+    const viaControl = await afterReady(() => { entry('a', '1'); entry('b', '0'); entry('c', '0'); entry('d', '-1'); seedX(1, '2'); seedY(1, '0'); });
     expect(viaControl).toEqual(here);
 });
 

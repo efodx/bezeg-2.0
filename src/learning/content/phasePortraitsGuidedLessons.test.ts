@@ -15,12 +15,14 @@ import {phasePortraitsChapter} from './phasePortraitsChapter';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLesson} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks, waitUntil} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import LogisticMapGraph from '../../graphs/dynamics/LogisticMapGraph';
 import PhasePortraitGraph from '../../graphs/dynamics/PhasePortraitGraph';
 import {enterNumber} from '../../inputs/testEntry';
 import {setLanguage, t} from '../../localization';
+
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -460,11 +462,24 @@ const ppOpenState = (id: string) => {
     return {system: spec.system ?? 'linear', ...(spec.matrix ?? {A: -16, B: -4, C: -8, D: -12}), seeds: spec.seeds ?? [{X: 20, Y: 0}]};
 };
 
-function mountPhase(language: Language) {
+/**
+ * The matrix entries, the zoom and the time are pucks on the board once it has laid out. The board layout may fold Orodja at load (a budget
+ * of open cards), so it is opened with its fold button as a learner would: the system chooser, the seed fields and the seed count stay there.
+ */
+async function pucksReady() {
+    await waitForPucks('phase-a');
+    await waitUntil(() => document.querySelector('#board-card-tools .board-card-fold') !== null);
+    const fold = document.querySelector<HTMLElement>('#board-card-tools .board-card-fold')!;
+    if (fold.getAttribute('aria-expanded') === 'false') act(() => { fold.click(); });
+    await waitUntil(() => document.querySelector('#board-card-tools [data-card-body]')?.hasAttribute('hidden') === false);
+}
+
+async function mountPhase(language: Language) {
     setLanguage(language);
     const graph = createGraph('phase-portrait');
     if (!(graph instanceof PhasePortraitGraph)) throw new Error('phase-portrait must be the phase portrait graph.');
     mountGraph(graph);
+    await pucksReady();
     const capabilities = graph.getLessonCapabilities();
     const checkpoint = capabilities.captureState();
     const free = JSON.stringify(graph.state);
@@ -483,7 +498,7 @@ function mountPhase(language: Language) {
     const dec = (value: string) => (language === 'sl' ? value.replace('.', ',') : value);
     const typeIn = (label: string, value: string) => act(() => { enterNumber(field(label), dec(value)); });
     const ui = {
-        entry: (name: 'a' | 'b' | 'c' | 'd', value: string) => typeIn(t(`phase_graph_matrix_${name}_label`), value),
+        entry: (name: 'a' | 'b' | 'c' | 'd', value: string) => typePuck(`phase-${name}`, value),
         /** The first (x or theta) or second (y or omega) coordinate of seed n, by the system on the board. */
         seed: (n: number, axis: 1 | 2, value: string) => {
             const pendulum = stateOf().system === 'pendulum';
@@ -494,11 +509,11 @@ function mountPhase(language: Language) {
         },
         plus: () => act(() => { fireEvent.click(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})); }),
         system: (value: string) => act(() => { fireEvent.change(field(t('phase_graph_system_label')), {target: {value}}); }),
-        time: (value: string) => act(() => { enterNumber(field(t('phase_graph_time_label')), value); }),
+        time: (value: string) => typePuck('phase-time', value),
     };
     return {graph, open, restore, free, stateOf, picked, readouts, status, inset, snap, field, ui};
 }
-type PhaseMount = ReturnType<typeof mountPhase>;
+type PhaseMount = Awaited<ReturnType<typeof mountPhase>>;
 type Ui = PhaseMount['ui'];
 
 /** The learner changes each step's prompt asks for, as control edits: each variant is applied to a fresh opening of the step. */
@@ -551,11 +566,11 @@ const ppText = (id: string, language: Language) => {
 };
 
 describe('PP1 and PP2 open on a real PhasePortraitGraph, in sl and en', () => {
-    it('every step opens its scene out of order and twice in one act, and restore returns the free state', () => {
+    it('every step opens its scene out of order and twice in one act, and restore returns the free state', async () => {
         const ids = ppSteps().map(step => step.id);
         expect(ids).toHaveLength(12);
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             for (let i = 0; i < ids.length; i += 1) {
                 const id = ids[(i * 7) % ids.length];
                 m.open(id);
@@ -570,18 +585,18 @@ describe('PP1 and PP2 open on a real PhasePortraitGraph, in sl and en', () => {
         }
     });
 
-    it('every control and readout a prompt names exists in the graph, with the graph string of the language', () => {
+    it('every control and readout a prompt names exists in the graph, with the graph string of the language', async () => {
         const missing: string[] = [];
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             for (const step of ppSteps()) {
                 m.open(step.id);
                 const text = ppText(step.id, language);
                 missing.push(...PP_NAMES[step.id].map(name => name()).filter(name => !text.includes(name)).map(name => `${language} ${step.id}: ${name}`));
                 const pendulum = m.stateOf().system === 'pendulum';
-                if (!pendulum) for (const letter of ['a', 'b', 'c', 'd'] as const) expect(m.field(t(`phase_graph_matrix_${letter}_label`))).toBeTruthy();
+                if (!pendulum) for (const letter of ['a', 'b', 'c', 'd'] as const) expect(puckControl(`phase-${letter}`).getAttribute('aria-label')).toBe(t(`phase_graph_matrix_${letter}_label`));
                 expect(m.field(t('phase_graph_system_label'))).toBeTruthy();
-                expect(m.field(t('phase_graph_time_label'))).toBeTruthy();
+                expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('phase_graph_time_label'));
                 expect(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})).toBeTruthy();
                 expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
                 expect(document.querySelector('[data-readout="energy-1"] dt')?.textContent ?? null).toBe(pendulum ? t('phase_graph_r_energy', {value0: '1'}) : null);
@@ -594,9 +609,9 @@ describe('PP1 and PP2 open on a real PhasePortraitGraph, in sl and en', () => {
         expect(missing).toEqual([]);
     });
 
-    it('no step opens in the state its prompt asks the learner to produce', () => {
+    it('no step opens in the state its prompt asks the learner to produce', async () => {
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             for (const step of ppSteps()) {
                 m.open(step.id);
                 const opening = m.snap();
@@ -749,10 +764,10 @@ describe('PP1 and PP2: every number the text quotes is recomputed independently 
 });
 
 describe('PP1 and PP2: the readouts after the learner change show the quoted numbers, in sl and en', () => {
-    it('the readouts of the graph match the independent recomputation for every step', () => {
+    it('the readouts of the graph match the independent recomputation for every step', async () => {
         const bad: string[] = [];
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             const dd = (id: string) => norm(document.querySelector(`[data-readout="${id}"] dd`)?.textContent);
             const has = (what: string, id: string, value: number, digits: number) => {
                 if (!hasQuote(dd(id), value, digits, language)) bad.push(`${language} ${what} ${id}: wants ${q(value, digits, language)} in "${dd(id)}"`);
@@ -826,7 +841,7 @@ const pp3OpenState = (id: string) => {
 const pp3Picked = (m: PhaseMount) => { const s = m.stateOf(); return {system: s.system, equilibrium: s.equilibrium, zoom: s.zoom, seeds: s.seeds}; };
 const pp3Ui = (m: PhaseMount) => ({
     equilibrium: (value: number) => act(() => { fireEvent.change(m.field(t('phase_graph_equilibrium_label')), {target: {value: String(value)}}); }),
-    zoom: (value: number) => act(() => { enterNumber(m.field(t('phase_graph_zoom_label')), String(value)); }),
+    zoom: (value: number) => typePuck('phase-zoom', String(value)),
 });
 const prompt3 = (id: string, language: Language) => prose(ppStepOf(id).observationPrompt[language]).replace(/\s+/g, ' ');
 const head = (name: () => string, separator: string | RegExp) => () => name().split(separator)[0];
@@ -841,11 +856,11 @@ const PP3_NAMES: Record<string, (() => string)[]> = {
 };
 
 describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
-    it('every step opens its scene out of order and twice in one act, and restore returns the free state', () => {
+    it('every step opens its scene out of order and twice in one act, and restore returns the free state', async () => {
         const ids = pp3Steps().map(step => step.id);
         expect(ids).toHaveLength(6);
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             for (let i = 0; i < ids.length; i += 1) {
                 const id = ids[(i * 5) % ids.length];
                 m.open(id);
@@ -860,18 +875,18 @@ describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
         }
     });
 
-    it('every control and readout a prompt names exists in the graph, with the graph string of the language', () => {
+    it('every control and readout a prompt names exists in the graph, with the graph string of the language', async () => {
         const missing: string[] = [];
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             for (const step of pp3Steps()) {
                 m.open(step.id);
                 const text = prompt3(step.id, language);
                 missing.push(...PP3_NAMES[step.id].map(name => name()).filter(name => ![name, name.replace('Jacobijeva matrika', 'Jacobijevo matriko')].some(variant => text.toLowerCase().includes(variant.toLowerCase()))).map(name => `${language} ${step.id}: ${name}`));
                 const nonlinear = m.stateOf().system !== 'linear';
                 expect(m.field(t('phase_graph_system_label'))).toBeTruthy();
-                expect(m.field(t('phase_graph_time_label'))).toBeTruthy();
-                expect(m.field(t('phase_graph_zoom_label'))).toBeTruthy();
+                expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('phase_graph_time_label'));
+                expect(puckControl('phase-zoom').getAttribute('aria-label')).toBe(t('phase_graph_zoom_label'));
                 expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
                 for (const [id, label] of [['type', nonlinear ? t('phase_graph_r_type_linearization') : t('phase_graph_r_type_linear')], ['jacobian', nonlinear ? t('phase_graph_r_jacobian') : t('phase_graph_r_matrix')], ['eigen', t('phase_graph_r_eigen')], ['hyperbolic', t('phase_graph_r_hyperbolic')]]) expect(document.querySelector(`[data-readout="${id}"] dt`)?.textContent).toBe(label);
                 if (nonlinear) {
@@ -887,7 +902,7 @@ describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
         expect(missing).toEqual([]);
     });
 
-    it('no step opens in the state its prompt asks the learner to produce, and the zoomed seeds are inside the view', () => {
+    it('no step opens in the state its prompt asks the learner to produce, and the zoomed seeds are inside the view', async () => {
         const changes: Record<string, ((m: PhaseMount, ui: ReturnType<typeof pp3Ui>) => void)[]> = {
             'pp3-jacobian': [(m, ui) => { m.ui.system('pendulum'); ui.equilibrium(1); }],
             'pp3-zoom': [(_m, ui) => ui.zoom(3)],
@@ -896,7 +911,7 @@ describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
             'pp3-undecided': [(_m, ui) => ui.zoom(3)],
         };
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             const ui = pp3Ui(m);
             for (const [id, variants] of Object.entries(changes)) {
                 m.open(id);
@@ -1044,10 +1059,10 @@ describe('PP3: every number the text quotes is recomputed independently of the g
         expect(ring(pendulumField, centreLinear(0), 0, 3)).toEqual([0, 0]);
     });
 
-    it('the readouts each step quotes match the graph after the learner changes, in sl and en', () => {
+    it('the readouts each step quotes match the graph after the learner changes, in sl and en', async () => {
         const bad: string[] = [];
         for (const language of LANGS) {
-            const m = mountPhase(language);
+            const m = await mountPhase(language);
             const ui = pp3Ui(m);
             const check = (label: string, ok: boolean, got?: unknown) => { if (!ok) bad.push(`${language} ${label}: ${JSON.stringify(got)}`); };
             const jac = () => JSON.stringify(zero(numbersIn(rowText('jacobian').replace(/(?:vrstica|row) \d:/g, ''))));

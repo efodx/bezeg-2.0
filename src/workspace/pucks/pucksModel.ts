@@ -48,7 +48,8 @@ export function widestCountChars(p: Pick<CountParameter, 'min' | 'max'>): number
 }
 
 export type EntryResult =
-    | {readonly ok: true; readonly value: number}
+    /** `snapped` is set when the typed number was off the step grid and the value is the nearest grid point. */
+    | {readonly ok: true; readonly value: number; readonly snapped?: true}
     | {readonly ok: false; readonly reason: 'number' | 'range' | 'whole'};
 
 const EPS = 1e-9;
@@ -59,7 +60,9 @@ export function parseEntry(text: string, p: Pick<RangeParameter, 'min' | 'max' |
     if (!Number.isFinite(parsed)) return {ok: false, reason: 'number'};
     if (whole && !Number.isInteger(parsed)) return {ok: false, reason: 'whole'};
     if (parsed < p.min - EPS || parsed > p.max + EPS) return {ok: false, reason: whole ? 'whole' : 'range'};
-    return {ok: true, value: whole ? parsed : snapValue(parsed, p)};
+    if (whole) return {ok: true, value: parsed};
+    const value = snapValue(parsed, p);
+    return Math.abs(value - parsed) > EPS ? {ok: true, value, snapped: true} : {ok: true, value};
 }
 
 /** A change of more than one step is a jump, so it offers the undo. */

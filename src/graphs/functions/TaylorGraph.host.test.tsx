@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {TaylorGraph} from './TaylorGraph';
 import {GraphHost} from '../base/GraphHost';
@@ -44,12 +44,18 @@ class ObservedTaylorGraph extends TaylorGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-taylor-status]')].map(element => element.getAttribute('data-taylor-status'));
-const boardObjects = (graph: ObservedTaylorGraph) => graph.liveBoard().objectsList.length;
+// JSXGraph creates and drops axis tick labels as the view changes; they are not the graph's objects.
+const boardObjects = (graph: ObservedTaylorGraph) => graph.liveBoard().objectsList.filter(object => !String((object as {id?: string}).id).includes('_ticks_')).length;
 
 test('a real board shows f and T_n: the fields, the degree buttons, the example and the Show error bound button change the model and the readout', async () => {
     const graph = new ObservedTaylorGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     await waitForPucks('taylor-degree');
+    await waitFor(() => expect(document.querySelector('#board-card-tools [data-card-body]')).not.toBeNull());
+    // the jsdom board has no room for the Orodja card, so it starts folded: open it
+    const fold = document.querySelector<HTMLButtonElement>('#board-card-tools .board-card-fold')!;
+    if (fold.getAttribute('aria-expanded') === 'false') act(() => { fireEvent.click(fold); });
+    await waitFor(() => expect(document.querySelector('#board-card-tools [data-card-body]')).toBeVisible());
     expect(graph.state.initialized).toBe(true);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     expect(readout('polynomial')).toBe('2');
@@ -102,10 +108,12 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     expect(graph.modelNow()).toMatchObject({x: 2});
     expect(document.querySelector('.puck-strip [data-puck-key="taylor-x"] .puck-notice')?.textContent).toMatch(/−3 in 3/);
 
-    // choosing the flat example loads its model, hides the bound and locks the center with an explanation
+    // choosing the flat example loads its model, hides the bound and locks the center with an explanation:
+    // a fixed centre has no puck (the strip omits it), so the Orodja control stays and carries the reason
     const select = screen.getByLabelText('Primer funkcije') as HTMLSelectElement;
     act(() => { fireEvent.change(select, {target: {value: 'flat'}}); });
     expect(graph.modelNow()).toEqual({example: 'flat', center: 0, degree: 3, x: 1, boundVisible: false});
+    expect(document.querySelector('[data-puck-key="taylor-center"]')).toBeNull();
     const center = screen.getByRole('spinbutton', {name: 'Središče c, vrednost'}) as HTMLInputElement;
     expect(center.readOnly).toBe(true);
     expect(center.getAttribute('aria-disabled')).toBe('true');

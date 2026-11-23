@@ -6,14 +6,11 @@ import {LinearMapGraph} from './LinearMapGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
 import type {Mat2} from '../../linear/matrix2';
+import {installBoardShims, puckControl, typePuck, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
 
-// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
-beforeAll(() => {
-    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
-    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
-    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
-        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
-});
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
+beforeAll(installBoardShims);
 
 beforeEach(() => setLanguage('sl'));
 
@@ -42,30 +39,43 @@ class ObservedLinearMapGraph extends LinearMapGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-linear-map-status]')].map(element => element.getAttribute('data-linear-map-status'));
-const field = (name: RegExp | string) => screen.getByLabelText(name) as HTMLInputElement;
-const typeAndConfirm = (input: HTMLInputElement, text: string) => {
-    act(() => { fireEvent.input(input, {target: {value: text}, inputType: 'insertText'}); });
-    act(() => { fireEvent.keyDown(input, {key: 'Enter'}); });
-};
+/** The matrix entries are pucks on the board once it has laid out (a1: x, a1: y, a2: x, a2: y are the keys a11, a21, a12, a22); the layout may fold Orodja at load, so open it with its fold button. */
+const PUCK_OF = {'a₁: x': 'linear-map-a11', 'a₁: y': 'linear-map-a21', 'a₂: x': 'linear-map-a12', 'a₂: y': 'linear-map-a22'} as const;
+const puckShows = (name: keyof typeof PUCK_OF) => puckControl(PUCK_OF[name]).getAttribute('aria-valuenow');
+/** A refused entry stays open with its notice; Escape closes it, as a learner would, and the slider shows the stored value again. */
+const cancelEntry = (key: string) => act(() => { fireEvent.keyDown(document.querySelector(`.puck-strip [data-puck-key="${key}"] input`)!, {key: 'Escape'}); });
+const puckNotice = (name: keyof typeof PUCK_OF) => document.querySelector(`.puck-strip [data-puck-key="${PUCK_OF[name]}"] .puck-notice`)?.textContent ?? '';
+async function ready() {
+    await waitForPucks('linear-map-a11');
+    await waitUntil(() => document.querySelector('#board-card-tools .board-card-fold') !== null);
+    const fold = document.querySelector<HTMLElement>('#board-card-tools .board-card-fold')!;
+    if (fold.getAttribute('aria-expanded') === 'false') act(() => { fold.click(); });
+    await waitUntil(() => document.querySelector('#board-card-tools [data-card-body]')?.hasAttribute('hidden') === false);
+}
 const svgText = () => [...document.querySelectorAll('svg path')].map(node => node.getAttribute('d') ?? '').join(' ');
 
-test('a real board: handles, fields, Reset, example and mode keep the model, readouts and board objects consistent', () => {
+test('a real board: handles, fields, Reset, example and mode keep the model, readouts and board objects consistent', async () => {
     const graph = new ObservedLinearMapGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await ready();
     expect(graph.state.initialized).toBe(true);
     const baseline = graph.liveBoard().objectsList.length;
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     expect(readout('a1')).toBe('(1, 0)');
 
-    // A numeric entry above 4 is clamped with a message; the field shows the stored value.
-    typeAndConfirm(field('a₁: x'), '9');
+    // The entries are pucks. A numeric entry above 4 is refused (the old Orodja field clamped it with a message): the model stays and the puck says the range.
+    typePuck('linear-map-a11', '9');
+    expect(graph.modelNow().matrix).toEqual([[1, 0], [0, 1]]);
+    expect(puckNotice('a₁: x')).toContain('4');
+    cancelEntry('linear-map-a11');
+    expect(puckShows('a₁: x')).toBe('1');
+    typePuck('linear-map-a11', '4');
     expect(graph.modelNow().matrix).toEqual([[4, 0], [0, 1]]);
-    expect(document.querySelector('[data-linear-map-notice="clamped"]')?.textContent).toMatch(/a₁: x.*zunaj območja/);
-    expect(field('a₁: x').value).toBe('4');
-    // A value between grid points snaps with another message.
-    typeAndConfirm(field('a₂: y'), '0.3');
+    expect(puckShows('a₁: x')).toBe('4');
+    // A value between grid points snaps to the quarter grid and the puck says so.
+    typePuck('linear-map-a22', '0.3');
     expect(graph.modelNow().matrix).toEqual([[4, 0], [0, 0.25]]);
-    expect(document.querySelector('[data-linear-map-notice="snapped"]')).not.toBeNull();
+    expect(puckNotice('a₂: y')).toBe('Zaokroženo na 0,25.');
 
     // A handle drag on the real board snaps and moves the handle back to the stored value.
     const [h1] = graph.handles();
@@ -75,13 +85,13 @@ test('a real board: handles, fields, Reset, example and mode keep the model, rea
     });
     expect(graph.modelNow().matrix).toEqual([[2.25, 0], [1, 0.25]]);
     expect([h1!.X(), h1!.Y()]).toEqual([2.25, 1]);
-    expect(field('a₁: y').value).toBe('1');
-    expect(field('a₁: x').value).toBe('2,25');
+    expect(puckShows('a₁: y')).toBe('1');
+    expect(puckShows('a₁: x')).toBe('2.25');
 
     // Reset: identity in the model, the fields, the handles and the readouts; the message is gone.
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi na identiteto'})); });
     expect(graph.modelNow().matrix).toEqual([[1, 0], [0, 1]]);
-    expect([field('a₁: x').value, field('a₁: y').value, field('a₂: x').value, field('a₂: y').value]).toEqual(['1', '0', '0', '1']);
+    expect([puckShows('a₁: x'), puckShows('a₁: y'), puckShows('a₂: x'), puckShows('a₂: y')]).toEqual(['1', '0', '0', '1']);
     const [r1, r2] = graph.handles();
     expect([[r1!.X(), r1!.Y()], [r2!.X(), r2!.Y()]]).toEqual([[1, 0], [0, 1]]);
     expect(readout('a1')).toBe('(1, 0)');
@@ -122,9 +132,10 @@ test('the visible statuses are plain text; the graph announces them through its 
     expect(live[0].textContent).toContain(first.textContent);
 });
 
-test('a live language switch updates the board caption, labels, readouts and statuses and asks the board to redraw', () => {
+test('a live language switch updates the board caption, labels, readouts and statuses and asks the board to redraw', async () => {
     const graph = new ObservedLinearMapGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await ready();
     act(() => { fireEvent.change(screen.getByLabelText('Način prikaza'), {target: {value: 'determinant'}}); });
     act(() => { fireEvent.change(screen.getByLabelText('Primer matrike'), {target: {value: 'orientation-reversing'}}); });
     expect(graph.captionPlainLines().join('|')).toContain('Orientacija: obrnjena');
@@ -140,7 +151,7 @@ test('a live language switch updates the board caption, labels, readouts and sta
     expect(document.querySelector('[data-linear-map-status="negative"]')?.textContent).toMatch(/reversed/);
     // The values the language switch must not change.
     expect(graph.modelNow().matrix).toEqual([[1, 2], [2, 1]]);
-    expect(field('a₁: y').value).toBe('2');
+    expect(puckShows('a₁: y')).toBe('2');
     act(() => { setLanguage('sl'); });
     expect(graph.captionPlainLines().join('|')).toContain('Orientacija: obrnjena');
 });

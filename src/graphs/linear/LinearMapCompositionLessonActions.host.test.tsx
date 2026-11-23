@@ -3,11 +3,13 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {LinearMapGraph} from './LinearMapGraph';
 import {enterNumber} from '../../inputs/testEntry';
 import {DEFAULT_LINEAR_MAP_STATE} from '../../linear/linearMapModel';
 import {setLanguage, t} from '../../localization';
+
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -31,10 +33,12 @@ const snapshot = (graph: ObservedGraph) => ({model: graph.modelNow(), readouts: 
 const selectMode = (mode: string) => act(() => { fireEvent.change(screen.getByLabelText(t('linear_map_mode_label')), {target: {value: mode}}); });
 const pickSource = (name: 'A' | 'B', value: string) =>
     act(() => { fireEvent.change(screen.getByLabelText(t('linear_map_comp_source_label', {value0: name})), {target: {value}}); });
-const slider = (name: 'A' | 'B', kind: 'rotation' | 'reflection') =>
-    screen.getByRole('slider', {name: new RegExp(t(`linear_map_comp_angle_${kind}`, {value0: name}))});
-const setAngle = (name: 'A' | 'B', kind: 'rotation' | 'reflection', k: number) =>
-    act(() => { fireEvent.change(slider(name, kind), {target: {value: String(k)}}); });
+/** The angle of an element is a puck on the board (key `linear-map-first-index` for A, `-second-index` for B); it stands once the board has laid out. */
+const setAngle = async (name: 'A' | 'B', k: number) => {
+    const key = `linear-map-${name === 'A' ? 'first' : 'second'}-index`;
+    await waitForPucks(key);
+    typePuck(key, String(k));
+};
 const entry = (name: string, row: number, column: number) =>
     screen.getByLabelText(t('linear_map_comp_entry_label', {value0: name, value1: String(row), value2: String(column)})) as HTMLInputElement;
 const field = (key: 'translation_x' | 'translation_y' | 'pivot_x' | 'pivot_y', value: string) =>
@@ -44,7 +48,7 @@ const composition = {kind: 'linear-map', operation: 'set-mode', mode: 'compositi
 const choose = (slot: string, element?: object | null) => ({kind: 'linear-map', operation: 'choose-element', slot, element});
 
 describe('composition-mode lesson actions on the real graph', () => {
-    test('each action equals the matching control', () => {
+    test('each action equals the matching control', async () => {
         const viaActions = mountGraph();
         apply(viaActions,
             composition, choose('first', {kind: 'rotation', k: 2}), choose('second', {kind: 'reflection', k: 3}),
@@ -55,9 +59,9 @@ describe('composition-mode lesson actions on the real graph', () => {
 
         const viaControls = mountGraph();
         selectMode('composition');
-        setAngle('A', 'rotation', 2);
+        await setAngle('A', 2);
         pickSource('B', 'reflection');
-        setAngle('B', 'reflection', 3);
+        await setAngle('B', 3);
         field('translation_x', '2');
         field('translation_y', '1');
         act(() => { fireEvent.click(screen.getByLabelText(t('linear_map_comp_pivot_toggle'))); });

@@ -55,6 +55,8 @@ export interface RangeParameter<K extends string = string> extends ParameterBase
     /** Decimals shown; the language chooses the separator. */
     readonly maxDecimals?: number;
     readonly unit?: Message;
+    /** The big step (Shift+Arrow, PageUp, PageDown) in value units, as the `Slider` prop; default ten steps. */
+    readonly bigStep?: number;
 }
 
 /** A whole-number count: a `CountSetter`. */

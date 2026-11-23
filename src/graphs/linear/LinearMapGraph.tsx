@@ -1547,7 +1547,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             parameters.push({key: "linear-map-example", kind: "choice", label: message("linear_map_example_label"), help: message("linear_map_example_help"), placement: "tools",
                 options: exampleOptions.map(value => ({value, label: this.exampleMessage(value)}))});
         }
-        const entryRange = {kind: "range", min: -4, max: 4, step: MATRIX_ENTRY_STEP, maxDecimals: 2} as const;
+        const entryRange = {kind: "range", min: -4, max: 4, step: MATRIX_ENTRY_STEP, bigStep: 1, maxDecimals: 2} as const;
         if (!composing) {
             const entry = (key: MatrixEntryParam, row: Row, column: Column) => ({
                 key, label: this.entryMessage(row, column), symbol: `a_{${row + 1}${column + 1}}`, placement: "board", ...entryRange,
@@ -1563,7 +1563,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                         {value: "rotation", label: message("linear_map_comp_source_rotation")},
                         {value: "reflection", label: message("linear_map_comp_source_reflection")},
                     ]});
-                parameters.push({key: `linear-map-${slot}-index`, kind: "range", min: 0, max: ELEMENT_COUNT - 1, step: 1, maxDecimals: 0, placement: "board", locked: element === undefined,
+                parameters.push({key: `linear-map-${slot}-index`, kind: "range", min: 0, max: ELEMENT_COUNT - 1, step: 1, bigStep: 6, maxDecimals: 0, placement: "board", locked: element === undefined,
                     label: message(element?.kind === "reflection" ? "linear_map_comp_angle_reflection" : "linear_map_comp_angle_rotation", {value0: name}),
                     help: message(element?.kind === "reflection" ? "linear_map_comp_angle_help_reflection" : "linear_map_comp_angle_help_rotation")});
                 for (const [row, column] of [[0, 0], [1, 0], [0, 1], [1, 1]] as const) {

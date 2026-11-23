@@ -3,7 +3,7 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, typePuck, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
 import {setLanguage, t} from '../../localization';
@@ -19,6 +19,8 @@ import {runAs} from '../base/writes/writeSource';
 import {
     HANDLE_TOUCH_RADIUS, HIT_SLACK, INSET_DELTA_MAX, INSET_TAU_MAX, legendLines, MAX_FRAME_MS, PhasePortraitGraph, STORED_FIELDS, TIME_STEP, typeLabel,
 } from './PhasePortraitGraph';
+
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -71,6 +73,15 @@ const [FRAME, WRAPS, SEPARATRIX, RING_LINEAR, RING, SEED_BACK, SEED_FORWARD] = [
 const curves = (graph: ObservedGraph) => ofType(graph, 'curve');
 const polylines = (o: Probe) => ((o.dataX ?? []).length === 0 ? 0 : (o.dataX ?? []).filter(Number.isNaN).length + 1);
 
+/** The matrix entries, zoom and time are pucks on the board once it has laid out; the board layout may fold Orodja at load (a budget of open cards), so open it with its fold button as a learner would. */
+async function ready() {
+    await waitForPucks('phase-a');
+    await waitUntil(() => document.querySelector('#board-card-tools .board-card-fold') !== null);
+    const fold = document.querySelector<HTMLElement>('#board-card-tools .board-card-fold')!;
+    if (fold.getAttribute('aria-expanded') === 'false') act(() => { fold.click(); });
+    await waitUntil(() => document.querySelector('#board-card-tools [data-card-body]')?.hasAttribute('hidden') === false);
+}
+const puckNotice = (key: string) => document.querySelector(`.puck-strip [data-puck-key="${key}"] .puck-notice`)?.textContent ?? '';
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
@@ -99,7 +110,7 @@ const labels = {
     system: () => t('phase_graph_system_label'),
 };
 const chooseSystem = (system: string) => act(() => { fireEvent.change(field(labels.system()), {target: {value: system}}); });
-const timeSlider = () => field(t('phase_graph_time_label'));
+const timeSlider = () => puckControl('phase-time');
 
 describe('mount and the type label', () => {
     test('the default is a stable node of the matrix [[-4, -1], [-2, -3]], named exactly, with the board labelled', () => {
@@ -266,19 +277,26 @@ describe('stops are shown, never clipped silently', () => {
 });
 
 describe('the linear handles and numeric input', () => {
-    test('each of the four entries and each seed coordinate has a field; a typed value on the grid is stored, an off-grid or out-of-range one is refused and kept', () => {
+    test('each of the four entries and each seed coordinate has a field; a typed value on the grid is stored, an out-of-range one is refused and kept', async () => {
         const {graph} = mountGraph();
-        enter(labels.a(), '1,25');
+        await ready();
+        // The four entries are pucks on the board: the puck snaps an off-grid typed value to the quarter grid (the old Orodja field refused it);
+        // the graph's own entry edit still refuses an off-grid value (below).
+        typePuck('phase-a', '1,25');
         expect(graph.state.A).toBe(5);
-        enter(labels.a(), '1,3');
+        expect(puckNotice('phase-a')).toBe('');
+        typePuck('phase-a', '1,3');
         expect(graph.state.A).toBe(5);
-        enter(labels.a(), '5');
+        expect(puckNotice('phase-a')).toBe('Zaokroženo na 1,25.');
+        typePuck('phase-a', '5');
         expect(graph.state.A).toBe(5);
-        enter(labels.d(), 'abc');
+        expect(puckNotice('phase-a')).not.toBe('');
+        typePuck('phase-d', 'abc');
         expect(graph.state.D).toBe(-12);
-        enter(labels.b(), '-4');
+        expect(puckNotice('phase-d')).not.toBe('');
+        typePuck('phase-b', '-4');
         expect(graph.state.B).toBe(-16);
-        enter(labels.c(), '0,5');
+        typePuck('phase-c', '0,5');
         expect(graph.state.C).toBe(2);
         enter(labels.seedX(1), '2,5');
         expect(graph.state.seeds[0]).toEqual({X: 50, Y: 0});
@@ -297,15 +315,16 @@ describe('the linear handles and numeric input', () => {
         noBadText();
     });
 
-    test('a refused entry keeps the state (the same object), marks the field invalid and states the range in the hint', () => {
+    test('a refused entry keeps the state (the same object), marks the field invalid and states the range in the hint', async () => {
         const {graph} = mountGraph();
+        await ready();
         const before = graph.state;
-        enter(labels.a(), '9');
+        typePuck('phase-a', '9');
         expect(graph.state).toBe(before);
-        const input = field(labels.a());
+        const input = document.querySelector<HTMLInputElement>('.puck-strip [data-puck-key="phase-a"] input')!;
         expect(input.getAttribute('aria-invalid')).toBe('true');
-        const hint = (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
-        expect(hint).toContain(t('number_range_hint', {value0: '−4', value1: '4'}));
+        expect(puckNotice('phase-a')).toContain('−4');
+        expect(puckNotice('phase-a')).toContain('4');
     });
 
     test('dragging a column handle snaps to the quarter grid and clamps to [-4, 4]; a non-finite drag changes nothing', () => {
@@ -354,10 +373,18 @@ describe('the linear handles and numeric input', () => {
         expect(document.querySelector(`input[aria-label="${labels.a()}"]`)).toBeNull();
     });
 
-    test('every numeric field and the zoom slider is described by the help that states the ranges', () => {
+    test('every numeric field and the zoom slider is described by the help that states the ranges', async () => {
         mountGraph();
+        await ready();
         const described = (label: string) => expect(field(label).getAttribute('aria-describedby') ?? '').toContain('phase-portrait-input-help');
-        for (const label of [labels.a(), labels.b(), labels.c(), labels.d(), labels.seedX(1), labels.seedY(1)]) described(label);
+        for (const label of [labels.seedX(1), labels.seedY(1)]) described(label);
+        // The four entries are pucks: each states its range as the slider's own bounds, and the zoom puck's help card states its range.
+        for (const key of ['phase-a', 'phase-b', 'phase-c', 'phase-d']) {
+            expect(puckControl(key).getAttribute('aria-valuemin')).toBe('-4');
+            expect(puckControl(key).getAttribute('aria-valuemax')).toBe('4');
+        }
+        act(() => { fireEvent.click(screen.getByRole('button', {name: t('puck_help_open', {value0: t('phase_graph_zoom_label')})})); });
+        expect(screen.getByRole('group', {name: t('phase_graph_zoom_label')}).textContent).toContain(t('phase_graph_zoom_help', {value0: '0', value1: '6', value2: '4'}));
         const help = document.querySelector('p.form-text[id^="phase-portrait-input-help"]')!.textContent!;
         expect(help).toContain('−4');
         expect(help).toContain('0,25');
@@ -492,11 +519,12 @@ describe('the pendulum and the rings', () => {
         expect(polylines(curves(graph)[FRAME])).toBe(1);
     });
 
-    test('zoom shrinks the computed region, the frame and the view row; the ring follows the region', () => {
+    test('zoom shrinks the computed region, the frame and the view row; the ring follows the region', async () => {
         const {graph} = mountGraph();
+        await ready();
         const box0 = graph.derived().view;
         expect(box0.xMax - box0.xMin).toBe(8);
-        act(() => { fireEvent.change(field(t('phase_graph_zoom_label')), {target: {value: '2'}}); });
+        typePuck('phase-zoom', '2');
         expect(graph.state.zoom).toBe(2);
         expect(graph.derived().view.xMax - graph.derived().view.xMin).toBe(2);
         expect(Math.max(...(curves(graph)[FRAME].dataX ?? []))).toBeCloseTo(1, 12);
@@ -621,8 +649,9 @@ describe('playback', () => {
         expect(screen.getByRole('button', {name: t('reset')}).getAttribute('aria-disabled')).toBe('true');
     });
 
-    test('reduced motion: Play starts no frame loop and says why; the slider still sets the time', () => {
+    test('reduced motion: Play starts no frame loop and says why; the slider still sets the time', async () => {
         const {graph} = mountGraph();
+        await ready();
         graph.reduced = true;
         go(graph, 0);
         expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-disabled')).toBe('true');
@@ -634,14 +663,15 @@ describe('playback', () => {
         expect(reason.textContent).toBe(t('playback_block_reduced_motion_time'));
         expect(reason.closest('[hidden]')).toBeNull();
         expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-describedby')?.split(' ')).toContain(reason.id);
-        act(() => { fireEvent.change(timeSlider(), {target: {value: '1.5'}}); });
+        typePuck('phase-time', '1,5');
         expect(graph.time).toBe(1.5);
     });
 
-    test('the time slider reaches the horizon, refuses beyond it and has the step of the integration', () => {
+    test('the time slider reaches the horizon, refuses beyond it and has the step of the integration', async () => {
         const {graph} = mountGraph();
+        await ready();
         expect(TIME_STEP).toBe(RK4_STEP);
-        expect(timeSlider().getAttribute('max')).toBe(String(ORBIT_DURATION));
+        expect(timeSlider().getAttribute('aria-valuemax')).toBe(String(ORBIT_DURATION));
         expect(go(graph, ORBIT_DURATION)).toBe(true);
         expect(go(graph, ORBIT_DURATION + 0.5)).toBe(false);
         expect(go(graph, -0.1)).toBe(false);
@@ -661,11 +691,12 @@ describe('playback', () => {
         expect(live()).toContain(t('phase_graph_status_time', {value0: '1,1'}));
     });
 
-    test('every change of a stored field pauses the playback, from a control, a drag or a direct setState', () => {
+    test('every change of a stored field pauses the playback, from a control, a drag or a direct setState', async () => {
         const {graph} = mountGraph();
+        await ready();
         const playing = () => { press(t('play')); expect(graph.playing).toBe(true); };
         playing();
-        enter(labels.a(), '1');
+        typePuck('phase-a', '1');
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         playing();

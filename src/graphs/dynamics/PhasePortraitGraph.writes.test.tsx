@@ -1,11 +1,12 @@
 import {act, screen} from '@testing-library/react';
 import {appStorage} from '../../storage/appStorage';
-import {enterNumber} from '../../inputs/testEntry';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
 import {UntaggedWriteError} from '../base/writes/parameterArbiter';
 import {runAs} from '../base/writes/writeSource';
 import {t} from '../../localization';
 import {PhasePortraitGraph} from './PhasePortraitGraph';
+
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -22,7 +23,15 @@ class WritesGraph extends PhasePortraitGraph {
     }
 }
 
-function mountRun() {
+/** The board layout may fold Orodja at load (it keeps a budget of open cards): open it as a learner would, with its fold button. */
+async function openTools() {
+    await waitUntil(() => document.querySelector('#board-card-tools .board-card-fold') !== null);
+    const fold = document.querySelector<HTMLElement>('#board-card-tools .board-card-fold')!;
+    if (fold.getAttribute('aria-expanded') === 'false') act(() => { fold.click(); });
+    await waitUntil(() => screen.queryByRole('button', {name: t('play')}) !== null);
+}
+
+async function mountRun() {
     let time = 0;
     let pending: FrameRequestCallback[] = [];
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { pending.push(callback); return pending.length; });
@@ -36,14 +45,15 @@ function mountRun() {
             act(() => due.forEach(callback => callback(time)));
         }
     };
+    await waitForPucks('phase-a');
+    await openTools();
     return {graph, frames};
 }
 
 const play = () => screen.getByRole('button', {name: t('play')});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 
-test('phase portrait parameters are source-tagged: a seeded untagged write throws, tools controls and lesson writes apply, a held key refuses the lesson', () => {
-    const {graph} = mountRun();
+test('phase portrait parameters are source-tagged: a seeded untagged write throws, tools controls and lesson writes apply, a held key refuses the lesson', async () => {
+    const {graph} = await mountRun();
     const parameters = graph.parameters!;
     expect([...parameters.keys()].sort()).toEqual([...KEYS, 'view'].sort());
 
@@ -51,7 +61,7 @@ test('phase portrait parameters are source-tagged: a seeded untagged write throw
     act(() => runAs('learner', () => graph.setTimeDirectly(1)));
     expect(parameters.read('phase-time')).toBe(1);
 
-    act(() => { enterNumber(field(t('phase_graph_matrix_a_label')), '-1'); });
+    typePuck('phase-a', '-1');
     expect(graph.state.A).toBe(-4);
     expect(parameters.read('phase-a')).toBe(-1);
 
@@ -71,8 +81,8 @@ test('phase portrait parameters are source-tagged: a seeded untagged write throw
     release();
 });
 
-test('playback runs under a lease on the time: a learner write of it stops it with the control paused, a lesson frame change ends it', () => {
-    const {graph, frames} = mountRun();
+test('playback runs under a lease on the time: a learner write of it stops it with the control paused, a lesson frame change ends it', async () => {
+    const {graph, frames} = await mountRun();
     const parameters = graph.parameters!;
     act(() => { play().click(); });
     expect(graph.playing).toBe(true);

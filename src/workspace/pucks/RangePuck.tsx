@@ -90,7 +90,7 @@ export function RangePuck(props: RangePuckProps) {
         const before = latest.current;
         if (isJump(before, result.value, parameter.step)) controller.offer(before); else controller.dismiss();
         write(result.value);
-        setNotice(undefined);
+        setNotice(result.snapped ? t('puck_snapped', {value0: fmt(result.value)}) : undefined);
         closeEntry();
     };
 
@@ -170,7 +170,7 @@ export function RangePuck(props: RangePuckProps) {
 
     const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         if (locked || event.altKey || event.ctrlKey || event.metaKey) return;
-        const delta = stepKeyDelta(event, parameter.step, undefined, true);
+        const delta = stepKeyDelta(event, parameter.step, parameter.bigStep, true);
         if (delta !== undefined) { event.preventDefault(); step(delta); return; }
         if (event.key === 'Home' || event.key === 'End') {
             event.preventDefault();

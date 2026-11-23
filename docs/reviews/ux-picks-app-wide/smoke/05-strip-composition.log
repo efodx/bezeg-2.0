@@ -1,0 +1,12 @@
+1440 selects 3 0
+1440 select ["linear-map-first-index|Kot vrtenja A|slider|6|6|0..23","linear-map-second-index|Kot premice zrcaljenja B|slider|0|0|0..23"]
+1440 strip {"left":63,"right":351,"top":687,"bottom":772} inside true rows 1 overlaps [] toolsDup [] tools [":r1n:",":r1p:",":rp:",":rn:"]
+1440 angle Kot vrtenja A 6 6 -> 12 12
+1440 angle Kot premice zrcaljenja B 0 0 -> 6 6
+1440 errs []
+1024 selects 3 0
+1024 select ["linear-map-first-index|Kot vrtenja A|slider|6|6|0..23","linear-map-second-index|Kot premice zrcaljenja B|slider|0|0|0..23"]
+1024 strip {"left":33,"right":321,"top":545.78125,"bottom":630.78125} inside true rows 1 overlaps [] toolsDup [] tools [":r1n:",":r1p:",":rp:",":rn:"]
+1024 angle Kot vrtenja A 6 6 -> 12 12
+1024 angle Kot premice zrcaljenja B 0 0 -> 6 6
+1024 errs []
