@@ -113,3 +113,4 @@ A layout during a drag is `layoutBoard({...input, stored: applyDrop(...), frozen
 ## Task 04 additions
 
 `reserve`, `defaultFolded`, `budget` and `expanded`, as decided in [04-design.md, section 9](04-design.md#9-handler-decisions-2026-11-23). Rule 4 order: frozen → frame → stored fold → budget → `defaultFolded` → open.
+`expanded`: the expanded card is exempt from cuts, and only lower-priority open cards of its column fold for it; as a last resort, when every other card is folded or at `min.h`, the expanded card is cut too (it never leaves the board). A budgeted card ignores its own `defaultFolded`.

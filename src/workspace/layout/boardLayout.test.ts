@@ -114,6 +114,73 @@ describe('layoutBoard', () => {
     expect(byId(r, 'T').rect.h).toBe(380);
   });
 
+  it('adds the reserve back to a cut: the largest row break above the bar, plus the bar, never below min.h', () => {
+    const tall = (reserve: number, min = 120) => card('T', 'tl', { priority: Infinity, natural: { w: 300, h: 600 }, min: { w: 300, h: min }, reserve, rowBreaks: [100, 200, 300, 380, 450] });
+    const board = { w: 3440, h: 400 }; // available 384
+    expect(byId(layoutBoard(input([tall(30)], { board })), 'T').cut).toBe(330); // 300 <= 354, 380 > 354
+    expect(byId(layoutBoard(input([tall(0)], { board })), 'T').cut).toBe(380);
+    expect(byId(layoutBoard(input([tall(30, 390)], { board })), 'T').cut).toBe(390);
+    expect(byId(layoutBoard(input([tall(30)])), 'T').cut).toBeNull();
+  });
+
+  describe('first-view defaults (rule 4: frozen, frame, stored fold, budget, defaultFolded, open)', () => {
+    const trio = (over: Partial<Record<string, Partial<CardInput>>> = {}): CardInput[] =>
+      ['lesson', 'readouts', 'tools'].map((id, k) => card(id, 'tl', { defaultOrder: k, ...over[id] }));
+    const budget = (open: number) => ({ open, order: ['lesson', 'readouts', 'tools'] });
+    const folds = (r: ReturnType<typeof layoutBoard>) => Object.fromEntries(r.cards.map((c) => [c.id, c.folded]));
+
+    it('opens only the first `open` ids of the order and folds the rest of the order', () => {
+      expect(folds(layoutBoard(input(trio(), { budget: budget(2) })))).toEqual({ lesson: false, readouts: false, tools: true });
+      expect(folds(layoutBoard(input(trio(), { budget: budget(1) })))).toEqual({ lesson: false, readouts: true, tools: true });
+      // Absent ids are skipped; cards outside the order are untouched.
+      const noLesson = [...trio().slice(1), card('legend', 'tl', { defaultOrder: 3 })];
+      expect(folds(layoutBoard(input(noLesson, { budget: budget(1) })))).toEqual({ readouts: false, tools: true, legend: false });
+    });
+
+    it('yields to the frame and to a stored fold, and beats defaultFolded', () => {
+      const r = layoutBoard(input(trio(), { budget: budget(1), storedFolds: { readouts: false, lesson: true }, frame: { open: ['tools'], usesTools: false } }));
+      expect(folds(r)).toEqual({ lesson: true, readouts: false, tools: false });
+      expect(folds(layoutBoard(input(trio({ lesson: { defaultFolded: true } }), { budget: budget(1) }))).lesson).toBe(false);
+    });
+
+    it('folds a defaultFolded card unless something above it decides', () => {
+      const cards = [card('legend', 'tl', { defaultFolded: true }), card('section:a', 'tl', { defaultFolded: true, defaultOrder: 1 }), card('x', 'tl', { defaultOrder: 2 })];
+      expect(folds(layoutBoard(input(cards)))).toEqual({ legend: true, 'section:a': true, x: false });
+      expect(folds(layoutBoard(input(cards, { storedFolds: { legend: false } }))).legend).toBe(false);
+      expect(folds(layoutBoard(input(cards, { frame: { open: ['section:a'], usesTools: false } })))['section:a']).toBe(false);
+      expect(folds(layoutBoard(input(cards, { frozenFolds: { legend: false, 'section:a': true, x: false } })))).toEqual({ legend: false, 'section:a': true, x: false });
+    });
+  });
+
+  describe('expanded ("Več")', () => {
+    const steps = (n: number, h: number): number[] => Array.from({ length: n }, (_, i) => ((i + 1) * h) / n);
+    it('exempts that card from its cut; the cut moves to the other cards', () => {
+      const lesson = card('R', 'tl', { priority: Infinity, natural: { w: 300, h: 400 }, rowBreaks: steps(4, 400), min: { w: 300, h: 100 } });
+      const other = card('O', 'tl', { priority: 3, defaultOrder: 1, natural: { w: 300, h: 300 }, rowBreaks: steps(3, 300), min: { w: 300, h: 100 } });
+      const board = { w: 3440, h: 600 };
+      const plain = layoutBoard(input([lesson, other], { board, storedFolds: { O: false } }));
+      expect([byId(plain, 'R').cut, byId(plain, 'O').cut]).toEqual([200, null]);
+      const wide = layoutBoard(input([lesson, other], { board, storedFolds: { O: false }, expanded: 'R' }));
+      expect([byId(wide, 'R').cut, byId(wide, 'O').cut]).toEqual([null, 100]);
+    });
+    it('folds lower-priority open cards of its column, never frame-opened or higher-priority ones', () => {
+      const R = card('R', 'tl', { priority: 3, natural: { w: 300, h: 300 }, rowBreaks: steps(3, 300), min: { w: 300, h: 100 } });
+      const H = card('H', 'tl', { priority: 5, defaultOrder: 1, natural: { w: 300, h: 200 }, rowBreaks: steps(2, 200), min: { w: 300, h: 80 } });
+      const T = card('T', 'tl', { priority: 1, defaultOrder: 2, natural: { w: 300, h: 100 } });
+      const board = { w: 3440, h: 400 };
+      const plain = layoutBoard(input([R, H, T], { board }));
+      expect(plain.cards.map((c) => c.folded)).toEqual([true, false, true]); // R is the lowest unpinned after T
+      const wide = layoutBoard(input([R, H, T], { board, expanded: 'R' }));
+      expect(wide.cards.map((c) => c.folded)).toEqual([false, false, true]);
+      const framed = layoutBoard(input([R, H, T], { board, expanded: 'R', frame: { open: ['T'], usesTools: false } }));
+      expect(byId(framed, 'T').folded).toBe(false);
+    });
+    it('is ignored for an unknown id', () => {
+      const cards = [card('a', 'tl')];
+      expect(layoutBoard(input(cards, { expanded: 'nope' }))).toEqual(layoutBoard(input(cards)));
+    });
+  });
+
   it('keeps the strip clear of bc and br', () => {
     const pucks = { w: 400, h: 60 };
     const r = layoutBoard(input([card('bc', 'bc'), card('br', 'br'), card('bl', 'ml')], { pucks }));
@@ -224,18 +291,24 @@ describe('property: random inputs', () => {
           rowBreaks: [int(60, 120), int(120, 200), h].sort((a, b) => a - b),
           priority: k === 0 && rnd() < 0.3 ? Infinity : int(1, 9),
           defaultOrder: int(0, 4),
+          reserve: rnd() < 0.4 ? int(0, 30) : undefined,
+          defaultFolded: rnd() < 0.2 ? true : undefined,
         }));
         const roll = rnd();
         if (roll < 0.3) stored[id] = { kind: 'docked', anchor: anchors[int(0, 6)], order: int(0, 5) };
         else if (roll < 0.4) stored[id] = { kind: 'free', x: int(-100, board.w), y: int(-100, board.h) };
         if (rnd() < 0.2) storedFolds[id] = rnd() < 0.5;
       }
-      const r = layoutBoard(input(cards, {
+      const inp = input(cards, {
         board, stored, storedFolds,
         maxSpan: int(1200, 1800),
         pucks: rnd() < 0.5 ? { w: int(100, 400), h: 60 } : undefined,
         frame: rnd() < 0.3 ? { open: [`c${int(0, n - 1)}`], usesTools: false } : undefined,
-      }));
+        budget: rnd() < 0.5 ? { open: int(0, 3), order: [0, 1, 2, 3].map((k) => `c${k}`) } : undefined,
+        expanded: rnd() < 0.4 ? `c${int(0, n)}` : undefined,
+      });
+      const r = layoutBoard(inp);
+      expect(JSON.stringify(layoutBoard(inp))).toBe(JSON.stringify(r)); // deterministic with the new inputs too
       const dockedCards = r.cards.filter((c) => c.anchor !== 'free');
       for (const c of dockedCards) {
         expect(c.rect.x).toBeGreaterThanOrEqual(-1e-6);
