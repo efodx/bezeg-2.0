@@ -3247,3 +3247,60 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Repair rounds: one (the wiring repair worker); batch workers needed none. The reviewer's one medium finding (a `following` on a Preset path without a stored view) was kept with a note for task 08.
 - Environment: the dev server died twice mid-smoke. Cause: Git Bash execs `npx` as a new process, so the server lost its `claude.exe` parent and the sweep treated it as orphaned; fixed by keeping orphaned trees that listen on a port while a live session works in the same home (dry run: server kept, a background `tsc --watch` killed).
 - Handoff evidence: one shared brief with a class table and a worked-example commit (`d8bcbb5f`) let two batch workers move 53 sites in parallel with no repair; the wiring brief's decision 6 ("report a post-commit view instead of wrapping") surfaced the `following` gap instead of hiding it.
+
+### 2026-11-22/23 · Board workspace, handler 3: task 02 (declaration contract), the 01c fuzz matrix, task 03 cores started
+
+- Role and size: handler (Opus 5.5, `medium`, `bezeg-handler`). L: task 02 slices 3, 5b (fragments built), 6, 7 and 8 (seven more pilots), plus the 5a harness. The 5a measurement and the ADR were still open at this entry. Out of plan order but pure and unwired: task 03 slices 1 (layout function; the handler wrote the design), 1a (measure pass) and 4 (stored layout).
+- Workers: `bezeg-worker` Sonnet medium, one per assignment, usage from each task notification's subagent total:
+
+  | Assignment | Usage |
+  | --- | --- |
+  | fragments | 33k |
+  | contract test | 51k |
+  | Taylor frames | 54k |
+  | recipe | 31k |
+  | transformations | 88k |
+  | De Casteljau | 130k |
+  | phase portrait | 141k (partial) |
+  | linear map, run 1 | 143k (partial) |
+  | linear map, run 2 | 140k (partial) |
+  | linear map, run 3 | 54k |
+  | triangle centres | 118k |
+  | De Casteljau and triangle repairs | 63k |
+  | cross-ratio | 143k (partial) |
+  | Coons patch | 136k |
+  | conversion guide | 52k |
+  | preview harness, run 1 | 142k (partial) |
+  | preview harness, run 2 | 54k |
+  | fuzz I1 fix | 32k |
+  | layout | 44k + 14k |
+  | stored layout | 26k |
+  | measure pass | 26k |
+
+  Also: `bezeg-reviewer` Sonnet on the linear-map diff (73k); `Explore` Haiku on the prototype's dock (78k).
+- Accepted:
+  - Eight pilots declare themselves and pass `just graph-check <id>`: contract, parity in check mode, and the declaration test. Each declaration test was observed failing once on a broken declaration.
+  - The contract test was observed failing on a seeded wrong id, a hidden highlighted row, an undrawn legend entry and a vacuous lesson.
+  - Fragments: the collision test and the missing-English-key type error were both observed.
+  - Each pilot commit passed tsc and the build.
+  - Gaps: the full `just check` and smoke are pending at the 02 acceptance; the linear map's five unrecorded modes were checked only by the reviewer's read-through.
+- Failures found by the handler's own checks:
+  - `graph-check`'s first version matched nothing: an anchored `-t` filter, and vitest truncates the `$file` names.
+  - Its parity row never set `BEZEG_PARITY_CHECK`, so it passed vacuously. Once fixed, it exposed De Casteljau's invented `t` row.
+  - The first contract test passed vacuously: no frame declared anything.
+  - Contract discovery missed chapter-registered lessons. The fix exposed two real frame errors: a locked `snap-eigen`, and a pendulum row highlighted in a linear phase-portrait scene.
+  - A repair worker emptied a parity recording's outputs to make parity pass. The handler reverted that and taught parity to count a control's own read-off as covered by the declared parameter's symbol.
+  - The reviewer found a key cast in the linear map; the handler removed it.
+- Fuzz matrix (01c acceptance):
+  - The run was restarted after the low-memory stop of handler 2's shells. It now runs one route at a time on the handler's own dev server (4483).
+  - Results: Taylor 49/50 valid; transformations 47/50 with 1 invalid; phase portrait 50/50; Taylor lesson 50/50.
+  - Three failures were Vite HMR or 500 errors from workers editing files the dev server was serving. Each replay passed 5/5.
+  - One real bug, De Casteljau I1: a pending play start survived a learner write. Fixed in `057fc189` with a deterministic test observed failing; the replay passes 10/10. De Casteljau's full 50-seed rerun was running at this entry.
+- Environment:
+  - Claude Code stopped handler 2's dev server, preview and matrix for low memory.
+  - Workers' edits hot-reloading into the matrix's dev server produced false failures. A later matrix should run on a server no worker edits under, or against a build.
+- Handoff evidence:
+  - One shared pilot brief plus worked-example commits (`d34e9f9b`, then `a87ba078`, `cd31e769`) let seven pilots convert with consistent rules.
+  - Four of the pilot workers hit the 135k signal and returned partial; continuation from their handoff notes worked each time. The linear map took three workers.
+  - Decisions sent in the dispatch ("display switches are actions with `pressed`", "unbound parameters are not declared") kept later pilots consistent.
+  - One rule settled late (the template key for math notation with letters) reached only the pilots dispatched after it.
