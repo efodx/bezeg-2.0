@@ -13,6 +13,7 @@ import {
 import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
 import {moreBarHeight} from '../layout/measureCards';
+import {holdHeight, type HeldHeight} from '../layout/holdHeight';
 import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
 import {LessonCardBody} from '../cards/LessonCardBody';
 import {PuckOwnershipContext} from '../../graphs/base/controls/PuckOwnership';
@@ -140,15 +141,26 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   }));
   const {layer: measureLayer, measured, settled, measureLive} = useMeasuredCards(items, {contentKey, whenReady});
 
+  // Within one lesson the card does not shrink from frame to frame (Back/Next stay under the pointer): its height is held at the
+  // largest reading, and starts over when the lesson, the board or the language changes.
+  const [storedHeld, setLessonHeld] = useState<HeldHeight>();
+  const lessonHoldKey = `${lessonActive}|${language}|${board.w}x${board.h}`;
+  const lessonReading = measured?.find(card => card.id === LESSON_ID)?.natural.h;
+  const lessonHeld = lessonReading === undefined ? storedHeld : holdHeight(storedHeld, lessonHoldKey, lessonReading);
+  if (lessonHeld !== storedHeld) setLessonHeld(lessonHeld);
+  const heldLessonHeight = lessonHeld?.height;
   const inputs = useMemo<CardInput[]>(() => {
     const byId = new Map((measured ?? []).map(card => [card.id, card]));
     const bar = moreBarHeight(); // the "Več" bar of a cut card sits under the scroll area: a cut adds it to the block it keeps
     return specs.flatMap(spec => {
-      const card = byId.get(spec.id);
+      let card = byId.get(spec.id);
+      if (card && spec.id === LESSON_ID && heldLessonHeight !== undefined) {
+        card = {...card, natural: {...card.natural, h: heldLessonHeight}};
+      }
       const reserve = spec.id === LESSON_ID ? bar + LESSON_RESTORE_ROW : bar; // the lesson's Povrni row is always there, cut or not
       return card ? [{...card, reserve, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
     });
-  }, [measured, specs]);
+  }, [measured, specs, heldLessonHeight]);
   // First-view budget (04-design section 9): lesson, readouts, tools; an undeclared graph has only Orodja, which starts open.
   const budget = useMemo(() => ({open: board.w >= BUDGET_WIDE_BOARD ? 2 : 1, order: [LESSON_ID, READOUTS_ID, TOOLS_ID]}),
     [board.w]);
@@ -282,6 +294,22 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
       if (element && !shown.find(card => card.id === spec.id)?.folded) measureLive(spec.id, element);
     }
   });
+  // The lesson changes inside its own component (a frame, typeset formulas), which does not re-render this layer: its card is read again
+  // when its content changes, so the cut follows the text instead of the reading made at the last commit. A reading that did not
+  // change is ignored by `measureLive`, and only the content is watched (not the size the layout gives the card), so this settles.
+  useEffect(() => {
+    if (!lessonActive || typeof MutationObserver === 'undefined') return undefined;
+    const element = layerRef.current?.querySelector<HTMLElement>(`[data-card-id="${LESSON_ID}"]`);
+    if (!element) return undefined;
+    let frameId = 0;
+    const read = () => {
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(() => { if (!element.classList.contains('board-card--folded')) measureLive(LESSON_ID, element); });
+    };
+    const mutations = new MutationObserver(read);
+    mutations.observe(element, {childList: true, subtree: true, characterData: true});
+    return () => { cancelAnimationFrame(frameId); mutations.disconnect(); };
+  }, [lessonActive, measureLive, shown.length]);
   return <>
     {measureLayer}
     <div ref={layerRef} className="board-cards-layer" data-board-cards-layer="">

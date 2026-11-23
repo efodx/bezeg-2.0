@@ -106,12 +106,11 @@ module.exports = function registerExperienceChecks() {
         }
 
         test('same-frame reading position survives math reflow after hide and reopen', async ({page}) => {
-            // The lean panel fits this observation prose on a short desktop; 200% page zoom, as when projecting,
-            // gives it a real scroll range.
-            await page.setViewportSize({width: 1100, height: 540});
+            // A short board, as 200% zoom leaves when projecting: the lesson card is cut there and its reading scrolls. (A CSS
+            // `zoom` on html is no stand-in: the card is measured in zoomed pixels and the board in CSS pixels.)
+            await page.setViewportSize({width: 1100, height: 380});
             await h.useLanguage(page, 'en');
             await page.goto('/bezeg-2.0/analysis/taylor?learn=1');
-            await page.addStyleTag({content: 'html {zoom: 2}'});
             const panel = h.lessonPanel(page);
             await expect(panel).toBeVisible();
             await h.advanceToStep(page, 2);
@@ -123,7 +122,9 @@ module.exports = function registerExperienceChecks() {
             await settleMath();
             const reading = panel.locator('.guided-lesson-reading');
             expect(await reading.locator('mjx-container').count(), 'the same-frame reading contains rendered mathematics').toBeGreaterThan(0);
-            const scrollPort = await lessonScrollPort(panel);
+            // On this short board the lesson card is cut (its "Več" bar shows) and the reading scroller is its one scroll port.
+            const scrollPort = page.locator('#board-card-lesson [data-card-scroll]');
+            await expect(page.locator('#board-card-lesson .board-card-more'), 'the card is cut on this short board').toBeVisible();
             await scrollPort.evaluate(el => { el.scrollTop = el.scrollHeight; });
             const before = await scrollPort.evaluate(el => el.scrollTop);
             expect(before, 'the production prose really scrolls').toBeGreaterThan(0);

@@ -274,6 +274,7 @@ export function DemonstrationWorkspace(props: {
             registerFrameDeclaration={setFrameDeclaration}
             presentation={props.lessonCard ? 'card' : undefined}
             onRequestFold={requestLessonFold}
+            cardFolded={lessonCardFolded}
             chapterOwner={lessonOwner ? {
                 returnPath: guidedLessonReturnPath(lessonOwner),
                 returnLabel: t('chapter_return'),

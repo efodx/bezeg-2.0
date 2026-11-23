@@ -8,7 +8,7 @@
 
 import type {CardInput} from './boardLayout';
 
-export type MeasuredCard = Pick<CardInput, 'id' | 'natural' | 'min' | 'foldedHeight' | 'rowBreaks'>;
+export type MeasuredCard = Pick<CardInput, 'id' | 'natural' | 'min' | 'anchorMin' | 'foldedHeight' | 'rowBreaks'>;
 
 /** Minimum height of a card that has no rows. */
 export const DEFAULT_MIN_HEIGHT = 100;
@@ -93,12 +93,24 @@ function textLineRects(row: HTMLElement): LineRect[] {
   return [...rects.filter((r) => !insideFormula(r)), ...formulas].map((r) => ({top: r.top, bottom: r.bottom}));
 }
 
-function measureCard(root: HTMLElement, liveNaturalHeight?: number, scrolled = 0): MeasuredCard {
+/** How far a `data-card-scroll` region's content runs past its own box (the part a scroll hides). */
+const hiddenBy = (scroller: HTMLElement) => Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+
+function measureCard(root: HTMLElement, liveNaturalHeight?: number, bodyScrolled = 0): MeasuredCard {
+  // Inner scrolling regions (the lesson's reading text): a row inside one is moved back by its scroll, a row after one is moved down by
+  // what it hides, so the breaks are those of the card laid out uncut.
+  const scrollers = liveNaturalHeight === undefined ? [] : Array.from(root.querySelectorAll<HTMLElement>('[data-card-scroll]'));
+  const shiftOf = (row: HTMLElement) => bodyScrolled + scrollers.reduce((sum, scroller) =>
+    sum + (scroller.contains(row) ? scroller.scrollTop : scroller.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING ? hiddenBy(scroller) : 0), 0);
   const box = root.getBoundingClientRect();
   const head = root.querySelector<HTMLElement>('[data-card-head]');
   const foldedHeight = head ? head.getBoundingClientRect().height : 0;
   const rowBreaks: number[] = [];
   let last = -Infinity;
+  // A row marked `data-card-keep` (the lesson's controls) asks that the first break after it, the first line of the next text, stays in every cut.
+  let keepBreak = -Infinity;
+  let keepPending = false;
+  let keepBottom: number | undefined;
   let rows = Array.from(root.querySelectorAll<HTMLElement>('[data-card-row]'));
   let fromBlocks = false;
   if (rows.length === 0) {
@@ -110,27 +122,37 @@ function measureCard(root: HTMLElement, liveNaturalHeight?: number, scrolled = 0
     const rowBox = row.getBoundingClientRect();
     // A block's own box can end above content that overflows it (a fieldset's rows): a cut must clear that too.
     const rowBottom = fromBlocks ? rowBox.top + Math.max(rowBox.height, row.scrollHeight) : rowBox.bottom;
+    const scrolled = shiftOf(row);
     const bottom = Math.max(rowBottom - box.top + scrolled, last);
     // A text block (`data-card-lines`) may be cut after any of its lines; anything else is one atomic row.
     if (row.hasAttribute('data-card-lines')) {
       const offset = scrolled - box.top;
       const lineRects = textLineRects(row).map((r) => ({top: r.top + offset, bottom: r.bottom + offset}));
-      lineBreaksOf(lineRects, bottom).forEach((b) => { const at = Math.max(Math.min(b, bottom), last); rowBreaks.push(at); last = at; });
+      lineBreaksOf(lineRects, bottom).forEach((b) => { const at = Math.max(Math.min(b, bottom), last); rowBreaks.push(at); last = at; if (keepPending) { keepBreak = at; keepPending = false; } });
       return;
     }
     rowBreaks.push(bottom);
     last = bottom;
+    if (row.hasAttribute('data-card-keep')) keepBottom = bottom;
+    if (keepPending) { keepBreak = bottom; keepPending = false; }
+    if (row.hasAttribute('data-card-keep') && keepBreak === -Infinity) keepPending = true;
   });
   const natural = {w: box.width, h: liveNaturalHeight ?? box.height};
   if (fromBlocks) rowBreaks.forEach((b, i) => { rowBreaks[i] = Math.min(b, natural.h); });
   // Blocks: the head, the first block and the bar, and a body of at least DEFAULT_MIN_HEIGHT (a heading alone is no content).
   const bar = moreBarHeight();
+  // Rows marked `data-card-pinned` stay under a scrolling region (the lesson's Povrni row): every cut keeps them.
+  const pinned = Array.from(root.querySelectorAll<HTMLElement>('[data-card-pinned]')).reduce((sum, row) => sum + row.getBoundingClientRect().height, 0);
   const minH = fromBlocks && rowBreaks.length > 0 ? Math.max(rowBreaks[0] + bar, foldedHeight + DEFAULT_MIN_HEIGHT + bar)
-    : rowBreaks.length > 0 ? Math.max(rowBreaks[0], foldedHeight) : DEFAULT_MIN_HEIGHT;
+    : rowBreaks.length > 0 ? Math.max(Math.max(rowBreaks[0], keepBreak) + pinned + bar, foldedHeight + bar) : DEFAULT_MIN_HEIGHT; // the bar sits under the first row: a cut never covers it
+  // What a card cut at the learner's top edge must still show: the kept row (the lesson's controls) and the pinned rows. Unlike
+  // `min` it does not depend on the frame's first line, so the card's top never has to move when the frame changes.
+  const anchorMin = keepBottom === undefined ? undefined : Math.min(keepBottom + pinned + bar, natural.h);
   return {
     id: root.dataset.cardId ?? '',
     natural,
     min: {w: natural.w, h: Math.min(minH, natural.h)},
+    ...(anchorMin === undefined ? {} : {anchorMin}),
     foldedHeight,
     rowBreaks,
   };
@@ -152,7 +174,8 @@ export function measureLiveCard(root: HTMLElement): MeasuredCard {
   const padTop = parseFloat(style.paddingTop) || 0;
   const padBottom = parseFloat(style.paddingBottom) || 0;
   const contentBottom = Math.max(bodyBox.top + padTop, ...Array.from(body.children).map((c) => c.getBoundingClientRect().bottom));
-  const natural = bodyBox.top - box.top + (contentBottom - bodyBox.top) + body.scrollTop + padBottom + borderBottom;
+  const hidden = Array.from(body.querySelectorAll<HTMLElement>('[data-card-scroll]')).reduce((sum, scroller) => sum + hiddenBy(scroller), 0);
+  const natural = bodyBox.top - box.top + (contentBottom - bodyBox.top) + body.scrollTop + hidden + padBottom + borderBottom;
   return measureCard(root, natural, body.scrollTop);
 }
 
