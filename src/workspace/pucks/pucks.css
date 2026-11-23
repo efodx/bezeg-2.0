@@ -1,0 +1,72 @@
+/* Parameter pucks (task 05). Compact: 120 to 160 px wide; the value box has a fixed width so a sweep never moves the puck. */
+.puck {
+    position: relative; box-sizing: border-box; min-width: 120px; max-width: 160px; padding: 4px 8px 6px;
+    background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-control-ink, #20372d);
+    border: 1px solid var(--bezeg-shell-rule-active, #b8c5ac); border-radius: 10px; box-shadow: var(--bezeg-shell-shadow-card, 0 2px 8px rgb(35 54 42 / 12%));
+    font-size: var(--bezeg-control-font-size, .875rem); touch-action: none;
+}
+.puck.is-locked { opacity: .72; background: color-mix(in srgb, var(--bezeg-shell-panel, #fffdf5) 85%, #b8c5ac); }
+.puck-head { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 20px; }
+.puck-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78rem; font-weight: 600; }
+.puck-help-button {
+    flex: none; width: 18px; height: 18px; padding: 0; line-height: 1; border-radius: 50%; font-size: .7rem; cursor: pointer;
+    border: 1px solid var(--bezeg-control-border-color, #767f6c); background: transparent; color: inherit;
+}
+.puck-body {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 3px 0 0; cursor: ew-resize; user-select: none; border-radius: 6px;
+}
+.puck-body[aria-disabled="true"] { cursor: not-allowed; }
+.puck-value { display: inline-block; text-align: center; font-variant-numeric: tabular-nums; font-size: 1rem; font-weight: 600; white-space: nowrap; }
+.puck-unit { font-weight: 400; }
+.puck-track { position: relative; align-self: stretch; height: 8px; border-radius: 4px; background: var(--bezeg-shell-rule, #d6dccb); overflow: hidden; cursor: pointer; }
+.puck-fill {
+    position: absolute; inset: 0; transform-origin: left center; background: var(--bezeg-shell-ochre, #b88a43);
+    transition: transform 80ms linear;
+}
+.puck-input {
+    box-sizing: content-box; max-width: 100%; text-align: center; font: inherit; font-size: 1rem; font-variant-numeric: tabular-nums;
+    border: var(--bezeg-control-border, 1px solid #767f6c); border-radius: var(--bezeg-control-radius, 6px); background: var(--bezeg-control-surface, #fffdf5); color: inherit;
+}
+.puck-input[aria-invalid="true"] { border-color: #a23b2a; }
+.puck-stepper { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.puck-step {
+    flex: none; width: 28px; height: 28px; padding: 0; font-size: 1.1rem; line-height: 1; cursor: pointer; color: inherit;
+    border: var(--bezeg-control-border, 1px solid #767f6c); border-radius: var(--bezeg-control-radius, 6px); background: var(--bezeg-control-surface, #fffdf5);
+}
+.puck-step[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.puck-count-value { cursor: default; padding-top: 0; }
+.puck :is(.puck-body, .puck-step, .puck-help-button, .puck-input):focus-visible { outline: var(--bezeg-control-focus, 3px solid #456db0); outline-offset: var(--bezeg-control-focus-offset, 2px); }
+/* Notice, tip, help card and pill sit out of flow so a message never changes the puck's size or shifts the strip. */
+.puck-notice {
+    position: absolute; left: 0; right: 0; top: 100%; margin-top: 2px; padding: 2px 6px; border-radius: 6px; font-size: .75rem; color: #7a2a1d;
+    background: var(--bezeg-shell-panel, #fffdf5); box-shadow: var(--bezeg-shell-shadow-card, 0 2px 8px rgb(35 54 42 / 12%)); z-index: 3;
+}
+.puck-notice:empty { display: none; }
+.puck-lock { margin-top: 3px; font-size: .72rem; color: var(--bs-secondary-color, #5c6a66); }
+.puck-tip, .puck-help-card {
+    position: absolute; left: 0; bottom: 100%; margin-bottom: 4px; width: max-content; max-width: 220px; padding: 6px 8px; z-index: 4;
+    border-radius: 8px; font-size: .78rem; line-height: 1.35; background: var(--bezeg-control-selected-surface, #19372f); color: var(--bezeg-control-selected-ink, #fff);
+}
+.puck-tip { pointer-events: none; }
+.puck-undo {
+    position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 4px; z-index: 5; padding: 3px 12px; cursor: pointer;
+    border: 0; border-radius: 999px; font-size: .8rem; font-weight: 600; white-space: nowrap;
+    background: var(--bezeg-control-selected-surface, #19372f); color: var(--bezeg-control-selected-ink, #fff);
+    animation: puck-pill-in 120ms ease-out;
+}
+.puck-undo:focus-visible { outline: var(--bezeg-control-focus, 3px solid #456db0); outline-offset: 2px; }
+@keyframes puck-pill-in { from { opacity: 0; } to { opacity: 1; } }
+.puck-ruler {
+    position: fixed; z-index: 1000; box-sizing: border-box; overflow: hidden; pointer-events: none; border-radius: 8px;
+    background: var(--bezeg-shell-panel, #fffdf5); border: 1px solid var(--bezeg-shell-rule-active, #b8c5ac); box-shadow: var(--bezeg-shell-shadow-card, 0 2px 8px rgb(35 54 42 / 12%)); color: var(--bezeg-control-ink, #20372d);
+}
+.puck-ruler line { stroke: currentColor; stroke-width: 1; opacity: .55; }
+.puck-ruler line.major { opacity: 1; }
+.puck-ruler line.needle { stroke: var(--bezeg-shell-ochre, #b88a43); stroke-width: 2; opacity: 1; }
+.puck-ruler text { fill: currentColor; font-size: 10px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.puck-ruler-readout { text-align: center; font-size: .75rem; font-variant-numeric: tabular-nums; }
+.puck-ruler-readout em { font-style: normal; opacity: .75; }
+@media (prefers-reduced-motion: reduce) {
+    .puck-fill { transition: none; }
+    .puck-undo { animation: none; }
+}
