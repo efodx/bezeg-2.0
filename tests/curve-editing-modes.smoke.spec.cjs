@@ -9,7 +9,7 @@ for (const {route, scrolled} of editingCases) {
         page.on('pageerror', error => errors.push(error.message));
         await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
         await page.goto(`/bezeg-2.0/${route}`);
-        await page.locator('.inspector-tabs').getByRole('button', {name: 'Edit', exact: true}).click();
+        await page.locator('#board-card-tools').getByRole('button', {name: 'Edit', exact: true}).click();
         await page.locator('.curve-selection').getByRole('button').first().click();
         const group = page.getByRole('group', {name: 'Editing mode', exact: true});
         const buttons = group.getByRole('button');
@@ -54,7 +54,14 @@ for (const {route, scrolled} of editingCases) {
         if (scrolled) {
             const beforeScroll = await pointScreenPosition();
             await page.mouse.move(beforeScroll.x, beforeScroll.y);
-            const scrollY = await page.evaluate(() => { window.scrollBy(0, 80); return window.scrollY; });
+            // The board workspace fills the viewport and no longer scrolls on its own (task 04), so give the document room to move.
+            const scrollY = await page.evaluate(() => {
+                const spacer = document.createElement('div');
+                spacer.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:3000px;pointer-events:none';
+                document.body.appendChild(spacer);
+                window.scrollBy(0, 80);
+                return window.scrollY;
+            });
             expect(scrollY).toBeGreaterThan(0);
         }
         const dragStart = await pointScreenPosition();
@@ -101,9 +108,9 @@ for (const {route, scrolled} of editingCases) {
         await expect(group).toBeVisible();
         expect(await buttons.evaluateAll(elements => elements.every(el => el.scrollWidth <= el.clientWidth))).toBe(true);
         await page.locator('html').evaluate(el => el.style.fontSize = '');
-        await page.locator('.inspector-tabs').getByRole('button', {name: 'Save', exact: true}).click();
+        await page.locator('#board-card-tools').getByRole('button', {name: 'Save', exact: true}).click();
         await page.getByRole('button', {name: 'Reset preset', exact: true}).click();
-        await page.locator('.inspector-tabs').getByRole('button', {name: 'Edit', exact: true}).click();
+        await page.locator('#board-card-tools').getByRole('button', {name: 'Edit', exact: true}).click();
         await expect(group).toHaveCount(0);
         await page.locator('.curve-selection').getByRole('button').first().click();
         await expect(group.getByRole('button', {name: 'Manipulate curve'})).toHaveAttribute('aria-pressed', 'true');

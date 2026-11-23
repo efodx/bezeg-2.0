@@ -6,7 +6,7 @@ function bezierInspector(page) {
 
 async function selectBezierCurve(page) {
     const inspector = bezierInspector(page);
-    await inspector.locator('.inspector-tabs').getByRole('button', {name: /^(Edit|Uredi)$/}).click();
+    await inspector.page().locator('#board-card-tools').getByRole('button', {name: /^(Edit|Uredi)$/}).click();
     const selection = inspector.locator('.curve-selection');
     await selection.getByRole('button').first().click();
     await expect(selection.locator('button[aria-pressed="true"]')).toHaveCount(1);
@@ -40,7 +40,7 @@ async function geometrySignature(page) {
 }
 
 async function showPresetTools(inspector) {
-    await inspector.locator('.inspector-tabs').getByRole('button', {name: 'Save', exact: true}).click();
+    await inspector.page().locator('#board-card-tools button[aria-controls="inspector-save"]').click();
     const presetArea = inspector.locator('#inspector-save');
     await expect(presetArea).toBeVisible();
     return presetArea;

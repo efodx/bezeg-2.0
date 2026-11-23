@@ -4,11 +4,12 @@ const {test, expect} = require('@playwright/test');
 const lessonPanel = page => page.locator('section.guided-lesson');
 const nextButton = page => lessonPanel(page).locator('.guided-lesson-nav-next');
 const backButton = page => lessonPanel(page).locator('.guided-lesson-nav-back');
-const hideButton = page => lessonPanel(page).locator('.guided-lesson-hide');
+// The lesson is a board card since task 04: folding it hides the instructions and unfolding reopens them (same button).
+const hideButton = page => page.locator('#board-card-lesson .board-card-fold');
 const exitButton = page => lessonPanel(page).getByRole('button', {name: /Exit example|Končaj vodeni primer/});
 const observationFrame = page => page.locator('section.guided-lesson.guided-lesson-frame-observation');
 const learnButton = page => page.getByRole('button', {name: 'Learn this demonstration'});
-const reopenButton = page => page.locator('button.guided-lesson-tab');
+const reopenButton = page => page.locator('#board-card-lesson .board-card-fold');
 const normalizeTitle = title => title.replace(/\s+/g, ' ').trim().toLowerCase();
 
 async function expectLessonIdentity(page, expectedTitle) {
@@ -187,12 +188,19 @@ function offscreenPoints(page) {
     });
 }
 
-// The inspector's tab buttons are addressed by the section they open, so the lookup works in either language.
+// Orodja's head icons (a board card since task 04; choosing one also unfolds the card) are addressed by the section they open, so the lookup works in either language.
 // Hidden tab sections stay mounted, so their controls are invisible to getByRole until the tab is pressed.
 async function openInspectorTab(page, section) {
-    const tab = page.locator(`.inspector-tabs button[aria-controls="inspector-${section}"]`);
+    const tab = page.locator(`#board-card-tools button[aria-controls="inspector-${section}"]`);
     if ((await tab.getAttribute('aria-pressed')) !== 'true') await tab.click();
     await expect(tab).toHaveAttribute('aria-pressed', 'true');
+}
+
+// Orodja opens folded when the board is laid out; unfold it so its panels can be operated.
+async function openToolsCard(page) {
+    const fold = page.locator('#board-card-tools .board-card-fold');
+    if ((await fold.getAttribute('aria-expanded')) !== 'true') await fold.click();
+    await expect(fold).toHaveAttribute('aria-expanded', 'true');
 }
 
 // The integer value of the Nth count stepper (CountSetter): an editable field when the graph sets the count directly, else an output.
@@ -317,5 +325,5 @@ module.exports = {
     lessonPanel, nextButton, backButton, hideButton, exitButton, observationFrame, exitAndConfirm, learnButton, reopenButton, expectLessonIdentity,
     failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, offscreenPoints, surfaceEvidence, assertSurfaceEvidence, settle, reveal, progress, stepNumber, isFinishing,
     advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow, pressNextWithKeyboard,
-    openInspectorTab, countSetterValue,
+    openInspectorTab, openToolsCard, countSetterValue,
 };
