@@ -317,6 +317,31 @@ describe('Orodja never waits for the measure pass', () => {
     });
 });
 
+describe('Orodja\'s live reading settles', () => {
+    // In a browser the shown card's reading follows what it was assigned (here: its width, fractional, and a height that grows once
+    // the content has mounted); the layout effect that reads it must not feed that back into another commit without end.
+    test.each([0, 0.3])('with a measured size that follows the assigned width (+%s px) and a height that changes once, it stops re-rendering', async (extra) => {
+        const base = HTMLElement.prototype.getBoundingClientRect;
+        let reads = 0;
+        HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+            const r = base.call(this);
+            if (this.dataset.cardId !== 'tools' || this.closest('[data-measure-layer]')) return r;
+            reads += 1;
+            const assigned = parseFloat(this.style.width || '');
+            return {...r, width: (Number.isFinite(assigned) ? assigned : r.width) + extra, height: reads < 4 ? 105 : 338, bottom: r.top + (reads < 4 ? 105 : 338)} as DOMRect;
+        };
+        try {
+            mountGraph(new RootFindingGraph());
+            await waitUntil(() => shown('tools') !== null);
+            await new Promise(resolve => setTimeout(resolve, 150));
+            const settled = reads;
+            await new Promise(resolve => setTimeout(resolve, 150));
+            expect(reads).toBe(settled);
+            expect(settled).toBeLessThan(40);
+        } finally { HTMLElement.prototype.getBoundingClientRect = base; }
+    });
+});
+
 describe('the presenter on an undeclared graph', () => {
     test('Orodja is the only card, starts open and holds the panels', async () => {
         mountGraph(new RootFindingGraph());
