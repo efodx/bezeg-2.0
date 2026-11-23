@@ -109,3 +109,7 @@ A layout during a drag is `layoutBoard({...input, stored: applyDrop(...), frozen
 - The free rectangle is correct on hand-computed boards.
 - Determinism: the same input gives the same output.
 - Property test over random inputs: no two docked cards overlap; every docked card is inside the board.
+
+## Task 04 additions
+
+`reserve`, `defaultFolded`, `budget` and `expanded`, as decided in [04-design.md, section 9](04-design.md#9-handler-decisions-2026-11-23). Rule 4 order: frozen → frame → stored fold → budget → `defaultFolded` → open.
