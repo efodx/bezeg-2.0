@@ -87,7 +87,7 @@ interface LayoutResult {
    - Otherwise the frame wins: a card in `frame.open` is open, and so is `tools` when `frame.usesTools`.
    - Otherwise the stored fold.
    - Otherwise open.
-5. **Fold before clip.** When a column's open cards need more height than it has, the lowest-priority card is folded. Frame-opened cards, the lesson card and stored-open cards are never folded. This repeats until the column fits or nothing foldable is left. Skip this step when `frozenFolds` is given (a drag never re-plans folds).
+5. **Fold before clip.** A column's last open card is never folded (it is cut instead, rule 6). When a column's open cards need more height than it has, the lowest-priority card is folded. Frame-opened cards, the lesson card and stored-open cards are never folded. This repeats until the column fits or nothing foldable is left. Skip this step when `frozenFolds` is given (a drag never re-plans folds).
 6. **Cut.** If a column still does not fit, the tallest open card is cut. The cut height is the largest `rowBreaks` value at or below the available height, never below `min.h`. A cut card scrolls inside itself, behind the overflow bar of slice 2.
 7. **Free cards** keep their stored `x, y`, clamped so the head stays inside the board. They do not take part in stacks and may overlap cards (the owner's drag rules).
 8. **Free rectangle.** The largest axis-aligned rectangle inside the board that avoids every docked card and the strip. Ties go to the one closest to the board centre. Task 07's view fit reads it.

@@ -90,6 +90,13 @@ describe('layoutBoard', () => {
       expect(byId(tools, 'tools').folded).toBe(false);
     });
 
+    it('never folds the last open card of a column: it is cut and scrolls instead', () => {
+      const tall = card('tools', 'tr', { priority: 4, natural: { w: 300, h: 2000 } });
+      const r = layoutBoard(input([tall], small));
+      expect(byId(r, 'tools').folded).toBe(false);
+      expect(byId(r, 'tools').cut).not.toBeNull();
+    });
+
     it('lets the frame beat a stored fold, and a stored fold apply when no pressure', () => {
       const r = layoutBoard(input(three(), { storedFolds: { A: true, B: true }, frame: { open: ['B'], usesTools: false } }));
       expect(r.cards.map((c) => c.folded)).toEqual([true, false, false]);
