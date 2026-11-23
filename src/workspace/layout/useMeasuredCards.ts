@@ -37,6 +37,19 @@ export interface MeasureOptions {
   whenReady?: (layer: HTMLElement) => Promise<void>;
 }
 
+const RAW_MATH = /\\\(|\\\[|\$\$|\\begin\s*\{/;
+
+/** Elements of `layer` that hold raw math delimiters in their own text and no typeset output (nothing to nest into). */
+function rawMathElements(layer: HTMLElement): HTMLElement[] {
+  const found = new Set<HTMLElement>();
+  const walker = document.createTreeWalker(layer, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const parent = node.parentElement;
+    if (parent && RAW_MATH.test(node.textContent ?? '') && !parent.closest('mjx-container') && !parent.querySelector('mjx-container')) found.add(parent);
+  }
+  return [...found];
+}
+
 /** Same APIs as FigureCapture.ts (waitForFonts/waitForMathJax), without its capture lifecycle. */
 export async function waitForFontsAndMath(layer: HTMLElement): Promise<void> {
   const waitFonts = async () => {
@@ -49,7 +62,13 @@ export async function waitForFontsAndMath(layer: HTMLElement): Promise<void> {
   if (mathJax || hasRawMath) {
     if (!mathJax) mathJax = await loadMathJax();
     if (mathJax.startup?.promise) await mathJax.startup.promise;
-    if (mathJax.typesetPromise) await mathJax.typesetPromise([layer]);
+    if (mathJax.typesetPromise) {
+      // Typesetting a subtree that already holds MathJax output typesets that output again (its assistive MathML becomes a new,
+      // nested formula, 4 more per pass), and this layer is measured again on every fold. Formulas (`Tex`) typeset themselves, so
+      // only elements with raw delimiters and no output yet are typeset here; an empty call queues behind the formulas in flight.
+      for (const el of rawMathElements(layer)) await mathJax.typesetPromise([el]);
+      await mathJax.typesetPromise([]);
+    }
     await waitFonts(); // typesetting can introduce web fonts
   }
 }
