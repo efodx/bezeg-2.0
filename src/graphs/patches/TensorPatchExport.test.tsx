@@ -180,7 +180,7 @@ describe("PNG export", () => {
         vi.mocked(html2canvas).mockImplementation(() => { rendering(); return new Promise<HTMLCanvasElement>(() => undefined); });
         const errors = vi.spyOn(console, "error");
         fireEvent.click(button("PNG"));
-        await started;
+        await act(async () => { await started; });
         expect(host.querySelector("img.surface-still-image")).not.toBeNull();
         rendered.unmount();
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 20)); });
