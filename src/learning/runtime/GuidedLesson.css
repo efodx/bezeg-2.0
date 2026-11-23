@@ -46,6 +46,24 @@
     container-type: inline-size;
     transition: box-shadow .16s ease-out;
 }
+/* In a board card the card shell places, moves and folds the lesson: no grid area, no frame of its own, as tall as the card gives it. */
+.guided-lesson.guided-lesson-card {
+    grid-area: auto;
+    position: static;
+    z-index: auto;
+    align-self: stretch;
+    max-height: none;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+/* Povrni: the row keeps its height whether or not the button is shown, so it never moves the card's edge or its text. */
+.guided-lesson-restore-row { flex: 0 0 auto; display: flex; justify-content: flex-end; align-items: center; min-height: 32px; padding-top: 4px; }
+.guided-lesson-card .guided-lesson-restore-row { height: 32px; }
+.guided-lesson-restore { min-height: 28px; padding: 2px 12px; }
 /* A card carried onto the graph is above the graph layer, so its presses reach the card, not the catcher that hides it. */
 .guided-lesson:not(.guided-lesson-docked) { z-index: 4; }
 /* Lifting the panel while it moves is the one motion that says it is being carried. */

@@ -1,6 +1,7 @@
 import {useT} from "../../localization";
-import React, {useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback,useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
+import {createPortal} from "react-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext, type UserActionMode, type UserActionPolicy} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
@@ -25,6 +26,7 @@ import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
 import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
 import {WorkspaceElder} from './WorkspaceElder';
 import type {ToolsSection, WorkspaceCardHost} from '../../workspace/presenter/cardHost';
+import type {FrameDeclaration} from './declare/graphDeclaration';
 import {StaticToolsCard} from '../../workspace/presenter/StaticToolsCard';
 
 type Section = ToolsSection;
@@ -41,6 +43,8 @@ export function DemonstrationWorkspace(props: {
     bindUserActions?: (current: () => UserActionMode) => () => void,
     /** The card layer (task 03/04), given what the workspace owns (Orodja's panels, Presentation's fold). A sibling of the board container, never inside it, so figure export does not see it. Absent: a bare Orodja card in the board's corner. */
     boardOverlay?: (host: WorkspaceCardHost) => React.ReactNode,
+    /** The card layer places the lesson slot in a lesson card, so the lesson drops its own drag, dock and hide controls (task 04 slice 3b). */
+    lessonCard?: boolean,
 }) {
     const t = useT();
     const closeLesson = useRef<(() => void) | undefined>();
@@ -184,9 +188,28 @@ export function DemonstrationWorkspace(props: {
     const bindUserActions = props.bindUserActions;
     useLayoutEffect(() => bindUserActions?.(() => userActionModeRef.current), [bindUserActions]);
     // What the card layer needs from this workspace. Presentation: Orodja is folded until the header button unfolds it (not stored).
-    const toolsLocked = lessonActive && lessonMode === 'content';
+    // The lesson is portalled into one persistent element, so it mounts once wherever the card layer puts it. Until the lesson
+    // card appends the slot into itself, the slot stays in the workspace where the lesson has always rendered.
+    const [lessonSlot] = useState(() => {
+        const slot = document.createElement('div');
+        slot.className = 'guided-lesson-slot';
+        return slot;
+    });
+    const lessonRendered = lessonActive;
+    useLayoutEffect(() => {
+        if (lessonRendered) {
+            if (!lessonSlot.isConnected) workspaceRoot.current?.insertBefore(lessonSlot, graphSection.current);
+        } else if (lessonSlot.parentElement === workspaceRoot.current) lessonSlot.remove();
+    }, [lessonRendered, lessonSlot]);
+    useLayoutEffect(() => () => { lessonSlot.remove(); }, [lessonSlot]);
+    const [frameDeclaration, setFrameDeclaration] = useState<FrameDeclaration>();
+    const [lessonFoldRequest, setLessonFoldRequest] = useState<{folded: boolean; seq: number}>();
+    const requestLessonFold = useCallback((folded: boolean) => setLessonFoldRequest(previous => ({folded, seq: (previous?.seq ?? 0) + 1})), []);
     const cardHost: WorkspaceCardHost = {
-        tools: {panels: {edit: props.edit, display: props.display, save: props.save}, section, setSection, locked: toolsLocked},
+        // Reading frames leave the graph and the tools operable; "Povrni" in the lesson restores the frame's prepared state.
+        tools: {panels: {edit: props.edit, display: props.display, save: props.save}, section, setSection, locked: false},
+        lesson: {slot: lessonSlot, active: lessonActive, mode: lessonMode, foldRequest: lessonFoldRequest},
+        frame: lessonActive ? frameDeclaration : undefined,
         fullScreen,
         toolsFolded: fullScreen ? !presentationControls : undefined,
         setToolsFolded: folded => setPresentationControls(!folded),
@@ -236,11 +259,14 @@ export function DemonstrationWorkspace(props: {
                 <a href={pathname}>{t('chapter_free_exploration')}</a>
             </>}
         </p>}
-        {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
+        {lessonOpen && lesson && props.lessonCapabilities && createPortal(<GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
             visiblePageTitle={workspaceTitle}
             registerClose={registerLessonClose}
             registerExit={registerLessonExit}
             registerGraphActions={setLessonGraphActions}
+            registerFrameDeclaration={setFrameDeclaration}
+            presentation={props.lessonCard ? 'card' : undefined}
+            onRequestFold={requestLessonFold}
             chapterOwner={lessonOwner ? {
                 returnPath: guidedLessonReturnPath(lessonOwner),
                 returnLabel: t('chapter_return'),
@@ -255,8 +281,8 @@ export function DemonstrationWorkspace(props: {
                     navigateRoute({pathname, search: query.toString() ? `?${query.toString()}` : '', hash}, {replace: true, state: forwardedState});
                 }
                 setTimeout(() => learnButton.current?.focus(), 0);
-            }}/>}
-        <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
+            }}/>, lessonSlot)}
+        <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
             <div className="workspace-board-stage"><JGBox ref={setGraphContainer}/>{props.boardOverlay ? props.boardOverlay(cardHost) : <StaticToolsCard host={cardHost}/>}</div>
             <div ref={setSlotElement} data-playback-slot=""/>
@@ -264,7 +290,7 @@ export function DemonstrationWorkspace(props: {
                 {actions.map(action => {
                     if (action === 'fit') return <button key={action} data-navigation={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
                     const [text, label] = navigationLabels[action];
-                    return <button key={action} data-navigation={action} disabled={lessonOpen && lessonMode === 'content'} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
+                    return <button key={action} data-navigation={action} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
                 })}
             </div>}
             <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>

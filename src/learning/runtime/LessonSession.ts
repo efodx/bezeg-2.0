@@ -150,7 +150,8 @@ export class LessonSession {
 
     reset() {
         this.stopAnimations();
-        this.applyCurrentScene();
+        // A step without a scene is prepared from the checkpoint, so Povrni restores that.
+        this.applyScene(this.snapshotValue.stepIndex, true);
     }
 
     applyCurrentAction() {

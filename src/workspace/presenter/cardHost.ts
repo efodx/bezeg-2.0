@@ -1,6 +1,7 @@
 // What the workspace hands the card layer (task 04, docs/reviews/ux-picks-app-wide/04-design.md section 2). The workspace keeps
 // owning the panels, the lesson state and Presentation; the presenter only reads this and stays free of route knowledge.
 import type {ReactNode} from 'react';
+import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 
 export type ToolsSection = 'edit' | 'display' | 'save';
 
@@ -10,9 +11,20 @@ export interface WorkspaceCardHost {
         panels: Readonly<Record<ToolsSection, ReactNode>>;
         section: ToolsSection;
         setSection: (section: ToolsSection) => void;
-        /** A lesson card is read: the tools are not operable (slice 3 removes this lock). */
+        /** Always false now: reading frames no longer lock the tools (slice 3). The field stays until the card layer stops reading it. */
         locked: boolean;
     };
+    lesson: {
+        /** The persistent element `GuidedLesson` is portalled into. Append it into the lesson card body: moving it never remounts the lesson. */
+        slot: HTMLElement | null;
+        /** A lesson is open and its graph capabilities are ready. */
+        active: boolean;
+        mode: 'content' | 'explore' | 'complete' | 'closed';
+        /** The lesson's latest request to fold (`true`) or open its card, from a task (explore) frame; `seq` changes on every request so the same value can repeat. Undefined until one is made. */
+        foldRequest: {folded: boolean; seq: number} | undefined;
+    };
+    /** The open lesson frame's declaration (highlight, used controls), undefined when the frame declares none or no lesson is open. */
+    frame: FrameDeclaration | undefined;
     fullScreen: boolean;
     /** Presentation only: Orodja's fold decided by the header button. Overrides the stored fold, is never stored. Undefined outside Presentation. */
     toolsFolded: boolean | undefined;

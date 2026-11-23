@@ -183,7 +183,13 @@ test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
         lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
 
     expect(await screen.findByRole('region', {name: 'Enostranski Cⁿ zlepek'})).toBeVisible();
-    await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
+    // A reading frame no longer locks the graph, its pan and zoom buttons or the tools.
+    expect(document.querySelector('.demonstration-workspace')).toHaveClass('lesson-content');
+    expect(screen.getByRole('region', {name: 'Interaktivni graf'})).not.toHaveAttribute('data-lesson-locked');
+    expect(document.querySelector('.workspace-navigation button')).not.toBeDisabled();
+    expect(document.querySelector('#board-card-tools [inert], #board-card-tools[aria-disabled]')).toBeNull();
+    // The lesson is portalled into a persistent slot that stays in the workspace until a card takes it.
+    expect(document.querySelector('.demonstration-workspace > .guided-lesson-slot > .guided-lesson')).not.toBeNull();
 });
 
 test('direct guided family context preserves its frame through hide and returns to the retained chapter home', async () => {
