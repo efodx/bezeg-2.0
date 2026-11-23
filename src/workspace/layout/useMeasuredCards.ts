@@ -19,7 +19,7 @@ export interface MeasureItem {
 export interface MeasuredCards {
   /** Render this once, anywhere; it is hidden, off-screen and inert. */
   layer: ReactElement;
-  /** Null until fonts and typesetting have settled. */
+  /** Null until fonts and typesetting have settled (live cards, once read, are included before that). */
   measured: readonly MeasuredCard[] | null;
   /** 0 after the first measurement, 1 after the single remeasure (if any size changed). */
   generation: number;
@@ -138,9 +138,10 @@ export function useMeasuredCards(items: readonly MeasureItem[], options: Measure
 
   const liveIds = items.filter((i) => i.live).map((i) => i.id).join('|');
   const measured = useMemo(() => {
-    if (!state.measured) return null;
     const ids = liveIds ? liveIds.split('|') : [];
     const live = ids.flatMap((id) => (liveCards[id] ? [liveCards[id]] : []));
+    // A live card is shown before the hidden ones are measured: with nothing else measured yet, `measured` holds the live cards only.
+    if (!state.measured) return live.length ? live : null;
     return live.length ? [...state.measured, ...live] : state.measured;
   }, [state.measured, liveCards, liveIds]);
 

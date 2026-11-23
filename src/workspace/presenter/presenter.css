@@ -2,3 +2,5 @@
    so board drags and clicks outside a card reach JSXGraph. */
 .board-cards-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .board-cards-layer > .board-card { pointer-events: auto; }
+/* Orodja before its first placement: in flow at its natural width (that is the size the layout is given), never wider than the board. */
+.board-cards-layer > .board-card--static { width: max-content; max-width: 100%; }

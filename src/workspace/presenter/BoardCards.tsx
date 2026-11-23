@@ -93,12 +93,13 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
   const widthsKey = `${shapeKey}|${placementKey}|${JSON.stringify(effectiveFolds)}`;
   const widths = widthState.key === widthsKey ? widthState.widths : NO_WIDTHS;
 
-  const items = specs.map(spec => ({
+  // Orodja is live: it never waits for the measure pass. It renders in the first commit and is read from the shown card.
+  const items = specs.map(spec => spec.id === TOOLS_ID ? {id: spec.id, node: null, live: true as const} : ({
     id: spec.id,
     width: widths[spec.id],
     node: <CardShell id={spec.id} title={spec.title} measure folded={false} onFold={noop} onReset={noop} onDragMove={noop} onDrop={noop} onDragCancel={noop}><MeasurePassContext.Provider value={true}>{spec.body}</MeasurePassContext.Provider></CardShell>,
   }));
-  const {layer: measureLayer, measured, settled} = useMeasuredCards(items, {contentKey, whenReady});
+  const {layer: measureLayer, measured, settled, measureLive} = useMeasuredCards(items, {contentKey, whenReady});
 
   const inputs = useMemo<CardInput[]>(() => {
     const byId = new Map((measured ?? []).map(card => [card.id, card]));
@@ -125,6 +126,7 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
     const next: Record<string, number> = {...widths};
     let changed = false;
     for (const placed of base.cards) {
+      if (placed.id === TOOLS_ID) continue; // live: read at its shown width, never assigned one
       const natural = inputs.find(card => card.id === placed.id)?.natural.w ?? placed.rect.w;
       if (Math.abs(placed.rect.w - natural) > 0.5 && widths[placed.id] !== placed.rect.w) { next[placed.id] = placed.rect.w; changed = true; }
     }
@@ -179,20 +181,31 @@ export function BoardCards({graph, host, highlight = NO_HIGHLIGHT, whenReady}: B
   const final = ready && !pending && preview !== null;
   // Where the dragged card would land, drawn under the cards when a drop would dock it; a free drop floats and shows none.
   const ghost = final && drag && drag.target !== 'free' ? preview.cards.find(card => card.id === drag.id)?.rect ?? null : null;
-  const shown = final ? preview.cards : stable;
+  // Before the first final layout only Orodja is shown: placed from what has been read of it, or unpositioned (no rect) while the board
+  // or the card is not measured yet. It keeps one element throughout, so its panels never remount.
+  const provisional = (base?.cards ?? []).filter(card => card.id === TOOLS_ID);
+  const shown = final ? preview.cards : stable.length > 0 ? stable : provisional;
   if (final && stableDiffers(stable, preview.cards)) setStable(preview.cards);
+  const toolsPlaced = shown.find(card => card.id === TOOLS_ID);
+
+  // Read Orodja from the shown card before paint; a changed reading re-renders synchronously. Folded, its body is hidden and says
+  // nothing about its size, so the last reading stands.
+  useLayoutEffect(() => {
+    const element = layerRef.current?.querySelector<HTMLElement>(`[data-card-id="${TOOLS_ID}"]`) ?? null;
+    if (element && !toolsPlaced?.folded) measureLive(TOOLS_ID, element);
+  });
   return <>
     {measureLayer}
     <div ref={layerRef} className="board-cards-layer" data-board-cards-layer="">
       {ghost && <div className="board-card-ghost" data-board-drop-target="" aria-hidden="true"
         style={{width: ghost.w, height: ghost.h, transform: `translate(${ghost.x}px, ${ghost.y}px)`}}/>}
-      {shown.map(placed => {
-        const spec = specs.find(entry => entry.id === placed.id);
+      {[...shown, ...(toolsPlaced ? [] : [null])].map(placed => {
+        const spec = specs.find(entry => entry.id === (placed?.id ?? TOOLS_ID));
         if (!spec) return null;
-        const dragging = drag?.id === placed.id;
-        const own = dragging ? base?.cards.find(card => card.id === placed.id) ?? placed : placed;
+        const dragging = placed !== null && drag?.id === placed.id;
+        const own = placed && dragging ? base?.cards.find(card => card.id === placed.id) ?? placed : placed;
         const isTools = spec.id === TOOLS_ID;
-        return <CardShell key={spec.id} id={spec.id} title={spec.title} keepMounted={isTools} role={isTools ? 'complementary' : 'region'} label={isTools ? t('demonstration_tools') : undefined} rect={own.rect} folded={own.folded} cut={own.cut}
+        return <CardShell key={spec.id} id={spec.id} title={spec.title} keepMounted={isTools} role={isTools ? 'complementary' : 'region'} label={isTools ? t('demonstration_tools') : undefined} rect={own?.rect} folded={own?.folded ?? false} cut={own?.cut}
           headActions={isTools ? <ToolsHeadActions section={host.tools.section} onChoose={chooseToolsSection}/> : undefined}
           onFold={folded => setToolsOrCardFold(spec.id, folded)}
           onReset={() => commit(resetCard(stored, spec.id))}

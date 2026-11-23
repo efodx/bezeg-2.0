@@ -125,7 +125,8 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
       while (total() > avail) {
         // With an expanded card only lower-priority cards of its column give way to it.
         const open = members.filter((s) => !s.folded && !s.pinned && (!wide || (s !== wide && s.card.priority < wide.card.priority)));
-        if (open.length === 0) break;
+        // Folding a column's last open card frees room for nothing and hides all it holds: cut it instead (rule 6).
+        if (open.length === 0 || members.filter((s) => !s.folded).length <= 1) break;
         open.sort((a, b) => a.card.priority - b.card.priority || (a.card.id < b.card.id ? -1 : 1));
         open[0].folded = true;
       }

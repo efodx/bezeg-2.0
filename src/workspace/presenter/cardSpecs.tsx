@@ -8,7 +8,6 @@ import type {Anchor} from '../layout/boardLayout';
 import {LegendBody, isLegendHidden, shownLegendEntries} from '../cards/LegendBody';
 import {ReadoutsBody} from '../cards/ReadoutsBody';
 import {SectionBody} from '../cards/SectionBody';
-import {ToolsBody} from '../cards/ToolsBody';
 
 export type PresentedGraph = BaseGraph<BaseGraphState>;
 
@@ -33,16 +32,15 @@ export const sectionCardId = (id: string): string => `section:${id}`;
 
 const PRIORITY = {legend: 1, section: 2, readouts: 3, tools: 4} as const;
 
-/** The Orodja card (task 04): every graph has one. Its body here is the measure proxy; the presenter renders the live panels from the
- *  host on every render, so they are never held by a memoised spec. */
+/** The Orodja card (task 04): every graph has one. It is a live item: it has no measure copy and no body here; the presenter renders
+ *  the live panels from the host on every render and reads the card's size from the shown card. */
 export function toolsCardSpec(declared: boolean): CardSpec {
   return {
     id: TOOLS_ID, title: message('shell_card_tools'), priority: PRIORITY.tools, defaultAnchor: 'tr', defaultOrder: 1,
     shape: `tools;${declared ? 'declared' : 'undeclared'}`,
-    body: <ToolsBody panels={NO_PANELS} section="edit" declared={declared}/>,
+    body: null,
   };
 }
-const NO_PANELS = {edit: null, display: null, save: null} as const;
 
 /** The cards the declaration asks for in the graph's current state, in a fixed order (readouts, legend, sections). */
 export function buildCardSpecs(graph: PresentedGraph, declaration: GraphDeclaration, highlight: readonly string[]): CardSpec[] {

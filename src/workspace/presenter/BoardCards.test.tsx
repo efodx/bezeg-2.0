@@ -22,12 +22,14 @@ vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 /** Natural card widths by id for the jsdom layout stand-in; absent means 200. */
 let naturalWidths: Record<string, number> = {};
+/** A board whose size is not known (jsdom without a layout stand-in): the layer reads 0 x 0. */
+let unmeasuredBoard = false;
 beforeAll(() => {
     installBoardShims();
     // jsdom lays nothing out: a board of 1000 x 700 and cards of 200 x 150 with 32 px heads and 24 px rows.
     const box = (w: number, h: number, top = 0): DOMRect => ({x: 0, y: top, left: 0, top, right: w, bottom: top + h, width: w, height: h, toJSON: () => ({})}) as DOMRect;
     HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
-        if (this.classList.contains('board-cards-layer')) return box(1000, 700);
+        if (this.classList.contains('board-cards-layer')) return unmeasuredBoard ? box(0, 0) : box(1000, 700);
         if (this.hasAttribute('data-card-id')) {
             // A shown card has its width; a card in the measure layer fills its wrapper, whose width is set once assigned.
             const assigned = parseFloat(this.style.width || this.parentElement?.style.width || '');
@@ -41,7 +43,7 @@ beforeAll(() => {
         return box(600, 400);
     };
 });
-beforeEach(() => { setLanguage('sl'); window.localStorage.clear(); naturalWidths = {}; });
+beforeEach(() => { setLanguage('sl'); window.localStorage.clear(); naturalWidths = {}; unmeasuredBoard = false; });
 afterEach(cleanup);
 
 const live = (selector: string) => document.querySelector<HTMLElement>(`.board-cards-layer ${selector}`);
@@ -293,6 +295,25 @@ describe('the old panels of other declared pilots', () => {
         await mountTaylor();
         await openTools();
         expect(document.querySelectorAll('.tools-body .function-readout[data-declared-panel], .tools-body .function-legend[data-declared-panel]').length).toBeGreaterThan(0);
+    });
+});
+
+describe('Orodja never waits for the measure pass', () => {
+    test('its controls are in the first commit, before any timer or promise settles', () => {
+        mountGraph(new RootFindingGraph());
+        // No waitUntil: the card and its panels must already be there.
+        expect(shown('tools')).not.toBeNull();
+        expect(document.querySelector('[data-testid="inspector-edit"]')).not.toBeNull();
+    });
+
+    test('a board whose size is unknown (0 x 0) still shows the card, unpositioned', () => {
+        unmeasuredBoard = true;
+        mountGraph(new RootFindingGraph());
+        const card = shown('tools')!;
+        expect(card).not.toBeNull();
+        expect(card.classList.contains('board-card--static')).toBe(true);
+        expect(card.querySelector('.board-card-body')!.hasAttribute('hidden')).toBe(false);
+        expect(document.querySelector('[data-testid="inspector-edit"]')).not.toBeNull();
     });
 });
 
