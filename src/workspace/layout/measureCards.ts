@@ -31,11 +31,16 @@ function blockElements(container: HTMLElement): HTMLElement[] {
   const visit = (parent: HTMLElement) => {
     Array.from(parent.children).forEach((child) => {
       const el = child as HTMLElement;
-      const display = getComputedStyle(el).display;
-      if (display === 'none' || el.hidden) return;
-      if (display === 'contents') { visit(el); return; }
+      if (el.hidden) return;
       const height = el.getBoundingClientRect().height;
-      if (height <= 0) return;
+      if (height <= 0) {
+        // No box: either not shown, or a `display: contents` wrapper whose children have boxes. Only this case reads the style.
+        if (el.children.length > 0) {
+          const display = getComputedStyle(el).display;
+          if (display === 'contents') visit(el);
+        }
+        return;
+      }
       if (height > BLOCK_SPLIT && el.children.length > 0) {
         const before = out.length;
         visit(el);

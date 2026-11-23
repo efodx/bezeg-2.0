@@ -288,12 +288,45 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
 
   // Read the live cards from the shown cards before paint; a changed reading re-renders synchronously. Folded, a body is hidden and
   // says nothing about its size, so the last reading stands.
+  // Only what can change a live card's reading triggers this read: its content (contentKey), the board, and the shown width and fold
+  // of each live card. Growth inside a card is picked up by the observers below, so a commit that changes none of these (a drag, a
+  // slider move) reads nothing, and so forces no style recalculation.
+  const liveReadKey = `${contentKey}|${board.w}x${board.h}|${liveSpecs.map(spec => {
+    const card = shown.find(entry => entry.id === spec.id);
+    return `${spec.id}:${card ? `${card.rect.w}${card.folded ? 'f' : ''}` : '-'}`;
+  }).join(',')}`;
+  const liveReadRef = useRef({liveSpecs, shown});
+  useLayoutEffect(() => { liveReadRef.current = {liveSpecs, shown}; }); // declared first, so it runs before the read below
   useLayoutEffect(() => {
-    for (const spec of liveSpecs) {
+    const {liveSpecs: specsNow, shown: shownNow} = liveReadRef.current;
+    for (const spec of specsNow) {
       const element = layerRef.current?.querySelector<HTMLElement>(`[data-card-id="${spec.id}"]`) ?? null;
-      if (element && !shown.find(card => card.id === spec.id)?.folded) measureLive(spec.id, element);
+      if (element && !shownNow.find(card => card.id === spec.id)?.folded) measureLive(spec.id, element);
     }
-  });
+  }, [liveReadKey, measureLive]);
+  // A live card's content grows without this layer re-rendering (a panel's own state): the elements in its body are watched for size,
+  // and read again once per frame. The card's own box is not watched (the layout sizes it); a read that did not change is ignored.
+  const liveIds = liveSpecs.map(spec => spec.id).join('|');
+  useEffect(() => {
+    if (typeof ResizeObserver === 'undefined' || liveIds === '') return undefined;
+    const teardowns = liveIds.split('|').map(id => {
+      const element = layerRef.current?.querySelector<HTMLElement>(`[data-card-id="${id}"]`);
+      const body = element?.querySelector<HTMLElement>('[data-card-body]');
+      if (!element || !body) return () => undefined;
+      let frameId = 0;
+      const read = () => {
+        cancelAnimationFrame(frameId);
+        frameId = requestAnimationFrame(() => { if (!element.classList.contains('board-card--folded')) measureLive(id, element); });
+      };
+      const sizes = new ResizeObserver(read);
+      const watch = () => { sizes.disconnect(); Array.from(body.children).forEach(child => sizes.observe(child)); };
+      watch();
+      const children = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => { watch(); read(); });
+      children?.observe(body, {childList: true});
+      return () => { cancelAnimationFrame(frameId); sizes.disconnect(); children?.disconnect(); };
+    });
+    return () => teardowns.forEach(stop => stop());
+  }, [liveIds, measureLive]);
   // The lesson changes inside its own component (a frame, typeset formulas), which does not re-render this layer: its card is read again
   // when its content changes, so the cut follows the text instead of the reading made at the last commit. A reading that did not
   // change is ignored by `measureLive`, and only the content is watched (not the size the layout gives the card), so this settles.
