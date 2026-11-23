@@ -1210,7 +1210,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "triangle", color: colors.triangle, label: t("linear_map_legend_triangle"), kind: legendKindFor(TRACE_DET_DRAWING.triangle)},
                 {id: "flow", color: colors.flow, label: t("linear_map_legend_flow"), kind: legendKindFor(TRACE_DET_DRAWING.flow)},
                 {id: "point", color: colors.handle, label: t("linear_map_legend_point"), kind: "dot"},
-            ]}/>;
+            ]} declaredPanel/>;
         }
         if (mode === "composition") {
             return <FunctionLegend items={[
@@ -1221,7 +1221,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "curve-image", color: COMPOSITION_COLORS.image, label: t("linear_map_legend_comp_curve_image"), kind: "line"},
                 {id: "translation", color: COMPOSITION_COLORS.translation, label: t("linear_map_legend_comp_translation"), kind: "line"},
                 {id: "pivot", color: COMPOSITION_COLORS.pivot, label: t("linear_map_legend_comp_pivot"), kind: "dot"},
-            ]}/>;
+            ]} declaredPanel/>;
         }
         if (mode === "eigen") {
             return <FunctionLegend items={[
@@ -1231,7 +1231,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "v", color: EIGEN_COLORS.vector, label: t("linear_map_legend_eigen_v"), kind: "line"},
                 {id: "av", color: EIGEN_COLORS.image, label: t("linear_map_legend_eigen_av"), kind: "line"},
                 {id: "lines", color: EIGEN_COLORS.line, label: t("linear_map_legend_eigen_lines"), kind: "line"},
-            ]}/>;
+            ]} declaredPanel/>;
         }
         if (mode === "ellipse") {
             const conic = this.model.conicVisible === true;
@@ -1247,7 +1247,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     : {id: "axes", color: ELLIPSE_COLORS.image, label: t("linear_map_legend_ellipse_axes"), kind: "line"},
                 ...(conic ? [] : [{id: "directions", color: ELLIPSE_COLORS.direction, label: t("linear_map_legend_ellipse_directions"), kind: "line" as const}]),
                 {id: "lines", color: ELLIPSE_COLORS.line, label: t("linear_map_legend_eigen_lines"), kind: "dashed-line"},
-            ]}/>;
+            ]} declaredPanel/>;
         }
         if (mode === "iterate") {
             return <FunctionLegend items={[
@@ -1257,7 +1257,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "unit", color: colors.unit, label: t("linear_map_legend_unit"), kind: "line"},
                 {id: "dominant", color: colors.dominant, label: t("linear_map_legend_dominant"), kind: "line"},
                 {id: "other", color: colors.other, label: t("linear_map_legend_other"), kind: "dashed-line"},
-            ]}/>;
+            ]} declaredPanel/>;
         }
         return <FunctionLegend items={[
             {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
@@ -1265,7 +1265,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             {id: "square", color: LINEAR_MAP_COLORS.square, label: t("linear_map_legend_square"), kind: "line"},
             {id: "curve", color: LINEAR_MAP_COLORS.sourceCurve, label: t("linear_map_legend_curve"), kind: "line"},
             {id: "curve-image", color: LINEAR_MAP_COLORS.imageCurve, label: t("linear_map_legend_curve_image"), kind: "line"},
-        ]}/>;
+        ]} declaredPanel/>;
     }
 
     /** The statuses to state in words; each has a stable id for tests and assistive technology. Zero never says positive or negative. */
@@ -1724,7 +1724,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const notes = this.notes(model).map(note => renderMessage(note.text));
         const rows = this.readoutRows(model, view).map(row => ({id: row.id, label: row.name ? renderMessage(row.name) : "", value: this.valueText(row.value)}));
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={notes}/>
+            <FunctionReadout title={t("function_readouts")} rows={rows} note={notes} declaredPanel/>
             <FunctionStatus className="demo-status" dataAttribute="linear-map-status" lines={this.statuses(model, view).map(({id, text}) => ({id, text: renderMessage(text)}))} muted={this.isPlaying()}/>
         </>;
     }

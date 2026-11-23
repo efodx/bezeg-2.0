@@ -40,7 +40,7 @@ export function LegendBody(props: LegendBodyProps) {
     const {onHiddenChange} = props;
     useEffect(() => { onHiddenChange?.(hidden); }, [hidden, onHiddenChange]);
     if (hidden) return null;
-    return <ul className="ws-legend" data-legend="">
+    return <ul className="ws-legend" data-card-legend="">
         {shown.map(({entry, color}) => <li key={entry.id} className="ws-legend-entry" data-card-row="" data-legend-entry={entry.id}>
             <Swatch kind={entry.kind} color={color}/>
             <span>{renderMessage(entry.label)}</span>

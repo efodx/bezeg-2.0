@@ -3,7 +3,7 @@
     position: absolute; left: 0; top: 0; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden;
     background: var(--bezeg-shell-panel); color: var(--bezeg-shell-ink);
     border: 1px solid var(--bezeg-shell-rule); border-radius: var(--bezeg-control-radius); box-shadow: var(--bezeg-shell-shadow-card);
-    transition: transform .22s ease, width .22s ease, height .22s ease;
+    transition: transform .16s ease, width .16s ease, height .16s ease;
 }
 .board-card--static { position: relative; }
 .board-card--dragging { z-index: 10; transition: none; cursor: grabbing; }

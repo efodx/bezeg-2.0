@@ -64,7 +64,7 @@ function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry;
         const reserved = Number(el.dataset.reserved ?? 0);
         if (width > reserved + 0.5) { el.dataset.reserved = String(width); el.style.minWidth = `${Math.ceil(width)}px`; }
     });
-    return <div className="ws-row" data-card-row="" data-readout={row.id} data-highlight={props.highlighted || undefined} data-muted={row.muted || undefined}>
+    return <div className="ws-row" data-card-row="" data-card-readout={row.id} data-highlight={props.highlighted || undefined} data-muted={row.muted || undefined}>
         <dt className="ws-name">
             {props.entry && drawn ? <Swatch kind={props.entry.kind} color={drawn.color}/> : props.reserveMark && <span className="ws-swatch ws-swatch-none" aria-hidden="true"/>}
             <span className="ws-label">

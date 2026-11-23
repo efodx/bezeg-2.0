@@ -329,9 +329,9 @@ export default class CoonsPatchGraph extends BaseSurfaceGraph<CoonsGraphState, C
         const {boundaries} = this.state;
         return <>{this.unavailableNotice()}
             <CoonsEditPanel state={this.state} selection={this.selection()} actions={this.panelActions}/>
-            <CoonsReadoutPanel readouts={{
+            <div data-declared-panel=""><CoonsReadoutPanel readouts={{
                 interior: coonsInteriorPoints(boundaries), centre: coonsSurfacePoint(boundaries, "s", 0.5, 0.5), mismatches: coonsMismatches(boundaries),
-            }}/>
+            }}/></div>
         </>;
     }
 
