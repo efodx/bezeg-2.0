@@ -44,6 +44,9 @@ function stringProperties(object, strict = true) {
     if (!ts.isObjectLiteralExpression(object)) throw new Error(`Expected object literal: ${object.getText()}`);
     const values = {};
     for (const property of object.properties) {
+        // `sl.ts`/`en.ts` spread the per-family declaration fragments (ADR 0066); those keys hold graph-declaration text only,
+        // which no catalog row reads, so the spread is skipped rather than resolved.
+        if (ts.isSpreadAssignment(property)) continue;
         if (!ts.isPropertyAssignment(property)) throw new Error(`Unsupported catalog member: ${property.getText()}`);
         const name = propertyName(property.name);
         const value = unwrapExpression(property.initializer);
