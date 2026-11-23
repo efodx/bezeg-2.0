@@ -152,6 +152,13 @@
     z-index: 0 !important;
 }
 
+/* Board labels get a halo in the board's own background so curves, grid and guides crossing them do not cut the glyphs.
+   Text only (no plate). Shadow does not affect layout or MathJax sizing. */
+#jgbox .JXGtext {
+    text-shadow: 0 0 2px var(--workspace-panel, #fffdf5), 0 0 2px var(--workspace-panel, #fffdf5),
+        0 0 3px var(--workspace-panel, #fffdf5), 0 0 4px var(--workspace-panel, #fffdf5);
+}
+
 :root {
     --tools-transition-time: 0.1s;
     --tools-transition-function: ease-out;
