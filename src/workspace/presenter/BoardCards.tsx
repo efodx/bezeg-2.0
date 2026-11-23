@@ -189,7 +189,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     return box ? {left: box.left, right: box.right, width: box.width} : undefined;
   }, []);
   const inputWith = (pucks: Size | undefined): LayoutInput => ({
-    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget, frame: frameInput, pucks,
+    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget, frame: frameInput, pucks, puckSlots: measuredStrip?.slots,
     maxSpan: MAX_SPAN, columnMaxFraction: COLUMN_MAX_FRACTION, gap: GAP,
   });
   const laidOut = board.w > 0 && board.h > 0 && inputs.length > 0;

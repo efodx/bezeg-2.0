@@ -1,0 +1,6 @@
+Strip fit: implemented incl. the 1024x768 step 2+ case.
+Code: boardLayout.ts `layoutBoard` wrapper + `layoutOnce(input, beside)`. Left-column `attempts` (a)-(e) as before; when the result still has the strip over a left card, `layoutOnce(..., true)` (rule 2f/2g): left column at full height, strip right of it to the band edge (`besideX/W/H`), right and centre columns reserve strip height + gap at the bottom (folding lowest priority first via rule 5, so their heads stay above the strip). Used only if strip is on board and overlaps no card; else the old (c) result. (Handler's "run under folded heads" alone failed: the br legend head sits at the bottom, inside the strip's band, so the other columns lift instead.)
+Rule text in 03-layout-design.md rule 2. wrappedStripHeight lives in boardLayout.ts (PuckStrip re-exports).
+Unit: before fix 1 failed (strengthened test "never cuts below the anchor sliver... 1024, step 2"), after src/workspace passes. Logs smoke/04-strip-fit2-*.
+Check: 04-strip-overlap-check.cjs at 1440 and 1024: lesson overlaps 0 (before 312x86 on 11 frames at 1024); only failing frame is the final no-next frame (expected). Five pilots PASS.
+Smoke: see 04-strip-fit2-full.log.
