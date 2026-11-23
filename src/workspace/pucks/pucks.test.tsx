@@ -91,6 +91,23 @@ describe('range puck', () => {
         expect(document.querySelector('[data-puck-ruler]')).toBeNull();
     });
 
+    it('reads the board rectangle once per drag, not once per pointer move (a read after each redraw forces a layout)', () => {
+        const bounds = vi.fn(() => ({left: 100, right: 300, width: 200}));
+        render(<RangeH parameter={range()} initial={0} onWrite={vi.fn()} bounds={bounds}/>);
+        const el = slider();
+        pointer(el, 'pointerdown', {clientX: 0, clientY: 0});
+        for (let x = 10; x <= 50; x += 10) pointer(el, 'pointermove', {clientX: x, clientY: 0});
+        pointer(el, 'pointerup', {clientX: 50, clientY: 0});
+        expect(bounds).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the typed entry exactly as wide as the value, so opening it does not shift the pucks after it', () => {
+        render(<RangeH parameter={range()} initial={0} onWrite={vi.fn()}/>);
+        const valueWidth = document.querySelector<HTMLElement>('.puck-value')!.style.width;
+        fireEvent.doubleClick(slider());
+        expect(screen.getByRole('textbox', {name: /Vnesi vrednost/}).style.width).toBe(valueWidth);
+    });
+
     it('opens typed entry on double-click, Enter or a digit, and refuses an out-of-range value with a reason', () => {
         const onWrite = vi.fn();
         render(<RangeH parameter={range()} initial={0} onWrite={onWrite}/>);

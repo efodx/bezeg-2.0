@@ -15,6 +15,7 @@
 .puck-body {
     display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 3px 0 0; cursor: ew-resize; user-select: none; border-radius: 6px;
 }
+.puck-body-entry { cursor: default; }
 .puck-body[aria-disabled="true"] { cursor: not-allowed; }
 .puck-value { display: inline-block; text-align: center; font-variant-numeric: tabular-nums; font-size: 1rem; font-weight: 600; white-space: nowrap; }
 .puck-unit { font-weight: 400; }
@@ -24,7 +25,8 @@
     transition: transform 80ms linear;
 }
 .puck-input {
-    box-sizing: content-box; max-width: 100%; text-align: center; font: inherit; font-size: 1rem; font-variant-numeric: tabular-nums;
+    /* Exactly the value's width (set inline): opening the entry must not widen the puck or shift the pucks after it. */
+    box-sizing: border-box; max-width: 100%; padding: 0; margin: -1px 0; text-align: center; font: inherit; font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums;
     border: var(--bezeg-control-border, 1px solid #767f6c); border-radius: var(--bezeg-control-radius, 6px); background: var(--bezeg-control-surface, #fffdf5); color: inherit;
 }
 .puck-input[aria-invalid="true"] { border-color: #a23b2a; }

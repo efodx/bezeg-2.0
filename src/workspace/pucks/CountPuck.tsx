@@ -102,7 +102,7 @@ export function CountPuck(props: CountPuckProps) {
             <button type="button" className="puck-step" aria-label={t('puck_decrease', {value0: name})} aria-disabled={locked || atMin || undefined}
                 onClick={() => { if (!locked && !atMin) step(-1); }}>−</button>
             {entry !== null
-                ? <input ref={inputRef} className="puck-input" style={{width: `${widthCh + 2}ch`}} inputMode="numeric" autoComplete="off" value={entry}
+                ? <input ref={inputRef} className="puck-input" style={{width: `${widthCh}ch`}} inputMode="numeric" autoComplete="off" value={entry}
                     aria-label={t('puck_entry_label', {value0: name})} aria-invalid={notice !== undefined}
                     onChange={event => setEntry(event.target.value)}
                     onKeyDown={event => {
