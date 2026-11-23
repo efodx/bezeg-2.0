@@ -231,7 +231,9 @@ export function DemonstrationWorkspace(props: {
                 {family && <><span aria-hidden="true"> / </span><Link to={'/bezeg-2.0/demonstrations?topic=' + encodeURIComponent(family.id)}>{family.title}</Link></>}
                 {demonstration && <><span aria-hidden="true"> / </span><span aria-current="page">{demonstration.catalogTitle}</span></>}
             </nav>
-                <h1>{workspaceTitle}</h1><p>{props.description}</p>
+                {/* One slim row: the description stays reachable as the title's tooltip and as its accessible description. */}
+                <h1 title={props.description || undefined} aria-describedby="workspace-description">{workspaceTitle}</h1>
+                <p id="workspace-description" className="visually-hidden">{props.description}</p>
             </div>
             <div className="workspace-actions">
                 {chapter.readAbout && !lessonActive && !chapter.activity && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
@@ -291,14 +293,16 @@ export function DemonstrationWorkspace(props: {
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
             <div className="workspace-board-stage"><JGBox ref={setGraphContainer}/>{props.boardOverlay ? props.boardOverlay(cardHost) : <StaticToolsCard host={cardHost}/>}</div>
             <div ref={setSlotElement} data-playback-slot=""/>
-            {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
-                {actions.map(action => {
-                    if (action === 'fit') return <button key={action} data-navigation={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
-                    const [text, label] = navigationLabels[action];
-                    return <button key={action} data-navigation={action} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
-                })}
-            </div>}
-            <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
+            <div className="workspace-toolbar">
+                {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
+                    {actions.map(action => {
+                        if (action === 'fit') return <button key={action} data-navigation={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
+                        const [text, label] = navigationLabels[action];
+                        return <button key={action} data-navigation={action} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
+                    })}
+                </div>}
+                <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
+            </div>
         </section>
         <LearningPrompt key={pathname} pathname={pathname}/>
     </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PlaybackSlotContext.Provider></PresetLockContext.Provider>;

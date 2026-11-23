@@ -2436,6 +2436,7 @@ export const en: Record<keyof typeof sl, string> = {
     "guided_lesson_exit_restore": "Exit and restore graph",
     "guided_lesson_exit_restore_error": "The graph could not be restored. The example is still open; try again or continue reading.",
     "guided_lesson_frame": "Frame {value0} of {value1}",
+    "guided_lesson_counter": "Step {value0}/{value1} · part {value2}/{value3}",
     "guided_lesson_explanation": "Explanation",
     "guided_lesson_calculation": "Calculation",
     "guided_lesson_observation": "Observation",

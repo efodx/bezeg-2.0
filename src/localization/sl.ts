@@ -2435,6 +2435,7 @@ export const sl = {
     "guided_lesson_exit_restore": "Zapusti in povrni graf",
     "guided_lesson_exit_restore_error": "Stanja grafa ni bilo mogoče povrniti. Vodeni primer je še odprt; poskusite znova ali nadaljujte z branjem.",
     "guided_lesson_frame": "Okvir {value0} od {value1}",
+    "guided_lesson_counter": "Korak {value0}/{value1} · del {value2}/{value3}",
     "guided_lesson_explanation": "Razlaga",
     "guided_lesson_calculation": "Izračun",
     "guided_lesson_observation": "Opazovanje",
