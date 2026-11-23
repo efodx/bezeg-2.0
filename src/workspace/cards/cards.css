@@ -1,0 +1,24 @@
+/* Card bodies of the board workspace (task 03). Values use tabular numerals so a sweep does not change a cell's width. */
+.ws-readouts, .ws-section { display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.875rem; }
+.ws-formula { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: baseline; }
+.ws-formula-label { color: var(--bs-secondary-color, #5c6a66); }
+.ws-rows { margin: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.ws-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 0.5rem; padding: 0.1rem 0.25rem; border-radius: 4px; }
+.ws-row[data-highlight], .ws-note[data-highlight] { background: rgba(255, 213, 79, 0.28); outline: 1px solid rgba(179, 136, 0, 0.55); }
+.ws-row[data-muted] { opacity: 0.65; }
+.ws-name { display: flex; align-items: center; gap: 0.4rem; margin: 0; font-weight: normal; }
+.ws-value { margin: 0; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ws-unit { color: var(--bs-secondary-color, #5c6a66); }
+.ws-group-title { display: block; width: 100%; padding: 0.15rem 0.25rem; border: 0; background: none; text-align: left; font-weight: 600; font-size: 0.8rem; text-transform: none; color: inherit; }
+.ws-group-title::after { content: '▾'; float: right; }
+.ws-group[data-folded] > .ws-group-title::after { content: '▸'; }
+.ws-notes { display: flex; flex-direction: column; gap: 0.25rem; }
+.ws-note { margin: 0; color: var(--bs-secondary-color, #5c6a66); }
+.ws-note.is-warning { color: #8a5a00; }
+.ws-more { align-self: flex-start; border: 0; background: none; padding: 0; text-decoration: underline; color: inherit; }
+.ws-swatch { display: inline-block; flex: none; width: 12px; height: 12px; box-sizing: border-box; }
+.ws-swatch-line, .ws-swatch-dashed { height: 0; }
+.ws-swatch-none { visibility: hidden; }
+.ws-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem; }
+.ws-legend-entry { display: flex; align-items: center; gap: 0.5rem; }
+.ws-actions { display: flex; flex-wrap: wrap; gap: 0.35rem; }
