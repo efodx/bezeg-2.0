@@ -36,7 +36,7 @@ Worker note for the handler ([task](../../tasks/ux-picks-app-wide/04-tools-and-l
 
 ## 3. Layout inputs
 
-`BoardCards` adds two `CardSpec`s in `cardSpecs.tsx`: `tools` (priority 4, anchor `tr`, order 0 or `mr` below readouts, handler picks; priority above readouts so it folds last of the three) and `lesson` (`id: 'lesson'`, priority `Infinity`, anchor `tl`, order -1; `natural`, `rowBreaks` from the live measure). Frame: `layoutInput.frame = {open: frame.open, usesTools}`. Proposed `boardLayout.ts` changes (handler owns; none assumed):
+`BoardCards` adds two `CardSpec`s in `cardSpecs.tsx`: `tools` (priority 2.5, anchor `tr`, order 0 or `mr` below readouts, handler picks; priority above readouts so it folds last of the three) and `lesson` (`id: 'lesson'`, priority `Infinity`, anchor `tl`, order -1; `natural`, `rowBreaks` from the live measure). Frame: `layoutInput.frame = {open: frame.open, usesTools}`. Proposed `boardLayout.ts` changes (handler owns; none assumed):
 
 1. `CardInput.reserve?: number`: height of a bar that sits inside the card rect under the scroll area ("Več", Povrni pill). The lesson reserves the Povrni row always (empty row keeps the height when the pill appears) and the "Več" bar's height only when a cut applies, as part of `rect.h` and `cut`, so neither covers text. This is slice 2's "part of the layout function's input".
 2. `LayoutInput.budget?: {open: number; order: readonly string[]}`: first-view cap (2 from 1200 px board width/viewport, else 1; order lesson, readouts, tools; `tools` first when the graph names a main action in the tools). Applies only to cards without a stored fold and not frame-opened; extends rule 4 ("otherwise the budget default, otherwise open"). Legend and `section:` cards default folded.
@@ -109,6 +109,6 @@ Other decisions:
 
 - **Sections:** a declared section whose controls live in Orodja renders as a `ToolSection` inside the Orodja card; a `section:` card exists only for sections the declaration places on the board. The slice 2 worker reads the contract (`graphDeclaration.ts` section/placement fields) and reports if the contract cannot express this.
 - **Lesson card:** keyed portal into a persistent element plus live measure, as proposed; fallback (session in a store) only if live measure fails frame sampling.
-- **Tools card default:** anchor `tr`, order 1 (below Odčitki), priority 4.
+- **Tools card default:** anchor `tr`, order 1 (below Odčitki), priority 2.5.
 - **Slice 5 taste** (Orodja opens at the section vs a button on the lesson card): built as the default (Orodja opens at the section), then shown to the owner with Taylor and bisection screenshots in 04's feel slice.
 - Slices run as proposed in section 7, serial on shared files; slice 1 starts now.

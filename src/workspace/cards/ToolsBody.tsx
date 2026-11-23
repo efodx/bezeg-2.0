@@ -35,7 +35,8 @@ export function ToolsBody({panels, section, declared, locked = false}: ToolsBody
     }, [locked]);
     if (measuring) return <div className="tools-body-proxy" style={{width: TOOLS_NATURAL.w, height: TOOLS_NATURAL.h}}/>;
     return <div ref={root} id="inspector-content" className="workspace-inspector tools-body"
-        aria-disabled={locked || undefined} data-declared={declared ? '' : undefined}>
+        aria-disabled={locked || undefined} data-declared={declared ? '' : undefined} data-card-blocks="">
+        {/* data-card-blocks: the layout reads the blocks of the shown panel as the places a cut may fall (measureCards.ts). */}
         {SECTIONS.map(id => <section key={id} id={`inspector-${id}`} data-testid={`inspector-${id}`} hidden={section !== id}
             aria-label={t(id)}>{panels[id]}</section>)}
     </div>;
