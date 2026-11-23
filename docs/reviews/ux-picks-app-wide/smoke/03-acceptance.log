@@ -1,0 +1,22 @@
+=== item 1 2026-11-23T04:14:11.650Z
+COLD analysis/taylor {"readouts":{"firstT":3620,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,313,319,418","end":"726,313,319,418"},"legend":{"firstT":3620,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,790,319,101","end":"726,790,319,101"}} errs 0
+WARM analysis/taylor {"readouts":{"firstT":763,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,313,319,418","end":"726,313,319,418"},"legend":{"firstT":763,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,790,319,101","end":"726,790,319,101"}} errs 0
+COLD linear-map {"readouts":{"firstT":1184,"frames":120,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,313,319,310","end":"726,313,319,310"},"legend":{"firstT":1184,"frames":120,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,694,319,197","end":"726,694,319,197"}} errs 0
+WARM linear-map {"readouts":{"firstT":1081,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,313,319,310","end":"726,313,319,310"},"legend":{"firstT":1081,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"726,694,319,197","end":"726,694,319,197"}} errs 0
+COLD bezier/decasteljau {"legend":{"firstT":947,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"813,740,232,151","end":"813,740,232,151"}} errs 0
+WARM bezier/decasteljau {"legend":{"firstT":807,"frames":121,"sizeChanges":0,"maxDW":0,"maxDH":0,"glides":0,"start":"813,740,232,151","end":"813,740,232,151"}} errs 0
+=== item 2
+1440 analysis/taylor jgbox 55,1053,998,594 cards [{"id":"readouts","x":726,"r":1045,"w":319},{"id":"legend","x":726,"r":1045,"w":319}] span 319 centre 885.5 boardcentre 554
+1440 linear-map jgbox 55,1053,998,594 cards [{"id":"readouts","x":726,"r":1045,"w":319},{"id":"legend","x":726,"r":1045,"w":319}] span 319 centre 885.5 boardcentre 554
+3440 analysis/taylor jgbox 55,3053,2998,720 cards [{"id":"readouts","x":2014,"r":2346,"w":332},{"id":"legend","x":2014,"r":2346,"w":332}] span 332 centre 2180 boardcentre 1554
+drag3440 board right 3053 before-from 2013.828125,313.1875 after-drop 2713,3045,313 after-reload 2713,3045,313 gap-to-board-edge 8 stored {"version":1,"placements":{"readouts":{"kind":"docked","anchor":"tr","order":0}},"folds":{}}
+3440 linear-map jgbox 55,3053,2998,720 cards [{"id":"readouts","x":1834,"r":2346,"w":512},{"id":"legend","x":1834,"r":2346,"w":512}] span 512 centre 2090 boardcentre 1554
+=== item 5
+analysis/taylor status 200 pageerrors 0  cards 2
+linear-map status 200 pageerrors 0  cards 2
+bezier/decasteljau status 200 pageerrors 0  cards 1
+triangle-centres status 200 pageerrors 0  cards 2
+analysis/phase-portrait status 200 pageerrors 0  cards 2
+functions/transformations status 200 pageerrors 0  cards 3
+projective/cross-ratio status 200 pageerrors 0  cards 2
+patches/coons status 200 pageerrors 0  cards 2
