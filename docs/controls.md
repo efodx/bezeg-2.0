@@ -71,6 +71,37 @@ The Orodja card and the panels in it are about 310 px wide on desktop (about 286
 
 The curve workspace's own panels (`CurveOperation`, `BezierCurveControls`, `CurveDisplayControls` and the rational and PH variants in `src/graphs/base/controls/`) are compositions of these for curve graphs; a new curve graph reuses them through `BaseCurveGraph`.
 
+## Puck
+
+A puck is a parameter control on the board, in the strip at the board's bottom-left, instead of in Orodja. Source: `src/workspace/pucks/` (`PuckStrip`, `ParameterPuck`, `RangePuck`, `CountPuck`, rules in `pucksModel.ts`); plan in [task 05](tasks/ux-picks-app-wide/05-pucks.md).
+
+**When.** A `range` or `count` parameter of a declared graph (`graphDeclaration.ts`) becomes a puck when it is declared `placement: "board"` and bound in the graph's arbiter; the strip lists them in declared order. With `placement: "tools"` it stays a `Slider` (range) or `CountSetter` (count) in its Orodja `section`. A board parameter has no `section`. See the [placement rule](guides/converting-a-graph.md#3-placement-rule). A graph that is not declared has no pucks. One parameter has one control: a tools control wrapped in `PuckOwned` (`src/graphs/base/controls/PuckOwnership.tsx`) renders nothing while its parameter has a puck.
+
+**Roles and names.** A range puck is `role="slider"`, a count puck `role="spinbutton"` (with named `−` and `+` buttons). The accessible name is the parameter's `label`, the same as its Orodja control would have; `aria-valuetext` carries the value and `unit`. Declared `help` shows as a tip on hover and focus and is linked with `aria-describedby`. Values are formatted in the app language, at a constant width.
+
+**Keyboard** (focus the puck):
+
+| Key | Range puck | Count puck |
+| --- | --- | --- |
+| Arrows | One `step` (Up and Right add) | One |
+| Shift+Arrow, PageUp, PageDown | `bigStep` in value units; ten steps when `bigStep` is not declared | Not used |
+| Home, End | `min`, `max` | `min`, `max` |
+| Enter, double-click, or typing a digit, `-`, or (range only) `,` or `.` | Opens typed entry | Opens typed entry |
+
+The mouse wheel also steps a range puck.
+
+**Pointer (range puck).** Drag the puck sideways: the whole range spans a ruler of 120 to 360 px shown above it. Moving the pointer further above or below the puck makes the drag finer (a quarter, then a sixteenth, named on the ruler). A click on the track jumps there. A jump of more than one step, and a typed value more than one step away, offers an Undo pill. A count puck has buttons and keys only.
+
+**Typed entry.** Enter commits, Escape cancels, leaving the field cancels. Either decimal convention is read. A number outside the range is refused with its reason (the allowed range), never clamped. A number off the step grid is snapped to the nearest grid point and the puck says "Zaokroženo na …" (`puck_snapped`). A count must be a whole number in range. A domain refusal from the graph's setter is shown at the puck.
+
+**Locked.** `locked: true` keeps the puck focusable and visible with `aria-disabled`; keys, drag and entry do nothing, and the reason (the default text, or the lesson frame's `lockReason`) is linked with `aria-describedby`.
+
+**During playback.** A graph that implements `PuckLiveValues` (`puckLiveValue(key)`) shows the live value of that key on its puck while it runs (De Casteljau's playing `t`); otherwise the puck shows the stored value. The `decasteljau-t` puck also carries Play and Reset (`PLAYBACK` in `PuckStrip.tsx`).
+
+**Writes** go through the arbiter as `learner`, so a lesson lock and the domain checks apply as for any parameter.
+
+**Tests.** From `src/graphs/base/realGraphTestHarness.tsx`: `waitForPucks(key?)` waits for the laid-out strip, `puckControl(key)` returns the slider or spinbutton, `typePuck(key, text)` types and commits an entry, `openTools()` unfolds Orodja when a test needs it. Call `installBoardShims()` in `beforeAll` (its element sizes let the strip lay out), and a test that mounts a real graph mocks MathJax: `vi.mock('../../mathjax/loadMathJax', () => ({loadMathJax: () => Promise.resolve()}))` (path relative to the test file).
+
 ## Pictures
 
 Each control at inspector width, in an ordinary state, from the controls fixture. `LiveReadout` and `StatusLive` have no visible part.
