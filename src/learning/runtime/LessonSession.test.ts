@@ -179,6 +179,26 @@ test('an absent scene restores lesson entry when navigation crosses into that st
     expect(session.snapshot()).toMatchObject({status: 'content', stepIndex: 1});
 });
 
+test('reset re-applies a step scene exactly as before and restores the checkpoint for a scene-less step', () => {
+    const fake = fakeCapabilities();
+    const session = new LessonSession(lesson, fake.capabilities);
+    session.start();
+    fake.capabilities.apply({kind: 'parameter', name: 't', value: 0.9});
+    (fake.capabilities.stopAnimations as Mock).mockClear();
+    (fake.capabilities.restoreState as Mock).mockClear();
+
+    session.reset();
+    expect(fake.getValue()).toBe(JSON.stringify({kind: 'parameter', name: 't', value: 0.25}));
+    expect(fake.capabilities.restoreState).toHaveBeenCalledTimes(1);
+    expect(fake.capabilities.stopAnimations).toHaveBeenCalledTimes(1);
+
+    session.next();
+    fake.capabilities.apply({kind: 'parameter', name: 't', value: 0.9});
+    session.reset();
+    expect(fake.getValue()).toBe('original');
+    expect(session.snapshot()).toMatchObject({status: 'content', stepIndex: 1});
+});
+
 test('an explicit empty scene restores lesson entry on navigation', () => {
     const fake = fakeCapabilities();
     const sceneThenEmptyScene: LessonDefinition = {

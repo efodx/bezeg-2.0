@@ -62,7 +62,8 @@ test('legacy prepared activity does not start a second activity session under it
 
     await waitFor(() => expect(document.querySelector('.guided-lesson')).not.toBeNull());
     expect(document.querySelector('.chapter-activity-context')).not.toBeInTheDocument();
-    expect(lifecycle.filter(entry => entry.startsWith('capture:'))).toHaveLength(1);
+    // One session captures the ordinary checkpoint; the lesson's Povrni baseline reads the prepared scene afterwards.
+    expect(lifecycle.filter(entry => entry === 'capture:ordinary')).toHaveLength(1);
     expect(lifecycle.some(entry => entry.startsWith('apply:'))).toBe(true);
 
     fireEvent.click(document.querySelector('.guided-lesson-chapter-return')!);

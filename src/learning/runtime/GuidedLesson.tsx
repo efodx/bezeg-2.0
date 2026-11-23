@@ -1,7 +1,8 @@
-import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
+import React, {useCallback, useEffect,useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
-import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
+import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {LessonAnimationCommand,LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
 import {typesetMath} from '../../mathjax/loadMathJax';
 import {useDraggableOffset} from './useDraggableOffset';
@@ -78,6 +79,12 @@ export function GuidedLesson(props: {
     registerClose?: (close: (() => void) | undefined) => void;
     registerExit?: (exit: (() => void) | undefined) => void;
     registerGraphActions?: (actions: {animationControls?: React.ReactNode} | undefined) => void;
+    /** Reports the open frame's declaration (undefined when it declares none); called on every frame change and cleared on unmount. */
+    registerFrameDeclaration?: (declaration: FrameDeclaration | undefined) => void;
+    /** `'card'`: the lesson fills a board card that the card shell moves and folds, so it renders no drag, dock or hide controls and has no placement of its own. Absent: today's docked column. */
+    presentation?: 'card';
+    /** Card presentation: a task frame asks the card layer to fold (`true`) or open (`false`) the card instead of hiding the lesson itself. */
+    onRequestFold?: (folded: boolean) => void;
     visiblePageTitle?: string;
     chapterOwner?: {returnPath: string; returnLabel: string; onReturn: () => void};
 }) {
@@ -241,7 +248,10 @@ export function GuidedLesson(props: {
         }, LESSON_HANDOFF_DURATION_MS);
     };
 
+    const asCard = props.presentation === 'card';
     const hideOverlay = () => {
+        // A card is folded by the card layer; the lesson keeps its own phase.
+        if (asCard) { props.onRequestFold?.(true); return; }
         if (readingRef.current) readingPosition.current.panel = readingRef.current.scrollTop;
         if (lessonRef.current) readingPosition.current.outer = lessonRef.current.scrollTop;
         readingPosition.current.page = window.scrollY;
@@ -256,6 +266,7 @@ export function GuidedLesson(props: {
     };
 
     const showOverlay = () => {
+        if (asCard) { props.onRequestFold?.(false); return; }
         clearHandoffTimer();
         if (overlayPhase === 'visible') return;
         handOverPlacement(tabDrag, panelDrag);
@@ -542,6 +553,53 @@ export function GuidedLesson(props: {
         return () => props.registerGraphActions?.(undefined);
     }, [session, props.registerGraphActions, isExploring, cardOpen, frame.id, frame.animation?.animationId, language]);
 
+    // The card layer reads the open frame's declaration; the effect follows the frame and clears it when the lesson goes.
+    const frameDeclaration = frame.declare;
+    useEffect(() => {
+        props.registerFrameDeclaration?.(frameDeclaration);
+        return () => props.registerFrameDeclaration?.(undefined);
+    }, [props.registerFrameDeclaration, frame.id, frameDeclaration]);
+
+    // "Povrni": offered whenever the graph differs from the state this frame prepared. The prepared state is read after every
+    // frame transition (the scene is applied synchronously by then); the graph is compared after the events that edit it.
+    const preparedState = useRef<string>();
+    const [graphDiffers, setGraphDiffers] = useState(false);
+    const capabilities = props.capabilities;
+    const readGraphState = useCallback(() => {
+        try {
+            if (capabilities.isAvailable?.() === false) return undefined;
+            return JSON.stringify(capabilities.captureState().value) ?? '';
+        } catch { return undefined; }
+    }, [capabilities]);
+    const status = snapshot.status;
+    useEffect(() => {
+        if (status !== 'content' && status !== 'explore') { preparedState.current = undefined; setGraphDiffers(false); return; }
+        preparedState.current = readGraphState();
+        setGraphDiffers(false);
+    }, [session, status, snapshot.stepIndex, snapshot.frameIndex, snapshot.error, readGraphState]);
+    useEffect(() => {
+        let timer: number | undefined;
+        const compare = () => {
+            timer = undefined;
+            const prepared = preparedState.current;
+            if (prepared === undefined) return;
+            const now = readGraphState();
+            setGraphDiffers(now !== undefined && now !== prepared);
+        };
+        const schedule = () => { if (timer === undefined) timer = window.setTimeout(compare, 0); };
+        const events = ['pointerup', 'keyup', 'input', 'change', 'click'] as const;
+        events.forEach(name => document.addEventListener(name, schedule, true));
+        return () => {
+            events.forEach(name => document.removeEventListener(name, schedule, true));
+            if (timer !== undefined) window.clearTimeout(timer);
+        };
+    }, [session, readGraphState]);
+    const restoreFrame = () => {
+        refresh(() => session.reset());
+        preparedState.current = readGraphState() ?? preparedState.current;
+        setGraphDiffers(false);
+    };
+
     // Short visible labels keep the heading to one row; each stays contained in its full accessible name.
     const closeButton = <button type="button" className="guided-lesson-exit" aria-label={t('exit_lesson')} title={t('exit_lesson')} onClick={event => requestExit(event.currentTarget)}>{t('exit_lesson_short')}</button>;
     // Docking returns the card and its tab to their homes; the button leaves with the move, so focus goes to the grip.
@@ -628,7 +686,7 @@ export function GuidedLesson(props: {
                 {isExploring && <span className="visually-hidden"> {t('guided_lesson_tools_live')}</span>}
             </div>
         </div>
-        {!oneColumn && navigation}
+        {(!oneColumn || asCard) && navigation}
     </div>;
     const CompletionHeading = pageHeadingHasLessonTitle ? 'h2' : 'h3';
     const completionHeading = isComplete && <CompletionHeading ref={completionHeadingRef} tabIndex={-1} className="guided-lesson-completion-title">
@@ -637,22 +695,22 @@ export function GuidedLesson(props: {
     const sectionStyle = {...panelDrag.style, '--guided-lesson-max-height': `${availablePanelHeight}px`} as React.CSSProperties;
     // The card's home is the tools column beside the graph (below the graph on one-column screens), so it never
     // covers the board. It leaves that home only when the learner drags it.
-    const docked = !isMoved(panelDrag);
+    const docked = !asCard && !isMoved(panelDrag);
     // While the card is carried away from home, a dashed outline shows where it docks.
     const homeSlot = panelDrag.dragHome && !docked && <div className="guided-lesson-home-slot" aria-hidden="true" style={{
         left: panelDrag.dragHome.left, top: panelDrag.dragHome.top,
         width: panelDrag.dragHome.right - panelDrag.dragHome.left, height: panelDrag.dragHome.bottom - panelDrag.dragHome.top,
     }}/>;
     return <>
-    {homeSlot}
-    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
+    {!asCard && homeSlot}
+    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={asCard ? undefined : sectionStyle} className={`guided-lesson${asCard ? ' guided-lesson-card' : ''} guided-lesson-${mode} guided-lesson-frame-${frame.kind}${isExploring ? ' guided-lesson-task' : ''} guided-lesson-handoff-${overlayPhase}${docked ? ' guided-lesson-docked' : ''}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
         <div className="guided-lesson-controls">
-        <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag} onDoubleClick={dockOnDoubleClick}>
-            <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
-                aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
+        <div className="guided-lesson-heading" {...(asCard ? {} : panelPointerHandlers)} onPointerDown={asCard ? undefined : startPanelDrag} onDoubleClick={asCard ? undefined : dockOnDoubleClick}>
+            {!asCard && <button ref={gripRef} type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
+                aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>}
             {/* The page heading already names the lesson; the card then says what it is, so its first row is never bare. */}
             {pageHeadingHasLessonTitle ? completionHeading || <span className="guided-lesson-title guided-lesson-kind">{t('guided_example')}</span> : lessonHeading}
-            <div className="guided-lesson-utilities">{chapterReturnLink}{!docked && dockButton}{hideButton}{closeButton}</div>
+            <div className="guided-lesson-utilities">{chapterReturnLink}{!asCard && !docked && dockButton}{!asCard && hideButton}{closeButton}</div>
         </div>
         {navigationToolbar}
         </div>
@@ -685,18 +743,22 @@ export function GuidedLesson(props: {
         {isComplete && props.chapterOwner && <div className="guided-lesson-actions guided-lesson-completion-actions">
             <button type="button" className="guided-lesson-primary" onClick={continueInChapter}>{t('continue_in_chapter')}</button>
         </div>}
+        {/* Povrni: always a reserved row in a card, so its appearance never changes the card's height. */}
+        {!isComplete && (asCard || graphDiffers) && <div className="guided-lesson-restore-row">
+            {graphDiffers && <button type="button" className="guided-lesson-restore" title={t('guided_lesson_restore_title')} onClick={restoreFrame}>{t('guided_lesson_restore')}</button>}
+        </div>}
         {!isComplete && frameAction && <footer className="guided-lesson-footer">
             <div className="guided-lesson-actions">
                 <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>
             </div>
         </footer>}
-        {oneColumn && navigation}
+        {oneColumn && !asCard && navigation}
     </section>}
     <div ref={layerRef} className="guided-lesson-layer">
     {/* The graph is a pointer target for hiding the instructions;
         keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
-    {overlayPhase === 'visible' && !isExploring && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
-    {tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
+    {!asCard && overlayPhase === 'visible' && !isExploring && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
+    {!asCard && tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
         onClick={() => { if (!tabDrag.consumeDragClick()) showOverlay(); }} {...tabDrag.handleProps} aria-keyshortcuts={ARROW_KEYS}
         aria-label={`${lessonTitle}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
         <GripIcon/>

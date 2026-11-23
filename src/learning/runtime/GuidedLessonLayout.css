@@ -1,79 +1,55 @@
 /* The reading card sits beside the graph, never on it (docs/adr/0061-lesson-card-docks-beside-the-graph.md).
    While a lesson is open the tools column is wide enough to read in; it keeps that width when the card is hidden,
    so the board is the same size for the whole lesson. */
-.demonstration-workspace.lesson-open {
+/* The lesson is portalled into a slot. Beside the graph the slot is the workspace's own child and takes no box, so the card
+   is placed by the grid; once a board card holds the slot (task 04) none of the column rules below apply. */
+.demonstration-workspace > .guided-lesson-slot { display: contents; }
+
+.demonstration-workspace.lesson-open:has(> .guided-lesson-slot) {
     --lesson-column: clamp(310px, 32.5%, 34rem);
     grid-template-columns: minmax(0, 1fr) var(--lesson-column);
     grid-template-areas: "heading heading" "graph inspector" "learning learning";
 }
 
-.demonstration-workspace.is-presenting.lesson-open {
+.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot) {
     --lesson-column: clamp(330px, 32.5%, 34rem);
     grid-template-areas: "heading heading" "graph inspector";
 }
 
 /* Presentation can close the tools; the card still needs its column while it is shown. */
-.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson) {
+.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)) {
     grid-template-columns: minmax(0, 1fr) var(--lesson-column);
     grid-template-areas: "heading heading" "graph inspector";
 }
 
-.demonstration-workspace.is-presenting.lesson-open:not(:has(> .guided-lesson)) {
+.demonstration-workspace.is-presenting.lesson-open:not(:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card))) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "heading" "graph";
 }
 
-/* The docked card takes the place of the tools, which are locked while it is read. A card the learner has dragged
-   away leaves them in view, dimmed. */
-.demonstration-workspace.lesson-content:has(> .guided-lesson-docked) .workspace-inspector {
-    visibility: hidden;
-}
-
 /* After the last frame the tools are live again: the closing card sits above them in the same column. An observation
    frame's card is a task card and takes the same place: its prompt stays in view while the tools below it are worked. */
-.demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
-.demonstration-workspace.lesson-open:has(> .guided-lesson-task) {
+.demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+.demonstration-workspace.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task) {
     grid-template-areas: "heading heading" "graph lesson" "graph inspector" "learning learning";
     grid-template-rows: auto auto minmax(0, 1fr) auto;
 }
 
-.demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson),
-.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-task) {
+.demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+.demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task) {
     grid-template-areas: "heading heading" "graph lesson" "graph inspector";
     grid-template-rows: auto auto minmax(0, 1fr);
 }
 
-.demonstration-workspace.lesson-complete > .guided-lesson,
-.demonstration-workspace > .guided-lesson-task {
+.demonstration-workspace.lesson-complete > .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card),
+.demonstration-workspace > .guided-lesson-slot > .guided-lesson-task {
     grid-area: lesson;
 }
 
 /* Presentation keeps flat frames. */
-.demonstration-workspace.is-presenting > .guided-lesson-docked {
+.demonstration-workspace.is-presenting > .guided-lesson-slot > .guided-lesson-docked {
     border-color: #50617b;
     box-shadow: none;
-}
-
-.demonstration-workspace.lesson-open.lesson-content .workspace-graph {
-    pointer-events: none;
-}
-
-.demonstration-workspace.lesson-content .workspace-graph button {
-    pointer-events: none;
-}
-
-.demonstration-workspace.lesson-content .workspace-graph .workspace-navigation button {
-    opacity: .55;
-}
-
-.demonstration-workspace.lesson-content .workspace-inspector {
-    pointer-events: none;
-    opacity: .7;
-}
-
-/* The graph-adjacent playback row (phones) is locked with the inspector it came from, so it looks locked too. */
-.demonstration-workspace.lesson-content .workspace-graph [data-playback-slot] {
-    opacity: .7;
 }
 
 /* Keep the closed tab and a card the learner has dragged over the graph above JSXGraph HTML labels. */
@@ -89,30 +65,30 @@
     /* One column: the card follows the graph in the page and is as long as its text. */
     .demonstration-workspace.lesson-open,
     .demonstration-workspace.is-presenting.lesson-open,
-    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson),
-    .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
-    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson),
-    .demonstration-workspace.lesson-open:has(> .guided-lesson-task),
-    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-task) {
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+    .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task),
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task) {
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas: "heading" "graph" "inspector";
         grid-template-rows: none;
     }
 
-    .demonstration-workspace.lesson-open:has(> .guided-lesson),
-    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson),
-    .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson),
-    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson),
-    .demonstration-workspace.lesson-open:has(> .guided-lesson-task),
-    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-task) {
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+    .demonstration-workspace.lesson-open.lesson-complete:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+    .demonstration-workspace.is-presenting.lesson-open.lesson-complete:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)),
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task),
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task) {
         grid-template-areas: "heading" "graph" "lesson" "inspector";
     }
 
     /* The tools and the card's row are content the browser could anchor to: a frame change that makes the card taller
        or shorter would scroll the page to keep them still. The page stays where the learner left it. */
-    .demonstration-workspace.lesson-open:has(> .guided-lesson-task) { overflow-anchor: none; }
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task) { overflow-anchor: none; }
 
-    .demonstration-workspace.lesson-open > .guided-lesson {
+    .demonstration-workspace.lesson-open > .guided-lesson-slot > .guided-lesson {
         grid-area: lesson;
         max-height: none;
         overflow: visible;
@@ -121,36 +97,22 @@
     /* Long text scrolls with the page and nothing of the card pins to the top of the window; Back and Next rest on
        its bottom edge (see the one-column rules in GuidedLesson.css). Presentation's heading sticks to the top of
        the window; while a card is read it scrolls away, so the text keeps the screen. */
-    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson) .workspace-heading {
+    .demonstration-workspace.is-presenting.lesson-open:has(> .guided-lesson-slot > .guided-lesson:not(.guided-lesson-card)) .workspace-heading {
         position: static;
-    }
-
-    .demonstration-workspace.lesson-content:has(> .guided-lesson-docked) .workspace-inspector {
-        visibility: visible;
-    }
-
-    .demonstration-workspace.lesson-content .workspace-graph {
-        pointer-events: none;
-    }
-
-    /* Pan and zoom are locked while the card is read; without their rows the board and the card's first rows share one screen. */
-    .demonstration-workspace.lesson-content .workspace-graph .workspace-navigation,
-    .demonstration-workspace.lesson-content .workspace-graph .workspace-gesture-hint {
-        display: none;
     }
 
     /* A graph with its own playback row fills the screen with its board; while the card is read the board keeps the
        ordinary phone height, so the card's first rows stay on the first screen. A task card keeps it too: the board is the same
        size on every frame, so a scene's view is never cut by a change of mode. */
     .demonstration-workspace.lesson-content .workspace-graph[data-playback-filled] #jgbox,
-    .demonstration-workspace.lesson-open:has(> .guided-lesson-task) .workspace-graph[data-playback-filled] #jgbox {
+    .demonstration-workspace.lesson-open:has(> .guided-lesson-slot > .guided-lesson-task) .workspace-graph[data-playback-filled] #jgbox {
         height: 35vh !important;
         min-height: 260px;
     }
 
     /* The collapsed tab reaches about 30px into the graph cell here, over board captions; the board starts below it
        while the tab is shown. */
-    .demonstration-workspace.lesson-explore:not(:has(> .guided-lesson-task)) .workspace-graph {
+    .demonstration-workspace.lesson-explore:has(> .guided-lesson-slot):not(:has(> .guided-lesson-slot > .guided-lesson-task)) .workspace-graph {
         padding-top: 36px;
     }
 }
