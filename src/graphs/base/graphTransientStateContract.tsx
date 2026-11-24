@@ -17,7 +17,7 @@ import {runAs} from './writes/writeSource';
 import {capturePNGBlob} from './export/FigureCapture';
 import {inject, type Mock} from 'vitest';
 import {classNames, selectEntries, skippedPlaceholder, TRANSIENT_STATE_SAMPLE} from './catalogSweepScope';
-import {controlsSignature, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
+import {controlsSignature, disableAutofit, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
 import {createGraph} from './createTestGraph';
 import {
     applyActions,
@@ -156,6 +156,7 @@ export function selectedDemonstrations(): DemonstrationId[] {
 export function describeGraphTransientState(part: number): void {
     vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
     beforeAll(installBoardShims);
+    disableAutofit();
     beforeEach(() => appStorage.clear());
     afterEach(() => vi.restoreAllMocks());
     const all = Object.keys(graphFactories) as DemonstrationId[];

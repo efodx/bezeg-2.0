@@ -7,13 +7,14 @@
 import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import type {DemonstrationId} from '../../../demonstrations';
 import {appStorage} from '../../../storage/appStorage';
-import {installBoardShims, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
+import {disableAutofit, installBoardShims,mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
 import {createGraph} from '../createTestGraph';
 import {commitPresetImport, preflightPresetImport, presetCollections} from './PresetImport';
 import {legacyG1SplinePresetCollection} from '../../curves/spline/collections';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
+disableAutofit();
 beforeEach(() => appStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 
