@@ -12,6 +12,7 @@ import {ParameterPuck, type PuckParameter} from './ParameterPuck';
 import type {PuckBounds} from './RangePuck';
 import type {Rect} from '../layout/boardLayout';
 import {wrappedStripHeight} from '../layout/boardLayout';
+import {StripGrip, type StripGripProps} from './StripGrip';
 import './pucks.css';
 
 /** A parameter whose puck carries its run's playback: the declared actions that start and reset it (slice 8). */
@@ -56,8 +57,8 @@ export const puckShapeOf = (items: readonly PuckItem[]): string => JSON.stringif
     item.kind === 'toggle' ? {...item, action: {...item.action, pressed: undefined}}
         : item.kind === 'group' ? {...item, actions: item.actions.map(action => ({...action, pressed: undefined}))} : item));
 
-/** The natural size of a strip before it is measured: about one puck's width per parameter, one puck's height. */
-export const estimateStrip = (count: number): {w: number; h: number} => ({w: count * 132 + Math.max(0, count - 1) * 8, h: 64});
+/** The natural size of a strip before it is measured: the grip plus about one puck's width per parameter, one puck's height. */
+export const estimateStrip = (count: number): {w: number; h: number} => ({w: 24 + 8 + count * 132 + Math.max(0, count - 1) * 8, h: 64});
 
 /** The strip's height when its slots wrap into rows within `width` (8 px between slots and rows); one row when they all fit. */
 export {wrappedStripHeight};
@@ -80,11 +81,19 @@ export interface PuckStripProps {
     bounds: () => PuckBounds | undefined;
     /** Where the layout put the strip; absent until it has a place (the strip is then laid out but not shown). */
     rect: Rect | null;
+    /** The slots stack as a column (a side dock) instead of running as a row. */
+    column?: boolean;
+    /** While the pointer drags the strip: how far it has travelled from its rect. */
+    lift?: {x: number; y: number} | null;
+    /** The grip's drag and keyboard handlers; absent (a test of the pucks alone) there is no grip. */
+    grip?: Omit<StripGripProps, 'column'>;
 }
 
-export const PuckStrip = forwardRef<HTMLDivElement, PuckStripProps>(function PuckStrip({graph, items, actions, bounds, rect}, ref) {
-    return <div ref={ref} className="puck-strip" data-puck-strip=""
-        style={rect ? {width: rect.w, height: rect.h, transform: `translate(${rect.x}px, ${rect.y}px)`} : {visibility: 'hidden'}}>
+export const PuckStrip = forwardRef<HTMLDivElement, PuckStripProps>(function PuckStrip({graph, items, actions, bounds, rect, column = false, lift = null, grip}, ref) {
+    const classes = ['puck-strip', column ? 'puck-strip--column' : '', lift ? 'puck-strip--dragging' : ''].filter(Boolean).join(' ');
+    return <div ref={ref} className={classes} data-puck-strip="" data-puck-strip-orientation={column ? 'column' : 'row'}
+        style={rect ? {width: rect.w, height: rect.h, transform: `translate(${rect.x + (lift?.x ?? 0)}px, ${rect.y + (lift?.y ?? 0)}px)`} : {visibility: 'hidden'}}>
+        {grip && <StripGrip column={column} {...grip}/>}
         {items.map(item => {
             const playback = PLAYBACK[item.key];
             return <div key={item.key} className="puck-slot">

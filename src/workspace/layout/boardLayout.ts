@@ -102,12 +102,15 @@ const heightOf = (s: State): number => s.cut ?? (s.folded ? s.card.foldedHeight 
 
 const overlaps = (a: Rect, b: Rect): boolean => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
+/** The width every puck slot takes in a side dock (the widest a puck gets); pucks.css sets the same width. */
+export const PUCK_COLUMN_WIDTH = 160;
+
 /** Rule 2k: the strip as its own column at the left or right board edge. Slots stack top-down from `gap` (8 px between), wrap into
  *  further columns when taller than `board.h - 2 * gap`; every column is as wide as the widest slot. */
 function sideStrip(input: LayoutInput, dock: 'left' | 'right'): Rect {
   const { board, gap } = input;
   const slots = input.puckSlots ?? (input.pucks ? [input.pucks] : []);
-  const slotW = Math.max(0, ...slots.map((s) => s.w));
+  const slotW = slots.length > 0 ? Math.max(PUCK_COLUMN_WIDTH, ...slots.map((s) => s.w)) : 0;
   let columns = 0, y = 0, tallest = 0;
   for (const slot of slots) {
     if (columns > 0 && y > 0 && y + 8 + slot.h > board.h - 2 * gap) { tallest = Math.max(tallest, y); columns += 1; y = 0; } else if (columns === 0) columns = 1;
@@ -141,12 +144,24 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
     // Rule 2j, as 2h/2i for the left dock: when the stack above the strip still reaches into it after every cut, the stack's last open
     // card folds too (down to heads), then the learner-opened ones; the strip itself is never cut.
     const clear = (r: LayoutResult): boolean => !r.cards.some((c) => c.anchor !== 'free' && overlaps(r.pucks as Rect, c.rect));
-    if (clear(plain)) return plain;
+    // A bottom-right strip widened leftwards must not run under centre cards that reach the bottom: re-plan it right of them.
+    const plan = (level: 0 | 1 | 2): LayoutResult => {
+      const r = layoutOnce(input, false, level);
+      const strip = r.pucks;
+      if (dock !== 'bottom-right' || !strip) return r;
+      const hit = r.cards.filter((c) => c.anchor !== 'free' && COLUMN_OF[c.anchor] !== 'right' && overlaps(strip, c.rect));
+      return hit.length ? layoutOnce(input, false, level, Math.max(...hit.map((c) => c.rect.x + c.rect.w)) + input.gap) : r;
+    };
+    const first = plan(0);
+    // Never place the strip off the board's top: when it is taller than the board allows at this dock, this frame uses the
+    // bottom-left rules (the stored dock does not change).
+    if (first.pucks && first.pucks.y < input.gap) return layoutBoard({ ...input, stripDock: 'bottom-left' });
+    if (clear(first)) return first;
     for (const level of [1, 2] as const) {
-      const next = layoutOnce(input, false, level);
-      if (clear(next)) return next;
+      const next = plan(level);
+      if (next.pucks && next.pucks.y >= input.gap && clear(next)) return next;
     }
-    return plain;
+    return first;
   }
   const strip = plain.pucks;
   const left = plain.cards.filter((c) => c.anchor === 'tl' || c.anchor === 'ml');
@@ -169,7 +184,7 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   return fits(forced) ? forced : plain;
 }
 
-function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0): LayoutResult {
+function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0, stripLeft = -Infinity): LayoutResult {
   const { board, cards, stored, storedFolds, frame, pucks, maxSpan, columnMaxFraction, gap, frozenFolds, budget, expanded } = input;
 
   // Rule 1: band.
@@ -180,7 +195,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
   // capped after the columns are placed (see below).
   const dock = input.stripDock ?? 'bottom-left';
   const stripCol: Column | null = pucks ? (dock === 'bottom-centre' ? 'centre' : dock === 'bottom-right' ? 'right' : null) : null;
-  let bottomStrip = { w: 0, h: 0 }; // rule 2j: the strip as the bottom member of the centre or right stack
+  let bottomStrip = { x: 0, w: 0, h: 0 }; // rule 2j: the strip as the bottom member of the centre or right stack
   const reserve = pucks && dock === 'bottom-left' ? pucks.h + gap : 0;
   const colWidth: Partial<Record<Column, number>> = {};
   const colX: Partial<Record<Column, number>> = {};
@@ -218,11 +233,27 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
     const members = states.filter(docked).filter((s) => COLUMN_OF[s.placement.anchor] === col);
     if (members.length === 0 && col !== stripCol) continue;
     if (col === stripCol && pucks) {
-      const natural = Math.max(pucks.w, ...members.map((s) => s.card.natural.w));
-      const w = col === 'centre'
-        ? Math.max(0, Math.min(natural, band.w - (colWidth.left ?? 0) - (colWidth.right ?? 0) - 4 * gap))
-        : Math.min(natural, columnMaxFraction * band.w);
-      bottomStrip = { w, h: Math.max(pucks.h, wrappedStripHeight(input.puckSlots ?? [pucks], w)) };
+      // Rule 2j: the strip is not capped at its column's width. It runs from the column's anchored edge (right: the band's right edge;
+      // centre: centred) towards its natural width, bounded by the left column (and, for centre, the right column), and wraps only
+      // when that is too narrow.
+      const lb = Math.max(colX.left !== undefined ? colX.left + (colWidth.left ?? 0) + gap : band.x + gap, stripLeft);
+      let x: number, w: number;
+      if (col === 'right') {
+        // Rule 1: a stored (learner-docked) placement anchors to the board's edge, not to the band the strip may have narrowed, so a
+        // stored right column keeps its place whatever dock the strip takes; only default members follow the band.
+        const rightEdge = members.some((s) => s.stored) ? board.w - gap : band.x + band.w - gap;
+        w =Math.max(0, Math.min(pucks.w, rightEdge - lb));
+        x = rightEdge - w;
+      } else {
+        const rb = colX.right !== undefined ? colX.right - gap : band.x + band.w - gap;
+        const cw = members.length ? Math.max(0, Math.min(Math.max(...members.map((s) => s.card.natural.w)), band.w - (colWidth.left ?? 0) - (colWidth.right ?? 0) - 4 * gap)) : 0;
+        const lo = colX.left !== undefined ? colX.left + (colWidth.left ?? 0) + gap : -Infinity;
+        const hi = colX.right !== undefined ? colX.right - gap - cw : Infinity;
+        const cx = Math.max(lo, Math.min((board.w - cw) / 2, hi)) + cw / 2;
+        w = Math.max(0, Math.min(pucks.w, 2 * Math.min(cx - lb, rb - cx)));
+        x = cx - w / 2;
+      }
+      bottomStrip = { x, w, h: Math.max(pucks.h, wrappedStripHeight(input.puckSlots ?? [pucks], w)) };
     }
     const total = (): number => members.reduce((sum, s) => sum + heightOf(s), 0) + (members.length - 1) * gap;
     const wide = members.find((s) => s.card.id === expanded); // "Več": never cut (until nothing else is left to give)
@@ -295,10 +326,10 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
 
     // Column width and x.
     const openOnes = members.filter((s) => !s.folded);
-    const widest = Math.max(...(openOnes.length ? openOnes : members).map((s) => s.card.natural.w));
+    const widest = members.length ? Math.max(...(openOnes.length ? openOnes : members).map((s) => s.card.natural.w)) : 0;
     // The centre column shrinks to what the side columns leave; cards take the column width
     // (the presenter measures their height at that width).
-    const colW = col === stripCol ? bottomStrip.w : col === 'centre'
+    const colW = col === 'centre'
       ? Math.max(0, Math.min(widest, band.w - (colWidth.left ?? 0) - (colWidth.right ?? 0) - 4 * gap))
       : Math.min(widest, columnMaxFraction * band.w);
     colWidth[col] = colW;
@@ -335,8 +366,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
   // (else the band's edge). Extension: a centre card reaching down into the strip's rows caps it too.
   let stripRect: Rect | null = null;
   if (pucks && stripCol) {
-    const x = colX[stripCol] ?? band.x + gap;
-    stripRect = { x, y: board.h - gap - bottomStrip.h, w: bottomStrip.w, h: bottomStrip.h };
+    stripRect = { x: bottomStrip.x, y: board.h - gap - bottomStrip.h, w: bottomStrip.w, h: bottomStrip.h };
   } else if (pucks) {
     const x = stripAfterLeft && colX.left !== undefined ? besideX() : band.x + gap;
     let h = pucks.h;

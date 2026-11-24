@@ -497,14 +497,66 @@ describe('movable strip', () => {
     expect(s.x).toBeGreaterThanOrEqual(byId(r, 'l').rect.x + byId(r, 'l').rect.w + 8 - 1e-6); // pushed aside by the left column
   });
 
-  it('2j: a bottom-right strip takes the right column width and sits under the br cards', () => {
+  it("2j: a bottom-right strip is not capped at its column: it runs from the band's right edge towards its natural width", () => {
     const legend = card('legend', 'br', { natural: { w: 300, h: 240 } });
     const r = layoutBoard(stripInput([legend], { w: 1500, h: 600 }, 'bottom-right'));
     const s = r.pucks!;
-    expect(s.w).toBeCloseTo(0.32 * 1500, 5);
+    expect(s.w).toBe(STRIP.w); // wider than the column's 0.32 cap (480)
     expect(s.x + s.w).toBeCloseTo(1500 - 8, 5);
+    expect(byId(r, 'legend').rect.w).toBe(300);
     expect(byId(r, 'legend').rect.y + byId(r, 'legend').rect.h).toBeLessThanOrEqual(s.y - 8 + 1e-6);
     expect(s.h).toBe(wrappedStripHeight(SLOTS, s.w));
+  });
+
+  it('2j: a bottom-right strip is bounded by the left column and wraps only when that is too narrow', () => {
+    const left = card('l', 'tl', { natural: { w: 400, h: 200 } });
+    const r = layoutBoard(stripInput([left], { w: 900, h: 600 }, 'bottom-right'));
+    const s = r.pucks!;
+    expect(s.x).toBeGreaterThanOrEqual(byId(r, 'l').rect.x + byId(r, 'l').rect.w + 8 - 1e-6);
+    expect(s.w).toBeLessThan(STRIP.w);
+    expect(s.h).toBe(wrappedStripHeight(SLOTS, s.w));
+    expect(s.h).toBeGreaterThan(STRIP.h);
+  });
+
+  it('2j: a bottom-right strip stays right of a bottom-centre card, a bottom-centre strip is centred between the side columns', () => {
+    const cards = [card('l', 'tl', { natural: { w: 300, h: 200 } }), card('about', 'bc', { natural: { w: 420, h: 220 } }), card('r', 'tr', { natural: { w: 300, h: 200 } })];
+    const right = layoutBoard(stripInput(cards, { w: 1500, h: 600 }, 'bottom-right'));
+    const about = byId(right, 'about').rect;
+    expect(overlaps(right.pucks!, about)).toBe(false);
+    for (const c of right.cards) expect(overlaps(right.pucks!, c.rect), c.id).toBe(false);
+    const centre = layoutBoard(stripInput(cards, { w: 1500, h: 600 }, 'bottom-centre')).pucks!;
+    expect(centre.x + centre.w / 2).toBeCloseTo(750, 5);
+    expect(centre.x).toBeGreaterThanOrEqual(8 + 300 + 8 - 1e-6);
+    expect(centre.x + centre.w).toBeLessThanOrEqual(1500 - 8 - 300 - 8 + 1e-6);
+  });
+
+  it('2j fallback: phase portrait at 1280x720, bottom-right: strip inside the board (y >= gap), overlapping no card', () => {
+    const cards = [
+      card('controls', 'tl', { natural: { w: 320, h: 380 }, min: { w: 320, h: 120 }, foldedHeight: 39, priority: 8 }),
+      card('readouts', 'tr', { natural: { w: 394, h: 296 }, min: { w: 394, h: 100 }, foldedHeight: 39, priority: 3 }),
+      card('tools', 'tr', { natural: { w: 394, h: 400 }, min: { w: 394, h: 100 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 1 }),
+      card('legend', 'br', { natural: { w: 394, h: 240 }, min: { w: 394, h: 90 }, foldedHeight: 39, priority: 1 }),
+    ];
+    // The strip as the browser measured it: grip first, 1118 px wide in one row (1230 px board; the column cap is 394 px).
+    const slots = [{ w: 16, h: 40 }, ...SLOTS];
+    const natural = { w: slots.reduce((a, c) => a + c.w, 0) + 8 * (slots.length - 1), h: 155 };
+    expect(wrappedStripHeight(slots, 394)).toBe(420); // wrapped in the column it overflows the board (the browser bug)
+    const r = layoutBoard({ ...stripInput(cards, { w: 1230, h: 600 }, 'bottom-right'), pucks: natural, puckSlots: slots });
+    const s = r.pucks!;
+    expect(s.w).toBeGreaterThan(394 + 1);
+    expect(s.y).toBeGreaterThanOrEqual(8 - 1e-6);
+    expect(s.x).toBeGreaterThanOrEqual(0);
+    expect(s.x + s.w).toBeLessThanOrEqual(1230 + 1e-6);
+    for (const c of r.cards) expect(overlaps(s, c.rect), `${c.id} under the strip`).toBe(false);
+    expect(overlaps(s, r.free)).toBe(false);
+  });
+
+  it('2j fallback: a strip too tall for the board at a bottom dock uses the bottom-left rules for the frame', () => {
+    const cards = [card('l', 'tl', { natural: { w: 700, h: 200 } }), card('r', 'tr', { natural: { w: 300, h: 200 } })];
+    const base = stripInput(cards, { w: 900, h: 400 }, 'bottom-right');
+    const tall = layoutBoard({ ...base, puckSlots: SLOTS.map((x) => ({ w: 300, h: x.h })), pucks: { w: 2100, h: 155 } });
+    expect(tall.pucks!.y).toBeGreaterThanOrEqual(8 - 1e-6);
+    expect(tall).toEqual(layoutBoard({ ...base, puckSlots: SLOTS.map((x) => ({ w: 300, h: x.h })), pucks: { w: 2100, h: 155 }, stripDock: 'bottom-left' }));
   });
 
   it('2j: a too tall stack above the strip folds or cuts its cards, never the strip', () => {

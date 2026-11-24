@@ -4,12 +4,13 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useS
 import {currentLanguage, useT} from '../../localization';
 import {CardShell, type BoardPoint} from '../cards/CardShell';
 import {
-  applyDrop, dropTarget, layoutBoard,
-  type CardInput, type DropIndex, type LayoutInput, type LayoutResult, type Placement, type Rect, type Size,
+  applyDrop, dropTarget, layoutBoard, stripDropTarget,
+  type CardInput, type DropIndex, type LayoutInput, type LayoutResult, type Placement, type Rect, type Size, type StripDock,
 } from '../layout/boardLayout';
 import {
-  loadBoardLayout, resetCard, saveBoardLayout, setFold, setPlacement, type StoredBoardLayout,
+  loadBoardLayout, resetCard, saveBoardLayout, setFold, setPlacement, setStripDock, type StoredBoardLayout,
 } from '../layout/storedLayout';
+import {neighbourDock} from '../pucks/StripGrip';
 import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
 import {moreBarHeight} from '../layout/measureCards';
@@ -38,6 +39,8 @@ export interface BoardCardsProps {
 
 type Placed = LayoutResult['cards'][number];
 interface Drag { id: string; target: DropIndex | 'free'; first: BoardPoint | null }
+/** The strip held: `offset` is how far the pointer has carried it; a keyboard pickup has none and moves dock to dock. */
+interface StripDrag { candidate: StripDock; offset: {x: number; y: number} | null }
 
 const NO_WIDTHS: Readonly<Record<string, number>> = {};
 const noop = () => undefined;
@@ -84,6 +87,8 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   // fold, language or highlight change measures again, so nothing in between is painted and the swap is one glide.
   const [stable, setStable] = useState<readonly Placed[]>([]);
   const [drag, setDrag] = useState<Drag | null>(null);
+  const [stripDrag, setStripDrag] = useState<StripDrag | null>(null);
+  const stripPickupRef = useRef<BoardPoint | null>(null);
   const [widthState, setWidthState] = useState<{key: string; widths: Readonly<Record<string, number>>}>({key: '', widths: NO_WIDTHS});
   const layerRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
@@ -191,15 +196,20 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     const box = layerRef.current?.getBoundingClientRect();
     return box ? {left: box.left, right: box.right, width: box.width} : undefined;
   }, []);
-  const inputWith = (pucks: Size | undefined): LayoutInput => ({
-    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget, frame: frameInput, pucks, puckSlots: measuredStrip?.slots,
+  const storedDock: StripDock = stored.strip ?? 'bottom-left';
+  const inputWith = (pucks: Size | undefined, stripDock: StripDock): LayoutInput => ({
+    board, cards: inputs, stored: stored.placements, storedFolds: effectiveFolds, budget, frame: frameInput, pucks, puckSlots: measuredStrip?.slots, stripDock,
     maxSpan: MAX_SPAN, columnMaxFraction: COLUMN_MAX_FRACTION, gap: GAP,
   });
   const laidOut = board.w > 0 && board.h > 0 && inputs.length > 0;
-  // Wider than the width the layout gives it, the strip wraps to further rows: lay out again at the wrapped height.
-  const given = laidOut && natural ? layoutBoard(inputWith(natural)).pucks : null;
-  const wrapped = given &&measuredStrip && given.w < measuredStrip.w ? wrappedStripHeight(measuredStrip.slots, given.w) : 0;
-  const layoutInput = inputWith(natural && wrapped > natural.h ? {w: natural.w, h: wrapped} : natural);
+  // The layout input for a dock. Wider than the width the layout gives it, a row strip wraps to further rows: lay out again at the
+  // wrapped height. A side dock is a column: the layout wraps it from the slots, so it needs no such second pass.
+  const layoutAt = (dock: StripDock): LayoutInput => {
+    const given = laidOut && natural && dock !== 'left' && dock !== 'right' ? layoutBoard(inputWith(natural, dock)).pucks : null;
+    const wrapped = given && measuredStrip && given.w < measuredStrip.w ? wrappedStripHeight(measuredStrip.slots, given.w) : 0;
+    return inputWith(natural && wrapped > natural.h ? {w: natural.w, h: wrapped} : natural, dock);
+  };
+  const layoutInput = layoutAt(storedDock);
   const base: LayoutResult | null = laidOut ? layoutBoard(layoutInput) : null;
 
   // Second measurement: a card whose assigned width differs from its natural one is measured again at that width, once,
@@ -238,9 +248,39 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     const freeAt = rect ? {x: rect.x + pointer.x - first.x, y: rect.y + pointer.y - first.y} : {x: pointer.x, y: pointer.y};
     return applyDrop(stored.placements, state.id, target, {defaults: inputs, freeAt});
   };
+  // The strip held by the pointer (`offset`: how far it has travelled) or by the keyboard (no offset): the layout uses the candidate
+  // dock with the folds frozen, so the cards make room live, as for a card drag.
   const preview: LayoutResult | null = base && drag
     ? layoutBoard({...layoutInput, stored: dragStored(drag, base.cards.find(card => card.id === drag.id)?.rect, drag.first ?? {x: 0, y: 0}, drag.target), frozenFolds: folds})
+    : base && stripDrag ? layoutBoard({...layoutAt(stripDrag.candidate), frozenFolds: folds})
     : base;
+  const stripPicked = stripDrag !== null && stripDrag.offset === null;
+  const stripCandidateAt = (pointer: BoardPoint): StripDock => {
+    const rect = base?.pucks;
+    const first = stripPickupRef.current ?? pointer;
+    return rect ? stripDropTarget(board, {...rect, x: rect.x + pointer.x - first.x, y: rect.y + pointer.y - first.y}) : storedDock;
+  };
+  const onStripMove = (pointer: BoardPoint) => {
+    if (drag || !base) return;
+    const first = stripPickupRef.current ?? pointer;
+    setStripDrag({candidate: stripCandidateAt(pointer), offset: {x: pointer.x - first.x, y: pointer.y - first.y}});
+  };
+  const dropStrip = (dock: StripDock) => {
+    setStripDrag(null);
+    stripPickupRef.current = null;
+    if (dock !== storedDock) commit(setStripDock(stored, dock));
+  };
+  const stripGrip = {
+    candidate: stripDrag?.candidate ?? storedDock, picked: stripPicked, blocked: drag !== null,
+    onPickup: (point: BoardPoint) => { if (!drag) stripPickupRef.current = point; },
+    onMove: onStripMove,
+    onDrop: (pointer: BoardPoint) => { if (!drag) dropStrip(stripCandidateAt(pointer)); },
+    onCancel: () => { stripPickupRef.current = null; setStripDrag(null); },
+    onKeyPick: () => { if (!drag) setStripDrag({candidate: storedDock, offset: null}); },
+    onKeyMove: (key: string) => setStripDrag(previous => previous && previous.offset === null ? {candidate: neighbourDock(previous.candidate, key), offset: null} : previous),
+    onKeyDrop: () => dropStrip(stripDrag?.candidate ?? storedDock),
+    onKeyCancel: () => setStripDrag(null),
+  };
 
   // The dragged card's rect as it is seen: its settled rect moved by what the pointer has travelled since pickup.
   const visibleRect = (id: string, first: BoardPoint, pointer: BoardPoint): Rect | undefined => {
@@ -248,13 +288,14 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     return rect ? {...rect, x: rect.x + pointer.x - first.x, y: rect.y + pointer.y - first.y} : undefined;
   };
   const onDragMove = (id: string, pointer: BoardPoint) => {
-    if (!base) return;
+    if (!base || stripDrag) return;
     const pickup = pickupRef.current?.id === id ? pickupRef.current.point : null;
     const firstNow = drag?.id === id && drag.first ? drag.first : pickup ?? pointer;
     const target = dropTarget(layoutInput, id, pointer, visibleRect(id, firstNow, pointer));
     setDrag(previous => ({id, target, first: previous?.id === id && previous.first ? previous.first : pickup ?? pointer}));
   };
   const onDrop = (id: string, pointer: BoardPoint) => {
+    if (stripDrag) return;
     const state: Drag = {id, target: drag?.target ?? 'free', first: drag?.id === id ? drag.first : pickupRef.current?.id === id ? pickupRef.current.point : null};
     setDrag(null);
     pickupRef.current = null;
@@ -273,9 +314,15 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   // The view director (task 07): the settled layout (not the drag preview) says where the board is free and which cards cover it.
   const directorGeometry: DirectorGeometry | null = final && base
     ? {canvas: {width: board.w, height: board.h}, free: freeRect(base), obstacles: obstacleRects(base)} : null;
-  useViewDirector({graph, host: host.view, geometry: directorGeometry, boardSize: board, frameTick: host.view?.frameTick ?? 0, marks: declaration?.marks, dragging: drag !== null});
-  const stripRect = final ? preview.pucks : stableStrip;
-  if (final && JSON.stringify(stableStrip) !== JSON.stringify(preview.pucks)) setStableStrip(preview.pucks);
+  useViewDirector({graph, host: host.view, geometry: directorGeometry, boardSize: board, frameTick: host.view?.frameTick ?? 0, marks: declaration?.marks, dragging: drag !== null || stripDrag !== null});
+  // Held by the pointer, the strip follows it from its settled rect and the candidate's rect is drawn as a ghost; held by the keyboard,
+  // it glides to the candidate's rect. Its slots run as a column in the dock it is shown in.
+  const stripByPointer = stripDrag?.offset != null;
+  const shownStrip = final ? (stripByPointer && base ? base.pucks : preview.pucks) : stableStrip;
+  const stripRect = shownStrip;
+  const stripColumnDock = stripDrag && !stripByPointer ? stripDrag.candidate : storedDock;
+  if (final && JSON.stringify(stableStrip) !== JSON.stringify(shownStrip)) setStableStrip(shownStrip);
+  const stripGhost = final && stripByPointer ? preview.pucks : null;
   // Where the dragged card would land, drawn under the cards when a drop would dock it; a free drop floats and shows none.
   const ghost = final && drag && drag.target !== 'free' ? preview.cards.find(card => card.id === drag.id)?.rect ?? null : null;
   // Before the first final layout only Orodja is shown: placed from what has been read of it, or unpositioned (no rect) while the board
@@ -292,7 +339,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   // changes with the declared parameters and the language only.
   const puckShape = `${language}|${puckShapeOf(puckList)}`;
   useLayoutEffect(() => {
-    const slots = [...(stripRef.current?.querySelectorAll<HTMLElement>('.puck-slot') ?? [])];
+    const slots = [...(stripRef.current?.querySelectorAll<HTMLElement>('.puck-strip-grip, .puck-slot') ?? [])];
     const w = slots.reduce((sum, slot) => sum + slot.offsetWidth, 0) + 8 * Math.max(0, slots.length - 1);
     const h = Math.max(0, ...slots.map(slot => slot.offsetHeight));
     const sizes = slots.map(slot => ({w: slot.offsetWidth, h: slot.offsetHeight}));
@@ -380,7 +427,10 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
             : isLesson ? <LessonCardBody slot={host.lesson.slot}/> : spec.body}
         </CardShell>;
       })}
-      {puckCount > 0 && <PuckStrip ref={stripRef} graph={graph} items={puckList} actions={declaration?.actions ?? []} bounds={boardBounds} rect={stripRect}/>}
+      {stripGhost && <div className="board-card-ghost" data-strip-drop-target={stripDrag?.candidate} aria-hidden="true"
+        style={{width: stripGhost.w, height: stripGhost.h, transform: `translate(${stripGhost.x}px, ${stripGhost.y}px)`}}/>}
+      {puckCount > 0 && <PuckStrip ref={stripRef} graph={graph} items={puckList} actions={declaration?.actions ?? []} bounds={boardBounds} rect={stripRect}
+        column={stripColumnDock === 'left' || stripColumnDock === 'right'} lift={stripByPointer ? stripDrag?.offset ?? null : null} grip={stripGrip}/>}
     </div>
   </>;
 }
