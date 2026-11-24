@@ -11,8 +11,9 @@ import {UnavailableButton} from "../../inputs/UnavailableButton";
 import AngleSlider from "../../inputs/AngleSlider";
 import {currentLanguage, message, messageNumber, renderMessage, t, type Message, type MessageNumber} from "../../localization";
 import type {
-    ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow,
+    ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMarks,
 } from "../base/declare/graphDeclaration";
+import {linearMapViewMarks, type LinearMapMarkSource} from "./linearMapMarks";
 import {runAs} from "../base/writes/writeSource";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {LessonAction} from "../../learning/model";
@@ -1685,7 +1686,27 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             legend,
             actions,
             status: this.statuses(model, view).map(({id, text}) => ({id, text})),
+            marks: this.viewMarks(model, view),
         };
+    }
+
+    private viewMarksCache: {model: LinearMapState; marks: ViewMarks} | undefined;
+
+    /** What the view director keeps visible (task 07): per mode, from the derived numbers (`linearMapViewMarks`); memoized on the model. */
+    private viewMarks(model: LinearMapState, view: View): ViewMarks {
+        if (this.viewMarksCache?.model === model) return this.viewMarksCache.marks;
+        let source: LinearMapMarkSource;
+        switch (model.mode) {
+            case "eigen": source = {mode: "eigen", eigen: this.eigenOf(model)}; break;
+            case "ellipse": source = {mode: "ellipse", ellipse: this.ellipseOf(model), conicVisible: model.conicVisible === true}; break;
+            case "composition": source = {mode: "composition", composition: this.compositionOf(model)}; break;
+            case "iterate": source = {mode: "iterate", matrix: model.matrix, iteration: this.iterationOf(model), start: startOf(model), step: stepOf(model)}; break;
+            case "tracedet": source = {mode: "tracedet", traceDet: this.traceDetOf(model)}; break;
+            default: source = {mode: model.mode, a1: view.a1, a2: view.a2, square: view.square, curve: model.curveVisible ? view.imageControl : undefined};
+        }
+        const marks = linearMapViewMarks(source);
+        this.viewMarksCache = {model, marks};
+        return marks;
     }
 
     override drawnObject(id: string): {color: string; visible: boolean} | undefined {

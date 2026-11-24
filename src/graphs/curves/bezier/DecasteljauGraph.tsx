@@ -1,5 +1,8 @@
 import {message, t} from "../../../localization";
-import type {GraphDeclaration, LegendEntry} from "../../base/declare/graphDeclaration";
+import type {GraphDeclaration, LegendEntry, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+
+/** Samples of the curve in the declared view marks. */
+const VIEW_MARK_SAMPLES = 25;
 import {runAs} from "../../base/writes/writeSource";
 import {comparisonCurveColor} from "../../styles/GraphPalette";
 import React from 'react';
@@ -325,7 +328,32 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
                 {id: "reset", label: message("reset"), placement: "board", enabled: !atStart || playing},
                 {id: "full-curve", label: message("full_curve"), placement: "board", puck: true, enabled: true, pressed: wholeCurve === true},
             ],
+            marks: this.viewMarks(),
         };
+    }
+
+    private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /**
+     * What the view director keeps visible (task 07): the control points of the curve (must) and samples of the curve (nice). Read from
+     * the curve model, not the board; memoized on the points' coordinates, so an unchanged curve returns the same object. Non-finite
+     * points are dropped.
+     */
+    private viewMarks(): ViewMarks {
+        const curve = this.getFirstCurve();
+        const points = (curve?.getPoints() ?? []).map(point => [point.X(), point.Y()] as const).filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+        const key = points.map(([x, y]) => `${x},${y}`).join(";");
+        if (this.viewMarksCache?.key === key) return this.viewMarksCache.marks;
+        const samples = curve && points.length > 1
+            ? Array.from({length: VIEW_MARK_SAMPLES}, (_, i) => curve.eval(i / (VIEW_MARK_SAMPLES - 1))).map(p => [p.X(), p.Y()] as const)
+                .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y))
+            : [];
+        const marks: ViewMarks = {
+            must: points.map(([x, y]): ViewMark => ({kind: "point", x, y})),
+            nice: samples.length > 1 ? [{kind: "polyline", points: samples}] : [],
+        };
+        this.viewMarksCache = {key, marks};
+        return marks;
     }
 
     /** The element a legend entry's `object` names, as the board holds it now. */
