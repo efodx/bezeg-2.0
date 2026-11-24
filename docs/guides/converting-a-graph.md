@@ -37,7 +37,11 @@ Highlight rules:
 
 ## 3. Placement rule
 
-Taylor's rule: **what the learner changes while watching the graph goes on the board; a choice with a few named options goes on the board; a setting chosen once, a setup step or a display switch goes to Orodja** (`placement: 'tools'`, with a `section` that the frame opens). A board control has no section. Put two sentences of reasoning per parameter in the placement note. Worked examples:
+Taylor's rule: **what the learner changes while watching the graph goes on the board; a choice with a few named options goes on the board; a setting chosen once, a setup step or a display switch goes to Orodja** (`placement: 'tools'`, with a `section` that the frame opens).
+
+Slice 6 refines the choice and toggle half: a choice (at most 4 options) or a toggle is a **puck** (`puck: true` on a `choice` parameter or a toggle action, `puck: {group, short}` on the actions of a group; both `placement: 'board'`, actions with `pressed`) only when a lesson asks the learner to switch it and notice the change, or exploration flips it repeatedly to compare. `placement: 'board'` alone leaves the control a board control that is not a puck (for example Taylor's example choice). Wrap the Orodja control in `PuckOwned` with the key (action id, group key and member ids) so it renders nothing while the puck exists, and the lesson frame needs no `open: ['tools']` for it. The rule is in [controls.md](../controls.md#puck).
+
+A board control has no section. Put two sentences of reasoning per parameter in the placement note. Worked examples:
 
 | Graph | Board | Orodja | Why |
 | --- | --- | --- | --- |

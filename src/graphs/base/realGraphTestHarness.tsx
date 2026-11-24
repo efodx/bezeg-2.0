@@ -99,9 +99,24 @@ export async function openTools(): Promise<void> {
     await waitUntil(() => !document.querySelector('#board-card-tools [data-card-body]')!.hasAttribute('hidden'));
 }
 
-/** The puck's own accessible control (a slider or a spinbutton) by the parameter key. */
+/** The puck's own accessible control (a slider, a spinbutton, a switch or a radiogroup) by the parameter key, action id or group key. */
 export const puckControl = (key: string): HTMLElement =>
-    document.querySelector<HTMLElement>(`.puck-strip [data-puck-key="${key}"] [role="slider"], .puck-strip [data-puck-key="${key}"] [role="spinbutton"]`)!;
+    document.querySelector<HTMLElement>(['slider', 'spinbutton', 'switch', 'radiogroup'].map(role => `.puck-strip [data-puck-key="${key}"] [role="${role}"]`).join(', '))!;
+
+/** One segment of a choice puck, by the group key (or choice parameter key) and the option's accessible name. */
+export const puckOption = (key: string, name: string | RegExp): HTMLElement =>
+    [...document.querySelectorAll<HTMLElement>(`.puck-strip [data-puck-key="${key}"] [role="radio"]`)]
+        .find(el => typeof name === 'string' ? el.getAttribute('aria-label') === name : name.test(el.getAttribute('aria-label') ?? ''))!;
+
+/** A learner's click on the segment of a choice puck whose option value is `value` (the learner's switch of a choice or action group). */
+export const chooseOnPuck = async (key: string, value: string): Promise<void> => { await waitForPucks(key); chooseOnPuckNow(key, value); };
+
+/** `chooseOnPuck` for a strip that is already laid out. */
+export function chooseOnPuckNow(key: string, value: string): void {
+    const segment = document.querySelector<HTMLElement>(`.puck-strip [data-puck-key="${key}"] [role="radio"][data-value="${value}"]`);
+    if (!segment) throw new Error(`No choice puck ${key} with option ${value}`);
+    act(() => { fireEvent.click(segment); });
+}
 
 /** A learner's typed entry on a puck: double-click opens the entry, Enter commits it. */
 export function typePuck(key: string, value: string): void {

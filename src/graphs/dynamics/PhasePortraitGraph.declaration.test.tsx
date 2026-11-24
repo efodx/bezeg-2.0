@@ -71,10 +71,12 @@ describe('Phase portrait declaration', () => {
             const shown = [...document.querySelectorAll('[data-readout]:not([data-readout-live])')].map(element => element.getAttribute('data-readout'));
             expect(rows.map(row => row.id)).toEqual(shown);
 
-            // the controls the panel hides are locked, not absent
+            // the controls the panel hides are absent (no locked puck); the Jacobian stays a readout row
             const byKey = Object.fromEntries((current.parameters ?? []).map(parameter => [parameter.key, parameter]));
-            expect(byKey['phase-a'].locked).toBe(system !== 'linear');
-            expect(byKey['phase-equilibrium'].locked).toBe(system !== 'pendulum');
+            for (const key of ['phase-a', 'phase-b', 'phase-c', 'phase-d']) expect(key in byKey, key).toBe(system === 'linear');
+            expect('phase-equilibrium' in byKey).toBe(system === 'pendulum');
+            expect((current.parameters ?? []).filter(parameter => 'locked' in parameter && parameter.locked)).toEqual([]);
+            expect(rows.map(row => row.id)).toContain('jacobian');
             expect(byKey['phase-seed-count']).toMatchObject({placement: 'tools', section: 'seeds'});
             expect(byKey['phase-time']).toMatchObject({kind: 'range', min: 0, max: 10, placement: 'board'});
         });
@@ -111,7 +113,7 @@ describe('Phase portrait declaration', () => {
     });
 
     test('the system choice lists the three systems and the equilibrium choice its two points', () => {
-        const {declaration} = setup();
+        const {declaration} = setup(['phase-system', 'pendulum']);
         const choices = Object.fromEntries(declaration().parameters!.filter(parameter => parameter.kind === 'choice').map(parameter => [parameter.key, parameter.kind === 'choice' ? parameter.options.map(option => option.value) : []]));
         expect(choices).toEqual({'phase-system': ['linear', 'pendulum', 'weak-spiral'], 'phase-equilibrium': ['0', '1']});
     });

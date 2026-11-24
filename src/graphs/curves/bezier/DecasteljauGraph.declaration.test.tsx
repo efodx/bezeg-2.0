@@ -41,7 +41,7 @@ describe('De Casteljau declaration', () => {
 
                 // the panel has no t readout row: the slider shows t, so the declaration declares no readouts
                 expect(current.readouts ?? []).toEqual([]);
-                expect(current.actions!.find(action => action.id === 'full-curve')).toMatchObject({placement: 'tools', section: 'construction', pressed: whole});
+                expect(current.actions!.find(action => action.id === 'full-curve')).toMatchObject({placement: 'board', puck: true, pressed: whole});
                 expect(current.parameters).toMatchObject([{key: 'decasteljau-t', kind: 'range', min: 0, max: 1, placement: 'board'}]);
             });
         }

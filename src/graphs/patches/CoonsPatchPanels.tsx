@@ -5,6 +5,7 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, useT} from "../../localization";
 import type {CoonsCornerMismatch} from "../../bezeg/impl/kernels/coons";
 import {LiveReadout} from "../base/controls/LiveReadout";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {FunctionReadout} from "../functions/FunctionReadout";
@@ -74,14 +75,14 @@ export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelSt
                 </>
                 : <p className="inspector-help">{t("coons_select_help")}</p>}
         </div>
-        <div className="inspector-group"><h3>{t("coons_shown_heading")}</h3>
+        <PuckOwned param="coons-shown"><div className="inspector-group"><h3>{t("coons_shown_heading")}</h3>
             <ChoiceSelect label={t("coons_shown")} value={state.shown} options={shownOptions} help={t("coons_shown_help")}
                           onChange={value => actions.setShown(asShown(value))}/>
-        </div>
-        <div className="inspector-group"><h3>{t("coons_corners_heading")}</h3>
+        </div></PuckOwned>
+        <PuckOwned param="linked-corners"><div className="inspector-group"><h3>{t("coons_corners_heading")}</h3>
             <OnOffSwitch label={t("coons_linked_corners")} checked={state.linkedCorners} onChange={on => actions.setLinkedCorners(on)} describedBy={linkedHelpId}/>
             <p id={linkedHelpId} className="inspector-help">{t("coons_linked_help")}</p>
-        </div>
+        </div></PuckOwned>
     </>;
 }
 

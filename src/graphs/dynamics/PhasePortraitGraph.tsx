@@ -968,7 +968,8 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                     this.editSystem(value as SystemId);
                 },
             },
-            "phase-equilibrium": {read: () => this.state.equilibrium, apply: (value: number) => accepted(this.editEquilibrium(value), "equilibrium")},
+            // A choice puck writes the option's value, the text "0" or "1".
+            "phase-equilibrium": {read: () => this.state.equilibrium, apply: (value: unknown) => accepted(this.editEquilibrium(Number(value)), "equilibrium")},
             "phase-seed-count": {read: () => this.state.seeds.length, apply: (value: number) => accepted(this.setSeedCount(value), "seed count")},
             "phase-zoom": {read: () => this.state.zoom, apply: (value: number) => accepted(this.editZoom(value), "zoom")},
             "phase-time": {
@@ -1274,7 +1275,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
      * Pure data from the scene state and the cached derivation (it reads the board's own cache, never redraws): the nine
      * bound parameters (the seed positions are dragged on the board and typed in Orodja's point list, which have no declared
      * kind), the same readout rows as `readoutRows`, the legend of what the board draws, and playback. The matrix entries
-     * and the equilibrium are locked while the system does not use them, where the panel hides them.
+     * and the equilibrium are omitted while the system does not use them, where the panel hides them.
      */
     protected override declaration(): GraphDeclaration<PhasePortraitIds> {
         const state = this.state;
@@ -1282,17 +1283,22 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const linear = state.system === "linear";
         const point = (x: number, y: number): Message => message("phase_graph_point_format", {value0: messageNumber(x, 3), value1: messageNumber(y, 3)});
         const entryRange = {kind: "range", min: ENTRY_RANGE.min / ENTRY_SCALE, max: ENTRY_RANGE.max / ENTRY_SCALE, step: 1 / ENTRY_SCALE, bigStep: 1, maxDecimals: 2,
-            placement: "board", locked: !linear} as const;
+            placement: "board"} as const;
+        // A parameter that does not apply in this state is omitted (no puck, no Orodja control): the equilibrium needs a system
+        // with two choices, the matrix entries a linear system (on a nonlinear one the matrix is the Jacobian readout row).
         const parameters: ParameterDeclaration<PhasePortraitIds["param"]>[] = [
-            {key: "phase-system", kind: "choice", label: message("phase_graph_system_label"), help: message("phase_graph_system_help"), placement: "board",
-                options: SYSTEM_IDS.map(value => ({value, label: message(SYSTEM_KEYS[value])}))},
-            {key: "phase-equilibrium", kind: "choice", label: message("phase_graph_equilibrium_label"), help: message("phase_graph_equilibrium_help"), placement: "board",
-                locked: equilibriumChoices(state.system) < 2,
-                options: [{value: "0", label: message("phase_graph_equilibrium_origin")}, {value: "1", label: message("phase_graph_equilibrium_pi")}]},
-            {key: "phase-a", label: message("phase_graph_matrix_a_label"), symbol: "a", ...entryRange},
-            {key: "phase-b", label: message("phase_graph_matrix_b_label"), symbol: "b", ...entryRange},
-            {key: "phase-c", label: message("phase_graph_matrix_c_label"), symbol: "c", ...entryRange},
-            {key: "phase-d", label: message("phase_graph_matrix_d_label"), symbol: "d", ...entryRange},
+            {key: "phase-system", kind: "choice", label: message("phase_graph_system_label"), help: message("phase_graph_system_help"), placement: "board", puck: true,
+                options: SYSTEM_IDS.map(value => ({value, label: message(SYSTEM_KEYS[value]), short: message(`${SYSTEM_KEYS[value]}_short` as const)}))},
+            ...(equilibriumChoices(state.system) < 2 ? [] : [{key: "phase-equilibrium", kind: "choice", label: message("phase_graph_equilibrium_label"),
+                help: message("phase_graph_equilibrium_help"), placement: "board", puck: true,
+                options: [{value: "0", label: message("phase_graph_equilibrium_origin"), short: message("phase_graph_equilibrium_origin_short")},
+                    {value: "1", label: message("phase_graph_equilibrium_pi"), short: message("phase_graph_equilibrium_pi_short")}]} as const]),
+            ...(linear ? [
+                {key: "phase-a", label: message("phase_graph_matrix_a_label"), symbol: "a", ...entryRange},
+                {key: "phase-b", label: message("phase_graph_matrix_b_label"), symbol: "b", ...entryRange},
+                {key: "phase-c", label: message("phase_graph_matrix_c_label"), symbol: "c", ...entryRange},
+                {key: "phase-d", label: message("phase_graph_matrix_d_label"), symbol: "d", ...entryRange},
+            ] as const : []),
             {key: "phase-seed-count", kind: "count", label: message("phase_graph_seeds_label"), placement: "tools", section: SEEDS_SECTION, min: SEEDS_MIN, max: SEEDS_MAX,
                 help: message("phase_graph_seeds_help", {value0: SEEDS_MIN, value1: SEEDS_MAX})},
             {key: "phase-zoom", kind: "range", label: message("phase_graph_zoom_label"), placement: "board", min: ZOOM_RANGE.min, max: ZOOM_RANGE.max, step: 1, bigStep: 1, maxDecimals: 0,
@@ -1404,14 +1410,14 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
         const commands: JSX.Element[] = [
-            <ChoiceSelect key="system" label={t("phase_graph_system_label")} value={state.system} help={t("phase_graph_system_help")}
+            <PuckOwned key="system" param="phase-system"><ChoiceSelect label={t("phase_graph_system_label")} value={state.system} help={t("phase_graph_system_help")}
                           options={SYSTEM_IDS.map(value => ({value, text: t(SYSTEM_KEYS[value])}))}
-                          onChange={value => { const system = SYSTEM_IDS.find(candidate => candidate === value); if (system) this.editSystem(system); }}/>,
+                          onChange={value => { const system = SYSTEM_IDS.find(candidate => candidate === value); if (system) this.editSystem(system); }}/></PuckOwned>,
         ];
         if (equilibriumChoices(state.system) > 1) {
-            commands.push(<ChoiceSelect key="equilibrium" label={t("phase_graph_equilibrium_label")} value={String(state.equilibrium)} help={t("phase_graph_equilibrium_help")}
+            commands.push(<PuckOwned key="equilibrium" param="phase-equilibrium"><ChoiceSelect label={t("phase_graph_equilibrium_label")} value={String(state.equilibrium)} help={t("phase_graph_equilibrium_help")}
                                         options={[{value: "0", text: t("phase_graph_equilibrium_origin")}, {value: "1", text: t("phase_graph_equilibrium_pi")}]}
-                                        onChange={value => this.editEquilibrium(Number(value))}/>);
+                                        onChange={value => this.editEquilibrium(Number(value))}/></PuckOwned>);
         }
         if (state.system === "linear") {
             commands.push(<PuckOwned key="matrix" param="phase-a"><NumberGrid label={t("phase_graph_matrix_caption")} columns={2} describedBy={this.helpId}

@@ -48,13 +48,27 @@ const states: {name: string; steps: Step[]; mode: string; parameters: string[]; 
     {name: 'iterate, quarter turn at step 2', steps: [['linear-map-mode', 'iterate'], ['linear-map-example', 'quarter-turn'], ['linear-map-step', 2]], mode: 'iterate', parameters: [], legend: []},
     {name: 'trace-determinant, shear', steps: [['linear-map-mode', 'tracedet'], ['linear-map-example', 'shear']], mode: 'tracedet', parameters: [], legend: ['parabola', 'triangle', 'flow', 'point']},
     {name: 'composition, default', steps: [['linear-map-mode', 'composition']], mode: 'composition',
-        parameters: ['linear-map-first-source', 'linear-map-second-source', 'linear-map-first-index', 'linear-map-second-index', 'linear-map-a11', 'linear-map-b22'],
+        parameters: ['linear-map-first-source', 'linear-map-second-source', 'linear-map-first-index', 'linear-map-second-index'],
         legend: ['source-grid', 'grid-a', 'grid-image', 'curve', 'curve-image', 'translation', 'pivot']},
     {name: 'composition, rotation then reflection with a pivot', steps: [['linear-map-mode', 'composition'], ['linear-map-first-source', 'rotation'], ['linear-map-first-index', 3],
         ['linear-map-second-source', 'reflection'], ['linear-map-second-index', 5], ['action', 'toggle-pivot']], mode: 'composition', parameters: [], legend: []},
 ];
 
 describe('Linear map declaration', () => {
+    test('a composition slot declares the angle or the free entries, never the one that does not apply', () => {
+        const keysOf = (...steps: Step[]) => (setup(['linear-map-mode', 'composition'], ...steps).declaration().parameters ?? []).map(parameter => parameter.key);
+        const none = (keys: string[], pattern: RegExp) => expect(keys.filter(key => pattern.test(key))).toEqual([]);
+
+        const elements = keysOf();
+        expect(elements).toEqual(expect.arrayContaining(['linear-map-first-index', 'linear-map-second-index']));
+        none(elements, /^linear-map-[ab]\d\d$/);
+
+        const mixed = keysOf(['linear-map-first-source', 'free']);
+        expect(mixed).not.toContain('linear-map-first-index');
+        expect(mixed).toEqual(expect.arrayContaining(['linear-map-a11', 'linear-map-a22', 'linear-map-second-index']));
+        none(mixed, /^linear-map-b\d\d$/);
+    });
+
     for (const {name, steps, mode, parameters, legend} of states) {
         test(`${name}: consistent, bound, drawn and equal to the inspector`, () => {
             const {graph, declaration} = setup(...steps);

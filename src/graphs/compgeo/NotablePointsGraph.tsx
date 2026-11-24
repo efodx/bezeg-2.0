@@ -355,7 +355,7 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         // switch is a plain display setting in Orodja. The switch label is the panel's.
         const actions: ActionDeclaration<NotablePointsIds>[] = (["triangle", ...CENTRE_IDS] as NotableOverlayId[]).map(id => ({
             id, label: overlayMessage(id), placement: id === "triangle" ? "tools" : "board",
-            ...(id === "triangle" ? {section: "display"} : {}), enabled: true, pressed: this.overlayShown(id),
+            ...(id === "triangle" ? {section: "display"} : {puck: true as const}), enabled: true, pressed: this.overlayShown(id),
         }));
         return {notes: notableNotes(this.analysis(), currentLanguage()), legend, actions};
     }

@@ -3,7 +3,7 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, puckControl, typePuck, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, puckControl, typePuck, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
 import {setLanguage, t} from '../../localization';
@@ -109,7 +109,7 @@ const labels = {
     seedTheta: (n: number) => `${t('phase_graph_seed_point', {value0: String(n)})}, θ`, seedOmega: (n: number) => `${t('phase_graph_seed_point', {value0: String(n)})}, ω`,
     system: () => t('phase_graph_system_label'),
 };
-const chooseSystem = (system: string) => act(() => { fireEvent.change(field(labels.system()), {target: {value: system}}); });
+const chooseSystem = (system: string) => chooseOnPuck('phase-system', system);
 const timeSlider = () => puckControl('phase-time');
 
 describe('mount and the type label', () => {
@@ -209,9 +209,9 @@ describe('stops are shown, never clipped silently', () => {
         expect(readout('seed-1')).toContain(t('phase_graph_stop_complete', {value0: '10'}));
     });
 
-    test('every legend and column caption text has the readable backdrop', () => {
+    test('every legend and column caption text has the readable backdrop', async () => {
         const {graph} = mountGraph();
-        chooseSystem('pendulum');
+        await chooseSystem('pendulum');
         const keys = ['phase_graph_cap_trajectories', 'phase_graph_cap_moving', 'phase_graph_cap_ring', 'phase_graph_cap_ring_linear',
             'phase_graph_cap_separatrix', 'phase_graph_cap_frame'] as const;
         const wanted = new Set<string>([...keys.map(key => t(key)), t('phase_graph_cap_column1', {value0: ''}).slice(0, 4)]);
@@ -220,7 +220,7 @@ describe('stops are shown, never clipped silently', () => {
         for (const text of shown) expect(text.evalVisProp('cssstyle'), text.plaintext).toBe(LEGEND_BACKDROP);
     });
 
-    test('the legend names every drawn element and each caption row is a board text', () => {
+    test('the legend names every drawn element and each caption row is a board text', async () => {
         const {graph} = mountGraph();
         const texts = captionTexts(graph);
         for (const key of ['phase_graph_cap_trajectories', 'phase_graph_cap_moving', 'phase_graph_cap_eigen', 'phase_graph_cap_frame'] as const) {
@@ -228,7 +228,7 @@ describe('stops are shown, never clipped silently', () => {
         }
         expect(texts).not.toContain(t('phase_graph_cap_ring'));
         expect(texts).not.toContain(t('phase_graph_cap_separatrix'));
-        chooseSystem('pendulum');
+        await chooseSystem('pendulum');
         const pendulum = captionTexts(graph);
         for (const key of ['phase_graph_cap_ring', 'phase_graph_cap_ring_linear', 'phase_graph_cap_separatrix', 'phase_graph_cap_wrap'] as const) {
             expect(pendulum, key).toContain(t(key));
@@ -358,7 +358,7 @@ describe('the linear handles and numeric input', () => {
         expect(graph.derived().orbits[0].start).toEqual([4, -4]);
     });
 
-    test('dragging neither rebuilds the scene nor changes the number of objects; the column handles are shown only for the linear system', () => {
+    test('dragging neither rebuilds the scene nor changes the number of objects; the column handles are shown only for the linear system', async () => {
         const {graph} = mountGraph();
         expectHandleHitZones(graph.liveBoard(), [graph.seedHandle(0)!, graph.columnHandle(0)!, graph.columnHandle(1)!], HANDLE_TOUCH_RADIUS + HIT_SLACK);
         const owned = graph.ownedObjectCount();
@@ -368,7 +368,7 @@ describe('the linear handles and numeric input', () => {
         expect(graph.seedHandle(0)).toBe(handle);
         const column = graph.columnHandle(0)! as unknown as Probe;
         expect(visible(column)).toBe(true);
-        chooseSystem('pendulum');
+        await chooseSystem('pendulum');
         expect(visible(column)).toBe(false);
         expect(document.querySelector(`input[aria-label="${labels.a()}"]`)).toBeNull();
     });
@@ -417,9 +417,9 @@ describe('the linear handles and numeric input', () => {
 });
 
 describe('the pendulum and the rings', () => {
-    test('the pendulum names H of every seed: swing, rotation, exactly on the separatrix, with six digits', () => {
+    test('the pendulum names H of every seed: swing, rotation, exactly on the separatrix, with six digits', async () => {
         const {graph} = mountGraph();
-        chooseSystem('pendulum');
+        await chooseSystem('pendulum');
         expect(graph.state.system).toBe('pendulum');
         expect(document.querySelector('[data-readout="energy-1"]')).not.toBeNull();
         expect(readout('energy-1')).toContain(t('phase_graph_energy_swing', {value0: '−0,459698'}).split('=')[0]);
@@ -436,18 +436,18 @@ describe('the pendulum and the rings', () => {
         noBadText();
     });
 
-    test('H is written with six digits, so a swing near the separatrix does not read "1 < 1"', () => {
+    test('H is written with six digits, so a swing near the separatrix does not read "1 < 1"', async () => {
         const {graph} = mountGraph();
-        chooseSystem('pendulum');
+        await chooseSystem('pendulum');
         enter(labels.seedTheta(1), '0');
         enter(labels.seedOmega(1), '1,95');
         expect(graph.derived().energies[0]).toMatchObject({kind: 'swing'});
         expect(readout('energy-1')).toContain('0,90125');
     });
 
-    test('the pendulum draws the separatrix, the wrap lines and the ring pair; the pendulum seed fields are named theta and omega', () => {
+    test('the pendulum draws the separatrix, the wrap lines and the ring pair; the pendulum seed fields are named theta and omega', async () => {
         const {graph} = mountGraph();
-        chooseSystem('pendulum');
+        await chooseSystem('pendulum');
         const drawn = curves(graph);
         expect(polylines(drawn[SEPARATRIX])).toBe(2);
         expect(polylines(drawn[WRAPS])).toBeGreaterThan(0);
@@ -468,13 +468,13 @@ describe('the pendulum and the rings', () => {
         expect(document.querySelector('[data-readout="ring"]')).toBeNull();
     });
 
-    test('the second pendulum equilibrium is a saddle; the choice appears only for the pendulum', () => {
+    test('the second pendulum equilibrium is a saddle; the choice appears only for the pendulum', async () => {
         const {graph} = mountGraph();
-        expect(document.querySelector(`select[aria-label="${t('phase_graph_equilibrium_label')}"]`)).toBeNull();
-        chooseSystem('pendulum');
+        expect(document.querySelector('.puck-strip [data-puck-key="phase-equilibrium"]')).toBeNull();
+        await chooseSystem('pendulum');
         expect(readout('type')).toBe(t('phase_graph_type_centre'));
         expect(readout('decision')).toBe(t('phase_graph_decision_no'));
-        act(() => { fireEvent.change(field(t('phase_graph_equilibrium_label')), {target: {value: '1'}}); });
+        await chooseOnPuck('phase-equilibrium', '1');
         expect(graph.state.equilibrium).toBe(1);
         expect(readout('type')).toBe(t('phase_graph_type_saddle'));
         expect(readout('decision')).toBe(t('phase_graph_decision_yes'));
@@ -483,9 +483,9 @@ describe('the pendulum and the rings', () => {
         expect(graph.editEquilibrium(-1)).toBe(false);
     });
 
-    test('the weakly spiralling system: the linearization is a centre and says it does not decide; the ring pair is drawn', () => {
+    test('the weakly spiralling system: the linearization is a centre and says it does not decide; the ring pair is drawn', async () => {
         const {graph} = mountGraph();
-        chooseSystem('weak-spiral');
+        await chooseSystem('weak-spiral');
         expect(readout('type')).toBe(t('phase_graph_type_centre'));
         expect(readout('hyperbolic')).toBe(t('phase_graph_no'));
         expect(readout('decision')).toBe(t('phase_graph_decision_no'));
@@ -499,9 +499,9 @@ describe('the pendulum and the rings', () => {
         noBadText();
     });
 
-    test('stops of the ring are counted in its readout row and in the legend', () => {
+    test('stops of the ring are counted in its readout row and in the legend', async () => {
         const {graph} = mountGraph();
-        chooseSystem('weak-spiral');
+        await chooseSystem('weak-spiral');
         const d = graph.derived();
         const halves = d.ring.reduce((sum, o) => sum + Number(o.forwardStop !== 'complete') + Number(o.backwardStop !== 'complete'), 0);
         expect(readout('ring')).toBe(t('phase_graph_ring_value', {value0: '12', value1: String(halves), value2: '24'}));
@@ -801,17 +801,17 @@ describe('ownership, rebuild and StrictMode', () => {
         expect(graph.ownedObjectCount()).toBe(0);
     });
 
-    test('a change of system or of the seed count keeps the scene size; no object leaks', () => {
+    test('a change of system or of the seed count keeps the scene size; no object leaks', async () => {
         const {graph} = mountGraph();
         const board = graph.liveBoard();
         const total = board.objectsList.length;
-        chooseSystem('pendulum');
+        await chooseSystem('pendulum');
         expect(board.objectsList.length).toBe(total);
         act(() => { runAs('learner', () => graph.setSeedCount(6)); });
         expect(board.objectsList.length).toBe(total);
-        chooseSystem('weak-spiral');
+        await chooseSystem('weak-spiral');
         act(() => { runAs('learner', () => graph.setSeedCount(1)); });
-        chooseSystem('linear');
+        await chooseSystem('linear');
         expect(board.objectsList.length).toBe(total);
     });
 
@@ -845,12 +845,13 @@ describe('ownership, rebuild and StrictMode', () => {
 });
 
 describe('language and the catalog', () => {
-    test('switching the language renames the board, the labels, the captions, the type and the status', () => {
+    test('switching the language renames the board, the labels, the captions, the type and the status', async () => {
         const {graph} = mountGraph();
+        await waitForPucks('phase-system');
         go(graph, 1);
         act(() => setLanguage('en'));
         expect(document.querySelector(`[aria-label="${en['phase_graph_board_label']}"]`)).not.toBeNull();
-        expect(screen.getByLabelText(en['phase_graph_system_label'])).toBeTruthy();
+        await waitUntil(() => document.querySelector(`.puck-strip [role="radiogroup"][aria-label="${en['phase_graph_system_label']}"]`) !== null);
         expect(captionTexts(graph)).toContain(en['phase_graph_cap_trajectories']);
         expect(readout('type')).toBe(en['phase_graph_type_node_stable']);
         expect(status()).toMatch(/^Time 1 s\./);

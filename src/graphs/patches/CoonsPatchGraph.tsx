@@ -257,13 +257,14 @@ export default class CoonsPatchGraph extends BaseSurfaceGraph<CoonsGraphState, C
             {id: "points", label: message("coons_legend_points"), kind: "point", object: "points"},
         ];
         // The surface choice and the corner linking are used while watching the surface: the board. The display switches are Orodja.
-        const board = (id: CoonsIds["action"], label: ActionDeclaration["label"], pressed: boolean): ActionDeclaration<CoonsIds> =>
-            ({id, label, placement: "board", enabled: true, pressed});
+        const board = (id: CoonsIds["action"], label: ActionDeclaration["label"], pressed: boolean, puck: ActionDeclaration["puck"], help?: ActionDeclaration["help"]): ActionDeclaration<CoonsIds> =>
+            ({id, label, help, placement: "board", enabled: true, pressed, puck});
+        const shownGroup = {key: "coons-shown", label: message("coons_shown"), help: message("coons_shown_help")};
         const tools = (id: CoonsIds["action"], label: ActionDeclaration["label"], pressed: boolean): ActionDeclaration<CoonsIds> =>
             ({id, label, placement: "tools", section: "display", enabled: true, pressed});
         const actions: ActionDeclaration<CoonsIds>[] = [
-            ...COONS_SHOWN.map(value => board(`shown-${value}`, message(`coons_shown_${value}`), shown === value)),
-            board("linked-corners", message("coons_linked_corners"), linkedCorners),
+            ...COONS_SHOWN.map(value => board(`shown-${value}`, message(`coons_shown_${value}`), shown === value, {group: shownGroup, short: message(`coons_shown_short_${value}`)})),
+            board("linked-corners", message("coons_linked_corners"), linkedCorners, true, message("coons_linked_help")),
             tools("control-net", message("patch_show_control_net"), showControlNet),
             tools("shading", message("patch_show_shading"), showShading),
             tools("height-mode", message("patch_move_height"), zMode),

@@ -266,6 +266,19 @@ describe('layoutBoard', () => {
       expect(byId(r, 'lesson').rect.h).toBeGreaterThanOrEqual(288);
     });
 
+    it('keeps the strip off the lesson card with two choice pucks and an open readouts card (1280x720, linearization step 1)', () => {
+      // Measured: board 1230x411, strip slots 120x155, 4 x 160x71, 160x85, 120x85 (wraps to 248 in 812), lesson sliver 288.
+      const slots = [{ w: 120, h: 155 }, ...[0, 1, 2, 3].map(() => ({ w: 160, h: 71 })), { w: 160, h: 85 }, { w: 120, h: 85 }];
+      const pucks = { w: 1088, h: 155 };
+      const real = card('lesson', 'tl', { natural: { w: 394, h: 1081 }, min: { w: 394, h: 321 }, anchorMin: 288, reserve: 61, foldedHeight: 39, priority: Infinity, defaultOrder: -1 });
+      const readouts = card('readouts', 'tr', { natural: { w: 394, h: 296 }, min: { w: 394, h: 200 }, foldedHeight: 39, priority: 3, defaultOrder: 0 });
+      const tools = card('tools', 'tr', { natural: { w: 394, h: 400 }, min: { w: 394, h: 100 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 1 });
+      const legend = card('legend', 'br', { natural: { w: 394, h: 400 }, min: { w: 394, h: 100 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 0 });
+      const r = layoutBoard(input([real, readouts, tools, legend], { board: { w: 1230, h: 411 }, maxSpan: 1800, pucks, puckSlots: slots }));
+      for (const c of r.cards) expect(overlaps(r.pucks!, c.rect), `${c.id} under the strip`).toBe(false);
+      expect(byId(r, 'lesson').rect.h).toBeGreaterThanOrEqual(288);
+    });
+
     it('cuts the lesson card to the room above a full-width strip when the strip would wrap too tall beside it', () => {
       const r = presenterLayout({ w: 1024, h: 500 }, [lesson, right]);
       const l = byId(r, 'lesson');
@@ -368,6 +381,21 @@ describe('drag helpers', () => {
     expect(dropTarget(i, 'd', { x: 500, y: 400 })).toBe('free');
     expect(dropTarget(i, 'd', { x: 990, y: 790 })).toMatchObject({ anchor: 'br' });
     expect(dropTarget(i, 'd', { x: 5, y: 400 })).toMatchObject({ anchor: 'ml' });
+  });
+  it('follows the card centre, equally for top and bottom and for left and right', () => {
+    const i = input([card('d', 'br')], { board: { w: 1000, h: 600 } });
+    const at = (cx: number, cy: number, h = 400) => dropTarget(i, 'd', { x: cx, y: cy - h / 2 }, { x: cx - 150, y: cy - h / 2, w: 300, h });
+    // A 400 px card on a 600 px board, centre in the lower right quarter, docks bottom right.
+    expect(at(850, 470)).toMatchObject({ anchor: 'br' });
+    expect(at(850, 130)).toMatchObject({ anchor: 'tr' });
+    expect(at(150, 470)).toMatchObject({ anchor: 'ml' }); // no bottom-left anchor exists
+    expect(at(500, 300)).toBe('free');
+    // Mirrored positions give mirrored targets for every offset.
+    const flip: Record<string, string> = { tl: 'br', br: 'tl', tr: 'bl', bl: 'tr', tc: 'bc', bc: 'tc', ml: 'mr', mr: 'ml', free: 'free' };
+    const name = (r: ReturnType<typeof dropTarget>): string => (r === 'free' ? 'free' : r.anchor);
+    for (let d = 0; d <= 300; d += 30) { // steps avoid exact ties between neighbouring anchors
+      expect(name(at(500 - d, 300 - d))).toBe(flip[name(at(500 + d, 300 + d))]);
+    }
   });
   it('indexes from settled centres', () => {
     const i = input(cards, { board: { w: 1000, h: 800 } });

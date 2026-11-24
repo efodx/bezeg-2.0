@@ -19,6 +19,7 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {decasteljauPresetCollection} from "./collections";
 import {reuseSamplesAcrossIntervalChanges} from "../object/intervalSampling";
 import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
@@ -234,9 +235,9 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {
-        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
+        return <>{super.workspaceGraphDisplay()}<PuckOwned param="full-curve"><div className="inspector-group"><h3>{t("construction")}</h3>
             <OnOffSwitch checked={this.state.wholeCurve ? this.state.wholeCurve : false}
-                onChange={checked => this.setState({wholeCurve: checked})} label={t("full_curve")}/></div></>;
+                onChange={checked => this.setState({wholeCurve: checked})} label={t("full_curve")}/></div></PuckOwned></>;
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -322,7 +323,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
             actions: [
                 {id: "play", label: message("play"), placement: "board", enabled: true, pressed: playing},
                 {id: "reset", label: message("reset"), placement: "board", enabled: !atStart || playing},
-                {id: "full-curve", label: message("full_curve"), placement: "tools", section: "construction", enabled: true, pressed: wholeCurve === true},
+                {id: "full-curve", label: message("full_curve"), placement: "board", puck: true, enabled: true, pressed: wholeCurve === true},
             ],
         };
     }
