@@ -88,7 +88,7 @@ Handler: tests migration (6), taste shots, docs (ADR 0061, DESIGN.md, lesson lay
 
 ## 8. Risks and taste choices for the owner
 
-- **Taste (slice 5)**: where a frame's Orodja action shows. Default proposed: Orodja opens at that section beside the lesson card (budget counts it); the alternative, a button on the lesson card ("Pokaži oceno napake" inline), keeps the board quieter but duplicates the action. Decide on Taylor and bisection screenshots.
+- **Taste (slice 5), closed 2026-11-24**: the owner saw no difference between the two on the Taylor and bisection lessons, so the default stands (Orodja opens at the section). Original question: where a frame's Orodja action shows. Default proposed: Orodja opens at that section beside the lesson card (budget counts it); the alternative, a button on the lesson card ("Pokaži oceno napake" inline), keeps the board quieter but duplicates the action. Decide on Taylor and bisection screenshots.
 - Open: whether declared `sections` stay separate `section:` cards (spec slice 4 says section cards start folded) or become `ToolSection`s inside Orodja (slice 1). This plan assumes both exist: ToolSections in Orodja, `section:` cards for frames that open them; confirm.
 - Live measure of the lesson is the riskiest piece (reflow before paint, Povrni height stability, line-box `rowBreaks` on MathJax text). Fallback is the session-in-store view.
 - Many unit tests and smoke helpers hang on `#workspace-inspector`; keeping `id="inspector-{tab}"` and the head tab names limits churn.
