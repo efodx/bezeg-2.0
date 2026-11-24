@@ -14,6 +14,16 @@ const sl = {
     "puck_locked": "Zaklenjeno v tem koraku razlage.",
     "puck_fine_quarter": "fino ×¼",
     "puck_fine_sixteenth": "zelo fino ×¹⁄₁₆",
+    "strip_grip": "Premakni krmilnike",
+    "strip_picked": "Krmilniki so izbrani za premik. Puščice jih premikajo po robu plošče, Enter jih odloži, Esc prekliče.",
+    "strip_moved": "Krmilniki: {value0}.",
+    "strip_dropped": "Krmilniki so odloženi: {value0}.",
+    "strip_cancelled": "Premik krmilnikov je preklican.",
+    "strip_dock_bottom_left": "spodaj levo",
+    "strip_dock_bottom_centre": "spodaj na sredini",
+    "strip_dock_bottom_right": "spodaj desno",
+    "strip_dock_left": "ob levem robu",
+    "strip_dock_right": "ob desnem robu",
 } as const;
 
 export const workspacePucks = {
@@ -33,5 +43,15 @@ export const workspacePucks = {
         "puck_locked": "Locked in this step of the explanation.",
         "puck_fine_quarter": "fine ×¼",
         "puck_fine_sixteenth": "very fine ×¹⁄₁₆",
+        "strip_grip": "Move the controls",
+        "strip_picked": "Controls picked up. Arrow keys move them along the board's edge, Enter drops, Esc cancels.",
+        "strip_moved": "Controls: {value0}.",
+        "strip_dropped": "Controls dropped: {value0}.",
+        "strip_cancelled": "Controls move cancelled.",
+        "strip_dock_bottom_left": "bottom left",
+        "strip_dock_bottom_centre": "bottom centre",
+        "strip_dock_bottom_right": "bottom right",
+        "strip_dock_left": "left edge",
+        "strip_dock_right": "right edge",
     } satisfies Record<keyof typeof sl, string>,
 };

@@ -79,7 +79,30 @@
     overflow: visible; pointer-events: auto; z-index: 3;
 }
 .puck-strip:not([style*="width"]) { width: max-content; }
+/* It glides to a new dock like a card; held by the pointer it follows without delay. */
+.puck-strip { transition: transform var(--board-glide, .26s) cubic-bezier(.22, 1, .36, 1); }
+.puck-strip--dragging { transition: none; cursor: grabbing; z-index: 10; }
+/* A side dock: the slots stack top-down and wrap into further columns (the layout's column-major wrapping, 8 px gaps). */
+.puck-strip--column { flex-direction: column; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; }
+/* The grip is the strip's first slot (the layout reserves its room): left end of a row, top end of a column. */
+.puck-strip-grip {
+    /* At least 24 px on the short side (a touch target); the dots are drawn in the ink colour on the panel so they read in every dock. */
+    position: relative; z-index: 4; flex: none; align-self: center; width: 24px; height: 40px; padding: 0; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; cursor: grab; touch-action: none; color: var(--bezeg-control-ink, #20372d);
+    background: var(--bezeg-shell-panel, #fffdf5); border: 1px solid var(--bezeg-control-border-color, #767f6c); border-radius: 8px;
+}
+.puck-strip-grip svg { flex: none; width: 16px; height: 16px; }
+.puck-strip-grip--column { align-self: flex-start; width: 40px; height: 24px; }
+.puck-strip-grip--column svg { transform: rotate(90deg); }
+.puck-strip-grip:focus-visible { outline: 2px solid var(--bezeg-shell-action); outline-offset: 1px; }
+.puck-strip-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .puck-strip { transition: none; } }
 .puck-slot { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+/* A row: the slots are as tall as the tallest, and a lone puck fills its slot, so none sticks out of the row. */
+.puck-strip:not(.puck-strip--column) { align-items: stretch; }
+.puck-slot > .puck:last-child { flex: 1 1 auto; }
+/* A column: every slot takes the column's width (PUCK_COLUMN_WIDTH in boardLayout.ts), so the pucks' edges align across wrapped columns. */
+.puck-strip--column .puck-slot { width: 160px; }
 .puck-host { display: contents; }
 .puck-playback { display: flex; gap: 4px; }
 

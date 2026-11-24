@@ -258,6 +258,8 @@ Triangle-geometry terms: sources and reasoning are in the [triangle geometry ter
 
 Patch terms: sources and reasoning are in the [Bézier patches spec](specs/bezier-patches.md#localization).
 
+Pucks terms: the board's parameter pucks are *krmilniki* (the grip is "Premakni krmilnike"), a transparent standard word for a control; the app's catalog had no earlier name for them, and no source uses a competing term (2026-11-24).
+
 Projective conic terms (*dvorazmerje*, *harmonična četverka*, *točka v neskončnosti*, *središčna projekcija*, and later *pol in polara*, *šop premic*): sources and reasoning are in the [projective conics term table](tasks/projective-conics/README.md#slovenian-terms-f0-decision).
 
 The owner approved the existing Slovenian terminology and English wording on 2026-10-24. Separate owner language sign-off is no longer a standing gate; see the [release policy](guardrails.md#release-policy--owner-decision-2026-10-24). Keep catalog counterparts and mathematical meaning consistent, and fix concrete wording issues when identified. Existing spelling/capitalization variants may be refined through ordinary changes.
