@@ -9,7 +9,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {phasePortraitPresetCollection} from "./dynamicsPresetCollection";
 import {currentLanguage, message, messageNumber, onLanguageChange, t, useT, type Message} from "../../localization";
-import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration, ReadoutRow, StatusLine} from "../base/declare/graphDeclaration";
+import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration, ReadoutRow, StatusLine, ViewMarks} from "../base/declare/graphDeclaration";
 import {runAs} from "../base/writes/writeSource";
 import type {PreviewGeometry} from "../base/preview/previewGeometry";
 import {phasePortraitPreview} from "./phasePortraitPreview";
@@ -48,6 +48,8 @@ export const MAX_FRAME_MS = 100;
 /** The grid of the time slider and of typed times (seconds): the integration step, so a time is a whole number of steps. */
 export const TIME_STEP = RK4_STEP;
 const TIME_BIG_STEP = 1;
+/** Samples kept per orbit half in the declared view marks. */
+const ORBIT_MARK_SAMPLES = 40;
 const TIME_SLACK = 1e-9;
 /** Pointer tolerance in screen pixels around a handle; JSXGraph adds a slack of 2 and tests both sides, so a touch zone is over 44 px across. */
 export const HANDLE_TOUCH_RADIUS = 26;
@@ -1374,7 +1376,35 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             ],
             actions,
             status,
+            marks: this.viewMarks(state, derived),
         };
+    }
+
+    private viewMarksCache: {derived: PhaseDerived; marks: ViewMarks} | undefined;
+
+    /**
+     * What the view director keeps visible (task 07): the equilibrium and the seed points (must), and the samples of the seeds' orbits
+     * that lie inside the intent view (nice, so the orbits never widen it), thinned to `ORBIT_MARK_SAMPLES` per half. Read from the
+     * derived numbers, which are cached on the state, and memoized on them, so the expensive derivation is not repeated.
+     */
+    private viewMarks(state: PhasePortraitGraphState, derived: PhaseDerived): ViewMarks {
+        const cached = this.viewMarksCache;
+        if (cached && cached.derived === derived) return cached.marks;
+        const {xMin, xMax, yMin, yMax} = derived.view;
+        const inside = ([x, y]: Vec2) => Number.isFinite(x) && Number.isFinite(y) && x >= xMin && x <= xMax && y >= yMin && y <= yMax;
+        const thinned = (samples: readonly Vec2[]): (readonly [number, number])[] => {
+            const stride = Math.max(1, Math.ceil(samples.length / ORBIT_MARK_SAMPLES));
+            return samples.filter((_, i) => i % stride === 0).filter(inside).map(([x, y]) => [x, y] as const);
+        };
+        const seeds = state.seeds.map((seed): Vec2 => [seedOf(seed.X), seedOf(seed.Y)]).filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+        const lines = derived.orbits.flatMap(orbit => [thinned(orbit.backward), thinned(orbit.forward)]).filter(line => line.length > 1);
+        const marks: ViewMarks = {
+            must: [...(Number.isFinite(derived.centre[0]) && Number.isFinite(derived.centre[1]) ? [{kind: "point" as const, x: derived.centre[0], y: derived.centre[1]}] : []),
+                ...seeds.map(([x, y]) => ({kind: "point" as const, x, y}))],
+            nice: lines.map(points => ({kind: "polyline" as const, points})),
+        };
+        this.viewMarksCache = {derived, marks};
+        return marks;
     }
 
     override drawnObject(id: string): {color: string; visible: boolean} | undefined {

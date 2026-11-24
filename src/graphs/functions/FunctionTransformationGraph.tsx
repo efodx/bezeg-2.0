@@ -5,7 +5,7 @@ import {PuckOwned} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, messageNumber, renderMessage, t, type Message} from "../../localization";
-import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {runAs} from "../base/writes/writeSource";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {PlotPoint, plotPieces, SchoolFunction, TRANSFORM_BOUNDS} from "../../analysis/schoolFunctions";
@@ -275,7 +275,24 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
                 ...ruleStepsOf(model).map(step => ({kind: "text" as const, text: this.stepMessage(step)})),
             ]}],
             actions,
+            marks: this.viewMarks(model),
         };
+    }
+
+    private viewMarksCache: {model: FunctionTransformationModel; marks: ViewMarks} | undefined;
+
+    /**
+     * What the view director keeps visible (task 07): the tracked point (u, f(u)) of the base graph and its image, the two points the
+     * lesson compares. Both are read from the model (`trackedPointOf`), none when u is outside the base domain. Memoized on the model.
+     */
+    private viewMarks(model: FunctionTransformationModel): ViewMarks {
+        if (this.viewMarksCache?.model === model) return this.viewMarksCache.marks;
+        const tracked = trackedPointOf(model);
+        const marks: ViewMarks = {must: tracked
+            ? [tracked.base, tracked.image].filter(p => Number.isFinite(p.x) && Number.isFinite(p.y)).map((p): ViewMark => ({kind: "point", x: p.x, y: p.y}))
+            : []};
+        this.viewMarksCache = {model, marks};
+        return marks;
     }
 
     override drawnObject(id: string): {color: string; visible: boolean} | undefined {
