@@ -19,6 +19,21 @@ import {rungePresetCollection} from "../curves/interpolation/collections";
 
 /** The default view (left, top, right, bottom): shows the n = 10 equispaced overshoot (about 1.96 near x = +-0.94) and the semicircle. */
 const DEFAULT_VIEW: BoundingBox = [-1.25, 2.5, 1.25, -0.5];
+const RESIZE_SETTLE_MS = 150;
+/** The semicircle's top may reach this y (the view top is 2.5), leaving a small margin for the marker. */
+const ARC_TOP_LIMIT = 2.35;
+
+/**
+ * The view for a canvas of the given size. The semicircle is a true circle on screen, so its height in y units is unitX / unitY
+ * = (width * yRange) / (height * xRange). Where the canvas is wide enough for that to pass ARC_TOP_LIMIT, the x range is widened
+ * symmetrically about 0 (the y range stays); otherwise, or for an unknown size, it is the default view.
+ */
+export function rungeViewFor(width: number, height: number): BoundingBox {
+    const [left, top, right, bottom] = DEFAULT_VIEW; // symmetric: left = -right
+    if (!(width > 0) || !(height > 0)) return [...DEFAULT_VIEW];
+    const half = Math.max(right, (width * (top - bottom)) / (height * ARC_TOP_LIMIT) / 2);
+    return half === right ? [left, top, right, bottom] : [-half, top, half, bottom];
+}
 /** At most this many nodes (degree 40 gives 41). */
 const MAX_NODES = RUNGE_DEGREE_MAX + 1;
 const ARC_POINTS = 121;
@@ -46,7 +61,42 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
     }
 
     protected defaultBoundingBox(): BoundingBox {
-        return [...DEFAULT_VIEW];
+        const board = this.hasBoard ? this.board : undefined;
+        const box = rungeViewFor(Number(board?.canvasWidth), Number(board?.canvasHeight));
+        this.shownView = box;
+        return [...box];
+    }
+
+    /** The box last chosen by this graph; a view still on it follows the board's size, a view the user moved is left alone. */
+    private shownView?: BoundingBox;
+
+    override initialize(): void {
+        super.initialize();
+        const session = this.graphSession;
+        const container = this.hasBoard ? this.board.containerObj as HTMLElement | undefined : undefined;
+        if (!session || !container || typeof ResizeObserver === "undefined") return;
+        // The board follows a resize after a short delay of its own, so the view waits for the board's new size.
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const observer = new ResizeObserver(() => {
+            clearTimeout(timer);
+            timer = setTimeout(() => this.reframeToSize(), RESIZE_SETTLE_MS);
+        });
+        observer.observe(container);
+        session.registerCleanup(() => { clearTimeout(timer); observer.disconnect(); });
+    }
+
+    private reframeToSize(): void {
+        if (!this.hasBoard || !this.graphSession?.isAlive || !this.shownView) return;
+        this.boardView.resizing(() => {
+            const shown = this.shownView!;
+            const current = this.board.getBoundingBox();
+            if (!current.every((value, index) => Math.abs(value - shown[index]) <= 1e-6 * (1 + Math.abs(shown[index])))) return;
+            const next = rungeViewFor(Number(this.board.canvasWidth), Number(this.board.canvasHeight));
+            if (next.every((value, index) => value === shown[index])) return;
+            this.shownView = next;
+            this.boardView.setIntent([...next], {keepAspectRatio: false});
+            this.board.update();
+        });
     }
 
     protected override get equalAxisUnits(): boolean {
