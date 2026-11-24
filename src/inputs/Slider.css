@@ -24,3 +24,6 @@
 @media (pointer: coarse), (max-width: 700px) {
     .slider-field .form-range { min-height: 44px; }
 }
+/* Mouse-only hint of the value a click would give: floats under the control, hidden from assistive technology, never takes focus or space. */
+.slider-track { position: relative; }
+.hover-hint { position: absolute; right: 0; top: 100%; z-index: 2; margin-top: 2px; padding: 1px 6px; font-size: .75rem; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; color: var(--workspace-ink, inherit); background: var(--workspace-canvas-deep); border: 1px solid var(--workspace-rule); border-radius: 2px; }

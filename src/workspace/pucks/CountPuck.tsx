@@ -5,6 +5,7 @@ import {currentLanguage, renderMessage, useT} from '../../localization';
 import type {Message} from '../../localization';
 import type {CountParameter} from '../../graphs/base/declare/graphDeclaration';
 import {parseDecimal} from '../../inputs/NumberInput';
+import {usePreviewHover} from '../preview/previewContext';
 import {useJumpUndo} from './jumpUndo';
 import {PuckFrame, UndoPill, useTip} from './PuckParts';
 import {widestCountChars} from './pucksModel';
@@ -41,6 +42,21 @@ export function CountPuck(props: CountPuckProps) {
     const lockId = useId();
     const fmt = (n: number) => formatNumber(n, language, 0);
     const widthCh = widestCountChars(parameter) + 0.4;
+    const preview = usePreviewHover(parameter);
+    const [hovered, setHovered] = useState<string | undefined>();
+    // The − and + buttons preview the value a press would give (mouse only); at a bound there is nothing to preview.
+    const showStep = (delta: number) => {
+        const target = latest.current + delta;
+        if (!preview || locked || target < parameter.min || target > parameter.max) { endHover(); return; }
+        preview.show(target);
+        active.current = preview;
+        setHovered(t('puck_preview_value', {value0: fmt(target)}));
+    };
+    const active = useRef<typeof preview>();
+    const endHover = () => { (active.current ?? preview)?.hide(); active.current = undefined; setHovered(undefined); };
+    // A parameter that becomes locked or not previewable while hovered ends its preview.
+    useEffect(() => { if (active.current && (locked || !preview)) endHover(); }, [locked, preview]); // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => endHover, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const write = (next: number) => {
         const bounded = Math.min(parameter.max, Math.max(parameter.min, next));
@@ -96,11 +112,12 @@ export function CountPuck(props: CountPuckProps) {
     const atMin = value <= parameter.min, atMax = value >= parameter.max;
 
     return <PuckFrame label={name} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
-        tip={tip.shown ? help : undefined} tipId={tipId} className="puck-count"
+        tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className="puck-count"
         pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>
         <div className="puck-stepper">
             <button type="button" className="puck-step" aria-label={t('puck_decrease', {value0: name})} aria-disabled={locked || atMin || undefined}
-                onClick={() => { if (!locked && !atMin) step(-1); }}>−</button>
+                onPointerEnter={event => { if (event.pointerType === 'mouse') showStep(-1); }} onPointerLeave={endHover}
+                onClick={() => { if (!locked && !atMin) { step(-1); if (hovered !== undefined) showStep(-1); } }}>−</button>
             {entry !== null
                 ? <input ref={inputRef} className="puck-input" style={{width: `${widthCh}ch`}} inputMode="numeric" autoComplete="off" value={entry}
                     aria-label={t('puck_entry_label', {value0: name})} aria-invalid={notice !== undefined}
@@ -117,7 +134,8 @@ export function CountPuck(props: CountPuckProps) {
                     <span className="puck-value" style={{width: `${widthCh}ch`}}>{fmt(value)}</span>
                 </div>}
             <button type="button" className="puck-step" aria-label={t('puck_increase', {value0: name})} aria-disabled={locked || atMax || undefined}
-                onClick={() => { if (!locked && !atMax) step(1); }}>+</button>
+                onPointerEnter={event => { if (event.pointerType === 'mouse') showStep(1); }} onPointerLeave={endHover}
+                onClick={() => { if (!locked && !atMax) { step(1); if (hovered !== undefined) showStep(1); } }}>+</button>
         </div>
     </PuckFrame>;
 }

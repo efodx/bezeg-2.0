@@ -23,6 +23,7 @@ import {buildCardSpecs, lessonCardSpec, toolsCardSpec, LESSON_ID, READOUTS_ID, T
 import type {ToolsSection, WorkspaceCardHost} from './cardHost';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
 import {useViewDirector} from './useViewDirector';
+import {PreviewHost} from '../preview/PreviewHost';
 import {freeRect, obstacleRects} from '../view/layoutRects';
 import type {DirectorGeometry} from '../view/viewDirector';
 import './presenter.css';
@@ -406,7 +407,8 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   return <>
     {measureLayer}
     <div ref={layerRef} className="board-cards-layer" data-board-cards-layer="">
-      {ghost && <div className="board-card-ghost" data-board-drop-target="" aria-hidden="true"
+      <PreviewHost graph={graph} width={board.w} height={board.h} frame={frame}>
+      {ghost &&<div className="board-card-ghost" data-board-drop-target="" aria-hidden="true"
         style={{width: ghost.w, height: ghost.h, transform: `translate(${ghost.x}px, ${ghost.y}px)`}}/>}
       {entries.map(({id, placed}) => {
         const spec = specs.find(entry => entry.id === id);
@@ -431,6 +433,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
         style={{width: stripGhost.w, height: stripGhost.h, transform: `translate(${stripGhost.x}px, ${stripGhost.y}px)`}}/>}
       {puckCount > 0 && <PuckStrip ref={stripRef} graph={graph} items={puckList} actions={declaration?.actions ?? []} bounds={boardBounds} rect={stripRect}
         column={stripColumnDock === 'left' || stripColumnDock === 'right'} lift={stripByPointer ? stripDrag?.offset ?? null : null} grip={stripGrip}/>}
+      </PreviewHost>
     </div>
   </>;
 }

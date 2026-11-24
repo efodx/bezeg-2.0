@@ -21,3 +21,5 @@
 @media (forced-colors: active) {
     .count-setter-controls .count-setter-button[aria-disabled="true"] { opacity: 1; color: GrayText; border-color: GrayText; border-style: dashed; }
 }
+.count-setter-controls { position: relative; }
+.count-setter-controls .hover-hint { position: absolute; right: 0; top: 100%; z-index: 2; margin-top: 2px; padding: 1px 6px; font-size: .75rem; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; background: var(--workspace-canvas-deep); border: 1px solid var(--workspace-rule); border-radius: 2px; }

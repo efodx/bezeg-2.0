@@ -1,5 +1,5 @@
 import {currentLanguage, useT} from "../localization";
-import {useId} from "react";
+import {useEffect, useId, useRef, useState} from "react";
 import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -46,10 +46,15 @@ interface SliderProps {
     hideBounds?: boolean
     /** Ids of elements that describe the slider (for example a readout of what it controls); added to the range input's and the exact field's own descriptions. */
     describedBy?: string
+    /** Mouse hover over the track reports the value a press there would give (snapped to the step), and `null` when the pointer leaves or presses. */
+    onHoverValue?: (value: number | null) => void
 }
 
 /** Together longer than this, the two bounds would squeeze the track below about 150 px at the inspector's 286 px, so they drop to a row under it. */
 const INLINE_BOUNDS_CHARACTERS = 16;
+
+/** The range thumb's width in px (`Slider.css` sets 20); its centre cannot reach the outer half-thumb of the track. */
+const THUMB_WIDTH = 20;
 
 /** Decimal places of a step as written (0.05 has 2, 0.015 has 3); a step in exponent notation counts as 6. */
 function stepDecimals(step: number): number {
@@ -61,6 +66,7 @@ function stepDecimals(step: number): number {
 export default function Slider(props: SliderProps) {
     const t = useT();
     const id = useId();
+    const [hint, setHint] = useState<string | undefined>();
     const language = currentLanguage();
     const {step = (props.max - props.min) / 100} = props;
     const integer = Number.isInteger(step) && step > 0;
@@ -77,6 +83,15 @@ export default function Slider(props: SliderProps) {
     const exact = props.formatValue === undefined;
     const show = props.formatValue ?? ((value: number) => formatNumber(value, language, decimals));
     const bounds = props.hideBounds ? undefined : {min: show(props.min), max: show(props.max), inline: show(props.min).length + show(props.max).length <= INLINE_BOUNDS_CHARACTERS};
+    // True between a reported value and its `null`, so an unmount while hovered ends the caller's preview.
+    const hovering = useRef(false);
+    const reportHover = props.onHoverValue;
+    useEffect(() => () => { if (hovering.current) reportHover?.(null); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const hover = (value: number | null) => {
+        hovering.current = value !== null;
+        setHint(value === null ? undefined : t("puck_preview_value", {value0: show(value)}));
+        props.onHoverValue?.(value);
+    };
     return <Form className="slider-field">
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
@@ -103,8 +118,21 @@ export default function Slider(props: SliderProps) {
                             : wrap(props.value + delta);
                         if (next !== props.value) props.onChange(next);
                     }}
+                    onPointerMove={props.onHoverValue === undefined ? undefined : e => {
+                        if (inert || e.pointerType !== "mouse" || e.buttons !== 0) return;
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        if (rect.width <= 0) return;
+                        // The native thumb's centre runs from half a thumb width inside each end (THUMB_WIDTH, as in Slider.css), so a click at x gives this value.
+                        const inset = Math.min(THUMB_WIDTH / 2, rect.width / 2 - 0.5);
+                        const fraction = Math.min(1, Math.max(0, (e.clientX - rect.left - inset) / (rect.width - 2 * inset)));
+                        const snapped = props.min + Math.round(fraction * (props.max - props.min) / step) * step;
+                        hover(Math.round(Math.min(props.max, snapped) * 1e9) / 1e9);
+                    }}
+                    onPointerLeave={props.onHoverValue === undefined ? undefined : () => hover(null)}
+                    onPointerDown={props.onHoverValue === undefined ? undefined : () => hover(null)}
                     onChange={e => { if (!inert) props.onChange(Number(e.target.value)); }}></Form.Range>
             {bounds && <span className="slider-bound" aria-hidden="true">{bounds.max}</span>}
+            {hint && <span className="hover-hint" aria-hidden="true">{hint}</span>}
         </div>
         {unavailableReason && <p id={`${id}-reason`} className="inspector-help">{unavailableReason}</p>}
         {props.help && <p id={`${id}-help`} className="inspector-help">{props.help}</p>}

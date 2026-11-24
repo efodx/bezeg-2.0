@@ -5,6 +5,7 @@ import {stepKeyDelta} from '../../inputs/stepKeys';
 import {currentLanguage, renderMessage, useT} from '../../localization';
 import type {Message} from '../../localization';
 import type {RangeParameter} from '../../graphs/base/declare/graphDeclaration';
+import {usePreviewHover} from '../preview/previewContext';
 import {useJumpUndo} from './jumpUndo';
 import {PuckFrame, UndoPill, useTip} from './PuckParts';
 import {
@@ -67,6 +68,8 @@ export function RangePuck(props: RangePuckProps) {
     const tip = useTip();
     const tipId = useId();
     const lockId = useId();
+    const preview = usePreviewHover(parameter);
+    const [hovered, setHovered] = useState<string | undefined>();
     const fmt = (v: number) => formatRange(v, parameter, language);
     const valueText = unit ? `${fmt(value)} ${unit}` : fmt(value);
     const widthCh = widestChars(parameter, language) + (unit ? unit.length + 1 : 0) + 0.4;
@@ -126,8 +129,25 @@ export function RangePuck(props: RangePuckProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [locked, parameter.step, parameter.min, parameter.max, entry === null]);
 
+    // Mouse hover over the track previews the value a click there would jump to (same maths as the click); touch and keys show nothing.
+    const active = useRef<typeof preview>();
+    const endHover = () => { (active.current ?? preview)?.hide(); active.current = undefined; setHovered(undefined); };
+    // A parameter that becomes locked or not previewable while hovered ends its preview.
+    useEffect(() => { if (active.current && (locked || !preview)) endHover(); }, [locked, preview]); // eslint-disable-line react-hooks/exhaustive-deps
+    const onTrackMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+        if (!preview || locked || drag.current || event.pointerType !== 'mouse') return;
+        const rect = trackRef.current?.getBoundingClientRect();
+        if (!rect || rect.width <= 0) return;
+        const target = snapValue(parameter.min + (event.clientX - rect.left) / rect.width * span, parameter);
+        preview.show(target);
+        active.current = preview;
+        setHovered(t('puck_preview_value', {value0: fmt(target)}));
+    };
+    useEffect(() => endHover, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
         if (locked || event.button > 0) return;
+        endHover();
         tip.hide();
         const body = event.currentTarget;
         body.focus();
@@ -193,7 +213,7 @@ export function RangePuck(props: RangePuckProps) {
     const help = parameter.help ? renderMessage(parameter.help) : undefined;
 
     return <PuckFrame label={name} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
-        tip={tip.shown ? help : undefined} tipId={tipId} className="puck-range"
+        tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className="puck-range"
         pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>
         {entry
             // The entry keeps the body's structure (value line over the track) so the puck's height does not change either.
@@ -215,7 +235,7 @@ export function RangePuck(props: RangePuckProps) {
                 onPointerUp={event => endDrag(event, false)} onPointerCancel={event => endDrag(event, true)}
                 onKeyDown={onKeyDown} onDoubleClick={() => { if (!locked) setEntry({text: fmt(latest.current), select: true}); }}>
                 <span className="puck-value" style={{width: `${widthCh}ch`}}>{fmt(value)}{unit && <span className="puck-unit"> {unit}</span>}</span>
-                <div ref={trackRef} className="puck-track" aria-hidden="true"><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/></div>
+                <div ref={trackRef} className="puck-track" aria-hidden="true" onPointerMove={onTrackMove} onPointerLeave={endHover}><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/></div>
             </div>}
         {ruler && createPortal(<DragRuler parameter={parameter} state={ruler} fmt={fmt}/>, document.body)}
     </PuckFrame>;

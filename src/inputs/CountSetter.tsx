@@ -1,5 +1,5 @@
 import {currentLanguage, useT} from "../localization";
-import React, {useContext, useId, useState} from "react";
+import React, {useContext, useEffect, useId, useRef, useState} from "react";
 import {ReplacementRevision} from "./replacementRevision";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -39,6 +39,8 @@ interface CountSetterProps {
     minReason?: string;
     /** Why plus is unavailable at the upper bound; defaults to "At most {max}.". */
     maxReason?: string;
+    /** Mouse hover over − or + reports the count a press would give, and `null` when the pointer leaves or no press is possible. */
+    onHoverValue?: (value: number | null) => void;
 }
 
 /**
@@ -67,6 +69,23 @@ export function CountSetter(props: CountSetterProps) {
         setSeenRevision(revision);
         setPressed(undefined);
     }
+    // The side the mouse rests on; after a press the neighbour of the new count is reported, and the report ends with the hover or the component.
+    const [hint, setHint] = useState<string | undefined>();
+    const hoverSide = useRef<-1 | 1 | 0>(0);
+    const hoverValue = props.onHoverValue;
+    const reportHover = (side: -1 | 1 | 0) => {
+        hoverSide.current = side;
+        const target = n + side;
+        const next = side === 0 || (side < 0 ? atMin : atMax) ? null : target;
+        setHint(next === null ? undefined : t("puck_preview_value", {value0: formatNumber(next, language, digits)}));
+        hoverValue?.(next);
+    };
+    useEffect(() => { if (hoverSide.current !== 0) reportHover(hoverSide.current); }, [n]); // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => () => { if (hoverSide.current !== 0) hoverValue?.(null); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const hoverHandlers = (side: -1 | 1) => hoverValue === undefined ? {} : {
+        onPointerEnter: (event: React.PointerEvent) => { if (event.pointerType === "mouse") reportHover(side); },
+        onPointerLeave: () => reportHover(0),
+    };
     const blocked = (side: "min" | "max") => setPressed(current => ({side, count: (current?.count ?? 0) + 1}));
     const minusReason = atMin ? props.minReason ?? t("count_at_minimum", {value0: formatNumber(min, language, 0)}) : undefined;
     const plusReason = atMax ? props.maxReason ?? t("count_at_maximum", {value0: formatNumber(max, language, 0)}) : undefined;
@@ -76,7 +95,7 @@ export function CountSetter(props: CountSetterProps) {
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
         <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
              aria-describedby={joinIds(props.help && `${id}-help`, props.describedBy)}>
-            <UnavailableButton aria-label={props.minusLabel ?? t("decrease_count")} className="btn btn-primary count-setter-button" reason={minusReason}
+            <UnavailableButton aria-label={props.minusLabel ?? t("decrease_count")} className="btn btn-primary count-setter-button" reason={minusReason} {...hoverHandlers(-1)}
                                onPress={() => { setPressed(undefined); props.onMinus(); }} onBlockedPress={() => blocked("min")}>−</UnavailableButton>
             {props.onSet
                 ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, digits)})} hideLabel compact
@@ -85,8 +104,9 @@ export function CountSetter(props: CountSetterProps) {
                                onChange={value => props.onSet?.(value)}/>
                 : <output className="count-setter-value" aria-label={t("current_count", {value0: formatNumber(n, language, digits)})}>
                     {formatNumber(n, language, digits)}</output>}
-            <UnavailableButton aria-label={props.plusLabel ?? t("increase_count")} className="btn btn-primary count-setter-button" reason={plusReason}
+            <UnavailableButton aria-label={props.plusLabel ?? t("increase_count")} className="btn btn-primary count-setter-button" reason={plusReason} {...hoverHandlers(1)}
                                onPress={() => { setPressed(undefined); props.onPlus(); }} onBlockedPress={() => blocked("max")}>+</UnavailableButton>
+            {hint && <span className="hover-hint" aria-hidden="true">{hint}</span>}
         </div>
         {props.help && <p id={`${id}-help`} className="count-setter-help">{props.help}</p>}
         <div role="status" aria-live="polite" data-count-status>
