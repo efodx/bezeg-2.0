@@ -4,6 +4,7 @@ import {CountSetter} from '../../inputs/CountSetter';
 import {OnOffSwitch} from '../../inputs/OnOffSwitch';
 import Slider from '../../inputs/Slider';
 import type {ActionDeclaration, ParameterDeclaration, SectionBlock} from '../../graphs/base/declare/graphDeclaration';
+import {usePreviewHover} from '../preview/previewContext';
 import {Tex} from './Tex';
 import './cards.css';
 
@@ -24,15 +25,17 @@ function Control(props: {parameter: ParameterDeclaration; read: SectionBodyProps
     const label = renderMessage(parameter.label);
     const help = parameter.help ? renderMessage(parameter.help) : undefined;
     const value = read(parameter.key);
+    const hover = usePreviewHover({key: parameter.key, previewable: parameter.kind === 'range' || parameter.kind === 'count' ? parameter.previewable : undefined});
+    const onHoverValue = hover && ((v: number | null) => { if (v === null) hover.hide(); else hover.show(v); });
     switch (parameter.kind) {
         case 'range':
             return <Slider min={parameter.min} max={parameter.max} step={parameter.step} value={Number(value)} customText={label} help={help}
-                decimals={parameter.maxDecimals} disabled={parameter.locked} onChange={next => write(parameter.key, next)}/>;
+                decimals={parameter.maxDecimals} disabled={parameter.locked} onChange={next => write(parameter.key, next)} onHoverValue={onHoverValue}/>;
         case 'count': {
             const n = Number(value);
             // A locked count is fixed: both buttons sit at a bound.
             const [min, max] = parameter.locked ? [n, n] : [parameter.min, parameter.max];
-            return <CountSetter label={label} n={n} min={min} max={max} help={help}
+            return <CountSetter label={label} n={n} min={min} max={max} help={help} onHoverValue={parameter.locked ? undefined : onHoverValue}
                 onPlus={() => write(parameter.key, n + 1)} onMinus={() => write(parameter.key, n - 1)} onSet={next => write(parameter.key, next)}/>;
         }
         case 'choice': {
