@@ -152,6 +152,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         return this.standaloneView.adapter;
     }
     private standaloneView?: {board: Board; adapter: ViewAdapter};
+
+    /** The main board's view adapter for the workspace's view director (task 07); `undefined` without a board or session. */
+    get mainViewAdapter(): ViewAdapter | undefined {
+        return this.hasBoard && this.graphSession?.isAlive ? this.graphSession.view : undefined;
+    }
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
 
@@ -992,7 +997,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const [left, top, right, bottom] = this.board.getBoundingBox();
         const dx = (right - left) * (action === "left" ? -.15 : action === "right" ? .15 : 0);
         const dy = (top - bottom) * (action === "up" ? .15 : action === "down" ? -.15 : 0);
-        this.boardView.setIntent([left + dx, top + dy, right + dx, bottom + dy], {keepAspectRatio: false});
+        this.boardView.navigating(() => this.boardView.setIntent([left + dx, top + dy, right + dx, bottom + dy], {keepAspectRatio: false}));
     }
 
     /** Graph-specific mount/figure-entry work; a declared standalone scene is built by the host right after it. */

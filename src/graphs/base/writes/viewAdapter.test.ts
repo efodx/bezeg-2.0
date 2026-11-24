@@ -264,3 +264,72 @@ test("viewBoxesEqual compares within 1e-9 of the box size", () => {
     expect(viewBoxesEqual([0, 10, 10, 0], [1e-6, 10, 10, 0])).toBe(false);
     expect(viewBoxesEqual([0, 10, 10, 0], [0, 10, 10])).toBe(false);
 });
+
+test("subscribe reports who moved the view: a board pan is the learner's, a lesson intent the lesson's, a fit nothing", () => {
+    const sources: string[] = [];
+    const stop = adapter.subscribe(change => sources.push(change.source));
+    const end = beginLearnerGesture();
+    board.pan(1, 0); // the library's own pan during learner input
+    end();
+    expect(sources).toEqual(["learner"]);
+    runAs("lesson", () => adapter.setIntent(boxL));
+    expect(sources).toEqual(["learner", "lesson"]);
+    runAs("learner", () => adapter.setIntent(boxR)); // a pan or zoom button is learner input
+    expect(sources).toEqual(["learner", "lesson", "learner"]);
+    const {lease: fitLease} = lease();
+    expect(adapter.setFitted(boxF, fitLease)).toBe(true);
+    expect(sources).toHaveLength(3);
+    stop();
+    const end2 = beginLearnerGesture();
+    board.pan(1, 0);
+    end2();
+    expect(sources).toHaveLength(3);
+});
+
+test("navigation is a board pan or zoom, zoom buttons and arrows (navigating); a learner Reset, a lesson write and a fit are not", () => {
+    const changes: {source: string; navigation: boolean}[] = [];
+    adapter.subscribe(change => changes.push({source: change.source, navigation: change.navigation}));
+    const end = beginLearnerGesture();
+    board.pan(1, 0);
+    end();
+    runAs("learner", () => adapter.zoom("in"));
+    runAs("learner", () => adapter.navigating(() => adapter.setIntent(boxR))); // an arrow
+    runAs("learner", () => adapter.setIntent(boxL)); // a Reset or Preset click
+    runAs("lesson", () => adapter.setIntent(boxR));
+    expect(changes).toEqual([
+        {source: "learner", navigation: true},
+        {source: "learner", navigation: true},
+        {source: "learner", navigation: true},
+        {source: "learner", navigation: false},
+        {source: "lesson", navigation: false},
+    ]);
+});
+
+test("subscribe reports an untagged board pan on an unbound adapter as the learner's", () => {
+    const loose = new FakeBoard();
+    const free = new ViewAdapter(loose);
+    const sources: string[] = [];
+    free.subscribe(change => sources.push(change.source));
+    loose.pan(1, 0);
+    expect(sources).toEqual(["learner"]);
+    free.dispose();
+});
+
+test("clearFitted shows the intent again without a write or a notification, and does nothing without a fit", () => {
+    const changes = vi.fn();
+    adapter.subscribe(changes);
+    const intent = adapter.intent();
+    const intentBox = [...board.box];
+    adapter.clearFitted(); // nothing fitted: nothing shown
+    expect(board.box).toEqual(intentBox);
+    const {lease: l} = lease();
+    expect(adapter.setFitted(boxF, l)).toBe(true);
+    expect(board.box).toEqual(boxF);
+    const readBefore = arbiter.read("view");
+    adapter.clearFitted();
+    expect(board.box).toEqual(intentBox);
+    expect(adapter.fitted()).toBeUndefined();
+    expect(adapter.intent()).toBe(intent);
+    expect(arbiter.read("view")).toBe(readBefore);
+    expect(changes).not.toHaveBeenCalled();
+});

@@ -1,5 +1,5 @@
 import type {Lease, ParameterArbiter, WriteResult} from "./parameterArbiter";
-import {currentWrite} from "./writeSource";
+import {currentWrite, type WriteSource} from "./writeSource";
 
 /**
  * The only writer of one board's view (task 01b, [design](../../../../docs/reviews/ux-picks-app-wide/01b-design.md)).
@@ -27,6 +27,21 @@ export interface ViewIntent {
     readonly box: ViewBox;
     /** Passed to `setBoundingBox` whenever the intent is shown (JSXGraph widens one axis to keep units square). */
     readonly keepAspectRatio: boolean;
+}
+
+/** A change of the intent, as {@link ViewAdapter.subscribe} reports it. */
+export interface ViewChange {
+    /**
+     * Who moved the view: the current write scope's source, `learner` for a board event outside any scope (the library's
+     * pan or zoom), `other` for an intent set outside any scope.
+     */
+    readonly source: WriteSource | "other";
+    /**
+     * Whether this is the learner navigating: a library pan or zoom of the board, {@link ViewAdapter.zoom}, or a
+     * {@link ViewAdapter.setIntent} inside {@link ViewAdapter.navigating} (the arrows and zoom buttons). A learner Reset
+     * or Preset is not navigation.
+     */
+    readonly navigation: boolean;
 }
 
 /** The part of a JSXGraph board the adapter uses. */
@@ -67,12 +82,14 @@ export class ViewAdapter {
     private applying = 0;
     /** Open {@link resizing} and {@link following} blocks: view changes there are not writes. */
     private derivedDepth = 0;
+    private navigatingDepth = 0;
     /** The zoom mode of the {@link setIntent} call being applied (not part of the intent). */
     private pendingZoom: ViewZoomMode | undefined;
     private applyingFromArbiter = false;
     private arbiter: ParameterArbiter | undefined;
     private boundKey: string | undefined;
     private readonly listeners = new Set<() => void>();
+    private readonly changeListeners = new Set<(change: ViewChange) => void>();
     private readonly onBoundingBox = () => this.boardChanged();
     private disposed = false;
 
@@ -85,6 +102,16 @@ export class ViewAdapter {
 
     intent(): ViewIntent {
         return this.intentValue;
+    }
+
+    /**
+     * Calls `listener` after every change of the intent (never for a fit's {@link setFitted}). `change.source` says who moved
+     * the view (see {@link ViewChange}).
+     * The write source is still current while the listener runs. Returns the unsubscribe function.
+     */
+    subscribe(listener: (change: ViewChange) => void): () => void {
+        this.changeListeners.add(listener);
+        return () => this.changeListeners.delete(listener);
     }
 
     /** The box a fit shows, or `undefined` when the shown view is the intent. */
@@ -136,7 +163,17 @@ export class ViewAdapter {
         } finally {
             this.applying--;
         }
-        this.boardChanged();
+        this.boardChanged(true);
+    }
+
+    /** Runs `work`; an intent it sets counts as the learner navigating (see {@link ViewChange.navigation}). */
+    navigating<T>(work: () => T): T {
+        this.navigatingDepth++;
+        try {
+            return work();
+        } finally {
+            this.navigatingDepth--;
+        }
     }
 
     /**
@@ -150,6 +187,16 @@ export class ViewAdapter {
             this.fittedBox = fitted;
             this.show(fitted, false);
         });
+    }
+
+    /**
+     * Shows the intent again when a fitted box is shown, and forgets the fit. Not a write: no arbiter write and no change
+     * notification (like {@link resizing}).
+     */
+    clearFitted(): void {
+        if (!this.fittedBox || this.disposed) return;
+        this.fittedBox = undefined;
+        this.show(this.intentValue.box, this.intentValue.keepAspectRatio);
     }
 
     /**
@@ -214,6 +261,7 @@ export class ViewAdapter {
         this.disposed = true;
         this.board.off("boundingbox", this.onBoundingBox);
         this.listeners.clear();
+        this.changeListeners.clear();
         this.arbiter = undefined;
         this.boundKey = undefined;
     }
@@ -223,7 +271,7 @@ export class ViewAdapter {
         this.intentValue = intent;
         this.fittedBox = undefined;
         this.show(intent.box, intent.keepAspectRatio, this.pendingZoom);
-        if (changed && notify) this.emit();
+        if (changed && notify) this.emit(currentWrite()?.source ?? "other", this.navigatingDepth > 0);
     }
 
     private show(box: ViewBox, keepAspectRatio: boolean, zoom?: ViewZoomMode): void {
@@ -238,17 +286,19 @@ export class ViewAdapter {
     }
 
     /** A board view change: the adapter's own (ignored) or the library's from learner input (the new intent). */
-    private boardChanged(): void {
+    private boardChanged(zoomed = false): void {
         if (this.disposed || this.applying > 0 || this.derivedDepth > 0) return;
         const shown = toBox(this.board.getBoundingBox());
         if (viewBoxesEqual(shown, this.lastShown)) return;
         this.lastShown = shown;
         this.intentValue = {box: shown, keepAspectRatio: false};
         this.fittedBox = undefined;
-        this.emit();
+        const source = currentWrite()?.source ?? "learner";
+        this.emit(source, zoomed || source === "learner");
     }
 
-    private emit(): void {
+    private emit(source: ViewChange["source"], navigation: boolean): void {
         for (const listener of [...this.listeners]) listener();
+        for (const listener of [...this.changeListeners]) listener({source, navigation});
     }
 }

@@ -2,6 +2,7 @@
 // owning the panels, the lesson state and Presentation; the presenter only reads this and stays free of route knowledge.
 import type {ReactNode} from 'react';
 import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ViewDirector} from '../view/viewDirector';
 
 export type ToolsSection = 'edit' | 'display' | 'save';
 
@@ -27,6 +28,8 @@ export interface WorkspaceCardHost {
     };
     /** The open lesson frame's declaration (highlight, used controls), undefined when the frame declares none or no lesson is open. */
     frame: FrameDeclaration | undefined;
+    /** The view director (task 07): whether the demonstration's view is a surface (never fitted), and where the card layer hands its director, if it made one. Absent: no director. */
+    view?: {surface: boolean; onDirector: (director: ViewDirector | undefined) => void; frameTick: number};
     fullScreen: boolean;
     /** Presentation only: Orodja's fold decided by the header button. Overrides the stored fold, is never stored. Undefined outside Presentation. */
     toolsFolded: boolean | undefined;

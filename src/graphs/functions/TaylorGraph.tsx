@@ -8,11 +8,11 @@ import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, message, messageNumber, t, type Message} from "../../localization";
-import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutNote} from "../base/declare/graphDeclaration";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutNote, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {runAs} from "../base/writes/writeSource";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {
-    evaluateTaylorCoefficients, geometricConvergenceInterval, isInsideGeometricConvergence,
+    evaluateTaylorCoefficients, geometricConvergenceInterval, isInsideGeometricConvergence, isTaylorX,
     TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorAbsoluteError, taylorCoefficients, taylorErrorBound, taylorExample, TaylorBound, TaylorExample,
     TaylorExampleId, taylorFunctionValue, taylorPolynomial, taylorSignedError,
 } from "../../analysis/taylor";
@@ -38,6 +38,9 @@ const EXAMPLE_VIEWS: Readonly<Record<TaylorExampleId, BoundingBox>> = {
     geometric: [-2.6, 6, 1.6, -3],
     flat: [-1.4, 1.6, 3.4, -0.6],
 };
+
+/** Samples per curve in the declared view marks. */
+const VIEW_MARK_SAMPLES = 25;
 
 /** Dash styles (JSXGraph numbering): f is solid, T_n dashed, so they differ by pattern and not only by colour. */
 const FUNCTION_DASH = 0;
@@ -417,6 +420,40 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 {id: "x", label: message("taylor_legend_x"), kind: "point", object: "x-point"},
             ],
             actions: [{id: "show-error", label: message("show_error_bound"), help: message("taylor_bound_help"), placement: "board", enabled: true, pressed: shown, puck: true}],
+            marks: this.viewMarks(model),
+        };
+    }
+
+    /**
+     * What the view director keeps visible (task 07): the expansion point (c, f(c)) must stay clear of the cards; samples of the function
+     * and of the polynomial over the example's own interval are kept when there is room. A polynomial that runs off the example's
+     * height is left out (high degrees explode away from c), so it cannot pull the view out.
+     */
+    private viewMarks(model: TaylorModel): ViewMarks {
+        // Memoized on its inputs (the declaration is read on every render), so an unchanged state returns the same object.
+        const cached = this.viewMarksCache;
+        if (cached && cached.example === model.example && cached.center === model.center && cached.degree === model.degree) return cached.marks;
+        const marks = this.computeViewMarks(model);
+        this.viewMarksCache = {example: model.example, center: model.center, degree: model.degree, marks};
+        return marks;
+    }
+
+    private viewMarksCache: {example: TaylorModel["example"]; center: number; degree: number; marks: ViewMarks} | undefined;
+
+    private computeViewMarks(model: TaylorModel): ViewMarks {
+        const example = taylorExample(model.example);
+        const [left, top, right, bottom] = EXAMPLE_VIEWS[model.example];
+        const height = top - bottom;
+        const inside = (y: number) => Number.isFinite(y) && y >= bottom - height && y <= top + height;
+        const samples = (valueAt: (x: number) => number): ViewMark => ({
+            kind: "polyline",
+            points: Array.from({length: VIEW_MARK_SAMPLES}, (_, i) => left + (right - left) * i / (VIEW_MARK_SAMPLES - 1))
+                .filter(x => isTaylorX(example, x))
+                .map(x => [x, valueAt(x)] as const).filter(([, y]) => inside(y)),
+        });
+        return {
+            must: isTaylorX(example, model.center) ? [{kind: "point", x: model.center, y: taylorFunctionValue(example, model.center)}] : [],
+            nice: [samples(x => taylorFunctionValue(example, x)), samples(x => taylorPolynomial(example, model.center, model.degree, x))],
         };
     }
 

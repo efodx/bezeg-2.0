@@ -158,6 +158,7 @@ export const sl = {
     "library_picker_busy": "Demonstracijo lahko zamenjaš po koncu trenutnega opravila.",
     "prompt_repeated_subdivision": "Ponovi subdivizijo pri t = ½. Kako se kontrolni poligoni približujejo krivulji?",
     "fit_points": "Prilagodi točkam",
+    "view_autofit": "Samodejno",
     "try_and_observe": "Preizkusi in opazuj",
     "next_prompt": "Naslednji namig",
     "prompt_control_points": "Premakni eno kontrolno točko. Kateri del krivulje se najbolj spremeni?",

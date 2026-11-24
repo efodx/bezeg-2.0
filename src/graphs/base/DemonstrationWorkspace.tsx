@@ -1,5 +1,5 @@
 import {useT} from "../../localization";
-import React, {useCallback,useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback,useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore} from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {createPortal} from "react-dom";
 import {SiteContext} from "../context/react/SiteContext";
@@ -28,6 +28,8 @@ import {WorkspaceElder} from './WorkspaceElder';
 import type {ToolsSection, WorkspaceCardHost} from '../../workspace/presenter/cardHost';
 import type {FrameDeclaration} from './declare/graphDeclaration';
 import {StaticToolsCard} from '../../workspace/presenter/StaticToolsCard';
+import type {ViewDirector} from '../../workspace/view/viewDirector';
+import {autofitSwitch} from '../../workspace/view/autofitSwitch';
 
 type Section = ToolsSection;
 type LessonMode = "content" | "explore" | "complete" | "closed";
@@ -208,6 +210,12 @@ export function DemonstrationWorkspace(props: {
     }, [lessonRendered, lessonSlot, props.lessonCard]);
     useLayoutEffect(() => () => { lessonSlot.remove(); }, [lessonSlot]);
     const [frameDeclaration, setFrameDeclaration] = useState<FrameDeclaration>();
+    // The card layer's view director, when the board has one (task 07): the fit button and Samodejno are its controls.
+    const [viewDirector, setViewDirector] = useState<ViewDirector>();
+    // One tick per lesson step: the lesson re-registers its declaration (clearing it first) on every frame change, declared or not.
+    const [frameTick, setFrameTick] = useState(0);
+    const registerFrame = useCallback((declaration: FrameDeclaration | undefined) => { setFrameDeclaration(declaration); setFrameTick(tick => tick + 1); }, []);
+    const autofit = useSyncExternalStore(autofitSwitch.subscribe, autofitSwitch.get);
     const [lessonFoldRequest, setLessonFoldRequest] = useState<{folded: boolean; seq: number}>();
     const requestLessonFold = useCallback((folded: boolean) => setLessonFoldRequest(previous => ({folded, seq: (previous?.seq ?? 0) + 1})), []);
     const cardHost: WorkspaceCardHost = {
@@ -215,6 +223,7 @@ export function DemonstrationWorkspace(props: {
         tools: {panels: {edit: props.edit, display: props.display, save: props.save}, section, setSection, locked: false},
         lesson: {slot: lessonSlot, active: lessonActive, mode: shownLessonMode, foldRequest: lessonFoldRequest, reportCardFolded: setLessonCardFolded},
         frame: lessonActive ? frameDeclaration : undefined,
+        view: {surface: demonstration?.view === 'surface', onDirector: setViewDirector, frameTick},
         fullScreen,
         toolsFolded: fullScreen ? !presentationControls : undefined,
         setToolsFolded: folded => setPresentationControls(!folded),
@@ -271,7 +280,7 @@ export function DemonstrationWorkspace(props: {
             registerClose={registerLessonClose}
             registerExit={registerLessonExit}
             registerGraphActions={setLessonGraphActions}
-            registerFrameDeclaration={setFrameDeclaration}
+            registerFrameDeclaration={registerFrame}
             presentation={props.lessonCard ? 'card' : undefined}
             onRequestFold={requestLessonFold}
             cardFolded={lessonCardFolded}
@@ -297,8 +306,12 @@ export function DemonstrationWorkspace(props: {
             <div className="workspace-toolbar">
                 {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                     {actions.map(action => {
-                        if (action === 'fit') return <button key={action} data-navigation={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
+                        if (action === 'fit') return <React.Fragment key={action}>
+                            <button data-navigation={action} onClick={() => viewDirector ? viewDirector.fitNow() : props.navigate(action)}>{t('fit_points')}</button>
+                            {viewDirector && <button data-navigation="autofit" aria-pressed={autofit} onClick={() => autofitSwitch.set(!autofit)}>{t('view_autofit')}</button>}
+                        </React.Fragment>;
                         const [text, label] = navigationLabels[action];
+                        // A pan or zoom button is learner input: the view adapter reports it as the learner's, and the director steps back.
                         return <button key={action} data-navigation={action} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
                     })}
                 </div>}
