@@ -57,6 +57,8 @@ export interface RangeParameter<K extends string = string> extends ParameterBase
     readonly unit?: Message;
     /** The big step (Shift+Arrow, PageUp, PageDown) in value units, as the `Slider` prop; default ten steps. */
     readonly bigStep?: number;
+    /** The graph can draw its main curves at another value of this parameter (task 06): needs the graph's `previewGeometry()`. */
+    readonly previewable?: true;
 }
 
 /** A whole-number count: a `CountSetter`. */
@@ -64,6 +66,8 @@ export interface CountParameter<K extends string = string> extends ParameterBase
     readonly kind: "count";
     readonly min: number;
     readonly max: number;
+    /** As {@link RangeParameter.previewable}. */
+    readonly previewable?: true;
 }
 
 /** The most options a choice puck shows; a longer choice stays in Orodja. */
@@ -250,9 +254,10 @@ export interface DeclarationProblem {
 /**
  * Checks a declaration on its own: unique ids per kind, legend links that exist, range parameters with `min < max` and a
  * positive step, counts with whole bounds, choices with options. What needs the graph (bound keys, drawn objects, a
- * frame against its scene) is checked by the contract test with {@link checkFrame} and the graph.
+ * frame against its scene) is checked by the contract test with {@link checkFrame} and the graph. `hasPreviewGeometry` is
+ * whether the graph has a `previewGeometry()`: `false` rejects a `previewable` mark; left out, the mark is not checked.
  */
-export function checkDeclaration(declaration: GraphDeclaration): DeclarationProblem[] {
+export function checkDeclaration(declaration: GraphDeclaration, hasPreviewGeometry?: boolean): DeclarationProblem[] {
     const problems: DeclarationProblem[] = [];
     const unique = (kind: string, ids: readonly string[]) => {
         const seen = new Set<string>();
@@ -284,6 +289,7 @@ export function checkDeclaration(declaration: GraphDeclaration): DeclarationProb
     }
     for (const parameter of declaration.parameters ?? []) {
         const where = `parameter ${parameter.key}`;
+        if ((parameter.kind === "range" || parameter.kind === "count") && parameter.previewable && hasPreviewGeometry === false) problems.push({where, problem: "previewable needs the graph's previewGeometry()"});
         if (parameter.kind === "range" || parameter.kind === "count") {
             // A parameter fixed in this state (Taylor's flat example fixes the centre) is locked with min = max.
             const ordered = parameter.locked ? parameter.min <= parameter.max : parameter.min < parameter.max;

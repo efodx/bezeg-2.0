@@ -31,6 +31,7 @@ import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
 import {ParameterArbiter, type ParameterBinding} from "./writes/parameterArbiter";
 import {runAs} from "./writes/writeSource";
 import type {GraphDeclaration} from "./declare/graphDeclaration";
+import type {PreviewGeometry} from "./preview/previewGeometry";
 import {ViewAdapter} from "./writes/viewAdapter";
 import {installLearnerInputTagging} from "./writes/learnerInputTagging";
 import {SceneSlot, type SceneDeclaration} from "./OwnedScene";
@@ -263,6 +264,18 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     getDeclaration(): GraphDeclaration | undefined {
         return this.declaration();
+    }
+
+    /**
+     * What the main curves look like at another value of a `previewable` declared parameter (task 06, ADR 0067): a pure
+     * function of an `exportPreset()` snapshot, bound here by the graph; `undefined` when the graph previews nothing.
+     */
+    protected previewGeometry(): PreviewGeometry | undefined {
+        return undefined;
+    }
+
+    getPreviewGeometry(): PreviewGeometry | undefined {
+        return this.previewGeometry();
     }
 
     /**

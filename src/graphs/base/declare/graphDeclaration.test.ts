@@ -123,6 +123,15 @@ describe("checkDeclaration", () => {
         expect(checkDeclaration({parameters: [choice]})).toEqual([{where: "parameter c", problem: "needs at least two options"}]);
     });
 
+    it("rejects a previewable parameter when the graph has no preview geometry", () => {
+        const marked = {parameters: [rangeA({previewable: true})]};
+        expect(checkDeclaration(marked, false)).toEqual([{where: "parameter a", problem: "previewable needs the graph's previewGeometry()"}]);
+        expect(checkDeclaration(marked, true)).toEqual([]);
+        expect(checkDeclaration(marked)).toEqual([]);
+        const count = {kind: "count" as const, key: "n", label, placement: "board" as const, min: 0, max: 5, previewable: true as const};
+        expect(checkDeclaration({parameters: [count]}, false)).toHaveLength(1);
+    });
+
     it("reports a board parameter with a section", () => {
         expect(checkDeclaration({parameters: [rangeA({section: "order"})]})).toEqual([{where: "parameter a", problem: "a board control has no Orodja section"}]);
     });
