@@ -159,6 +159,7 @@ export const en: Record<keyof typeof sl, string> = {
     "library_picker_busy": "You can switch demonstrations when the current operation finishes.",
     "prompt_repeated_subdivision": "Repeat subdivision at t = ½. How do the control polygons approach the curve?",
     "fit_points": "Fit to points",
+    "view_autofit": "Auto-fit",
     "try_and_observe": "Try and observe",
     "next_prompt": "Next prompt",
     "prompt_control_points": "Move one control point. Which part of the curve changes most?",

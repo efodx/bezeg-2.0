@@ -66,6 +66,9 @@
 .workspace-navigation button:hover { border-color: var(--workspace-rule); }
 .workspace-navigation button[data-navigation="in"], .workspace-navigation button[data-navigation="fit"] { margin-inline-start: 8px; }
 .workspace-navigation button[data-navigation="fit"] { background: transparent; text-decoration: underline; text-underline-offset: 3px; }
+/* Samodejno (task 07): the view director's switch; its look is settled at the feel check. */
+.workspace-navigation button[data-navigation="autofit"] { padding-inline: 10px; }
+.workspace-navigation button[data-navigation="autofit"][aria-pressed="true"] { border-color: var(--workspace-rule); font-weight: 600; }
 .workspace-gesture-hint { margin: 9px 18px 14px; line-height: 1.5; }
 .workspace-inspector #inspector-content > section { padding: 14px 16px; }
 .workspace-inspector .tools .list-group-item { padding-block: 16px; }

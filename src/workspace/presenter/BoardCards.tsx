@@ -21,6 +21,9 @@ import {PuckStrip, estimateStrip, puckItems, puckOwnedKeys, puckShapeOf, wrapped
 import {buildCardSpecs, lessonCardSpec, toolsCardSpec, LESSON_ID, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
 import type {ToolsSection, WorkspaceCardHost} from './cardHost';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
+import {useViewDirector} from './useViewDirector';
+import {freeRect, obstacleRects} from '../view/layoutRects';
+import type {DirectorGeometry} from '../view/viewDirector';
 import './presenter.css';
 
 export interface BoardCardsProps {
@@ -267,6 +270,10 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   };
 
   const final = ready && !pending && preview !== null;
+  // The view director (task 07): the settled layout (not the drag preview) says where the board is free and which cards cover it.
+  const directorGeometry: DirectorGeometry | null = final && base
+    ? {canvas: {width: board.w, height: board.h}, free: freeRect(base), obstacles: obstacleRects(base)} : null;
+  useViewDirector({graph, host: host.view, geometry: directorGeometry, boardSize: board, frameTick: host.view?.frameTick ?? 0, marks: declaration?.marks, dragging: drag !== null});
   const stripRect = final ? preview.pucks : stableStrip;
   if (final && JSON.stringify(stableStrip) !== JSON.stringify(preview.pucks)) setStableStrip(preview.pucks);
   // Where the dragged card would land, drawn under the cards when a drop would dock it; a free drop floats and shows none.
