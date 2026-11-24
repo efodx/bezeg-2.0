@@ -158,7 +158,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
         card = {...card, natural: {...card.natural, h: heldLessonHeight}};
       }
       const reserve = spec.id === LESSON_ID ? bar + LESSON_RESTORE_ROW : bar; // the lesson's Povrni row is always there, cut or not
-      return card ? [{...card, reserve, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
+      return card ? [{...card, reserve, exactCut: spec.id === LESSON_ID, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
     });
   }, [measured, specs, heldLessonHeight]);
   // First-view budget (04-design section 9): lesson, readouts, tools; an undeclared graph has only Orodja, which starts open.

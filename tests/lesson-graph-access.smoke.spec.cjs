@@ -58,7 +58,7 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     await setDegree(page, 7);
     await expect.poll(() => readout(page, 'degree')).toBe('7');
     await h.openToolsCard(page);
-    await page.locator('[data-action="toggle-taylor-bound"]').click();
+    await page.getByRole('switch', {name: 'Show error bound'}).click();
     await expect.poll(() => boundStatuses(page)).toEqual(['revealed']);
     const entryBoard = await boardSnapshot(page);
     const entryBound = await boundStatuses(page);

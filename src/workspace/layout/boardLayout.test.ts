@@ -122,6 +122,13 @@ describe('layoutBoard', () => {
     expect(byId(r, 'T').rect.h).toBe(380);
   });
 
+  it('an exactCut card is cut to the room, not to a row break, so its cut does not change with its frame', () => {
+    const tall = (rowBreaks: number[]) => card('T', 'bc', { priority: Infinity, natural: { w: 300, h: 600 }, min: { w: 300, h: 120 }, rowBreaks, exactCut: true });
+    const board = { w: 3440, h: 400 }; // available 384
+    expect(byId(layoutBoard(input([tall([100, 200, 300, 380, 450])], { board })), 'T').cut).toBe(384);
+    expect(byId(layoutBoard(input([tall([100, 250, 340, 450])], { board })), 'T').cut).toBe(384);
+  });
+
   it('adds the reserve back to a cut: the largest row break above the bar, plus the bar, never below min.h', () => {
     const tall = (reserve: number, min = 120) => card('T', 'tl', { priority: Infinity, natural: { w: 300, h: 600 }, min: { w: 300, h: min }, reserve, rowBreaks: [100, 200, 300, 380, 450] });
     const board = { w: 3440, h: 400 }; // available 384
@@ -275,6 +282,18 @@ describe('layoutBoard', () => {
       const tools = card('tools', 'tr', { natural: { w: 394, h: 400 }, min: { w: 394, h: 100 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 1 });
       const legend = card('legend', 'br', { natural: { w: 394, h: 400 }, min: { w: 394, h: 100 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 0 });
       const r = layoutBoard(input([real, readouts, tools, legend], { board: { w: 1230, h: 411 }, maxSpan: 1800, pucks, puckSlots: slots }));
+      for (const c of r.cards) expect(overlaps(r.pucks!, c.rect), `${c.id} under the strip`).toBe(false);
+      expect(byId(r, 'lesson').rect.h).toBeGreaterThanOrEqual(288);
+    });
+
+    it('folds right cards the frame opened as a last resort, so the strip never covers the lesson nav row (phase-portrait step 2 part 2)', () => {
+      const slots = [{ w: 120, h: 155 }, ...[0, 1, 2, 3].map(() => ({ w: 160, h: 71 })), { w: 160, h: 85 }, { w: 120, h: 85 }];
+      const pucks = { w: 1088, h: 248 };
+      const real = card('lesson', 'tl', { natural: { w: 394, h: 1081 }, min: { w: 394, h: 321 }, anchorMin: 288, reserve: 61, foldedHeight: 39, priority: Infinity, defaultOrder: -1 });
+      const readouts = card('readouts', 'tr', { natural: { w: 394, h: 296 }, min: { w: 394, h: 200 }, foldedHeight: 39, priority: 3, defaultOrder: 0, defaultFolded: true });
+      const tools = card('tools', 'tr', { natural: { w: 394, h: 168 }, min: { w: 394, h: 168 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 1 });
+      const legend = card('legend', 'br', { natural: { w: 394, h: 126 }, min: { w: 394, h: 126 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 0 });
+      const r = layoutBoard(input([real, readouts, tools, legend], { board: { w: 1230, h: 411 }, maxSpan: 1800, pucks, puckSlots: slots, frame: { open: ['tools', 'legend'] } }));
       for (const c of r.cards) expect(overlaps(r.pucks!, c.rect), `${c.id} under the strip`).toBe(false);
       expect(byId(r, 'lesson').rect.h).toBeGreaterThanOrEqual(288);
     });
