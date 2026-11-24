@@ -4,7 +4,7 @@
 // failure never throws. The lesson card's placement is stored like any card's (task 04); its fold is
 // never stored, because folding the lesson card is its explore mode.
 import {appStorage} from '../../storage/appStorage';
-import type {Anchor, Placement} from './boardLayout';
+import type {Anchor, Placement, StripDock} from './boardLayout';
 
 export const BOARD_LAYOUT_KEY = 'board-layout';
 export const BOARD_LAYOUT_VERSION = 1;
@@ -14,8 +14,11 @@ export const LESSON_CARD_ID = 'lesson';
 export interface StoredBoardLayout {
     placements: Record<string, Placement>;
     folds: Record<string, boolean>;
+    /** Where the pucks strip docks; absent means the default (bottom-left). */
+    strip?: StripDock;
 }
 
+const STRIP_DOCKS: readonly StripDock[] = ['bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'];
 const ANCHORS: readonly Anchor[] = ['tl', 'tc', 'tr', 'ml', 'mr', 'bc', 'br'];
 const COORD_LIMIT = 1e6;
 
@@ -57,6 +60,7 @@ export function parseBoardLayout(raw: unknown): StoredBoardLayout {
             if (typeof value === 'boolean') result.folds[id] = value;
         }
     }
+    if (typeof raw.strip === 'string' && STRIP_DOCKS.includes(raw.strip as StripDock)) result.strip = raw.strip as StripDock;
     return result;
 }
 
@@ -95,7 +99,11 @@ export function setFold(layout: StoredBoardLayout, id: string, folded: boolean):
 export function resetCard(layout: StoredBoardLayout, id: string): StoredBoardLayout {
     const {[id]: _p, ...placements} = layout.placements;
     const {[id]: _f, ...folds} = layout.folds;
-    return {placements, folds};
+    return {...layout, placements, folds};
+}
+
+export function setStripDock(layout: StoredBoardLayout, dock: StripDock): StoredBoardLayout {
+    return {...layout, strip: dock};
 }
 
 /** Forget every stored placement and fold, and remove the record. */
