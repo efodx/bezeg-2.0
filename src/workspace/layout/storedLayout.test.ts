@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {
-    BOARD_LAYOUT_KEY, emptyBoardLayout, loadBoardLayout, resetAll, resetCard, saveBoardLayout, setFold, setPlacement,
+    BOARD_LAYOUT_KEY, BOARD_LAYOUT_VERSION, emptyBoardLayout, loadBoardLayout, parseBoardLayout, resetAll, resetCard, saveBoardLayout, setFold,
+    setPlacement, setStripDock,
 } from './storedLayout';
 
 function fakeStorage(initial: Record<string, string> = {}, throwOnSet = false): Storage {
@@ -89,5 +90,28 @@ describe('stored board layout', () => {
         saveBoardLayout(layout, storage);
         expect(resetAll(storage)).toEqual(emptyBoardLayout());
         expect(storage.getItem(BOARD_LAYOUT_KEY)).toBeNull();
+    });
+});
+
+describe('stored strip dock', () => {
+    it('round-trips every dock and parses junk as absent', () => {
+        for (const dock of ['bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'] as const) {
+            const storage = fakeStorage();
+            expect(saveBoardLayout(setStripDock(emptyBoardLayout(), dock), storage)).toBe(true);
+            expect(loadBoardLayout(storage).strip).toBe(dock);
+        }
+        for (const junk of ['top', 3, null, {}, ['left']]) {
+            expect(parseBoardLayout({version: BOARD_LAYOUT_VERSION, placements: {}, folds: {}, strip: junk}).strip).toBeUndefined();
+        }
+        expect(parseBoardLayout({version: BOARD_LAYOUT_VERSION}).strip).toBeUndefined();
+    });
+
+    it('survives resetting one card and is cleared by resetting everything', () => {
+        const layout = setPlacement(setStripDock(emptyBoardLayout(), 'right'), 'a', {kind: 'free', x: 1, y: 2});
+        expect(resetCard(layout, 'a').strip).toBe('right');
+        const storage = fakeStorage();
+        saveBoardLayout(layout, storage);
+        expect(resetAll(storage).strip).toBeUndefined();
+        expect(loadBoardLayout(storage).strip).toBeUndefined();
     });
 });

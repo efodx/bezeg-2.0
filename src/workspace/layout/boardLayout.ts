@@ -2,6 +2,7 @@
 // Spec: docs/reviews/ux-picks-app-wide/03-layout-design.md. No React, JSXGraph or DOM.
 
 export type Anchor = 'tl' | 'tc' | 'tr' | 'ml' | 'mr' | 'bc' | 'br';
+export type StripDock = 'bottom-left' | 'bottom-centre' | 'bottom-right' | 'left' | 'right';
 export interface Size { w: number; h: number }
 export interface Rect { x: number; y: number; w: number; h: number }
 
@@ -38,6 +39,8 @@ export interface LayoutInput {
   storedFolds: Readonly<Record<string, boolean>>;
   frame?: { open: readonly string[]; usesTools: boolean };
   pucks?: Size;
+  /** Where the strip docks (rules 2, 2j, 2k). Default 'bottom-left'. */
+  stripDock?: StripDock;
   /** The strip's slots (measured), to know how tall it wraps in a narrower width. Default: one slot of the strip's size. */
   puckSlots?: readonly Size[];
   maxSpan: number;
@@ -99,9 +102,52 @@ const heightOf = (s: State): number => s.cut ?? (s.folded ? s.card.foldedHeight 
 
 const overlaps = (a: Rect, b: Rect): boolean => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
+/** Rule 2k: the strip as its own column at the left or right board edge. Slots stack top-down from `gap` (8 px between), wrap into
+ *  further columns when taller than `board.h - 2 * gap`; every column is as wide as the widest slot. */
+function sideStrip(input: LayoutInput, dock: 'left' | 'right'): Rect {
+  const { board, gap } = input;
+  const slots = input.puckSlots ?? (input.pucks ? [input.pucks] : []);
+  const slotW = Math.max(0, ...slots.map((s) => s.w));
+  let columns = 0, y = 0, tallest = 0;
+  for (const slot of slots) {
+    if (columns > 0 && y > 0 && y + 8 + slot.h > board.h - 2 * gap) { tallest = Math.max(tallest, y); columns += 1; y = 0; } else if (columns === 0) columns = 1;
+    y += (y > 0 ? 8 : 0) + slot.h;
+  }
+  tallest = Math.max(tallest, y);
+  const w = columns * slotW + Math.max(0, columns - 1) * 8;
+  return { x: dock === 'left' ? gap : board.w - gap - w, y: gap, w, h: tallest };
+}
+
+function layoutSide(input: LayoutInput, dock: 'left' | 'right'): LayoutResult {
+  const { board, gap } = input;
+  const strip = sideStrip(input, dock);
+  const used = strip.w + gap; // what the strip takes at its edge; the card column sits beside it
+  const offset = dock === 'left' ? strip.x + strip.w : 0;
+  const stored: Record<string, Placement> = {};
+  for (const [id, p] of Object.entries(input.stored)) stored[id] = p.kind === 'free' && dock === 'left' ? { ...p, x: p.x - offset } : p;
+  const sub = layoutOnce({ ...input, pucks: undefined, puckSlots: undefined, stored, board: { w: Math.max(0, board.w - used), h: board.h } }, false);
+  const cards = sub.cards.map((c) => ({ ...c, rect: { ...c.rect, x: c.rect.x + offset } }));
+  const obstacles = cards.filter((c) => c.anchor !== 'free').map((c) => c.rect);
+  obstacles.push(strip);
+  return { cards, pucks: strip, free: largestEmptyRect(board, obstacles), band: { x: sub.band.x + offset, w: sub.band.w } };
+}
+
 export function layoutBoard(input: LayoutInput): LayoutResult {
+  const dock = input.stripDock ?? 'bottom-left';
+  if (input.pucks && (dock === 'left' || dock === 'right')) return layoutSide(input, dock);
   const plain = layoutOnce(input, false);
   if (!plain.pucks || !input.pucks) return plain;
+  if (dock !== 'bottom-left') {
+    // Rule 2j, as 2h/2i for the left dock: when the stack above the strip still reaches into it after every cut, the stack's last open
+    // card folds too (down to heads), then the learner-opened ones; the strip itself is never cut.
+    const clear = (r: LayoutResult): boolean => !r.cards.some((c) => c.anchor !== 'free' && overlaps(r.pucks as Rect, c.rect));
+    if (clear(plain)) return plain;
+    for (const level of [1, 2] as const) {
+      const next = layoutOnce(input, false, level);
+      if (clear(next)) return next;
+    }
+    return plain;
+  }
   const strip = plain.pucks;
   const left = plain.cards.filter((c) => c.anchor === 'tl' || c.anchor === 'ml');
   if (!left.some((c) => overlaps(strip, c.rect))) return plain;
@@ -132,7 +178,10 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
 
   // Rule 2: strip. Only the left column gives up the strip's height; the strip's width is
   // capped after the columns are placed (see below).
-  const reserve = pucks ? pucks.h + gap : 0;
+  const dock = input.stripDock ?? 'bottom-left';
+  const stripCol: Column | null = pucks ? (dock === 'bottom-centre' ? 'centre' : dock === 'bottom-right' ? 'right' : null) : null;
+  let bottomStrip = { w: 0, h: 0 }; // rule 2j: the strip as the bottom member of the centre or right stack
+  const reserve = pucks && dock === 'bottom-left' ? pucks.h + gap : 0;
   const colWidth: Partial<Record<Column, number>> = {};
   const colX: Partial<Record<Column, number>> = {};
   // Beside mode: the strip's x, width and wrapped height when it starts right of the left column and runs to the band's edge.
@@ -167,7 +216,14 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
   // Side columns first: the centre column's width depends on them.
   for (const col of ['left', 'right', 'centre'] as Column[]) {
     const members = states.filter(docked).filter((s) => COLUMN_OF[s.placement.anchor] === col);
-    if (members.length === 0) continue;
+    if (members.length === 0 && col !== stripCol) continue;
+    if (col === stripCol && pucks) {
+      const natural = Math.max(pucks.w, ...members.map((s) => s.card.natural.w));
+      const w = col === 'centre'
+        ? Math.max(0, Math.min(natural, band.w - (colWidth.left ?? 0) - (colWidth.right ?? 0) - 4 * gap))
+        : Math.min(natural, columnMaxFraction * band.w);
+      bottomStrip = { w, h: Math.max(pucks.h, wrappedStripHeight(input.puckSlots ?? [pucks], w)) };
+    }
     const total = (): number => members.reduce((sum, s) => sum + heightOf(s), 0) + (members.length - 1) * gap;
     const wide = members.find((s) => s.card.id === expanded); // "Več": never cut (until nothing else is left to give)
     // The left column gives up the strip's height. When even its smallest cuts do not fit that, the strip gives way instead (it moves
@@ -192,7 +248,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
       // last, when nothing fits (nothing left to fold), the slivers again above the strip: the kept nav row stays reachable, so the
       // strip may cover the sliver's body (open question, task 09). Nothing is ever cut below the anchor sliver.
       ? beside ? [{ reserve: 0, sliver: 0 }] : [{ reserve, sliver: 0 }, { reserve: 0, sliver: 0 }, { reserve, sliver: 1 }, { reserve: 0, sliver: 1 }, { reserve, sliver: 1 }]
-      : [{ reserve: col === 'left' ? reserve : beside && pucks && colX.left !== undefined ? besideH() + gap : 0, sliver: 0 }];
+      : [{ reserve: col === 'left' ? reserve : col === stripCol ? bottomStrip.h + gap : beside && pucks && colX.left !== undefined ? besideH() + gap : 0, sliver: 0 }];
     const before = members.map((s) => ({ folded: s.folded, cut: s.cut }));
     let colReserve = attempts[0].reserve;
     let avail = 0;
@@ -242,7 +298,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
     const widest = Math.max(...(openOnes.length ? openOnes : members).map((s) => s.card.natural.w));
     // The centre column shrinks to what the side columns leave; cards take the column width
     // (the presenter measures their height at that width).
-    const colW = col === 'centre'
+    const colW = col === stripCol ? bottomStrip.w : col === 'centre'
       ? Math.max(0, Math.min(widest, band.w - (colWidth.left ?? 0) - (colWidth.right ?? 0) - 4 * gap))
       : Math.min(widest, columnMaxFraction * band.w);
     colWidth[col] = colW;
@@ -278,7 +334,10 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
   // Strip width: up to the bottom-centre stack's left edge, else the right column's left edge
   // (else the band's edge). Extension: a centre card reaching down into the strip's rows caps it too.
   let stripRect: Rect | null = null;
-  if (pucks) {
+  if (pucks && stripCol) {
+    const x = colX[stripCol] ?? band.x + gap;
+    stripRect = { x, y: board.h - gap - bottomStrip.h, w: bottomStrip.w, h: bottomStrip.h };
+  } else if (pucks) {
     const x = stripAfterLeft && colX.left !== undefined ? besideX() : band.x + gap;
     let h = pucks.h;
     if (beside && stripAfterLeft) h = besideH();
@@ -414,6 +473,22 @@ export function dropTarget(input: LayoutInput, cardId: string, pointer: { x: num
     return fromBottom ? centre > pointer.y : centre < pointer.y;
   }).length;
   return { anchor, index };
+}
+
+/** Which dock a dragged strip would take: its centre picks the nearest of the five docks in board-relative terms. Never free. */
+export function stripDropTarget(board: Size, strip: Rect): StripDock {
+  const nx = board.w > 0 ? (strip.x + strip.w / 2) / board.w : 0;
+  const ny = board.h > 0 ? (strip.y + strip.h / 2) / board.h : 1;
+  const points: [StripDock, number, number][] = [
+    ['bottom-left', 0, 1], ['bottom-centre', 0.5, 1], ['bottom-right', 1, 1], ['left', 0, 0.5], ['right', 1, 0.5],
+  ];
+  let best: StripDock = 'bottom-left';
+  let bestD = Infinity;
+  for (const [dock, px, py] of points) {
+    const d = Math.hypot(nx - px, ny - py);
+    if (d < bestD) { bestD = d; best = dock; }
+  }
+  return best;
 }
 
 export interface ApplyDropOptions {

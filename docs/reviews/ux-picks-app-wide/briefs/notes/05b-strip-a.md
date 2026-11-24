@@ -1,0 +1,1 @@
+Slice A done: layout and storage for the movable strip. Unit src/workspace/layout, tsc and lint pass. See the worker report; settled beyond the design: fold fallback for 2j (layoutBoard), free cards in side docks clamp inside the card area, strip column width counts folded cards. Not done: presenter, grip, catalog strings.

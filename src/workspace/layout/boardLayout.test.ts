@@ -3,8 +3,10 @@ import {
   applyDrop,
   dropTarget,
   layoutBoard,
+  stripDropTarget,
   wrappedStripHeight,
   type Anchor,
+  type StripDock,
   type CardInput,
   type LayoutInput,
   type Placement,
@@ -443,6 +445,131 @@ function prng(seed: number): () => number {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
+// ---- Movable strip (rules 2j-2l) ----
+const DOCKS: StripDock[] = ['bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'];
+const BOARDS = [{ w: 1230, h: 600 }, { w: 1870, h: 960 }];
+const SLOTS = [{ w: 120, h: 155 }, ...[0, 1, 2, 3].map(() => ({ w: 160, h: 71 })), { w: 160, h: 85 }, { w: 120, h: 85 }];
+const STRIP = { w: 1088, h: 155 };
+const taylorLike = (): CardInput[] => [
+  card('lesson', 'tl', { natural: { w: 394, h: 1081 }, min: { w: 394, h: 321 }, anchorMin: 288, reserve: 61, foldedHeight: 39, priority: Infinity, defaultOrder: -1 }),
+  card('readouts', 'tr', { natural: { w: 394, h: 296 }, min: { w: 394, h: 200 }, foldedHeight: 39, priority: 3 }),
+  card('tools', 'tr', { natural: { w: 394, h: 400 }, min: { w: 394, h: 100 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 1 }),
+  card('legend', 'br', { natural: { w: 394, h: 400 }, min: { w: 394, h: 100 }, foldedHeight: 39, defaultFolded: true }),
+];
+const phaseLike = (): CardInput[] => [
+  card('controls', 'tl', { natural: { w: 320, h: 380 }, min: { w: 320, h: 120 }, foldedHeight: 39, priority: 8 }),
+  card('readouts', 'tr', { natural: { w: 300, h: 260 }, min: { w: 300, h: 100 }, foldedHeight: 39, priority: 3 }),
+  card('about', 'bc', { natural: { w: 420, h: 220 }, min: { w: 420, h: 90 }, foldedHeight: 39, priority: 2 }),
+  card('legend', 'br', { natural: { w: 300, h: 240 }, min: { w: 300, h: 90 }, foldedHeight: 39, priority: 1 }),
+];
+const stripInput = (cards: CardInput[], board: { w: number; h: number }, stripDock: StripDock): LayoutInput =>
+  input(cards, { board, maxSpan: 1800, pucks: STRIP, puckSlots: SLOTS, stripDock });
+
+describe('movable strip', () => {
+  for (const [name, make] of [['Taylor-like', taylorLike], ['phase-portrait-like', phaseLike]] as const) {
+    for (const board of BOARDS) {
+      for (const dock of DOCKS) {
+        it(`${dock}: ${name} at ${board.w}x${board.h} keeps the strip inside the board, off every card, and out of the free rectangle`, () => {
+          const r = layoutBoard(stripInput(make(), board, dock));
+          const s = r.pucks!;
+          expect(s.w).toBeGreaterThan(0);
+          expect(s.x).toBeGreaterThanOrEqual(0);
+          expect(s.y).toBeGreaterThanOrEqual(0);
+          expect(s.x + s.w).toBeLessThanOrEqual(board.w + 1e-6);
+          expect(s.y + s.h).toBeLessThanOrEqual(board.h + 1e-6);
+          for (const c of r.cards) expect(overlaps(s, c.rect), `${c.id} under the strip`).toBe(false);
+          expect(overlaps(s, r.free)).toBe(false);
+        });
+      }
+    }
+  }
+
+  it('2j: a bottom-centre strip is the bottom member of the centre stack, cards stack above it, full-height left column', () => {
+    const about = card('about', 'bc', { natural: { w: 420, h: 220 } });
+    const left = card('l', 'tl', { natural: { w: 300, h: 500 } });
+    const r = layoutBoard(stripInput([about, left], { w: 1500, h: 600 }, 'bottom-centre'));
+    const s = r.pucks!;
+    expect(s.y + s.h).toBe(600 - 8);
+    expect(s.w).toBeGreaterThanOrEqual(420);
+    expect(byId(r, 'about').rect.y + byId(r, 'about').rect.h).toBeLessThanOrEqual(s.y - 8 + 1e-6);
+    expect(byId(r, 'l').rect.h).toBe(500); // the left column keeps the full height
+    expect(s.x).toBeGreaterThanOrEqual(byId(r, 'l').rect.x + byId(r, 'l').rect.w + 8 - 1e-6); // pushed aside by the left column
+  });
+
+  it('2j: a bottom-right strip takes the right column width and sits under the br cards', () => {
+    const legend = card('legend', 'br', { natural: { w: 300, h: 240 } });
+    const r = layoutBoard(stripInput([legend], { w: 1500, h: 600 }, 'bottom-right'));
+    const s = r.pucks!;
+    expect(s.w).toBeCloseTo(0.32 * 1500, 5);
+    expect(s.x + s.w).toBeCloseTo(1500 - 8, 5);
+    expect(byId(r, 'legend').rect.y + byId(r, 'legend').rect.h).toBeLessThanOrEqual(s.y - 8 + 1e-6);
+    expect(s.h).toBe(wrappedStripHeight(SLOTS, s.w));
+  });
+
+  it('2j: a too tall stack above the strip folds or cuts its cards, never the strip', () => {
+    const cards = [card('a', 'br', { natural: { w: 300, h: 400 }, priority: 1 }), card('b', 'br', { natural: { w: 300, h: 400 }, priority: 2, defaultOrder: 1 })];
+    const r = layoutBoard(stripInput(cards, { w: 1500, h: 500 }, 'bottom-right'));
+    const s = r.pucks!;
+    expect(s.h).toBe(wrappedStripHeight(SLOTS, s.w));
+    expect(s.y).toBeGreaterThanOrEqual(0);
+    for (const c of r.cards) {
+      expect(c.rect.y).toBeGreaterThanOrEqual(0);
+      expect(c.rect.y + c.rect.h).toBeLessThanOrEqual(s.y - 8 + 1e-6);
+      expect(c.folded || c.cut !== null).toBe(true);
+    }
+  });
+
+  it('2k: a left strip is a column at the board edge with the cards\' column beside it', () => {
+    const r = layoutBoard(stripInput([card('l', 'tl'), card('r', 'tr')], { w: 1500, h: 700 }, 'left'));
+    const s = r.pucks!;
+    expect(s).toEqual({ x: 8, y: 8, w: 160, h: SLOTS.reduce((a, c) => a + c.h, 0) + 8 * (SLOTS.length - 1) });
+    expect(byId(r, 'l').rect.x).toBe(s.x + s.w + 8);
+    expect(byId(r, 'r').rect.x + byId(r, 'r').rect.w).toBeLessThanOrEqual(1500 - 8 + 1e-6);
+  });
+
+  it('2k: a right strip mirrors it', () => {
+    const r = layoutBoard(stripInput([card('l', 'tl'), card('r', 'tr')], { w: 1500, h: 700 }, 'right'));
+    const s = r.pucks!;
+    expect(s.x + s.w).toBe(1500 - 8);
+    expect(byId(r, 'r').rect.x + byId(r, 'r').rect.w).toBeLessThanOrEqual(s.x - 8 + 1e-6);
+  });
+
+  it('2k: a strip taller than the board wraps into a second column and is never cut', () => {
+    const r = layoutBoard(stripInput([card('l', 'tl')], { w: 1500, h: 300 }, 'right'));
+    const s = r.pucks!;
+    expect(s.w).toBe(3 * 160 + 2 * 8); // 155+71 | 71+71+71 | 85+85 under 284
+    expect(s.h).toBeLessThanOrEqual(300 - 16 + 1e-6);
+    expect(s.y + s.h).toBeLessThanOrEqual(300);
+  });
+
+  it('a stored free card is not moved into the strip by the side docks', () => {
+    const r = layoutBoard({ ...stripInput([card('f', 'tl')], { w: 1500, h: 700 }, 'left'), stored: { f: { kind: 'free', x: 0, y: 100 } } });
+    expect(byId(r, 'f').rect.x).toBeGreaterThanOrEqual(0);
+  });
+
+  it('bottom-left is the default dock', () => {
+    const base = input(taylorLike(), { board: { w: 1230, h: 600 }, maxSpan: 1800, pucks: STRIP, puckSlots: SLOTS });
+    expect(layoutBoard({ ...base, stripDock: 'bottom-left' })).toEqual(layoutBoard(base));
+  });
+});
+
+describe('stripDropTarget', () => {
+  const board = { w: 1000, h: 600 };
+  const at = (cx: number, cy: number) => stripDropTarget(board, { x: cx - 50, y: cy - 20, w: 100, h: 40 });
+  it('picks the nearest of the five docks by region', () => {
+    expect(at(100, 560)).toBe('bottom-left');
+    expect(at(500, 560)).toBe('bottom-centre');
+    expect(at(900, 560)).toBe('bottom-right');
+    expect(at(40, 300)).toBe('left');
+    expect(at(960, 300)).toBe('right');
+  });
+  it('the top half picks the nearest dock too, never free', () => {
+    expect(at(600, 20)).toBe('right');
+    expect(at(20, 10)).toBe('left');
+    expect(at(980, 10)).toBe('right');
+  });
+});
 
 describe('property: random inputs', () => {
   it('never overlaps docked cards and keeps them inside the board', () => {
