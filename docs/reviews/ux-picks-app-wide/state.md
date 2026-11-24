@@ -26,7 +26,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 - **04** (branch only, slices 1-3, 6, 10 in): design `04-design.md` (§9 handler decisions; layout additions in `03-layout-design.md`). Orodja card (last open card never folds, priority 2.5 below Odčitki); lesson card (portal slot, no locks, Povrni, fold = explore, line cuts, placement stored, fold not); header `dccb2b46`; docs `f8c5e694`. Accepted by the handler apart from slice 5 (owner taste) and the feel slice: Taylor walk at 1440/3440 passes (`smoke/04-accept-*`); undeclared graphs at 1024 pass (`smoke/04-visual-*`); live measure is observer-driven (`1b1983b6`).
   Slice 9 (handler 5): Playwright specs migrated `8141dd65` (notes `briefs/notes/04-slice9.md`; fold button 44 px hit target); lesson-card fixes `bef40272` (fold pauses and refocuses; `holdHeight`; nav outside the scroller; anchor rule with `anchorMin`); strip fit `3a2add33` (rule 2 a-g in `03-layout-design.md`). Guided-lessons smoke: 323 pass, 1 fail = interp-runge (task 07, see its acceptance), 20 skipped (phone, listed in 09).
 - **05** (branch only): components `77f35732`; strip wired `3f054a66`; graph test migration done `55f9ee99` (`briefs/05-test-migration.md`, notes `05-tests-a/b.md`, `05-puck-fixes.md`): `RangeParameter.bigStep` (value units; composition angle 6 = quarter turn), typed off-grid value snaps with notice `puck_snapped` "Zaokroženo na {value0}.". Browser strip checks pass at 1440/1024 on five pilots (`smoke/05-strip.*`). Harness: `waitForPucks`/`puckControl`/`typePuck`/`openTools`; graph tests need `installBoardShims` plus a `vi.mock` of `loadMathJax`. Catalogue entry, fuzzer and remeasure done; left: slice 6 (owner) and the feel slice.
-- **07** slice 1 `33d1e988`: pure fit core in `src/workspace/view/` (note `briefs/notes/07-fit-core.md`). Next: slice 2 director (handler design; triggers, lease as `animation` writer, Samodejno). interp-runge is fixed in the Runge graph's own view, not by 07 (worker running at handoff; note `briefs/notes/runge-view.md`).
+- **07** slice 1 `33d1e988`: pure fit core in `src/workspace/view/` (note `briefs/notes/07-fit-core.md`). Next: slice 2 director (handler design; triggers, lease as `animation` writer, Samodejno). interp-runge fixed in the graph's own view `80daef35`.
 - 06, 08 to 10: not started.
 
 ## Decisions in force (handler)
@@ -45,7 +45,7 @@ Full list in `docs/guides/converting-a-graph.md` section 6 (section placement, O
 
 - Keyboard card moves step a virtual pointer (10/40 px), not anchor to anchor; offer anchor hopping in a feel round if the owner wants it.
 - `DecasteljauGraph2.tsx` has the same start-after-commit pattern as the fixed I1 bug (check in 08).
-- Inventory's 6 new-string candidates looks low; recheck before 08.
+- Recheck the inventory's 6 new-string candidates before 08.
 - For the owner (stage sign-off): Esc pauses playback on board graphs, and touching a playing parameter pauses it (both on master now). ADR 0067 reverses the spec's preview recommendation (shadow board first) on measured numbers.
 
 ## Next slice's brief inputs
