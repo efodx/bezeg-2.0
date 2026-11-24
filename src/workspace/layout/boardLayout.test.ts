@@ -293,7 +293,7 @@ describe('layoutBoard', () => {
       const readouts = card('readouts', 'tr', { natural: { w: 394, h: 296 }, min: { w: 394, h: 200 }, foldedHeight: 39, priority: 3, defaultOrder: 0, defaultFolded: true });
       const tools = card('tools', 'tr', { natural: { w: 394, h: 168 }, min: { w: 394, h: 168 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 1 });
       const legend = card('legend', 'br', { natural: { w: 394, h: 126 }, min: { w: 394, h: 126 }, foldedHeight: 39, defaultFolded: true, defaultOrder: 0 });
-      const r = layoutBoard(input([real, readouts, tools, legend], { board: { w: 1230, h: 411 }, maxSpan: 1800, pucks, puckSlots: slots, frame: { open: ['tools', 'legend'] } }));
+      const r = layoutBoard(input([real, readouts, tools, legend], { board: { w: 1230, h: 411 }, maxSpan: 1800, pucks, puckSlots: slots, frame: { open: ['tools', 'legend'], usesTools: true } }));
       for (const c of r.cards) expect(overlaps(r.pucks!, c.rect), `${c.id} under the strip`).toBe(false);
       expect(byId(r, 'lesson').rect.h).toBeGreaterThanOrEqual(288);
     });
