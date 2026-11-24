@@ -9,6 +9,7 @@ import {act, fireEvent, render, RenderResult} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
+import {autofitSwitch} from '../../workspace/view/autofitSwitch';
 import {cameraSignature, FakeSurfaceView, sceneSignature} from '../patches/FakeSurfaceView';
 
 /**
@@ -43,6 +44,13 @@ export function installBoardShims(): void {
     HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
     window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
         addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
+}
+
+/** Turns the view director's auto-fit off for a file's tests (call at file level); it fits on a frame, so a scene comparison would see one graph fitted and the other not. */
+export function disableAutofit(): void {
+    let before = true;
+    beforeAll(() => { before = autofitSwitch.get(); autofitSwitch.set(false); });
+    afterAll(() => { autofitSwitch.set(before); });
 }
 
 export interface MountedGraph {
