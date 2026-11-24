@@ -1,6 +1,6 @@
 /**
- * Preview experiment (task 02 slice 5a): the shared shape of a previewed path and the comparison of two of them. Experiment
- * code only; nothing in the app imports it.
+ * Paths of a preview (task 06): the shape of a drawn or previewed polyline, and the comparison of two drawings. Types and pure
+ * functions only; the tests compare a preview's geometry with what the live board drew.
  */
 
 /** One drawn polyline. A curve with gaps (a NaN separator) is several paths. */

@@ -11,6 +11,8 @@ import {phasePortraitPresetCollection} from "./dynamicsPresetCollection";
 import {currentLanguage, message, messageNumber, onLanguageChange, t, useT, type Message} from "../../localization";
 import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration, ReadoutRow, StatusLine} from "../base/declare/graphDeclaration";
 import {runAs} from "../base/writes/writeSource";
+import type {PreviewGeometry} from "../base/preview/previewGeometry";
+import {phasePortraitPreview} from "./phasePortraitPreview";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
@@ -1271,6 +1273,11 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         }
     }
 
+    /** The preview of the matrix entry `a` (`phase-a`), a pure function of the preset snapshot. */
+    protected override previewGeometry(): PreviewGeometry {
+        return phasePortraitPreview;
+    }
+
     /**
      * Pure data from the scene state and the cached derivation (it reads the board's own cache, never redraws): the nine
      * bound parameters (the seed positions are dragged on the board and typed in Orodja's point list, which have no declared
@@ -1294,7 +1301,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 options: [{value: "0", label: message("phase_graph_equilibrium_origin"), short: message("phase_graph_equilibrium_origin_short")},
                     {value: "1", label: message("phase_graph_equilibrium_pi"), short: message("phase_graph_equilibrium_pi_short")}]} as const]),
             ...(linear ? [
-                {key: "phase-a", label: message("phase_graph_matrix_a_label"), symbol: "a", ...entryRange},
+                {key: "phase-a", label: message("phase_graph_matrix_a_label"), symbol: "a", previewable: true, ...entryRange},
                 {key: "phase-b", label: message("phase_graph_matrix_b_label"), symbol: "b", ...entryRange},
                 {key: "phase-c", label: message("phase_graph_matrix_c_label"), symbol: "c", ...entryRange},
                 {key: "phase-d", label: message("phase_graph_matrix_d_label"), symbol: "d", ...entryRange},

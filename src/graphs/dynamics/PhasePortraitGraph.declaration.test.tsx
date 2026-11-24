@@ -43,7 +43,7 @@ describe('Phase portrait declaration', () => {
             const {graph, declaration} = setup(...writes);
             const current = declaration();
 
-            expect(checkDeclaration(current)).toEqual([]);
+            expect(checkDeclaration(current, graph.getPreviewGeometry() !== undefined)).toEqual([]);
             for (const parameter of current.parameters ?? []) expect(graph.parameters!.keys()).toContain(parameter.key);
 
             // the legend resolves to drawn objects whose visibility matches the board

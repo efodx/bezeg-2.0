@@ -57,7 +57,7 @@ function foreignText(node: unknown, path: string, found: string[] = []): string[
 /** All problems of one frame in the scene whose declaration is `declaration`, on `graph`. */
 function contractProblems(graph: BaseGraph<BaseGraphState>, declaration: GraphDeclaration, frame: FrameDeclaration | undefined, where: string): string[] {
     const problems = [
-        ...checkDeclaration(declaration),
+        ...checkDeclaration(declaration, graph.getPreviewGeometry() !== undefined),
         ...(frame ? checkFrame(frame, declaration) : []),
     ].map(problem => `${problem.where}: ${problem.problem}`);
     for (const entry of declaration.legend ?? []) {
