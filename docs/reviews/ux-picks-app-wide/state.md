@@ -49,7 +49,7 @@ Listed in `docs/guides/converting-a-graph.md` section 6; 07's fit core adds: `Vi
 
 ## Next slice's brief inputs
 
-1. Gate on `87329a37`: full smoke passed on `2adfc16d` (every row); `just lint` passes after clearing the stale ESLint cache; handler 5 started a full `just check` (log `briefs/notes/05-full-check6.log`). If it passes, the 03-07 gate is green at this point. Then rebuild (`just build`) and restart the 4472 preview so it serves `87329a37`, and ask the owner for a short feel check of the toggle/choice pucks and the docking; on his OK, mark 04 and 05 accepted in the task README table.
+1. Gate on `87329a37`: full smoke passed on `2adfc16d` (every row); `just lint` passes after clearing the stale ESLint cache; full `just check` passed on `a329e97a` (939 s): the 03-07 gate is green here. The 4472 preview serves that build (the check rebuilt `build/`). Next: ask the owner for a short feel check of the toggle/choice pucks and the docking; on his OK, mark 04 and 05 accepted in the task README table.
 2. Task 07 slice 2: the view director (handler-designed core; spec `07-morph-and-view-director.md`, design `git show ux-picks:docs/reviews/ux-picks/view-fit.md`): director on the 01b view adapter as an `animation` writer, triggers (load, frame change, resize, card rect change, released parameter; never during a drag), learner pan/zoom pauses it, "Samodejno" switch, fit button resumes; uses `freeRect`/`obstacleRects` from `src/workspace/view/layoutRects.ts`. Write the design note first, then delegate.
 3. Task 06 (previews and sweeps), after 05 is accepted.
 </content>
