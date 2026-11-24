@@ -43,13 +43,14 @@ Full list in `docs/guides/converting-a-graph.md` section 6 (section placement, O
 
 - Crowding at 1024 (`smoke/04-visual-lesson-pp3.png`, phase-portrait linearization step 3): four locked matrix pucks take two strip rows, each repeating "Zaklenjeno v tem koraku razlage"; the strip sits over plotted curves; cards cover board text. No card overlaps. Locked pucks go (owner 2026-11-24); strip vs data is 07's view fit.
 
+- Deferred (owner 2026-11-24): resizable cards; height first (stored height, reuses the cut), width later (measure at that width).
 - Keyboard card moves step a virtual pointer (10/40 px), not anchor to anchor; offer anchor hopping in a feel round if the owner wants it.
 - `DecasteljauGraph2.tsx` has the same start-after-commit pattern as the fixed I1 bug (check in 08).
-- Recheck the inventory's 6 new-string candidates before 08.
+- Recheck inventory new strings before 08.
 
 ## Next slice's brief inputs
 
-0. **Owner answers, 2026-11-24:** (a) slice 5 closed, default stands (he saw no difference); (b) feel "okay", styling expected later; no locked pucks unless there is a real reason (worker removing inapplicable-parameter pucks, note `briefs/notes/05-no-locked-pucks.md`); (c) handler decides: choices and toggles stay in Orodja/legend, slice 6 closed; (d) Esc/touch pause and ADR 0067 signed off. After the no-locked-pucks commit: rerun full check + smoke, then 04 and 05 are accepted; next 07 slice 2 (director design) and 06.
+0. **Owner answers, 2026-11-24:** (a) slice 5 closed, default stands (he saw no difference); (b) feel "okay", styling expected later; no locked pucks unless there is a real reason (worker removing inapplicable-parameter pucks, note `briefs/notes/05-no-locked-pucks.md`); (c) slice 6 reopened by the owner: pucks give access to what a student changes or plays with a lot, and flipping a toggle is often the observation; handler decides per control from a lesson-evidence audit (choices/toggles the lessons ask to switch become pucks; scene setup and housekeeping stay in Orodja), then toggle/choice pucks are built; (d) Esc/touch pause and ADR 0067 signed off. After the no-locked-pucks commit: rerun full check + smoke, then 04 and 05 are accepted; next 07 slice 2 (director design) and 06.
 1. Owner preview: tailnet `http://desktop-a0j72sv.tail2032db.ts.net:4472/bezeg-2.0/` (`tailscale serve` on 4472 is set; server from `.preview-wt`, see Where).
 2. Gate state at `43ab3eff`+: `just check` passes (930 s); full smoke 562 pass, 1 fail = interp-runge (task 07 acceptance), 26 skipped (phone, task 09). Later commits `8ac2ac68` (MathJax nesting in the measure pass crashed the tab after ~16 folds), `dcd28928` (controls catalogue Puck entry), `1d9c9997` (fuzzer puck actions, 50 seeds x 6 routes clean), `e201b175` (constant puck width, production remeasure `measure/RESULTS-05-perf-fix.md`): unit/eslint/build checked per commit; rerun full check + smoke before the 03-07 release.
 3. Perf follow-ups (not blocking): `ReadoutsBody.tsx:82` getBoundingClientRect in each row's layout effect forces layout on every value change; a store write re-renders GraphHost, BoardCards and every readout row (2 commits per pointer move). Taylor 4x input delay ~11 % above master like for like.

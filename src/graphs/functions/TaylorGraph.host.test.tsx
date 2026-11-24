@@ -90,12 +90,13 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     expect(increase().getAttribute('aria-disabled')).toBe('true');
     typePuck('taylor-degree', '6');
 
-    // Show error bound is a native button whose label names its state; it reveals the bound with its assumption
-    const toggle = () => screen.getByRole('button', {name: /oceno napake/}) as HTMLButtonElement;
-    expect(toggle().textContent).toBe('Pokaži oceno napake');
+    // Show error bound is a switch puck named by its label, its state in aria-checked; it reveals the bound with its assumption
+    const toggle = () => puckControl('show-error');
+    expect(toggle().getAttribute('aria-label')).toBe('Pokaži oceno napake');
+    expect(toggle().getAttribute('aria-checked')).toBe('false');
     act(() => { fireEvent.click(toggle()); });
     expect(graph.modelNow()).toMatchObject({boundVisible: true});
-    expect(toggle().textContent).toBe('Skrij oceno napake');
+    expect(toggle().getAttribute('aria-checked')).toBe('true');
     expect(readout('bound')).toBe('0,0005393');
     expect(readout('bound-hypothesis')).toMatch(/max\(e\^c, e\^x\)/);
     expect(statusIds()).toEqual(['revealed']);
@@ -138,7 +139,7 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
 
     // the English labels follow a live language switch
     act(() => { setLanguage('en'); });
-    expect(screen.getByRole('button', {name: 'Show error bound'})).toBeInTheDocument();
+    expect(puckControl('show-error').getAttribute('aria-label')).toBe('Show error bound');
     expect(puckControl('taylor-degree').getAttribute('aria-label')).toBe('Degree n');
     expect(readout('convergence')).toMatch(/x is outside/);
 });

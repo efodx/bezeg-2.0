@@ -42,7 +42,7 @@ interface ParameterBase<K extends string> {
     readonly placement: Placement;
     /** The Orodja section that holds it when `placement` is `tools` (a frame that uses it opens Orodja there, A9). */
     readonly section?: string;
-    /** Shown but not operable in this state (a lesson lock, a mode that does not use it). */
+    /** Shown but not operable for a real reason of its own (a fixed example). A parameter that does not apply in this state is omitted, not locked. */
     readonly locked?: boolean;
 }
 
@@ -66,10 +66,19 @@ export interface CountParameter<K extends string = string> extends ParameterBase
     readonly max: number;
 }
 
+/** The most options a choice puck shows; a longer choice stays in Orodja. */
+export const MAX_CHOICE_PUCK_OPTIONS = 4;
+
 /** One of a few named options. */
 export interface ChoiceParameter<K extends string = string> extends ParameterBase<K> {
     readonly kind: "choice";
-    readonly options: readonly {readonly value: string; readonly label: Message}[];
+    /** `short` is the text of the option's segment on a choice puck (the `label` stays its accessible name); default the label. */
+    readonly options: readonly {readonly value: string; readonly label: Message; readonly short?: Message}[];
+    /**
+     * A segmented puck on the board (task 05 slice 6) instead of a control in Orodja, for a choice the learner switches to
+     * compare states (at most {@link MAX_CHOICE_PUCK_OPTIONS} options). Unset: the choice stays in Orodja.
+     */
+    readonly puck?: true;
 }
 
 /** On or off. */
@@ -165,6 +174,12 @@ export interface ActionDeclaration<Ids extends DeclarationIds = DeclarationIds> 
     readonly enabled: boolean;
     /** A toggle-like action shows its state ("Pokaži oceno napake" pressed). */
     readonly pressed?: boolean;
+    /**
+     * A puck on the board instead of a control in Orodja (task 05 slice 6); needs `pressed`. `true`: a switch puck named by `label`.
+     * `{group, short}`: one segment of the choice puck that the actions sharing `group.key` form (2 to
+     * {@link MAX_CHOICE_PUCK_OPTIONS}); exactly one of them is pressed, `short` is the segment's text, `label` its accessible name.
+     */
+    readonly puck?: true | {readonly group: {readonly key: string; readonly label: Message; readonly help?: Message}; readonly short: Message};
 }
 
 /** A line of status under the board ("Iteracija se je ustavila."). */
@@ -254,6 +269,15 @@ export function checkDeclaration(declaration: GraphDeclaration): DeclarationProb
     unique("legend", (declaration.legend ?? []).map(entry => entry.id));
     unique("section", (declaration.sections ?? []).map(section => section.id));
     unique("action", (declaration.actions ?? []).map(action => action.id));
+    const groups = new Map<string, number>();
+    for (const action of declaration.actions ?? []) {
+        if (!action.puck) continue;
+        const where = `action ${action.id}`;
+        if (action.pressed === undefined) problems.push({where, problem: "a puck action reports its state (pressed)"});
+        if (action.placement !== "board") problems.push({where, problem: "a puck is placed on the board"});
+        if (action.puck !== true) groups.set(action.puck.group.key, (groups.get(action.puck.group.key) ?? 0) + 1);
+    }
+    for (const [key, size] of groups) if (size < 2 || size > MAX_CHOICE_PUCK_OPTIONS) problems.push({where: `puck group ${key}`, problem: `a choice puck has 2 to ${MAX_CHOICE_PUCK_OPTIONS} options`});
     for (const row of rows) {
         if (row.legend !== undefined && !legendIds.has(row.legend)) problems.push({where: `row ${row.id}`, problem: `links unknown legend entry "${row.legend}"`});
         if ("kind" in row.value && row.value.kind === "formatted" && WORD.test(row.value.text)) problems.push({where: `row ${row.id}`, problem: "formatted value contains words; words come from the catalog"});
@@ -268,6 +292,8 @@ export function checkDeclaration(declaration: GraphDeclaration): DeclarationProb
         if (parameter.kind === "range" && !(parameter.step > 0)) problems.push({where, problem: "needs a positive step"});
         if (parameter.kind === "count" && !(Number.isInteger(parameter.min) && Number.isInteger(parameter.max))) problems.push({where, problem: "needs whole bounds"});
         if (parameter.kind === "choice" && parameter.options.length < 2) problems.push({where, problem: "needs at least two options"});
+        if (parameter.kind === "choice" && parameter.puck && parameter.options.length > MAX_CHOICE_PUCK_OPTIONS) problems.push({where, problem: `a choice puck has at most ${MAX_CHOICE_PUCK_OPTIONS} options`});
+        if (parameter.kind === "choice" && parameter.puck && parameter.placement !== "board") problems.push({where, problem: "a puck is placed on the board"});
         if (parameter.placement === "board" && parameter.section !== undefined) problems.push({where, problem: "a board control has no Orodja section"});
     }
     return problems;

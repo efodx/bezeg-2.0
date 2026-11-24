@@ -13,6 +13,7 @@ import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {NumberInput} from "../../inputs/NumberInput";
 import {PointCollection} from "../../inputs/PointCollection";
 import {PointListInput, SelectablePointButton, useRemoveFocus} from "../../inputs/PointListInput";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 
 /** What the controls ask the graph to do; every handler is a synchronous model edit on the graph. */
 export interface PointSetControlActions {
@@ -207,8 +208,8 @@ export function PointSetControls(props: PointSetControlsProps) {
                 options={modes.map(mode => ({value: mode, text: t(modeLabel[mode])}))} onChange={value => actions.setMode(value as PointSetMode)}/>}
             {model.mode === "polygon" && props.showClosedToggle !== false && <BooleanField variant="checkbox" label={t("pointset_closed")} checked={model.closed}
                 onChange={actions.setClosed}/>}
-            {props.overlays.map(overlay => <BooleanField key={overlay.id} variant="checkbox" label={overlay.label} checked={overlay.shown}
-                onChange={shown => actions.setOverlay(overlay.id, shown)}/>)}
+            {props.overlays.map(overlay => <PuckOwned key={overlay.id} param={overlay.id}><BooleanField variant="checkbox" label={overlay.label} checked={overlay.shown}
+                onChange={shown => actions.setOverlay(overlay.id, shown)}/></PuckOwned>)}
             <p className="inspector-help">{t("pointset_grid_step", {value0: formatNumber(2 ** model.gridStepExponent, language, 8)})}</p>
         </div>
     );

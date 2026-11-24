@@ -1101,7 +1101,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             </div>}
             {ellipseMode && <div className="inspector-group">
                 <p className="inspector-help" data-linear-map-ellipse-gloss="">{t("linear_map_note_ellipse")}</p>
-                <OnOffSwitch checked={state.conicVisible === true} label={t("linear_map_toggle_conic")} onChange={checked => this.setToggle("conicVisible", checked)}/>
+                <PuckOwned param="toggle-conic"><OnOffSwitch checked={state.conicVisible === true} label={t("linear_map_toggle_conic")} onChange={checked => this.setToggle("conicVisible", checked)}/></PuckOwned>
             </div>}
             {iterating && <div className="inspector-group">
                 <p className="inspector-help" data-linear-map-iterate-gloss="">{t("linear_map_note_iterate")}</p>
@@ -1180,8 +1180,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 <p id={translationHelpId} className="inspector-help">{t("linear_map_comp_translation_help")}</p>
             </div>
             <div className="inspector-group">
-                <OnOffSwitch checked={state.pivot !== undefined} label={t("linear_map_comp_pivot_toggle")}
-                             onChange={checked => this.ignoreOutOfDomain(() => this.setPivotOn(checked))}/>
+                <PuckOwned param="toggle-pivot"><OnOffSwitch checked={state.pivot !== undefined} label={t("linear_map_comp_pivot_toggle")}
+                             onChange={checked => this.ignoreOutOfDomain(() => this.setPivotOn(checked))}/></PuckOwned>
                 {state.pivot !== undefined && vectorRow("pivot", t("linear_map_comp_pivot_title"), "c")}
                 <p id={pivotHelpId} className="inspector-help">{t("linear_map_comp_pivot_help")}</p>
                 {state.pivot === undefined && <p className="inspector-help" data-linear-map-pivot-off="">{t("linear_map_comp_pivot_off")}</p>}
@@ -1563,13 +1563,17 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                         {value: "rotation", label: message("linear_map_comp_source_rotation")},
                         {value: "reflection", label: message("linear_map_comp_source_reflection")},
                     ]});
-                parameters.push({key: `linear-map-${slot}-index`, kind: "range", min: 0, max: ELEMENT_COUNT - 1, step: 1, bigStep: 6, maxDecimals: 0, placement: "board", locked: element === undefined,
-                    label: message(element?.kind === "reflection" ? "linear_map_comp_angle_reflection" : "linear_map_comp_angle_rotation", {value0: name}),
-                    help: message(element?.kind === "reflection" ? "linear_map_comp_angle_help_reflection" : "linear_map_comp_angle_help_rotation")});
-                for (const [row, column] of [[0, 0], [1, 0], [0, 1], [1, 1]] as const) {
-                    parameters.push({key: `linear-map-${prefix}${row + 1}${column + 1}` as MatrixEntryParam, label: message("linear_map_comp_entry_label",
-                        {value0: name, value1: String(row + 1), value2: String(column + 1)}), symbol: `${prefix}_{${row + 1}${column + 1}}`, placement: "tools",
-                        section: MAPS_SECTION, locked: element !== undefined, ...entryRange});
+                // The angle applies to a rotation or reflection, the free entries to a free matrix; the other is omitted.
+                if (element !== undefined) {
+                    parameters.push({key: `linear-map-${slot}-index`, kind: "range", min: 0, max: ELEMENT_COUNT - 1, step: 1, bigStep: 6, maxDecimals: 0, placement: "board",
+                        label: message(element.kind === "reflection" ? "linear_map_comp_angle_reflection" : "linear_map_comp_angle_rotation", {value0: name}),
+                        help: message(element.kind === "reflection" ? "linear_map_comp_angle_help_reflection" : "linear_map_comp_angle_help_rotation")});
+                } else {
+                    for (const [row, column] of [[0, 0], [1, 0], [0, 1], [1, 1]] as const) {
+                        parameters.push({key: `linear-map-${prefix}${row + 1}${column + 1}` as MatrixEntryParam, label: message("linear_map_comp_entry_label",
+                            {value0: name, value1: String(row + 1), value2: String(column + 1)}), symbol: `${prefix}_{${row + 1}${column + 1}}`, placement: "tools",
+                            section: MAPS_SECTION, ...entryRange});
+                    }
                 }
             }
         }
@@ -1659,7 +1663,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 : c.kind === "repeated" && c.repeated === "scalar" ? "linear_map_snap_unavailable_scalar" : undefined;
             actions.push(action("snap-eigen", message("linear_map_snap_eigen"), {enabled: reason === undefined, help: reason && message(reason)}));
         }
-        if (mode === "ellipse") actions.push(action("toggle-conic", message("linear_map_toggle_conic"), {pressed: model.conicVisible === true}));
+        if (mode === "ellipse") actions.push(action("toggle-conic", message("linear_map_toggle_conic"), {placement: "board", pressed: model.conicVisible === true, puck: true}));
         if (mode === "iterate") {
             const playing = this.isPlaying();
             const step = stepOf(model);
@@ -1670,7 +1674,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             );
         }
         if (composing) {
-            actions.push(action("toggle-pivot", message("linear_map_comp_pivot_toggle"), {pressed: model.pivot !== undefined, section: MAPS_SECTION}),
+            actions.push(action("toggle-pivot", message("linear_map_comp_pivot_toggle"), {placement: "board", pressed: model.pivot !== undefined, puck: true}),
                 action("reset-composition", message("linear_map_comp_reset"), {enabled: !isCompositionDefault(model), section: MAPS_SECTION}));
         }
 

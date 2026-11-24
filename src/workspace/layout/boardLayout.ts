@@ -104,13 +104,19 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   if (!left.some((c) => overlaps(strip, c.rect))) return plain;
   // Rule 2f/2g: the strip covers a left-column card (nothing fit). Try it right of the left column, running under the other columns,
   // which give up its height at the bottom (folding lowest priority first, rule 5) so that their heads stay above it.
+  const fits = (r: LayoutResult): boolean => {
+    const s = r.pucks;
+    return s !== null && s.w > 0 && s.y >= 0 && s.x + s.w <= input.board.w && s.y + s.h <= input.board.h && !r.cards.some((c) => overlaps(s, c.rect));
+  };
   const alt = layoutOnce(input, true);
-  const s = alt.pucks;
-  const ok = s !== null && s.w > 0 && s.y >= 0 && s.x + s.w <= input.board.w && s.y + s.h <= input.board.h && !alt.cards.some((c) => overlaps(s, c.rect));
-  return ok ? alt : plain;
+  if (fits(alt)) return alt;
+  // Rule 2h: last resort before the strip covers the left column (its nav row would be unreachable): the right and centre columns
+  // may fold their last open card too, down to heads, so that the strip runs beside the left column. The learner can unfold it.
+  const folded = layoutOnce(input, true, true);
+  return fits(folded) ? folded : plain;
 }
 
-function layoutOnce(input: LayoutInput, beside: boolean): LayoutResult {
+function layoutOnce(input: LayoutInput, beside: boolean, foldLast = false): LayoutResult {
   const { board, cards, stored, storedFolds, frame, pucks, maxSpan, columnMaxFraction, gap, frozenFolds, budget, expanded } = input;
 
   // Rule 1: band.
@@ -195,7 +201,7 @@ function layoutOnce(input: LayoutInput, beside: boolean): LayoutResult {
         // With an expanded card only lower-priority cards of its column give way to it.
         const open = members.filter((s) => !s.folded && !s.pinned && (!wide || (s !== wide && s.card.priority < wide.card.priority)));
         // Folding a column's last open card frees room for nothing and hides all it holds: cut it instead (rule 6).
-        if (open.length === 0 || members.filter((s) => !s.folded).length <= 1) break;
+        if (open.length === 0 || (members.filter((s) => !s.folded).length <= 1 && !(foldLast && col !== 'left'))) break;
         open.sort((a, b) => a.card.priority - b.card.priority || (a.card.id < b.card.id ? -1 : 1));
         open[0].folded = true;
       }
@@ -362,11 +368,13 @@ function largestEmptyRect(board: Size, obstacles: readonly Rect[]): Rect {
 
 export interface DropIndex { anchor: Anchor; index: number }
 
-export function dropTarget(input: LayoutInput, cardId: string, pointer: { x: number; y: number }): DropIndex | 'free' {
+/**
+ * Where a drop would dock. With `card` (the dragged card's visible rect) the choice follows the card: its centre in the outer
+ * quarter of the board, per axis, picks the nearest anchor in board-relative terms, so top and bottom, left and right, are
+ * equally easy however tall the card is. Without it the pointer is used (edge band of 0.28 of the short side).
+ */
+export function dropTarget(input: LayoutInput, cardId: string, pointer: { x: number; y: number }, card?: Rect): DropIndex | 'free' {
   const { board } = input;
-  const edge = 0.28 * Math.min(board.w, board.h);
-  const inside = pointer.x < edge || pointer.x > board.w - edge || pointer.y < edge || pointer.y > board.h - edge;
-  if (!inside) return 'free';
   const points: Record<Anchor, { x: number; y: number }> = {
     tl: { x: 0, y: 0 }, tc: { x: board.w / 2, y: 0 }, tr: { x: board.w, y: 0 },
     ml: { x: 0, y: board.h / 2 }, mr: { x: board.w, y: board.h / 2 },
@@ -374,9 +382,22 @@ export function dropTarget(input: LayoutInput, cardId: string, pointer: { x: num
   };
   let anchor: Anchor = 'tl';
   let best = Infinity;
-  for (const a of Object.keys(points) as Anchor[]) {
-    const d = Math.hypot(pointer.x - points[a].x, pointer.y - points[a].y);
-    if (d < best) { best = d; anchor = a; }
+  if (card && board.w > 0 && board.h > 0) {
+    const nx = (card.x + card.w / 2) / board.w;
+    const ny = (card.y + card.h / 2) / board.h;
+    if (nx >= 0.25 && nx <= 0.75 && ny >= 0.25 && ny <= 0.75) return 'free';
+    for (const a of Object.keys(points) as Anchor[]) {
+      const d = Math.hypot(nx - points[a].x / board.w, ny - points[a].y / board.h);
+      if (d < best) { best = d; anchor = a; }
+    }
+  } else {
+    const edge = 0.28 * Math.min(board.w, board.h);
+    const inside = pointer.x < edge || pointer.x > board.w - edge || pointer.y < edge || pointer.y > board.h - edge;
+    if (!inside) return 'free';
+    for (const a of Object.keys(points) as Anchor[]) {
+      const d = Math.hypot(pointer.x - points[a].x, pointer.y - points[a].y);
+      if (d < best) { best = d; anchor = a; }
+    }
   }
   // Index from the settled centres of the target stack (order 0 is nearest the anchor's edge).
   const settled = layoutBoard(input).cards.filter((c) => c.anchor === anchor && c.id !== cardId);

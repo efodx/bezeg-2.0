@@ -3,7 +3,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 import {LinearMapGraph} from './LinearMapGraph';
 import {linearMapPresetCollection} from './linearMapPresetCollection';
 import {ELLIPSE_COLORS, ELLIPSE_MARK} from './ellipseBoard';
@@ -39,7 +39,9 @@ const matrix = (graph: ObservedGraph, m: Mat2) => act(() => {
     graph.act({kind: 'linear-map', operation: 'set-mode', mode: 'ellipse'});
 });
 const conic = (graph: ObservedGraph, visible: boolean) => act(() => graph.act({kind: 'linear-map', operation: 'set-conic', visible}));
-const conicSwitch = () => screen.getByRole('checkbox', {name: t('linear_map_toggle_conic')}) as HTMLInputElement;
+/** The conic switch is a switch puck on the board once the strip has laid out (in the ellipse mode). */
+const conicSwitch = () => puckControl('toggle-conic');
+const conicOn = () => conicSwitch().getAttribute('aria-checked') === 'true';
 const numbers = (text: string | undefined) => (text ?? '').match(/-?\d+(?:[,.]\d+)?/g)!.map(value => parseFloat(value.replace(',', '.')));
 const near = (text: string | undefined, expected: number, digits = 4) => expect(numbers(text)[0]).toBeCloseTo(expected, digits);
 
@@ -72,7 +74,7 @@ function imageData(graph: ObservedGraph): {x: number[]; y: number[]} | undefined
 }
 
 describe('the ellipse mode is selectable', () => {
-    test('the select offers it, the inspector shows the conic switch, and Presets accept it', () => {
+    test('the select offers it, the board shows the conic switch, and Presets accept it', async () => {
         const {graph} = mountGraph();
         const options = [...(screen.getByLabelText(t('linear_map_mode_label')) as HTMLSelectElement).options].map(option => option.value);
         expect(options).toContain('ellipse');
@@ -80,13 +82,15 @@ describe('the ellipse mode is selectable', () => {
         expect(document.querySelector('[data-readout="sigma1"]')).toBeNull();
         selectMode('ellipse');
         expect(graph.modelNow().mode).toBe('ellipse');
-        expect(conicSwitch().checked).toBe(false);
+        await waitForPucks('toggle-conic');
+        expect(conicSwitch().getAttribute('aria-label')).toBe(t('linear_map_toggle_conic'));
+        expect(conicOn()).toBe(false);
         expect('data' in linearMapPresetCollection.check({...DEFAULT_LINEAR_MAP_STATE, mode: 'ellipse'})).toBe(true);
     });
 });
 
 describe('S_y: axes 3 and 1 along (1,1) and (1,-1), conic semi-axes 1/sqrt(3) and 1', () => {
-    test('readouts, symmetric status, domain and image axes at 45 degrees, conic readouts', () => {
+    test('readouts, symmetric status, domain and image axes at 45 degrees, conic readouts', async () => {
         const {graph} = mountGraph();
         matrix(graph, LINEAR_MAP_EXAMPLES.symmetric);
         near(readout('sigma1'), 3);
@@ -98,7 +102,8 @@ describe('S_y: axes 3 and 1 along (1,1) and (1,-1), conic semi-axes 1/sqrt(3) an
         expect(statusIds()).toContain('ellipse-symmetric');
         expect(statusIds()).not.toContain('ellipse-nonsymmetric');
         conic(graph, true);
-        expect(conicSwitch().checked).toBe(true);
+        await waitForPucks('toggle-conic');
+        expect(conicOn()).toBe(true);
         expect(statusIds()).toContain('conic-ellipse');
         const [first, second] = numbers(readout('conic-axes'));
         expect(Math.min(first, second)).toBeCloseTo(1 / Math.sqrt(3), 4);
@@ -184,9 +189,10 @@ describe('degenerate and indefinite cases', () => {
 });
 
 describe('the lesson action set-conic', () => {
-    test('is equivalent to the switch, rejects a non-boolean before any write, and chains in one synchronous tick', () => {
+    test('is equivalent to the switch, rejects a non-boolean before any write, and chains in one synchronous tick', async () => {
         const {graph} = mountGraph();
         selectMode('ellipse');
+        await waitForPucks('toggle-conic');
         act(() => { fireEvent.click(conicSwitch()); });
         expect(graph.modelNow().conicVisible).toBe(true);
         const viaSwitch = JSON.stringify(graph.modelNow());

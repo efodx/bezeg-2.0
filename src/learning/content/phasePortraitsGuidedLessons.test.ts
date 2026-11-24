@@ -15,7 +15,7 @@ import {phasePortraitsChapter} from './phasePortraitsChapter';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLesson} from './guidedLessons';
-import {installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks, waitUntil} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks, waitUntil} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import LogisticMapGraph from '../../graphs/dynamics/LogisticMapGraph';
 import PhasePortraitGraph from '../../graphs/dynamics/PhasePortraitGraph';
@@ -508,7 +508,7 @@ async function mountPhase(language: Language) {
             typeIn(label, value);
         },
         plus: () => act(() => { fireEvent.click(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})); }),
-        system: (value: string) => act(() => { fireEvent.change(field(t('phase_graph_system_label')), {target: {value}}); }),
+        system: (value: string) => chooseOnPuckNow('phase-system', value),
         time: (value: string) => typePuck('phase-time', value),
     };
     return {graph, open, restore, free, stateOf, picked, readouts, status, inset, snap, field, ui};
@@ -595,7 +595,7 @@ describe('PP1 and PP2 open on a real PhasePortraitGraph, in sl and en', () => {
                 missing.push(...PP_NAMES[step.id].map(name => name()).filter(name => !text.includes(name)).map(name => `${language} ${step.id}: ${name}`));
                 const pendulum = m.stateOf().system === 'pendulum';
                 if (!pendulum) for (const letter of ['a', 'b', 'c', 'd'] as const) expect(puckControl(`phase-${letter}`).getAttribute('aria-label')).toBe(t(`phase_graph_matrix_${letter}_label`));
-                expect(m.field(t('phase_graph_system_label'))).toBeTruthy();
+                expect(puckControl('phase-system').getAttribute('aria-label')).toBe(t('phase_graph_system_label'));
                 expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('phase_graph_time_label'));
                 expect(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})).toBeTruthy();
                 expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
@@ -839,8 +839,8 @@ const pp3OpenState = (id: string) => {
     return {system: spec.system ?? 'linear', equilibrium: spec.equilibrium ?? 0, zoom: spec.zoom ?? 0, seeds: spec.seeds ?? [{X: 20, Y: 0}]};
 };
 const pp3Picked = (m: PhaseMount) => { const s = m.stateOf(); return {system: s.system, equilibrium: s.equilibrium, zoom: s.zoom, seeds: s.seeds}; };
-const pp3Ui = (m: PhaseMount) => ({
-    equilibrium: (value: number) => act(() => { fireEvent.change(m.field(t('phase_graph_equilibrium_label')), {target: {value: String(value)}}); }),
+const pp3Ui = (_m: PhaseMount) => ({
+    equilibrium: (value: number) => chooseOnPuckNow('phase-equilibrium', String(value)),
     zoom: (value: number) => typePuck('phase-zoom', String(value)),
 });
 const prompt3 = (id: string, language: Language) => prose(ppStepOf(id).observationPrompt[language]).replace(/\s+/g, ' ');
@@ -884,7 +884,7 @@ describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
                 const text = prompt3(step.id, language);
                 missing.push(...PP3_NAMES[step.id].map(name => name()).filter(name => ![name, name.replace('Jacobijeva matrika', 'Jacobijevo matriko')].some(variant => text.toLowerCase().includes(variant.toLowerCase()))).map(name => `${language} ${step.id}: ${name}`));
                 const nonlinear = m.stateOf().system !== 'linear';
-                expect(m.field(t('phase_graph_system_label'))).toBeTruthy();
+                expect(puckControl('phase-system').getAttribute('aria-label')).toBe(t('phase_graph_system_label'));
                 expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('phase_graph_time_label'));
                 expect(puckControl('phase-zoom').getAttribute('aria-label')).toBe(t('phase_graph_zoom_label'));
                 expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
@@ -893,7 +893,7 @@ describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
                     for (const [id, label] of [['decision', t('phase_graph_r_decision')], ['view', t('phase_graph_r_view')], ['ring', t('phase_graph_r_ring')], ['ring-linear', t('phase_graph_r_ring_linear')]]) expect(document.querySelector(`[data-readout="${id}"] dt`)?.textContent).toBe(label);
                 }
                 if (m.stateOf().system === 'pendulum') {
-                    expect(m.field(t('phase_graph_equilibrium_label'))).toBeTruthy();
+                    expect(puckControl('phase-equilibrium').getAttribute('aria-label')).toBe(t('phase_graph_equilibrium_label'));
                     expect(document.querySelector('[data-readout="energy-1"] dt')?.textContent).toBe(t('phase_graph_r_energy', {value0: '1'}));
                 }
             }

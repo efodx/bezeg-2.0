@@ -3,12 +3,14 @@
 import {memo, useCallback, useEffect, useState, useSyncExternalStore} from 'react';
 import type BaseGraph from '../../graphs/base/BaseGraph';
 import type {BaseGraphState} from '../../graphs/base/BaseGraph';
-import type {CountParameter, RangeParameter} from '../../graphs/base/declare/graphDeclaration';
+import type {ChoiceParameter, CountParameter, RangeParameter} from '../../graphs/base/declare/graphDeclaration';
 import {hasPuckLiveValues} from '../../graphs/base/controls/PuckOwnership';
+import {renderMessage, useLanguage} from '../../localization';
+import {ChoicePuck} from './ChoicePuck';
 import {CountPuck} from './CountPuck';
 import {RangePuck, type PuckBounds} from './RangePuck';
 
-export type PuckParameter = RangeParameter | CountParameter;
+export type PuckParameter = RangeParameter | CountParameter | ChoiceParameter;
 
 export interface ParameterPuckProps {
     graph: BaseGraph<BaseGraphState>;
@@ -24,7 +26,30 @@ const noSnapshot = (): number | undefined => undefined;
 /** Commits per puck key since load: tests read it to show a write to one key renders only that key's puck. */
 export const puckRenderCounts = new Map<string, number>();
 
+/** A choice puck: the option's value as text, written to the arbiter as the learner. */
+function ChoiceParameterPuck({graph, parameter}: {graph: BaseGraph<BaseGraphState>; parameter: ChoiceParameter}) {
+    const key = parameter.key;
+    const read = useCallback(() => {
+        const arbiter = graph.parameters;
+        return !arbiter || !arbiter.keys().includes(key) ? '' : String(arbiter.read(key));
+    }, [graph, key]);
+    const value = useSyncExternalStore(graph.store.subscribe, read);
+    useLanguage(); // the memoised puck renames its texts on a language switch
+    useEffect(() => { puckRenderCounts.set(key, (puckRenderCounts.get(key) ?? 0) + 1); });
+    if (value === '') return null;
+    return <div className="puck-host" data-puck-key={key}>
+        <ChoicePuck label={renderMessage(parameter.label)} help={parameter.help ? renderMessage(parameter.help) : undefined} value={value}
+            options={parameter.options.map(option => ({value: option.value, label: renderMessage(option.label), text: option.short ? renderMessage(option.short) : undefined}))}
+            onSelect={next => { graph.parameters?.write(key, next, 'learner'); }}/>
+    </div>;
+}
+
 function ParameterPuckView({graph, parameter, bounds}: ParameterPuckProps) {
+    if (parameter.kind === 'choice') return <ChoiceParameterPuck graph={graph} parameter={parameter}/>;
+    return <NumberParameterPuck graph={graph} parameter={parameter} bounds={bounds}/>;
+}
+
+function NumberParameterPuck({graph, parameter, bounds}: ParameterPuckProps & {parameter: RangeParameter | CountParameter}) {
     const key = parameter.key;
     const read = useCallback(() => {
         const arbiter = graph.parameters;

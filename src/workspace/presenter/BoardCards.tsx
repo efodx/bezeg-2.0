@@ -17,7 +17,7 @@ import {holdHeight, type HeldHeight} from '../layout/holdHeight';
 import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
 import {LessonCardBody} from '../cards/LessonCardBody';
 import {PuckOwnershipContext} from '../../graphs/base/controls/PuckOwnership';
-import {PuckStrip, estimateStrip, puckParameters, wrappedStripHeight} from '../pucks/PuckStrip';
+import {PuckStrip, estimateStrip, puckItems, puckOwnedKeys, puckShapeOf, wrappedStripHeight} from '../pucks/PuckStrip';
 import {buildCardSpecs, lessonCardSpec, toolsCardSpec, LESSON_ID, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
 import type {ToolsSection, WorkspaceCardHost} from './cardHost';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
@@ -179,9 +179,9 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   useEffect(() => { if (toolsSectionToShow) setToolsSection(toolsSectionToShow); }, [frame, toolsSectionToShow, setToolsSection]);
   // The pucks (task 05): the declared board range and count parameters the graph binds, in declared order. The strip is laid out at its
   // natural size (measured from its pucks, whose widths are constant), estimated until the first reading.
-  const puckList = puckParameters(declaration, graph.parameters?.keys());
+  const puckList = puckItems(declaration, graph.parameters?.keys());
   const puckCount = puckList.length;
-  const puckKeyList = puckList.map(parameter => parameter.key).join('|');
+  const puckKeyList = puckList.flatMap(puckOwnedKeys).join('|');
   const puckKeys = keySet(puckKeyList);
   const natural: Size | undefined = puckCount === 0 ? undefined : measuredStrip ?? estimateStrip(puckCount);
   const boardBounds = useCallback(() => {
@@ -239,10 +239,16 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     ? layoutBoard({...layoutInput, stored: dragStored(drag, base.cards.find(card => card.id === drag.id)?.rect, drag.first ?? {x: 0, y: 0}, drag.target), frozenFolds: folds})
     : base;
 
+  // The dragged card's rect as it is seen: its settled rect moved by what the pointer has travelled since pickup.
+  const visibleRect = (id: string, first: BoardPoint, pointer: BoardPoint): Rect | undefined => {
+    const rect = base?.cards.find(card => card.id === id)?.rect;
+    return rect ? {...rect, x: rect.x + pointer.x - first.x, y: rect.y + pointer.y - first.y} : undefined;
+  };
   const onDragMove = (id: string, pointer: BoardPoint) => {
     if (!base) return;
-    const target = dropTarget(layoutInput, id, pointer);
     const pickup = pickupRef.current?.id === id ? pickupRef.current.point : null;
+    const firstNow = drag?.id === id && drag.first ? drag.first : pickup ?? pointer;
+    const target = dropTarget(layoutInput, id, pointer, visibleRect(id, firstNow, pointer));
     setDrag(previous => ({id, target, first: previous?.id === id && previous.first ? previous.first : pickup ?? pointer}));
   };
   const onDrop = (id: string, pointer: BoardPoint) => {
@@ -250,7 +256,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     setDrag(null);
     pickupRef.current = null;
     if (!base) return;
-    const target = dropTarget(layoutInput, id, pointer);
+    const target = dropTarget(layoutInput, id, pointer, visibleRect(id, state.first ?? pointer, pointer));
     const rect = base.cards.find(card => card.id === id)?.rect;
     const placements = dragStored(state, rect, pointer, target);
     let next = stored;
@@ -277,7 +283,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
 
   // The strip's natural size: its slots side by side (the strip itself is given the layout's width). Puck widths are constant, so it
   // changes with the declared parameters and the language only.
-  const puckShape = `${language}|${JSON.stringify(puckList)}`;
+  const puckShape = `${language}|${puckShapeOf(puckList)}`;
   useLayoutEffect(() => {
     const slots = [...(stripRef.current?.querySelectorAll<HTMLElement>('.puck-slot') ?? [])];
     const w = slots.reduce((sum, slot) => sum + slot.offsetWidth, 0) + 8 * Math.max(0, slots.length - 1);
@@ -367,7 +373,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
             : isLesson ? <LessonCardBody slot={host.lesson.slot}/> : spec.body}
         </CardShell>;
       })}
-      {puckCount > 0 && <PuckStrip ref={stripRef} graph={graph} parameters={puckList} actions={declaration?.actions ?? []} bounds={boardBounds} rect={stripRect}/>}
+      {puckCount > 0 && <PuckStrip ref={stripRef} graph={graph} items={puckList} actions={declaration?.actions ?? []} bounds={boardBounds} rect={stripRect}/>}
     </div>
   </>;
 }

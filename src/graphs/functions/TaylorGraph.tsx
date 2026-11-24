@@ -416,7 +416,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 {id: "center", label: message("taylor_legend_center"), kind: "point", object: "center-point"},
                 {id: "x", label: message("taylor_legend_x"), kind: "point", object: "x-point"},
             ],
-            actions: [{id: "show-error", label: message("show_error_bound"), help: message("taylor_bound_help"), placement: "board", enabled: true, pressed: shown}],
+            actions: [{id: "show-error", label: message("show_error_bound"), help: message("taylor_bound_help"), placement: "board", enabled: true, pressed: shown, puck: true}],
         };
     }
 
@@ -468,13 +468,13 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
 
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
-        return <>
+        return <PuckOwned param="show-error">
             <div className="taylor-actions" role="group" aria-label={t("taylor_actions_label")}>
                 <RevealButton action="toggle-taylor-bound" revealed={state.boundVisible} showLabel={t("show_error_bound")} hideLabel={t("hide_error_bound")}
                               onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
             <p className="inspector-help">{t("taylor_bound_help")}</p>
-        </>;
+        </PuckOwned>;
     }
 
     protected override renderLegend(): React.ReactNode {

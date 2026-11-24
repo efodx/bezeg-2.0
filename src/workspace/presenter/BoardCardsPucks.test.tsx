@@ -35,12 +35,12 @@ async function mountTaylor() {
 }
 
 describe('the puck strip on a declared pilot', () => {
-    test('shows one puck per board range or count parameter, in declared order', async () => {
+    test('shows one puck per board range or count parameter, then one per puck action, in declared order', async () => {
         const {graph} = await mountTaylor();
         const expected = (graph.getDeclaration()?.parameters ?? [])
             .filter(parameter => (parameter.kind === 'range' || parameter.kind === 'count') && parameter.placement === 'board').map(parameter => parameter.key);
         expect(expected.length).toBeGreaterThan(1);
-        expect(keys()).toEqual(expected);
+        expect(keys()).toEqual([...expected, 'show-error']);
     });
 
     test('a puck write lands in the store in the same tick, as the learner', async () => {
