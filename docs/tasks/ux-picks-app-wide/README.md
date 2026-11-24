@@ -36,10 +36,10 @@ Tasks 03 to 07 each end with a feel slice ([room to improve](../../specs/ux-pick
 | [01c Check tooling in the repository](01c-check-tooling.md) | — (its acceptance run needs 01, 01b) | accepted 2026-11-23 (50-seed matrix on four pilot routes and the Taylor lesson; one real bug fixed, `057fc189`) |
 | [02 Declaration contract and conversion tooling](02-declaration-contract.md) | 01 | accepted 2026-11-23 (eight pilots declared; preview mechanism ADR 0067; contract gaps for the 08 gate in the [guide](../../guides/converting-a-graph.md#6-known-contract-gaps)) |
 | [03 Layout function and board cards](03-layout-and-board-cards.md) | 02 | accepted 2026-11-23 on the pilots, owner signed off the feel and `maxSpan` 1600 (branch only; reaches master with 04 to 07) |
-| [04 Tools and lesson cards](04-tools-and-lesson-cards.md) | 03 | not started |
-| [05 Pucks](05-pucks.md) | 01 (its measurement), 03 | not started |
+| [04 Tools and lesson cards](04-tools-and-lesson-cards.md) | 03 | accepted 2026-11-24 on the pilots, owner signed off the docking feel (branch only; reaches master with 03 to 07) |
+| [05 Pucks](05-pucks.md) | 01 (its measurement), 03 | accepted 2026-11-24 on the pilots, owner signed off the toggle/choice pucks feel; styling later (branch only; reaches master with 03 to 07) |
 | [06 Previews and sweeps](06-previews-and-sweeps.md) | 05; mechanism chosen in 02 | not started |
-| [07 Lesson morph and view director](07-morph-and-view-director.md) | 01b, 03, 04, 05 | not started |
+| [07 Lesson morph and view director](07-morph-and-view-director.md) | 01b, 03, 04, 05 | in progress (slice 1 fit core in; slice 2 director under way) |
 | [08 Convert all graphs](08-convert-all-graphs.md) | 02 to 07 accepted on the pilots and on `master` | not started |
 | [09 Phone presenter](09-phone-presenter.md) | 08 | not started; needs its own spec |
 | [10 Closeout](10-closeout.md) | 08, 09 | not started |
