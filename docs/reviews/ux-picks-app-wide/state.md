@@ -52,6 +52,6 @@ Listed in `docs/guides/converting-a-graph.md` section 6; 07's fit core adds: `Vi
 
 ## Next slice's brief inputs
 
-1. Movable strip slice A (pure layout + storage, `boardLayout.ts`, `storedLayout.ts`) and 07 slice 2b (marks on transformations, De Casteljau, linear map, phase portrait, from Taylor's worked example in `0e77614c`) dispatched together by handler 6; then strip slice B (grip, drag, keyboard in the presenter).
-2. 06 slice 2 (ghost overlay, hover on puck track, tools slider, count -/+; tooltip key) after strip slice B (shared presenter files).
-3. 07 slices 3-5 (morph, state-following intent, old fit removed); then the 03-07 release gate (full `just check`, full smoke, owner feel of director and previews).
+1. Movable strip: slice A `576310d7` (layout, rules 2j-2l); 07 slice 2b `3ee46960` (marks on the four other 2D pilots). Slice B (grip `StripGrip.tsx`, drag, keyboard ring, column rendering, term "krmilniki") is uncommitted; a fix worker adds the 2j fallback (strip widens beyond the column, never above the board top, else bottom-left rules) and grip room in `puckSlots`; notes `briefs/notes/05b-strip-b.md`. Then: review, `just check-changed`, smoke, commit. No "Reset layout" button exists (`resetAll` unused).
+2. Open from 2b (`briefs/notes/07-marks-2b.md`): views very wide at 1280x720 (owner feel); the linear-map lesson showed 2 steps at 1280x720 vs 7 at 1440x900 (investigate); De Casteljau marks read board points.
+3. 06 slice 2 (ghost overlay, hover on puck track, tools slider, count -/+; tooltip key), then 07 slices 3-5, then the 03-07 release gate (full `just check`, full smoke, owner feel of director, strip and previews on the tailnet preview).
