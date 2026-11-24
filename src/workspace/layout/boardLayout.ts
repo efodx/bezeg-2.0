@@ -20,6 +20,9 @@ export interface CardInput {
   /** Height of a bar row inside the card under its scroll area ("Več", the Povrni row). Already part of `natural.h` and `min.h`;
    *  a cut lands on the largest rowBreak that fits above it, then adds it back. Default 0. */
   reserve?: number;
+  /** A docked cut lands exactly on the room, not on a row break: the lesson card, whose cut (and so its Back/Next row, when it is
+   *  anchored at the bottom) must not change from frame to frame. Its body scrolls behind the bar. */
+  exactCut?: boolean;
   /** Starts folded when nothing else decides (rule 4, after the budget): Legenda and `section:` cards. */
   defaultFolded?: boolean;
 }
@@ -112,11 +115,15 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   if (fits(alt)) return alt;
   // Rule 2h: last resort before the strip covers the left column (its nav row would be unreachable): the right and centre columns
   // may fold their last open card too, down to heads, so that the strip runs beside the left column. The learner can unfold it.
-  const folded = layoutOnce(input, true, true);
-  return fits(folded) ? folded : plain;
+  const folded = layoutOnce(input, true, 1);
+  if (fits(folded)) return folded;
+  // Rule 2i: when that still fails, cards the frame or the learner opened give way too (never the lesson card): an unreachable
+  // Back/Next is worse than a folded Orodja, which the learner unfolds with one click.
+  const forced = layoutOnce(input, true, 2);
+  return fits(forced) ? forced : plain;
 }
 
-function layoutOnce(input: LayoutInput, beside: boolean, foldLast = false): LayoutResult {
+function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0): LayoutResult {
   const { board, cards, stored, storedFolds, frame, pucks, maxSpan, columnMaxFraction, gap, frozenFolds, budget, expanded } = input;
 
   // Rule 1: band.
@@ -199,7 +206,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast = false): Layo
     if (!frozenFolds) {
       while (total() > avail) {
         // With an expanded card only lower-priority cards of its column give way to it.
-        const open = members.filter((s) => !s.folded && !s.pinned && (!wide || (s !== wide && s.card.priority < wide.card.priority)));
+        const open = members.filter((s) => !s.folded && (!s.pinned || (foldLast === 2 && col !== 'left' && s.card.priority !== Infinity)) && (!wide || (s !== wide && s.card.priority < wide.card.priority)));
         // Folding a column's last open card frees room for nothing and hides all it holds: cut it instead (rule 6).
         if (open.length === 0 || (members.filter((s) => !s.folded).length <= 1 && !(foldLast && col !== 'left'))) break;
         open.sort((a, b) => a.card.priority - b.card.priority || (a.card.id < b.card.id ? -1 : 1));
@@ -221,7 +228,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast = false): Layo
       const room = avail - (total() - heightOf(s));
       const bar = s.card.reserve ?? 0;
       const fitting = s.card.rowBreaks.filter((b) => b <= room - bar);
-      const cut = Math.max(floorOf(s), fitting.length ? Math.max(...fitting) + bar : 0);
+      const cut = Math.max(floorOf(s), s.card.exactCut ? room : fitting.length ? Math.max(...fitting) + bar : 0);
       if (cut >= heightOf(s)) exhausted.add(s);
       else s.cut = cut;
     }

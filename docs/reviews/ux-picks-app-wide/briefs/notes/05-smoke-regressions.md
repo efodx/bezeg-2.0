@@ -1,0 +1,6 @@
+# 05 smoke regressions (4 rows from 6091f560)
+
+- Row 4 (lesson-graph-access:61): stale test. Show-error is a toggle puck (role switch, name "Show error bound"), no `data-action` button. Test now clicks the switch.
+- Rows 2-3 (Taylor nav position): product. The test drag now docks the lesson card at bc (centre rule). A bottom-anchored card cut at row breaks changed height per frame (347..392), moving Back/Next 386->425. Fix: `CardInput.exactCut` (boardLayout.ts), set for the lesson card in BoardCards.tsx; cut = room, so frame-independent. Unit test in boardLayout.test.ts. After: card 382,204,336,395 and Next y 378 on all frames; strip 33,421,341,178 constant. Test line 183 (`y` differs after drag) removed: a full-height card has the same top at tl and bc; x check kept.
+- Row 1 (phase-portrait, step 2 part 2, 1280x720): product. Frame opens tools+legend (seed count lives in Orodja); rule 2h cannot fold pinned cards, so the 812x248 strip covered Back/Next. Fix: rule 2i, `layoutOnce(..., 2)` folds frame/learner-opened right and centre cards (never lesson) as a last resort. Unit test in boardLayout.test.ts (failed first: strip y155 over lesson 8..296).
+- Final: `just unit src/workspace` pass; eslint 0; guided-lessons full 323 passed, 1 failed (decasteljau exit en, fill timeout under load, passes alone); lesson-graph-access passed.

@@ -153,7 +153,7 @@ module.exports = function registerExperienceChecks() {
         });
         for (const language of ['sl', 'en']) {
             test(`${language}: navigation keeps one position from explanation through observation and completion`, async ({page}) => {
-                await page.setViewportSize({width: 1100, height: 700});
+                await page.setViewportSize({width: 1100, height: 1000});
                 await h.useLanguage(page, language);
                 await page.goto('/bezeg-2.0/analysis/taylor?learn=1');
                 const panel = h.lessonPanel(page);
@@ -174,8 +174,12 @@ module.exports = function registerExperienceChecks() {
                 const gy = gripBox.y + gripBox.height / 2;
                 await page.mouse.move(gx, gy);
                 await page.mouse.down();
-                await page.mouse.move(gx + 200, gy + 120, {steps: 6});
-                await page.mouse.move(gx + 400, gy + 200, {steps: 8});
+                // Drop with the card's centre at the board centre: the middle half of the board is a free placement, so the top really moves.
+                const boardBox = await page.locator('#jgbox').boundingBox();
+                const dx = boardBox.x + boardBox.width / 2 - (panelBeforeDrag.x + panelBeforeDrag.width / 2);
+                const dy = boardBox.y + boardBox.height / 2 - (panelBeforeDrag.y + panelBeforeDrag.height / 2);
+                await page.mouse.move(gx + dx / 2, gy + dy / 2, {steps: 6});
+                await page.mouse.move(gx + dx, gy + dy, {steps: 8});
                 await page.mouse.up();
                 await page.waitForTimeout(600);
                 const panelAfterDrag = await card.boundingBox();
