@@ -41,7 +41,7 @@ Listed in `docs/guides/converting-a-graph.md` section 6; 07's fit core adds: `Vi
 ## Open items
 
 - Phase-portrait linearization at 1280x720: rule 2i folds the Orodja the frame opened for the seed count (one click away). Revisit with 07's view fit or the resizable cards.
-- Owner asked 2026-11-24: can the pucks strip move, as a whole row or column? Owner decided: the strip moves as one unit by a grip, docks as a bottom row (left, centre or right) or as a left or right side column (pucks stacked), position stored; built as its own slice after 07's director, before the 03-07 release. Handler designs the layout rules (extend rule 2) first. Strip rules: `03-layout-design.md` rule 2.
+- Owner asked 2026-11-24: can the pucks strip move, as a whole row or column? Owner decided: the strip moves as one unit by a grip, docks as a bottom row (left, centre or right) or as a left or right side column (pucks stacked), position stored; built as its own slice after 07's director, before the 03-07 release. Handler designs the layout rules (extend rule 2) first. Owner's reason: he could put cards next to the strip but could not move the strip itself, so the strip must behave like a dockable card (cards make room for it and sit beside it wherever it is). Strip rules: `03-layout-design.md` rule 2.
 - Deferred (owner 2026-11-24): resizable cards, height first (stored height reuses the cut), width later.
 - Keyboard card moves step a virtual pointer, not anchor to anchor; offer anchor hopping if the owner wants it.
 - Perf follow-ups: `ReadoutsBody.tsx:82` getBoundingClientRect per row layout effect; a store write re-renders GraphHost, BoardCards and every readout row. Taylor 4x input delay ~11 % above master like for like.
