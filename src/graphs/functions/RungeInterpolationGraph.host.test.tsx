@@ -1,7 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {RungeInterpolationGraph} from './RungeInterpolationGraph';
+import {RungeInterpolationGraph, rungeViewFor} from './RungeInterpolationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
 import {LocalizedError, setLanguage} from '../../localization';
@@ -281,4 +281,19 @@ test('the maximum-error marker is named for catalog clips and draws no label', (
     const markers = (graph.liveBoard().objectsList as unknown as Named[]).filter(object => object.elType === 'point' && object.name === 'runge-grid-max');
     expect(markers).toHaveLength(1);
     expect(markers[0].visProp?.withlabel).toBe(false);
+});
+
+test('the starting view widens on a wide canvas so the true-circle semicircle stays in view, and is the default view on a narrow one', () => {
+    const arcTop = (width: number, height: number) => {
+        const [left, top, right, bottom] = rungeViewFor(width, height);
+        return ((width / (right - left)) / (height / (top - bottom)));
+    };
+    expect(rungeViewFor(875, 594)).toEqual([-1.25, 2.5, 1.25, -0.5]);
+    expect(rungeViewFor(0, 0)).toEqual([-1.25, 2.5, 1.25, -0.5]);
+    const wide = rungeViewFor(1330, 569);
+    expect(wide[0]).toBeCloseTo(-wide[2], 12);
+    expect(wide[2]).toBeGreaterThan(1.25);
+    expect([wide[1], wide[3]]).toEqual([2.5, -0.5]);
+    expect(arcTop(1330, 569)).toBeLessThan(2.4);
+    expect(arcTop(1024, 768)).toBeLessThan(2.4);
 });
