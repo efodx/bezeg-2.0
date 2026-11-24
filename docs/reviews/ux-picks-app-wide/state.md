@@ -41,16 +41,16 @@ Full list in `docs/guides/converting-a-graph.md` section 6 (section placement, O
 
 ## Open items
 
-- Crowding at 1024 (`smoke/04-visual-lesson-pp3.png`, phase-portrait linearization step 3): four locked matrix pucks take two strip rows, each repeating "Zaklenjeno v tem koraku razlage"; the strip sits over plotted curves; cards cover board text. No card overlaps. For the 05 feel slice (owner): compact locked pucks with one shared lock note; strip vs data is 07's view fit.
+- Crowding at 1024 (`smoke/04-visual-lesson-pp3.png`, phase-portrait linearization step 3): four locked matrix pucks take two strip rows, each repeating "Zaklenjeno v tem koraku razlage"; the strip sits over plotted curves; cards cover board text. No card overlaps. Locked pucks go (owner 2026-11-24); strip vs data is 07's view fit.
 
 - Keyboard card moves step a virtual pointer (10/40 px), not anchor to anchor; offer anchor hopping in a feel round if the owner wants it.
 - `DecasteljauGraph2.tsx` has the same start-after-commit pattern as the fixed I1 bug (check in 08).
 - Recheck the inventory's 6 new-string candidates before 08.
-- For the owner (stage sign-off): Esc pauses playback on board graphs, and touching a playing parameter pauses it (both on master now). ADR 0067 reverses the spec's preview recommendation (shadow board first) on measured numbers.
 
 ## Next slice's brief inputs
 
-1. **Waiting on the owner** (asked by handler 5, 2026-11-23 evening; he said he breaks overnight). Preview: production build of `e201b175` on `just preview 4472` (handler 5's shell), tailnet `http://desktop-a0j72sv.tail2032db.ts.net:4472/bezeg-2.0/`. If the shell is gone: `just build`, `just preview 4472`, `tailscale serve --bg --http=4472 http://127.0.0.1:4472`. Questions: (a) 04 slice 5 taste, where a frame's Orodja action shows (`04-design.md` §8): Orodja opens at that section beside the lesson card (default) vs a button on the lesson card; on `/analysis/taylor?learn=1` and `/analysis/bisection?learn=1`. (b) 04 feel (cards, lesson card fold/cut/anchor, Orodja) and 05 feel (pucks: drag, keys, typed entry, De Casteljau Play) incl. the crowding item below. (c) 05 slice 6 choice/toggle puck candidates. (d) Stage sign-off items under Open items. After answers: implement, then 04/05 acceptance closes; next tasks 06 and 07.
+0. **Owner answers, 2026-11-24:** (a) slice 5 closed, default stands (he saw no difference); (b) feel "okay", styling expected later; no locked pucks unless there is a real reason (worker removing inapplicable-parameter pucks, note `briefs/notes/05-no-locked-pucks.md`); (c) handler decides: choices and toggles stay in Orodja/legend, slice 6 closed; (d) Esc/touch pause and ADR 0067 signed off. After the no-locked-pucks commit: rerun full check + smoke, then 04 and 05 are accepted; next 07 slice 2 (director design) and 06.
+1. Owner preview: tailnet `http://desktop-a0j72sv.tail2032db.ts.net:4472/bezeg-2.0/` (`tailscale serve` on 4472 is set; server from `.preview-wt`, see Where).
 2. Gate state at `43ab3eff`+: `just check` passes (930 s); full smoke 562 pass, 1 fail = interp-runge (task 07 acceptance), 26 skipped (phone, task 09). Later commits `8ac2ac68` (MathJax nesting in the measure pass crashed the tab after ~16 folds), `dcd28928` (controls catalogue Puck entry), `1d9c9997` (fuzzer puck actions, 50 seeds x 6 routes clean), `e201b175` (constant puck width, production remeasure `measure/RESULTS-05-perf-fix.md`): unit/eslint/build checked per commit; rerun full check + smoke before the 03-07 release.
 3. Perf follow-ups (not blocking): `ReadoutsBody.tsx:82` getBoundingClientRect in each row's layout effect forces layout on every value change; a store write re-renders GraphHost, BoardCards and every readout row (2 commits per pointer move). Taylor 4x input delay ~11 % above master like for like.
 4. Free-play script: 15-16 actions per 60 s run fail (likely click/drag timeouts, not investigated; `smoke/04-mjx-leak-*`).
