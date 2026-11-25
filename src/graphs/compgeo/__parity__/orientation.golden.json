@@ -5,7 +5,9 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: +8 (levi zavoj)"
+      ],
       "outputs": [],
       "captions": [
         "+8: levi zavoj"
@@ -14,18 +16,40 @@
     {
       "name": "orientation-guided/orientation-line",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Orientacija potrebuje tri točke. Dodaj še točke; manjka jih: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "orientation-guided/orientation-predict",
+      "rows": [],
+      "notes": [
+        "Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj."
+      ],
       "outputs": [],
       "captions": []
     },
     {
       "name": "orientation-guided/orientation-flip",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: -8 (desni zavoj)"
+      ],
       "outputs": [],
       "captions": [
         "-8: desni zavoj"
       ]
+    },
+    {
+      "name": "orientation-guided/orientation-explore",
+      "rows": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: 0 (kolinearne točke)"
+      ],
+      "outputs": [],
+      "captions": []
     }
   ]
 }

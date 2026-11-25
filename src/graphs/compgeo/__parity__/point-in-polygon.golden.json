@@ -5,7 +5,13 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka q je znotraj večkotnika.",
+        "Število presečišč poltraka z robom: 1",
+        "Sodo-liho pravilo: znotraj (liho število presečišč)",
+        "Ovojno število: 1",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)"
+      ],
       "outputs": [],
       "captions": [
         "1"
@@ -14,14 +20,35 @@
     {
       "name": "point-in-polygon-guided/pip-drag",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka q je znotraj večkotnika.",
+        "Število presečišč poltraka z robom: 1",
+        "Sodo-liho pravilo: znotraj (liho število presečišč)",
+        "Ovojno število: 1",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "point-in-polygon-guided/pip-predict",
+      "rows": [],
+      "notes": [
+        "Rezultat je skrit; prikaz se vklopi v stikalu prekrivanj."
+      ],
       "outputs": [],
       "captions": []
     },
     {
       "name": "point-in-polygon-guided/pip-ray-reveal",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka q je znotraj večkotnika.",
+        "Število presečišč poltraka z robom: 3",
+        "Sodo-liho pravilo: znotraj (liho število presečišč)",
+        "Ovojno število: 1",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)"
+      ],
       "outputs": [],
       "captions": [
         "1",
@@ -32,7 +59,13 @@
     {
       "name": "point-in-polygon-guided/pip-winding",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka q je zunaj večkotnika.",
+        "Število presečišč poltraka z robom: 2",
+        "Sodo-liho pravilo: zunaj (sodo število presečišč)",
+        "Ovojno število: 0",
+        "Neničelno pravilo: zunaj (ovojno število je 0)"
+      ],
       "outputs": [],
       "captions": [
         "+1",
@@ -44,7 +77,14 @@
     {
       "name": "point-in-polygon-guided/pip-pentagram",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka q je znotraj ali zunaj, odvisno od pravila.",
+        "Število presečišč poltraka z robom: 2",
+        "Sodo-liho pravilo: zunaj (sodo število presečišč)",
+        "Ovojno število: 2",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)",
+        "Večkotnik seka samega sebe, zato pravili lahko dasta različen odgovor."
+      ],
       "outputs": [],
       "captions": [
         "+1",
@@ -56,7 +96,13 @@
     {
       "name": "point-in-polygon-guided/pip-explore",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka q je znotraj večkotnika.",
+        "Število presečišč poltraka z robom: 1",
+        "Sodo-liho pravilo: znotraj (liho število presečišč)",
+        "Ovojno število: 1",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)"
+      ],
       "outputs": [],
       "captions": [
         "+1",

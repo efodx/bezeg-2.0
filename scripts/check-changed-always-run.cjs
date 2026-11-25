@@ -40,6 +40,7 @@ const STYLESHEET_READERS = [
     'src/learning/playground/LookUnderneath.test.tsx',
     'src/workspace/cards/CardShellMotion.test.tsx',
     'src/workspace/presenter/BoardCards.test.tsx',
+    'src/workspace/presenter/BoardCardsStrip.test.tsx',
 ];
 
 const STYLESHEET = /\.(css|scss)$/i;

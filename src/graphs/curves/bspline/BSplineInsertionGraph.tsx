@@ -288,7 +288,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
                 </div>
                 <p className="inspector-help">{t("bsi_insert_help")}</p>
                 <RefusalNotice channel={this.refusals}/>
-                {ghost.length ? <p className="inspector-help" data-insertion-status="ghost">{t("bsi_ghost_note")}</p> : null}
+                {ghost.length ? <p data-readout-note className="inspector-help" data-insertion-status="ghost">{t("bsi_ghost_note")}</p> : null}
             </div>,
             <div key="example"><ChoiceSelect label={t("bsi_example")} value={example} options={options}
                                              onChange={value => this.selectExample(value as InsertionExampleId)}/>
@@ -298,7 +298,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
                 <h3 id="bsi-multiplicity-title">{t("bsi_multiplicity_title")}</h3>
                 {rows.length
                     ? <ul data-insertion-readout="multiplicity">{rows.map(row =>
-                        <li key={row.knot}>{t("bsi_multiplicity_row", {
+                        <li data-readout-note key={row.knot}>{t("bsi_multiplicity_row", {
                             value0: formatNumber(row.knot, currentLanguage(), 4), value1: row.multiplicity,
                             value2: row.continuity >= 0 ? `C${row.continuity}` : t("bsi_multiplicity_break"),
                         })}</li>)}</ul>
@@ -308,7 +308,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
                 <p className="inspector-help">{t("bsi_comb_help")}</p>
                 {showComb && jumps.length ? <div role="group" aria-labelledby="bsi-jumps-title">
                     <h3 id="bsi-jumps-title">{t("bsi_join_title")}</h3>
-                    <ul data-insertion-readout="jumps">{jumps.map(line => <li key={line}>{line}</li>)}</ul>
+                    <ul data-insertion-readout="jumps">{jumps.map(line => <li data-readout-note key={line}>{line}</li>)}</ul>
                 </div> : null}</div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );

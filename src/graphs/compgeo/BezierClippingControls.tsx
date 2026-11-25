@@ -89,10 +89,10 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
             <p className="inspector-help">{t("bezierclipping_playback_note")}</p>
         </div>
         <div className="inspector-group" data-bezier-clipping="readout">
-            <StepCounter step={step} length={length} hooks={{"data-bezier-clipping": "step"}}/>
-            <p className="inspector-help" data-bezier-clipping="status" data-status={readout.status}>{status}</p>
-            <p className="inspector-help" data-bezier-clipping="clips">{count}</p>
-            {widest !== null && <p className="inspector-help" data-bezier-clipping="widest">{widest}</p>}
+            <StepCounter step={step} length={length} hooks={{"data-bezier-clipping": "step", "data-readout-note": ""}}/>
+            <p data-readout-note className="inspector-help" data-bezier-clipping="status" data-status={readout.status}>{status}</p>
+            <p data-readout-note className="inspector-help" data-bezier-clipping="clips">{count}</p>
+            {widest !== null && <p data-readout-note className="inspector-help" data-bezier-clipping="widest">{widest}</p>}
         </div>
         <div className="inspector-group" data-bezier-clipping="tolerance">
             <ChoiceSelect label={t("bezierclipping_tolerance_label")} value={String(props.toleranceExponent)}

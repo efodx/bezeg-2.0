@@ -5,7 +5,11 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Slika X′ = (6/5, 2/5)",
+        "Točka X je zunaj krožnice inverzije.",
+        "|CX| · |CX′| = r² = 4"
+      ],
       "outputs": [],
       "captions": [
         "Slika X′ = (6/5, 2/5)"
@@ -14,7 +18,28 @@
     {
       "name": "inversion/power",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Potenca = 16",
+        "Potenca točke P na krožnico: 16",
+        "Točka P je zunaj krožnice (potenca > 0).",
+        "PA = 2, PB = 8; PA · PB ≈ 16",
+        "Dolžina tangentnega odseka: 4"
+      ],
+      "outputs": [],
+      "captions": [
+        "Potenca = 16"
+      ]
+    },
+    {
+      "name": "inversion/product",
+      "rows": [],
+      "notes": [
+        "Potenca = 16",
+        "Potenca točke P na krožnico: 16",
+        "Točka P je zunaj krožnice (potenca > 0).",
+        "PA = 2,234, PB = 7,163; PA · PB ≈ 16",
+        "Dolžina tangentnega odseka: 4"
+      ],
       "outputs": [],
       "captions": [
         "Potenca = 16"
@@ -23,7 +48,10 @@
     {
       "name": "inversion/line",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Krožnica skozi središče C → premica",
+        "Slika: premica x = 2"
+      ],
       "outputs": [],
       "captions": [
         "Krožnica skozi središče C → premica"
@@ -32,7 +60,10 @@
     {
       "name": "inversion/circle",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Krožnica mimo središča C → krožnica",
+        "Slika: krožnica s središčem (3/2, 0), r² = 1/4"
+      ],
       "outputs": [],
       "captions": [
         "Krožnica mimo središča C → krožnica"
@@ -41,7 +72,12 @@
     {
       "name": "inversion/angle",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Kot 60° → 60°",
+        "Kot pred inverzijo: 60° (s predznakom 60°)",
+        "Kot po inverziji: 60° (s predznakom -60°)",
+        "Inverzija ohrani velikost kota in obrne njegov predznak."
+      ],
       "outputs": [],
       "captions": [
         "Kot 60° → 60°"
@@ -50,7 +86,9 @@
     {
       "name": "inversion/explore",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka X je središče inverzije C, zato nima slike."
+      ],
       "outputs": [],
       "captions": [
         "Točka X je središče inverzije C, zato nima slike."

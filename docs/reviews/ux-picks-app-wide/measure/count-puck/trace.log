@@ -1,0 +1,17 @@
+clicks 10, issued in 4267 ms
+RunTask                   4024 ms 2684 x
+Commit                    3667 ms 20 x
+HitTest                    434 ms 62 x
+EventDispatch              103 ms 106 x
+FunctionCall               103 ms 552 x
+Layout                      15 ms 13 x
+UpdateLayoutTree            11 ms 39 x
+Paint                        8 ms 59 x
+MinorGC                      3 ms 6 x
+PrePaint                     3 ms 99 x
+TimerFire                    3 ms 62 x
+Layerize                     2 ms 18 x
+ParseHTML                    0 ms 18 x
+UpdateLayer                  0 ms 16 x
+RunTask >50ms: 137 1653 1998
+FunctionCall >30ms:

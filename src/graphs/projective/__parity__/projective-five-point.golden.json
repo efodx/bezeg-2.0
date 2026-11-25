@@ -5,7 +5,15 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Pet točk določa natanko eno stožnico (elipsa). Lok med izbranima krajiščema je ena racionalna kvadratna Bézierova krivulja, ki pokrije le eno stran stožnice; preostali del je njeno nadaljevanje za t zunaj [0, 1].",
+        "Stožnica (elipsa): 9x² + 25y² - 225 = 0",
+        "Kontrolne točke: P₀ = (5, 0), P₁ = (5, 3), P₂ = (0, 3). P₁ je pol tetive P₀P₂ glede na stožnico, presečišče tangent v krajiščih.",
+        "Utež w ≈ 0,7071 (w² = 1/2).",
+        "w < 1: lok je del elipse.",
+        "Farinovi točki: F₁ = (5, 1,2426), F₂ = (2,0711, 3); njuna sredina je točka loka pri t = 1/2: S = (3,5355, 2,1213).",
+        "Največji odmik loka od stožnice na 200 vzorcih: 1,5·10⁻¹⁵ (vzorčni preizkus, ne dokaz)."
+      ],
       "outputs": [],
       "captions": [
         "w² = 1/2, w ≈ 0,7071"
@@ -14,18 +22,48 @@
     {
       "name": "projective-five-point-guided/five-point-parallel",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Tangenti v izbranih krajiščih sta vzporedni, njuno presečišče P₁ je v neskončnosti in lok ne more biti en končen kvadratni kos. Izberi točko med njima kot krajišče; tako kot pri krožnici, ki jo sestavimo iz najmanj 3 kosov.",
+        "Stožnica (elipsa): 9x² + 25y² - 225 = 0"
+      ],
       "outputs": [],
       "captions": []
     },
     {
       "name": "projective-five-point-guided/five-point-hyperbola",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Pet točk določa natanko eno stožnico (hiperbola). Lok med izbranima krajiščema je ena racionalna kvadratna Bézierova krivulja, ki pokrije le eno stran stožnice; preostali del je njeno nadaljevanje za t zunaj [0, 1].",
+        "Stožnica (hiperbola): 16x² - 9y² - 144 = 0",
+        "Kontrolne točke: P₀ = (3, 0), P₁ = (3, 2), P₂ = (5, 16/3). P₁ je pol tetive P₀P₂ glede na stožnico, presečišče tangent v krajiščih.",
+        "Utež w ≈ 1,1547 (w² = 4/3).",
+        "w > 1: lok se nadaljuje skozi točko v neskončnosti; imenovalec ima realni ničli t ≈ -1,366 in t ≈ 2,366.",
+        "Farinovi točki: F₁ = (3, 1,0718), F₂ = (3,9282, 3,547); njuna sredina je točka loka pri t = 1/2: S = (3,4641, 2,3094).",
+        "Največji odmik loka od stožnice na 200 vzorcih: 1,5·10⁻¹⁵ (vzorčni preizkus, ne dokaz)."
+      ],
       "outputs": [],
       "captions": [
         "w² = 4/3, w ≈ 1,1547"
       ]
+    },
+    {
+      "name": "projective-five-point-guided/five-point-line-pair",
+      "rows": [],
+      "notes": [
+        "Točke A, B, C ležijo na isti premici, zato je edina stožnica skozi vseh pet točk par premic in ne gladka stožnica. Premakni eno od teh točk s premice.",
+        "Stožnica (par premic): 4x² - xy - 3y² - 12x + 12y = 0"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "projective-five-point-guided/five-point-pencil",
+      "rows": [],
+      "notes": [
+        "Točke A, B, C, D ležijo na isti premici, zato skozi pet točk poteka cel šop stožnic in ena sama ni določena. Premakni eno od teh točk s premice."
+      ],
+      "outputs": [],
+      "captions": []
     }
   ]
 }

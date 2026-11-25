@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {clipCurveToView} from "./curveViewClip";
 import {PuckOwned} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -307,9 +308,12 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         this.drawn.set("function", this.own(board.create("functiongraph", [f], {
             strokeColor: GraphPalette.primaryCurve, dash: FUNCTION_DASH, highlight: false, fixed: true, strokeWidth,
         })));
-        this.drawn.set("polynomial", this.own(board.create("functiongraph", [polynomial], {
+        const polynomialCurve = this.own(board.create("functiongraph", [polynomial], {
             strokeColor: GraphPalette.comparisonCurve, dash: POLYNOMIAL_DASH, highlight: false, fixed: true, strokeWidth,
-        })));
+        }));
+        // T_n runs to coordinates in the millions off the view; stroking that path costs ~180 ms a frame (count puck on fast presses).
+        clipCurveToView(polynomialCurve, board);
+        this.drawn.set("polynomial", polynomialCurve);
         this.drawn.set("error", this.own(board.create("segment", [[() => model().x, () => view().polynomial], [() => model().x, () => view().value]], {
             strokeColor: GraphPalette.warningText, strokeWidth: () => Math.max(2.5, this.displaySettings.strokeWidth * 1.4), highlight: false, fixed: true,
             withLabel: false, visible: () => view().absoluteError > 0,

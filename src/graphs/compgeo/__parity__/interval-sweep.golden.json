@@ -5,7 +5,75 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 26",
+        "Pometalna premica se premakne na x = 0: dogodek vstopa intervala a.",
+        "Odprtih intervalov: 0",
+        "Odprtih po dogodkih:",
+        "Največ odprtih doslej: 0",
+        "Prekrivajočih parov še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$b$$",
+        "$$c$$",
+        "$$d$$",
+        "$$e$$"
+      ]
+    },
+    {
+      "name": "interval-sweep-guided/intervalsweep-events",
+      "rows": [],
+      "notes": [
+        "Korak 7 od 26",
+        "Interval c vstopi v stanje pometalne premice. Odprtih intervalov: 3.",
+        "Odprtih intervalov: 3",
+        "Odprtih po dogodkih: 1, 2, 3",
+        "Največ odprtih doslej: 3",
+        "Prekrivajoči pari doslej (1): ab"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$b$$",
+        "$$c$$",
+        "$$d$$",
+        "$$e$$"
+      ]
+    },
+    {
+      "name": "interval-sweep-guided/intervalsweep-pairs",
+      "rows": [],
+      "notes": [
+        "Korak 21 od 26",
+        "Najden par de: intervala se prekrivata.",
+        "Odprtih intervalov: 2",
+        "Odprtih po dogodkih: 1, 2, 3, 2, 1, 2, 1, 2",
+        "Največ odprtih doslej: 3",
+        "Prekrivajoči pari doslej (5): ab, ac, bc, bd, de"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$b$$",
+        "$$c$$",
+        "$$d$$",
+        "$$e$$"
+      ]
+    },
+    {
+      "name": "interval-sweep-guided/intervalsweep-compare",
+      "rows": [],
+      "notes": [
+        "Korak 26 od 26",
+        "Vsi dogodki so obdelani.",
+        "Odprtih intervalov: 0",
+        "Odprtih po dogodkih: 1, 2, 3, 2, 1, 2, 1, 2, 1, 0",
+        "Največ odprtih: 3 na [3, 4]",
+        "Prekrivajoči pari doslej (5): ab, ac, bc, bd, de",
+        "Najdenih parov: 5; vseh parov bi preizkusili: 10."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
@@ -18,7 +86,14 @@
     {
       "name": "interval-sweep-guided/intervalsweep-explore",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 21",
+        "Pometalna premica se premakne na x = 0: dogodek vstopa intervala a.",
+        "Odprtih intervalov: 0",
+        "Odprtih po dogodkih:",
+        "Največ odprtih doslej: 0",
+        "Prekrivajočih parov še ni."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",

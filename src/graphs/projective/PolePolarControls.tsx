@@ -61,13 +61,13 @@ export function PolePolarControls(props: PolePolarControlsProps) {
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
             <div data-projective-status={text.region}>
-                <p className="inspector-help" data-projective-line="status">{text.status}</p>
-                {text.polar && <p className="inspector-help" data-projective-line="polar">{text.polar}</p>}
+                <p data-readout-note className="inspector-help" data-projective-line="status">{text.status}</p>
+                {text.polar && <p data-readout-note className="inspector-help" data-projective-line="polar">{text.polar}</p>}
             </div>
-            {text.tangents.map((line, i) => <p key={i} className="inspector-help" data-projective-line={`tangent-${i + 1}`}>{line}</p>)}
-            {text.tangency.map((line, i) => <p key={i} className="inspector-help" data-projective-line={`tangency-${i + 1}`}>{line}</p>)}
-            {text.numerical && <p className="inspector-help" data-projective-line="numerical">{text.numerical}</p>}
-            <p className="inspector-help" data-projective-line="centre">{text.centre}</p>
+            {text.tangents.map((line, i) => <p data-readout-note key={i} className="inspector-help" data-projective-line={`tangent-${i + 1}`}>{line}</p>)}
+            {text.tangency.map((line, i) => <p data-readout-note key={i} className="inspector-help" data-projective-line={`tangency-${i + 1}`}>{line}</p>)}
+            {text.numerical && <p data-readout-note className="inspector-help" data-projective-line="numerical">{text.numerical}</p>}
+            <p data-readout-note className="inspector-help" data-projective-line="centre">{text.centre}</p>
             <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">

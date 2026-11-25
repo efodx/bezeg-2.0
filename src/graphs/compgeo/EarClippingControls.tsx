@@ -91,22 +91,22 @@ export function EarClippingControls(props: EarClippingControlsProps) {
             <p className="inspector-help">{t("earclip_playback_note")}</p>
         </div>
         <div className="inspector-group" data-ear-clipping-status="">
-            {refusal && <p className="inspector-help" role="alert" data-ear-clipping="refusal">{refusalText(t, refusal)}</p>}
+            {refusal && <p data-readout-note className="inspector-help" role="alert" data-ear-clipping="refusal">{refusalText(t, refusal)}</p>}
             {reversedText && <ReadoutHelp hooks={{"data-ear-clipping": "reversed"}}>{reversedText}</ReadoutHelp>}
-            {traced && <StepCounter step={step} length={length} hooks={{"data-ear-clipping": "step"}}/>}
-            {noteSentence && <p className="inspector-help" data-ear-clipping="note">{noteSentence}</p>}
-            {detail && <p className="inspector-help" data-ear-clipping="detail">{detail}</p>}
-            {trianglesText && <p className="inspector-help" data-ear-clipping="triangles">{trianglesText}</p>}
-            {countText && <p className="inspector-help" data-ear-clipping="count">{countText}</p>}
+            {traced && <StepCounter step={step} length={length} hooks={{"data-ear-clipping": "step", "data-readout-note": ""}}/>}
+            {noteSentence && <p data-readout-note className="inspector-help" data-ear-clipping="note">{noteSentence}</p>}
+            {detail && <p data-readout-note className="inspector-help" data-ear-clipping="detail">{detail}</p>}
+            {trianglesText && <p data-readout-note className="inspector-help" data-ear-clipping="triangles">{trianglesText}</p>}
+            {countText && <p data-readout-note className="inspector-help" data-ear-clipping="count">{countText}</p>}
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="ear-clipping-live"/>
             {summary && <>
                 <ReadoutHeading>{t("earclip_result_title")}</ReadoutHeading>
                 <ul data-ear-clipping="result">
-                    <li data-result="triangles">{t("earclip_result_triangles", {value0: summary.triangles, value1: summary.triangles + 2})}</li>
-                    <li data-result="diagonals">{t("earclip_result_diagonals", {value0: summary.diagonals})}</li>
-                    <li data-result="classes">{t("earclip_result_classes", {
+                    <li data-readout-note data-result="triangles">{t("earclip_result_triangles", {value0: summary.triangles, value1: summary.triangles + 2})}</li>
+                    <li data-readout-note data-result="diagonals">{t("earclip_result_diagonals", {value0: summary.diagonals})}</li>
+                    <li data-readout-note data-result="classes">{t("earclip_result_classes", {
                         value0: summary.classSizes[0], value1: summary.classSizes[1], value2: summary.classSizes[2]})}</li>
-                    <li data-result="guards">{t("earclip_result_guards", {
+                    <li data-readout-note data-result="guards">{t("earclip_result_guards", {
                         value0: summary.guardCount, value1: summary.guardVertices.map(v => `P${v + 1}`).join(", ")})}</li>
                 </ul>
             </>}

@@ -5,7 +5,17 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "∠APB = 66,8°; ∠ACB = 66,8°; središčni kot = 133,6°",
+        "Obodni kot ∠ACB = 66,8°",
+        "Obodni kot ∠APB = 66,8°",
+        "Središčni kot ∠AOB nad lokom brez C = 133,6° (= 2 · ∠ACB)",
+        "P leži na istem loku kot C (na isti strani tetive AB): ∠APB = 66,8° in ∠ACB = 66,8° sta enaka na prikazano natančnost (Evklid III.21); ∠APB je polovica središčnega kota (III.20).",
+        "Kot ∠APB ni določen, če je P v A ali B; zato je P po krožnici od njiju vedno oddaljena vsaj 0,5°.",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
       "outputs": [],
       "captions": [
         "∠APB = 66,8°; ∠ACB = 66,8°; središčni kot = 133,6°"
@@ -14,7 +24,17 @@
     {
       "name": "inscribed-angle-thales/other-arc",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "∠APB = 113,2°; ∠ACB = 66,8°; središčni kot = 133,6°",
+        "Obodni kot ∠ACB = 66,8°",
+        "Obodni kot ∠APB = 113,2°",
+        "Središčni kot ∠AOB nad lokom brez C = 133,6° (= 2 · ∠ACB)",
+        "P leži na drugem loku (na drugi strani tetive AB): ∠APB = 113,2° in 180° - ∠ACB = 113,2° sta enaka na prikazano natančnost (Evklid III.22).",
+        "Kot ∠APB ni določen, če je P v A ali B; zato je P po krožnici od njiju vedno oddaljena vsaj 0,5°.",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
       "outputs": [],
       "captions": [
         "∠APB = 113,2°; ∠ACB = 66,8°; središčni kot = 133,6°"
@@ -23,7 +43,18 @@
     {
       "name": "inscribed-angle-thales/diameter",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "∠APB = 90°; ∠ACB = 90°; središčni kot = 180°",
+        "Obodni kot ∠ACB = 90°",
+        "Obodni kot ∠APB = 90°",
+        "Središčni kot ∠AOB nad lokom brez C = 180° (= 2 · ∠ACB)",
+        "P leži na istem loku kot C (na isti strani tetive AB): ∠APB = 90° in ∠ACB = 90° sta enaka na prikazano natančnost (Evklid III.21); ∠APB je polovica središčnega kota (III.20).",
+        "AB je premer (natančno): ∠ACB = 90° (Talesov izrek, kot v polkrogu).",
+        "Kot ∠APB ni določen, če je P v A ali B; zato je P po krožnici od njiju vedno oddaljena vsaj 0,5°.",
+        "A (P1) = (0, 0)",
+        "B (P2) = (8, 6)",
+        "C (P3) = (1, 7)"
+      ],
       "outputs": [],
       "captions": [
         "∠APB = 90°; ∠ACB = 90°; središčni kot = 180°"

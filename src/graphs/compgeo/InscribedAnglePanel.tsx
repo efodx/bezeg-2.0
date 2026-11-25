@@ -32,22 +32,22 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
     return <div className="inspector-group inscribed-panel" data-inscribed-state={texts.state}>
         {glider && <GliderControls t={glider.t} onT={props.onT}/>}
         <ExampleSelect {...props}/>
-        <p className="inspector-help pointset-status" data-inscribed-chip>{texts.chip}</p>
+        <p data-readout-note className="inspector-help pointset-status" data-inscribed-chip>{texts.chip}</p>
         {texts.acb && <>
             <ReadoutHeading>{t("inscribed_readouts_heading")}</ReadoutHeading>
             <ul className="pointset-list inscribed-readouts">
-                <li data-inscribed-readout="acb">{texts.acb}</li>
-                {texts.apb && <li data-inscribed-readout="apb">{texts.apb}</li>}
-                <li data-inscribed-readout="central">{texts.central}</li>
+                <li data-readout-note data-inscribed-readout="acb">{texts.acb}</li>
+                {texts.apb && <li data-readout-note data-inscribed-readout="apb">{texts.apb}</li>}
+                <li data-readout-note data-inscribed-readout="central">{texts.central}</li>
             </ul>
-            {texts.relation && <p className="inspector-help" data-inscribed-relation={glider?.relation}>{texts.relation}</p>}
-            {texts.diameter && <p className="inspector-help" data-inscribed-diameter>{texts.diameter}</p>}
-            {texts.undefinedNote && <p className="inspector-help" data-inscribed-undefined>{texts.undefinedNote}</p>}
+            {texts.relation && <p data-readout-note className="inspector-help" data-inscribed-relation={glider?.relation}>{texts.relation}</p>}
+            {texts.diameter && <p data-readout-note className="inspector-help" data-inscribed-diameter>{texts.diameter}</p>}
+            {texts.undefinedNote && <p data-readout-note className="inspector-help" data-inscribed-undefined>{texts.undefinedNote}</p>}
         </>}
         {texts.vertices.length > 0 && <>
             <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-inscribed-coordinates>
-                {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
+                {texts.vertices.map((text, i) => <li data-readout-note key={i}>{text}</li>)}
             </ul>
         </>}
         <LiveReadout readout={liveReadout} dataAttribute="inscribed-live"/>

@@ -23,7 +23,7 @@ import {
 function BasisReadout({lines}: {lines: readonly string[]}) {
     const readout = useStatusReadout(lines.join(" "), true);
     return <>
-        <div className="inspector-help">{lines.map((line, i) => <p key={i}>{line}</p>)}</div>
+        <div className="inspector-help">{lines.map((line, i) => <p data-readout-note key={i}>{line}</p>)}</div>
         <LiveReadout readout={readout} dataAttribute="bspline-basis-live"/>
     </>;
 }

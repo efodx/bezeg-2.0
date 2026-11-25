@@ -3,6 +3,8 @@ const fs = require("fs");
 const o = JSON.parse(fs.readFileSync("docs/reviews/ux-picks-app-wide/inventory/08-partition.json", "utf8"));
 const base = f => f.split("/").pop().replace(/\.tsx?$/, "");
 let t = "## Lane table\n\nComputed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08-partition.json` (lanes, sessions, owned files, conflict edges): lanes are the lesson-file components of the " + o.lanes.reduce((n, l) => n + l.demonstrations.length, 0) + " demonstrations not yet declared, in sessions of 2-3 demonstrations (` ; ` separates sessions); rounds are greedy (at most 3 lanes, the owner lane of an unconverted shared base first, no shared graph file or own test inside a round). Already declared (" + o.declared.length + ", in no lane): " + o.declared.join(", ") + ".\n\n| Round | Lane | Demonstrations | Files owned (short) | Status |\n| --- | --- | --- | --- | --- |\n";
+for (const d of (o.done || []).slice().sort((a, b) => a.round - b.round || a.id.localeCompare(b.id))) t += `| ${d.round} | ${d.id} | ${d.demonstrations.join(", ")} | (merged) | done |
+`;
 for (const l of o.lanes.slice().sort((a, b) => a.round - b.round || a.id.localeCompare(b.id))) {
   const lf = l.lessonFiles.map(base).join(", ");
   const own = "graph files + `" + (lf.length > 70 ? base(l.lessonFiles[0]) + " +" + (l.lessonFiles.length - 1) : lf) + "`" + (l.ownedBases.length ? "; owns first `" + l.ownedBases.map(base).join(", ") + "`" : "");

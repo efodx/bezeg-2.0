@@ -40,10 +40,13 @@ function unit(label, files, filter, env) {
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 unit('contract', ['src/learning/content/declarationContract.test.tsx'], ` ${esc(id)}: `);
 
-const parity = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(f => new RegExp(`__parity__/${esc(id)}(-[a-z0-9-]+)?\\.json$`).test(f.replace(/\\/g, '/')));
-const bare = id.replace(/-/g, '').toLowerCase();
-const declTests = fs.readdirSync('src/graphs', {recursive: true}).map(String).filter(f => /\.declaration\.test\.tsx$/.test(f) && path.basename(f).toLowerCase().startsWith(bare)).map(f => 'src/graphs/' + f.replace(/\\/g, '/'));
-if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `parity recording ${esc(id)}(-[a-z0-9-]+)? `, {BEZEG_PARITY_CHECK: '1'});
+const R = require('./graph-check-resolve.cjs');
+const inventory = JSON.parse(fs.readFileSync('docs/reviews/ux-picks-app-wide/inventory/inventory.json', 'utf8'));
+const partition = JSON.parse(fs.readFileSync('docs/reviews/ux-picks-app-wide/inventory/08-partition.json', 'utf8'));
+const graphFile = R.graphFileOf(inventory, id);
+const declTest = R.declarationTestOf(graphFile);
+const recordings = R.parityRecordingsOf(fs.readFileSync('src/graphs/base/declare/parity.test.tsx', 'utf8'), id);
+if (recordings.length) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], R.parityFilter(recordings), {BEZEG_PARITY_CHECK: '1'});
 else {
     // No recording: parity is not applicable when the declaration shows no values (no readouts, notes, help or status).
     const na = id;
@@ -51,13 +54,15 @@ else {
     unit('parity-na', ['src/graphs/base/declare/parityApplicable.test.tsx'], 'the graph under check shows no values', {BEZEG_PARITY_NA: na});
     const row = rows[before];
     if (row.ok) { row.label = 'parity'; row.detail = 'n/a (no shown values)'; }
-    else { row.label = 'parity'; row.detail = `no recording src/graphs/**/__parity__/${id}.json (and the declaration shows values; log .command-logs/graph-check/${id}-parity-na.log)`; }
+    else { row.label = 'parity'; row.detail = `no parity recording in parity.test.tsx SAMPLES with demonstration '${id}' (and the declaration shows values; log .command-logs/graph-check/${id}-parity-na.log)`; }
 }
 // A golden recording (task 08 step 3: default state and every lesson step) is a separate row; it does not replace parity.
 const golden = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(f => f.replace(/\\/g, '/').endsWith(`__parity__/${id}.golden.json`));
 if (golden) unit('golden', ['src/graphs/base/declare/parityGolden.test.tsx'], `golden panels ${esc(id)}$`, {BEZEG_PARITY_GOLDEN_CHECK: '1', BEZEG_PARITY_GOLDEN_ID: id});
-if (declTests.length) unit('declaration', declTests);
-else rows.push({label: 'declaration', ok: false, detail: `no src/graphs/**/${id}*.declaration.test.tsx`});
+if (declTest && fs.existsSync(declTest)) unit('declaration', [declTest]);
+else rows.push({label: 'declaration', ok: false, detail: graphFile ? `no ${declTest}` : `${id} is not in the inventory (inventory.json)`});
+const shared = R.sharedTestsOf(partition, id);
+if (shared.length) unit('shared', shared);
 
 if (base) {
     const node = (script, args, label) => {

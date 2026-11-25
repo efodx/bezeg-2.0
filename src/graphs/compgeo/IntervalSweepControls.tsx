@@ -99,16 +99,16 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
             <p className="inspector-help" data-interval-sweep="tie-rule">{t("intervalsweep_tie_rule")}</p>
         </div>
         <div className="inspector-group" data-interval-sweep-status="">
-            {refusal && <p className="inspector-help" role="alert" data-interval-sweep="refusal">{refusal}</p>}
+            {refusal && <p data-readout-note className="inspector-help" role="alert" data-interval-sweep="refusal">{refusal}</p>}
             {!refusal && n === 0 && <p className="inspector-help" data-interval-sweep="empty">{t("intervalsweep_no_intervals")}</p>}
             {!refusal && n > 0 && <>
-                <StepCounter step={step} length={run.length} hooks={{"data-interval-sweep": "step"}}/>
-                {noteLine && <p className="inspector-help" data-interval-sweep="note">{noteLine}</p>}
-                <p className="inspector-help" data-interval-sweep="open">{t("intervalsweep_open_count", {value0: view.open.length})}</p>
-                <p className="inspector-help" data-interval-sweep="counts">{t("intervalsweep_counts", {value0: view.counts.join(", ")})}</p>
-                <p className="inspector-help" data-interval-sweep="max">{maxText}</p>
-                <p className="inspector-help" data-interval-sweep="pairs">{pairsText}</p>
-                {comparison && <p className="inspector-help" data-interval-sweep="comparison">{comparison}</p>}
+                <StepCounter step={step} length={run.length} hooks={{"data-interval-sweep": "step", "data-readout-note": ""}}/>
+                {noteLine && <p data-readout-note className="inspector-help" data-interval-sweep="note">{noteLine}</p>}
+                <p data-readout-note className="inspector-help" data-interval-sweep="open">{t("intervalsweep_open_count", {value0: view.open.length})}</p>
+                <p data-readout-note className="inspector-help" data-interval-sweep="counts">{t("intervalsweep_counts", {value0: view.counts.join(", ")})}</p>
+                <p data-readout-note className="inspector-help" data-interval-sweep="max">{maxText}</p>
+                <p data-readout-note className="inspector-help" data-interval-sweep="pairs">{pairsText}</p>
+                {comparison && <p data-readout-note className="inspector-help" data-interval-sweep="comparison">{comparison}</p>}
                 {children && <div data-interval-sweep-lists="">{children}</div>}
             </>}
         </div>

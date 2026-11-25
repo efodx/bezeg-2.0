@@ -5,7 +5,40 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 2,22·10⁻¹⁶",
+        "C(t) = (0,92979, 0,36809), kot 21,598°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bspline-nurbs-guided/bspline-nurbs-predict",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 6,07·10⁻²",
+        "C(t) = (0,9375, 0,4375), kot 25,017°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bspline-nurbs-guided/bspline-nurbs-polynomial",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 6,07·10⁻²",
+        "C(t) = (0,75, 0,75), kot 45°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bspline-nurbs-guided/bspline-nurbs-weights",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 2,22·10⁻¹⁶",
+        "C(t) = (0,70711, 0,70711), kot 45°"
+      ],
       "outputs": [],
       "captions": []
     }

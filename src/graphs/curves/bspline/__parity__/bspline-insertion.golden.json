@@ -5,7 +5,56 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "u = 1: večkratnost 1, zveznost C1",
+        "u = 1: κ -1 → -1, skok 0, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bspline-insertion-guided/bspline-insertion-one",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 1: večkratnost 2, zveznost C0",
+        "u = 1: κ -1 → -1, skok 0, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bspline-insertion-guided/bspline-insertion-half",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 0,5: večkratnost 1, zveznost C1",
+        "u = 1: večkratnost 1, zveznost C1",
+        "u = 0,5: κ -0,3536 → -0,3536, skok 0, tangenta zvezna",
+        "u = 1: κ -1 → -1, skok 0, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bspline-insertion-guided/bspline-insertion-double",
+      "rows": [],
+      "notes": [
+        "u = 1: večkratnost 1, zveznost C2",
+        "u = 2: večkratnost 2, zveznost C1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bspline-insertion-guided/bspline-insertion-comb",
+      "rows": [],
+      "notes": [
+        "u = 1: večkratnost 1, zveznost C2",
+        "u = 2: večkratnost 2, zveznost C1",
+        "u = 1: κ -1,4311 → -1,4311, skok 0, tangenta zvezna",
+        "u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna"
+      ],
       "outputs": [],
       "captions": []
     }

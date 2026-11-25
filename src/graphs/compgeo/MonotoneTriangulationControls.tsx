@@ -120,38 +120,38 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
                 {id: "example-3", text: t("monotonetri_example_3")}]}/>
         </div>
         <div className="inspector-group" data-monotone-triangulation-status="">
-            {refusal && <p className="inspector-help" role="alert" data-monotone-triangulation="refusal">{refusal}</p>}
+            {refusal && <p data-readout-note className="inspector-help" role="alert" data-monotone-triangulation="refusal">{refusal}</p>}
             {traced && <>
-                {run.reversed && <p className="inspector-help" data-monotone-triangulation="reversed">{t("monotonepartition_reversed_note")}</p>}
-                <StepCounter step={step} length={run.length} hooks={{"data-monotone-triangulation": "step"}}/>
-                <p className="inspector-help" data-monotone-triangulation="phase">{phaseText}</p>
-                {noteLine && <p className="inspector-help" data-monotone-triangulation="note">{noteLine}</p>}
+                {run.reversed && <p data-readout-note className="inspector-help" data-monotone-triangulation="reversed">{t("monotonepartition_reversed_note")}</p>}
+                <StepCounter step={step} length={run.length} hooks={{"data-monotone-triangulation": "step", "data-readout-note": ""}}/>
+                <p data-readout-note className="inspector-help" data-monotone-triangulation="phase">{phaseText}</p>
+                {noteLine && <p data-readout-note className="inspector-help" data-monotone-triangulation="note">{noteLine}</p>}
                 {piece === null && partitionView.vertex !== null && partitionView.type !== null && <>
-                    <p className="inspector-help" data-monotone-triangulation="vertex">
+                    <p data-readout-note className="inspector-help" data-monotone-triangulation="vertex">
                         {t("monotonepartition_vertex", {value0: vertexName(partitionView.vertex), value1: vertexTypeText(t, partitionView.type)})}</p>
-                    <p className="inspector-help" data-monotone-triangulation="reason">{reasonText(t, partitionView.type)}</p>
+                    <p data-readout-note className="inspector-help" data-monotone-triangulation="reason">{reasonText(t, partitionView.type)}</p>
                 </>}
-                {partitionDiagonals && <p className="inspector-help" data-monotone-triangulation="diagonals">
+                {partitionDiagonals && <p data-readout-note className="inspector-help" data-monotone-triangulation="diagonals">
                     {partitionDiagonals.length > 0
                         ? t("monotonepartition_diagonals", {value0: partitionDiagonals.length, value1: diagonalList(partitionDiagonals)})
                         : t("monotonepartition_diagonals_none")}</p>}
-                {monotoneNote && <p className="inspector-help" data-monotone-triangulation="already-monotone">{monotoneNote}</p>}
+                {monotoneNote && <p data-readout-note className="inspector-help" data-monotone-triangulation="already-monotone">{monotoneNote}</p>}
                 {tri && piece !== null && <>
-                    <p className="inspector-help" data-monotone-triangulation="piece">
+                    <p data-readout-note className="inspector-help" data-monotone-triangulation="piece">
                         {t("monotonetri_piece_info", {value0: piece + 1, value1: run.pieceSize(piece), value2: run.pieceSize(piece) - 2})}</p>
-                    {tri.vertex !== null && tri.chain !== null && <p className="inspector-help" data-monotone-triangulation="vertex">
+                    {tri.vertex !== null && tri.chain !== null && <p data-readout-note className="inspector-help" data-monotone-triangulation="vertex">
                         {t("monotonetri_vertex_item", {value0: vertexName(tri.vertex), value1: chainText(t, tri.chain)})}</p>}
-                    {tri.test && <p className="inspector-help" data-monotone-triangulation="test">
+                    {tri.test && <p data-readout-note className="inspector-help" data-monotone-triangulation="test">
                         {t("monotonetri_test_readout", {value0: vertexName(tri.test.a), value1: vertexName(tri.test.b), value2: testOutcomeText(t, tri.test.outcome)})}</p>}
-                    {triDiagonals && <p className="inspector-help" data-monotone-triangulation="diagonals">
+                    {triDiagonals && <p data-readout-note className="inspector-help" data-monotone-triangulation="diagonals">
                         {triDiagonals.length > 0
                             ? t("monotonepartition_diagonals", {value0: triDiagonals.length, value1: diagonalList(triDiagonals)})
                             : t("monotonepartition_diagonals_none")}</p>}
-                    {triangleLine && <p className="inspector-help" data-monotone-triangulation="triangles">{triangleLine}</p>}
+                    {triangleLine && <p data-readout-note className="inspector-help" data-monotone-triangulation="triangles">{triangleLine}</p>}
                 </>}
                 {counts && <div data-monotone-triangulation="comparison" role="group" aria-label={t("monotonetri_comparison_label")}>
-                    <p className="inspector-help" data-monotone-triangulation="comparison-monotone">{t("monotonetri_comparison_monotone", {value0: counts.monotone})}</p>
-                    <p className="inspector-help" data-monotone-triangulation="comparison-ear">{t("monotonetri_comparison_ear", {value0: counts.earClipping})}</p>
+                    <p data-readout-note className="inspector-help" data-monotone-triangulation="comparison-monotone">{t("monotonetri_comparison_monotone", {value0: counts.monotone})}</p>
+                    <p data-readout-note className="inspector-help" data-monotone-triangulation="comparison-ear">{t("monotonetri_comparison_ear", {value0: counts.earClipping})}</p>
                     <p className="inspector-help" data-monotone-triangulation="comparison-growth">{t("monotonetri_comparison_growth")}</p>
                     <p className="inspector-help" data-monotone-triangulation="comparison-note">{t("monotonetri_comparison_note")}</p>
                 </div>}

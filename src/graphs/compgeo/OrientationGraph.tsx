@@ -39,13 +39,13 @@ export function orientationText(readout: OrientationReadout, translate: typeof t
 function OrientationStatus({points, exponent, valuesShown}: {points: PointSetModel["points"]; exponent: number; valuesShown: boolean}) {
     const translate = useT();
     if (!valuesShown) return <>
-        <p className="inspector-help pointset-status" data-orientation-readout="" data-orientation-value="">{translate("pointset_values_hidden")}</p>
+        <p data-readout-note className="inspector-help pointset-status" data-orientation-readout="" data-orientation-value="">{translate("pointset_values_hidden")}</p>
         <StatusLive text={translate("pointset_values_hidden")}/>
     </>;
     const readout = orientationReadout(points);
     const text = orientationText(readout, translate, exponent);
     return <>
-        <p className="inspector-help pointset-status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
+        <p data-readout-note className="inspector-help pointset-status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
            data-orientation-value={readout.kind === "turn" ? readout.value * 4 ** exponent : ""}>{text}</p>
         <StatusLive text={text}/>
     </>;

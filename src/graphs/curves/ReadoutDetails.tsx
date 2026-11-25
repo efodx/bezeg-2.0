@@ -29,7 +29,7 @@ export class ReadoutDetailsController {
         while (list.children.length > this.lines.length) list.lastElementChild?.remove();
         this.lines.forEach((line, i) => {
             let item = list.children[i] as HTMLLIElement | undefined;
-            if (!item) { item = list.ownerDocument.createElement("li"); list.appendChild(item); }
+            if (!item) { item = list.ownerDocument.createElement("li"); item.setAttribute("data-readout-note", ""); list.appendChild(item); }
             if (item.textContent !== line) item.textContent = line;
         });
     }

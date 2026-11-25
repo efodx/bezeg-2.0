@@ -5,14 +5,68 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 56",
+        "Spodnja veriga: točke po vrsti dodajamo od leve proti desni.",
+        "Orientacijskih preizkusov doslej: 0",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice se pokaže ob koncu sledi."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "hull-robustness-guided/robust-collinear",
+      "rows": [],
+      "notes": [
+        "Korak 12 od 12",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 2",
+        "Veljavno pravilo: orient < 0: kolinearne točke obdržimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice (vnosov: 4): P1 (0, 0), P2 (2, 0), P3 (4, 0), P2 (2, 0)",
+        "V izpisu se ponovijo mesta: P2 (2, 0). Izpis zato ni rob večkotnika."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "hull-robustness-guided/robust-pop-rules",
+      "rows": [],
+      "notes": [
+        "Korak 56 od 56",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 23",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice (vnosov: 5): P6 (-1, 3), P3 (0, 0), P2 (4, 0), P4 (5, 3), P5 (2, 5)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "hull-robustness-guided/robust-duplicates",
+      "rows": [],
+      "notes": [
+        "Korak 58 od 58",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 25",
+        "Veljavno pravilo: orient < 0: kolinearne točke obdržimo. Podvojene točke: obdrži vse kopije.",
+        "Izpis ovojnice (vnosov: 9): P6 (-1, 3), P3 (0, 0), P8 (2, 0), P2 (4, 0), P10 (4, 0), P4 (5, 3), P10 (4, 0), P2 (4, 0), P5 (2, 5)",
+        "V izpisu se ponovijo mesta: P2 (4, 0). Izpis zato ni rob večkotnika."
+      ],
       "outputs": [],
       "captions": []
     },
     {
       "name": "hull-robustness-guided/robust-kettner-inexact",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Izbrana celica: i = 41, j = 48. Natančen predznak +, nenatančen (double) -.",
+        "Natančen predznak: +",
+        "Nenatančen predznak (double): -",
+        "Nenatančna vrednost (double): -5,68·10⁻¹⁴",
+        "V tej celici ima nenatančni račun (double) napačen predznak.",
+        "Na teh vhodnih podatkih ima nenatančni račun (double) v 112 od 4096 celic napačen predznak, v 2052 celicah pa napačno ničlo."
+      ],
       "outputs": [],
       "captions": [
         "Nenatančno (double)"
@@ -21,7 +75,14 @@
     {
       "name": "hull-robustness-guided/robust-kettner-exact",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Izbrana celica: i = 41, j = 48. Natančen predznak +, nenatančen (double) -.",
+        "Natančen predznak: +",
+        "Nenatančen predznak (double): -",
+        "Nenatančna vrednost (double): -5,68·10⁻¹⁴",
+        "V tej celici ima nenatančni račun (double) napačen predznak.",
+        "Na teh vhodnih podatkih ima nenatančni račun (double) v 112 od 4096 celic napačen predznak, v 2052 celicah pa napačno ničlo."
+      ],
       "outputs": [],
       "captions": [
         "Natančno"

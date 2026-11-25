@@ -5,7 +5,74 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 56",
+        "Spodnja veriga: točke po vrsti dodajamo od leve proti desni.",
+        "Orientacijskih preizkusov doslej: 0"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "convex-hull-guided/hull-slow-intro",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 74",
+        "Rob ni na ovojnici: najdena je točka desno od njega ali na premici zunaj daljice.",
+        "Usmerjeni rob od P1 (2, 2) do P2 (4, 0)",
+        "Orientacijskih preizkusov doslej: 7"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "convex-hull-guided/hull-slow-reveal",
+      "rows": [],
+      "notes": [
+        "Korak 74 od 74",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 504",
+        "Monotona veriga (Andrew): 23",
+        "Počasen preizkus robov (učni algoritem): 504",
+        "Ovijanje (Jarvisov algoritem): 35"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "convex-hull-guided/hull-monotone-chain",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 56",
+        "Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.",
+        "Orientacija trojice = -2; preizkušana točka P8 (2, 0)",
+        "Orientacijskih preizkusov doslej: 2"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "convex-hull-guided/hull-gift-wrapping",
+      "rows": [],
+      "notes": [
+        "Korak 8 od 42",
+        "Kandidat je naslednje oglišče ovojnice.",
+        "Orientacijskih preizkusov doslej: 7"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "convex-hull-guided/hull-counts",
+      "rows": [],
+      "notes": [
+        "Korak 42 od 42",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 35",
+        "Monotona veriga (Andrew): 23",
+        "Počasen preizkus robov (učni algoritem): 504",
+        "Ovijanje (Jarvisov algoritem): 35"
+      ],
       "outputs": [],
       "captions": []
     }
