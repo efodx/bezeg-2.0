@@ -97,6 +97,8 @@ export interface GraphWorkspacePanels {
     pickerUnavailable: boolean;
     /** Pauses graph-owned playback at its current frame. */
     pausePlayback: () => void;
+    /** Tells the graph whether its board has a view director, which then replaces the visible-points fit. */
+    viewDirectorChanged: (director: {fitNow(): void} | undefined) => void;
     lessonCapabilities: LessonGraphCapabilities | undefined;
     /** Lets the workspace hand over its current user-action decision (see {@link UserActionMode}). */
     bindUserActions: (current: () => UserActionMode) => () => void;
@@ -995,12 +997,23 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         this.boardView.setIntent(box ?? [...view], {keepAspectRatio: this.equalAxisUnits});
     }
 
+    /** The view director of this graph's main board while the card layer runs one (task 07); set by the workspace, undefined for a graph without declared marks. */
+    private viewDirector: {fitNow(): void} | undefined;
+
+    setViewDirector(director: {fitNow(): void} | undefined): void {
+        this.viewDirector = director;
+    }
+
+    /** A stable callback for the workspace, which keeps it in an effect dependency. */
+    private readonly viewDirectorChanged = (director: {fitNow(): void} | undefined): void => this.setViewDirector(director);
+
     /**
      * The host Fit: fits the view to the visible points on the board plus `extra` (points not drawn yet), with the graph's `fitView`.
      * JSXGraph's zoomAllPoints depends on the current zoom, so this fits from the points and canvas size alone.
      */
     protected fitToVisiblePoints(extra: readonly [number, number][] = []): void {
         if (!this.hasBoard) return;
+        if (this.viewDirector) return; // a graph with a view director is fitted to its declared marks by the director, never by this fit (task 07 slice 5)
         const points: [number, number][] = extra.map(([x, y]) => [x, y]);
         for (const object of this.board.objectsList) {
             if (JXG.isPoint(object) && object.visPropCalc.visible) points.push([object.coords.usrCoords[1], object.coords.usrCoords[2]]);
@@ -1016,7 +1029,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     private navigateBoard(action: string) {
         if (!this.hasBoard) return;
-        if (action === 'fit') { this.fitToVisiblePoints(); return; }
+        if (action === 'fit') { if (this.viewDirector) this.viewDirector.fitNow(); else this.fitToVisiblePoints(); return; }
         if (action === "in") { this.boardView.zoom("in"); return; }
         if (action === "out") { this.boardView.zoom("out"); return; }
         const [left, top, right, bottom] = this.board.getBoundingBox();
@@ -1203,6 +1216,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             display: this.state.initialized ? this.withReplacementRevision(this.workspaceDisplay()) : null,
             save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureExports.batchActive,
             pickerUnavailable: this.pickerUnavailable, pausePlayback: () => this.pausePlayback(),
+            viewDirectorChanged: this.viewDirectorChanged,
             bindUserActions: this.bindUserActions,
             // A deep link can request a lesson before JSXGraph has created
             // its board. Do not mount the session until the graph-owned
