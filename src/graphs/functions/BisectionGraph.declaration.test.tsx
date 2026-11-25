@@ -55,11 +55,12 @@ describe('Bisection declaration', () => {
         const first = declaration().followView!;
         expect(declaration().followView).toBe(first); // memoized on the model: the same object for the same state
         expect(declaration().marks).toBe(declaration().marks);
-        act(() => { graph.applyLessonAction(nextStep); });
+        // The board shows the bracket the revealed step bisected, so the first step still frames the initial bracket (and adds the midpoint); the second one narrows.
+        act(() => { graph.applyLessonAction(nextStep); graph.applyLessonAction(nextStep); });
         const second = declaration().followView!;
         expect(second).not.toEqual(first);
         expect(second[2] - second[0]).toBeLessThan(first[2] - first[0]);
-        expect(declaration().marks!.must.length).toBe(3); // a, b and the midpoint just revealed
+        expect(declaration().marks!.must.length).toBe(6); // a, b and the midpoint just revealed, each on the axis and on the curve
     });
 
     test('the followView is a fit and never writes the stored intent', () => {
@@ -105,13 +106,36 @@ describe('the bisection followView', () => {
         expect(bottom).toBeLessThan(0);
     });
 
-    test('the marks keep the bracket ends and the revealed midpoint, and the curve over the bracket', () => {
+    test('the marks keep the bracket ends and the revealed midpoint on the axis and on the curve, and the curve over the bracket', () => {
         const history = bisectionHistory('square-minus-two', 1, 2, 2);
         const marks = bisectionViewMarks(history);
-        expect(marks.must).toEqual([
-            {kind: 'point', x: history.currentA, y: 0}, {kind: 'point', x: history.currentB, y: 0}, {kind: 'point', x: history.steps[1].mid, y: 0},
-        ]);
+        const f = (x: number) => x * x - 2;
+        const mid = history.steps[1].mid;
+        for (const x of [history.steps[1].a, history.steps[1].b, mid]) {
+            expect(marks.must).toContainEqual({kind: 'point', x, y: 0});
+            expect(marks.must).toContainEqual({kind: 'point', x, y: f(x)});
+        }
         expect(marks.nice?.[0]).toMatchObject({kind: 'polyline'});
-        expect(bisectionViewMarks(bisectionHistory('square-minus-two', 1, 2, 0)).must).toHaveLength(2);
+        expect(bisectionViewMarks(bisectionHistory('square-minus-two', 1, 2, 0)).must).toHaveLength(4);
+    });
+
+    test('the followView frames f(a), f(b) and f(m) at every iteration of the lesson examples', () => {
+        const {graph, declaration} = setup();
+        for (const [example, a, b] of LESSON_BRACKETS) {
+            act(() => { graph.parameters!.write('bisection-example', example, 'lesson'); });
+            act(() => { graph.parameters!.write('bisect-a', a, 'lesson'); });
+            act(() => { graph.parameters!.write('bisect-b', b, 'lesson'); });
+            for (let step = 0; step < 6; step++) {
+                const [left, top, right, bottom] = declaration().followView!;
+                for (const mark of declaration().marks!.must) {
+                    if (mark.kind !== 'point') continue;
+                    expect(mark.x, `${example} step ${step}`).toBeGreaterThanOrEqual(left);
+                    expect(mark.x, `${example} step ${step}`).toBeLessThanOrEqual(right);
+                    expect(mark.y, `${example} step ${step}`).toBeLessThan(top);
+                    expect(mark.y, `${example} step ${step}`).toBeGreaterThan(bottom);
+                }
+                act(() => { graph.applyLessonAction(nextStep); });
+            }
+        }
     });
 });

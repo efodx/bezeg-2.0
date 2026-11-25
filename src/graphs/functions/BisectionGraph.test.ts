@@ -125,7 +125,7 @@ test('initialization draws the function, the bracket, the points and one caption
     expect(ofType(graph, 'point')).toHaveLength(8);
     expect(ofType(graph, 'text')).toHaveLength(1);
     expect(graph.generatedObjectCount).toBe(boardObjectCount(graph));
-    expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
+    expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, false);
     expect(graph.captionPlainLines()).toEqual(['f(x) = x² − 2', 'korak 0, širina 1']);
     // the function curve is the continuous one; the jump pieces and markers are hidden
     expect(ofType(graph, 'functiongraph')[0].parents[0](3)).toBe(7);
@@ -545,7 +545,7 @@ test('capture and restore bring back the synchronous model and leave playback pa
     expect(graph.playback.isPlaying).toBe(false);
     expect(graph.frames.callbacks.size).toBe(0);
     expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({example: 'cubic', a: -1.5, b: 2, step: 3})}));
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, false);
 });
 
 test('lesson lifecycle, figure capture, export and scene replacement pause playback', () => {

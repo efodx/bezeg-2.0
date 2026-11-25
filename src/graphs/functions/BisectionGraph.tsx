@@ -87,6 +87,11 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         return {...DEFAULT_BISECTION_MODEL};
     }
 
+    /** x is the argument and y the function value: the follow box frames f(a), f(b), f(m), and a steep function must not widen x. */
+    protected override get equalAxisUnits(): boolean {
+        return false;
+    }
+
     protected defaultBoundingBox(): [number, number, number, number] {
         return [-2.5, 4, 3.5, -3];
     }
