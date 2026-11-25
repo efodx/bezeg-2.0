@@ -1,0 +1,56 @@
+start 1
+{
+ "url": "https://efodx.github.io",
+ "route": "analysis/taylor",
+ "gap": 30,
+ "throttle": 1,
+ "results": {
+  "click": {
+   "start": 1,
+   "mid": 10,
+   "end": 0,
+   "issuedMs": 8101,
+   "firstPaintAfterLastMs": 8,
+   "longTasks": [
+    2439
+   ],
+   "nLong": 1,
+   "longSum": 2439,
+   "events": 123,
+   "evMax": 3608,
+   "evAvg": 586,
+   "expectedMid": 10,
+   "dropped": true
+  },
+  "keyCount": {
+   "start": 0,
+   "mid": 10,
+   "end": 0,
+   "issuedMs": 8246,
+   "firstPaintAfterLastMs": 34,
+   "longTasks": [],
+   "nLong": 0,
+   "longSum": 0,
+   "events": 29,
+   "evMax": 3600,
+   "evAvg": 842,
+   "expectedMid": 10,
+   "dropped": false
+  },
+  "keyRange": {
+   "start": 0,
+   "mid": 0,
+   "end": 0,
+   "issuedMs": 936,
+   "firstPaintAfterLastMs": 20,
+   "longTasks": [],
+   "nLong": 0,
+   "longSum": 0,
+   "events": 25,
+   "evMax": 24,
+   "evAvg": 18,
+   "expectedMid": 10,
+   "dropped": true
+  }
+ }
+}

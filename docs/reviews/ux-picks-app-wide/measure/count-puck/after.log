@@ -1,0 +1,54 @@
+start 1
+{
+ "url": "http://127.0.0.1:4472",
+ "route": "analysis/taylor",
+ "gap": 30,
+ "throttle": 1,
+ "results": {
+  "click": {
+   "start": 1,
+   "mid": 10,
+   "end": 0,
+   "issuedMs": 932,
+   "firstPaintAfterLastMs": 5,
+   "longTasks": [],
+   "nLong": 0,
+   "longSum": 0,
+   "events": 113,
+   "evMax": 24,
+   "evAvg": 19,
+   "expectedMid": 10,
+   "dropped": true
+  },
+  "keyCount": {
+   "start": 0,
+   "mid": 10,
+   "end": 0,
+   "issuedMs": 923,
+   "firstPaintAfterLastMs": 6,
+   "longTasks": [],
+   "nLong": 0,
+   "longSum": 0,
+   "events": 24,
+   "evMax": 24,
+   "evAvg": 18,
+   "expectedMid": 10,
+   "dropped": false
+  },
+  "keyRange": {
+   "start": 0,
+   "mid": 0,
+   "end": 0,
+   "issuedMs": 927,
+   "firstPaintAfterLastMs": 22,
+   "longTasks": [],
+   "nLong": 0,
+   "longSum": 0,
+   "events": 26,
+   "evMax": 32,
+   "evAvg": 19,
+   "expectedMid": 10,
+   "dropped": true
+  }
+ }
+}
