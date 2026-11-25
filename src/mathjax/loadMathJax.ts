@@ -1,5 +1,10 @@
+export type MathItemLike = {typesetRoot?: Element | null};
+
 export type MathJaxApi = {
-    startup?: {promise?: Promise<unknown>};
+    startup?: {
+        promise?: Promise<unknown>;
+        document?: {math?: Iterable<MathItemLike> & {remove?: (...items: MathItemLike[]) => void}};
+    };
     typesetClear?: (elements?: Element[]) => void;
     typesetPromise?: (elements?: Element[]) => Promise<void>;
 };
@@ -106,6 +111,34 @@ export function loadMathJax(): Promise<MathJaxApi> {
 }
 
 /**
+ * MathJax keeps every typeset formula in its document's math list, and `typesetClear([element])` only drops the ones still inside
+ * `element`. Formulas whose React-owned subtree was removed (a lesson step, a card) stay listed with their detached DOM, so
+ * every Next/Back click leaked a step's worth of nodes until the tab crashed. Drops the items whose output is no longer connected.
+ */
+export function pruneDetachedMath(api: MathJaxApi): void {
+    const list = api.startup?.document?.math;
+    if (!list?.remove || typeof list[Symbol.iterator] !== 'function') return;
+    const detached = Array.from(list).filter(item => item.typesetRoot && !item.typesetRoot.isConnected);
+    if (detached.length) list.remove(...detached);
+}
+
+/**
+ * A formula's output carries its assistive MathML (`mjx-assistive-mml`), and MathJax's MathML input finds that `<math>` again
+ * whenever an element holding already typeset output is typeset a second time, wrapping the formula in a new formula. React
+ * keeps unchanged prose, so each Guided lesson step change nested every formula in the lesson one level deeper (two elements per
+ * click) until the tab died with a native stack overflow (phase-portrait lesson, about 35 Next/Back clicks). The assistive MathML
+ * is taken out of the tree for the duration of the pass and put back after it; the returned function restores it.
+ */
+export function hideAssistiveMathMl(root: HTMLElement): () => void {
+    const hidden = [...root.querySelectorAll('mjx-assistive-mml')].map(node => {
+        const marker = document.createComment('');
+        node.replaceWith(marker);
+        return {node, marker};
+    });
+    return () => hidden.forEach(({node, marker}) => { if (marker.isConnected) marker.replaceWith(node); });
+}
+
+/**
  * Loads MathJax on demand and typesets only while the owning surface is still active.
  * `prepare` runs after the element's earlier typesetting is cleared, so it can replace the source to typeset.
  */
@@ -116,9 +149,15 @@ export async function typesetMath(
 ): Promise<void> {
     const api = await loadMathJax();
     if (!isActive()) return;
+    pruneDetachedMath(api);
     api.typesetClear?.([element]);
     prepare?.();
-    await api.typesetPromise?.([element]);
+    const restore = hideAssistiveMathMl(element);
+    try {
+        await api.typesetPromise?.([element]);
+    } finally {
+        restore();
+    }
     if (isActive()) bindTrailingPunctuation(element);
 }
 
