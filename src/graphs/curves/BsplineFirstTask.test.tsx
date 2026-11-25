@@ -2,7 +2,7 @@
  * B-spline routes, first task first (graph-control first use, batch 2): the route's own first task is the first control of the Edit
  * panel on a fresh visit; the controls the plan places after it follow.
  */
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import BSplineBasisGraph from './bspline/BSplineBasisGraph';
@@ -44,9 +44,24 @@ const editControls = (): string[] => {
     });
 };
 
+/** The puck strip's parameters in order, by key. */
+const puckOrder = (): string[] => [...document.querySelectorAll('.puck-strip [data-puck-key]')].map(element => element.getAttribute('data-puck-key')!);
+
 describe.each(Object.keys(routes))('%s', key => {
-    test('the first task leads the Edit panel', () => {
+    test('the first task leads the Edit panel', async () => {
         mountGraph(routes[key]());
+        if (key === 'blossom') {
+            // the arguments a, b, c and the segment choice are board pucks: they live on the puck strip, not in Edit; the degree count leads Edit
+            await waitForPucks('blossom-a');
+            const order = puckOrder();
+            expect(order.indexOf('blossom-a'), order.join(' | ')).toBe(0);
+            expect(order.indexOf('blossom-segment'), order.join(' | ')).toBeGreaterThan(0);
+            const edit = editControls();
+            expect(edit.findIndex(name => name.startsWith(t('bsl_arg', {value0: 'a'}))), edit.join(' | ')).toBe(-1);
+            expect(edit.findIndex(name => name.startsWith(t('bsl_segment'))), edit.join(' | ')).toBe(-1);
+            expect(edit.findIndex(name => name.startsWith(t('decrease_count'))), edit.join(' | ')).toBe(0);
+            return;
+        }
         const names = editControls();
         const at = (label: Label) => names.findIndex(name => name.startsWith(label()));
         const {first, later} = plan[key];

@@ -83,6 +83,16 @@ describe.each(Object.keys(routes))('%s', key => {
             }
             return;
         }
+        if (key === 'function-inverse') {
+            // x0 is a board puck: it lives on the puck strip, not in Edit; the inverse and tangent toggles are pucks too, the restriction stays in Edit
+            await waitForPucks('inverse-x0');
+            const order = puckOrder();
+            expect(order.indexOf('inverse-x0'), order.join(' | ')).toBe(0);
+            const names = editControls();
+            expect(names.some(name => name.startsWith(t('function_inverse_x0_label'))), names.join(' | ')).toBe(false);
+            expect(names.some(name => name.startsWith(t('function_inverse_restriction_label'))), names.join(' | ')).toBe(true);
+            return;
+        }
         const names = editControls();
         const at = (label: Label) => names.findIndex(name => name.startsWith(label()));
         const {first, later} = plan[key];

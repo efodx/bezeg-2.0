@@ -14,6 +14,7 @@ import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, type MountedGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from '../../base/realGraphTestHarness';
 import {internals} from '../../base/realGraphScenes';
+import {runAs} from '../../base/writes/writeSource';
 import {setLanguage} from '../../../localization';
 import type {LessonAction} from '../../../learning/model';
 import {BSplineBlossomGraph} from './BSplineBlossomGraph';
@@ -368,7 +369,8 @@ describe('Blossom language subscription', () => {
 
     test.each([
         ['Preset import', () => act(() => internals(graph).importPresetData(blossomSubject.structural))],
-        ['reset', () => { act(() => { (graph as unknown as BSplineBlossomGraph).setDegree(3); }); act(() => (graph as unknown as BSplineBlossomGraph).resetToDefaults()); }],
+        // resetToDefaults is reached only through the lesson action registry (already `lesson`-tagged); the test calls it directly, so it tags the write itself.
+        ['reset', () => { act(() => runAs('learner', () => { (graph as unknown as BSplineBlossomGraph).setDegree(3); })); act(() => runAs('learner', () => (graph as unknown as BSplineBlossomGraph).resetToDefaults())); }],
         ['checkpoint restore', () => {
             const checkpoint = graph.getLessonCapabilities().captureState();
             act(() => internals(graph).importPresetData(blossomSubject.structural));
