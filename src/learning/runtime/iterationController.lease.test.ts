@@ -113,3 +113,17 @@ test("playing again after an interruption takes a fresh lease", () => {
     expect(controller.isPlaying()).toBe(true);
     expect(leaseCount()).toBe(1);
 });
+
+test("a refused play while the learner holds the key keeps the status paused", () => {
+    const {controller, arbiter} = makeFixture();
+    controller.play();
+    arbiter.write("step", 3, "learner");
+    expect(controller.status).toBe("paused");
+    const release = arbiter.hold("step");
+    controller.play();
+    expect(controller.isPlaying()).toBe(false);
+    expect(controller.status).toBe("paused");
+    release();
+    controller.play();
+    expect(controller.status).toBe("playing");
+});

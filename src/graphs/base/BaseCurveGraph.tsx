@@ -64,16 +64,50 @@ function isSelectedCurveOption(value: unknown): value is SelectedCurveOption {
     return typeof value === 'number' && SelectedCurveOption[value] !== undefined;
 }
 
+/** The parameter range a curve's `eval` accepts: a B-spline's raw knot domain, else [0, 1] (a Bezier spline's knots are normalized to it). */
+function curveDomain(curve: object): readonly [number, number] {
+    if ("getDomain" in curve && typeof curve.getDomain === "function") {
+        const [start, end] = curve.getDomain() as [number, number];
+        if (Number.isFinite(start) && Number.isFinite(end)) return [start, end];
+    }
+    return [0, 1];
+}
+
+/**
+ * What changes a curve's samples without moving its points: weights (rational), knots and degree (B-spline), the
+ * computed points (Bezier splines: they follow alpha and the editable parameters). Part of the view-marks memo key.
+ */
+function curveShapeKey(curve: object): string {
+    const read = (name: string): string => {
+        const method = (curve as Record<string, unknown>)[name];
+        return typeof method === "function" ? String(method.call(curve) ?? "") : "";
+    };
+    const computed = "getNonFreePoints" in curve && typeof curve.getNonFreePoints === "function"
+        ? (curve.getNonFreePoints() as {X(): number; Y(): number}[]).map(point => `${point.X()},${point.Y()}`).join(";") : "";
+    return [...["getWeights", "getKnots", "getDegree", "getAlpha", "getDomain"].map(read), computed].join("/");
+}
+
+/**
+ * The ids the common curve declaration owns: legend entries and switch actions of each curve (numbered by position). A graph that
+ * spreads `commonCurveDeclaration()` adds its own ids to these (`Omit<BaseCurveIds, "action"> & {action: BaseCurveIds["action"] | ...}`)
+ * and types its `declaration()` by the result, so an id the Ids do not name fails the type check.
+ */
+export type BaseCurveIds = {
+    param: never; row: never; note: never; section: never;
+    legend: `curve-${number}` | `control-points-${number}`;
+    action: "point-labels" | `${DisplayToggle}-${number}`;
+};
+
 export type {CurveCollectionPresetData} from "../curves/curvePresetCollections";
 
 JXG.extend(JXG.Point.prototype, {});
 
-/**
- * Abstract class for creating graphs.
- */
 const CURVE_ITEM_KEYS = {"control-polygon": "curve_item_polygon", "convex-hull": "curve_item_hull", "control-points": "curve_item_points", "weights": "curve_item_weights"} as const;
 const SINGLE_CURVE_KEYS = {"control-polygon": "control_polygon", "convex-hull": "convex_hull", "control-points": "control_points", "weights": "weights"} as const;
 
+/**
+ * Abstract class for creating graphs.
+ */
 abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, CurveCollectionPresetData> {
     protected inputsDisabled: boolean = false;
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
@@ -326,7 +360,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         return this.jxgCurves.length === 1 && (toggle === "control-polygon" || toggle === "convex-hull") ? this.curveSwitchId(toggle, index) : undefined;
     }
 
-    private curveSwitchId(toggle: DisplayToggle, index: number): string { return `${toggle}-${index}`; }
+    private curveSwitchId(toggle: DisplayToggle, index: number): `${DisplayToggle}-${number}` { return `${toggle}-${index}`; }
 
     private static readonly VIEW_MARK_SAMPLES = 25;
     private curveMarksCache: {key: string; marks: ViewMarks} | undefined;
@@ -337,9 +371,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
      */
     protected curveViewMarks(): ViewMarks {
         const curves = this.jxgCurves.map(curve => curve.getCurve());
-        // A rational curve's weights move its samples without moving its points, so they belong to the key.
-        const weightsOf = (curve: object): string => "getWeights" in curve && typeof curve.getWeights === "function" ? String((curve.getWeights() as number[] | undefined) ?? "") : "";
-        const key = curves.map(curve => `${curve.getPoints().map(point => `${point.X()},${point.Y()}`).join(";")}#${weightsOf(curve)}`).join("|");
+        const key = curves.map(curve => `${curve.getPoints().map(point => `${point.X()},${point.Y()}`).join(";")}#${curveShapeKey(curve)}`).join("|");
         if (this.curveMarksCache?.key === key) return this.curveMarksCache.marks;
         const finite = (x: number, y: number) => Number.isFinite(x) && Number.isFinite(y);
         const must: ViewMark[] = [];
@@ -348,8 +380,16 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
             const points = curve.getPoints();
             for (const point of points) if (finite(point.X(), point.Y())) must.push({kind: "point", x: point.X(), y: point.Y()});
             if (points.length < 2) continue;
-            const samples = Array.from({length: BaseCurveGraph.VIEW_MARK_SAMPLES}, (_, i) => curve.eval(i / (BaseCurveGraph.VIEW_MARK_SAMPLES - 1)))
-                .map(p => [p.X(), p.Y()] as const).filter(([x, y]) => finite(x, y));
+            const [start, end] = curveDomain(curve);
+            const samples: (readonly [number, number])[] = [];
+            for (let i = 0; i < BaseCurveGraph.VIEW_MARK_SAMPLES; i++) {
+                try {
+                    const p = curve.eval(start + (end - start) * i / (BaseCurveGraph.VIEW_MARK_SAMPLES - 1));
+                    if (finite(p.X(), p.Y())) samples.push([p.X(), p.Y()]);
+                } catch {
+                    // a sample the curve refuses is left out
+                }
+            }
             if (samples.length > 1) nice.push({kind: "polyline", points: samples});
         }
         const marks: ViewMarks = {must, nice};
@@ -363,10 +403,10 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
      * control points, weights). A lone curve's control polygon and convex hull are board pucks (flipped while watching), the rest
      * stays in Orodja, section `display`. Switch labels are numbered only when there are several curves.
      */
-    protected commonCurveDeclaration(): Pick<GraphDeclaration, "legend" | "actions" | "marks"> {
+    protected commonCurveDeclaration(): Pick<GraphDeclaration<BaseCurveIds>, "legend" | "actions" | "marks"> {
         const many = this.jxgCurves.length > 1;
-        const legend: LegendEntry[] = [];
-        const actions: ActionDeclaration[] = [{id: "point-labels", label: message("point_labels"), placement: "tools", section: "display",
+        const legend: LegendEntry<BaseCurveIds>[] = [];
+        const actions: ActionDeclaration<BaseCurveIds>[] = [{id: "point-labels", label: message("point_labels"), placement: "tools", section: "display",
             enabled: true, pressed: this.displaySettings.pointLabelsVisible}];
         this.jxgCurves.forEach((curve, i) => {
             const n = String(i + 1);

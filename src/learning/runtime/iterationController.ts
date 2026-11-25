@@ -106,8 +106,9 @@ export class IterationController {
     play() {
         if (this.disposed || this.completed) return;
         this.elapsed = 0;
-        this.interrupted = false;
         this.driver.play();
+        // A refused play (the learner holds a leased key) leaves the status `paused`.
+        if (this.driver.isRunning()) this.interrupted = false;
     }
 
     pause() {

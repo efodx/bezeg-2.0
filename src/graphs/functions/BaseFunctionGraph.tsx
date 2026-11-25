@@ -1,7 +1,7 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, Message, MessageNumber, message, onLanguageChange, renderMessage, t} from "../../localization";
-import type {FormattedValue, GraphDeclaration, ReadoutNote, ReadoutRow as DeclaredReadoutRow, StatusLine, ViewMarks} from "../base/declare/graphDeclaration";
+import type {FormattedValue, GraphDeclaration, ReadoutNote, ReadoutRow as DeclaredReadoutRow, StatusLine, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
 import {cleanNoise, cleanNumber, gridUnits} from "../../analysis/numbers";
@@ -150,9 +150,14 @@ export interface FunctionPanel {
     readonly notes?: readonly ReadoutNote[];
     readonly help?: Message;
     readonly status?: readonly StatusLine[];
-    /** The main plotted function, so that the view director has marks to keep visible. */
-    readonly plotted?: (x: number) => number;
+    /** The plotted function, or all of them, so that the view director has marks to keep visible. */
+    readonly plotted?: PlottedFunction | readonly PlottedFunction[];
+    /** Points the view must keep visible besides the plotted functions. */
+    readonly must?: readonly { readonly x: number; readonly y: number }[];
 }
+
+/** A function the default view marks sample; a value that is not finite (or a throw) leaves the sample out. */
+export type PlottedFunction = (x: number) => number;
 
 /** The text of a declared row value, as the inspector shows it. */
 const declaredValueText = (value: MessageNumber | Message | FormattedValue): string => {
@@ -286,7 +291,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
             ...(panel.notes ? {notes: panel.notes} : {}),
             ...(panel.help ? {readoutHelp: panel.help} : {}),
             ...(panel.status ? {status: panel.status} : {}),
-            ...(panel.plotted ? {marks: this.plottedMarks(this.model)} : {}),
+            ...(panel.plotted || panel.must ? {marks: this.plottedMarks(this.model)} : {}),
         };
     }
 
@@ -300,17 +305,27 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /** The plotted function sampled over the view the graph starts from; memoized on the model (the director compares marks by identity). */
     private readonly plottedMarks = this.modelCache((): ViewMarks => {
-        const plotted = this.functionPanel()?.plotted;
-        if (!plotted) return {must: []};
+        const panel = this.functionPanel();
+        const plotted = panel?.plotted === undefined ? [] : typeof panel.plotted === "function" ? [panel.plotted] : panel.plotted;
+        const must: ViewMark[] = (panel?.must ?? []).map(({x, y}) => ({kind: "point", x, y}));
+        if (plotted.length === 0) return {must};
         const [left, top, right, bottom] = this.exampleView()?.box ?? this.defaultBoundingBox();
         const height = top - bottom;
-        const points: [number, number][] = [];
-        for (let i = 0; i < PLOTTED_MARK_SAMPLES; i++) {
-            const x = left + (right - left) * i / (PLOTTED_MARK_SAMPLES - 1);
-            const y = plotted(x);
-            if (Number.isFinite(y) && y >= bottom - height && y <= top + height) points.push([x, y]);
+        const nice: ViewMark[] = [];
+        for (const fn of plotted) {
+            const points: [number, number][] = [];
+            for (let i = 0; i < PLOTTED_MARK_SAMPLES; i++) {
+                const x = left + (right - left) * i / (PLOTTED_MARK_SAMPLES - 1);
+                try {
+                    const y = fn(x);
+                    if (Number.isFinite(y) && y >= bottom - height && y <= top + height) points.push([x, y]);
+                } catch {
+                    // a sample the function refuses is left out
+                }
+            }
+            if (points.length > 1) nice.push({kind: "polyline", points});
         }
-        return {must: [], nice: [{kind: "polyline", points}]};
+        return {must, nice};
     });
 
     /** The inspector readout drawn from the declared rows, notes and help (hidden while the board cards show them). */

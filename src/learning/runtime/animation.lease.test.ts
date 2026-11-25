@@ -52,6 +52,14 @@ function makeFixture() {
 
 afterEach(() => expect(writeSourcesIdle()).toBe(true));
 
+test("a leased key the graph never bound is a development error naming the key", () => {
+    const {arbiter, scheduler} = makeFixture();
+    const driver = new AnimationDriver(() => undefined, scheduler);
+    driver.useLease({arbiter: () => arbiter, keys: ["a", "missing"]});
+    expect(() => driver.play()).toThrow(/missing/);
+    expect(driver.isRunning()).toBe(false);
+});
+
 test("frames run as animation and may change the leased key", () => {
     const {driver, scheduler, sources, store} = makeFixture();
     driver.play();

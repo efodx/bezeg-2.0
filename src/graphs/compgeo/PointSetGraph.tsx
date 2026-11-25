@@ -981,6 +981,18 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     /** Marks from the model: every point must stay in view; a closed polygon (3 or more points) adds its outline as a nice polyline. */
     protected pointSetViewMarks(): ViewMarks {
         const {model} = this;
+        // Memoized on what the marks read, so an unchanged scene returns the same object (the director serializes marks per read).
+        const key = `${model.mode}|${model.closed}|${model.gridStepExponent}|${model.points.map(point => `${point.x},${point.y}`).join(";")}`;
+        if (this.pointSetMarksCache?.key === key) return this.pointSetMarksCache.marks;
+        const marks = this.computePointSetViewMarks();
+        this.pointSetMarksCache = {key, marks};
+        return marks;
+    }
+
+    private pointSetMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    private computePointSetViewMarks(): ViewMarks {
+        const {model} = this;
         const at = model.points.map(point => gridToBoard(point, model.gridStepExponent));
         const must: ViewMark[] = at.map(point => ({kind: "point", x: point.x, y: point.y}));
         const closedPolygon = model.mode === "polygon" && model.closed && at.length >= 3;

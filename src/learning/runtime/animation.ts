@@ -111,6 +111,9 @@ export class AnimationDriver {
         const arbiter = spec?.arbiter();
         if (!spec || !arbiter) return true;
         const bound = new Set(arbiter.keys());
+        const unbound = spec.keys.filter(key => !bound.has(key));
+        // Production leases what is bound; a lesson that names a key the graph never bound is a bug the developer should see.
+        if (unbound.length > 0 && import.meta.env.DEV) throw new Error(`Animation lease names unbound parameter keys: ${unbound.join(", ")}`);
         const lease = arbiter.lease(spec.keys.filter(key => bound.has(key)), reason => {
             if (this.lease !== lease) return;
             // A higher write took a leased key (or a frame changed): stop at once and say so.

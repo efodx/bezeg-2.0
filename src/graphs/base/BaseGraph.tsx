@@ -305,7 +305,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     /**
      * Resolves a declared legend entry's `object` id to the element the graph drew: its colour (stroke or fill) and whether
      * it is visible now. `undefined` for an id the graph did not draw; the contract test fails a legend entry that resolves
-     * to nothing. A declaring graph overrides it.
+     * to nothing. A declaring graph overrides it; a subclass of a declaring base hands the ids it does not own to `super.drawnObject`.
      */
     drawnObject(_id: string): {color: string; visible: boolean} | undefined {
         return undefined;
@@ -313,7 +313,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     /**
      * Runs a declared action by id as the learner (inside `runAs("learner", ...)`), through the method its button calls today.
-     * A declaring graph overrides it; the default knows no action.
+     * A declaring graph overrides it and throws on an id it does not know; the default here knows no action, and a subclass of
+     * a declaring base (`BaseCurveGraph`) hands the ids it does not own to `super.performAction`.
      */
     performAction(_id: string): void {
         throw new Error("Unknown action");

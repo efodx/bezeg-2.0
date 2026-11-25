@@ -3,7 +3,7 @@ import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLesson
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, messageNumber, t, type Message} from "../../localization";
-import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ViewMarks} from "../base/declare/graphDeclaration";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {runAs} from "../base/writes/writeSource";
 import {PuckOwned} from "../base/controls/PuckOwnership";
@@ -35,8 +35,6 @@ const BASE_STEP = 0.1;
 
 /** Samples across the view; the points nearest to the curve's edge (x = 0) are added below, where sqrt and ln are steepest. */
 const SAMPLES = 320;
-/** Samples per curve in the declared view marks. */
-const INVERSE_MARK_SAMPLES = 64;
 const EDGE_SAMPLES = [0, 1e-6, 1e-4, 1e-3, 1e-2];
 
 /** Half length of a drawn tangent, in board units along the tangent. */
@@ -345,7 +343,11 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
                 ...(hasAsymptotes(model) ? [{id: "asymptote", name: message("function_inverse_readout_asymptote"), value: message("function_inverse_asymptote_value")}] : []),
             ],
             help: message("function_inverse_note"),
-            plotted: x => inversePairOf(model).forward.value(x) ?? NaN,
+            plotted: [
+                (x: number) => inversePairOf(model).forward.value(x) ?? NaN,
+                ...(model.inverseVisible ? [(x: number) => inversePairOf(model).inverse.value(x) ?? NaN] : []),
+            ],
+            must: s ? [s.point, s.mirror] : [],
         };
     }
 
@@ -357,27 +359,6 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
             "inverse-restriction": {read: () => this.model.restriction, apply: (value: unknown) => this.setRestriction(value)},
         };
     }
-
-    /** Both curves over the starting view, and P and P' as must marks; memoized on the model (the director compares marks by identity). */
-    private readonly marksOf = this.modelCache((model: FunctionInverseModel): ViewMarks => {
-        const pair = inversePairOf(model);
-        const [left, top, right, bottom] = this.exampleView()?.box ?? this.defaultBoundingBox();
-        const height = top - bottom;
-        const polyline = (value: (x: number) => number | undefined) => {
-            const points: [number, number][] = [];
-            for (let i = 0; i < INVERSE_MARK_SAMPLES; i++) {
-                const x = left + (right - left) * i / (INVERSE_MARK_SAMPLES - 1);
-                const y = value(x) ?? NaN;
-                if (Number.isFinite(y) && y >= bottom - height && y <= top + height) points.push([x, y]);
-            }
-            return {kind: "polyline" as const, points};
-        };
-        const s = inverseSlopesOf(model);
-        return {
-            must: s ? [{kind: "point", x: s.point.x, y: s.point.y}, {kind: "point", x: s.mirror.x, y: s.mirror.y}] : [],
-            nice: [polyline(x => pair.forward.value(x)), ...(model.inverseVisible ? [polyline(x => pair.inverse.value(x))] : [])],
-        };
-    });
 
     protected override declaration(): GraphDeclaration {
         const model = this.model;
@@ -394,7 +375,6 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         }
         return {
             ...this.commonDeclaration(),
-            marks: this.marksOf(model),
             parameters,
             legend: [
                 {id: "forward", label: message("function_inverse_legend_forward"), kind: "line", object: "forward"},
