@@ -1397,10 +1397,13 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             return samples.filter((_, i) => i % stride === 0).filter(inside).map(([x, y]) => [x, y] as const);
         };
         const seeds = state.seeds.map((seed): Vec2 => [seedOf(seed.X), seedOf(seed.Y)]).filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+        const columns: Vec2[] = [[entryOf(state.A), entryOf(state.C)], [entryOf(state.B), entryOf(state.D)]];
         const lines = derived.orbits.flatMap(orbit => [thinned(orbit.backward), thinned(orbit.forward)]).filter(line => line.length > 1);
         const marks: ViewMarks = {
             must: [...(Number.isFinite(derived.centre[0]) && Number.isFinite(derived.centre[1]) ? [{kind: "point" as const, x: derived.centre[0], y: derived.centre[1]}] : []),
-                ...seeds.map(([x, y]) => ({kind: "point" as const, x, y}))],
+                ...seeds.map(([x, y]) => ({kind: "point" as const, x, y})),
+                // The drawn matrix columns (linear system, inside the intent view) are handles the learner drags, so they stay in view too.
+                ...(state.system === "linear" ? columns.filter(([x, y]) => inside([x, y])) : []).map(([x, y]) => ({kind: "point" as const, x, y}))],
             nice: lines.map(points => ({kind: "polyline" as const, points})),
         };
         this.viewMarksCache = {derived, marks};

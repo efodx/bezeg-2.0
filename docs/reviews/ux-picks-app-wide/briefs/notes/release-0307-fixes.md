@@ -18,3 +18,9 @@ Phone row (390x844) still fails, out of scope.
 - BisectionGraph.tsx: `equalAxisUnits` false (x is the argument, y a value; like CLT/Binomial/LogisticMap). Master's bisection kept the default true; this changes stored/restored view application to exact boxes. A tall y range (cubic ~90 units) no longer widens x.
 - Tests: bisectionView.test.ts rewritten (seen failing 6/6 against the old code); declaration test and BisectionGraph.test.ts (setBoundingBox now `false`) updated.
 - Results: just unit src/graphs/functions src/workspace/view pass; tsc clean; lint clean; graph-check bisection PASS (no re-record needed); build ok; just smoke-lesson bisection (3 rows incl. 390x844) passed. Probe 1440x900 settled boxes: n11 [-1.15,2.86,0.5,-2.86], n13 [-6.05,50.6,5.5,-40.7]; Back returns the identical box. Glides per step and per-frame jump not re-measured (probe prints settled boxes only).
+
+## phase-portrait guided walk: points outside the lesson view (worker fix)
+
+- Cause: step 1 frames 1 and 2 (linear system E, seed (1,0)) draw the two matrix column handles (4,2) and (1,3) (PhasePortraitGraph.tsx `columnShown`, drawn when inside the intent view), but `viewMarks` declared only the equilibrium and the seeds. The view director fitted the must marks into the free area beside the cards and the columns fell outside it (deterministic, not mid-glide).
+- Fix: PhasePortraitGraph.tsx `viewMarks` now adds the shown matrix columns (linear system, inside the intent view) to the must marks. Test: PhasePortraitGraph.marks.test.tsx (default must list now has the columns; pendulum has none). No smoke change.
+- Evidence: marks test failed before the test update, passes after; `just unit src/graphs/dynamics src/workspace/view` passed; tsc 0; `just lint` 0; `just build` 0; `CI=true just smoke-lesson phase-portrait` x3: 2 rows passed each (the sl desktop walk and the en 390 walk).
