@@ -63,3 +63,6 @@ Notes: `docs/reviews/ux-picks-app-wide/briefs/notes/08-lane-<lane id>.md`.
 - Marks cover everything the learner watches: every main curve (both curves of a pair, e.g. f and f⁻¹), not only the first
   `plotted` function, or the view director lets cards cover it (L06).
 - Find the route in the graph's `runtime.ts` (e.g. `/functions/inverse`, not `/functions/<id>`).
+- The golden and parity recorders only see text marked `data-readout`/`data-readout-note`. If the old panel shows sentences
+  without those markers, the golden file holds none of them: before converting, add the markers to the unconverted graph
+  (text unchanged), record parity with `BEZEG_PARITY_ID`, then convert (L01).

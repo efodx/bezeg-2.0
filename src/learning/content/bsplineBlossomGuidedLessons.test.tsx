@@ -10,7 +10,7 @@ import {createGraph} from '../../graphs/base/createTestGraph';
 import type {BSplineBlossomState} from '../../graphs/curves/bspline/BSplineBlossomGraph';
 import type {BlossomSnapshot, CurveCheck} from '../../graphs/curves/bspline/bsplineBlossomModel';
 import {blossomSnapshot} from '../../graphs/curves/bspline/bsplineBlossomModel';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage} from '../../localization';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -52,7 +52,11 @@ function mount() {
             capabilities.restoreState(checkpoint);
             for (const action of actionsOf(step)) capabilities.apply(action);
         }),
-        readout: (name: string) => mounted.view.container.querySelector(`[data-blossom-readout="${name}"]`),
+        /** A declared note by its id (the old inspector sentence), or null when it is not declared. */
+        readout: (name: string): {textContent: string} | null => {
+            const note = graph.getDeclaration()!.notes?.find(n => n.id === name);
+            return note ? {textContent: renderMessage(note.text)} : null;
+        },
     };
 }
 
@@ -92,7 +96,7 @@ describe('the scenes show the spec numbers on the real graph', () => {
             near(m.snap().value, [1, 1.5]);
             expect(m.check()?.relation).toBe('equal');
             near(m.check()!.curve, [1, 1.5]);
-            expect(m.readout('curve')?.getAttribute('data-blossom-relation')).toBe('equal');
+            expect(m.check()?.relation).toBe('equal');
 
             // Step 4: the swapped pair has other intermediate points and the same value; the symmetry deviation is zero.
             m.scene(stepOf('bspline-blossom-symmetry'));
@@ -110,7 +114,7 @@ describe('the scenes show the spec numbers on the real graph', () => {
             near(m.snap().bezier[0], [0, 0]);
             near(m.snap().bezier[1], [1, 2]);
             near(m.snap().bezier[2], [2, 2]);
-            expect(m.readout('bezier')?.textContent).toContain('2');
+            expect(m.readout('bezier-points')?.textContent).toContain('2');
 
             // Step 6: the default curve with the default arguments (0, 1/2) and the Bezier points shown.
             m.scene(stepOf('bspline-blossom-explore'));
@@ -163,7 +167,7 @@ describe('the scenes show the spec numbers on the real graph', () => {
             expect(m.readout('value')?.textContent).toContain('1,625');
             expect(m.readout('reversed')?.textContent).toContain('1,625');
             expect(m.readout('symmetry')?.textContent).toContain('0');
-            expect(m.readout('bezier')).not.toBeNull();
+            expect(m.readout('bezier-points')).not.toBeNull();
         } finally {
             m.mounted.view.unmount();
         }

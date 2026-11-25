@@ -143,6 +143,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 'mirror hidden', apply: mirror(false)},
         ] satisfies ParityState[];
     })()},
+    {file: 'curves/bspline/__parity__/bspline-blossom.json', demonstration: 'bspline-blossom', states: (() => {
+        type Blossom = {setArgument(index: number, value: number): void; setSegment(segment: number): void; setDegree(degree: number): void; setShowBezier(show: boolean): void};
+        const run = (edit: (graph: Blossom) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Blossom)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'a 0, b 1', apply: run(g => { g.setArgument(0, 0); g.setArgument(1, 1); })},
+            {name: 'a 0,25, b 0,75', apply: run(g => { g.setArgument(0, 0.25); g.setArgument(1, 0.75); })},
+            {name: 'a 0,75, b 0,25', apply: run(g => { g.setArgument(0, 0.75); g.setArgument(1, 0.25); })},
+            {name: 'a = b = 0,5 (curve point)', apply: run(g => { g.setArgument(0, 0.5); g.setArgument(1, 0.5); })},
+            {name: 'a = b = 1,5 outside the segment', apply: run(g => { g.setArgument(0, 1.5); g.setArgument(1, 1.5); })},
+            {name: 'segment [1, 2), a = b = 1,25', apply: run(g => { g.setSegment(3); g.setArgument(0, 1.25); g.setArgument(1, 1.25); })},
+            {name: 'segment [1, 2), a 0,5, b 1,25', apply: run(g => { g.setArgument(0, 0.5); g.setArgument(1, 1.25); })},
+            {name: 'Bezier points hidden, a 1, b 1,75', apply: run(g => { g.setShowBezier(false); g.setArgument(0, 1); g.setArgument(1, 1.75); })},
+            {name: 'degree 3', apply: run(g => { g.setShowBezier(true); g.setDegree(3); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/function-inverse.json', demonstration: 'function-inverse', states: (() => {
         type InverseSetters = {setX0(value: number): void; setBase(value: number): void; setRestriction(value: string): void};
         const run = (edit: (graph: InverseSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as InverseSetters)); };

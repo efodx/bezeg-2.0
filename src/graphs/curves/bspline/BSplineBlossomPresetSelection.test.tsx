@@ -43,7 +43,7 @@ const expectBlossomDrawn = (graph: ObservedGraph, data: BSplinePresetData) => {
     expect(x).toBeCloseTo(snapshot!.value[0], 12);
     expect(y).toBeCloseTo(snapshot!.value[1], 12);
     expect(visible(scene.labelElement())).toBe(true);
-    expect(document.querySelector('[data-blossom-readout="value"]')).not.toBeNull();
+    expect(graph.getDeclaration()!.notes?.some(note => note.id === 'value')).toBe(true);
 };
 /** Starts the operation inside `act` so the host commits its renders, then waits for it outside. */
 const settle = async (start: () => Promise<void>) => {

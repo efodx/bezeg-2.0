@@ -6,7 +6,8 @@ import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
 import JXG from 'jsxgraph';
 import BSplineBlossomGraph from './BSplineBlossomGraph';
 import {GraphHost} from '../../base/GraphHost';
-import {LocalizedError, setLanguage} from '../../../localization';
+import {LocalizedError, renderMessage, setLanguage} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
 import {BSplinePresetData, bsplinePresetCollection} from './bsplinePresetCollection';
 import {blossomSnapshot, curveCheck} from './bsplineBlossomModel';
 import {DEBOOR_DEFAULT_POINTS} from './bsplineDeBoorModel';
@@ -35,14 +36,23 @@ beforeAll(() => {
 
 afterEach(() => setLanguage('sl'));
 
+// Direct setter calls on bound keys need a write source; the learner is the one who moves them.
 class ObservedGraph extends BSplineBlossomGraph {
+    override setSegment(segment: number) { runAs('learner', () => super.setSegment(segment)); }
+    override setArgument(index: number, value: number) { runAs('learner', () => super.setArgument(index, value)); }
+    override setDegree(degree: number) { runAs('learner', () => super.setDegree(degree)); }
+    override setShowBezier(show: boolean) { runAs('learner', () => super.setShowBezier(show)); }
+    override resetToDefaults() { runAs('learner', () => super.resetToDefaults()); }
+    override importPresetData(data: BSplinePresetData) { runAs('learner', () => super.importPresetData(data)); }
     liveBoard() { return this.board; }
     sceneOf() { return this['scene']!; }
 }
 
+let mounted: ObservedGraph | undefined;
 const mount = () => {
     const graph = new ObservedGraph();
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    mounted = graph;
     return {graph, view, board: graph.liveBoard()};
 };
 
@@ -53,7 +63,14 @@ const near = (actual: readonly number[], expected: readonly number[], tol = TOL)
 };
 const evalVisible = (element: unknown) => (element as {evalVisProp(name: string): boolean}).evalVisProp('visible');
 const drawn = (element: {X(): number, Y(): number}) => [element.X(), element.Y()];
-const readout = (name: string) => document.querySelector(`[data-blossom-readout="${name}"]`)?.textContent ?? null;
+/** The declared argument pucks (the board strip owns them; Orodja no longer shows sliders for them). */
+const argumentPucks = (graph: ObservedGraph) => (graph.getDeclaration()!.parameters ?? [])
+    .flatMap(p => p.kind === 'range' && /^blossom-[abc]$/.test(p.key) ? [p] : []);
+/** A declared note's rendered text (null when the note is not declared). */
+const readout = (name: string): string | null => {
+    const note = mounted?.getDeclaration()!.notes?.find(n => n.id === name);
+    return note ? renderMessage(note.text) : null;
+};
 const drag = (point: unknown) => (point as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers(['drag'], []);
 
 /** f(args) on `segment` as drawn: the last triangle point on the board (state arguments set through the controls' setters). */
@@ -139,7 +156,6 @@ describe('L6 acceptance 3: f(t, ..., t) and the curve', () => {
             near(graph.snapshot()!.value, [model.X(), model.Y()]);
             near(graph.curveCheck()!.curve, [model.X(), model.Y()]);
             expect(graph.curveCheck()!.relation).toBe('equal');
-            expect(document.querySelector('[data-blossom-relation]')!.getAttribute('data-blossom-relation')).toBe('equal');
             expect(readout('curve')).toContain('točka krivulje');
         }
         view.unmount();
@@ -194,7 +210,7 @@ describe('L6 acceptance 4: only degree 2 and 3', () => {
         expect(graph.state.knots).toEqual([0, 0, 0, 0, 1, 1, 1, 1]);
         expect(graph.state.segment).toBe(3);
         expect(graph.state.args).toHaveLength(3);
-        expect(screen.getAllByRole('slider')).toHaveLength(3);
+        expect(argumentPucks(graph)).toHaveLength(3);
         act(() => graph.setDegree(4));
         expect(graph.state.degree).toBe(3);
         expect(graph.snapshot()!.bezier).toHaveLength(4);
@@ -224,9 +240,9 @@ describe('L6 acceptance 4: only degree 2 and 3', () => {
 
     test('the segment selector lists the nonempty spans', () => {
         const {graph, view} = mount();
-        const select = screen.getByLabelText('Odsek krivulje') as HTMLSelectElement;
-        expect([...select.options].map(o => [o.value, o.text])).toEqual([['2', '[0, 1)'], ['3', '[1, 2)']]);
-        fireEvent.change(select, {target: {value: '3'}});
+        const choice = graph.getDeclaration()!.parameters!.find(p => p.key === 'blossom-segment');
+        expect(choice?.kind === 'choice' && choice.options.map(o => [o.value, renderMessage(o.label)])).toEqual([['2', '[0, 1)'], ['3', '[1, 2)']]);
+        act(() => { graph.parameters!.write('blossom-segment', '3', 'learner'); });
         expect(graph.state.segment).toBe(3);
         view.unmount();
     });
@@ -284,9 +300,9 @@ describe('controls', () => {
 
     test('argument sliders reach the whole domain, not only the segment, and land exactly on knots', () => {
         const {graph, view} = mount();
-        const sliders = screen.getAllByRole('slider') as HTMLInputElement[];
-        expect(sliders.map(s => [s.min, s.max])).toEqual([['0', '2'], ['0', '2']]);
-        fireEvent.change(sliders[1], {target: {value: '2'}});
+        const sliders = argumentPucks(graph);
+        expect(sliders.map(s => [s.min, s.max])).toEqual([[0, 2], [0, 2]]);
+        act(() => { graph.parameters!.write('blossom-b', 2, 'learner'); });
         expect(graph.state.args[1]).toBe(2);
         for (let step = 0; step <= 200; step++) {
             act(() => graph.setArgument(0, step * 0.01));

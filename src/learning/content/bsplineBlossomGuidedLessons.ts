@@ -6,10 +6,14 @@
  * [0,1) and the starting arguments are the same on every visit, followed by `blossom` actions that call the graph's own setters.
  */
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {BSplineBlossomIds} from '../../graphs/curves/bspline/BSplineBlossomGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the blossom's declaration ids: an unknown note or control fails the type check. */
+const f = frameDeclarer<BSplineBlossomIds>();
 
 /** The L2 quadratic: knots (0,0,0,1,2,2,2), points (0,0), (1,2), (3,2), (4,0). */
 export const BLOSSOM_FIXTURE: LessonCurveFixture = {degree: 2, knots: [0, 0, 0, 1, 2, 2, 2], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
@@ -101,7 +105,7 @@ const blossomLesson: GuidedLesson = {
                 'A quadratic B-spline with the knots \\((0,0,0,1,2,2,2)\\) and the points \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) is drawn; the segment \\([0,1)\\) is chosen and the arguments are \\(a=0\\) and \\(b=1\\). Predict: which point is \\(f(0,1)\\)? The control point \\(d_i\\) is \\(f(u_{i+1},u_{i+2})\\), and the knots \\(0\\) and \\(1\\) are exactly \\(u_2\\) and \\(u_3\\), so \\(f(0,1)\\) is the second control point \\((1,2)\\).',
             ),
             formulaIds: ['bspline-blossom-f-controls'],
-            frames: [frame('bspline-blossom-predict-explanation', 'explanation'), frame('bspline-blossom-predict-observation', 'observation')],
+            frames: [frame('bspline-blossom-predict-explanation', 'explanation', f({open: ['legend']})), frame('bspline-blossom-predict-observation', 'observation', f({highlight: ['value'], open: ['readouts']}))],
             observationPrompt: text('Preberi vrednost \\(f(0;1)\\) v inšpektorju.', 'Read the value \\(f(0;1)\\) in the inspector.'),
             expectedObservations: [text('\\(f(0;1)=(1;2)\\), druga kontrolna točka.', '\\(f(0;1)=(1;2)\\), the second control point.')],
             scene: blossomScene('bspline-blossom-predict-controls', [setBezier(false), setArgs(BLOSSOM_PREDICT_ARGS)],
@@ -117,7 +121,7 @@ const blossomLesson: GuidedLesson = {
                 'Choose any pair of arguments, for example \\(a=\\tfrac14\\) and \\(b=\\tfrac34\\). The first interpolation with the argument \\(a\\) between neighbouring control points gives two points, \\((0.25,\\,0.5)\\) and \\((1.25,\\,2)\\); the second one with \\(b\\) between them gives \\(f(\\tfrac14,\\tfrac34)=(1,\\,1.625)\\). The picture shows the same triangle.',
             ),
             formulaIds: ['bspline-blossom-f-controls'], workedExampleId: 'bspline-blossom-pair-example',
-            frames: [frame('bspline-blossom-pair-explanation', 'explanation'), frame('bspline-blossom-pair-calculation', 'calculation'), frame('bspline-blossom-pair-observation', 'observation')],
+            frames: [frame('bspline-blossom-pair-explanation', 'explanation', f({uses: ['blossom-a', 'blossom-b']})), frame('bspline-blossom-pair-calculation', 'calculation'), frame('bspline-blossom-pair-observation', 'observation', f({highlight: ['value']}))],
             observationPrompt: text('Poišči obe vmesni točki in končno točko trikotnika.', 'Find both intermediate points and the final point of the triangle.'),
             expectedObservations: [text('Vmesni točki \\((0{,}25;\\,0{,}5)\\) in \\((1{,}25;\\,2)\\), končna točka \\((1;\\,1{,}625)\\).', 'The intermediate points \\((0.25,\\,0.5)\\) and \\((1.25,\\,2)\\), the final point \\((1,\\,1.625)\\).')],
             scene: blossomScene('bspline-blossom-pair-triangle', [setBezier(false), setArgs(BLOSSOM_PAIR_ARGS)],
@@ -133,7 +137,7 @@ const blossomLesson: GuidedLesson = {
                 'Set \\(a=b=\\tfrac12\\). The triangle is now de Boor\'s triangle at \\(t=\\tfrac12\\): the intermediate points are \\((0.5,\\,1)\\) and \\((1.5,\\,2)\\), and the final point \\(f(\\tfrac12,\\tfrac12)=(1,\\,1.5)\\) is the curve point \\(C(\\tfrac12)\\). The point \\(t=\\tfrac12\\) lies in the chosen segment \\([0,1)\\), so the inspector reports that the two values are equal.',
             ),
             formulaIds: ['bspline-blossom-f-symmetry'],
-            frames: [frame('bspline-blossom-diagonal-explanation', 'explanation'), frame('bspline-blossom-diagonal-observation', 'observation')],
+            frames: [frame('bspline-blossom-diagonal-explanation', 'explanation', f({uses: ['blossom-a', 'blossom-b']})), frame('bspline-blossom-diagonal-observation', 'observation', f({highlight: ['curve', 'value']}))],
             observationPrompt: text('Preberi, ali je \\(f(t,t)\\) enaka točki krivulje.', 'Read whether \\(f(t,t)\\) equals the curve point.'),
             expectedObservations: [text('\\(f(\\tfrac12,\\tfrac12)=C(\\tfrac12)=(1;\\,1{,}5)\\).', '\\(f(\\tfrac12,\\tfrac12)=C(\\tfrac12)=(1;\\,1.5)\\).')],
             scene: blossomScene('bspline-blossom-diagonal-curve', [setBezier(false), setArgs(BLOSSOM_DIAGONAL_ARGS)],
@@ -149,7 +153,7 @@ const blossomLesson: GuidedLesson = {
                 'Swap the arguments of the second step: \\(a=\\tfrac34\\) and \\(b=\\tfrac14\\). The intermediate points are now \\((0.75,\\,1.5)\\) and \\((1.75,\\,2)\\), and the final point is again \\((1,\\,1.625)\\). The inspector shows the reversed order and the difference between the orders, which is \\(0\\).',
             ),
             formulaIds: ['bspline-blossom-f-symmetry'],
-            frames: [frame('bspline-blossom-symmetry-explanation', 'explanation'), frame('bspline-blossom-symmetry-observation', 'observation')],
+            frames: [frame('bspline-blossom-symmetry-explanation', 'explanation', f({uses: ['blossom-a', 'blossom-b']})), frame('bspline-blossom-symmetry-observation', 'observation', f({highlight: ['value', 'reversed', 'symmetry']}))],
             observationPrompt: text('Primerjaj \\(f(a,b)\\) in \\(f(b,a)\\) v inšpektorju.', 'Compare \\(f(a,b)\\) and \\(f(b,a)\\) in the inspector.'),
             expectedObservations: [text('Obe vrednosti sta \\((1;\\,1{,}625)\\), razlika je \\(0\\).', 'Both values are \\((1,\\,1.625)\\); the difference is \\(0\\).')],
             scene: blossomScene('bspline-blossom-symmetry-swapped', [setBezier(false), setArgs(BLOSSOM_SWAPPED_ARGS)],
@@ -165,7 +169,7 @@ const blossomLesson: GuidedLesson = {
                 'Switch on the Bézier points of the segment. For the segment \\([0,1]\\) they are \\(f(0,0)=(0,0)\\), \\(f(0,1)=(1,2)\\) and \\(f(1,1)=(2,2)\\). With this data the whole curve is a single parabola, so these are also the Bézier points of the curve on \\([0,1]\\).',
             ),
             formulaIds: ['bspline-blossom-f-bezier'],
-            frames: [frame('bspline-blossom-bezier-explanation', 'explanation'), frame('bspline-blossom-bezier-observation', 'observation')],
+            frames: [frame('bspline-blossom-bezier-explanation', 'explanation', f({uses: ['show-bezier']})), frame('bspline-blossom-bezier-observation', 'observation', f({highlight: ['bezier-points']}))],
             observationPrompt: text('Preberi tri Bézierove točke odseka.', 'Read the three Bézier points of the segment.'),
             expectedObservations: [text('\\((0;\\,0)\\), \\((1;\\,2)\\) in \\((2;\\,2)\\).', '\\((0;\\,0)\\), \\((1;\\,2)\\) and \\((2;\\,2)\\).')],
             scene: blossomScene('bspline-blossom-bezier-points', [setBezier(true), setArgs(BLOSSOM_PREDICT_ARGS)],
@@ -181,7 +185,7 @@ const blossomLesson: GuidedLesson = {
                 'The default curve is back. Move the arguments, choose the other segment \\([1,2)\\), switch to degree \\(3\\) or drag a control point and watch how the triangle, the symmetry and the Bézier points change. The “Reset” button returns the starting state.',
             ),
             formulaIds: ['bspline-blossom-f-controls', 'bspline-blossom-f-symmetry', 'bspline-blossom-f-bezier'],
-            frames: [frame('bspline-blossom-explore-explanation', 'explanation'), frame('bspline-blossom-explore-observation', 'observation')],
+            frames: [frame('bspline-blossom-explore-explanation', 'explanation', f({uses: ['blossom-a', 'blossom-b', 'blossom-segment'], open: ['tools']})), frame('bspline-blossom-explore-observation', 'observation')],
             observationPrompt: text('Poišči par argumentov, pri katerem je \\(f\\) enaka točki krivulje.', 'Find a pair of arguments for which \\(f\\) equals the curve point.'),
             expectedObservations: [text('Pri enakih argumentih v izbranem odseku je \\(f(t,t)\\) enaka točki krivulje.', 'With equal arguments inside the chosen segment, \\(f(t,t)\\) equals the curve point.')],
             scene: blossomScene('bspline-blossom-explore-start', [setBezier(true)],
