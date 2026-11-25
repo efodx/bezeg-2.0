@@ -5,7 +5,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, Message, t} from "../../localization";
+import {currentLanguage, message, Message, messageNumber, t} from "../../localization";
 import {formatNumber, formatScientific, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
     BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, bisectionExample,
@@ -17,6 +17,10 @@ import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutRow} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {bisectionFollowView, bisectionViewMarks} from "./bisectionView";
 
 /**
  * Time between two playback steps. One step per interval, never more than one per frame, whatever the display refresh
@@ -29,6 +33,19 @@ const PRETTY_FORMULA: Readonly<Record<Exclude<BisectionExampleId, "sign-step">, 
     "square-minus-two": "x² − 2",
     "cubic": "x³ − x",
 };
+
+/** The ids of Bisection's declaration (`DeclarationIds`): its parameters by arbiter key; the readout, legend and status stay in Orodja. */
+export type BisectionIds = {
+    param: "bisect-a" | "bisect-b" | "bisection-example";
+    row: "step" | "a" | "b" | "f-a" | "f-b" | "mid" | "f-mid" | "retained" | "interval" | "width"; note: never; legend: never; section: never; action: never;
+};
+
+/** The catalog message of each example's formula option (the sign step's text already existed). */
+const EXAMPLE_LABEL_KEYS = {
+    "square-minus-two": "bisection_example_square_minus_two",
+    "cubic": "bisection_example_cubic",
+    "sign-step": "bisection_example_sign_step",
+} as const satisfies Record<BisectionExampleId, string>;
 
 const exampleTitle = (id: BisectionExampleId): string => id === "sign-step" ? t("bisection_example_sign_step") : `f(x) = ${PRETTY_FORMULA[id]}`;
 
@@ -126,6 +143,71 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     /** Back to step 0 of the same example and bracket; playback stops. */
     protected resetIteration(): void {
         this.replaceModel({...this.model, step: 0});
+    }
+
+    // ---- Declaration (task 02 for the parameters, task 07 slice 4 for the view that follows the bracket) ----------------------
+
+    /** Memoized on the model: the view director compares marks by identity, and the declaration is read on every render. */
+    private readonly followOf = this.modelCache((model: BisectionModel) => {
+        const history = this.historyOf(model);
+        return {follow: bisectionFollowView(history), marks: bisectionViewMarks(history)};
+    });
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys; the view is bound by the base. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "bisect-a": {read: () => this.model.a, apply: (value: number) => this.setA(value)},
+            "bisect-b": {read: () => this.model.b, apply: (value: number) => this.setB(value)},
+            "bisection-example": {read: () => this.model.example, apply: (value: unknown) => this.setExample(value)},
+        };
+    }
+
+    /**
+     * Pure data from the model: the two endpoints as pucks and the example choice, the marks that stay clear of the cards (the bracket's
+     * ends and the midpoint) and the view that follows the current bracket. The readout, legend and status stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<BisectionIds> {
+        const {follow, marks} = this.followOf(this.model);
+        const range = (key: "bisect-a" | "bisect-b", label: "bisection_a_label" | "bisection_b_label", symbol: string): ParameterDeclaration<BisectionIds["param"]> => ({
+            key, kind: "range", label: message(label), symbol, help: message("bisection_bounds_help"), placement: "board",
+            min: BISECTION_BOUND_MIN, max: BISECTION_BOUND_MAX, step: 0.1, maxDecimals: 3, morph: false,
+        });
+        return {
+            parameters: [
+                {key: "bisection-example", kind: "choice", label: message("bisection_example_label"), help: message("bisection_example_help"), placement: "board",
+                    options: BISECTION_EXAMPLE_IDS.map(id => ({value: id, label: message(EXAMPLE_LABEL_KEYS[id])}))},
+                range("bisect-a", "bisection_a_label", "a"),
+                range("bisect-b", "bisection_b_label", "b"),
+            ],
+            readouts: [{id: "values", title: message("function_readouts"), rows: this.declaredRows(this.model)}],
+            readoutHelp: message("bisection_note"),
+            marks,
+            followView: follow,
+        };
+    }
+
+    /** The readout rows of the inspector, as declared data (the same values `renderReadout` shows). */
+    private declaredRows(model: BisectionModel): ReadoutRow<BisectionIds>[] {
+        const language = currentLanguage();
+        const {history, last, a, b, fa, fb} = this.viewOf(model);
+        const text = (value: number): FormattedValue => ({kind: "formatted", text: formatPrecise(value, language)});
+        const pending = history.bracket === "opposite-signs" ? message("bisection_retained_pending") : undefined;
+        const retained = !last ? pending
+            : last.retained === "left" ? message("bisection_retained_left")
+                : last.retained === "right" ? message("bisection_retained_right") : message("bisection_retained_none");
+        const separator = language === "sl" ? "; " : ", ";
+        return [
+            {id: "step", name: message("bisection_readout_step", {value0: messageNumber(BISECTION_MAX_STEPS, 0)}), value: messageNumber(history.steps.length, 0)},
+            {id: "a", name: message("bisection_readout_a"), value: text(a)},
+            {id: "b", name: message("bisection_readout_b"), value: text(b)},
+            {id: "f-a", name: message("bisection_readout_fa"), value: text(fa)},
+            {id: "f-b", name: message("bisection_readout_fb"), value: text(fb)},
+            {id: "mid", name: message("bisection_readout_mid"), value: last ? text(last.mid) : text(NaN)},
+            {id: "f-mid", name: message("bisection_readout_fm"), value: last ? text(last.fMid) : text(NaN)},
+            {id: "retained", name: message("bisection_readout_retained"), value: retained ?? text(NaN)},
+            {id: "interval", name: message("bisection_readout_interval"), value: {kind: "formatted", text: `[${formatPrecise(history.currentA, language)}${separator}${formatPrecise(history.currentB, language)}]`}},
+            {id: "width", name: message("bisection_readout_width"), value: text(history.currentWidth)},
+        ];
     }
 
     // ---- Model operations (read and write the synchronous model) ------------------------------
@@ -282,10 +364,10 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("bisection_a_label")} value={a} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
-                        rejectedHint={t("bisection_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
-                        rejectedHint={t("bisection_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
+                <PuckOwned param="bisect-a"><Slider customText={t("bisection_a_label")} value={a} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("bisection_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/></PuckOwned>
+                <PuckOwned param="bisect-b"><Slider customText={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("bisection_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/></PuckOwned>
                 <p className="inspector-help">{t("bisection_bounds_help")}</p>
             </div>
         </>;
@@ -343,7 +425,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
             {id: "width", label: t("bisection_readout_width"), value: number(history.currentWidth)},
         ];
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("bisection_note")}/>
+            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("bisection_note")} declaredPanel/>
             <FunctionStatus className="bisection-status" dataAttribute="bisection-status" lines={this.statuses(model, language)} muted={this.playback.isPlaying}/>
         </>;
     }

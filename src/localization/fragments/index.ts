@@ -1,4 +1,5 @@
 import {bezier} from "./bezier";
+import {bisection} from "./bisection";
 import {dynamics} from "./dynamics";
 import {linear} from "./linear";
 import {patches} from "./patches";
@@ -10,7 +11,7 @@ import {workspace} from "./workspace";
 import {workspacePucks} from "./workspace-pucks";
 
 /** Every fragment by family; add a new family here and nowhere else. `sl.ts` and `en.ts` spread the merged objects. */
-export const catalogFragments = {bezier, dynamics, linear, patches, projective, taylor, transformations, workspace, workspacePucks, workspaceShell};
+export const catalogFragments = {bezier, bisection, dynamics, linear, patches, projective, taylor, transformations, workspace, workspacePucks, workspaceShell};
 
-export const fragmentSl = {...bezier.sl, ...dynamics.sl, ...linear.sl, ...patches.sl, ...projective.sl, ...taylor.sl, ...transformations.sl, ...workspace.sl, ...workspacePucks.sl, ...workspaceShell.sl};
-export const fragmentEn = {...bezier.en, ...dynamics.en, ...linear.en, ...patches.en, ...projective.en, ...taylor.en, ...transformations.en, ...workspace.en, ...workspacePucks.en, ...workspaceShell.en};
+export const fragmentSl = {...bezier.sl, ...bisection.sl, ...dynamics.sl, ...linear.sl, ...patches.sl, ...projective.sl, ...taylor.sl, ...transformations.sl, ...workspace.sl, ...workspacePucks.sl, ...workspaceShell.sl};
+export const fragmentEn = {...bezier.en, ...bisection.en, ...dynamics.en, ...linear.en, ...patches.en, ...projective.en, ...taylor.en, ...transformations.en, ...workspace.en, ...workspacePucks.en, ...workspaceShell.en};

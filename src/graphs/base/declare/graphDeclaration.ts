@@ -1,4 +1,5 @@
 import type {Message, MessageNumber} from "../../../localization";
+import type {ViewBox} from "../writes/viewAdapter";
 
 /**
  * What a graph and a lesson frame declare for the board workspace (task 02; spec A1, A8, A9; ADR 0065). Presenters
@@ -65,6 +66,8 @@ export interface RangeParameter<K extends string = string> extends ParameterBase
      * value it starts from and kept inside the range.
      */
     readonly sweep?: {readonly halfWidth?: number; readonly period?: number};
+    /** `false`: a lesson step sets this value at once instead of gliding it (values between two steps are not valid states, e.g. a bracket's ends). */
+    readonly morph?: false;
 }
 
 /** A whole-number count: a `CountSetter`. */
@@ -225,6 +228,12 @@ export interface GraphDeclaration<Ids extends DeclarationIds = DeclarationIds> {
     readonly status?: readonly StatusLine[];
     /** Absent: the graph keeps its own view logic and nothing is fitted (task 07). */
     readonly marks?: ViewMarks;
+    /**
+     * The box the view should frame for the present state, `[left, top, right, bottom]` (task 07 slice 4; bisection: the bracket).
+     * Computed from state like `marks`. The view director fits from it instead of the stored intent and glides when it changes;
+     * it never writes the intent. Absent: the stored intent is the base.
+     */
+    readonly followView?: ViewBox;
 }
 
 /** Cards a lesson frame can open. `tools` is Orodja (A9: a frame opens it at the section of a control it uses). */
@@ -280,6 +289,8 @@ export function checkDeclaration(declaration: GraphDeclaration, hasPreviewGeomet
     unique("legend", (declaration.legend ?? []).map(entry => entry.id));
     unique("section", (declaration.sections ?? []).map(section => section.id));
     unique("action", (declaration.actions ?? []).map(action => action.id));
+    const follow = declaration.followView;
+    if (follow && !(follow.every(Number.isFinite) && follow[0] < follow[2] && follow[1] > follow[3])) problems.push({where: "followView", problem: "needs a finite box with left < right and top > bottom"});
     const groups = new Map<string, number>();
     for (const action of declaration.actions ?? []) {
         if (!action.puck) continue;
@@ -307,6 +318,7 @@ export function checkDeclaration(declaration: GraphDeclaration, hasPreviewGeomet
             const bad = (value: number | undefined) => value !== undefined && !(Number.isFinite(value) && value > 0);
             if (bad(halfWidth) || bad(period)) problems.push({where, problem: "a sweep needs a finite positive halfWidth and period"});
         }
+        if (parameter.kind === "range" && parameter.morph !== undefined && parameter.morph !== false) problems.push({where, problem: "morph is only ever false (omit it to morph)"});
         if (parameter.kind === "count" && !(Number.isInteger(parameter.min) && Number.isInteger(parameter.max))) problems.push({where, problem: "needs whole bounds"});
         if (parameter.kind === "choice" && parameter.options.length < 2) problems.push({where, problem: "needs at least two options"});
         if (parameter.kind === "choice" && parameter.puck && parameter.options.length > MAX_CHOICE_PUCK_OPTIONS) problems.push({where, problem: `a choice puck has at most ${MAX_CHOICE_PUCK_OPTIONS} options`});

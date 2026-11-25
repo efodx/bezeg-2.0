@@ -113,6 +113,21 @@ const SAMPLES: readonly Sample[] = [
         state('entry a11 = 3', {'linear-map-a11': 3}),
         state('entry a22 = -2', {'linear-map-a22': -2}),
     ]},
+    {file: 'functions/__parity__/bisection.json', demonstration: 'bisection', states: (() => {
+        const next = (count: number): ParityState['apply'] => graph => {
+            for (let i = 0; i < count; i++) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction({kind: 'animation', animationId: 'bisection', command: 'next-step'});
+        };
+        return [
+            state('default', {}),
+            {name: 'step 1', apply: next(1)},
+            {name: 'step 4', apply: next(3)},
+            state('wider bracket, step 0', {'bisect-a': 0, 'bisect-b': 3}),
+            state('cubic', {'bisection-example': 'cubic', 'bisect-a': -1.5, 'bisect-b': 2}),
+            {name: 'cubic step 2', apply: next(2)},
+            state('sign step', {'bisection-example': 'sign-step', 'bisect-a': -1, 'bisect-b': 1}),
+            {name: 'sign step, step 3', apply: next(3)},
+        ];
+    })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', states: [
         state('default', {}),
         state('spiral entries', {'phase-a': 1, 'phase-b': -2, 'phase-c': 2, 'phase-d': 1}),

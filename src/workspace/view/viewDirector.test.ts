@@ -1,11 +1,11 @@
 import {afterEach, describe, expect, test, vi} from 'vitest';
 import {ParameterArbiter} from '../../graphs/base/writes/parameterArbiter';
-import {ViewAdapter, type ViewBoard} from '../../graphs/base/writes/viewAdapter';
+import {ViewAdapter, type ViewBoard, type ViewBox} from '../../graphs/base/writes/viewAdapter';
 import {beginLearnerGesture, beginLearnerSpan, runAs} from '../../graphs/base/writes/writeSource';
 import type {ViewMarks} from '../../graphs/base/declare/graphDeclaration';
 import {createAutofitSwitch} from './autofitSwitch';
 import {GLIDE_MS} from './motion';
-import {directorEligible, ViewDirector, type DirectorGeometry} from './viewDirector';
+import {directorEligible, glideBox, ViewDirector, type DirectorGeometry} from './viewDirector';
 
 /** A board that fires `boundingbox` on every change, as JSXGraph does, and counts what is shown. */
 class FakeBoard implements ViewBoard {
@@ -48,7 +48,7 @@ const OPEN: DirectorGeometry = {canvas: CANVAS, free: {x: 0, y: 0, width: 800, h
 const MARKS: ViewMarks = {must: [{kind: 'point', x: -8, y: 0}]};
 const INTENT = [-10, 7.5, 10, -7.5];
 
-interface Rig {board: FakeBoard; adapter: ViewAdapter; arbiter: ParameterArbiter; clock: Scheduler; director: ViewDirector; marks: {current: ViewMarks | undefined}; autofit: ReturnType<typeof createAutofitSwitch>}
+interface Rig {board: FakeBoard; adapter: ViewAdapter; arbiter: ParameterArbiter; clock: Scheduler; director: ViewDirector; marks: {current: ViewMarks | undefined}; follow: {current: ViewBox | undefined}; autofit: ReturnType<typeof createAutofitSwitch>}
 const rigs: Rig[] = [];
 const live = {adapter: 0, autofit: 0};
 
@@ -66,11 +66,12 @@ function rig(options: {reducedMotion?: boolean; geometry?: DirectorGeometry | nu
     const autofit = createAutofitSwitch(() => ({getItem: key => store.get(key) ?? null, setItem: (key, value) => { store.set(key, value); }}));
     const subscribeAutofit = autofit.subscribe;
     autofit.subscribe = listener => { live.autofit++; const stop = subscribeAutofit(listener); return () => { live.autofit--; stop(); }; };
+    const follow: {current: ViewBox | undefined} = {current: undefined};
     const director = new ViewDirector({
-        adapter, arbiter, marks: () => marks.current, equalAxisUnits: () => false, now: clock.now,
+        adapter, arbiter, marks: () => marks.current, follow: () => follow.current, equalAxisUnits: () => false, now: clock.now,
         requestFrame: clock.request, cancelFrame: clock.cancel, reducedMotion: () => options.reducedMotion ?? false, autofit,
     });
-    const made = {board, adapter, arbiter, clock, director, marks, autofit};
+    const made = {board, adapter, arbiter, clock, director, marks, follow, autofit};
     rigs.push(made);
     if (options.geometry !== null) director.setGeometry(options.geometry ?? GEOMETRY);
     return made;
@@ -471,6 +472,220 @@ describe('the view director', () => {
         made.clock.run(16);
         // Without a rebase the eased position is taken between the old start and the new end: a jump of several units.
         expect(Math.max(...made.board.box.map((v, i) => Math.abs(v - before[i])))).toBeLessThan(2);
+    });
+});
+
+describe('a followView (task 07 slice 4)', () => {
+    const FIRST: ViewBox = [-4, 3, 4, -3];
+    const SECOND: ViewBox = [-2, 1.5, 2, -1.5];
+    /** The marks sit inside both boxes, so the keep pass has nothing to do. */
+    const CENTRE: ViewMarks = {must: [{kind: 'point', x: 0, y: 0}]};
+    /** A rig that follows FIRST with no card in the way, settled. */
+    function following(): Rig {
+        const made = rig({geometry: null});
+        made.follow.current = FIRST;
+        made.marks.current = CENTRE;
+        made.director.setGeometry(OPEN);
+        settle(made);
+        return made;
+    }
+    /** The follow changes as a write of `source` would change it, and the host tells the director. */
+    const follows = (made: Rig, box: ViewBox | undefined, source: 'lesson' | 'learner' = 'lesson') =>
+        runAs(source, () => { made.follow.current = box; made.director.followChanged(); });
+
+    test('the fit frames the followView, not the stored intent, and never writes the intent', () => {
+        const made = following();
+        for (let i = 0; i < 3; i++) { follows(made, i % 2 ? FIRST : SECOND); settle(made); }
+        follows(made, SECOND);
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(SECOND[index], 6));
+        expect(made.adapter.intent().box).toEqual(INTENT);
+    });
+
+    test('latest writer wins: a lesson view write is the base until the followView changes again', () => {
+        const made = following();
+        const WRITTEN: ViewBox = [-1, 0.75, 1, -0.75];
+        runAs('lesson', () => made.adapter.setIntent(WRITTEN));
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(WRITTEN[index], 6));
+        made.director.fitNow(); // the follow did not change: the write still wins
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(WRITTEN[index], 6));
+        follows(made, SECOND);
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(SECOND[index], 6));
+    });
+
+    test('follow moves away then returns to the write\'s box: the follow is the base', () => {
+        const made = following();
+        const WRITTEN: ViewBox = [-1, 0.75, 1, -0.75];
+        runAs('lesson', () => made.adapter.setIntent(WRITTEN)); // wins while the follow is FIRST
+        settle(made);
+        follows(made, SECOND);
+        settle(made);
+        follows(made, FIRST); // back at the box the write saw
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(FIRST[index], 6));
+        runAs('lesson', () => made.adapter.setIntent(WRITTEN)); // a Reset restating the same intent revives no old win
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(FIRST[index], 6));
+    });
+
+    test('the fit button after a learner pan fits the follow, or a lesson write that won since', () => {
+        const made = following();
+        runAs('learner', () => made.adapter.navigating(() => made.adapter.setIntent([-9, 7.5, 11, -7.5])));
+        expect(made.director.isPaused()).toBe(true);
+        made.director.fitNow();
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(FIRST[index], 6));
+        const WRITTEN: ViewBox = [-1, 0.75, 1, -0.75];
+        runAs('learner', () => made.adapter.navigating(() => made.adapter.setIntent([-9, 7.5, 11, -7.5])));
+        runAs('lesson', () => made.adapter.setIntent(WRITTEN));
+        made.director.fitNow();
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(WRITTEN[index], 6));
+    });
+
+    test('a step that writes the default view and then the intent it already had (Back, a restated scene) does not win over the follow', () => {
+        const made = following();
+        const WRITTEN: ViewBox = [-1, 0.75, 1, -0.75];
+        runAs('lesson', () => made.adapter.setIntent(WRITTEN));
+        settle(made);
+        follows(made, SECOND);
+        settle(made);
+        runAs('lesson', () => { made.adapter.setIntent(INTENT); made.adapter.setIntent(WRITTEN); }); // one tick: net no move
+        settle(made);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(SECOND[index], 6));
+    });
+
+    test('a change from a non-learner write (lesson step, animation) glides once to the new base', () => {
+        const made = following();
+        made.board.writes.length = 0;
+        follows(made, SECOND);
+        made.clock.run(64);
+        expect(made.board.box[0]).toBeGreaterThan(FIRST[0]); // it started
+        expect(made.board.box[0]).toBeLessThan(SECOND[0]); // and has not arrived
+        made.clock.run(GLIDE_MS + 100);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(SECOND[index], 6));
+        const lefts = made.board.writes.map(box => box[0]);
+        expect(lefts.length).toBeGreaterThan(3);
+        lefts.forEach((left, index) => { if (index > 0) expect(left).toBeGreaterThanOrEqual(lefts[index - 1]); }); // one glide: no restart, no jump back
+        expect(made.arbiter.activeLeases()).toHaveLength(0);
+    });
+
+    test('a follow that did not move writes nothing, also within the tolerance of 1e-9', () => {
+        const made = following();
+        made.board.writes.length = 0;
+        follows(made, FIRST);
+        follows(made, [FIRST[0] + 1e-12, FIRST[1], FIRST[2], FIRST[3]]);
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.board.writes).toHaveLength(0);
+    });
+
+    test('two fits of an unchanged state write once', () => {
+        const made = following();
+        made.board.writes.length = 0;
+        follows(made, SECOND);
+        made.director.fitNow(); // a second request for the same target, before the glide ran
+        made.clock.run(GLIDE_MS + 100);
+        const afterFirst = made.board.writes.length;
+        made.director.fitNow();
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.board.writes).toHaveLength(afterFirst);
+        expect(made.board.writes.at(-1)!.every((value, index) => Math.abs(value - SECOND[index]) < 1e-6)).toBe(true);
+    });
+
+    test('a learner pan pauses it: later changes do nothing until the fit button', () => {
+        const made = following();
+        const gesture = beginLearnerGesture();
+        made.board.pan(0.5);
+        gesture();
+        expect(made.director.isPaused()).toBe(true);
+        const panned = [...made.board.box];
+        made.board.writes.length = 0;
+        follows(made, SECOND);
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.board.writes).toHaveLength(0);
+        expect(made.board.box).toEqual(panned);
+        made.director.fitNow();
+        made.clock.run(GLIDE_MS + 100);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(SECOND[index], 6));
+    });
+
+    test('a learner write that moves it glides at the gesture end, and only with Samodejno on', () => {
+        const made = following();
+        const end = beginLearnerGesture();
+        follows(made, SECOND, 'learner');
+        made.board.writes.length = 0;
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.board.writes).toHaveLength(0); // nothing moves under the learner's hand
+        end();
+        made.clock.run(GLIDE_MS + 100);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(SECOND[index], 6));
+
+        const off = following();
+        off.autofit.set(false);
+        const endOff = beginLearnerGesture();
+        follows(off, SECOND, 'learner');
+        off.board.writes.length = 0;
+        endOff();
+        off.clock.run(GLIDE_MS + 100);
+        expect(off.board.writes).toHaveLength(0);
+    });
+
+    test('with reduced motion it jumps', () => {
+        const made = rig({geometry: null, reducedMotion: true});
+        made.follow.current = FIRST;
+        made.marks.current = CENTRE;
+        made.director.setGeometry(OPEN);
+        settle(made);
+        made.board.writes.length = 0;
+        follows(made, SECOND);
+        made.clock.run(16);
+        expect(made.board.writes).toHaveLength(1);
+        made.board.box.forEach((value, index) => expect(value).toBeCloseTo(SECOND[index], 6));
+    });
+
+    test('the keep pass runs on top: a must mark under a card is cleared in the followed box', () => {
+        const made = rig({geometry: null});
+        made.follow.current = [-10, 7.5, 10, -7.5];
+        made.director.setGeometry(GEOMETRY);
+        settle(made);
+        const shown = made.board.box;
+        const px = (-8 - shown[0]) / (shown[2] - shown[0]) * CANVAS.width;
+        expect(px).toBeGreaterThan(290);
+        expect(made.adapter.intent().box).toEqual(INTENT);
+    });
+});
+
+describe('the glide shape', () => {
+    test('a 4x zoom-out changes the width evenly per 16 ms frame (linear interpolation jumps most of it first)', () => {
+        const from: ViewBox = [-2, 2, 2, -2];
+        const to: ViewBox = [-8, 8, 8, -8];
+        let previous = 4;
+        let largest = 0;
+        let largestLinear = 0;
+        let previousLinear = 4;
+        for (let ms = 16; ms <= GLIDE_MS; ms += 16) {
+            const t = Math.min(1, ms / GLIDE_MS);
+            const k = 1 - Math.pow(1 - t, 3);
+            const box = glideBox(from, to, k);
+            const width = box[2] - box[0];
+            largest = Math.max(largest, width / previous);
+            previous = width;
+            const linear = 4 + 12 * k;
+            largestLinear = Math.max(largestLinear, linear / previousLinear);
+            previousLinear = linear;
+        }
+        expect(largestLinear).toBeGreaterThan(1.5);
+        expect(largest).toBeLessThan(1.4);
+        expect(glideBox(from, to, 1)[2] - glideBox(from, to, 1)[0]).toBeCloseTo(16);
+    });
+
+    test('a zero or sign-changing size falls back to linear interpolation', () => {
+        const box = glideBox([0, 1, 0, -1], [-1, 1, 1, -1], 0.5);
+        expect(box.every(Number.isFinite)).toBe(true);
+        expect(box[2] - box[0]).toBeCloseTo(1);
     });
 });
 

@@ -10,12 +10,16 @@ export interface MorphRange {
     readonly min: number;
     readonly max: number;
     readonly step: number;
+    /** `false`: the key takes the new step's value at once (a range whose in-between values are not states). */
+    readonly morph?: boolean;
 }
 
 export interface LessonMorphDeps {
     arbiter: ParameterArbiter;
     /** The declared range parameters of the present state that are bound to the arbiter. */
     rangeKeys(): readonly MorphRange[];
+    /** The bound choice and count keys: a step that changes one of them morphs nothing. */
+    structuralKeys?(): readonly string[];
     now?(): number;
     requestFrame?(callback: () => void): number;
     cancelFrame?(id: number): void;
@@ -49,6 +53,7 @@ const decimals = (value: number) => Math.round(value * 1e10) / 1e10;
 export class LessonMorph {
     private readonly arbiter: ParameterArbiter;
     private readonly rangeKeys: () => readonly MorphRange[];
+    private readonly structuralKeys: (() => readonly string[]) | undefined;
     private readonly now: () => number;
     private readonly requestFrame: (callback: () => void) => number;
     private readonly cancelFrame: (id: number) => void;
@@ -60,6 +65,7 @@ export class LessonMorph {
     constructor(deps: LessonMorphDeps) {
         this.arbiter = deps.arbiter;
         this.rangeKeys = deps.rangeKeys;
+        this.structuralKeys = deps.structuralKeys;
         this.now = deps.now ?? (() => performance.now());
         this.requestFrame = deps.requestFrame ?? (callback => requestAnimationFrame(callback));
         this.cancelFrame = deps.cancelFrame ?? (id => cancelAnimationFrame(id));
@@ -76,10 +82,13 @@ export class LessonMorph {
      */
     step(apply: () => void): void {
         if (this.disposed || this.reducedMotion()) { apply(); return; }
-        const ranges = this.rangeKeys().filter(range => this.numeric(range.key) !== undefined);
+        const ranges = this.rangeKeys().filter(range => range.morph !== false && this.numeric(range.key) !== undefined);
         const from = new Map(ranges.map(range => [range.key, this.numeric(range.key)!]));
+        const structure = this.structure();
         apply();
         this.abandon(); // a morph the step did not end itself (no lease reset in between) does not survive it
+        // A step that changes the setup (a choice or a count) does not morph: numbers between two setups are not a state of either.
+        if (this.structure().some((value, index) => !Object.is(value, structure[index]))) return;
         const moving: Moving[] = [];
         for (const range of ranges) {
             const to = this.numeric(range.key);
@@ -131,6 +140,12 @@ export class LessonMorph {
     }
 
     // ---- internals ---------------------------------------------------------------------------------------------------------
+
+    private structure(): unknown[] {
+        return (this.structuralKeys?.() ?? []).map(key => {
+            try { return this.arbiter.read(key); } catch { return undefined; }
+        });
+    }
 
     private numeric(key: string): number | undefined {
         try {

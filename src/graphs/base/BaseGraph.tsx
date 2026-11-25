@@ -322,7 +322,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const morph = new LessonMorph({
             arbiter,
             rangeKeys: () => (this.declaration()?.parameters ?? [])
-                .filter((parameter): parameter is RangeParameter => parameter.kind === "range" && arbiter.keys().includes(parameter.key)),
+                .filter((parameter): parameter is RangeParameter => parameter.kind === "range" && arbiter.keys().includes(parameter.key))
+                .map(({key, min, max, step, morph}) => ({key, min, max, step, morph})),
+            structuralKeys: () => (this.declaration()?.parameters ?? [])
+                .filter(parameter => (parameter.kind === "choice" || parameter.kind === "count") && arbiter.keys().includes(parameter.key))
+                .map(parameter => parameter.key),
         });
         this.lessonMorph = morph;
         this.releaseParameterArbiter = () => {

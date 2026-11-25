@@ -113,6 +113,13 @@ describe("checkDeclaration", () => {
         }
     });
 
+    it("accepts morph: false on a range and reports any other morph value", () => {
+        expect(checkDeclaration({parameters: [rangeA({morph: false})]})).toEqual([]);
+        const bad = rangeA({});
+        Object.assign(bad, {morph: true});
+        expect(checkDeclaration({parameters: [bad]})).toEqual([{where: "parameter a", problem: "morph is only ever false (omit it to morph)"}]);
+    });
+
     it("reports a sweep whose half-width or period is not finite and positive", () => {
         for (const sweep of [{halfWidth: 0}, {halfWidth: NaN}, {period: 0}, {period: -1}, {period: Infinity}]) {
             expect(checkDeclaration({parameters: [rangeA({sweep})]})).toEqual([{where: "parameter a", problem: "a sweep needs a finite positive halfWidth and period"}]);
@@ -141,6 +148,14 @@ describe("checkDeclaration", () => {
 
     it("reports a board parameter with a section", () => {
         expect(checkDeclaration({parameters: [rangeA({section: "order"})]})).toEqual([{where: "parameter a", problem: "a board control has no Orodja section"}]);
+    });
+
+    it("accepts a finite followView and rejects an empty or inverted one", () => {
+        expect(checkDeclaration({followView: [-1, 2, 3, -2]})).toEqual([]);
+        const problem = [{where: "followView", problem: "needs a finite box with left < right and top > bottom"}];
+        expect(checkDeclaration({followView: [3, 2, -1, -2]})).toEqual(problem);
+        expect(checkDeclaration({followView: [-1, -2, 3, 2]})).toEqual(problem);
+        expect(checkDeclaration({followView: [-1, 2, Number.NaN, -2]})).toEqual(problem);
     });
 });
 

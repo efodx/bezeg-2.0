@@ -315,7 +315,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   // The view director (task 07): the settled layout (not the drag preview) says where the board is free and which cards cover it.
   const directorGeometry: DirectorGeometry | null = final && base
     ? {canvas: {width: board.w, height: board.h}, free: freeRect(base), obstacles: obstacleRects(base)} : null;
-  useViewDirector({graph, host: host.view, geometry: directorGeometry, boardSize: board, frameTick: host.view?.frameTick ?? 0, marks: declaration?.marks, dragging: drag !== null || stripDrag !== null});
+  useViewDirector({graph, host: host.view, geometry: directorGeometry, boardSize: board, frameTick: host.view?.frameTick ?? 0, marks: declaration?.marks, followView: declaration?.followView, dragging: drag !== null || stripDrag !== null});
   // Held by the pointer, the strip follows it from its settled rect and the candidate's rect is drawn as a ghost; held by the keyboard,
   // it glides to the candidate's rect. Its slots run as a column in the dock it is shown in.
   const stripByPointer = stripDrag?.offset != null;
