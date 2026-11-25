@@ -50,4 +50,3 @@ Script: 03-recheck3.cjs; log 03-recheck3.log (raw stdout 03-recheck3.out). Fresh
 5. Taylor slider sweep [-2,2], 21 steps: readouts width 319.36 constant (min = max). PASS.
 6. Triangle centres: 2 points -> card click 2 -> empty-board click 3. PASS.
 7. Console and page errors: none on all four routes and the triangle context.
-
