@@ -5,18 +5,76 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka P = (1, 21/5) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: 3x + 35y - 75 = 0",
+        "Tangenta t₁: 9x - 20y + 75 = 0",
+        "Tangenta t₂: 4x + 5y - 25 = 0",
+        "Dotikališče T₁ = (-3, 12/5)",
+        "Dotikališče T₂ = (4, 9/5)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "projective-pole-polar-guided/pole-polar-on",
+      "rows": [],
+      "notes": [
+        "Točka P = (4, 9/5) leži na stožnici: polara je tangenta v P, dotikališče je ena sama točka.",
+        "Polara p: 4x + 5y - 25 = 0",
+        "Dotikališče T₁ = (4, 9/5)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
       "outputs": [],
       "captions": []
     },
     {
       "name": "projective-pole-polar-guided/pole-polar-infinity",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Točka P je točka v neskončnosti s smerjo (1, 0). Točka P = (1, 0) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: x = 0",
+        "Tangenta t₁: y + 3 = 0",
+        "Tangenta t₂: y - 3 = 0",
+        "Dotikališče T₁ = (0, -3)",
+        "Dotikališče T₂ = (0, 3)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
       "outputs": [],
       "captions": [
         "$$P = \\infty$$"
       ]
+    },
+    {
+      "name": "projective-pole-polar-guided/pole-polar-line",
+      "rows": [],
+      "notes": [
+        "Točka P = (1, 7) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: x + 7y - 25 = 0",
+        "Tangenta t₁: 3x - 4y + 25 = 0",
+        "Tangenta t₂: 4x + 3y - 25 = 0",
+        "Dotikališče T₁ = (-3, 4)",
+        "Dotikališče T₂ = (4, 3)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "projective-pole-polar-guided/pole-polar-explore",
+      "rows": [],
+      "notes": [
+        "Točka P = (2, 0) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: x - y = 0",
+        "Tangenta t₁: y = 0",
+        "Tangenta t₂: 2x - y - 4 = 0",
+        "Dotikališče T₁ = (0, 0)",
+        "Dotikališče T₂ = (4, 4)",
+        "Središče je v neskončnosti v smeri (0, 1), zato končnega središča ni."
+      ],
+      "outputs": [],
+      "captions": []
     }
   ]
 }

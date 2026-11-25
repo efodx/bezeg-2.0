@@ -5,7 +5,13 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Tretja diferenca: (0; 0)",
+        "Točno nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0.",
+        "Napaka L²: 0.",
+        "Meja iz kontrolnih točk: 0."
+      ],
       "outputs": [],
       "captions": [
         "Največja napaka (vzorčena): 0.",
@@ -15,7 +21,13 @@
     {
       "name": "reduction-guided/reduction-predict",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Tretja diferenca: (-2; 0)",
+        "Ni nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0,0962.",
+        "Napaka L²: 0,069007.",
+        "Meja iz kontrolnih točk: 0,3333."
+      ],
       "outputs": [],
       "captions": [
         "Največja napaka (vzorčena): 0,0962.",
@@ -25,7 +37,13 @@
     {
       "name": "reduction-guided/reduction-free",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Tretja diferenca: (-2; 0)",
+        "Ni nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0,1.",
+        "Napaka L²: 0,037796.",
+        "Meja iz kontrolnih točk: 0,3."
+      ],
       "outputs": [],
       "captions": [
         "Največja napaka (vzorčena): 0,1.",
@@ -35,7 +53,13 @@
     {
       "name": "reduction-guided/reduction-explore",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Tretja diferenca: (-2; 12)",
+        "Ni nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0,5853.",
+        "Napaka L²: 0,41975.",
+        "Meja iz kontrolnih točk: 2,0276."
+      ],
       "outputs": [],
       "captions": [
         "Največja napaka (vzorčena): 0,5853.",

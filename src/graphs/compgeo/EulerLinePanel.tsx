@@ -28,37 +28,37 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
     const liveReadout = useStatusReadout(stateText, true);
     if (analysis.kind === "missing") {
         return <div className="inspector-group" data-euler-state="missing">
-            <p className="inspector-help pointset-status">{stateText}</p>
+            <p data-readout-note className="inspector-help pointset-status">{stateText}</p>
             <LiveReadout readout={liveReadout} dataAttribute="euler-live"/>
         </div>;
     }
     if (analysis.kind === "degenerate") {
         return <div className="inspector-group euler-panel" data-euler-state="degenerate">
-            <p className="inspector-help pointset-status" data-euler-chip>{stateText}</p>
-            <p className="inspector-help" data-euler-degenerate>{t("euler_degenerate_why")}</p>
+            <p data-readout-note className="inspector-help pointset-status" data-euler-chip>{stateText}</p>
+            <p data-readout-note className="inspector-help" data-euler-degenerate>{t("euler_degenerate_why")}</p>
             <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-euler-coordinates>
-                {eulerVertexTexts(analysis.vertices, t).map((text, i) => <li key={i}>{text}</li>)}
+                {eulerVertexTexts(analysis.vertices, t).map((text, i) => <li data-readout-note key={i}>{text}</li>)}
             </ul>
             <LiveReadout readout={liveReadout} dataAttribute="euler-live"/>
         </div>;
     }
     if (!texts) return null;
     return <div className="inspector-group euler-panel" data-euler-state={analysis.line === undefined ? "equilateral" : "line"}>
-        <p className="inspector-help pointset-status" data-euler-chip>{texts.chip}</p>
-        {texts.equilateralNote && <p className="inspector-help" data-euler-equilateral>{texts.equilateralNote}</p>}
+        <p data-readout-note className="inspector-help pointset-status" data-euler-chip>{texts.chip}</p>
+        {texts.equilateralNote && <p data-readout-note className="inspector-help" data-euler-equilateral>{texts.equilateralNote}</p>}
         <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
         <ul className="pointset-list euler-readouts">
-            {texts.rows.map(row => <li key={row.id} data-euler-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
-            <li data-euler-readout="r2-quarter">{texts.r2Quarter}</li>
-            {texts.distances.map((text, i) => <li key={i} data-euler-readout={["hg", "go", "ho", "half-r"][i]}>{text}</li>)}
+            {texts.rows.map(row => <li data-readout-note key={row.id} data-euler-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
+            <li data-readout-note data-euler-readout="r2-quarter">{texts.r2Quarter}</li>
+            {texts.distances.map((text, i) => <li data-readout-note key={i} data-euler-readout={["hg", "go", "ho", "half-r"][i]}>{text}</li>)}
         </ul>
-        <p className="inspector-help" data-euler-relation>{texts.relation}</p>
-        <p className="inspector-help" data-euler-distinct>{texts.distinct}</p>
-        {texts.tooFar.map(note => <p key={note} className="inspector-help" data-euler-too-far>{note}</p>)}
+        <p data-readout-note className="inspector-help" data-euler-relation>{texts.relation}</p>
+        <p data-readout-note className="inspector-help" data-euler-distinct>{texts.distinct}</p>
+        {texts.tooFar.map(note => <p data-readout-note key={note} className="inspector-help" data-euler-too-far>{note}</p>)}
         <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
         <ul className="pointset-list" data-euler-coordinates>
-            {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
+            {texts.vertices.map((text, i) => <li data-readout-note key={i}>{text}</li>)}
         </ul>
         <LiveReadout readout={liveReadout} dataAttribute="euler-live"/>
     </div>;

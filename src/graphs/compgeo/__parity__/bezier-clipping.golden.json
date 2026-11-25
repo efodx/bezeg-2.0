@@ -5,7 +5,70 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 26",
+        "Konveksni ovojnici kontrolnih točk se prekrivata. To je le potreben pogoj: krivulji se lahko sekata ali pa tudi ne.",
+        "Število rezov: 0",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bezier-clipping-guided/clipping-clip-a",
+      "rows": [],
+      "notes": [
+        "Korak 5 od 26",
+        "Rezanje poteka. Žive obsege še ožimo.",
+        "Število rezov: 3",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bezier-clipping-guided/clipping-swap",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 26",
+        "Rezanje poteka. Žive obsege še ožimo.",
+        "Število rezov: 4",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bezier-clipping-guided/clipping-repeat",
+      "rows": [],
+      "notes": [
+        "Korak 26 od 26",
+        "Najdeno: preostali obsegi so rezultat do tolerance. To ni dokaz.",
+        "Število rezov: 21"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bezier-clipping-guided/clipping-tangent",
+      "rows": [],
+      "notes": [
+        "Korak 505 od 505",
+        "Dosežena je meja rezanja. To ni dokaz v nobeno smer; živi obsegi ostanejo na seznamu.",
+        "Število rezov: 200",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bezier-clipping-guided/clipping-offset",
+      "rows": [],
+      "notes": [
+        "Korak 22 od 22",
+        "Prazno: vsi obsegi so zavrženi, krivulji se ne sekata.",
+        "Število rezov: 17"
+      ],
       "outputs": [],
       "captions": []
     }

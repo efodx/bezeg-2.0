@@ -265,11 +265,11 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
             </div>,
             <div key="pieces" className="inspector-group" role="group" aria-labelledby="bse-pieces-title">
                 <h3 id="bse-pieces-title">{t("bse_pieces_title")}</h3>
-                <p data-extraction-readout="count">{t("bse_count", {value0: pieces.length})}</p>
-                {moved.length ? <p className="inspector-help" data-extraction-readout="affected">{t("bse_affected_note", {value0: affected.length})}</p> : null}
+                <p data-readout-note data-extraction-readout="count">{t("bse_count", {value0: pieces.length})}</p>
+                {moved.length ? <p data-readout-note className="inspector-help" data-extraction-readout="affected">{t("bse_affected_note", {value0: affected.length})}</p> : null}
                 {pieces.length
                     ? <ul data-extraction-readout="pieces">{lines.map((line, index) =>
-                        <li key={index} data-affected={affected.includes(index) ? 'true' : 'false'}
+                        <li data-readout-note key={index} data-affected={affected.includes(index) ? 'true' : 'false'}
                             style={{borderLeft: `4px solid ${pieceColor(index)}`, paddingLeft: '0.4em'}}>{line}
                             {this.hostBridge.openAsBezier
                                 ? <> <button type="button" className="btn" data-action="open-as-bezier" data-piece={index}

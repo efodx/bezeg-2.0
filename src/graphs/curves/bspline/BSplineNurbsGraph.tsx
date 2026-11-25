@@ -298,14 +298,14 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
                                              onChange={value => this.selectExample(value as NurbsExampleId)}/>
                 <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="error" className="inspector-group">
-                <p data-nurbs-readout="radial-error">{t("bsn_radial_error", {value0: errorText(this.radialError())})}</p>
+                <p data-readout-note data-nurbs-readout="radial-error">{t("bsn_radial_error", {value0: errorText(this.radialError())})}</p>
                 <p className="inspector-help">{t("bsn_radial_error_help")}</p>
             </div>,
             <div key="circle"><OnOffSwitch checked={showCircle} label={t("bsn_circle")} onChange={show => this.setShowCircle(show)}/></div>,
             <div key="position">
                 <Slider min={start} max={end} step={0.001} decimals={3} value={Math.min(end, Math.max(start, param))}
                         customText={t("bsb_slider_t")} help={t("bsn_slider_help")} onChange={value => this.setT(value)}/>
-                {point ? <p data-nurbs-readout="point">{t("bsn_point", {value0: num(point[0]), value1: num(point[1]), value2: formatNumber(angleDegrees(point), language, 3)})}</p> : null}
+                {point ? <p data-readout-note data-nurbs-readout="point">{t("bsn_point", {value0: num(point[0]), value1: num(point[1]), value2: formatNumber(angleDegrees(point), language, 3)})}</p> : null}
             </div>,
             <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="weights" className="inspector-group" role="group" aria-labelledby="bsn-weights-title">

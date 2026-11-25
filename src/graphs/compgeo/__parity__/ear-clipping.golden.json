@@ -5,14 +5,57 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 12",
+        "Oglišča si sledijo v nasprotni smeri urinega kazalca. Oglišča preizkušamo po vrsti, od najnižje številke naprej.",
+        "Odrezani trikotniki doslej: 0",
+        "Orientacijskih preizkusov doslej: 0"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "ear-clipping-guided/earclip-first-ear",
+      "rows": [],
+      "notes": [
+        "Korak 4 od 12",
+        "Oglišče je izbočeno in v trikotniku ni drugih oglišč: to je uho.",
+        "Preizkušeno oglišče P3, trikotnik P2 P3 P4",
+        "Odrezani trikotniki doslej: 0",
+        "Orientacijskih preizkusov doslej: 17"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "ear-clipping-guided/earclip-triangulation",
+      "rows": [],
+      "notes": [
+        "Korak 12 od 12",
+        "Konec: večkotnik je razrezan na trikotnike.",
+        "Odrezani trikotniki doslej: 3",
+        "Orientacijskih preizkusov doslej: 25",
+        "Trikotnikov: 3 (n - 2, kjer je n = 5 število oglišč)",
+        "Diagonal: 2 (n - 3)",
+        "Barvni razredi (A, B, C): 2, 1, 2",
+        "Stražarjev: 1 (⌊n/3⌋); najmanjši barvni razred jih postavi v oglišča P4."
+      ],
       "outputs": [],
       "captions": []
     },
     {
       "name": "ear-clipping-guided/earclip-colouring",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 12 od 12",
+        "Konec: večkotnik je razrezan na trikotnike.",
+        "Odrezani trikotniki doslej: 3",
+        "Orientacijskih preizkusov doslej: 25",
+        "Trikotnikov: 3 (n - 2, kjer je n = 5 število oglišč)",
+        "Diagonal: 2 (n - 3)",
+        "Barvni razredi (A, B, C): 2, 1, 2",
+        "Stražarjev: 1 (⌊n/3⌋); najmanjši barvni razred jih postavi v oglišča P4."
+      ],
       "outputs": [],
       "captions": [
         "A",
@@ -25,7 +68,16 @@
     {
       "name": "ear-clipping-guided/earclip-comb",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 35 od 35",
+        "Konec: večkotnik je razrezan na trikotnike.",
+        "Odrezani trikotniki doslej: 9",
+        "Orientacijskih preizkusov doslej: 121",
+        "Trikotnikov: 9 (n - 2, kjer je n = 11 število oglišč)",
+        "Diagonal: 8 (n - 3)",
+        "Barvni razredi (A, B, C): 4, 4, 3",
+        "Stražarjev: 3 (⌊n/3⌋); najmanjši barvni razred jih postavi v oglišča P5, P8, P11."
+      ],
       "outputs": [],
       "captions": [
         "A",

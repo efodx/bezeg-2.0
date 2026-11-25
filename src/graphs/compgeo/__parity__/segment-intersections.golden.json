@@ -5,7 +5,116 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 47",
+        "Vrsta dogodkov vsebuje vsa krajišča daljic. Pometalna premica še miruje nad njimi.",
+        "Daljic v stanju: 0",
+        "Preizkusov sosednjih daljic doslej: 0; preizkus vseh parov bi jih imel 6.",
+        "Presečišč še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$s_{1}$$",
+        "$$s_{2}$$",
+        "$$s_{3}$$",
+        "$$s_{4}$$"
+      ]
+    },
+    {
+      "name": "segment-intersections-guided/segint-insert",
+      "rows": [],
+      "notes": [
+        "Korak 12 od 47",
+        "Daljica s1 vstopi v stanje. Daljic v stanju: 4.",
+        "Pometalna premica: y = 4",
+        "Daljic v stanju: 4",
+        "Preizkusov sosednjih daljic doslej: 2; preizkus vseh parov bi jih imel 6.",
+        "Presečišč še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$s_{1}$$",
+        "$$s_{2}$$",
+        "$$s_{3}$$",
+        "$$s_{4}$$"
+      ]
+    },
+    {
+      "name": "segment-intersections-guided/segint-neighbours",
+      "rows": [],
+      "notes": [
+        "Korak 10 od 47",
+        "Presečišče (33/20 = 1,65; 29/10 = 2,9) pride v vrsto dogodkov.",
+        "Pometalna premica: y = 4",
+        "Daljic v stanju: 3",
+        "Preizkusov sosednjih daljic doslej: 2; preizkus vseh parov bi jih imel 6.",
+        "Presečišč še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$s_{1}$$",
+        "$$s_{2}$$",
+        "$$s_{3}$$",
+        "$$s_{4}$$"
+      ]
+    },
+    {
+      "name": "segment-intersections-guided/segint-swap",
+      "rows": [],
+      "notes": [
+        "Korak 17 od 47",
+        "Daljice s2, s3 se v stanju obrnejo: za presečiščem je njihov vrstni red nasproten.",
+        "Pometalna premica: y = 29/10 = 2,9",
+        "Daljic v stanju: 4",
+        "Preizkusov sosednjih daljic doslej: 3; preizkus vseh parov bi jih imel 6.",
+        "Presečišča doslej (1)",
+        "s2, s3 v točki (33/20 = 1,65; 29/10 = 2,9)"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$s_{1}$$",
+        "$$s_{2}$$",
+        "$$s_{3}$$",
+        "$$s_{4}$$"
+      ]
+    },
+    {
+      "name": "segment-intersections-guided/segint-summary",
+      "rows": [],
+      "notes": [
+        "Korak 47 od 47",
+        "Vsi dogodki so obdelani.",
+        "Pometalna premica: y = -1",
+        "Daljic v stanju: 0",
+        "Preizkusov sosednjih daljic doslej: 9; preizkus vseh parov bi jih imel 6.",
+        "Obdelanih dogodkov: 13; presečišč: 5; preizkusov sosednjih daljic: 9; vseh parov: 6.",
+        "Presečišča doslej (5)",
+        "s2, s3 v točki (33/20 = 1,65; 29/10 = 2,9)",
+        "s1, s4 v točki (87/20 = 4,35; 29/10 = 2,9)",
+        "s1, s2 v točki (3; 2)",
+        "s1, s3 v točki (21/16 = 1,3125; 7/8 = 0,875)",
+        "s2, s4 v točki (75/16 = 4,6875; 7/8 = 0,875)"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$s_{1}$$",
+        "$$s_{2}$$",
+        "$$s_{3}$$",
+        "$$s_{4}$$"
+      ]
+    },
+    {
+      "name": "segment-intersections-guided/segint-explore",
+      "rows": [],
+      "notes": [
+        "Korak 16 od 25",
+        "Daljice s3, s2, s4, s1 se v stanju obrnejo: za presečiščem je njihov vrstni red nasproten.",
+        "Pometalna premica: y = 2",
+        "Daljic v stanju: 4",
+        "Preizkusov sosednjih daljic doslej: 3; preizkus vseh parov bi jih imel 6.",
+        "Presečišča doslej (1)",
+        "s1, s2, s3, s4 v točki (2; 2)"
+      ],
       "outputs": [],
       "captions": [
         "$$s_{1}$$",

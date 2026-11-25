@@ -221,6 +221,17 @@ export const showsNoValues = (declaration: GraphDeclaration | undefined): boolea
     declaration !== undefined && !(declaration.readouts ?? []).some(group => group.rows.length > 0) && !(declaration.notes ?? []).length
     && declaration.readoutHelp === undefined && !(declaration.status ?? []).length;
 
+/** Whether a golden recording shows no rows, notes or outputs in any state (a missing recording shows nothing known). */
+export const goldenShowsNothing = (golden: ParityRecording | undefined): boolean =>
+    golden !== undefined && golden.states.every(state => state.rows.length === 0 && state.notes.length === 0 && state.outputs.length === 0);
+
+/**
+ * Parity is not applicable to a demonstration only when its golden recording shows no values in every state and its
+ * declaration (one per recorded state: the default and every lesson scene) shows none either. Otherwise a recording is required.
+ */
+export const parityNotApplicable = (golden: ParityRecording | undefined, declarations: readonly (GraphDeclaration | undefined)[]): boolean =>
+    goldenShowsNothing(golden) && declarations.length > 0 && declarations.every(showsNoValues);
+
 /** One line per difference, for a test failure message. */
 export const describeDifferences = (report: ParityReport): string =>
     report.differences.map(d => `state ${d.state} (${d.stateName}): ${d.kind} ${d.where}${d.recorded !== undefined ? ` recorded "${d.recorded}"` : ''}${d.declared !== undefined ? ` declared "${d.declared}"` : ''}`).join('\n');

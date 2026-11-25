@@ -56,8 +56,8 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
             <p className="inspector-help">{t("bezierhulls_playback_note")}</p>
         </div>
         <div className="inspector-group" data-bezier-hulls="readout">
-            <StepCounter step={step} length={length} hooks={{"data-bezier-hulls": "step"}}/>
-            {lines.map(line => <p key={line.kind} className="inspector-help" data-bezier-hulls={line.kind}>{lineText(t, line)}</p>)}
+            <StepCounter step={step} length={length} hooks={{"data-bezier-hulls": "step", "data-readout-note": ""}}/>
+            {lines.map(line => <p data-readout-note key={line.kind} className="inspector-help" data-bezier-hulls={line.kind}>{lineText(t, line)}</p>)}
         </div>
         {/* Silent while Play runs (a tick each interval would flood a screen reader); announces the readout once on Pause or at the end. */}
         <LiveReadout readout={liveReadout} muted={playing} dataAttribute="bezier-hulls-live"/>

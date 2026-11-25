@@ -5,7 +5,12 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "t = 0,5: neničelne bazne funkcije stopnje 2",
+        "N0,2 = 0,25 N1,2 = 0,625 N2,2 = 0,125",
+        "vsota = 1",
+        "definicijsko območje [0, 2]"
+      ],
       "outputs": [],
       "captions": [
         "0 (×3)",
@@ -20,7 +25,12 @@
     {
       "name": "bspline-basis-guided/bspline-basis-hat",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "t = 1: neničelne bazne funkcije stopnje 1",
+        "N1,1 = 1 N2,1 = 0",
+        "vsota = 1",
+        "definicijsko območje [0, 2]"
+      ],
       "outputs": [],
       "captions": [
         "0 (×2)",
@@ -35,7 +45,12 @@
     {
       "name": "bspline-basis-guided/bspline-basis-mirror",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "t = 1,5: neničelne bazne funkcije stopnje 2",
+        "N1,2 = 0,125 N2,2 = 0,625 N3,2 = 0,25",
+        "vsota = 1",
+        "definicijsko območje [0, 2]"
+      ],
       "outputs": [],
       "captions": [
         "0 (×3)",
@@ -50,7 +65,12 @@
     {
       "name": "bspline-basis-guided/bspline-basis-locality",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "t = 2,5: neničelne bazne funkcije stopnje 2",
+        "N2,2 = 0,2667 N3,2 = 0,65 N4,2 = 0,0833",
+        "vsota = 1",
+        "definicijsko območje [0, 4]"
+      ],
       "outputs": [],
       "captions": [
         "0 (×3)",
@@ -67,7 +87,12 @@
     {
       "name": "bspline-basis-guided/bspline-basis-bernstein",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "t = 0,5: neničelne bazne funkcije stopnje 2",
+        "N0,2 = 0,25 N1,2 = 0,5 N2,2 = 0,25",
+        "vsota = 1",
+        "definicijsko območje [0, 1]"
+      ],
       "outputs": [],
       "captions": [
         "0 (×3)",

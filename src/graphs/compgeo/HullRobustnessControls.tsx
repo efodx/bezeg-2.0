@@ -75,15 +75,15 @@ export function ChainReadout(props: ChainReadoutProps) {
     const rule = t("hullrobust_rule_active", {value0: popText(t, props.pop), value1: duplicatesText(t, props.duplicates)});
     const output = props.hull ? chainOutputReadout(props.hull, props.points) : undefined;
     return <div className="inspector-group" data-hull-robustness="chain-readout">
-        <p className="inspector-help" data-hull-robustness="rule">{rule}</p>
+        <p data-readout-note className="inspector-help" data-hull-robustness="rule">{rule}</p>
         {output
             ? <>
-                <p className="inspector-help" data-hull-robustness="output">
+                <p data-readout-note className="inspector-help" data-hull-robustness="output">
                     {t("hullrobust_hull_output", {value0: output.entries.length, value1: output.entries.map(entryText).join(", ")})}</p>
-                {output.repeated.length > 0 && <p className="inspector-help" data-hull-robustness="repeated">
+                {output.repeated.length > 0 && <p data-readout-note className="inspector-help" data-hull-robustness="repeated">
                     {t("hullrobust_hull_repeated", {value0: output.repeated.map(entryText).join(", ")})}</p>}
             </>
-            : <p className="inspector-help" data-hull-robustness="output-pending">{t("hullrobust_hull_pending")}</p>}
+            : <p data-readout-note className="inspector-help" data-hull-robustness="output-pending">{t("hullrobust_hull_pending")}</p>}
     </div>;
 }
 
@@ -139,14 +139,14 @@ export function KettnerControls(props: KettnerControlsProps) {
             <p className="inspector-help">{t("hullrobust_keyboard_note")}</p>
         </div>
         <div className="inspector-group" data-hull-robustness="cell">
-            <p className="inspector-help" role="status" data-hull-robustness="cell-title">{lines.title}</p>
-            <p className="inspector-help" data-hull-robustness="cell-exact">{lines.exact}</p>
-            <p className="inspector-help" data-hull-robustness="cell-naive-sign">{lines.naiveSign}</p>
-            <p className="inspector-help" data-hull-robustness="cell-naive-value">{lines.naiveValue}</p>
-            <p className="inspector-help" data-hull-robustness="cell-verdict">{lines.verdict}</p>
+            <p data-readout-note className="inspector-help" role="status" data-hull-robustness="cell-title">{lines.title}</p>
+            <p data-readout-note className="inspector-help" data-hull-robustness="cell-exact">{lines.exact}</p>
+            <p data-readout-note className="inspector-help" data-hull-robustness="cell-naive-sign">{lines.naiveSign}</p>
+            <p data-readout-note className="inspector-help" data-hull-robustness="cell-naive-value">{lines.naiveValue}</p>
+            <p data-readout-note className="inspector-help" data-hull-robustness="cell-verdict">{lines.verdict}</p>
         </div>
         <div className="inspector-group" data-hull-robustness="counts">
-            <p className="inspector-help" data-hull-robustness="counts-text">
+            <p data-readout-note className="inspector-help" data-hull-robustness="counts-text">
                 {t("hullrobust_counts", {value0: counts.total, value1: counts.wrongSign, value2: counts.falseZero})}</p>
             <p className="inspector-help">{t("hullrobust_counts_scope")}</p>
             <p className="inspector-help" data-hull-robustness="setup">{t("hullrobust_setup")}</p>

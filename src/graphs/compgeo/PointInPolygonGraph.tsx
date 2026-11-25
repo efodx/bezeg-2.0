@@ -100,7 +100,7 @@ function PointInPolygonStatus({model, query, valuesShown}: {model: PointSetModel
     const translate = useT();
     if (!valuesShown) {
         return <><div className="inspector-help pointset-status" data-pip-readout="" data-pip-location="" data-pip-crossings="" data-pip-winding="">
-            <p className="mb-1" data-pip-live="">{translate("pointinpolygon_values_hidden")}</p>
+            <p data-readout-note className="mb-1" data-pip-live="">{translate("pointinpolygon_values_hidden")}</p>
         </div><StatusLive text={translate("pointinpolygon_values_hidden")}/></>;
     }
     const readout: PointInPolygonReadout = pointInPolygonReadout(model, query);
@@ -127,8 +127,8 @@ function PointInPolygonStatus({model, query, valuesShown}: {model: PointSetModel
                 data-pip-location={readout.kind === "located" ? readout.location : readout.kind === "boundary" ? "boundary" : ""}
                 data-pip-crossings={readout.kind === "located" ? String(readout.crossings) : ""}
                 data-pip-winding={readout.kind === "located" ? String(readout.winding) : ""}>
-        <p className="mb-1" data-pip-live="">{live}</p>
-        {lines.map((line, i) => <p key={i} className="mb-1">{line}</p>)}
+        <p data-readout-note className="mb-1" data-pip-live="">{live}</p>
+        {lines.map((line, i) => <p data-readout-note key={i} className="mb-1">{line}</p>)}
     </div><StatusLive text={live}/></>;
 }
 

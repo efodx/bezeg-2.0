@@ -128,23 +128,23 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
                            options={[{id: "example-1", text: t("monotonepartition_example_1")}, {id: "example-2", text: t("monotonepartition_example_2")}]}/>
         </div>
         <div className="inspector-group" data-monotone-partition-status="">
-            {refusal && <p className="inspector-help" role="alert" data-monotone-partition="refusal">{refusal}</p>}
+            {refusal && <p data-readout-note className="inspector-help" role="alert" data-monotone-partition="refusal">{refusal}</p>}
             {traced && <>
-                {run.reversed && <p className="inspector-help" data-monotone-partition="reversed">{t("monotonepartition_reversed_note")}</p>}
-                <StepCounter step={step} length={run.length} hooks={{"data-monotone-partition": "step"}}/>
-                {noteLine && <p className="inspector-help" data-monotone-partition="note">{noteLine}</p>}
+                {run.reversed && <p data-readout-note className="inspector-help" data-monotone-partition="reversed">{t("monotonepartition_reversed_note")}</p>}
+                <StepCounter step={step} length={run.length} hooks={{"data-monotone-partition": "step", "data-readout-note": ""}}/>
+                {noteLine && <p data-readout-note className="inspector-help" data-monotone-partition="note">{noteLine}</p>}
                 {view.vertex !== null && view.type !== null && <>
-                    <p className="inspector-help" data-monotone-partition="vertex">
+                    <p data-readout-note className="inspector-help" data-monotone-partition="vertex">
                         {t("monotonepartition_vertex", {value0: vertexName(view.vertex), value1: vertexTypeText(t, view.type)})}</p>
-                    <p className="inspector-help" data-monotone-partition="reason">{reasonText(t, view.type)}</p>
+                    <p data-readout-note className="inspector-help" data-monotone-partition="reason">{reasonText(t, view.type)}</p>
                 </>}
-                <p className="inspector-help" data-monotone-partition="diagonals">
+                <p data-readout-note className="inspector-help" data-monotone-partition="diagonals">
                     {view.diagonals.length > 0
                         ? t("monotonepartition_diagonals", {value0: view.diagonals.length, value1: diagonalNames})
                         : t("monotonepartition_diagonals_none")}</p>
-                {summary && <p className="inspector-help" data-monotone-partition="summary">{summary}</p>}
-                {typeCounts && <p className="inspector-help" data-monotone-partition="type-counts">{typeCounts}</p>}
-                {balance && <p className="inspector-help" data-monotone-partition="balance">{balance}</p>}
+                {summary && <p data-readout-note className="inspector-help" data-monotone-partition="summary">{summary}</p>}
+                {typeCounts && <p data-readout-note className="inspector-help" data-monotone-partition="type-counts">{typeCounts}</p>}
+                {balance && <p data-readout-note className="inspector-help" data-monotone-partition="balance">{balance}</p>}
                 <LiveReadout readout={liveReadout} muted={playing} dataAttribute="monotone-partition-live"/>
                 {children && <div data-monotone-partition-lists="">{children}</div>}
             </>}

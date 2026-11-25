@@ -4,7 +4,7 @@
  * outputs dropped, at most MAX_STATES kept, into `<graph dir>/__parity__/<id>.golden.json`. A lane's own hand-written
  * `<id>.json` recording is a different file.
  *
- *   BEZEG_PARITY_GOLDEN_RECORD=1 just unit src/graphs/base/declare/parityGolden.test.tsx   (all; BEZEG_PARITY_GOLDEN_ID=<id> for one)
+ *   BEZEG_PARITY_GOLDEN_RECORD=1 just unit src/graphs/base/declare/parityGolden.test.tsx   (all; BEZEG_PARITY_GOLDEN_ID="<id> <id>" for some)
  *   BEZEG_PARITY_GOLDEN_CHECK=1  just unit src/graphs/base/declare/parityGolden.test.tsx   (compares the panels with the files)
  *
  * Both are skipped by default. Check mode runs the demonstrations that have a golden file.
@@ -14,21 +14,18 @@ import path from 'path';
 import type {DemonstrationId} from '../../../demonstrations';
 import {installBoardShims} from '../realGraphTestHarness';
 import {createGraph} from '../createTestGraph';
-import {getLessonForDemonstration} from '../../../learning/runtime/lessonCatalog';
-import {chapterOwnerRows, getChapterOwnedLessons} from '../../../learning/content/chapterOwnedLessons';
-import type {LessonDefinition} from '../../../learning/model';
-import {normalise, type ParityRecording, type ParityState, recordParity} from './parity';
+import {candidateStates} from './goldenStates';
+import {normalise, type ParityRecording, recordParity} from './parity';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: 600_000});
 
 const MAX_STATES = 12;
-/** Candidates recorded before deduplication; keeps the run bounded for a demonstration with very many lesson steps. */
-const MAX_CANDIDATES = 40;
 
 const recordMode = !!process.env.BEZEG_PARITY_GOLDEN_RECORD;
 const checkMode = !!process.env.BEZEG_PARITY_GOLDEN_CHECK;
-const only = process.env.BEZEG_PARITY_GOLDEN_ID;
+/** One id, or several separated by spaces. */
+const only = process.env.BEZEG_PARITY_GOLDEN_ID?.split(' ').filter(Boolean);
 
 const srcRoot = path.resolve(__dirname, '../../..');
 const partition = JSON.parse(fs.readFileSync(path.resolve(srcRoot, '../docs/reviews/ux-picks-app-wide/inventory/08-partition.json'), 'utf8')) as
@@ -44,38 +41,6 @@ function goldenDir(id: string, graphFiles: string[]): string {
 
 const goldenFilesOf = (id: string): string[] => (fs.readdirSync(path.join(srcRoot, 'graphs'), {recursive: true}) as string[])
     .map(file => file.replace(/\\/g, '/')).filter(file => file.endsWith(`__parity__/${id}.golden.json`)).map(file => path.join(srcRoot, 'graphs', file));
-
-/** Every lesson on a demonstration: the catalog one plus the chapter-owned ones. */
-function lessonsFor(id: DemonstrationId): LessonDefinition[] {
-    const lessons = new Set<LessonDefinition>();
-    const first = getLessonForDemonstration(id);
-    if (first) lessons.add(first);
-    for (const row of chapterOwnerRows()) {
-        if (row.demonstrationId !== id) continue;
-        const lesson = getChapterOwnedLessons(row.chapterId)?.lesson(row.sectionId);
-        if (lesson) lessons.add(lesson);
-    }
-    return [...lessons];
-}
-
-/** The default state, then each lesson step with its scene applied (the first checkpoint restored before every scene). */
-function candidateStates(id: DemonstrationId): ParityState[] {
-    let checkpoint: unknown;
-    const states: ParityState[] = [{name: 'default', apply: graph => { checkpoint = graph.getLessonCapabilities().captureState(); }}];
-    for (const lesson of lessonsFor(id)) for (const step of lesson.steps) {
-        // Steps without a scene keep the previous scene, so they would record the same panel: skip them.
-        if (!step.scene) continue;
-        states.push({name: `${lesson.id}/${step.id}`, apply: graph => {
-            const capabilities = graph.getLessonCapabilities();
-            capabilities.restoreState(checkpoint as never);
-            for (const action of step.scene!.actions) capabilities.apply(action);
-        }});
-    }
-    if (states.length <= MAX_CANDIDATES) return states;
-    const picked = new Set<number>();
-    for (let i = 0; i < MAX_CANDIDATES; i++) picked.add(Math.round(i * (states.length - 1) / (MAX_CANDIDATES - 1)));
-    return states.filter((_state, index) => picked.has(index));
-}
 
 const shown = (state: ParityRecording['states'][number]) => JSON.stringify([state.rows, state.notes, state.outputs, state.captions]);
 
@@ -119,7 +84,7 @@ function differences(golden: ParityRecording, now: ParityRecording): string {
 }
 
 const ids = partition.lanes.flatMap(lane => lane.demonstrations.map(id => ({id: id as DemonstrationId, graphFiles: lane.graphFiles})))
-    .filter(entry => !only || entry.id === only);
+    .filter(entry => !only || only.includes(entry.id));
 
 describe.skipIf(!recordMode)('golden record (BEZEG_PARITY_GOLDEN_RECORD=1)', () => {
     test.each(ids.map(entry => [entry.id, entry] as const))('golden recording %s', async (_id, entry) => {

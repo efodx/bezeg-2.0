@@ -113,7 +113,7 @@ function CurrentEvent({label}: {label: string}) {
     return <div data-fortune="current-event">
         <p className="inspector-help" id={labelId}>{t("fortune_current_label")}</p>
         <ol aria-labelledby={labelId} className="sweep-side-list">
-            <li data-current="" aria-current="true"><span aria-hidden="true">● </span>{label}<span className="visually-hidden">{t("fortune_queue_current")}</span></li>
+            <li data-readout-note data-current="" aria-current="true"><span aria-hidden="true">● </span>{label}<span className="visually-hidden">{t("fortune_queue_current")}</span></li>
         </ol>
     </div>;
 }
@@ -125,7 +125,7 @@ function QueueList({items}: {items: readonly QueueItem[]}) {
     return <div data-fortune="queue">
         <p className="inspector-help" id={labelId}>{t("fortune_queue_label")}</p>
         <ol aria-labelledby={labelId} className="sweep-side-list">
-            {items.map(item => <li key={item.key} data-queue-entry={item.key} data-next={item.next ? "" : undefined}
+            {items.map(item => <li data-readout-note key={item.key} data-queue-entry={item.key} data-next={item.next ? "" : undefined}
                                    data-cancelled={item.cancelled ? "" : undefined} aria-current={item.next ? "step" : undefined}>
                 {item.next && <span aria-hidden="true">▸ </span>}
                 {item.cancelled ? <><s>{item.label}</s>{" "}<span data-fortune-cancelled="">({t("fortune_queue_cancelled")})</span></> : item.label}
@@ -149,7 +149,7 @@ function MathParagraphInner({text, name}: {text: string; name: string}) {
         void typesetMath(element, () => active).catch(() => undefined);
         return () => { active = false; };
     }, []);
-    return <p className="inspector-help fortune-readout" data-fortune={name} ref={ref}>{text}</p>;
+    return <p data-readout-note className="inspector-help fortune-readout" data-fortune={name} ref={ref}>{text}</p>;
 }
 
 /**
@@ -192,13 +192,13 @@ export function FortuneControls(props: FortuneControlsProps) {
                            options={FORTUNE_EXAMPLE_IDS.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}/>
         </div>
         <div className="inspector-group" data-fortune-status="">
-            {refusal && <p className="inspector-help" role="alert" data-fortune="refusal">{refusal}</p>}
+            {refusal && <p data-readout-note className="inspector-help" role="alert" data-fortune="refusal">{refusal}</p>}
             {!refusal && view && <>
-                <StepCounter step={step} length={run.length} hooks={{"data-fortune": "step"}}/>
-                {lines.map((line, k) => <p className="inspector-help" key={k} data-fortune="note">{line}</p>)}
+                <StepCounter step={step} length={run.length} hooks={{"data-fortune": "step", "data-readout-note": ""}}/>
+                {lines.map((line, k) => <p data-readout-note className="inspector-help" key={k} data-fortune="note">{line}</p>)}
                 <MathParagraph text={heightMessage(t, view, language)} name="height"/>
-                {!view.done && <p className="inspector-help" data-fortune="beach">{beachText}</p>}
-                <p className="inspector-help" data-fortune="vertices">{verticesText}</p>
+                {!view.done && <p data-readout-note className="inspector-help" data-fortune="beach">{beachText}</p>}
+                <p data-readout-note className="inspector-help" data-fortune="vertices">{verticesText}</p>
                 {currentLabel !== undefined && <CurrentEvent label={currentLabel}/>}
                 {!view.done && <QueueList items={queueItems(t, run, view)}/>}
             </>}

@@ -129,20 +129,20 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
             <p className="inspector-help" data-bentley-ottmann="order-rule">{t("bentleyottmann_order_rule")}</p>
         </div>
         <div className="inspector-group" data-bentley-ottmann-status="">
-            {refusal && <p className="inspector-help" role="alert" data-bentley-ottmann="refusal">{refusal}</p>}
+            {refusal && <p data-readout-note className="inspector-help" role="alert" data-bentley-ottmann="refusal">{refusal}</p>}
             {!refusal && n === 0 && <p className="inspector-help" data-bentley-ottmann="empty">{t("bentleyottmann_no_segments")}</p>}
             {!refusal && n > 0 && <>
-                <StepCounter step={step} length={run.length} hooks={{"data-bentley-ottmann": "step"}}/>
-                {noteLine && <p className="inspector-help" data-bentley-ottmann="note">{noteLine}</p>}
-                {view.position && <p className="inspector-help" data-bentley-ottmann="position">
+                <StepCounter step={step} length={run.length} hooks={{"data-bentley-ottmann": "step", "data-readout-note": ""}}/>
+                {noteLine && <p data-readout-note className="inspector-help" data-bentley-ottmann="note">{noteLine}</p>}
+                {view.position && <p data-readout-note className="inspector-help" data-bentley-ottmann="position">
                     {t("bentleyottmann_position", {value0: coordinateText(view.position.y, exponent, language)})}</p>}
-                <p className="inspector-help" data-bentley-ottmann="status-count">{t("bentleyottmann_status_count", {value0: view.status.length})}</p>
-                <p className="inspector-help" data-bentley-ottmann="tests">{testsText}</p>
-                {summary && <p className="inspector-help" data-bentley-ottmann="summary">{summary}</p>}
-                <p className="inspector-help" data-bentley-ottmann="crossings">
+                <p data-readout-note className="inspector-help" data-bentley-ottmann="status-count">{t("bentleyottmann_status_count", {value0: view.status.length})}</p>
+                <p data-readout-note className="inspector-help" data-bentley-ottmann="tests">{testsText}</p>
+                {summary && <p data-readout-note className="inspector-help" data-bentley-ottmann="summary">{summary}</p>}
+                <p data-readout-note className="inspector-help" data-bentley-ottmann="crossings">
                     {view.reports.length ? t("bentleyottmann_crossings", {value0: view.reports.length}) : t("bentleyottmann_crossings_none")}</p>
                 {view.reports.length > 0 && <ul className="sweep-side-list" aria-label={t("bentleyottmann_crossings", {value0: view.reports.length})}>
-                    {view.reports.map(report => <li key={`${report.point.x.format()},${report.point.y.format()}`} data-bentley-ottmann="crossing">
+                    {view.reports.map(report => <li data-readout-note key={`${report.point.x.format()},${report.point.y.format()}`} data-bentley-ottmann="crossing">
                         {t("bentleyottmann_crossing_item", {value0: point(report.point), value1: namesText(report.segments)})}</li>)}
                 </ul>}
                 {children && <div data-bentley-ottmann-lists="">{children}</div>}

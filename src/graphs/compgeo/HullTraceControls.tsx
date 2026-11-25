@@ -117,16 +117,16 @@ export function HullTraceControls(props: HullTraceControlsProps) {
             <p className="inspector-help">{t("hulltrace_playback_note")}</p>
         </div>
         <div className="inspector-group" data-hull-trace-status="">
-            <StepCounter step={step} length={length} hooks={{"data-hull-trace": "step"}}/>
-            {event && <p className="inspector-help" data-hull-trace="note">{noteText(t, event.note, collinearKept)}</p>}
-            {detail && <p className="inspector-help" data-hull-trace="detail">{detail}</p>}
-            {event && <p className="inspector-help" data-hull-trace="count">{countText}</p>}
+            <StepCounter step={step} length={length} hooks={{"data-hull-trace": "step", "data-readout-note": ""}}/>
+            {event && <p data-readout-note className="inspector-help" data-hull-trace="note">{noteText(t, event.note, collinearKept)}</p>}
+            {detail && <p data-readout-note className="inspector-help" data-hull-trace="detail">{detail}</p>}
+            {event && <p data-readout-note className="inspector-help" data-hull-trace="count">{countText}</p>}
             {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces the status once on Pause or at the end. */}
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="hull-trace-live"/>
             {totals && <>
                 <h3 className="inspector-help">{t("hulltrace_counts_title")}</h3>
                 <ul data-hull-trace="totals">
-                    {HULL_ALGORITHMS.map(id => <li key={id} data-algorithm={id}>
+                    {HULL_ALGORITHMS.map(id => <li data-readout-note key={id} data-algorithm={id}>
                         {t("hulltrace_count_row", {value0: algorithmName(t, id), value1: totals[id]})}</li>)}
                 </ul>
             </>}

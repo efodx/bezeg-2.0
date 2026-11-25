@@ -5,14 +5,47 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 44",
+        "Faza: razdelitev",
+        "Večkotnik in pometalna premica nad njim. Oglišča bomo obdelali od zgoraj navzdol.",
+        "Diagonal doslej še ni."
+      ],
       "outputs": [],
       "captions": []
     },
     {
       "name": "monotone-triangulation-guided/montri-piece",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 16 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Obdelamo oglišče v6 (zgornje oglišče).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v6 — zgornje oglišče",
+        "Diagonale doslej (1): v2-v5",
+        "Trikotnikov doslej: 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
+      "name": "monotone-triangulation-guided/montri-predict",
+      "rows": [],
+      "notes": [
+        "Korak 20 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Obdelamo oglišče v2 (desna veriga).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v2 — desna veriga",
+        "Diagonale doslej (1): v2-v5",
+        "Trikotnikov doslej: 0."
+      ],
       "outputs": [],
       "captions": [
         "v1 spodnje oglišče",
@@ -24,7 +57,16 @@
     {
       "name": "monotone-triangulation-guided/montri-test",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 22 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Preizkus oglišča v2 proti oglišču v6: diagonala leži znotraj kosa (orientacija je pozitivna).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v2 — desna veriga",
+        "Trenutni preizkus: oglišči v2 in v6, diagonala je znotraj.",
+        "Diagonale doslej (1): v2-v5",
+        "Trikotnikov doslej: 0."
+      ],
       "outputs": [],
       "captions": [
         "v1 spodnje oglišče",
@@ -35,9 +77,59 @@
       ]
     },
     {
+      "name": "monotone-triangulation-guided/montri-diagonal",
+      "rows": [],
+      "notes": [
+        "Korak 24 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Dodana je diagonala v2-v6.",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v2 — desna veriga",
+        "Diagonale doslej (2): v2-v5, v2-v6",
+        "Trikotnikov doslej: 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
+      "name": "monotone-triangulation-guided/montri-count",
+      "rows": [],
+      "notes": [
+        "Korak 29 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Oglišče v6 zapusti sklad (oglišč na skladu: 0).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v1 — spodnje oglišče",
+        "Diagonale doslej (2): v2-v5, v2-v6",
+        "Trikotnikov doslej: 2."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
       "name": "monotone-triangulation-guided/montri-compare",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 44 od 44",
+        "Faza: triangulacija kosa 2 od 2",
+        "Končano: večkotnik je razdeljen na trikotnike, njihovo število je 4.",
+        "Kos 2: število oglišč 4, število trikotnikov 2.",
+        "v3 — spodnje oglišče",
+        "Diagonale doslej (3): v2-v5, v2-v6, v3-v5",
+        "Trikotnikov: 4 = n - 2 pri n = 6.",
+        "Monotona metoda (razdelitev in triangulacija): 11 izračunov predikatov.",
+        "Rezanje ušes na istem večkotniku: 21 izračunov predikatov."
+      ],
       "outputs": [],
       "captions": [
         "v2 leva veriga",

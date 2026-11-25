@@ -65,14 +65,14 @@ export function FivePointControls(props: FivePointControlsProps) {
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
             <div data-projective-status={text.kind} data-projective-stale={stale}>
-                <p className="inspector-help" data-projective-line="status">{text.status}</p>
+                <p data-readout-note className="inspector-help" data-projective-line="status">{text.status}</p>
             </div>
-            {text.conic && <p className="inspector-help" data-projective-line="conic">{text.conic}</p>}
-            {text.control && <p className="inspector-help" data-projective-line="control">{text.control}</p>}
-            {text.weight && <p className="inspector-help" data-projective-line="weight">{text.weight}</p>}
-            {text.weightKind && <p className="inspector-help" data-projective-line="weight-kind">{text.weightKind}</p>}
-            {text.farin && <p className="inspector-help" data-projective-line="farin">{text.farin}</p>}
-            {text.deviation && <p className="inspector-help" data-projective-line="deviation">{text.deviation}</p>}
+            {text.conic && <p data-readout-note className="inspector-help" data-projective-line="conic">{text.conic}</p>}
+            {text.control && <p data-readout-note className="inspector-help" data-projective-line="control">{text.control}</p>}
+            {text.weight && <p data-readout-note className="inspector-help" data-projective-line="weight">{text.weight}</p>}
+            {text.weightKind && <p data-readout-note className="inspector-help" data-projective-line="weight-kind">{text.weightKind}</p>}
+            {text.farin && <p data-readout-note className="inspector-help" data-projective-line="farin">{text.farin}</p>}
+            {text.deviation && <p data-readout-note className="inspector-help" data-projective-line="deviation">{text.deviation}</p>}
             <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">
