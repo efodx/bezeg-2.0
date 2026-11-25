@@ -3,12 +3,15 @@
 import type BaseGraph from '../../graphs/base/BaseGraph';
 import type {BaseGraphState} from '../../graphs/base/BaseGraph';
 import type {Path} from '../../graphs/base/preview/paths';
+import type {FanValue} from './fan';
 import {sampledRange, type PreviewGeometry} from '../../graphs/base/preview/previewGeometry';
 
 /** What the overlay draws: polylines in board coordinates and the box they were computed for (`[left, top, right, bottom]`). */
 export interface Ghost {
     readonly paths: readonly Path[];
     readonly box: readonly number[];
+    /** Per path: drawn slightly stronger (a fan's values nearest the current one). Absent for a single preview. */
+    readonly near?: readonly boolean[];
 }
 
 export interface FrameScheduler {
@@ -24,7 +27,7 @@ const browserScheduler: FrameScheduler = {
 export class PreviewController {
     private ghost: Ghost | undefined;
     private readonly listeners = new Set<() => void>();
-    private target: {key: string; value: number} | undefined;
+    private target: {key: string; values: readonly FanValue[]; fan: boolean} | undefined;
     private snapshot: {version: number; scene: Parameters<PreviewGeometry>[0]} | undefined;
     private lastBox = '';
     private dirty = false;
@@ -41,11 +44,20 @@ export class PreviewController {
 
     /** Previews `value` of the parameter `key`; nothing for a parameter that is not declared `previewable` or a graph without a geometry. */
     show(key: string, value: number): void {
+        if (this.target && !this.target.fan && this.target.key === key && this.target.values[0].value === value) return;
+        this.start(key, [{value, near: true}], false);
+    }
+
+    /** Previews several values of `key` at once (the overview fan): one geometry call per value, no write. */
+    showFan(key: string, values: readonly FanValue[]): void {
+        if (values.length > 0) this.start(key, values, true);
+    }
+
+    private start(key: string, values: readonly FanValue[], fan: boolean): void {
         const parameter = this.graph.getDeclaration()?.parameters?.find(candidate => candidate.key === key);
         if (!parameter || (parameter.kind !== 'range' && parameter.kind !== 'count') || parameter.previewable !== true) return;
         if (!this.graph.getPreviewGeometry()) return;
-        if (this.target?.key === key && this.target.value === value) return;
-        this.target = {key, value};
+        this.target = {key, values, fan};
         this.dirty = true;
         this.schedule();
     }
@@ -87,8 +99,12 @@ export class PreviewController {
             if (this.dirty || signature !== this.lastBox) {
                 this.dirty = false;
                 this.lastBox = signature;
-                const curves = geometry(this.snapshot.scene, target.key, target.value, sampledRange(box));
-                this.ghost = {paths: Object.values(curves).flatMap(paths => paths.map(path => path.map(([x, y]): [number, number] => [x, y]))), box: [...box]};
+                const paths: Path[] = [], near: boolean[] = [];
+                for (const {value, near: isNear} of target.values) {
+                    const curves = geometry(this.snapshot.scene, target.key, value, sampledRange(box));
+                    for (const path of Object.values(curves).flat()) { paths.push(path.map(([x, y]): [number, number] => [x, y])); near.push(isNear); }
+                }
+                this.ghost = {paths, box: [...box], ...(target.fan ? {near} : {})};
                 this.emit();
             }
         }

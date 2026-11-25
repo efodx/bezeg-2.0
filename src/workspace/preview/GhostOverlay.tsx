@@ -18,6 +18,6 @@ export function GhostOverlay({controller, width, height}: {controller: PreviewCo
     const ghost = useSyncExternalStore(controller.subscribe, controller.getGhost);
     if (!ghost || width <= 0 || height <= 0) return null;
     return <svg className="ghost-overlay" data-ghost-overlay="" aria-hidden="true" width={width} height={height}>
-        {ghost.paths.map((path, index) => <path key={index} d={pathData(path, ghost.box, width, height)}/>)}
+        {ghost.paths.map((path, index) => <path key={index} className={ghost.near ? (ghost.near[index] ? 'is-fan is-near' : 'is-fan') : undefined} d={pathData(path, ghost.box, width, height)}/>)}
     </svg>;
 }

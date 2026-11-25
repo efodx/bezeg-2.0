@@ -5,6 +5,7 @@ import {stepKeyDelta} from '../../inputs/stepKeys';
 import {currentLanguage, renderMessage, useT} from '../../localization';
 import type {Message} from '../../localization';
 import type {RangeParameter} from '../../graphs/base/declare/graphDeclaration';
+import {FAN_REST_MS, fanValues, fanWithNear} from '../preview/fan';
 import {usePreviewHover} from '../preview/previewContext';
 import {useJumpUndo} from './jumpUndo';
 import type {PuckSweep} from '../sweep/useSweep';
@@ -145,9 +146,24 @@ export function RangePuck(props: RangePuckProps) {
 
     // Mouse hover over the track previews the value a click there would jump to (same maths as the click); touch and keys show nothing.
     const active = useRef<typeof preview>();
-    const endHover = () => { (active.current ?? preview)?.hide(); active.current = undefined; setHovered(undefined); };
+    const endHover = () => { clearTimeout(restTimer.current); (active.current ?? preview)?.hide(); active.current = undefined; setHovered(undefined); };
+    // A rest of the mouse on the body shows the overview fan: the graph at values across the sweep window, with the help card.
+    const restTimer = useRef<ReturnType<typeof setTimeout>>();
+    const startRest = () => {
+        clearTimeout(restTimer.current);
+        if (!preview || locked || drag.current || props.sweep?.running) return;
+        restTimer.current = setTimeout(() => {
+            if (drag.current) return;
+            const current = latest.current;
+            preview.showFan(fanWithNear(fanValues(parameter, current), current));
+            active.current = preview;
+        }, FAN_REST_MS);
+    };
     // A parameter that becomes locked or not previewable while hovered ends its preview.
     useEffect(() => { if (active.current && (locked || !preview)) endHover(); }, [locked, preview]); // eslint-disable-line react-hooks/exhaustive-deps
+    // A sweep that starts on the key, a wheel step or any other change of the value ends the fan.
+    const running = props.sweep?.running === true;
+    useEffect(() => { if (active.current) endHover(); }, [running, value]); // eslint-disable-line react-hooks/exhaustive-deps
     const onTrackMove = (event: ReactPointerEvent<HTMLDivElement>) => {
         if (!preview || locked || drag.current || event.pointerType !== 'mouse') return;
         const rect = trackRef.current?.getBoundingClientRect();
@@ -160,6 +176,7 @@ export function RangePuck(props: RangePuckProps) {
     useEffect(() => endHover, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+        clearTimeout(restTimer.current);
         if (locked || event.button > 0) return;
         endHover();
         tip.hide();
@@ -249,12 +266,14 @@ export function RangePuck(props: RangePuckProps) {
             : <div ref={bodyRef} {...tip.handlers} className="puck-body" role="slider" tabIndex={0} aria-label={name} aria-orientation="horizontal"
                 aria-valuemin={parameter.min} aria-valuemax={parameter.max} aria-valuenow={value} aria-valuetext={valueText}
                 aria-disabled={locked || undefined} aria-describedby={describedBy}
+                onPointerEnter={event => { tip.handlers.onPointerEnter(event); if (event.pointerType === 'mouse') startRest(); }}
+                onPointerLeave={() => { tip.handlers.onPointerLeave(); endHover(); }}
                 onPointerDown={onPointerDown} onPointerMove={onPointerMove}
                 onPointerUp={event => endDrag(event, false)} onPointerCancel={event => endDrag(event, true)}
                 onLostPointerCapture={event => endDrag(event, true)} onBlur={() => { tip.handlers.onBlur(); endDrag({clientX: 0}, true); }}
                 onKeyDown={onKeyDown} onDoubleClick={() => { if (!locked) setEntry({text: fmt(latest.current), select: true}); }}>
                 <span className="puck-value" style={{width: `${widthCh}ch`}}>{fmt(value)}{unit && <span className="puck-unit"> {unit}</span>}</span>
-                <div ref={trackRef} className="puck-track" aria-hidden="true" onPointerMove={onTrackMove} onPointerLeave={endHover}><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/></div>
+                <div ref={trackRef} className="puck-track" aria-hidden="true" onPointerMove={onTrackMove} onPointerLeave={event => { endHover(); if (event.pointerType === 'mouse' && event.relatedTarget instanceof Node && bodyRef.current?.contains(event.relatedTarget)) startRest(); }}><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/></div>
             </div>}
         {ruler && createPortal(<DragRuler parameter={parameter} state={ruler} fmt={fmt}/>, document.body)}
     </PuckFrame>;

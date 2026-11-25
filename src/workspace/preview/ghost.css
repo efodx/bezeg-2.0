@@ -1,2 +1,4 @@
 .ghost-overlay { position: absolute; left: 0; top: 0; pointer-events: none; overflow: hidden; }
 .ghost-overlay path { fill: none; stroke: var(--workspace-ink); stroke-width: 1.5px; stroke-dasharray: 6 4; stroke-linejoin: round; }
+.ghost-overlay path.is-fan { stroke-width: 1.25px; opacity: 0.4; }
+.ghost-overlay path.is-fan.is-near { opacity: 0.7; }
