@@ -24,8 +24,10 @@ export interface CardShellProps {
   onPickup?: (pointer: BoardPoint | null) => void;
   onDrop: (pointer: BoardPoint) => void;
   onDragCancel: () => void;
-  /** Controls in the head between the title and the fold/reset buttons (tab order: grip, actions, fold, reset). They never start a drag. */
+  /** Controls in the head between the title and the reset/fold buttons (tab order: grip, actions, reset, fold). They never start a drag. */
   headActions?: ReactNode;
+  /** The card has a stored place or fold to return from: only then the head shows the reset button. */
+  resettable?: boolean;
   /** Landmark role of the card root (default `region`); the name is `label` or the title. */
   role?: 'region' | 'complementary';
   label?: string;
@@ -72,7 +74,7 @@ export function visibleSize(full: {w: number; h: number}, clip: string): {w: num
 
 interface Drag { start: BoardPoint; at: BoardPoint; active: boolean; keyboard: boolean }
 
-export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onPickup, onDrop, onDragCancel, headActions, role = 'region', label, measure = false, keepMounted = false, children}: CardShellProps) {
+export function CardShell({id, title, rect, folded, cut = null, onFold, onReset, onDragMove, onPickup, onDrop, onDragCancel, headActions, resettable = false, role = 'region', label, measure = false, keepMounted = false, children}: CardShellProps) {
   const t = useT();
   const root = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -230,7 +232,7 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
                 onKeyDown={onGripKeyDown} onBlur={onGripBlur}><GripIcon/></button>
         <h3 className="board-card-title">{name}</h3>
         {headActions && <span className="board-card-actions" data-card-action>{headActions}</span>}
-        <button type="button" className="board-card-button board-card-reset" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>
+        {resettable && <button type="button" className="board-card-button board-card-reset" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>}
         <button type="button" className="board-card-button board-card-fold" aria-expanded={!folded} aria-label={name}
                 onClick={() => onFold(!folded)}><Chevron/></button>
       </div>

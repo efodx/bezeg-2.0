@@ -49,11 +49,11 @@ const ICONS: Record<ToolsSection, string> = {
 };
 
 /** Uredi, Prikaz and Shrani as icon buttons in the card head. Choosing one also unfolds the card (`onChoose`). */
-export function ToolsHeadActions({section, onChoose}: {section: ToolsSection; onChoose: (section: ToolsSection) => void}) {
+export function ToolsHeadActions({section, onChoose, sections = SECTIONS}: {section: ToolsSection; onChoose: (section: ToolsSection) => void; sections?: readonly ToolsSection[]}) {
     const t = useT();
     const hints: Record<ToolsSection, string> = {edit: t('tool_group_edit_hint'), display: t('tool_group_display_hint'), save: t('tool_group_save_hint')};
     return <>
-        {SECTIONS.map(id => <button key={id} type="button" className="board-card-button tools-head-button" aria-label={t(id)}
+        {SECTIONS.filter(id => sections.includes(id)).map(id => <button key={id} type="button" className="board-card-button tools-head-button" aria-label={t(id)}
             aria-pressed={section === id} aria-controls={`inspector-${id}`} title={hints[id]} onClick={() => onChoose(id)}>
             <svg aria-hidden="true" focusable="false" viewBox="0 0 16 16"><path d={ICONS[id]}/></svg>
         </button>)}

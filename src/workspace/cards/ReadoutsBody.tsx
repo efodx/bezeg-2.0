@@ -146,7 +146,7 @@ export function ReadoutsBody(props: ReadoutsBodyProps) {
         const sections = [...el.querySelectorAll<HTMLElement>(':scope > .ws-group')];
         const keep = new Set<number>();
         props.groups.forEach((group, index) => {
-            if (!group.title || opened.has(group.id) || group.rows.some(row => props.highlight?.includes(row.id))) keep.add(index);
+            if (!group.title || props.groups.length === 1 || opened.has(group.id) || group.rows.some(row => props.highlight?.includes(row.id))) keep.add(index);
         });
         const fixed = [...el.querySelectorAll<HTMLElement>(':scope > :not(.ws-group)')].reduce((sum, child) => sum + child.offsetHeight, 0);
         const foldedHeight = sections.find(section => section.querySelector('.ws-group-title'))?.querySelector<HTMLElement>('.ws-group-title')?.offsetHeight ?? 0;
@@ -165,9 +165,9 @@ export function ReadoutsBody(props: ReadoutsBodyProps) {
             <Tex tex={props.formula.tex} className="ws-formula-tex"/>
         </div>}
         {props.groups.map(group => {
-            const isFolded = folded.includes(group.id) && !opened.has(group.id);
+            const isFolded = props.groups.length > 1 && folded.includes(group.id) && !opened.has(group.id);
             return <section className="ws-group" key={group.id} data-group={group.id} data-folded={isFolded || undefined}>
-                {group.title && <button type="button" className="ws-group-title" data-card-row="" aria-expanded={!isFolded}
+                {group.title && props.groups.length > 1 && <button type="button" className="ws-group-title" data-card-row="" aria-expanded={!isFolded}
                     aria-label={isFolded ? t('workspace_group_open', {title: renderMessage(group.title)}) : undefined}
                     onClick={() => setOpened(prev => { const next = new Set(prev); if (isFolded) next.add(group.id); else next.delete(group.id); return next; })}>
                     {renderMessage(group.title)}

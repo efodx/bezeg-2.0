@@ -17,6 +17,7 @@ import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards'
 import {moreBarHeight} from '../layout/measureCards';
 import {holdHeight, type HeldHeight} from '../layout/holdHeight';
 import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
+import {useToolsSectionsWithContent} from '../cards/toolsContent';
 import {LessonCardBody} from '../cards/LessonCardBody';
 import {PuckOwnershipContext} from '../../graphs/base/controls/PuckOwnership';
 import {PuckStrip, estimateStrip, puckItems, puckOwnedKeys, puckShapeOf, wrappedStripHeight} from '../pucks/PuckStrip';
@@ -187,6 +188,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   const toolsSectionToShow = usedToolsSection.section;
   const setToolsSection = host.tools.setSection;
   useEffect(() => { if (toolsSectionToShow) setToolsSection(toolsSectionToShow); }, [frame, toolsSectionToShow, setToolsSection]);
+  const toolsSections = useToolsSectionsWithContent(declared, host.tools.section, setToolsSection);
   // The pucks (task 05): the declared board range and count parameters the graph binds, in declared order. The strip is laid out at its
   // natural size (measured from its pucks, whose widths are constant), estimated until the first reading.
   const puckList = puckItems(declaration, graph.parameters?.keys());
@@ -419,7 +421,8 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
         const isTools = spec.id === TOOLS_ID;
         const isLesson = spec.id === LESSON_ID;
         return <CardShell key={spec.id} id={spec.id} title={spec.title} keepMounted={isTools || isLesson} role={isTools ? 'complementary' : 'region'} label={isTools ? t('demonstration_tools') : undefined} rect={own?.rect} folded={own?.folded ?? false} cut={own?.cut}
-          headActions={isTools ? <ToolsHeadActions section={host.tools.section} onChoose={chooseToolsSection}/> : undefined}
+          resettable={stored.placements[spec.id] !== undefined || stored.folds[spec.id] !== undefined}
+          headActions={isTools ? <ToolsHeadActions section={host.tools.section} onChoose={chooseToolsSection} sections={toolsSections}/> : undefined}
           onFold={folded => setToolsOrCardFold(spec.id, folded)}
           onReset={() => commit(resetCard(stored, spec.id))}
           onPickup={point => { pickupRef.current = point ? {id: spec.id, point} : null; }}

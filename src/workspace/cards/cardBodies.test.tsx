@@ -105,6 +105,26 @@ describe('ReadoutsBody', () => {
             Object.defineProperty(HTMLElement.prototype, 'offsetHeight', original);
         }
     });
+
+    test('a single titled group shows no fold title and never folds; two groups show both titles', () => {
+        const row = (id: string) => ({id, value: {kind: 'formatted' as const, text: '1'}});
+        const one: ReadoutGroup = {id: 'one', title: message('workspace_notes_less'), rows: [row('r1')]};
+        const two: ReadoutGroup = {id: 'two', title: message('workspace_notes_less'), rows: [row('r2')]};
+        const heights: Record<string, number> = {'ws-group': 50, 'ws-group-title': 10};
+        const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight')!;
+        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {configurable: true, get() { return heights[(this as HTMLElement).className.split(' ')[0]] ?? 0; }});
+        try {
+            const single = render(<ReadoutsBody groups={[one]} available={5}/>);
+            expect(single.container.querySelector('.ws-group-title')).toBeNull();
+            expect(single.container.querySelector('[data-folded]')).toBeNull();
+            expect(single.container.querySelector('[data-card-readout="r1"]')).not.toBeNull();
+            single.unmount();
+            const both = render(<ReadoutsBody groups={[one, two]} available={500}/>);
+            expect(both.container.querySelectorAll('.ws-group-title')).toHaveLength(2);
+        } finally {
+            Object.defineProperty(HTMLElement.prototype, 'offsetHeight', original);
+        }
+    });
 });
 
 describe('LegendBody', () => {

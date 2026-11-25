@@ -51,11 +51,6 @@
 .board-card .board-card-grip { width: 22px; cursor: grab; touch-action: none; color: color-mix(in srgb, var(--board-ink-quiet) 70%, transparent); }
 .board-card .board-card-fold svg { transition: transform .15s ease; }
 .board-card .board-card-fold[aria-expanded="false"] svg { transform: rotate(-90deg); }
-/* "Return to its place" matters only once in a while: with a mouse it waits until the card is pointed at or holds the focus. */
-@media (hover: hover) and (pointer: fine) {
-    .board-card .board-card-reset { opacity: 0; }
-    .board-card:hover .board-card-reset, .board-card:focus-within .board-card-reset, .board-card--dragging .board-card-reset { opacity: 1; }
-}
 /* Content wider than the width the layout gave the card scrolls sideways inside it instead of spilling over the board. */
 .board-card-body {
     flex: 1 1 auto; min-height: 0; padding: 2px 9px 10px; overflow-x: auto; overflow-y: hidden;

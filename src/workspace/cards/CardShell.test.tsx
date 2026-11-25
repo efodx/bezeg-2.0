@@ -14,7 +14,7 @@ const handlers = {onFold: vi.fn(), onReset: vi.fn(), onDragMove: vi.fn(), onDrop
 function render() {
   act(() => {
     root.render(createElement(CardShell, {
-      id: 'readouts', title: message('shell_card_readouts'), rect: {x: 20, y: 30, w: 200, h: 120}, folded: false, ...handlers,
+      id: 'readouts', title: message('shell_card_readouts'), rect: {x: 20, y: 30, w: 200, h: 120}, folded: false, resettable: true, ...handlers,
     }, createElement('p', {'data-testid': 'body'}, 'telo')));
   });
 }
@@ -82,16 +82,27 @@ describe('CardShell', () => {
     }
   });
 
-  it('renders head actions between title and fold/reset, in tab order, without starting a drag', () => {
+  it('shows the reset button only when the card has a stored place or fold', () => {
+    const show = (resettable?: boolean) => act(() => {
+      root.render(createElement(CardShell, {id: 'readouts', title: message('shell_card_readouts'), rect: {x: 0, y: 0, w: 200, h: 120}, folded: false, resettable, ...handlers}, 'x'));
+    });
+    show();
+    expect(host.querySelector('.board-card-reset')).toBeNull();
+    show(true);
+    expect(host.querySelector('.board-card-reset')).not.toBeNull();
+  });
+
+  it('renders head actions between title and reset/fold, in tab order, without starting a drag', () => {
     act(() => {
       root.render(createElement(CardShell, {
-        id: 'lesson', title: message('shell_card_readouts'), rect: {x: 20, y: 30, w: 200, h: 120}, folded: false, ...handlers,
+        id: 'lesson', title: message('shell_card_readouts'), rect: {x: 20, y: 30, w: 200, h: 120}, folded: false, resettable: true, ...handlers,
         headActions: createElement('span', {role: 'button', tabIndex: 0, 'data-testid': 'act'}, 'A'),
       }));
     });
     const labels = [...host.querySelectorAll<HTMLElement>('.board-card-head button, [data-testid="act"]')].map((b) =>
       b.classList.contains('board-card-grip') ? 'grip' : b.dataset.testid === 'act' ? 'act' : b.classList.contains('board-card-fold') ? 'fold' : 'reset');
-    expect(labels).toEqual(['grip', 'act', 'fold', 'reset']);
+    // The reset button comes before the fold chevron, so the chevron is the last control of every card.
+    expect(labels).toEqual(['grip', 'act', 'reset', 'fold']);
     const title = q<HTMLElement>('.board-card-title');
     expect(title.nextElementSibling?.querySelector('[data-testid="act"]')).not.toBeNull();
     const act1 = q<HTMLElement>('[data-testid="act"]');
