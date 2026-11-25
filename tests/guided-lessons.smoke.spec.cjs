@@ -918,10 +918,14 @@ const bisection = {
         expect((await boardStats(page)).total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(60);
     },
     prepareUserState: async page => {
+        // The playback buttons live in Orodja, which the board workspace folds by default.
+        await h.openToolsCard(page);
         await page.locator('[data-action="next-step"]').click();
         await expect.poll(() => bisectionReadout(page, 'step')).toBe('1');
-        await page.getByRole('spinbutton', {name: /Right endpoint b|Desno kraji/}).fill('3');
-        await page.getByRole('spinbutton', {name: /Right endpoint b|Desno kraji/}).press('Enter');
+        // b is a range puck on the board (a slider; typing a digit opens its typed entry, Enter commits), not a field in Orodja.
+        await page.getByRole('slider', {name: /Right endpoint b|Desno kraji/}).focus();
+        await page.keyboard.type('3');
+        await page.keyboard.press('Enter');
         await expect.poll(() => bisectionReadout(page, 'step'), {message: 'an endpoint edit restarts the iteration'}).toBe('0');
         await page.locator('[data-action="next-step"]').click();
         await expect.poll(() => bisectionReadout(page, 'mid')).toBe('2');
