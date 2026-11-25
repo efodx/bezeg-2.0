@@ -1,6 +1,9 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
-import {currentLanguage, Language, Message, onLanguageChange, renderMessage, t} from "../../localization";
+import {currentLanguage, Language, Message, MessageNumber, message, onLanguageChange, renderMessage, t} from "../../localization";
+import type {FormattedValue, GraphDeclaration, ReadoutNote, ReadoutRow as DeclaredReadoutRow, StatusLine, ViewMarks} from "../base/declare/graphDeclaration";
+import {FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {cleanNoise, cleanNumber, gridUnits} from "../../analysis/numbers";
 import {Preset} from "../base/presets/Presets";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -138,6 +141,26 @@ const CAPTION_STYLE = `${BOARD_TEXT_STYLE}background-color:rgba(255,253,245,0.88
 const CAPTION_MIN_FONT = 11;
 const CAPTION_FULL_WIDTH = 700;
 
+/** Samples of the plotted function in the default view marks. */
+const PLOTTED_MARK_SAMPLES = 64;
+
+/** What a function graph declares of its common panel (see `BaseFunctionGraph.functionPanel`). */
+export interface FunctionPanel {
+    readonly rows: readonly DeclaredReadoutRow[];
+    readonly notes?: readonly ReadoutNote[];
+    readonly help?: Message;
+    readonly status?: readonly StatusLine[];
+    /** The main plotted function, so that the view director has marks to keep visible. */
+    readonly plotted?: (x: number) => number;
+}
+
+/** The text of a declared row value, as the inspector shows it. */
+const declaredValueText = (value: MessageNumber | Message | FormattedValue): string => {
+    if ("kind" in value && value.kind === "formatted") return value.text;
+    if ("kind" in value && value.kind === "number") return formatNumber(value.value, currentLanguage(), value.maxDecimals);
+    return renderMessage(value as Message);
+};
+
 export default abstract class BaseFunctionGraph<M extends object> extends BaseGraph<FunctionGraphState<M>, M> {
     private generatedObjects: any[] = [];
     private readonly modelCaches: (() => void)[] = [];
@@ -238,6 +261,76 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     }
 
     protected abstract renderReadout(): React.ReactNode;
+
+    // ---- Declaration shared by the function graphs (task 08 step 2) --------------------------------------------------
+
+    /**
+     * What a function graph declares of its common panel: the readout rows, notes, status and the plotted function, as data.
+     * `undefined` (the default) declares nothing, so a graph that has not opted in stays undeclared and keeps its panel.
+     * A graph that returns one gets `declaration()` from this class and renders its readout and status from the same data
+     * (`renderDeclaredReadout`, `renderDeclaredStatus`), so panel and declaration cannot differ. A pure function of `this.state`.
+     */
+    protected functionPanel(): FunctionPanel | undefined {
+        return undefined;
+    }
+
+    /**
+     * The declared parts the base owns: the `values` readout group, notes, help, status and the default view marks (the plotted
+     * function over the view). A subclass with its own `declaration()` may spread this into it; with no panel it is empty.
+     */
+    protected commonDeclaration(): Pick<GraphDeclaration, "readouts" | "notes" | "readoutHelp" | "status" | "marks"> {
+        const panel = this.functionPanel();
+        if (!panel) return {};
+        return {
+            readouts: [{id: "values", title: message("function_readouts"), rows: panel.rows}],
+            ...(panel.notes ? {notes: panel.notes} : {}),
+            ...(panel.help ? {readoutHelp: panel.help} : {}),
+            ...(panel.status ? {status: panel.status} : {}),
+            ...(panel.plotted ? {marks: this.plottedMarks(this.model)} : {}),
+        };
+    }
+
+    /**
+     * The common declaration, for a graph that returns a {@link functionPanel}; `undefined` otherwise. A subclass that
+     * overrides this keeps its own declaration and may spread `commonDeclaration()` into it.
+     */
+    protected override declaration(): GraphDeclaration | undefined {
+        return this.functionPanel() ? this.commonDeclaration() : undefined;
+    }
+
+    /** The plotted function sampled over the view the graph starts from; memoized on the model (the director compares marks by identity). */
+    private readonly plottedMarks = this.modelCache((): ViewMarks => {
+        const plotted = this.functionPanel()?.plotted;
+        if (!plotted) return {must: []};
+        const [left, top, right, bottom] = this.exampleView()?.box ?? this.defaultBoundingBox();
+        const height = top - bottom;
+        const points: [number, number][] = [];
+        for (let i = 0; i < PLOTTED_MARK_SAMPLES; i++) {
+            const x = left + (right - left) * i / (PLOTTED_MARK_SAMPLES - 1);
+            const y = plotted(x);
+            if (Number.isFinite(y) && y >= bottom - height && y <= top + height) points.push([x, y]);
+        }
+        return {must: [], nice: [{kind: "polyline", points}]};
+    });
+
+    /** The inspector readout drawn from the declared rows, notes and help (hidden while the board cards show them). */
+    protected renderDeclaredReadout(): React.ReactNode {
+        const panel = this.functionPanel();
+        if (!panel) return null;
+        const rows = panel.rows.map(row => ({
+            id: String(row.id),
+            label: row.name ? renderMessage(row.name) : row.symbol ?? String(row.id),
+            value: declaredValueText(row.value) + (row.unit ? ` ${renderMessage(row.unit)}` : ""),
+        }));
+        const notes = [...(panel.notes ?? []).map(note => renderMessage(note.text)), ...(panel.help ? [renderMessage(panel.help)] : [])];
+        return <FunctionReadout title={t("function_readouts")} rows={rows} note={notes.length > 0 ? notes : undefined} declaredPanel/>;
+    }
+
+    /** The status group drawn from the declared status lines; nothing when there are none. */
+    protected renderDeclaredStatus(muted = false): React.ReactNode {
+        const lines = this.functionPanel()?.status ?? [];
+        return lines.length === 0 ? null : <FunctionStatus lines={lines.map(line => ({id: line.id, text: renderMessage(line.text)}))} muted={muted}/>;
+    }
 
     /** An optional key of colours and curves, shown between the readout and the controls. */
     protected renderLegend(): React.ReactNode {

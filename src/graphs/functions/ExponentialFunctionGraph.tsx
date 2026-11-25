@@ -1,9 +1,8 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {
     classifyBase, EXPONENTIAL_BASE_MAX, EXPONENTIAL_BASE_MIN, EXPONENTIAL_BASE_STEP, exponentialValue, mirrorBase,
@@ -13,6 +12,15 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {numberRangeRejected} from "./functionSetterMessages";
 import {cleanNumber} from "../../analysis/numbers";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+
+/** The ids of the exponential declaration: the base `a` is the one bound parameter; the mirror switch stays in the display settings. */
+export type ExponentialIds = {
+    param: "a";
+    row: "a" | "f0" | "f1" | "behavior" | "mirror-base"; note: never; legend: never; section: never; action: never;
+};
 
 /**
  * Exponential function `f(x) = a^x` with a base slider, the marked points (0, 1) and (1, a), and an optional mirror graph
@@ -92,9 +100,9 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         const {a} = this.model;
         return <>
             <div className="inspector-group">
-                <Slider customText={t("exponential_base_label")} min={EXPONENTIAL_BASE_MIN} max={EXPONENTIAL_BASE_MAX}
+                <PuckOwned param="a"><Slider customText={t("exponential_base_label")} min={EXPONENTIAL_BASE_MIN} max={EXPONENTIAL_BASE_MAX}
                         step={EXPONENTIAL_BASE_STEP} value={a} help={t("exponential_base_help")} formatValue={localizedSliderValue}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
+                        onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/></PuckOwned>
             </div>
         </>;
     }
@@ -106,19 +114,40 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         </div>;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /** Parameter writes (ADR 0064): the lesson name `a` is the key; the view is bound by the base. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {a: {read: () => this.model.a, apply: (value: number) => this.setBase(value)}};
+    }
+
+    /** The base's common declaration (readout rows, view marks) plus the base `a` as a board puck. */
+    protected override declaration(): GraphDeclaration {
+        return {
+            ...this.commonDeclaration(),
+            parameters: [{
+                key: "a", kind: "range", label: message("exponential_base_label"), symbol: "a", help: message("exponential_base_help"),
+                placement: "board", min: EXPONENTIAL_BASE_MIN, max: EXPONENTIAL_BASE_MAX, step: EXPONENTIAL_BASE_STEP, maxDecimals: 2,
+            }],
+        };
+    }
+
+    /** Declared by the base (task 08): the readout rows and the plotted curve; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
         const {a, mirror} = this.model;
-        const language = currentLanguage();
-        const number = (value: number, decimals?: number) => formatNumber(value, language, decimals);
-        const behavior = {growth: t("exponential_growth"), decay: t("exponential_decay"), constant: t("exponential_constant")}[classifyBase(a)];
-        const rows = [
-            {id: "a", label: "a", value: number(a)},
-            {id: "f0", label: "f(0)", value: number(exponentialValue(a, 0))},
-            {id: "f1", label: "f(1)", value: number(exponentialValue(a, 1))},
-            {id: "behavior", label: t("exponential_behavior"), value: behavior},
-            ...(mirror ? [{id: "mirror-base", label: t("exponential_mirror_base"), value: number(mirrorBase(a), 3)}] : []),
-        ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows}/>;
+        const behavior = {growth: message("exponential_growth"), decay: message("exponential_decay"), constant: message("exponential_constant")}[classifyBase(a)];
+        return {
+            rows: [
+                {id: "a", symbol: "a", value: messageNumber(a)},
+                {id: "f0", symbol: "f(0)", value: messageNumber(exponentialValue(a, 0))},
+                {id: "f1", symbol: "f(1)", value: messageNumber(exponentialValue(a, 1))},
+                {id: "behavior", name: message("exponential_behavior"), value: behavior},
+                ...(mirror ? [{id: "mirror-base", name: message("exponential_mirror_base"), value: messageNumber(mirrorBase(a), 3)}] : []),
+            ],
+            plotted: x => exponentialValue(a, x),
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
+        return this.renderDeclaredReadout();
     }
 }
 

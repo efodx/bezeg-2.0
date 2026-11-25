@@ -1,0 +1,242 @@
+{
+  "graph": "exponential-function",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "2"
+        },
+        {
+          "key": "f(0)#0",
+          "label": "f(0)",
+          "value": "1"
+        },
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "2"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "narašča (a > 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "2"
+      ],
+      "captions": [
+        "f(x) = 2^x"
+      ]
+    },
+    {
+      "name": "base 3",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "3"
+        },
+        {
+          "key": "f(0)#0",
+          "label": "f(0)",
+          "value": "1"
+        },
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "3"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "narašča (a > 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "3"
+      ],
+      "captions": [
+        "f(x) = 3^x"
+      ]
+    },
+    {
+      "name": "base 0.5",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0,5"
+        },
+        {
+          "key": "f(0)#0",
+          "label": "f(0)",
+          "value": "1"
+        },
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "0,5"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "pada (0 < a < 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "0,5"
+      ],
+      "captions": [
+        "f(x) = 0,5^x"
+      ]
+    },
+    {
+      "name": "base 1 (constant)",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "1"
+        },
+        {
+          "key": "f(0)#0",
+          "label": "f(0)",
+          "value": "1"
+        },
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "1"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konstantna (a = 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1"
+      ],
+      "captions": [
+        "f(x) = 1^x"
+      ]
+    },
+    {
+      "name": "base 2.5 with mirror",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "2,5"
+        },
+        {
+          "key": "f(0)#0",
+          "label": "f(0)",
+          "value": "1"
+        },
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "2,5"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "narašča (a > 1)"
+        },
+        {
+          "key": "Osnova zrcalnega grafa 1/a#0",
+          "label": "Osnova zrcalnega grafa 1/a",
+          "value": "0,4"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "2,5"
+      ],
+      "captions": [
+        "(1/a)^x = 0,4^x (zrcalni graf)",
+        "f(x) = 2,5^x"
+      ]
+    },
+    {
+      "name": "base 0.25 with mirror",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0,25"
+        },
+        {
+          "key": "f(0)#0",
+          "label": "f(0)",
+          "value": "1"
+        },
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "0,25"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "pada (0 < a < 1)"
+        },
+        {
+          "key": "Osnova zrcalnega grafa 1/a#0",
+          "label": "Osnova zrcalnega grafa 1/a",
+          "value": "4"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "0,25"
+      ],
+      "captions": [
+        "(1/a)^x = 4^x (zrcalni graf)",
+        "f(x) = 0,25^x"
+      ]
+    },
+    {
+      "name": "mirror hidden",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0,25"
+        },
+        {
+          "key": "f(0)#0",
+          "label": "f(0)",
+          "value": "1"
+        },
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "0,25"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "pada (0 < a < 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "0,25"
+      ],
+      "captions": [
+        "f(x) = 0,25^x"
+      ]
+    }
+  ]
+}

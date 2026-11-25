@@ -80,3 +80,9 @@ Done and observed: tsc clean; `just unit` functions+analysis+base+src/learning/c
 discovery); parity check-mode passes for exponential; graph-check exponential-function (with --base) pass: contract, parity,
 declaration, fuzz. Not seen finished: graph-check --base for taylor/bisection/linear-map (logs `.command-logs/gc2-*.log`),
 and `just lint` on the final file set (earlier lint on the first set passed). Browser screenshot after puck change not retaken.
+
+## Close-out (round 2)
+- Fingerprint now omits the first frame's `declare` (premise checked: frame `declare` flows GuidedLesson.tsx:595 -> card layer; highlights are `data-highlight` on ReadoutsBody rows/notes, cards.css:7; no JSXGraph style). Changed: guidedExamplePreviews.test.ts ~90, scripts/generate-guided-example-inventory.cjs sceneForStep. Generator output equals committed capture-inventory.json (restored via checkout). No other script computes it.
+- Capture script UI-string expectation to fix (handler): scripts/capture-guided-example-previews.cjs:710.
+- Exponential declaration test: arbiter write/read-back + refused -5; red check (apply ignores value) failed it, log 08d-exp-red.log; restored.
+- linear-map probe valueWidthDrift: same failure on published master (08d-gcb-linear-map-master.log): pre-existing.

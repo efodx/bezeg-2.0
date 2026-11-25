@@ -87,8 +87,10 @@ it('publishes every exact prepared scene with checked PNG bytes and bilingual re
         expect(example?.owner).toMatchObject({chapterId, sectionId});
         if (!example) throw new Error(`${id}: missing prepared example`);
         const step = example.lesson.steps[0];
+        // A frame's `declare` acts on workspace cards, which preview captures hide, so the fingerprint leaves it out.
+        const {declare: _declare, ...firstFrame} = step.frames?.[0] ?? {};
         const fingerprint = createHash('sha256').update(JSON.stringify({demonstrationId, stepId: step.id,
-            actions: step.scene?.actions, firstFrame: step.frames?.[0] ?? null})).digest('hex');
+            actions: step.scene?.actions, firstFrame: step.frames?.[0] ? firstFrame : null})).digest('hex');
         expect(entry).toMatchObject({id, demonstrationId, path, sceneFingerprint: fingerprint});
         expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
         expect(capture).toMatchObject({id, demonstrationId, path, sceneFingerprint: fingerprint,

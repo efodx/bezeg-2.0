@@ -29,7 +29,11 @@ function sceneForStep(demonstrationId, step) {
     assert.ok(step, `${demonstrationId}: missing initial lesson step`);
     assert.ok(step.scene && Array.isArray(step.scene.actions) && step.scene.actions.length > 0,
         `${demonstrationId}: initial lesson step needs prepared scene actions`);
-    return {demonstrationId, stepId: step.id, actions: step.scene.actions, firstFrame: step.frames?.[0] ?? null};
+    // A frame's `declare` acts on workspace cards, which preview captures hide, so the fingerprint leaves it out.
+    const first = step.frames?.[0];
+    let firstFrame = null;
+    if (first) { const {declare: _declare, ...rest} = first; firstFrame = rest; }
+    return {demonstrationId, stepId: step.id, actions: step.scene.actions, firstFrame};
 }
 
 function fingerprintFor(demonstrationId, step) {

@@ -201,6 +201,9 @@ export function checkParity(recording: ParityRecording, declarations: readonly (
             // A control's own read-off ("t = 0,50" beside a slider) is the declared parameter's value, which the presenter shows
             // from the binding; the declaration carries no value to compare, so the symbol must match.
             else if (rendered.parameterSymbols.some(symbol => output.startsWith(`${symbol} =`))) continue;
+            // A bare read-off of a declared parameter (a slider's "2"): covered only by a declared row of that parameter's own
+            // symbol showing the same value, so an unrelated row with a coincident value never covers it.
+            else if (rendered.rows.some(row => rendered.parameterSymbols.includes(row.symbol) && row.value === output)) continue;
             else add({kind: 'missing', where: 'output', recorded: output});
         }
         for (const caption of state.captions) {

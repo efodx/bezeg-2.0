@@ -4,9 +4,12 @@
  */
 import type {FunctionParameterName, LessonAction, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ExponentialIds} from '../../graphs/functions/ExponentialFunctionGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const exponentialFrame = frameDeclarer<ExponentialIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 
 const linearFunction: GuidedLesson = {
@@ -347,7 +350,7 @@ const exponentialFunction: GuidedLesson = {
                 'The exponential function \\(f(x)=a^x\\) has a positive base \\(a\\). Since \\(a^0=1\\), the graph always passes through \\((0,1)\\); since \\(a^1=a\\), the second marked point is \\((1,a)\\). Move the base slider and watch what changes and what does not.',
             ),
             formulaIds: ['exponential-form'],
-            frames: [frame('exponential-fixed-points-explanation', 'explanation'), frame('exponential-fixed-points-observation', 'observation')],
+            frames: [frame('exponential-fixed-points-explanation', 'explanation', exponentialFrame({highlight: ['a', 'f1'], uses: ['a']})), frame('exponential-fixed-points-observation', 'observation', exponentialFrame({highlight: ['a', 'f1'], uses: ['a']}))],
             observationPrompt: text(
                 'Premakni drsnik osnove \\(a\\) in primerjaj višino točke \\((1,a)\\) z odčitkom \\(f(1)\\).',
                 'Move the base slider \\(a\\) and compare the height of the point \\((1,a)\\) with the readout of \\(f(1)\\).',
@@ -374,7 +377,7 @@ const exponentialFunction: GuidedLesson = {
                 'Because \\(a^{x+1}=a\\cdot a^x\\), the value of the function is multiplied by \\(a\\) at every step of \\(1\\) to the right. For the base \\(a=2\\) we start with \\(f(0)=1\\) and double the value each time.',
             ),
             formulaIds: ['exponential-step'], workedExampleId: 'exponential-doubling',
-            frames: [frame('exponential-multiplication-step-explanation', 'explanation'), frame('exponential-multiplication-step-calculation', 'calculation'), frame('exponential-multiplication-step-observation', 'observation')],
+            frames: [frame('exponential-multiplication-step-explanation', 'explanation', exponentialFrame({highlight: ['f0', 'f1']})), frame('exponential-multiplication-step-calculation', 'calculation', exponentialFrame({highlight: ['f0', 'f1']})), frame('exponential-multiplication-step-observation', 'observation', exponentialFrame({highlight: ['f0', 'f1']}))],
             observationPrompt: text(
                 'Pri \\(x=0,1,2,3\\) odčitaj višino grafa in preveri, da je vsaka vrednost dvakratnik prejšnje.',
                 'Read the height of the graph at \\(x=0,1,2,3\\) and check that every value is twice the previous one.',
@@ -401,7 +404,7 @@ const exponentialFunction: GuidedLesson = {
                 'For \\(a>1\\) the value grows with every step, so the function increases. For \\(0<a<1\\) it is multiplied by a number smaller than \\(1\\) at every step, so it decreases: for \\(a=0.5\\) the values are \\(1\\), \\(0.5\\), \\(0.25\\), \\(0.125\\). For \\(a=1\\) we have \\(1^x=1\\) for every \\(x\\), and the graph is a horizontal line.',
             ),
             formulaIds: ['exponential-step'],
-            frames: [frame('exponential-growth-decay-explanation', 'explanation'), frame('exponential-growth-decay-observation', 'observation')],
+            frames: [frame('exponential-growth-decay-explanation', 'explanation', exponentialFrame({highlight: ['a', 'behavior'], uses: ['a']})), frame('exponential-growth-decay-observation', 'observation', exponentialFrame({highlight: ['a', 'behavior'], uses: ['a']}))],
             observationPrompt: text(
                 'Nastavi drsnik na \\(a=1\\) in preberi obnašanje v inspektorju, nato ga premakni na obe strani.',
                 'Set the slider to \\(a=1\\) and read the behavior in the inspector, then move it to both sides.',
@@ -428,7 +431,7 @@ const exponentialFunction: GuidedLesson = {
                 'Since \\((1/a)^x=a^{-x}\\), the mirror function at \\(x\\) has the same value as the original at \\(-x\\). For \\(a=2\\) the mirror base is \\(1/2\\): the point \\((1,2)\\) on the original graph corresponds to the point \\((-1,2)\\) on the mirror graph, because \\((1/2)^{-1}=2\\).',
             ),
             formulaIds: ['exponential-mirror'],
-            frames: [frame('exponential-mirror-step-explanation', 'explanation'), frame('exponential-mirror-step-observation', 'observation')],
+            frames: [frame('exponential-mirror-step-explanation', 'explanation', exponentialFrame({highlight: ['a', 'mirror-base']})), frame('exponential-mirror-step-observation', 'observation', exponentialFrame({highlight: ['a', 'mirror-base']}))],
             observationPrompt: text(
                 'Spreminjaj osnovo \\(a\\) in opazuj, kako se oba grafa odzivata glede na os \\(y\\).',
                 'Change the base \\(a\\) and observe how the two graphs respond relative to the \\(y\\)-axis.',
@@ -455,7 +458,7 @@ const exponentialFunction: GuidedLesson = {
                 'For \\(a>0\\) every power \\(a^x\\) is positive, so the graph never meets the \\(x\\)-axis. For \\(a=2\\) and more and more negative \\(x\\) the values decrease: \\(2^{-10}=1/1024\\approx0.001\\), yet they stay greater than \\(0\\). Bases \\(a\\le0\\) are not allowed: \\(0^x\\) is not defined for \\(x\\le0\\), and for a negative base, for example, \\((-2)^{1/2}\\) is not a real number, so the slider starts at \\(0.1\\).',
             ),
             formulaIds: ['exponential-positive'],
-            frames: [frame('exponential-above-axis-explanation', 'explanation'), frame('exponential-above-axis-observation', 'observation')],
+            frames: [frame('exponential-above-axis-explanation', 'explanation', exponentialFrame({highlight: ['a'], uses: ['a']})), frame('exponential-above-axis-observation', 'observation', exponentialFrame({highlight: ['a'], uses: ['a']}))],
             observationPrompt: text(
                 'Poglej levi del grafa pri \\(a=2\\) in nato pri najmanjši osnovi \\(a=0{,}1\\), kjer graf z desne pada proti osi \\(x\\).',
                 'Look at the left part of the graph at \\(a=2\\) and then at the smallest base \\(a=0.1\\), where the graph falls toward the \\(x\\)-axis on the right.',

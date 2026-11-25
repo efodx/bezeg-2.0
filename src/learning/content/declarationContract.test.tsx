@@ -67,8 +67,8 @@ function contractProblems(graph: BaseGraph<BaseGraphState>, declaration: GraphDe
     return problems.map(problem => `${where}: ${problem}`);
 }
 
-const overridesDeclaration = (graph: BaseGraph<BaseGraphState>) =>
-    (graph as unknown as {declaration: unknown}).declaration !== (BaseGraph.prototype as unknown as {declaration: unknown}).declaration;
+/** A graph declares when its `declaration()` returns one (a function graph without a `functionPanel()` returns undefined). */
+const overridesDeclaration = (graph: BaseGraph<BaseGraphState>) => graph.getDeclaration() !== undefined;
 
 /** Every lesson on a demonstration: the catalog one plus all chapter-owned ones (linear-map has L1 to L7). */
 function lessonsFor(id: DemonstrationId): LessonDefinition[] {

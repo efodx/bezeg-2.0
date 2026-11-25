@@ -113,6 +113,19 @@ const SAMPLES: readonly Sample[] = [
         state('entry a11 = 3', {'linear-map-a11': 3}),
         state('entry a22 = -2', {'linear-map-a22': -2}),
     ]},
+    {file: 'functions/__parity__/exponential-function.json', demonstration: 'exponential-function', states: (() => {
+        const base = (value: number): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as {setBase(value: number): void}).setBase(value)); };
+        const mirror = (visible: boolean): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as {setMirrorVisible(visible: boolean): void}).setMirrorVisible(visible)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'base 3', apply: base(3)},
+            {name: 'base 0.5', apply: base(0.5)},
+            {name: 'base 1 (constant)', apply: base(1)},
+            {name: 'base 2.5 with mirror', apply: graph => { base(2.5)(graph); mirror(true)(graph); }},
+            {name: 'base 0.25 with mirror', apply: base(0.25)},
+            {name: 'mirror hidden', apply: mirror(false)},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/bisection.json', demonstration: 'bisection', states: (() => {
         const next = (count: number): ParityState['apply'] => graph => {
             for (let i = 0; i < count; i++) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction({kind: 'animation', animationId: 'bisection', command: 'next-step'});
