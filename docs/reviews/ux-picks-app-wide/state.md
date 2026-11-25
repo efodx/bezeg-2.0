@@ -21,7 +21,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 ## Task status
 
-- **01, 01b, 01c, 02 accepted and on master** (`901f055c`); master CI green. Details: `02-sizing.md`, ADR 0067, guide section 6.
+- **01-02** on master; details `02-sizing.md`, ADR 0067, guide section 6 (contract gaps; 08 triage decisions in the 08 task file).
 - **03 accepted `bea9724f`** (branch only). Design `03-layout-design.md`. Deferred (`smoke/03-acceptance.md`): cards cover data until 07; `readoutHelp` not rendered; fold button named by title; legend drops swatched entries.
 - **04 accepted 2026-11-24** (owner: docking feels nice; branch only). Strip rules 2a-2i in `03-layout-design.md`; lesson card `exactCut` keeps Next fixed. Walks: `smoke/04-accept-*`, `smoke/04-visual-*`.
 - **05 accepted 2026-11-24** (owner: toggle/choice pucks feel nice, styling later; branch only). Owner: no locked pucks; pucks for what a student flips or compares a lot, setup stays in Orodja, choices of at most 4 options (rule in `05-pucks.md`).
@@ -38,21 +38,11 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 - 02: text is a catalog `Message` or `FormattedValue`; per-family fragments (ADR 0066); unbound parameters are not declared; display switches are actions with `pressed`; points are rows and legend only.
 - 03/04: layout rules as in `03-layout-design.md` (anchor rule, `holdHeight`, `anchorMin`, `exactCut`, strip 2a-2i, drop target by card centre).
 
-## Contract gaps (decide at the 08 gate)
-
-Listed in `docs/guides/converting-a-graph.md` section 6; 07's fit core adds: `ViewMarks` has no reach tier, zoom limits or `equalAxisUnits`.
-
 ## Open items
 
-- Phase-portrait linearization at 1280x720: rule 2i folds the Orodja the frame opened for the seed count (one click away). Revisit with 07's view fit or the resizable cards.
 - The strip and cards can cover board-drawn texts (JSXGraph texts are not marks); settle in 07/08. No "Reset layout" button (`resetAll` unused). De Casteljau marks read board points. `phase-a` has no `help`, so its fan help card is empty (graph change). Sweep does not shrink the swing to keep marks in view.
 - Pre-existing (`smoke/07-morph-3a-baseline.md`): Taylor lesson Next 9->10 at 1440x900 stalls ~1.1 s; Taylor Back on step 6 returns 3.5 % off. Phase-portrait lesson at 1280x720: the strip now covers the right column's folded heads (Orodja, Legenda) instead of Back/Next. Bisection's next-step button sits in the folded Orodja card outside lessons. During a morph a preview capture runs the morph's `atTargets` writes (redraws per morph frame). Phone: bisection 390x844 view check failed once (task 09).
-- Taylor's preset reset does not restore the view after a pan (seen in 07 smoke); likely pre-existing, check against master before 08.
-- Deferred (owner 2026-11-24): resizable cards, height first (stored height reuses the cut), width later.
-- Keyboard card moves step a virtual pointer, not anchor to anchor; offer anchor hopping if the owner wants it.
 - Perf follow-ups: `ReadoutsBody.tsx:82` getBoundingClientRect per row layout effect; a store write re-renders GraphHost, BoardCards and every readout row. Taylor 4x input delay ~11 % above master like for like.
-- Free-play script: 15-16 actions per 60 s run fail (likely timeouts, uninvestigated). "Lesson decasteljau exit en" timed out once under load, passes alone.
-- `DecasteljauGraph2.tsx` start-after-commit pattern (check in 08); recheck inventory new strings before 08. ErrorPage text dark on dark; Povrni after animation-only changes appears on the next event.
 
 ## Next slice's brief inputs
 
@@ -63,3 +53,5 @@ Listed in `docs/guides/converting-a-graph.md` section 6; 07's fit core adds: `Vi
    - Not yet run: linear-map graph-check, lint on the final files, a 310 px / board screenshot of exponential, the red check of the new parameter assertions. Graph-check probes need `MSYS_NO_PATHCONV=1` under Git Bash.
    - Delete the untracked `src/graphs/**/__parity__/*.report.txt` files (parity tool output, not evidence).
    Then the remaining step-2 slices in triage order: curve workspace files (32), `PointSetGraph`/`PointSetControls` (22), the `IterationController` `useLease` passthrough (9 AnimationDriver owners), then step 3 golden values and step 4 partition (lesson files bridge almost everything: split by lesson file).
+
+- Also open (Git history has details): resizable cards deferred by the owner; keyboard card moves step a pointer, not anchors; free-play script timeouts.
