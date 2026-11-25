@@ -66,8 +66,8 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     const baseline = boardObjects(graph);
 
     // the degree through the puck's stepper buttons and through its typed entry
-    const increase = () => screen.getByRole('button', {name: 'Povečaj: Stopnja n'}) as HTMLButtonElement;
-    const decrease = () => screen.getByRole('button', {name: 'Zmanjšaj: Stopnja n'}) as HTMLButtonElement;
+    const increase = () => screen.getByRole('button', {name: 'Povečaj: Stopnja'}) as HTMLButtonElement;
+    const decrease = () => screen.getByRole('button', {name: 'Zmanjšaj: Stopnja'}) as HTMLButtonElement;
     act(() => { fireEvent.click(increase()); });
     act(() => { fireEvent.click(increase()); });
     expect(graph.modelNow()).toMatchObject({degree: 3});
@@ -140,7 +140,7 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     // the English labels follow a live language switch
     act(() => { setLanguage('en'); });
     expect(puckControl('show-error').getAttribute('aria-label')).toBe('Show error bound');
-    expect(puckControl('taylor-degree').getAttribute('aria-label')).toBe('Degree n');
+    expect(puckControl('taylor-degree').getAttribute('aria-label')).toBe('Degree');
     expect(readout('convergence')).toMatch(/x is outside/);
 });
 

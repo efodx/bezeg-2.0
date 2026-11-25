@@ -77,6 +77,9 @@ Notes: `docs/reviews/ux-picks-app-wide/briefs/notes/08-lane-<lane id>.md`.
 - The multi-graph `*FirstTask.test.tsx` files (Functions, Bspline, Patch, ...) assert a graph's first control leads Edit; a lane whose
   control becomes a puck updates its case there as in 688294ccf (puck on `[data-puck-strip]`, absent from Edit). Lanes may edit
   their own demonstration's case only.
+- Label/symbol rule: where a declaration sets `symbol`, the `label` / row `name` is the bare name ("Središče" + `c`, not
+  "Središče c"); presenters typeset the symbol next to it. Puck labels are at most 16 characters (longer: short name + the
+  symbol, siblings distinct). Orodja controls keep their old key and letter; add a bare key to the family fragment.
 - Find the route in the graph's `runtime.ts` (e.g. `/functions/inverse`, not `/functions/<id>`).
 - The golden and parity recorders only see text marked `data-readout`/`data-readout-note`. If the old panel shows sentences
   without those markers, the golden file holds none of them: before converting, add the markers to the unconverted graph

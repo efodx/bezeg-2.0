@@ -1303,16 +1303,16 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 options: [{value: "0", label: message("phase_graph_equilibrium_origin"), short: message("phase_graph_equilibrium_origin_short")},
                     {value: "1", label: message("phase_graph_equilibrium_pi"), short: message("phase_graph_equilibrium_pi_short")}]} as const]),
             ...(linear ? [
-                {key: "phase-a", label: message("phase_graph_matrix_a_label"), symbol: "a", previewable: true, ...entryRange},
-                {key: "phase-b", label: message("phase_graph_matrix_b_label"), symbol: "b", ...entryRange},
-                {key: "phase-c", label: message("phase_graph_matrix_c_label"), symbol: "c", ...entryRange},
-                {key: "phase-d", label: message("phase_graph_matrix_d_label"), symbol: "d", ...entryRange},
+                {key: "phase-a", label: message("dynamics_matrix_a_name"), symbol: "a", previewable: true, ...entryRange},
+                {key: "phase-b", label: message("dynamics_matrix_b_name"), symbol: "b", ...entryRange},
+                {key: "phase-c", label: message("dynamics_matrix_c_name"), symbol: "c", ...entryRange},
+                {key: "phase-d", label: message("dynamics_matrix_d_name"), symbol: "d", ...entryRange},
             ] as const : []),
             {key: "phase-seed-count", kind: "count", label: message("phase_graph_seeds_label"), placement: "tools", section: SEEDS_SECTION, min: SEEDS_MIN, max: SEEDS_MAX,
                 help: message("phase_graph_seeds_help", {value0: SEEDS_MIN, value1: SEEDS_MAX})},
             {key: "phase-zoom", kind: "range", label: message("phase_graph_zoom_label"), placement: "board", min: ZOOM_RANGE.min, max: ZOOM_RANGE.max, step: 1, bigStep: 1, maxDecimals: 0,
                 help: message("phase_graph_zoom_help", {value0: ZOOM_RANGE.min, value1: ZOOM_RANGE.max, value2: messageNumber(halfWidthOf(state.zoom), 4)})},
-            {key: "phase-time", kind: "range", label: message("phase_graph_time_label"), symbol: "t", placement: "board", min: 0, max: ORBIT_DURATION, step: TIME_STEP, bigStep: TIME_BIG_STEP, maxDecimals: 2,
+            {key: "phase-time", kind: "range", label: message("dynamics_time_name"), symbol: "t", placement: "board", min: 0, max: ORBIT_DURATION, step: TIME_STEP, bigStep: TIME_BIG_STEP, maxDecimals: 2,
                 unit: message("phase_graph_unit_s"), help: message("phase_graph_time_help", {value0: messageNumber(ORBIT_DURATION, 0), value1: messageNumber(TIME_STEP, 2)})},
         ];
         const {tau, delta, discriminant} = derived.plane;
