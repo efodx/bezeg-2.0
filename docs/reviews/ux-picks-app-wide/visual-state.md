@@ -1,6 +1,6 @@
 # Board workspace visual refinement (task 11): state
 
-Present state only; rewritten in place at every boundary, under 8 KB. Launch brief: [`briefs/11-visual-lead.md`](briefs/11-visual-lead.md) (role, coordination, handoff command). Task: [`11-visual-refinement.md`](../../tasks/ux-picks-app-wide/11-visual-refinement.md). Lead 2 (2026-11-25) has seen the first pass in a browser, kept its cards, and is redesigning the pucks; two worker lanes are open. **Nothing of lead 2's is accepted or committed yet except this note and a merge of the base.**
+Present state only; rewritten in place at every boundary, under 8 KB. Launch brief: [`briefs/11-visual-lead.md`](briefs/11-visual-lead.md) (role, coordination, handoff command). Task: [`11-visual-refinement.md`](../../tasks/ux-picks-app-wide/11-visual-refinement.md). Lead 2 (2026-11-25) has seen the first pass in a browser, kept its cards, and is redesigning the pucks; two worker lanes are open. **Lead 2 handed off at its budget line: the puck stylesheet and both lanes are committed as WIP with green checks, but the workers' diffs are not yet read line by line.**
 
 ## Where
 
@@ -23,7 +23,13 @@ Present state only; rewritten in place at every boundary, under 8 KB. Launch bri
 - How: `.puck` is a grid, the head is `display: contents`, each control element is a subgrid over the whole puck; a slider's focus ring is drawn on the slip with `:has()`.
 - Contract (handler 8, 2026-11-25): with `symbol` set, `label` is the bare name and presenters typeset the symbol; puck labels aim at 16 characters. Handler 9 fixes Taylor's and phase portrait's labels. Until then `bareName()` in `pucks/puckSymbol.tsx` drops a label's trailing symbol.
 
-## Lanes (Sonnet workers; neither accepted yet)
+## Handoff from lead 2 (read first; it corrects the sections around it)
+
+- Pucks ended as a caption over the control, not the prototype's one line: the value box is as wide as the widest value, so a name beside it wrapped. Value at the right of the track; sweep and "?" ride the top edge on hover. Seen and good in `.command-logs/shots/11/lead2-v3/`: `strip-default`, `puck-hover`, `strip-phase`, `touch-strip`. Not yet looked at: `puck-focus`, `puck-entry`, `puck-help-open`, `puck-undo`, `count-hover`, `strip-column`, a touch count puck after its last fix, and every card after the cards lane.
+- Both workers finished. `just unit src/workspace`, tsc and `just lint src/workspace` pass. Cards: items 1, 2, 4 and 5 done; the cut Legenda title does not reproduce at 1024 to 1920 px. Review both WIP commits with `git show`, above all `cards/toolsContent.ts`: it looped once, and 38 old "Maximum update depth" lines are in the Vite log, so watch a fresh log.
+- Next steps 1 and 2 are done except that review and `bareName` in `ReadoutsBody.tsx:90`; then go on at step 3. Servers were stopped at handoff: start them again.
+
+## Lanes (Sonnet workers; finished, review pending)
 
 - Pucks markup: `pucks/puckSymbol.tsx` (`symbolParts`, `symbolText`, `spokenName`, `PuckSymbol`), `PuckFrame` takes `symbol` and wraps the name in `.puck-name`, the count puck has `.puck-scale` with `--puck-scale-steps`, `--puck-scale-index` and `data-dense`; 13 new tests. Follow-up running: `bareName`, a no-break space before the symbol, Unicode subscripts (`x₀`), fail-first for the pure functions. Report: `.command-logs/lead2/worker-pucks.md`.
 - Cards: one readout group shows no fold title; Orodja opens on the first tab with content; the folded Legenda title cut; the reset button only when a place or fold is stored (always visible then, before the fold chevron); the tab-order test. Its `cards/toolsContent.ts` threw "Maximum update depth exceeded" once in `.command-logs/lead2/vite-4491.log`: check that it is gone. Report: `.command-logs/lead2/worker-cards.md`.
