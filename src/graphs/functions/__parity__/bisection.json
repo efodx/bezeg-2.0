@@ -1,0 +1,512 @@
+{
+  "graph": "bisection",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-1"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "2"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "—"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "—"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "še ni razkrita"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[1; 2]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 0, širina 1"
+      ]
+    },
+    {
+      "name": "step 1",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "1"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-1"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "2"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "1,5"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "0,25"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "leva [a, m]"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[1; 1,5]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "0,5"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 1, širina 0,5"
+      ]
+    },
+    {
+      "name": "step 4",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "4"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "1,375"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1,5"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-0,109375"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "0,25"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "1,4375"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "0,06640625"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "leva [a, m]"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[1,375; 1,4375]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "0,0625"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 4, širina 0,0625"
+      ]
+    },
+    {
+      "name": "wider bracket, step 0",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "3"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-2"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "7"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "—"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "—"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "še ni razkrita"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[0; 3]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "3"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 0, širina 3"
+      ]
+    },
+    {
+      "name": "cubic",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1,5"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-1,875"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "6"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "—"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "—"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "še ni razkrita"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[-1,5; 2]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "3,5"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x³ - x",
+        "korak 0, širina 3,5"
+      ]
+    },
+    {
+      "name": "cubic step 2",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "2"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0,25"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-0,234375"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "6"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "1,125"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "0,298828125"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "leva [a, m]"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[0,25; 1,125]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "0,875"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x³ - x",
+        "korak 2, širina 0,875"
+      ]
+    },
+    {
+      "name": "sign step",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-1"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "1"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "—"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "—"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "še ni razkrita"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[-1; 1]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "2"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = -1 za x &lt; 0, sicer 1",
+        "korak 0, širina 2",
+        "predpostavka izreka ni izpolnjena"
+      ]
+    },
+    {
+      "name": "sign step, step 3",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "3"
+        },
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-0,5"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "0"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-1"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "1"
+        },
+        {
+          "key": "Razpolovišče m = (a + b)/2#0",
+          "label": "Razpolovišče m = (a + b)/2",
+          "value": "-0,25"
+        },
+        {
+          "key": "f(m)#0",
+          "label": "f(m)",
+          "value": "-1"
+        },
+        {
+          "key": "Zadržana polovica#0",
+          "label": "Zadržana polovica",
+          "value": "desna [m, b]"
+        },
+        {
+          "key": "Trenutni interval#0",
+          "label": "Trenutni interval",
+          "value": "[-0,25; 0]"
+        },
+        {
+          "key": "Širina intervala#0",
+          "label": "Širina intervala",
+          "value": "0,25"
+        }
+      ],
+      "notes": [
+        "Izrek zagotavlja obstoj ničle, ne enoličnosti: ničel je lahko več. Natančna ničla je točka, kjer je vrednost natanko 0; majhna vrednost to ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = -1 za x &lt; 0, sicer 1",
+        "korak 3, širina 0,25",
+        "predpostavka izreka ni izpolnjena"
+      ]
+    }
+  ]
+}

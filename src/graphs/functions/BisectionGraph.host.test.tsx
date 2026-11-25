@@ -5,16 +5,11 @@ import {BisectionGraph, BISECTION_STEP_INTERVAL_MS} from './BisectionGraph';
 import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {installBoardShims, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {expectUnavailableKeepsFocus} from '../base/unavailableFocusBehaviour';
 
-// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
-beforeAll(() => {
-    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
-    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
-    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
-        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
-});
+// jsdom has no canvas, matchMedia or layout; the shared shims give boards, cards and pucks a desktop size.
+beforeAll(() => installBoardShims());
 
 beforeEach(() => setLanguage('sl'));
 
@@ -55,7 +50,7 @@ class ObservedBisectionGraph extends BisectionGraph {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const mountObjects = (graph: ObservedBisectionGraph) => graph.liveBoard().objectsList.length;
 
-test('a real board shows the iteration: Next step, Play and Pause, Reset and the readouts work through the real controls', () => {
+test('a real board shows the iteration: Next step, Play and Pause, Reset and the readouts work through the real controls', async () => {
     const frames = manualScheduler();
     const graph = new ObservedBisectionGraph(frames.scheduler);
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
@@ -88,8 +83,9 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset and the
     expect(frames.callbacks.size).toBe(0);
 
     // an endpoint edit through the real input restarts the history
-    const inputA = screen.getByLabelText('Levo krajišče a, vrednost') as HTMLInputElement;
-    act(() => { enterNumber(inputA, '0.5'); });
+    // (the endpoints are pucks on the board since the bracket is declared, task 07 slice 4)
+    await waitForPucks('bisect-a');
+    typePuck('bisect-a', '0.5');
     expect(graph.modelNow()).toEqual({example: 'square-minus-two', a: 0.5, b: 2, step: 0});
     expect(readout('step')).toBe('0');
     act(() => { fireEvent.click(nextButton()); });

@@ -37,6 +37,8 @@ export interface ViewDirectorDeps {
     marks(): ViewMarks | undefined;
     /** Default: the intent's `keepAspectRatio`. */
     equalAxisUnits?(): boolean;
+    /** The declared `followView` of the present state: the fit's base when present, the stored intent otherwise (task 07 slice 4). */
+    follow?(): ViewBox | undefined;
     now?(): number;
     requestFrame?(callback: () => void): number;
     cancelFrame?(id: number): void;
@@ -47,6 +49,31 @@ export interface ViewDirectorDeps {
 /** Whether a board gets a director: declared marks, the main view bound as `view`, and not a surface demonstration. */
 export function directorEligible(input: {marks: ViewMarks | undefined; boundKeys: readonly string[] | undefined; surface: boolean}): boolean {
     return input.marks !== undefined && !input.surface && (input.boundKeys?.includes(VIEW_KEY) ?? false);
+}
+
+/** Two follow boxes are the same within a relative tolerance of 1e-9 of the box size. */
+const FOLLOW_TOLERANCE = 1e-9;
+
+function sameFollow(a: ViewBox | undefined, b: ViewBox | undefined): boolean {
+    if (!a || !b) return a === b;
+    const tolerance = FOLLOW_TOLERANCE * Math.max(Math.abs(a[2] - a[0]), Math.abs(a[1] - a[3]));
+    return a.every((value, index) => Math.abs(value - b[index]) <= tolerance);
+}
+
+/**
+ * The box a glide shows at eased progress `k`: width and height change geometrically (a 4x zoom is uniform per frame) and the
+ * centre moves linearly. Sizes that are zero or change sign fall back to linear interpolation. Exactness at k = 1 is not
+ * this function's job: `step()` shows `glide.to` itself once t >= 1.
+ */
+export function glideBox(from: ViewBox, to: ViewBox, k: number): ViewBox {
+    const lin = (a: number, b: number): number => a + (b - a) * k;
+    const size = (a: number, b: number): number => a * b > 0 && Number.isFinite(a * b) ? a * Math.pow(b / a, k) : lin(a, b);
+    // ViewBox is [xmin, ymax, xmax, ymin]: width = [2] - [0], height = [1] - [3].
+    const w = size(from[2] - from[0], to[2] - to[0]);
+    const h = size(from[1] - from[3], to[1] - to[3]);
+    const cx = lin((from[0] + from[2]) / 2, (to[0] + to[2]) / 2);
+    const cy = lin((from[1] + from[3]) / 2, (to[1] + to[3]) / 2);
+    return [cx - w / 2, cy + h / 2, cx + w / 2, cy - h / 2];
 }
 
 const merge = (a: FitMode | undefined, b: FitMode): FitMode => a === 'jump' || b === 'jump' ? 'jump' : 'glide';
@@ -78,6 +105,7 @@ export class ViewDirector {
     private readonly arbiter: ParameterArbiter;
     private readonly marks: () => ViewMarks | undefined;
     private readonly equalAxisUnits: () => boolean;
+    private readonly follow: () => ViewBox | undefined;
     private readonly now: () => number;
     private readonly requestFrame: (callback: () => void) => number;
     private readonly cancelFrame: (id: number) => void;
@@ -104,9 +132,20 @@ export class ViewDirector {
     private lastTarget: ViewBox | undefined;
     private marksKey: string;
     private marksSeen: ViewMarks | undefined;
+    /** The `followView` this director last acted on; a learner gesture holds it back until the gesture ends. */
+    private followSeen: ViewBox | undefined;
+    /** Set by a non-learner intent write: the follow box it saw. While the follow is still that box, the stored intent is the fit's base. */
+    private intentWonAt: {follow: ViewBox | undefined} | undefined;
+    /** The stored intent's box as of the last change, to tell a write that moved it from one that restated it. */
+    private intentSeen: ViewBox | undefined;
+    /** The follow box seen by the write that moved the intent since the last fit; taken into `intentWonAt` at the next fit. */
+    private intentPending: {follow: ViewBox | undefined} | undefined;
 
     constructor(deps: ViewDirectorDeps) {
         this.adapter = deps.adapter;
+        this.follow = deps.follow ?? (() => undefined);
+        this.followSeen = this.follow();
+        this.intentSeen = deps.adapter.intent().box;
         this.arbiter = deps.arbiter;
         this.marks = deps.marks;
         this.equalAxisUnits = deps.equalAxisUnits ?? (() => deps.adapter.intent().keepAspectRatio);
@@ -144,6 +183,19 @@ export class ViewDirector {
         this.lastTarget = undefined;
         this.frameRequested = true;
         this.carried = undefined; // a new step starts its own glide in full
+        this.trigger('glide');
+    }
+
+    /**
+     * The declared `followView` may have changed (the host calls this after each render). A change glides (inside a lesson step it is
+     * the step's one glide); during a learner gesture it waits for the gesture's end, where Samodejno decides. A pause ignores it.
+     */
+    followChanged(): void {
+        if (this.disposed || this.blocked()) return;
+        const next = this.follow();
+        if (sameFollow(next, this.followSeen)) return;
+        this.followSeen = next;
+        this.intentWonAt = undefined; // the follow moved on: an older write's win does not come back when it returns to that box
         this.trigger('glide');
     }
 
@@ -202,6 +254,13 @@ export class ViewDirector {
     private intentChanged(change: ViewChange): void {
         if (this.disposed) return;
         this.lastTarget = undefined;
+        // Latest writer wins: a non-learner write is newer than the followView it saw, so the intent is the base until the follow moves.
+        // A write of the box the intent already was (a scene that restates the default view) is no new say over the follow box.
+        // A scene may write the default view and then its own (and the next step the same again): only the net move since the last
+        // fit counts, so a step that ends where the intent already was does not become a new say over the follow box.
+        const written = this.adapter.intent().box;
+        if (change.source === 'learner') { this.intentSeen = written; this.intentPending = undefined; }
+        else this.intentPending = sameFollow(written, this.intentSeen) ? undefined : {follow: this.follow()};
         // Only navigation (pan, zoom, arrows) is the learner taking the view; a Reset, a Preset or a lesson write glides.
         if (change.source === 'learner' && change.navigation) this.pause();
         else {
@@ -243,7 +302,12 @@ export class ViewDirector {
         const changed = key !== this.marksKey;
         this.marksKey = key;
         // A released parameter refits only when a must mark is covered in the view as shown (no abrupt refits on release).
-        if (changed && this.mustCoveredInShown()) this.trigger('glide');
+        // A moved follow box is the graph's own intent for the state: it glides at the gesture's end when Samodejno is on.
+        const follow = this.follow();
+        const followed = !sameFollow(follow, this.followSeen);
+        this.followSeen = follow;
+        if (followed) this.intentWonAt = undefined;
+        if ((changed && this.mustCoveredInShown()) || followed) this.trigger('glide');
         this.flushDeferred();
     }
 
@@ -292,6 +356,10 @@ export class ViewDirector {
     }
 
     private fit(mode: FitMode, byFrame: boolean): void {
+        if (this.intentPending) { this.intentWonAt = this.intentPending; this.intentPending = undefined; }
+        // A win lasts only while the follow is the box the write saw: once it moved and a fit ran, the follow is the base again.
+        if (this.intentWonAt && !sameFollow(this.follow(), this.intentWonAt.follow)) this.intentWonAt = undefined;
+        this.intentSeen = this.adapter.intent().box;
         const target = this.target();
         if (!target) return;
         this.marksKey = this.currentMarksKey();
@@ -330,8 +398,7 @@ export class ViewDirector {
         if (!glide) return;
         const t = Math.min(1, Math.max(0, (this.now() - glide.start) / glide.ms));
         const k = easeOutCubic(t);
-        const mix = (i: 0 | 1 | 2 | 3): number => glide.from[i] + (glide.to[i] - glide.from[i]) * k;
-        const box: ViewBox = t >= 1 ? glide.to : [mix(0), mix(1), mix(2), mix(3)];
+        const box: ViewBox = t >= 1 ? glide.to : glideBox(glide.from, glide.to, k);
         if (!this.adapter.setFitted(box, glide.lease)) { this.glide = undefined; return; }
         this.shown = box;
         if (t >= 1) { this.glide = undefined; glide.lease.release(); return; }
@@ -384,7 +451,10 @@ export class ViewDirector {
         const marks = this.marks();
         const geometry = this.geometry;
         if (!marks || !geometry || !(geometry.canvas.width > 0) || !(geometry.canvas.height > 0)) return undefined;
-        const intent = this.adapter.intent().box as FitBox;
+        // The fit's base is the graph's followView when it declares one; the stored intent is never written either way.
+        const follow = this.follow();
+        const intentWins = this.intentWonAt !== undefined && sameFollow(follow, this.intentWonAt.follow);
+        const intent = ((intentWins ? undefined : follow) ?? this.adapter.intent().box) as FitBox;
         const equalAxisUnits = this.equalAxisUnits();
         const {canvas, free, obstacles} = geometry;
         let box: FitBox = fitIntent({intent, canvas, free, equalAxisUnits}).box;

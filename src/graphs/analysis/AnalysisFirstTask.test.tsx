@@ -21,7 +21,7 @@ const labelled = (label: string): Find => root => within(root).getAllByLabelText
 
 interface Route {lead: Find; later: Find[]}
 const routes: Record<string, Route> = {
-    'bisection': {lead: button(t('next_step')), later: [labelled(t('bisection_example_label')), labelled(t('bisection_a_label'))]},
+    'bisection': {lead: button(t('next_step')), later: [labelled(t('bisection_example_label'))]},
     'euler-method': {lead: button(t('next_step')), later: [labelled(t('euler_ode_example_label')), labelled(t('euler_ode_end_label'))]},
     'mean-value': {lead: labelled(t('mean_value_c_label')), later: [labelled(t('mean_value_example_label')), labelled(t('mean_value_a_label'))]},
     'darboux': {lead: labelled(t('darboux_n_label')), later: [labelled(t('darboux_example_label')), labelled(t('darboux_a_label'))]},
@@ -65,6 +65,20 @@ describe('taylor first task', () => {
         const first = root.querySelector<HTMLElement>(FOCUSABLE)!;
         const example = labelled(t('taylor_example_label'))(root);
         expect(first === example || example.contains(first) || first.closest('.inspector-group, .tools')?.contains(example)).toBe(true);
+    });
+});
+
+describe('bisection endpoints', () => {
+    // The endpoints a and b are pucks on the board (task 07): there once, and not in Edit, where the first task still leads.
+    test('a and b are pucks, Edit holds no second copy', async () => {
+        mountGraph(graphFactories['bisection']());
+        await waitForPucks('bisect-a');
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const label of [t('bisection_a_label'), t('bisection_b_label')]) {
+            expect(within(strip).queryAllByRole('spinbutton', {name: label}).length + within(strip).queryAllByRole('slider', {name: label}).length).toBeGreaterThan(0);
+            expect(within(root).queryAllByLabelText(label)).toEqual([]);
+        }
     });
 });
 

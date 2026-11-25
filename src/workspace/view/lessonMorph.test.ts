@@ -29,16 +29,16 @@ const RANGES: MorphRange[] = [
     {key: 'b', min: 0, max: 100, step: 1},
 ];
 
-interface Rig {clock: Scheduler; arbiter: ParameterArbiter; morph: LessonMorph; values: Record<string, number | boolean>; applied: {key: string; value: unknown}[]; reduced: {on: boolean}; refuse: {from: number; to: number} | undefined}
+interface Rig {clock: Scheduler; arbiter: ParameterArbiter; morph: LessonMorph; values: Record<string, number | boolean>; applied: {key: string; value: unknown}[]; reduced: {on: boolean}; refuse: {from: number; to: number} | undefined; ranges: MorphRange[]}
 const rigs: Rig[] = [];
 
 function rig(): Rig {
     const clock = new Scheduler();
     const arbiter = new ParameterArbiter({isDomainError: error => error instanceof DomainError, strict: true});
-    const values: Record<string, number | boolean> = {a: 0, b: 50, flag: false};
+    const values: Record<string, number | boolean> = {a: 0, b: 50, flag: false, mode: 0};
     const applied: Rig['applied'] = [];
-    const made: Rig = {clock, arbiter, morph: undefined as unknown as LessonMorph, values, applied, reduced: {on: false}, refuse: undefined};
-    for (const key of ['a', 'b', 'flag']) {
+    const made: Rig = {clock, arbiter, morph: undefined as unknown as LessonMorph, values, applied, reduced: {on: false}, refuse: undefined, ranges: RANGES};
+    for (const key of ['a', 'b', 'flag', 'mode']) {
         arbiter.bind(key, {
             read: () => values[key],
             apply: value => {
@@ -48,7 +48,7 @@ function rig(): Rig {
             },
         });
     }
-    made.morph = new LessonMorph({arbiter, rangeKeys: () => RANGES, now: clock.now, requestFrame: clock.request, cancelFrame: clock.cancel, reducedMotion: () => made.reduced.on});
+    made.morph = new LessonMorph({arbiter, rangeKeys: () => made.ranges, structuralKeys: () => ['mode'], now: clock.now, requestFrame: clock.request, cancelFrame: clock.cancel, reducedMotion: () => made.reduced.on});
     rigs.push(made);
     return made;
 }
@@ -62,6 +62,25 @@ const stepTo = (made: Rig, next: Record<string, number | boolean>) => () => {
 };
 
 describe('the lesson morph', () => {
+    test('a step that changes a choice or count morphs no range key', () => {
+        const made = rig();
+        made.morph.step(stepTo(made, {a: 10, mode: 1}));
+        expect(made.values.a).toBe(10);
+        expect(made.morph.isRunning()).toBe(false);
+        expect(made.arbiter.activeLeases()).toHaveLength(0);
+        expect(made.clock.pending()).toBe(0);
+    });
+
+    test('a range declared morph: false takes the new value at once while the others still glide', () => {
+        const made = rig();
+        made.ranges = [{...RANGES[0], morph: false}, RANGES[1]];
+        made.morph.step(stepTo(made, {a: 10, b: 80}));
+        expect(made.values.a).toBe(10);
+        expect(made.values.b).toBe(50);
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.values.b).toBe(80);
+    });
+
     test('a range key glides from the old value to the new one; a toggle is at its new value at once; the lease is gone after', () => {
         const made = rig();
         made.morph.step(stepTo(made, {a: 10, flag: true}));
