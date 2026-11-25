@@ -15,8 +15,6 @@ export const FOLLOW_MIN_WIDTH = 0.2;
 const Y_PADDING = 0.15;
 /** The smallest height of the box, so a function that is flat on a narrow box still gets an axis. */
 const MIN_HEIGHT = 0.05;
-/** The box is at most this many times as high as it is wide (a much taller box makes the equal-unit fit widen it: the cubic's 41-high box became 97 wide). */
-export const MAX_HEIGHT_RATIO = 1;
 const SAMPLES = 41;
 
 function sampleValues(example: BisectionExample, from: number, to: number): number[] {
@@ -28,39 +26,48 @@ function sampleValues(example: BisectionExample, from: number, to: number): numb
     return values;
 }
 
+/** The bracket the board shows: the one the last revealed step bisected (its ends and midpoint are drawn), the initial one at step 0. */
+function shownBracket(history: BisectionHistory): [number, number] {
+    const last = history.steps.at(-1);
+    return last ? [last.a, last.b] : [history.a, history.b];
+}
+
 /**
- * The current bracket `[a_n, b_n]` padded by 25 % of its width on each side (never narrower than {@link FOLLOW_MIN_WIDTH}), with y
- * from the function's range over that box, the axis included, plus padding. `[left, top, right, bottom]`.
+ * The shown bracket (the one the last step bisected, which holds the new bracket) `[a_n, b_n]` padded by 25 % of its width on each side (never narrower than {@link FOLLOW_MIN_WIDTH}), with y
+ * from the function's range over that box, the axis and f(a), f(b), f(m) included, plus padding. `[left, top, right, bottom]`.
  */
 export function bisectionFollowView(history: BisectionHistory): ViewBox {
     const example = bisectionExample(history.example);
-    const centre = (history.currentA + history.currentB) / 2;
-    const width = Math.max((history.currentB - history.currentA) * (1 + 2 * FOLLOW_PADDING), FOLLOW_MIN_WIDTH);
+    const [shownA, shownB] = shownBracket(history);
+    const centre = (shownA + shownB) / 2;
+    const width = Math.max((shownB - shownA) * (1 + 2 * FOLLOW_PADDING), FOLLOW_MIN_WIDTH);
     const left = centre - width / 2;
     const right = centre + width / 2;
-    const values = [0, ...sampleValues(example, left, right)];
-    // A function that climbs steeply over the padded box (the cubic over [-2.4, 2.9] spans 41) would make the fit, which keeps both axes at
-    // one scale, widen the box to many times the bracket. Past MAX_HEIGHT_RATIO of the width the range is cut to a window around the axis:
-    // the sign change stays framed and the curve leaves the box at the top and bottom.
-    const cap = (right - left) * MAX_HEIGHT_RATIO;
-    const low = Math.max(Math.min(...values), -cap / 2);
-    const high = Math.min(Math.max(...values), cap / 2);
+    // The bracket's function values f(a), f(b), f(m) are the lesson's point (the signs), so the range always covers them, the axis and
+    // the curve over the padded box. The graph has no equal axis units, so a tall range does not widen the box.
+    const last = history.steps.at(-1);
+    const marked = [shownA, shownB, ...(last ? [last.mid] : [])].map(x => example.value(x)).filter(Number.isFinite);
+    const values = [0, ...marked, ...sampleValues(example, left, right)];
+    const low = Math.min(...values);
+    const high = Math.max(...values);
     const pad = Math.max((high - low) * Y_PADDING, (MIN_HEIGHT - (high - low)) / 2, 0);
     return [left, high + pad, right, low - pad];
 }
 
-/** What stays visible and clear of the cards: the bracket's ends on the axis and the midpoint just revealed; the curve over the bracket when there is room. */
+/** What stays visible and clear of the cards: the bracket's ends and the midpoint just revealed, on the axis and on the curve; the curve over the bracket when there is room. */
 export function bisectionViewMarks(history: BisectionHistory): ViewMarks {
     const example = bisectionExample(history.example);
     const last = history.steps.at(-1);
+    const [shownA, shownB] = shownBracket(history);
     const must: ViewMarks['must'] = [
-        {kind: 'point', x: history.currentA, y: 0},
-        {kind: 'point', x: history.currentB, y: 0},
-        ...(last ? [{kind: 'point' as const, x: last.mid, y: 0}] : []),
+        ...[shownA, shownB, ...(last ? [last.mid] : [])].flatMap(x => {
+            const fx = example.value(x);
+            return [{kind: 'point' as const, x, y: 0}, ...(Number.isFinite(fx) ? [{kind: 'point' as const, x, y: fx}] : [])];
+        }),
     ];
     const points: [number, number][] = [];
     for (let i = 0; i < SAMPLES; i++) {
-        const x = history.currentA + (history.currentB - history.currentA) * i / (SAMPLES - 1);
+        const x = shownA + (shownB - shownA) * i / (SAMPLES - 1);
         const y = example.value(x);
         if (Number.isFinite(y)) points.push([x, y]);
     }
