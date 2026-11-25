@@ -32,6 +32,7 @@ import {ParameterArbiter, type ParameterBinding} from "./writes/parameterArbiter
 import {runAs} from "./writes/writeSource";
 import type {GraphDeclaration, RangeParameter} from "./declare/graphDeclaration";
 import {LessonMorph} from "../../workspace/view/lessonMorph";
+import {SceneReveal} from "../../workspace/view/sceneReveal";
 import type {PreviewGeometry} from "./preview/previewGeometry";
 import {ViewAdapter} from "./writes/viewAdapter";
 import {installLearnerInputTagging} from "./writes/learnerInputTagging";
@@ -116,8 +117,15 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     private sceneStore?: SceneStore<S>;
     private parameterArbiter?: ParameterArbiter;
     private releaseParameterArbiter?: () => void;
+    private sceneRevealer(): SceneReveal {
+        return this.sceneRevealInstance ??= new SceneReveal({
+            board: () => this.hasBoard && this.graphSession?.isAlive ? this.board : undefined,
+        });
+    }
     /** Glides the declared range parameters across a lesson step (task 07 slice 3); one per arbiter, disposed with it. */
     private lessonMorph?: LessonMorph;
+    /** Fades objects in and out across a lesson step (task 07 slice 3b); owns the overlay and frames, disposed in `unmount`. */
+    private sceneRevealInstance?: SceneReveal;
     private presetServiceInstance?: PresetService;
     private lessonActionRegistry?: LessonActionRegistry;
     /** State from before the first update that `onStateChange` has not seen yet. */
@@ -234,7 +242,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             this.stopLessonAnimations();
         },
         pauseAnimations: () => this.pausePlayback(),
-        morphStep: apply => { if (this.lessonMorph) this.lessonMorph.step(apply); else apply(); },
+        morphStep: apply => {
+            // New objects fade in and vanished ones fade out as a ghost (task 07 slice 3b); the board is read once the host has drawn the step.
+            const pending = this.sceneRevealer().begin();
+            if (this.lessonMorph) this.lessonMorph.step(apply); else apply();
+            if (pending) this.requestRender(() => pending.commit());
+        },
         isAvailable: () => this.graphSession?.isReady === true,
     };
 
@@ -1172,6 +1185,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const session = this.graphSession;
         this.graphSession = undefined;
         this.board = undefined as unknown as Board;
+        this.sceneRevealInstance?.dispose();
+        this.sceneRevealInstance = undefined;
         this.releaseParameterArbiter?.();
         this.releaseParameterArbiter = undefined;
         session?.dispose();
