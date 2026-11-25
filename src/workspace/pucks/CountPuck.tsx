@@ -126,7 +126,7 @@ export function CountPuck(props: CountPuckProps) {
     const describedBy = [tip.shown && tipId, locked && lockId].filter(Boolean).join(' ') || undefined;
     const atMin = value <= parameter.min, atMax = value >= parameter.max;
 
-    return <PuckFrame label={name} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
+    return <PuckFrame label={name} symbol={parameter.symbol} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
         tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-count${props.sweep?.running ? ' is-sweeping' : ''}`}
         headExtra={props.sweep && !locked && <SweepButton name={name} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
         pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>

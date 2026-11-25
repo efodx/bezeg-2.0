@@ -388,13 +388,13 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const parameters: ParameterDeclaration<TaylorIds["param"]>[] = [
             {key: "taylor-example", kind: "choice", label: message("taylor_example_label"), help: message("taylor_example_help"), placement: "board",
                 options: TAYLOR_EXAMPLE_IDS.map(id => ({value: id, label: message(`taylor_example_${id}`)}))},
-            {key: "taylor-degree", kind: "count", label: message("taylor_degree_label"), symbol: "n", help: message("taylor_degree_help"), placement: "board",
+            {key: "taylor-degree", kind: "count", label: message("taylor_degree_name"), symbol: "n", help: message("taylor_degree_help"), placement: "board",
                 min: TAYLOR_DEGREE_MIN, max: TAYLOR_DEGREE_MAX},
-            {key: "taylor-x", kind: "range", label: message("taylor_x_label"), symbol: "x", help: message("taylor_points_help"), placement: "board",
+            {key: "taylor-x", kind: "range", label: message("taylor_x_name"), symbol: "x", help: message("taylor_points_help"), placement: "board",
                 min: example.xMin, max: example.xMax, step: X_GRID, maxDecimals: PRECISE},
         ];
         if (example.centerMin < example.centerMax) {
-            parameters.unshift({key: "taylor-center", kind: "range", label: message("taylor_center_label"), symbol: "c", help: message("taylor_points_help"),
+            parameters.unshift({key: "taylor-center", kind: "range", label: message("taylor_center_name"), symbol: "c", help: message("taylor_points_help"),
                 placement: "board", min: example.centerMin, max: example.centerMax, step: CENTER_GRID, maxDecimals: PRECISE});
         }
         const fixed = (value: number) => messageNumber(value, PRECISE);
@@ -402,9 +402,9 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
             parameters,
             formula: {label: message("taylor_formula_label"), tex: formulaTex(model.example)},
             readouts: [{id: "values", title: message("function_readouts"), rows: [
-                {id: "center", name: message("taylor_center_label"), symbol: "c", value: fixed(model.center)},
-                {id: "degree", name: message("taylor_degree_label"), symbol: "n", value: messageNumber(model.degree, 0)},
-                {id: "x", name: message("taylor_x_label"), symbol: "x", value: fixed(model.x)},
+                {id: "center", name: message("taylor_center_name"), symbol: "c", value: fixed(model.center)},
+                {id: "degree", name: message("taylor_degree_name"), symbol: "n", value: messageNumber(model.degree, 0)},
+                {id: "x", name: message("taylor_x_name"), symbol: "x", value: fixed(model.x)},
                 {id: "polynomial", name: message("taylor_readout_polynomial"), value: fixed(view.polynomial), legend: "polynomial"},
                 {id: "function", name: message("taylor_readout_function"), value: fixed(view.value), legend: "function"},
                 {id: "signed-error", name: message("taylor_readout_signed_error"), value: significant(view.signedError), legend: "error"},

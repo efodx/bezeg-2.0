@@ -594,9 +594,9 @@ describe('PP1 and PP2 open on a real PhasePortraitGraph, in sl and en', () => {
                 const text = ppText(step.id, language);
                 missing.push(...PP_NAMES[step.id].map(name => name()).filter(name => !text.includes(name)).map(name => `${language} ${step.id}: ${name}`));
                 const pendulum = m.stateOf().system === 'pendulum';
-                if (!pendulum) for (const letter of ['a', 'b', 'c', 'd'] as const) expect(puckControl(`phase-${letter}`).getAttribute('aria-label')).toBe(t(`phase_graph_matrix_${letter}_label`));
+                if (!pendulum) for (const letter of ['a', 'b', 'c', 'd'] as const) expect(puckControl(`phase-${letter}`).getAttribute('aria-label')).toBe(t(`dynamics_matrix_${letter}_name`));
                 expect(puckControl('phase-system').getAttribute('aria-label')).toBe(t('phase_graph_system_label'));
-                expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('phase_graph_time_label'));
+                expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('dynamics_time_name'));
                 expect(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})).toBeTruthy();
                 expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
                 expect(document.querySelector('[data-readout="energy-1"] dt')?.textContent ?? null).toBe(pendulum ? t('phase_graph_r_energy', {value0: '1'}) : null);
@@ -885,7 +885,7 @@ describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
                 missing.push(...PP3_NAMES[step.id].map(name => name()).filter(name => ![name, name.replace('Jacobijeva matrika', 'Jacobijevo matriko')].some(variant => text.toLowerCase().includes(variant.toLowerCase()))).map(name => `${language} ${step.id}: ${name}`));
                 const nonlinear = m.stateOf().system !== 'linear';
                 expect(puckControl('phase-system').getAttribute('aria-label')).toBe(t('phase_graph_system_label'));
-                expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('phase_graph_time_label'));
+                expect(puckControl('phase-time').getAttribute('aria-label')).toBe(t('dynamics_time_name'));
                 expect(puckControl('phase-zoom').getAttribute('aria-label')).toBe(t('phase_graph_zoom_label'));
                 expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
                 for (const [id, label] of [['type', nonlinear ? t('phase_graph_r_type_linearization') : t('phase_graph_r_type_linear')], ['jacobian', nonlinear ? t('phase_graph_r_jacobian') : t('phase_graph_r_matrix')], ['eigen', t('phase_graph_r_eigen')], ['hyperbolic', t('phase_graph_r_hyperbolic')]]) expect(document.querySelector(`[data-readout="${id}"] dt`)?.textContent).toBe(label);

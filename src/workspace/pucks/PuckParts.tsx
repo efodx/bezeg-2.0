@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useId, useRef, useState} from 'react';
 import type {FocusEvent, PointerEvent, ReactNode} from 'react';
 import {useT} from '../../localization';
+import {Tex} from '../cards/Tex';
 import './pucks.css';
 
 /** Pieces both pucks share: the undo pill, the help card and its tooltip, the frame with its notice and lock reason. */
@@ -58,6 +59,8 @@ export function useHold(onHold?: () => () => void) {
 
 export interface FrameProps {
     label: string;
+    /** The declared symbol (undelimited TeX), typeset after the bare label. */
+    symbol?: string;
     help?: string;
     locked: boolean;
     lockReason: string;
@@ -97,7 +100,7 @@ export function PuckFrame(props: FrameProps) {
         onKeyDown={event => { if (event.key === 'Escape' && helpOpen) { event.stopPropagation(); setHelpOpen(false); } }}>
         {props.pill}
         <div className="puck-head">
-            <span className="puck-label" title={props.label}>{props.label}</span>
+            <span className="puck-label" title={props.label}>{props.label}{props.symbol && <>{' '}<Tex tex={props.symbol} className="ws-symbol"/></>}</span>
             {props.headExtra}
             {props.help && <button type="button" className="puck-help-button" aria-expanded={helpOpen} aria-controls={helpId}
                 aria-label={helpOpen ? t('puck_help_close') : t('puck_help_open', {value0: props.label})}
