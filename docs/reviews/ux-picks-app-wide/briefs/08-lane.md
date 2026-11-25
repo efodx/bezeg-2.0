@@ -55,3 +55,11 @@ files, lesson files, own tests) and its worktree. Everything else is here.
 At most 300 words: per demonstration one line `id: done | stopped (reason) — minutes — files — placement judgements`, the
 observed red failure, controls left in Orodja and why, anything for the handler (missing keys, base changes, contract gaps).
 Notes: `docs/reviews/ux-picks-app-wide/briefs/notes/08-lane-<lane id>.md`.
+
+## Common misses (found at acceptance)
+
+- A declared legend replaces the graph's own legend panel: make `renderLegend()` (or the inline legend block) render nothing
+  once the legend is declared, or Orodja shows a second legend (L06).
+- Marks cover everything the learner watches: every main curve (both curves of a pair, e.g. f and f⁻¹), not only the first
+  `plotted` function, or the view director lets cards cover it (L06).
+- Find the route in the graph's `runtime.ts` (e.g. `/functions/inverse`, not `/functions/<id>`).

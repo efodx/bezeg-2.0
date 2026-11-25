@@ -11,6 +11,7 @@ import {
   loadBoardLayout, resetCard, saveBoardLayout, setFold, setPlacement, setStripDock, type StoredBoardLayout,
 } from '../layout/storedLayout';
 import {neighbourDock} from '../pucks/StripGrip';
+import {measureSlot} from '../pucks/measureSlot';
 import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
 import {moreBarHeight} from '../layout/measureCards';
@@ -341,9 +342,9 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   const puckShape = `${language}|${puckShapeOf(puckList)}`;
   useLayoutEffect(() => {
     const slots = [...(stripRef.current?.querySelectorAll<HTMLElement>('.puck-strip-grip, .puck-slot') ?? [])];
-    const w = slots.reduce((sum, slot) => sum + slot.offsetWidth, 0) + 8 * Math.max(0, slots.length - 1);
-    const h = Math.max(0, ...slots.map(slot => slot.offsetHeight));
-    const sizes = slots.map(slot => ({w: slot.offsetWidth, h: slot.offsetHeight}));
+    const sizes = slots.map(measureSlot);
+    const w = sizes.reduce((sum, size) => sum + size.w, 0) + 8 * Math.max(0, slots.length - 1);
+    const h = Math.max(0, ...sizes.map(size => size.h));
     if (w > 0 && h > 0) setMeasuredStrip(previous => previous && previous.w === w && previous.h === h && JSON.stringify(previous.slots) === JSON.stringify(sizes) ? previous : {w, h, slots: sizes});
   }, [puckShape]);
 

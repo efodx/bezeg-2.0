@@ -1,0 +1,11 @@
+1440x900 /functions/inverse lesson step 1: strip {"x":63,"y":693,"w":438,"h":79} overlaps [] cards lesson@63,210,416x475 readouts@951,210,426x320 legend@951,733,426x39 tools@951,538,426x39
+1440x900 /functions/inverse free play: strip {"x":63,"y":693,"w":438,"h":79} overlaps [] cards readouts@951,210,426x320 legend@951,733,426x39 tools@951,538,426x39
+1440x900 /functions/exponential free, Orodja closed: strip {"x":63,"y":687,"w":156,"h":85} overlaps [] cards readouts@1083,210,294x193 tools@1083,411,294x65
+1440x900 /functions/exponential free, Orodja open: strip {"x":63,"y":687,"w":156,"h":85} overlaps [] cards readouts@1083,210,294x193 tools@1083,411,294x65
+1440x900 /linear-map lesson step 1: strip {"x":63,"y":693,"w":536,"h":79} overlaps [] cards lesson@63,210,416x475 readouts@951,210,426x289 legend@951,733,426x39 tools@951,507,426x39
+1280x720 /functions/inverse lesson step 1: strip {"x":435,"y":458,"w":310,"h":146} overlaps [] cards lesson@33,209,394x395 readouts@853,209,394x287 legend@853,565,394x39 tools@853,504,394x39
+1280x720 /functions/inverse free play: strip {"x":33,"y":525,"w":438,"h":79} overlaps [] cards readouts@853,209,394x287 legend@853,565,394x39 tools@853,504,394x39
+1280x720 /functions/exponential free, Orodja closed: strip {"x":33,"y":519,"w":156,"h":85} overlaps [] cards readouts@953,209,294x193 tools@953,410,294x65
+1280x720 /functions/exponential free, Orodja open: strip {"x":33,"y":519,"w":156,"h":85} overlaps [] cards readouts@953,209,294x193 tools@953,410,294x65
+1280x720 /linear-map lesson step 1: strip {"x":435,"y":438,"w":408,"h":166} overlaps [] cards lesson@33,209,394x395 readouts@853,209,394x240 legend@853,565,394x39 tools@853,457,394x39
+NO OVERLAPS
