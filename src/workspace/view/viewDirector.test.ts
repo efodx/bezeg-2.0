@@ -230,6 +230,27 @@ describe('the view director', () => {
         stringify.mockRestore();
     });
 
+    test('a typed value that moves a must mark far outside the view: one glide after the input ends, to a box containing it, intent unchanged', () => {
+        const made = rig({geometry: OPEN});
+        settle(made);
+        const intent = made.adapter.intent();
+        const end = beginLearnerGesture(); // the typed point row's learner input
+        made.marks.current = {must: [{kind: 'point', x: 60, y: 45}]};
+        made.clock.run(500);
+        const before = made.board.writes.length;
+        expect(before).toBe(0); // nothing moves under the learner's hand
+        end();
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.board.writes.length).toBeGreaterThan(before);
+        const [left, top, right, bottom] = made.board.box;
+        expect(60).toBeGreaterThanOrEqual(left); expect(60).toBeLessThanOrEqual(right);
+        expect(45).toBeLessThanOrEqual(top); expect(45).toBeGreaterThanOrEqual(bottom);
+        const settled = made.board.writes.length;
+        made.clock.run(500);
+        expect(made.board.writes).toHaveLength(settled); // one glide, no second
+        expect(made.adapter.intent()).toBe(intent);
+    });
+
     test('a new lesson frame ends a pause', () => {
         const made = rig();
         settle(made);

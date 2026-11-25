@@ -38,7 +38,7 @@ type LessonMode = "content" | "explore" | "complete" | "closed";
 export function DemonstrationWorkspace(props: {
     description: string, edit: React.ReactNode, display: React.ReactNode,
     save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities,
-    graphBusy?: boolean, pickerUnavailable?: boolean, pausePlayback?: () => void, graphContainerRef?: React.Ref<HTMLDivElement>,
+    graphBusy?: boolean, pickerUnavailable?: boolean, pausePlayback?: () => void, viewDirectorChanged?: (director: ViewDirector | undefined) => void, graphContainerRef?: React.Ref<HTMLDivElement>,
     beforeDispose?: React.MutableRefObject<(() => void) | undefined>,
     disposeFailedGraph?: () => void,
     /** Gives the graph the workspace's decision reader, for commits that arrive through callbacks retained from an earlier render. Returns the release. */
@@ -211,7 +211,9 @@ export function DemonstrationWorkspace(props: {
     useLayoutEffect(() => () => { lessonSlot.remove(); }, [lessonSlot]);
     const [frameDeclaration, setFrameDeclaration] = useState<FrameDeclaration>();
     // The card layer's view director, when the board has one (task 07): the fit button and Samodejno are its controls.
-    const [viewDirector, setViewDirector] = useState<ViewDirector>();
+    const [viewDirector, setViewDirectorState] = useState<ViewDirector>();
+    const directorChanged = props.viewDirectorChanged;
+    const setViewDirector = useCallback((director: ViewDirector | undefined) => { setViewDirectorState(director); directorChanged?.(director); }, [directorChanged]);
     // One tick per lesson step: the lesson re-registers its declaration (clearing it first) on every frame change, declared or not.
     const [frameTick, setFrameTick] = useState(0);
     const registerFrame = useCallback((declaration: FrameDeclaration | undefined) => { setFrameDeclaration(declaration); setFrameTick(tick => tick + 1); }, []);

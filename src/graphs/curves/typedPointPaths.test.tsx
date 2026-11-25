@@ -95,7 +95,15 @@ describe('a typed point refits the view only when it lies outside it (decision 6
         const viewBefore = view();
         enterNumber(field, inside);
         expect(view()).toBe(viewBefore);
-        enterNumber(field, String(Math.round(top + 10 * (top - bottom))));
+        const far = Math.round(top + 10 * (top - bottom));
+        enterNumber(field, String(far));
+        if (id === 'decasteljau') {
+            // A declared graph: the old fit is skipped and the view director refits on its mark-change trigger (it needs a measured canvas, which jsdom lacks; the refit is covered by "a typed value that moves a must mark far outside the view" in src/workspace/view/viewDirector.test.ts).
+            expect(view()).toBe(viewBefore);
+            const marks = graph.getDeclaration()?.marks as {must: {y: number}[]} | undefined;
+            expect(marks?.must.some(mark => mark.y === far)).toBe(true);
+            return;
+        }
         const [, newTop, , newBottom] = board.getBoundingBox();
         expect(newTop).toBeGreaterThan(top + 5 * (top - bottom));
         expect(Math.min(left, right)).toBeLessThanOrEqual(Math.max(left, right));
