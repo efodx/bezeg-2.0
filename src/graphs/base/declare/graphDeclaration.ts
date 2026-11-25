@@ -59,6 +59,12 @@ export interface RangeParameter<K extends string = string> extends ParameterBase
     readonly bigStep?: number;
     /** The graph can draw its main curves at another value of this parameter (task 06): needs the graph's `previewGeometry()`. */
     readonly previewable?: true;
+    /**
+     * How this parameter swings when the learner lets it move by itself (task 06 slice 5): half the swing in value units
+     * (default a quarter of the range) and the period of one full swing in ms (default 4000). The swing is centred on the
+     * value it starts from and kept inside the range.
+     */
+    readonly sweep?: {readonly halfWidth?: number; readonly period?: number};
 }
 
 /** A whole-number count: a `CountSetter`. */
@@ -296,6 +302,11 @@ export function checkDeclaration(declaration: GraphDeclaration, hasPreviewGeomet
             if (!(Number.isFinite(parameter.min) && Number.isFinite(parameter.max) && ordered)) problems.push({where, problem: parameter.locked ? "needs finite min <= max" : "needs finite min < max (or locked)"});
         }
         if (parameter.kind === "range" && !(parameter.step > 0)) problems.push({where, problem: "needs a positive step"});
+        if (parameter.kind === "range" && parameter.sweep) {
+            const {halfWidth, period} = parameter.sweep;
+            const bad = (value: number | undefined) => value !== undefined && !(Number.isFinite(value) && value > 0);
+            if (bad(halfWidth) || bad(period)) problems.push({where, problem: "a sweep needs a finite positive halfWidth and period"});
+        }
         if (parameter.kind === "count" && !(Number.isInteger(parameter.min) && Number.isInteger(parameter.max))) problems.push({where, problem: "needs whole bounds"});
         if (parameter.kind === "choice" && parameter.options.length < 2) problems.push({where, problem: "needs at least two options"});
         if (parameter.kind === "choice" && parameter.puck && parameter.options.length > MAX_CHOICE_PUCK_OPTIONS) problems.push({where, problem: `a choice puck has at most ${MAX_CHOICE_PUCK_OPTIONS} options`});

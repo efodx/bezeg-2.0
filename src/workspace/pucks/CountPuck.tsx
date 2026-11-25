@@ -7,7 +7,8 @@ import type {CountParameter} from '../../graphs/base/declare/graphDeclaration';
 import {parseDecimal} from '../../inputs/NumberInput';
 import {usePreviewHover} from '../preview/previewContext';
 import {useJumpUndo} from './jumpUndo';
-import {PuckFrame, UndoPill, useTip} from './PuckParts';
+import type {PuckSweep} from '../sweep/useSweep';
+import {PuckFrame, SweepButton, UndoPill, useHold, useTip} from './PuckParts';
 import {widestCountChars} from './pucksModel';
 import {asText} from './RangePuck';
 
@@ -19,6 +20,10 @@ export interface CountPuckProps {
     /** A domain refusal from the setter, shown at the puck. */
     refusal?: Message | string;
     lockReason?: Message;
+    /** The sweep control; absent when none is offered (reduced motion, no arbiter). */
+    sweep?: PuckSweep;
+    /** Holds the key for the learner during a typed entry; returns the release. */
+    onHold?(): () => void;
 }
 
 const TYPED_START = /^[0-9\-−]$/;
@@ -44,6 +49,14 @@ export function CountPuck(props: CountPuckProps) {
     const widthCh = widestCountChars(parameter) + 0.4;
     const preview = usePreviewHover(parameter);
     const [hovered, setHovered] = useState<string | undefined>();
+    const hold = useHold(props.onHold);
+    const typing = entry !== null;
+    useEffect(() => {
+        if (!typing) return;
+        hold.begin();
+        return hold.end;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [typing]);
     // The − and + buttons preview the value a press would give (mouse only); at a bound there is nothing to preview.
     const showStep = (delta: number) => {
         const target = latest.current + delta;
@@ -112,7 +125,8 @@ export function CountPuck(props: CountPuckProps) {
     const atMin = value <= parameter.min, atMax = value >= parameter.max;
 
     return <PuckFrame label={name} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
-        tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className="puck-count"
+        tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-count${props.sweep?.running ? ' is-sweeping' : ''}`}
+        headExtra={props.sweep && !locked && <SweepButton name={name} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
         pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>
         <div className="puck-stepper">
             <button type="button" className="puck-step" aria-label={t('puck_decrease', {value0: name})} aria-disabled={locked || atMin || undefined}

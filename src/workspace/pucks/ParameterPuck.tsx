@@ -6,6 +6,7 @@ import type {BaseGraphState} from '../../graphs/base/BaseGraph';
 import type {ChoiceParameter, CountParameter, RangeParameter} from '../../graphs/base/declare/graphDeclaration';
 import {hasPuckLiveValues} from '../../graphs/base/controls/PuckOwnership';
 import {renderMessage, useLanguage} from '../../localization';
+import {useSweep} from '../sweep/useSweep';
 import {ChoicePuck} from './ChoicePuck';
 import {CountPuck} from './CountPuck';
 import {RangePuck, type PuckBounds} from './RangePuck';
@@ -68,11 +69,13 @@ function NumberParameterPuck({graph, parameter, bounds}: ParameterPuckProps & {p
         if (result?.status === 'refused-domain') setRefusal(result.error.message);
         else setRefusal(undefined);
     }, [graph, key]);
+    const sweep = useSweep(graph, parameter);
+    const onHold = useCallback(() => graph.parameters?.hold(key) ?? (() => undefined), [graph, key]);
     if (Number.isNaN(value)) return null;
     return <div className="puck-host" data-puck-key={key}>
         {parameter.kind === 'range'
-            ? <RangePuck parameter={parameter} value={value} onWrite={onWrite} bounds={bounds} refusal={refusal}/>
-            : <CountPuck parameter={parameter} value={value} onWrite={onWrite} refusal={refusal}/>}
+            ? <RangePuck parameter={parameter} value={value} onWrite={onWrite} bounds={bounds} refusal={refusal} sweep={sweep} onHold={onHold}/>
+            : <CountPuck parameter={parameter} value={value} onWrite={onWrite} refusal={refusal} sweep={sweep} onHold={onHold}/>}
     </div>;
 }
 
