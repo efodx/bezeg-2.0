@@ -65,11 +65,15 @@ describe('net-point routes (batch 3)', () => {
         const {graph} = mountGraph(new CoonsPatchGraph(options)) as unknown as {graph: CoonsPatchGraph};
         const names = editControls();
         expect(names[0], names.join(' | ')).toContain(t('coons_boundary'));
-        expect(names.findIndex(name => name.includes(t('coons_shown')))).toBeGreaterThan(0);
-        expect(names.findIndex(name => name.includes(t('coons_linked_corners')))).toBeGreaterThan(0);
+        // The shown-surface choice and the linked-corners switch are declared board pucks: they live on the puck strip, not in Edit.
+        const strip = document.querySelector('[data-puck-strip]');
+        expect(strip, 'puck strip').not.toBeNull();
+        for (const label of [t('coons_shown'), t('coons_linked_corners')]) {
+            expect(names.findIndex(name => name.includes(label)), names.join(' | ')).toBe(-1);
+        }
+        expect(strip!.textContent).toContain(t('coons_shown_short_lc'));
         act(() => graph.selectBoundaryPoint('c1', 2));
-        precedes(editor(), t('coons_shown_heading'));
-        precedes(editor(), t('coons_corners_heading'));
+        expect(editor(), 'editor shown').not.toBeNull();
     });
     test('patches/triangular: the point indices lead, starting patch, degree and parameters follow', () => {
         const {graph} = mountGraph(new TriangularPatchGraph(options)) as unknown as {graph: TriangularPatchGraph};
