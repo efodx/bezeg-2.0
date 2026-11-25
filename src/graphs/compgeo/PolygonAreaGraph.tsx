@@ -3,7 +3,8 @@ import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {StatusLive} from "../base/controls/StatusLive";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
-import {currentLanguage, t, useLanguage, useT} from "../../localization";
+import {currentLanguage, message, type Message, renderMessage, t, useLanguage, useT} from "../../localization";
+import type {NumberLanguage} from "../../analysis/format";
 import {gridToBoard, PointSetModel, reverseVertices} from "../../compgeo/pointSetModel";
 import {doubledFanAreas} from "../../compgeo/polygonMeasures";
 import {POLYGON_AREA_OVERLAY_IDS, polygonAreaPresetCollection} from "./compgeoPresetCollections";
@@ -37,39 +38,46 @@ const copy = (model: PointSetModel): PointSetModel => ({...model, points: model.
 /** A machine-readable board value (plain digits, "." separator) of a grid-unit doubled value. */
 const scaledText = (value: bigint, exponent = 0): string => exponent === 0 ? String(value) : String(Number(value) * 2 ** exponent);
 
-function AreaStatus({model, valuesShown}: {model: PointSetModel; valuesShown: boolean}) {
-    const translate = useT();
-    const {language} = useLanguage();
-    if (!valuesShown) return <><div className="inspector-help pointset-status" data-area-readout="" data-area-doubled=""><p className="mb-1" data-area-live="">{translate("pointset_values_hidden")}</p></div><StatusLive text={translate("pointset_values_hidden")}/></>;
+/** The ids of this graph's declaration (frames name them); only the readout notes, overlay and closed switches, and legend are declared. */
+export type PolygonAreaNoteId = "hidden" | "open" | "too-few" | "area" | "not-simple" | "signed-sum" | "doubled" | "orientation" | "boundary" | "interior" | "pick";
+export type PolygonAreaIds = {param: never; row: never; note: PolygonAreaNoteId; legend: "points" | "fan" | "lattice"; section: never; action: PolygonAreaOverlayId | "grid" | "closed"};
+export interface AreaNote {readonly id: PolygonAreaNoteId; readonly text: Message}
+
+/** The sentences of the area readout, the live one first (the area, or why there is none). The panel renders exactly these. */
+export function areaNotes(model: PointSetModel, valuesShown: boolean, language: NumberLanguage): AreaNote[] {
+    if (!valuesShown) return [{id: "hidden", text: message("pointset_values_hidden")}];
     const readout: AreaReadout = areaReadout(model);
-    // One concise line is live (the area, or why there is none); the remaining rows are plain text, read on demand.
-    let live: string;
-    let lines: string[];
     if (readout.kind === "message") {
-        live = readout.reason === "open" ? translate("pointset_area_open") : translate("pointset_area_too_few", {value0: 3 - model.points.length});
-        lines = [];
-    } else if (readout.kind === "signed-sum") {
-        live = translate("pointset_area_not_simple");
-        lines = [translate("pointset_area_signed_sum", {value0: formatBoardSigned(readout.doubledSum, readout.areaExponent ?? 0, language)})];
-    } else {
-        const scale = readout.areaExponent ?? 0;
-        live = translate("pointset_area_value", {value0: formatBoardHalf(readout.doubledArea, readout.areaExponent ?? 0, language)});
-        lines = [
-            translate("pointset_area_doubled", {value0: formatBoardSigned(readout.doubledSigned, scale, language)}),
-            ...(readout.orientation === "ccw" ? [translate("pointset_area_ccw")] : readout.orientation === "cw" ? [translate("pointset_area_cw")] : []),
-            ...(readout.countsOmitted ? [] : [
-                translate("pointset_area_boundary", {value0: readout.boundary}),
-                readout.interior === undefined ? translate("pointset_area_interior_skipped") : translate("pointset_area_interior", {value0: readout.interior}),
-            ]),
-            ...(readout.pick === undefined ? [] : [readout.pick.holds
-                ? translate("pointset_area_pick_holds", {value0: readout.pick.doubledValue, value1: formatBoardSigned(readout.doubledArea, scale, language).replace(/^\+/, "")})
-                : translate("pointset_area_pick_differs", {value0: readout.pick.doubledValue, value1: formatBoardSigned(readout.doubledArea, scale, language).replace(/^\+/, "")})]),
-        ];
+        return [readout.reason === "open" ? {id: "open", text: message("pointset_area_open")} : {id: "too-few", text: message("pointset_area_too_few", {value0: 3 - model.points.length})}];
     }
-    return <><div className="inspector-help pointset-status" data-area-readout={readout.kind}
-                data-area-doubled={readout.kind === "simple" ? scaledText(readout.doubledSigned, readout.areaExponent) : readout.kind === "signed-sum" ? scaledText(readout.doubledSum, readout.areaExponent) : ""}>
-        <p className="mb-1" data-area-live="">{live}</p>
-        {lines.map((line, i) => <p key={i} className="mb-1">{line}</p>)}
+    const scale = readout.areaExponent ?? 0;
+    if (readout.kind === "signed-sum") {
+        return [{id: "not-simple", text: message("pointset_area_not_simple")},
+            {id: "signed-sum", text: message("pointset_area_signed_sum", {value0: formatBoardSigned(readout.doubledSum, scale, language)})}];
+    }
+    const doubledArea = formatBoardSigned(readout.doubledArea, scale, language).replace(/^\+/, "");
+    return [
+        {id: "area", text: message("pointset_area_value", {value0: formatBoardHalf(readout.doubledArea, scale, language)})},
+        {id: "doubled", text: message("pointset_area_doubled", {value0: formatBoardSigned(readout.doubledSigned, scale, language)})},
+        ...(readout.orientation === "ccw" ? [{id: "orientation" as const, text: message("pointset_area_ccw")}] : readout.orientation === "cw" ? [{id: "orientation" as const, text: message("pointset_area_cw")}] : []),
+        ...(readout.countsOmitted ? [] : [
+            {id: "boundary" as const, text: message("pointset_area_boundary", {value0: readout.boundary})},
+            {id: "interior" as const, text: readout.interior === undefined ? message("pointset_area_interior_skipped") : message("pointset_area_interior", {value0: readout.interior})},
+        ]),
+        ...(readout.pick === undefined ? [] : [{id: "pick" as const, text: readout.pick.holds
+            ? message("pointset_area_pick_holds", {value0: readout.pick.doubledValue, value1: doubledArea})
+            : message("pointset_area_pick_differs", {value0: readout.pick.doubledValue, value1: doubledArea})}]),
+    ];
+}
+
+function AreaStatus({model, valuesShown}: {model: PointSetModel; valuesShown: boolean}) {
+    const {language} = useLanguage();
+    const [live, ...lines] = areaNotes(model, valuesShown, language).map(note => renderMessage(note.text));
+    const readout: AreaReadout | undefined = valuesShown ? areaReadout(model) : undefined;
+    return <><div className="inspector-help pointset-status" data-area-readout={readout?.kind ?? ""}
+                data-area-doubled={readout?.kind === "simple" ? scaledText(readout.doubledSigned, readout.areaExponent) : readout?.kind === "signed-sum" ? scaledText(readout.doubledSum, readout.areaExponent) : ""}>
+        <p className="mb-1" data-area-live="" data-readout-note>{live}</p>
+        {lines.map((line, i) => <p key={i} className="mb-1" data-readout-note>{line}</p>)}
     </div><StatusLive text={live}/></>;
 }
 
@@ -133,6 +141,28 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
         return super.overlayLabel(id);
     }
 
+    // ---- Declaration (task 08 step 2): the base's marks, legend and switches, plus the readout sentences as notes ----------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "grid" | PolygonAreaOverlayId): Message {
+        if (id === "fan") return message("pointset_area_overlay_fan");
+        if (id === "lattice") return message("pointset_area_overlay_lattice");
+        if (id === "values") return message("pointset_overlay_values");
+        return super.overlayMessage(id);
+    }
+
+    /** The fan and the lattice markers are what the lesson asks to flip while watching the polygon: board pucks. The grid and the numbers stay in Orodja. */
+    protected override overlayIsPuck(id: "grid" | PolygonAreaOverlayId): boolean { return id === "fan" || id === "lattice"; }
+
+    protected override overlaySwatch(id: "grid" | PolygonAreaOverlayId) {
+        if (id === "fan") return {kind: "area" as const, color: CompgeoRegionPalette.positiveFill};
+        if (id === "lattice") return {kind: "point" as const, color: CompgeoRegionPalette.latticeBoundary};
+        return undefined;
+    }
+
+    protected override pointSetNotes() { return areaNotes(this.model, this.overlayShown("values"), currentLanguage()); }
+
     protected override drawOverlay(id: "grid" | PolygonAreaOverlayId, model: PointSetModel): JXG.GeometryElement[] {
         if (id === "fan") return this.drawFan(model);
         if (id === "lattice") return this.drawLattice(model);
@@ -191,7 +221,7 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <AreaStatus model={this.model} valuesShown={this.overlayShown("values")}/>
+            <div data-declared-panel=""><AreaStatus model={this.model} valuesShown={this.overlayShown("values")}/></div>
             <ReverseControl disabled={this.model.points.length < 2} onReverse={() => { this.reverseOrder(); }}/>
             {super.workspaceEdit()}
         </>;

@@ -7,9 +7,12 @@
 import type {LessonAction, LessonPoint, LessonViewBox} from '../model';
 import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {PolygonAreaIds} from '../../graphs/compgeo/PolygonAreaGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const areaFrame = frameDeclarer<PolygonAreaIds>();
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -311,7 +314,7 @@ const polygonArea: GuidedLesson = {
                 'The sum of \\(x_iy_{i+1}-x_{i+1}y_i\\) over all edges is \\(0+0+12+19+11=42\\), and the area is half of it: \\(A=21\\). The sum is positive because the vertices follow each other counter-clockwise.',
             ),
             formulaIds: ['area-shoelace'], workedExampleId: 'area-shoelace-example',
-            frames: [frame('area-shoelace-step-explanation', 'explanation'), frame('area-shoelace-step-calculation', 'calculation'), frame('area-shoelace-step-observation', 'observation')],
+            frames: [frame('area-shoelace-step-explanation', 'explanation'), frame('area-shoelace-step-calculation', 'calculation', areaFrame({highlight: ['doubled']})), frame('area-shoelace-step-observation', 'observation', areaFrame({highlight: ['area']}))],
             observationPrompt: text('Primerjaj napoved z izpisano ploščino.', 'Compare your prediction with the displayed area.'),
             expectedObservations: [text('Izpis pokaže dvojno predznačeno ploščino \\(42\\) in ploščino \\(21\\).', 'The readout shows the doubled signed area \\(42\\) and the area \\(21\\).')],
             scene: scene('area-shoelace-step', [polygon(AREA_HULL_PENTAGON), overlay('fan', true), overlay('lattice', false), overlay('values', true)],
@@ -327,7 +330,7 @@ const polygonArea: GuidedLesson = {
                 'If we travel round the same pentagon in the opposite order, every term changes sign and the sum is \\(-42\\). The area \\(21\\) stays, since the area is the absolute value; the sign now says the travel is clockwise.',
             ),
             formulaIds: ['area-shoelace'],
-            frames: [frame('area-reverse-explanation', 'explanation'), frame('area-reverse-observation', 'observation')],
+            frames: [frame('area-reverse-explanation', 'explanation'), frame('area-reverse-observation', 'observation', areaFrame({highlight: ['doubled', 'orientation']}))],
             observationPrompt: text('Pritisni Obrni vrstni red in opazuj predznak.', 'Press Reverse order and watch the sign.'),
             expectedObservations: [text('Dvojna predznačena ploščina je \\(-42\\), ploščina pa še vedno \\(21\\).', 'The doubled signed area is \\(-42\\), and the area is still \\(21\\).')],
             scene: scene('area-reverse', [polygon(AREA_HULL_PENTAGON_REVERSED), overlay('fan', true), overlay('lattice', false), overlay('values', true)],
@@ -343,7 +346,7 @@ const polygonArea: GuidedLesson = {
                 'The notched pentagon \\((0,0),(6,0),(6,4),(3,2),(0,4)\\) has \\(B=16\\) boundary and \\(I=11\\) interior lattice points. Then \\(2I+B-2=2\\cdot11+16-2=36\\), equal to the doubled area; so \\(A=11+8-1=18\\). The previous pentagon has \\(B=8\\) and \\(I=18\\), so \\(18+4-1=21\\).',
             ),
             formulaIds: ['area-pick'], workedExampleId: 'area-pick-example',
-            frames: [frame('area-pick-step-explanation', 'explanation'), frame('area-pick-step-calculation', 'calculation'), frame('area-pick-step-observation', 'observation')],
+            frames: [frame('area-pick-step-explanation', 'explanation'), frame('area-pick-step-calculation', 'calculation', areaFrame({highlight: ['boundary', 'interior', 'pick']})), frame('area-pick-step-observation', 'observation')],
             observationPrompt: text('Preštej robne in notranje točke ter primerjaj z izpisom.', 'Count the boundary and interior points and compare with the readout.'),
             expectedObservations: [text('Izpis pokaže \\(B=16\\), \\(I=11\\), dvojno ploščino \\(36\\) in ujemanje s Pickovim izrekom.', 'The readout shows \\(B=16\\), \\(I=11\\), the doubled area \\(36\\), and the agreement with Pick\'s theorem.')],
             scene: scene('area-pick-step', [polygon(AREA_NOTCHED_PENTAGON), overlay('fan', false), overlay('lattice', true), overlay('values', true)],
@@ -359,7 +362,7 @@ const polygonArea: GuidedLesson = {
                 'In the bow tie with vertices \\((0,0),(4,4),(4,0),(0,4)\\) the boundary crosses itself. The sum is \\(0\\) although the figure has area: the two parts have opposite directions of travel and cancel. The sum is therefore a signed sum of winding number times area, not an area, and Pick\'s theorem is not offered.',
             ),
             formulaIds: ['area-shoelace'],
-            frames: [frame('area-self-intersecting-explanation', 'explanation'), frame('area-self-intersecting-observation', 'observation')],
+            frames: [frame('area-self-intersecting-explanation', 'explanation'), frame('area-self-intersecting-observation', 'observation', areaFrame({highlight: ['not-simple', 'signed-sum']}))],
             observationPrompt: text('Premakni eno oglišče in opazuj, kdaj se izpis spremeni v ploščino.', 'Move one vertex and watch when the readout changes back to an area.'),
             expectedObservations: [text('Izpis pokaže predznačeno vsoto \\(0\\) z opombo, da večkotnik ni enostaven.', 'The readout shows the signed sum \\(0\\) with a note that the polygon is not simple.')],
             scene: scene('area-self-intersecting', [polygon(AREA_BOW_TIE), overlay('fan', true), overlay('lattice', false), overlay('values', true)],

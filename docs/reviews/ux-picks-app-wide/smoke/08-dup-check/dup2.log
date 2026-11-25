@@ -1,0 +1,204 @@
+--- polygon Orodja tab Uredi ---
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Obrni vrstni red"|chk=|prs=|grp=Uredi
+select|select-one|"Točke Večkotnik"|chk=|prs=|grp=Uredi
+input|checkbox|"Sklenjen večkotnik"|chk=true|prs=|grp=Uredi
+input|checkbox|"Mreža"|chk=false|prs=|grp=Uredi
+input|checkbox|"Številske vrednosti"|chk=true|prs=|grp=Uredi
+button|button|"Dodaj točko"|chk=|prs=|grp=Uredi
+button|button|"Odstrani izbrano točko"|chk=|prs=|grp=Uredi
+button|button|"Počisti vse točke"|chk=|prs=|grp=Uredi
+button|button|"Dodajanje z dotikom ali klikom"|chk=|prs=false|grp=Uredi
+input|text|"Nova točka, x"|chk=|prs=|grp=Nova točka
+input|text|"Nova točka, y"|chk=|prs=|grp=Nova točka
+button|button|"Dodaj na koordinatah"|chk=|prs=|grp=Nova točka
+button|button|"Izberi: P1"|chk=|prs=false|grp=P1
+input|text|"P1, x"|chk=|prs=|grp=P1
+input|text|"P1, y"|chk=|prs=|grp=P1
+button|button|"Izberi: P2"|chk=|prs=false|grp=P2
+input|text|"P2, x"|chk=|prs=|grp=P2
+input|text|"P2, y"|chk=|prs=|grp=P2
+button|button|"Izberi: P3"|chk=|prs=false|grp=P3
+input|text|"P3, x"|chk=|prs=|grp=P3
+input|text|"P3, y"|chk=|prs=|grp=P3
+button|button|"Izberi: P4"|chk=|prs=false|grp=P4
+input|text|"P4, x"|chk=|prs=|grp=P4
+input|text|"P4, y"|chk=|prs=|grp=P4
+button|button|"Izberi: P5"|chk=|prs=false|grp=P5
+input|text|"P5, x"|chk=|prs=|grp=P5
+input|text|"P5, y"|chk=|prs=|grp=P5
+button|button|"Več vsebine"|chk=|prs=|grp=Orodja demonstracije
+--- polygon Orodja tab Prikaz ---
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+summary||"Koordinatni sistem"|chk=|prs=|grp=Prikaz
+select|select-one|"Brez Samo osi Osi in mreža Osi in mreža in črtice "|chk=|prs=|grp=Prikaz
+summary||"Velikost elementov"|chk=|prs=|grp=Prikaz
+input|text|"Velikost elementov grafa, vrednost"|chk=|prs=|grp=Prikaz
+input|range|"Velikost elementov grafa"|chk=|prs=|grp=Prikaz
+--- polygon Orodja tab Shrani ---
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Privzeto stanje izbrano"|chk=|prs=|grp=Shrani
+button|button|"Ponastavi prednastavitev"|chk=|prs=|grp=Shrani
+button|button|"Shrani trenutno stanje …"|chk=|prs=|grp=Shrani
+button|button|"Izvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Uvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"SVG"|chk=|prs=|grp=Shrani
+button|button|"PNG"|chk=|prs=|grp=Shrani
+button|button|"Generiraj slike za prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Več vsebine"|chk=|prs=|grp=Orodja demonstracije
+--- polygon board strip ([aria-label="Interaktivni graf"]) ---
+button|button|"Premakni kartico »Odčitki«"|chk=|prs=|grp=Interaktivni graf
+button|button|"Odčitki"|chk=|prs=|grp=Interaktivni graf
+button|button|"Vrni kartico »Odčitki« na privzeto mesto"|chk=|prs=|grp=Interaktivni graf
+button|button|""|chk=|prs=|grp=Interaktivni graf
+button|button|"Premakni kartico »Legenda«"|chk=|prs=|grp=Interaktivni graf
+button|button|"Legenda"|chk=|prs=|grp=Interaktivni graf
+button|button|"Vrni kartico »Legenda« na privzeto mesto"|chk=|prs=|grp=Interaktivni graf
+button|button|"Premakni kartico »Odčitki«"|chk=|prs=|grp=Odčitki
+button|button|"Odčitki"|chk=|prs=|grp=Odčitki
+button|button|"Vrni kartico »Odčitki« na privzeto mesto"|chk=|prs=|grp=Odčitki
+button|button|"Premakni kartico »Legenda«"|chk=|prs=|grp=Legenda
+button|button|"Legenda"|chk=|prs=|grp=Legenda
+button|button|"Vrni kartico »Legenda« na privzeto mesto"|chk=|prs=|grp=Legenda
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Privzeto stanje izbrano"|chk=|prs=|grp=Shrani
+button|button|"Ponastavi prednastavitev"|chk=|prs=|grp=Shrani
+button|button|"Shrani trenutno stanje …"|chk=|prs=|grp=Shrani
+button|button|"Izvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Uvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"SVG"|chk=|prs=|grp=Shrani
+button|button|"PNG"|chk=|prs=|grp=Shrani
+button|button|"Generiraj slike za prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Več vsebine"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Premakni krmilnike"|chk=|prs=|grp=Interaktivni graf
+div|switch|"Trikotniki iz prvega oglišča"|chk=true|prs=|grp=Trikotniki iz prvega oglišča
+div|switch|"Mrežne točke"|chk=true|prs=|grp=Mrežne točke
+button|submit|"Premakni pogled levo"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Premakni pogled gor"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Premakni pogled dol"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Premakni pogled desno"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Približaj graf"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Oddalji graf"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Prilagodi točkam"|chk=|prs=|grp=Premikanje in povečava grafa
+--- polygon Legenda ---
+
+flip "Trikotniki iz prvega oglišča": true -> false, svg els 208 -> 185
+flip "Mrežne točke": true -> false, svg els 185 -> 143
+polygon errors: []
+--- bezier Orodja tab Uredi ---
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+summary||"Vnos točk s tipkovnico"|chk=|prs=|grp=Uredi
+button|button|"Zmanjšaj število"|chk=|prs=|grp=Uredi
+button|button|"Povečaj število"|chk=|prs=|grp=Uredi
+input|text|"Nova točka, x"|chk=|prs=|grp=Nova točka
+input|text|"Nova točka, y"|chk=|prs=|grp=Nova točka
+button|button|"Dodaj na koordinatah"|chk=|prs=|grp=Nova točka
+input|text|"p₀, x"|chk=|prs=|grp=p₀
+input|text|"p₀, y"|chk=|prs=|grp=p₀
+button|button|"Odstrani: p₀"|chk=|prs=|grp=p₀
+input|text|"p₁, x"|chk=|prs=|grp=p₁
+input|text|"p₁, y"|chk=|prs=|grp=p₁
+button|button|"Odstrani: p₁"|chk=|prs=|grp=p₁
+input|text|"p₂, x"|chk=|prs=|grp=p₂
+input|text|"p₂, y"|chk=|prs=|grp=p₂
+button|button|"Odstrani: p₂"|chk=|prs=|grp=p₂
+input|text|"p₃, x"|chk=|prs=|grp=p₃
+input|text|"p₃, y"|chk=|prs=|grp=p₃
+button|button|"Odstrani: p₃"|chk=|prs=|grp=p₃
+button|submit|"Krivulja1"|chk=|prs=false|grp=Uredi
+summary||"Način urejanja: Premakni"|chk=|prs=|grp=Uredi
+button|button|"Premakni"|chk=|prs=true|grp=Uredi
+button|button|"Dodaj točko"|chk=|prs=false|grp=Uredi
+button|button|"Izbriši točko"|chk=|prs=false|grp=Uredi
+button|button|"Več vsebine"|chk=|prs=|grp=Orodja demonstracije
+--- bezier Orodja tab Prikaz ---
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+input|checkbox|"Oznake točk"|chk=true|prs=|grp=Prikaz
+input|checkbox|"Kontrolne točke"|chk=true|prs=|grp=Prikaz
+summary||"Koordinatni sistem"|chk=|prs=|grp=Prikaz
+select|select-one|"Brez Samo osi Osi in mreža Osi in mreža in črtice "|chk=|prs=|grp=Prikaz
+summary||"Velikost elementov"|chk=|prs=|grp=Prikaz
+input|text|"Velikost elementov grafa, vrednost"|chk=|prs=|grp=Prikaz
+input|range|"Velikost elementov grafa"|chk=|prs=|grp=Prikaz
+button|button|"Več vsebine"|chk=|prs=|grp=Orodja demonstracije
+--- bezier Orodja tab Shrani ---
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Privzeto stanje izbrano"|chk=|prs=|grp=Shrani
+button|button|"Ponastavi prednastavitev"|chk=|prs=|grp=Shrani
+button|button|"Shrani trenutno stanje …"|chk=|prs=|grp=Shrani
+button|button|"Izvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Uvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"SVG"|chk=|prs=|grp=Shrani
+button|button|"PNG"|chk=|prs=|grp=Shrani
+button|button|"Generiraj slike za prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Več vsebine"|chk=|prs=|grp=Orodja demonstracije
+--- bezier board ---
+button|button|"Premakni kartico »Legenda«"|chk=|prs=|grp=Interaktivni graf
+button|button|"Legenda"|chk=|prs=|grp=Interaktivni graf
+button|button|"Vrni kartico »Legenda« na privzeto mesto"|chk=|prs=|grp=Interaktivni graf
+button|button|"Premakni kartico »Legenda«"|chk=|prs=|grp=Legenda
+button|button|"Legenda"|chk=|prs=|grp=Legenda
+button|button|"Vrni kartico »Legenda« na privzeto mesto"|chk=|prs=|grp=Legenda
+button|button|"Premakni kartico »Orodja«"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Uredi"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Prikaz"|chk=|prs=false|grp=Orodja demonstracije
+button|button|"Shrani"|chk=|prs=true|grp=Orodja demonstracije
+button|button|"Orodja"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Vrni kartico »Orodja« na privzeto mesto"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Privzeto stanje izbrano"|chk=|prs=|grp=Shrani
+button|button|"Ponastavi prednastavitev"|chk=|prs=|grp=Shrani
+button|button|"Shrani trenutno stanje …"|chk=|prs=|grp=Shrani
+button|button|"Izvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Uvozi prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"SVG"|chk=|prs=|grp=Shrani
+button|button|"PNG"|chk=|prs=|grp=Shrani
+button|button|"Generiraj slike za prednastavitve"|chk=|prs=|grp=Shrani
+button|button|"Več vsebine"|chk=|prs=|grp=Orodja demonstracije
+button|button|"Premakni krmilnike"|chk=|prs=|grp=Interaktivni graf
+div|switch|"Kontrolni poligon"|chk=false|prs=|grp=Kontrolni poligon
+div|switch|"Konveksna ovojnica"|chk=false|prs=|grp=Konveksna ovojnica
+button|submit|"Premakni pogled levo"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Premakni pogled gor"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Premakni pogled dol"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Premakni pogled desno"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Približaj graf"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Oddalji graf"|chk=|prs=|grp=Premikanje in povečava grafa
+button|submit|"Prilagodi točkam"|chk=|prs=|grp=Premikanje in povečava grafa
+--- bezier Legenda ---
+
+bezier errors: []

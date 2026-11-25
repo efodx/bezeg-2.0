@@ -78,6 +78,23 @@ const SAMPLES: readonly Sample[] = [
         {name: 'two points coincide', apply: graph => { runAs('learner', () => { const g = graph as unknown as {moveHandleTo(h: number, x: number, y: number): void}; g.moveHandleTo(4, 0, 5); g.moveHandleTo(1, 0, 0); }); }},
         {name: 'second line degenerate', apply: graph => { runAs('learner', () => { const g = graph as unknown as {loadExample(id: string): void; moveHandleTo(h: number, x: number, y: number): void}; g.loadExample('harmonic'); g.moveHandleTo(6, 0, 1); }); }},
     ]},
+    {file: 'compgeo/__parity__/polygon-area.json', demonstration: 'polygon-area', states: (() => {
+        type Area = {loadModel(model: unknown): void; setOverlay(id: string, shown: boolean): void; setPolygonClosed(closed: boolean): boolean; reverseOrder(): boolean};
+        const polygon = (points: [number, number][], closed = true) => ({mode: 'polygon', closed, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        const load = (model: unknown, values = true): ParityState['apply'] => graph => { runAs('learner', () => { const g = graph as unknown as Area; g.loadModel(model); g.setOverlay('values', values); }); };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        const pentagon = polygon([[-1, 3], [0, 0], [4, 0], [5, 3], [2, 5]]);
+        return [
+            step('hull pentagon', load(pentagon)),
+            step('notched pentagon', load(polygon([[0, 0], [6, 0], [6, 4], [3, 2], [0, 4]]))),
+            step('square', load(polygon([[0, 0], [3, 0], [3, 3], [0, 3]]))),
+            step('square reversed', graph => { load(polygon([[0, 0], [3, 0], [3, 3], [0, 3]]))(graph); runAs('learner', () => (graph as unknown as Area).reverseOrder()); }),
+            step('values hidden', load(pentagon, false)),
+            step('open polygon', graph => { load(pentagon)(graph); runAs('learner', () => (graph as unknown as Area).setPolygonClosed(false)); }),
+            step('two points', load(polygon([[0, 0], [4, 1]]))),
+            step('bow tie', load(polygon([[0, 0], [4, 4], [4, 0], [0, 4]]))),
+        ];
+    })()},
     {file: 'patches/__parity__/patch-coons.json', demonstration: 'patch-coons', states: (() => {
         type Coons = {selectBoundaryPoint(name: string, index: number): void; setSelectedCoordinates(xyz: [number, number, number]): void; setLinkedCorners(linked: boolean): void};
         const move = (name: string, index: number, xyz: [number, number, number]) => (graph: unknown) => runAs('learner', () => {

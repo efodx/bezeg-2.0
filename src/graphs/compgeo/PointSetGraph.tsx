@@ -5,7 +5,9 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {LessonAction, UnsupportedLessonActionError} from "../../learning/model";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, type Message, onLanguageChange, t} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, LegendKind, ReadoutNote, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
 import {GRID_COORD_LIMIT, GridPoint} from "../../compgeo/grid";
 import {constrainPoint, placeNewPoint, pointKeyCommand, refitWhenOutside, stepPoint} from "../base/points";
 import {
@@ -111,6 +113,8 @@ interface DrawnScene {
 export class PointSetGraph<Overlay extends string = never> extends BaseGraph<PointSetGraphState, PointSetModel> {
     private drawn?: DrawnScene;
     private overlayObjects: JXG.GeometryElement[] = [];
+    /** The objects each shown overlay drew, by id (the legend resolves its entries through it). */
+    private overlayDrawn = new Map<string, JXG.GeometryElement[]>();
     private overlaysDrawnFor?: {model: PointSetModel; overlays: unknown; extra: unknown};
     private inDragSnap = false;
     private selected?: number;
@@ -915,17 +919,19 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     private redrawOverlays(model: PointSetModel): void {
         this.removeObjects(this.overlayObjects);
         this.overlayObjects = [];
+        this.overlayDrawn = new Map();
         const overlays = this.state.overlays;
         // Some board elements (the grid) create helper objects of their own; the base owns every object a draw added.
-        const owned = (draw: () => JXG.GeometryElement[]): void => {
+        const owned = (draw: () => JXG.GeometryElement[], id?: string): void => {
             const before = new Set<unknown>(this.board.objectsList as unknown[]);
             const drawn = draw();
             const created = (this.board.objectsList as JXG.GeometryElement[]).filter(object => !before.has(object) && !drawn.includes(object));
             this.overlayObjects.push(...drawn, ...created);
+            if (id !== undefined) this.overlayDrawn.set(id, [...drawn, ...created]);
         };
         owned(() => this.drawModelObjects(model));
         for (const id of this.overlayIds()) {
-            if (this.overlayShown(id)) owned(() => this.drawOverlay(id, model));
+            if (this.overlayShown(id)) owned(() => this.drawOverlay(id, model), id);
         }
         this.overlaysDrawnFor = {model, overlays, extra: this.overlayInputs()};
     }
@@ -938,6 +944,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.pendingDrawnFor = undefined;
         this.removeObjects(this.overlayObjects);
         this.overlayObjects = [];
+        this.overlayDrawn = new Map();
         this.overlaysDrawnFor = undefined;
     }
 
@@ -947,8 +954,85 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.pendingDrawnFor = undefined;
         this.pending = undefined;
         this.overlayObjects = [];
+        this.overlayDrawn = new Map();
         this.overlaysDrawnFor = undefined;
         super.unmount();
+    }
+
+    // ---- Declaration (task 08 step 2, point sets): opt-in, like `BaseCurveGraph.declaresCurveWorkspace` -----------------
+
+    /**
+     * Opt-in: a subclass that returns true declares the generic part of a point-set board: marks (the points, and the outline of
+     * a closed polygon), a legend (the points and each overlay that has a swatch), and the display switches (each overlay and the
+     * closed-polygon switch) as actions with `pressed`. Undeclared graphs keep today's panels. A subclass with its own
+     * `declaration()` keeps it and may spread {@link commonPointSetDeclaration}.
+     */
+    protected declaresPointSetWorkspace(): boolean { return false; }
+
+    /** The swatch of an overlay's legend entry; undefined (the default) gives the overlay no entry (a grid, a switch that draws nothing). */
+    protected overlaySwatch(_id: Overlay | PointSetBaseOverlayId): {kind: LegendKind; color: string} | undefined { return undefined; }
+
+    /** Whether an overlay's switch is a board puck (flipped while watching) rather than a control in Orodja. Default: Orodja. */
+    protected overlayIsPuck(_id: Overlay | PointSetBaseOverlayId): boolean { return false; }
+
+    /** The sentences a subclass's readout shows, as declared notes; the panel renders the same data. Default: none. */
+    protected pointSetNotes(): readonly ReadoutNote[] { return []; }
+
+    /** Marks from the model: every point must stay in view; a closed polygon (3 or more points) adds its outline as a nice polyline. */
+    protected pointSetViewMarks(): ViewMarks {
+        const {model} = this;
+        const at = model.points.map(point => gridToBoard(point, model.gridStepExponent));
+        const must: ViewMark[] = at.map(point => ({kind: "point", x: point.x, y: point.y}));
+        const closedPolygon = model.mode === "polygon" && model.closed && at.length >= 3;
+        return closedPolygon ? {must, nice: [{kind: "polyline", points: [...at, at[0]].map(point => [point.x, point.y] as const)}]} : {must};
+    }
+
+    protected commonPointSetDeclaration(): Pick<GraphDeclaration, "legend" | "actions" | "marks"> {
+        const legend: LegendEntry[] = [{id: "points", label: message("pointset_point_list"), kind: "point", object: "points"}];
+        const actions: ActionDeclaration[] = [];
+        for (const id of this.overlayIds()) {
+            const swatch = this.overlaySwatch(id);
+            if (swatch) legend.push({id, label: this.overlayMessage(id), kind: swatch.kind, object: id});
+            const puck = this.overlayIsPuck(id);
+            actions.push({id, label: this.overlayMessage(id), enabled: true, pressed: this.overlayShown(id),
+                ...(puck ? {placement: "board" as const, puck: true as const} : {placement: "tools" as const, section: "display"})});
+        }
+        if (this.model.mode === "polygon" && this.showsClosedToggle()) {
+            actions.push({id: "closed", label: message("pointset_closed"), enabled: true, pressed: this.model.closed, placement: "tools", section: "display"});
+        }
+        return {legend, actions, marks: this.pointSetViewMarks()};
+    }
+
+    /** The overlay's switch text as a catalog message (what `overlayLabel` returns as a string); a declaring subclass gives its own overlays'. */
+    protected overlayMessage(id: Overlay | PointSetBaseOverlayId): Message {
+        if (id === "grid") return message("pointset_overlay_grid");
+        throw new Error(`The point-set graph declares overlay "${id}" without a message for it (override overlayMessage).`);
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        if (!this.declaresPointSetWorkspace()) return undefined;
+        const notes = this.pointSetNotes();
+        return {...this.commonPointSetDeclaration(), ...(notes.length ? {notes} : {})};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        type Drawn = JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        if (id === "points") {
+            const first = this.hasBoard ? this.drawn?.points[0] as Drawn | undefined : undefined;
+            return first ? {color: String(first.evalVisProp("fillcolor")), visible: Boolean(first.evalVisProp("visible"))} : {color: GraphPalette.controlPoint, visible: false};
+        }
+        const swatch = (this.overlayIds() as readonly string[]).includes(id) ? this.overlaySwatch(id as Overlay) : undefined;
+        if (!swatch) return super.drawnObject(id);
+        const objects = this.overlayDrawn.get(id);
+        return {color: swatch.color, visible: this.overlayShown(id as Overlay) && objects !== undefined && objects.length > 0};
+    }
+
+    override performAction(id: string): void {
+        const overlay = (this.overlayIds() as readonly string[]).find(candidate => candidate === id) as Overlay | PointSetBaseOverlayId | undefined;
+        if (overlay !== undefined) { runAs("learner", () => this.setOverlay(overlay, !this.overlayShown(overlay))); return; }
+        if (id === "closed") { runAs("learner", () => { this.setPolygonClosed(!this.model.closed); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

@@ -1,0 +1,115 @@
+{
+  "graph": "polygon-area",
+  "language": "sl",
+  "states": [
+    {
+      "name": "hull pentagon",
+      "rows": [],
+      "notes": [
+        "Ploščina: 21",
+        "Dvojna predznačena ploščina (obrazec z determinantami, shoelace): +42",
+        "Oglišča si sledijo v nasprotni smeri urinega kazalca.",
+        "Robne mrežne točke B: 8",
+        "Notranje mrežne točke I: 18",
+        "Pickov izrek: 2I + B - 2 = 42 je enako dvojni ploščini 42."
+      ],
+      "outputs": [],
+      "captions": [
+        "+12",
+        "+12",
+        "+18"
+      ]
+    },
+    {
+      "name": "notched pentagon",
+      "rows": [],
+      "notes": [
+        "Ploščina: 18",
+        "Dvojna predznačena ploščina (obrazec z determinantami, shoelace): +36",
+        "Oglišča si sledijo v nasprotni smeri urinega kazalca.",
+        "Robne mrežne točke B: 16",
+        "Notranje mrežne točke I: 11",
+        "Pickov izrek: 2I + B - 2 = 36 je enako dvojni ploščini 36."
+      ],
+      "outputs": [],
+      "captions": [
+        "+12",
+        "+24"
+      ]
+    },
+    {
+      "name": "square",
+      "rows": [],
+      "notes": [
+        "Ploščina: 9",
+        "Dvojna predznačena ploščina (obrazec z determinantami, shoelace): +18",
+        "Oglišča si sledijo v nasprotni smeri urinega kazalca.",
+        "Robne mrežne točke B: 12",
+        "Notranje mrežne točke I: 4",
+        "Pickov izrek: 2I + B - 2 = 18 je enako dvojni ploščini 18."
+      ],
+      "outputs": [],
+      "captions": [
+        "+9",
+        "+9"
+      ]
+    },
+    {
+      "name": "square reversed",
+      "rows": [],
+      "notes": [
+        "Ploščina: 9",
+        "Dvojna predznačena ploščina (obrazec z determinantami, shoelace): -18",
+        "Oglišča si sledijo v smeri urinega kazalca.",
+        "Robne mrežne točke B: 12",
+        "Notranje mrežne točke I: 4",
+        "Pickov izrek: 2I + B - 2 = 18 je enako dvojni ploščini 18."
+      ],
+      "outputs": [],
+      "captions": [
+        "-9",
+        "-9"
+      ]
+    },
+    {
+      "name": "values hidden",
+      "rows": [],
+      "notes": [
+        "Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "open polygon",
+      "rows": [],
+      "notes": [
+        "Ploščine ni: za ploščino sklenite večkotnik."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Za ploščino je potrebnih vsaj 3 oglišča. Dodaj še oglišča; manjka jih: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "bow tie",
+      "rows": [],
+      "notes": [
+        "Večkotnik ni enostaven, zato ta vsota ni ploščina in Pickov izrek ne velja.",
+        "Predznačena vsota ovojnega števila in ploščine (dvojna vrednost): 0"
+      ],
+      "outputs": [],
+      "captions": [
+        "+16",
+        "-16"
+      ]
+    }
+  ]
+}
