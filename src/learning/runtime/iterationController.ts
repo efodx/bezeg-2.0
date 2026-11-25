@@ -1,4 +1,4 @@
-import {AnimationDriver, AnimationScheduler} from './animation';
+import {AnimationDriver, AnimationLeaseSpec, AnimationScheduler} from './animation';
 
 /** What one transition reports: another step is possible, or the iteration reached a natural end (a root, stagnation, a requested tolerance). */
 export type IterationOutcome = 'continue' | 'complete';
@@ -37,6 +37,8 @@ export class IterationController {
     private completed = false;
     private disposed = false;
     private elapsed = 0;
+    /** A lease interruption stopped playback; reads as paused until the next play or reset. */
+    private interrupted = false;
 
     constructor(private readonly options: IterationControllerOptions) {
         if (!(options.stepIntervalMs > 0) || !Number.isFinite(options.stepIntervalMs)) {
@@ -56,7 +58,25 @@ export class IterationController {
     get status(): IterationStatus {
         if (this.completed) return 'complete';
         if (this.driver.isRunning()) return 'playing';
-        return this.driver.isPaused() ? 'paused' : 'idle';
+        return this.driver.isPaused() || this.interrupted ? 'paused' : 'idle';
+    }
+
+    /**
+     * Playback moves `spec.keys` as `animation` writes under a lease taken at each `play()` (ADR 0064): a frame's
+     * transition runs inside the lease, and the lease is released on pause, completion, reset and dispose. A learner or
+     * lesson write of a leased key ends the lease: playback stops, the status reads `paused`, and `spec.onInterrupted` runs.
+     * `play()` does nothing while the learner holds a leased key. Call before the first `play()`.
+     */
+    useLease(spec: AnimationLeaseSpec): this {
+        this.driver.useLease({
+            ...spec,
+            onInterrupted: reason => {
+                this.elapsed = 0;
+                this.interrupted = true;
+                spec.onInterrupted?.(reason);
+            },
+        });
+        return this;
     }
 
     isPlaying() {
@@ -86,6 +106,7 @@ export class IterationController {
     play() {
         if (this.disposed || this.completed) return;
         this.elapsed = 0;
+        this.interrupted = false;
         this.driver.play();
     }
 
@@ -100,6 +121,7 @@ export class IterationController {
         if (this.disposed) return;
         this.driver.stop();
         this.elapsed = 0;
+        this.interrupted = false;
         this.count = Math.min(Math.max(0, Math.floor(iteration)), this.options.maxIterations);
         this.completed = this.count >= this.options.maxIterations;
         this.options.onReset?.();

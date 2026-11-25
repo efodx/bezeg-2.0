@@ -23,7 +23,7 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
-import type {Lease, ParameterBinding} from "../base/writes/parameterArbiter";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {
     applyChooseElement, applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applySetVector, applyStep,
     CompositionSlot, compositionDefaults,
@@ -190,8 +190,6 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     private boardViewKey = "plane";
     private controller?: IterationController;
     private ticking = false;
-    /** The playback's lease on the step (ADR 0064); the controller's own driver is private, so the graph takes the lease itself. */
-    private stepLease?: Lease;
 
     override presetCollection() {
         return linearMapPresetCollection;
@@ -419,16 +417,20 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     this.ticking = true;
                     try { this.commitModel({...this.model, step}); } finally { this.ticking = false; }
                 };
-                // The frame is an `animation` write of the step under the playback's lease.
-                if (this.stepLease) this.stepLease.run(tick);
-                else tick();
+                tick();
                 this.requestRender();
                 return step >= ITERATE_STEP_MAX ? "complete" : "continue";
             },
             stepIntervalMs: STEP_INTERVAL_MS,
             maxIterations: ITERATE_STEP_MAX,
-            onComplete: () => { this.releaseStepLease(); this.requestRender(); },
+            onComplete: () => this.requestRender(),
             scheduler: this.animationScheduler(),
+        // The frame is an `animation` write of the step under the playback's lease (ADR 0064). A learner or lesson
+        // write of the step, or a lesson frame change, ends the lease and pauses.
+        }).useLease({
+            arbiter: () => this.parameters,
+            keys: ["linear-map-step"],
+            onInterrupted: () => { if (this.graphSession?.isAlive) this.requestRender(); },
         });
         if (this.controller.iteration !== stepOf(this.model)) this.controller.reset(stepOf(this.model));
         return this.controller;
@@ -441,33 +443,15 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     /** Stops the playback; the step stays where it is. */
     override pausePlayback(): void {
-        this.releaseStepLease();
         if (!this.controller?.isPlaying()) return;
         this.controller.pause();
         if (this.graphSession?.isAlive) this.requestRender();
     }
 
-    private releaseStepLease(): void {
-        const lease = this.stepLease;
-        this.stepLease = undefined;
-        lease?.release();
-    }
-
     /** Plays from the step on. Under reduced motion nothing plays: the button says why and Next step stays available. */
     play(): void {
         if (this.isPlaying() || !this.graphSession?.isAlive || stepOf(this.model) >= ITERATE_STEP_MAX || this.reducedMotion()) return;
-        const arbiter = this.parameters;
-        if (arbiter) {
-            // The learner holds the step: nothing starts. A learner or lesson write of the step, or a lesson frame change, ends the lease and pauses.
-            const lease = arbiter.lease(["linear-map-step"], () => {
-                if (this.stepLease !== lease) return;
-                this.stepLease = undefined;
-                this.controller?.pause();
-                if (this.graphSession?.isAlive) this.requestRender();
-            });
-            if (!lease) return;
-            this.stepLease = lease;
-        }
+        // The learner holding the step keeps the controller from starting.
         this.syncedController().play();
         this.requestRender();
     }
