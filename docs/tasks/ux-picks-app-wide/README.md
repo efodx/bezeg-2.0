@@ -43,6 +43,7 @@ Tasks 03 to 07 each end with a feel slice ([room to improve](../../specs/ux-pick
 | [08 Convert all graphs](08-convert-all-graphs.md) | 02 to 07 accepted on the pilots and on `master` | not started |
 | [09 Phone presenter](09-phone-presenter.md) | 08 | not started; needs its own spec |
 | [10 Closeout](10-closeout.md) | 08, 09 | not started |
+| [11 Visual refinement](11-visual-refinement.md) | 03-07 | started 2026-11-25 beside 08 (owner: "we want this to look beautiful"; Fable worker at max effort) |
 
 04 and 05 can run in parallel after 03.
 

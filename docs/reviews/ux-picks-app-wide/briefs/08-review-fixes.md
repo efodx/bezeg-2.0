@@ -76,3 +76,13 @@ Checks: graph-check for the three with `--route`, golden checks, own and shared 
 
 Localization item not yet verified: blossom and polygon-area pass language-formatted strings as message placeholders; check that
 the presenters re-read the declaration on a language switch (switch language in a unit test and compare a row). Batch C checks it.
+
+## Batch D — Taylor polynomial stroke (owner: count puck slow on fast presses)
+
+Measured (`briefs/notes/08-count-puck-perf.md`, scripts `measure/count-puck/`): 20 fast degree presses on Taylor take 8.2-8.7 s;
+JS is ~100 ms, the cost is paint commit ~180 ms per frame from stroking the unclipped polynomial path (coordinates like
+`-1468759`). Hiding that stroke brings 10 clicks to 0.5 s. Not the puck. Fix in the function-curve plotting path (find where
+Taylor's polynomial path is sampled; likely a BaseFunctionGraph curve helper, so run after batch B): clip or clamp y to a few view
+heights / split the path where it leaves the view, so the drawn shape inside the view is unchanged (mathematical meaning kept;
+check the curve is pixel-identical inside the view). Re-measure before/after with the same script; also measure master's live site
+for comparison. Checks: `just unit src/graphs/functions`, graph-check taylor.
