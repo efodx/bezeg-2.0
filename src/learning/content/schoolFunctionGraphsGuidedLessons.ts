@@ -12,9 +12,11 @@ import type {GuidedLesson, LessonScene, LocalizedText} from './guidedLessons';
 import {guidedStep as step} from './guidedStep';
 import {frameDeclarer} from '../../graphs/base/declare/graphDeclaration';
 import type {TransformationIds} from '../../graphs/functions/FunctionTransformationGraph';
+import type {FunctionInverseIds} from '../../graphs/functions/FunctionInverseGraph';
 
 /** Typed by the transformation graph's declaration ids: an unknown row or control fails the type check. */
 const transformFrame = frameDeclarer<TransformationIds>();
+const inverseFrame = frameDeclarer<FunctionInverseIds>();
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 
@@ -349,6 +351,7 @@ const inverseLesson: GuidedLesson = {
             formulaIds: ['inverse-reflection'],
             observationPrompt: text('Napovej, kje poteka zrcalna krivulja skozi \\(P\'=(4,2)\\), in jo skiciraj.', 'Predict where the mirrored curve runs through \\(P\'=(4,2)\\), and sketch it.'),
             expectedObservations: [text('Zrcalna točka točke \\((2,4)\\) je \\((4,2)\\); inverzna krivulja še ni prikazana.', 'The mirror point of \\((2,4)\\) is \\((4,2)\\); the inverse curve is not shown yet.')],
+            declare: {observation: inverseFrame({highlight: ['point', 'mirror']})},
             scene: inverseScene('inverse-mirror-point', 'square', 2, 2, false, false,
                 'Omejitev \\(x^2\\) na \\(x\\ge0\\), \\(P=(2,4)\\), \\(P\'=(4,2)\\); inverzna krivulja in tangenti sta skriti.',
                 'The restriction \\(x^2\\) on \\(x\\ge0\\), \\(P=(2,4)\\), \\(P\'=(4,2)\\); the inverse curve and the tangents are hidden.'),
@@ -364,6 +367,7 @@ const inverseLesson: GuidedLesson = {
             formulaIds: ['inverse-reflection'],
             observationPrompt: text('Primerjaj skico z \\(\\sqrt x\\) in preveri, da \\((4,2)\\) leži na njej.', 'Compare your sketch with \\(\\sqrt x\\) and check that \\((4,2)\\) lies on it.'),
             expectedObservations: [text('Inverzna krivulja \\(y=\\sqrt x\\) poteka skozi \\(P\'=(4,2)\\).', 'The inverse curve \\(y=\\sqrt x\\) runs through \\(P\'=(4,2)\\).')],
+            declare: {observation: inverseFrame({highlight: ['mirror'], uses: ['inverse']})},
             scene: inverseScene('inverse-reveal-curve', 'square', 2, 2, true, false,
                 'Omejitev \\(x^2\\) na \\(x\\ge0\\), \\(P=(2,4)\\), \\(P\'=(4,2)\\); inverzna krivulja \\(\\sqrt x\\) je prikazana, tangenti sta skriti.',
                 'The restriction \\(x^2\\) on \\(x\\ge0\\), \\(P=(2,4)\\), \\(P\'=(4,2)\\); the inverse curve \\(\\sqrt x\\) is shown, the tangents are hidden.'),
@@ -379,6 +383,7 @@ const inverseLesson: GuidedLesson = {
             formulaIds: ['inverse-reflection'],
             observationPrompt: text('Predstavljaj si vodoravno premico \\(y=4\\) in preštej presečišča z levo in desno vejo parabole.', 'Imagine the horizontal line \\(y=4\\) and count its intersections with the left and the right branch of the parabola.'),
             expectedObservations: [text('Premica \\(y=4\\) seka celotno parabolo dvakrat, omejeno na \\(x\\ge0\\) pa enkrat, pri \\(x=2\\).', 'The line \\(y=4\\) meets the whole parabola twice, but the part \\(x\\ge0\\) once, at \\(x=2\\).')],
+            declare: {observation: inverseFrame({highlight: ['hypothesis']})},
             scene: inverseScene('inverse-restrict-square', 'square', 2, 2, true, false,
                 'Omejitev \\(x^2\\) na \\(x\\ge0\\), \\(P=(2,4)\\); inverz \\(\\sqrt x\\) je prikazan.',
                 'The restriction \\(x^2\\) on \\(x\\ge0\\), \\(P=(2,4)\\); the inverse \\(\\sqrt x\\) is shown.'),
@@ -395,6 +400,7 @@ const inverseLesson: GuidedLesson = {
             workedExampleId: 'inverse-square-slopes',
             observationPrompt: text('Preberi oba smerna koeficienta in ju zmnoži.', 'Read both slopes and multiply them.'),
             expectedObservations: [text('Smerna koeficienta sta \\(4\\) in \\(\\tfrac14\\), zmnožek je \\(1\\).', 'The slopes are \\(4\\) and \\(\\tfrac14\\), the product is \\(1\\).')],
+            declare: {observation: inverseFrame({highlight: ['forward-slope', 'inverse-slope'], uses: ['tangent']})},
             scene: inverseScene('inverse-tangent-pair', 'square', 2, 2, true, true,
                 'Omejitev \\(x^2\\), \\(P=(2,4)\\), \\(P\'=(4,2)\\); smerna koeficienta \\(4\\) in \\(\\tfrac14\\); tangenti sta prikazani.',
                 'The restriction \\(x^2\\), \\(P=(2,4)\\), \\(P\'=(4,2)\\); the slopes \\(4\\) and \\(\\tfrac14\\); the tangents are shown.'),
@@ -410,6 +416,7 @@ const inverseLesson: GuidedLesson = {
             formulaIds: ['inverse-logarithm', 'inverse-slopes'],
             observationPrompt: text('Premakni osnovo in opazuj, kako se oba grafa skupaj spreminjata, medtem ko ostaneta zrcalna.', 'Move the base and watch how both graphs change together while staying mirror images.'),
             expectedObservations: [text('Pri \\(a=2\\) je \\(P=(3,8)\\), \\(P\'=(8,3)\\) in smerna koeficienta sta \\(5{,}5452\\) in \\(0{,}18034\\).', 'At \\(a=2\\) we have \\(P=(3,8)\\), \\(P\'=(8,3)\\) and the slopes are \\(5.5452\\) and \\(0.18034\\).')],
+            declare: {observation: inverseFrame({highlight: ['pair'], uses: ['inverse-base']})},
             scene: inverseScene('inverse-base-two', 'exp', 2, 3, true, true,
                 'Omejitev \\(a^x\\) pri \\(a=2\\), \\(P=(3,8)\\), \\(P\'=(8,3)\\); smerna koeficienta \\(5{,}5452\\) in \\(0{,}18034\\).',
                 'The restriction \\(a^x\\) at \\(a=2\\), \\(P=(3,8)\\), \\(P\'=(8,3)\\); the slopes \\(5.5452\\) and \\(0.18034\\).'),
@@ -425,6 +432,7 @@ const inverseLesson: GuidedLesson = {
             formulaIds: ['inverse-logarithm'],
             observationPrompt: text('Poišči asimptoti obeh grafov in preveri, da se zrcalita druga v drugo.', 'Find the asymptotes of both graphs and check that they mirror each other.'),
             expectedObservations: [text('Asimptoti \\(y=0\\) in \\(x=0\\) sta zrcalni; smerna koeficienta sta \\(e\\) in \\(0{,}36788\\).', 'The asymptotes \\(y=0\\) and \\(x=0\\) are mirror images; the slopes are \\(e\\) and \\(0.36788\\).')],
+            declare: {observation: inverseFrame({highlight: ['domain', 'asymptote']})},
             scene: inverseScene('inverse-natural-log', 'natural', 2, 1, true, true,
                 'Omejitev \\(e^x\\), \\(P=(1,e)\\), \\(P\'=(e,1)\\); smerna koeficienta \\(e\\) in \\(0{,}36788\\); asimptoti \\(y=0\\) in \\(x=0\\).',
                 'The restriction \\(e^x\\), \\(P=(1,e)\\), \\(P\'=(e,1)\\); the slopes \\(e\\) and \\(0.36788\\); the asymptotes \\(y=0\\) and \\(x=0\\).'),
@@ -440,6 +448,7 @@ const inverseLesson: GuidedLesson = {
             formulaIds: ['inverse-reflection', 'inverse-slopes'],
             observationPrompt: text('Poišči položaj \\(P\\), pri katerem smernega koeficienta zrcalne tangente ni.', 'Find the position of \\(P\\) where the mirrored tangent has no slope.'),
             expectedObservations: [text('Pri \\(x^2\\) in \\(x_0=0\\) je tangenta vodoravna, zrcalna tangenta navpična in zmnožka ni.', 'For \\(x^2\\) and \\(x_0=0\\) the tangent is horizontal, the mirrored tangent vertical and there is no product.')],
+            declare: {observation: inverseFrame({highlight: ['product'], uses: ['inverse-x0']})},
             scene: inverseScene('inverse-explore-free', 'square', 2, 2, true, true,
                 'Omejitev \\(x^2\\) na \\(x\\ge0\\), \\(P=(2,4)\\); vse je prosto za raziskovanje.',
                 'The restriction \\(x^2\\) on \\(x\\ge0\\), \\(P=(2,4)\\); everything is free to explore.'),

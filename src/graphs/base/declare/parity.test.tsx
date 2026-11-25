@@ -143,6 +143,19 @@ const SAMPLES: readonly Sample[] = [
             {name: 'mirror hidden', apply: mirror(false)},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/function-inverse.json', demonstration: 'function-inverse', states: (() => {
+        type InverseSetters = {setX0(value: number): void; setBase(value: number): void; setRestriction(value: string): void};
+        const run = (edit: (graph: InverseSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as InverseSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'square x0 1.2', apply: run(g => g.setX0(1.2))},
+            {name: 'square x0 0 (vertical inverse tangent)', apply: run(g => g.setX0(0))},
+            {name: 'exp base 2', apply: run(g => { g.setRestriction('exp'); g.setX0(1); })},
+            {name: 'exp base 0.5', apply: run(g => { g.setBase(0.5); g.setX0(-1); })},
+            {name: 'exp base 3', apply: run(g => { g.setBase(3); g.setX0(0.5); })},
+            {name: 'natural x0 1.5', apply: run(g => { g.setRestriction('natural'); g.setX0(1.5); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/bisection.json', demonstration: 'bisection', states: (() => {
         const next = (count: number): ParityState['apply'] => graph => {
             for (let i = 0; i < count; i++) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction({kind: 'animation', animationId: 'bisection', command: 'next-step'});
@@ -176,7 +189,8 @@ const record = async (sample: Sample) => recordParityWithDeclarations(path.basen
 const text = (recording: ParityRecording) => `${JSON.stringify(recording, null, 2)}\n`;
 
 // Named by the recording's id (not `$file`, which vitest truncates) so `just graph-check <id>` can filter to it.
-describe.each(SAMPLES.map(sample => [path.basename(sample.file, '.json'), sample] as const))('parity recording %s', (_id, sample) => {
+// BEZEG_PARITY_ID=<demonstration id> limits recording and checking to that sample, so a lane never rewrites others' files.
+describe.each(SAMPLES.map(sample => [path.basename(sample.file, '.json'), sample] as const).filter(([id]) => !process.env.BEZEG_PARITY_ID || id === process.env.BEZEG_PARITY_ID))('parity recording %s', (_id, sample) => {
     test('records deterministically and every state changes a shown value', async () => {
         const first = (await record(sample)).recording;
         const second = (await record(sample)).recording;

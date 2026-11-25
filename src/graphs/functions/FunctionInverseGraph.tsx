@@ -1,9 +1,13 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import {FunctionLegend} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t, type Message} from "../../localization";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {Point2} from "../../analysis/transformation";
 import {SlopeResult} from "../../analysis/inverse";
@@ -16,6 +20,13 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RevealButton} from "../../inputs/RevealButton";
+
+/** The ids of the inverse declaration: x0, the base and the restriction are the bound parameters; the inverse curve and the tangents are board switch pucks. */
+export type FunctionInverseIds = {
+    param: "inverse-x0" | "inverse-base" | "inverse-restriction";
+    row: "pair" | "hypothesis" | "point" | "mirror" | "forward-slope" | "inverse-slope" | "product" | "domain" | "asymptote";
+    note: never; legend: "forward" | "inverse" | "mirror-line" | "connector"; section: never; action: "inverse" | "tangent";
+};
 
 /** Positions and slopes show four decimals, so that 0.25 and 5.5452 are read off. */
 const PRECISE = 4;
@@ -53,6 +64,8 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
     private dotP?: JXG.Point;
     private dotMirror?: JXG.Point;
     private inverseCurve?: JXG.Curve;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections["function-inverse"];
@@ -140,9 +153,9 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         return curve as unknown as JXG.Curve;
     }
 
-    private straightLine(through: [number, number], direction: [number, number], attributes: object): void {
+    private straightLine(through: [number, number], direction: [number, number], attributes: object): JXG.GeometryElement {
         const [x, y] = through;
-        this.own(this.board.create("line", [[x, y], [x + direction[0], y + direction[1]]], {
+        return this.own(this.board.create("line", [[x, y], [x + direction[0], y + direction[1]]], {
             highlight: false, fixed: true, straightFirst: true, straightLast: true, ...attributes,
         }));
     }
@@ -164,7 +177,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         point.on("drag", () => {
             const [min, max] = inverseX0Range(this.model.restriction, this.model.base);
             const raw = cleanNumber(Math.round(point.X() / INVERSE_X0_STEP) * INVERSE_X0_STEP);
-            if (Number.isFinite(raw)) this.ignoreOutOfDomain(() => this.setX0(Math.min(max, Math.max(min, raw)), {syncScene: false}));
+            if (Number.isFinite(raw)) runAs("learner", () => this.ignoreOutOfDomain(() => this.setX0(Math.min(max, Math.max(min, raw)), {syncScene: false})));
             this.syncSceneToModel();
         });
         return point;
@@ -177,11 +190,12 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         const pair = () => inversePairOf(model());
 
         // Layers, lowest first: the mirror line and the asymptotes, the two graphs, the tangents, the connector, the markers.
-        this.straightLine([0, 0], [1, 1], {strokeColor: GraphPalette.axis, dash: DASH, strokeWidth: 1.5});
+        this.drawn.set("mirror-line", this.straightLine([0, 0], [1, 1], {strokeColor: GraphPalette.axis, dash: DASH, strokeWidth: 1.5}));
         this.straightLine([0, 0], [0, 1], {strokeColor: GraphPalette.warningText, dash: DASH, strokeWidth: 1.5, visible: () => hasAsymptotes(model()) && model().inverseVisible});
         this.straightLine([0, 0], [1, 0], {strokeColor: GraphPalette.referenceCurve, dash: DASH, strokeWidth: 1.5, visible: () => hasAsymptotes(model())});
-        this.curve(() => this.sampled(x => pair().forward.value(x)), {strokeColor: GraphPalette.primaryCurve, strokeWidth});
+        this.drawn.set("forward", this.curve(() => this.sampled(x => pair().forward.value(x)), {strokeColor: GraphPalette.primaryCurve, strokeWidth}));
         this.inverseCurve = this.curve(() => this.sampled(x => pair().inverse.value(x)), {strokeColor: GraphPalette.comparisonCurve, strokeWidth, visible: () => model().inverseVisible});
+        this.drawn.set("inverse", this.inverseCurve);
         this.curve(() => {
             const s = slopes();
             return s ? this.tangentSegment(s.point, s.forwardSlope) : {x: [], y: []};
@@ -190,10 +204,10 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
             const s = slopes();
             return s ? this.tangentSegment(s.mirror, s.inverseSlope) : {x: [], y: []};
         }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: DASH, visible: () => model().tangentVisible && model().inverseVisible});
-        this.curve(() => {
+        this.drawn.set("connector", this.curve(() => {
             const s = slopes();
             return s ? {x: [s.point.x, s.mirror.x], y: [s.point.y, s.mirror.y]} : {x: [], y: []};
-        }, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: DASH});
+        }, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: DASH}));
         this.dotP = this.marker();
         this.dotMirror = this.own(this.board.create("point", [0, 0], {
             ...this.styles.point.default, name: "", withLabel: false, fixed: true, fillColor: GraphPalette.comparisonCurve, highlightFillColor: GraphPalette.comparisonCurve,
@@ -220,6 +234,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         this.dotP = undefined;
         this.dotMirror = undefined;
         this.inverseCurve = undefined;
+        this.drawn.clear();
     }
 
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
@@ -266,14 +281,14 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         const [x0Min, x0Max] = inverseX0Range(state.restriction, state.base);
         return <>
             <div className="inspector-group">
-                <Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
+                <PuckOwned param="inverse-x0"><Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/></PuckOwned>
             </div>
             <div className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>
-                <RevealButton action="toggle-inverse" revealed={state.inverseVisible} showLabel={t("function_inverse_inverse_show")} hideLabel={t("function_inverse_inverse_hide")}
-                              onToggle={() => this.setInverseVisible(!this.model.inverseVisible)}/>
-                <RevealButton action="toggle-tangent" revealed={state.tangentVisible} showLabel={t("function_inverse_tangent_show")} hideLabel={t("function_inverse_tangent_hide")}
-                              onToggle={() => this.setTangentVisible(!this.model.tangentVisible)}/>
+                <PuckOwned param="inverse"><RevealButton action="toggle-inverse" revealed={state.inverseVisible} showLabel={t("function_inverse_inverse_show")} hideLabel={t("function_inverse_inverse_hide")}
+                              onToggle={() => this.setInverseVisible(!this.model.inverseVisible)}/></PuckOwned>
+                <PuckOwned param="tangent"><RevealButton action="toggle-tangent" revealed={state.tangentVisible} showLabel={t("function_inverse_tangent_show")} hideLabel={t("function_inverse_tangent_hide")}
+                              onToggle={() => this.setTangentVisible(!this.model.tangentVisible)}/></PuckOwned>
             </div>
             <div className="inspector-group">
                 <ChoiceSelect label={t("function_inverse_restriction_label")} value={state.restriction} help={t("function_inverse_restriction_help")}
@@ -282,9 +297,9 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
             </div>
             <div className="inspector-group">
                 {state.restriction === "exp" &&
-                    <Slider customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
+                    <PuckOwned param="inverse-base"><Slider customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
                                  rejectedHint={t("function_inverse_base_hint", {value0: formatNumber(INVERSE_BASE_MIN, language), value1: formatNumber(INVERSE_BASE_MAX, language)})}
-                                 onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>}
+                                 onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/></PuckOwned>}
             </div>
         </>;
     }
@@ -298,21 +313,104 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         ]}/>;
     }
 
-    protected renderReadout(): React.ReactNode {
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    private numberValue(value: number) {
+        return messageNumber(value, PRECISE);
+    }
+
+    private pointValue(p: Point2): FormattedValue {
+        return {kind: "formatted", text: this.pointText(p)};
+    }
+
+    private slopeValue(slope: SlopeResult) {
+        if (slope.kind === "slope") return this.numberValue(slope.value);
+        return message(slope.kind === "vertical" ? "function_inverse_slope_vertical" : "function_inverse_slope_undefined");
+    }
+
+    private ruleMessage(model: FunctionInverseModel): Message {
+        switch (model.restriction) {
+            case "square": return message("function_inverse_rule_square");
+            case "exp": return message("function_inverse_rule_exp", {value0: this.numberValue(model.base)});
+            case "natural": return message("function_inverse_rule_natural");
+        }
+    }
+
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
         const s = inverseSlopesOf(model);
-        const rows = [
-            {id: "pair", label: t("function_inverse_readout_pair"), value: this.ruleText(model)},
-            {id: "hypothesis", label: t("function_inverse_readout_hypothesis"), value: t(HYPOTHESIS_KEYS[model.restriction])},
-            {id: "point", label: t("function_inverse_readout_point"), value: s ? this.pointText(s.point) : ""},
-            {id: "mirror", label: t("function_inverse_readout_mirror"), value: s ? this.pointText(s.mirror) : ""},
-            {id: "forward-slope", label: t("function_inverse_readout_forward_slope"), value: s ? this.slopeText(s.forwardSlope) : ""},
-            {id: "inverse-slope", label: t("function_inverse_readout_inverse_slope"), value: s ? this.slopeText(s.inverseSlope) : ""},
-            {id: "product", label: t("function_inverse_readout_product"), value: s?.product === undefined ? t("function_inverse_product_none") : this.number(s.product)},
-            {id: "domain", label: t("function_inverse_readout_domain"), value: t(model.restriction === "square" ? "function_inverse_domain_sqrt" : "function_inverse_domain_log")},
-            ...(hasAsymptotes(model) ? [{id: "asymptote", label: t("function_inverse_readout_asymptote"), value: t("function_inverse_asymptote_value")}] : []),
+        const none: FormattedValue = {kind: "formatted", text: ""};
+        return {
+            rows: [
+                {id: "pair", name: message("function_inverse_readout_pair"), value: this.ruleMessage(model)},
+                {id: "hypothesis", name: message("function_inverse_readout_hypothesis"), value: message(HYPOTHESIS_KEYS[model.restriction])},
+                {id: "point", name: message("function_inverse_readout_point"), value: s ? this.pointValue(s.point) : none},
+                {id: "mirror", name: message("function_inverse_readout_mirror"), value: s ? this.pointValue(s.mirror) : none},
+                {id: "forward-slope", name: message("function_inverse_readout_forward_slope"), value: s ? this.slopeValue(s.forwardSlope) : none},
+                {id: "inverse-slope", name: message("function_inverse_readout_inverse_slope"), value: s ? this.slopeValue(s.inverseSlope) : none},
+                {id: "product", name: message("function_inverse_readout_product"), value: s?.product === undefined ? message("function_inverse_product_none") : this.numberValue(s.product)},
+                {id: "domain", name: message("function_inverse_readout_domain"), value: message(model.restriction === "square" ? "function_inverse_domain_sqrt" : "function_inverse_domain_log")},
+                ...(hasAsymptotes(model) ? [{id: "asymptote", name: message("function_inverse_readout_asymptote"), value: message("function_inverse_asymptote_value")}] : []),
+            ],
+            help: message("function_inverse_note"),
+            plotted: x => inversePairOf(model).forward.value(x) ?? NaN,
+        };
+    }
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "inverse-x0": {read: () => this.model.x0, apply: (value: number) => this.setX0(value)},
+            "inverse-base": {read: () => this.model.base, apply: (value: number) => this.setBase(value)},
+            "inverse-restriction": {read: () => this.model.restriction, apply: (value: unknown) => this.setRestriction(value)},
+        };
+    }
+
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const [x0Min, x0Max] = inverseX0Range(model.restriction, model.base);
+        const parameters: ParameterDeclaration[] = [
+            {key: "inverse-x0", kind: "range", label: message("function_inverse_x0_label"), symbol: "x₀", placement: "board",
+                min: x0Min, max: x0Max, step: INVERSE_X0_STEP, maxDecimals: PRECISE},
+            {key: "inverse-restriction", kind: "choice", label: message("function_inverse_restriction_label"), help: message("function_inverse_restriction_help"), placement: "tools",
+                options: INVERSE_RESTRICTION_IDS.map(id => ({value: id, label: message(RESTRICTION_KEYS[id])}))},
         ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("function_inverse_note")}/>;
+        if (model.restriction === "exp") {
+            parameters.splice(1, 0, {key: "inverse-base", kind: "range", label: message("function_inverse_base_label"), symbol: "a", placement: "board",
+                min: INVERSE_BASE_MIN, max: INVERSE_BASE_MAX, step: BASE_STEP, maxDecimals: PRECISE});
+        }
+        return {
+            ...this.commonDeclaration(),
+            parameters,
+            legend: [
+                {id: "forward", label: message("function_inverse_legend_forward"), kind: "line", object: "forward"},
+                ...(model.inverseVisible ? [{id: "inverse" as const, label: message("function_inverse_legend_inverse"), kind: "line" as const, object: "inverse"}] : []),
+                {id: "mirror-line", label: message("function_inverse_legend_mirror_line"), kind: "dashed", object: "mirror-line"},
+                {id: "connector", label: message("function_inverse_legend_connector"), kind: "dashed", object: "connector"},
+            ],
+            actions: [
+                {id: "inverse", label: message("function_inverse_legend_inverse"), placement: "board", enabled: true, pressed: model.inverseVisible, puck: true},
+                {id: "tangent", label: message("function_inverse_tangents"), placement: "board", enabled: true, pressed: model.tangentVisible, puck: true},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (id === "inverse") runAs("learner", () => this.setInverseVisible(!this.model.inverseVisible));
+        else if (id === "tangent") runAs("learner", () => this.setTangentVisible(!this.model.tangentVisible));
+        else throw new Error("Unknown action");
+    }
+
+    protected renderReadout(): React.ReactNode {
+        return this.renderDeclaredReadout();
     }
 }
 

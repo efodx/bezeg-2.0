@@ -1,15 +1,15 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {settle} from '../base/realGraphTestHarness';
+import {puckControl, settle, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {FunctionInverseGraph} from './FunctionInverseGraph';
 import {GraphHost} from '../base/GraphHost';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {DEFAULT_FUNCTION_INVERSE_MODEL} from '../../analysis/functionInverseModel';
 import {installBoardShims} from '../base/realGraphTestHarness';
-import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 
@@ -68,12 +68,18 @@ class ObservedInverseGraph extends FunctionInverseGraph {
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const field = (label: string) => screen.getByLabelText((name: string) => [label, label + ', vrednost', label + ', value'].includes(name), {selector: 'input:not([type="range"])'}) as HTMLInputElement;
+/** The learner's write of a bound parameter, as the board puck makes it (x0 and the base are pucks on the board, not fields in Orodja). */
+const learnerWrite = (graph: FunctionInverseGraph, key: string, value: number | string) => {
+    let result: ReturnType<NonNullable<FunctionInverseGraph['parameters']>['write']> | undefined;
+    act(() => { result = graph.parameters!.write(key, value, 'learner'); });
+    return result!;
+};
+const refusal = (result: ReturnType<typeof learnerWrite>) => result.status === 'refused-domain' ? result.error.message : result.status;
 const near = (actual: number[] | undefined, expected: number[]) => {
     expect(actual).toBeDefined();
     expected.forEach((value, index) => expect(actual![index]).toBeCloseTo(value, 9));
 };
-const boardObjects = (graph: ObservedInverseGraph) => graph.liveBoard().objectsList.length;
+const boardObjects = (graph: ObservedInverseGraph) => graph.liveBoard().objectsList.filter(o => (o as unknown as JsxObject).elType !== 'label').length; // axis tick labels appear lazily
 
 const mount = () => {
     const graph = new ObservedInverseGraph();
@@ -111,7 +117,7 @@ test('restrictions: 2^x, e^x and the base a = 1 refusal with an actionable messa
     const baseline = boardObjects(graph);
 
     act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value: 'exp'}}); });
-    act(() => { enterNumber(field('Točka P: abscisa x₀'), '3'); });
+    learnerWrite(graph, 'inverse-x0', 3);
     expect(graph.modelNow()).toMatchObject({restriction: 'exp', base: 2, x0: 3});
     expect(readout('point')).toBe('(3; 8)');
     expect(readout('mirror')).toBe('(8; 3)');
@@ -122,19 +128,18 @@ test('restrictions: 2^x, e^x and the base a = 1 refusal with an actionable messa
     near(graph.markers().mirror, [8, 3]);
 
     // a = 1 is refused, not clamped: the model, the field and the board stay, and the field explains the rule
-    act(() => { enterNumber(field('Osnova a'), '1'); });
+    expect(refusal(learnerWrite(graph, 'inverse-base', 1))).toMatch(/^Osnova a ne sme biti 1/);
     expect(graph.modelNow().base).toBe(2);
-    expect(screen.getByText('Osnova a mora biti med 0,2 in 5 in ne sme biti 1.')).toBeInTheDocument();
     near(graph.markers().p, [3, 8]);
     // a = 3 would put P at (3, 27), outside the view: x0 moves to the end of the new range, log_3 8 rounded down to 1.8
-    act(() => { enterNumber(field('Osnova a'), '3'); });
+    learnerWrite(graph, 'inverse-base', 3);
     expect(graph.modelNow()).toMatchObject({base: 3, x0: 1.8});
-    expect(field('Točka P: abscisa x₀').value).toBe('1,8');
+    expect(graph.parameters!.read('inverse-x0')).toBe(1.8);
     expect(readout('point')).toBe('(1,8; 7,2247)');
 
     act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value: 'natural'}}); });
-    act(() => { enterNumber(field('Točka P: abscisa x₀'), '1'); });
-    expect(screen.queryByLabelText('Osnova a')).toBeNull();
+    learnerWrite(graph, 'inverse-x0', 1);
+    expect(graph.getDeclaration()!.parameters!.map(parameter => parameter.key)).not.toContain('inverse-base');
     expect(readout('point')).toBe('(1; 2,7183)');
     expect(readout('forward-slope')).toBe('2,7183');
     expect(readout('inverse-slope')).toBe('0,3679');
@@ -144,7 +149,7 @@ test('restrictions: 2^x, e^x and the base a = 1 refusal with an actionable messa
 
 test('at x0 = 0 on x^2 the inverse tangent is vertical: drawn vertical, no slope number, no product', () => {
     const graph = mount();
-    act(() => { enterNumber(field('Točka P: abscisa x₀'), '0'); });
+    learnerWrite(graph, 'inverse-x0', 0);
     expect(readout('forward-slope')).toBe('0');
     expect(readout('inverse-slope')).toBe(VERTICAL_SL);
     expect(readout('inverse-slope')).not.toMatch(/\d/);
@@ -158,9 +163,8 @@ test('at x0 = 0 on x^2 the inverse tangent is vertical: drawn vertical, no slope
 
 test('an x0 outside the restriction is refused (x < 0 on x^2), and dragging P moves it along f on the grid', () => {
     const graph = mount();
-    act(() => { enterNumber(field('Točka P: abscisa x₀'), '-1'); });
+    expect(refusal(learnerWrite(graph, 'inverse-x0', -1))).toBe('Vrednost x0 mora biti med 0 in 2,8.');
     expect(graph.modelNow().x0).toBe(2);
-    expect(screen.getByText('Vnesi vrednost med 0 in 2,8.')).toBeInTheDocument();
 
     const p = graph['dotP']!;
     const drag = (x: number) => act(() => {
@@ -201,14 +205,14 @@ test('the drawn graphs follow f and its inverse, and P and P\' stay inside the d
     checkCurves(x => x * x, Math.sqrt);
 
     const restriction = (value: string) => act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value}}); });
-    const set = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-    const x0Field = 'Točka P: abscisa x₀';
+    const set = (key: string, value: string) => { learnerWrite(graph, key, Number(value.replace(',', '.'))); };
+    const x0Field = 'inverse-x0';
     set(x0Field, '2,8');
     expect(inView(graph.markers().p) && inView(graph.markers().mirror)).toBe(true);
 
     restriction('exp');
     for (const [base, ends] of [['5', ['-3', '1,2']], ['0,2', ['-1,2', '3']], ['2', ['-3', '3']]] as const) {
-        set('Osnova a', base);
+        set('inverse-base', base);
         const a = Number(base.replace(',', '.'));
         checkCurves(x => a ** x, x => Math.log(x) / Math.log(a));
         for (const end of ends) {
@@ -226,13 +230,16 @@ test('the drawn graphs follow f and its inverse, and P and P\' stay inside the d
     }
 });
 
-test('the inverse can be hidden (predict, then reveal) and so can the tangents', () => {
+test('the inverse can be hidden (predict, then reveal) and so can the tangents: two switch pucks on the board', async () => {
     const graph = mount();
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Skrij inverzno funkcijo'})); });
+    await waitForPucks('inverse');
+    expect(puckControl('inverse').getAttribute('aria-checked')).toBe('true');
+    expect(screen.queryByRole('button', {name: 'Skrij inverzno funkcijo'})).toBeNull(); // the puck owns the switch: no second copy in Orodja
+    act(() => { fireEvent.click(puckControl('inverse')); });
     expect(graph.modelNow().inverseVisible).toBe(false);
     expect(graph.inverseCurveVisible()).toBe(false);
-    expect(screen.getByRole('button', {name: 'Pokaži inverzno funkcijo'})).toBeInTheDocument();
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Skrij tangenti'})); });
+    expect(puckControl('inverse').getAttribute('aria-checked')).toBe('false');
+    act(() => { fireEvent.click(puckControl('tangent')); });
     expect(graph.segments()[0]).toBeUndefined();
     expect(graph.segments()[1]).toBeUndefined();
 });
@@ -242,13 +249,12 @@ test('Reset, a restored Preset and the language switch restore every field, the 
     const baseline = boardObjects(graph);
     const stored = {restriction: 'exp', base: 3.5, x0: -1.5, inverseVisible: false, tangentVisible: true};
 
-    act(() => { graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-4, 9, 11, -4]}}); });
+    act(() => { runAs('learner', () => graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-4, 9, 11, -4]}})); });
     expect(graph.modelNow()).toEqual(stored);
     expect((screen.getByLabelText('Zožitev z inverzno funkcijo') as HTMLSelectElement).value).toBe('exp');
-    expect(field('Osnova a').value).toBe('3,5');
-    expect(field('Točka P: abscisa x₀').value).toBe('−1,5');
-    expect(screen.getByRole('button', {name: 'Pokaži inverzno funkcijo'})).toBeInTheDocument();
-    expect(screen.getByRole('button', {name: 'Skrij tangenti'})).toBeInTheDocument();
+    expect(graph.parameters!.read('inverse-base')).toBe(3.5);
+    expect(graph.parameters!.read('inverse-x0')).toBe(-1.5);
+    expect(graph.getDeclaration()!.actions!.map(action => [action.id, action.pressed])).toEqual([['inverse', false], ['tangent', true]]);
     near(graph.markers().p, [-1.5, 3.5 ** -1.5]);
     near(graph.markers().mirror, [3.5 ** -1.5, -1.5]);
     expect(graph.inverseCurveVisible()).toBe(false);
@@ -256,19 +262,17 @@ test('Reset, a restored Preset and the language switch restore every field, the 
 
     act(() => { setLanguage('en'); });
     expect(screen.getByLabelText('Restriction with its inverse')).toBeInTheDocument();
-    expect(field('Base a').value).toBe('3.5');
-    expect(field('Point P: abscissa x₀').value).toBe('−1.5');
-    expect(screen.getByRole('button', {name: 'Show inverse function'})).toBeInTheDocument();
+    expect(graph.getDeclaration()!.parameters!.map(parameter => renderMessage(parameter.label))).toContain('Base a');
     expect(readout('point')).toMatch(/^\(−1\.5, 0\.1/);
     expect(readout('hypothesis')).toBe('a > 0 and a ≠ 1');
     expect(readout('asymptote')).toMatch(/vertical asymptote/);
 
-    await settle(() => graph.reset()); // the host Reset (the local Reset button was removed)
+    await settle(() => runAs('learner', () => graph.reset())); // the host Reset (the local Reset button was removed)
     expect(graph.modelNow()).toEqual(DEFAULT_FUNCTION_INVERSE_MODEL);
     expect((screen.getByLabelText('Restriction with its inverse') as HTMLSelectElement).value).toBe('square');
-    expect(field('Point P: abscissa x₀').value).toBe('2');
-    expect(screen.queryByLabelText('Base a')).toBeNull();
-    expect(screen.getByRole('button', {name: 'Hide inverse function'})).toBeInTheDocument();
+    expect(graph.parameters!.read('inverse-x0')).toBe(2);
+    expect(graph.getDeclaration()!.parameters!.map(parameter => parameter.key)).not.toContain('inverse-base');
+    expect(graph.getDeclaration()!.actions!.map(action => [action.id, action.pressed])).toEqual([['inverse', true], ['tangent', true]]);
     expect(readout('point')).toBe('(2, 4)');
     expect(readout('inverse-slope')).toBe('0.25');
     near(graph.markers().p, [2, 4]);
@@ -276,7 +280,7 @@ test('Reset, a restored Preset and the language switch restore every field, the 
     expect(graph.inverseCurveVisible()).toBe(true);
     expect(boardObjects(graph)).toBe(baseline);
 
-    act(() => { enterNumber(field('Point P: abscissa x₀'), '0'); });
+    learnerWrite(graph, 'inverse-x0', 0);
     expect(readout('inverse-slope')).toBe('the tangent is vertical, the slope is undefined');
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
