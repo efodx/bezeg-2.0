@@ -24,6 +24,18 @@ const browserScheduler: FrameScheduler = {
     cancel: handle => cancelAnimationFrame(handle),
 };
 
+/** A capture (one geometry call per value) that takes longer than this is over budget: about half a 60 Hz frame, so it never costs a dropped frame on its own. */
+export const PREVIEW_BUDGET_MS = 8;
+/** How long the pointer rests on a value before an over-budget graph captures it. */
+export const BACKOFF_REST_MS = 150;
+/** The longest an idle callback waits for an idle moment (and the delay of the fallback where `requestIdleCallback` is missing). */
+const IDLE_TIMEOUT_MS = 400;
+const IDLE_FALLBACK_MS = 50;
+
+interface Pending {rest: ReturnType<typeof setTimeout> | undefined; idle: {kind: 'idle'; handle: number} | {kind: 'timer'; handle: ReturnType<typeof setTimeout>} | undefined}
+
+const now = (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+
 export class PreviewController {
     private ghost: Ghost | undefined;
     private readonly listeners = new Set<() => void>();
@@ -32,6 +44,9 @@ export class PreviewController {
     private lastBox = '';
     private dirty = false;
     private handle = 0;
+    /** Measured cost of one geometry call per parameter key (ms): a key over {@link PREVIEW_BUDGET_MS} is captured with back-off. */
+    private readonly cost = new Map<string, number>();
+    private pending: Pending | undefined;
 
     constructor(private readonly graph: BaseGraph<BaseGraphState>, private readonly scheduler: FrameScheduler = browserScheduler) {}
 
@@ -57,8 +72,16 @@ export class PreviewController {
         const parameter = this.graph.getDeclaration()?.parameters?.find(candidate => candidate.key === key);
         if (!parameter || (parameter.kind !== 'range' && parameter.kind !== 'count') || parameter.previewable !== true) return;
         if (!this.graph.getPreviewGeometry()) return;
+        const backoff = this.overBudget(key);
+        if (backoff) {
+            // Latest value wins: whatever waited for an older value is dropped, and its stale ghost goes at once.
+            this.cancelPending();
+            if (this.ghost) { this.ghost = undefined; this.emit(); }
+        }
         this.target = {key, values, fan};
         this.dirty = true;
+        // A fan has rested already (its own delay); a single value rests here before the capture.
+        if (backoff) this.defer(fan ? 0 : BACKOFF_REST_MS);
         this.schedule();
     }
 
@@ -68,6 +91,7 @@ export class PreviewController {
         this.snapshot = undefined;
         this.lastBox = '';
         this.dirty = false;
+        this.cancelPending();
         if (this.handle) { this.scheduler.cancel(this.handle); this.handle = 0; }
         if (this.ghost) { this.ghost = undefined; this.emit(); }
     }
@@ -92,24 +116,65 @@ export class PreviewController {
         if (box) {
             const signature = box.join(',');
             const version = this.graph.store.getVersion();
-            if (!this.snapshot || this.snapshot.version !== version) {
-                this.snapshot = {version, scene: {state: this.graph.state, preset: this.graph.exportPreset()}};
-                this.dirty = true;
-            }
+            // The snapshot itself is taken by the capture, so an over-budget graph pays for it in idle time.
+            if (!this.snapshot || this.snapshot.version !== version) this.dirty = true;
             if (this.dirty || signature !== this.lastBox) {
-                this.dirty = false;
-                this.lastBox = signature;
-                const paths: Path[] = [], near: boolean[] = [];
-                for (const {value, near: isNear} of target.values) {
-                    const curves = geometry(this.snapshot.scene, target.key, value, sampledRange(box));
-                    for (const path of Object.values(curves).flat()) { paths.push(path.map(([x, y]): [number, number] => [x, y])); near.push(isNear); }
-                }
-                this.ghost = {paths, box: [...box], ...(target.fan ? {near} : {})};
-                this.emit();
+                if (!this.overBudget(target.key)) this.capture(target, geometry, box);
+                else if (!this.pending) this.defer(0); // a changed box or scene: capture in idle time
             }
         }
         this.schedule();
     };
+
+    private overBudget(key: string): boolean {
+        return (this.cost.get(key) ?? 0) > PREVIEW_BUDGET_MS;
+    }
+
+    /** One geometry call per value of the target on the current snapshot; measures the cost per call. */
+    private capture(target: NonNullable<PreviewController['target']>, geometry: PreviewGeometry, box: readonly number[]): void {
+        this.dirty = false;
+        this.lastBox = box.join(',');
+        const version = this.graph.store.getVersion();
+        if (!this.snapshot || this.snapshot.version !== version) this.snapshot = {version, scene: {state: this.graph.state, preset: this.graph.exportPreset()}};
+        const started = now();
+        const paths: Path[] = [], near: boolean[] = [];
+        for (const {value, near: isNear} of target.values) {
+            const curves = geometry(this.snapshot.scene, target.key, value, sampledRange(box));
+            for (const path of Object.values(curves).flat()) { paths.push(path.map(([x, y]): [number, number] => [x, y])); near.push(isNear); }
+        }
+        this.cost.set(target.key, (now() - started) / target.values.length);
+        this.ghost = {paths, box: [...box], ...(target.fan ? {near} : {})};
+        this.emit();
+    }
+
+    /** Waits `restMs` (the pointer rest), then an idle moment, then captures what is the target by then. Never more than one wait. */
+    private defer(restMs: number): void {
+        this.cancelPending();
+        const pending: Pending = {rest: undefined, idle: undefined};
+        this.pending = pending;
+        const idle = (): void => {
+            pending.rest = undefined;
+            const run = (): void => {
+                pending.idle = undefined;
+                if (this.pending !== pending) return;
+                this.pending = undefined;
+                const target = this.target, geometry = this.graph.getPreviewGeometry(), box = this.shownBox();
+                if (target && geometry && box) this.capture(target, geometry, box);
+            };
+            if (typeof requestIdleCallback === 'function') pending.idle = {kind: 'idle', handle: requestIdleCallback(run, {timeout: IDLE_TIMEOUT_MS})};
+            else pending.idle = {kind: 'timer', handle: setTimeout(run, IDLE_FALLBACK_MS)};
+        };
+        if (restMs > 0) pending.rest = setTimeout(idle, restMs); else idle();
+    }
+
+    private cancelPending(): void {
+        const pending = this.pending;
+        this.pending = undefined;
+        if (!pending) return;
+        if (pending.rest !== undefined) clearTimeout(pending.rest);
+        if (pending.idle?.kind === 'idle') cancelIdleCallback(pending.idle.handle);
+        else if (pending.idle) clearTimeout(pending.idle.handle);
+    }
 
     private emit(): void {
         for (const listener of [...this.listeners]) listener();
