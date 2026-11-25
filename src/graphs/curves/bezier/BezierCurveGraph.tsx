@@ -5,6 +5,8 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {bezierPresetCollection} from "./collections";
 
 class BezierCurveGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** Declares the common curve workspace: legend, view marks and the display switches (control polygon and convex hull are board pucks). */
+    protected override declaresCurveWorkspace() { return true; }
     protected override workspaceUsesStructuredEditing() { return true; }
     protected override workspacePointEntryWithoutSelection() { return true; }
 

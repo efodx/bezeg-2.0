@@ -84,6 +84,10 @@ describe('puck items of declared actions', () => {
         expect(items.flatMap(puckOwnedKeys)).toEqual(['t', 'g', 'g1', 'g2']);
     });
 
+    it('lists the action pucks of a graph with no parameter store (bound keys undefined)', () => {
+        expect(puckItems(declare([action('t', {puck: true})]), undefined).map(item => item.key)).toEqual(['t']);
+    });
+
     it('omits the Orodja control of an owned key and keeps the others', () => {
         render(<PuckOwnershipContext.Provider value={new Set(['t'])}>
             <PuckOwned param="t"><span>owned</span></PuckOwned><PuckOwned param="u"><span>kept</span></PuckOwned>

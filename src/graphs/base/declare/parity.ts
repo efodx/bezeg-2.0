@@ -213,6 +213,14 @@ export function checkParity(recording: ParityRecording, declarations: readonly (
     return {differences, uncoveredCaptions};
 }
 
+/**
+ * Parity compares readout rows, notes and outputs; a declaration with none of them (and no readout help or status) shows no
+ * values, so a graph with no recording has nothing to compare and `just graph-check` reports parity as not applicable.
+ */
+export const showsNoValues = (declaration: GraphDeclaration | undefined): boolean =>
+    declaration !== undefined && !(declaration.readouts ?? []).some(group => group.rows.length > 0) && !(declaration.notes ?? []).length
+    && declaration.readoutHelp === undefined && !(declaration.status ?? []).length;
+
 /** One line per difference, for a test failure message. */
 export const describeDifferences = (report: ParityReport): string =>
     report.differences.map(d => `state ${d.state} (${d.stateName}): ${d.kind} ${d.where}${d.recorded !== undefined ? ` recorded "${d.recorded}"` : ''}${d.declared !== undefined ? ` declared "${d.declared}"` : ''}`).join('\n');

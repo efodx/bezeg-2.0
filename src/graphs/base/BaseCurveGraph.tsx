@@ -27,7 +27,9 @@ import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {Point} from "../../bezeg/api/point/point";
 import {placeNewPoint, refitWhenOutside} from "./points";
-import {CurveDisplayControls} from "./controls/CurveDisplayControls";
+import {CurveDisplayControls, displayToggles, type DisplayToggle} from "./controls/CurveDisplayControls";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ViewMark, ViewMarks} from "./declare/graphDeclaration";
+import {runAs} from "./writes/writeSource";
 import {selectedCurveControls} from "./controls/SelectedCurveControls";
 import {CurveEditingFeature, EditableCurve, SelectedCurveOption} from "./CurveEditingFeature";
 import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
@@ -69,6 +71,9 @@ JXG.extend(JXG.Point.prototype, {});
 /**
  * Abstract class for creating graphs.
  */
+const CURVE_ITEM_KEYS = {"control-polygon": "curve_item_polygon", "convex-hull": "curve_item_hull", "control-points": "curve_item_points", "weights": "curve_item_weights"} as const;
+const SINGLE_CURVE_KEYS = {"control-polygon": "control_polygon", "convex-hull": "convex_hull", "control-points": "control_points", "weights": "weights"} as const;
+
 abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, CurveCollectionPresetData> {
     protected inputsDisabled: boolean = false;
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
@@ -302,8 +307,111 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
             <OnOffSwitch label={t("point_labels")} checked={this.displaySettings.pointLabelsVisible}
                 onChange={checked => this.setPointLabelsVisible(checked)}/></div>
             {this.jxgCurves.map((curve, i) => <div className="inspector-group" key={i}><h3>{t("curve_display")} {i + 1}</h3>
-                <CurveDisplayControls curve={curve} onChanged={() => this.store.notify()}/>
+                <CurveDisplayControls curve={curve} onChanged={() => this.store.notify()}
+                    ownedBy={this.declaresCurveWorkspace() ? toggle => this.curveDisplayPuckId(toggle, i) : undefined}/>
             </div>)}</>;
+    }
+
+    // ---- Declaration (task 08 step 2, curve workspace): opt-in, like `BaseFunctionGraph.functionPanel` ---------------------
+
+    /**
+     * Opt-in: a subclass that returns true declares the generic part of the curve workspace (legend of the curves and their
+     * control points, view marks, the display switches) and `declaration()` is the common one. Undeclared graphs keep today's
+     * panels. A subclass with its own `declaration()` keeps it and may spread {@link commonCurveDeclaration}.
+     */
+    protected declaresCurveWorkspace(): boolean { return false; }
+
+    /** The id of the board puck of one curve's display switch, when it is one (control polygon and convex hull of a lone curve); else undefined. */
+    private curveDisplayPuckId(toggle: DisplayToggle, index: number): string | undefined {
+        return this.jxgCurves.length === 1 && (toggle === "control-polygon" || toggle === "convex-hull") ? this.curveSwitchId(toggle, index) : undefined;
+    }
+
+    private curveSwitchId(toggle: DisplayToggle, index: number): string { return `${toggle}-${index}`; }
+
+    private static readonly VIEW_MARK_SAMPLES = 25;
+    private curveMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /**
+     * What the view director keeps visible: the control points (must) and samples of each curve (nice). Read from the curve
+     * models, memoized on the points' coordinates so an unchanged scene returns the same object; non-finite points are dropped.
+     */
+    protected curveViewMarks(): ViewMarks {
+        const curves = this.jxgCurves.map(curve => curve.getCurve());
+        // A rational curve's weights move its samples without moving its points, so they belong to the key.
+        const weightsOf = (curve: object): string => "getWeights" in curve && typeof curve.getWeights === "function" ? String((curve.getWeights() as number[] | undefined) ?? "") : "";
+        const key = curves.map(curve => `${curve.getPoints().map(point => `${point.X()},${point.Y()}`).join(";")}#${weightsOf(curve)}`).join("|");
+        if (this.curveMarksCache?.key === key) return this.curveMarksCache.marks;
+        const finite = (x: number, y: number) => Number.isFinite(x) && Number.isFinite(y);
+        const must: ViewMark[] = [];
+        const nice: ViewMark[] = [];
+        for (const curve of curves) {
+            const points = curve.getPoints();
+            for (const point of points) if (finite(point.X(), point.Y())) must.push({kind: "point", x: point.X(), y: point.Y()});
+            if (points.length < 2) continue;
+            const samples = Array.from({length: BaseCurveGraph.VIEW_MARK_SAMPLES}, (_, i) => curve.eval(i / (BaseCurveGraph.VIEW_MARK_SAMPLES - 1)))
+                .map(p => [p.X(), p.Y()] as const).filter(([x, y]) => finite(x, y));
+            if (samples.length > 1) nice.push({kind: "polyline", points: samples});
+        }
+        const marks: ViewMarks = {must, nice};
+        this.curveMarksCache = {key, marks};
+        return marks;
+    }
+
+    /**
+     * The generic declaration of the curve workspace from the graph's own curves: a legend (each curve and its control points),
+     * view marks, and the display switches as actions with `pressed` (point labels; per curve control polygon, convex hull,
+     * control points, weights). A lone curve's control polygon and convex hull are board pucks (flipped while watching), the rest
+     * stays in Orodja, section `display`. Switch labels are numbered only when there are several curves.
+     */
+    protected commonCurveDeclaration(): Pick<GraphDeclaration, "legend" | "actions" | "marks"> {
+        const many = this.jxgCurves.length > 1;
+        const legend: LegendEntry[] = [];
+        const actions: ActionDeclaration[] = [{id: "point-labels", label: message("point_labels"), placement: "tools", section: "display",
+            enabled: true, pressed: this.displaySettings.pointLabelsVisible}];
+        this.jxgCurves.forEach((curve, i) => {
+            const n = String(i + 1);
+            legend.push({id: `curve-${i}`, label: many ? message("curve_item_curve", {value0: n}) : message("curve"), kind: "line", object: `curve-${i}`});
+            if (curve.getAttributes().allowShowPoints) legend.push({id: `control-points-${i}`, label: many ? message("curve_item_points", {value0: n}) : message("control_points"), kind: "point", object: `control-points-${i}`});
+            for (const toggle of displayToggles(curve)) {
+                const label = many ? message(CURVE_ITEM_KEYS[toggle], {value0: n}) : message(SINGLE_CURVE_KEYS[toggle]);
+                const pressed = toggle === "control-polygon" ? curve.isShowingControlPolygon() : toggle === "convex-hull" ? curve.isShowingConvexHull()
+                    : toggle === "control-points" ? curve.isShowingJxgPoints() : curve instanceof JXGRationalBezierCurve && curve.isShowingWeights();
+                const puck = this.curveDisplayPuckId(toggle, i) !== undefined;
+                actions.push({id: this.curveSwitchId(toggle, i), label, enabled: true, pressed,
+                    ...(puck ? {placement: "board" as const, puck: true as const} : {placement: "tools" as const, section: "display"})});
+            }
+        });
+        return {legend, actions, marks: this.curveViewMarks()};
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        return this.declaresCurveWorkspace() ? this.commonCurveDeclaration() : undefined;
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const match = /^(curve|control-points)-(\d+)$/.exec(id);
+        const curve = match ? this.jxgCurves[Number(match[2])] : undefined;
+        const element: JXG.GeometryElement | undefined = !match || !curve ? undefined : match[1] === "curve" ? curve.getJxgCurve() : curve.getJxgPoints()[0];
+        if (!match || !element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(match[1] === "curve" ? "strokecolor" : "fillcolor")), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (id === "point-labels") { runAs("learner", () => this.setPointLabelsVisible(!this.displaySettings.pointLabelsVisible)); return; }
+        const match = /^(control-polygon|convex-hull|control-points|weights)-(\d+)$/.exec(id);
+        const curve = match ? this.jxgCurves[Number(match[2])] : undefined;
+        if (!match || !curve) { super.performAction(id); return; }
+        runAs("learner", () => {
+            switch (match[1]) {
+                case "control-polygon": curve.showControllPolygon(!curve.isShowingControlPolygon()); break;
+                case "convex-hull": curve.showConvexHull(!curve.isShowingConvexHull()); break;
+                case "control-points": curve.showJxgPointss(!curve.isShowingJxgPoints()); break;
+                default: if (curve instanceof JXGRationalBezierCurve) curve.showwWeights(!curve.isShowingWeights()); else throw new Error("Unknown action");
+            }
+            this.store.notify();
+        });
     }
 
     override importPreset(preset: Preset) {

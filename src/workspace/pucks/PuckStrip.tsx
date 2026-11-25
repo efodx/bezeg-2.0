@@ -31,9 +31,10 @@ export type PuckItem =
  * `puck`, then the actions declared `puck` (a toggle each, a choice per group).
  */
 export function puckItems(declaration: GraphDeclaration | undefined, bound: readonly string[] | undefined): PuckItem[] {
-    if (!declaration || !bound) return [];
+    if (!declaration) return [];
+    // A graph with no parameter store (`bound` undefined) binds no parameter pucks but may still declare action pucks.
     const items: PuckItem[] = (declaration.parameters ?? []).flatMap((parameter): PuckItem[] =>
-        parameter.placement === 'board' && bound.includes(parameter.key)
+        parameter.placement === 'board' && bound?.includes(parameter.key)
         && (parameter.kind === 'range' || parameter.kind === 'count' || (parameter.kind === 'choice' && parameter.puck === true))
             ? [{kind: 'parameter', key: parameter.key, parameter}] : []);
     const groups = new Map<string, ActionDeclaration[]>();

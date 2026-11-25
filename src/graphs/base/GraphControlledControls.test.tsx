@@ -22,23 +22,25 @@ beforeEach(() => {
 
 const renderGraph = (graph: BaseGraph<BaseGraphState>) => render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
 
-const polygonSwitch = (view: ReturnType<typeof render>) => view.getByLabelText(t('control_polygon')) as HTMLInputElement;
+// The lone curve's control polygon and convex hull are board pucks (role switch, aria-checked); the other switches are checkboxes.
+const on = (element: HTMLElement) => (element as HTMLInputElement).checked ?? element.getAttribute('aria-checked') === 'true';
+const polygonSwitch = (view: ReturnType<typeof render>) => view.getByLabelText(t('control_polygon'));
 
 test('a lesson action that shows the control polygon checks the rendered switch with no other state change', () => {
     const graph = new BezierCurveGraph();
     const view = renderGraph(graph);
-    expect(polygonSwitch(view).checked).toBe(false);
+    expect(on(polygonSwitch(view))).toBe(false);
 
     const stateBefore = graph.state;
     act(() => graph.getLessonCapabilities().apply({kind: 'curve-visibility', target: 'control-polygon', visible: true}));
 
-    expect(polygonSwitch(view).checked).toBe(true);
+    expect(on(polygonSwitch(view))).toBe(true);
     expect(graph.getFirstJxgCurve().isShowingControlPolygon()).toBe(true);
     // The scene state object was not replaced: only the adapter flag changed and the store was notified.
     expect(graph.state).toBe(stateBefore);
 
     act(() => graph.getLessonCapabilities().apply({kind: 'curve-visibility', target: 'control-polygon', visible: false}));
-    expect(polygonSwitch(view).checked).toBe(false);
+    expect(on(polygonSwitch(view))).toBe(false);
     view.unmount();
 });
 
@@ -47,20 +49,20 @@ test('toggling the switch changes the adapter and keeps the switch in step', () 
     const view = renderGraph(graph);
     fireEvent.click(polygonSwitch(view));
     expect(graph.getFirstJxgCurve().isShowingControlPolygon()).toBe(true);
-    expect(polygonSwitch(view).checked).toBe(true);
+    expect(on(polygonSwitch(view))).toBe(true);
     fireEvent.click(polygonSwitch(view));
     expect(graph.getFirstJxgCurve().isShowingControlPolygon()).toBe(false);
-    expect(polygonSwitch(view).checked).toBe(false);
+    expect(on(polygonSwitch(view))).toBe(false);
     view.unmount();
 });
 
 test('the convex hull switch follows a lesson action as well', () => {
     const graph = new BezierCurveGraph();
     const view = renderGraph(graph);
-    const hull = () => view.getByLabelText(t('convex_hull')) as HTMLInputElement;
-    expect(hull().checked).toBe(false);
+    const hull = () => view.getByLabelText(t('convex_hull'));
+    expect(on(hull())).toBe(false);
     act(() => graph.getLessonCapabilities().apply({kind: 'curve-visibility', target: 'convex-hull', visible: true}));
-    expect(hull().checked).toBe(true);
+    expect(on(hull())).toBe(true);
     view.unmount();
 });
 

@@ -4,6 +4,7 @@ import {AbstractJXGPointControlledCurve, PointControlledCurveAttributes} from ".
 import {PointControlledCurve} from "../../../bezeg/api/curve/point-controlled-curve";
 import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
+import {PuckOwned} from "./PuckOwnership";
 
 export type DisplayedCurve = AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>;
 
@@ -46,7 +47,10 @@ export function CurveDisplayToggle({curve, toggle, onChanged}: CurveControlsProp
 }
 
 /** Control polygon, convex hull, control point and (rational curves) weight switches of one curve, each in its own inspector row. */
-export function CurveDisplayControls({curve, onChanged}: CurveControlsProps<DisplayedCurve>) {
+export function CurveDisplayControls({curve, onChanged, ownedBy}: CurveControlsProps<DisplayedCurve> & {
+    /** The declared action id of a switch when the board shows it as a puck: its row here is then left out. */
+    ownedBy?: (toggle: DisplayToggle) => string | undefined;
+}) {
     return <>{displayToggles(curve).map(toggle =>
-        <div className="inspector-control" key={toggle}><CurveDisplayToggle curve={curve} toggle={toggle} onChanged={onChanged}/></div>)}</>;
+        <PuckOwned param={ownedBy?.(toggle)} key={toggle}><div className="inspector-control"><CurveDisplayToggle curve={curve} toggle={toggle} onChanged={onChanged}/></div></PuckOwned>)}</>;
 }

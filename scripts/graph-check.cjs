@@ -44,7 +44,15 @@ const parity = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(
 const bare = id.replace(/-/g, '').toLowerCase();
 const declTests = fs.readdirSync('src/graphs', {recursive: true}).map(String).filter(f => /\.declaration\.test\.tsx$/.test(f) && path.basename(f).toLowerCase().startsWith(bare)).map(f => 'src/graphs/' + f.replace(/\\/g, '/'));
 if (parity) unit('parity', ['src/graphs/base/declare/parity.test.tsx'], `parity recording ${esc(id)}(-[a-z0-9-]+)? `, {BEZEG_PARITY_CHECK: '1'});
-else rows.push({label: 'parity', ok: false, detail: `no recording src/graphs/**/__parity__/${id}.json`});
+else {
+    // No recording: parity is not applicable when the declaration shows no values (no readouts, notes, help or status).
+    const na = id;
+    const before = rows.length;
+    unit('parity-na', ['src/graphs/base/declare/parityApplicable.test.tsx'], 'the graph under check shows no values', {BEZEG_PARITY_NA: na});
+    const row = rows[before];
+    if (row.ok) { row.label = 'parity'; row.detail = 'n/a (no shown values)'; }
+    else { row.label = 'parity'; row.detail = `no recording src/graphs/**/__parity__/${id}.json (and the declaration shows values; log .command-logs/graph-check/${id}-parity-na.log)`; }
+}
 if (declTests.length) unit('declaration', declTests);
 else rows.push({label: 'declaration', ok: false, detail: `no src/graphs/**/${id}*.declaration.test.tsx`});
 
