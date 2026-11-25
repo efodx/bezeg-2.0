@@ -1,0 +1,847 @@
+{
+  "graph": "mechanics-descent",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(3,14; 2) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,189 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "1,0285 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 1,003 s",
+        "Konec B (izračunan): (3,14; 2)",
+        "Kroglica: 0 s",
+        "Krožni lok",
+        "Krožni lok: 1,0285 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 1,189 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-race/mc1-readouts",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "1,19 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(3,14; 2) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,189 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "1,0285 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 1,003 s",
+        "Konec B (izračunan): (3,14; 2)",
+        "Kroglica: 1,19 s",
+        "Krožni lok",
+        "Krožni lok: 1,0285 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 1,189 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-race/mc1-why",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,5 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(3,14; 2) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,189 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "1,0285 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 1,003 s",
+        "Konec B (izračunan): (3,14; 2)",
+        "Kroglica: 0,5 s",
+        "Krožni lok",
+        "Krožni lok: 1,0285 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 1,189 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-race/mc1-explore",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,6 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(0,79; 0,5) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "0,5945 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "0,5142 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "0,5015 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "0,25 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 0,5015 s",
+        "Konec B (izračunan): (0,79; 0,5)",
+        "Kroglica: 0,6 s",
+        "Krožni lok",
+        "Krožni lok: 0,5142 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 0,5945 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-track/mc2-track",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3,25; 2) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(0,5; 2) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 2,5) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Tir je dopusten."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "1,0366 s"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2184 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,0203 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,1947 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "1,0007 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "0,0163 s (1,6 %)"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3,25; 2)",
+        "Cikloida",
+        "Cikloida: 1,0203 s",
+        "Kroglica: 0 s",
+        "P1 (0,5; 2)",
+        "P2 (2; 2,5)",
+        "Premica",
+        "Premica: 1,2184 s",
+        "Razlika do cikloide: 0,0163 s (1,6 %)",
+        "Tir",
+        "Tir: 1,0366 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-track/mc2-line",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "1,24 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3; 1,5) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(1; 0,5) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 1) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Tir je dopusten."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "1,2365 s"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2365 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "0,9866 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,5084 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "0,7758 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "0,2499 s (25,3 %)"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3; 1,5)",
+        "Cikloida",
+        "Cikloida: 0,9866 s",
+        "Kroglica: 1,24 s",
+        "P1 (1; 0,5)",
+        "P2 (2; 1)",
+        "Premica",
+        "Premica: 1,2365 s",
+        "Razlika do cikloide: 0,2499 s (25,3 %)",
+        "Tir",
+        "Tir: 1,2365 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-track/mc2-cycloid",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "1,04 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3,25; 2) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(0,5; 2) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 2,5) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Tir je dopusten."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "1,0366 s"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2184 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,0203 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,1947 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "1,0007 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "0,0163 s (1,6 %)"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3,25; 2)",
+        "Cikloida",
+        "Cikloida: 1,0203 s",
+        "Kroglica: 1,04 s",
+        "P1 (0,5; 2)",
+        "P2 (2; 2,5)",
+        "Premica",
+        "Premica: 1,2184 s",
+        "Razlika do cikloide: 0,0163 s (1,6 %)",
+        "Tir",
+        "Tir: 1,0366 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-track/mc2-horizontal",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "1,03 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3,25; 2) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(1; 0) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 2,5) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Kroglica na tem tiru ne zdrsne. Čas ni izračunan."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "brez časa"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2184 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,0203 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,1947 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "1,0007 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "brez časa"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3,25; 2)",
+        "Cikloida",
+        "Cikloida: 1,0203 s",
+        "Kroglica: 1,03 s",
+        "P1 (1; 0)",
+        "P2 (2; 2,5)",
+        "Premica",
+        "Premica: 1,2184 s",
+        "Tir",
+        "Tir: brez časa",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-tautochrone/mc3-start",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 1,003 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1, θ = 0,3: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2, θ = 1: 1,003 s",
+        "Kroglica 3",
+        "Kroglica 3, θ = 2: 1,003 s",
+        "Kroglica: 0 s",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-tautochrone/mc3-readouts",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "1,01 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 1,003 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1, θ = 0,3: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2, θ = 1: 1,003 s",
+        "Kroglica 3",
+        "Kroglica 3, θ = 2: 1,003 s",
+        "Kroglica: 1,01 s",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-tautochrone/mc3-theorem",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,8 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 1,003 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1, θ = 0,3: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2, θ = 1: 1,003 s",
+        "Kroglica 3",
+        "Kroglica 3, θ = 2: 1,003 s",
+        "Kroglica: 0,8 s",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "mechanics-descent-tautochrone/mc3-starts",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 1: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 1: čas po krožnem loku (izračunan)",
+          "value": "1,0745 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 2: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 2: čas po krožnem loku (izračunan)",
+          "value": "1,0574 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 3: čas po krožnem loku (izračunan)",
+          "value": "1,0221 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "2",
+        "2",
+        "3",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1 po krožnem loku: 1,0745 s",
+        "Kroglica 1, θ = 0,3: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2 po krožnem loku: 1,0574 s",
+        "Kroglica 2, θ = 1: 1,003 s",
+        "Kroglica 3",
+        "Kroglica 3 po krožnem loku: 1,0221 s",
+        "Kroglica 3, θ = 2: 1,003 s",
+        "Kroglica: 0 s",
+        "Krožni lok",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    }
+  ]
+}

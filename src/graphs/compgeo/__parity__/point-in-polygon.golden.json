@@ -1,0 +1,67 @@
+{
+  "graph": "point-in-polygon",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1"
+      ]
+    },
+    {
+      "name": "point-in-polygon-guided/pip-drag",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "point-in-polygon-guided/pip-ray-reveal",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "point-in-polygon-guided/pip-winding",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "+1",
+        "-1",
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "point-in-polygon-guided/pip-pentagram",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "+1",
+        "+1",
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "point-in-polygon-guided/pip-explore",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "+1",
+        "1"
+      ]
+    }
+  ]
+}

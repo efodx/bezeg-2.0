@@ -1,0 +1,705 @@
+{
+  "graph": "triangle-solver",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√41 ≈ 6,40312"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√20 ≈ 4,47214"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "7"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "63,4349°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "38,6598°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "77,9052°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "6"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "12"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "49 = 41 + 20 - (12)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = 12"
+      ]
+    },
+    {
+      "name": "triangle-sine-rule/tr3-drag",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√26 ≈ 5,09902"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√61 ≈ 7,81025"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "7"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "39,8056°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "78,6901°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "61,5044°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 7,96492"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 7,96492"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 7,96492"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "19"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "38"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "49 = 26 + 61 - (38)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = 38"
+      ]
+    },
+    {
+      "name": "triangle-sine-rule/tr3-circle",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√41 ≈ 6,40312"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√20 ≈ 4,47214"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "7"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "63,4349°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "38,6598°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "77,9052°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Premer očrtane krožnice 2R#0",
+          "label": "Premer očrtane krožnice 2R",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "R²#0",
+          "label": "R²",
+          "value": "205/16"
+        },
+        {
+          "key": "Središče očrtane krožnice#0",
+          "label": "Središče očrtane krožnice",
+          "value": "(7/2, 3/4)"
+        },
+        {
+          "key": "Točka A′ (nasprotna točki B)#0",
+          "label": "Točka A′ (nasprotna točki B)",
+          "value": "(0, 3/2)"
+        },
+        {
+          "key": "Skalarni produkt CB · CA′ (Talesov izrek)#0",
+          "label": "Skalarni produkt CB · CA′ (Talesov izrek)",
+          "value": "0"
+        },
+        {
+          "key": "Kot pri A′ v trikotniku BA′C#0",
+          "label": "Kot pri A′ v trikotniku BA′C",
+          "value": "63,4349°"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A'$$",
+        "$$a$$",
+        "$$b$$",
+        "$$c$$"
+      ]
+    },
+    {
+      "name": "triangle-sine-rule/tr3-obtuse",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√85 ≈ 9,21954"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√8 ≈ 2,82843"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "7"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "135°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "12,5288°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "32,4712°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 13,0384"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 13,0384"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 13,0384"
+        },
+        {
+          "key": "Premer očrtane krožnice 2R#0",
+          "label": "Premer očrtane krožnice 2R",
+          "value": "≈ 13,0384"
+        },
+        {
+          "key": "R²#0",
+          "label": "R²",
+          "value": "85/2"
+        },
+        {
+          "key": "Središče očrtane krožnice#0",
+          "label": "Središče očrtane krožnice",
+          "value": "(7/2, 11/2)"
+        },
+        {
+          "key": "Točka A′ (nasprotna točki B)#0",
+          "label": "Točka A′ (nasprotna točki B)",
+          "value": "(0, 11)"
+        },
+        {
+          "key": "Skalarni produkt CB · CA′ (Talesov izrek)#0",
+          "label": "Skalarni produkt CB · CA′ (Talesov izrek)",
+          "value": "0"
+        },
+        {
+          "key": "Kot pri A′ v trikotniku BA′C#0",
+          "label": "Kot pri A′ v trikotniku BA′C",
+          "value": "45°"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A'$$",
+        "$$a$$",
+        "$$b$$",
+        "$$c$$"
+      ]
+    },
+    {
+      "name": "triangle-cosine-rule/tr4-right",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "3"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "4"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "5"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "36,8699°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "53,1301°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "90°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "0"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "0"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "25 = 9 + 16 - (0)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = 0"
+      ]
+    },
+    {
+      "name": "triangle-cosine-rule/tr4-integers",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√29 ≈ 5,38516"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√17 ≈ 4,12311"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "√40 ≈ 6,32456"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "57,5288°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "40,2364°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "82,2348°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 6,38309"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 6,38309"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 6,38309"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "3"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "6"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "40 = 29 + 17 - (6)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = 6"
+      ]
+    },
+    {
+      "name": "triangle-cosine-rule/tr4-explore",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√13 ≈ 3,60555"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√5 ≈ 2,23607"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "4"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "63,4349°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "33,6901°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "82,875°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 4,03113"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 4,03113"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 4,03113"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "1"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "2"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "16 = 13 + 5 - (2)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = 2"
+      ]
+    },
+    {
+      "name": "triangle-solve/tr5-exists",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a = 5; b = 6; c = 7"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A ≈ 44,4153°; B ≈ 57,1217°; C ≈ 78,463°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "14,69694"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$"
+      ]
+    },
+    {
+      "name": "triangle-solve/tr5-inequality",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "triangle-solve/tr5-asa",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a ≈ 6,245; b = 5; c = 7"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 60°; B ≈ 43,8979°; C ≈ 76,1021°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "15,15544"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$"
+      ]
+    },
+    {
+      "name": "triangle-solve/tr5-ssa",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a = 8; b = 8; c ≈ 13,85641"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 30°; B = 30°; C = 120°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "27,71281"
+        },
+        {
+          "key": "Višina h iz oglišča C#0",
+          "label": "Višina h iz oglišča C",
+          "value": "≈ 4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$",
+        "$$h$$"
+      ]
+    },
+    {
+      "name": "triangle-solve/tr5-cases",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a = 5; b = 8; c ≈ 9,9282"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 30°; B ≈ 53,1301°; C ≈ 96,8699°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "19,85641"
+        },
+        {
+          "key": "Rešitev 2: stranice#0",
+          "label": "Rešitev 2: stranice",
+          "value": "a = 5; b = 8; c ≈ 3,9282"
+        },
+        {
+          "key": "Rešitev 2: koti#0",
+          "label": "Rešitev 2: koti",
+          "value": "A = 30°; B ≈ 126,8699°; C ≈ 23,1301°"
+        },
+        {
+          "key": "Rešitev 2: ploščina#0",
+          "label": "Rešitev 2: ploščina",
+          "value": "7,85641"
+        },
+        {
+          "key": "Višina h iz oglišča C#0",
+          "label": "Višina h iz oglišča C",
+          "value": "≈ 4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B_{1}$$",
+        "$$B_{2}$$",
+        "$$C$$",
+        "$$h$$"
+      ]
+    }
+  ]
+}

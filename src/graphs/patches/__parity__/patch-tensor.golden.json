@@ -1,0 +1,13 @@
+{
+  "graph": "patch-tensor",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

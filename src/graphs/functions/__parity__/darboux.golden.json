@@ -1,0 +1,306 @@
+{
+  "graph": "darboux",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "4"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "1,75"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "3,75"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "2"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 1,75, U = 3,75",
+        "f(x) = x²",
+        "n = 4, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "darboux-guided/darboux-prerequisites-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "4"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = skrito, U = skrito",
+        "f(x) = x²",
+        "n = 4, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "darboux-guided/darboux-refine-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "8"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "2,1875"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "3,1875"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 2,1875, U = 3,1875",
+        "f(x) = x²",
+        "n = 8, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "darboux-guided/darboux-sine-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "3,1416"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "1"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = skrito, U = skrito",
+        "f(x) = sin x",
+        "n = 1, integral = 2",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "darboux-guided/darboux-sine-reveal-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "3,1416"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "1"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "0"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "3,1416"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "3,1416"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 0, U = 3,1416",
+        "f(x) = sin x",
+        "n = 1, integral = 2",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "darboux-guided/darboux-free-exploration",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "6,2832"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "4"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "0"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = skrito, U = skrito",
+        "f(x) = sin x",
+        "n = 4, integral = 0",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    }
+  ]
+}

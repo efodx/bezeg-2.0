@@ -1,0 +1,15 @@
+{
+  "graph": "uniform-parameterization",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 16,717"
+      ]
+    }
+  ]
+}

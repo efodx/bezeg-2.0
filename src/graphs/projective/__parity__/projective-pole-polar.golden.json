@@ -1,0 +1,22 @@
+{
+  "graph": "projective-pole-polar",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "projective-pole-polar-guided/pole-polar-infinity",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$P = \\infty$$"
+      ]
+    }
+  ]
+}

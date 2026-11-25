@@ -1,0 +1,218 @@
+{
+  "graph": "interp-least-squares",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število točk#0",
+          "label": "Število točk",
+          "value": "4"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "1"
+        },
+        {
+          "key": "Enačba prileganja#0",
+          "label": "Enačba prileganja",
+          "value": "y = 0,9x + 0,9"
+        },
+        {
+          "key": "Vsota kvadratov ostankov#0",
+          "label": "Vsota kvadratov ostankov",
+          "value": "0,7"
+        },
+        {
+          "key": "Ostanki#0",
+          "label": "Ostanki",
+          "value": "0,1; 0,2; -0,7; 0,4"
+        }
+      ],
+      "notes": [
+        "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
+        "Prileganje: polinom stopnje 1",
+        "Vsota kvadratov ostankov: 0,7",
+        "y = 0,9x + 0,9"
+      ]
+    },
+    {
+      "name": "interp-least-squares-guided/lsq-predict",
+      "rows": [
+        {
+          "key": "Število točk#0",
+          "label": "Število točk",
+          "value": "4"
+        },
+        {
+          "key": "Enačba ročne premice#0",
+          "label": "Enačba ročne premice",
+          "value": "y = 2"
+        },
+        {
+          "key": "Vsota kvadratov ročne premice#0",
+          "label": "Vsota kvadratov ročne premice",
+          "value": "5"
+        },
+        {
+          "key": "Najmanjša možna vsota#0",
+          "label": "Najmanjša možna vsota",
+          "value": "0,7"
+        },
+        {
+          "key": "Ostanki#0",
+          "label": "Ostanki",
+          "value": "-1; 0; 0; 2"
+        }
+      ],
+      "notes": [
+        "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Najmanjša možna vsota (najboljša premica): 0,7",
+        "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
+        "Ročna premica",
+        "Vsota kvadratov ostankov: 5",
+        "y = 2"
+      ]
+    },
+    {
+      "name": "interp-least-squares-guided/lsq-manual",
+      "rows": [
+        {
+          "key": "Število točk#0",
+          "label": "Število točk",
+          "value": "4"
+        },
+        {
+          "key": "Enačba ročne premice#0",
+          "label": "Enačba ročne premice",
+          "value": "y = x + 1"
+        },
+        {
+          "key": "Vsota kvadratov ročne premice#0",
+          "label": "Vsota kvadratov ročne premice",
+          "value": "1"
+        },
+        {
+          "key": "Najmanjša možna vsota#0",
+          "label": "Najmanjša možna vsota",
+          "value": "0,7"
+        },
+        {
+          "key": "Ostanki#0",
+          "label": "Ostanki",
+          "value": "0; 0; -1; 0"
+        }
+      ],
+      "notes": [
+        "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Najmanjša možna vsota (najboljša premica): 0,7",
+        "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
+        "Ročna premica",
+        "Vsota kvadratov ostankov: 1",
+        "y = x + 1"
+      ]
+    },
+    {
+      "name": "interp-least-squares-guided/lsq-outlier",
+      "rows": [
+        {
+          "key": "Število točk#0",
+          "label": "Število točk",
+          "value": "4"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "1"
+        },
+        {
+          "key": "Enačba prileganja#0",
+          "label": "Enačba prileganja",
+          "value": "y = 2,1x + 0,1"
+        },
+        {
+          "key": "Vsota kvadratov ostankov#0",
+          "label": "Vsota kvadratov ostankov",
+          "value": "8,7"
+        },
+        {
+          "key": "Ostanki#0",
+          "label": "Ostanki",
+          "value": "0,9; -0,2; -2,3; 1,6"
+        }
+      ],
+      "notes": [
+        "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
+        "Prileganje: polinom stopnje 1",
+        "Vsota kvadratov ostankov: 8,7",
+        "y = 2,1x + 0,1"
+      ]
+    },
+    {
+      "name": "interp-least-squares-guided/lsq-degree",
+      "rows": [
+        {
+          "key": "Število točk#0",
+          "label": "Število točk",
+          "value": "4"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "2"
+        },
+        {
+          "key": "Enačba prileganja#0",
+          "label": "Enačba prileganja",
+          "value": "y = 1,15 + 0,15x + 0,25x²"
+        },
+        {
+          "key": "Vsota kvadratov ostankov#0",
+          "label": "Vsota kvadratov ostankov",
+          "value": "0,45"
+        },
+        {
+          "key": "Ostanki#0",
+          "label": "Ostanki",
+          "value": "-0,15; 0,45; -0,45; 0,15"
+        }
+      ],
+      "notes": [
+        "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
+        "Prileganje: polinom stopnje 2",
+        "Vsota kvadratov ostankov: 0,45",
+        "y = 1,15 + 0,15x + 0,25x²"
+      ]
+    }
+  ]
+}

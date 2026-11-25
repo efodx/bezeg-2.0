@@ -1,0 +1,47 @@
+unit: failed (1) in 7.1s (2 workers, no slot); revision 688294ccf894e70283120b2ab4c3b5b798cb3251; dirty; log .command-logs\2026-11-25T15-42-04-954Z-33276-a24a6f0b.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/base/declare/parityGolden.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/board-workspace
+
+stderr | src/graphs/base/declare/parityGolden.test.tsx > golden check (BEZEG_PARITY_GOLDEN_CHECK=1) > golden panels function-inverse
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ |dom| src/graphs/base/declare/parityGolden.test.tsx (3 tests | 1 failed | 1 skipped) 606ms
+   ❯ golden check (BEZEG_PARITY_GOLDEN_CHECK=1) (2)
+     × golden panels function-inverse 602ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| src/graphs/base/declare/parityGolden.test.tsx > golden check (BEZEG_PARITY_GOLDEN_CHECK=1) > golden panels function-inverse
+Error: function-inverse: panels differ from graphs\functions\__parity__\function-inverse.golden.json
+state "function-inverse-guided/inverse-base" row Naklon f v P#0: golden "5,5452" now "5,545"
+state "function-inverse-guided/inverse-base" row Naklon inverzne funkcije v P′#0: golden "0,1803" now "0,18"
+state "function-inverse-guided/inverse-base" captions: golden ["P = (3; 8) → P′ = (8; 3)","f(x) = aˣ, f⁻¹(x) = log_a x, a = 2","naklon v P: 5,5452; naklon v P′: 0,1803"] now ["P = (3; 8) → P′ = (8; 3)","f(x) = aˣ, f⁻¹(x) = log_a x, a = 2","naklon v P: 5,545; naklon v P′: 0,18"]
+state "function-inverse-guided/inverse-ln" row Točka P na grafu f#0: golden "(1; 2,7183)" now "(1; 2,718)"
+state "function-inverse-guided/inverse-ln" row Zrcalna točka P′#0: golden "(2,7183; 1)" now "(2,718; 1)"
+state "function-inverse-guided/inverse-ln" row Naklon f v P#0: golden "2,7183" now "2,718"
+state "function-inverse-guided/inverse-ln" row Naklon inverzne funkcije v P′#0: golden "0,3679" now "0,368"
+state "function-inverse-guided/inverse-ln" captions: golden ["P = (1; 2,7183) → P′ = (2,7183; 1)","f(x) = eˣ, f⁻¹(x) = ln x","naklon v P: 2,7183; naklon v P′: 0,3679"] now ["P = (1; 2,718) → P′ = (2,718; 1)","f(x) = eˣ, f⁻¹(x) = ln x","naklon v P: 2,718; naklon v P′: 0,368"]
+ ❯ src/graphs/base/declare/parityGolden.test.tsx:149:31
+    147|         const comparable: ParityRecording = {...now, states: now.state…
+    148|         const difference = differences(golden, comparable);
+    149|         if (difference) throw new Error(`${entry.id}: panels differ fr…
+       |                               ^
+    150| ${difference}`);
+    151|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed | 1 skipped (3)
+   Start at  16:42:06
+   Duration  5.79s (transform 50%, import 20%, environment 16%, tests 11%, setup 3%)
+
+
+error: recipe `unit` failed on line 26 with exit code 1

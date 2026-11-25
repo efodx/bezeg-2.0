@@ -1,0 +1,256 @@
+{
+  "graph": "area-between-curves",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0,78"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3,22"
+        },
+        {
+          "key": "∫ f(x) dx#0",
+          "label": "∫ f(x) dx",
+          "value": "1,2247"
+        },
+        {
+          "key": "∫ g(x) dx#0",
+          "label": "∫ g(x) dx",
+          "value": "6,1237"
+        },
+        {
+          "key": "∫ (g(x) - f(x)) dx (predznačeno)#0",
+          "label": "∫ (g(x) - f(x)) dx (predznačeno)",
+          "value": "4,899"
+        },
+        {
+          "key": "∫ |g(x) - f(x)| dx (ploščina)#0",
+          "label": "∫ |g(x) - f(x)| dx (ploščina)",
+          "value": "4,899"
+        },
+        {
+          "key": "Pobarvano: ploščina med f in g#0",
+          "label": "Pobarvano: ploščina med f in g",
+          "value": "4,899"
+        }
+      ],
+      "notes": [
+        "Presečišči sta pri x = 2 ∓ √1,5 ≈ 0,7753 in 3,2247. Del, kjer je f nad g, v ∫(g - f) dx štejemo negativno, v ploščini pa pozitivno."
+      ],
+      "outputs": [],
+      "captions": [
+        "f",
+        "g",
+        "ploščina = 4,899",
+        "∫(g - f) dx = 4,899"
+      ]
+    },
+    {
+      "name": "area-between-curves-guided/area-difference-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "1"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3"
+        },
+        {
+          "key": "∫ f(x) dx#0",
+          "label": "∫ f(x) dx",
+          "value": "0,6667"
+        },
+        {
+          "key": "∫ g(x) dx#0",
+          "label": "∫ g(x) dx",
+          "value": "5,3333"
+        },
+        {
+          "key": "∫ (g(x) - f(x)) dx (predznačeno)#0",
+          "label": "∫ (g(x) - f(x)) dx (predznačeno)",
+          "value": "4,6667"
+        },
+        {
+          "key": "∫ |g(x) - f(x)| dx (ploščina)#0",
+          "label": "∫ |g(x) - f(x)| dx (ploščina)",
+          "value": "4,6667"
+        },
+        {
+          "key": "Pobarvano: ploščina med f in g#0",
+          "label": "Pobarvano: ploščina med f in g",
+          "value": "4,6667"
+        }
+      ],
+      "notes": [
+        "Presečišči sta pri x = 2 ∓ √1,5 ≈ 0,7753 in 3,2247. Del, kjer je f nad g, v ∫(g - f) dx štejemo negativno, v ploščini pa pozitivno."
+      ],
+      "outputs": [],
+      "captions": [
+        "f",
+        "g",
+        "ploščina = 4,6667",
+        "∫(g - f) dx = 4,6667"
+      ]
+    },
+    {
+      "name": "area-between-curves-guided/area-under-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "1"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3"
+        },
+        {
+          "key": "∫ f(x) dx#0",
+          "label": "∫ f(x) dx",
+          "value": "0,6667"
+        },
+        {
+          "key": "∫ g(x) dx#0",
+          "label": "∫ g(x) dx",
+          "value": "5,3333"
+        },
+        {
+          "key": "∫ (g(x) - f(x)) dx (predznačeno)#0",
+          "label": "∫ (g(x) - f(x)) dx (predznačeno)",
+          "value": "4,6667"
+        },
+        {
+          "key": "∫ |g(x) - f(x)| dx (ploščina)#0",
+          "label": "∫ |g(x) - f(x)| dx (ploščina)",
+          "value": "4,6667"
+        },
+        {
+          "key": "Pobarvano: ∫ g(x) dx#0",
+          "label": "Pobarvano: ∫ g(x) dx",
+          "value": "5,3333"
+        }
+      ],
+      "notes": [
+        "Presečišči sta pri x = 2 ∓ √1,5 ≈ 0,7753 in 3,2247. Del, kjer je f nad g, v ∫(g - f) dx štejemo negativno, v ploščini pa pozitivno."
+      ],
+      "outputs": [],
+      "captions": [
+        "f",
+        "g",
+        "ploščina = 4,6667",
+        "∫(g - f) dx = 4,6667"
+      ]
+    },
+    {
+      "name": "area-between-curves-guided/area-beyond-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "4"
+        },
+        {
+          "key": "∫ f(x) dx#0",
+          "label": "∫ f(x) dx",
+          "value": "5,3333"
+        },
+        {
+          "key": "∫ g(x) dx#0",
+          "label": "∫ g(x) dx",
+          "value": "6,6667"
+        },
+        {
+          "key": "∫ (g(x) - f(x)) dx (predznačeno)#0",
+          "label": "∫ (g(x) - f(x)) dx (predznačeno)",
+          "value": "1,3333"
+        },
+        {
+          "key": "∫ |g(x) - f(x)| dx (ploščina)#0",
+          "label": "∫ |g(x) - f(x)| dx (ploščina)",
+          "value": "8,4646"
+        },
+        {
+          "key": "Pobarvano: ploščina med f in g#0",
+          "label": "Pobarvano: ploščina med f in g",
+          "value": "8,4646"
+        }
+      ],
+      "notes": [
+        "Presečišči sta pri x = 2 ∓ √1,5 ≈ 0,7753 in 3,2247. Del, kjer je f nad g, v ∫(g - f) dx štejemo negativno, v ploščini pa pozitivno."
+      ],
+      "outputs": [],
+      "captions": [
+        "f",
+        "g",
+        "ploščina = 8,4646",
+        "∫(g - f) dx = 1,3333"
+      ]
+    },
+    {
+      "name": "area-between-curves-guided/area-crossing-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "1"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3,5"
+        },
+        {
+          "key": "∫ f(x) dx#0",
+          "label": "∫ f(x) dx",
+          "value": "1,4583"
+        },
+        {
+          "key": "∫ g(x) dx#0",
+          "label": "∫ g(x) dx",
+          "value": "6,0417"
+        },
+        {
+          "key": "∫ (g(x) - f(x)) dx (predznačeno)#0",
+          "label": "∫ (g(x) - f(x)) dx (predznačeno)",
+          "value": "4,5833"
+        },
+        {
+          "key": "∫ |g(x) - f(x)| dx (ploščina)#0",
+          "label": "∫ |g(x) - f(x)| dx (ploščina)",
+          "value": "4,9823"
+        },
+        {
+          "key": "Pobarvano: ploščina med f in g#0",
+          "label": "Pobarvano: ploščina med f in g",
+          "value": "4,9823"
+        }
+      ],
+      "notes": [
+        "Presečišči sta pri x = 2 ∓ √1,5 ≈ 0,7753 in 3,2247. Del, kjer je f nad g, v ∫(g - f) dx štejemo negativno, v ploščini pa pozitivno."
+      ],
+      "outputs": [],
+      "captions": [
+        "f",
+        "g",
+        "ploščina = 4,9823",
+        "∫(g - f) dx = 4,5833"
+      ]
+    }
+  ]
+}

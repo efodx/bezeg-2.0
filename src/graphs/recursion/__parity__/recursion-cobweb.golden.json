@@ -1,0 +1,399 @@
+{
+  "graph": "recursion-cobweb",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Preslikava#0",
+          "label": "Preslikava",
+          "value": "Premica x ↦ m·x + c"
+        },
+        {
+          "key": "Naklon m#0",
+          "label": "Naklon m",
+          "value": "0,5"
+        },
+        {
+          "key": "Prosti člen c#0",
+          "label": "Prosti člen c",
+          "value": "1"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0"
+        },
+        {
+          "key": "Negibna točka x*#0",
+          "label": "Negibna točka x*",
+          "value": "2"
+        },
+        {
+          "key": "Naklon pri negibni točki#0",
+          "label": "Naklon pri negibni točki",
+          "value": "0,5"
+        },
+        {
+          "key": "Oblika mreže#0",
+          "label": "Oblika mreže",
+          "value": "stopnice blizu x* (naklon > 0)"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "Iterat x₀ (izračunano)#0",
+          "label": "Iterat x₀ (izračunano)",
+          "value": "0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
+        "diagonala y = x",
+        "negibna točka x* = 2",
+        "preslikava y = 0,5·x + 1",
+        "začetek x₀ = 0"
+      ]
+    },
+    {
+      "name": "recursion-cobweb/rg2-repelling",
+      "rows": [
+        {
+          "key": "Preslikava#0",
+          "label": "Preslikava",
+          "value": "Premica x ↦ m·x + c"
+        },
+        {
+          "key": "Naklon m#0",
+          "label": "Naklon m",
+          "value": "-0,8"
+        },
+        {
+          "key": "Prosti člen c#0",
+          "label": "Prosti člen c",
+          "value": "9"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "1"
+        },
+        {
+          "key": "Negibna točka x*#0",
+          "label": "Negibna točka x*",
+          "value": "5"
+        },
+        {
+          "key": "Naklon pri negibni točki#0",
+          "label": "Naklon pri negibni točki",
+          "value": "-0,8"
+        },
+        {
+          "key": "Oblika mreže#0",
+          "label": "Oblika mreže",
+          "value": "spirala blizu x* (naklon < 0)"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "Iterat x₀ (izračunano)#0",
+          "label": "Iterat x₀ (izračunano)",
+          "value": "1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
+        "diagonala y = x",
+        "negibna točka x* = 5",
+        "preslikava y = -0,8·x + 9",
+        "začetek x₀ = 1"
+      ]
+    },
+    {
+      "name": "recursion-cobweb/rg2-borderline",
+      "rows": [
+        {
+          "key": "Preslikava#0",
+          "label": "Preslikava",
+          "value": "Premica x ↦ m·x + c"
+        },
+        {
+          "key": "Naklon m#0",
+          "label": "Naklon m",
+          "value": "-1,2"
+        },
+        {
+          "key": "Prosti člen c#0",
+          "label": "Prosti člen c",
+          "value": "10"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "4,6"
+        },
+        {
+          "key": "Negibna točka x*#0",
+          "label": "Negibna točka x*",
+          "value": "50/11 ≈ 4,545455"
+        },
+        {
+          "key": "Naklon pri negibni točki#0",
+          "label": "Naklon pri negibni točki",
+          "value": "-1,2"
+        },
+        {
+          "key": "Oblika mreže#0",
+          "label": "Oblika mreže",
+          "value": "spirala blizu x* (naklon < 0)"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "Iterat x₀ (izračunano)#0",
+          "label": "Iterat x₀ (izračunano)",
+          "value": "4,6"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
+        "diagonala y = x",
+        "negibna točka x* = 4,545455",
+        "preslikava y = -1,2·x + 10",
+        "začetek x₀ = 4,6"
+      ]
+    },
+    {
+      "name": "recursion-logistic/rg4-rule",
+      "rows": [
+        {
+          "key": "Preslikava#0",
+          "label": "Preslikava",
+          "value": "Logistična x ↦ r·x·(1 - x)"
+        },
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "1,2"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,1"
+        },
+        {
+          "key": "Negibna točka x*#0",
+          "label": "Negibna točka x*",
+          "value": "1/6 ≈ 0,166667"
+        },
+        {
+          "key": "Naklon pri negibni točki#0",
+          "label": "Naklon pri negibni točki",
+          "value": "0,8"
+        },
+        {
+          "key": "Oblika mreže#0",
+          "label": "Oblika mreže",
+          "value": "stopnice blizu x* (naklon > 0)"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "Iterat x₀ (izračunano)#0",
+          "label": "Iterat x₀ (izračunano)",
+          "value": "0,1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
+        "diagonala y = x",
+        "negibna točka x* = 0,166667",
+        "preslikava y = 1,2·x·(1 - x)",
+        "začetek x₀ = 0,1"
+      ]
+    },
+    {
+      "name": "recursion-logistic/rg4-staircase",
+      "rows": [
+        {
+          "key": "Preslikava#0",
+          "label": "Preslikava",
+          "value": "Logistična x ↦ r·x·(1 - x)"
+        },
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "1,5"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,1"
+        },
+        {
+          "key": "Negibna točka x*#0",
+          "label": "Negibna točka x*",
+          "value": "1/3 ≈ 0,333333"
+        },
+        {
+          "key": "Naklon pri negibni točki#0",
+          "label": "Naklon pri negibni točki",
+          "value": "0,5"
+        },
+        {
+          "key": "Oblika mreže#0",
+          "label": "Oblika mreže",
+          "value": "stopnice blizu x* (naklon > 0)"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "Iterat x₀ (izračunano)#0",
+          "label": "Iterat x₀ (izračunano)",
+          "value": "0,1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
+        "diagonala y = x",
+        "negibna točka x* = 0,333333",
+        "preslikava y = 1,5·x·(1 - x)",
+        "začetek x₀ = 0,1"
+      ]
+    },
+    {
+      "name": "recursion-logistic/rg4-slow-spiral",
+      "rows": [
+        {
+          "key": "Preslikava#0",
+          "label": "Preslikava",
+          "value": "Logistična x ↦ r·x·(1 - x)"
+        },
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "2,5"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,1"
+        },
+        {
+          "key": "Negibna točka x*#0",
+          "label": "Negibna točka x*",
+          "value": "3/5 ≈ 0,6"
+        },
+        {
+          "key": "Naklon pri negibni točki#0",
+          "label": "Naklon pri negibni točki",
+          "value": "-0,5"
+        },
+        {
+          "key": "Oblika mreže#0",
+          "label": "Oblika mreže",
+          "value": "spirala blizu x* (naklon < 0)"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "Iterat x₀ (izračunano)#0",
+          "label": "Iterat x₀ (izračunano)",
+          "value": "0,1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
+        "diagonala y = x",
+        "negibna točka x* = 0,6",
+        "preslikava y = 2,5·x·(1 - x)",
+        "začetek x₀ = 0,1"
+      ]
+    },
+    {
+      "name": "recursion-logistic/rg4-extinction",
+      "rows": [
+        {
+          "key": "Preslikava#0",
+          "label": "Preslikava",
+          "value": "Logistična x ↦ r·x·(1 - x)"
+        },
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "2,9"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,1"
+        },
+        {
+          "key": "Negibna točka x*#0",
+          "label": "Negibna točka x*",
+          "value": "19/29 ≈ 0,655172"
+        },
+        {
+          "key": "Naklon pri negibni točki#0",
+          "label": "Naklon pri negibni točki",
+          "value": "-0,9"
+        },
+        {
+          "key": "Oblika mreže#0",
+          "label": "Oblika mreže",
+          "value": "spirala blizu x* (naklon < 0)"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "Iterat x₀ (izračunano)#0",
+          "label": "Iterat x₀ (izračunano)",
+          "value": "0,1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
+        "diagonala y = x",
+        "negibna točka x* = 0,655172",
+        "preslikava y = 2,9·x·(1 - x)",
+        "začetek x₀ = 0,1"
+      ]
+    }
+  ]
+}

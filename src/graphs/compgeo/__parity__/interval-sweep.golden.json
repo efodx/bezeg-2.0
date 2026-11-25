@@ -1,0 +1,31 @@
+{
+  "graph": "interval-sweep",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$b$$",
+        "$$c$$",
+        "$$d$$",
+        "$$e$$"
+      ]
+    },
+    {
+      "name": "interval-sweep-guided/intervalsweep-explore",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$b$$",
+        "$$c$$",
+        "$$d$$"
+      ]
+    }
+  ]
+}

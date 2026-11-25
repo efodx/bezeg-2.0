@@ -1,0 +1,15 @@
+{
+  "graph": "euler-line",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Eulerjeva premica: O, G in H so kolinearne"
+      ]
+    }
+  ]
+}

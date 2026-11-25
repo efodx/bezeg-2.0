@@ -1,0 +1,60 @@
+{
+  "graph": "inversion",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Slika X′ = (6/5, 2/5)"
+      ]
+    },
+    {
+      "name": "inversion/power",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Potenca = 16"
+      ]
+    },
+    {
+      "name": "inversion/line",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krožnica skozi središče C → premica"
+      ]
+    },
+    {
+      "name": "inversion/circle",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krožnica mimo središča C → krožnica"
+      ]
+    },
+    {
+      "name": "inversion/angle",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kot 60° → 60°"
+      ]
+    },
+    {
+      "name": "inversion/explore",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Točka X je središče inverzije C, zato nima slike."
+      ]
+    }
+  ]
+}

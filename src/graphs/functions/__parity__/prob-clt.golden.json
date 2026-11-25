@@ -1,0 +1,246 @@
+{
+  "graph": "prob-clt",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število seštevancev n#0",
+          "label": "Število seštevancev n",
+          "value": "1"
+        },
+        {
+          "key": "Povprečje osnovne gostote μ#0",
+          "label": "Povprečje osnovne gostote μ",
+          "value": "0,5"
+        },
+        {
+          "key": "Varianca osnovne gostote σ²#0",
+          "label": "Varianca osnovne gostote σ²",
+          "value": "0,0833"
+        },
+        {
+          "key": "Povprečje vsote nμ#0",
+          "label": "Povprečje vsote nμ",
+          "value": "0,5"
+        },
+        {
+          "key": "Varianca vsote nσ²#0",
+          "label": "Varianca vsote nσ²",
+          "value": "0,0833"
+        },
+        {
+          "key": "Kolmogorova razdalja K_n (le za to obliko in ta n)#0",
+          "label": "Kolmogorova razdalja K_n (le za to obliko in ta n)",
+          "value": "0,05718"
+        },
+        {
+          "key": "Ostanek mase zadnjega koraka#0",
+          "label": "Ostanek mase zadnjega koraka",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Kolmogorova razdalja je največja razlika med porazdelitveno funkcijo standardizirane vsote in standardno normalno za to osnovno gostoto in ta n; ne pove, kako hitro se približek izboljšuje. Centralni limitni izrek (neodvisne enako porazdeljene spremenljivke s končno varianco) govori o konvergenci po porazdelitvi: ujemanje pri enem n ni ocena hitrosti. Konvolucija je izračunana na mreži; vsak korak izgubi nekaj mase in jo izračun renormira."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kolmogorova razdalja K_n = 0,05718 (le za to obliko in ta n)",
+        "Standardizirana vsota n = 1 neodvisnih kopij"
+      ]
+    },
+    {
+      "name": "prob-clt-guided/clt-two",
+      "rows": [
+        {
+          "key": "Število seštevancev n#0",
+          "label": "Število seštevancev n",
+          "value": "2"
+        },
+        {
+          "key": "Povprečje osnovne gostote μ#0",
+          "label": "Povprečje osnovne gostote μ",
+          "value": "0,5"
+        },
+        {
+          "key": "Varianca osnovne gostote σ²#0",
+          "label": "Varianca osnovne gostote σ²",
+          "value": "0,0833"
+        },
+        {
+          "key": "Povprečje vsote nμ#0",
+          "label": "Povprečje vsote nμ",
+          "value": "1"
+        },
+        {
+          "key": "Varianca vsote nσ²#0",
+          "label": "Varianca vsote nσ²",
+          "value": "0,1667"
+        },
+        {
+          "key": "Kolmogorova razdalja K_n (le za to obliko in ta n)#0",
+          "label": "Kolmogorova razdalja K_n (le za to obliko in ta n)",
+          "value": "0,01644"
+        },
+        {
+          "key": "Ostanek mase zadnjega koraka#0",
+          "label": "Ostanek mase zadnjega koraka",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Kolmogorova razdalja je največja razlika med porazdelitveno funkcijo standardizirane vsote in standardno normalno za to osnovno gostoto in ta n; ne pove, kako hitro se približek izboljšuje. Centralni limitni izrek (neodvisne enako porazdeljene spremenljivke s končno varianco) govori o konvergenci po porazdelitvi: ujemanje pri enem n ni ocena hitrosti. Konvolucija je izračunana na mreži; vsak korak izgubi nekaj mase in jo izračun renormira."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kolmogorova razdalja K_n = 0,01644 (le za to obliko in ta n)",
+        "Standardizirana vsota n = 2 neodvisnih kopij"
+      ]
+    },
+    {
+      "name": "prob-clt-guided/clt-more",
+      "rows": [
+        {
+          "key": "Število seštevancev n#0",
+          "label": "Število seštevancev n",
+          "value": "5"
+        },
+        {
+          "key": "Povprečje osnovne gostote μ#0",
+          "label": "Povprečje osnovne gostote μ",
+          "value": "0,5"
+        },
+        {
+          "key": "Varianca osnovne gostote σ²#0",
+          "label": "Varianca osnovne gostote σ²",
+          "value": "0,0833"
+        },
+        {
+          "key": "Povprečje vsote nμ#0",
+          "label": "Povprečje vsote nμ",
+          "value": "2,5"
+        },
+        {
+          "key": "Varianca vsote nσ²#0",
+          "label": "Varianca vsote nσ²",
+          "value": "0,4167"
+        },
+        {
+          "key": "Kolmogorova razdalja K_n (le za to obliko in ta n)#0",
+          "label": "Kolmogorova razdalja K_n (le za to obliko in ta n)",
+          "value": "0,00572"
+        },
+        {
+          "key": "Ostanek mase zadnjega koraka#0",
+          "label": "Ostanek mase zadnjega koraka",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Kolmogorova razdalja je največja razlika med porazdelitveno funkcijo standardizirane vsote in standardno normalno za to osnovno gostoto in ta n; ne pove, kako hitro se približek izboljšuje. Centralni limitni izrek (neodvisne enako porazdeljene spremenljivke s končno varianco) govori o konvergenci po porazdelitvi: ujemanje pri enem n ni ocena hitrosti. Konvolucija je izračunana na mreži; vsak korak izgubi nekaj mase in jo izračun renormira."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kolmogorova razdalja K_n = 0,00572 (le za to obliko in ta n)",
+        "Standardizirana vsota n = 5 neodvisnih kopij"
+      ]
+    },
+    {
+      "name": "prob-clt-guided/clt-skewed",
+      "rows": [
+        {
+          "key": "Število seštevancev n#0",
+          "label": "Število seštevancev n",
+          "value": "3"
+        },
+        {
+          "key": "Povprečje osnovne gostote μ#0",
+          "label": "Povprečje osnovne gostote μ",
+          "value": "0,3333"
+        },
+        {
+          "key": "Varianca osnovne gostote σ²#0",
+          "label": "Varianca osnovne gostote σ²",
+          "value": "0,0556"
+        },
+        {
+          "key": "Povprečje vsote nμ#0",
+          "label": "Povprečje vsote nμ",
+          "value": "1"
+        },
+        {
+          "key": "Varianca vsote nσ²#0",
+          "label": "Varianca vsote nσ²",
+          "value": "0,1667"
+        },
+        {
+          "key": "Kolmogorova razdalja K_n (le za to obliko in ta n)#0",
+          "label": "Kolmogorova razdalja K_n (le za to obliko in ta n)",
+          "value": "0,02492"
+        },
+        {
+          "key": "Ostanek mase zadnjega koraka#0",
+          "label": "Ostanek mase zadnjega koraka",
+          "value": "-1·10⁻⁴"
+        }
+      ],
+      "notes": [
+        "Kolmogorova razdalja je največja razlika med porazdelitveno funkcijo standardizirane vsote in standardno normalno za to osnovno gostoto in ta n; ne pove, kako hitro se približek izboljšuje. Centralni limitni izrek (neodvisne enako porazdeljene spremenljivke s končno varianco) govori o konvergenci po porazdelitvi: ujemanje pri enem n ni ocena hitrosti. Konvolucija je izračunana na mreži; vsak korak izgubi nekaj mase in jo izračun renormira."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kolmogorova razdalja K_n = 0,02492 (le za to obliko in ta n)",
+        "Standardizirana vsota n = 3 neodvisnih kopij"
+      ]
+    },
+    {
+      "name": "prob-clt-guided/clt-distance",
+      "rows": [
+        {
+          "key": "Število seštevancev n#0",
+          "label": "Število seštevancev n",
+          "value": "10"
+        },
+        {
+          "key": "Povprečje osnovne gostote μ#0",
+          "label": "Povprečje osnovne gostote μ",
+          "value": "0,3333"
+        },
+        {
+          "key": "Varianca osnovne gostote σ²#0",
+          "label": "Varianca osnovne gostote σ²",
+          "value": "0,0556"
+        },
+        {
+          "key": "Povprečje vsote nμ#0",
+          "label": "Povprečje vsote nμ",
+          "value": "3,3333"
+        },
+        {
+          "key": "Varianca vsote nσ²#0",
+          "label": "Varianca vsote nσ²",
+          "value": "0,5556"
+        },
+        {
+          "key": "Kolmogorova razdalja K_n (le za to obliko in ta n)#0",
+          "label": "Kolmogorova razdalja K_n (le za to obliko in ta n)",
+          "value": "0,01248"
+        },
+        {
+          "key": "Ostanek mase zadnjega koraka#0",
+          "label": "Ostanek mase zadnjega koraka",
+          "value": "-1·10⁻⁴"
+        }
+      ],
+      "notes": [
+        "Kolmogorova razdalja je največja razlika med porazdelitveno funkcijo standardizirane vsote in standardno normalno za to osnovno gostoto in ta n; ne pove, kako hitro se približek izboljšuje. Centralni limitni izrek (neodvisne enako porazdeljene spremenljivke s končno varianco) govori o konvergenci po porazdelitvi: ujemanje pri enem n ni ocena hitrosti. Konvolucija je izračunana na mreži; vsak korak izgubi nekaj mase in jo izračun renormira."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kolmogorova razdalja K_n = 0,01248 (le za to obliko in ta n)",
+        "Standardizirana vsota n = 10 neodvisnih kopij"
+      ]
+    }
+  ]
+}

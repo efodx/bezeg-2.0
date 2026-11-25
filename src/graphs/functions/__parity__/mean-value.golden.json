@@ -1,0 +1,387 @@
+{
+  "graph": "mean-value",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Točka dotika c#0",
+          "label": "Točka dotika c",
+          "value": "0,5"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "0"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "4"
+        },
+        {
+          "key": "f(c)#0",
+          "label": "f(c)",
+          "value": "0,25"
+        },
+        {
+          "key": "Naklon sekante (f(b) - f(a))/(b - a)#0",
+          "label": "Naklon sekante (f(b) - f(a))/(b - a)",
+          "value": "2"
+        },
+        {
+          "key": "Naklon tangente f′(c)#0",
+          "label": "Naklon tangente f′(c)",
+          "value": "1"
+        },
+        {
+          "key": "Razlika f′(c) - naklon sekante#0",
+          "label": "Razlika f′(c) - naklon sekante",
+          "value": "-1"
+        },
+        {
+          "key": "Ujemajoče točke#0",
+          "label": "Ujemajoče točke",
+          "value": "skrite"
+        }
+      ],
+      "notes": [
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 2, tangente 1"
+      ]
+    },
+    {
+      "name": "mean-value-guided/mean-value-reveal-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Točka dotika c#0",
+          "label": "Točka dotika c",
+          "value": "1"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "0"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "4"
+        },
+        {
+          "key": "f(c)#0",
+          "label": "f(c)",
+          "value": "1"
+        },
+        {
+          "key": "Naklon sekante (f(b) - f(a))/(b - a)#0",
+          "label": "Naklon sekante (f(b) - f(a))/(b - a)",
+          "value": "2"
+        },
+        {
+          "key": "Naklon tangente f′(c)#0",
+          "label": "Naklon tangente f′(c)",
+          "value": "2"
+        },
+        {
+          "key": "Razlika f′(c) - naklon sekante#0",
+          "label": "Razlika f′(c) - naklon sekante",
+          "value": "0"
+        },
+        {
+          "key": "Ujemajoče točke#0",
+          "label": "Ujemajoče točke",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 2, tangente 2",
+        "naklona se ujemata (številčno)"
+      ]
+    },
+    {
+      "name": "mean-value-guided/mean-value-move-c-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Točka dotika c#0",
+          "label": "Točka dotika c",
+          "value": "1,5"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "0"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "4"
+        },
+        {
+          "key": "f(c)#0",
+          "label": "f(c)",
+          "value": "2,25"
+        },
+        {
+          "key": "Naklon sekante (f(b) - f(a))/(b - a)#0",
+          "label": "Naklon sekante (f(b) - f(a))/(b - a)",
+          "value": "2"
+        },
+        {
+          "key": "Naklon tangente f′(c)#0",
+          "label": "Naklon tangente f′(c)",
+          "value": "3"
+        },
+        {
+          "key": "Razlika f′(c) - naklon sekante#0",
+          "label": "Razlika f′(c) - naklon sekante",
+          "value": "1"
+        },
+        {
+          "key": "Ujemajoče točke#0",
+          "label": "Ujemajoče točke",
+          "value": "skrite"
+        }
+      ],
+      "notes": [
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 2, tangente 3"
+      ]
+    },
+    {
+      "name": "mean-value-guided/mean-value-cube-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "Točka dotika c#0",
+          "label": "Točka dotika c",
+          "value": "0"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "-1"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "1"
+        },
+        {
+          "key": "f(c)#0",
+          "label": "f(c)",
+          "value": "0"
+        },
+        {
+          "key": "Naklon sekante (f(b) - f(a))/(b - a)#0",
+          "label": "Naklon sekante (f(b) - f(a))/(b - a)",
+          "value": "1"
+        },
+        {
+          "key": "Naklon tangente f′(c)#0",
+          "label": "Naklon tangente f′(c)",
+          "value": "0"
+        },
+        {
+          "key": "Razlika f′(c) - naklon sekante#0",
+          "label": "Razlika f′(c) - naklon sekante",
+          "value": "-1"
+        },
+        {
+          "key": "Ujemajoče točke#0",
+          "label": "Ujemajoče točke",
+          "value": "skrite"
+        }
+      ],
+      "notes": [
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x³",
+        "naklon sekante 1, tangente 0"
+      ]
+    },
+    {
+      "name": "mean-value-guided/mean-value-abs-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "Točka dotika c#0",
+          "label": "Točka dotika c",
+          "value": "0"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "1"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "1"
+        },
+        {
+          "key": "f(c)#0",
+          "label": "f(c)",
+          "value": "0"
+        },
+        {
+          "key": "Naklon sekante (f(b) - f(a))/(b - a)#0",
+          "label": "Naklon sekante (f(b) - f(a))/(b - a)",
+          "value": "0"
+        },
+        {
+          "key": "Naklon tangente f′(c)#0",
+          "label": "Naklon tangente f′(c)",
+          "value": "ne obstaja"
+        },
+        {
+          "key": "Razlika f′(c) - naklon sekante#0",
+          "label": "Razlika f′(c) - naklon sekante",
+          "value": "ne obstaja"
+        },
+        {
+          "key": "Ujemajoče točke#0",
+          "label": "Ujemajoče točke",
+          "value": "skrite"
+        }
+      ],
+      "notes": [
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = |x|",
+        "naklon sekante 0, tangente v c ni",
+        "prelom v c: tangente ni"
+      ]
+    },
+    {
+      "name": "mean-value-guided/mean-value-free-exploration",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "Točka dotika c#0",
+          "label": "Točka dotika c",
+          "value": "0,5"
+        },
+        {
+          "key": "f(a)#0",
+          "label": "f(a)",
+          "value": "0"
+        },
+        {
+          "key": "f(b)#0",
+          "label": "f(b)",
+          "value": "1"
+        },
+        {
+          "key": "f(c)#0",
+          "label": "f(c)",
+          "value": "0,5"
+        },
+        {
+          "key": "Naklon sekante (f(b) - f(a))/(b - a)#0",
+          "label": "Naklon sekante (f(b) - f(a))/(b - a)",
+          "value": "1"
+        },
+        {
+          "key": "Naklon tangente f′(c)#0",
+          "label": "Naklon tangente f′(c)",
+          "value": "1"
+        },
+        {
+          "key": "Razlika f′(c) - naklon sekante#0",
+          "label": "Razlika f′(c) - naklon sekante",
+          "value": "0"
+        },
+        {
+          "key": "Ujemajoče točke#0",
+          "label": "Ujemajoče točke",
+          "value": "skrite"
+        }
+      ],
+      "notes": [
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = |x|",
+        "naklon sekante 1, tangente 1",
+        "naklona se ujemata (številčno)"
+      ]
+    }
+  ]
+}

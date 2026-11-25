@@ -53,6 +53,9 @@ else {
     if (row.ok) { row.label = 'parity'; row.detail = 'n/a (no shown values)'; }
     else { row.label = 'parity'; row.detail = `no recording src/graphs/**/__parity__/${id}.json (and the declaration shows values; log .command-logs/graph-check/${id}-parity-na.log)`; }
 }
+// A golden recording (task 08 step 3: default state and every lesson step) is a separate row; it does not replace parity.
+const golden = fs.readdirSync('src/graphs', {recursive: true}).map(String).some(f => f.replace(/\\/g, '/').endsWith(`__parity__/${id}.golden.json`));
+if (golden) unit('golden', ['src/graphs/base/declare/parityGolden.test.tsx'], `golden panels ${esc(id)}$`, {BEZEG_PARITY_GOLDEN_CHECK: '1', BEZEG_PARITY_GOLDEN_ID: id});
 if (declTests.length) unit('declaration', declTests);
 else rows.push({label: 'declaration', ok: false, detail: `no src/graphs/**/${id}*.declaration.test.tsx`});
 

@@ -1,0 +1,45 @@
+{
+  "graph": "ear-clipping",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "ear-clipping-guided/earclip-colouring",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "A",
+        "A",
+        "B",
+        "C",
+        "C"
+      ]
+    },
+    {
+      "name": "ear-clipping-guided/earclip-comb",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B",
+        "B",
+        "C",
+        "C",
+        "C"
+      ]
+    }
+  ]
+}

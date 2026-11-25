@@ -1,0 +1,327 @@
+{
+  "graph": "trigonometric-functions",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "f(x) = sin(x)"
+        },
+        {
+          "key": "Faza φ#0",
+          "label": "Faza φ",
+          "value": "0"
+        },
+        {
+          "key": "Amplituda |A|#0",
+          "label": "Amplituda |A|",
+          "value": "1"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "6,28 (2π)"
+        },
+        {
+          "key": "Fazni zamik -φ/ω#0",
+          "label": "Fazni zamik -φ/ω",
+          "value": "0"
+        },
+        {
+          "key": "Zaloga vrednosti#0",
+          "label": "Zaloga vrednosti",
+          "value": "[-1; 1]"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1",
+        "1",
+        "0",
+        "0"
+      ],
+      "captions": [
+        "f(x) = sin(x)"
+      ]
+    },
+    {
+      "name": "trigonometric-functions-guided/trig-amplitude",
+      "rows": [
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "f(x) = 2·sin(x)"
+        },
+        {
+          "key": "Faza φ#0",
+          "label": "Faza φ",
+          "value": "0"
+        },
+        {
+          "key": "Amplituda |A|#0",
+          "label": "Amplituda |A|",
+          "value": "2"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "6,28 (2π)"
+        },
+        {
+          "key": "Fazni zamik -φ/ω#0",
+          "label": "Fazni zamik -φ/ω",
+          "value": "0"
+        },
+        {
+          "key": "Zaloga vrednosti#0",
+          "label": "Zaloga vrednosti",
+          "value": "[-2; 2]"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "2",
+        "1",
+        "0",
+        "0"
+      ],
+      "captions": [
+        "f(x) = 2·sin(x)",
+        "sin(x) (referenčni graf)"
+      ]
+    },
+    {
+      "name": "trigonometric-functions-guided/trig-vertical-shift",
+      "rows": [
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "f(x) = sin(x) + 1"
+        },
+        {
+          "key": "Faza φ#0",
+          "label": "Faza φ",
+          "value": "0"
+        },
+        {
+          "key": "Amplituda |A|#0",
+          "label": "Amplituda |A|",
+          "value": "1"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "6,28 (2π)"
+        },
+        {
+          "key": "Fazni zamik -φ/ω#0",
+          "label": "Fazni zamik -φ/ω",
+          "value": "0"
+        },
+        {
+          "key": "Zaloga vrednosti#0",
+          "label": "Zaloga vrednosti",
+          "value": "[0; 2]"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1",
+        "1",
+        "0",
+        "1"
+      ],
+      "captions": [
+        "f(x) = sin(x) + 1",
+        "sin(x) (referenčni graf)"
+      ]
+    },
+    {
+      "name": "trigonometric-functions-guided/trig-frequency",
+      "rows": [
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "f(x) = sin(2x)"
+        },
+        {
+          "key": "Faza φ#0",
+          "label": "Faza φ",
+          "value": "0"
+        },
+        {
+          "key": "Amplituda |A|#0",
+          "label": "Amplituda |A|",
+          "value": "1"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "3,14 (π)"
+        },
+        {
+          "key": "Fazni zamik -φ/ω#0",
+          "label": "Fazni zamik -φ/ω",
+          "value": "0"
+        },
+        {
+          "key": "Zaloga vrednosti#0",
+          "label": "Zaloga vrednosti",
+          "value": "[-1; 1]"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1",
+        "2",
+        "0",
+        "0"
+      ],
+      "captions": [
+        "f(x) = sin(2x)",
+        "sin(x) (referenčni graf)"
+      ]
+    },
+    {
+      "name": "trigonometric-functions-guided/trig-phase-cosine",
+      "rows": [
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "f(x) = sin(x + π/2)"
+        },
+        {
+          "key": "Faza φ#0",
+          "label": "Faza φ",
+          "value": "1,57 (π/2)"
+        },
+        {
+          "key": "Amplituda |A|#0",
+          "label": "Amplituda |A|",
+          "value": "1"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "6,28 (2π)"
+        },
+        {
+          "key": "Fazni zamik -φ/ω#0",
+          "label": "Fazni zamik -φ/ω",
+          "value": "-1,57 (-π/2)"
+        },
+        {
+          "key": "Zaloga vrednosti#0",
+          "label": "Zaloga vrednosti",
+          "value": "[-1; 1]"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1",
+        "1",
+        "π/2",
+        "0"
+      ],
+      "captions": [
+        "f(x) = sin(x + π/2)",
+        "sin(x) (referenčni graf)"
+      ]
+    },
+    {
+      "name": "trigonometric-functions-guided/trig-combined",
+      "rows": [
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "f(x) = 2·sin(2x + π/2) + 1"
+        },
+        {
+          "key": "Faza φ#0",
+          "label": "Faza φ",
+          "value": "1,57 (π/2)"
+        },
+        {
+          "key": "Amplituda |A|#0",
+          "label": "Amplituda |A|",
+          "value": "2"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "3,14 (π)"
+        },
+        {
+          "key": "Fazni zamik -φ/ω#0",
+          "label": "Fazni zamik -φ/ω",
+          "value": "-0,79 (-π/4)"
+        },
+        {
+          "key": "Zaloga vrednosti#0",
+          "label": "Zaloga vrednosti",
+          "value": "[-1; 3]"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "2",
+        "2",
+        "π/2",
+        "1"
+      ],
+      "captions": [
+        "f(x) = 2·sin(2x + π/2) + 1"
+      ]
+    },
+    {
+      "name": "trigonometric-functions-guided/trig-tangent",
+      "rows": [
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "f(x) = tan(x)"
+        },
+        {
+          "key": "Faza φ#0",
+          "label": "Faza φ",
+          "value": "0"
+        },
+        {
+          "key": "Amplituda |A|#0",
+          "label": "Amplituda |A|",
+          "value": "—"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "3,14 (π)"
+        },
+        {
+          "key": "Fazni zamik -φ/ω#0",
+          "label": "Fazni zamik -φ/ω",
+          "value": "0"
+        },
+        {
+          "key": "Zaloga vrednosti#0",
+          "label": "Zaloga vrednosti",
+          "value": "vsa realna števila"
+        }
+      ],
+      "notes": [
+        "Tangens ima navpične asimptote, kjer je ωx + φ = π/2 + mπ, in nima največje ali najmanjše vrednosti, zato amplitude ni."
+      ],
+      "outputs": [
+        "1",
+        "1",
+        "0",
+        "0"
+      ],
+      "captions": [
+        "f(x) = tan(x)"
+      ]
+    }
+  ]
+}

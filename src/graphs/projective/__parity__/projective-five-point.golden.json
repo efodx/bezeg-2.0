@@ -1,0 +1,31 @@
+{
+  "graph": "projective-five-point",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "w² = 1/2, w ≈ 0,7071"
+      ]
+    },
+    {
+      "name": "projective-five-point-guided/five-point-parallel",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "projective-five-point-guided/five-point-hyperbola",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "w² = 4/3, w ≈ 1,1547"
+      ]
+    }
+  ]
+}

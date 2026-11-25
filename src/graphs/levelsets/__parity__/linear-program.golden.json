@@ -1,0 +1,665 @@
+{
+  "graph": "linear-program",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Dopustno območje#0",
+          "label": "Dopustno območje",
+          "value": "omejen mnogokotnik"
+        },
+        {
+          "key": "Omejitveni pogoj 1#0",
+          "label": "Omejitveni pogoj 1",
+          "value": "x + 2y ≤ 8"
+        },
+        {
+          "key": "Omejitveni pogoj 2#0",
+          "label": "Omejitveni pogoj 2",
+          "value": "3x + y ≤ 9"
+        },
+        {
+          "key": "Vedno dodano#0",
+          "label": "Vedno dodano",
+          "value": "x ≥ 0 in y ≥ 0"
+        },
+        {
+          "key": "Kriterijska funkcija (ciljna funkcija)#0",
+          "label": "Kriterijska funkcija (ciljna funkcija)",
+          "value": "največ 3x + 2y"
+        },
+        {
+          "key": "Število oglišč#0",
+          "label": "Število oglišč",
+          "value": "4"
+        },
+        {
+          "key": "Oglišče 1#0",
+          "label": "Oglišče 1",
+          "value": "(2; 3); cilj 12; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 2#0",
+          "label": "Oglišče 2",
+          "value": "(0; 4); cilj 8; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 3#0",
+          "label": "Oglišče 3",
+          "value": "(0; 0); cilj 0; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 4#0",
+          "label": "Oglišče 4",
+          "value": "(3; 0); cilj 9; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Stanje (točno)#0",
+          "label": "Stanje (točno)",
+          "value": "en optimum"
+        },
+        {
+          "key": "Največja vrednost (točno)#0",
+          "label": "Največja vrednost (točno)",
+          "value": "12"
+        },
+        {
+          "key": "Optimalna točka#0",
+          "label": "Optimalna točka",
+          "value": "(2; 3)"
+        },
+        {
+          "key": "Sprehod, točka 0#0",
+          "label": "Sprehod, točka 0",
+          "value": "(0; 0); cilj 0"
+        },
+        {
+          "key": "Sprehod, točka 1#0",
+          "label": "Sprehod, točka 1",
+          "value": "(3; 0); cilj 9"
+        },
+        {
+          "key": "Sprehod, točka 2#0",
+          "label": "Sprehod, točka 2",
+          "value": "(2; 3); cilj 12"
+        },
+        {
+          "key": "Premica cilja pri izbranem k#0",
+          "label": "Premica cilja pri izbranem k",
+          "value": "3x + 2y = 9"
+        },
+        {
+          "key": "Premica cilja skozi optimum#0",
+          "label": "Premica cilja skozi optimum",
+          "value": "3x + 2y = 12"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "od -10 do 10 v obeh smereh"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(0; 0)",
+        "(0; 4)",
+        "(2; 3)",
+        "(3; 0)",
+        "Cilj (3; 2)",
+        "Debel rob s polnilom: območje · Tanka črta: pogoj",
+        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
+        "Krog: oglišče · Kvadrat: optimum",
+        "Pogoj 1: x + 2y ≤ 8",
+        "Pogoj 2: 3x + y ≤ 9",
+        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+      ]
+    },
+    {
+      "name": "level-sets-linear-programming/ls5-line",
+      "rows": [
+        {
+          "key": "Dopustno območje#0",
+          "label": "Dopustno območje",
+          "value": "omejen mnogokotnik"
+        },
+        {
+          "key": "Omejitveni pogoj 1#0",
+          "label": "Omejitveni pogoj 1",
+          "value": "x + 2y ≤ 8"
+        },
+        {
+          "key": "Omejitveni pogoj 2#0",
+          "label": "Omejitveni pogoj 2",
+          "value": "3x + y ≤ 9"
+        },
+        {
+          "key": "Vedno dodano#0",
+          "label": "Vedno dodano",
+          "value": "x ≥ 0 in y ≥ 0"
+        },
+        {
+          "key": "Kriterijska funkcija (ciljna funkcija)#0",
+          "label": "Kriterijska funkcija (ciljna funkcija)",
+          "value": "največ 3x + 2y"
+        },
+        {
+          "key": "Število oglišč#0",
+          "label": "Število oglišč",
+          "value": "4"
+        },
+        {
+          "key": "Oglišče 1#0",
+          "label": "Oglišče 1",
+          "value": "(2; 3); cilj 12; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 2#0",
+          "label": "Oglišče 2",
+          "value": "(0; 4); cilj 8; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 3#0",
+          "label": "Oglišče 3",
+          "value": "(0; 0); cilj 0; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 4#0",
+          "label": "Oglišče 4",
+          "value": "(3; 0); cilj 9; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Stanje (točno)#0",
+          "label": "Stanje (točno)",
+          "value": "en optimum"
+        },
+        {
+          "key": "Največja vrednost (točno)#0",
+          "label": "Največja vrednost (točno)",
+          "value": "12"
+        },
+        {
+          "key": "Optimalna točka#0",
+          "label": "Optimalna točka",
+          "value": "(2; 3)"
+        },
+        {
+          "key": "Sprehod, točka 0#0",
+          "label": "Sprehod, točka 0",
+          "value": "(0; 0); cilj 0"
+        },
+        {
+          "key": "Sprehod, točka 1#0",
+          "label": "Sprehod, točka 1",
+          "value": "(3; 0); cilj 9"
+        },
+        {
+          "key": "Sprehod, točka 2#0",
+          "label": "Sprehod, točka 2",
+          "value": "(2; 3); cilj 12"
+        },
+        {
+          "key": "Premica cilja pri izbranem k#0",
+          "label": "Premica cilja pri izbranem k",
+          "value": "3x + 2y = 6"
+        },
+        {
+          "key": "Premica cilja skozi optimum#0",
+          "label": "Premica cilja skozi optimum",
+          "value": "3x + 2y = 12"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "od -10 do 10 v obeh smereh"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(0; 0)",
+        "(0; 4)",
+        "(2; 3)",
+        "(3; 0)",
+        "Cilj (3; 2)",
+        "Debel rob s polnilom: območje · Tanka črta: pogoj",
+        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
+        "Krog: oglišče · Kvadrat: optimum",
+        "Pogoj 1: x + 2y ≤ 8",
+        "Pogoj 2: 3x + y ≤ 9",
+        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+      ]
+    },
+    {
+      "name": "level-sets-linear-programming/ls5-last-touch",
+      "rows": [
+        {
+          "key": "Dopustno območje#0",
+          "label": "Dopustno območje",
+          "value": "omejen mnogokotnik"
+        },
+        {
+          "key": "Omejitveni pogoj 1#0",
+          "label": "Omejitveni pogoj 1",
+          "value": "x + 2y ≤ 8"
+        },
+        {
+          "key": "Omejitveni pogoj 2#0",
+          "label": "Omejitveni pogoj 2",
+          "value": "3x + y ≤ 9"
+        },
+        {
+          "key": "Vedno dodano#0",
+          "label": "Vedno dodano",
+          "value": "x ≥ 0 in y ≥ 0"
+        },
+        {
+          "key": "Kriterijska funkcija (ciljna funkcija)#0",
+          "label": "Kriterijska funkcija (ciljna funkcija)",
+          "value": "največ 3x + 2y"
+        },
+        {
+          "key": "Število oglišč#0",
+          "label": "Število oglišč",
+          "value": "4"
+        },
+        {
+          "key": "Oglišče 1#0",
+          "label": "Oglišče 1",
+          "value": "(2; 3); cilj 12; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 2#0",
+          "label": "Oglišče 2",
+          "value": "(0; 4); cilj 8; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 3#0",
+          "label": "Oglišče 3",
+          "value": "(0; 0); cilj 0; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 4#0",
+          "label": "Oglišče 4",
+          "value": "(3; 0); cilj 9; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Stanje (točno)#0",
+          "label": "Stanje (točno)",
+          "value": "en optimum"
+        },
+        {
+          "key": "Največja vrednost (točno)#0",
+          "label": "Največja vrednost (točno)",
+          "value": "12"
+        },
+        {
+          "key": "Optimalna točka#0",
+          "label": "Optimalna točka",
+          "value": "(2; 3)"
+        },
+        {
+          "key": "Sprehod, točka 0#0",
+          "label": "Sprehod, točka 0",
+          "value": "(0; 0); cilj 0"
+        },
+        {
+          "key": "Sprehod, točka 1#0",
+          "label": "Sprehod, točka 1",
+          "value": "(3; 0); cilj 9"
+        },
+        {
+          "key": "Sprehod, točka 2#0",
+          "label": "Sprehod, točka 2",
+          "value": "(2; 3); cilj 12"
+        },
+        {
+          "key": "Premica cilja pri izbranem k#0",
+          "label": "Premica cilja pri izbranem k",
+          "value": "3x + 2y = 12"
+        },
+        {
+          "key": "Premica cilja skozi optimum#0",
+          "label": "Premica cilja skozi optimum",
+          "value": "3x + 2y = 12"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "od -10 do 10 v obeh smereh"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(0; 0)",
+        "(0; 4)",
+        "(2; 3)",
+        "(3; 0)",
+        "Cilj (3; 2)",
+        "Debel rob s polnilom: območje · Tanka črta: pogoj",
+        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
+        "Krog: oglišče · Kvadrat: optimum",
+        "Pogoj 1: x + 2y ≤ 8",
+        "Pogoj 2: 3x + y ≤ 9",
+        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+      ]
+    },
+    {
+      "name": "level-sets-linear-programming/ls5-parallel",
+      "rows": [
+        {
+          "key": "Dopustno območje#0",
+          "label": "Dopustno območje",
+          "value": "omejen mnogokotnik"
+        },
+        {
+          "key": "Omejitveni pogoj 1#0",
+          "label": "Omejitveni pogoj 1",
+          "value": "x + 2y ≤ 8"
+        },
+        {
+          "key": "Omejitveni pogoj 2#0",
+          "label": "Omejitveni pogoj 2",
+          "value": "3x + y ≤ 9"
+        },
+        {
+          "key": "Vedno dodano#0",
+          "label": "Vedno dodano",
+          "value": "x ≥ 0 in y ≥ 0"
+        },
+        {
+          "key": "Kriterijska funkcija (ciljna funkcija)#0",
+          "label": "Kriterijska funkcija (ciljna funkcija)",
+          "value": "največ x + 2y"
+        },
+        {
+          "key": "Število oglišč#0",
+          "label": "Število oglišč",
+          "value": "4"
+        },
+        {
+          "key": "Oglišče 1#0",
+          "label": "Oglišče 1",
+          "value": "(2; 3); cilj 8; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 2#0",
+          "label": "Oglišče 2",
+          "value": "(0; 4); cilj 8; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 3#0",
+          "label": "Oglišče 3",
+          "value": "(0; 0); cilj 0; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 4#0",
+          "label": "Oglišče 4",
+          "value": "(3; 0); cilj 3; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Stanje (točno)#0",
+          "label": "Stanje (točno)",
+          "value": "optimalna daljica"
+        },
+        {
+          "key": "Največja vrednost (točno)#0",
+          "label": "Največja vrednost (točno)",
+          "value": "8"
+        },
+        {
+          "key": "Optimalna točka#0",
+          "label": "Optimalna točka",
+          "value": "(0; 4)"
+        },
+        {
+          "key": "Optimalna točka#1",
+          "label": "Optimalna točka",
+          "value": "(2; 3)"
+        },
+        {
+          "key": "Sprehod, točka 0#0",
+          "label": "Sprehod, točka 0",
+          "value": "(0; 0); cilj 0"
+        },
+        {
+          "key": "Sprehod, točka 1#0",
+          "label": "Sprehod, točka 1",
+          "value": "(0; 4); cilj 8"
+        },
+        {
+          "key": "Premica cilja pri izbranem k#0",
+          "label": "Premica cilja pri izbranem k",
+          "value": "x + 2y = 8"
+        },
+        {
+          "key": "Premica cilja skozi optimum#0",
+          "label": "Premica cilja skozi optimum",
+          "value": "x + 2y = 8"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "od -10 do 10 v obeh smereh"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(0; 0)",
+        "(0; 4)",
+        "(2; 3)",
+        "(3; 0)",
+        "Cilj (1; 2)",
+        "Debel rob s polnilom: območje · Tanka črta: pogoj",
+        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
+        "Krog: oglišče · Kvadrat: optimum",
+        "Pogoj 1: x + 2y ≤ 8",
+        "Pogoj 2: 3x + y ≤ 9",
+        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+      ]
+    },
+    {
+      "name": "level-sets-linear-programming/ls5-degenerate",
+      "rows": [
+        {
+          "key": "Dopustno območje#0",
+          "label": "Dopustno območje",
+          "value": "omejen mnogokotnik"
+        },
+        {
+          "key": "Omejitveni pogoj 1#0",
+          "label": "Omejitveni pogoj 1",
+          "value": "x + y ≤ 4"
+        },
+        {
+          "key": "Omejitveni pogoj 2#0",
+          "label": "Omejitveni pogoj 2",
+          "value": "x + 3y ≤ 6"
+        },
+        {
+          "key": "Omejitveni pogoj 3#0",
+          "label": "Omejitveni pogoj 3",
+          "value": "x ≤ 3"
+        },
+        {
+          "key": "Vedno dodano#0",
+          "label": "Vedno dodano",
+          "value": "x ≥ 0 in y ≥ 0"
+        },
+        {
+          "key": "Kriterijska funkcija (ciljna funkcija)#0",
+          "label": "Kriterijska funkcija (ciljna funkcija)",
+          "value": "največ 3x + 2y"
+        },
+        {
+          "key": "Število oglišč#0",
+          "label": "Število oglišč",
+          "value": "4"
+        },
+        {
+          "key": "Oglišče 1#0",
+          "label": "Oglišče 1",
+          "value": "(3; 1); cilj 11; pogojev v oglišču: 3"
+        },
+        {
+          "key": "Oglišče 2#0",
+          "label": "Oglišče 2",
+          "value": "(0; 2); cilj 4; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 3#0",
+          "label": "Oglišče 3",
+          "value": "(0; 0); cilj 0; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 4#0",
+          "label": "Oglišče 4",
+          "value": "(3; 0); cilj 9; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Stanje (točno)#0",
+          "label": "Stanje (točno)",
+          "value": "en optimum"
+        },
+        {
+          "key": "Največja vrednost (točno)#0",
+          "label": "Največja vrednost (točno)",
+          "value": "11"
+        },
+        {
+          "key": "Optimalna točka#0",
+          "label": "Optimalna točka",
+          "value": "(3; 1)"
+        },
+        {
+          "key": "Sprehod, točka 0#0",
+          "label": "Sprehod, točka 0",
+          "value": "(0; 0); cilj 0"
+        },
+        {
+          "key": "Sprehod, točka 1#0",
+          "label": "Sprehod, točka 1",
+          "value": "(3; 0); cilj 9"
+        },
+        {
+          "key": "Sprehod, točka 2#0",
+          "label": "Sprehod, točka 2",
+          "value": "(3; 1); cilj 11"
+        },
+        {
+          "key": "Premica cilja pri izbranem k#0",
+          "label": "Premica cilja pri izbranem k",
+          "value": "3x + 2y = 11"
+        },
+        {
+          "key": "Premica cilja skozi optimum#0",
+          "label": "Premica cilja skozi optimum",
+          "value": "3x + 2y = 11"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "od -10 do 10 v obeh smereh"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(0; 0)",
+        "(0; 2)",
+        "(3; 0)",
+        "(3; 1)",
+        "Cilj (3; 2)",
+        "Debel rob s polnilom: območje · Tanka črta: pogoj",
+        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
+        "Krog: oglišče · Kvadrat: optimum",
+        "Pogoj 1: x + y ≤ 4",
+        "Pogoj 2: x + 3y ≤ 6",
+        "Pogoj 3: x ≤ 3",
+        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+      ]
+    },
+    {
+      "name": "level-sets-linear-programming/ls5-unbounded",
+      "rows": [
+        {
+          "key": "Dopustno območje#0",
+          "label": "Dopustno območje",
+          "value": "neomejeno območje"
+        },
+        {
+          "key": "Omejitveni pogoj 1#0",
+          "label": "Omejitveni pogoj 1",
+          "value": "x - y ≤ 2"
+        },
+        {
+          "key": "Vedno dodano#0",
+          "label": "Vedno dodano",
+          "value": "x ≥ 0 in y ≥ 0"
+        },
+        {
+          "key": "Kriterijska funkcija (ciljna funkcija)#0",
+          "label": "Kriterijska funkcija (ciljna funkcija)",
+          "value": "največ x + y"
+        },
+        {
+          "key": "Število oglišč#0",
+          "label": "Število oglišč",
+          "value": "2"
+        },
+        {
+          "key": "Oglišče 1#0",
+          "label": "Oglišče 1",
+          "value": "(0; 0); cilj 0; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Oglišče 2#0",
+          "label": "Oglišče 2",
+          "value": "(2; 0); cilj 2; pogojev v oglišču: 2"
+        },
+        {
+          "key": "Stanje (točno)#0",
+          "label": "Stanje (točno)",
+          "value": "cilj ni omejen"
+        },
+        {
+          "key": "Smer rasti brez meje#0",
+          "label": "Smer rasti brez meje",
+          "value": "(1; 1)"
+        },
+        {
+          "key": "Sprehod po ogliščih (točno)#0",
+          "label": "Sprehod po ogliščih (točno)",
+          "value": "ni narisan: območje ni omejen mnogokotnik"
+        },
+        {
+          "key": "Premica cilja pri izbranem k#0",
+          "label": "Premica cilja pri izbranem k",
+          "value": "x + y = 9"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "od -10 do 10 v obeh smereh"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(0; 0)",
+        "(2; 0)",
+        "Cilj (1; 1)",
+        "Debel rob s polnilom: območje · Tanka črta: pogoj",
+        "Krog: oglišče",
+        "Območje se nadaljuje zunaj okna; narisano je le znotraj okna",
+        "Pogoj 1: x - y ≤ 2",
+        "Puščica: smer (p; q), ročico vlečeš",
+        "Črtkana: cilj pri k"
+      ]
+    }
+  ]
+}

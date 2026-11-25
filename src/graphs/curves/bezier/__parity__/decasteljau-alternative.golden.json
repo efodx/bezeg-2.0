@@ -1,0 +1,33 @@
+{
+  "graph": "decasteljau-alternative",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 0,50"
+      ],
+      "captions": []
+    },
+    {
+      "name": "decasteljau-alternative-guided/da-cubic-quarter",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 0,25"
+      ],
+      "captions": []
+    },
+    {
+      "name": "decasteljau-alternative-guided/da-symmetry",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "t = 0,75"
+      ],
+      "captions": []
+    }
+  ]
+}

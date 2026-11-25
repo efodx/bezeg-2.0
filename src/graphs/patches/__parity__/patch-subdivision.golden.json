@@ -1,0 +1,96 @@
+{
+  "graph": "patch-subdivision",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Del s točko (u, v)#0",
+          "label": "Del s točko (u, v)",
+          "value": "drugi del S_R"
+        },
+        {
+          "key": "Lokalna parametra (u, v) na delu#0",
+          "label": "Lokalna parametra (u, v) na delu",
+          "value": "(0,167; 0,5)"
+        },
+        {
+          "key": "Točka dela#0",
+          "label": "Točka dela",
+          "value": "(0; 0; 1,406)"
+        },
+        {
+          "key": "S(u, v)#0",
+          "label": "S(u, v)",
+          "value": "(0; 0; 1,406)"
+        }
+      ],
+      "notes": [
+        "Del pri lokalnih parametrih da isto točko kot S(u, v), ker delitev ploskve ne spremeni. Na krivulji reza se oba dela ujemata."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "patch-advanced-subdivision-elevation/elevate-saddle",
+      "rows": [
+        {
+          "key": "Del s točko (u, v)#0",
+          "label": "Del s točko (u, v)",
+          "value": "prvi del S_L"
+        },
+        {
+          "key": "Lokalna parametra (u, v) na delu#0",
+          "label": "Lokalna parametra (u, v) na delu",
+          "value": "(0,625; 0,5)"
+        },
+        {
+          "key": "Točka dela#0",
+          "label": "Točka dela",
+          "value": "(0,25; 0,5; 0,125)"
+        },
+        {
+          "key": "S(u, v)#0",
+          "label": "S(u, v)",
+          "value": "(0,25; 0,5; 0,125)"
+        }
+      ],
+      "notes": [
+        "Del pri lokalnih parametrih da isto točko kot S(u, v), ker delitev ploskve ne spremeni. Na krivulji reza se oba dela ujemata."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "patch-advanced-subdivision-elevation/split-saddle",
+      "rows": [
+        {
+          "key": "Del s točko (u, v)#0",
+          "label": "Del s točko (u, v)",
+          "value": "prvi del S_L"
+        },
+        {
+          "key": "Lokalna parametra (u, v) na delu#0",
+          "label": "Lokalna parametra (u, v) na delu",
+          "value": "(1; 0,5)"
+        },
+        {
+          "key": "Točka dela#0",
+          "label": "Točka dela",
+          "value": "(0,5; 0,5; 0,25)"
+        },
+        {
+          "key": "S(u, v)#0",
+          "label": "S(u, v)",
+          "value": "(0,5; 0,5; 0,25)"
+        }
+      ],
+      "notes": [
+        "Del pri lokalnih parametrih da isto točko kot S(u, v), ker delitev ploskve ne spremeni. Na krivulji reza se oba dela ujemata."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

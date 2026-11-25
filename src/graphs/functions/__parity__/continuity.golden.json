@@ -1,0 +1,104 @@
+{
+  "graph": "continuity",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "1"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "1"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "2"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "1"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "skok 1 pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "2"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "-1"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1"
+      ],
+      "captions": [
+        "limita z leve 1, z desne 2",
+        "skok 1 pri x = 1"
+      ]
+    },
+    {
+      "name": "continuity-guided/continuity-continuous-step",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "1,5"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "1,5"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "1,5"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "0"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "zvezna pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "3"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "-1,5"
+        }
+      ],
+      "notes": [
+        "Zvezna ne pomeni gladka: kosa se stikata, a imata v točki x = 1 različna naklona 3 in -1,5, zato ima graf ostri vogal."
+      ],
+      "outputs": [
+        "1,5"
+      ],
+      "captions": [
+        "limita z leve 1,5, z desne 1,5",
+        "zvezna pri x = 1"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "graph": "rational-extrapolation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "rational-extrapolation-guided/rex-weighted-curve",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$w_{0}=1$$",
+        "$$w_{1}=2$$",
+        "$$w_{2}=1$$",
+        "$$w_{3}=1$$"
+      ]
+    },
+    {
+      "name": "rational-extrapolation-guided/rex-example",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$w_{0}=1$$",
+        "$$w_{1}=2{,}2$$",
+        "$$w_{2}=0{,}52$$",
+        "$$w_{3}=1{,}14$$"
+      ]
+    },
+    {
+      "name": "rational-extrapolation-guided/rex-negative-weight",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$w_{0}=1$$",
+        "$$w_{1}=2{,}5$$",
+        "$$w_{2}=-0{,}5$$",
+        "$$w_{3}=2{,}13$$"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,433 @@
+{
+  "graph": "complex-multiplication",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "1"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π/2 ≈ 1,571"
+        },
+        {
+          "key": "Zmnožek zw#0",
+          "label": "Zmnožek zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |zw|#0",
+          "label": "Modul |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg zw#0",
+          "label": "Argument arg zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Pravilo |z| · |w| = |zw|#0",
+          "label": "Pravilo |z| · |w| = |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Vsota arg z + arg w#0",
+          "label": "Vsota arg z + arg w",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Argument je glavna vrednost v (-π, π]; pri številu 0 ni definiran in ni enak 0. Velja |zw| = |z||w| in arg zw ≡ arg z + arg w (mod 2π). Zmnožek je izračunan natančno iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; romb: zw",
+        "z = 1 + i, w = i",
+        "zw: skrit"
+      ]
+    },
+    {
+      "name": "complex-multiplication-guided/complex-one-minus-one-step",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "-1"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "1"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π ≈ 3,142"
+        },
+        {
+          "key": "Zmnožek zw#0",
+          "label": "Zmnožek zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |zw|#0",
+          "label": "Modul |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg zw#0",
+          "label": "Argument arg zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Pravilo |z| · |w| = |zw|#0",
+          "label": "Pravilo |z| · |w| = |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Vsota arg z + arg w#0",
+          "label": "Vsota arg z + arg w",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Argument je glavna vrednost v (-π, π]; pri številu 0 ni definiran in ni enak 0. Velja |zw| = |z||w| in arg zw ≡ arg z + arg w (mod 2π). Zmnožek je izračunan natančno iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; romb: zw",
+        "z = 1 + i, w = -1",
+        "zw: skrit"
+      ]
+    },
+    {
+      "name": "complex-multiplication-guided/complex-scaling-step",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "0"
+        },
+        {
+          "key": "Zmnožek zw#0",
+          "label": "Zmnožek zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |zw|#0",
+          "label": "Modul |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg zw#0",
+          "label": "Argument arg zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Pravilo |z| · |w| = |zw|#0",
+          "label": "Pravilo |z| · |w| = |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Vsota arg z + arg w#0",
+          "label": "Vsota arg z + arg w",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Argument je glavna vrednost v (-π, π]; pri številu 0 ni definiran in ni enak 0. Velja |zw| = |z||w| in arg zw ≡ arg z + arg w (mod 2π). Zmnožek je izračunan natančno iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; romb: zw",
+        "z = 1 + i, w = 2",
+        "zw: skrit"
+      ]
+    },
+    {
+      "name": "complex-multiplication-guided/complex-general-step",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Zmnožek zw#0",
+          "label": "Zmnožek zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |zw|#0",
+          "label": "Modul |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg zw#0",
+          "label": "Argument arg zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Pravilo |z| · |w| = |zw|#0",
+          "label": "Pravilo |z| · |w| = |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Vsota arg z + arg w#0",
+          "label": "Vsota arg z + arg w",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Argument je glavna vrednost v (-π, π]; pri številu 0 ni definiran in ni enak 0. Velja |zw| = |z||w| in arg zw ≡ arg z + arg w (mod 2π). Zmnožek je izračunan natančno iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; romb: zw",
+        "z = 1 + i, w = 1 + i",
+        "zw: skrit"
+      ]
+    },
+    {
+      "name": "complex-multiplication-guided/complex-reduction-step",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "-1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "3π/4 ≈ 2,356"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "-1 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "3π/4 ≈ 2,356"
+        },
+        {
+          "key": "Zmnožek zw#0",
+          "label": "Zmnožek zw",
+          "value": "-2i"
+        },
+        {
+          "key": "Modul |zw|#0",
+          "label": "Modul |zw|",
+          "value": "2"
+        },
+        {
+          "key": "Argument arg zw#0",
+          "label": "Argument arg zw",
+          "value": "-π/2 ≈ -1,571"
+        },
+        {
+          "key": "Pravilo |z| · |w| = |zw|#0",
+          "label": "Pravilo |z| · |w| = |zw|",
+          "value": "1,4142 · 1,4142 ≈ 2"
+        },
+        {
+          "key": "Vsota arg z + arg w#0",
+          "label": "Vsota arg z + arg w",
+          "value": "3π/2 ≈ 4,712 → -π/2 ≈ -1,571"
+        }
+      ],
+      "notes": [
+        "Argument je glavna vrednost v (-π, π]; pri številu 0 ni definiran in ni enak 0. Velja |zw| = |z||w| in arg zw ≡ arg z + arg w (mod 2π). Zmnožek je izračunan natančno iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "arg: 3π/4 + 3π/4 = 3π/2 → -π/2",
+        "krog: z; kvadrat: w; romb: zw",
+        "z = -1 + i, w = -1 + i",
+        "zw = -2i"
+      ]
+    },
+    {
+      "name": "complex-multiplication-guided/complex-zero-step",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "0"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "0"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "ni definiran"
+        },
+        {
+          "key": "Zmnožek zw#0",
+          "label": "Zmnožek zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |zw|#0",
+          "label": "Modul |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg zw#0",
+          "label": "Argument arg zw",
+          "value": "skrito"
+        },
+        {
+          "key": "Pravilo |z| · |w| = |zw|#0",
+          "label": "Pravilo |z| · |w| = |zw|",
+          "value": "skrito"
+        },
+        {
+          "key": "Vsota arg z + arg w#0",
+          "label": "Vsota arg z + arg w",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Argument je glavna vrednost v (-π, π]; pri številu 0 ni definiran in ni enak 0. Velja |zw| = |z||w| in arg zw ≡ arg z + arg w (mod 2π). Zmnožek je izračunan natančno iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; romb: zw",
+        "z = 1 + i, w = 0",
+        "zw: skrit"
+      ]
+    }
+  ]
+}

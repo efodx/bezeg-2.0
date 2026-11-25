@@ -1,0 +1,21 @@
+{
+  "graph": "patch-triangular",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "w#0",
+          "label": "w",
+          "value": "0,33"
+        }
+      ],
+      "notes": [
+        "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

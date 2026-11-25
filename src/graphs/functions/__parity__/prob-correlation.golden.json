@@ -1,0 +1,236 @@
+{
+  "graph": "prob-correlation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število točk n#0",
+          "label": "Število točk n",
+          "value": "4"
+        },
+        {
+          "key": "Korelacijski koeficient r#0",
+          "label": "Korelacijski koeficient r",
+          "value": "0,92338"
+        },
+        {
+          "key": "r²#0",
+          "label": "r²",
+          "value": "0,852632"
+        },
+        {
+          "key": "Naklon regresijske premice b#0",
+          "label": "Naklon regresijske premice b",
+          "value": "0,9"
+        },
+        {
+          "key": "Začetna vrednost a#0",
+          "label": "Začetna vrednost a",
+          "value": "0,9"
+        },
+        {
+          "key": "Regresijska premica za y#0",
+          "label": "Regresijska premica za y",
+          "value": "y = 0,9x + 0,9"
+        },
+        {
+          "key": "Vsota kvadratov ostankov#0",
+          "label": "Vsota kvadratov ostankov",
+          "value": "0,7"
+        },
+        {
+          "key": "Naklon po b = r · s_y / s_x#0",
+          "label": "Naklon po b = r · s_y / s_x",
+          "value": "0,9"
+        }
+      ],
+      "notes": [
+        "r meri samo linearno povezanost: r = 0 ne pomeni neodvisnosti, velik |r| ne pomeni vzročnosti, en osamelec lahko r zelo spremeni. Kvadrat ostanka je modelska izbira (glej prileganje po metodi najmanjših kvadratov)."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Korelacijski koeficient r = 0,92338",
+        "Razsevni diagram, točk: 4",
+        "regresijska premica za y"
+      ]
+    },
+    {
+      "name": "prob-correlation-guided/correlation-outlier",
+      "rows": [
+        {
+          "key": "Število točk n#0",
+          "label": "Število točk n",
+          "value": "4"
+        },
+        {
+          "key": "Korelacijski koeficient r#0",
+          "label": "Korelacijski koeficient r",
+          "value": "0,8468"
+        },
+        {
+          "key": "r²#0",
+          "label": "r²",
+          "value": "0,717073"
+        },
+        {
+          "key": "Naklon regresijske premice b#0",
+          "label": "Naklon regresijske premice b",
+          "value": "2,1"
+        },
+        {
+          "key": "Začetna vrednost a#0",
+          "label": "Začetna vrednost a",
+          "value": "0,1"
+        },
+        {
+          "key": "Regresijska premica za y#0",
+          "label": "Regresijska premica za y",
+          "value": "y = 2,1x + 0,1"
+        },
+        {
+          "key": "Vsota kvadratov ostankov#0",
+          "label": "Vsota kvadratov ostankov",
+          "value": "8,7"
+        },
+        {
+          "key": "Naklon po b = r · s_y / s_x#0",
+          "label": "Naklon po b = r · s_y / s_x",
+          "value": "2,1"
+        }
+      ],
+      "notes": [
+        "r meri samo linearno povezanost: r = 0 ne pomeni neodvisnosti, velik |r| ne pomeni vzročnosti, en osamelec lahko r zelo spremeni. Kvadrat ostanka je modelska izbira (glej prileganje po metodi najmanjših kvadratov)."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Korelacijski koeficient r = 0,8468",
+        "Razsevni diagram, točk: 4",
+        "regresijska premica za y"
+      ]
+    },
+    {
+      "name": "prob-correlation-guided/correlation-parabola",
+      "rows": [
+        {
+          "key": "Število točk n#0",
+          "label": "Število točk n",
+          "value": "7"
+        },
+        {
+          "key": "Korelacijski koeficient r#0",
+          "label": "Korelacijski koeficient r",
+          "value": "0"
+        },
+        {
+          "key": "r²#0",
+          "label": "r²",
+          "value": "0"
+        },
+        {
+          "key": "Naklon regresijske premice b#0",
+          "label": "Naklon regresijske premice b",
+          "value": "0"
+        },
+        {
+          "key": "Začetna vrednost a#0",
+          "label": "Začetna vrednost a",
+          "value": "4"
+        },
+        {
+          "key": "Regresijska premica za y#0",
+          "label": "Regresijska premica za y",
+          "value": "y = 4"
+        },
+        {
+          "key": "Vsota kvadratov ostankov#0",
+          "label": "Vsota kvadratov ostankov",
+          "value": "84"
+        },
+        {
+          "key": "Naklon po b = r · s_y / s_x#0",
+          "label": "Naklon po b = r · s_y / s_x",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "r meri samo linearno povezanost: r = 0 ne pomeni neodvisnosti, velik |r| ne pomeni vzročnosti, en osamelec lahko r zelo spremeni. Kvadrat ostanka je modelska izbira (glej prileganje po metodi najmanjših kvadratov)."
+      ],
+      "outputs": [
+        "7"
+      ],
+      "captions": [
+        "Korelacijski koeficient r = 0",
+        "Razsevni diagram, točk: 7",
+        "regresijska premica za y"
+      ]
+    },
+    {
+      "name": "prob-correlation-guided/correlation-x-on-y",
+      "rows": [
+        {
+          "key": "Število točk n#0",
+          "label": "Število točk n",
+          "value": "4"
+        },
+        {
+          "key": "Korelacijski koeficient r#0",
+          "label": "Korelacijski koeficient r",
+          "value": "0,92338"
+        },
+        {
+          "key": "r²#0",
+          "label": "r²",
+          "value": "0,852632"
+        },
+        {
+          "key": "Naklon regresijske premice b#0",
+          "label": "Naklon regresijske premice b",
+          "value": "0,9"
+        },
+        {
+          "key": "Začetna vrednost a#0",
+          "label": "Začetna vrednost a",
+          "value": "0,9"
+        },
+        {
+          "key": "Regresijska premica za y#0",
+          "label": "Regresijska premica za y",
+          "value": "y = 0,9x + 0,9"
+        },
+        {
+          "key": "Vsota kvadratov ostankov#0",
+          "label": "Vsota kvadratov ostankov",
+          "value": "0,7"
+        },
+        {
+          "key": "Naklon po b = r · s_y / s_x#0",
+          "label": "Naklon po b = r · s_y / s_x",
+          "value": "0,9"
+        },
+        {
+          "key": "Regresijska premica za x#0",
+          "label": "Regresijska premica za x",
+          "value": "x = 0,94737y - 0,63158"
+        }
+      ],
+      "notes": [
+        "r meri samo linearno povezanost: r = 0 ne pomeni neodvisnosti, velik |r| ne pomeni vzročnosti, en osamelec lahko r zelo spremeni. Kvadrat ostanka je modelska izbira (glej prileganje po metodi najmanjših kvadratov)."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Korelacijski koeficient r = 0,92338",
+        "Razsevni diagram, točk: 4",
+        "regresijska premica za x",
+        "regresijska premica za y"
+      ]
+    }
+  ]
+}

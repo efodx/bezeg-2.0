@@ -1,0 +1,246 @@
+{
+  "graph": "definite-integral",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "2"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "4"
+        },
+        {
+          "key": "Širina h = (b - a)/n#0",
+          "label": "Širina h = (b - a)/n",
+          "value": "0,5"
+        },
+        {
+          "key": "Predznačena vsota#0",
+          "label": "Predznačena vsota",
+          "value": "1,75"
+        },
+        {
+          "key": "Točni integral F(b) - F(a)#0",
+          "label": "Točni integral F(b) - F(a)",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika vsota - integral#0",
+          "label": "Razlika vsota - integral",
+          "value": "-0,9167"
+        }
+      ],
+      "notes": [
+        "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "vsota 1,75, integral 2,6667"
+      ]
+    },
+    {
+      "name": "definite-integral-guided/integral-left-right-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "2"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "4"
+        },
+        {
+          "key": "Širina h = (b - a)/n#0",
+          "label": "Širina h = (b - a)/n",
+          "value": "0,5"
+        },
+        {
+          "key": "Predznačena vsota#0",
+          "label": "Predznačena vsota",
+          "value": "3,75"
+        },
+        {
+          "key": "Točni integral F(b) - F(a)#0",
+          "label": "Točni integral F(b) - F(a)",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika vsota - integral#0",
+          "label": "Razlika vsota - integral",
+          "value": "1,0833"
+        }
+      ],
+      "notes": [
+        "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "vsota 3,75, integral 2,6667"
+      ]
+    },
+    {
+      "name": "definite-integral-guided/integral-midpoint-trapezoid-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "2"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "4"
+        },
+        {
+          "key": "Širina h = (b - a)/n#0",
+          "label": "Širina h = (b - a)/n",
+          "value": "0,5"
+        },
+        {
+          "key": "Predznačena vsota#0",
+          "label": "Predznačena vsota",
+          "value": "2,625"
+        },
+        {
+          "key": "Točni integral F(b) - F(a)#0",
+          "label": "Točni integral F(b) - F(a)",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika vsota - integral#0",
+          "label": "Razlika vsota - integral",
+          "value": "-0,0417"
+        }
+      ],
+      "notes": [
+        "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "vsota 2,625, integral 2,6667"
+      ]
+    },
+    {
+      "name": "definite-integral-guided/integral-more-rectangles-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "2"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "100"
+        },
+        {
+          "key": "Širina h = (b - a)/n#0",
+          "label": "Širina h = (b - a)/n",
+          "value": "0,02"
+        },
+        {
+          "key": "Predznačena vsota#0",
+          "label": "Predznačena vsota",
+          "value": "2,6268"
+        },
+        {
+          "key": "Točni integral F(b) - F(a)#0",
+          "label": "Točni integral F(b) - F(a)",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika vsota - integral#0",
+          "label": "Razlika vsota - integral",
+          "value": "-0,0399"
+        }
+      ],
+      "notes": [
+        "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "vsota 2,6268, integral 2,6667"
+      ]
+    },
+    {
+      "name": "definite-integral-guided/integral-signed-step",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "6,28"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "12"
+        },
+        {
+          "key": "Širina h = (b - a)/n#0",
+          "label": "Širina h = (b - a)/n",
+          "value": "0,5236"
+        },
+        {
+          "key": "Predznačena vsota#0",
+          "label": "Predznačena vsota",
+          "value": "0"
+        },
+        {
+          "key": "Točni integral F(b) - F(a)#0",
+          "label": "Točni integral F(b) - F(a)",
+          "value": "0"
+        },
+        {
+          "key": "Razlika vsota - integral#0",
+          "label": "Razlika vsota - integral",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "vsota 0, integral 0"
+      ]
+    }
+  ]
+}

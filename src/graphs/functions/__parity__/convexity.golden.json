@@ -1,0 +1,374 @@
+{
+  "graph": "convexity",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1,5"
+        },
+        {
+          "key": "Točka dotika tangente t#0",
+          "label": "Točka dotika tangente t",
+          "value": "0,5"
+        },
+        {
+          "key": "Tetiva čez (a, f(a)) in (b, f(b))#0",
+          "label": "Tetiva čez (a, f(a)) in (b, f(b))",
+          "value": "y = 0,5x + 1,5"
+        },
+        {
+          "key": "Tangenta v točki t#0",
+          "label": "Tangenta v točki t",
+          "value": "y = x - 0,25"
+        },
+        {
+          "key": "Predznak f″ na [a, b]#0",
+          "label": "Predznak f″ na [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Sklep za [a, b]#0",
+          "label": "Sklep za [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Graf glede na tangento#0",
+          "label": "Graf glede na tangento",
+          "value": "skrito"
+        },
+        {
+          "key": "Prevojna točka funkcije f (na vsem območju)#0",
+          "label": "Prevojna točka funkcije f (na vsem območju)",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
+      ],
+      "outputs": [],
+      "captions": [
+        "a = -1, b = 1,5, t = 0,5",
+        "f(x) = x²",
+        "polna črta: tetiva; črtkana črta: tangenta",
+        "sklep: skrit"
+      ]
+    },
+    {
+      "name": "convexity-guided/convexity-chord-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1,5"
+        },
+        {
+          "key": "Točka dotika tangente t#0",
+          "label": "Točka dotika tangente t",
+          "value": "0,5"
+        },
+        {
+          "key": "Tetiva čez (a, f(a)) in (b, f(b))#0",
+          "label": "Tetiva čez (a, f(a)) in (b, f(b))",
+          "value": "y = 0,5x + 1,5"
+        },
+        {
+          "key": "Tangenta v točki t#0",
+          "label": "Tangenta v točki t",
+          "value": "y = x - 0,25"
+        },
+        {
+          "key": "Predznak f″ na [a, b]#0",
+          "label": "Predznak f″ na [a, b]",
+          "value": "f″ ≥ 0 na [a, b]"
+        },
+        {
+          "key": "Sklep za [a, b]#0",
+          "label": "Sklep za [a, b]",
+          "value": "konveksna na [a, b]: graf leži na tetivi ali pod njo"
+        },
+        {
+          "key": "Graf glede na tangento#0",
+          "label": "Graf glede na tangento",
+          "value": "graf leži na tangenti ali nad njo"
+        },
+        {
+          "key": "Prevojna točka funkcije f (na vsem območju)#0",
+          "label": "Prevojna točka funkcije f (na vsem območju)",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "a = -1, b = 1,5, t = 0,5",
+        "f(x) = x²",
+        "graf: na tetivi ali pod njo, na tangenti ali nad njo",
+        "konveksna na [a, b]",
+        "polna črta: tetiva; črtkana črta: tangenta",
+        "zgoraj: predznak f″ (+ konveksna, - konkavna)"
+      ]
+    },
+    {
+      "name": "convexity-guided/convexity-negative-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1,5"
+        },
+        {
+          "key": "Točka dotika tangente t#0",
+          "label": "Točka dotika tangente t",
+          "value": "0,5"
+        },
+        {
+          "key": "Tetiva čez (a, f(a)) in (b, f(b))#0",
+          "label": "Tetiva čez (a, f(a)) in (b, f(b))",
+          "value": "y = -0,5x - 1,5"
+        },
+        {
+          "key": "Tangenta v točki t#0",
+          "label": "Tangenta v točki t",
+          "value": "y = -x + 0,25"
+        },
+        {
+          "key": "Predznak f″ na [a, b]#0",
+          "label": "Predznak f″ na [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Sklep za [a, b]#0",
+          "label": "Sklep za [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Graf glede na tangento#0",
+          "label": "Graf glede na tangento",
+          "value": "skrito"
+        },
+        {
+          "key": "Prevojna točka funkcije f (na vsem območju)#0",
+          "label": "Prevojna točka funkcije f (na vsem območju)",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
+      ],
+      "outputs": [],
+      "captions": [
+        "a = -1, b = 1,5, t = 0,5",
+        "f(x) = -x²",
+        "polna črta: tetiva; črtkana črta: tangenta",
+        "sklep: skrit"
+      ]
+    },
+    {
+      "name": "convexity-guided/convexity-cube-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1,5"
+        },
+        {
+          "key": "Točka dotika tangente t#0",
+          "label": "Točka dotika tangente t",
+          "value": "0,5"
+        },
+        {
+          "key": "Tetiva čez (a, f(a)) in (b, f(b))#0",
+          "label": "Tetiva čez (a, f(a)) in (b, f(b))",
+          "value": "y = 1,75x + 0,75"
+        },
+        {
+          "key": "Tangenta v točki t#0",
+          "label": "Tangenta v točki t",
+          "value": "y = 0,75x - 0,25"
+        },
+        {
+          "key": "Predznak f″ na [a, b]#0",
+          "label": "Predznak f″ na [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Sklep za [a, b]#0",
+          "label": "Sklep za [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Graf glede na tangento#0",
+          "label": "Graf glede na tangento",
+          "value": "skrito"
+        },
+        {
+          "key": "Prevojna točka funkcije f (na vsem območju)#0",
+          "label": "Prevojna točka funkcije f (na vsem območju)",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
+      ],
+      "outputs": [],
+      "captions": [
+        "a = -1, b = 1,5, t = 0,5",
+        "f(x) = x³",
+        "polna črta: tetiva; črtkana črta: tangenta",
+        "sklep: skrit"
+      ]
+    },
+    {
+      "name": "convexity-guided/convexity-quartic-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "Točka dotika tangente t#0",
+          "label": "Točka dotika tangente t",
+          "value": "0,5"
+        },
+        {
+          "key": "Tetiva čez (a, f(a)) in (b, f(b))#0",
+          "label": "Tetiva čez (a, f(a)) in (b, f(b))",
+          "value": "y = 1"
+        },
+        {
+          "key": "Tangenta v točki t#0",
+          "label": "Tangenta v točki t",
+          "value": "y = 0,5x - 0,1875"
+        },
+        {
+          "key": "Predznak f″ na [a, b]#0",
+          "label": "Predznak f″ na [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Sklep za [a, b]#0",
+          "label": "Sklep za [a, b]",
+          "value": "skrito"
+        },
+        {
+          "key": "Graf glede na tangento#0",
+          "label": "Graf glede na tangento",
+          "value": "skrito"
+        },
+        {
+          "key": "Prevojna točka funkcije f (na vsem območju)#0",
+          "label": "Prevojna točka funkcije f (na vsem območju)",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
+      ],
+      "outputs": [],
+      "captions": [
+        "a = -1, b = 1, t = 0,5",
+        "f(x) = x⁴",
+        "polna črta: tetiva; črtkana črta: tangenta",
+        "sklep: skrit"
+      ]
+    },
+    {
+      "name": "convexity-guided/convexity-free-exploration",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "Točka dotika tangente t#0",
+          "label": "Točka dotika tangente t",
+          "value": "0,5"
+        },
+        {
+          "key": "Tetiva čez (a, f(a)) in (b, f(b))#0",
+          "label": "Tetiva čez (a, f(a)) in (b, f(b))",
+          "value": "y = 1"
+        },
+        {
+          "key": "Tangenta v točki t#0",
+          "label": "Tangenta v točki t",
+          "value": "y = 0,5x - 0,1875"
+        },
+        {
+          "key": "Predznak f″ na [a, b]#0",
+          "label": "Predznak f″ na [a, b]",
+          "value": "f″ ≥ 0 na [a, b]"
+        },
+        {
+          "key": "Sklep za [a, b]#0",
+          "label": "Sklep za [a, b]",
+          "value": "konveksna na [a, b]: graf leži na tetivi ali pod njo"
+        },
+        {
+          "key": "Graf glede na tangento#0",
+          "label": "Graf glede na tangento",
+          "value": "graf leži na tangenti ali nad njo"
+        },
+        {
+          "key": "Prevojna točka funkcije f (na vsem območju)#0",
+          "label": "Prevojna točka funkcije f (na vsem območju)",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "+",
+        "0",
+        "a = -1, b = 1, t = 0,5",
+        "f(x) = x⁴",
+        "graf: na tetivi ali pod njo, na tangenti ali nad njo",
+        "konveksna na [a, b]",
+        "polna črta: tetiva; črtkana črta: tangenta",
+        "zgoraj: predznak f″ (+ konveksna, - konkavna)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "graph": "spline-c2",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

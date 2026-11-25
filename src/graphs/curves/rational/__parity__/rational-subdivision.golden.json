@@ -1,0 +1,57 @@
+{
+  "graph": "rational-subdivision",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "rational-subdivision-guided/rsd-weighted-curve",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$w_{0}=1$$",
+        "$$w_{1}=2$$",
+        "$$w_{2}=1$$",
+        "$$w_{3}=1$$"
+      ]
+    },
+    {
+      "name": "rational-subdivision-guided/rsd-half-example",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$w_{0}=1$$",
+        "$$w_{0}=1{,}38$$",
+        "$$w_{1}=1{,}25$$",
+        "$$w_{1}=1{,}5$$",
+        "$$w_{2}=1$$",
+        "$$w_{2}=1{,}5$$",
+        "$$w_{3}=1$$",
+        "$$w_{3}=1{,}38$$"
+      ]
+    },
+    {
+      "name": "rational-subdivision-guided/rsd-uneven-cut",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$w_{0}=1$$",
+        "$$w_{0}=1{,}44$$",
+        "$$w_{1}=1{,}3$$",
+        "$$w_{1}=1{,}49$$",
+        "$$w_{2}=1$$",
+        "$$w_{2}=1{,}42$$",
+        "$$w_{3}=1$$",
+        "$$w_{3}=1{,}44$$"
+      ]
+    }
+  ]
+}

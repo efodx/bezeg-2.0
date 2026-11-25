@@ -1,0 +1,48 @@
+{
+  "graph": "simson-line",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "0"
+      ],
+      "captions": [
+        "Nožišča D, E, F: kolinearna"
+      ]
+    },
+    {
+      "name": "simson-line/offset",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "0,2"
+      ],
+      "captions": [
+        "Nožišča D, E, F: ni kolinearna"
+      ]
+    },
+    {
+      "name": "simson-line/readout",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "0,001"
+      ],
+      "captions": [
+        "Nožišča D, E, F: ni kolinearna"
+      ]
+    },
+    {
+      "name": "simson-line/vertex",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Nožišča D, E, F: dve nožišči sovpadata; premica poteka skozi različni nožišči"
+      ]
+    }
+  ]
+}

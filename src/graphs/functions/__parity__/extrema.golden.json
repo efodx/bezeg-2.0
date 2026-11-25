@@ -1,0 +1,508 @@
+{
+  "graph": "extrema",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Kandidat: krajišče, x = -1#0",
+          "label": "Kandidat: krajišče, x = -1",
+          "value": "f = 1, f′ = -2"
+        },
+        {
+          "key": "Kandidat: stacionarna točka, x = 0#0",
+          "label": "Kandidat: stacionarna točka, x = 0",
+          "value": "f = 0, f′ = 0"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 2#0",
+          "label": "Kandidat: krajišče, x = 2",
+          "value": "f = 4, f′ = 4"
+        },
+        {
+          "key": "Del med -1 in 0#0",
+          "label": "Del med -1 in 0",
+          "value": "- (f′ < 0: f pada)"
+        },
+        {
+          "key": "Del med 0 in 2#0",
+          "label": "Del med 0 in 2",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Globalni minimum#0",
+          "label": "Globalni minimum",
+          "value": "skrito"
+        },
+        {
+          "key": "Globalni maksimum#0",
+          "label": "Globalni maksimum",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Kandidati so krajišči, točke z f′ = 0 in točke, kjer f′ ne obstaja; izračunani so natančno, ne vzorčeni. Klasifikacija velja glede na izbrani interval."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "a = -1, b = 2",
+        "f(-1) = 1",
+        "f(0) = 0",
+        "f(2) = 4",
+        "f(x) = x²",
+        "f′ = 0",
+        "klasifikacija: skrita",
+        "krajišče",
+        "krajišče",
+        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
+        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+      ]
+    },
+    {
+      "name": "extrema-guided/extrema-square-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Kandidat: krajišče, x = -1#0",
+          "label": "Kandidat: krajišče, x = -1",
+          "value": "f = 1, f′ = -2; lokalni maksimum"
+        },
+        {
+          "key": "Kandidat: stacionarna točka, x = 0#0",
+          "label": "Kandidat: stacionarna točka, x = 0",
+          "value": "f = 0, f′ = 0; lokalni minimum, globalni minimum"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 2#0",
+          "label": "Kandidat: krajišče, x = 2",
+          "value": "f = 4, f′ = 4; lokalni maksimum, globalni maksimum"
+        },
+        {
+          "key": "Del med -1 in 0#0",
+          "label": "Del med -1 in 0",
+          "value": "- (f′ < 0: f pada)"
+        },
+        {
+          "key": "Del med 0 in 2#0",
+          "label": "Del med 0 in 2",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Globalni minimum#0",
+          "label": "Globalni minimum",
+          "value": "0 pri x = 0"
+        },
+        {
+          "key": "Globalni maksimum#0",
+          "label": "Globalni maksimum",
+          "value": "4 pri x = 2"
+        }
+      ],
+      "notes": [
+        "Kandidati so krajišči, točke z f′ = 0 in točke, kjer f′ ne obstaja; izračunani so natančno, ne vzorčeni. Klasifikacija velja glede na izbrani interval."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "a = -1, b = 2",
+        "f(-1) = 1",
+        "f(0) = 0",
+        "f(2) = 4",
+        "f(x) = x²",
+        "f′ = 0",
+        "globalni min 0 pri x = 0; globalni maks 4 pri x = 2",
+        "krajišče",
+        "krajišče",
+        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
+        "lokalni maksimum",
+        "lokalni maksimum, globalni maksimum",
+        "lokalni minimum, globalni minimum",
+        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+      ]
+    },
+    {
+      "name": "extrema-guided/extrema-cube-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "Kandidat: krajišče, x = -1#0",
+          "label": "Kandidat: krajišče, x = -1",
+          "value": "f = -1, f′ = 3"
+        },
+        {
+          "key": "Kandidat: stacionarna točka, x = 0#0",
+          "label": "Kandidat: stacionarna točka, x = 0",
+          "value": "f = 0, f′ = 0"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 1#0",
+          "label": "Kandidat: krajišče, x = 1",
+          "value": "f = 1, f′ = 3"
+        },
+        {
+          "key": "Del med -1 in 0#0",
+          "label": "Del med -1 in 0",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Del med 0 in 1#0",
+          "label": "Del med 0 in 1",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Globalni minimum#0",
+          "label": "Globalni minimum",
+          "value": "skrito"
+        },
+        {
+          "key": "Globalni maksimum#0",
+          "label": "Globalni maksimum",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Kandidati so krajišči, točke z f′ = 0 in točke, kjer f′ ne obstaja; izračunani so natančno, ne vzorčeni. Klasifikacija velja glede na izbrani interval."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "+",
+        "a = -1, b = 1",
+        "f(-1) = -1",
+        "f(0) = 0",
+        "f(1) = 1",
+        "f(x) = x³",
+        "f′ = 0",
+        "klasifikacija: skrita",
+        "krajišče",
+        "krajišče",
+        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
+        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+      ]
+    },
+    {
+      "name": "extrema-guided/extrema-abs-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-1"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1"
+        },
+        {
+          "key": "Kandidat: krajišče, x = -1#0",
+          "label": "Kandidat: krajišče, x = -1",
+          "value": "f = 1, f′ = -1"
+        },
+        {
+          "key": "Kandidat: ostri vogal, x = 0#0",
+          "label": "Kandidat: ostri vogal, x = 0",
+          "value": "f = 0, f′ = ne obstaja"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 1#0",
+          "label": "Kandidat: krajišče, x = 1",
+          "value": "f = 1, f′ = 1"
+        },
+        {
+          "key": "Del med -1 in 0#0",
+          "label": "Del med -1 in 0",
+          "value": "- (f′ < 0: f pada)"
+        },
+        {
+          "key": "Del med 0 in 1#0",
+          "label": "Del med 0 in 1",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Globalni minimum#0",
+          "label": "Globalni minimum",
+          "value": "skrito"
+        },
+        {
+          "key": "Globalni maksimum#0",
+          "label": "Globalni maksimum",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Kandidati so krajišči, točke z f′ = 0 in točke, kjer f′ ne obstaja; izračunani so natančno, ne vzorčeni. Klasifikacija velja glede na izbrani interval."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "a = -1, b = 1",
+        "f(-1) = 1",
+        "f(0) = 0",
+        "f(1) = 1",
+        "f(x) = |x|",
+        "f′ ne obstaja",
+        "klasifikacija: skrita",
+        "krajišče",
+        "krajišče",
+        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
+        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+      ]
+    },
+    {
+      "name": "extrema-guided/extrema-sine-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "-4"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "4"
+        },
+        {
+          "key": "Kandidat: krajišče, x = -4#0",
+          "label": "Kandidat: krajišče, x = -4",
+          "value": "f = 0,7568, f′ = -0,6536"
+        },
+        {
+          "key": "Kandidat: stacionarna točka, x = -1,5708#0",
+          "label": "Kandidat: stacionarna točka, x = -1,5708",
+          "value": "f = -1, f′ = 0"
+        },
+        {
+          "key": "Kandidat: stacionarna točka, x = 1,5708#0",
+          "label": "Kandidat: stacionarna točka, x = 1,5708",
+          "value": "f = 1, f′ = 0"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 4#0",
+          "label": "Kandidat: krajišče, x = 4",
+          "value": "f = -0,7568, f′ = -0,6536"
+        },
+        {
+          "key": "Del med -4 in -1,5708#0",
+          "label": "Del med -4 in -1,5708",
+          "value": "- (f′ < 0: f pada)"
+        },
+        {
+          "key": "Del med -1,5708 in 1,5708#0",
+          "label": "Del med -1,5708 in 1,5708",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Del med 1,5708 in 4#0",
+          "label": "Del med 1,5708 in 4",
+          "value": "- (f′ < 0: f pada)"
+        },
+        {
+          "key": "Globalni minimum#0",
+          "label": "Globalni minimum",
+          "value": "skrito"
+        },
+        {
+          "key": "Globalni maksimum#0",
+          "label": "Globalni maksimum",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Kandidati so krajišči, točke z f′ = 0 in točke, kjer f′ ne obstaja; izračunani so natančno, ne vzorčeni. Klasifikacija velja glede na izbrani interval."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "-",
+        "a = -4, b = 4",
+        "f(-1,5708) = -1",
+        "f(-4) = 0,7568",
+        "f(1,5708) = 1",
+        "f(4) = -0,7568",
+        "f(x) = sin x",
+        "f′ = 0",
+        "f′ = 0",
+        "klasifikacija: skrita",
+        "krajišče",
+        "krajišče",
+        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
+        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+      ]
+    },
+    {
+      "name": "extrema-guided/extrema-tie-step",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "3,1416"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 0#0",
+          "label": "Kandidat: krajišče, x = 0",
+          "value": "f = 0, f′ = 1"
+        },
+        {
+          "key": "Kandidat: stacionarna točka, x = 1,5708#0",
+          "label": "Kandidat: stacionarna točka, x = 1,5708",
+          "value": "f = 1, f′ = 0"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 3,1416#0",
+          "label": "Kandidat: krajišče, x = 3,1416",
+          "value": "f = 0, f′ = -1"
+        },
+        {
+          "key": "Del med 0 in 1,5708#0",
+          "label": "Del med 0 in 1,5708",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Del med 1,5708 in 3,1416#0",
+          "label": "Del med 1,5708 in 3,1416",
+          "value": "- (f′ < 0: f pada)"
+        },
+        {
+          "key": "Globalni minimum#0",
+          "label": "Globalni minimum",
+          "value": "skrito"
+        },
+        {
+          "key": "Globalni maksimum#0",
+          "label": "Globalni maksimum",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Kandidati so krajišči, točke z f′ = 0 in točke, kjer f′ ne obstaja; izračunani so natančno, ne vzorčeni. Klasifikacija velja glede na izbrani interval."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "a = 0, b = 3,1416",
+        "f(0) = 0",
+        "f(1,5708) = 1",
+        "f(3,1416) = 0",
+        "f(x) = sin x",
+        "f′ = 0",
+        "klasifikacija: skrita",
+        "krajišče",
+        "krajišče",
+        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
+        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+      ]
+    },
+    {
+      "name": "extrema-guided/extrema-free-exploration",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "3,1416"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 0#0",
+          "label": "Kandidat: krajišče, x = 0",
+          "value": "f = 0, f′ = 1; lokalni minimum, globalni minimum"
+        },
+        {
+          "key": "Kandidat: stacionarna točka, x = 1,5708#0",
+          "label": "Kandidat: stacionarna točka, x = 1,5708",
+          "value": "f = 1, f′ = 0; lokalni maksimum, globalni maksimum"
+        },
+        {
+          "key": "Kandidat: krajišče, x = 3,1416#0",
+          "label": "Kandidat: krajišče, x = 3,1416",
+          "value": "f = 0, f′ = -1; lokalni minimum, globalni minimum"
+        },
+        {
+          "key": "Del med 0 in 1,5708#0",
+          "label": "Del med 0 in 1,5708",
+          "value": "+ (f′ > 0: f narašča)"
+        },
+        {
+          "key": "Del med 1,5708 in 3,1416#0",
+          "label": "Del med 1,5708 in 3,1416",
+          "value": "- (f′ < 0: f pada)"
+        },
+        {
+          "key": "Globalni minimum#0",
+          "label": "Globalni minimum",
+          "value": "0 pri x = 0; 3,1416"
+        },
+        {
+          "key": "Globalni maksimum#0",
+          "label": "Globalni maksimum",
+          "value": "1 pri x = 1,5708"
+        }
+      ],
+      "notes": [
+        "Kandidati so krajišči, točke z f′ = 0 in točke, kjer f′ ne obstaja; izračunani so natančno, ne vzorčeni. Klasifikacija velja glede na izbrani interval."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "a = 0, b = 3,1416",
+        "f(0) = 0",
+        "f(1,5708) = 1",
+        "f(3,1416) = 0",
+        "f(x) = sin x",
+        "f′ = 0",
+        "globalni min 0 pri x = 0; 3,1416; globalni maks 1 pri x = 1,5708",
+        "krajišče",
+        "krajišče",
+        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
+        "lokalni maksimum, globalni maksimum",
+        "lokalni minimum, globalni minimum",
+        "lokalni minimum, globalni minimum",
+        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "graph": "patch-joins",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Ugotovljeno stanje#0",
+          "label": "Ugotovljeno stanje",
+          "value": "C1"
+        },
+        {
+          "key": "Razmik robov#0",
+          "label": "Razmik robov",
+          "value": "0"
+        },
+        {
+          "key": "Razlika odvodov S_u čez rob#0",
+          "label": "Razlika odvodov S_u čez rob",
+          "value": "0"
+        },
+        {
+          "key": "Največji kot med normalama#0",
+          "label": "Največji kot med normalama",
+          "value": "0°"
+        },
+        {
+          "key": "Najboljše razmerje odvodov α*#0",
+          "label": "Najboljše razmerje odvodov α*",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "C1: odvoda S_u krp A in B čez rob sta enaka v vsaki točki roba (največja razlika 0). Zato se povsod, kjer sta določeni, ujemata tudi tangentni ravnini."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "patch-advanced-joins-teapot/join-c0",
+      "rows": [
+        {
+          "key": "Ugotovljeno stanje#0",
+          "label": "Ugotovljeno stanje",
+          "value": "samo C0"
+        },
+        {
+          "key": "Razmik robov#0",
+          "label": "Razmik robov",
+          "value": "0"
+        },
+        {
+          "key": "Razlika odvodov S_u čez rob#0",
+          "label": "Razlika odvodov S_u čez rob",
+          "value": "11,25"
+        },
+        {
+          "key": "Največji kot med normalama#0",
+          "label": "Največji kot med normalama",
+          "value": "123,855°"
+        },
+        {
+          "key": "Najboljše razmerje odvodov α*#0",
+          "label": "Najboljše razmerje odvodov α*",
+          "value": "-0,515"
+        }
+      ],
+      "notes": [
+        "Samo C0 (po tem merilu): robova sovpadata, odvoda S_u čez rob pa se razlikujeta in nista v stalnem razmerju α. Stik zato ni C1 in ni G1 s stalnim razmerjem; če je kot med normalama večji od 0, ima ploskev ob robu ostri rob."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "patch-advanced-joins-teapot/join-g1",
+      "rows": [
+        {
+          "key": "Ugotovljeno stanje#0",
+          "label": "Ugotovljeno stanje",
+          "value": "G1, ne C1"
+        },
+        {
+          "key": "Razmik robov#0",
+          "label": "Razmik robov",
+          "value": "0"
+        },
+        {
+          "key": "Razlika odvodov S_u čez rob#0",
+          "label": "Razlika odvodov S_u čez rob",
+          "value": "6,375"
+        },
+        {
+          "key": "Največji kot med normalama#0",
+          "label": "Največji kot med normalama",
+          "value": "0°"
+        },
+        {
+          "key": "Najboljše razmerje odvodov α*#0",
+          "label": "Najboljše razmerje odvodov α*",
+          "value": "2"
+        }
+      ],
+      "notes": [
+        "G1, ne C1: tangentni ravnini ob robu sovpadata povsod, kjer sta določeni, odvoda S_u pa nista enaka, ampak se razlikujeta za faktor α* = 2. Zveznost odvodov (C1) bi zahtevala α* = 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "patch-advanced-joins-teapot/join-teapot",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

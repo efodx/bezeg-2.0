@@ -1,0 +1,465 @@
+{
+  "graph": "complex-power",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "z#0",
+          "label": "z",
+          "value": "1 + i"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "5"
+        },
+        {
+          "key": "Re z⁵, natančno#0",
+          "label": "Re z⁵, natančno",
+          "value": "-4"
+        },
+        {
+          "key": "Im z⁵, natančno#0",
+          "label": "Im z⁵, natančno",
+          "value": "-4"
+        },
+        {
+          "key": "|z⁵|, natančno#0",
+          "label": "|z⁵|, natančno",
+          "value": "4√2 ≈ 5,656854"
+        },
+        {
+          "key": "5·arg z, izračunano, ni zvedeno na glavno vrednost#0",
+          "label": "5·arg z, izračunano, ni zvedeno na glavno vrednost",
+          "value": "225°"
+        },
+        {
+          "key": "Glavni argument števila z⁵, izračunano#0",
+          "label": "Glavni argument števila z⁵, izračunano",
+          "value": "-135°"
+        },
+        {
+          "key": "Ali je z⁵ realno število (natančno)?#0",
+          "label": "Ali je z⁵ realno število (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali leži z⁵ na enotski krožnici (natančno)?#0",
+          "label": "Ali leži z⁵ na enotski krožnici (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali je z⁵ = 1 (natančno)?#0",
+          "label": "Ali je z⁵ = 1 (natančno)?",
+          "value": "ne"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (črtkano)",
+        "Pot z, z², …, z⁵ (polna črta)",
+        "Potence števila z (rombi)",
+        "z = 1 + i",
+        "z, premakljiv (poln krog)",
+        "z²",
+        "z³",
+        "z⁴, modul 4",
+        "z⁵, modul 5,66"
+      ]
+    },
+    {
+      "name": "complex-power-de-moivre/m6-third-power",
+      "rows": [
+        {
+          "key": "z#0",
+          "label": "z",
+          "value": "1 + i"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "2"
+        },
+        {
+          "key": "Re z², natančno#0",
+          "label": "Re z², natančno",
+          "value": "0"
+        },
+        {
+          "key": "Im z², natančno#0",
+          "label": "Im z², natančno",
+          "value": "2"
+        },
+        {
+          "key": "|z²|, natančno#0",
+          "label": "|z²|, natančno",
+          "value": "2"
+        },
+        {
+          "key": "2·arg z, izračunano, ni zvedeno na glavno vrednost#0",
+          "label": "2·arg z, izračunano, ni zvedeno na glavno vrednost",
+          "value": "90°"
+        },
+        {
+          "key": "Glavni argument števila z², izračunano#0",
+          "label": "Glavni argument števila z², izračunano",
+          "value": "90°"
+        },
+        {
+          "key": "Ali je z² realno število (natančno)?#0",
+          "label": "Ali je z² realno število (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali leži z² na enotski krožnici (natančno)?#0",
+          "label": "Ali leži z² na enotski krožnici (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali je z² = 1 (natančno)?#0",
+          "label": "Ali je z² = 1 (natančno)?",
+          "value": "ne"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (črtkano)",
+        "Pot z, z², …, z² (polna črta)",
+        "Potence števila z (rombi)",
+        "z = 1 + i",
+        "z, premakljiv (poln krog)",
+        "z²"
+      ]
+    },
+    {
+      "name": "complex-power-de-moivre/m6-rule",
+      "rows": [
+        {
+          "key": "z#0",
+          "label": "z",
+          "value": "1 + i"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "3"
+        },
+        {
+          "key": "Re z³, natančno#0",
+          "label": "Re z³, natančno",
+          "value": "-2"
+        },
+        {
+          "key": "Im z³, natančno#0",
+          "label": "Im z³, natančno",
+          "value": "2"
+        },
+        {
+          "key": "|z³|, natančno#0",
+          "label": "|z³|, natančno",
+          "value": "2√2 ≈ 2,828427"
+        },
+        {
+          "key": "3·arg z, izračunano, ni zvedeno na glavno vrednost#0",
+          "label": "3·arg z, izračunano, ni zvedeno na glavno vrednost",
+          "value": "135°"
+        },
+        {
+          "key": "Glavni argument števila z³, izračunano#0",
+          "label": "Glavni argument števila z³, izračunano",
+          "value": "135°"
+        },
+        {
+          "key": "Ali je z³ realno število (natančno)?#0",
+          "label": "Ali je z³ realno število (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali leži z³ na enotski krožnici (natančno)?#0",
+          "label": "Ali leži z³ na enotski krožnici (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali je z³ = 1 (natančno)?#0",
+          "label": "Ali je z³ = 1 (natančno)?",
+          "value": "ne"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (črtkano)",
+        "Pot z, z², …, z³ (polna črta)",
+        "Potence števila z (rombi)",
+        "z = 1 + i",
+        "z, premakljiv (poln krog)",
+        "z²",
+        "z³"
+      ]
+    },
+    {
+      "name": "complex-power-de-moivre/m6-unit-modulus",
+      "rows": [
+        {
+          "key": "z#0",
+          "label": "z",
+          "value": "0,8 + 0,6i"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "1"
+        },
+        {
+          "key": "Re z¹, natančno#0",
+          "label": "Re z¹, natančno",
+          "value": "4/5 ≈ 0,8"
+        },
+        {
+          "key": "Im z¹, natančno#0",
+          "label": "Im z¹, natančno",
+          "value": "3/5 ≈ 0,6"
+        },
+        {
+          "key": "|z¹|, natančno#0",
+          "label": "|z¹|, natančno",
+          "value": "1"
+        },
+        {
+          "key": "1·arg z, izračunano, ni zvedeno na glavno vrednost#0",
+          "label": "1·arg z, izračunano, ni zvedeno na glavno vrednost",
+          "value": "36,8699°"
+        },
+        {
+          "key": "Glavni argument števila z¹, izračunano#0",
+          "label": "Glavni argument števila z¹, izračunano",
+          "value": "36,8699°"
+        },
+        {
+          "key": "Ali je z¹ realno število (natančno)?#0",
+          "label": "Ali je z¹ realno število (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali leži z¹ na enotski krožnici (natančno)?#0",
+          "label": "Ali leži z¹ na enotski krožnici (natančno)?",
+          "value": "da"
+        },
+        {
+          "key": "Ali je z¹ = 1 (natančno)?#0",
+          "label": "Ali je z¹ = 1 (natančno)?",
+          "value": "ne"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (črtkano)",
+        "Pot z, z², …, z¹ (polna črta)",
+        "Potence števila z (rombi)",
+        "z = 0,8 + 0,6i",
+        "z, premakljiv (poln krog)"
+      ]
+    },
+    {
+      "name": "complex-power-de-moivre/m6-inside-outside",
+      "rows": [
+        {
+          "key": "z#0",
+          "label": "z",
+          "value": "0,5 + 0,5i"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "1"
+        },
+        {
+          "key": "Re z¹, natančno#0",
+          "label": "Re z¹, natančno",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "Im z¹, natančno#0",
+          "label": "Im z¹, natančno",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "|z¹|, natančno#0",
+          "label": "|z¹|, natančno",
+          "value": "√2/2 ≈ 0,7071068"
+        },
+        {
+          "key": "1·arg z, izračunano, ni zvedeno na glavno vrednost#0",
+          "label": "1·arg z, izračunano, ni zvedeno na glavno vrednost",
+          "value": "45°"
+        },
+        {
+          "key": "Glavni argument števila z¹, izračunano#0",
+          "label": "Glavni argument števila z¹, izračunano",
+          "value": "45°"
+        },
+        {
+          "key": "Ali je z¹ realno število (natančno)?#0",
+          "label": "Ali je z¹ realno število (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali leži z¹ na enotski krožnici (natančno)?#0",
+          "label": "Ali leži z¹ na enotski krožnici (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali je z¹ = 1 (natančno)?#0",
+          "label": "Ali je z¹ = 1 (natančno)?",
+          "value": "ne"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (črtkano)",
+        "Pot z, z², …, z¹ (polna črta)",
+        "Potence števila z (rombi)",
+        "z = 0,5 + 0,5i",
+        "z, premakljiv (poln krog)"
+      ]
+    },
+    {
+      "name": "complex-power-de-moivre/m6-wrapped-argument",
+      "rows": [
+        {
+          "key": "z#0",
+          "label": "z",
+          "value": "1 + i"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "4"
+        },
+        {
+          "key": "Re z⁴, natančno#0",
+          "label": "Re z⁴, natančno",
+          "value": "-4"
+        },
+        {
+          "key": "Im z⁴, natančno#0",
+          "label": "Im z⁴, natančno",
+          "value": "0"
+        },
+        {
+          "key": "|z⁴|, natančno#0",
+          "label": "|z⁴|, natančno",
+          "value": "4"
+        },
+        {
+          "key": "4·arg z, izračunano, ni zvedeno na glavno vrednost#0",
+          "label": "4·arg z, izračunano, ni zvedeno na glavno vrednost",
+          "value": "180°"
+        },
+        {
+          "key": "Glavni argument števila z⁴, izračunano#0",
+          "label": "Glavni argument števila z⁴, izračunano",
+          "value": "180°"
+        },
+        {
+          "key": "Ali je z⁴ realno število (natančno)?#0",
+          "label": "Ali je z⁴ realno število (natančno)?",
+          "value": "da"
+        },
+        {
+          "key": "Ali leži z⁴ na enotski krožnici (natančno)?#0",
+          "label": "Ali leži z⁴ na enotski krožnici (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali je z⁴ = 1 (natančno)?#0",
+          "label": "Ali je z⁴ = 1 (natančno)?",
+          "value": "ne"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (črtkano)",
+        "Pot z, z², …, z⁴ (polna črta)",
+        "Potence števila z (rombi)",
+        "z = 1 + i",
+        "z, premakljiv (poln krog)",
+        "z²",
+        "z³",
+        "z⁴, modul 4"
+      ]
+    },
+    {
+      "name": "complex-power-de-moivre/m6-triple-angle",
+      "rows": [
+        {
+          "key": "z#0",
+          "label": "z",
+          "value": "0,6 + 0,8i"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "2"
+        },
+        {
+          "key": "Re z², natančno#0",
+          "label": "Re z², natančno",
+          "value": "-7/25 ≈ -0,28"
+        },
+        {
+          "key": "Im z², natančno#0",
+          "label": "Im z², natančno",
+          "value": "24/25 ≈ 0,96"
+        },
+        {
+          "key": "|z²|, natančno#0",
+          "label": "|z²|, natančno",
+          "value": "1"
+        },
+        {
+          "key": "2·arg z, izračunano, ni zvedeno na glavno vrednost#0",
+          "label": "2·arg z, izračunano, ni zvedeno na glavno vrednost",
+          "value": "106,2602°"
+        },
+        {
+          "key": "Glavni argument števila z², izračunano#0",
+          "label": "Glavni argument števila z², izračunano",
+          "value": "106,2602°"
+        },
+        {
+          "key": "Ali je z² realno število (natančno)?#0",
+          "label": "Ali je z² realno število (natančno)?",
+          "value": "ne"
+        },
+        {
+          "key": "Ali leži z² na enotski krožnici (natančno)?#0",
+          "label": "Ali leži z² na enotski krožnici (natančno)?",
+          "value": "da"
+        },
+        {
+          "key": "Ali je z² = 1 (natančno)?#0",
+          "label": "Ali je z² = 1 (natančno)?",
+          "value": "ne"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (črtkano)",
+        "Pot z, z², …, z² (polna črta)",
+        "Potence števila z (rombi)",
+        "z = 0,6 + 0,8i",
+        "z, premakljiv (poln krog)",
+        "z²"
+      ]
+    }
+  ]
+}

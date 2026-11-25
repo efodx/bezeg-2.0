@@ -1,0 +1,163 @@
+{
+  "graph": "voronoi-degenerate",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 4"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "voronoi-degenerate-guided/deg-near",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "voronoi-degenerate-guided/deg-off",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 4"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 2"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 1"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "voronoi-degenerate-guided/deg-collinear",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 5"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 0"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Premic: 4"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "↓",
+        "↓",
+        "↓",
+        "↓",
+        "↓"
+      ]
+    }
+  ]
+}

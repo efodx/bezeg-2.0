@@ -1,0 +1,18 @@
+{
+  "graph": "segment-intersections",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$s_{1}$$",
+        "$$s_{2}$$",
+        "$$s_{3}$$",
+        "$$s_{4}$$"
+      ]
+    }
+  ]
+}

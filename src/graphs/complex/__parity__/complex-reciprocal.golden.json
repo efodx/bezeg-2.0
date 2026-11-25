@@ -1,0 +1,724 @@
+{
+  "graph": "complex-reciprocal",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Lega točke z glede na enotsko krožnico#0",
+          "label": "Lega točke z glede na enotsko krožnico",
+          "value": "skrito"
+        },
+        {
+          "key": "Konjugirano število z̄#0",
+          "label": "Konjugirano število z̄",
+          "value": "1 - i"
+        },
+        {
+          "key": "Obratna vrednost 1/z#0",
+          "label": "Obratna vrednost 1/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |1/z|#0",
+          "label": "Modul |1/z|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg 1/z#0",
+          "label": "Argument arg 1/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2,2361"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "≈ 0,464"
+        },
+        {
+          "key": "Količnik w/z#0",
+          "label": "Količnik w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |w/z|#0",
+          "label": "Modul |w/z|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg w/z#0",
+          "label": "Argument arg w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Središče c krožnice inverzije#0",
+          "label": "Središče c krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Polmer r krožnice inverzije#0",
+          "label": "Polmer r krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Inverzija z' točke z v krožnici#0",
+          "label": "Inverzija z' točke z v krožnici",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = -arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z - c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "1/z: skrit",
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
+        "z = 1 + i, w = 2 + i",
+        "z̄ = 1 - i"
+      ]
+    },
+    {
+      "name": "complex-reciprocal-inversion/reciprocal",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Lega točke z glede na enotsko krožnico#0",
+          "label": "Lega točke z glede na enotsko krožnico",
+          "value": "zunaj (|z| > 1)"
+        },
+        {
+          "key": "Konjugirano število z̄#0",
+          "label": "Konjugirano število z̄",
+          "value": "1 - i"
+        },
+        {
+          "key": "Obratna vrednost 1/z#0",
+          "label": "Obratna vrednost 1/z",
+          "value": "0,5 - 0,5i"
+        },
+        {
+          "key": "Modul |1/z|#0",
+          "label": "Modul |1/z|",
+          "value": "0,7071"
+        },
+        {
+          "key": "Argument arg 1/z#0",
+          "label": "Argument arg 1/z",
+          "value": "-π/4 ≈ -0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2,2361"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "≈ 0,464"
+        },
+        {
+          "key": "Količnik w/z#0",
+          "label": "Količnik w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |w/z|#0",
+          "label": "Modul |w/z|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg w/z#0",
+          "label": "Argument arg w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Središče c krožnice inverzije#0",
+          "label": "Središče c krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Polmer r krožnice inverzije#0",
+          "label": "Polmer r krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Inverzija z' točke z v krožnici#0",
+          "label": "Inverzija z' točke z v krožnici",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = -arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z - c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "1/z = 0,5 - 0,5i",
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
+        "z = 1 + i, w = 2 + i",
+        "z̄ = 1 - i"
+      ]
+    },
+    {
+      "name": "complex-reciprocal-inversion/inside-outside",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "0,5 + 0,5i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "0,7071"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Lega točke z glede na enotsko krožnico#0",
+          "label": "Lega točke z glede na enotsko krožnico",
+          "value": "znotraj (|z| < 1)"
+        },
+        {
+          "key": "Konjugirano število z̄#0",
+          "label": "Konjugirano število z̄",
+          "value": "0,5 - 0,5i"
+        },
+        {
+          "key": "Obratna vrednost 1/z#0",
+          "label": "Obratna vrednost 1/z",
+          "value": "1 - i"
+        },
+        {
+          "key": "Modul |1/z|#0",
+          "label": "Modul |1/z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg 1/z#0",
+          "label": "Argument arg 1/z",
+          "value": "-π/4 ≈ -0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2,2361"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "≈ 0,464"
+        },
+        {
+          "key": "Količnik w/z#0",
+          "label": "Količnik w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |w/z|#0",
+          "label": "Modul |w/z|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg w/z#0",
+          "label": "Argument arg w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Središče c krožnice inverzije#0",
+          "label": "Središče c krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Polmer r krožnice inverzije#0",
+          "label": "Polmer r krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Inverzija z' točke z v krožnici#0",
+          "label": "Inverzija z' točke z v krožnici",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = -arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z - c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "1/z = 1 - i",
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
+        "z = 0,5 + 0,5i, w = 2 + i",
+        "z̄ = 0,5 - 0,5i"
+      ]
+    },
+    {
+      "name": "complex-reciprocal-inversion/on-circle",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "0,6 + 0,8i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "≈ 0,927"
+        },
+        {
+          "key": "Lega točke z glede na enotsko krožnico#0",
+          "label": "Lega točke z glede na enotsko krožnico",
+          "value": "na krožnici (|z| = 1)"
+        },
+        {
+          "key": "Konjugirano število z̄#0",
+          "label": "Konjugirano število z̄",
+          "value": "0,6 - 0,8i"
+        },
+        {
+          "key": "Obratna vrednost 1/z#0",
+          "label": "Obratna vrednost 1/z",
+          "value": "0,6 - 0,8i"
+        },
+        {
+          "key": "Modul |1/z|#0",
+          "label": "Modul |1/z|",
+          "value": "1"
+        },
+        {
+          "key": "Argument arg 1/z#0",
+          "label": "Argument arg 1/z",
+          "value": "≈ -0,927"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2,2361"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "≈ 0,464"
+        },
+        {
+          "key": "Količnik w/z#0",
+          "label": "Količnik w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |w/z|#0",
+          "label": "Modul |w/z|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg w/z#0",
+          "label": "Argument arg w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Središče c krožnice inverzije#0",
+          "label": "Središče c krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Polmer r krožnice inverzije#0",
+          "label": "Polmer r krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Inverzija z' točke z v krožnici#0",
+          "label": "Inverzija z' točke z v krožnici",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = -arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z - c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "1/z = 0,6 - 0,8i",
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
+        "z = 0,6 + 0,8i, w = 2 + i",
+        "z̄ = 0,6 - 0,8i"
+      ]
+    },
+    {
+      "name": "complex-reciprocal-inversion/division",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 - i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "-π/4 ≈ -0,785"
+        },
+        {
+          "key": "Lega točke z glede na enotsko krožnico#0",
+          "label": "Lega točke z glede na enotsko krožnico",
+          "value": "zunaj (|z| > 1)"
+        },
+        {
+          "key": "Konjugirano število z̄#0",
+          "label": "Konjugirano število z̄",
+          "value": "1 + i"
+        },
+        {
+          "key": "Obratna vrednost 1/z#0",
+          "label": "Obratna vrednost 1/z",
+          "value": "0,5 + 0,5i"
+        },
+        {
+          "key": "Modul |1/z|#0",
+          "label": "Modul |1/z|",
+          "value": "0,7071"
+        },
+        {
+          "key": "Argument arg 1/z#0",
+          "label": "Argument arg 1/z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2,2361"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "≈ 0,464"
+        },
+        {
+          "key": "Količnik w/z#0",
+          "label": "Količnik w/z",
+          "value": "0,5 + 1,5i"
+        },
+        {
+          "key": "Modul |w/z|#0",
+          "label": "Modul |w/z|",
+          "value": "1,5811"
+        },
+        {
+          "key": "Argument arg w/z#0",
+          "label": "Argument arg w/z",
+          "value": "≈ 1,249"
+        },
+        {
+          "key": "Središče c krožnice inverzije#0",
+          "label": "Središče c krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Polmer r krožnice inverzije#0",
+          "label": "Polmer r krožnice inverzije",
+          "value": "skrito"
+        },
+        {
+          "key": "Inverzija z' točke z v krožnici#0",
+          "label": "Inverzija z' točke z v krožnici",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = -arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z - c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "1/z = 0,5 + 0,5i",
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
+        "w/z = 0,5 + 1,5i",
+        "z = 1 - i, w = 2 + i",
+        "z̄ = 1 + i"
+      ]
+    },
+    {
+      "name": "complex-reciprocal-inversion/inversion-circle",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1,5 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,8028"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "≈ 0,588"
+        },
+        {
+          "key": "Lega točke z glede na enotsko krožnico#0",
+          "label": "Lega točke z glede na enotsko krožnico",
+          "value": "skrito"
+        },
+        {
+          "key": "Konjugirano število z̄#0",
+          "label": "Konjugirano število z̄",
+          "value": "1,5 - i"
+        },
+        {
+          "key": "Obratna vrednost 1/z#0",
+          "label": "Obratna vrednost 1/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |1/z|#0",
+          "label": "Modul |1/z|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg 1/z#0",
+          "label": "Argument arg 1/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2,2361"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "≈ 0,464"
+        },
+        {
+          "key": "Količnik w/z#0",
+          "label": "Količnik w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Modul |w/z|#0",
+          "label": "Modul |w/z|",
+          "value": "skrito"
+        },
+        {
+          "key": "Argument arg w/z#0",
+          "label": "Argument arg w/z",
+          "value": "skrito"
+        },
+        {
+          "key": "Središče c krožnice inverzije#0",
+          "label": "Središče c krožnice inverzije",
+          "value": "0,5"
+        },
+        {
+          "key": "Polmer r krožnice inverzije#0",
+          "label": "Polmer r krožnice inverzije",
+          "value": "1"
+        },
+        {
+          "key": "Inverzija z' točke z v krožnici#0",
+          "label": "Inverzija z' točke z v krožnici",
+          "value": "1 + 0,5i"
+        }
+      ],
+      "notes": [
+        "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = -arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z - c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "1/z: skrit",
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
+        "z = 1,5 + i, w = 2 + i",
+        "z' = 1 + 0,5i",
+        "z̄ = 1,5 - i"
+      ]
+    },
+    {
+      "name": "complex-reciprocal-inversion/explore",
+      "rows": [
+        {
+          "key": "Število z#0",
+          "label": "Število z",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |z|#0",
+          "label": "Modul |z|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg z#0",
+          "label": "Argument arg z",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Lega točke z glede na enotsko krožnico#0",
+          "label": "Lega točke z glede na enotsko krožnico",
+          "value": "zunaj (|z| > 1)"
+        },
+        {
+          "key": "Konjugirano število z̄#0",
+          "label": "Konjugirano število z̄",
+          "value": "1 - i"
+        },
+        {
+          "key": "Obratna vrednost 1/z#0",
+          "label": "Obratna vrednost 1/z",
+          "value": "0,5 - 0,5i"
+        },
+        {
+          "key": "Modul |1/z|#0",
+          "label": "Modul |1/z|",
+          "value": "0,7071"
+        },
+        {
+          "key": "Argument arg 1/z#0",
+          "label": "Argument arg 1/z",
+          "value": "-π/4 ≈ -0,785"
+        },
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2,2361"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "≈ 0,464"
+        },
+        {
+          "key": "Količnik w/z#0",
+          "label": "Količnik w/z",
+          "value": "1,5 - 0,5i"
+        },
+        {
+          "key": "Modul |w/z|#0",
+          "label": "Modul |w/z|",
+          "value": "1,5811"
+        },
+        {
+          "key": "Argument arg w/z#0",
+          "label": "Argument arg w/z",
+          "value": "≈ -0,322"
+        },
+        {
+          "key": "Središče c krožnice inverzije#0",
+          "label": "Središče c krožnice inverzije",
+          "value": "0,5"
+        },
+        {
+          "key": "Polmer r krožnice inverzije#0",
+          "label": "Polmer r krožnice inverzije",
+          "value": "1"
+        },
+        {
+          "key": "Inverzija z' točke z v krožnici#0",
+          "label": "Inverzija z' točke z v krožnici",
+          "value": "0,9 + 0,8i"
+        }
+      ],
+      "notes": [
+        "1/z = z̄/|z|², zato |1/z| = 1/|z| in arg 1/z = -arg z do večkratnika 2π natančno (na negativni realni osi sta oba argumenta enaka π); obratna vrednost je inverzija v enotski krožnici, ki ji sledi zrcaljenje čez realno os. Število 0 nima obratne vrednosti. Inverzija v krožnici s središčem c in polmerom r je z' = c + r²/conj(z - c); središče nima slike. Vrednosti so izračunane iz koordinat na mreži."
+      ],
+      "outputs": [],
+      "captions": [
+        "1/z = 0,5 - 0,5i",
+        "Im",
+        "Re",
+        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
+        "w/z = 1,5 - 0,5i",
+        "z = 1 + i, w = 2 + i",
+        "z' = 0,9 + 0,8i",
+        "z̄ = 1 - i"
+      ]
+    }
+  ]
+}

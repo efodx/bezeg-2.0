@@ -1,0 +1,890 @@
+{
+  "graph": "curve-kinematics",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "0 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(0; 0) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(0; 0) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "0 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0; 1) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "ni določen"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "ni določen"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "ni določen"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "ni določen"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 1 m na grafu pomeni 2 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "Hitrost je 0 ali skoraj 0: ni puščice hitrosti",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
+        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-vectors/kn1-trace",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "1,57 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(0,571; 1) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(1; 1) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "1,414 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(1; 0) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "0,707 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "-0,707 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "-0,354 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "-0,707 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Točka, ki se giblje"
+      ]
+    },
+    {
+      "name": "curve-kinematics-vectors/kn1-explore",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "1,57 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(0,571; 1) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(1; 1) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "1,414 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(1; 0) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "0,707 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "-0,707 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "-0,354 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "-0,707 m/s²"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 1 m na grafu pomeni 2 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$v$$",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
+        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-speed/kn2-top",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "1,12 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(0; 1) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(-1,218; 0) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "1,218 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0,45; -1,482) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "-0,45 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "1,482 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "1 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "1,482 m/s²"
+        },
+        {
+          "key": "Obhodni čas T#0",
+          "label": "Obhodni čas T",
+          "value": "6,283 s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Primerjalna točka: enakomerno kroženje z isto kotno hitrostjo ω",
+        "Točka, ki se giblje"
+      ]
+    },
+    {
+      "name": "curve-kinematics-speed/kn2-acceleration",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "1,57 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(-0,479; 0,878) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(-0,878; -0,479) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "1 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0,918; -0,638) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "-0,5 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "1 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "1 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "1 m/s²"
+        },
+        {
+          "key": "Obhodni čas T#0",
+          "label": "Obhodni čas T",
+          "value": "6,283 s"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 0,5 m na grafu pomeni 2 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 0,5 m na grafu pomeni 5 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a_{n}$$",
+        "$$a_{t}$$",
+        "$$v$$",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Primerjalna točka: enakomerno kroženje z isto kotno hitrostjo ω",
+        "Tangentna in normalna os skozi točko (tanki črti)",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 0,5 m na grafu pomeni 5 m/s²",
+        "aₙ in κ: negativno, ko tir zavija desno",
+        "aₜ (pikčasto) in aₙ (dolge črtice) v merilu pospeška",
+        "v (polna črta): puščica dolžine 0,5 m na grafu pomeni 2 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-speed/kn2-explore",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "1,57 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(-0,479; 0,878) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(-0,878; -0,479) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "1 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0,918; -0,638) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "-0,5 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "1 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "1 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "1 m/s²"
+        },
+        {
+          "key": "Obhodni čas T#0",
+          "label": "Obhodni čas T",
+          "value": "6,283 s"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 0,5 m na grafu pomeni 2 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 0,5 m na grafu pomeni 5 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$v$$",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Primerjalna točka: enakomerno kroženje z isto kotno hitrostjo ω",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 0,5 m na grafu pomeni 5 m/s²",
+        "v (polna črta): puščica dolžine 0,5 m na grafu pomeni 2 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-projectile/kn3-acceleration",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "1 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(14,142; 9,237) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(14,142; 4,332) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "14,791 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0; -9,81) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "-2,873 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "-9,38 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "-0,043 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "-9,38 m/s²"
+        },
+        {
+          "key": "Čas leta#0",
+          "label": "Čas leta",
+          "value": "2,883 s"
+        },
+        {
+          "key": "Domet#0",
+          "label": "Domet",
+          "value": "40,775 m"
+        },
+        {
+          "key": "Največja višina#0",
+          "label": "Največja višina",
+          "value": "10,194 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 10 m na grafu pomeni 20 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 10 m na grafu pomeni 10 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$v$$",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Težni pospešek je povsod enak: g = 9,81 m/s², navpično navzdol",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 10 m na grafu pomeni 10 m/s²",
+        "v (polna črta): puščica dolžine 10 m na grafu pomeni 20 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-projectile/kn3-angles",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "0 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(0; 0) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(17,321; 10) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "20 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0; -9,81) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "-4,905 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "-8,496 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "-0,021 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "-8,496 m/s²"
+        },
+        {
+          "key": "Čas leta#0",
+          "label": "Čas leta",
+          "value": "2,039 s"
+        },
+        {
+          "key": "Domet#0",
+          "label": "Domet",
+          "value": "35,312 m"
+        },
+        {
+          "key": "Največja višina#0",
+          "label": "Največja višina",
+          "value": "5,097 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Težni pospešek je povsod enak: g = 9,81 m/s², navpično navzdol",
+        "Točka, ki se giblje"
+      ]
+    },
+    {
+      "name": "curve-kinematics-circular/kn4-velocity",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "1,05 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(0; 2) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(-3; 0) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "3 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0; -4,5) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "0 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "4,5 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "0,5 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "4,5 m/s²"
+        },
+        {
+          "key": "Obhodni čas T#0",
+          "label": "Obhodni čas T",
+          "value": "4,189 s"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 1 m na grafu pomeni 5 m/s"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$v$$",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Točka, ki se giblje",
+        "v (polna črta): puščica dolžine 1 m na grafu pomeni 5 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-tangential-normal/kn5-axes",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "3,14 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(3,138; 2) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(2; 0,002) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "2 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0,002; -1) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "0,001 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "-1 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "-0,25 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "-1 m/s²"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 1 m na grafu pomeni 2 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$v$$",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
+        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-tangential-normal/kn5-circle",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "0,5 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(0,021; 0,122) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(0,122; 0,479) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "0,495 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0,479; 0,878) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "0,969 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "-0,247 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "-1,01 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "-0,247 m/s²"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 1 m na grafu pomeni 2 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a_{n}$$",
+        "$$a_{t}$$",
+        "$$v$$",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Tangentna in normalna os skozi točko (tanki črti)",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
+        "aₙ in κ: negativno, ko tir zavija desno",
+        "aₜ (pikčasto) in aₙ (dolge črtice) v merilu pospeška",
+        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+      ]
+    },
+    {
+      "name": "curve-kinematics-tangential-normal/kn5-explore",
+      "rows": [
+        {
+          "key": "Čas t#0",
+          "label": "Čas t",
+          "value": "2 s"
+        },
+        {
+          "key": "Lega r#0",
+          "label": "Lega r",
+          "value": "(1,091; 1,416) m"
+        },
+        {
+          "key": "Hitrost v#0",
+          "label": "Hitrost v",
+          "value": "(1,416; 0,909) m/s"
+        },
+        {
+          "key": "Velikost hitrosti |v|#0",
+          "label": "Velikost hitrosti |v|",
+          "value": "1,683 m/s"
+        },
+        {
+          "key": "Pospešek a#0",
+          "label": "Pospešek a",
+          "value": "(0,909; -0,416) m/s²"
+        },
+        {
+          "key": "Tangentni pospešek aₜ#0",
+          "label": "Tangentni pospešek aₜ",
+          "value": "0,54 m/s²"
+        },
+        {
+          "key": "Normalni pospešek aₙ#0",
+          "label": "Normalni pospešek aₙ",
+          "value": "-0,841 m/s²"
+        },
+        {
+          "key": "Ukrivljenost κ#0",
+          "label": "Ukrivljenost κ",
+          "value": "-0,297 1/m"
+        },
+        {
+          "key": "κ·|v|² (enako aₙ)#0",
+          "label": "κ·|v|² (enako aₙ)",
+          "value": "-0,841 m/s²"
+        },
+        {
+          "key": "Merilo hitrosti#0",
+          "label": "Merilo hitrosti",
+          "value": "puščica dolžine 1 m na grafu pomeni 2 m/s"
+        },
+        {
+          "key": "Merilo pospeška#0",
+          "label": "Merilo pospeška",
+          "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a_{n}$$",
+        "$$a_{t}$$",
+        "$$v$$",
+        "Krivinska krožnica s središčem in polmerom 1/|κ|",
+        "Pot (bleda črta)",
+        "Prepotovani del poti (debela črta)",
+        "Tangentna in normalna os skozi točko (tanki črti)",
+        "Točka, ki se giblje",
+        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
+        "aₙ in κ: negativno, ko tir zavija desno",
+        "aₜ (pikčasto) in aₙ (dolge črtice) v merilu pospeška",
+        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+      ]
+    }
+  ]
+}

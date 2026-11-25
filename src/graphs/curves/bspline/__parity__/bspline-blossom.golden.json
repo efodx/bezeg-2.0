@@ -1,0 +1,51 @@
+{
+  "graph": "bspline-blossom",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$f(0;\\ 0{,}5)$$"
+      ]
+    },
+    {
+      "name": "bspline-blossom-guided/bspline-blossom-predict",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$f(0;\\ 1)$$"
+      ]
+    },
+    {
+      "name": "bspline-blossom-guided/bspline-blossom-pair",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$f(0{,}25;\\ 0{,}75)$$"
+      ]
+    },
+    {
+      "name": "bspline-blossom-guided/bspline-blossom-diagonal",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$f(0{,}5;\\ 0{,}5)$$"
+      ]
+    },
+    {
+      "name": "bspline-blossom-guided/bspline-blossom-symmetry",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$f(0{,}75;\\ 0{,}25)$$"
+      ]
+    }
+  ]
+}

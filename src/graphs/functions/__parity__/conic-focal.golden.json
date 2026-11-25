@@ -1,0 +1,297 @@
+{
+  "graph": "conic-focal",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Stožnica#0",
+          "label": "Stožnica",
+          "value": "elipsa"
+        },
+        {
+          "key": "|PF|#0",
+          "label": "|PF|",
+          "value": "5"
+        },
+        {
+          "key": "|Pd| (razdalja do vodnice)#0",
+          "label": "|Pd| (razdalja do vodnice)",
+          "value": "6,25"
+        },
+        {
+          "key": "|PF| / |Pd|#0",
+          "label": "|PF| / |Pd|",
+          "value": "0,8"
+        },
+        {
+          "key": "|PF₂|#0",
+          "label": "|PF₂|",
+          "value": "5"
+        },
+        {
+          "key": "|PF| + |PF₂|#0",
+          "label": "|PF| + |PF₂|",
+          "value": "10"
+        }
+      ],
+      "notes": [
+        "Stožnica je narisana po definiciji |PF| = ε·|Pd| (ε = |PF|/|Pd|, F gorišče, d vodnica); Bézierjev lok je čez njo, odstopanje pa je največji | |PF| - ε·|Pd| | v vzorčenih točkah loka. Hiperbola in parabola sta odrezani 50 enot od F."
+      ],
+      "outputs": [],
+      "captions": [
+        "|PF| + |PF₂| = 10",
+        "|PF| = 5, |Pd| = 6,25, razmerje 0,8",
+        "|PF| = ε·|Pd|",
+        "ε = 0,8, ℓ = 1,8: elipsa"
+      ]
+    },
+    {
+      "name": "conic-focal-guided/conic-parabola",
+      "rows": [
+        {
+          "key": "Stožnica#0",
+          "label": "Stožnica",
+          "value": "parabola"
+        },
+        {
+          "key": "|PF|#0",
+          "label": "|PF|",
+          "value": "2"
+        },
+        {
+          "key": "|Pd| (razdalja do vodnice)#0",
+          "label": "|Pd| (razdalja do vodnice)",
+          "value": "2"
+        },
+        {
+          "key": "|PF| / |Pd|#0",
+          "label": "|PF| / |Pd|",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Stožnica je narisana po definiciji |PF| = ε·|Pd| (ε = |PF|/|Pd|, F gorišče, d vodnica); Bézierjev lok je čez njo, odstopanje pa je največji | |PF| - ε·|Pd| | v vzorčenih točkah loka. Hiperbola in parabola sta odrezani 50 enot od F."
+      ],
+      "outputs": [],
+      "captions": [
+        "|PF| = 2, |Pd| = 2, razmerje 1",
+        "|PF| = ε·|Pd|",
+        "ε = 1, ℓ = 2: parabola"
+      ]
+    },
+    {
+      "name": "conic-focal-guided/conic-hyperbola",
+      "rows": [
+        {
+          "key": "Stožnica#0",
+          "label": "Stožnica",
+          "value": "hiperbola"
+        },
+        {
+          "key": "|PF|#0",
+          "label": "|PF|",
+          "value": "7"
+        },
+        {
+          "key": "|Pd| (razdalja do vodnice)#0",
+          "label": "|Pd| (razdalja do vodnice)",
+          "value": "4,2"
+        },
+        {
+          "key": "|PF| / |Pd|#0",
+          "label": "|PF| / |Pd|",
+          "value": "1,6667"
+        },
+        {
+          "key": "|PF₂|#0",
+          "label": "|PF₂|",
+          "value": "13"
+        },
+        {
+          "key": "||PF₂| - |PF||#0",
+          "label": "||PF₂| - |PF||",
+          "value": "6"
+        }
+      ],
+      "notes": [
+        "Stožnica je narisana po definiciji |PF| = ε·|Pd| (ε = |PF|/|Pd|, F gorišče, d vodnica); Bézierjev lok je čez njo, odstopanje pa je največji | |PF| - ε·|Pd| | v vzorčenih točkah loka. Hiperbola in parabola sta odrezani 50 enot od F."
+      ],
+      "outputs": [],
+      "captions": [
+        "|PF| = 7, |Pd| = 4,2, razmerje 1,6667",
+        "|PF| = ε·|Pd|",
+        "||PF₂| - |PF|| = 6",
+        "ε = 1,6667, ℓ = 5,3333: hiperbola"
+      ]
+    },
+    {
+      "name": "conic-focal-guided/conic-circle",
+      "rows": [
+        {
+          "key": "Stožnica#0",
+          "label": "Stožnica",
+          "value": "krožnica"
+        },
+        {
+          "key": "|PF|#0",
+          "label": "|PF|",
+          "value": "3"
+        },
+        {
+          "key": "|Pd| (razdalja do vodnice)#0",
+          "label": "|Pd| (razdalja do vodnice)",
+          "value": "ni"
+        },
+        {
+          "key": "|PF| / |Pd|#0",
+          "label": "|PF| / |Pd|",
+          "value": "nedoločeno (krožnica nima vodnice)"
+        }
+      ],
+      "notes": [
+        "Stožnica je narisana po definiciji |PF| = ε·|Pd| (ε = |PF|/|Pd|, F gorišče, d vodnica); Bézierjev lok je čez njo, odstopanje pa je največji | |PF| - ε·|Pd| | v vzorčenih točkah loka. Hiperbola in parabola sta odrezani 50 enot od F."
+      ],
+      "outputs": [],
+      "captions": [
+        "|PF| = 3; razmerje ni določeno (brez vodnice)",
+        "|PF| = ε·|Pd|",
+        "ε = 0, ℓ = 3: krožnica",
+        "ε = 0: krožnica s polmerom ℓ okoli F. Nima vodnice, zato razmerje |PF| / |Pd| ni določeno."
+      ]
+    },
+    {
+      "name": "conic-focal-guided/conic-bridge",
+      "rows": [
+        {
+          "key": "Stožnica#0",
+          "label": "Stožnica",
+          "value": "elipsa"
+        },
+        {
+          "key": "|PF|#0",
+          "label": "|PF|",
+          "value": "5"
+        },
+        {
+          "key": "|Pd| (razdalja do vodnice)#0",
+          "label": "|Pd| (razdalja do vodnice)",
+          "value": "6,25"
+        },
+        {
+          "key": "|PF| / |Pd|#0",
+          "label": "|PF| / |Pd|",
+          "value": "0,8"
+        },
+        {
+          "key": "|PF₂|#0",
+          "label": "|PF₂|",
+          "value": "5"
+        },
+        {
+          "key": "|PF| + |PF₂|#0",
+          "label": "|PF| + |PF₂|",
+          "value": "10"
+        },
+        {
+          "key": "Srednja utež w₁#0",
+          "label": "Srednja utež w₁",
+          "value": "0,7071"
+        },
+        {
+          "key": "Prilegajoča se utež#0",
+          "label": "Prilegajoča se utež",
+          "value": "0,7071"
+        },
+        {
+          "key": "Vrsta po uteži w₁#0",
+          "label": "Vrsta po uteži w₁",
+          "value": "elipsa"
+        },
+        {
+          "key": "Največje odstopanje loka od stožnice#0",
+          "label": "Največje odstopanje loka od stožnice",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Stožnica je narisana po definiciji |PF| = ε·|Pd| (ε = |PF|/|Pd|, F gorišče, d vodnica); Bézierjev lok je čez njo, odstopanje pa je največji | |PF| - ε·|Pd| | v vzorčenih točkah loka. Hiperbola in parabola sta odrezani 50 enot od F."
+      ],
+      "outputs": [],
+      "captions": [
+        "Bézierjev lok: w₁ = 0,7071, odstopanje 0",
+        "|PF| + |PF₂| = 10",
+        "|PF| = 5, |Pd| = 6,25, razmerje 0,8",
+        "|PF| = ε·|Pd|",
+        "ε = 0,8, ℓ = 1,8: elipsa"
+      ]
+    },
+    {
+      "name": "conic-focal-guided/conic-weight",
+      "rows": [
+        {
+          "key": "Stožnica#0",
+          "label": "Stožnica",
+          "value": "elipsa"
+        },
+        {
+          "key": "|PF|#0",
+          "label": "|PF|",
+          "value": "5"
+        },
+        {
+          "key": "|Pd| (razdalja do vodnice)#0",
+          "label": "|Pd| (razdalja do vodnice)",
+          "value": "6,25"
+        },
+        {
+          "key": "|PF| / |Pd|#0",
+          "label": "|PF| / |Pd|",
+          "value": "0,8"
+        },
+        {
+          "key": "|PF₂|#0",
+          "label": "|PF₂|",
+          "value": "5"
+        },
+        {
+          "key": "|PF| + |PF₂|#0",
+          "label": "|PF| + |PF₂|",
+          "value": "10"
+        },
+        {
+          "key": "Srednja utež w₁#0",
+          "label": "Srednja utež w₁",
+          "value": "1"
+        },
+        {
+          "key": "Prilegajoča se utež#0",
+          "label": "Prilegajoča se utež",
+          "value": "0,7071"
+        },
+        {
+          "key": "Vrsta po uteži w₁#0",
+          "label": "Vrsta po uteži w₁",
+          "value": "parabola"
+        },
+        {
+          "key": "Največje odstopanje loka od stožnice#0",
+          "label": "Največje odstopanje loka od stožnice",
+          "value": "0,2905"
+        }
+      ],
+      "notes": [
+        "Stožnica je narisana po definiciji |PF| = ε·|Pd| (ε = |PF|/|Pd|, F gorišče, d vodnica); Bézierjev lok je čez njo, odstopanje pa je največji | |PF| - ε·|Pd| | v vzorčenih točkah loka. Hiperbola in parabola sta odrezani 50 enot od F."
+      ],
+      "outputs": [],
+      "captions": [
+        "Bézierjev lok: w₁ = 1, odstopanje 0,2905",
+        "|PF| + |PF₂| = 10",
+        "|PF| = 5, |Pd| = 6,25, razmerje 0,8",
+        "|PF| = ε·|Pd|",
+        "ε = 0,8, ℓ = 1,8: elipsa"
+      ]
+    }
+  ]
+}

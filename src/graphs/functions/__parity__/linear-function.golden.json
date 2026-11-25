@@ -1,0 +1,153 @@
+{
+  "graph": "linear-function",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = 2x + 1"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "2"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "1"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "2"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = 2x + 1",
+        "Δx = 2",
+        "Δy = 4"
+      ]
+    },
+    {
+      "name": "linear-function-guided/linear-intercept-step",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = 2x - 2"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "2"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "-2"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "2"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = 2x - 2",
+        "Δx = 2",
+        "Δy = 4"
+      ]
+    },
+    {
+      "name": "linear-function-guided/linear-slope-sign",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = -0,5x + 1"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "-0,5"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "1"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "2"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "-1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = -0,5x + 1",
+        "Δx = 2",
+        "Δy = -1"
+      ]
+    },
+    {
+      "name": "linear-function-guided/linear-parallel-vertical",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "x = 1"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "ni določen"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "ni določen"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "0"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "x = 1",
+        "Δy = 4"
+      ]
+    }
+  ]
+}

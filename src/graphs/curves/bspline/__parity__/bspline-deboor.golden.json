@@ -1,0 +1,81 @@
+{
+  "graph": "bspline-deboor",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "raven 0: P0 = (0; 0) P1 = (1; 2) P2 = (3; 2)",
+        "t = 0,5, vozelni razpon [u2, u3) = [0, 1)"
+      ]
+    },
+    {
+      "name": "bspline-deboor-guided/bspline-deboor-slide",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "raven 0: P1 = (1; 2) P2 = (3; 2) P3 = (4; 0)",
+        "t = 1,5, vozelni razpon [u3, u4) = [1, 2)"
+      ]
+    },
+    {
+      "name": "bspline-deboor-guided/bspline-deboor-triangle",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "raven 0: P0 = (0; 0) P1 = (1; 2) P2 = (3; 2)",
+        "raven 1: P11 = (0,5; 1) P21 = (1,5; 2)",
+        "raven 2: P22 = (1; 1,5)",
+        "razmerja α11 = 0,5 α21 = 0,25",
+        "razmerja α22 = 0,5",
+        "t = 0,5, vozelni razpon [u2, u3) = [0, 1)",
+        "točka krivulje C(t) = (1; 1,5)"
+      ]
+    },
+    {
+      "name": "bspline-deboor-guided/bspline-deboor-local",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "raven 0: P1 = (1; 2) P2 = (3; 2) P3 = (4; 0)",
+        "raven 1: P21 = (2,5; 2) P31 = (3,5; 1)",
+        "raven 2: P32 = (3; 1,5)",
+        "razmerja α21 = 0,75 α31 = 0,5",
+        "razmerja α32 = 0,5",
+        "t = 1,5, vozelni razpon [u3, u4) = [1, 2)",
+        "točka krivulje C(t) = (3; 1,5)"
+      ]
+    },
+    {
+      "name": "bspline-deboor-guided/bspline-deboor-pieces",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "raven 0: P1 = (1; 2) P2 = (3; 2) P3 = (4; 0)",
+        "raven 1: P21 = (2; 2) P31 = (3; 2)",
+        "raven 2: P32 = (2; 2)",
+        "razmerja α21 = 0,5 α31 = 0",
+        "razmerja α32 = 0",
+        "t = 1, vozelni razpon [u3, u4) = [1, 2)",
+        "točka krivulje C(t) = (2; 2)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "graph": "projective-three-views",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 2",
+        "Slika: elipsa"
+      ]
+    },
+    {
+      "name": "projective-three-views-guided/three-views-parabola",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 1",
+        "Slika: parabola"
+      ]
+    },
+    {
+      "name": "projective-three-views-guided/three-views-hyperbola",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 0",
+        "Slika: hiperbola"
+      ]
+    },
+    {
+      "name": "projective-three-views-guided/three-views-explore",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = -1,5",
+        "Slika: elipsa"
+      ]
+    }
+  ]
+}

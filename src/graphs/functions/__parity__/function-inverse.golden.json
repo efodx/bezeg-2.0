@@ -1,0 +1,178 @@
+{
+  "graph": "function-inverse",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Funkcija in inverzna funkcija#0",
+          "label": "Funkcija in inverzna funkcija",
+          "value": "f(x) = x² (x ≥ 0), f⁻¹(x) = √x"
+        },
+        {
+          "key": "Predpostavka#0",
+          "label": "Predpostavka",
+          "value": "x ≥ 0 (na vsem R funkcija x² nima inverzne funkcije)"
+        },
+        {
+          "key": "Točka P na grafu f#0",
+          "label": "Točka P na grafu f",
+          "value": "(2; 4)"
+        },
+        {
+          "key": "Zrcalna točka P′#0",
+          "label": "Zrcalna točka P′",
+          "value": "(4; 2)"
+        },
+        {
+          "key": "Naklon f v P#0",
+          "label": "Naklon f v P",
+          "value": "4"
+        },
+        {
+          "key": "Naklon inverzne funkcije v P′#0",
+          "label": "Naklon inverzne funkcije v P′",
+          "value": "0,25"
+        },
+        {
+          "key": "Zmnožek naklonov#0",
+          "label": "Zmnožek naklonov",
+          "value": "1"
+        },
+        {
+          "key": "Definicijsko območje inverzne funkcije#0",
+          "label": "Definicijsko območje inverzne funkcije",
+          "value": "x ≥ 0"
+        }
+      ],
+      "notes": [
+        "Zrcaljenje čez premico y = x zamenja koordinate: P = (x, y) preide v P′ = (y, x). Naklona v zrcalnih točkah sta recipročna, njun zmnožek je 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "P = (2; 4) → P′ = (4; 2)",
+        "f(x) = x² (x ≥ 0), f⁻¹(x) = √x",
+        "naklon v P: 4; naklon v P′: 0,25"
+      ]
+    },
+    {
+      "name": "function-inverse-guided/inverse-base",
+      "rows": [
+        {
+          "key": "Funkcija in inverzna funkcija#0",
+          "label": "Funkcija in inverzna funkcija",
+          "value": "f(x) = aˣ, f⁻¹(x) = log_a x, a = 2"
+        },
+        {
+          "key": "Predpostavka#0",
+          "label": "Predpostavka",
+          "value": "a > 0 in a ≠ 1"
+        },
+        {
+          "key": "Točka P na grafu f#0",
+          "label": "Točka P na grafu f",
+          "value": "(3; 8)"
+        },
+        {
+          "key": "Zrcalna točka P′#0",
+          "label": "Zrcalna točka P′",
+          "value": "(8; 3)"
+        },
+        {
+          "key": "Naklon f v P#0",
+          "label": "Naklon f v P",
+          "value": "5,5452"
+        },
+        {
+          "key": "Naklon inverzne funkcije v P′#0",
+          "label": "Naklon inverzne funkcije v P′",
+          "value": "0,1803"
+        },
+        {
+          "key": "Zmnožek naklonov#0",
+          "label": "Zmnožek naklonov",
+          "value": "1"
+        },
+        {
+          "key": "Definicijsko območje inverzne funkcije#0",
+          "label": "Definicijsko območje inverzne funkcije",
+          "value": "x > 0"
+        },
+        {
+          "key": "Asimptoti#0",
+          "label": "Asimptoti",
+          "value": "x = 0 (navpična asimptota logaritma); y = 0 (vodoravna asimptota eksponentne funkcije)"
+        }
+      ],
+      "notes": [
+        "Zrcaljenje čez premico y = x zamenja koordinate: P = (x, y) preide v P′ = (y, x). Naklona v zrcalnih točkah sta recipročna, njun zmnožek je 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "P = (3; 8) → P′ = (8; 3)",
+        "f(x) = aˣ, f⁻¹(x) = log_a x, a = 2",
+        "naklon v P: 5,5452; naklon v P′: 0,1803"
+      ]
+    },
+    {
+      "name": "function-inverse-guided/inverse-ln",
+      "rows": [
+        {
+          "key": "Funkcija in inverzna funkcija#0",
+          "label": "Funkcija in inverzna funkcija",
+          "value": "f(x) = eˣ, f⁻¹(x) = ln x"
+        },
+        {
+          "key": "Predpostavka#0",
+          "label": "Predpostavka",
+          "value": "osnova e ≈ 2,718; x je poljuben"
+        },
+        {
+          "key": "Točka P na grafu f#0",
+          "label": "Točka P na grafu f",
+          "value": "(1; 2,7183)"
+        },
+        {
+          "key": "Zrcalna točka P′#0",
+          "label": "Zrcalna točka P′",
+          "value": "(2,7183; 1)"
+        },
+        {
+          "key": "Naklon f v P#0",
+          "label": "Naklon f v P",
+          "value": "2,7183"
+        },
+        {
+          "key": "Naklon inverzne funkcije v P′#0",
+          "label": "Naklon inverzne funkcije v P′",
+          "value": "0,3679"
+        },
+        {
+          "key": "Zmnožek naklonov#0",
+          "label": "Zmnožek naklonov",
+          "value": "1"
+        },
+        {
+          "key": "Definicijsko območje inverzne funkcije#0",
+          "label": "Definicijsko območje inverzne funkcije",
+          "value": "x > 0"
+        },
+        {
+          "key": "Asimptoti#0",
+          "label": "Asimptoti",
+          "value": "x = 0 (navpična asimptota logaritma); y = 0 (vodoravna asimptota eksponentne funkcije)"
+        }
+      ],
+      "notes": [
+        "Zrcaljenje čez premico y = x zamenja koordinate: P = (x, y) preide v P′ = (y, x). Naklona v zrcalnih točkah sta recipročna, njun zmnožek je 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "P = (1; 2,7183) → P′ = (2,7183; 1)",
+        "f(x) = eˣ, f⁻¹(x) = ln x",
+        "naklon v P: 2,7183; naklon v P′: 0,3679"
+      ]
+    }
+  ]
+}

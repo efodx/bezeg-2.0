@@ -1,0 +1,72 @@
+{
+  "graph": "monotone-partition",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "monotone-partition-guided/monpart-classify",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "monotone-partition-guided/monpart-diagonal",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "v2 razcepno",
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "monotone-partition-guided/monpart-pieces",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "v1 končno",
+        "v2 razcepno",
+        "v3 končno",
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "monotone-partition-guided/monpart-merge-only",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "v1 končno",
+        "v2 navadno",
+        "v3 navadno",
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno",
+        "v7 zlivno",
+        "v8 začetno",
+        "v9 navadno"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,523 @@
+{
+  "graph": "circle-construction",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Potenca točke P#0",
+          "label": "Potenca točke P",
+          "value": "144"
+        },
+        {
+          "key": "Dolžina tangente#0",
+          "label": "Dolžina tangente",
+          "value": "12"
+        },
+        {
+          "key": "Število tangent#0",
+          "label": "Število tangent",
+          "value": "2"
+        },
+        {
+          "key": "Točka dotika T1#0",
+          "label": "Točka dotika T1",
+          "value": "(1,9231; -4,6154)"
+        },
+        {
+          "key": "Točka dotika T2#0",
+          "label": "Točka dotika T2",
+          "value": "(1,9231; 4,6154)"
+        },
+        {
+          "key": "Tetiva dotikališč#0",
+          "label": "Tetiva dotikališč",
+          "value": "13 x = 25"
+        },
+        {
+          "key": "Talesova krožnica#0",
+          "label": "Talesova krožnica",
+          "value": "središče (13/2 ≈ 6,5; 0), kvadrat polmera 169/4 ≈ 42,25"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$P$$",
+        "$$T_{1}$$",
+        "$$T_{2}$$",
+        "1"
+      ]
+    },
+    {
+      "name": "circle-construction-tangents/cg1-count",
+      "rows": [
+        {
+          "key": "Potenca točke P#0",
+          "label": "Potenca točke P",
+          "value": "-16"
+        },
+        {
+          "key": "Število tangent#0",
+          "label": "Število tangent",
+          "value": "0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$P$$",
+        "1"
+      ]
+    },
+    {
+      "name": "circle-construction-radical/cg2-predict",
+      "rows": [
+        {
+          "key": "Potenca točke P do krožnice 1#0",
+          "label": "Potenca točke P do krožnice 1",
+          "value": "-5"
+        },
+        {
+          "key": "Potenca točke P do krožnice 2#0",
+          "label": "Potenca točke P do krožnice 2",
+          "value": "-1"
+        },
+        {
+          "key": "Potenca točke P do krožnice 3#0",
+          "label": "Potenca točke P do krožnice 3",
+          "value": "13"
+        },
+        {
+          "key": "Točka P na potenčni premici krožnic 1 in 2#0",
+          "label": "Točka P na potenčni premici krožnic 1 in 2",
+          "value": "ne"
+        },
+        {
+          "key": "Potenčna premica krožnic 1, 2#0",
+          "label": "Potenčna premica krožnic 1, 2",
+          "value": "12 x = 52"
+        },
+        {
+          "key": "Potenčna premica krožnic 1, 3#0",
+          "label": "Potenčna premica krožnic 1, 3",
+          "value": "6 x + 12 y = 66"
+        },
+        {
+          "key": "Potenčna premica krožnic 2, 3#0",
+          "label": "Potenčna premica krožnic 2, 3",
+          "value": "-6 x + 12 y = 14"
+        },
+        {
+          "key": "Skupne točke krožnic 1 in 2#0",
+          "label": "Skupne točke krožnic 1 in 2",
+          "value": "dve skupni točki"
+        },
+        {
+          "key": "Potenčno središče#0",
+          "label": "Potenčno središče",
+          "value": "(13/3 ≈ 4,3333; 10/3 ≈ 3,3333)"
+        },
+        {
+          "key": "Skupna potenca v središču#0",
+          "label": "Skupna potenca v središču",
+          "value": "44/9 ≈ 4,8889"
+        },
+        {
+          "key": "Pravokotna krožnica okrog središča (kvadrat polmera)#0",
+          "label": "Pravokotna krožnica okrog središča (kvadrat polmera)",
+          "value": "44/9 ≈ 4,8889"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$P$$",
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "circle-construction-radical/cg2-probe",
+      "rows": [
+        {
+          "key": "Potenca točke P do krožnice 1#0",
+          "label": "Potenca točke P do krožnice 1",
+          "value": "4"
+        },
+        {
+          "key": "Potenca točke P do krožnice 2#0",
+          "label": "Potenca točke P do krožnice 2",
+          "value": "-4"
+        },
+        {
+          "key": "Potenca točke P do krožnice 3#0",
+          "label": "Potenca točke P do krožnice 3",
+          "value": "16"
+        },
+        {
+          "key": "Točka P na potenčni premici krožnic 1 in 2#0",
+          "label": "Točka P na potenčni premici krožnic 1 in 2",
+          "value": "ne"
+        },
+        {
+          "key": "Potenčna premica krožnic 1, 2#0",
+          "label": "Potenčna premica krožnic 1, 2",
+          "value": "12 x = 52"
+        },
+        {
+          "key": "Potenčna premica krožnic 1, 3#0",
+          "label": "Potenčna premica krožnic 1, 3",
+          "value": "6 x + 12 y = 66"
+        },
+        {
+          "key": "Potenčna premica krožnic 2, 3#0",
+          "label": "Potenčna premica krožnic 2, 3",
+          "value": "-6 x + 12 y = 14"
+        },
+        {
+          "key": "Skupne točke krožnic 1 in 2#0",
+          "label": "Skupne točke krožnic 1 in 2",
+          "value": "dve skupni točki"
+        },
+        {
+          "key": "Potenčno središče#0",
+          "label": "Potenčno središče",
+          "value": "(13/3 ≈ 4,3333; 10/3 ≈ 3,3333)"
+        },
+        {
+          "key": "Skupna potenca v središču#0",
+          "label": "Skupna potenca v središču",
+          "value": "44/9 ≈ 4,8889"
+        },
+        {
+          "key": "Pravokotna krožnica okrog središča (kvadrat polmera)#0",
+          "label": "Pravokotna krožnica okrog središča (kvadrat polmera)",
+          "value": "44/9 ≈ 4,8889"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$P$$",
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "circle-construction-radical/cg2-apart",
+      "rows": [
+        {
+          "key": "Potenca točke P do krožnice 1#0",
+          "label": "Potenca točke P do krožnice 1",
+          "value": "-5"
+        },
+        {
+          "key": "Potenca točke P do krožnice 2#0",
+          "label": "Potenca točke P do krožnice 2",
+          "value": "11"
+        },
+        {
+          "key": "Potenca točke P do krožnice 3#0",
+          "label": "Potenca točke P do krožnice 3",
+          "value": "13"
+        },
+        {
+          "key": "Točka P na potenčni premici krožnic 1 in 2#0",
+          "label": "Točka P na potenčni premici krožnic 1 in 2",
+          "value": "ne"
+        },
+        {
+          "key": "Potenčna premica krožnic 1, 2#0",
+          "label": "Potenčna premica krožnic 1, 2",
+          "value": "16 x = 80"
+        },
+        {
+          "key": "Potenčna premica krožnic 1, 3#0",
+          "label": "Potenčna premica krožnic 1, 3",
+          "value": "6 x + 12 y = 66"
+        },
+        {
+          "key": "Potenčna premica krožnic 2, 3#0",
+          "label": "Potenčna premica krožnic 2, 3",
+          "value": "-10 x + 12 y = -14"
+        },
+        {
+          "key": "Skupne točke krožnic 1 in 2#0",
+          "label": "Skupne točke krožnic 1 in 2",
+          "value": "ena skupna točka (dotik)"
+        },
+        {
+          "key": "Potenčno središče#0",
+          "label": "Potenčno središče",
+          "value": "(5; 3)"
+        },
+        {
+          "key": "Skupna potenca v središču#0",
+          "label": "Skupna potenca v središču",
+          "value": "9"
+        },
+        {
+          "key": "Pravokotna krožnica okrog središča (kvadrat polmera)#0",
+          "label": "Pravokotna krožnica okrog središča (kvadrat polmera)",
+          "value": "9"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$P$$",
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "circle-construction-apollonius/cg3-predict",
+      "rows": [
+        {
+          "key": "Razmerje PA : PB#0",
+          "label": "Razmerje PA : PB",
+          "value": "2"
+        },
+        {
+          "key": "Točka P na množici#0",
+          "label": "Točka P na množici",
+          "value": "ne"
+        },
+        {
+          "key": "Notranja delilna točka N#0",
+          "label": "Notranja delilna točka N",
+          "value": "(3; 0)"
+        },
+        {
+          "key": "Zunanja delilna točka Z#0",
+          "label": "Zunanja delilna točka Z",
+          "value": "ni"
+        },
+        {
+          "key": "Krožnica: središče in kvadrat polmera#0",
+          "label": "Krožnica: središče in kvadrat polmera",
+          "value": "12 x = 36"
+        },
+        {
+          "key": "Inverz točke A v tej krožnici#0",
+          "label": "Inverz točke A v tej krožnici",
+          "value": "ni"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$N$$",
+        "$$P$$",
+        "PA : PB = 2"
+      ]
+    },
+    {
+      "name": "circle-construction-apollonius/cg3-division",
+      "rows": [
+        {
+          "key": "Razmerje PA : PB#0",
+          "label": "Razmerje PA : PB",
+          "value": "2"
+        },
+        {
+          "key": "Točka P na množici#0",
+          "label": "Točka P na množici",
+          "value": "da"
+        },
+        {
+          "key": "Notranja delilna točka N#0",
+          "label": "Notranja delilna točka N",
+          "value": "(4; 0)"
+        },
+        {
+          "key": "Zunanja delilna točka Z#0",
+          "label": "Zunanja delilna točka Z",
+          "value": "(12; 0)"
+        },
+        {
+          "key": "Krožnica: središče in kvadrat polmera#0",
+          "label": "Krožnica: središče in kvadrat polmera",
+          "value": "središče (8; 0), kvadrat polmera 16"
+        },
+        {
+          "key": "Inverz točke A v tej krožnici#0",
+          "label": "Inverz točke A v tej krožnici",
+          "value": "(6; 0)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$N$$",
+        "$$P$$",
+        "$$Z$$",
+        "PA : PB = 2"
+      ]
+    },
+    {
+      "name": "circle-construction-common-tangents/cg4-predict",
+      "rows": [
+        {
+          "key": "Število skupnih tangent#0",
+          "label": "Število skupnih tangent",
+          "value": "4"
+        },
+        {
+          "key": "Zunanje središče raztega#0",
+          "label": "Zunanje središče raztega",
+          "value": "(65/2 ≈ 32,5; 0)"
+        },
+        {
+          "key": "Notranje središče raztega#0",
+          "label": "Notranje središče raztega",
+          "value": "(65/8 ≈ 8,125; 0)"
+        },
+        {
+          "key": "Kvadrat razdalje središč#0",
+          "label": "Kvadrat razdalje središč",
+          "value": "169"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "circle-construction-common-tangents/cg4-count",
+      "rows": [
+        {
+          "key": "Število skupnih tangent#0",
+          "label": "Število skupnih tangent",
+          "value": "3"
+        },
+        {
+          "key": "Zunanje središče raztega#0",
+          "label": "Zunanje središče raztega",
+          "value": "(20; 0)"
+        },
+        {
+          "key": "Notranje središče raztega#0",
+          "label": "Notranje središče raztega",
+          "value": "(5; 0)"
+        },
+        {
+          "key": "Kvadrat razdalje središč#0",
+          "label": "Kvadrat razdalje središč",
+          "value": "64"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "circle-construction-common-tangents/cg4-external",
+      "rows": [
+        {
+          "key": "Število skupnih tangent#0",
+          "label": "Število skupnih tangent",
+          "value": "4"
+        },
+        {
+          "key": "Zunanje središče raztega#0",
+          "label": "Zunanje središče raztega",
+          "value": "(15; 0)"
+        },
+        {
+          "key": "Notranje središče raztega#0",
+          "label": "Notranje središče raztega",
+          "value": "(15/2 ≈ 7,5; 0)"
+        },
+        {
+          "key": "Kvadrat razdalje središč#0",
+          "label": "Kvadrat razdalje središč",
+          "value": "100"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "circle-construction-common-tangents/cg4-equal",
+      "rows": [
+        {
+          "key": "Število skupnih tangent#0",
+          "label": "Število skupnih tangent",
+          "value": "4"
+        },
+        {
+          "key": "Zunanje središče raztega#0",
+          "label": "Zunanje središče raztega",
+          "value": "ni"
+        },
+        {
+          "key": "Notranje središče raztega#0",
+          "label": "Notranje središče raztega",
+          "value": "(5; 0)"
+        },
+        {
+          "key": "Kvadrat razdalje središč#0",
+          "label": "Kvadrat razdalje središč",
+          "value": "100"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "circle-construction-common-tangents/cg4-touching",
+      "rows": [
+        {
+          "key": "Število skupnih tangent#0",
+          "label": "Število skupnih tangent",
+          "value": "3"
+        },
+        {
+          "key": "Zunanje središče raztega#0",
+          "label": "Zunanje središče raztega",
+          "value": "(6; 0)"
+        },
+        {
+          "key": "Notranje središče raztega#0",
+          "label": "Notranje središče raztega",
+          "value": "(3; 0)"
+        },
+        {
+          "key": "Kvadrat razdalje središč#0",
+          "label": "Kvadrat razdalje središč",
+          "value": "16"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "graph": "inscribed-angle",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "∠APB = 66,8°; ∠ACB = 66,8°; središčni kot = 133,6°"
+      ]
+    },
+    {
+      "name": "inscribed-angle-thales/other-arc",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "∠APB = 113,2°; ∠ACB = 66,8°; središčni kot = 133,6°"
+      ]
+    },
+    {
+      "name": "inscribed-angle-thales/diameter",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "∠APB = 90°; ∠ACB = 90°; središčni kot = 180°"
+      ]
+    }
+  ]
+}

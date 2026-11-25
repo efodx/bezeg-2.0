@@ -1,0 +1,13 @@
+{
+  "graph": "bezier-hulls",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

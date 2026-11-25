@@ -1,0 +1,61 @@
+{
+  "graph": "voronoi",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "voronoi-guided/vor-sites",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

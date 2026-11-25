@@ -1,0 +1,202 @@
+{
+  "graph": "prob-binomial-normal",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)#0",
+          "label": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)",
+          "value": "0,25172"
+        },
+        {
+          "key": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)#0",
+          "label": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)",
+          "value": "0,25117"
+        },
+        {
+          "key": "Normalna porazdelitev brez popravka (do k)#0",
+          "label": "Normalna porazdelitev brez popravka (do k)",
+          "value": "0,18555"
+        },
+        {
+          "key": "Poissonova porazdelitev z λ = np#0",
+          "label": "Poissonova porazdelitev z λ = np",
+          "value": "0,33282"
+        },
+        {
+          "key": "Absolutna napaka s popravkom#0",
+          "label": "Absolutna napaka s popravkom",
+          "value": "0,00055"
+        },
+        {
+          "key": "Absolutna napaka brez popravka#0",
+          "label": "Absolutna napaka brez popravka",
+          "value": "0,06618"
+        },
+        {
+          "key": "Absolutna napaka Poissonove porazdelitve#0",
+          "label": "Absolutna napaka Poissonove porazdelitve",
+          "value": "0,0811"
+        }
+      ],
+      "notes": [
+        "Napake veljajo samo za te vrednosti n, p in k in ne kažejo, kako hitro se približek izboljšuje. Normalni približek je limitna trditev: ko n narašča, se standardizirani stolpci binomske porazdelitve približujejo normalni krivulji (de Moivre-Laplace), pri končnem n pa je to le približek. Pri majhnih n, kakršne srečamo pri pouku, popravka za zveznost ne smemo izpustiti. Poissonova porazdelitev je boljša limita, kadar je n velik in np zmeren (pravila palca so le pravila palca)."
+      ],
+      "outputs": [],
+      "captions": [
+        "P(X ≤ 8) = 0,25172",
+        "Povprečje 10, σ = 2,24",
+        "X ∼ B(20; 0,5)"
+      ]
+    },
+    {
+      "name": "prob-binomial-normal-guided/binomial-bars",
+      "rows": [
+        {
+          "key": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)#0",
+          "label": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)",
+          "value": "0,5881"
+        },
+        {
+          "key": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)#0",
+          "label": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)",
+          "value": "0,58847"
+        },
+        {
+          "key": "Normalna porazdelitev brez popravka (do k)#0",
+          "label": "Normalna porazdelitev brez popravka (do k)",
+          "value": "0,5"
+        },
+        {
+          "key": "Poissonova porazdelitev z λ = np#0",
+          "label": "Poissonova porazdelitev z λ = np",
+          "value": "0,58304"
+        },
+        {
+          "key": "Absolutna napaka s popravkom#0",
+          "label": "Absolutna napaka s popravkom",
+          "value": "0,00037"
+        },
+        {
+          "key": "Absolutna napaka brez popravka#0",
+          "label": "Absolutna napaka brez popravka",
+          "value": "0,0881"
+        },
+        {
+          "key": "Absolutna napaka Poissonove porazdelitve#0",
+          "label": "Absolutna napaka Poissonove porazdelitve",
+          "value": "0,00506"
+        }
+      ],
+      "notes": [
+        "Napake veljajo samo za te vrednosti n, p in k in ne kažejo, kako hitro se približek izboljšuje. Normalni približek je limitna trditev: ko n narašča, se standardizirani stolpci binomske porazdelitve približujejo normalni krivulji (de Moivre-Laplace), pri končnem n pa je to le približek. Pri majhnih n, kakršne srečamo pri pouku, popravka za zveznost ne smemo izpustiti. Poissonova porazdelitev je boljša limita, kadar je n velik in np zmeren (pravila palca so le pravila palca)."
+      ],
+      "outputs": [],
+      "captions": [
+        "P(X ≤ 10) = 0,5881",
+        "Povprečje 10, σ = 2,24",
+        "X ∼ B(20; 0,5)"
+      ]
+    },
+    {
+      "name": "prob-binomial-normal-guided/binomial-growing-n",
+      "rows": [
+        {
+          "key": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)#0",
+          "label": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)",
+          "value": "0,23994"
+        },
+        {
+          "key": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)#0",
+          "label": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)",
+          "value": "0,23975"
+        },
+        {
+          "key": "Normalna porazdelitev brez popravka (do k)#0",
+          "label": "Normalna porazdelitev brez popravka (do k)",
+          "value": "0,19807"
+        },
+        {
+          "key": "Poissonova porazdelitev z λ = np#0",
+          "label": "Poissonova porazdelitev z λ = np",
+          "value": "0,31753"
+        },
+        {
+          "key": "Absolutna napaka s popravkom#0",
+          "label": "Absolutna napaka s popravkom",
+          "value": "0,00019"
+        },
+        {
+          "key": "Absolutna napaka brez popravka#0",
+          "label": "Absolutna napaka brez popravka",
+          "value": "0,04187"
+        },
+        {
+          "key": "Absolutna napaka Poissonove porazdelitve#0",
+          "label": "Absolutna napaka Poissonove porazdelitve",
+          "value": "0,07759"
+        }
+      ],
+      "notes": [
+        "Napake veljajo samo za te vrednosti n, p in k in ne kažejo, kako hitro se približek izboljšuje. Normalni približek je limitna trditev: ko n narašča, se standardizirani stolpci binomske porazdelitve približujejo normalni krivulji (de Moivre-Laplace), pri končnem n pa je to le približek. Pri majhnih n, kakršne srečamo pri pouku, popravka za zveznost ne smemo izpustiti. Poissonova porazdelitev je boljša limita, kadar je n velik in np zmeren (pravila palca so le pravila palca)."
+      ],
+      "outputs": [],
+      "captions": [
+        "P(X ≤ 22) = 0,23994",
+        "Povprečje 25, σ = 3,54",
+        "X ∼ B(50; 0,5)"
+      ]
+    },
+    {
+      "name": "prob-binomial-normal-guided/binomial-poisson",
+      "rows": [
+        {
+          "key": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)#0",
+          "label": "Natančno P(X ≤ k) (vsota členov binomske porazdelitve)",
+          "value": "0,67669"
+        },
+        {
+          "key": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)#0",
+          "label": "Normalna porazdelitev s popravkom za zveznost (do k + 1/2)",
+          "value": "0,63951"
+        },
+        {
+          "key": "Normalna porazdelitev brez popravka (do k)#0",
+          "label": "Normalna porazdelitev brez popravka (do k)",
+          "value": "0,5"
+        },
+        {
+          "key": "Poissonova porazdelitev z λ = np#0",
+          "label": "Poissonova porazdelitev z λ = np",
+          "value": "0,67668"
+        },
+        {
+          "key": "Absolutna napaka s popravkom#0",
+          "label": "Absolutna napaka s popravkom",
+          "value": "0,03718"
+        },
+        {
+          "key": "Absolutna napaka brez popravka#0",
+          "label": "Absolutna napaka brez popravka",
+          "value": "0,17669"
+        },
+        {
+          "key": "Absolutna napaka Poissonove porazdelitve#0",
+          "label": "Absolutna napaka Poissonove porazdelitve",
+          "value": "0,00001"
+        }
+      ],
+      "notes": [
+        "Napake veljajo samo za te vrednosti n, p in k in ne kažejo, kako hitro se približek izboljšuje. Normalni približek je limitna trditev: ko n narašča, se standardizirani stolpci binomske porazdelitve približujejo normalni krivulji (de Moivre-Laplace), pri končnem n pa je to le približek. Pri majhnih n, kakršne srečamo pri pouku, popravka za zveznost ne smemo izpustiti. Poissonova porazdelitev je boljša limita, kadar je n velik in np zmeren (pravila palca so le pravila palca)."
+      ],
+      "outputs": [],
+      "captions": [
+        "P(X ≤ 2) = 0,67669",
+        "Povprečje 2, σ = 1,4",
+        "X ∼ B(100; 0,02)"
+      ]
+    }
+  ]
+}

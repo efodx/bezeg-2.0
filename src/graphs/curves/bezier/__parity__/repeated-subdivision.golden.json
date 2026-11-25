@@ -1,0 +1,13 @@
+{
+  "graph": "repeated-subdivision",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

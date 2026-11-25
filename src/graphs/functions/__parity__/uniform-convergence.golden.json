@@ -1,0 +1,575 @@
+{
+  "graph": "uniform-convergence",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "0,8"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "5"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,5"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0,03125"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0,03125"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "4"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "skrito"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "skrito"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = xⁿ na [0; 0,8]",
+        "n = 5, x = 0,5, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0,03125, N(x) = 4",
+        "supremum: skrit"
+      ]
+    },
+    {
+      "name": "uniform-convergence-guided/uniform-scaled-step",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "1"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "4"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,5"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0,125"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0,125"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "6"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "skrito"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "skrito"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = x/n na [0; 1]",
+        "n = 4, x = 0,5, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0,125, N(x) = 6",
+        "supremum: skrit"
+      ]
+    },
+    {
+      "name": "uniform-convergence-guided/uniform-whole-interval-step",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "1"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "5"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,9"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0,59049"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0,59049"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "22"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "skrito"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "skrito"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = xⁿ na [0; 1]",
+        "n = 5, x = 0,9, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0,59049, N(x) = 22",
+        "supremum: skrit"
+      ]
+    },
+    {
+      "name": "uniform-convergence-guided/uniform-supremum-one-step",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "1"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "10"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,9"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0,34868"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0,34868"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "22"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "skrito"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "skrito"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = xⁿ na [0; 1]",
+        "n = 10, x = 0,9, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0,34868, N(x) = 22",
+        "supremum: skrit"
+      ]
+    },
+    {
+      "name": "uniform-convergence-guided/uniform-pointwise-step",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "0,8"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "2"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,5"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0,25"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0,25"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "4"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "skrito"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "skrito"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = xⁿ na [0; 0,8]",
+        "n = 2, x = 0,5, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0,25, N(x) = 4",
+        "supremum: skrit"
+      ]
+    },
+    {
+      "name": "uniform-convergence-guided/uniform-shared-n-step",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "0,8"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "11"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,5"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0,00048828"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0,00048828"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "4"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "0,085899"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "da, pri x = 0,8"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "11"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = xⁿ na [0; 0,8]",
+        "n = 11, x = 0,5, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0,00048828, N(x) = 4",
+        "skupni N = 11",
+        "sup |fₙ - f| = 0,085899, dosežen pri x = 0,8"
+      ]
+    },
+    {
+      "name": "uniform-convergence-guided/uniform-domain-change-step",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "0,95"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "44"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,5"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "4"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "skrito"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "skrito"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = xⁿ na [0; 0,95]",
+        "n = 44, x = 0,5, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0, N(x) = 4",
+        "supremum: skrit"
+      ]
+    },
+    {
+      "name": "uniform-convergence-guided/uniform-free-exploration",
+      "rows": [
+        {
+          "key": "Konec območja r (območje [0; r])#0",
+          "label": "Konec območja r (območje [0; r])",
+          "value": "1"
+        },
+        {
+          "key": "Indeks n#0",
+          "label": "Indeks n",
+          "value": "5"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,5"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Vrednost fₙ(x)#0",
+          "label": "Vrednost fₙ(x)",
+          "value": "0,1"
+        },
+        {
+          "key": "Limita f(x)#0",
+          "label": "Limita f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Točkovna napaka |fₙ(x) - f(x)|#0",
+          "label": "Točkovna napaka |fₙ(x) - f(x)|",
+          "value": "0,1"
+        },
+        {
+          "key": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x#0",
+          "label": "Točkovni N(x, ε): najmanjši n z napako < ε pri tem x",
+          "value": "6"
+        },
+        {
+          "key": "Supremum napake sup |fₙ - f| na [0; r]#0",
+          "label": "Supremum napake sup |fₙ - f| na [0; r]",
+          "value": "skrito"
+        },
+        {
+          "key": "Je supremum dosežen?#0",
+          "label": "Je supremum dosežen?",
+          "value": "skrito"
+        },
+        {
+          "key": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati#0",
+          "label": "Skupni N(ε): najmanjši n z napako < ε pri vseh x hkrati",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
+      ],
+      "outputs": [],
+      "captions": [
+        "fₙ(x) = x/n na [0; 1]",
+        "n = 5, x = 0,5, ε = 0,1",
+        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
+        "pri x: napaka 0,1, N(x) = 6",
+        "supremum: skrit"
+      ]
+    }
+  ]
+}

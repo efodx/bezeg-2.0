@@ -1,0 +1,64 @@
+{
+  "graph": "interp-lagrange",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Bézier: t = 0,5 (na [0, 1]), uteži 0,125; 0,375; 0,375; 0,125, točka (2, 1,875)",
+        "Lagrange: t = 1,5 (na [0, 3]), uteži -0,0625; 0,5625; 0,5625; -0,0625, točka (2, 2,8125)"
+      ]
+    },
+    {
+      "name": "interp-lagrange-guided/interp-predict-hull",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Lagrange: t = 1,5 (na [0, 3]), uteži -0,0625; 0,5625; 0,5625; -0,0625, točka (2, 2,8125)"
+      ]
+    },
+    {
+      "name": "interp-lagrange-guided/interp-hull-reveal",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Lagrange: t = 2,5 (na [0, 3]), uteži 0,0625; -0,3125; 0,9375; 0,3125, točka (3,75, 2,1875)"
+      ]
+    },
+    {
+      "name": "interp-lagrange-guided/interp-basis",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Bézier: t = 0,1667 (na [0, 1]), uteži 0,5787; 0,3472; 0,0694; 0,0046, točka (0,5741, 0,9028)",
+        "Lagrange: t = 0,5 (na [0, 3]), uteži 0,3125; 0,9375; -0,3125; 0,0625, točka (0,25, 0,9375)"
+      ]
+    },
+    {
+      "name": "interp-lagrange-guided/interp-fifth-point",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "5"
+      ],
+      "captions": [
+        "Bézier: t = 0,5 (na [0, 1]), uteži 0,0625; 0,25; 0,375; 0,25; 0,0625, točka (2,6875, 1,625)",
+        "Lagrange: t = 2 (na [0, 4]), uteži 0; 0; 1; 0; 0, točka (3, 3)"
+      ]
+    }
+  ]
+}

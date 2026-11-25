@@ -1,0 +1,742 @@
+{
+  "graph": "contour-map",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Skleda: x² + y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "6,28"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,25"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(0,6; 0,8)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (0,6; 0,8)",
+        "Sonda: točka, ki jo vlečeš",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-surface/ls1-probe",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Skleda: x² + y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "od 1 do 3 v korakih po 1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "26,0443"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,25"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(0,6; 0,8)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (0,6; 0,8)",
+        "Sonda: točka, ki jo vlečeš",
+        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-surface/ls1-saddle",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Dolina: x² + 10y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "od 1 do 3 v korakih po 1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "18,2983"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,03125"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(1; 0,5)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "3,5"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (1; 0,5)",
+        "Sonda: točka, ki jo vlečeš",
+        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-surface/ls1-hills",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Sedlo: x² - y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "od 0 do 2 v korakih po 1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "25,685"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,5"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(1; 0,5)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "0,75"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (1; 0,5)",
+        "Sonda: točka, ki jo vlečeš",
+        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-gradient/ls2-tangent",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Sedlo: x² - y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "0"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "11,3137"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,5"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(1; 1)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (1; 1)",
+        "Sonda: točka, ki jo vlečeš",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-gradient/ls2-hills",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Griči: sin x · sin y"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "0,625"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "16,544"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -4 do 4, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 4"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(1,55; 1,55)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "0,999568"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (1,55; 1,55)",
+        "Sonda: točka, ki jo vlečeš",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-gradient/ls2-numeric",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Griči: sin x · sin y"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "0,625"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "16,544"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -4 do 4, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 4"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(1; 1)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "0,708073"
+        },
+        {
+          "key": "Gradient (točno)#0",
+          "label": "Gradient (točno)",
+          "value": "(0,4546487; 0,4546487)"
+        },
+        {
+          "key": "Dolžina gradienta#0",
+          "label": "Dolžina gradienta",
+          "value": "0,6429704"
+        },
+        {
+          "key": "Tangenta nivojnice#0",
+          "label": "Tangenta nivojnice",
+          "value": "(-0,7071068; 0,7071068)"
+        },
+        {
+          "key": "Skalarni produkt gradienta in tangente#0",
+          "label": "Skalarni produkt gradienta in tangente",
+          "value": "0"
+        },
+        {
+          "key": "Dolžina puščic#0",
+          "label": "Dolžina puščic",
+          "value": "prava dolžina"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna daljica: tangenta nivojnice, pravokotna na gradient",
+        "Polna puščica: gradient v točki (točno)",
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (1; 1)",
+        "Sonda: točka, ki jo vlečeš",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-descent/ls3-step-9",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Dolina: x² + 10y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "4,4081"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,03125"
+        },
+        {
+          "key": "Začetek#0",
+          "label": "Začetek",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Korak#0",
+          "label": "Korak",
+          "value": "H = 3, h = 0,03"
+        },
+        {
+          "key": "Izbrani korak#0",
+          "label": "Izbrani korak",
+          "value": "0 od 200"
+        },
+        {
+          "key": "Točka p₀#0",
+          "label": "Točka p₀",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Vrednost f v točki#0",
+          "label": "Vrednost f v točki",
+          "value": "14"
+        },
+        {
+          "key": "Prvi korak z f < 0,000001#0",
+          "label": "Prvi korak z f < 0,000001",
+          "value": "123"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "Dolina: pri tem koraku in tem začetku pot konvergira k (0; 0)."
+        },
+        {
+          "key": "Konec izračuna#0",
+          "label": "Konec izračuna",
+          "value": "zgornja meja korakov, zadnji korak: 200"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Polna črta: pot spusta (izračunano)",
+        "Votel kvadrat: izbrani korak",
+        "Začetek (2; 1)",
+        "Začetek: točka, ki jo vlečeš"
+      ]
+    },
+    {
+      "name": "level-sets-descent/ls3-step-10",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Dolina: x² + 10y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "4,4081"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,03125"
+        },
+        {
+          "key": "Začetek#0",
+          "label": "Začetek",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Korak#0",
+          "label": "Korak",
+          "value": "H = 9, h = 0,09"
+        },
+        {
+          "key": "Izbrani korak#0",
+          "label": "Izbrani korak",
+          "value": "0 od 200"
+        },
+        {
+          "key": "Točka p₀#0",
+          "label": "Točka p₀",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Vrednost f v točki#0",
+          "label": "Vrednost f v točki",
+          "value": "14"
+        },
+        {
+          "key": "Prvi korak z f < 0,000001#0",
+          "label": "Prvi korak z f < 0,000001",
+          "value": "40"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "Dolina: pri tem koraku in tem začetku pot konvergira k (0; 0)."
+        },
+        {
+          "key": "Konec izračuna#0",
+          "label": "Konec izračuna",
+          "value": "zgornja meja korakov, zadnji korak: 200"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Polna črta: pot spusta (izračunano)",
+        "Votel kvadrat: izbrani korak",
+        "Začetek (2; 1)",
+        "Začetek: točka, ki jo vlečeš"
+      ]
+    },
+    {
+      "name": "level-sets-descent/ls3-step-11",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Dolina: x² + 10y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "4,4081"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,03125"
+        },
+        {
+          "key": "Začetek#0",
+          "label": "Začetek",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Korak#0",
+          "label": "Korak",
+          "value": "H = 10, h = 0,1"
+        },
+        {
+          "key": "Izbrani korak#0",
+          "label": "Izbrani korak",
+          "value": "0 od 200"
+        },
+        {
+          "key": "Točka p₀#0",
+          "label": "Točka p₀",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Vrednost f v točki#0",
+          "label": "Vrednost f v točki",
+          "value": "14"
+        },
+        {
+          "key": "Prvi korak z f < 0,000001#0",
+          "label": "Prvi korak z f < 0,000001",
+          "value": "ni dosežen v 200 korakih"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "Dolina: pri H = 10 y niha med dvema vrednostma."
+        },
+        {
+          "key": "Konec izračuna#0",
+          "label": "Konec izračuna",
+          "value": "zgornja meja korakov, zadnji korak: 200"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Polna črta: pot spusta (izračunano)",
+        "Votel kvadrat: izbrani korak",
+        "Začetek (2; 1)",
+        "Začetek: točka, ki jo vlečeš"
+      ]
+    },
+    {
+      "name": "level-sets-lagrange/ls4-gradients",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Skleda: x² + y²"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "od 1 do 3 v korakih po 1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "26,0184"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -4 do 4, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,125"
+        },
+        {
+          "key": "Vezni pogoj#0",
+          "label": "Vezni pogoj",
+          "value": "Premica x + 2y = 5"
+        },
+        {
+          "key": "Točka na veznem pogoju#0",
+          "label": "Točka na veznem pogoju",
+          "value": "(0; 2,5)"
+        },
+        {
+          "key": "Vrednost f v točki#0",
+          "label": "Vrednost f v točki",
+          "value": "6,25"
+        },
+        {
+          "key": "Gradient funkcije f#0",
+          "label": "Gradient funkcije f",
+          "value": "(0; 5)"
+        },
+        {
+          "key": "Gradient veznega pogoja g#0",
+          "label": "Gradient veznega pogoja g",
+          "value": "(1; 2)"
+        },
+        {
+          "key": "Dotikanje#0",
+          "label": "Dotikanje",
+          "value": "Gradienta nista vzporedna; determinanta je -5 (točno)."
+        },
+        {
+          "key": "Dolžina puščic#0",
+          "label": "Dolžina puščic",
+          "value": "skrajšana na 0,32 prave dolžine"
+        },
+        {
+          "key": "Dotikališče (točno)#0",
+          "label": "Dotikališče (točno)",
+          "value": "(1; 2)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Križec: dotikališče, kjer sta gradienta vzporedna",
+        "Polna puščica: gradient funkcije f",
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Puščice so skrajšane na 0,32 prave dolžine",
+        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
+        "Točka (0; 2,5)",
+        "Točka na veznem pogoju: točka, ki jo vlečeš",
+        "Zelo debela polna črta: vezni pogoj",
+        "Črtkana puščica: gradient veznega pogoja g",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    },
+    {
+      "name": "level-sets-lagrange/ls4-circle",
+      "rows": [
+        {
+          "key": "Funkcija#0",
+          "label": "Funkcija",
+          "value": "Produkt: x · y"
+        },
+        {
+          "key": "Vrednost c#0",
+          "label": "Vrednost c",
+          "value": "od 0 do 2 v korakih po 1"
+        },
+        {
+          "key": "Dolžina nivojnice (izračunano)#0",
+          "label": "Dolžina nivojnice (izračunano)",
+          "value": "15,3323"
+        },
+        {
+          "key": "Okno#0",
+          "label": "Okno",
+          "value": "kvadrat od -2 do 2, mreža nivojnic 60 × 60, ploskev 40 × 40"
+        },
+        {
+          "key": "Merilo višine z#0",
+          "label": "Merilo višine z",
+          "value": "višina z je pomnožena z 0,5"
+        },
+        {
+          "key": "Sonda#0",
+          "label": "Sonda",
+          "value": "(0,6; 0,8)"
+        },
+        {
+          "key": "Vrednost f v sondi#0",
+          "label": "Vrednost f v sondi",
+          "value": "0,48"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
+        "Sonda (0,6; 0,8)",
+        "Sonda: točka, ki jo vlečeš",
+        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
+        "Črtkana črta: nivojnica skozi izbrano točko"
+      ]
+    }
+  ]
+}

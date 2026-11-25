@@ -1,0 +1,908 @@
+{
+  "graph": "recursion-growth",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Vrsta zaporedja#0",
+          "label": "Vrsta zaporedja",
+          "value": "Aritmetično: aₖ₊₁ = aₖ + d"
+        },
+        {
+          "key": "Prvi člen a₁#0",
+          "label": "Prvi člen a₁",
+          "value": "3"
+        },
+        {
+          "key": "Razlika d#0",
+          "label": "Razlika d",
+          "value": "2"
+        },
+        {
+          "key": "Prvi členi#0",
+          "label": "Prvi členi",
+          "value": "3; 5; 7; 9; 11; 13; …"
+        },
+        {
+          "key": "Člen a₁₀ (zaprta oblika)#0",
+          "label": "Člen a₁₀ (zaprta oblika)",
+          "value": "21"
+        },
+        {
+          "key": "Vsota S₁₀ (zaprta oblika)#0",
+          "label": "Vsota S₁₀ (zaprta oblika)",
+          "value": "120"
+        },
+        {
+          "key": "Natančnost#0",
+          "label": "Natančnost",
+          "value": "natančno (cela števila)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "a₁₀ = 21",
+        "aₖ (člen zaporedja)",
+        "k (številka člena)",
+        "stolpci: členi aₖ za k = 1 … 10"
+      ]
+    },
+    {
+      "name": "recursion-sequences/rg1-first-terms",
+      "rows": [
+        {
+          "key": "Vrsta zaporedja#0",
+          "label": "Vrsta zaporedja",
+          "value": "Aritmetično: aₖ₊₁ = aₖ + d"
+        },
+        {
+          "key": "Prvi člen a₁#0",
+          "label": "Prvi člen a₁",
+          "value": "3"
+        },
+        {
+          "key": "Razlika d#0",
+          "label": "Razlika d",
+          "value": "2"
+        },
+        {
+          "key": "Prvi členi#0",
+          "label": "Prvi členi",
+          "value": "3; 5; 7; 9; 11; 13"
+        },
+        {
+          "key": "Člen a₆ (zaprta oblika)#0",
+          "label": "Člen a₆ (zaprta oblika)",
+          "value": "13"
+        },
+        {
+          "key": "Vsota S₆ (zaprta oblika)#0",
+          "label": "Vsota S₆ (zaprta oblika)",
+          "value": "48"
+        },
+        {
+          "key": "Natančnost#0",
+          "label": "Natančnost",
+          "value": "natančno (cela števila)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "a₆ = 13",
+        "aₖ (člen zaporedja)",
+        "k (številka člena)",
+        "stolpci: členi aₖ za k = 1 … 6"
+      ]
+    },
+    {
+      "name": "recursion-sequences/rg1-geometric",
+      "rows": [
+        {
+          "key": "Vrsta zaporedja#0",
+          "label": "Vrsta zaporedja",
+          "value": "Geometrijsko: aₖ₊₁ = q·aₖ"
+        },
+        {
+          "key": "Prvi člen a₁#0",
+          "label": "Prvi člen a₁",
+          "value": "3"
+        },
+        {
+          "key": "Količnik q#0",
+          "label": "Količnik q",
+          "value": "2"
+        },
+        {
+          "key": "Prvi členi#0",
+          "label": "Prvi členi",
+          "value": "3; 6; 12"
+        },
+        {
+          "key": "Člen a₃ (zaprta oblika)#0",
+          "label": "Člen a₃ (zaprta oblika)",
+          "value": "12"
+        },
+        {
+          "key": "Vsota S₃ (zaprta oblika)#0",
+          "label": "Vsota S₃ (zaprta oblika)",
+          "value": "21"
+        },
+        {
+          "key": "Natančnost#0",
+          "label": "Natančnost",
+          "value": "natančno (cela števila)"
+        },
+        {
+          "key": "Limita vsote a₁/(1 - q)#0",
+          "label": "Limita vsote a₁/(1 - q)",
+          "value": "je ni (|q| ≥ 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "a₃ = 12",
+        "aₖ (člen zaporedja)",
+        "k (številka člena)",
+        "stolpci: členi aₖ za k = 1 … 3"
+      ]
+    },
+    {
+      "name": "recursion-sequences/rg1-compare",
+      "rows": [
+        {
+          "key": "Vrsta zaporedja#0",
+          "label": "Vrsta zaporedja",
+          "value": "Geometrijsko: aₖ₊₁ = q·aₖ"
+        },
+        {
+          "key": "Prvi člen a₁#0",
+          "label": "Prvi člen a₁",
+          "value": "3"
+        },
+        {
+          "key": "Količnik q#0",
+          "label": "Količnik q",
+          "value": "2"
+        },
+        {
+          "key": "Prvi členi#0",
+          "label": "Prvi členi",
+          "value": "3; 6; 12; 24; 48; 96; …"
+        },
+        {
+          "key": "Člen a₁₀ (zaprta oblika)#0",
+          "label": "Člen a₁₀ (zaprta oblika)",
+          "value": "1536"
+        },
+        {
+          "key": "Vsota S₁₀ (zaprta oblika)#0",
+          "label": "Vsota S₁₀ (zaprta oblika)",
+          "value": "3069"
+        },
+        {
+          "key": "Natančnost#0",
+          "label": "Natančnost",
+          "value": "natančno (cela števila)"
+        },
+        {
+          "key": "Limita vsote a₁/(1 - q)#0",
+          "label": "Limita vsote a₁/(1 - q)",
+          "value": "je ni (|q| ≥ 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "a₁₀ = 1536",
+        "aₖ (člen zaporedja)",
+        "k (številka člena)",
+        "stolpci: členi aₖ za k = 1 … 10"
+      ]
+    },
+    {
+      "name": "recursion-sequences/rg1-halving",
+      "rows": [
+        {
+          "key": "Vrsta zaporedja#0",
+          "label": "Vrsta zaporedja",
+          "value": "Geometrijsko: aₖ₊₁ = q·aₖ"
+        },
+        {
+          "key": "Prvi člen a₁#0",
+          "label": "Prvi člen a₁",
+          "value": "3"
+        },
+        {
+          "key": "Količnik q#0",
+          "label": "Količnik q",
+          "value": "0,5"
+        },
+        {
+          "key": "Prvi členi#0",
+          "label": "Prvi členi",
+          "value": "3; 1,5; 0,75; 0,375; 0,1875; 0,09375; …"
+        },
+        {
+          "key": "Člen a₁₀ (zaprta oblika)#0",
+          "label": "Člen a₁₀ (zaprta oblika)",
+          "value": "0,005859"
+        },
+        {
+          "key": "Vsota S₁₀ (zaprta oblika)#0",
+          "label": "Vsota S₁₀ (zaprta oblika)",
+          "value": "5,994141"
+        },
+        {
+          "key": "Natančnost#0",
+          "label": "Natančnost",
+          "value": "izračunano (decimalke)"
+        },
+        {
+          "key": "Limita vsote a₁/(1 - q)#0",
+          "label": "Limita vsote a₁/(1 - q)",
+          "value": "6 (zaprta oblika)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "a₁₀ = 0,005859",
+        "aₖ (člen zaporedja)",
+        "k (številka člena)",
+        "limita vsote a₁/(1 - q) = 6 (zaprta oblika)",
+        "stolpci: členi aₖ za k = 1 … 10"
+      ]
+    },
+    {
+      "name": "recursion-sequences/rg1-explore",
+      "rows": [
+        {
+          "key": "Vrsta zaporedja#0",
+          "label": "Vrsta zaporedja",
+          "value": "Geometrijsko: aₖ₊₁ = q·aₖ"
+        },
+        {
+          "key": "Prvi člen a₁#0",
+          "label": "Prvi člen a₁",
+          "value": "2"
+        },
+        {
+          "key": "Količnik q#0",
+          "label": "Količnik q",
+          "value": "1,5"
+        },
+        {
+          "key": "Prvi členi#0",
+          "label": "Prvi členi",
+          "value": "2; 3; 4,5; 6,75; 10,125; 15,1875; …"
+        },
+        {
+          "key": "Člen a₁₂ (zaprta oblika)#0",
+          "label": "Člen a₁₂ (zaprta oblika)",
+          "value": "172,995117"
+        },
+        {
+          "key": "Vsota S₁₂ (zaprta oblika)#0",
+          "label": "Vsota S₁₂ (zaprta oblika)",
+          "value": "514,985352"
+        },
+        {
+          "key": "Natančnost#0",
+          "label": "Natančnost",
+          "value": "izračunano (decimalke)"
+        },
+        {
+          "key": "Limita vsote a₁/(1 - q)#0",
+          "label": "Limita vsote a₁/(1 - q)",
+          "value": "je ni (|q| ≥ 1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "a₁₂ = 172,995117",
+        "aₖ (člen zaporedja)",
+        "k (številka člena)",
+        "stolpci: členi aₖ za k = 1 … 12"
+      ]
+    },
+    {
+      "name": "recursion-interest/rg3-curves",
+      "rows": [
+        {
+          "key": "Glavnica P#0",
+          "label": "Glavnica P",
+          "value": "1000"
+        },
+        {
+          "key": "Letna obrestna mera p#0",
+          "label": "Letna obrestna mera p",
+          "value": "5 %"
+        },
+        {
+          "key": "Čas t (leta)#0",
+          "label": "Čas t (leta)",
+          "value": "10"
+        },
+        {
+          "key": "Obdobij v letu m#0",
+          "label": "Obdobij v letu m",
+          "value": "1 (letno)"
+        },
+        {
+          "key": "Navadno obrestovanje#0",
+          "label": "Navadno obrestovanje",
+          "value": "1500"
+        },
+        {
+          "key": "Obrestno obrestovanje#0",
+          "label": "Obrestno obrestovanje",
+          "value": "1628,89"
+        },
+        {
+          "key": "Relativno obrestovanje, 1 obdobij na leto#0",
+          "label": "Relativno obrestovanje, 1 obdobij na leto",
+          "value": "1628,89"
+        },
+        {
+          "key": "Zvezno obrestovanje (P·exp(p·t))#0",
+          "label": "Zvezno obrestovanje (P·exp(p·t))",
+          "value": "1648,72"
+        },
+        {
+          "key": "Konformna obrestna mera na obdobje (m = 1)#0",
+          "label": "Konformna obrestna mera na obdobje (m = 1)",
+          "value": "5 %"
+        },
+        {
+          "key": "Vrednost po 10 konformnih obdobjih#0",
+          "label": "Vrednost po 10 konformnih obdobjih",
+          "value": "1628,89"
+        },
+        {
+          "key": "Čas podvojitve (izračunano)#0",
+          "label": "Čas podvojitve (izračunano)",
+          "value": "14,2067 let"
+        },
+        {
+          "key": "Pravilo 72 (približek)#0",
+          "label": "Pravilo 72 (približek)",
+          "value": "14,4 let"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1#0",
+          "label": "(1 + 1/n)ⁿ za n = 1",
+          "value": "2"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 10#0",
+          "label": "(1 + 1/n)ⁿ za n = 10",
+          "value": "2,593742"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 100#0",
+          "label": "(1 + 1/n)ⁿ za n = 100",
+          "value": "2,704814"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000",
+          "value": "2,716924"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000000",
+          "value": "2,71828"
+        },
+        {
+          "key": "e (primerjava)#0",
+          "label": "e (primerjava)",
+          "value": "2,718282"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "navadno obrestovanje: 1500",
+        "obrestno obrestovanje: 1628,89",
+        "relativno, m = 1: 1628,89",
+        "t (leta)",
+        "vrednost",
+        "zvezno (P·exp(p·t)): 1648,72"
+      ]
+    },
+    {
+      "name": "recursion-interest/rg3-parts",
+      "rows": [
+        {
+          "key": "Glavnica P#0",
+          "label": "Glavnica P",
+          "value": "1000"
+        },
+        {
+          "key": "Letna obrestna mera p#0",
+          "label": "Letna obrestna mera p",
+          "value": "5 %"
+        },
+        {
+          "key": "Čas t (leta)#0",
+          "label": "Čas t (leta)",
+          "value": "10"
+        },
+        {
+          "key": "Obdobij v letu m#0",
+          "label": "Obdobij v letu m",
+          "value": "12 (mesečno)"
+        },
+        {
+          "key": "Navadno obrestovanje#0",
+          "label": "Navadno obrestovanje",
+          "value": "1500"
+        },
+        {
+          "key": "Obrestno obrestovanje#0",
+          "label": "Obrestno obrestovanje",
+          "value": "1628,89"
+        },
+        {
+          "key": "Relativno obrestovanje, 12 obdobij na leto#0",
+          "label": "Relativno obrestovanje, 12 obdobij na leto",
+          "value": "1647,01"
+        },
+        {
+          "key": "Zvezno obrestovanje (P·exp(p·t))#0",
+          "label": "Zvezno obrestovanje (P·exp(p·t))",
+          "value": "1648,72"
+        },
+        {
+          "key": "Konformna obrestna mera na obdobje (m = 12)#0",
+          "label": "Konformna obrestna mera na obdobje (m = 12)",
+          "value": "0,407412 %"
+        },
+        {
+          "key": "Vrednost po 120 konformnih obdobjih#0",
+          "label": "Vrednost po 120 konformnih obdobjih",
+          "value": "1628,89"
+        },
+        {
+          "key": "Čas podvojitve (izračunano)#0",
+          "label": "Čas podvojitve (izračunano)",
+          "value": "14,2067 let"
+        },
+        {
+          "key": "Pravilo 72 (približek)#0",
+          "label": "Pravilo 72 (približek)",
+          "value": "14,4 let"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1#0",
+          "label": "(1 + 1/n)ⁿ za n = 1",
+          "value": "2"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 10#0",
+          "label": "(1 + 1/n)ⁿ za n = 10",
+          "value": "2,593742"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 100#0",
+          "label": "(1 + 1/n)ⁿ za n = 100",
+          "value": "2,704814"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000",
+          "value": "2,716924"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000000",
+          "value": "2,71828"
+        },
+        {
+          "key": "e (primerjava)#0",
+          "label": "e (primerjava)",
+          "value": "2,718282"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "navadno obrestovanje: 1500",
+        "obrestno obrestovanje: 1628,89",
+        "relativno, m = 12: 1647,01",
+        "t (leta)",
+        "vrednost",
+        "zvezno (P·exp(p·t)): 1648,72"
+      ]
+    },
+    {
+      "name": "recursion-interest/rg3-e",
+      "rows": [
+        {
+          "key": "Glavnica P#0",
+          "label": "Glavnica P",
+          "value": "1000"
+        },
+        {
+          "key": "Letna obrestna mera p#0",
+          "label": "Letna obrestna mera p",
+          "value": "5 %"
+        },
+        {
+          "key": "Čas t (leta)#0",
+          "label": "Čas t (leta)",
+          "value": "10"
+        },
+        {
+          "key": "Obdobij v letu m#0",
+          "label": "Obdobij v letu m",
+          "value": "365 (dnevno)"
+        },
+        {
+          "key": "Navadno obrestovanje#0",
+          "label": "Navadno obrestovanje",
+          "value": "1500"
+        },
+        {
+          "key": "Obrestno obrestovanje#0",
+          "label": "Obrestno obrestovanje",
+          "value": "1628,89"
+        },
+        {
+          "key": "Relativno obrestovanje, 365 obdobij na leto#0",
+          "label": "Relativno obrestovanje, 365 obdobij na leto",
+          "value": "1648,66"
+        },
+        {
+          "key": "Zvezno obrestovanje (P·exp(p·t))#0",
+          "label": "Zvezno obrestovanje (P·exp(p·t))",
+          "value": "1648,72"
+        },
+        {
+          "key": "Konformna obrestna mera na obdobje (m = 365)#0",
+          "label": "Konformna obrestna mera na obdobje (m = 365)",
+          "value": "0,013368 %"
+        },
+        {
+          "key": "Vrednost po 3650 konformnih obdobjih#0",
+          "label": "Vrednost po 3650 konformnih obdobjih",
+          "value": "1628,89"
+        },
+        {
+          "key": "Čas podvojitve (izračunano)#0",
+          "label": "Čas podvojitve (izračunano)",
+          "value": "14,2067 let"
+        },
+        {
+          "key": "Pravilo 72 (približek)#0",
+          "label": "Pravilo 72 (približek)",
+          "value": "14,4 let"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1#0",
+          "label": "(1 + 1/n)ⁿ za n = 1",
+          "value": "2"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 10#0",
+          "label": "(1 + 1/n)ⁿ za n = 10",
+          "value": "2,593742"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 100#0",
+          "label": "(1 + 1/n)ⁿ za n = 100",
+          "value": "2,704814"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000",
+          "value": "2,716924"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000000",
+          "value": "2,71828"
+        },
+        {
+          "key": "e (primerjava)#0",
+          "label": "e (primerjava)",
+          "value": "2,718282"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "navadno obrestovanje: 1500",
+        "obrestno obrestovanje: 1628,89",
+        "relativno, m = 365: 1648,66",
+        "t (leta)",
+        "vrednost",
+        "zvezno (P·exp(p·t)): 1648,72"
+      ]
+    },
+    {
+      "name": "recursion-interest/rg3-doubling",
+      "rows": [
+        {
+          "key": "Glavnica P#0",
+          "label": "Glavnica P",
+          "value": "1000"
+        },
+        {
+          "key": "Letna obrestna mera p#0",
+          "label": "Letna obrestna mera p",
+          "value": "5 %"
+        },
+        {
+          "key": "Čas t (leta)#0",
+          "label": "Čas t (leta)",
+          "value": "14"
+        },
+        {
+          "key": "Obdobij v letu m#0",
+          "label": "Obdobij v letu m",
+          "value": "1 (letno)"
+        },
+        {
+          "key": "Navadno obrestovanje#0",
+          "label": "Navadno obrestovanje",
+          "value": "1700"
+        },
+        {
+          "key": "Obrestno obrestovanje#0",
+          "label": "Obrestno obrestovanje",
+          "value": "1979,93"
+        },
+        {
+          "key": "Relativno obrestovanje, 1 obdobij na leto#0",
+          "label": "Relativno obrestovanje, 1 obdobij na leto",
+          "value": "1979,93"
+        },
+        {
+          "key": "Zvezno obrestovanje (P·exp(p·t))#0",
+          "label": "Zvezno obrestovanje (P·exp(p·t))",
+          "value": "2013,75"
+        },
+        {
+          "key": "Konformna obrestna mera na obdobje (m = 1)#0",
+          "label": "Konformna obrestna mera na obdobje (m = 1)",
+          "value": "5 %"
+        },
+        {
+          "key": "Vrednost po 14 konformnih obdobjih#0",
+          "label": "Vrednost po 14 konformnih obdobjih",
+          "value": "1979,93"
+        },
+        {
+          "key": "Čas podvojitve (izračunano)#0",
+          "label": "Čas podvojitve (izračunano)",
+          "value": "14,2067 let"
+        },
+        {
+          "key": "Pravilo 72 (približek)#0",
+          "label": "Pravilo 72 (približek)",
+          "value": "14,4 let"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1#0",
+          "label": "(1 + 1/n)ⁿ za n = 1",
+          "value": "2"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 10#0",
+          "label": "(1 + 1/n)ⁿ za n = 10",
+          "value": "2,593742"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 100#0",
+          "label": "(1 + 1/n)ⁿ za n = 100",
+          "value": "2,704814"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000",
+          "value": "2,716924"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000000",
+          "value": "2,71828"
+        },
+        {
+          "key": "e (primerjava)#0",
+          "label": "e (primerjava)",
+          "value": "2,718282"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "navadno obrestovanje: 1700",
+        "obrestno obrestovanje: 1979,93",
+        "relativno, m = 1: 1979,93",
+        "t (leta)",
+        "vrednost",
+        "zvezno (P·exp(p·t)): 2013,75"
+      ]
+    },
+    {
+      "name": "recursion-interest/rg3-explore",
+      "rows": [
+        {
+          "key": "Glavnica P#0",
+          "label": "Glavnica P",
+          "value": "2000"
+        },
+        {
+          "key": "Letna obrestna mera p#0",
+          "label": "Letna obrestna mera p",
+          "value": "3 %"
+        },
+        {
+          "key": "Čas t (leta)#0",
+          "label": "Čas t (leta)",
+          "value": "20"
+        },
+        {
+          "key": "Obdobij v letu m#0",
+          "label": "Obdobij v letu m",
+          "value": "4 (četrtletno)"
+        },
+        {
+          "key": "Navadno obrestovanje#0",
+          "label": "Navadno obrestovanje",
+          "value": "3200"
+        },
+        {
+          "key": "Obrestno obrestovanje#0",
+          "label": "Obrestno obrestovanje",
+          "value": "3612,22"
+        },
+        {
+          "key": "Relativno obrestovanje, 4 obdobij na leto#0",
+          "label": "Relativno obrestovanje, 4 obdobij na leto",
+          "value": "3636,09"
+        },
+        {
+          "key": "Zvezno obrestovanje (P·exp(p·t))#0",
+          "label": "Zvezno obrestovanje (P·exp(p·t))",
+          "value": "3644,24"
+        },
+        {
+          "key": "Konformna obrestna mera na obdobje (m = 4)#0",
+          "label": "Konformna obrestna mera na obdobje (m = 4)",
+          "value": "0,741707 %"
+        },
+        {
+          "key": "Vrednost po 80 konformnih obdobjih#0",
+          "label": "Vrednost po 80 konformnih obdobjih",
+          "value": "3612,22"
+        },
+        {
+          "key": "Čas podvojitve (izračunano)#0",
+          "label": "Čas podvojitve (izračunano)",
+          "value": "23,4498 let"
+        },
+        {
+          "key": "Pravilo 72 (približek)#0",
+          "label": "Pravilo 72 (približek)",
+          "value": "24 let"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1#0",
+          "label": "(1 + 1/n)ⁿ za n = 1",
+          "value": "2"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 10#0",
+          "label": "(1 + 1/n)ⁿ za n = 10",
+          "value": "2,593742"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 100#0",
+          "label": "(1 + 1/n)ⁿ za n = 100",
+          "value": "2,704814"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000",
+          "value": "2,716924"
+        },
+        {
+          "key": "(1 + 1/n)ⁿ za n = 1000000#0",
+          "label": "(1 + 1/n)ⁿ za n = 1000000",
+          "value": "2,71828"
+        },
+        {
+          "key": "e (primerjava)#0",
+          "label": "e (primerjava)",
+          "value": "2,718282"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "navadno obrestovanje: 3200",
+        "obrestno obrestovanje: 3612,22",
+        "relativno, m = 4: 3636,09",
+        "t (leta)",
+        "vrednost",
+        "zvezno (P·exp(p·t)): 3644,24"
+      ]
+    },
+    {
+      "name": "recursion-log-scale/rg5-line",
+      "rows": [
+        {
+          "key": "Model#0",
+          "label": "Model",
+          "value": "Eksponentni y = y₀·qⁿ"
+        },
+        {
+          "key": "Začetna vrednost y₀#0",
+          "label": "Začetna vrednost y₀",
+          "value": "1000"
+        },
+        {
+          "key": "Faktor rasti q#0",
+          "label": "Faktor rasti q",
+          "value": "1,05"
+        },
+        {
+          "key": "Vrednost y₁₀ (navadna os)#0",
+          "label": "Vrednost y₁₀ (navadna os)",
+          "value": "1628,894627"
+        },
+        {
+          "key": "ln y₁₀ (izračunano)#0",
+          "label": "ln y₁₀ (izračunano)",
+          "value": "7,395657"
+        },
+        {
+          "key": "Naklon skozi prvo in zadnjo točko#0",
+          "label": "Naklon skozi prvo in zadnjo točko",
+          "value": "0,04879"
+        },
+        {
+          "key": "Naklon prvega koraka#0",
+          "label": "Naklon prvega koraka",
+          "value": "0,04879"
+        },
+        {
+          "key": "Naklon zadnjega koraka#0",
+          "label": "Naklon zadnjega koraka",
+          "value": "0,04879"
+        },
+        {
+          "key": "ln q#0",
+          "label": "ln q",
+          "value": "0,04879 (izračunano)"
+        },
+        {
+          "key": "q iz naklona (e na naklon)#0",
+          "label": "q iz naklona (e na naklon)",
+          "value": "1,05 (izračunano)"
+        },
+        {
+          "key": "Točke na premici?#0",
+          "label": "Točke na premici?",
+          "value": "da (model je eksponenten)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "ln y (logaritem y, brez enote)",
+        "n (korak)",
+        "premica skozi prvo in zadnjo točko, naklon 0,04879",
+        "točke (n, ln y) za y = y₀·qⁿ"
+      ]
+    }
+  ]
+}

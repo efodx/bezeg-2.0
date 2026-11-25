@@ -1,0 +1,39 @@
+{
+  "graph": "interp-hermite",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Catmull-Romov zlepek, napetost 1"
+      ]
+    },
+    {
+      "name": "interp-hermite-guided/hermite-predict-segment",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Hermiteova krivulja z izbranimi tangentami"
+      ]
+    },
+    {
+      "name": "interp-hermite-guided/hermite-locality",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "6"
+      ],
+      "captions": [
+        "Catmull-Romov zlepek, napetost 1"
+      ]
+    }
+  ]
+}

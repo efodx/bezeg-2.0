@@ -92,6 +92,8 @@ Handler decisions pending at the gate before task 08 (`docs/reviews/ux-picks-app
 
 The contract test (`src/learning/content/declarationContract.test.tsx`) discovers a graph by its `declaration()` override, takes every lesson on it (catalog and chapter-registered), applies each lesson step's scene synchronously and checks every frame with `checkDeclaration`, `checkFrame`, `drawnObject` and the text walk. Its permanent seeded failures show what a mistake looks like: `highlight no-such-row: no such row or note in this scene`, `uses no-such-control: ...`, `legend curve: object "not-drawn" is not drawn`, `4 highlights, at most 3`, `uses p: locked in this scene`.
 
+**Golden row:** when `src/graphs/**/__parity__/<id>.golden.json` exists (the generated baseline of the default state and every lesson step, `parityGolden.test.tsx`; re-record with `BEZEG_PARITY_GOLDEN_RECORD=1 BEZEG_PARITY_GOLDEN_ID=<id> just unit src/graphs/base/declare/parityGolden.test.tsx` only for a reviewed value change), `just graph-check` adds a `golden` row comparing the current panels with it. It does not replace parity.
+
 ## 8. Per-graph recipe and summary
 
 Order: parity recording, ids union, `declaration()`, `drawnObject`, `performAction`, declaration test with an observed failure, fragment, frames, `just graph-check <id>`, the other checks of step 9, placement note. Touch only the graph file, its lesson files, its tests, its recording, its fragment and its placement note; a shared base is a report, not an edit. Report (paste-able, ≤ 350 words):

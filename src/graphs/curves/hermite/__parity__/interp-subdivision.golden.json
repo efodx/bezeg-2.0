@@ -1,0 +1,72 @@
+{
+  "graph": "interp-subdivision",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 0 od 6, 4 oglišč"
+      ]
+    },
+    {
+      "name": "interp-subdivision-guided/subdivision-chaikin-rounds",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 1 od 6, 8 oglišč"
+      ]
+    },
+    {
+      "name": "interp-subdivision-guided/subdivision-limit",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 2 od 6, 16 oglišč"
+      ]
+    },
+    {
+      "name": "interp-subdivision-guided/subdivision-four-point",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Štiritočkovno pravilo, korak 0 od 6, 4 oglišč"
+      ]
+    },
+    {
+      "name": "interp-subdivision-guided/subdivision-compare",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Štiritočkovno pravilo, korak 2 od 6, 13 oglišč"
+      ]
+    },
+    {
+      "name": "interp-subdivision-guided/subdivision-explore",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 3 od 6, 32 oglišč"
+      ]
+    }
+  ]
+}

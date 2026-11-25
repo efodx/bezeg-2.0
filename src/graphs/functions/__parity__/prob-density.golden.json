@@ -1,0 +1,171 @@
+{
+  "graph": "prob-density",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Ploščina pod gostoto med a in b (v %)#0",
+          "label": "Ploščina pod gostoto med a in b (v %)",
+          "value": "68,27"
+        },
+        {
+          "key": "Ista ploščina kot delež celote#0",
+          "label": "Ista ploščina kot delež celote",
+          "value": "0,68269"
+        },
+        {
+          "key": "Standardizirana meja z_a#0",
+          "label": "Standardizirana meja z_a",
+          "value": "-1"
+        },
+        {
+          "key": "Standardizirana meja z_b#0",
+          "label": "Standardizirana meja z_b",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Verjetnost, da je X med a in b, je ploščina pod gostoto med a in b. Ploščina pod vso gostoto je 1. Delež ploščine znotraj μ ± kσ je za vsako normalno porazdelitev enak: 68,27 %, 95,45 %, 99,73 % za k = 1, 2, 3. To je znana lastnost normalne porazdelitve (standardizacija); premikanje mej a in b jo le ponazori, ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "Ploščina pod gostoto med a in b: 68,27 %",
+        "X ∼ N(0; 1²)"
+      ]
+    },
+    {
+      "name": "prob-density-guided/density-total",
+      "rows": [
+        {
+          "key": "Ploščina pod gostoto med a in b (v %)#0",
+          "label": "Ploščina pod gostoto med a in b (v %)",
+          "value": "99,99"
+        },
+        {
+          "key": "Ista ploščina kot delež celote#0",
+          "label": "Ista ploščina kot delež celote",
+          "value": "0,99994"
+        },
+        {
+          "key": "Standardizirana meja z_a#0",
+          "label": "Standardizirana meja z_a",
+          "value": "-4"
+        },
+        {
+          "key": "Standardizirana meja z_b#0",
+          "label": "Standardizirana meja z_b",
+          "value": "4"
+        }
+      ],
+      "notes": [
+        "Verjetnost, da je X med a in b, je ploščina pod gostoto med a in b. Ploščina pod vso gostoto je 1. Delež ploščine znotraj μ ± kσ je za vsako normalno porazdelitev enak: 68,27 %, 95,45 %, 99,73 % za k = 1, 2, 3. To je znana lastnost normalne porazdelitve (standardizacija); premikanje mej a in b jo le ponazori, ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "Ploščina pod gostoto med a in b: 99,99 %",
+        "X ∼ N(0; 1²)"
+      ]
+    },
+    {
+      "name": "prob-density-guided/density-bounds",
+      "rows": [
+        {
+          "key": "Ploščina pod gostoto med a in b (v %)#0",
+          "label": "Ploščina pod gostoto med a in b (v %)",
+          "value": "62,47"
+        },
+        {
+          "key": "Ista ploščina kot delež celote#0",
+          "label": "Ista ploščina kot delež celote",
+          "value": "0,62466"
+        },
+        {
+          "key": "Standardizirana meja z_a#0",
+          "label": "Standardizirana meja z_a",
+          "value": "-1,5"
+        },
+        {
+          "key": "Standardizirana meja z_b#0",
+          "label": "Standardizirana meja z_b",
+          "value": "0,5"
+        }
+      ],
+      "notes": [
+        "Verjetnost, da je X med a in b, je ploščina pod gostoto med a in b. Ploščina pod vso gostoto je 1. Delež ploščine znotraj μ ± kσ je za vsako normalno porazdelitev enak: 68,27 %, 95,45 %, 99,73 % za k = 1, 2, 3. To je znana lastnost normalne porazdelitve (standardizacija); premikanje mej a in b jo le ponazori, ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "Ploščina pod gostoto med a in b: 62,47 %",
+        "X ∼ N(0; 1²)"
+      ]
+    },
+    {
+      "name": "prob-density-guided/density-shape",
+      "rows": [
+        {
+          "key": "Ploščina pod gostoto med a in b (v %)#0",
+          "label": "Ploščina pod gostoto med a in b (v %)",
+          "value": "68,27"
+        },
+        {
+          "key": "Ista ploščina kot delež celote#0",
+          "label": "Ista ploščina kot delež celote",
+          "value": "0,68269"
+        },
+        {
+          "key": "Standardizirana meja z_a#0",
+          "label": "Standardizirana meja z_a",
+          "value": "-1"
+        },
+        {
+          "key": "Standardizirana meja z_b#0",
+          "label": "Standardizirana meja z_b",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Verjetnost, da je X med a in b, je ploščina pod gostoto med a in b. Ploščina pod vso gostoto je 1. Delež ploščine znotraj μ ± kσ je za vsako normalno porazdelitev enak: 68,27 %, 95,45 %, 99,73 % za k = 1, 2, 3. To je znana lastnost normalne porazdelitve (standardizacija); premikanje mej a in b jo le ponazori, ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "Ploščina pod gostoto med a in b: 68,27 %",
+        "X ∼ N(1; 1,5²)"
+      ]
+    },
+    {
+      "name": "prob-density-guided/density-iq",
+      "rows": [
+        {
+          "key": "Ploščina pod gostoto med a in b (v %)#0",
+          "label": "Ploščina pod gostoto med a in b (v %)",
+          "value": "81,86"
+        },
+        {
+          "key": "Ista ploščina kot delež celote#0",
+          "label": "Ista ploščina kot delež celote",
+          "value": "0,81859"
+        },
+        {
+          "key": "Standardizirana meja z_a#0",
+          "label": "Standardizirana meja z_a",
+          "value": "-1"
+        },
+        {
+          "key": "Standardizirana meja z_b#0",
+          "label": "Standardizirana meja z_b",
+          "value": "2"
+        }
+      ],
+      "notes": [
+        "Verjetnost, da je X med a in b, je ploščina pod gostoto med a in b. Ploščina pod vso gostoto je 1. Delež ploščine znotraj μ ± kσ je za vsako normalno porazdelitev enak: 68,27 %, 95,45 %, 99,73 % za k = 1, 2, 3. To je znana lastnost normalne porazdelitve (standardizacija); premikanje mej a in b jo le ponazori, ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "Ploščina pod gostoto med a in b: 81,86 %",
+        "X ∼ N(100; 15²)"
+      ]
+    }
+  ]
+}

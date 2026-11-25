@@ -1,0 +1,287 @@
+{
+  "graph": "delaunay",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 19,65°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob"
+      ]
+    },
+    {
+      "name": "delaunay-guided/del-flip",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 1"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 19,65°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "α"
+      ]
+    },
+    {
+      "name": "delaunay-guided/del-seven",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 3"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 1,91°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 1,91; 2,49; 10,62; 15,95; 21,66; 25,25"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 1,91; 2,49; 10,62; 15,95; 21,66; 25,25"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob",
+        "neustrezen rob",
+        "neustrezen rob",
+        "α"
+      ]
+    },
+    {
+      "name": "delaunay-guided/del-square",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 45°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 45°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 45; 45; 45; 45; 90; 90"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 45; 45; 45; 45; 90; 90"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 45°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

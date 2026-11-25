@@ -1,0 +1,624 @@
+{
+  "graph": "counting-tree",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Variacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "120"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "120"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "6 · 5 · 4 = 120"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(n + k - 1)! / (k! (n - 1)!) = 56",
+        "Drevo bi imelo več kot 64 listov, zato",
+        "Kombinacije",
+        "Kombinacije s ponavljanjem",
+        "Variacije",
+        "Variacije s ponavljanjem",
+        "Variacije: n = 6, k = 3",
+        "je namesto njega tabela.",
+        "n! / (k! (n - k)!) = 20",
+        "n! / (n - k)! = 120",
+        "nᵏ = 216",
+        "▶",
+        "▶ = trenutna izbira"
+      ]
+    },
+    {
+      "name": "counting-tree-cb2/cb2-tree",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Variacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "6"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "6"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "3 · 2 = 6"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "12",
+        "13",
+        "21",
+        "23",
+        "31",
+        "32",
+        "Variacije: n = 3, k = 2",
+        "list drevesa = ena izbira"
+      ]
+    },
+    {
+      "name": "counting-tree-cb2/cb2-product",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Variacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "24"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "24"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "4 · 3 · 2 = 24"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "123",
+        "124",
+        "132",
+        "134",
+        "142",
+        "143",
+        "213",
+        "214",
+        "231",
+        "234",
+        "241",
+        "243",
+        "312",
+        "314",
+        "321",
+        "324",
+        "341",
+        "342",
+        "412",
+        "413",
+        "421",
+        "423",
+        "431",
+        "432",
+        "Variacije: n = 4, k = 3",
+        "list drevesa = ena izbira"
+      ]
+    },
+    {
+      "name": "counting-tree-cb2/cb2-permutations",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Variacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "24"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "24"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "4 · 3 · 2 · 1 = 24"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1234",
+        "1243",
+        "1324",
+        "1342",
+        "1423",
+        "1432",
+        "2134",
+        "2143",
+        "2314",
+        "2341",
+        "2413",
+        "2431",
+        "3124",
+        "3142",
+        "3214",
+        "3241",
+        "3412",
+        "3421",
+        "4123",
+        "4132",
+        "4213",
+        "4231",
+        "4312",
+        "4321",
+        "Variacije: n = 4, k = 4",
+        "list drevesa = ena izbira"
+      ]
+    },
+    {
+      "name": "counting-tree-cb2/cb2-combinations",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Kombinacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "20"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "120"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "6 · 5 · 4 = 120"
+        },
+        {
+          "key": "Vrstni redi ene kombinacije (k!)#0",
+          "label": "Vrstni redi ene kombinacije (k!)",
+          "value": "3! = 6"
+        },
+        {
+          "key": "Izbire z vrstnim redom, deljene s k!#0",
+          "label": "Izbire z vrstnim redom, deljene s k!",
+          "value": "120 / 6 = 20"
+        },
+        {
+          "key": "Vrstni redi izbire 1 … k#0",
+          "label": "Vrstni redi izbire 1 … k",
+          "value": "123, 132, 213, 231, 312, 321"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(n + k - 1)! / (k! (n - 1)!) = 56",
+        "123",
+        "124",
+        "125",
+        "132",
+        "142",
+        "152",
+        "213",
+        "214",
+        "215",
+        "231",
+        "241",
+        "251",
+        "312",
+        "321",
+        "412",
+        "421",
+        "512",
+        "521",
+        "Drevo bi imelo več kot 64 listov, zato",
+        "Kombinacija 123",
+        "Kombinacija 124",
+        "Kombinacija 125",
+        "Kombinacije",
+        "Kombinacije s ponavljanjem",
+        "Kombinacije: n = 6, k = 3",
+        "Variacije",
+        "Variacije s ponavljanjem",
+        "je namesto njega tabela.",
+        "n! / (k! (n - k)!) = 20",
+        "n! / (n - k)! = 120",
+        "nᵏ = 216",
+        "× 20 skupin = 120 / 6",
+        "▶",
+        "▶ = trenutna izbira"
+      ]
+    },
+    {
+      "name": "counting-tree-cb2/cb2-repetition",
+      "rows": [
+        {
+          "key": "Število vseh črk#0",
+          "label": "Število vseh črk",
+          "value": "11"
+        },
+        {
+          "key": "Razporeditve črk#0",
+          "label": "Razporeditve črk",
+          "value": "11! / (1! · 4! · 4! · 2!) = 34 650"
+        },
+        {
+          "key": "Razporeditve, če bi bile vse črke različne#0",
+          "label": "Razporeditve, če bi bile vse črke različne",
+          "value": "11! = 39 916 800"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "11! / (1! · 4! · 4! · 2!) = 34 650",
+        "11! = 39 916 800",
+        "I",
+        "I",
+        "I",
+        "I",
+        "M",
+        "P",
+        "P",
+        "S",
+        "S",
+        "S",
+        "S",
+        "Črke, ki se ponavljajo, so enake med seboj."
+      ]
+    },
+    {
+      "name": "counting-tree-cb5/cb5-sum",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "16 = 2⁴"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(2 nad 2) + (3 nad 2) + (4 nad 2) = 10 = (5 nad 3)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,375 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "2",
+        "3",
+        "4",
+        "4",
+        "4",
+        "6",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
+        "Vrstica 4 Pascalovega trikotnika",
+        "izbran k = 2: (4 nad 2) = 6",
+        "k = 2"
+      ]
+    },
+    {
+      "name": "counting-tree-cb5/cb5-alternating",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "64 = 2⁶"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(2 nad 2) + (3 nad 2) + (4 nad 2) + (5 nad 2) + (6 nad 2) = 35 = (7 nad 3)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,234375 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "15",
+        "15",
+        "2",
+        "20",
+        "3",
+        "4",
+        "5",
+        "6",
+        "6",
+        "6",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
+        "Vrstica 6 Pascalovega trikotnika",
+        "izbran k = 2: (6 nad 2) = 15",
+        "k = 2"
+      ]
+    },
+    {
+      "name": "counting-tree-cb5/cb5-hockey",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "16 = 2⁴"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(1 nad 1) + (2 nad 1) + (3 nad 1) + (4 nad 1) = 10 = (5 nad 2)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,25 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "2",
+        "3",
+        "4",
+        "4",
+        "4",
+        "6",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
+        "Vrstica 4 Pascalovega trikotnika",
+        "izbran k = 1: (4 nad 1) = 4",
+        "k = 1"
+      ]
+    },
+    {
+      "name": "counting-tree-cb5/cb5-weights",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "32 = 2⁵"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(2 nad 2) + (3 nad 2) + (4 nad 2) + (5 nad 2) = 20 = (6 nad 3)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,3087 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "2",
+        "3",
+        "4",
+        "5",
+        "5",
+        "5",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,3",
+        "Vrstica 5 Pascalovega trikotnika",
+        "izbran k = 2: (5 nad 2) = 10",
+        "k = 2"
+      ]
+    },
+    {
+      "name": "counting-tree-cb5/cb5-bridge",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "256 = 2⁸"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(6 nad 6) + (7 nad 6) + (8 nad 6) = 36 = (9 nad 7)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,003845 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "2",
+        "28",
+        "28",
+        "3",
+        "4",
+        "5",
+        "56",
+        "56",
+        "6",
+        "7",
+        "70",
+        "8",
+        "8",
+        "8",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,25",
+        "Vrstica 8 Pascalovega trikotnika",
+        "izbran k = 6: (8 nad 6) = 28",
+        "k = 6"
+      ]
+    },
+    {
+      "name": "counting-tree-cb5/cb5-explore",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "64 = 2⁶"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(3 nad 3) + (4 nad 3) + (5 nad 3) + (6 nad 3) = 35 = (7 nad 4)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,3125 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "15",
+        "15",
+        "2",
+        "20",
+        "3",
+        "4",
+        "5",
+        "6",
+        "6",
+        "6",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
+        "Vrstica 6 Pascalovega trikotnika",
+        "izbran k = 3: (6 nad 3) = 20",
+        "k = 3"
+      ]
+    }
+  ]
+}

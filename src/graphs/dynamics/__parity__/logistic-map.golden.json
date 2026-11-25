@@ -1,0 +1,928 @@
+{
+  "graph": "logistic-map",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "2,9"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "x₀ (izračunano)#0",
+          "label": "x₀ (izračunano)",
+          "value": "0,2"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: negibna točka privlači (1 < r < 3)"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,655172"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-0,9"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "ga ni (r ≤ 3)"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "1 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 2,8985 (stolpec 107 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "kazalec: r = 2,8985; perioda: 1 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,655172",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 2,9·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-logistic-map/pp4-settles",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "2,9"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "20 od 60"
+        },
+        {
+          "key": "x₂₀ (izračunano)#0",
+          "label": "x₂₀ (izračunano)",
+          "value": "0,66383"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: negibna točka privlači (1 < r < 3)"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,655172"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-0,9"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "ga ni (r ≤ 3)"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "1 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 2,8985 (stolpec 107 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "kazalec: r = 2,8985; perioda: 1 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,655172",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 2,9·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "x₂₀ = 0,66383 (izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-logistic-map/pp4-neutral",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "20 od 60"
+        },
+        {
+          "key": "x₂₀ (izračunano)#0",
+          "label": "x₂₀ (izračunano)",
+          "value": "0,709631"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: množitelj negibne točke je -1 (r = 3)"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,666667"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "ga ni (r ≤ 3)"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "ni najdena do 64 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3 (stolpec 134 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "kazalec: r = 3; perioda: ni najdena do 64 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,666667",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "x₂₀ = 0,709631 (izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-logistic-map/pp4-two-cycle",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3,1"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "59 od 60"
+        },
+        {
+          "key": "x₅₉ (izračunano)#0",
+          "label": "x₅₉ (izračunano)",
+          "value": "0,558014"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: negibna točka odbija, dvocikel privlači (3 < r < 1 + √6)"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,677419"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1,1"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,558014 ↔ 0,764567"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "0,59"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "2 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3,1015 (stolpec 161 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,558014 ↔ 0,764567",
+        "kazalec: r = 3,1015; perioda: 2 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,677419",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3,1·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "x₅₉ = 0,558014 (izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-logistic-map/pp4-four-cycle",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3,5"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "56 od 60"
+        },
+        {
+          "key": "x₅₆ (izračunano)#0",
+          "label": "x₅₆ (izračunano)",
+          "value": "0,826941"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: dvocikel ne privlači (r > 1 + √6); višje periode: samo izračunano"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,714286"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1,5"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,428571 ↔ 0,857143"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "-1,25"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "4 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3,5 (stolpec 267 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,428571 ↔ 0,857143",
+        "kazalec: r = 3,5; perioda: 4 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,714286",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3,5·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "x₅₆ = 0,826941 (izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-logistic-map/pp4-eight-cycle",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3,55"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "52 od 60"
+        },
+        {
+          "key": "x₅₂ (izračunano)#0",
+          "label": "x₅₂ (izračunano)",
+          "value": "0,812682"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: dvocikel ne privlači (r > 1 + √6); višje periode: samo izračunano"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,71831"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1,55"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,418038 ↔ 0,863652"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "-1,5025"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "8 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3,5489 (stolpec 280 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,418038 ↔ 0,863652",
+        "kazalec: r = 3,5489; perioda: 8 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,71831",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3,55·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "x₅₂ = 0,812682 (izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-logistic-map/pp4-chaos",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "4"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "5 od 60"
+        },
+        {
+          "key": "x₅ (izračunano)#0",
+          "label": "x₅ (izračunano)",
+          "value": "0,585421"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: dvocikel ne privlači (r > 1 + √6); višje periode: samo izračunano"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,75"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-2"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,345492 ↔ 0,904508"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "-4"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "brez trditve za r > 3,56995"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 4 (stolpec 400 od 400)"
+        },
+        {
+          "key": "Opomba#0",
+          "label": "Opomba",
+          "value": "Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,345492 ↔ 0,904508",
+        "kazalec: r = 4; perioda: brez trditve za r > 3,56995",
+        "negibna točka x* = 0,75",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 4·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "x₅ = 0,585421 (izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-logistic-map/pp4-free",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3,5"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "x₀ (izračunano)#0",
+          "label": "x₀ (izračunano)",
+          "value": "0,2"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: dvocikel ne privlači (r > 1 + √6); višje periode: samo izračunano"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,714286"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1,5"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,428571 ↔ 0,857143"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "-1,25"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "4 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3,5 (stolpec 267 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,428571 ↔ 0,857143",
+        "kazalec: r = 3,5; perioda: 4 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,714286",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3,5·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-bifurcation/pp5-first-split",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "x₀ (izračunano)#0",
+          "label": "x₀ (izračunano)",
+          "value": "0,2"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: množitelj negibne točke je -1 (r = 3)"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,666667"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "ga ni (r ≤ 3)"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "ni najdena do 64 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3 (stolpec 134 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "kazalec: r = 3; perioda: ni najdena do 64 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,666667",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-bifurcation/pp5-faster",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3,45"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "x₀ (izračunano)#0",
+          "label": "x₀ (izračunano)",
+          "value": "0,2"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: dvocikel ne privlači (r > 1 + √6); višje periode: samo izračunano"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,710145"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1,45"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,439841 ↔ 0,850014"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "-1,0025"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "4 (izračunano, toleranca 10⁻⁹)"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3,4511 (stolpec 254 od 400)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,439841 ↔ 0,850014",
+        "kazalec: r = 3,4511; perioda: 4 (izračunano, toleranca 10⁻⁹)",
+        "negibna točka x* = 0,710145",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3,45·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-bifurcation/pp5-window",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3,83"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "54 od 60"
+        },
+        {
+          "key": "x₅₄ (izračunano)#0",
+          "label": "x₅₄ (izračunano)",
+          "value": "0,504667"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: dvocikel ne privlači (r > 1 + √6); višje periode: samo izračunano"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,738903"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1,83"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,369161 ↔ 0,891935"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "-3,0089"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "brez trditve za r > 3,56995"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3,8308 (stolpec 355 od 400)"
+        },
+        {
+          "key": "Opomba#0",
+          "label": "Opomba",
+          "value": "Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,369161 ↔ 0,891935",
+        "kazalec: r = 3,8308; perioda: brez trditve za r > 3,56995",
+        "negibna točka x* = 0,738903",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3,83·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "x₅₄ = 0,504667 (izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    },
+    {
+      "name": "phase-portraits-bifurcation/pp5-free",
+      "rows": [
+        {
+          "key": "Parameter r#0",
+          "label": "Parameter r",
+          "value": "3,9"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Narisani koraki#0",
+          "label": "Narisani koraki",
+          "value": "0 od 60"
+        },
+        {
+          "key": "x₀ (izračunano)#0",
+          "label": "x₀ (izračunano)",
+          "value": "0,2"
+        },
+        {
+          "key": "Vrsta#0",
+          "label": "Vrsta",
+          "value": "točno: dvocikel ne privlači (r > 1 + √6); višje periode: samo izračunano"
+        },
+        {
+          "key": "Negibna točka x* = 1 - 1/r#0",
+          "label": "Negibna točka x* = 1 - 1/r",
+          "value": "0,74359"
+        },
+        {
+          "key": "Množitelj negibne točke 2 - r#0",
+          "label": "Množitelj negibne točke 2 - r",
+          "value": "-1,9"
+        },
+        {
+          "key": "Dvocikel#0",
+          "label": "Dvocikel",
+          "value": "0,358974 ↔ 0,897436"
+        },
+        {
+          "key": "Množitelj dvocikla#0",
+          "label": "Množitelj dvocikla",
+          "value": "-3,41"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "brez trditve za r > 3,56995"
+        },
+        {
+          "key": "Stolpec diagrama pri kazalcu#0",
+          "label": "Stolpec diagrama pri kazalcu",
+          "value": "r = 3,8985 (stolpec 373 od 400)"
+        },
+        {
+          "key": "Opomba#0",
+          "label": "Opomba",
+          "value": "Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
+        "diagonala y = x",
+        "dvocikel 0,358974 ↔ 0,897436",
+        "kazalec: r = 3,8985; perioda: brez trditve za r > 3,56995",
+        "negibna točka x* = 0,74359",
+        "pajkova mreža: koraki x₀, x₁, … (izračunano)",
+        "preslikava y = 3,9·x·(1 - x)",
+        "r = 1 + √6 ≈ 3,44949",
+        "r = 2,5",
+        "r = 3",
+        "r = 4",
+        "r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)",
+        "začetek x₀ = 0,2"
+      ]
+    }
+  ]
+}

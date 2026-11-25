@@ -1,0 +1,791 @@
+{
+  "graph": "lattice-paths",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(5; 3)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "56"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(8 nad 5) = 56"
+        },
+        {
+          "key": "Izbrana pot#0",
+          "label": "Izbrana pot",
+          "value": "GGGDDDDD (pot 1 od 56)"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "35"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "21"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "35 + 21 = 56"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "cilj (5; 3)",
+        "izbrana pot: GGGDDDDD",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb1/cb1-predict",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(2; 2)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "6"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(4 nad 2) = 6"
+        },
+        {
+          "key": "Izbrana pot#0",
+          "label": "Izbrana pot",
+          "value": "GGDD (pot 1 od 6)"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "3"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "3"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "3 + 3 = 6"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "cilj (2; 2)",
+        "izbrana pot: GGDD",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb1/cb1-counts",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(5; 3)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "56"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(8 nad 5) = 56"
+        },
+        {
+          "key": "Izbrana pot#0",
+          "label": "Izbrana pot",
+          "value": "GGGDDDDD (pot 1 od 56)"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "35"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "21"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "35 + 21 = 56"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "15",
+        "2",
+        "20",
+        "21",
+        "3",
+        "3",
+        "35",
+        "4",
+        "4",
+        "5",
+        "56",
+        "6",
+        "6",
+        "cilj (5; 3)",
+        "izbrana pot: GGGDDDDD",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb3/cb3-partition",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(4; 3)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "35"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(7 nad 4) = 35"
+        },
+        {
+          "key": "Izbrana pot#0",
+          "label": "Izbrana pot",
+          "value": "GGGDDDD (pot 1 od 35)"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "20"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "15"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "20 + 15 = 35"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "cilj (4; 3)",
+        "izbrana pot: GGGDDDD",
+        "polna črta: zadnji korak D; črtkana črta: zadnji korak G",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb3/cb3-identity",
+      "rows": [
+        {
+          "key": "Vnos trikotnika#0",
+          "label": "Vnos trikotnika",
+          "value": "(7 nad 4) = 35"
+        },
+        {
+          "key": "Vrstica in mesto#0",
+          "label": "Vrstica in mesto",
+          "value": "vrstica 7, mesto 4"
+        },
+        {
+          "key": "Levi starš#0",
+          "label": "Levi starš",
+          "value": "20"
+        },
+        {
+          "key": "Desni starš#0",
+          "label": "Desni starš",
+          "value": "15"
+        },
+        {
+          "key": "Vsota staršev#0",
+          "label": "Vsota staršev",
+          "value": "35"
+        },
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "128 = 2⁷"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "10",
+        "11",
+        "11",
+        "12",
+        "12",
+        "120",
+        "120",
+        "126",
+        "126",
+        "15",
+        "15",
+        "165",
+        "165",
+        "2",
+        "20",
+        "21",
+        "21",
+        "210",
+        "210",
+        "220",
+        "220",
+        "252",
+        "28",
+        "28",
+        "3",
+        "3",
+        "330",
+        "330",
+        "35",
+        "35",
+        "36",
+        "36",
+        "4",
+        "4",
+        "45",
+        "45",
+        "462",
+        "462",
+        "495",
+        "495",
+        "5",
+        "5",
+        "55",
+        "55",
+        "56",
+        "56",
+        "6",
+        "6",
+        "6",
+        "66",
+        "66",
+        "7",
+        "7",
+        "70",
+        "792",
+        "792",
+        "8",
+        "8",
+        "84",
+        "84",
+        "9",
+        "9",
+        "924",
+        "poln okvir: vnos; črtkan okvir: starša"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb3/cb3-rows",
+      "rows": [
+        {
+          "key": "Vnos trikotnika#0",
+          "label": "Vnos trikotnika",
+          "value": "(3 nad 2) = 3"
+        },
+        {
+          "key": "Vrstica in mesto#0",
+          "label": "Vrstica in mesto",
+          "value": "vrstica 3, mesto 2"
+        },
+        {
+          "key": "Levi starš#0",
+          "label": "Levi starš",
+          "value": "2"
+        },
+        {
+          "key": "Desni starš#0",
+          "label": "Desni starš",
+          "value": "1"
+        },
+        {
+          "key": "Vsota staršev#0",
+          "label": "Vsota staršev",
+          "value": "3"
+        },
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "8 = 2³"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "10",
+        "11",
+        "11",
+        "12",
+        "12",
+        "120",
+        "120",
+        "126",
+        "126",
+        "15",
+        "15",
+        "165",
+        "165",
+        "2",
+        "20",
+        "21",
+        "21",
+        "210",
+        "210",
+        "220",
+        "220",
+        "252",
+        "28",
+        "28",
+        "3",
+        "3",
+        "330",
+        "330",
+        "35",
+        "35",
+        "36",
+        "36",
+        "4",
+        "4",
+        "45",
+        "45",
+        "462",
+        "462",
+        "495",
+        "495",
+        "5",
+        "5",
+        "55",
+        "55",
+        "56",
+        "56",
+        "6",
+        "6",
+        "6",
+        "66",
+        "66",
+        "7",
+        "7",
+        "70",
+        "792",
+        "792",
+        "8",
+        "8",
+        "84",
+        "84",
+        "9",
+        "9",
+        "924",
+        "poln okvir: vnos; črtkan okvir: starša"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb3/cb3-symmetry",
+      "rows": [
+        {
+          "key": "Vnos trikotnika#0",
+          "label": "Vnos trikotnika",
+          "value": "(5 nad 3) = 10"
+        },
+        {
+          "key": "Vrstica in mesto#0",
+          "label": "Vrstica in mesto",
+          "value": "vrstica 5, mesto 3"
+        },
+        {
+          "key": "Levi starš#0",
+          "label": "Levi starš",
+          "value": "6"
+        },
+        {
+          "key": "Desni starš#0",
+          "label": "Desni starš",
+          "value": "4"
+        },
+        {
+          "key": "Vsota staršev#0",
+          "label": "Vsota staršev",
+          "value": "10"
+        },
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "32 = 2⁵"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "10",
+        "11",
+        "11",
+        "12",
+        "12",
+        "120",
+        "120",
+        "126",
+        "126",
+        "15",
+        "15",
+        "165",
+        "165",
+        "2",
+        "20",
+        "21",
+        "21",
+        "210",
+        "210",
+        "220",
+        "220",
+        "252",
+        "28",
+        "28",
+        "3",
+        "3",
+        "330",
+        "330",
+        "35",
+        "35",
+        "36",
+        "36",
+        "4",
+        "4",
+        "45",
+        "45",
+        "462",
+        "462",
+        "495",
+        "495",
+        "5",
+        "5",
+        "55",
+        "55",
+        "56",
+        "56",
+        "6",
+        "6",
+        "6",
+        "66",
+        "66",
+        "7",
+        "7",
+        "70",
+        "792",
+        "792",
+        "8",
+        "8",
+        "84",
+        "84",
+        "9",
+        "9",
+        "924",
+        "poln okvir: vnos; črtkan okvir: starša"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb4/cb4-square",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x + 1)¹"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; 1"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "2¹ = 2"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(x + 1)¹",
+        "1",
+        "1",
+        "merilo: največji |koeficient|)",
+        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x¹",
+        "x⁰"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb4/cb4-strings",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x + 1)²"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; 2; 1"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "2² = 4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(x + 1)²",
+        "1",
+        "1",
+        "2",
+        "merilo: največji |koeficient|)",
+        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x²",
+        "x¹",
+        "x⁰"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb4/cb4-weight",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x + 1)⁵"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; 5; 10; 10; 5; 1"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "2⁵ = 32"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(x + 1)⁵",
+        "1",
+        "1",
+        "10",
+        "5",
+        "5",
+        "merilo: največji |koeficient|)",
+        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x²",
+        "x³",
+        "x¹",
+        "x⁰",
+        "x⁴",
+        "x⁵"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb4/cb4-sum",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x + 2)⁴"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; 8; 24; 32; 16"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "3⁴ = 81"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(x + 2)⁴",
+        "1",
+        "16",
+        "24",
+        "32",
+        "8",
+        "merilo: največji |koeficient|)",
+        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x²",
+        "x³",
+        "x¹",
+        "x⁰",
+        "x⁴"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb4/cb4-explore",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x + 2)⁶"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; 12; 60; 160; 240; 192; 64"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "3⁶ = 729"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "(x + 2)⁶",
+        "1",
+        "12",
+        "160",
+        "192",
+        "60",
+        "64",
+        "merilo: največji |koeficient|)",
+        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x²",
+        "x³",
+        "x¹",
+        "x⁰",
+        "x⁴",
+        "x⁵",
+        "x⁶"
+      ]
+    }
+  ]
+}

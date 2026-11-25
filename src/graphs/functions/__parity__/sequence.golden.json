@@ -1,0 +1,582 @@
+{
+  "graph": "sequence",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "1"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 1)#0",
+          "label": "Zadnji prikazani člen (n = 1)",
+          "value": "1"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "1"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "izven pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "0 od 1"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "skrito"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 5",
+        "aₙ = 1/n",
+        "certifikat: skrit",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 1, v pasu: 0",
+        "ε = 0,1, L = 0, N = 5"
+      ]
+    },
+    {
+      "name": "sequence-guided/sequence-definition-step",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "12"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "0,25"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 12)#0",
+          "label": "Zadnji prikazani člen (n = 12)",
+          "value": "0,0833"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "0,0833"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "v pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "8 od 12"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "skrito"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 5",
+        "aₙ = 1/n",
+        "certifikat: skrit",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 12, v pasu: 8",
+        "ε = 0,25, L = 0, N = 5"
+      ]
+    },
+    {
+      "name": "sequence-guided/sequence-threshold-step",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "12"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "11"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 12)#0",
+          "label": "Zadnji prikazani člen (n = 12)",
+          "value": "0,0833"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "0,0833"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "v pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "2 od 12"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "N deluje"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "11"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "1/11 = 0,0909"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 11",
+        "aₙ = 1/n",
+        "certifikat: N deluje",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 12, v pasu: 2",
+        "ε = 0,1, L = 0, N = 11"
+      ]
+    },
+    {
+      "name": "sequence-guided/sequence-small-epsilon-step",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "40"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "0,01"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 40)#0",
+          "label": "Zadnji prikazani člen (n = 40)",
+          "value": "0,025"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "0,025"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "izven pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "0 od 40"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "skrito"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 5",
+        "aₙ = 1/n",
+        "certifikat: skrit",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 40, v pasu: 0",
+        "ε = 0,01, L = 0, N = 5"
+      ]
+    },
+    {
+      "name": "sequence-guided/sequence-alternating-step",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "12"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 12)#0",
+          "label": "Zadnji prikazani člen (n = 12)",
+          "value": "0,0833"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "0,0833"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "v pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "2 od 12"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "skrito"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 5",
+        "aₙ = (-1)ⁿ/n",
+        "certifikat: skrit",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 12, v pasu: 2",
+        "ε = 0,1, L = 0, N = 5"
+      ]
+    },
+    {
+      "name": "sequence-guided/sequence-oscillation-step",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "12"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "1,5"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 12)#0",
+          "label": "Zadnji prikazani člen (n = 12)",
+          "value": "1"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "1"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "v pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "12 od 12"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "skrito"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 5",
+        "aₙ = (-1)ⁿ",
+        "certifikat: skrit",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 12, v pasu: 12",
+        "ε = 1,5, L = 0, N = 5"
+      ]
+    },
+    {
+      "name": "sequence-guided/sequence-unbounded-step",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "12"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "0,5"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 12)#0",
+          "label": "Zadnji prikazani člen (n = 12)",
+          "value": "12"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "12"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "izven pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "0 od 12"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "skrito"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 5",
+        "aₙ = n",
+        "certifikat: skrit",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 12, v pasu: 0",
+        "ε = 0,5, L = 0, N = 5"
+      ]
+    },
+    {
+      "name": "sequence-guided/sequence-free-exploration",
+      "rows": [
+        {
+          "key": "Prikazani členi (največ 40)#0",
+          "label": "Prikazani členi (največ 40)",
+          "value": "12"
+        },
+        {
+          "key": "Širina pasu ε#0",
+          "label": "Širina pasu ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Kandidat za limito L#0",
+          "label": "Kandidat za limito L",
+          "value": "0"
+        },
+        {
+          "key": "Prag N#0",
+          "label": "Prag N",
+          "value": "11"
+        },
+        {
+          "key": "Zadnji prikazani člen (n = 12)#0",
+          "label": "Zadnji prikazani člen (n = 12)",
+          "value": "0,0833"
+        },
+        {
+          "key": "Razdalja |aₙ - L| zadnjega člena#0",
+          "label": "Razdalja |aₙ - L| zadnjega člena",
+          "value": "0,0833"
+        },
+        {
+          "key": "Zadnji člen glede na pas#0",
+          "label": "Zadnji člen glede na pas",
+          "value": "v pasu"
+        },
+        {
+          "key": "Prikazani členi v pasu#0",
+          "label": "Prikazani členi v pasu",
+          "value": "2 od 12"
+        },
+        {
+          "key": "Certifikat za izbrani N#0",
+          "label": "Certifikat za izbrani N",
+          "value": "skrito"
+        },
+        {
+          "key": "Najmanjši delujoči N#0",
+          "label": "Najmanjši delujoči N",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena |aₙ - L| ≤ 1/N za n ≥ N#0",
+          "label": "Ocena |aₙ - L| ≤ 1/N za n ≥ N",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
+      ],
+      "outputs": [],
+      "captions": [
+        "N = 11",
+        "aₙ = 1/n",
+        "certifikat: skrit",
+        "krogec: člen v pasu; križec: člen izven pasu",
+        "prikazani členi: 12, v pasu: 2",
+        "ε = 0,1, L = 0, N = 11"
+      ]
+    }
+  ]
+}

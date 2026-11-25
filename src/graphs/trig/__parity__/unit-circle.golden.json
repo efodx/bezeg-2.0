@@ -1,0 +1,445 @@
+{
+  "graph": "unit-circle",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "60°, π/3 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-radian/tr1-start",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "0°, 0 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "0"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "na osi"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ = 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-radian/tr1-arc",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "114,5°, 229π/360 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "≈ -0,4146932"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "≈ 0,9099613"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v drugem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ < 0, sin θ > 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-radian/tr1-sine",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "30°, π/6 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-radian/tr1-cosine",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "200°, 10π/9 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "≈ -0,9396926"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "≈ -0,3420201"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v tretjem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ < 0, sin θ < 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "cos θ",
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-radian/tr1-pythagoras",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "30°, π/6 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "cos θ",
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-radian/tr1-special",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "45°, π/4 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "√2/2 ≈ 0,7071068"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√2/2 ≈ 0,7071068"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "cos θ",
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-radian/tr1-explore",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "60°, π/3 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "cos θ",
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-addition/tr2-reflect",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "30°, π/6 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        },
+        {
+          "key": "Zrcalna slika čez os x#0",
+          "label": "Zrcalna slika čez os x",
+          "value": "(0,8660254; -0,5)"
+        },
+        {
+          "key": "Zrcalna slika čez os y#0",
+          "label": "Zrcalna slika čez os y",
+          "value": "(-0,8660254; 0,5)"
+        },
+        {
+          "key": "Zrcalna slika čez izhodišče#0",
+          "label": "Zrcalna slika čez izhodišče",
+          "value": "(-0,8660254; -0,5)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-addition/tr2-frame",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "60°, π/3 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        },
+        {
+          "key": "Kot θ + β#0",
+          "label": "Kot θ + β",
+          "value": "105°"
+        },
+        {
+          "key": "(cos (θ + β); sin (θ + β))#0",
+          "label": "(cos (θ + β); sin (θ + β))",
+          "value": "(-0,258819; 0,9659258)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "unit-circle-addition/tr2-explore",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "60°, π/3 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        },
+        {
+          "key": "Zrcalna slika čez os x#0",
+          "label": "Zrcalna slika čez os x",
+          "value": "(0,5; -0,8660254)"
+        },
+        {
+          "key": "Zrcalna slika čez os y#0",
+          "label": "Zrcalna slika čez os y",
+          "value": "(-0,5; 0,8660254)"
+        },
+        {
+          "key": "Zrcalna slika čez izhodišče#0",
+          "label": "Zrcalna slika čez izhodišče",
+          "value": "(-0,5; -0,8660254)"
+        },
+        {
+          "key": "Kot θ + β#0",
+          "label": "Kot θ + β",
+          "value": "105°"
+        },
+        {
+          "key": "(cos (θ + β); sin (θ + β))#0",
+          "label": "(cos (θ + β); sin (θ + β))",
+          "value": "(-0,258819; 0,9659258)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    }
+  ]
+}

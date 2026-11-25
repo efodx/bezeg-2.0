@@ -1,0 +1,31 @@
+{
+  "graph": "orientation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "+8: levi zavoj"
+      ]
+    },
+    {
+      "name": "orientation-guided/orientation-line",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "orientation-guided/orientation-flip",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "-8: desni zavoj"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "graph": "arc-length-param",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0, s(t) = 0"
+      ]
+    },
+    {
+      "name": "arc-length-param-guided/arc-constant-t",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0,25, s(t) = 1,9289"
+      ]
+    },
+    {
+      "name": "arc-length-param-guided/arc-speed-graph",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0,5, s(t) = 3,1955"
+      ]
+    },
+    {
+      "name": "arc-length-param-guided/arc-table",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 1, s(t) = 6,391"
+      ]
+    },
+    {
+      "name": "arc-length-param-guided/arc-equal-arcs",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0,1983, s(t) = 1,5977"
+      ]
+    },
+    {
+      "name": "arc-length-param-guided/arc-ph-exact",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "L = 10,333333",
+        "s(1) = 10,333333 (točno)",
+        "t = 0,3, s(t) = 3,8496"
+      ]
+    }
+  ]
+}

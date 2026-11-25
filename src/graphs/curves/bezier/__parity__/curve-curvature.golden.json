@@ -1,0 +1,69 @@
+{
+  "graph": "curve-curvature",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 0,5",
+        "N",
+        "Smerni kot tangente φ = 0°",
+        "T",
+        "Ukrivljenost κ = 2"
+      ]
+    },
+    {
+      "name": "curve-curvature-guided/curvature-predict",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 4,2426",
+        "Smerni kot tangente φ = 45°",
+        "Ukrivljenost κ = 0,2357"
+      ]
+    },
+    {
+      "name": "curve-curvature-guided/curvature-frame",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 16,7705",
+        "N",
+        "Smerni kot tangente φ = 63,4349°",
+        "T",
+        "Ukrivljenost κ = 0,0596"
+      ]
+    },
+    {
+      "name": "curve-curvature-guided/curvature-circle",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 1,5",
+        "N",
+        "Smerni kot tangente φ = 0°",
+        "T",
+        "Ukrivljenost κ = 0,6667"
+      ]
+    },
+    {
+      "name": "curve-curvature-guided/curvature-inflection",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "N",
+        "Smerni kot tangente φ = -45°",
+        "T",
+        "Ukrivljenost je 0: krivinska krožnica je premica, krivinski polmer je neskončen",
+        "Ukrivljenost κ = 0"
+      ]
+    }
+  ]
+}

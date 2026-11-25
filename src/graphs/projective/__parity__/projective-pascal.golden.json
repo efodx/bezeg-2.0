@@ -1,0 +1,76 @@
+{
+  "graph": "projective-pascal",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "(5, 0)",
+        "(3, 12/5)",
+        "(0, 3)",
+        "(-3, 12/5)",
+        "(0, -3)",
+        "(4, -9/5)"
+      ],
+      "captions": []
+    },
+    {
+      "name": "projective-pascal-guided/pascal-drag",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "(5, 0)",
+        "(3, 12/5)",
+        "(0, 3)",
+        "(-7/5, 72/25)",
+        "(0, -3)",
+        "(4, -9/5)"
+      ],
+      "captions": []
+    },
+    {
+      "name": "projective-pascal-guided/pascal-pappus",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "(0, 0)",
+        "(2, 0)",
+        "(5, 0)",
+        "(1, 3)",
+        "(4, 3)",
+        "(6, 3)"
+      ],
+      "captions": []
+    },
+    {
+      "name": "projective-pascal-guided/pascal-infinity",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "(0, 0)",
+        "(1, 0)",
+        "(6, 0)",
+        "(4, 3)",
+        "(3, 3)",
+        "(8, 3)"
+      ],
+      "captions": []
+    },
+    {
+      "name": "projective-pascal-guided/pascal-explore",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "(20/3, 4)",
+        "(4, 0)",
+        "(20/3, -4)",
+        "(-5, -9/4)",
+        "(-5, 9/4)",
+        "(-388/65, 216/65)"
+      ],
+      "captions": []
+    }
+  ]
+}

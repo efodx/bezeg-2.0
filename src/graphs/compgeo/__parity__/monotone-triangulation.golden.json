@@ -1,0 +1,50 @@
+{
+  "graph": "monotone-triangulation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "monotone-triangulation-guided/montri-piece",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
+      "name": "monotone-triangulation-guided/montri-test",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče",
+        "znotraj"
+      ]
+    },
+    {
+      "name": "monotone-triangulation-guided/montri-compare",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "v2 leva veriga",
+        "v3 spodnje oglišče",
+        "v4 zgornje oglišče",
+        "v5 leva veriga"
+      ]
+    }
+  ]
+}

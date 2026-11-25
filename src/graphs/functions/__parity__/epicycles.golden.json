@@ -1,0 +1,33 @@
+{
+  "graph": "epicycles",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "0"
+      ],
+      "captions": []
+    },
+    {
+      "name": "epicycles-guided/epi-radius",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "1,57"
+      ],
+      "captions": []
+    },
+    {
+      "name": "epicycles-guided/epi-trace",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "3,14"
+      ],
+      "captions": []
+    }
+  ]
+}

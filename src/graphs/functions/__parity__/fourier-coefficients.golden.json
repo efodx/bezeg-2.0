@@ -1,0 +1,351 @@
+{
+  "graph": "fourier-coefficients",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Največji harmonik K#0",
+          "label": "Največji harmonik K",
+          "value": "16"
+        },
+        {
+          "key": "Koeficient a₁#0",
+          "label": "Koeficient a₁",
+          "value": "-1,27324"
+        },
+        {
+          "key": "Integral kvadrata (1/π)∫f²#0",
+          "label": "Integral kvadrata (1/π)∫f²",
+          "value": "6,57974"
+        },
+        {
+          "key": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)#0",
+          "label": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)",
+          "value": "6,57967"
+        },
+        {
+          "key": "Vrednost vrste pri x = ±π#0",
+          "label": "Vrednost vrste pri x = ±π",
+          "value": "3,14159"
+        }
+      ],
+      "notes": [
+        "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Integral kvadrata 6,57974; Parsevalova vsota 6,57967",
+        "Produkt f · cos x",
+        "a₁ = -1,27324",
+        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/coef-overlap",
+      "rows": [
+        {
+          "key": "Največji harmonik K#0",
+          "label": "Največji harmonik K",
+          "value": "16"
+        },
+        {
+          "key": "Koeficient b₁#0",
+          "label": "Koeficient b₁",
+          "value": "0,98059"
+        },
+        {
+          "key": "Integral kvadrata (1/π)∫f²#0",
+          "label": "Integral kvadrata (1/π)∫f²",
+          "value": "2"
+        },
+        {
+          "key": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)#0",
+          "label": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)",
+          "value": "1,95204"
+        },
+        {
+          "key": "Vrednost vrste pri x = ±π#0",
+          "label": "Vrednost vrste pri x = ±π",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Integral kvadrata 2; Parsevalova vsota 1,95204",
+        "Produkt f · sin x",
+        "b₁ = 0,98059",
+        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/coef-area",
+      "rows": [
+        {
+          "key": "Največji harmonik K#0",
+          "label": "Največji harmonik K",
+          "value": "16"
+        },
+        {
+          "key": "Koeficient b₂#0",
+          "label": "Koeficient b₂",
+          "value": "-0,45077"
+        },
+        {
+          "key": "Integral kvadrata (1/π)∫f²#0",
+          "label": "Integral kvadrata (1/π)∫f²",
+          "value": "2"
+        },
+        {
+          "key": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)#0",
+          "label": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)",
+          "value": "1,95204"
+        },
+        {
+          "key": "Vrednost vrste pri x = ±π#0",
+          "label": "Vrednost vrste pri x = ±π",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Integral kvadrata 2; Parsevalova vsota 1,95204",
+        "Produkt f · sin 2x",
+        "b₂ = -0,45077",
+        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/coef-drag",
+      "rows": [
+        {
+          "key": "Največji harmonik K#0",
+          "label": "Največji harmonik K",
+          "value": "16"
+        },
+        {
+          "key": "Koeficient a₁#0",
+          "label": "Koeficient a₁",
+          "value": "-0,86795"
+        },
+        {
+          "key": "Integral kvadrata (1/π)∫f²#0",
+          "label": "Integral kvadrata (1/π)∫f²",
+          "value": "9,3408"
+        },
+        {
+          "key": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)#0",
+          "label": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)",
+          "value": "9,34077"
+        },
+        {
+          "key": "Vrednost vrste pri x = ±π#0",
+          "label": "Vrednost vrste pri x = ±π",
+          "value": "3,14159"
+        }
+      ],
+      "notes": [
+        "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Integral kvadrata 9,3408; Parsevalova vsota 9,34077",
+        "Produkt f · cos x",
+        "a₁ = -0,86795",
+        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/coef-jump",
+      "rows": [
+        {
+          "key": "Največji harmonik K#0",
+          "label": "Največji harmonik K",
+          "value": "16"
+        },
+        {
+          "key": "Koeficient b₅#0",
+          "label": "Koeficient b₅",
+          "value": "0,16344"
+        },
+        {
+          "key": "Integral kvadrata (1/π)∫f²#0",
+          "label": "Integral kvadrata (1/π)∫f²",
+          "value": "2"
+        },
+        {
+          "key": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)#0",
+          "label": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)",
+          "value": "1,95204"
+        },
+        {
+          "key": "Vrednost vrste pri x = ±π#0",
+          "label": "Vrednost vrste pri x = ±π",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Integral kvadrata 2; Parsevalova vsota 1,95204",
+        "Produkt f · sin 5x",
+        "b₅ = 0,16344",
+        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/coef-explore",
+      "rows": [
+        {
+          "key": "Največji harmonik K#0",
+          "label": "Največji harmonik K",
+          "value": "16"
+        },
+        {
+          "key": "Koeficient a₁#0",
+          "label": "Koeficient a₁",
+          "value": "0,81057"
+        },
+        {
+          "key": "Integral kvadrata (1/π)∫f²#0",
+          "label": "Integral kvadrata (1/π)∫f²",
+          "value": "2,66667"
+        },
+        {
+          "key": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)#0",
+          "label": "Parsevalova vsota a₀²/2 + Σ(aₖ² + bₖ²)",
+          "value": "2,66664"
+        },
+        {
+          "key": "Vrednost vrste pri x = ±π#0",
+          "label": "Vrednost vrste pri x = ±π",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Integral kvadrata 2,66667; Parsevalova vsota 2,66664",
+        "Produkt f · cos x",
+        "a₁ = 0,81057",
+        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/decay-three",
+      "rows": [
+        {
+          "key": "Število členov N#0",
+          "label": "Število členov N",
+          "value": "11"
+        },
+        {
+          "key": "sup |f - Sₙ|, Kvadratni val sgn(x)#0",
+          "label": "sup |f - Sₙ|, Kvadratni val sgn(x)",
+          "value": "0,9976"
+        },
+        {
+          "key": "sup |f - Sₙ|, Absolutna vrednost |x|#0",
+          "label": "sup |f - Sₙ|, Absolutna vrednost |x|",
+          "value": "0,05293"
+        },
+        {
+          "key": "sup |f - Sₙ|, Gladka funkcija 1/(2 - cos x)#0",
+          "label": "sup |f - Sₙ|, Gladka funkcija 1/(2 - cos x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Supremum napake je največje odstopanje |f - Sₙ| na mreži 20001 točk na [-π, π]; skočne točke so izključene, sosednja vozlišča mreže pa ne. Zato pri funkcijah s skokom napaka ne pade proti 0.",
+        "Izrek (samo v tej smeri): če je f 2π-periodična, je f⁽ᵐ⁻¹⁾ absolutno zvezna in f⁽ᵐ⁾ odsekoma zvezna, je |cₖ| = O(k^-(m+1)); analitične periodične funkcije imajo geometrijsko pojemanje (Zygmund, Körner). Naklon, prebran pri končnih k, je opažanje na treh primerih, ne zakon.",
+        "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "Funkcije in delne vsote Sₙ za N = 11",
+        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/decay-square",
+      "rows": [
+        {
+          "key": "Število členov N#0",
+          "label": "Število členov N",
+          "value": "101"
+        },
+        {
+          "key": "sup |f - Sₙ|, Kvadratni val sgn(x)#0",
+          "label": "sup |f - Sₙ|, Kvadratni val sgn(x)",
+          "value": "0,9796"
+        },
+        {
+          "key": "sup |f - Sₙ|, Absolutna vrednost |x|#0",
+          "label": "sup |f - Sₙ|, Absolutna vrednost |x|",
+          "value": "0,00624"
+        },
+        {
+          "key": "sup |f - Sₙ|, Gladka funkcija 1/(2 - cos x)#0",
+          "label": "sup |f - Sₙ|, Gladka funkcija 1/(2 - cos x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Supremum napake je največje odstopanje |f - Sₙ| na mreži 20001 točk na [-π, π]; skočne točke so izključene, sosednja vozlišča mreže pa ne. Zato pri funkcijah s skokom napaka ne pade proti 0.",
+        "Izrek (samo v tej smeri): če je f 2π-periodična, je f⁽ᵐ⁻¹⁾ absolutno zvezna in f⁽ᵐ⁾ odsekoma zvezna, je |cₖ| = O(k^-(m+1)); analitične periodične funkcije imajo geometrijsko pojemanje (Zygmund, Körner). Naklon, prebran pri končnih k, je opažanje na treh primerih, ne zakon.",
+        "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "Funkcije in delne vsote Sₙ za N = 101",
+        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
+      ]
+    },
+    {
+      "name": "fourier-coefficients-guided/decay-explore",
+      "rows": [
+        {
+          "key": "Število členov N#0",
+          "label": "Število členov N",
+          "value": "21"
+        },
+        {
+          "key": "sup |f - Sₙ|, Žagasti val f(x) = x#0",
+          "label": "sup |f - Sₙ|, Žagasti val f(x) = x",
+          "value": "3,12808"
+        },
+        {
+          "key": "sup |f - Sₙ|, Absolutna vrednost |x|#0",
+          "label": "sup |f - Sₙ|, Absolutna vrednost |x|",
+          "value": "0,02892"
+        },
+        {
+          "key": "sup |f - Sₙ|, Gladka funkcija 1/(2 - cos x)#0",
+          "label": "sup |f - Sₙ|, Gladka funkcija 1/(2 - cos x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Supremum napake je največje odstopanje |f - Sₙ| na mreži 20001 točk na [-π, π]; skočne točke so izključene, sosednja vozlišča mreže pa ne. Zato pri funkcijah s skokom napaka ne pade proti 0.",
+        "Izrek (samo v tej smeri): če je f 2π-periodična, je f⁽ᵐ⁻¹⁾ absolutno zvezna in f⁽ᵐ⁾ odsekoma zvezna, je |cₖ| = O(k^-(m+1)); analitične periodične funkcije imajo geometrijsko pojemanje (Zygmund, Körner). Naklon, prebran pri končnih k, je opažanje na treh primerih, ne zakon.",
+        "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "Funkcije in delne vsote Sₙ za N = 21",
+        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
+      ]
+    }
+  ]
+}
