@@ -17,8 +17,8 @@ describe('phase portrait view marks', () => {
     test('the equilibrium and the seed are the must marks; orbit samples stay inside the intent view', () => {
         const graph = mount();
         const marks = graph.getDeclaration()!.marks!;
-        // default state: the origin of the linear system and the seed (20, 0) / SEED_SCALE = (1, 0)
-        expect(marks.must).toEqual([{kind: 'point', x: 0, y: 0}, {kind: 'point', x: 1, y: 0}]);
+        // default state: the origin of the linear system, the seed (20, 0) / SEED_SCALE = (1, 0) and the drawn matrix columns (-4, -2), (-1, -3)
+        expect(marks.must).toEqual([{kind: 'point', x: 0, y: 0}, {kind: 'point', x: 1, y: 0}, {kind: 'point', x: -4, y: -2}, {kind: 'point', x: -1, y: -3}]);
         const {xMin, xMax, yMin, yMax} = graph.derived().view;
         expect(marks.nice!.length).toBeGreaterThan(0);
         for (const mark of marks.nice!) {
@@ -29,6 +29,11 @@ describe('phase portrait view marks', () => {
             }
         }
         expect(graph.getDeclaration()!.marks).toBe(marks);
+    });
+
+    test('the pendulum has no matrix columns among the must marks', () => {
+        const marks = mount(['phase-system', 'pendulum']).getDeclaration()!.marks!;
+        expect(marks.must).toHaveLength(2);
     });
 
     test('the upright pendulum has its equilibrium at (pi, 0)', () => {
