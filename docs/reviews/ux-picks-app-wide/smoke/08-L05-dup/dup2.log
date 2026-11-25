@@ -1,0 +1,138 @@
+=== initial ===
+select|select-one||"SL EN"|prs=|in=
+button|submit||"Zamenjaj demonstracijo"|prs=|in=
+button|submit||"Spoznaj to demonstracijo"|prs=|in=
+button|submit||"Predstavitveni način"|prs=false|in=
+button|button||"Premakni kartico »Legenda«"|prs=|in=Legenda
+button|button||"Legenda"|prs=|in=Legenda
+button|button||"Vrni kartico »Legenda« na privzeto mesto"|prs=|in=Legenda
+button|button||"Premakni kartico »Orodja«"|prs=|in=Orodja demonstracije
+button|button||"Uredi"|prs=true|in=Orodja demonstracije
+button|button||"Prikaz"|prs=false|in=Orodja demonstracije
+button|button||"Shrani"|prs=false|in=Orodja demonstracije
+button|button||"Orodja"|prs=|in=Orodja demonstracije
+button|button||"Vrni kartico »Orodja« na privzeto mesto"|prs=|in=Orodja demonstracije
+button|button||"↑ Dvigni stopnjo"|prs=|in=Uredi
+button|submit||"Krivulja1"|prs=false|in=Uredi
+input|text|spinbutton|"p₀, x"|prs=|in=p₀
+input|text|spinbutton|"p₀, y"|prs=|in=p₀
+input|text|spinbutton|"p₁, x"|prs=|in=p₁
+input|text|spinbutton|"p₁, y"|prs=|in=p₁
+input|text|spinbutton|"p₂, x"|prs=|in=p₂
+input|text|spinbutton|"p₂, y"|prs=|in=p₂
+input|text|spinbutton|"p₃, x"|prs=|in=p₃
+input|text|spinbutton|"p₃, y"|prs=|in=p₃
+button|button||"Več vsebine"|prs=|in=Orodja demonstracije
+button|button||"Premakni krmilnike"|prs=|in=Interaktivni graf
+div||switch|"Kontrolni poligon"|prs=true|in=Kontrolni poligon
+div||switch|"Konveksna ovojnica"|prs=false|in=Konveksna ovojnica
+button|submit||"Premakni pogled levo"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled gor"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled dol"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled desno"|prs=|in=Premikanje in povečava grafa
+button|submit||"Približaj graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Oddalji graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Prilagodi točkam"|prs=|in=Premikanje in povečava grafa
+button|submit||"Naslednji namig"|prs=|in=Preizkusi in opazuj
+=== tab 0 Uredi ===
+select|select-one||"SL EN"|prs=|in=
+button|submit||"Zamenjaj demonstracijo"|prs=|in=
+button|submit||"Spoznaj to demonstracijo"|prs=|in=
+button|submit||"Predstavitveni način"|prs=false|in=
+button|button||"Premakni kartico »Legenda«"|prs=|in=Legenda
+button|button||"Legenda"|prs=|in=Legenda
+button|button||"Vrni kartico »Legenda« na privzeto mesto"|prs=|in=Legenda
+button|button||"Premakni kartico »Orodja«"|prs=|in=Orodja demonstracije
+button|button||"Uredi"|prs=true|in=Orodja demonstracije
+button|button||"Prikaz"|prs=false|in=Orodja demonstracije
+button|button||"Shrani"|prs=false|in=Orodja demonstracije
+button|button||"Orodja"|prs=|in=Orodja demonstracije
+button|button||"Vrni kartico »Orodja« na privzeto mesto"|prs=|in=Orodja demonstracije
+button|button||"↑ Dvigni stopnjo"|prs=|in=Uredi
+button|submit||"Krivulja1"|prs=false|in=Uredi
+input|text|spinbutton|"p₀, x"|prs=|in=p₀
+input|text|spinbutton|"p₀, y"|prs=|in=p₀
+input|text|spinbutton|"p₁, x"|prs=|in=p₁
+input|text|spinbutton|"p₁, y"|prs=|in=p₁
+input|text|spinbutton|"p₂, x"|prs=|in=p₂
+input|text|spinbutton|"p₂, y"|prs=|in=p₂
+input|text|spinbutton|"p₃, x"|prs=|in=p₃
+input|text|spinbutton|"p₃, y"|prs=|in=p₃
+button|button||"Več vsebine"|prs=|in=Orodja demonstracije
+button|button||"Premakni krmilnike"|prs=|in=Interaktivni graf
+div||switch|"Kontrolni poligon"|prs=true|in=Kontrolni poligon
+div||switch|"Konveksna ovojnica"|prs=false|in=Konveksna ovojnica
+button|submit||"Premakni pogled levo"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled gor"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled dol"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled desno"|prs=|in=Premikanje in povečava grafa
+button|submit||"Približaj graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Oddalji graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Prilagodi točkam"|prs=|in=Premikanje in povečava grafa
+button|submit||"Naslednji namig"|prs=|in=Preizkusi in opazuj
+=== tab 1 Prikaz ===
+select|select-one||"SL EN"|prs=|in=
+button|submit||"Zamenjaj demonstracijo"|prs=|in=
+button|submit||"Spoznaj to demonstracijo"|prs=|in=
+button|submit||"Predstavitveni način"|prs=false|in=
+button|button||"Premakni kartico »Legenda«"|prs=|in=Legenda
+button|button||"Legenda"|prs=|in=Legenda
+button|button||"Vrni kartico »Legenda« na privzeto mesto"|prs=|in=Legenda
+button|button||"Premakni kartico »Orodja«"|prs=|in=Orodja demonstracije
+button|button||"Uredi"|prs=false|in=Orodja demonstracije
+button|button||"Prikaz"|prs=true|in=Orodja demonstracije
+button|button||"Shrani"|prs=false|in=Orodja demonstracije
+button|button||"Orodja"|prs=|in=Orodja demonstracije
+button|button||"Vrni kartico »Orodja« na privzeto mesto"|prs=|in=Orodja demonstracije
+input|checkbox||"Oznake točk"|prs=|in=Prikaz
+input|checkbox||"Kontrolne točke"|prs=|in=Prikaz
+input|checkbox||"Pokaži nove točke na kontrolnem poligonu"|prs=|in=Prikaz
+select|select-one||""|prs=|in=Prikaz
+input|text|spinbutton|""|prs=|in=Prikaz
+input|range||""|prs=|in=Prikaz
+button|button||"Premakni krmilnike"|prs=|in=Interaktivni graf
+div||switch|"Kontrolni poligon"|prs=true|in=Kontrolni poligon
+div||switch|"Konveksna ovojnica"|prs=false|in=Konveksna ovojnica
+button|submit||"Premakni pogled levo"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled gor"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled dol"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled desno"|prs=|in=Premikanje in povečava grafa
+button|submit||"Približaj graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Oddalji graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Prilagodi točkam"|prs=|in=Premikanje in povečava grafa
+button|submit||"Naslednji namig"|prs=|in=Preizkusi in opazuj
+=== tab 2 Shrani ===
+select|select-one||"SL EN"|prs=|in=
+button|submit||"Zamenjaj demonstracijo"|prs=|in=
+button|submit||"Spoznaj to demonstracijo"|prs=|in=
+button|submit||"Predstavitveni način"|prs=false|in=
+button|button||"Premakni kartico »Legenda«"|prs=|in=Legenda
+button|button||"Legenda"|prs=|in=Legenda
+button|button||"Vrni kartico »Legenda« na privzeto mesto"|prs=|in=Legenda
+button|button||"Premakni kartico »Orodja«"|prs=|in=Orodja demonstracije
+button|button||"Uredi"|prs=false|in=Orodja demonstracije
+button|button||"Prikaz"|prs=false|in=Orodja demonstracije
+button|button||"Shrani"|prs=true|in=Orodja demonstracije
+button|button||"Orodja"|prs=|in=Orodja demonstracije
+button|button||"Vrni kartico »Orodja« na privzeto mesto"|prs=|in=Orodja demonstracije
+button|button||"Privzeto stanje izbrano"|prs=|in=Shrani
+button|button||"Ponastavi prednastavitev"|prs=|in=Shrani
+button|button||"Shrani trenutno stanje …"|prs=|in=Shrani
+button|button||"Izvozi prednastavitve"|prs=|in=Shrani
+button|button||"Uvozi prednastavitve"|prs=|in=Shrani
+button|button||"SVG"|prs=|in=Shrani
+button|button||"PNG"|prs=|in=Shrani
+button|button||"Generiraj slike za prednastavitve"|prs=|in=Shrani
+button|button||"Več vsebine"|prs=|in=Orodja demonstracije
+button|button||"Premakni krmilnike"|prs=|in=Interaktivni graf
+div||switch|"Kontrolni poligon"|prs=true|in=Kontrolni poligon
+div||switch|"Konveksna ovojnica"|prs=false|in=Konveksna ovojnica
+button|submit||"Premakni pogled levo"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled gor"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled dol"|prs=|in=Premikanje in povečava grafa
+button|submit||"Premakni pogled desno"|prs=|in=Premikanje in povečava grafa
+button|submit||"Približaj graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Oddalji graf"|prs=|in=Premikanje in povečava grafa
+button|submit||"Prilagodi točkam"|prs=|in=Premikanje in povečava grafa
+button|submit||"Naslednji namig"|prs=|in=Preizkusi in opazuj
+errors: []

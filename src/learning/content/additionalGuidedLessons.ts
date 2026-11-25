@@ -1,8 +1,12 @@
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ElevationIds} from '../../graphs/curves/bezier/ElevationGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly string[]): GuidedLessonFrame => ({id, kind, formulaIds});
+const frame = (id: string, kind: GuidedLessonFrameKind, formulaIds?: readonly string[], declare?: FrameDeclaration): GuidedLessonFrame =>
+    ({id, kind, formulaIds, ...(declare ? {declare} : {})});
+const elevationFrame = frameDeclarer<ElevationIds>();
 
 /**
  * Rational De Casteljau fixtures at t=1/2. Quadratic P=(-4,-3),(0,3),(4,-3): w=(1,1,1) gives rows (-2,0),(2,0) and B=(0,0);
@@ -294,7 +298,7 @@ const elevation: GuidedLesson = {
                 'A cubic Bézier curve has four control points. Degree elevation will add a fifth point, while the drawn curve should stay the same. The solid polygon \\(P_0,\\dots,P_3\\) belongs to the curve; the dashed five-point polygon \\(Q_0,\\dots,Q_4\\) is the polygon of the elevated representation of the same curve.',
             ),
             formulaIds: ['elevation-shape-invariance'],
-            frames: [frame('elevation-degree-explanation', 'explanation'), frame('elevation-degree-observation', 'observation')],
+            frames: [frame('elevation-degree-explanation', 'explanation'), frame('elevation-degree-observation', 'observation', undefined, elevationFrame({open: ['legend']}))],
             observationPrompt: text('Preštej točke polnega in črtkanega poligona ter ugotovi, kateri od njiju določa krivuljo, ki jo trenutno vlečeš.', 'Count the points of the solid and the dashed polygon and decide which of them defines the curve you are currently dragging.'),
             expectedObservations: [text('Polni poligon ima štiri točke (stopnja 3), črtkani pet; krivulja je ena sama.', 'The solid polygon has four points (degree 3), the dashed one five; there is a single curve.')],
             scene: {
@@ -349,7 +353,7 @@ const elevation: GuidedLesson = {
                 'Degree elevation is useful when a common degree or extra control points are needed without changing the curve geometry. After pressing the button the solid polygon is the former dashed \\(Q\\); the new dashed polygon previews the next elevation and is not the original \\(P\\).',
             ),
             formulaIds: ['elevation-shape-invariance'],
-            frames: [frame('elevation-analysis-explanation', 'explanation'), frame('elevation-analysis-observation', 'observation')],
+            frames: [frame('elevation-analysis-explanation', 'explanation'), frame('elevation-analysis-observation', 'observation', undefined, elevationFrame({uses: ['elevate'], open: ['tools']}))],
             observationPrompt: text('Izberi več vrednosti \\(t\\) in preveri, ali se oblika in krajišči ujemajo.', 'Choose several \\(t\\) values and check whether the shape and endpoints agree.'),
             expectedObservations: [text('Pri običajnem intervalu se ujemajo vse preverjene točke, ne samo sredina.', 'All checked points agree on the ordinary interval, not only the midpoint.')],
             scene: {

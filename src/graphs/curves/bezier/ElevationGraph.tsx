@@ -1,4 +1,6 @@
-import {t} from "../../../localization";
+import {message, t} from "../../../localization";
+import type {GraphDeclaration} from "../../base/declare/graphDeclaration";
+import {runAs} from "../../base/writes/writeSource";
 import React from 'react';
 
 import {CurveOperation} from "../../base/controls/BezierCurveControls";
@@ -12,7 +14,29 @@ import {TransientState} from "../../base/BaseGraph";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {elevationPresetCollection} from "./collections";
 
+/** The ids of the elevation declaration: the generic curve workspace actions plus the overlay switch and the elevate button. */
+export type ElevationIds = {
+    param: never; row: never; note: never; legend: "curve-0" | "control-points-0"; section: never;
+    action: "elevated-points" | "elevate" | "point-labels" | "control-polygon-0" | "convex-hull-0" | "control-points-0";
+};
+
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** Declares the common curve workspace (legend, view marks, display switches) plus the elevation overlay and the elevate button. */
+    protected override declaresCurveWorkspace() { return true; }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        const common = this.commonCurveDeclaration();
+        return {...common, actions: [...(common.actions ?? []),
+            {id: "elevated-points", label: message("show_elevated_points_on_control_polygon"), placement: "tools", section: "display", enabled: true, pressed: this.elevationOverlayOn},
+            {id: "elevate", label: message("elevate_degree"), placement: "tools", section: "elevation", enabled: true}]};
+    }
+
+    override performAction(id: string): void {
+        if (id === "elevated-points") { runAs("learner", () => this.setElevationOverlay(!this.elevationOverlayOn)); return; }
+        if (id === "elevate") { runAs("learner", () => { this.elevate(); this.store.notify(); }); return; }
+        super.performAction(id);
+    }
+
     /** The elevation preview and apply lead Edit and stay while a curve is selected (graph-control first use). */
     protected override workspaceConstructionFirst() { return true; }
     /** Typed coordinates for the draggable control points (shared edit-only list). */
