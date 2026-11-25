@@ -5,6 +5,7 @@ import {runAs} from "../../base/writes/writeSource";
 import React from 'react';
 
 import {CurveOperation} from "../../base/controls/BezierCurveControls";
+import type {DisplayToggle} from "../../base/controls/CurveDisplayControls";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
@@ -16,7 +17,7 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {elevationPresetCollection} from "./collections";
 
 /** The ids of the elevation declaration: the generic curve workspace actions plus the overlay switch and the elevate button. */
-export type ElevationIds = Omit<BaseCurveIds, "action"> & {action: BaseCurveIds["action"] | "elevated-points" | "elevate"};
+export type ElevationIds = Omit<BaseCurveIds, "action" | "legend"> & {action: BaseCurveIds["action"] | "elevated-points" | "elevate"; legend: BaseCurveIds["legend"] | "elevated"};
 
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     /** Declares the common curve workspace (legend, view marks, display switches) plus the elevation overlay and the elevate button. */
@@ -24,9 +25,26 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
 
     protected override declaration(): GraphDeclaration<ElevationIds> | undefined {
         const common = this.commonCurveDeclaration();
-        return {...common, actions: [...(common.actions ?? []),
-            {id: "elevated-points", label: message("show_elevated_points_on_control_polygon"), placement: "tools", section: "display", enabled: true, pressed: this.elevationOverlayOn},
-            {id: "elevate", label: message("elevate_degree"), placement: "tools", section: "elevation", enabled: true}]};
+        return {...common,
+            legend: [...(common.legend ?? []), ...(this.elevationOverlayOn ? [{id: "elevated" as const, label: message("elevation_legend_elevated_points"), kind: "point" as const, object: "elevated"}] : [])],
+            actions: [...(common.actions ?? []),
+                {id: "elevated-points", label: message("show_elevated_points_on_control_polygon"), placement: "tools", section: "display", enabled: true, pressed: this.elevationOverlayOn},
+                // The graph's main action is on the board; the Orodja panel keeps the preview and the same button.
+                {id: "elevate", label: message("elevate_degree"), placement: "board", enabled: true}]};
+    }
+
+    /** The overlay forces the control polygon on while it is shown, so the polygon is a switch in Orodja, not a puck that would fight it. */
+    protected override curveDisplayPuck(toggle: DisplayToggle): boolean {
+        return toggle !== "control-polygon";
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== "elevated") return super.drawnObject(id);
+        const point: JXG.GeometryElement | undefined = this.getFirstJxgCurve()?.getElevatePoints()[0];
+        if (!point) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = point as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp("fillcolor")), visible: Boolean(drawn.evalVisProp("visible"))};
     }
 
     override performAction(id: string): void {

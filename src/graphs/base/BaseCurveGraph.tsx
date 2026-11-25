@@ -357,8 +357,12 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
 
     /** The id of the board puck of one curve's display switch, when it is one (control polygon and convex hull of a lone curve); else undefined. */
     private curveDisplayPuckId(toggle: DisplayToggle, index: number): string | undefined {
-        return this.jxgCurves.length === 1 && (toggle === "control-polygon" || toggle === "convex-hull") ? this.curveSwitchId(toggle, index) : undefined;
+        return this.jxgCurves.length === 1 && (toggle === "control-polygon" || toggle === "convex-hull") && this.curveDisplayPuck(toggle, index)
+            ? this.curveSwitchId(toggle, index) : undefined;
     }
+
+    /** Whether a display switch that could be a board puck is one. A graph that drives a switch itself (the elevation overlay forces the control polygon on) vetoes it here. */
+    protected curveDisplayPuck(_toggle: DisplayToggle, _index: number): boolean { return true; }
 
     private curveSwitchId(toggle: DisplayToggle, index: number): `${DisplayToggle}-${number}` { return `${toggle}-${index}`; }
 

@@ -12,12 +12,12 @@ beforeEach(() => setLanguage('sl'));
 
 type Writes = Record<string, number | string>;
 const states: {name: string; writes: Writes; inverse: boolean; tangent: boolean; params: string[]; legend: string[]}[] = [
-    {name: 'default', writes: {}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector']},
-    {name: 'square, inverse hidden', writes: {'inverse-x0': 1.2}, inverse: false, tangent: false, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'mirror-line', 'connector']},
-    {name: 'square x0 = 0 (vertical inverse tangent)', writes: {'inverse-x0': 0}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector']},
-    {name: 'exponential base 3', writes: {'inverse-restriction': 'exp', 'inverse-base': 3, 'inverse-x0': 0.5}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-base', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector']},
-    {name: 'exponential base 0.5, tangents hidden', writes: {'inverse-restriction': 'exp', 'inverse-base': 0.5, 'inverse-x0': -1}, inverse: true, tangent: false, params: ['inverse-x0', 'inverse-base', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector']},
-    {name: 'natural', writes: {'inverse-restriction': 'natural', 'inverse-x0': 1.5}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector']},
+    {name: 'default', writes: {}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector', 'point-p', 'point-mirror']},
+    {name: 'square, inverse hidden', writes: {'inverse-x0': 1.2}, inverse: false, tangent: false, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'mirror-line', 'connector', 'point-p', 'point-mirror']},
+    {name: 'square x0 = 0 (vertical inverse tangent)', writes: {'inverse-x0': 0}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector', 'point-p', 'point-mirror']},
+    {name: 'exponential base 3', writes: {'inverse-restriction': 'exp', 'inverse-base': 3, 'inverse-x0': 0.5}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-base', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector', 'point-p', 'point-mirror']},
+    {name: 'exponential base 0.5, tangents hidden', writes: {'inverse-restriction': 'exp', 'inverse-base': 0.5, 'inverse-x0': -1}, inverse: true, tangent: false, params: ['inverse-x0', 'inverse-base', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector', 'point-p', 'point-mirror']},
+    {name: 'natural', writes: {'inverse-restriction': 'natural', 'inverse-x0': 1.5}, inverse: true, tangent: true, params: ['inverse-x0', 'inverse-restriction'], legend: ['forward', 'inverse', 'mirror-line', 'connector', 'point-p', 'point-mirror']},
 ];
 
 describe('Function inverse declares through BaseFunctionGraph', () => {

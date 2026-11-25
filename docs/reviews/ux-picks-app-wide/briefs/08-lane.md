@@ -50,6 +50,18 @@ files, lesson files, own tests) and its worktree. Everything else is here.
    `just check-changed`, no build, no browser.
 5. Time: note the wall-clock minutes from start to green for the demonstration.
 
+6. Tagging rule: a DOM event handler (`onChange`, `onClick`, a button, a slider) relies on `learnerInputTagging` (window capture
+   listeners tag pointer, key, click, input and change dispatches as `learner`): no `runAs('learner')` in it. `runAs('learner', ...)`
+   only for entry points outside the DOM: JSXGraph drag handlers, imperative calls (`performAction`) and tests.
+7. The red check must break a value, `pressed` or visibility (a row text, a pressed state, a legend `visible`), not rename an id: an
+   id rename fails on the id comparison alone and proves nothing about the values.
+8. Run the family directory's tests (`src/graphs/<family>/`) and the lane's `sharedTests` from `08-partition.json`
+   (`just graph-check` runs the shared ones), not only the graph's own tests.
+9. The example for a function demonstration is function-inverse (legend with one entry per drawn object, board actions, two curves).
+   A tools group that pucks may own is wrapped in `PuckOwnedGroup` (`src/graphs/base/controls/PuckOwnership.tsx`), so no empty
+   group or orphan label is left. A subclass that drives a switch itself vetoes the base's puck for it (`curveDisplayPuck`).
+   Refusal text uses the shared `DomainError` with a catalog `message(...)` (Slovenian and English), never English strings.
+
 ## Report
 
 At most 300 words: per demonstration one line `id: done | stopped (reason) — minutes — files — placement judgements`, the

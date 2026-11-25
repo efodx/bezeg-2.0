@@ -2,6 +2,8 @@
 const sl = {
     "function_inverse_legend_connector": "Daljica PP′",
     "function_inverse_tangents": "Tangenti",
+    "function_inverse_legend_point_p": "Točka P",
+    "function_inverse_legend_point_mirror": "Zrcalna točka P′",
 } as const;
 
 export const functionInverse = {
@@ -9,5 +11,7 @@ export const functionInverse = {
     en: {
         "function_inverse_legend_connector": "Segment PP′",
         "function_inverse_tangents": "Tangents",
+        "function_inverse_legend_point_p": "Point P",
+        "function_inverse_legend_point_mirror": "Mirror point P′",
     } satisfies Record<keyof typeof sl, string>,
 };

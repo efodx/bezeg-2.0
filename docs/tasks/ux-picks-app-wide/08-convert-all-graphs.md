@@ -39,6 +39,17 @@ Triage: [`08-triage.md`](../../reviews/ux-picks-app-wide/inventory/08-triage.md)
 - **`equalAxisUnits` false** (19): the director's fit already takes the intent's `keepAspectRatio`; a graph whose content is tall relative to its width declares `followView` as bisection does.
 - **Board captions and formula values** (54): stay board-drawn in 08; that cards can cover them stays an open item for the feel follow-ups.
 
+## Round 1 measurements (from `briefs/notes/08-lane-L0*.md`)
+
+| Lane | Demonstration | Wall-clock | Worker sessions | Repairs after the lane |
+|---|---|---|---|---|
+| L05 | elevation | about 5 min (16:58 to 17:04) | 1 | batch C: puck veto, `elevate` on the board, legend entry for the new points |
+| L06 | function-inverse | about 16 min to unit green (16:44 to 17:00), then graph-check and golden | not stated in the notes | batch B (plotted list), batch C (empty groups, P and P' legend entries) |
+| L01 | bspline-blossom | first session ended at the budget signal (started 17:11, tsc only), second about 17 min | 2 | batch B (view marks), batch C (localized refusals, tagging) |
+
+Files per demonstration were not tallied in the notes; take them from the round-1 commits' `git show --stat`. The common misses of
+`08-lane.md` (empty `inspector-group`, legend entries per marker, red check on an id, tagging) all came from the review of round 1.
+
 ## Estimate
 
 Not known yet. The trial's figure (about 50k context and 5 minutes per graph in a long session) came from conversions that kept the old UI behind a flag, edited no tests and wrote no catalog keys, and all twelve were "accept with fixes". Planning figure: two or three demonstrations per session, so roughly 45 to 65 sessions after the pilots and the shared-code step. Round one decides.

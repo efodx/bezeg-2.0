@@ -200,6 +200,11 @@ export abstract class AbstractJXGBezierCurve<T extends BezierCurve, Attr extends
         this.createElevatePoints();
     }
 
+    /** The points of the elevated curve's control polygon while the overlay is shown, else none. */
+    getElevatePoints(): readonly JXG.Point[] {
+        return this.elevationPoints;
+    }
+
     hideElevatePoints() {
         this.showingElevatePoints = false;
         this.removeElevatePoints();

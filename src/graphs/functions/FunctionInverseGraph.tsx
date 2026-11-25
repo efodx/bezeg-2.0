@@ -6,7 +6,7 @@ import {currentLanguage, message, messageNumber, t, type Message} from "../../lo
 import type {FormattedValue, GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {runAs} from "../base/writes/writeSource";
-import {PuckOwned} from "../base/controls/PuckOwnership";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {Point2} from "../../analysis/transformation";
 import {SlopeResult} from "../../analysis/inverse";
@@ -24,7 +24,7 @@ import {RevealButton} from "../../inputs/RevealButton";
 export type FunctionInverseIds = {
     param: "inverse-x0" | "inverse-base" | "inverse-restriction";
     row: "pair" | "hypothesis" | "point" | "mirror" | "forward-slope" | "inverse-slope" | "product" | "domain" | "asymptote";
-    note: never; legend: "forward" | "inverse" | "mirror-line" | "connector"; section: never; action: "inverse" | "tangent";
+    note: never; legend: "forward" | "inverse" | "mirror-line" | "connector" | "point-p" | "point-mirror"; section: never; action: "inverse" | "tangent";
 };
 
 /** Positions and slopes show four decimals, so that 0.25 and 5.5452 are read off. */
@@ -212,6 +212,8 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
             ...this.styles.point.default, name: "", withLabel: false, fixed: true, fillColor: GraphPalette.comparisonCurve, highlightFillColor: GraphPalette.comparisonCurve,
             size: () => Math.max(4, this.displaySettings.pointSize),
         })) as JXG.Point;
+        this.drawn.set("point-p", this.dotP);
+        this.drawn.set("point-mirror", this.dotMirror);
         this.syncSceneToModel();
 
         // The pair, the points and the slopes stay on the board (projection needs them).
@@ -279,27 +281,27 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         const language = currentLanguage();
         const [x0Min, x0Max] = inverseX0Range(state.restriction, state.base);
         return <>
-            <div className="inspector-group">
-                <PuckOwned param="inverse-x0"><Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/></PuckOwned>
-            </div>
-            <div className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>
+            <PuckOwnedGroup params={["inverse-x0"]} className="inspector-group">
+                <Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["inverse", "tangent"]} className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>
                 <PuckOwned param="inverse"><RevealButton action="toggle-inverse" revealed={state.inverseVisible} showLabel={t("function_inverse_inverse_show")} hideLabel={t("function_inverse_inverse_hide")}
                               onToggle={() => this.setInverseVisible(!this.model.inverseVisible)}/></PuckOwned>
                 <PuckOwned param="tangent"><RevealButton action="toggle-tangent" revealed={state.tangentVisible} showLabel={t("function_inverse_tangent_show")} hideLabel={t("function_inverse_tangent_hide")}
                               onToggle={() => this.setTangentVisible(!this.model.tangentVisible)}/></PuckOwned>
-            </div>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("function_inverse_restriction_label")} value={state.restriction} help={t("function_inverse_restriction_help")}
                               options={INVERSE_RESTRICTION_IDS.map(id => ({value: id, text: t(RESTRICTION_KEYS[id])}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setRestriction(next))}/>
             </div>
-            <div className="inspector-group">
-                {state.restriction === "exp" &&
-                    <PuckOwned param="inverse-base"><Slider customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
-                                 rejectedHint={t("function_inverse_base_hint", {value0: formatNumber(INVERSE_BASE_MIN, language), value1: formatNumber(INVERSE_BASE_MAX, language)})}
-                                 onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/></PuckOwned>}
-            </div>
+            {state.restriction === "exp" &&
+                <PuckOwnedGroup params={["inverse-base"]} className="inspector-group">
+                    <Slider customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
+                            rejectedHint={t("function_inverse_base_hint", {value0: formatNumber(INVERSE_BASE_MIN, language), value1: formatNumber(INVERSE_BASE_MAX, language)})}
+                            onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>
+                </PuckOwnedGroup>}
         </>;
     }
 
@@ -381,6 +383,8 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
                 ...(model.inverseVisible ? [{id: "inverse" as const, label: message("function_inverse_legend_inverse"), kind: "line" as const, object: "inverse"}] : []),
                 {id: "mirror-line", label: message("function_inverse_legend_mirror_line"), kind: "dashed", object: "mirror-line"},
                 {id: "connector", label: message("function_inverse_legend_connector"), kind: "dashed", object: "connector"},
+                {id: "point-p", label: message("function_inverse_legend_point_p"), kind: "point", object: "point-p"},
+                {id: "point-mirror", label: message("function_inverse_legend_point_mirror"), kind: "point", object: "point-mirror"},
             ],
             actions: [
                 {id: "inverse", label: message("function_inverse_legend_inverse"), placement: "board", enabled: true, pressed: model.inverseVisible, puck: true},
@@ -394,7 +398,8 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         if (!drawn) return undefined;
         // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
         const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
-        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+        const colorProperty = id === "point-p" || id === "point-mirror" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
     }
 
     override performAction(id: string): void {

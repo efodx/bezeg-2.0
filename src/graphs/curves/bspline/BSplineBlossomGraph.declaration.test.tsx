@@ -72,6 +72,22 @@ describe('Blossom declaration', () => {
         view.unmount();
     });
 
+    test('a refused write carries a localized reason, and the notes follow a language switch', () => {
+        const {graph, declaration, view} = setup();
+        const refusal = () => {
+            const result = graph.parameters!.write('blossom-c', 0.5, 'learner');
+            expect(result.status).toBe('refused-domain');
+            return result.status === 'refused-domain' ? result.error.message : '';
+        };
+        expect(refusal()).toBe('Cvetenje stopnje 2 nima argumenta c.');
+        const note = () => renderMessage(declaration().notes!.find(n => n.id === 'reversed')!.text);
+        expect(note()).toMatch(/^Obrnjen vrstni red: f\(/);
+        setLanguage('en');
+        expect(refusal()).toBe('The blossom of degree 2 has no argument c.');
+        expect(note()).toMatch(/^Reversed order: f\(/);
+        view.unmount();
+    });
+
     test('performAction toggles the Bezier points as the learner and refuses an unknown action', () => {
         const {graph, declaration, view} = setup();
         expect(declaration().actions![0].pressed).toBe(true);

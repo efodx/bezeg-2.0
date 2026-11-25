@@ -28,7 +28,7 @@ describe('Elevation declares through the curve workspace', () => {
             const declaration = graph.getDeclaration() as GraphDeclaration;
             expect(checkDeclaration(declaration)).toEqual([]);
             for (const entry of declaration.legend ?? []) expect((graph as unknown as Probe).drawnObject(entry.object), entry.id).toBeDefined();
-            expect(declaration.legend?.map(entry => entry.id)).toEqual(['curve-0', 'control-points-0']);
+            expect(declaration.legend?.map(entry => entry.id)).toEqual(name === 'overlay off' ? ['curve-0', 'control-points-0'] : ['curve-0', 'control-points-0', 'elevated']);
             expect(declaration.marks?.must).toHaveLength(points);
         });
     }
@@ -40,8 +40,14 @@ describe('Elevation declares through the curve workspace', () => {
         const actions = () => new Map((graph.getDeclaration()?.actions ?? []).map(action => [action.id as string, action]));
         expect([...actions().keys()]).toEqual(['point-labels', 'control-polygon-0', 'convex-hull-0', 'control-points-0', 'elevated-points', 'elevate']);
         expect(actions().get('elevated-points')).toMatchObject({placement: 'tools', section: 'display', pressed: true});
-        expect(actions().get('elevate')).toMatchObject({placement: 'tools', section: 'elevation', enabled: true});
-        expect(actions().get('control-polygon-0')).toMatchObject({placement: 'board', puck: true});
+        expect(actions().get('elevate')).toMatchObject({placement: 'board', enabled: true});
+        expect(actions().get('elevate')!.puck).toBeUndefined();
+        // The overlay forces the control polygon on, so the base's puck for it is vetoed and it stays a switch in Orodja.
+        expect(actions().get('control-polygon-0')).toMatchObject({placement: 'tools', section: 'display'});
+        expect(actions().get('control-polygon-0')!.puck).toBeUndefined();
+        expect(actions().get('convex-hull-0')).toMatchObject({placement: 'board', puck: true});
+        expect((graph.getDeclaration()?.legend ?? []).map(entry => entry.id)).toContain('elevated');
+        expect(probe.drawnObject('elevated')).toMatchObject({visible: true});
         act(() => probe.performAction('elevated-points'));
         expect(actions().get('elevated-points')!.pressed).toBe(false);
         act(() => probe.performAction('elevated-points'));

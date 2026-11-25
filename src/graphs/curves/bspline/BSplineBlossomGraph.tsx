@@ -6,6 +6,7 @@ import {evaluate} from "../../../bezeg/impl/curve/bspline";
 import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
 import {PuckOwned} from "../../base/controls/PuckOwnership";
 import {runAs} from "../../base/writes/writeSource";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import type {ParameterBinding} from "../../base/writes/parameterArbiter";
 import {MAX_CHOICE_PUCK_OPTIONS} from "../../base/declare/graphDeclaration";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
@@ -51,11 +52,6 @@ export type BSplineBlossomIds = {
     section: never;
     action: 'show-bezier';
 };
-
-/** The arbiter reads `DomainError` by name: a refused value leaves the state as it was. */
-class BlossomDomainError extends Error {
-    override name = 'DomainError';
-}
 
 const initialData = (): Omit<BSplineBlossomState, 'initialized'> => {
     const {degree, knots, points} = defaultBlossomData();
@@ -282,8 +278,8 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         const argument = (index: number): ParameterBinding => ({
             read: () => this.state.args[index],
             apply: (value: unknown) => {
-                if (index >= this.state.degree) throw new BlossomDomainError(`The blossom of degree ${this.state.degree} has no argument ${ARGUMENT_NAMES[index]}.`);
-                if (typeof value !== 'number' || !Number.isFinite(value)) throw new BlossomDomainError('An argument must be a finite number.');
+                if (index >= this.state.degree) throw new DomainError(message('bsl_no_argument', {value0: String(this.state.degree), value1: ARGUMENT_NAMES[index]}));
+                if (typeof value !== 'number' || !Number.isFinite(value)) throw new DomainError(message('bsl_argument_not_finite'));
                 this.setArgument(index, value);
             },
         });
@@ -295,7 +291,7 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
                 read: () => String(this.state.segment),
                 apply: (value: unknown) => {
                     const segment = Number(value);
-                    if (!blossomSegments(this.state.knots, this.state.degree).includes(segment)) throw new BlossomDomainError(`There is no segment ${String(value)}.`);
+                    if (!blossomSegments(this.state.knots, this.state.degree).includes(segment)) throw new DomainError(message('bsl_no_segment', {value0: String(value)}));
                     this.setSegment(segment);
                 },
             },
@@ -432,18 +428,18 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
                 <h3 id="bsl-title">{t("bsl_title")}</h3>
                 {args.slice(0, degree).map((value, i) =>
                     <Slider key={`${degree}-${i}`} min={start} max={end} step={BLOSSOM_ARG_STEP} decimals={2} value={Math.min(end, Math.max(start, value))}
-                            customText={t("bsl_arg", {value0: ARGUMENT_NAMES[i]})} onChange={v => runAs('learner', () => this.setArgument(i, v))}/>)}
+                            customText={t("bsl_arg", {value0: ARGUMENT_NAMES[i]})} onChange={v => this.setArgument(i, v)}/>)}
             </div></PuckOwned>,
             <PuckOwned key="segment" param="blossom-segment"><div><ChoiceSelect label={t("bsl_segment")} value={String(segment)}
                                              options={blossomSegments(knots, degree).map(j => ({
                                                  value: String(j), text: t("bsl_segment_option", {value0: num(knots[j]), value1: num(knots[j + 1])}),
                                              }))}
-                                             onChange={value => runAs('learner', () => this.setSegment(Number(value)))}/></div></PuckOwned>,
+                                             onChange={value => this.setSegment(Number(value))}/></div></PuckOwned>,
             <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BLOSSOM_DEGREES[0]} max={maxDegree}
                                            maxReason={maxDegree < BLOSSOM_DEGREES[BLOSSOM_DEGREES.length - 1] ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
                                            onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
                                            onSet={value => this.setDegree(value)}/></div>,
-            <PuckOwned key="bezier" param="show-bezier"><div><OnOffSwitch checked={showBezier} label={t("bsl_bezier")} onChange={show => runAs('learner', () => this.setShowBezier(show))}/></div></PuckOwned>,
+            <PuckOwned key="bezier" param="show-bezier"><div><OnOffSwitch checked={showBezier} label={t("bsl_bezier")} onChange={show => this.setShowBezier(show)}/></div></PuckOwned>,
             <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
         );
     }

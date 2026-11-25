@@ -67,12 +67,17 @@ export function clipPolylineToBand(xs: readonly number[], ys: readonly number[],
  * A polynomial far off the view otherwise gives path coordinates in the millions, and stroking those costs about 180 ms a frame.
  * The path is cut on its own line, so the drawn curve inside the view does not change.
  */
+/** The JSXGraph curve fields the clip touches; the typings omit `points`. */
+interface PlottedCurve extends JXG.Curve {
+    points: JXG.Coords[];
+}
+
 export function clipCurveToView(curve: JXG.Curve, board: JXG.Board, margin = 1): void {
     if (typeof curve.updateCurve !== "function") return;
     const plot = curve.updateCurve.bind(curve);
-    curve.updateCurve = function (this: JXG.Curve) {
+    curve.updateCurve = function (this: PlottedCurve) {
         plot();
-        const pts = this.points as JXG.Coords[];
+        const pts = this.points;
         const [, top, , bottom] = board.getBoundingBox();
         const n = this.numberPoints ?? pts.length;
         if (!(top > bottom) || n < 2) return this;
