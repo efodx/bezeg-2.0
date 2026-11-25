@@ -1,0 +1,2671 @@
+{
+ "generated": "2026-11-25",
+ "declared": [
+  "bezier",
+  "bisection",
+  "decasteljau",
+  "exponential-function",
+  "function-transformation",
+  "linear-map",
+  "patch-coons",
+  "phase-portrait",
+  "polygon-area",
+  "projective-cross-ratio",
+  "rational-decasteljau",
+  "taylor",
+  "triangle-centres"
+ ],
+ "step2Bases": [
+  "graphs/base/BaseBezierCurveGraph.tsx",
+  "graphs/base/BaseCurveGraph.tsx",
+  "graphs/base/Commands.tsx",
+  "graphs/base/CurvePointControls.tsx",
+  "graphs/base/CurveWorkspaceControls.tsx",
+  "graphs/compgeo/PointSetControls.tsx",
+  "graphs/compgeo/PointSetGraph.tsx",
+  "graphs/functions/BaseFunctionGraph.tsx",
+  "graphs/functions/FunctionReadout.tsx",
+  "graphs/functions/FunctionStatus.tsx"
+ ],
+ "lanes": [
+  {
+   "id": "L01",
+   "round": 1,
+   "demonstrations": [
+    "bspline-blossom"
+   ],
+   "sessions": [
+    [
+     "bspline-blossom"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bspline/BSplineBlossomGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/bsplineBlossomGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bspline/BSplineBlossomGraph.test.tsx",
+    "graphs/curves/bspline/BSplineBlossomPresetSelection.test.tsx",
+    "learning/content/bsplineBlossomGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bspline/BSplinePointList.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L02",
+   "round": 2,
+   "demonstrations": [
+    "bspline-extraction"
+   ],
+   "sessions": [
+    [
+     "bspline-extraction"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bspline/BSplineExtractionGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/bsplineExtractionGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/base/OpenAsBezier.test.tsx",
+    "graphs/curves/bspline/BSplineExtractionGraph.test.tsx",
+    "learning/content/bsplineExtractionGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bspline/BSplinePointList.tsx",
+    "graphs/curves/bspline/KnotEditor.tsx"
+   ],
+   "ownedBases": [
+    "graphs/curves/bspline/KnotEditor.tsx"
+   ]
+  },
+  {
+   "id": "L03",
+   "round": 3,
+   "demonstrations": [
+    "bspline-insertion"
+   ],
+   "sessions": [
+    [
+     "bspline-insertion"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bspline/BSplineInsertionGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/bsplineInsertionGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bspline/BSplineInsertionGraph.test.tsx",
+    "learning/content/bsplineInsertionGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bspline/BSplinePointList.tsx",
+    "graphs/curves/bspline/KnotEditor.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L04",
+   "round": 4,
+   "demonstrations": [
+    "bspline-nurbs"
+   ],
+   "sessions": [
+    [
+     "bspline-nurbs"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bspline/BSplineNurbsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/bsplineNurbsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bspline/BSplineNurbsGraph.test.tsx",
+    "learning/content/bsplineNurbsGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bspline/BSplinePointList.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L05",
+   "round": 1,
+   "demonstrations": [
+    "elevation"
+   ],
+   "sessions": [
+    [
+     "elevation"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bezier/ElevationGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/additionalGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bezier/DecasteljauConstructionFirst.test.tsx",
+    "graphs/curves/bezier/ElevationGraph.test.ts",
+    "learning/content/additionalGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L06",
+   "round": 1,
+   "demonstrations": [
+    "function-inverse"
+   ],
+   "sessions": [
+    [
+     "function-inverse"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/FunctionInverseGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/schoolFunctionGraphsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/FunctionInverseGraph.host.test.tsx",
+    "learning/content/schoolFunctionGraphsGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L07",
+   "round": 2,
+   "demonstrations": [
+    "interp-least-squares"
+   ],
+   "sessions": [
+    [
+     "interp-least-squares"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/LeastSquaresGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/interpolationLeastSquaresLesson.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/LeastSquaresGraph.host.test.tsx"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L08",
+   "round": 2,
+   "demonstrations": [
+    "reduction"
+   ],
+   "sessions": [
+    [
+     "reduction"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/reduction/DegreeReductionGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/degreeReductionGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/reduction/DegreeReductionGraphReal.test.tsx",
+    "learning/content/degreeReductionGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/ReadoutDetails.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L09",
+   "round": 3,
+   "demonstrations": [
+    "circle-construction"
+   ],
+   "sessions": [
+    [
+     "circle-construction"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/compgeo/CircleConstructionGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/circleGeometryGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/compgeo/CircleConstructionGraph.test.tsx",
+    "graphs/compgeo/CircleConstructionLabels.test.tsx",
+    "graphs/compgeo/CircleConstructionLessonActions.host.test.tsx",
+    "graphs/compgeo/circleConstruction/circleConstructionPresetCollection.test.tsx",
+    "learning/content/circleGeometryGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L10",
+   "round": 3,
+   "demonstrations": [
+    "euler-method"
+   ],
+   "sessions": [
+    [
+     "euler-method"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/EulerGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/numericalEulerGuidedLesson.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/EulerGraph.host.test.tsx",
+    "graphs/functions/EulerGraph.lesson.test.ts",
+    "graphs/functions/EulerGraph.test.ts",
+    "learning/content/numericalEulerGuidedLesson.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L11",
+   "round": 4,
+   "demonstrations": [
+    "fourier-coefficients"
+   ],
+   "sessions": [
+    [
+     "fourier-coefficients"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/FourierCoefficientsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/fourierCoefficientsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/FourierCoefficientsGraph.host.test.tsx",
+    "learning/content/fourierCoefficientsGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/functions/FourierDecaySpectra.tsx",
+    "graphs/functions/FourierSpectrumBars.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L12",
+   "round": 4,
+   "demonstrations": [
+    "fourier-series"
+   ],
+   "sessions": [
+    [
+     "fourier-series"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/FourierSeriesGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/fourierSeriesGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/FourierSeriesGraph.host.test.tsx",
+    "learning/content/fourierSeriesGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L13",
+   "round": 5,
+   "demonstrations": [
+    "isometries"
+   ],
+   "sessions": [
+    [
+     "isometries"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/isometry/IsometryGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/isometriesFriezeGuidedLessons.ts",
+    "learning/content/isometriesGuidedLessons.ts",
+    "learning/content/isometriesRosetteGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/isometry/IsometryGraph.test.tsx",
+    "graphs/isometry/IsometryLabels.test.tsx",
+    "graphs/isometry/IsometryLessonActions.host.test.tsx",
+    "graphs/isometry/isometryPresetCollection.test.tsx",
+    "learning/content/isometriesFriezeGuidedLessons.test.ts",
+    "learning/content/isometriesGuidedLessons.test.ts",
+    "learning/content/isometriesRosetteGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L14",
+   "round": 5,
+   "demonstrations": [
+    "line-geometry"
+   ],
+   "sessions": [
+    [
+     "line-geometry"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/lines/LineGeometryGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/analyticLinesGuidedLessons.ts",
+    "learning/content/analyticLinesIntersectGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/lines/LineGeometryGraph.test.tsx",
+    "graphs/lines/LineGeometryLabels.test.tsx",
+    "graphs/lines/LineGeometryLessonActions.host.test.tsx",
+    "graphs/lines/linePresetCollection.test.tsx",
+    "learning/content/analyticLinesGuidedLessons.test.ts",
+    "learning/content/analyticLinesIntersectGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L15",
+   "round": 5,
+   "demonstrations": [
+    "linear-program"
+   ],
+   "sessions": [
+    [
+     "linear-program"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/levelsets/LinearProgramGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/levelSetsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/levelsets/LinearProgramGraph.test.tsx",
+    "graphs/levelsets/LinearProgramLabels.test.tsx",
+    "graphs/levelsets/LinearProgramLessonActions.host.test.tsx",
+    "graphs/levelsets/LinearProgramPresetRoundTrip.test.tsx",
+    "learning/content/levelSetsGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/levelsets/LpPanels.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L16",
+   "round": 6,
+   "demonstrations": [
+    "projective-five-point"
+   ],
+   "sessions": [
+    [
+     "projective-five-point"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/projective/FivePointGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/projectiveFivePointGuidedLesson.ts"
+   ],
+   "ownTests": [
+    "graphs/projective/FivePointGraph.host.test.tsx",
+    "graphs/projective/FivePointLabels.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/projective/FivePointControls.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L17",
+   "round": 7,
+   "demonstrations": [
+    "projective-three-views"
+   ],
+   "sessions": [
+    [
+     "projective-three-views"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/projective/ThreeViewsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/projectiveThreeViewsGuidedLesson.ts"
+   ],
+   "ownTests": [
+    "graphs/projective/ThreeViewsGraph.host.test.tsx",
+    "learning/content/projectiveThreeViewsLesson.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/projective/ThreeViewsControls.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L18",
+   "round": 6,
+   "demonstrations": [
+    "quadrature"
+   ],
+   "sessions": [
+    [
+     "quadrature"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/QuadratureGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/numericalQuadratureGuidedLesson.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/QuadratureGraph.axisRefusal.test.tsx",
+    "graphs/functions/QuadratureGraph.host.test.tsx",
+    "graphs/functions/QuadratureGraph.lesson.test.ts",
+    "graphs/functions/QuadratureGraph.test.ts",
+    "learning/content/numericalQuadratureGuidedLesson.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L19",
+   "round": 6,
+   "demonstrations": [
+    "recursion-growth"
+   ],
+   "sessions": [
+    [
+     "recursion-growth"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/recursion/GrowthGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/recursionGuidedLessons.ts",
+    "learning/content/recursionLogScaleGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/recursion/GrowthGraph.test.tsx",
+    "graphs/recursion/GrowthLessonActions.host.test.tsx",
+    "learning/content/recursionGuidedLessons.test.ts",
+    "learning/content/recursionLogScaleGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L20",
+   "round": 7,
+   "demonstrations": [
+    "triangle-solver"
+   ],
+   "sessions": [
+    [
+     "triangle-solver"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/trig/TriangleSolverGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/trigSolveGuidedLessons.ts",
+    "learning/content/trigTriangleGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/trig/TriangleSolverGraph.test.tsx",
+    "graphs/trig/TriangleSolverLabels.test.tsx",
+    "graphs/trig/TriangleSolverLessonActions.host.test.tsx",
+    "learning/content/trigSolveGuidedLessons.test.ts",
+    "learning/content/trigTriangleGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L21",
+   "round": 7,
+   "demonstrations": [
+    "uniform-parameterization",
+    "weighted-parameterization"
+   ],
+   "sessions": [
+    [
+     "uniform-parameterization",
+     "weighted-parameterization"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/parametrisations/AlphaParamBezierCurveGraph.tsx",
+    "graphs/curves/parametrisations/UniformParamBezierCurveGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/parameterizationGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/parametrisations/AlphaParamBezierCurveGraph.test.ts",
+    "graphs/curves/parametrisations/UniformParamBezierCurveGraph.test.ts",
+    "learning/content/parameterizationGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/ph/BasePhBezierCurveGraph.tsx",
+    "graphs/curves/ph/HodographInputBox.tsx"
+   ],
+   "ownedBases": [
+    "graphs/curves/ph/BasePhBezierCurveGraph.tsx"
+   ]
+  },
+  {
+   "id": "L22",
+   "round": 8,
+   "demonstrations": [
+    "unit-circle"
+   ],
+   "sessions": [
+    [
+     "unit-circle"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/trig/UnitCircleGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/trigUnitCircleGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/trig/UnitCircleGraph.test.tsx",
+    "graphs/trig/UnitCircleLessonActions.host.test.tsx",
+    "learning/content/trigUnitCircleGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L23",
+   "round": 8,
+   "demonstrations": [
+    "arc-length-param"
+   ],
+   "sessions": [
+    [
+     "arc-length-param"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/arclength/ArcLengthParametrizationGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/arcLengthGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/arclength/ArcLengthParametrizationGraphReal.test.tsx",
+    "learning/content/arcLengthGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/ReadoutDetails.tsx",
+    "graphs/curves/arclength/ArcSpeedPlot.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L24",
+   "round": 8,
+   "demonstrations": [
+    "bspline-deboor"
+   ],
+   "sessions": [
+    [
+     "bspline-deboor"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bspline/DeBoorGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/bsplineDeBoorGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bspline/DeBoorGraph.test.tsx",
+    "learning/content/bsplineDeBoorGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bspline/BSplinePointList.tsx",
+    "graphs/curves/bspline/KnotEditor.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L25",
+   "round": 9,
+   "demonstrations": [
+    "logistic-map"
+   ],
+   "sessions": [
+    [
+     "logistic-map"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/dynamics/LogisticMapGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/phasePortraitsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/dynamics/LogisticMapGraph.perf.test.tsx",
+    "graphs/dynamics/LogisticMapGraph.test.tsx",
+    "graphs/dynamics/LogisticMapLessonActions.host.test.tsx",
+    "graphs/dynamics/PhasePortraitLessonActions.host.test.tsx",
+    "graphs/dynamics/dynamicsPresetCollection.test.tsx",
+    "learning/content/phasePortraitsGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L26",
+   "round": 9,
+   "demonstrations": [
+    "complex-euler"
+   ],
+   "sessions": [
+    [
+     "complex-euler"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/complex/EulerCircleGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/complexEulerGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/complex/EulerCircleGraph.test.tsx",
+    "graphs/complex/EulerCircleLessonActions.host.test.tsx",
+    "learning/content/complexEulerGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L27",
+   "round": 10,
+   "demonstrations": [
+    "complex-power"
+   ],
+   "sessions": [
+    [
+     "complex-power"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/complex/ComplexPowerGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/complexPowerGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/complex/ComplexPowerGraph.test.tsx",
+    "graphs/complex/ComplexPowerLessonActions.host.test.tsx",
+    "learning/content/complexPowerGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L28",
+   "round": 9,
+   "demonstrations": [
+    "complex-reciprocal",
+    "complex-roots"
+   ],
+   "sessions": [
+    [
+     "complex-reciprocal",
+     "complex-roots"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/complex/ComplexReciprocalGraph.tsx",
+    "graphs/complex/ComplexRootsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/complexMapsChapterLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/complex/ComplexReciprocalGraph.test.ts",
+    "graphs/complex/ComplexRootsGraph.test.ts",
+    "graphs/complex/MapsFirstTask.test.tsx",
+    "learning/content/complexMapsChapter.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L29",
+   "round": 10,
+   "demonstrations": [
+    "contour-map"
+   ],
+   "sessions": [
+    [
+     "contour-map"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/levelsets/ContourMapGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/levelSetsContourGuidedLessons.ts",
+    "learning/content/levelSetsOptimizationGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/levelsets/ContourLessonActions.host.test.tsx",
+    "graphs/levelsets/ContourMapGraph.test.tsx",
+    "graphs/levelsets/ContourMapPresetRoundTrip.test.tsx",
+    "learning/content/levelSetsContourGuidedLessons.test.ts",
+    "learning/content/levelSetsOptimizationGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/levelsets/ContourPanels.tsx",
+    "graphs/patches/SurfaceCameraPanel.tsx"
+   ],
+   "ownedBases": [
+    "graphs/patches/SurfaceCameraPanel.tsx"
+   ]
+  },
+  {
+   "id": "L30",
+   "round": 10,
+   "demonstrations": [
+    "counting-tree",
+    "lattice-paths"
+   ],
+   "sessions": [
+    [
+     "counting-tree",
+     "lattice-paths"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/combinatorics/CountingTreeGraph.tsx",
+    "graphs/combinatorics/LatticePathGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/combinatoricsGuidedLessons.ts",
+    "learning/content/combinatoricsRowGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/combinatorics/CombinatoricsFirstTask.test.tsx",
+    "graphs/combinatorics/CountingTreeGraph.test.tsx",
+    "graphs/combinatorics/CountingTreeLessonActions.host.test.tsx",
+    "graphs/combinatorics/LatticePathGraph.test.tsx",
+    "graphs/combinatorics/LatticePathLessonActions.host.test.tsx",
+    "graphs/combinatorics/combinatoricsPresetCollection.test.tsx",
+    "learning/content/combinatoricsGuidedLessons.test.ts",
+    "learning/content/combinatoricsRowGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L31",
+   "round": 11,
+   "demonstrations": [
+    "curve-kinematics"
+   ],
+   "sessions": [
+    [
+     "curve-kinematics"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/kinematics/KinematicsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/kinematicsDecompositionGuidedLessons.ts",
+    "learning/content/kinematicsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/kinematics/KinematicsGraph.test.tsx",
+    "graphs/curves/kinematics/KinematicsLessonActions.host.test.tsx",
+    "graphs/curves/kinematics/captionPlacement.test.ts",
+    "graphs/curves/kinematics/kinematicsPresetCollection.test.tsx",
+    "learning/content/kinematicsDecompositionGuidedLessons.test.ts",
+    "learning/content/kinematicsGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L32",
+   "round": 11,
+   "demonstrations": [
+    "epicycles"
+   ],
+   "sessions": [
+    [
+     "epicycles"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/EpicycleGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/epicyclesGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/EpicycleGraph.host.test.tsx",
+    "learning/content/epicyclesGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L33",
+   "round": 12,
+   "demonstrations": [
+    "mechanics-descent"
+   ],
+   "sessions": [
+    [
+     "mechanics-descent"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/mechanics/DescentGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/mechanicalCurvesGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/mechanics/DescentGraph.test.tsx",
+    "graphs/mechanics/DescentLabels.test.tsx",
+    "graphs/mechanics/DescentLessonActions.host.test.tsx",
+    "graphs/mechanics/descentPresetCollection.test.tsx",
+    "learning/content/mechanicalCurvesGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L34",
+   "round": 11,
+   "demonstrations": [
+    "polynomial-zeros",
+    "rational-function"
+   ],
+   "sessions": [
+    [
+     "polynomial-zeros",
+     "rational-function"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/PolynomialZerosGraph.tsx",
+    "graphs/functions/RationalFunctionGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/schoolFunctionGraphsBatchBGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/PolynomialZerosGraph.host.test.tsx",
+    "graphs/functions/RationalFunctionGraph.host.test.tsx",
+    "learning/content/schoolFunctionGraphsBatchBGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/functions/ZeroListEditor.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L35",
+   "round": 12,
+   "demonstrations": [
+    "prob-simulation"
+   ],
+   "sessions": [
+    [
+     "prob-simulation"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/random/SimulationGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/randomnessAreaGuidedLessons.ts",
+    "learning/content/randomnessGuidedLessons.ts",
+    "learning/content/randomnessIntervalGuidedLessons.ts",
+    "learning/content/randomnessMarkovGuidedLessons.ts",
+    "learning/content/randomnessWalkGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/random/SimulationGraph.test.tsx",
+    "graphs/random/SimulationLessonActions.host.test.tsx",
+    "graphs/random/randomPresetCollection.test.tsx",
+    "learning/content/randomnessAreaGuidedLessons.test.ts",
+    "learning/content/randomnessGuidedLessons.test.ts",
+    "learning/content/randomnessIntervalGuidedLessons.test.ts",
+    "learning/content/randomnessMarkovGuidedLessons.test.ts",
+    "learning/content/randomnessWalkGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L36",
+   "round": 12,
+   "demonstrations": [
+    "projective-pascal",
+    "projective-pole-polar"
+   ],
+   "sessions": [
+    [
+     "projective-pascal",
+     "projective-pole-polar"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/projective/PascalGraph.tsx",
+    "graphs/projective/PolePolarGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/projectiveConicsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/base/sceneReplacementContract.test.tsx",
+    "graphs/projective/PascalGraph.host.test.tsx",
+    "graphs/projective/PascalLessonActions.host.test.tsx",
+    "graphs/projective/PolePolarGraph.host.test.tsx",
+    "graphs/projective/PolePolarLessonActions.host.test.tsx",
+    "graphs/projective/polePolarModel.test.ts",
+    "learning/content/projectiveConicsGuidedLessons.test.ts",
+    "learning/content/projectivePascalLesson.test.ts",
+    "learning/content/projectivePoleLesson.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/projective/PascalControls.tsx",
+    "graphs/projective/PolePolarControls.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L37",
+   "round": 13,
+   "demonstrations": [
+    "recursion-cobweb"
+   ],
+   "sessions": [
+    [
+     "recursion-cobweb"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/recursion/RecursionCobwebGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/recursionCobwebGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/recursion/RecursionCobwebGraph.test.tsx",
+    "learning/content/recursionCobwebGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L38",
+   "round": 13,
+   "demonstrations": [
+    "root-finding"
+   ],
+   "sessions": [
+    [
+     "root-finding"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/RootFindingGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/numericalMethodsGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/RootFindingGraph.host.test.tsx",
+    "graphs/functions/RootFindingGraph.test.ts",
+    "learning/content/numericalMethodsGuidedLessons.test.ts",
+    "workspace/presenter/BoardCards.test.tsx",
+    "workspace/presenter/LessonCard.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/functions/IterativeFunctionGraph.tsx"
+   ],
+   "ownedBases": [
+    "graphs/functions/IterativeFunctionGraph.tsx"
+   ]
+  },
+  {
+   "id": "L39",
+   "round": 13,
+   "demonstrations": [
+    "waves"
+   ],
+   "sessions": [
+    [
+     "waves"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/WavesGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/wavesGuidedLessons.ts",
+    "learning/content/wavesSamplingGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/WavesGraph.test.tsx",
+    "graphs/functions/WavesLessonActions.host.test.tsx",
+    "graphs/functions/waves/wavesPresetCollection.test.tsx",
+    "learning/content/wavesGuidedLessons.test.ts",
+    "learning/content/wavesSamplingGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L40",
+   "round": 14,
+   "demonstrations": [
+    "bezier-clipping"
+   ],
+   "sessions": [
+    [
+     "bezier-clipping"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/compgeo/BezierClippingGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/bezierClippingGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/compgeo/BezierClippingControls.host.test.tsx",
+    "graphs/compgeo/BezierClippingGraph.host.test.tsx",
+    "learning/content/bezierClippingGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/compgeo/BezierClippingControls.tsx",
+    "graphs/compgeo/CurvePairGraph.tsx",
+    "graphs/compgeo/TraceCurvePairGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L41",
+   "round": 14,
+   "demonstrations": [
+    "rational-extrapolation",
+    "extrapolation",
+    "rational-subdivision",
+    "repeated-subdivision",
+    "subdivision"
+   ],
+   "sessions": [
+    [
+     "rational-extrapolation",
+     "extrapolation",
+     "rational-subdivision"
+    ],
+    [
+     "repeated-subdivision",
+     "subdivision"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bezier/ExtrapolationGraph.tsx",
+    "graphs/curves/bezier/SubdivisionGraph.tsx",
+    "graphs/curves/bezier/SubdivisionGraph1.tsx",
+    "graphs/curves/rational/RationalExtrapolationGraph.tsx",
+    "graphs/curves/rational/RationalSubdivisionGraph2.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/constructionGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bezier/ExtrapolationGraph.test.ts",
+    "graphs/curves/bezier/SubdivisionGraph.test.ts",
+    "graphs/curves/bezier/SubdivisionGraph1.test.ts",
+    "graphs/curves/rational/RationalExtrapolationGraph.test.ts",
+    "learning/content/constructionGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bezier/SubdivisionGraph1.tsx",
+    "graphs/curves/rational/BaseRationalCurveGraph.tsx"
+   ],
+   "ownedBases": [
+    "graphs/curves/rational/BaseRationalCurveGraph.tsx"
+   ]
+  },
+  {
+   "id": "L42",
+   "round": 14,
+   "demonstrations": [
+    "conic-focal",
+    "geometric-series"
+   ],
+   "sessions": [
+    [
+     "conic-focal",
+     "geometric-series"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/ConicFocalGraph.tsx",
+    "graphs/functions/GeometricSeriesGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/schoolFunctionGraphsBatchCGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/ConicFocalGraph.host.test.tsx",
+    "graphs/functions/GeometricSeriesGraph.host.test.tsx",
+    "learning/content/schoolFunctionGraphsBatchCGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/functions/IterativeFunctionGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L43",
+   "round": 15,
+   "demonstrations": [
+    "interp-hermite",
+    "interp-lagrange",
+    "interp-runge",
+    "interp-subdivision"
+   ],
+   "sessions": [
+    [
+     "interp-hermite",
+     "interp-lagrange"
+    ],
+    [
+     "interp-runge",
+     "interp-subdivision"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/hermite/HermiteGraph.tsx",
+    "graphs/curves/interpolation/InterpolationGraph.tsx",
+    "graphs/curves/subdivisionCurves/SubdivisionCurveGraph.tsx",
+    "graphs/functions/RungeInterpolationGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/interpolationGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/hermite/HermiteGraph.test.ts",
+    "graphs/curves/hermite/HermiteGraphReal.test.tsx",
+    "graphs/curves/interpolation/InterpolationGraph.test.ts",
+    "graphs/curves/interpolation/InterpolationGraphReal.test.tsx",
+    "graphs/curves/interpolation/SharedPointDecisions.test.tsx",
+    "graphs/curves/pointCountSceneLifecycle.test.tsx",
+    "graphs/curves/subdivisionCurves/SubdivisionCurveGraphReal.test.tsx",
+    "graphs/functions/RungeInterpolationGraph.host.test.tsx",
+    "learning/content/interpolationSubdivisionLesson.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/interpolation/BasisPlot.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L44",
+   "round": 15,
+   "demonstrations": [
+    "spline-c1",
+    "spline-c2",
+    "spline-cn",
+    "spline-g1",
+    "spline-g1-symmetric",
+    "spline-parameterization"
+   ],
+   "sessions": [
+    [
+     "spline-c1",
+     "spline-c2",
+     "spline-cn"
+    ],
+    [
+     "spline-g1",
+     "spline-g1-symmetric",
+     "spline-parameterization"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/parametrisations/SplineAlphaParametrizationGraph.tsx",
+    "graphs/curves/spline/C1SplineGraph.tsx",
+    "graphs/curves/spline/C2SplineGraph.tsx",
+    "graphs/curves/spline/CnSplineGraph.tsx",
+    "graphs/curves/spline/G1SplineGraph.tsx",
+    "graphs/curves/spline/G1SymmetricSplineGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/splineGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/parametrisations/SplineAlphaParametrizationGraph.test.ts",
+    "graphs/curves/spline/BaseSplineCurveGraph.test.ts",
+    "graphs/curves/spline/G1SplineGraph.test.ts",
+    "graphs/curves/spline/splineDefaultPresets.test.ts",
+    "learning/content/splineGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/spline/BaseSplineCurveGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L45",
+   "round": 15,
+   "demonstrations": [
+    "affine",
+    "bernstein",
+    "complex-multiplication",
+    "ph-cubic",
+    "ph-quintic",
+    "rational",
+    "rational-elevation"
+   ],
+   "sessions": [
+    [
+     "affine",
+     "bernstein",
+     "complex-multiplication"
+    ],
+    [
+     "ph-cubic",
+     "ph-quintic"
+    ],
+    [
+     "rational",
+     "rational-elevation"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/bernstein/BernsteinGraph.tsx",
+    "graphs/complex/ComplexMultiplicationGraph.tsx",
+    "graphs/curves/bezier/AffineTransformsBezierCurveGraph.tsx",
+    "graphs/curves/ph/CubicPhBezierCurveGraph.tsx",
+    "graphs/curves/ph/QuinticPhBezierCurveGraph.tsx",
+    "graphs/curves/rational/RationalBezierCurveGraph.tsx",
+    "graphs/curves/rational/RationalElevationGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/chapter/activities.ts",
+    "learning/content/expansionGuidedLessons.ts",
+    "learning/content/foundationGuidedLessons.ts",
+    "learning/content/guidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/base/ControlsFollowGraph.test.tsx",
+    "graphs/base/GraphControlledControls.test.tsx",
+    "graphs/base/SelectedCurveTools.test.tsx",
+    "graphs/bernstein/BernsteinGraph.placement.test.tsx",
+    "graphs/bernstein/BernsteinGraph.test.ts",
+    "graphs/complex/ComplexMultiplicationGraph.host.test.tsx",
+    "graphs/complex/ComplexMultiplicationGraph.test.ts",
+    "graphs/curves/bezier/AffineComparison.test.tsx",
+    "graphs/curves/bezier/AffineTransformsBezierCurveGraph.test.ts",
+    "graphs/curves/rational/RationalElevationGraph.test.ts",
+    "learning/chapter/activities.test.ts",
+    "learning/content/expansionGuidedLessons.test.ts",
+    "learning/content/foundationGuidedLessons.test.ts",
+    "learning/content/guidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/ph/BasePhBezierCurveGraph.tsx",
+    "graphs/curves/ph/HodographInputBox.tsx",
+    "graphs/curves/rational/BaseRationalCurveGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L46",
+   "round": 16,
+   "demonstrations": [
+    "arc-length",
+    "area-between-curves",
+    "continuity",
+    "definite-integral",
+    "derivative",
+    "linear-function",
+    "trigonometric-functions"
+   ],
+   "sessions": [
+    [
+     "arc-length",
+     "area-between-curves",
+     "continuity"
+    ],
+    [
+     "definite-integral",
+     "derivative"
+    ],
+    [
+     "linear-function",
+     "trigonometric-functions"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/ArcLengthGraph.tsx",
+    "graphs/functions/AreaBetweenCurvesGraph.tsx",
+    "graphs/functions/ContinuityGraph.tsx",
+    "graphs/functions/DefiniteIntegralGraph.tsx",
+    "graphs/functions/DerivativeGraph.tsx",
+    "graphs/functions/LinearFunctionGraph.tsx",
+    "graphs/functions/TrigonometricFunctionsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/functionGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/ArcLengthGraph.test.ts",
+    "graphs/functions/AreaBetweenCurvesGraph.test.ts",
+    "graphs/functions/BaseFunctionGraph.test.ts",
+    "graphs/functions/ContinuityGraph.test.ts",
+    "graphs/functions/DefiniteIntegralGraph.test.ts",
+    "graphs/functions/DerivativeGraph.test.ts",
+    "graphs/functions/LinearFunctionGraph.host.test.tsx",
+    "graphs/functions/LinearFunctionGraph.test.ts",
+    "graphs/functions/TrigonometricFunctionsGraph.test.ts"
+   ],
+   "sharedFilesUsed": [],
+   "ownedBases": []
+  },
+  {
+   "id": "L47",
+   "round": 17,
+   "demonstrations": [
+    "prob-binomial-normal",
+    "prob-clt",
+    "prob-correlation",
+    "prob-density",
+    "prob-summary"
+   ],
+   "sessions": [
+    [
+     "prob-binomial-normal",
+     "prob-clt",
+     "prob-correlation"
+    ],
+    [
+     "prob-density",
+     "prob-summary"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/BinomialNormalGraph.tsx",
+    "graphs/functions/CltGraph.tsx",
+    "graphs/functions/CorrelationGraph.tsx",
+    "graphs/functions/DensityAreaGraph.tsx",
+    "graphs/functions/SummaryStatisticsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/probabilityGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/BinomialNormalGraph.host.test.tsx",
+    "graphs/functions/CltGraph.host.test.tsx",
+    "graphs/functions/CorrelationGraph.host.test.tsx",
+    "graphs/functions/CorrelationGraph.refusal.test.tsx",
+    "graphs/functions/DensityAreaGraph.host.test.tsx",
+    "graphs/functions/ProbabilityFirstTask.test.tsx",
+    "graphs/functions/SummaryStatisticsGraph.host.test.tsx",
+    "learning/content/probabilityGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/functions/IterativeFunctionGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L48",
+   "round": 16,
+   "demonstrations": [
+    "circle",
+    "decasteljau-alternative",
+    "farin"
+   ],
+   "sessions": [
+    [
+     "circle",
+     "decasteljau-alternative",
+     "farin"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bezier/DecasteljauGraph2.tsx",
+    "graphs/curves/rational/FarinPointsCurveGraph.tsx",
+    "graphs/curves/rational/RationalBezierCurveCircleGraphN.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/rationalConstructionGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bezier/DecasteljauGraph2.test.ts",
+    "graphs/curves/rational/FarinPointsCurveGraph.test.ts",
+    "graphs/curves/rational/RationalBezierCurveCircleGraphN.test.ts",
+    "learning/content/rationalConstructionGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bezier/DecasteljauAnimationControls.tsx",
+    "graphs/curves/rational/BaseRationalCurveGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L49",
+   "round": 16,
+   "demonstrations": [
+    "curve-comb",
+    "curve-curvature",
+    "curve-envelope",
+    "curve-evolute",
+    "curve-offset",
+    "curve-parametric"
+   ],
+   "sessions": [
+    [
+     "curve-comb",
+     "curve-curvature",
+     "curve-envelope"
+    ],
+    [
+     "curve-evolute",
+     "curve-offset",
+     "curve-parametric"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bezier/CurvatureBezierCurveGraph.tsx",
+    "graphs/curves/bezier/CurveEvoluteGraph.tsx",
+    "graphs/curves/comb/CurveCombGraph.tsx",
+    "graphs/curves/envelope/CurveEnvelopeGraph.tsx",
+    "graphs/curves/offset/CurveOffsetGraph.tsx",
+    "graphs/curves/parametric/ParametricCurveGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/curveGeometryGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bezier/CurvatureBezierCurveGraph.test.ts",
+    "graphs/curves/bezier/CurvatureBezierCurveGraphReal.test.tsx",
+    "graphs/curves/bezier/CurveEvoluteGraphReal.test.tsx",
+    "graphs/curves/bezier/EvoluteOverlay.test.ts",
+    "graphs/curves/comb/CurveCombGraphReal.test.tsx",
+    "graphs/curves/envelope/CurveEnvelopeGraphReal.test.tsx",
+    "graphs/curves/offset/CurveOffsetGraphReal.part2.test.tsx",
+    "graphs/curves/offset/CurveOffsetGraphReal.test.tsx",
+    "graphs/curves/offset/SpeedFactorPlot.test.tsx",
+    "graphs/curves/parametric/ParametricCurveGraph.test.ts",
+    "graphs/curves/parametric/ParametricCurveGraphReal.test.tsx",
+    "learning/content/curveGeometryGuidedLessons.envelope.test.ts",
+    "learning/content/curveGeometryGuidedLessons.offset.test.ts",
+    "learning/content/curveGeometryGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bezier/CurvatureBezierCurveGraph.tsx",
+    "graphs/curves/offset/SpeedFactorPlot.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L50",
+   "round": 18,
+   "demonstrations": [
+    "accumulation",
+    "convexity",
+    "darboux",
+    "extrema",
+    "fixed-point",
+    "mean-value",
+    "sequence",
+    "uniform-convergence"
+   ],
+   "sessions": [
+    [
+     "accumulation",
+     "convexity",
+     "darboux"
+    ],
+    [
+     "extrema",
+     "fixed-point",
+     "mean-value"
+    ],
+    [
+     "sequence",
+     "uniform-convergence"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/functions/AccumulationGraph.tsx",
+    "graphs/functions/ConvexityGraph.tsx",
+    "graphs/functions/DarbouxGraph.tsx",
+    "graphs/functions/ExtremaGraph.tsx",
+    "graphs/functions/FixedPointGraph.tsx",
+    "graphs/functions/MeanValueGraph.tsx",
+    "graphs/functions/SequenceGraph.tsx",
+    "graphs/functions/UniformConvergenceGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/analysisGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/functions/AccumulationGraph.host.test.tsx",
+    "graphs/functions/AccumulationGraph.test.ts",
+    "graphs/functions/ConvexityGraph.host.test.tsx",
+    "graphs/functions/ConvexityGraph.test.ts",
+    "graphs/functions/DarbouxGraph.host.test.tsx",
+    "graphs/functions/DarbouxGraph.test.ts",
+    "graphs/functions/ExtremaGraph.host.test.tsx",
+    "graphs/functions/ExtremaGraph.test.ts",
+    "graphs/functions/FixedPointGraph.host.test.tsx",
+    "graphs/functions/FixedPointGraph.test.ts",
+    "graphs/functions/MeanValueGraph.host.test.tsx",
+    "graphs/functions/MeanValueGraph.test.ts",
+    "graphs/functions/SequenceGraph.host.test.tsx",
+    "graphs/functions/SequenceGraph.test.ts",
+    "graphs/functions/UniformConvergenceGraph.host.test.tsx",
+    "graphs/functions/UniformConvergenceGraph.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/functions/IterativeFunctionGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L51",
+   "round": 17,
+   "demonstrations": [
+    "euler-line",
+    "inscribed-angle",
+    "inversion",
+    "simson-line"
+   ],
+   "sessions": [
+    [
+     "euler-line",
+     "inscribed-angle"
+    ],
+    [
+     "inversion",
+     "simson-line"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/compgeo/EulerLineGraph.tsx",
+    "graphs/compgeo/InscribedAngleGraph.tsx",
+    "graphs/compgeo/InversionGraph.tsx",
+    "graphs/compgeo/SimsonLineGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/triangleGeometryChapterLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/compgeo/EulerLineGraph.host.test.tsx",
+    "graphs/compgeo/InscribedAngleGraph.host.test.tsx",
+    "graphs/compgeo/InversionGraph.host.test.tsx",
+    "graphs/compgeo/PlaneGeometryFirstTask.test.tsx",
+    "graphs/compgeo/SimsonLineGraph.host.test.tsx",
+    "graphs/compgeo/planeGeometry2Persistence.host.test.tsx",
+    "graphs/compgeo/planeGeometryPersistence.host.test.tsx",
+    "learning/content/triangleGeometryChapter.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/compgeo/EulerLinePanel.tsx",
+    "graphs/compgeo/InscribedAnglePanel.tsx",
+    "graphs/compgeo/InversionPanel.tsx",
+    "graphs/compgeo/SimsonLinePanel.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L52",
+   "round": 17,
+   "demonstrations": [
+    "bspline-basis"
+   ],
+   "sessions": [
+    [
+     "bspline-basis"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/curves/bspline/BSplineBasisGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/bsplineBasisGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/curves/bspline/BSplineBasisGraph.test.tsx",
+    "learning/content/bsplineBasisGuidedLessons.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/curves/bspline/KnotEditor.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L53",
+   "round": 18,
+   "demonstrations": [
+    "solids"
+   ],
+   "sessions": [
+    [
+     "solids"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/solids/SolidsGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/solidsGuidedLessons.ts",
+    "learning/content/solidsRevolutionGuidedLessons.ts",
+    "learning/content/solidsVolumesGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/PresetRoundTrip.contract.test.tsx",
+    "graphs/solids/SolidsGraph.test.tsx",
+    "graphs/solids/SolidsLessonActions.host.test.tsx",
+    "graphs/solids/SolidsLifecycle.test.tsx",
+    "learning/content/solidsGuidedLessons.test.ts",
+    "learning/content/solidsRevolutionGuidedLessons.test.ts",
+    "learning/content/solidsVolumesGuidedLessons.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/patches/BaseSurfaceGraph.tsx",
+    "graphs/solids/SolidsPanels.tsx"
+   ],
+   "ownedBases": [
+    "graphs/patches/BaseSurfaceGraph.tsx"
+   ]
+  },
+  {
+   "id": "L54",
+   "round": 18,
+   "demonstrations": [
+    "bezier-hulls",
+    "convex-hull",
+    "delaunay",
+    "ear-clipping",
+    "fortune",
+    "hull-robustness",
+    "interval-sweep",
+    "monotone-partition",
+    "monotone-triangulation",
+    "orientation",
+    "point-in-polygon",
+    "point-set-triangulation",
+    "segment-intersections",
+    "voronoi",
+    "voronoi-degenerate"
+   ],
+   "sessions": [
+    [
+     "bezier-hulls",
+     "convex-hull",
+     "delaunay"
+    ],
+    [
+     "ear-clipping",
+     "fortune",
+     "hull-robustness"
+    ],
+    [
+     "interval-sweep",
+     "monotone-partition",
+     "monotone-triangulation"
+    ],
+    [
+     "orientation",
+     "point-in-polygon",
+     "point-set-triangulation"
+    ],
+    [
+     "segment-intersections",
+     "voronoi",
+     "voronoi-degenerate"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/compgeo/BentleyOttmannGraph.tsx",
+    "graphs/compgeo/BezierHullsGraph.tsx",
+    "graphs/compgeo/DegenerateSitesGraph.tsx",
+    "graphs/compgeo/DelaunayGraph.tsx",
+    "graphs/compgeo/EarClippingGraph.tsx",
+    "graphs/compgeo/FortuneGraph.tsx",
+    "graphs/compgeo/HullRobustnessGraph.tsx",
+    "graphs/compgeo/HullTraceGraph.tsx",
+    "graphs/compgeo/IntervalSweepGraph.tsx",
+    "graphs/compgeo/MonotonePartitionGraph.tsx",
+    "graphs/compgeo/MonotoneTriangulationGraph.tsx",
+    "graphs/compgeo/OrientationGraph.tsx",
+    "graphs/compgeo/PointInPolygonGraph.tsx",
+    "graphs/compgeo/TriangulationGraph.tsx",
+    "graphs/compgeo/VoronoiGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/content/compgeoGuidedLessons.ts"
+   ],
+   "ownTests": [
+    "graphs/compgeo/BentleyOttmannGraph.host.test.tsx",
+    "graphs/compgeo/BentleyOttmannGraph.perf.test.tsx",
+    "graphs/compgeo/BentleyOttmannLabels.test.tsx",
+    "graphs/compgeo/BentleyOttmannLessonActions.host.test.tsx",
+    "graphs/compgeo/BezierHullsControls.host.test.tsx",
+    "graphs/compgeo/BezierHullsGraph.host.test.tsx",
+    "graphs/compgeo/BezierHullsGraph.perf.test.tsx",
+    "graphs/compgeo/BezierHullsLessonActions.host.test.tsx",
+    "graphs/compgeo/DegenerateSitesGraph.host.test.tsx",
+    "graphs/compgeo/DelaunayGraph.host.test.tsx",
+    "graphs/compgeo/DelaunayLessonActions.host.test.tsx",
+    "graphs/compgeo/EarClippingGraph.host.test.tsx",
+    "graphs/compgeo/EarClippingLessonActions.host.test.tsx",
+    "graphs/compgeo/FortuneGraph.host.test.tsx",
+    "graphs/compgeo/FortuneLessonActions.host.test.tsx",
+    "graphs/compgeo/HullRobustnessGraph.host.test.tsx",
+    "graphs/compgeo/HullRobustnessLessonActions.host.test.tsx",
+    "graphs/compgeo/HullTraceGraph.host.test.tsx",
+    "graphs/compgeo/HullTraceLessonActions.host.test.tsx",
+    "graphs/compgeo/IntervalSweepGraph.host.test.tsx",
+    "graphs/compgeo/IntervalSweepLessonActions.host.test.tsx",
+    "graphs/compgeo/MonotonePartitionGraph.host.test.tsx",
+    "graphs/compgeo/MonotonePartitionLessonActions.host.test.tsx",
+    "graphs/compgeo/MonotoneTriangulationGraph.host.test.tsx",
+    "graphs/compgeo/MonotoneTriangulationLabels.test.tsx",
+    "graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx",
+    "graphs/compgeo/OrientationGraph.host.test.tsx",
+    "graphs/compgeo/PointInPolygonGraph.host.test.tsx",
+    "graphs/compgeo/PointInPolygonLessonActions.host.test.tsx",
+    "graphs/compgeo/PointSetIntervals.host.test.tsx",
+    "graphs/compgeo/PointSetSegments.host.test.tsx",
+    "graphs/compgeo/TriangulationGraph.host.test.tsx",
+    "graphs/compgeo/TriangulationLessonActions.host.test.tsx",
+    "graphs/compgeo/VoronoiGraph.host.test.tsx",
+    "graphs/compgeo/batch2PresetCollections.host.test.tsx",
+    "graphs/compgeo/bezierHullsPresetCollection.test.ts",
+    "graphs/compgeo/hullTraceRun.test.ts",
+    "graphs/compgeo/pointSetPersistence.host.test.tsx",
+    "graphs/compgeo/pointSetStepPersistence.host.test.tsx",
+    "graphs/compgeo/triangulationPersistence.host.test.tsx",
+    "graphs/compgeo/voronoiPersistence.host.test.tsx",
+    "learning/content/compgeoBezierHullsLesson.test.ts",
+    "learning/content/compgeoDelaunayLesson.test.ts",
+    "learning/content/compgeoEarClippingLesson.test.ts",
+    "learning/content/compgeoHullLesson.test.ts",
+    "learning/content/compgeoHullRobustnessLesson.test.ts",
+    "learning/content/compgeoPointInPolygonLesson.test.ts",
+    "learning/content/compgeoPointSetTriangulationLesson.test.ts",
+    "learning/content/compgeoVoronoiDegenerateLesson.test.ts",
+    "learning/content/compgeoVoronoiLesson.test.ts"
+   ],
+   "sharedFilesUsed": [
+    "graphs/compgeo/BentleyOttmannControls.tsx",
+    "graphs/compgeo/BezierHullsControls.tsx",
+    "graphs/compgeo/CurvePairGraph.tsx",
+    "graphs/compgeo/DelaunayControls.tsx",
+    "graphs/compgeo/EarClippingControls.tsx",
+    "graphs/compgeo/ExampleSelect.tsx",
+    "graphs/compgeo/FortuneControls.tsx",
+    "graphs/compgeo/HullRobustnessControls.tsx",
+    "graphs/compgeo/HullTraceControls.tsx",
+    "graphs/compgeo/HullTraceGraph.tsx",
+    "graphs/compgeo/IntervalSweepControls.tsx",
+    "graphs/compgeo/MonotonePartitionControls.tsx",
+    "graphs/compgeo/MonotonePartitionGraph.tsx",
+    "graphs/compgeo/MonotoneTriangulationControls.tsx",
+    "graphs/compgeo/SweepSideLists.tsx",
+    "graphs/compgeo/TraceCurvePairGraph.tsx",
+    "graphs/compgeo/TriangulationControls.tsx",
+    "graphs/compgeo/TriangulationGraph.tsx",
+    "graphs/compgeo/VoronoiControls.tsx",
+    "graphs/compgeo/VoronoiGraph.tsx"
+   ],
+   "ownedBases": []
+  },
+  {
+   "id": "L55",
+   "round": 19,
+   "demonstrations": [
+    "patch-decasteljau",
+    "patch-derivatives",
+    "patch-joins",
+    "patch-subdivision",
+    "patch-tensor",
+    "patch-triangular"
+   ],
+   "sessions": [
+    [
+     "patch-decasteljau",
+     "patch-derivatives",
+     "patch-joins"
+    ],
+    [
+     "patch-subdivision",
+     "patch-tensor",
+     "patch-triangular"
+    ]
+   ],
+   "graphFiles": [
+    "graphs/patches/TensorDeCasteljauGraph.tsx",
+    "graphs/patches/TensorDerivativesGraph.tsx",
+    "graphs/patches/TensorJoinGraph.tsx",
+    "graphs/patches/TensorPatchGraph.tsx",
+    "graphs/patches/TensorSubdivisionGraph.tsx",
+    "graphs/patches/TriangularPatchGraph.tsx"
+   ],
+   "lessonFiles": [
+    "learning/chapter/guidedExamplePreviews.ts",
+    "learning/content/patchGuidedExamplesAdvanced.ts",
+    "learning/content/patchGuidedExamplesBasics.ts",
+    "learning/content/patchGuidedExamplesEvaluation.ts"
+   ],
+   "ownTests": [
+    "graphs/patches/BaseSurfaceGraph.test.tsx",
+    "graphs/patches/TensorDeCasteljauGraph.test.tsx",
+    "graphs/patches/TensorDerivativesGraph.test.tsx",
+    "graphs/patches/TensorJoinGraph.test.tsx",
+    "graphs/patches/TensorJoinPanels.test.tsx",
+    "graphs/patches/TensorPatchEditing.test.tsx",
+    "graphs/patches/TensorPatchExport.test.tsx",
+    "graphs/patches/TensorPatchGraph.test.tsx",
+    "graphs/patches/TensorPatchJsxExport.test.tsx",
+    "graphs/patches/TensorPatchPanels.test.tsx",
+    "graphs/patches/TensorSubdivisionGraph.test.tsx",
+    "graphs/patches/TensorSubdivisionPanels.test.tsx",
+    "graphs/patches/TriangularPatchComparison.test.tsx",
+    "graphs/patches/TriangularPatchEditing.test.tsx",
+    "graphs/patches/TriangularPatchExport.test.tsx",
+    "graphs/patches/TriangularPatchGraph.test.tsx",
+    "graphs/patches/TriangularPatchInset.test.tsx",
+    "graphs/patches/jsxSurfaceLifecycle.test.tsx",
+    "graphs/patches/lessonPatchScene.test.tsx",
+    "graphs/patches/patchCheckpointSweep.test.tsx",
+    "graphs/patches/patchLessonActions.test.tsx",
+    "graphs/patches/patchPresetCollections.test.ts",
+    "graphs/patches/surfaceLabelSeparation.test.tsx",
+    "learning/content/patchGuidedExamplesAdvanced.test.tsx",
+    "learning/content/patchGuidedExamplesBasics.test.tsx",
+    "learning/content/patchGuidedExamplesEvaluation.test.tsx",
+    "learning/runtime/patchSceneContent.test.tsx"
+   ],
+   "sharedFilesUsed": [
+    "graphs/patches/BaseSurfaceGraph.tsx",
+    "graphs/patches/PatchPointChooser.tsx",
+    "graphs/patches/PatchPointEditor.tsx",
+    "graphs/patches/SurfaceCameraPanel.tsx",
+    "graphs/patches/TensorDeCasteljauPanels.tsx",
+    "graphs/patches/TensorDerivativesPanels.tsx",
+    "graphs/patches/TensorJoinPanels.tsx",
+    "graphs/patches/TensorPatchGraph.tsx",
+    "graphs/patches/TensorPatchPanels.tsx",
+    "graphs/patches/TensorSubdivisionPanels.tsx",
+    "graphs/patches/TriangularPatchPanels.tsx"
+   ],
+   "ownedBases": []
+  }
+ ],
+ "rounds": [
+  {
+   "round": 1,
+   "lanes": [
+    "L01",
+    "L05",
+    "L06"
+   ]
+  },
+  {
+   "round": 2,
+   "lanes": [
+    "L02",
+    "L07",
+    "L08"
+   ]
+  },
+  {
+   "round": 3,
+   "lanes": [
+    "L03",
+    "L09",
+    "L10"
+   ]
+  },
+  {
+   "round": 4,
+   "lanes": [
+    "L04",
+    "L11",
+    "L12"
+   ]
+  },
+  {
+   "round": 5,
+   "lanes": [
+    "L13",
+    "L14",
+    "L15"
+   ]
+  },
+  {
+   "round": 6,
+   "lanes": [
+    "L16",
+    "L18",
+    "L19"
+   ]
+  },
+  {
+   "round": 7,
+   "lanes": [
+    "L17",
+    "L20",
+    "L21"
+   ]
+  },
+  {
+   "round": 8,
+   "lanes": [
+    "L22",
+    "L23",
+    "L24"
+   ]
+  },
+  {
+   "round": 9,
+   "lanes": [
+    "L25",
+    "L26",
+    "L28"
+   ]
+  },
+  {
+   "round": 10,
+   "lanes": [
+    "L27",
+    "L29",
+    "L30"
+   ]
+  },
+  {
+   "round": 11,
+   "lanes": [
+    "L31",
+    "L32",
+    "L34"
+   ]
+  },
+  {
+   "round": 12,
+   "lanes": [
+    "L33",
+    "L35",
+    "L36"
+   ]
+  },
+  {
+   "round": 13,
+   "lanes": [
+    "L37",
+    "L38",
+    "L39"
+   ]
+  },
+  {
+   "round": 14,
+   "lanes": [
+    "L40",
+    "L41",
+    "L42"
+   ]
+  },
+  {
+   "round": 15,
+   "lanes": [
+    "L43",
+    "L44",
+    "L45"
+   ]
+  },
+  {
+   "round": 16,
+   "lanes": [
+    "L46",
+    "L48",
+    "L49"
+   ]
+  },
+  {
+   "round": 17,
+   "lanes": [
+    "L47",
+    "L51",
+    "L52"
+   ]
+  },
+  {
+   "round": 18,
+   "lanes": [
+    "L50",
+    "L53",
+    "L54"
+   ]
+  },
+  {
+   "round": 19,
+   "lanes": [
+    "L55"
+   ]
+  }
+ ],
+ "conflictEdges": [
+  {
+   "a": "L23",
+   "b": "L08",
+   "file": "graphs/curves/ReadoutDetails.tsx"
+  },
+  {
+   "a": "L40",
+   "b": "L54",
+   "file": "graphs/compgeo/CurvePairGraph.tsx"
+  },
+  {
+   "a": "L40",
+   "b": "L54",
+   "file": "graphs/compgeo/TraceCurvePairGraph.tsx"
+  },
+  {
+   "a": "L50",
+   "b": "L42",
+   "file": "graphs/functions/IterativeFunctionGraph.tsx"
+  },
+  {
+   "a": "L50",
+   "b": "L47",
+   "file": "graphs/functions/IterativeFunctionGraph.tsx"
+  },
+  {
+   "a": "L42",
+   "b": "L47",
+   "file": "graphs/functions/IterativeFunctionGraph.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L24",
+   "file": "graphs/curves/bspline/KnotEditor.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L03",
+   "file": "graphs/curves/bspline/KnotEditor.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L03",
+   "file": "graphs/curves/bspline/KnotEditor.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L24",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L02",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L03",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L04",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L02",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L03",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L04",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L03",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L04",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L03",
+   "b": "L04",
+   "file": "graphs/curves/bspline/BSplinePointList.tsx"
+  },
+  {
+   "a": "L48",
+   "b": "L45",
+   "file": "graphs/curves/rational/BaseRationalCurveGraph.tsx"
+  },
+  {
+   "a": "L45",
+   "b": "L21",
+   "file": "graphs/curves/ph/HodographInputBox.tsx"
+  },
+  {
+   "a": "L45",
+   "b": "L41",
+   "file": "learning/content/sceneContentAgainstGraphs.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L41",
+   "file": "graphs/base/GraphSceneReload.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L44",
+   "file": "graphs/base/GraphSceneReload.test.tsx"
+  },
+  {
+   "a": "L41",
+   "b": "L44",
+   "file": "graphs/base/GraphSceneReload.test.tsx"
+  },
+  {
+   "a": "L05",
+   "b": "L41",
+   "file": "graphs/base/controls/CurveOperationPanel.test.tsx"
+  },
+  {
+   "a": "L05",
+   "b": "L45",
+   "file": "graphs/base/controls/CurveOperationPanel.test.tsx"
+  },
+  {
+   "a": "L41",
+   "b": "L45",
+   "file": "graphs/base/controls/CurveOperationPanel.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L04",
+   "file": "graphs/base/presets/PersistedEntryParity.test.ts"
+  },
+  {
+   "a": "L01",
+   "b": "L43",
+   "file": "graphs/base/presets/PersistedEntryParity.test.ts"
+  },
+  {
+   "a": "L01",
+   "b": "L16",
+   "file": "graphs/base/presets/PersistedEntryParity.test.ts"
+  },
+  {
+   "a": "L04",
+   "b": "L43",
+   "file": "graphs/base/presets/PersistedEntryParity.test.ts"
+  },
+  {
+   "a": "L04",
+   "b": "L16",
+   "file": "graphs/base/presets/PersistedEntryParity.test.ts"
+  },
+  {
+   "a": "L43",
+   "b": "L16",
+   "file": "graphs/base/presets/PersistedEntryParity.test.ts"
+  },
+  {
+   "a": "L40",
+   "b": "L54",
+   "file": "graphs/compgeo/BezierClippingLessonActions.host.test.tsx"
+  },
+  {
+   "a": "L40",
+   "b": "L54",
+   "file": "graphs/compgeo/pointSetExtensionPersistence.host.test.tsx"
+  },
+  {
+   "a": "L49",
+   "b": "L54",
+   "file": "graphs/base/PlaybackRoutes.test.tsx"
+  },
+  {
+   "a": "L49",
+   "b": "L32",
+   "file": "graphs/base/PlaybackRoutes.test.tsx"
+  },
+  {
+   "a": "L54",
+   "b": "L32",
+   "file": "graphs/base/PlaybackRoutes.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L01",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L24",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L02",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L03",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L24",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L02",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L03",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L02",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L03",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L03",
+   "file": "graphs/curves/BsplineFirstTask.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L01",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L24",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L02",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L03",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L52",
+   "b": "L04",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L24",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L02",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L03",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L04",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L02",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L03",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L04",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L03",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L04",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L03",
+   "b": "L04",
+   "file": "graphs/curves/bspline/standaloneSceneLifecycle.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L24",
+   "file": "graphs/base/presets/ConsumerPreparation.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L04",
+   "file": "graphs/base/presets/ConsumerPreparation.test.tsx"
+  },
+  {
+   "a": "L01",
+   "b": "L43",
+   "file": "graphs/base/presets/ConsumerPreparation.test.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L04",
+   "file": "graphs/base/presets/ConsumerPreparation.test.tsx"
+  },
+  {
+   "a": "L24",
+   "b": "L43",
+   "file": "graphs/base/presets/ConsumerPreparation.test.tsx"
+  },
+  {
+   "a": "L04",
+   "b": "L43",
+   "file": "graphs/base/presets/ConsumerPreparation.test.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L03",
+   "file": "graphs/base/presets/PartialPresetDefaults.test.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L04",
+   "file": "graphs/base/presets/PartialPresetDefaults.test.tsx"
+  },
+  {
+   "a": "L02",
+   "b": "L46",
+   "file": "graphs/base/presets/PartialPresetDefaults.test.tsx"
+  },
+  {
+   "a": "L03",
+   "b": "L04",
+   "file": "graphs/base/presets/PartialPresetDefaults.test.tsx"
+  },
+  {
+   "a": "L03",
+   "b": "L46",
+   "file": "graphs/base/presets/PartialPresetDefaults.test.tsx"
+  },
+  {
+   "a": "L04",
+   "b": "L46",
+   "file": "graphs/base/presets/PartialPresetDefaults.test.tsx"
+  },
+  {
+   "a": "L48",
+   "b": "L16",
+   "file": "learning/content/projectiveFivePointLesson.test.ts"
+  },
+  {
+   "a": "L26",
+   "b": "L27",
+   "file": "graphs/complex/batchD/batchDPresetFile.test.tsx"
+  },
+  {
+   "a": "L26",
+   "b": "L27",
+   "file": "graphs/complex/legendBand.test.tsx"
+  },
+  {
+   "a": "L29",
+   "b": "L15",
+   "file": "graphs/levelsets/levelSetsPresetFile.test.tsx"
+  },
+  {
+   "a": "L49",
+   "b": "L31",
+   "file": "graphs/curves/CurveGeometryFirstTask.test.tsx"
+  },
+  {
+   "a": "L49",
+   "b": "L33",
+   "file": "graphs/curves/CurveGeometryFirstTask.test.tsx"
+  },
+  {
+   "a": "L31",
+   "b": "L33",
+   "file": "graphs/curves/CurveGeometryFirstTask.test.tsx"
+  },
+  {
+   "a": "L48",
+   "b": "L41",
+   "file": "graphs/curves/demonstrationControlPlacement.test.tsx"
+  },
+  {
+   "a": "L43",
+   "b": "L07",
+   "file": "learning/content/interpolationGuidedLessons.test.ts"
+  },
+  {
+   "a": "L43",
+   "b": "L07",
+   "file": "graphs/curves/InterpolationFirstTask.test.tsx"
+  },
+  {
+   "a": "L46",
+   "b": "L47",
+   "file": "graphs/functions/BaseFunctionGraph.authority.test.tsx"
+  },
+  {
+   "a": "L45",
+   "b": "L21",
+   "file": "graphs/curves/ph/PhOffsetControls.test.tsx"
+  },
+  {
+   "a": "L16",
+   "b": "L36",
+   "file": "graphs/projective/FivePointLessonActions.host.test.tsx"
+  },
+  {
+   "a": "L16",
+   "b": "L36",
+   "file": "graphs/projective/ThreeViewsLessonActions.host.test.tsx"
+  },
+  {
+   "a": "L16",
+   "b": "L17",
+   "file": "graphs/projective/ThreeViewsLessonActions.host.test.tsx"
+  },
+  {
+   "a": "L36",
+   "b": "L17",
+   "file": "graphs/projective/ThreeViewsLessonActions.host.test.tsx"
+  },
+  {
+   "a": "L16",
+   "b": "L36",
+   "file": "graphs/projective/projectivePersistence.host.test.tsx"
+  },
+  {
+   "a": "L16",
+   "b": "L17",
+   "file": "graphs/projective/projectivePersistence.host.test.tsx"
+  },
+  {
+   "a": "L36",
+   "b": "L17",
+   "file": "graphs/projective/projectivePersistence.host.test.tsx"
+  },
+  {
+   "a": "L37",
+   "b": "L19",
+   "file": "graphs/recursion/CobwebLessonActions.host.test.tsx"
+  },
+  {
+   "a": "L37",
+   "b": "L19",
+   "file": "graphs/recursion/recursionPresetCollection.test.tsx"
+  },
+  {
+   "a": "L20",
+   "b": "L22",
+   "file": "graphs/trig/trigPresetCollection.test.tsx"
+  }
+ ],
+ "ownerEdges": [
+  {
+   "owner": "L38",
+   "user": "L50",
+   "file": "graphs/functions/IterativeFunctionGraph.tsx"
+  },
+  {
+   "owner": "L38",
+   "user": "L42",
+   "file": "graphs/functions/IterativeFunctionGraph.tsx"
+  },
+  {
+   "owner": "L38",
+   "user": "L47",
+   "file": "graphs/functions/IterativeFunctionGraph.tsx"
+  },
+  {
+   "owner": "L02",
+   "user": "L52",
+   "file": "graphs/curves/bspline/KnotEditor.tsx"
+  },
+  {
+   "owner": "L02",
+   "user": "L24",
+   "file": "graphs/curves/bspline/KnotEditor.tsx"
+  },
+  {
+   "owner": "L02",
+   "user": "L03",
+   "file": "graphs/curves/bspline/KnotEditor.tsx"
+  },
+  {
+   "owner": "L41",
+   "user": "L48",
+   "file": "graphs/curves/rational/BaseRationalCurveGraph.tsx"
+  },
+  {
+   "owner": "L41",
+   "user": "L45",
+   "file": "graphs/curves/rational/BaseRationalCurveGraph.tsx"
+  },
+  {
+   "owner": "L29",
+   "user": "L55",
+   "file": "graphs/patches/SurfaceCameraPanel.tsx"
+  },
+  {
+   "owner": "L53",
+   "user": "L55",
+   "file": "graphs/patches/BaseSurfaceGraph.tsx"
+  },
+  {
+   "owner": "L21",
+   "user": "L45",
+   "file": "graphs/curves/ph/BasePhBezierCurveGraph.tsx"
+  }
+ ],
+ "sharedSuitesHandlerOwned": [
+  "Routes.test.tsx",
+  "graphs/ExportPausesPlayback.test.tsx",
+  "graphs/compgeo/compgeoDefaultView.host.test.tsx",
+  "graphs/functions/FunctionsFirstTask.test.tsx"
+ ]
+}

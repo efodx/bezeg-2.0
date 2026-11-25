@@ -53,7 +53,62 @@ Not known yet. The trial's figure (about 50k context and 5 minutes per graph in 
 
 ## Lane table
 
-To be written by step 4.
+Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08-partition.json` (lanes, sessions, owned files, conflict edges): lanes are the lesson-file components of the 125 demonstrations not yet declared, in sessions of 2-3 demonstrations (` ; ` separates sessions); rounds are greedy (at most 3 lanes, the owner lane of an unconverted shared base first, no shared graph file or own test inside a round). Already declared (13, in no lane): bezier, bisection, decasteljau, exponential-function, function-transformation, linear-map, patch-coons, phase-portrait, polygon-area, projective-cross-ratio, rational-decasteljau, taylor, triangle-centres.
 
-| Round | Lane | Demonstrations | Files owned | Status |
+| Round | Lane | Demonstrations | Files owned (short) | Status |
 | --- | --- | --- | --- | --- |
+| 1 | L01 | bspline-blossom | graph files + `bsplineBlossomGuidedLessons` | not started |
+| 1 | L05 | elevation | graph files + `additionalGuidedLessons` | not started |
+| 1 | L06 | function-inverse | graph files + `schoolFunctionGraphsGuidedLessons` | not started |
+| 2 | L02 | bspline-extraction | graph files + `bsplineExtractionGuidedLessons`; owns first `KnotEditor` | not started |
+| 2 | L07 | interp-least-squares | graph files + `interpolationLeastSquaresLesson` | not started |
+| 2 | L08 | reduction | graph files + `degreeReductionGuidedLessons` | not started |
+| 3 | L03 | bspline-insertion | graph files + `bsplineInsertionGuidedLessons` | not started |
+| 3 | L09 | circle-construction | graph files + `circleGeometryGuidedLessons` | not started |
+| 3 | L10 | euler-method | graph files + `numericalEulerGuidedLesson` | not started |
+| 4 | L04 | bspline-nurbs | graph files + `bsplineNurbsGuidedLessons` | not started |
+| 4 | L11 | fourier-coefficients | graph files + `fourierCoefficientsGuidedLessons` | not started |
+| 4 | L12 | fourier-series | graph files + `fourierSeriesGuidedLessons` | not started |
+| 5 | L13 | isometries | graph files + `isometriesFriezeGuidedLessons +2` | not started |
+| 5 | L14 | line-geometry | graph files + `analyticLinesGuidedLessons, analyticLinesIntersectGuidedLessons` | not started |
+| 5 | L15 | linear-program | graph files + `levelSetsGuidedLessons` | not started |
+| 6 | L16 | projective-five-point | graph files + `projectiveFivePointGuidedLesson` | not started |
+| 6 | L18 | quadrature | graph files + `numericalQuadratureGuidedLesson` | not started |
+| 6 | L19 | recursion-growth | graph files + `recursionGuidedLessons, recursionLogScaleGuidedLessons` | not started |
+| 7 | L17 | projective-three-views | graph files + `projectiveThreeViewsGuidedLesson` | not started |
+| 7 | L20 | triangle-solver | graph files + `trigSolveGuidedLessons, trigTriangleGuidedLessons` | not started |
+| 7 | L21 | uniform-parameterization, weighted-parameterization | graph files + `parameterizationGuidedLessons`; owns first `BasePhBezierCurveGraph` | not started |
+| 8 | L22 | unit-circle | graph files + `trigUnitCircleGuidedLessons` | not started |
+| 8 | L23 | arc-length-param | graph files + `arcLengthGuidedLessons` | not started |
+| 8 | L24 | bspline-deboor | graph files + `bsplineDeBoorGuidedLessons` | not started |
+| 9 | L25 | logistic-map | graph files + `phasePortraitsGuidedLessons` | not started |
+| 9 | L26 | complex-euler | graph files + `complexEulerGuidedLessons` | not started |
+| 9 | L28 | complex-reciprocal, complex-roots | graph files + `complexMapsChapterLessons` | not started |
+| 10 | L27 | complex-power | graph files + `complexPowerGuidedLessons` | not started |
+| 10 | L29 | contour-map | graph files + `levelSetsContourGuidedLessons, levelSetsOptimizationGuidedLessons`; owns first `SurfaceCameraPanel` | not started |
+| 10 | L30 | counting-tree, lattice-paths | graph files + `combinatoricsGuidedLessons, combinatoricsRowGuidedLessons` | not started |
+| 11 | L31 | curve-kinematics | graph files + `kinematicsDecompositionGuidedLessons, kinematicsGuidedLessons` | not started |
+| 11 | L32 | epicycles | graph files + `epicyclesGuidedLessons` | not started |
+| 11 | L34 | polynomial-zeros, rational-function | graph files + `schoolFunctionGraphsBatchBGuidedLessons` | not started |
+| 12 | L33 | mechanics-descent | graph files + `mechanicalCurvesGuidedLessons` | not started |
+| 12 | L35 | prob-simulation | graph files + `randomnessAreaGuidedLessons +4` | not started |
+| 12 | L36 | projective-pascal, projective-pole-polar | graph files + `projectiveConicsGuidedLessons` | not started |
+| 13 | L37 | recursion-cobweb | graph files + `recursionCobwebGuidedLessons` | not started |
+| 13 | L38 | root-finding | graph files + `numericalMethodsGuidedLessons`; owns first `IterativeFunctionGraph` | not started |
+| 13 | L39 | waves | graph files + `wavesGuidedLessons, wavesSamplingGuidedLessons` | not started |
+| 14 | L40 | bezier-clipping | graph files + `bezierClippingGuidedLessons` | not started |
+| 14 | L41 | rational-extrapolation, extrapolation, rational-subdivision ; repeated-subdivision, subdivision | graph files + `constructionGuidedLessons`; owns first `BaseRationalCurveGraph` | not started |
+| 14 | L42 | conic-focal, geometric-series | graph files + `schoolFunctionGraphsBatchCGuidedLessons` | not started |
+| 15 | L43 | interp-hermite, interp-lagrange ; interp-runge, interp-subdivision | graph files + `interpolationGuidedLessons` | not started |
+| 15 | L44 | spline-c1, spline-c2, spline-cn ; spline-g1, spline-g1-symmetric, spline-parameterization | graph files + `splineGuidedLessons` | not started |
+| 15 | L45 | affine, bernstein, complex-multiplication ; ph-cubic, ph-quintic ; rational, rational-elevation | graph files + `activities +3` | not started |
+| 16 | L46 | arc-length, area-between-curves, continuity ; definite-integral, derivative ; linear-function, trigonometric-functions | graph files + `functionGuidedLessons` | not started |
+| 16 | L48 | circle, decasteljau-alternative, farin | graph files + `rationalConstructionGuidedLessons` | not started |
+| 16 | L49 | curve-comb, curve-curvature, curve-envelope ; curve-evolute, curve-offset, curve-parametric | graph files + `curveGeometryGuidedLessons` | not started |
+| 17 | L47 | prob-binomial-normal, prob-clt, prob-correlation ; prob-density, prob-summary | graph files + `probabilityGuidedLessons` | not started |
+| 17 | L51 | euler-line, inscribed-angle ; inversion, simson-line | graph files + `triangleGeometryChapterLessons` | not started |
+| 17 | L52 | bspline-basis | graph files + `bsplineBasisGuidedLessons` | not started |
+| 18 | L50 | accumulation, convexity, darboux ; extrema, fixed-point, mean-value ; sequence, uniform-convergence | graph files + `analysisGuidedLessons` | not started |
+| 18 | L53 | solids | graph files + `solidsGuidedLessons +2`; owns first `BaseSurfaceGraph` | not started |
+| 18 | L54 | bezier-hulls, convex-hull, delaunay ; ear-clipping, fortune, hull-robustness ; interval-sweep, monotone-partition, monotone-triangulation ; orientation, point-in-polygon, point-set-triangulation ; segment-intersections, voronoi, voronoi-degenerate | graph files + `compgeoGuidedLessons` | not started |
+| 19 | L55 | patch-decasteljau, patch-derivatives, patch-joins ; patch-subdivision, patch-tensor, patch-triangular | graph files + `guidedExamplePreviews +3` | not started |
