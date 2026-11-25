@@ -230,9 +230,9 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
                 onKeyDown={onGripKeyDown} onBlur={onGripBlur}><GripIcon/></button>
         <h3 className="board-card-title">{name}</h3>
         {headActions && <span className="board-card-actions" data-card-action>{headActions}</span>}
+        <button type="button" className="board-card-button board-card-reset" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>
         <button type="button" className="board-card-button board-card-fold" aria-expanded={!folded} aria-label={name}
                 onClick={() => onFold(!folded)}><Chevron/></button>
-        <button type="button" className="board-card-button" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>
       </div>
       {(!folded || keepMounted) && <div ref={body} className="board-card-body" data-card-body hidden={folded || undefined}>{children}</div>}
       {!folded && cut !== null && <button type="button" className="board-card-more" onClick={scrollMore}>{t('shell_more')}</button>}

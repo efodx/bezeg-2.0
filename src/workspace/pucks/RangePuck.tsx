@@ -261,7 +261,7 @@ export function RangePuck(props: RangePuckProps) {
                         else if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setNotice(undefined); closeEntry(); }
                     }}
                     onBlur={() => { setEntry(null); setNotice(undefined); }}/>
-                <div className="puck-track" aria-hidden="true"><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, span > 0 ? (value - parameter.min) / span : 0))})`}}/></div>
+                <div className="puck-track" aria-hidden="true"><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/><span className="puck-thumb" style={{transform: `translateX(${Math.min(1, Math.max(0, fraction)) * 100}%)`}}/></div>
             </div>
             : <div ref={bodyRef} {...tip.handlers} className="puck-body" role="slider" tabIndex={0} aria-label={name} aria-orientation="horizontal"
                 aria-valuemin={parameter.min} aria-valuemax={parameter.max} aria-valuenow={value} aria-valuetext={valueText}
@@ -273,7 +273,7 @@ export function RangePuck(props: RangePuckProps) {
                 onLostPointerCapture={event => endDrag(event, true)} onBlur={() => { tip.handlers.onBlur(); endDrag({clientX: 0}, true); }}
                 onKeyDown={onKeyDown} onDoubleClick={() => { if (!locked) setEntry({text: fmt(latest.current), select: true}); }}>
                 <span className="puck-value" style={{width: `${widthCh}ch`}}>{fmt(value)}{unit && <span className="puck-unit"> {unit}</span>}</span>
-                <div ref={trackRef} className="puck-track" aria-hidden="true" onPointerMove={onTrackMove} onPointerLeave={event => { endHover(); if (event.pointerType === 'mouse' && event.relatedTarget instanceof Node && bodyRef.current?.contains(event.relatedTarget)) startRest(); }}><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/></div>
+                <div ref={trackRef} className="puck-track" aria-hidden="true" onPointerMove={onTrackMove} onPointerLeave={event => { endHover(); if (event.pointerType === 'mouse' && event.relatedTarget instanceof Node && bodyRef.current?.contains(event.relatedTarget)) startRest(); }}><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/><span className="puck-thumb" style={{transform: `translateX(${Math.min(1, Math.max(0, fraction)) * 100}%)`}}/></div>
             </div>}
         {ruler && createPortal(<DragRuler parameter={parameter} state={ruler} fmt={fmt}/>, document.body)}
     </PuckFrame>;

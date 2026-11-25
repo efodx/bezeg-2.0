@@ -3,9 +3,11 @@
 .tools-body { min-width: 0; color: var(--workspace-ink, var(--bezeg-shell-ink)); }
 .tools-body .tools { max-height: none; overflow: visible; }
 .tools-body[data-declared] [data-declared-panel] { display: none; }
-.tools-head-button { width: 32px; }
-.tools-head-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.tools-head-button[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
+/* Uredi, Prikaz, Shrani in the head: the shown panel's icon takes the dark fill. A folded card shows no panel, so none is filled. */
+.board-card .board-card-button.tools-head-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.board-card .board-card-button.tools-head-button[aria-pressed="true"] { background: var(--board-ink); color: var(--board-surface); }
+.board-card--folded .board-card-button.tools-head-button[aria-pressed="true"] { background: transparent; color: var(--board-ink-quiet); }
+.board-card--folded .board-card-button.tools-head-button[aria-pressed="true"]:hover { background: var(--board-tint); color: var(--board-ink); }
 /* A host without the card layer (a bare workspace) shows the card in the board's corner. */
 .workspace-static-tools { position: absolute; top: 8px; right: 8px; width: 330px; max-height: calc(100% - 16px); display: flex; z-index: 2; }
 .workspace-static-tools > .board-card { flex: 1; max-height: 100%; }

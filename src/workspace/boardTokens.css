@@ -1,0 +1,23 @@
+/* The look of the board workspace (task 11): cards and pucks are thin cream slips lying on the graph paper. One family: the same
+   surface, hairline edge, 12 px corners and a short two-layer shadow; names in secondary ink, values in ink.
+   The roles sit on each component's own root (a card's measure copy, the drag ruler and a test's lone puck are not inside the layer)
+   and are bound to the shell's roles, never to the control tokens that Presentation re-binds: the slips stay light on the navy board. */
+.board-card, .board-card-ghost, .puck-strip, .puck, .puck-ruler {
+    --board-surface: var(--bezeg-shell-panel, #fffdf5);
+    --board-ink: var(--bezeg-shell-ink, #19372f);
+    --board-ink-quiet: var(--bezeg-shell-ink-secondary, #526152);
+    --board-rule: var(--bezeg-shell-rule, #d6dccb);
+    --board-rule-strong: var(--bezeg-shell-rule-active, #b8c5ac);
+    /* A control's edge where the edge is what shows the control (the switch): 4.1 : 1 on the surface. */
+    --board-edge: #767f6c;
+    --board-tint: var(--bezeg-shell-control-hover, #eef3e5);
+    --board-accent: var(--bezeg-shell-action, #244c37);
+    /* The lesson's colour: the bar and tint of a row the lesson talks about, the ruler's needle. */
+    --board-ochre: var(--bezeg-shell-ochre, #b88a43);
+    --board-mark: var(--bezeg-shell-lesson-hover, #f5edda);
+    --board-focus: var(--bezeg-shell-focus, #456db0);
+    --board-radius: 12px;
+    --board-shadow: 0 1px 2px rgb(25 55 47 / 8%), 0 4px 14px rgb(25 55 47 / 8%);
+    --board-shadow-raised: 0 2px 4px rgb(25 55 47 / 8%), 0 8px 22px rgb(25 55 47 / 14%);
+    --board-shadow-lifted: 0 2px 5px rgb(25 55 47 / 10%), 0 14px 34px rgb(25 55 47 / 20%);
+}

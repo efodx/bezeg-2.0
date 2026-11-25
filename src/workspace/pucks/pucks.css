@@ -1,88 +1,129 @@
-/* Parameter pucks (task 05). Compact: 120 to 160 px wide; the value box has a fixed width so a sweep never moves the puck. */
+@import "../boardTokens.css";
+
+/* Parameter pucks (task 05; look task 11). A puck is a small slip of the cards' paper: its name as a quiet caption with the sweep and
+   "?" buttons, and under it the control (a track with its value, a stepper, a switch, segments). Compact: 120 to 160 px wide; the
+   value box has a fixed width so a sweep never moves the puck. The workspace styles every `button` (bordered, 34 px tall); the rules
+   for a puck's own buttons carry `.puck` in front so that blanket rule never reaches them. */
 .puck {
-    position: relative; box-sizing: border-box; min-width: 120px; max-width: 160px; padding: 4px 8px 6px;
-    background: var(--bezeg-shell-panel, #fffdf5); color: var(--bezeg-control-ink, #20372d);
-    border: 1px solid var(--bezeg-shell-rule-active, #b8c5ac); border-radius: 10px; box-shadow: var(--bezeg-shell-shadow-card, 0 2px 8px rgb(35 54 42 / 12%));
-    font-size: var(--bezeg-control-font-size, .875rem); touch-action: none;
+    position: relative; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 2px;
+    min-width: 120px; max-width: 160px; padding: 5px 10px 7px;
+    background: var(--board-surface); color: var(--board-ink);
+    border: 1px solid var(--board-rule); border-radius: var(--board-radius); box-shadow: var(--board-shadow);
+    font-size: .8125rem; line-height: 1.25; touch-action: none; transition: border-color .16s ease;
 }
-.puck.is-locked { opacity: .72; background: color-mix(in srgb, var(--bezeg-shell-panel, #fffdf5) 85%, #b8c5ac); }
-.puck-head { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 20px; }
-.puck-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78rem; font-weight: 600; }
-.puck-help-button {
-    flex: none; width: 18px; height: 18px; padding: 0; line-height: 1; border-radius: 50%; font-size: .7rem; cursor: pointer;
-    border: 1px solid var(--bezeg-control-border-color, #767f6c); background: transparent; color: inherit;
+.puck:focus-within, .puck.is-sweeping { border-color: var(--board-rule-strong); }
+@media (hover: hover) { .puck:hover { border-color: var(--board-rule-strong); } }
+.puck.is-locked { background: color-mix(in srgb, var(--board-surface) 86%, var(--board-rule)); }
+.puck.is-locked .puck-value { color: var(--board-ink-quiet); }
+
+/* The caption: the name (two lines at most, the full name is its title) and the small round buttons. */
+.puck-head { display: flex; align-items: flex-start; gap: 2px; min-height: 20px; margin-right: -5px; }
+.puck-label {
+    flex: 1 1 auto; min-width: 0; padding-top: 2px; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    font-size: .75rem; line-height: 1.3; font-weight: 500; color: var(--board-ink-quiet); overflow-wrap: break-word;
 }
-.puck-body {
-    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 3px 0 0; cursor: ew-resize; user-select: none; border-radius: 6px;
+.puck .puck-help-button, .puck .puck-sweep {
+    position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+    width: 20px; height: 20px; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 50%; background: transparent;
+    color: var(--board-ink-quiet); font: inherit; font-size: .6875rem; line-height: 1; font-weight: 650; cursor: pointer;
+    transition: opacity .12s ease, background-color .12s ease, color .12s ease, box-shadow .12s ease;
 }
+/* The targets are larger than the drawn circles and do not overlap each other. */
+.puck .puck-help-button::after { content: ""; position: absolute; inset: -6px -6px -6px -1px; }
+.puck .puck-sweep::after { content: ""; position: absolute; inset: -6px -1px -6px -6px; }
+.puck .puck-help-button { box-shadow: inset 0 0 0 1px var(--board-rule-strong); }
+.puck .puck-help-button:hover { background: var(--board-tint); color: var(--board-ink); box-shadow: inset 0 0 0 1px var(--board-ink-quiet); }
+.puck .puck-help-button[aria-expanded="true"] { background: var(--board-ink); color: var(--board-surface); box-shadow: none; }
+/* The sweep button: quiet on fine pointers (shown on hover and focus, and while running), always shown on touch. */
+.puck .puck-sweep { opacity: 0; }
+.puck .puck-sweep:hover { background: var(--board-tint); color: var(--board-ink); }
+.puck:hover .puck-sweep, .puck:focus-within .puck-sweep, .puck .puck-sweep[aria-pressed="true"] { opacity: 1; }
+.puck .puck-sweep[aria-pressed="true"] { background: var(--board-accent); color: #fff; animation: puck-sweep-pulse 1.4s ease-in-out infinite; }
+@keyframes puck-sweep-pulse { 50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--board-accent) 26%, transparent); } }
+@media (hover: none) { .puck .puck-sweep { opacity: 1; } }
+
+/* A range: the track with its value at the right end. The whole row is the slider (drag anywhere on it). */
+.puck-body { display: flex; align-items: center; gap: 9px; min-height: 26px; border-radius: 6px; cursor: ew-resize; user-select: none; }
 .puck-body-entry { cursor: default; }
 .puck-body[aria-disabled="true"] { cursor: not-allowed; }
-.puck-value { display: inline-block; text-align: center; font-variant-numeric: tabular-nums; font-size: 1rem; font-weight: 600; white-space: nowrap; }
-.puck-unit { font-weight: 400; }
-.puck-track { position: relative; align-self: stretch; height: 8px; border-radius: 4px; background: var(--bezeg-shell-rule, #d6dccb); overflow: hidden; cursor: pointer; }
-.puck-fill {
-    position: absolute; inset: 0; transform-origin: left center; background: var(--bezeg-shell-ochre, #b88a43);
-    transition: transform 80ms linear;
+.puck-value { order: 2; display: inline-block; flex: none; text-align: right; font-size: 1rem; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.puck-unit { font-size: .8125rem; font-weight: 400; color: var(--board-ink-quiet); }
+/* A thin line for the range (3.2 : 1 on the surface), the part up to the value drawn thicker in the accent, a round thumb at the value.
+   Fill and thumb move by transform only. The line is 4 px tall to the eye and 26 px to the pointer. */
+.puck-track {
+    order: 1; position: relative; flex: 1 1 auto; min-width: 40px; height: 4px; border-radius: 2px; cursor: pointer;
+    background: linear-gradient(var(--puck-track-line), var(--puck-track-line)) center / 100% 2px no-repeat;
+    --puck-track-line: color-mix(in srgb, var(--board-ink-quiet) 70%, var(--board-surface));
 }
-.puck-input {
+.puck-track::before { content: ""; position: absolute; inset: -11px 0; }
+.puck-fill { position: absolute; inset: 0; border-radius: 2px; transform-origin: left center; background: var(--board-accent); transition: transform 80ms linear; }
+.puck-thumb { position: absolute; inset: 0; pointer-events: none; transition: transform 80ms linear; }
+.puck-thumb::before {
+    content: ""; position: absolute; left: -5px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%;
+    background: var(--board-accent); box-shadow: 0 0 0 2px var(--board-surface);
+}
+.puck .puck-input {
     /* Exactly the value's width (set inline): opening the entry must not widen the puck or shift the pucks after it. */
-    box-sizing: border-box; max-width: 100%; padding: 0; margin: -1px 0; text-align: center; font: inherit; font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums;
-    border: var(--bezeg-control-border, 1px solid #767f6c); border-radius: var(--bezeg-control-radius, 6px); background: var(--bezeg-control-surface, #fffdf5); color: inherit;
+    order: 2; flex: none; box-sizing: border-box; max-width: 100%; min-height: 0; padding: 0; margin: -1px 0; text-align: right;
+    font: inherit; font-size: 1rem; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums;
+    border: 1px solid var(--board-accent); border-radius: 6px; background: #fff; color: var(--board-ink);
 }
-.puck-input[aria-invalid="true"] { border-color: #a23b2a; }
-.puck-stepper { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
-.puck-step {
-    flex: none; width: 28px; height: 28px; padding: 0; font-size: 1.1rem; line-height: 1; cursor: pointer; color: inherit;
-    border: var(--bezeg-control-border, 1px solid #767f6c); border-radius: var(--bezeg-control-radius, 6px); background: var(--bezeg-control-surface, #fffdf5);
+.puck .puck-input[aria-invalid="true"] { border-color: #b3261e; background: #fdeceb; }
+
+/* A count: − value +. The signs are drawn (two bars), so they sit dead centre whatever the font. */
+.puck-stepper { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 28px; }
+.puck .puck-step {
+    position: relative; flex: none; box-sizing: border-box; width: 28px; height: 28px; min-width: 0; min-height: 0; margin: 0; padding: 0;
+    border: 1px solid var(--board-rule-strong); border-radius: 50%; color: var(--board-ink); font-size: 0; line-height: 0; cursor: pointer;
+    background-color: var(--board-surface); background-repeat: no-repeat; background-position: center;
+    background-image: linear-gradient(currentColor, currentColor); background-size: 10px 1.5px;
+    transition: border-color .12s ease, background-color .12s ease;
 }
-.puck-step[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
-.puck-count-value { cursor: default; padding-top: 0; }
-/* The sweep button: quiet on fine pointers (shown on hover and focus, and while running), always shown on touch. */
-.puck-sweep {
-    flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; margin-left: auto; margin-block: -3px; cursor: pointer; color: inherit;
-    border: 1px solid var(--bezeg-control-border-color, #767f6c); border-radius: 50%; background: transparent; opacity: 0; transition: opacity 120ms;
-}
-.puck-sweep + .puck-help-button { margin-left: 0; }
-.puck:hover .puck-sweep, .puck:focus-within .puck-sweep, .puck-sweep[aria-pressed="true"] { opacity: 1; }
-.puck-sweep[aria-pressed="true"] { background: var(--bezeg-control-selected-surface, #19372f); color: var(--bezeg-control-selected-ink, #fff); animation: puck-sweep-pulse 1.4s ease-in-out infinite; }
-.puck.is-sweeping { border-color: var(--bezeg-shell-ochre, #b88a43); }
-@keyframes puck-sweep-pulse { 50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bezeg-shell-ochre, #b88a43) 45%, transparent); } }
-@media (hover: none) { .puck-sweep { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .puck-sweep { transition: none; animation: none !important; } }
-.puck :is(.puck-body, .puck-step, .puck-help-button, .puck-sweep, .puck-input):focus-visible { outline: var(--bezeg-control-focus, 3px solid #456db0); outline-offset: var(--bezeg-control-focus-offset, 2px); }
+.puck .puck-step:last-child { background-image: linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor); background-size: 10px 1.5px, 1.5px 10px; }
+.puck .puck-step::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; }
+.puck .puck-step:hover { border-color: var(--board-accent); background-color: var(--board-tint); }
+.puck .puck-step:active { background-color: color-mix(in srgb, var(--board-accent) 14%, var(--board-surface)); }
+.puck .puck-step[aria-disabled="true"] { opacity: .4; cursor: not-allowed; border-color: var(--board-rule-strong); background-color: var(--board-surface); }
+.puck-count-value { flex: 1 1 auto; justify-content: center; min-height: 0; padding: 0; cursor: default; }
+.puck-stepper :is(.puck-value, .puck-input) { order: 0; text-align: center; }
+
+.puck :is(.puck-body, .puck-step, .puck-help-button, .puck-sweep, .puck-input, .puck-segment):focus-visible { outline: 3px solid var(--board-focus); outline-offset: 2px; }
 /* Notice, tip, help card and pill sit out of flow so a message never changes the puck's size or shifts the strip. */
 .puck-notice {
-    position: absolute; left: 0; right: 0; top: 100%; margin-top: 2px; padding: 2px 6px; border-radius: 6px; font-size: .75rem; color: #7a2a1d;
-    background: var(--bezeg-shell-panel, #fffdf5); box-shadow: var(--bezeg-shell-shadow-card, 0 2px 8px rgb(35 54 42 / 12%)); z-index: 3;
+    position: absolute; left: 0; right: 0; top: 100%; z-index: 3; margin-top: 4px; padding: 4px 8px; border: 1px solid #e6c2bc; border-radius: 8px;
+    font-size: .75rem; line-height: 1.3; color: #8f1d17; background: #fff8f6; box-shadow: var(--board-shadow);
 }
 .puck-notice:empty { display: none; }
-.puck-lock { margin-top: 3px; font-size: .72rem; color: var(--bs-secondary-color, #5c6a66); }
+.puck-lock { margin-top: 2px; font-size: .72rem; line-height: 1.3; color: var(--board-ink-quiet); }
 .puck-tip, .puck-help-card {
-    position: absolute; left: 0; bottom: 100%; margin-bottom: 4px; width: max-content; max-width: 220px; padding: 6px 8px; z-index: 4;
-    border-radius: 8px; font-size: .78rem; line-height: 1.35; background: var(--bezeg-control-selected-surface, #19372f); color: var(--bezeg-control-selected-ink, #fff);
+    position: absolute; left: 0; bottom: 100%; z-index: 4; box-sizing: border-box; width: max-content; max-width: 240px; margin-bottom: 6px; padding: 7px 10px;
+    border: 1px solid var(--board-rule); border-radius: 10px; background: var(--board-surface); color: var(--board-ink); box-shadow: var(--board-shadow-raised);
+    font-size: .8125rem; line-height: 1.4; font-weight: 400; text-wrap: pretty;
 }
 .puck-tip { pointer-events: none; }
-.puck-undo {
-    position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 4px; z-index: 5; padding: 3px 12px; cursor: pointer;
-    border: 0; border-radius: 999px; font-size: .8rem; font-weight: 600; white-space: nowrap;
-    background: var(--bezeg-control-selected-surface, #19372f); color: var(--bezeg-control-selected-ink, #fff);
+.puck .puck-undo {
+    position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); z-index: 5; min-height: 0; margin: 0 0 6px; padding: 5px 14px; cursor: pointer;
+    border: 0; border-radius: 999px; font: inherit; font-size: .8rem; line-height: 1.2; font-weight: 600; white-space: nowrap;
+    background: var(--board-ink); color: var(--board-surface); box-shadow: 0 4px 14px rgb(25 55 47 / 22%);
     animation: puck-pill-in 120ms ease-out;
 }
-.puck-undo:focus-visible { outline: var(--bezeg-control-focus, 3px solid #456db0); outline-offset: 2px; }
+.puck .puck-undo:hover { background: var(--board-accent); }
+.puck .puck-undo:focus-visible { outline: 3px solid var(--board-focus); outline-offset: 2px; }
 @keyframes puck-pill-in { from { opacity: 0; } to { opacity: 1; } }
 .puck-ruler {
-    position: fixed; z-index: 1000; box-sizing: border-box; overflow: hidden; pointer-events: none; border-radius: 8px;
-    background: var(--bezeg-shell-panel, #fffdf5); border: 1px solid var(--bezeg-shell-rule-active, #b8c5ac); box-shadow: var(--bezeg-shell-shadow-card, 0 2px 8px rgb(35 54 42 / 12%)); color: var(--bezeg-control-ink, #20372d);
+    position: fixed; z-index: 1000; box-sizing: border-box; overflow: hidden; pointer-events: none; border-radius: 10px;
+    background: var(--board-surface); border: 1px solid var(--board-rule); box-shadow: var(--board-shadow-raised); color: var(--board-ink);
 }
-.puck-ruler line { stroke: currentColor; stroke-width: 1; opacity: .55; }
+.puck-ruler line { stroke: var(--board-ink-quiet); stroke-width: 1; opacity: .5; }
 .puck-ruler line.major { opacity: 1; }
-.puck-ruler line.needle { stroke: var(--bezeg-shell-ochre, #b88a43); stroke-width: 2; opacity: 1; }
-.puck-ruler text { fill: currentColor; font-size: 10px; text-anchor: middle; font-variant-numeric: tabular-nums; }
-.puck-ruler-readout { text-align: center; font-size: .75rem; font-variant-numeric: tabular-nums; }
-.puck-ruler-readout em { font-style: normal; opacity: .75; }
+.puck-ruler line.needle { stroke: var(--board-ochre); stroke-width: 2; opacity: 1; }
+.puck-ruler text { fill: var(--board-ink-quiet); font-size: 10px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.puck-ruler-readout { text-align: center; font-size: .75rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.puck-ruler-readout em { font-style: normal; color: var(--board-ink-quiet); }
 @media (prefers-reduced-motion: reduce) {
-    .puck-fill { transition: none; }
-    .puck-undo { animation: none; }
+    .puck, .puck-fill, .puck-thumb, .puck .puck-step { transition: none; }
+    .puck .puck-help-button, .puck .puck-sweep { transition: none; animation: none !important; }
+    .puck .puck-undo { animation: none; }
 }
 
 /* The strip: bottom-left of the board, pucks in a row at their natural width; past the width the layout gives it, the slots wrap to a further row. */
@@ -97,18 +138,21 @@
 /* A side dock: the slots stack top-down and wrap into further columns (the layout's column-major wrapping, 8 px gaps). */
 .puck-strip--column { flex-direction: column; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; }
 /* The grip is the strip's first slot (the layout reserves its room): left end of a row, top end of a column. */
-.puck-strip-grip {
-    /* At least 24 px on the short side (a touch target); the dots are drawn in the ink colour on the panel so they read in every dock. */
-    position: relative; z-index: 4; flex: none; align-self: center; width: 24px; height: 40px; padding: 0; box-sizing: border-box;
-    display: flex; align-items: center; justify-content: center; cursor: grab; touch-action: none; color: var(--bezeg-control-ink, #20372d);
-    background: var(--bezeg-shell-panel, #fffdf5); border: 1px solid var(--bezeg-control-border-color, #767f6c); border-radius: 8px;
+.puck-strip .puck-strip-grip {
+    /* At least 24 px on the short side (a touch target); a slip of the same paper, so its dots read in every dock. */
+    position: relative; z-index: 4; flex: none; align-self: center; box-sizing: border-box; width: 24px; height: 40px; min-width: 0; min-height: 0; margin: 0; padding: 0;
+    display: flex; align-items: center; justify-content: center; cursor: grab; touch-action: none;
+    color: color-mix(in srgb, var(--board-ink-quiet) 70%, transparent); background: var(--board-surface);
+    border: 1px solid var(--board-rule); border-radius: 9px; box-shadow: var(--board-shadow);
+    transition: color .12s ease, border-color .12s ease;
 }
+.puck-strip .puck-strip-grip:hover { color: var(--board-ink); border-color: var(--board-rule-strong); background: var(--board-surface); }
 .puck-strip-grip svg { flex: none; width: 16px; height: 16px; }
-.puck-strip-grip--column { align-self: flex-start; width: 40px; height: 24px; }
+.puck-strip .puck-strip-grip--column { align-self: flex-start; width: 40px; height: 24px; }
 .puck-strip-grip--column svg { transform: rotate(90deg); }
-.puck-strip-grip:focus-visible { outline: 2px solid var(--bezeg-shell-action); outline-offset: 1px; }
+.puck-strip .puck-strip-grip:focus-visible { outline: 3px solid var(--board-focus); outline-offset: 2px; }
 .puck-strip-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-@media (prefers-reduced-motion: reduce) { .puck-strip { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .puck-strip, .puck-strip .puck-strip-grip { transition: none; } }
 .puck-slot { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
 /* A row: the slots are as tall as the tallest, and a lone puck fills its slot, so none sticks out of the row. */
 .puck-strip:not(.puck-strip--column) { align-items: stretch; }
@@ -116,26 +160,53 @@
 /* A column: every slot takes the column's width (PUCK_COLUMN_WIDTH in boardLayout.ts), so the pucks' edges align across wrapped columns. */
 .puck-strip--column .puck-slot { width: 160px; }
 .puck-host { display: contents; }
-.puck-playback { display: flex; gap: 4px; }
+/* Play and reset of a parameter that plays (De Casteljau's t): two small slips under its puck. */
+.puck-strip .puck-playback { display: flex; gap: 4px; }
+.puck-strip .puck-playback button {
+    flex: 1 1 0; box-sizing: border-box; min-width: 0; min-height: 30px; margin: 0; padding: 4px 10px;
+    border: 1px solid var(--board-rule); border-radius: 10px; background: var(--board-surface); color: var(--board-ink); box-shadow: var(--board-shadow);
+    font-size: .78rem; line-height: 1.2; font-weight: 600; transition: border-color .12s ease, background-color .12s ease;
+}
+.puck-strip .puck-playback button:hover { border-color: var(--board-rule-strong); background: var(--board-tint); }
+.puck-strip .puck-playback button[aria-disabled="true"] { color: var(--board-ink-quiet); border-color: var(--board-rule); cursor: default; }
+.puck-strip .puck-playback button span { color: var(--board-accent); }
+.puck-strip .puck-playback button:focus-visible { outline: 3px solid var(--board-focus); outline-offset: 2px; }
 
-/* Toggle and choice pucks (slice 6): the same shell; a switch (the look of OnOffSwitch) and a segmented control. */
-.puck-toggle-body { cursor: pointer; padding: 5px 0 2px; }
+/* Toggle and choice pucks (slice 6): the same slip; a switch (the look of OnOffSwitch) and a segmented control. */
+.puck-toggle-body { justify-content: flex-start; cursor: pointer; }
 .puck-switch {
-    position: relative; display: block; width: 36px; height: 20px; box-sizing: border-box; border-radius: 999px;
-    background: var(--bezeg-control-surface, #fffdf5); border: var(--bezeg-control-border, 1px solid #767f6c);
+    position: relative; display: block; flex: none; box-sizing: border-box; width: 36px; height: 20px; border-radius: 999px;
+    background: var(--board-surface); border: 1px solid var(--board-edge); transition: background-color .15s ease, border-color .15s ease;
 }
 .puck-switch-thumb {
-    position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--bezeg-control-border-color, #767f6c);
-    transition: transform .15s ease-in-out;
+    position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--board-edge);
+    transition: transform .15s ease-in-out, background-color .15s ease;
 }
-.puck-toggle-body[aria-checked="true"] .puck-switch { background: var(--bezeg-control-selected-surface, #19372f); border-color: var(--bezeg-control-selected-surface, #19372f); }
-.puck-toggle-body[aria-checked="true"] .puck-switch-thumb { transform: translateX(16px); background: var(--bezeg-control-selected-ink, #fff); }
-.puck-segments { display: flex; gap: 2px; padding-top: 3px; }
+.puck-toggle-body[aria-checked="true"] .puck-switch { background: var(--board-accent); border-color: var(--board-accent); }
+.puck-toggle-body[aria-checked="true"] .puck-switch-thumb { transform: translateX(16px); background: #fff; }
+/* Segments lie in a shallow well; the chosen one takes the dark fill of a selected control. */
+.puck-segments { display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: color-mix(in srgb, var(--board-ink-quiet) 11%, var(--board-surface)); }
 .puck-segments.is-stacked { flex-direction: column; }
-.puck-segment {
-    flex: 1 1 0; min-width: 0; min-height: 26px; padding: 2px 6px; font: inherit; font-size: .8rem; line-height: 1.2; cursor: pointer; text-align: center;
-    color: var(--bezeg-control-ink, #20372d); background: var(--bezeg-control-surface, #fffdf5); border: var(--bezeg-control-border, 1px solid #767f6c); border-radius: var(--bezeg-control-radius, 6px);
+.puck .puck-segment {
+    flex: 1 1 0; box-sizing: border-box; min-width: 0; min-height: 24px; margin: 0; padding: 2px 8px; border: 0; border-radius: 7px; background: transparent;
+    color: var(--board-ink-quiet); font: inherit; font-size: .78rem; line-height: 1.2; font-weight: 500; text-align: center; cursor: pointer;
+    transition: background-color .12s ease, color .12s ease;
 }
-.puck-segment[aria-checked="true"] { background: var(--bezeg-control-selected-surface, #19372f); color: var(--bezeg-control-selected-ink, #fff); border-color: var(--bezeg-control-selected-surface, #19372f); font-weight: 600; }
-.puck :is(.puck-segment):focus-visible { outline: var(--bezeg-control-focus, 3px solid #456db0); outline-offset: var(--bezeg-control-focus-offset, 2px); }
-@media (prefers-reduced-motion: reduce) { .puck-switch-thumb { transition: none; } }
+.puck .puck-segment:hover { background: color-mix(in srgb, var(--board-surface) 65%, transparent); color: var(--board-ink); }
+.puck .puck-segment[aria-checked="true"] { background: var(--board-ink); color: var(--board-surface); font-weight: 600; box-shadow: 0 1px 2px rgb(25 55 47 / 25%); }
+@media (prefers-reduced-motion: reduce) { .puck-switch, .puck-switch-thumb, .puck .puck-segment, .puck-strip .puck-playback button { transition: none; } }
+
+/* Touch: the small buttons grow to at least 32 px (the steppers and Play to 44 px with their halo). */
+@media (pointer: coarse) {
+    .puck-head { min-height: 32px; margin-right: -7px; }
+    .puck-label { padding-top: 8px; }
+    .puck .puck-help-button, .puck .puck-sweep { width: 32px; height: 32px; }
+    .puck .puck-help-button { box-shadow: inset 0 0 0 1px var(--board-rule-strong), inset 0 0 0 6px var(--board-surface); }
+    .puck .puck-help-button::after, .puck .puck-sweep::after { inset: -6px 0; }
+    .puck-body { min-height: 36px; }
+    .puck .puck-step { width: 36px; height: 36px; }
+    .puck .puck-step::after { inset: -4px; }
+    .puck .puck-segment { min-height: 36px; }
+    .puck .puck-undo { padding: 10px 16px; }
+    .puck-strip .puck-playback button { min-height: 44px; }
+}
