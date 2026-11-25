@@ -10,7 +10,7 @@ import {activeGesture, onLearnerGestureEnd} from '../../graphs/base/writes/write
 import {autofitSwitch, type AutofitSwitch} from './autofitSwitch';
 import {coveredMarks, fitIntent} from './fitIntent';
 import {fitView, type Point, type Rect} from './viewFit';
-import {easeOutCubic, GLIDE_MS} from './motion';
+import {easeOutCubic, GLIDE_MS, glideDuration, setStepGlideMs} from './motion';
 import {marksToPoints} from './viewMarks';
 
 /** Zoom limits of the keep-mode fallback (maxIn is unused by `keep`). */
@@ -378,6 +378,7 @@ export class ViewDirector {
         }
         const carried = mode === 'glide' ? this.carried : undefined;
         this.carried = undefined;
+        if (byFrame && !carried) setStepGlideMs(GLIDE_MS); // a new step starts on the base clock until its glide is known
         const shown = this.shownBox();
         if (viewBoxesEqual(target, shown)) { this.cancelGlide(); this.releaseHold(); return; }
         const token = {};
@@ -389,7 +390,9 @@ export class ViewDirector {
             return;
         }
         // A lesson write that ended this step's glide midway: carry on from the box shown, in the time that was left (no restart).
-        this.glide = {token, lease, from: shown, to: target, start: this.now(), byFrame: byFrame || carried !== undefined, ms: carried ? Math.max(carried.remaining, 1) : GLIDE_MS};
+        const ms = carried ? Math.max(carried.remaining, 1) : glideDuration(shown, target);
+        if (byFrame && !carried) setStepGlideMs(ms);
+        this.glide = {token, lease, from: shown, to: target, start: this.now(), byFrame: byFrame || carried !== undefined, ms};
         this.schedule();
     }
 

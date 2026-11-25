@@ -3,7 +3,7 @@
 // (250 ms, ease-out), as `animation` writes under one lease. Discrete and unbound state takes the new step's value at once. Framework-free:
 // the arbiter, the clock and the frames are injected.
 import type {Lease, LeaseEndReason, ParameterArbiter} from '../../graphs/base/writes/parameterArbiter';
-import {easeOutCubic, GLIDE_MS} from './motion';
+import {easeOutCubic, stepGlideMs} from './motion';
 
 export interface MorphRange {
     readonly key: string;
@@ -181,7 +181,7 @@ export class LessonMorph {
         const now = this.now();
         if (now - running.last > MAX_FRAME_GAP_MS) { this.finish(); return; }
         running.last = now;
-        const t = Math.min(1, Math.max(0, (now - running.start) / GLIDE_MS));
+        const t = Math.min(1, Math.max(0, (now - running.start) / stepGlideMs()));
         if (t >= 1) { this.finish(); return; }
         const k = easeOutCubic(t);
         for (const item of running.moving) {

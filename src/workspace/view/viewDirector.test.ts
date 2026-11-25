@@ -4,7 +4,7 @@ import {ViewAdapter, type ViewBoard, type ViewBox} from '../../graphs/base/write
 import {beginLearnerGesture, beginLearnerSpan, runAs} from '../../graphs/base/writes/writeSource';
 import type {ViewMarks} from '../../graphs/base/declare/graphDeclaration';
 import {createAutofitSwitch} from './autofitSwitch';
-import {GLIDE_MS} from './motion';
+import {GLIDE_MAX_MS, GLIDE_MS, setStepGlideMs, stepGlideMs} from './motion';
 import {directorEligible, glideBox, ViewDirector, type DirectorGeometry} from './viewDirector';
 
 /** A board that fires `boundingbox` on every change, as JSXGraph does, and counts what is shown. */
@@ -77,9 +77,9 @@ function rig(options: {reducedMotion?: boolean; geometry?: DirectorGeometry | nu
     return made;
 }
 
-afterEach(() => { for (const made of rigs.splice(0)) { made.director.dispose(); made.arbiter.dispose(); made.adapter.dispose(); } live.adapter = 0; live.autofit = 0; });
+afterEach(() => { setStepGlideMs(GLIDE_MS); for (const made of rigs.splice(0)) { made.director.dispose(); made.arbiter.dispose(); made.adapter.dispose(); } live.adapter = 0; live.autofit = 0; });
 
-const settle = (made: Rig) => made.clock.run(GLIDE_MS + 100);
+const settle = (made: Rig) => made.clock.run(GLIDE_MAX_MS + 100);
 
 describe('the view director', () => {
     test('the load fit jumps once and shows a box that clears the card, leaving the intent alone', () => {
@@ -240,7 +240,7 @@ describe('the view director', () => {
         const before = made.board.writes.length;
         expect(before).toBe(0); // nothing moves under the learner's hand
         end();
-        made.clock.run(GLIDE_MS + 100);
+        made.clock.run(GLIDE_MAX_MS + 100);
         expect(made.board.writes.length).toBeGreaterThan(before);
         const [left, top, right, bottom] = made.board.box;
         expect(60).toBeGreaterThanOrEqual(left); expect(60).toBeLessThanOrEqual(right);
@@ -392,7 +392,39 @@ describe('the view director', () => {
         expect(made.board.box).toEqual(settled.map(v => expect.closeTo(v, 6)));
         expect(made.arbiter.activeLeases()).toHaveLength(0);
         // The glide began on the first frame (16 ms) and ends one frame after its 250 ms.
-        expect(made.clock.time - t0).toBeLessThanOrEqual(16 + GLIDE_MS + 16);
+        expect(made.clock.time - t0).toBeLessThanOrEqual(16 + stepGlideMs() + 16);
+    });
+
+    test('a 3-width pan glides for 450 ms and ends exactly on the target; the step clock follows it', () => {
+        const made = rig({geometry: null});
+        made.follow.current = INTENT as unknown as ViewBox;
+        made.marks.current = {must: []};
+        made.director.setGeometry(OPEN);
+        settle(made);
+        const target: ViewBox = [60, 7.5, 80, -7.5]; // three widths to the right
+        made.follow.current = target;
+        const t0 = made.clock.time;
+        made.director.frameChanged();
+        made.clock.run(GLIDE_MS + 16);
+        expect(made.board.box).not.toEqual(target);
+        expect(stepGlideMs()).toBe(450);
+        made.clock.run(450);
+        expect(made.board.box).toEqual(target);
+        expect(made.clock.time - t0).toBeLessThanOrEqual(16 + 450 + 16);
+        expect(made.clock.time - t0).toBeGreaterThan(GLIDE_MS + 16);
+    });
+
+    test('a small move keeps 250 ms on the step clock', () => {
+        const made = rig({geometry: null});
+        made.follow.current = INTENT as unknown as ViewBox;
+        made.marks.current = {must: []};
+        made.director.setGeometry(OPEN);
+        settle(made);
+        made.follow.current = [-9.8, 7.5, 10.2, -7.5];
+        made.director.frameChanged();
+        made.clock.run(32);
+        expect(made.board.box).not.toEqual(INTENT);
+        expect(stepGlideMs()).toBeLessThan(GLIDE_MS + 10);
     });
 
     test('a card change after the frame glide ended starts a glide of its own', () => {
@@ -454,9 +486,9 @@ describe('the view director', () => {
             expect(made.board.box).toEqual(mid);
             made.clock.run(16);
             expect(maxJump(made.board.box, mid)).toBeLessThan(maxJump(made.adapter.intent().box, mid) / 2);
-            made.clock.run(GLIDE_MS);
+            made.clock.run(stepGlideMs());
             expect(made.arbiter.activeLeases()).toHaveLength(0);
-            expect(made.clock.time - t0).toBeLessThanOrEqual(GLIDE_MS - 96 + 3 * 16 + 1);
+            expect(made.clock.time - t0).toBeLessThanOrEqual(stepGlideMs() - 96 + 3 * 16 + 1);
         });
 
         test('the Back and Next click is a learner span: the box is still held through the lesson writes inside it', async () => {

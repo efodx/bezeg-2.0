@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, test} from 'vitest';
 import {ParameterArbiter} from '../../graphs/base/writes/parameterArbiter';
 import {LessonMorph, type MorphRange} from './lessonMorph';
-import {GLIDE_MS} from './motion';
+import {GLIDE_MS, setStepGlideMs} from './motion';
 
 /** Frames run by hand under a fake clock, one every 16 ms. */
 class Scheduler {
@@ -53,7 +53,7 @@ function rig(): Rig {
     return made;
 }
 
-afterEach(() => { for (const made of rigs.splice(0)) { made.morph.dispose(); made.arbiter.dispose(); } });
+afterEach(() => { setStepGlideMs(GLIDE_MS); for (const made of rigs.splice(0)) { made.morph.dispose(); made.arbiter.dispose(); } });
 
 /** A lesson step: the new values, written as the lesson (after the frame change ended the animation leases, as `stopAnimations` does). */
 const stepTo = (made: Rig, next: Record<string, number | boolean>) => () => {
@@ -79,6 +79,18 @@ describe('the lesson morph', () => {
         expect(made.values.b).toBe(50);
         made.clock.run(GLIDE_MS + 100);
         expect(made.values.b).toBe(80);
+    });
+
+    test('a step whose view glide is long runs the morph on the same, longer duration', () => {
+        const made = rig();
+        setStepGlideMs(450);
+        made.morph.step(stepTo(made, {a: 10}));
+        made.clock.run(100);
+        expect(made.values.a).toBeLessThan(10);
+        expect(made.morph.isRunning()).toBe(true);
+        made.clock.run(450);
+        expect(made.values.a).toBe(10);
+        expect(made.morph.isRunning()).toBe(false);
     });
 
     test('a range key glides from the old value to the new one; a toggle is at its new value at once; the lease is gone after', () => {

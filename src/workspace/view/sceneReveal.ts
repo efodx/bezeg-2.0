@@ -2,7 +2,7 @@
 // Across a lesson step, board objects that become visible fade in and objects that stop being visible fade out as a static ghost
 // (a clone of their rendered nodes in an overlay above the board). Opacity is only ever inline style on rendered nodes, so graph
 // state, presets and exports never see it. Framework-free: the board, the clock and the frames are injected.
-import {easeOutCubic, GLIDE_MS} from './motion';
+import {easeOutCubic, stepGlideMs} from './motion';
 
 /** The part of a JSXGraph element the reveal reads. */
 export interface RevealObject {
@@ -137,7 +137,7 @@ export function reveal(board: RevealBoard, before: Snapshot, deps: SceneRevealDe
     const tick = () => {
         frameId = undefined;
         if (done) return;
-        const t = Math.min(1, Math.max(0, (now() - start) / GLIDE_MS));
+        const t = Math.min(1, Math.max(0, (now() - start) / stepGlideMs()));
         if (t >= 1) { finish(); return; }
         const k = easeOutCubic(t);
         for (const {node} of faded) node.style.opacity = String(k);
