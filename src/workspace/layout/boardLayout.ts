@@ -181,7 +181,16 @@ export function layoutBoard(input: LayoutInput): LayoutResult {
   // Rule 2i: when that still fails, cards the frame or the learner opened give way too (never the lesson card): an unreachable
   // Back/Next is worse than a folded Orodja, which the learner unfolds with one click.
   const forced = layoutOnce(input, true, 2);
-  return fits(forced) ? forced : plain;
+  if (fits(forced)) return forced;
+  // Rule 2i, last step: the strip does not fit beside the left column even with the other columns folded to heads (two wrapped rows
+  // are taller than the board leaves). The lesson card's Back/Next must stay reachable, so the strip still runs beside the left
+  // column and covers the folded heads of the other columns instead; the left column and the lesson card (wherever it is docked)
+  // are never covered.
+  const s = forced.pucks;
+  const lessonIds = new Set(input.cards.filter((c) => c.exactCut).map((c) => c.id));
+  const clearOfLeft = s !== null && s.w > 0 && s.y >= 0 && s.x + s.w <= input.board.w && s.y + s.h <= input.board.h
+    && !forced.cards.some((c) => (c.anchor === 'tl' || c.anchor === 'ml' || lessonIds.has(c.id)) && overlaps(s, c.rect));
+  return clearOfLeft ? forced : plain;
 }
 
 function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0, stripLeft = -Infinity): LayoutResult {
