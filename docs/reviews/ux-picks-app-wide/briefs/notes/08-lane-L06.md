@@ -26,3 +26,8 @@ Started 16:44, unit green about 17:00 (graph-check, parity-golden, tsc, lint not
 - Parity golden check: passed (.command-logs/L06-golden.log).
 - tsc clean; lint clean after removing unused FunctionReadout import; unit (FunctionInverseGraph, schoolFunctionGraphsGuidedLessons, declarationContract) passed (L06-unit2.log).
 - Tooling: `BEZEG_PARITY_ID=<id>` filters parity.test.tsx; recording with it left other __parity__ files unmodified. Documented in converting-a-graph.md section 7 and 08-lane.md step 1.
+
+## Fix round (L06 follow-up)
+- Removed the graph own renderLegend (and FunctionLegend import); declared Legenda card is the only legend.
+- Declaration marks now come from memoized marksOf: forward + (inverse when visible) polylines as nice, P and P prime as must points. Test added in FunctionInverseGraph.declaration.test.tsx; broken once (inverse polyline removed): "AssertionError: expected 1 to be 2".
+- graph-check function-inverse PASS (golden 1 passed); parity golden unit run passed.

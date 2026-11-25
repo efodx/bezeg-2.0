@@ -49,6 +49,10 @@ describe('Function inverse declares through BaseFunctionGraph', () => {
             }
             const polyline = declaration.marks?.nice?.[0];
             expect(polyline?.kind).toBe('polyline');
+            // The inverse curve and P, P' are marked too, so a card never covers them.
+            expect(declaration.marks?.nice?.length).toBe(inverse ? 2 : 1);
+            expect(declaration.marks?.must.map(mark => mark.kind)).toEqual(['point', 'point']);
+            expect(graph.getDeclaration()?.marks).toBe(declaration.marks);
         });
     }
 
