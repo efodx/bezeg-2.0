@@ -4,15 +4,15 @@
 // ViewAdapter, time and frames are injected.
 import type {ViewMarks} from '../../graphs/base/declare/graphDeclaration';
 import type {FitBox} from '../../graphs/base/fitBoundingBox';
-import type {Lease, ParameterArbiter} from '../../graphs/base/writes/parameterArbiter';
+import type {Lease, LeaseEndReason, ParameterArbiter} from '../../graphs/base/writes/parameterArbiter';
 import {viewBoxesEqual, type ViewAdapter, type ViewBox, type ViewChange} from '../../graphs/base/writes/viewAdapter';
 import {activeGesture, onLearnerGestureEnd} from '../../graphs/base/writes/writeSource';
 import {autofitSwitch, type AutofitSwitch} from './autofitSwitch';
 import {coveredMarks, fitIntent} from './fitIntent';
 import {fitView, type Point, type Rect} from './viewFit';
+import {easeOutCubic, GLIDE_MS} from './motion';
 import {marksToPoints} from './viewMarks';
 
-export const GLIDE_MS = 250;
 /** Zoom limits of the keep-mode fallback (maxIn is unused by `keep`). */
 const KEEP_LIMITS = {maxOut: 2.2, maxIn: 1};
 /** A card rectangle that moves by no more than this (px) is not a change. */
@@ -50,7 +50,6 @@ export function directorEligible(input: {marks: ViewMarks | undefined; boundKeys
 }
 
 const merge = (a: FitMode | undefined, b: FitMode): FitMode => a === 'jump' || b === 'jump' ? 'jump' : 'glide';
-const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 
 function sameRect(a: Rect, b: Rect): boolean {
     return Math.abs(a.x - b.x) <= RECT_TOLERANCE_PX && Math.abs(a.y - b.y) <= RECT_TOLERANCE_PX
@@ -64,9 +63,14 @@ function sameGeometry(a: DirectorGeometry, b: DirectorGeometry): boolean {
 interface Glide {
     readonly token: object;
     readonly lease: Lease;
-    readonly from: ViewBox;
-    readonly to: ViewBox;
-    readonly start: number;
+    /** `from`, `to`, `start` and `ms` are re-based when a card rectangle changes during a lesson frame's glide (one glide per step). */
+    from: ViewBox;
+    to: ViewBox;
+    start: number;
+    /** The duration: a glide that carries on after a retarget or a lesson write only has the time that was left. */
+    ms: number;
+    /** Started by `frameChanged()`: a geometry trigger retargets it instead of starting a second glide. */
+    readonly byFrame: boolean;
 }
 
 export class ViewDirector {
@@ -86,9 +90,17 @@ export class ViewDirector {
     private dragging = false;
     private disposed = false;
     private request: {mode: FitMode; force: boolean} | undefined;
+    /** A `frameChanged()` is waiting in `request`: the glide it starts is the step's one glide. */
+    private frameRequested = false;
     private deferred: {mode: FitMode; force: boolean} | undefined;
     private frameId: number | undefined;
     private glide: Glide | undefined;
+    /** The box this director last showed: what the board showed before a write dropped the fit. Unset while the view is the learner's. */
+    private shown: ViewBox | undefined;
+    /** Shows `shown` again between a write that dropped the fit and the fit that follows it. */
+    private hold: Lease | undefined;
+    /** A frame glide a lesson write ended: the glide that follows carries on from where it was, in the time that was left. */
+    private carried: {remaining: number} | undefined;
     private lastTarget: ViewBox | undefined;
     private marksKey: string;
     private marksSeen: ViewMarks | undefined;
@@ -130,6 +142,8 @@ export class ViewDirector {
         if (this.disposed) return;
         this.paused = false;
         this.lastTarget = undefined;
+        this.frameRequested = true;
+        this.carried = undefined; // a new step starts its own glide in full
         this.trigger('glide');
     }
 
@@ -161,7 +175,9 @@ export class ViewDirector {
         this.paused = true;
         this.request = undefined;
         this.deferred = undefined;
+        this.shown = undefined;
         this.cancelGlide();
+        this.releaseHold();
     }
 
     isPaused(): boolean {
@@ -172,6 +188,7 @@ export class ViewDirector {
         if (this.disposed) return;
         this.disposed = true;
         this.cancelGlide();
+        this.releaseHold();
         this.adapter.clearFitted(); // the intent is what the board shows again
         if (this.frameId !== undefined) this.cancelFrame(this.frameId);
         this.frameId = undefined;
@@ -189,8 +206,35 @@ export class ViewDirector {
         if (change.source === 'learner' && change.navigation) this.pause();
         else {
             this.paused = false;
+            this.holdShown();
             this.trigger('glide');
         }
+    }
+
+    /**
+     * A lesson write, a Reset or a Preset drops the fit and the board snaps to the intent for the frames before the fit runs, so
+     * the glide would start from the intent. The arbiter ends the leases after the write, so the previous box is shown again in a
+     * microtask (before the next paint) under a lease of its own, and the fit that follows glides from it.
+     */
+    private holdShown(): void {
+        // Not `blocked()`: Back and Next are learner spans, and the box shown before is written again, not a new one.
+        queueMicrotask(() => {
+            const box = this.shown;
+            if (this.disposed || this.paused || !box || !this.autofit.get() || this.dragging || this.adapter.fitted() !== undefined) return;
+            this.releaseHold();
+            const lease = this.arbiter.lease([VIEW_KEY], () => { if (this.hold === lease) this.hold = undefined; });
+            if (!lease) return;
+            if (this.adapter.setFitted(box, lease)) {
+                this.hold = lease;
+                this.schedule();
+            } else lease.release();
+        });
+    }
+
+    private releaseHold(): void {
+        const hold = this.hold;
+        this.hold = undefined;
+        if (hold) this.arbiter.endLease(hold, 'released');
     }
 
     private gestureEnded(): void {
@@ -221,8 +265,7 @@ export class ViewDirector {
         this.schedule();
     }
 
-    private schedule(): void {
-        if (this.frameId === undefined && !this.disposed) this.frameId = this.requestFrame(() => this.tick());
+    private schedule(): void {        if (this.frameId === undefined && !this.disposed) this.frameId = this.requestFrame(() => this.tick());
     }
 
     // ---- the frame ---------------------------------------------------------------------------------------------------------
@@ -239,40 +282,58 @@ export class ViewDirector {
         }
         if (this.request && this.geometry) {
             const {mode} = this.request;
+            const byFrame = this.frameRequested;
             this.request = undefined;
-            this.fit(mode);
+            this.frameRequested = false;
+            this.fit(mode, byFrame);
         }
         if (this.glide) this.step();
+        else this.releaseHold();
     }
 
-    private fit(mode: FitMode): void {
+    private fit(mode: FitMode, byFrame: boolean): void {
         const target = this.target();
         if (!target) return;
         this.marksKey = this.currentMarksKey();
         if (this.lastTarget && viewBoxesEqual(target, this.lastTarget)) return;
         this.lastTarget = target;
+        // One glide per step: a card that moves while the frame's glide runs only changes where that glide ends.
+        const running = this.glide;
+        if (running?.byFrame && !byFrame && mode === 'glide' && !this.reducedMotion()) {
+            // Continue from the box shown now, in the time that is left: the eased position does not jump.
+            running.from = this.shownBox();
+            running.ms = Math.max(running.ms - (this.now() - running.start), 1);
+            running.start = this.now();
+            running.to = target;
+            this.schedule();
+            return;
+        }
+        const carried = mode === 'glide' ? this.carried : undefined;
+        this.carried = undefined;
         const shown = this.shownBox();
-        if (viewBoxesEqual(target, shown)) { this.cancelGlide(); return; }
+        if (viewBoxesEqual(target, shown)) { this.cancelGlide(); this.releaseHold(); return; }
         const token = {};
-        const lease = this.arbiter.lease([VIEW_KEY], () => this.leaseEnded(token));
+        const lease = this.arbiter.lease([VIEW_KEY], reason => this.leaseEnded(token, reason)); // replaces the hold's lease
         if (!lease) return; // the learner holds the view
         if (mode === 'jump' || this.reducedMotion()) {
-            this.adapter.setFitted(target, lease);
+            if (this.adapter.setFitted(target, lease)) this.shown = target;
             lease.release();
             return;
         }
-        this.glide = {token, lease, from: shown, to: target, start: this.now()};
+        // A lesson write that ended this step's glide midway: carry on from the box shown, in the time that was left (no restart).
+        this.glide = {token, lease, from: shown, to: target, start: this.now(), byFrame: byFrame || carried !== undefined, ms: carried ? Math.max(carried.remaining, 1) : GLIDE_MS};
         this.schedule();
     }
 
     private step(): void {
         const glide = this.glide;
         if (!glide) return;
-        const t = Math.min(1, Math.max(0, (this.now() - glide.start) / GLIDE_MS));
+        const t = Math.min(1, Math.max(0, (this.now() - glide.start) / glide.ms));
         const k = easeOutCubic(t);
         const mix = (i: 0 | 1 | 2 | 3): number => glide.from[i] + (glide.to[i] - glide.from[i]) * k;
         const box: ViewBox = t >= 1 ? glide.to : [mix(0), mix(1), mix(2), mix(3)];
         if (!this.adapter.setFitted(box, glide.lease)) { this.glide = undefined; return; }
+        this.shown = box;
         if (t >= 1) { this.glide = undefined; glide.lease.release(); return; }
         this.schedule();
     }
@@ -284,8 +345,16 @@ export class ViewDirector {
         this.arbiter.endLease(glide.lease, 'released');
     }
 
-    private leaseEnded(token: object): void {
-        if (this.glide?.token === token) this.glide = undefined;
+    private leaseEnded(token: object, reason: LeaseEndReason): void {
+        const glide = this.glide;
+        if (glide?.token === token) {
+            this.glide = undefined;
+            // A lesson write ends the step's glide midway: the glide that follows carries on in the time that was left.
+            if (glide.byFrame && reason === 'lesson') {
+                const remaining = glide.ms - (this.now() - glide.start);
+                if (remaining > 0) this.carried = {remaining};
+            }
+        }
         // A lease the learner ended (Escape, a gesture) only drops the glide; navigation alone pauses (intentChanged).
     }
 

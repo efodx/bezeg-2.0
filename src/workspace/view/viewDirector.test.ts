@@ -4,7 +4,8 @@ import {ViewAdapter, type ViewBoard} from '../../graphs/base/writes/viewAdapter'
 import {beginLearnerGesture, beginLearnerSpan, runAs} from '../../graphs/base/writes/writeSource';
 import type {ViewMarks} from '../../graphs/base/declare/graphDeclaration';
 import {createAutofitSwitch} from './autofitSwitch';
-import {directorEligible, GLIDE_MS, ViewDirector, type DirectorGeometry} from './viewDirector';
+import {GLIDE_MS} from './motion';
+import {directorEligible, ViewDirector, type DirectorGeometry} from './viewDirector';
 
 /** A board that fires `boundingbox` on every change, as JSXGraph does, and counts what is shown. */
 class FakeBoard implements ViewBoard {
@@ -352,6 +353,124 @@ describe('the view director', () => {
         made.autofit.set(true);
         expect(made.clock.pending()).toBe(0);
         expect(() => made.director.dispose()).not.toThrow();
+    });
+
+    test('a card change during a frame glide retargets it: one glide, ending at the new target at the original end time', () => {
+        const made = rig();
+        settle(made);
+        const settled = [...made.board.box];
+        const t0 = made.clock.time;
+        made.director.setGeometry(OPEN);
+        made.director.frameChanged();
+        made.clock.run(96); // well inside the first glide
+        expect(made.arbiter.activeLeases()).toHaveLength(1);
+        made.director.setGeometry(GEOMETRY);
+        expect(made.clock.pending()).toBe(1);
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.board.box).toEqual(settled.map(v => expect.closeTo(v, 6)));
+        expect(made.arbiter.activeLeases()).toHaveLength(0);
+        // The glide began on the first frame (16 ms) and ends one frame after its 250 ms.
+        expect(made.clock.time - t0).toBeLessThanOrEqual(16 + GLIDE_MS + 16);
+    });
+
+    test('a card change after the frame glide ended starts a glide of its own', () => {
+        const made = rig();
+        settle(made);
+        made.director.frameChanged();
+        settle(made);
+        made.director.setGeometry(OPEN);
+        made.clock.run(32);
+        expect(made.arbiter.activeLeases()).toHaveLength(1);
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.board.box).toEqual(INTENT.map(v => expect.closeTo(v, 6)));
+    });
+
+    describe('a lesson write while a fit is shown (one glide per step)', () => {
+        const maxJump = (a: readonly number[], b: readonly number[]) => Math.max(...a.map((v, i) => Math.abs(v - b[i])));
+
+        test('the same intent written again does not show the intent for a frame: the fitted box stays', async () => {
+            const made = rig();
+            settle(made);
+            const fitted = [...made.board.box];
+            made.board.writes.length = 0;
+            runAs('lesson', () => made.adapter.setIntent(INTENT));
+            await Promise.resolve(); // before the next paint
+            expect(made.board.box).toEqual(fitted);
+            made.director.frameChanged();
+            made.clock.run(GLIDE_MS + 100);
+            expect(made.board.box).toEqual(fitted);
+            expect(made.adapter.fitted()).toEqual(fitted);
+            expect(made.arbiter.activeLeases()).toHaveLength(0);
+        });
+
+        test('a changed intent glides from the box that was shown, not from the intent', async () => {
+            const made = rig();
+            settle(made);
+            const fitted = [...made.board.box];
+            const next = [-5, 4, 5, -4];
+            runAs('lesson', () => made.adapter.setIntent(next));
+            await Promise.resolve();
+            expect(made.board.box).toEqual(fitted);
+            made.director.frameChanged();
+            made.clock.run(16);
+            const first = [...made.board.box];
+            expect(maxJump(first, fitted)).toBeLessThan(maxJump(next, fitted) / 2);
+            made.clock.run(GLIDE_MS + 100);
+            expect(made.board.box).not.toEqual(fitted);
+        });
+
+        test('a write that ends the frame glide midway carries it on: no restart, no jump, the original end time', async () => {
+            const made = rig();
+            settle(made);
+            made.director.setGeometry(OPEN);
+            made.director.frameChanged();
+            made.clock.run(96);
+            const mid = [...made.board.box];
+            const t0 = made.clock.time;
+            runAs('lesson', () => made.adapter.setIntent(INTENT.map(v => v * 0.5)));
+            await Promise.resolve();
+            expect(made.board.box).toEqual(mid);
+            made.clock.run(16);
+            expect(maxJump(made.board.box, mid)).toBeLessThan(maxJump(made.adapter.intent().box, mid) / 2);
+            made.clock.run(GLIDE_MS);
+            expect(made.arbiter.activeLeases()).toHaveLength(0);
+            expect(made.clock.time - t0).toBeLessThanOrEqual(GLIDE_MS - 96 + 3 * 16 + 1);
+        });
+
+        test('the Back and Next click is a learner span: the box is still held through the lesson writes inside it', async () => {
+            const made = rig();
+            settle(made);
+            const fitted = [...made.board.box];
+            const end = beginLearnerSpan();
+            runAs('lesson', () => made.adapter.setIntent(INTENT));
+            await Promise.resolve();
+            expect(made.board.box).toEqual(fitted);
+            end();
+        });
+
+        test('a learner pan in between is not restored', async () => {
+            const made = rig();
+            settle(made);
+            const gesture = beginLearnerGesture();
+            made.board.pan(2);
+            gesture();
+            await Promise.resolve();
+            expect(made.board.box).toEqual(made.adapter.intent().box);
+            expect(made.arbiter.activeLeases()).toHaveLength(0);
+        });
+    });
+
+    test('a retarget continues from the box shown: the next frame does not jump', () => {
+        const made = rig();
+        settle(made);
+        made.director.setGeometry(OPEN);
+        made.director.frameChanged();
+        made.clock.run(96);
+        const before = [...made.board.box];
+        made.director.setGeometry(GEOMETRY);
+        made.clock.run(16);
+        // Without a rebase the eased position is taken between the old start and the new end: a jump of several units.
+        expect(Math.max(...made.board.box.map((v, i) => Math.abs(v - before[i])))).toBeLessThan(2);
     });
 });
 

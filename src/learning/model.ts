@@ -924,6 +924,11 @@ export interface LessonGraphCapabilities {
     stopAnimations?(): void;
     /** Pauses transient playback at its current value when a settled snapshot is required. */
     pauseAnimations?(): void;
+    /**
+     * Runs a step change (`back`, `next`, a jump) so that the graph's declared range parameters glide to the new step's values
+     * instead of jumping (task 07 slice 3). Absent: the change runs as it is.
+     */
+    morphStep?(apply: () => void): void;
     /** Returns false when the owning graph has already been disposed. */
     isAvailable?(): boolean;
 }

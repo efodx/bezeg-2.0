@@ -268,10 +268,12 @@ export class ViewAdapter {
 
     private applyIntent(intent: ViewIntent, notify = true): void {
         const changed = !viewIntentsEqual(intent, this.intentValue);
+        // A write that drops a shown fit changes what the board shows even when the intent is the same: the view director hears of it.
+        const droppedFit = this.fittedBox !== undefined;
         this.intentValue = intent;
         this.fittedBox = undefined;
         this.show(intent.box, intent.keepAspectRatio, this.pendingZoom);
-        if (changed && notify) this.emit(currentWrite()?.source ?? "other", this.navigatingDepth > 0);
+        if ((changed || droppedFit) && notify) this.emit(currentWrite()?.source ?? "other", this.navigatingDepth > 0);
     }
 
     private show(box: ViewBox, keepAspectRatio: boolean, zoom?: ViewZoomMode): void {

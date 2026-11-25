@@ -545,6 +545,11 @@ export function GuidedLesson(props: {
         }
     }, [overlayPhase]);
 
+    // Back and Next glide the graph's range parameters to the new step's values when the graph can (task 07 slice 3).
+    const morphStep = (operation: () => void) => {
+        if (props.capabilities.morphStep) props.capabilities.morphStep(operation); else operation();
+    };
+
     const refresh = (operation: () => void) => {
         try {
             operation();
@@ -705,10 +710,10 @@ export function GuidedLesson(props: {
     // Back and Next sit beside the progress in the tools column. In one column they are the card's last row, after the
     // text in the document as on the screen, where the stylesheet rests them on the bottom edge of the window.
     const navigation = !isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; refresh(() => session.back()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; refresh(() => morphStep(() => session.back())); }}>
                 {t('guided_lesson_previous_frame_short')}
             </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; refresh(() => session.next()); }}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; refresh(() => morphStep(() => session.next())); }}>
                 {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
             </button>
         </nav>;

@@ -30,7 +30,8 @@ import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatc
 import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
 import {ParameterArbiter, type ParameterBinding} from "./writes/parameterArbiter";
 import {runAs} from "./writes/writeSource";
-import type {GraphDeclaration} from "./declare/graphDeclaration";
+import type {GraphDeclaration, RangeParameter} from "./declare/graphDeclaration";
+import {LessonMorph} from "../../workspace/view/lessonMorph";
 import type {PreviewGeometry} from "./preview/previewGeometry";
 import {ViewAdapter} from "./writes/viewAdapter";
 import {installLearnerInputTagging} from "./writes/learnerInputTagging";
@@ -113,6 +114,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     private sceneStore?: SceneStore<S>;
     private parameterArbiter?: ParameterArbiter;
     private releaseParameterArbiter?: () => void;
+    /** Glides the declared range parameters across a lesson step (task 07 slice 3); one per arbiter, disposed with it. */
+    private lessonMorph?: LessonMorph;
     private presetServiceInstance?: PresetService;
     private lessonActionRegistry?: LessonActionRegistry;
     /** State from before the first update that `onStateChange` has not seen yet. */
@@ -229,6 +232,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             this.stopLessonAnimations();
         },
         pauseAnimations: () => this.pausePlayback(),
+        morphStep: apply => { if (this.lessonMorph) this.lessonMorph.step(apply); else apply(); },
         isAvailable: () => this.graphSession?.isReady === true,
     };
 
@@ -315,7 +319,15 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         const unbindView = this.hasBoard ? this.boardView.bindTo(arbiter, "view") : undefined;
         const unsubscribe = this.store.subscribe(() => arbiter.observe());
         this.parameterArbiter = arbiter;
+        const morph = new LessonMorph({
+            arbiter,
+            rangeKeys: () => (this.declaration()?.parameters ?? [])
+                .filter((parameter): parameter is RangeParameter => parameter.kind === "range" && arbiter.keys().includes(parameter.key)),
+        });
+        this.lessonMorph = morph;
         this.releaseParameterArbiter = () => {
+            morph.dispose();
+            if (this.lessonMorph === morph) this.lessonMorph = undefined;
             unsubscribe();
             unbindView?.();
             arbiter.dispose();
@@ -912,6 +924,15 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
      */
     private captureLessonState(): LessonSceneCheckpoint {
         if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
+        // Mid-morph the checkpoint holds the step's target values, so a morph never reads as a change by the learner ("Povrni").
+        return this.atMorphTargets(() => this.captureLessonStateNow());
+    }
+
+    private atMorphTargets<T>(read: () => T): T {
+        return this.lessonMorph ? this.lessonMorph.atTargets(read) : read();
+    }
+
+    private captureLessonStateNow(): LessonSceneCheckpoint {
         return {
             version: 1,
             value: cloneLessonValue({
@@ -1218,6 +1239,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     }
 
     exportPreset(): Preset<D> {
+        // Mid-morph the export is the one taken after it: the step's target values.
+        return this.atMorphTargets(() => this.exportPresetNow());
+    }
+
+    private exportPresetNow(): Preset<D> {
         const projected = this.projectPersistedScene();
         return {
             id: this.presets()!,

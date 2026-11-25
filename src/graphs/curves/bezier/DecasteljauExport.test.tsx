@@ -101,6 +101,10 @@ describe('exports during a running De Casteljau run', () => {
         expect(during).toEqual([{running: false, status: 'paused'}]);
         // After the batch the scene the user had is back, still paused at the step it was paused at.
         expect(graph.lessonAnimation.isRunning()).toBe(false);
+        // The restore drops the fit, so the view director asks for one fit frame (and its glide); that is bounded cleanup, not the run.
+        frames.advance(500);
+        frames.advance(500);
+        frames.advance(500);
         expect(frames.pendingCount()).toBe(0);
         expect(graph.state.animationStatus).toBe('paused');
         expect(graph.state.t).toBe(before);
