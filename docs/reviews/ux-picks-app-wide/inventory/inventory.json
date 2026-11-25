@@ -28,6 +28,7 @@
   "newStringCandidatesPerGraphSum": 48,
   "declaringAlready": [],
   "withBindings": [
+   "bisection",
    "decasteljau",
    "function-transformation",
    "linear-map",
@@ -61,15 +62,15 @@
   ],
   "surface": [
    {
-    "id": "patch-coons",
-    "graphClass": "CoonsPatchGraph",
-    "weight": 15,
-    "componentSize": 9
-   },
-   {
     "id": "patch-tensor",
     "graphClass": "TensorPatchGraph",
     "weight": 16,
+    "componentSize": 9
+   },
+   {
+    "id": "patch-coons",
+    "graphClass": "CoonsPatchGraph",
+    "weight": 17,
     "componentSize": 9
    },
    {
@@ -83,19 +84,19 @@
    {
     "id": "euler-line",
     "graphClass": "EulerLineGraph",
-    "weight": 20.8,
+    "weight": 21.8,
     "componentSize": 1
    },
    {
     "id": "triangle-centres",
     "graphClass": "NotablePointsGraph",
-    "weight": 20.8,
+    "weight": 21.8,
     "componentSize": 1
    },
    {
     "id": "orientation",
     "graphClass": "OrientationGraph",
-    "weight": 21.3,
+    "weight": 22.3,
     "componentSize": 1
    }
   ]
@@ -2807,9 +2808,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 0,
-    "inherited": 18,
+    "inherited": 19,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -2823,6 +2824,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -2848,7 +2850,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -2856,7 +2858,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -2864,7 +2866,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -2872,7 +2874,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -2880,7 +2882,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -2888,7 +2890,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -2896,7 +2898,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -2904,7 +2906,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -2912,7 +2914,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -2920,15 +2922,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -2936,20 +2946,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -2960,7 +2962,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -2968,7 +2978,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -3050,8 +3060,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -3198,9 +3208,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 17,
+    "total": 18,
     "own": 0,
-    "inherited": 17,
+    "inherited": 18,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -3214,6 +3224,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -3231,7 +3242,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -3239,7 +3250,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -3247,7 +3258,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -3255,7 +3266,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -3263,7 +3274,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -3271,7 +3282,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -3279,7 +3290,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -3287,7 +3298,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -3295,7 +3306,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -3303,15 +3314,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -3319,20 +3338,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -3343,7 +3354,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -3351,7 +3370,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -3417,8 +3436,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -3551,8 +3570,8 @@
     "src/graphs/functions/FunctionStatus.tsx"
    ],
    "controls": {
-    "total": 4,
-    "own": 4,
+    "total": 6,
+    "own": 6,
     "inherited": 0,
     "Slider": 2,
     "CountSetter": 0,
@@ -3563,6 +3582,7 @@
     "other": [
      "ChoiceSelect",
      "PlaybackButtons",
+     "PuckOwned",
      "Slider"
     ],
     "rows": [
@@ -3570,7 +3590,7 @@
       "tag": "PlaybackButtons",
       "origin": "own",
       "file": "src/graphs/functions/BisectionGraph.tsx",
-      "line": 273,
+      "line": 360,
       "label": "",
       "range": ""
      },
@@ -3578,23 +3598,39 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/functions/BisectionGraph.tsx",
-      "line": 280,
+      "line": 367,
       "label": "bisection_example_label",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/functions/BisectionGraph.tsx",
+      "line": 372,
+      "label": "",
       "range": ""
      },
      {
       "tag": "Slider",
       "origin": "own",
       "file": "src/graphs/functions/BisectionGraph.tsx",
-      "line": 285,
+      "line": 372,
       "label": "bisection_a_label",
       "range": "min=BISECTION_BOUND_MIN max=BISECTION_BOUND_MAX step=0.1"
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/functions/BisectionGraph.tsx",
+      "line": 374,
+      "label": "",
+      "range": ""
      },
      {
       "tag": "Slider",
       "origin": "own",
       "file": "src/graphs/functions/BisectionGraph.tsx",
-      "line": 287,
+      "line": 374,
       "label": "bisection_b_label",
       "range": "min=BISECTION_BOUND_MIN max=BISECTION_BOUND_MAX step=0.1"
      }
@@ -3637,6 +3673,9 @@
     "bisection_playback_note",
     "bisection_readout_a",
     "bisection_readout_b",
+    "bisection_readout_fa",
+    "bisection_readout_fb",
+    "bisection_readout_fm",
     "bisection_readout_interval",
     "bisection_readout_mid",
     "bisection_readout_retained",
@@ -3696,6 +3735,7 @@
     "src/Routes.test.tsx",
     "src/graphs/base/PlaybackRoutes.test.tsx",
     "src/graphs/base/UserActionAvailability.test.tsx",
+    "src/graphs/functions/BisectionGraph.declaration.test.tsx",
     "src/graphs/functions/BisectionGraph.host.test.tsx",
     "src/graphs/functions/BisectionGraph.test.ts"
    ],
@@ -3704,7 +3744,11 @@
    "playback": true,
    "legacyStep": false,
    "declares": false,
-   "bindings": [],
+   "bindings": [
+    "bisect-a",
+    "bisect-b",
+    "bisection-example"
+   ],
    "blocker": "playback",
    "flags": [
     "playback"
@@ -7423,9 +7467,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 0,
-    "inherited": 18,
+    "inherited": 19,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -7439,6 +7483,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -7464,7 +7509,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -7472,7 +7517,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -7480,7 +7525,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -7488,7 +7533,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -7496,7 +7541,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -7504,7 +7549,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -7512,7 +7557,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -7520,7 +7565,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -7528,7 +7573,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -7536,15 +7581,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -7552,20 +7605,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -7576,7 +7621,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -7584,7 +7637,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -7673,8 +7726,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -10603,8 +10656,8 @@
     "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx"
    ],
    "controls": {
-    "total": 13,
-    "own": 1,
+    "total": 14,
+    "own": 2,
     "inherited": 12,
     "Slider": 2,
     "CountSetter": 0,
@@ -10619,6 +10672,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "Slider",
      "UnavailableButton",
      "button"
@@ -10700,7 +10754,7 @@
       "tag": "PlaybackButtons",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 54,
+      "line": 57,
       "label": "",
       "range": ""
      },
@@ -10708,7 +10762,7 @@
       "tag": "Slider",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 59,
+      "line": 62,
       "label": "animation_parameter",
       "range": "min=0 max=1"
      },
@@ -10716,15 +10770,23 @@
       "tag": "Slider",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 63,
+      "line": 66,
       "label": "animation_speed",
       "range": "min=0 max=1"
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/curves/bezier/DecasteljauGraph.tsx",
+      "line": 241,
+      "label": "",
+      "range": ""
      },
      {
       "tag": "OnOffSwitch",
       "origin": "own",
       "file": "src/graphs/curves/bezier/DecasteljauGraph.tsx",
-      "line": 223,
+      "line": 242,
       "label": "full_curve",
       "range": ""
      }
@@ -10757,6 +10819,11 @@
     "curve_point_entry_summary",
     "curve_points_title",
     "curve_selection",
+    "decasteljau_legend_control",
+    "decasteljau_legend_curve",
+    "decasteljau_legend_point",
+    "decasteljau_legend_rest",
+    "decasteljau_legend_scheme",
     "delete_point",
     "delete_points",
     "edit_the_ph_curve_using_its_hodograph_points_adding_and_deleting_points_is_unavailable_here",
@@ -10767,8 +10834,10 @@
     "manipulate_curve",
     "move",
     "no_curve_selected",
+    "play",
     "point_coordinates_keyboard_editing",
     "point_labels",
+    "reset",
     "select_a_curve_on_the_graph_or_with_a_button_to_access_its_operations",
     "select_a_curve_to_use_this_mode",
     "selected_curve",
@@ -10809,11 +10878,15 @@
     "src/graphs/base/GraphHostRealGraph.test.tsx",
     "src/graphs/base/GraphSceneReload.test.tsx",
     "src/graphs/base/PlaybackRoutes.test.tsx",
+    "src/graphs/base/viewDirectorFit.test.ts",
+    "src/graphs/curves/bezier/DecasteljauGraph.declaration.test.tsx",
+    "src/graphs/curves/bezier/DecasteljauGraph.marks.test.tsx",
     "src/graphs/curves/bezier/DecasteljauGraph.test.ts",
     "src/graphs/curves/bezier/DecasteljauGraph.writes.test.tsx",
     "src/graphs/curves/demonstrationControlPlacement.test.tsx",
     "src/graphs/patches/patchCheckpointSweep.test.tsx",
-    "src/learning/chapter/activities.test.ts"
+    "src/learning/chapter/activities.test.ts",
+    "src/workspace/presenter/BoardCardsPucks.test.tsx"
    ],
    "surface": false,
    "pointSet": false,
@@ -10952,7 +11025,7 @@
       "tag": "PlaybackButtons",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 54,
+      "line": 57,
       "label": "",
       "range": ""
      },
@@ -10960,7 +11033,7 @@
       "tag": "Slider",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 59,
+      "line": 62,
       "label": "animation_parameter",
       "range": "min=0 max=1"
      },
@@ -10968,7 +11041,7 @@
       "tag": "Slider",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 63,
+      "line": 66,
       "label": "animation_speed",
       "range": "min=0 max=1"
      }
@@ -11241,9 +11314,9 @@
     "src/graphs/compgeo/TriangulationControls.tsx"
    ],
    "controls": {
-    "total": 22,
+    "total": 23,
     "own": 0,
-    "inherited": 22,
+    "inherited": 23,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -11257,6 +11330,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -11298,7 +11372,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -11306,7 +11380,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -11314,7 +11388,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -11322,7 +11396,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -11330,7 +11404,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -11338,7 +11412,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -11346,7 +11420,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -11354,7 +11428,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -11362,7 +11436,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -11370,15 +11444,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -11386,20 +11468,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -11410,7 +11484,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -11418,7 +11500,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      },
@@ -11556,8 +11638,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -11814,9 +11896,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 0,
-    "inherited": 18,
+    "inherited": 19,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -11830,6 +11912,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -11855,7 +11938,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -11863,7 +11946,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -11871,7 +11954,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -11879,7 +11962,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -11887,7 +11970,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -11895,7 +11978,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -11903,7 +11986,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -11911,7 +11994,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -11919,7 +12002,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -11927,15 +12010,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -11943,20 +12034,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -11967,7 +12050,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -11975,7 +12066,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -12063,8 +12154,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -12613,9 +12704,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 17,
+    "total": 18,
     "own": 0,
-    "inherited": 17,
+    "inherited": 18,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -12628,6 +12719,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -12645,7 +12737,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -12653,7 +12745,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -12661,7 +12753,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -12669,7 +12761,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -12677,7 +12769,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -12685,7 +12777,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -12693,7 +12785,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -12701,7 +12793,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -12709,7 +12801,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -12717,15 +12809,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -12733,20 +12833,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -12757,7 +12849,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -12765,7 +12865,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -12837,8 +12937,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -14280,9 +14380,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 0,
-    "inherited": 18,
+    "inherited": 19,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -14296,6 +14396,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -14321,7 +14422,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -14329,7 +14430,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -14337,7 +14438,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -14345,7 +14446,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -14353,7 +14454,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -14361,7 +14462,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -14369,7 +14470,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -14377,7 +14478,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -14385,7 +14486,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -14393,15 +14494,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -14409,20 +14518,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -14433,7 +14534,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -14441,7 +14550,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -14524,8 +14633,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -15370,8 +15479,8 @@
     "src/graphs/functions/FunctionReadout.tsx"
    ],
    "controls": {
-    "total": 4,
-    "own": 4,
+    "total": 6,
+    "own": 6,
     "inherited": 0,
     "Slider": 2,
     "CountSetter": 0,
@@ -15381,23 +15490,40 @@
     "select": 1,
     "other": [
      "ChoiceSelect",
+     "PuckOwned",
      "RevealButton",
      "Slider"
     ],
     "rows": [
      {
-      "tag": "Slider",
+      "tag": "PuckOwned",
       "origin": "own",
       "file": "src/graphs/functions/FunctionTransformationGraph.tsx",
-      "line": 242,
-      "label": "t(LABEL_KEYS[field])",
-      "range": "min=min max=max step=FIELD_STEP"
+      "line": 344,
+      "label": "",
+      "range": ""
      },
      {
       "tag": "Slider",
       "origin": "own",
       "file": "src/graphs/functions/FunctionTransformationGraph.tsx",
-      "line": 246,
+      "line": 344,
+      "label": "t(LABEL_KEYS[field])",
+      "range": "min=min max=max step=FIELD_STEP"
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/functions/FunctionTransformationGraph.tsx",
+      "line": 348,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "Slider",
+      "origin": "own",
+      "file": "src/graphs/functions/FunctionTransformationGraph.tsx",
+      "line": 348,
       "label": "function_transformation_u_label",
       "range": "min=TRANSFORM_U_MIN max=TRANSFORM_U_MAX step=TRANSFORM_U_STEP"
      },
@@ -15405,7 +15531,7 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/functions/FunctionTransformationGraph.tsx",
-      "line": 252,
+      "line": 354,
       "label": "function_transformation_base_label",
       "range": ""
      },
@@ -15413,7 +15539,7 @@
       "tag": "RevealButton",
       "origin": "own",
       "file": "src/graphs/functions/FunctionTransformationGraph.tsx",
-      "line": 257,
+      "line": 359,
       "label": "function_transformation_ghost_show",
       "range": ""
      }
@@ -15454,7 +15580,9 @@
     "function_transformation_step_shift_outside",
     "function_transformation_steps_title",
     "function_transformation_u_label",
-    "inspector_reveals"
+    "inspector_reveals",
+    "transformations_point_value",
+    "transformations_rule_value"
    ],
    "inlineStrings": {
     "count": 0,
@@ -15488,7 +15616,9 @@
     "src/learning/content/schoolFunctionGraphsGuidedLessons.test.ts"
    ],
    "tests": [
+    "src/graphs/functions/FunctionTransformationGraph.declaration.test.tsx",
     "src/graphs/functions/FunctionTransformationGraph.host.test.tsx",
+    "src/graphs/functions/FunctionTransformationGraph.marks.test.tsx",
     "src/graphs/functions/FunctionTransformationGraph.writes.test.tsx",
     "src/graphs/functions/FunctionsFirstTask.test.tsx",
     "src/learning/content/schoolFunctionGraphsGuidedLessons.test.ts"
@@ -15729,9 +15859,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 24,
+    "total": 25,
     "own": 0,
-    "inherited": 24,
+    "inherited": 25,
     "Slider": 2,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -15745,6 +15875,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "Slider",
      "UnavailableButton",
@@ -15819,7 +15950,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -15827,7 +15958,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -15835,7 +15966,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -15843,7 +15974,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -15851,7 +15982,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -15859,7 +15990,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -15867,7 +15998,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -15875,7 +16006,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -15883,7 +16014,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -15891,15 +16022,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -15907,20 +16046,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -15931,7 +16062,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -15939,7 +16078,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -16061,8 +16200,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -16217,9 +16356,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 0,
-    "inherited": 18,
+    "inherited": 19,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -16233,6 +16372,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -16258,7 +16398,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -16266,7 +16406,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -16274,7 +16414,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -16282,7 +16422,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -16290,7 +16430,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -16298,7 +16438,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -16306,7 +16446,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -16314,7 +16454,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -16322,7 +16462,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -16330,15 +16470,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -16346,20 +16494,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -16370,7 +16510,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -16378,7 +16526,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -16442,8 +16590,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -17135,7 +17283,7 @@
       "tag": "CountSetter",
       "origin": "own",
       "file": "src/graphs/functions/RungeInterpolationGraph.tsx",
-      "line": 217,
+      "line": 267,
       "label": "interp_runge_degree_label",
       "range": "min=RUNGE_DEGREE_MIN max=RUNGE_DEGREE_MAX"
      },
@@ -17143,7 +17291,7 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/functions/RungeInterpolationGraph.tsx",
-      "line": 225,
+      "line": 275,
       "label": "interp_runge_rule_label",
       "range": ""
      },
@@ -17151,7 +17299,7 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/functions/RungeInterpolationGraph.tsx",
-      "line": 230,
+      "line": 280,
       "label": "interp_runge_function_label",
       "range": ""
      },
@@ -17159,7 +17307,7 @@
       "tag": "OnOffSwitch",
       "origin": "own",
       "file": "src/graphs/functions/RungeInterpolationGraph.tsx",
-      "line": 235,
+      "line": 285,
       "label": "interp_runge_show_error",
       "range": ""
      },
@@ -17167,7 +17315,7 @@
       "tag": "OnOffSwitch",
       "origin": "own",
       "file": "src/graphs/functions/RungeInterpolationGraph.tsx",
-      "line": 236,
+      "line": 286,
       "label": "interp_runge_show_semicircle",
       "range": ""
      }
@@ -17509,9 +17657,9 @@
     "src/graphs/compgeo/SweepSideLists.tsx"
    ],
    "controls": {
-    "total": 17,
+    "total": 18,
     "own": 0,
-    "inherited": 17,
+    "inherited": 18,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -17525,6 +17673,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -17542,7 +17691,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -17550,7 +17699,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -17558,7 +17707,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -17566,7 +17715,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -17574,7 +17723,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -17582,7 +17731,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -17590,7 +17739,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -17598,7 +17747,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -17606,7 +17755,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -17614,15 +17763,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -17630,20 +17787,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -17654,7 +17803,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -17662,7 +17819,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -17749,8 +17906,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -17852,9 +18009,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 23,
+    "total": 24,
     "own": 0,
-    "inherited": 23,
+    "inherited": 24,
     "Slider": 1,
     "CountSetter": 0,
     "PointListInput": 2,
@@ -17868,6 +18025,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "Slider",
      "UnavailableButton",
@@ -17934,7 +18092,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -17942,7 +18100,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -17950,7 +18108,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -17958,7 +18116,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -17966,7 +18124,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -17974,7 +18132,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -17982,7 +18140,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -17990,7 +18148,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -17998,7 +18156,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -18006,15 +18164,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -18022,20 +18188,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -18046,7 +18204,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -18054,7 +18220,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -18140,8 +18306,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -19564,8 +19730,8 @@
     "src/graphs/functions/FunctionStatus.tsx"
    ],
    "controls": {
-    "total": 17,
-    "own": 17,
+    "total": 21,
+    "own": 21,
     "inherited": 0,
     "Slider": 1,
     "CountSetter": 0,
@@ -19580,6 +19746,7 @@
      "OnOffSwitch",
      "PlaybackButtons",
      "PointListInput",
+     "PuckOwned",
      "ReducedMotion",
      "Slider",
      "UnavailableButton"
@@ -19589,7 +19756,7 @@
       "tag": "PointListInput",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 978,
+      "line": 1055,
       "label": "linear_map_start_title",
       "range": "min=-4 max=4 step=MATRIX_ENTRY_STEP"
      },
@@ -19597,7 +19764,7 @@
       "tag": "OnOffSwitch",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 986,
+      "line": 1063,
       "label": "label",
       "range": ""
      },
@@ -19605,7 +19772,7 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 990,
+      "line": 1067,
       "label": "linear_map_example_label",
       "range": ""
      },
@@ -19613,15 +19780,23 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 993,
+      "line": 1070,
       "label": "linear_map_mode_label",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/linear/LinearMapGraph.tsx",
+      "line": 1076,
+      "label": "",
       "range": ""
      },
      {
       "tag": "NumberGrid",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 999,
+      "line": 1076,
       "label": "linear_map_matrix_caption",
       "range": ""
      },
@@ -19629,7 +19804,7 @@
       "tag": "UnavailableButton",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1008,
+      "line": 1085,
       "label": "",
       "range": ""
      },
@@ -19637,7 +19812,7 @@
       "tag": "AngleSlider",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1018,
+      "line": 1095,
       "label": "linear_map_test_angle_label",
       "range": ""
      },
@@ -19645,7 +19820,15 @@
       "tag": "UnavailableButton",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1021,
+      "line": 1098,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/linear/LinearMapGraph.tsx",
+      "line": 1105,
       "label": "",
       "range": ""
      },
@@ -19653,7 +19836,7 @@
       "tag": "OnOffSwitch",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1028,
+      "line": 1105,
       "label": "linear_map_toggle_conic",
       "range": ""
      },
@@ -19661,7 +19844,7 @@
       "tag": "ReducedMotion",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1034,
+      "line": 1111,
       "label": "",
       "range": ""
      },
@@ -19669,7 +19852,7 @@
       "tag": "PlaybackButtons",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1035,
+      "line": 1112,
       "label": "",
       "range": ""
      },
@@ -19677,15 +19860,23 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1070,
+      "line": 1147,
       "label": "linear_map_comp_source_label",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/linear/LinearMapGraph.tsx",
+      "line": 1154,
+      "label": "",
       "range": ""
      },
      {
       "tag": "Slider",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1077,
+      "line": 1154,
       "label": "t(element.kind === \"rotation\" ? \"linear_map_comp_angle_rotat",
       "range": "min=0 max=ELEMENT_COUNT - 1 step=1"
      },
@@ -19693,7 +19884,7 @@
       "tag": "NumberGrid",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1083,
+      "line": 1160,
       "label": "linear_map_comp_matrix_caption",
       "range": ""
      },
@@ -19701,15 +19892,23 @@
       "tag": "PointListInput",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1092,
+      "line": 1169,
       "label": "title",
       "range": "min=-4 max=4 step=MATRIX_ENTRY_STEP"
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/linear/LinearMapGraph.tsx",
+      "line": 1184,
+      "label": "",
+      "range": ""
      },
      {
       "tag": "OnOffSwitch",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1107,
+      "line": 1184,
       "label": "linear_map_comp_pivot_toggle",
       "range": ""
      },
@@ -19717,67 +19916,21 @@
       "tag": "UnavailableButton",
       "origin": "own",
       "file": "src/graphs/linear/LinearMapGraph.tsx",
-      "line": 1114,
+      "line": 1191,
       "label": "",
       "range": ""
      }
     ]
    },
    "readout": {
-    "rows": 44,
-    "keys": [
-     "linear_map_readout_a1",
-     "linear_map_readout_a2",
-     "linear_map_readout_abs_det",
-     "linear_map_readout_angle",
-     "linear_map_readout_area",
-     "linear_map_readout_axis_domain",
-     "linear_map_readout_axis_image",
-     "linear_map_readout_conic_axes",
-     "linear_map_readout_conic_lambda",
-     "linear_map_readout_delta",
-     "linear_map_readout_det",
-     "linear_map_readout_det_formula",
-     "linear_map_readout_discriminant",
-     "linear_map_readout_eigen_angle",
-     "linear_map_readout_eigen_av",
-     "linear_map_readout_eigen_between",
-     "linear_map_readout_eigen_sine",
-     "linear_map_readout_eigen_v",
-     "linear_map_readout_eigenvalues",
-     "linear_map_readout_flow",
-     "linear_map_readout_iterate",
-     "linear_map_readout_norm",
-     "linear_map_readout_orientation",
-     "linear_map_readout_probe",
-     "linear_map_readout_ratio",
-     "linear_map_readout_ratio_plain",
-     "linear_map_readout_rayleigh",
-     "linear_map_readout_rayleigh_plain",
-     "linear_map_readout_row1",
-     "linear_map_readout_row2",
-     "linear_map_readout_sigma1",
-     "linear_map_readout_sigma2",
-     "linear_map_readout_sigma_product",
-     "linear_map_readout_stability",
-     "linear_map_readout_start",
-     "linear_map_readout_step",
-     "linear_map_readout_stretch",
-     "linear_map_readout_sym_row1",
-     "linear_map_readout_sym_row2",
-     "linear_map_readout_tau",
-     "linear_map_readout_unit"
-    ],
+    "rows": 1,
+    "keys": [],
     "inheritedRows": 0
    },
    "catalogKeys": [
     "function_legend",
     "function_readouts",
     "inspector_reveals",
-    "linear_map_a1_x_label",
-    "linear_map_a1_y_label",
-    "linear_map_a2_x_label",
-    "linear_map_a2_y_label",
     "linear_map_actions_label",
     "linear_map_area_flow",
     "linear_map_area_parabola",
@@ -19816,6 +19969,7 @@
     "linear_map_comp_translation_title",
     "linear_map_comp_value_approx",
     "linear_map_comp_value_free",
+    "linear_map_det_formula_value",
     "linear_map_entries_help",
     "linear_map_example_basis_default",
     "linear_map_example_custom",
@@ -19832,8 +19986,6 @@
     "linear_map_example_shear",
     "linear_map_example_singular",
     "linear_map_example_symmetric",
-    "linear_map_flow_stable",
-    "linear_map_flow_unstable",
     "linear_map_legend_comp_curve",
     "linear_map_legend_comp_curve_image",
     "linear_map_legend_comp_grid_a",
@@ -19905,10 +20057,6 @@
     "linear_map_readout_norm",
     "linear_map_readout_orientation",
     "linear_map_readout_probe",
-    "linear_map_readout_ratio",
-    "linear_map_readout_ratio_plain",
-    "linear_map_readout_rayleigh",
-    "linear_map_readout_rayleigh_plain",
     "linear_map_readout_row1",
     "linear_map_readout_row2",
     "linear_map_readout_sigma1",
@@ -19927,9 +20075,6 @@
     "linear_map_snap_eigen",
     "linear_map_snap_unavailable_complex",
     "linear_map_snap_unavailable_scalar",
-    "linear_map_stability_edge",
-    "linear_map_stability_inside",
-    "linear_map_stability_outside",
     "linear_map_start_help",
     "linear_map_start_rejected",
     "linear_map_start_title",
@@ -20193,7 +20338,9 @@
     "src/graphs/linear/LinearMapCompositionLessonActions.host.test.tsx",
     "src/graphs/linear/LinearMapEigen.host.test.tsx",
     "src/graphs/linear/LinearMapEllipse.host.test.tsx",
+    "src/graphs/linear/LinearMapGraph.declaration.test.tsx",
     "src/graphs/linear/LinearMapGraph.host.test.tsx",
+    "src/graphs/linear/LinearMapGraph.marks.test.tsx",
     "src/graphs/linear/LinearMapGraph.test.ts",
     "src/graphs/linear/LinearMapGraph.writes.test.tsx",
     "src/graphs/linear/LinearMapIteration.host.test.tsx",
@@ -21383,9 +21530,9 @@
     "src/graphs/compgeo/SweepSideLists.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 0,
-    "inherited": 18,
+    "inherited": 19,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -21399,6 +21546,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -21424,7 +21572,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -21432,7 +21580,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -21440,7 +21588,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -21448,7 +21596,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -21456,7 +21604,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -21464,7 +21612,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -21472,7 +21620,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -21480,7 +21628,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -21488,7 +21636,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -21496,15 +21644,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -21512,20 +21668,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -21536,7 +21684,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -21544,7 +21700,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -21644,8 +21800,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -21723,9 +21879,9 @@
     "src/graphs/compgeo/SweepSideLists.tsx"
    ],
    "controls": {
-    "total": 19,
+    "total": 20,
     "own": 0,
-    "inherited": 19,
+    "inherited": 20,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -21739,6 +21895,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -21772,7 +21929,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -21780,7 +21937,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -21788,7 +21945,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -21796,7 +21953,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -21804,7 +21961,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -21812,7 +21969,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -21820,7 +21977,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -21828,7 +21985,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -21836,7 +21993,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -21844,15 +22001,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -21860,20 +22025,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -21884,7 +22041,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -21892,7 +22057,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -22029,8 +22194,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -22110,9 +22275,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 16,
+    "total": 17,
     "own": 0,
-    "inherited": 16,
+    "inherited": 17,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -22125,6 +22290,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -22134,7 +22300,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -22142,7 +22308,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -22150,7 +22316,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -22158,7 +22324,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -22166,7 +22332,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -22174,7 +22340,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -22182,7 +22348,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -22190,7 +22356,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -22198,7 +22364,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -22206,15 +22372,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -22222,20 +22396,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -22246,7 +22412,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -22254,7 +22428,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -22316,8 +22490,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -22449,9 +22623,9 @@
     "src/graphs/patches/SurfaceCameraPanel.tsx"
    ],
    "controls": {
-    "total": 9,
+    "total": 11,
     "own": 0,
-    "inherited": 9,
+    "inherited": 11,
     "Slider": 2,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -22462,22 +22636,39 @@
      "ChoiceSelect",
      "OnOffSwitch",
      "PointListInput",
+     "PuckOwned",
      "Slider"
     ],
     "rows": [
      {
-      "tag": "ChoiceSelect",
+      "tag": "PuckOwned",
       "origin": "panel",
       "file": "src/graphs/patches/CoonsPatchPanels.tsx",
       "line": 78,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "ChoiceSelect",
+      "origin": "panel",
+      "file": "src/graphs/patches/CoonsPatchPanels.tsx",
+      "line": 79,
       "label": "coons_shown",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/patches/CoonsPatchPanels.tsx",
+      "line": 82,
+      "label": "",
       "range": ""
      },
      {
       "tag": "OnOffSwitch",
       "origin": "panel",
       "file": "src/graphs/patches/CoonsPatchPanels.tsx",
-      "line": 82,
+      "line": 83,
       "label": "coons_linked_corners",
       "range": ""
      },
@@ -22485,7 +22676,7 @@
       "tag": "OnOffSwitch",
       "origin": "panel",
       "file": "src/graphs/patches/CoonsPatchPanels.tsx",
-      "line": 130,
+      "line": 131,
       "label": "patch_show_control_net",
       "range": ""
      },
@@ -22493,7 +22684,7 @@
       "tag": "OnOffSwitch",
       "origin": "panel",
       "file": "src/graphs/patches/CoonsPatchPanels.tsx",
-      "line": 131,
+      "line": 132,
       "label": "patch_show_shading",
       "range": ""
      },
@@ -22501,7 +22692,7 @@
       "tag": "OnOffSwitch",
       "origin": "panel",
       "file": "src/graphs/patches/CoonsPatchPanels.tsx",
-      "line": 134,
+      "line": 135,
       "label": "patch_move_height",
       "range": ""
      },
@@ -22557,6 +22748,12 @@
     "coons_index",
     "coons_interior_heading",
     "coons_interior_note",
+    "coons_interior_point_name",
+    "coons_legend_boundary",
+    "coons_legend_net",
+    "coons_legend_points",
+    "coons_legend_polygon",
+    "coons_legend_surface",
     "coons_linked_corners",
     "coons_linked_help",
     "coons_no_interpolation",
@@ -22706,6 +22903,7 @@
    "tests": [
     "src/graphs/patches/CoonsPatchGraph.test.tsx",
     "src/graphs/patches/CoonsPatchLifecycle.test.tsx",
+    "src/graphs/patches/PatchCoonsGraph.declaration.test.tsx",
     "src/graphs/patches/PatchFirstTask.test.tsx",
     "src/learning/content/coonsGuidedLessons.test.tsx"
    ],
@@ -25186,8 +25384,8 @@
    "sharedFiles": [],
    "panels": [],
    "controls": {
-    "total": 8,
-    "own": 8,
+    "total": 13,
+    "own": 13,
     "inherited": 0,
     "Slider": 2,
     "CountSetter": 1,
@@ -25201,6 +25399,7 @@
      "NumberGrid",
      "PlaybackButtons",
      "PointListInput",
+     "PuckOwned",
      "Slider"
     ],
     "rows": [
@@ -25208,31 +25407,55 @@
       "tag": "PointListInput",
       "origin": "own",
       "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1217,
+      "line": 1441,
       "label": "phase_graph_seeds_title",
       "range": "min=SEED_RANGE.min / SEED_SCALE max=SEED_RANGE.max / SEED_SCALE step=1 / SEED_SCALE"
      },
      {
-      "tag": "ChoiceSelect",
+      "tag": "PuckOwned",
       "origin": "own",
       "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1229,
-      "label": "phase_graph_system_label",
+      "line": 1453,
+      "label": "",
       "range": ""
      },
      {
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1234,
+      "line": 1453,
+      "label": "phase_graph_system_label",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
+      "line": 1458,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "ChoiceSelect",
+      "origin": "own",
+      "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
+      "line": 1458,
       "label": "phase_graph_equilibrium_label",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
+      "line": 1463,
+      "label": "",
       "range": ""
      },
      {
       "tag": "NumberGrid",
       "origin": "own",
       "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1239,
+      "line": 1463,
       "label": "phase_graph_matrix_caption",
       "range": ""
      },
@@ -25240,23 +25463,15 @@
       "tag": "CountSetter",
       "origin": "own",
       "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1244,
+      "line": 1468,
       "label": "phase_graph_seeds_label",
       "range": "min=SEEDS_MIN max=SEEDS_MAX"
      },
      {
-      "tag": "Slider",
+      "tag": "PuckOwned",
       "origin": "own",
       "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1251,
-      "label": "phase_graph_zoom_label",
-      "range": "min=ZOOM_RANGE.min max=ZOOM_RANGE.max step=1"
-     },
-     {
-      "tag": "PlaybackButtons",
-      "origin": "own",
-      "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1285,
+      "line": 1475,
       "label": "",
       "range": ""
      },
@@ -25264,7 +25479,31 @@
       "tag": "Slider",
       "origin": "own",
       "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
-      "line": 1290,
+      "line": 1475,
+      "label": "phase_graph_zoom_label",
+      "range": "min=ZOOM_RANGE.min max=ZOOM_RANGE.max step=1"
+     },
+     {
+      "tag": "PlaybackButtons",
+      "origin": "own",
+      "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
+      "line": 1509,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
+      "line": 1514,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "Slider",
+      "origin": "own",
+      "file": "src/graphs/dynamics/PhasePortraitGraph.tsx",
+      "line": 1514,
       "label": "phase_graph_time_label",
       "range": "min=0 max=ORBIT_DURATION step=TIME_STEP"
      }
@@ -25291,6 +25530,8 @@
     "inheritedRows": 0
    },
    "catalogKeys": [
+    "dynamics_legend_columns",
+    "dynamics_legend_seeds",
     "phase_graph_board_label",
     "phase_graph_cap_eigen",
     "phase_graph_cap_equilibrium",
@@ -25313,12 +25554,18 @@
     "phase_graph_equilibrium_help",
     "phase_graph_equilibrium_label",
     "phase_graph_equilibrium_origin",
+    "phase_graph_equilibrium_origin_short",
     "phase_graph_equilibrium_pi",
+    "phase_graph_equilibrium_pi_short",
     "phase_graph_input_help",
     "phase_graph_inset_label",
     "phase_graph_inset_title",
     "phase_graph_jacobian_value",
+    "phase_graph_matrix_a_label",
+    "phase_graph_matrix_b_label",
+    "phase_graph_matrix_c_label",
     "phase_graph_matrix_caption",
+    "phase_graph_matrix_d_label",
     "phase_graph_notice_time_refused",
     "phase_graph_playback_group",
     "phase_graph_point_format",
@@ -25366,7 +25613,8 @@
     "phase_graph_zoom_label",
     "phase_graph_zoom_rejected",
     "phase_graph_zoom_value",
-    "playback_block_reduced_motion_time"
+    "playback_block_reduced_motion_time",
+    "reset"
    ],
    "inlineStrings": {
     "count": 0,
@@ -25587,12 +25835,20 @@
     "src/learning/content/phasePortraitsGuidedLessons.test.ts"
    ],
    "tests": [
+    "src/graphs/dynamics/PhasePortraitGraph.declaration.test.tsx",
     "src/graphs/dynamics/PhasePortraitGraph.drag.test.tsx",
+    "src/graphs/dynamics/PhasePortraitGraph.marks.test.tsx",
     "src/graphs/dynamics/PhasePortraitGraph.test.tsx",
     "src/graphs/dynamics/PhasePortraitGraph.writes.test.tsx",
     "src/graphs/dynamics/PhasePortraitLessonActions.host.test.tsx",
     "src/graphs/dynamics/dynamicsPresetCollection.test.tsx",
-    "src/learning/content/phasePortraitsGuidedLessons.test.ts"
+    "src/graphs/dynamics/phasePortraitPreview.test.tsx",
+    "src/learning/content/phasePortraitsGuidedLessons.test.ts",
+    "src/workspace/preview/backoff.test.tsx",
+    "src/workspace/preview/fan.test.tsx",
+    "src/workspace/preview/ghostOverlay.test.tsx",
+    "src/workspace/preview/toolsHover.test.tsx",
+    "src/workspace/sweep/sweepPreview.test.tsx"
    ],
    "surface": false,
    "pointSet": false,
@@ -25631,9 +25887,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 1,
-    "inherited": 17,
+    "inherited": 18,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 2,
@@ -25646,6 +25902,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -25671,7 +25928,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -25679,7 +25936,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -25687,7 +25944,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -25695,7 +25952,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -25703,7 +25960,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -25711,7 +25968,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -25719,7 +25976,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -25727,7 +25984,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -25735,7 +25992,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -25743,15 +26000,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -25759,20 +26024,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -25783,7 +26040,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -25791,7 +26056,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -25869,8 +26134,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -25999,9 +26264,9 @@
     "src/graphs/compgeo/TriangulationControls.tsx"
    ],
    "controls": {
-    "total": 18,
+    "total": 19,
     "own": 0,
-    "inherited": 18,
+    "inherited": 19,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -26014,6 +26279,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -26023,7 +26289,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -26031,7 +26297,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -26039,7 +26305,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -26047,7 +26313,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -26055,7 +26321,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -26063,7 +26329,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -26071,7 +26337,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -26079,7 +26345,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -26087,7 +26353,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -26095,15 +26361,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -26111,20 +26385,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -26135,7 +26401,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -26143,7 +26417,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      },
@@ -26244,8 +26518,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -26384,9 +26658,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 17,
+    "total": 18,
     "own": 1,
-    "inherited": 16,
+    "inherited": 17,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -26399,6 +26673,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -26408,7 +26683,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -26416,7 +26691,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -26424,7 +26699,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -26432,7 +26707,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -26440,7 +26715,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -26448,7 +26723,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -26456,7 +26731,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -26464,7 +26739,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -26472,7 +26747,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -26480,15 +26755,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -26496,20 +26779,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -26520,7 +26795,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -26528,7 +26811,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      },
@@ -26609,8 +26892,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -28820,6 +29103,13 @@
     "projective_k1_board_label",
     "projective_k1_example_label",
     "projective_k1_images",
+    "projective_k1_legend_centre",
+    "projective_k1_legend_images",
+    "projective_k1_legend_line_p",
+    "projective_k1_legend_line_points",
+    "projective_k1_legend_line_q",
+    "projective_k1_legend_originals",
+    "projective_k1_legend_rays",
     "projective_k1_no_selection",
     "projective_k1_nudged_line",
     "projective_k1_nudged_point",
@@ -28886,9 +29176,11 @@
     "src/graphs/projective/FivePointLessonActions.host.test.tsx",
     "src/graphs/projective/PascalLessonActions.host.test.tsx",
     "src/graphs/projective/PolePolarLessonActions.host.test.tsx",
+    "src/graphs/projective/ProjectiveCrossRatioGraph.declaration.test.tsx",
     "src/graphs/projective/ThreeViewsLessonActions.host.test.tsx",
     "src/graphs/projective/projectivePersistence.host.test.tsx",
-    "src/learning/content/projectiveConicsGuidedLessons.test.ts"
+    "src/learning/content/projectiveConicsGuidedLessons.test.ts",
+    "src/workspace/presenter/BoardCards.test.tsx"
    ],
    "surface": false,
    "pointSet": false,
@@ -30011,9 +30303,9 @@
     "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx"
    ],
    "controls": {
-    "total": 13,
+    "total": 14,
     "own": 0,
-    "inherited": 13,
+    "inherited": 14,
     "Slider": 2,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -30027,6 +30319,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "Slider",
      "UnavailableButton",
      "button"
@@ -30108,7 +30401,7 @@
       "tag": "PlaybackButtons",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 54,
+      "line": 57,
       "label": "",
       "range": ""
      },
@@ -30116,7 +30409,7 @@
       "tag": "Slider",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 59,
+      "line": 62,
       "label": "animation_parameter",
       "range": "min=0 max=1"
      },
@@ -30124,15 +30417,23 @@
       "tag": "Slider",
       "origin": "panel",
       "file": "src/graphs/curves/bezier/DecasteljauAnimationControls.tsx",
-      "line": 63,
+      "line": 66,
       "label": "animation_speed",
       "range": "min=0 max=1"
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "base",
+      "file": "src/graphs/curves/bezier/DecasteljauGraph.tsx",
+      "line": 241,
+      "label": "",
+      "range": ""
      },
      {
       "tag": "OnOffSwitch",
       "origin": "base",
       "file": "src/graphs/curves/bezier/DecasteljauGraph.tsx",
-      "line": 223,
+      "line": 242,
       "label": "full_curve",
       "range": ""
      }
@@ -30165,6 +30466,11 @@
     "curve_point_entry_summary",
     "curve_points_title",
     "curve_selection",
+    "decasteljau_legend_control",
+    "decasteljau_legend_curve",
+    "decasteljau_legend_point",
+    "decasteljau_legend_rest",
+    "decasteljau_legend_scheme",
     "delete_point",
     "delete_points",
     "edit_the_ph_curve_using_its_hodograph_points_adding_and_deleting_points_is_unavailable_here",
@@ -30175,8 +30481,10 @@
     "manipulate_curve",
     "move",
     "no_curve_selected",
+    "play",
     "point_coordinates_keyboard_editing",
     "point_labels",
+    "reset",
     "select_a_curve_on_the_graph_or_with_a_button_to_access_its_operations",
     "select_a_curve_to_use_this_mode",
     "selected_curve",
@@ -32433,7 +32741,9 @@
    "tests": [
     "src/graphs/functions/RootFindingGraph.host.test.tsx",
     "src/graphs/functions/RootFindingGraph.test.ts",
-    "src/learning/content/numericalMethodsGuidedLessons.test.ts"
+    "src/learning/content/numericalMethodsGuidedLessons.test.ts",
+    "src/workspace/presenter/BoardCards.test.tsx",
+    "src/workspace/presenter/LessonCard.test.tsx"
    ],
    "surface": false,
    "pointSet": false,
@@ -32469,9 +32779,9 @@
     "src/graphs/compgeo/SweepSideLists.tsx"
    ],
    "controls": {
-    "total": 17,
+    "total": 18,
     "own": 0,
-    "inherited": 17,
+    "inherited": 18,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -32485,6 +32795,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -32502,7 +32813,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -32510,7 +32821,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -32518,7 +32829,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -32526,7 +32837,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -32534,7 +32845,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -32542,7 +32853,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -32550,7 +32861,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -32558,7 +32869,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -32566,7 +32877,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -32574,15 +32885,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -32590,20 +32909,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -32614,7 +32925,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -32622,7 +32941,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -32719,8 +33038,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -33139,9 +33458,9 @@
     "src/graphs/compgeo/SimsonLinePanel.tsx"
    ],
    "controls": {
-    "total": 21,
+    "total": 22,
     "own": 0,
-    "inherited": 21,
+    "inherited": 22,
     "Slider": 1,
     "CountSetter": 0,
     "PointListInput": 2,
@@ -33155,6 +33474,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "Slider",
      "UnavailableButton",
@@ -33165,7 +33485,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -33173,7 +33493,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -33181,7 +33501,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -33189,7 +33509,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -33197,7 +33517,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -33205,7 +33525,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -33213,7 +33533,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -33221,7 +33541,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -33229,7 +33549,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -33237,15 +33557,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -33253,20 +33581,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -33277,7 +33597,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -33285,7 +33613,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      },
@@ -33402,8 +33730,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -35619,8 +35947,8 @@
     "src/graphs/functions/FunctionStatus.tsx"
    ],
    "controls": {
-    "total": 5,
-    "own": 5,
+    "total": 9,
+    "own": 9,
     "inherited": 0,
     "Slider": 2,
     "CountSetter": 1,
@@ -35631,15 +35959,24 @@
     "other": [
      "ChoiceSelect",
      "CountSetter",
+     "PuckOwned",
      "RevealButton",
      "Slider"
     ],
     "rows": [
      {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/functions/TaylorGraph.tsx",
+      "line": 481,
+      "label": "",
+      "range": ""
+     },
+     {
       "tag": "CountSetter",
       "origin": "own",
       "file": "src/graphs/functions/TaylorGraph.tsx",
-      "line": 340,
+      "line": 482,
       "label": "taylor_degree_label",
       "range": "min=TAYLOR_DEGREE_MIN max=TAYLOR_DEGREE_MAX"
      },
@@ -35647,31 +35984,55 @@
       "tag": "ChoiceSelect",
       "origin": "own",
       "file": "src/graphs/functions/TaylorGraph.tsx",
-      "line": 347,
+      "line": 489,
       "label": "taylor_example_label",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/functions/TaylorGraph.tsx",
+      "line": 494,
+      "label": "",
       "range": ""
      },
      {
       "tag": "Slider",
       "origin": "own",
       "file": "src/graphs/functions/TaylorGraph.tsx",
-      "line": 352,
+      "line": 494,
       "label": "taylor_center_label",
       "range": "min=example.centerMin max=example.centerMax step=FIELD_STEP"
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/functions/TaylorGraph.tsx",
+      "line": 498,
+      "label": "",
+      "range": ""
      },
      {
       "tag": "Slider",
       "origin": "own",
       "file": "src/graphs/functions/TaylorGraph.tsx",
-      "line": 356,
+      "line": 498,
       "label": "taylor_x_label",
       "range": "min=example.xMin max=example.xMax step=FIELD_STEP"
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "own",
+      "file": "src/graphs/functions/TaylorGraph.tsx",
+      "line": 508,
+      "label": "",
+      "range": ""
      },
      {
       "tag": "RevealButton",
       "origin": "own",
       "file": "src/graphs/functions/TaylorGraph.tsx",
-      "line": 368,
+      "line": 510,
       "label": "show_error_bound",
       "range": ""
      }
@@ -35719,12 +36080,15 @@
     "taylor_example_help",
     "taylor_example_label",
     "taylor_formula_flat",
+    "taylor_formula_label",
     "taylor_hidden",
     "taylor_legend_bound",
+    "taylor_legend_center",
     "taylor_legend_convergence",
     "taylor_legend_error",
     "taylor_legend_function",
     "taylor_legend_polynomial",
+    "taylor_legend_x",
     "taylor_note",
     "taylor_points_help",
     "taylor_readout_absolute_error",
@@ -35830,8 +36194,15 @@
    "tests": [
     "src/Routes.test.tsx",
     "src/graphs/base/viewAdapterWiring.test.tsx",
+    "src/graphs/base/viewDirectorFit.test.ts",
+    "src/graphs/functions/TaylorGraph.declaration.test.tsx",
     "src/graphs/functions/TaylorGraph.host.test.tsx",
-    "src/graphs/functions/TaylorGraph.test.ts"
+    "src/graphs/functions/TaylorGraph.test.ts",
+    "src/workspace/cards/cardBodies.test.tsx",
+    "src/workspace/presenter/BoardCards.test.tsx",
+    "src/workspace/presenter/BoardCardsPucks.test.tsx",
+    "src/workspace/presenter/BoardCardsStrip.test.tsx",
+    "src/workspace/presenter/LessonCard.test.tsx"
    ],
    "surface": false,
    "pointSet": false,
@@ -35867,9 +36238,9 @@
     "src/graphs/compgeo/PointSetControls.tsx"
    ],
    "controls": {
-    "total": 17,
+    "total": 18,
     "own": 0,
-    "inherited": 17,
+    "inherited": 18,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 1,
@@ -35882,6 +36253,7 @@
      "NumberInput",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "SelectablePointButton",
      "UnavailableButton",
      "button"
@@ -35899,7 +36271,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -35907,7 +36279,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -35915,7 +36287,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -35923,7 +36295,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -35931,7 +36303,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -35939,7 +36311,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -35947,7 +36319,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -35955,7 +36327,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -35963,7 +36335,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -35971,15 +36343,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -35987,20 +36367,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -36011,7 +36383,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -36019,7 +36399,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      }
@@ -36088,8 +36468,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -36145,9 +36525,11 @@
    "lessonTests": [],
    "tests": [
     "src/graphs/compgeo/NotablePointsGraph.host.test.tsx",
+    "src/graphs/compgeo/TriangleCentresGraph.declaration.test.tsx",
     "src/graphs/compgeo/compgeoDefaultView.host.test.tsx",
     "src/graphs/compgeo/planeGeometryPersistence.host.test.tsx",
-    "src/learning/content/triangleGeometryChapter.test.ts"
+    "src/learning/content/triangleGeometryChapter.test.ts",
+    "src/workspace/presenter/BoardCards.test.tsx"
    ],
    "surface": false,
    "pointSet": true,
@@ -37447,9 +37829,9 @@
     "src/graphs/compgeo/VoronoiControls.tsx"
    ],
    "controls": {
-    "total": 29,
+    "total": 30,
     "own": 0,
-    "inherited": 29,
+    "inherited": 30,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 2,
@@ -37463,6 +37845,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "ResetExampleButton",
      "SelectablePointButton",
      "UnavailableButton",
@@ -37481,7 +37864,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -37489,7 +37872,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -37497,7 +37880,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -37505,7 +37888,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -37513,7 +37896,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -37521,7 +37904,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -37529,7 +37912,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -37537,7 +37920,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -37545,7 +37928,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -37553,15 +37936,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -37569,20 +37960,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -37593,7 +37976,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -37601,7 +37992,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      },
@@ -37815,8 +38206,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {
@@ -37926,9 +38317,9 @@
     "src/graphs/compgeo/VoronoiControls.tsx"
    ],
    "controls": {
-    "total": 29,
+    "total": 30,
     "own": 0,
-    "inherited": 29,
+    "inherited": 30,
     "Slider": 0,
     "CountSetter": 0,
     "PointListInput": 2,
@@ -37942,6 +38333,7 @@
      "PlaybackButtons",
      "PointCollection",
      "PointListInput",
+     "PuckOwned",
      "ResetExampleButton",
      "SelectablePointButton",
      "UnavailableButton",
@@ -37960,7 +38352,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 105,
+      "line": 106,
       "label": "label",
       "range": "step=1"
      },
@@ -37968,7 +38360,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 116,
+      "line": 117,
       "label": "`s${k + 1}`",
       "range": ""
      },
@@ -37976,7 +38368,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 121,
+      "line": 122,
       "label": "",
       "range": ""
      },
@@ -37984,7 +38376,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 127,
+      "line": 128,
       "label": "",
       "range": ""
      },
@@ -37992,7 +38384,7 @@
       "tag": "NumberInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 137,
+      "line": 138,
       "label": "label",
       "range": "min=-coordinateLimit max=coordinateLimit step=1"
      },
@@ -38000,7 +38392,7 @@
       "tag": "SelectablePointButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 152,
+      "line": 153,
       "label": "letter",
       "range": ""
      },
@@ -38008,7 +38400,7 @@
       "tag": "button",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 155,
+      "line": 156,
       "label": "",
       "range": ""
      },
@@ -38016,7 +38408,7 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 161,
+      "line": 162,
       "label": "",
       "range": ""
      },
@@ -38024,7 +38416,7 @@
       "tag": "ChoiceSelect",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 206,
+      "line": 207,
       "label": "pointset_mode_label",
       "range": ""
      },
@@ -38032,15 +38424,23 @@
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 208,
+      "line": 209,
       "label": "pointset_closed",
+      "range": ""
+     },
+     {
+      "tag": "PuckOwned",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 211,
+      "label": "",
       "range": ""
      },
      {
       "tag": "BooleanField",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 210,
+      "line": 211,
       "label": "overlay.label",
       "range": ""
      },
@@ -38048,20 +38448,12 @@
       "tag": "PointCollection",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 218,
+      "line": 219,
       "label": "pointset_collection_label",
       "range": "min=0 max=props.pointLimit"
      },
      {
       "tag": "button",
-      "origin": "panel",
-      "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 224,
-      "label": "",
-      "range": ""
-     },
-     {
-      "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
       "line": 225,
@@ -38072,7 +38464,15 @@
       "tag": "UnavailableButton",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 227,
+      "line": 226,
+      "label": "",
+      "range": ""
+     },
+     {
+      "tag": "UnavailableButton",
+      "origin": "panel",
+      "file": "src/graphs/compgeo/PointSetControls.tsx",
+      "line": 228,
       "label": "",
       "range": ""
      },
@@ -38080,7 +38480,7 @@
       "tag": "PointListInput",
       "origin": "panel",
       "file": "src/graphs/compgeo/PointSetControls.tsx",
-      "line": 246,
+      "line": 247,
       "label": "pointset_point_list",
       "range": "min=-props.coordinateLimit max=props.coordinateLimit"
      },
@@ -38294,8 +38694,8 @@
    "inlineStrings": {
     "count": 2,
     "samples": [
-     "src/graphs/compgeo/PointSetControls.tsx:122 &times;",
-     "src/graphs/compgeo/PointSetControls.tsx:156 &times;"
+     "src/graphs/compgeo/PointSetControls.tsx:123 &times;",
+     "src/graphs/compgeo/PointSetControls.tsx:157 &times;"
     ]
    },
    "legend": {

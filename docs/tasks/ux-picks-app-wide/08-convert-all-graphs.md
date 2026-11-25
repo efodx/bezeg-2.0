@@ -28,6 +28,17 @@ Tasks 02 to 07 are accepted on the pilots and released to `master`; the contract
 7. **Accept per lane:** recipe green for each demonstration. A `bezeg-visual` agent captures one contact sheet per lane with `just shot --sheet --selector <board>` and judges it against the guide's checklist, returning pass or fail per demonstration as text. The handler plays one in four in the browser (free play with interruption, lesson walk); a `bezeg-reviewer` reads one in four for mathematics and highlight rules. Then merge the round's lanes, run `just check` (the all-graph suites), the full contract test and the fuzzer at 5 seeds per merged route, and publish once per round in the background ([running the work economically](README.md#running-the-work-economically)).
 8. **After round one:** record worker time, context, repairs and files touched per demonstration here, and replace the estimate before round two.
 
+## Triage decisions (handler 7, 2026-11-25)
+
+Triage: [`08-triage.md`](../../reviews/ux-picks-app-wide/inventory/08-triage.md) (138 demonstrations; 10 declared). Its six contract items are settled by precedent; none changes the contract, so no lane stops for them:
+
+- **Second board** (6 patch demonstrations, `parameterInset.ts`): an auxiliary board is never fitted and declares nothing (director design); its controls follow the main board's declaration.
+- **3D camera** (8 surfaces): as the Coons pilot: the director does not run, the camera stays in the graph's own controls in Orodja, cards rely on placement.
+- **Vector-valued parameters** (B-spline knots, summary statistics data): as the linear-map and phase-portrait pilots: the editor stays in Orodja, the parameter is not declared.
+- **Point and point-set parameters** (22 point-set, 32 curve-point demonstrations): as triangle centres (task 02 decision): points are board-owned, shown as rows and legend only; their row editors are the declared point rows.
+- **`equalAxisUnits` false** (19): the director's fit already takes the intent's `keepAspectRatio`; a graph whose content is tall relative to its width declares `followView` as bisection does.
+- **Board captions and formula values** (54): stay board-drawn in 08; that cards can cover them stays an open item for the feel follow-ups.
+
 ## Estimate
 
 Not known yet. The trial's figure (about 50k context and 5 minutes per graph in a long session) came from conversions that kept the old UI behind a flag, edited no tests and wrote no catalog keys, and all twelve were "accept with fixes". Planning figure: two or three demonstrations per session, so roughly 45 to 65 sessions after the pilots and the shared-code step. Round one decides.

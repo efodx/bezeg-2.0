@@ -1,0 +1,95 @@
+// Scratch generator for 08-triage.md (task 08 step 1). node docs/reviews/ux-picks-app-wide/inventory/08-triage.cjs
+const fs = require("fs");
+const path = require("path");
+const root = process.cwd();
+const dir = "docs/reviews/ux-picks-app-wide/inventory/";
+const inv = JSON.parse(fs.readFileSync(dir + "inventory.json", "utf8"));
+const D = inv.demonstrations;
+const cache = {};
+const txt = f => (cache[f] ??= fs.existsSync(f) ? fs.readFileSync(f, "utf8") : "");
+const base = f => path.basename(f).replace(/\.(tsx|ts)$/, "");
+const proto = new Set(fs.readFileSync(dir + "proto-files.txt", "utf8").split(/\r?\n/).filter(Boolean));
+const declaredFiles = new Set(D.filter(d => /override declaration\(/.test(txt(d.graphFile))).map(d => d.graphFile));
+const hubCount = {};
+for (const d of D) for (const f of d.sharedFiles) hubCount[f] = (hubCount[f] || 0) + 1;
+const HUB = 20;
+const gaps = {};
+const rows = [];
+const classCount = {};
+const bump = (k, id) => ((classCount[k] ??= []).push(id));
+for (const d of D) {
+  const files = [d.graphFile, ...d.sharedFiles];
+  const own = txt(d.graphFile);
+  const all = files.map(txt).join("\n");
+  const cls = [];
+  const declared = declaredFiles.has(d.graphFile) || d.id === "rational-decasteljau";
+  if (declared) cls.push("declared");
+  const rows_ = d.controls.rows;
+  const cnt = (tags, origin) => rows_.filter(r => tags.includes(r.tag) && (!origin || (origin === "own") === (r.origin === "own"))).length;
+  const S = ["Slider", "AngleSlider"], C = ["CountSetter"], Ch = ["ChoiceSelect", "select"], T = ["OnOffSwitch", "BooleanField", "checkbox", "CheckboxGroup"];
+  const fmt = t => `${cnt(t, "own")}${cnt(t, "inh") ? `+${cnt(t, "inh")}i` : ""}`;
+  const modes = rows_.filter(r => Ch.includes(r.tag) && /mode|view|kind|type|system|variant|method|family|style|display/i.test(r.label)).length;
+  if (modes >= 1) cls.push("modes");
+  const exp = (own.match(/Math\.random|Float64Array|SAMPLES|samples|trials|simulat|contour|marching|mandelbrot|julia|fractal|monteCarlo|histogram|\bgrid\b|\bN_STEPS|STEPS\b|refine|subdivi/gi) || []).length;
+  if (exp >= 20) cls.push("expensive");
+  if (d.playback) cls.push("playback");
+  if (d.legend.entries > 0 && /legend[\s\S]{0,300}board\.create\(\s*['"]text|board\.create\(\s*['"]text['"][\s\S]{0,300}legend/i.test(own)) cls.push("board-legend");
+  if (d.pointSet) cls.push("point-set");
+  if (!d.pointSet && d.sharedFiles.some(f => /CurveWorkspaceControls/.test(f))) cls.push("curve-points");
+  if (d.surface) cls.push("surface");
+  const g = [];
+  if (d.surface) g.push(`3D camera + second board (parameter inset): ${d.graphFile}`);
+  const ins = files.filter(f => /parameterInset/.test(txt(f)));
+  if (ins.length) g.push(`multi-board: parameterInset in ${ins.map(f => f).join(",")}`);
+  if (d.pointSet || rows_.some(r => ["PointListInput", "PointCollection"].includes(r.tag))) {
+    const r0 = rows_.find(r => ["PointListInput", "PointCollection"].includes(r.tag));
+    g.push(`point/point-set parameter kind${r0 ? `: ${r0.file}:${r0.line}` : `: ${d.graphFile}`}`);
+  }
+  const eq = own.match(/get equalAxisUnits\(\)/);
+  if (eq) g.push(`equalAxisUnits=false (marks/fit): ${d.graphFile}:${own.slice(0, eq.index).split("\n").length}`);
+  const ta = rows_.find(r => r.tag === "textarea" || (r.tag === "input" && /text/.test(r.range + r.label)));
+  if (ta) g.push(`non-numeric (text) input: ${ta.file}:${ta.line}`);
+  const dts = rows_.find(r => ["NumberGrid", "ValueListInput"].includes(r.tag));
+  if (dts) g.push(`vector/table-valued parameter: ${dts.file}:${dts.line}`);
+  const cap = d.boardCaptions.count;
+  if (cap > 0 && d.legend.entries === 0) g.push(`board captions/insets without declared place (${cap}): ${d.graphFile}`);
+  if (/AnimationDriver/.test(own) && !declared) g.push(`playback driver private to graph (useLease passthrough, step 2): ${d.graphFile}`);
+  const hard = g.filter(x => !x.startsWith("equalAxisUnits") && !x.startsWith("board captions") && !x.startsWith("playback") && !x.startsWith("point/point-set"));
+  const soft = g.filter(x => !hard.includes(x));
+  if (g.some(x => /^(3D|multi-board|vector|non-numeric)/.test(x))) cls.push("contract");
+  if (!cls.filter(c => c !== "declared").length) cls.push("plain");
+  for (const c of cls) bump(c, d.id);
+  g.forEach(x => ((gaps[x.split(":")[0].replace(/ \(\d+\)$/, "")] ??= []).push(d.id)));
+  const lessons = [...d.lessons.map(l => base(l.file)), ...d.chapterFiles.map(f => base(f.file || f))];
+  const panels = d.sharedFiles.filter(f => hubCount[f] < HUB && !/BaseFunctionGraph|Base\w*Graph/.test(f)).map(base);
+  rows.push({d, cls, S: fmt(S), C: fmt(C), Ch: fmt(Ch), T: fmt(T), lessons, panels, g, protoFile: proto.has(d.graphFile) || d.sharedFiles.some(f => proto.has(f) && !/BaseGraph/.test(f)), ownProto: proto.has(d.graphFile)});
+}
+// component analysis
+function components(edgeKeys) {
+  const parent = {};
+  const find = x => (parent[x] === x ? x : (parent[x] = find(parent[x])));
+  D.forEach(d => (parent[d.id] = d.id));
+  const byKey = {};
+  for (const d of D) for (const k of edgeKeys(d)) (byKey[k] ??= []).push(d.id);
+  for (const k in byKey) for (const i of byKey[k].slice(1)) parent[find(i)] = find(byKey[k][0]);
+  const g = {};
+  D.forEach(d => (g[find(d.id)] ??= []).push(d.id));
+  return Object.values(g).sort((a, b) => b.length - a.length);
+}
+const testCount = {};
+for (const d of D) for (const t of d.tests) testCount[t] = (testCount[t] || 0) + 1;
+const lessonKeys = d => [...d.lessons.map(l => l.file), ...d.chapterFiles.map(f => f.file || f)];
+const specificTests = d => d.tests.filter(t => testCount[t] <= 6);
+const A = components(d => [...d.sharedFiles.filter(f => hubCount[f] < HUB), ...lessonKeys(d), ...specificTests(d)]);
+const B = components(d => [...d.sharedFiles.filter(f => hubCount[f] <= 6), ...lessonKeys(d), ...specificTests(d)]);
+const Dd = components(d => lessonKeys(d));
+const Cc = components(d => [...d.sharedFiles.filter(f => hubCount[f] <= 6), ...specificTests(d)]);
+const out = {Dd, rows, classCount, gaps, A, B, Cc, hubCount, declared: [...declaredFiles] };
+fs.writeFileSync(dir + "08-triage.tmp.json", JSON.stringify(out));
+console.log("classes", Object.fromEntries(Object.entries(classCount).map(([k, v]) => [k, v.length])));
+console.log("A (shared non-hub + lessons + tests)", A.length, A.slice(0, 6).map(x => x.length));
+console.log("B (shared<=6 + lessons + tests)", B.length, B.slice(0, 8).map(x => x.length));
+console.log("C (shared<=6 + tests, no lessons)", Cc.length, Cc.slice(0, 8).map(x => x.length));
+console.log("gaps", Object.fromEntries(Object.entries(gaps).map(([k, v]) => [k, v.length])));
+console.log("D lessons only", Dd.length, Dd.slice(0,8).map(x=>x.length));
+console.log("proto own", rows.filter(r => r.ownProto).length, "declared", declaredFiles.size);
