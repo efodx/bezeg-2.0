@@ -37,7 +37,19 @@
 }
 .puck-step[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
 .puck-count-value { cursor: default; padding-top: 0; }
-.puck :is(.puck-body, .puck-step, .puck-help-button, .puck-input):focus-visible { outline: var(--bezeg-control-focus, 3px solid #456db0); outline-offset: var(--bezeg-control-focus-offset, 2px); }
+/* The sweep button: quiet on fine pointers (shown on hover and focus, and while running), always shown on touch. */
+.puck-sweep {
+    flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; margin-left: auto; margin-block: -3px; cursor: pointer; color: inherit;
+    border: 1px solid var(--bezeg-control-border-color, #767f6c); border-radius: 50%; background: transparent; opacity: 0; transition: opacity 120ms;
+}
+.puck-sweep + .puck-help-button { margin-left: 0; }
+.puck:hover .puck-sweep, .puck:focus-within .puck-sweep, .puck-sweep[aria-pressed="true"] { opacity: 1; }
+.puck-sweep[aria-pressed="true"] { background: var(--bezeg-control-selected-surface, #19372f); color: var(--bezeg-control-selected-ink, #fff); animation: puck-sweep-pulse 1.4s ease-in-out infinite; }
+.puck.is-sweeping { border-color: var(--bezeg-shell-ochre, #b88a43); }
+@keyframes puck-sweep-pulse { 50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bezeg-shell-ochre, #b88a43) 45%, transparent); } }
+@media (hover: none) { .puck-sweep { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .puck-sweep { transition: none; animation: none !important; } }
+.puck :is(.puck-body, .puck-step, .puck-help-button, .puck-sweep, .puck-input):focus-visible { outline: var(--bezeg-control-focus, 3px solid #456db0); outline-offset: var(--bezeg-control-focus-offset, 2px); }
 /* Notice, tip, help card and pill sit out of flow so a message never changes the puck's size or shifts the strip. */
 .puck-notice {
     position: absolute; left: 0; right: 0; top: 100%; margin-top: 2px; padding: 2px 6px; border-radius: 6px; font-size: .75rem; color: #7a2a1d;

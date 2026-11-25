@@ -23,7 +23,7 @@ function fakeGraph(refuse?: string) {
     });
     const graph = {
         store: {subscribe: (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; }},
-        parameters: {keys: () => Object.keys(values), read: (key: string) => values[key], write},
+        parameters: {keys: () => Object.keys(values), read: (key: string) => values[key], write, hold: () => () => undefined},
     } as unknown as BaseGraph<BaseGraphState>;
     const set = (key: string, value: number) => act(() => { values[key] = value; listeners.forEach(listener => listener()); });
     return {graph, write, set};

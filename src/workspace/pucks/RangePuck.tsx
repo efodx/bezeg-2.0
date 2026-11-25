@@ -7,7 +7,8 @@ import type {Message} from '../../localization';
 import type {RangeParameter} from '../../graphs/base/declare/graphDeclaration';
 import {usePreviewHover} from '../preview/previewContext';
 import {useJumpUndo} from './jumpUndo';
-import {PuckFrame, UndoPill, useTip} from './PuckParts';
+import type {PuckSweep} from '../sweep/useSweep';
+import {PuckFrame, SweepButton, UndoPill, useHold, useTip} from './PuckParts';
 import {
     fineLevel, formatRange, isJump, parseEntry, placeRulerLeft, rulerTicks, rulerWidth, snapValue, widestChars,
     type EntryResult,
@@ -27,6 +28,10 @@ export interface RangePuckProps {
     refusal?: Message | string;
     /** Why the parameter is locked (a lesson frame); shown instead of the default reason. */
     lockReason?: Message;
+    /** The sweep control; absent when none is offered (reduced motion, no arbiter). */
+    sweep?: PuckSweep;
+    /** Holds the key for the learner during a drag or a typed entry; returns the release. */
+    onHold?(): () => void;
 }
 
 const TYPED_START = /^[0-9\-−,.]$/;
@@ -70,6 +75,15 @@ export function RangePuck(props: RangePuckProps) {
     const lockId = useId();
     const preview = usePreviewHover(parameter);
     const [hovered, setHovered] = useState<string | undefined>();
+    const hold = useHold(props.onHold);
+    const typing = entry !== null;
+    useEffect(() => {
+        if (!typing) return;
+        hold.begin();
+        return hold.end;
+        // Holds once per open entry, not per typed character.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [typing]);
     const fmt = (v: number) => formatRange(v, parameter, language);
     const valueText = unit ? `${fmt(value)} ${unit}` : fmt(value);
     const widthCh = widestChars(parameter, language) + (unit ? unit.length + 1 : 0) + 0.4;
@@ -149,6 +163,7 @@ export function RangePuck(props: RangePuckProps) {
         if (locked || event.button > 0) return;
         endHover();
         tip.hide();
+        hold.begin();
         const body = event.currentTarget;
         body.focus();
         try { body.setPointerCapture?.(event.pointerId); } catch { /* a synthetic pointer */ }
@@ -176,18 +191,20 @@ export function RangePuck(props: RangePuckProps) {
         write(next);
         setRuler({value: next, fine: level.label ? t(level.label) : undefined, anchor: d.anchor, width: d.width, pxPerRange: d.pxPerRange, bounds: d.bounds});
     };
-    const endDrag = (event: ReactPointerEvent<HTMLDivElement>, cancelled: boolean) => {
+    const endDrag = (event: {clientX: number}, cancelled: boolean) => {
         const d = drag.current;
+        if (!d) return; // idempotent: pointerup is followed by lostpointercapture
         drag.current = undefined;
         setRuler(null);
-        if (!d || cancelled || d.moved || !d.trackHit) return;
+        if (cancelled || d.moved || !d.trackHit) { hold.end(); return; }
         // A click on the track jumps there; more than one step away it offers the undo.
         const rect = trackRef.current?.getBoundingClientRect();
-        if (!rect || rect.width <= 0) return;
+        if (!rect || rect.width <= 0) { hold.end(); return; }
         const target = snapValue(parameter.min + (event.clientX - rect.left) / rect.width * span, parameter);
         const before = latest.current;
         if (isJump(before, target, parameter.step)) controller.offer(before);
         write(target);
+        hold.end();
     };
 
     const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -213,7 +230,8 @@ export function RangePuck(props: RangePuckProps) {
     const help = parameter.help ? renderMessage(parameter.help) : undefined;
 
     return <PuckFrame label={name} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
-        tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className="puck-range"
+        tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-range${props.sweep?.running ? ' is-sweeping' : ''}`}
+        headExtra={props.sweep && !locked && <SweepButton name={name} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
         pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>
         {entry
             // The entry keeps the body's structure (value line over the track) so the puck's height does not change either.
@@ -233,6 +251,7 @@ export function RangePuck(props: RangePuckProps) {
                 aria-disabled={locked || undefined} aria-describedby={describedBy}
                 onPointerDown={onPointerDown} onPointerMove={onPointerMove}
                 onPointerUp={event => endDrag(event, false)} onPointerCancel={event => endDrag(event, true)}
+                onLostPointerCapture={event => endDrag(event, true)} onBlur={() => { tip.handlers.onBlur(); endDrag({clientX: 0}, true); }}
                 onKeyDown={onKeyDown} onDoubleClick={() => { if (!locked) setEntry({text: fmt(latest.current), select: true}); }}>
                 <span className="puck-value" style={{width: `${widthCh}ch`}}>{fmt(value)}{unit && <span className="puck-unit"> {unit}</span>}</span>
                 <div ref={trackRef} className="puck-track" aria-hidden="true" onPointerMove={onTrackMove} onPointerLeave={endHover}><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/></div>

@@ -113,6 +113,13 @@ describe("checkDeclaration", () => {
         }
     });
 
+    it("reports a sweep whose half-width or period is not finite and positive", () => {
+        for (const sweep of [{halfWidth: 0}, {halfWidth: NaN}, {period: 0}, {period: -1}, {period: Infinity}]) {
+            expect(checkDeclaration({parameters: [rangeA({sweep})]})).toEqual([{where: "parameter a", problem: "a sweep needs a finite positive halfWidth and period"}]);
+        }
+        expect(checkDeclaration({parameters: [rangeA({sweep: {halfWidth: 1, period: 2000}})]})).toEqual([]);
+    });
+
     it("reports a count with fractional bounds", () => {
         const count = {kind: "count" as const, key: "n", label, placement: "board" as const, min: 0.5, max: 5};
         expect(checkDeclaration({parameters: [count]})).toEqual([{where: "parameter n", problem: "needs whole bounds"}]);
