@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useId, useRef, useState} from 'react';
 import type {FocusEvent, PointerEvent, ReactNode} from 'react';
 import {useT} from '../../localization';
+import {PuckSymbol, bareName, spokenName} from './puckSymbol';
 import './pucks.css';
 
 /** Pieces both pucks share: the undo pill, the help card and its tooltip, the frame with its notice and lock reason. */
@@ -58,6 +59,8 @@ export function useHold(onHold?: () => () => void) {
 
 export interface FrameProps {
     label: string;
+    /** TeX source of the parameter's symbol, typeset beside the name; the name is then the bare name. */
+    symbol?: string;
     help?: string;
     locked: boolean;
     lockReason: string;
@@ -93,19 +96,20 @@ export function PuckFrame(props: FrameProps) {
     const t = useT();
     const [helpOpen, setHelpOpen] = useState(false);
     const helpId = useId();
+    const spoken = spokenName(props.label, props.symbol);
     return <div className={`puck${props.locked ? ' is-locked' : ''} ${props.className ?? ''}`} data-puck=""
         onKeyDown={event => { if (event.key === 'Escape' && helpOpen) { event.stopPropagation(); setHelpOpen(false); } }}>
         {props.pill}
         <div className="puck-head">
-            <span className="puck-label" title={props.label}>{props.label}</span>
+            <span className="puck-label" title={spoken}><span className="puck-name">{bareName(props.label, props.symbol)}</span>{props.symbol && <>{' '}<PuckSymbol tex={props.symbol}/></>}</span>
             {props.headExtra}
             {props.help && <button type="button" className="puck-help-button" aria-expanded={helpOpen} aria-controls={helpId}
-                aria-label={helpOpen ? t('puck_help_close') : t('puck_help_open', {value0: props.label})}
+                aria-label={helpOpen ? t('puck_help_close') : t('puck_help_open', {value0: spoken})}
                 onClick={() => setHelpOpen(open => !open)}>?</button>}
         </div>
         {props.children}
         {props.tip && !helpOpen && <div role="tooltip" id={props.tipId} className="puck-tip">{props.tip}</div>}
-        {props.help && helpOpen && <div id={helpId} className="puck-help-card" role="group" aria-label={props.label}>{props.help}</div>}
+        {props.help && helpOpen && <div id={helpId} className="puck-help-card" role="group" aria-label={spoken}>{props.help}</div>}
         <div className="puck-notice" role="status" aria-live="polite">{props.notice ?? ''}</div>
         {props.locked && <div className="puck-lock" id={props.lockId} data-puck-lock="">{props.lockReason}</div>}
     </div>;

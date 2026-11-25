@@ -1,5 +1,5 @@
 import {useEffect, useId, useRef, useState} from 'react';
-import type {KeyboardEvent} from 'react';
+import type {CSSProperties, KeyboardEvent} from 'react';
 import {formatNumber} from '../../analysis/format';
 import {currentLanguage, renderMessage, useT} from '../../localization';
 import type {Message} from '../../localization';
@@ -9,6 +9,7 @@ import {usePreviewHover} from '../preview/previewContext';
 import {useJumpUndo} from './jumpUndo';
 import type {PuckSweep} from '../sweep/useSweep';
 import {PuckFrame, SweepButton, UndoPill, useHold, useTip} from './PuckParts';
+import {spokenName} from './puckSymbol';
 import {widestCountChars} from './pucksModel';
 import {asText} from './RangePuck';
 
@@ -27,12 +28,15 @@ export interface CountPuckProps {
 }
 
 const TYPED_START = /^[0-9\-−]$/;
+/** Above this many steps the decorative scale draws no tick per step (css reads `data-dense`). */
+const DENSE_STEPS = 13;
 
 export function CountPuck(props: CountPuckProps) {
     const t = useT();
     const {parameter, value, onWrite} = props;
     const language = currentLanguage();
     const name = renderMessage(parameter.label);
+    const spoken = spokenName(name, parameter.symbol);
     const locked = parameter.locked === true;
     const bodyRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -125,33 +129,36 @@ export function CountPuck(props: CountPuckProps) {
     const lockText = props.lockReason ? renderMessage(props.lockReason) : t('puck_locked');
     const describedBy = [tip.shown && tipId, locked && lockId].filter(Boolean).join(' ') || undefined;
     const atMin = value <= parameter.min, atMax = value >= parameter.max;
+    const steps = parameter.max - parameter.min + 1;
 
-    return <PuckFrame label={name} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
+    return <PuckFrame label={name} symbol={parameter.symbol} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
         tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-count${props.sweep?.running ? ' is-sweeping' : ''}`}
-        headExtra={props.sweep && !locked && <SweepButton name={name} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
-        pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>
+        headExtra={props.sweep && !locked && <SweepButton name={spoken} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
+        pill={<UndoPill open={pending !== undefined} name={spoken} onUndo={controller.undo}/>}>
         <div className="puck-stepper">
-            <button type="button" className="puck-step" aria-label={t('puck_decrease', {value0: name})} aria-disabled={locked || atMin || undefined}
+            <button type="button" className="puck-step" aria-label={t('puck_decrease', {value0: spoken})} aria-disabled={locked || atMin || undefined}
                 onPointerEnter={event => { if (event.pointerType === 'mouse') showStep(-1); }} onPointerLeave={endHover}
                 onClick={() => { if (!locked && !atMin) { step(-1); if (hovered !== undefined) showStep(-1); } }}>−</button>
             {entry !== null
                 ? <input ref={inputRef} className="puck-input" style={{width: `${widthCh}ch`}} inputMode="numeric" autoComplete="off" value={entry}
-                    aria-label={t('puck_entry_label', {value0: name})} aria-invalid={notice !== undefined}
+                    aria-label={t('puck_entry_label', {value0: spoken})} aria-invalid={notice !== undefined}
                     onChange={event => setEntry(event.target.value)}
                     onKeyDown={event => {
                         if (event.key === 'Enter') { event.preventDefault(); submitEntry(); }
                         else if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setNotice(undefined); closeEntry(); }
                     }}
                     onBlur={() => { setEntry(null); setNotice(undefined); }}/>
-                : <div ref={bodyRef} {...tip.handlers} className="puck-body puck-count-value" role="spinbutton" tabIndex={0} aria-label={name}
+                : <div ref={bodyRef} {...tip.handlers} className="puck-body puck-count-value" role="spinbutton" tabIndex={0} aria-label={spoken}
                     aria-valuemin={parameter.min} aria-valuemax={parameter.max} aria-valuenow={value} aria-valuetext={fmt(value)}
                     aria-disabled={locked || undefined} aria-describedby={describedBy}
                     onKeyDown={onKeyDown} onDoubleClick={() => { if (!locked) setEntry(fmt(latest.current)); }}>
                     <span className="puck-value" style={{width: `${widthCh}ch`}}>{fmt(value)}</span>
                 </div>}
-            <button type="button" className="puck-step" aria-label={t('puck_increase', {value0: name})} aria-disabled={locked || atMax || undefined}
+            <button type="button" className="puck-step" aria-label={t('puck_increase', {value0: spoken})} aria-disabled={locked || atMax || undefined}
                 onPointerEnter={event => { if (event.pointerType === 'mouse') showStep(1); }} onPointerLeave={endHover}
                 onClick={() => { if (!locked && !atMax) { step(1); if (hovered !== undefined) showStep(1); } }}>+</button>
+            <span className="puck-scale" aria-hidden="true" data-dense={steps > DENSE_STEPS ? '' : undefined}
+                style={{'--puck-scale-steps': steps, '--puck-scale-index': value - parameter.min} as CSSProperties}/>
         </div>
     </PuckFrame>;
 }

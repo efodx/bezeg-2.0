@@ -39,7 +39,7 @@ function ChoiceParameterPuck({graph, parameter}: {graph: BaseGraph<BaseGraphStat
     useEffect(() => { puckRenderCounts.set(key, (puckRenderCounts.get(key) ?? 0) + 1); });
     if (value === '') return null;
     return <div className="puck-host" data-puck-key={key}>
-        <ChoicePuck label={renderMessage(parameter.label)} help={parameter.help ? renderMessage(parameter.help) : undefined} value={value}
+        <ChoicePuck label={renderMessage(parameter.label)} symbol={parameter.symbol} help={parameter.help ? renderMessage(parameter.help) : undefined} value={value}
             options={parameter.options.map(option => ({value: option.value, label: renderMessage(option.label), text: option.short ? renderMessage(option.short) : undefined}))}
             onSelect={next => { graph.parameters?.write(key, next, 'learner'); }}/>
     </div>;

@@ -1,6 +1,7 @@
 import {useId, useRef} from 'react';
 import type {KeyboardEvent} from 'react';
 import {PuckFrame, useTip} from './PuckParts';
+import {spokenName} from './puckSymbol';
 
 export interface ChoicePuckOption {
     readonly value: string;
@@ -13,6 +14,8 @@ export interface ChoicePuckOption {
 export interface ChoicePuckProps {
     /** The accessible name of the group and the visible label (the parameter's label). */
     label: string;
+    /** TeX source of the parameter's symbol, typeset beside the label. */
+    symbol?: string;
     help?: string;
     options: readonly ChoicePuckOption[];
     value: string;
@@ -46,8 +49,8 @@ export function ChoicePuck(props: ChoicePuckProps) {
         else return;
         event.preventDefault();
     };
-    return <PuckFrame label={props.label} help={props.help} locked={false} lockReason="" tip={tip.shown ? props.help : undefined} tipId={tipId} className="puck-choice">
-        <div {...tip.handlers} className={`puck-segments${stacked ? ' is-stacked' : ''}`} role="radiogroup" aria-label={props.label}
+    return <PuckFrame label={props.label} symbol={props.symbol} help={props.help} locked={false} lockReason="" tip={tip.shown ? props.help : undefined} tipId={tipId} className="puck-choice">
+        <div {...tip.handlers} className={`puck-segments${stacked ? ' is-stacked' : ''}`} role="radiogroup" aria-label={spokenName(props.label, props.symbol)}
              aria-describedby={tip.shown ? tipId : undefined} onKeyDown={onKeyDown}>
             {options.map((option, index) => <button key={option.value} ref={element => { refs.current[index] = element; }} type="button" role="radio" data-value={option.value}
                 className="puck-segment" aria-checked={index === selected} aria-label={option.label} title={option.label}

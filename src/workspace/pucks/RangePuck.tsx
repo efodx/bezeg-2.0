@@ -10,6 +10,7 @@ import {usePreviewHover} from '../preview/previewContext';
 import {useJumpUndo} from './jumpUndo';
 import type {PuckSweep} from '../sweep/useSweep';
 import {PuckFrame, SweepButton, UndoPill, useHold, useTip} from './PuckParts';
+import {spokenName} from './puckSymbol';
 import {
     fineLevel, formatRange, isJump, parseEntry, placeRulerLeft, rulerTicks, rulerWidth, snapValue, widestChars,
     type EntryResult,
@@ -57,6 +58,7 @@ export function RangePuck(props: RangePuckProps) {
     const {parameter, value, onWrite} = props;
     const language = currentLanguage();
     const name = renderMessage(parameter.label);
+    const spoken = spokenName(name, parameter.symbol);
     const locked = parameter.locked === true;
     const unit = parameter.unit ? renderMessage(parameter.unit) : '';
     const span = parameter.max - parameter.min;
@@ -246,15 +248,15 @@ export function RangePuck(props: RangePuckProps) {
     const describedBy = [tip.shown && tipId, locked && lockId].filter(Boolean).join(' ') || undefined;
     const help = parameter.help ? renderMessage(parameter.help) : undefined;
 
-    return <PuckFrame label={name} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
+    return <PuckFrame label={name} symbol={parameter.symbol} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
         tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-range${props.sweep?.running ? ' is-sweeping' : ''}`}
-        headExtra={props.sweep && !locked && <SweepButton name={name} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
-        pill={<UndoPill open={pending !== undefined} name={name} onUndo={controller.undo}/>}>
+        headExtra={props.sweep && !locked && <SweepButton name={spoken} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
+        pill={<UndoPill open={pending !== undefined} name={spoken} onUndo={controller.undo}/>}>
         {entry
             // The entry keeps the body's structure (value line over the track) so the puck's height does not change either.
             ? <div className="puck-body puck-body-entry">
                 <input ref={inputRef} className="puck-input" style={{width: `${widthCh}ch`}} inputMode="decimal" autoComplete="off" value={entry.text}
-                    aria-label={t('puck_entry_label', {value0: name})} aria-invalid={notice !== undefined}
+                    aria-label={t('puck_entry_label', {value0: spoken})} aria-invalid={notice !== undefined}
                     onChange={event => setEntry({text: event.target.value, select: false})}
                     onKeyDown={event => {
                         if (event.key === 'Enter') { event.preventDefault(); submitEntry(); }
@@ -263,7 +265,7 @@ export function RangePuck(props: RangePuckProps) {
                     onBlur={() => { setEntry(null); setNotice(undefined); }}/>
                 <div className="puck-track" aria-hidden="true"><span className="puck-fill" style={{transform: `scaleX(${Math.min(1, Math.max(0, fraction))})`}}/><span className="puck-thumb" style={{transform: `translateX(${Math.min(1, Math.max(0, fraction)) * 100}%)`}}/></div>
             </div>
-            : <div ref={bodyRef} {...tip.handlers} className="puck-body" role="slider" tabIndex={0} aria-label={name} aria-orientation="horizontal"
+            : <div ref={bodyRef} {...tip.handlers} className="puck-body" role="slider" tabIndex={0} aria-label={spoken} aria-orientation="horizontal"
                 aria-valuemin={parameter.min} aria-valuemax={parameter.max} aria-valuenow={value} aria-valuetext={valueText}
                 aria-disabled={locked || undefined} aria-describedby={describedBy}
                 onPointerEnter={event => { tip.handlers.onPointerEnter(event); if (event.pointerType === 'mouse') startRest(); }}
