@@ -119,7 +119,9 @@ export function CountPuck(props: CountPuckProps) {
         else if (TYPED_START.test(event.key)) { event.preventDefault(); setEntry(event.key); }
     };
 
-    const help = parameter.help ? renderMessage(parameter.help) : undefined;
+    const baseHelp = parameter.help ? renderMessage(parameter.help) : undefined;
+    // A previewable count says where its preview is: the − and + buttons.
+    const help = preview && baseHelp ? `${baseHelp} ${t('puck_count_preview_hint')}` : baseHelp;
     const lockText = props.lockReason ? renderMessage(props.lockReason) : t('puck_locked');
     const describedBy = [tip.shown && tipId, locked && lockId].filter(Boolean).join(' ') || undefined;
     const atMin = value <= parameter.min, atMax = value >= parameter.max;
