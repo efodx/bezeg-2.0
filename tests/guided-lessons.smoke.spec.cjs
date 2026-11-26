@@ -3178,7 +3178,9 @@ test.describe('Observation flow', () => {
         expect(await reopenFocused(page), 'compact reopen tab takes focus').toBe(true);
         const tabBox = await h.reopenButton(page).boundingBox();
         expect(tabBox, 'compact tab has a rendered target').not.toBeNull();
-        expect(Math.min(tabBox.width, tabBox.height), 'compact tab target is at least 44 px').toBeGreaterThanOrEqual(44);
+        // Card-head buttons are 28 px with a fine pointer and 44 px on touch (task 11 board cards, CardShell.css).
+        const minimum = await page.evaluate(() => (matchMedia('(pointer: coarse)').matches ? 44 : 28));
+        expect(Math.min(tabBox.width, tabBox.height), `compact tab target is at least ${minimum} px`).toBeGreaterThanOrEqual(minimum);
         // The graph accepts input now: a slider change reaches the board.
         const slider = rangeSlider(page, '1.5');
         await slider.fill('1.4');

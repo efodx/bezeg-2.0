@@ -333,8 +333,11 @@ module.exports = function registerExperienceChecks() {
                         for (const control of headingScrolledAway ? [h.nextButton(page)] : [hide, exit, h.nextButton(page)]) {
                             await expect(control).toBeVisible();
                             const box = await control.boundingBox();
-                            expect(box.width).toBeGreaterThanOrEqual(44);
-                            expect(box.height).toBeGreaterThanOrEqual(44);
+                            // Card-head buttons (Hide) are 28 px with a fine pointer and 44 px on touch (task 11 board cards, CardShell.css); other actions keep 44.
+                            const fine = await page.evaluate(() => !matchMedia('(pointer: coarse)').matches);
+                            const minimum = control === hide && fine ? 28 : 44;
+                            expect(box.width).toBeGreaterThanOrEqual(minimum);
+                            expect(box.height).toBeGreaterThanOrEqual(minimum);
                             expect(await control.evaluate(element => element.scrollWidth <= element.clientWidth + 1), 'action text fits its button').toBe(true);
                             expect(box.y).toBeGreaterThanOrEqual(0);
                             expect(box.y + box.height).toBeLessThanOrEqual(view.height + 1);
