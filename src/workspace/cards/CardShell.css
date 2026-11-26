@@ -38,6 +38,10 @@
     font-family: inherit; font-size: .75rem; line-height: 1.2; font-weight: 650; letter-spacing: .07em; text-transform: uppercase; color: var(--board-ink-quiet);
 }
 .board-card[data-card-id^="section:"] .board-card-title { font-size: .8125rem; letter-spacing: .005em; text-transform: none; }
+/* Orodja's three icons say what the card is: where the head has no room for the whole title it shows none, not a stump of it ("O…").
+   A first item as tall as the line and no wider than nothing sends a title that does not fit to a second line, which the box hides. */
+.board-card[data-card-id="tools"] .board-card-title { display: flex; flex-wrap: wrap; align-content: flex-start; height: 1.2em; }
+.board-card[data-card-id="tools"] .board-card-title::before { content: ""; height: 100%; }
 .board-card .board-card-button {
     position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box;
     width: 28px; height: 28px; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent;
