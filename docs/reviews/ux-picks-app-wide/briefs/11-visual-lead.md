@@ -39,7 +39,8 @@ You are the lead of task 11 of the Bezeg board workspace stream: `docs/tasks/ux-
   checks, `just unit src/workspace`, tsc, lint). Before shots first, before any edit.
 - Budget: the project hook signals `BUDGET SOFT` and `BUDGET HANDOFF`. At handoff: update the state note, commit and push it,
   and start your successor from the main checkout with
-  `claude --bg -n 'Board visual lead N' --agent bezeg-handler --model fable --effort max --permission-mode auto "<prompt naming
+  (owner, 2026-11-26: successors run on Opus at high effort)
+  `claude --bg -n 'Board visual lead N' --agent bezeg-handler --model opus --effort high --permission-mode auto "<prompt naming
   docs/reviews/ux-picks-app-wide/briefs/11-visual-lead.md and the state note>"`, confirm with `claude logs <id>`, and pass this on.
 
 ## Done

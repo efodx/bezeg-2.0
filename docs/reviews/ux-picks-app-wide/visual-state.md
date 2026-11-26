@@ -1,68 +1,62 @@
 # Board workspace visual refinement (task 11): state
 
-Present state only; rewritten in place at every boundary, under 8 KB. Launch brief: [`briefs/11-visual-lead.md`](briefs/11-visual-lead.md) (role, coordination, handoff command). Task: [`11-visual-refinement.md`](../../tasks/ux-picks-app-wide/11-visual-refinement.md). Lead 2 (2026-11-25) has seen the first pass in a browser, kept its cards, and is redesigning the pucks; two worker lanes are open. **Lead 2 handed off at its budget line: the puck stylesheet and both lanes are committed as WIP with green checks, but the workers' diffs are not yet read line by line.**
+Present state only; rewritten in place at every boundary, under 8 KB. Launch brief: [`briefs/11-visual-lead.md`](briefs/11-visual-lead.md) (role, coordination, handoff command). Task: [`11-visual-refinement.md`](../../tasks/ux-picks-app-wide/11-visual-refinement.md). Lead 3 (2026-11-26) accepted both lanes with fixes, merged the label/symbol rule, had the clipped Odčitki card fixed, and redesigned the desktop pucks, seen on two shots only. **Owner, 2026-11-26: successors run on Opus at high effort** (budget 315k soft, 387k handoff).
 
 ## Where
 
-- Branch `board-styling` on `origin`. Worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/board-styling`; `node_modules` is a junction (unlink with PowerShell before removing the worktree). Enter with `EnterWorktree` path, not a new name.
-- The lock: lead 1 created the worktree by name, so it stayed locked to lead 1's session. The owner had lead 2 stop that session (`claude stop`; never `claude rm`, which removes the worktree). `git worktree list` still shows the stale lock line; entering works. A session that enters by path takes no lock, so a successor can enter while its predecessor lives.
-- Sync and push: `git fetch origin`, `git merge origin/board-workspace-2` (the branch is published: never rebase), `git push origin board-styling`. Never force, never `master`, never publish. The stream's handler is now "Board workspace handler 9": merge requests and graph-side findings go there.
-- Scope: `src/workspace/**` and shared input styles the pucks use. Not `src/graphs/**`, `src/learning/**`, `src/localization/**`, `scripts/`.
-- Guards: only plain git commands (no `git -C`, no leading `cd`, no heredoc, no `$(...)` around git); write scripts and commit messages with Write (`.command-logs/lead2/`). Open few images, cropped; never re-read the prototype CSS.
+- Branch `board-styling` on `origin`. Worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/board-styling`; `node_modules` is a junction (unlink with PowerShell before removing the worktree). Enter with `EnterWorktree` path, never a new name.
+- Sync and push: `git fetch origin`, `git merge origin/board-workspace-2` (published branch: never rebase), `git push origin board-styling`. Never force, never `master`, never publish. Stream handler: "Board workspace handler 9".
+- Scope: `src/workspace/**` and shared input styles the pucks use. Not `src/graphs/**`, `src/learning/**`, `src/localization/**`, `scripts/` without handler 9's word.
+- Guards: plain git commands only (no `git -C`, no leading `cd`, no heredoc, no `$(...)`; a command mixing git with `sed` escapes is refused). Scripts and commit messages with Write (`.command-logs/lead3/`). A `\u` escape typed into Edit or Write arrives as the raw character: write such text with a node script (`.command-logs/lead3/nbsp.cjs`).
 
-## Servers (background shells of lead 2's session: they die with it)
+## Servers (stopped at handoff: start them again)
 
-- AFTER, Vite dev 4491: `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=desktop-a0j72sv.tail2032db.ts.net npx vite --port 4491 --strictPort --host 127.0.0.1`. For the owner: `tailscale serve --bg --http=4491 http://127.0.0.1:4491`, URL `http://desktop-a0j72sv.tail2032db.ts.net:4491/bezeg-2.0/` (not served yet).
-- BEFORE, frozen build of the base 4493: `SMOKE_PORT=4493 node .command-logs/11-before/scripts/serve-smoke-build.cjs` (on disk, gitignored; accepts the tailnet host).
-- PROTOTYPE 4492 is stopped (`just --justfile <ux-picks wt>/justfile --working-directory <ux-picks wt> preview 4492` only if a new prototype shot is needed).
+- AFTER, Vite dev 4491: `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=desktop-a0j72sv.tail2032db.ts.net npx vite --port 4491 --strictPort --host 127.0.0.1 > .command-logs/<you>/vite-4491.log 2>&1`. For the owner: `tailscale serve --bg --http=4491 http://127.0.0.1:4491`, URL `http://desktop-a0j72sv.tail2032db.ts.net:4491/bezeg-2.0/` (not served yet).
+- BEFORE, frozen build 4493: `SMOKE_PORT=4493 node .command-logs/11-before/scripts/serve-smoke-build.cjs`.
+- On Windows a stopped background shell leaves its node tree alive. If a port is taken, find the owner (`Get-NetTCPConnection -LocalPort 4491`), confirm by command line that it is this worktree's server, and stop that tree. A predecessor's leftover is swept about 15 minutes after its session ends, so never reuse one.
 
-## Design (lead 2, after seeing prototype, before and first pass)
+## Design
 
-- Cards: the first pass is close to the prototype and stays: capitals in the head, quiet names, bold values at the right, hairlines between groups, short colour dashes.
-- Pucks v2, "a readout row you can move" (`pucks/pucks.css`, head comment): row 1 is the name with its typeset symbol (quiet name, ink symbol in Georgia italics) and the bold value at the right; row 2 is the control over the full width (a 2 px track with a 10 px thumb; for a count − and + at the ends of a dotted scale; a switch; segments that wrap). About 58 px tall, 112 to 160 px wide. Sweep and "?" stay hidden until hover or focus and then cover the name's end; on a coarse pointer the buttons take the name's row and the value sits beside the control (lead 1's arrangement).
-- How: `.puck` is a grid, the head is `display: contents`, each control element is a subgrid over the whole puck; a slider's focus ring is drawn on the slip with `:has()`.
-- Contract (handler 8, 2026-11-25): with `symbol` set, `label` is the bare name and presenters typeset the symbol; puck labels aim at 16 characters. Handler 9 fixes Taylor's and phase portrait's labels. Until then `bareName()` in `pucks/puckSymbol.tsx` drops a label's trailing symbol.
+- Cards: lead 1's pass stays (capitals in the head, quiet names, bold values, hairlines, colour dashes). One readout group has no fold title; Orodja shows only tabs with content and opens on the first; the reset arrow exists only while a place or fold is stored.
+- Pucks with a mouse (`pucks.css`, the `(hover: hover) and (pointer: fine)` block before the touch block): a readout row over its control. Name and symbol left, value right at 14 px like a card's value; under them the control over the full width (track; − scale +). A switch sits beside its name; a choice's segments take row 2. `.puck` is a two-column grid, the head is `display: contents`, the control spans the slip as a subgrid, so a drag may start anywhere on the slip. About 56 px tall. Sweep and "?" ride the top edge on hover or focus and hide while the slider is held.
+- Touch: lead 2's caption over the control, unchanged (the base rules).
+- The alternative lead 2 left (caption over control on desktop too, track about 40 px) is in `.command-logs/shots/11/states-l3a/`; removing the media block restores it.
+- Names: a puck with a symbol is named "name symbol" for assistive technology (`spokenName`). Handler 9 agreed (its answer A) and let this branch update seven expectations in its tests (`0cfc3b618`). Coming on `board-workspace-2`: function-inverse's x0 as "Abscisa točke P" with symbol `x_0`; if its tests assert a bare name after the merge, the same rule applies.
 
-## Handoff from lead 2 (read first; it corrects the sections around it)
+## Done by lead 3 (pushed)
 
-- Pucks ended as a caption over the control, not the prototype's one line: the value box is as wide as the widest value, so a name beside it wrapped. Value at the right of the track; sweep and "?" ride the top edge on hover. Seen and good in `.command-logs/shots/11/lead2-v3/`: `strip-default`, `puck-hover`, `strip-phase`, `touch-strip`. Not yet looked at: `puck-focus`, `puck-entry`, `puck-help-open`, `puck-undo`, `count-hover`, `strip-column`, a touch count puck after its last fix, and every card after the cards lane.
-- Both workers finished. `just unit src/workspace`, tsc and `just lint src/workspace` pass. Cards: items 1, 2, 4 and 5 done; the cut Legenda title does not reproduce at 1024 to 1920 px. Review both WIP commits with `git show`, above all `cards/toolsContent.ts`: it looped once, and 38 old "Maximum update depth" lines are in the Vite log, so watch a fresh log.
-- Next steps 1 and 2 are done except that review and `bareName` in `ReadoutsBody.tsx:90`; then go on at step 3. Servers were stopped at handoff: start them again.
-
-## Lanes (Sonnet workers; finished, review pending)
-
-- Pucks markup: `pucks/puckSymbol.tsx` (`symbolParts`, `symbolText`, `spokenName`, `PuckSymbol`), `PuckFrame` takes `symbol` and wraps the name in `.puck-name`, the count puck has `.puck-scale` with `--puck-scale-steps`, `--puck-scale-index` and `data-dense`; 13 new tests. Follow-up running: `bareName`, a no-break space before the symbol, Unicode subscripts (`x₀`), fail-first for the pure functions. Report: `.command-logs/lead2/worker-pucks.md`.
-- Cards: one readout group shows no fold title; Orodja opens on the first tab with content; the folded Legenda title cut; the reset button only when a place or fold is stored (always visible then, before the fold chevron); the tab-order test. Its `cards/toolsContent.ts` threw "Maximum update depth exceeded" once in `.command-logs/lead2/vite-4491.log`: check that it is gone. Report: `.command-logs/lead2/worker-cards.md`.
-- Facts from the pucks worker: the strip is measured once per `puckShape` (`BoardCards.tsx:343-349`), no observer: a puck must have its final width at first paint (so symbols are not MathJax). `estimateStrip` is only the pre-measure guess.
+`210823404` merge of `074d5d6cf`; `15ed87d2b` Orodja tabs read in place, the lesson's tab is kept; `8f1bf539b` focus goes to the fold button after a reset; `685a8d452` readout rows show a repeated symbol once; `0cfc3b618` the seven expectations; then the value reserve fix (clipped Odčitki on phase portrait, worker), the desktop pucks WIP and this note. `just unit src/workspace`, tsc and lint pass. No "Maximum update depth" in a fresh Vite log over 36 states.
 
 ## Next steps
 
-1. Look at the v2 states in `.command-logs/shots/11/lead2-v2/` (`puck-hover`, `puck-focus`, `puck-entry`, `count-hover`, `strip-phase`, `strip-column`, `touch-strip`) and fix the CSS. Seen so far: `strip-default` only (light, close to the prototype).
-2. Accept both lanes (diff against the briefs, observed failures, `just unit src/workspace`, `npx tsc --noEmit --pretty false`, `just lint <changed files>`); use `bareName` for the rows in `cards/ReadoutsBody.tsx:90`; commit in small commits; push.
-3. Full AFTER capture: `node docs/reviews/ux-picks-app-wide/feel/11/states.cjs --base http://127.0.0.1:4491/bezeg-2.0 --out .command-logs/shots/11/states-after` and `bash docs/reviews/ux-picks-app-wide/feel/11/capture.sh after`; `bezeg-visual` (Sonnet) lists defects per scene; sheets `after-*.png` and `states-after-*.png` into `feel/11/` (composer `.command-logs/compose.cjs`).
-4. Acceptance: after sheets beside before, 310 px card checks, contrast at least AA (ink-quiet on surface 6.5 : 1, on the highlight tint 5.6 : 1; track line 3.2 : 1), targets of 32 px on touch.
+1. Start the servers. Capture the puck and strip states: `bash .command-logs/lead3/pucks-shots.sh .command-logs/shots/11/<folder> <tag>` (filters default to strip, puck, count; pass `touch` too). Seen and good: `strip-default`, `count-hover` in `states-l3c`. Have `bezeg-visual` (Sonnet) judge the rest and open the key ones: phase portrait's strip (names that wrap, the three-option Sistem), column dock, focus ring, typed entry (the input must sit in the value's place without changing the slip's size), drag ruler (now above the whole slip), undo pill, sweep, help card, and touch equal to `states-l3a`.
+2. Fix what shows. Known candidates: `estimateStrip` guesses 64 px of height (`PuckStrip.tsx:62`); a count puck's tab order is −, value, + while the value now sits top right.
+3. Full AFTER capture: `node docs/reviews/ux-picks-app-wide/feel/11/states.cjs --base http://127.0.0.1:4491/bezeg-2.0 --out .command-logs/shots/11/states-after`, then `bash docs/reviews/ux-picks-app-wide/feel/11/capture.sh after`; sheets `after-*.png` and `states-after-*.png` into `feel/11/` (composer `.command-logs/compose.cjs`, set its `dir`). `just shot` dies now and then with "newPage: Target crashed" when the machine is busy: `capture.sh` goes on with the next set, so rerun the set that failed. Card crops FAIL where a scene lacks the card (expected). The untracked `after-*.png` in `feel/11/` are stale.
+4. Acceptance: after sheets beside before, 310 px card checks, contrast at least AA (ink-quiet on surface 6.5 : 1; track line 3.2 : 1), targets of 32 px on touch, `.command-logs/lead3/clip-check.cjs <base> <WxH> <routes...>` passes.
 5. Owner preview: 4491 and 4493 on the tailnet, key sheets, the open questions. The task closes only on his word; then message handler 9 with the branch head.
 
 ## Evidence and selectors
 
-- `feel/11/`: `capture.sh before|after` (10 scenes; notes `capture.md`), `states.cjs` (35 states; notes `states.md`), `capture-proto.sh`; committed sheets `before-*`, `states-before-*`, `proto-*`. Raw 1:1 crops on disk under `.command-logs/shots/11/{proto,before,states-before,states-after}/` (`states-after` is the first pass): open those, not the sheets.
-- Board `.workspace-board-stage`, cards `#board-card-{readouts,legend,tools,lesson}` (never `[data-card-id]`: the hidden measure copy matches first), strip `[data-puck-strip]`.
+- `feel/11/`: `capture.sh before|after` (10 scenes; `capture.md`), `states.cjs` (36 states, 10 to 35 s each; `states.md`), committed sheets `before-*`, `states-before-*`, `proto-*`. Raw 1:1 crops under `.command-logs/shots/11/`: `proto`, `before`, `states-before`, `states-l3b` (all 36 states before the puck redesign), `after` (boards at 1440 and 1280 before it), `states-l3c` (the new pucks).
+- Board `.workspace-board-stage`, cards `#board-card-{readouts,legend,tools,lesson}` (never `[data-card-id]`), strip `[data-puck-strip]`.
 
 ## Findings that drive the design
 
-- `.demonstration-workspace button` (`DemonstrationWorkspace.css:60`, `WorkspaceControls.css:2`) styles every button: rules carry `.board-card` / `.puck` / `.puck-strip` in front to out-rank it.
-- Presentation re-binds the control tokens; `--board-*` roles bind only to shell roles, so slips stay light (state `board-presentation`: fine in the first pass).
-- The measure copy has no live region: never style card bodies with `:last-child`; put separators on the following block.
+- `.demonstration-workspace button:hover` sets `background` as a whole at weight (0,2,1): every background longhand a puck or card button relies on needs a heavier selector, or a hover resets it.
+- The strip is measured once per puck shape: a puck must have its final width at first paint (symbols are typeset without MathJax).
+- The measure copy is first read at max-content: nothing may keep a width from that reading (`--ws-reserved` is bounded by the row).
+- The measure copy has no live region: never style card bodies with `:last-child`.
 - Couplings: "Več" bar 28 px (44 coarse) = `measureCards.ts:19`; strip gap 8 and column slot 160 = `boardLayout.ts`; grip 24 px = `PuckStrip.tsx:62`; `RULER_HEIGHT` 44; glide .26 s = `CardShell.tsx:62`.
 
 ## Open questions for the owner (ask at the preview, not before)
 
+- Desktop pucks as a readout row over a full-width control (now), or lead 2's caption over the control.
 - Card titles as small capitals (the prototype's look) or in Literata.
 - Pucks show "?" and sweep only on hover or focus; a card's reset arrow only after the card was moved or folded.
 - Should Legenda start open when it fits (folded by default, `cardSpecs.tsx:75`)?
-- Phase portrait's three-option "Sistem" puck is taller than the others even with wrapping segments; a dropdown would be a behaviour change.
+- Phase portrait's three-option "Sistem" puck is taller than the others; a dropdown would be a behaviour change.
 
-## For handler 9 (not yet sent)
+## For handler 9
 
-- `FunctionInverseGraph.tsx:369` declares the symbol as `x₀` (a Unicode subscript); `x_0` is the TeX form.
-- Taylor still draws its text block on the board, repeating Odčitki and the legend (handler 8 listed it for the owner).
+- Sent and acknowledged: Orodja shows only tabs with content; the reset arrow is rendered only while something is stored.
+- Not yet sent: Taylor still draws its text block on the board, repeating Odčitki and the legend. Taylor's rows "Polinom Tₙ(x)", "Funkcija f(x)" carry their formula as plain text in the name; a name plus `symbol` would typeset it like the first three rows. Phase portrait's readout values are whole sentences ("x od −4 do 4 … Trajektorije se ustavijo na robu."), which makes the card long and cut. Its strip covers the board's own text at the bottom left.
