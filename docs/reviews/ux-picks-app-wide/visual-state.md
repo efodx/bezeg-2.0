@@ -51,8 +51,8 @@ Lead 3: `210823404` … `fb985f062` (cards, Orodja tabs, reset focus, repeated s
 ## Owner decisions (2026-11-26, AskUserQuestion)
 
 - Desktop pucks: readout row over a full-width control (kept). Card titles: small capitals (kept).
-- Legenda starts open where it fits (`cardSpecs.tsx`, `defaultFolded` dropped; rule 5 folds it first, priority 1). Lead 4 implements it on this branch and tells handler 9.
-- Sign-off: still open. He cannot reach the tailnet; screenshots go into the conversation (Read the sheet PNGs: `after-board-1440-1`, `before-board-1440-1`, `states-after-3`, `after-cards-1` were shown).
+- Legenda starts open where it fits: done in `4323d1876` (`defaultFolded` dropped; new layout rule 5b `reopenWhenRoom` reopens it when later folds left room; 03-layout-design and 04-design updated). Open at 1440 on Taylor, transformations, linear map, phase portrait, polygon area, clipping; folded where Orodja fills the column and at 1280 on most boards. Tell handler 9 at the merge.
+- He said "Much better" to the screenshots (before the Legenda change). Final sign-off asked with the new 1440 sheet; he cannot reach the tailnet, so screenshots go into the conversation (Read the sheet PNGs).
 
 ## With handler 9
 
