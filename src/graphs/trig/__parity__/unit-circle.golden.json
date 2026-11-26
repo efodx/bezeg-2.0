@@ -31,7 +31,10 @@
           "value": "cos θ > 0, sin θ > 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 60° (π/3 rad): cos θ = 1/2 ≈ 0,5, sin θ = √3/2 ≈ 0,8660254, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "sin θ"
@@ -66,7 +69,10 @@
           "value": "cos θ > 0, sin θ = 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 0° (0 rad): cos θ = 1, sin θ = 0, na osi.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "sin θ"
@@ -101,7 +107,10 @@
           "value": "cos θ < 0, sin θ > 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 114,5° (229π/360 rad): cos θ = ≈ -0,4146932, sin θ = ≈ 0,9099613, v drugem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "sin θ"
@@ -136,7 +145,10 @@
           "value": "cos θ > 0, sin θ > 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 30° (π/6 rad): cos θ = √3/2 ≈ 0,8660254, sin θ = 1/2 ≈ 0,5, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "sin θ"
@@ -171,7 +183,10 @@
           "value": "cos θ < 0, sin θ < 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 200° (10π/9 rad): cos θ = ≈ -0,9396926, sin θ = ≈ -0,3420201, v tretjem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "cos θ",
@@ -207,7 +222,10 @@
           "value": "cos θ > 0, sin θ > 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 30° (π/6 rad): cos θ = √3/2 ≈ 0,8660254, sin θ = 1/2 ≈ 0,5, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "cos θ",
@@ -243,7 +261,10 @@
           "value": "cos θ > 0, sin θ > 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 45° (π/4 rad): cos θ = √2/2 ≈ 0,7071068, sin θ = √2/2 ≈ 0,7071068, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "cos θ",
@@ -279,7 +300,10 @@
           "value": "cos θ > 0, sin θ > 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 60° (π/3 rad): cos θ = 1/2 ≈ 0,5, sin θ = √3/2 ≈ 0,8660254, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "cos θ",
@@ -330,7 +354,10 @@
           "value": "(-0,8660254; -0,5)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 30° (π/6 rad): cos θ = √3/2 ≈ 0,8660254, sin θ = 1/2 ≈ 0,5, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "sin θ"
@@ -375,7 +402,10 @@
           "value": "(-0,258819; 0,9659258)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 60° (π/3 rad): cos θ = 1/2 ≈ 0,5, sin θ = √3/2 ≈ 0,8660254, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "sin θ"
@@ -435,7 +465,10 @@
           "value": "(-0,258819; 0,9659258)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka pri kotu 60° (π/3 rad): cos θ = 1/2 ≈ 0,5, sin θ = √3/2 ≈ 0,8660254, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
       "outputs": [],
       "captions": [
         "sin θ"

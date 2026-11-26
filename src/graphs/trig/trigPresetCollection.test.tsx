@@ -31,7 +31,7 @@ const rejectionOf = (result: PresetDataCheck<unknown>): string =>
 describe('unit-circle Preset collection', () => {
     test.each([['the default', DEFAULT_UNIT_CIRCLE_STATE], ['a non-default state', CIRCLE_STATE]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new UnitCircleGraph());
-        act(() => { source.setState({...state, showAddition: true}); });
+        act(() => { runAs('learner', () => source.setState({...state, showAddition: true})); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('unit-circle');
         expect(preset.data).toEqual(serializeUnitCircleState(state));

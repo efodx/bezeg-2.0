@@ -1,0 +1,400 @@
+{
+  "graph": "unit-circle",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default, 60 degrees",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "60°, π/3 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 60° (π/3 rad): cos θ = 1/2 ≈ 0,5, sin θ = √3/2 ≈ 0,8660254, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "0 degrees",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "0°, 0 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "0"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "na osi"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ = 0"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 0° (0 rad): cos θ = 1, sin θ = 0, na osi.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "90 degrees, cosine",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "90°, π/2 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "0"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "1"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "na osi"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ = 0, sin θ > 0"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 90° (π/2 rad): cos θ = 0, sin θ = 1, na osi.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "cos θ",
+        "sin θ"
+      ]
+    },
+    {
+      "name": "135 degrees, second quadrant",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "135°, 3π/4 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "-√2/2 ≈ -0,7071068"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√2/2 ≈ 0,7071068"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v drugem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ < 0, sin θ > 0"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 135° (3π/4 rad): cos θ = -√2/2 ≈ -0,7071068, sin θ = √2/2 ≈ 0,7071068, v drugem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "225 degrees, third quadrant",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "225°, 5π/4 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "-√2/2 ≈ -0,7071068"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "-√2/2 ≈ -0,7071068"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v tretjem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ < 0, sin θ < 0"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 225° (5π/4 rad): cos θ = -√2/2 ≈ -0,7071068, sin θ = -√2/2 ≈ -0,7071068, v tretjem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "37,5 degrees, not special",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "37,5°, 5π/24 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "≈ 0,7933533"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "≈ 0,6087614"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 37,5° (5π/24 rad): cos θ = ≈ 0,7933533, sin θ = ≈ 0,6087614, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "300 degrees, symmetries",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "300°, 5π/3 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "-√3/2 ≈ -0,8660254"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v četrtem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ < 0"
+        },
+        {
+          "key": "Zrcalna slika čez os x#0",
+          "label": "Zrcalna slika čez os x",
+          "value": "(0,5; 0,8660254)"
+        },
+        {
+          "key": "Zrcalna slika čez os y#0",
+          "label": "Zrcalna slika čez os y",
+          "value": "(-0,5; -0,8660254)"
+        },
+        {
+          "key": "Zrcalna slika čez izhodišče#0",
+          "label": "Zrcalna slika čez izhodišče",
+          "value": "(-0,5; 0,8660254)"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 300° (5π/3 rad): cos θ = 1/2 ≈ 0,5, sin θ = -√3/2 ≈ -0,8660254, v četrtem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "60 and 45 degrees, addition",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "60°, π/3 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "1/2 ≈ 0,5"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v prvem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ > 0, sin θ > 0"
+        },
+        {
+          "key": "Kot θ + β#0",
+          "label": "Kot θ + β",
+          "value": "105°"
+        },
+        {
+          "key": "(cos (θ + β); sin (θ + β))#0",
+          "label": "(cos (θ + β); sin (θ + β))",
+          "value": "(-0,258819; 0,9659258)"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 60° (π/3 rad): cos θ = 1/2 ≈ 0,5, sin θ = √3/2 ≈ 0,8660254, v prvem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "sin θ"
+      ]
+    },
+    {
+      "name": "all overlays",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "105°, 7π/12 rad"
+        },
+        {
+          "key": "cos θ#0",
+          "label": "cos θ",
+          "value": "≈ -0,258819"
+        },
+        {
+          "key": "sin θ#0",
+          "label": "sin θ",
+          "value": "≈ 0,9659258"
+        },
+        {
+          "key": "Lega#0",
+          "label": "Lega",
+          "value": "v drugem kvadrantu"
+        },
+        {
+          "key": "Predznaka#0",
+          "label": "Predznaka",
+          "value": "cos θ < 0, sin θ > 0"
+        },
+        {
+          "key": "Zrcalna slika čez os x#0",
+          "label": "Zrcalna slika čez os x",
+          "value": "(-0,258819; -0,9659258)"
+        },
+        {
+          "key": "Zrcalna slika čez os y#0",
+          "label": "Zrcalna slika čez os y",
+          "value": "(0,258819; 0,9659258)"
+        },
+        {
+          "key": "Zrcalna slika čez izhodišče#0",
+          "label": "Zrcalna slika čez izhodišče",
+          "value": "(0,258819; -0,9659258)"
+        },
+        {
+          "key": "Kot θ + β#0",
+          "label": "Kot θ + β",
+          "value": "270°"
+        },
+        {
+          "key": "(cos (θ + β); sin (θ + β))#0",
+          "label": "(cos (θ + β); sin (θ + β))",
+          "value": "(0; -1)"
+        }
+      ],
+      "notes": [
+        "Točka pri kotu 105° (7π/12 rad): cos θ = ≈ -0,258819, sin θ = ≈ 0,9659258, v drugem kvadrantu.",
+        "Vrednosti z znakom ≈ so zaokroženi računi; natančne so le pri kotih 0°, 30°, 45°, 60° in 90° ter njihovih zrcalnih slikah."
+      ],
+      "outputs": [],
+      "captions": [
+        "cos θ",
+        "sin θ"
+      ]
+    }
+  ]
+}

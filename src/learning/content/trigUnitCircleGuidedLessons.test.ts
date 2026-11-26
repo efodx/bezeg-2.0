@@ -213,3 +213,10 @@ test('restore returns the free state: 60 and 45 degrees, every overlay off', () 
         m.mounted.view.unmount();
     }
 });
+
+test('the free-exploration step names the two switch pucks by their labels, not as the old switches', () => {
+    const step = unitCircleAdditionLesson.steps.find(item => item.id === 'tr2-explore')!;
+    expect(step.explanation.sl).toContain('Vklopljena sta prikaza Simetrične točke in Seštevanje kotov:');
+    expect(step.explanation.en).toContain('Both Symmetric points and Angle addition are on:');
+    expect(step.explanation.sl).not.toContain('stikali');
+});

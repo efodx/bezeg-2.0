@@ -4,7 +4,8 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {pointOnCircle} from '../../trig/unitCircle';
@@ -30,9 +31,19 @@ function mountGraph(strict = false) {
     return {graph, view};
 }
 
+/** The graph's own pucks: a mount that waits until the strip has laid out. */
+async function mountPucks(strict = false) {
+    const mounted = mountGraph(strict);
+    await waitForPucks('unit-angle');
+    return mounted;
+}
+/** A write from outside the DOM (a lesson action, a test) is the learner's. */
+const asLearner = (fn: () => void) => act(() => { runAs('learner', fn); });
+/** The learner flips a switch puck (a board action) by its id. */
+const flip = (id: string) => act(() => { fireEvent.click(puckControl(id)); });
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-/** The angle slider's exact field is named "<label>, vrednost"; the multiple-of-pi entry is found by its own label. */
-const field = (label: string) => (screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement;
+/** The multiple-of-pi entry stays in Orodja and is found by its own label; the angles in degrees are the pucks `unit-angle` and `unit-second-angle`. */
+const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const handleOf = (graph: ObservedUnitCircleGraph) => graph.handles().angle!;
 const curves = (graph: ObservedUnitCircleGraph) => graph.liveBoard().objectsList.filter((o): o is JXG.Curve => o instanceof JXG.Curve && o.elType === 'curve');
 type EventedPoint = JXG.Point & {eventHandlers: Record<string, unknown[]>; triggerEventHandlers(names: string[], args: unknown[]): void};
@@ -58,9 +69,9 @@ test('mounts the unit circle at 60 degrees with exact special values, the quadra
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('Točka pri kotu 60°');
 });
 
-test('a typed angle in degrees or in multiples of pi snaps to half-degrees and is refused outside the stored range', () => {
-    const {graph} = mountGraph();
-    act(() => { enterNumber(field('Kot θ (°)'), '200'); });
+test('a typed angle in degrees or in multiples of pi snaps to half-degrees and is refused outside the stored range', async () => {
+    const {graph} = await mountPucks();
+    typePuck('unit-angle', '200');
     expect(graph.state.angle).toBe(400);
     const expected = pointOnCircle(angleFromHalfDegrees(400));
     expect(handleOf(graph).X()).toBe(expected[0]);
@@ -70,25 +81,34 @@ test('a typed angle in degrees or in multiples of pi snaps to half-degrees and i
     expect(readout('signs')).toBe('cos θ < 0, sin θ < 0');
     expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
 
-    act(() => { enterNumber(field('Kot θ (°)'), '135,3'); });
+    typePuck('unit-angle', '135,3');
     expect(graph.state.angle).toBe(271);
-    // the slider's exact field has no grid, so the model's note says that 135,5 was used
-    expect(document.querySelector('[data-unit-circle-note]')!.textContent).toContain('135,5');
+    // the puck's entry snaps to its half-degree grid and says that 135,5 was used
+    expect(document.querySelector('.puck-strip [data-puck-key="unit-angle"]')!.textContent).toContain('135,5');
 
     act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '0,75'); });
     expect(graph.state.angle).toBe(270);
     expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
     act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '1,75'); });
     expect(graph.state.angle).toBe(630);
-    act(() => { enterNumber(field('Kot θ (°)'), '180'); });
+    typePuck('unit-angle', '180');
     expect(graph.state.angle).toBe(360);
 });
 
 describe('range of the typed angles', () => {
-    test.each([['Kot θ (°)', '400', 80], ['Kot θ (°)', '360', 0], ['Kot θ (°)', '-30', 660]])('%s: %s wraps around the circle, as the angle slider does', (label, typed, angle) => {
-        const {graph} = mountGraph();
-        act(() => { enterNumber(field(label), typed); });
+    // The puck refuses a typed value outside its range 0..359,5 before the binding sees it (the old slider wrapped it); a write that comes
+    // through the binding (not a puck entry) wraps modulo 360 and snaps to the half-degree grid as the old slider did.
+    test.each([['400', 80], ['360', 0], ['-30', 660], ['10,3', 21]])('the angle binding: %s degrees wraps around the circle', async (typed, angle) => {
+        const {graph} = await mountPucks();
+        act(() => { graph.parameters!.write('unit-angle', Number(typed.replace(',', '.')), 'learner'); });
         expect(graph.state.angle).toBe(angle);
+    });
+
+    test.each(['400', '360', '-30'])('the angle puck refuses %s degrees with the range hint', async typed => {
+        const {graph} = await mountPucks();
+        typePuck('unit-angle', typed);
+        expect(graph.state.angle).toBe(120);
+        expect(document.querySelector('.puck-strip [data-puck-key="unit-angle"]')!.textContent).toMatch(/359,5/);
     });
 
     test.each([['Kot θ (večkratnik števila π)', '2'], ['Kot θ (večkratnik števila π)', '-0,25']])(
@@ -100,54 +120,57 @@ describe('range of the typed angles', () => {
             expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
         });
 
-    test('the second angle wraps like the first, and the multiple of pi has a help that says what it means', () => {
-        const {graph} = mountGraph();
-        act(() => { graph.setState({showAddition: true}); });
-        act(() => { enterNumber(field('Drugi kot β (°)'), '360'); });
-        expect(graph.state.secondAngle).toBe(0);
-        act(() => { enterNumber(field('Drugi kot β (°)'), '359,5'); });
+    test('the second angle wraps like the first, and the multiple of pi has a help that says what it means', async () => {
+        const {graph} = await mountPucks();
+        asLearner(() => { graph.setState({showAddition: true}); });
+        await waitForPucks('unit-second-angle');
+        typePuck('unit-second-angle', '359,5');
         expect(graph.state.secondAngle).toBe(719);
+        typePuck('unit-second-angle', '360');
+        expect(graph.state.secondAngle).toBe(719);
+        act(() => { graph.parameters!.write('unit-second-angle', 360, 'learner'); });
+        expect(graph.state.secondAngle).toBe(0);
         const help = (label: string) => document.getElementById(field(label).getAttribute('aria-describedby')!.split(' ').find(id => id.endsWith('-help'))!)!.textContent;
         expect(help('Kot θ (večkratnik števila π)')).toContain('večkratnik števila π');
-        const slider = screen.getByRole('slider', {name: 'Kot θ (°)'}) as HTMLInputElement;
-        expect([slider.min, slider.max, slider.step]).toEqual(['0', '360', '1']);
+        const slider = puckControl('unit-angle');
+        expect([slider.getAttribute('aria-valuemin'), slider.getAttribute('aria-valuemax')]).toEqual(['0', '359.5']);
     });
 });
 
 describe('the rounding note', () => {
     const NOTE = '[data-unit-circle-note]';
     // 0,4444 pi is 159,98 half-degrees: stored as 160 (80 degrees) with the note
-    const withNote = () => {
-        const mounted = mountGraph();
+    const withNote = async () => {
+        const mounted = await mountPucks();
         act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '0,4444'); });
         expect(mounted.graph.state.angle).toBe(160);
         expect(document.querySelector(NOTE)!.textContent).toContain('80°');
         return mounted;
     };
 
-    test('it appears only for an entry that is not exactly a half-degree multiple', () => {
-        const {graph} = mountGraph();
-        act(() => { enterNumber(field('Kot θ (°)'), '30'); });
+    test('it appears only for an entry that is not exactly a half-degree multiple', async () => {
+        const {graph} = await mountPucks();
+        typePuck('unit-angle', '30');
         act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '0,5'); });
         expect(graph.state.angle).toBe(180);
         expect(document.querySelector(NOTE)).toBeNull();
     });
 
-    test('it states the stored value', () => { withNote(); });
+    test('it states the stored value', async () => { await withNote(); });
 
     test.each([
-        ['a toggle', (_g: ObservedUnitCircleGraph) => { act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Prikaži tudi kosinus'})); }); }],
-        ['a lesson action', (g: ObservedUnitCircleGraph) => { act(() => { g.setState({angle: 300}); }); }],
+        ['a toggle', (_g: ObservedUnitCircleGraph) => flip('cosine')],
+        ['a lesson action', (g: ObservedUnitCircleGraph) => { asLearner(() => { g.setState({angle: 300}); }); }],
         ['a drag', (g: ObservedUnitCircleGraph) => dragHandleTo(g.handles().angle!, 0, 1)],
-        ['the second angle', (g: ObservedUnitCircleGraph) => { act(() => { g.setState({secondAngle: 10}); }); }],
-    ])('%s clears it', (_name, change) => {
-        const {graph} = withNote();
+        ['the second angle', (g: ObservedUnitCircleGraph) => { asLearner(() => { g.setState({secondAngle: 10}); }); }],
+    ])('%s clears it', async (_name, change) => {
+        const {graph} = await withNote();
         change(graph);
         expect(document.querySelector(NOTE)).toBeNull();
     });
 
     test('Reset clears it', async () => {
-        const {graph} = withNote();
+        const {graph} = await withNote();
         let pending: Promise<void> = Promise.resolve();
         act(() => { pending = graph.reset(); });
         await act(async () => { await pending; });
@@ -163,19 +186,21 @@ describe('the legend of the symmetric points and the second radius', () => {
     test('nothing is listed while the symmetric points and the second angle are off', () => {
         const {graph} = mountGraph();
         expect(legend(graph)).toEqual([]);
-        expect(document.querySelector('[data-legend]')).toBeNull();
+        expect(graph.getDeclaration()?.legend ?? []).toEqual([]);
     });
 
     test('each entry states the face the marker is drawn with, in its colour', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({showSymmetries: true, showAddition: true}); });
+        asLearner(() => { graph.setState({showSymmetries: true, showAddition: true}); });
         expect(legend(graph)).toEqual([
             ['symmetry-x', 'cross', 'Križec: zrcalna slika čez os x'],
             ['symmetry-y', 'plus', 'Plus: zrcalna slika čez os y'],
             ['symmetry-origin', 'diamond', 'Romb: zrcalna slika čez izhodišče'],
             ['second-radius', 'dashed-line', 'Črtkana črta: drugi polmer do kota β'],
         ]);
-        expect(document.querySelectorAll('[data-legend]')).toHaveLength(4);
+        // the legend is declared (the board draws it): the graph's own panel renders nothing
+        expect(document.querySelector('[data-legend]')).toBeNull();
+        expect((graph.getDeclaration()?.legend ?? []).map(entry => entry.id)).toEqual(['symmetry-x', 'symmetry-y', 'symmetry-origin', 'second-radius']);
         for (const item of graph.legendItems().slice(0, 3)) {
             // A cross or plus face is drawn by its stroke alone, so the stroke must carry the stated colour.
             const colour = item.kind === 'cross' || item.kind === 'plus' ? 'strokecolor' : 'fillcolor';
@@ -193,9 +218,9 @@ test.each([
     ['90', '90°, π/2 rad', '0', '1', 'cos θ = 0, sin θ > 0'],
     ['270', '270°, 3π/2 rad', '0', '−1', 'cos θ = 0, sin θ < 0'],
     ['180', '180°, π rad', '−1', '0', 'cos θ < 0, sin θ = 0'],
-])('on the axis at %s degrees the readout gives the position, the exact values and the signs with zero', (typed, angle, cos, sin, signs) => {
-    const {graph} = mountGraph();
-    act(() => { enterNumber(field('Kot θ (°)'), typed); });
+])('on the axis at %s degrees the readout gives the position, the exact values and the signs with zero', async (typed, angle, cos, sin, signs) => {
+    const {graph} = await mountPucks();
+    typePuck('unit-angle', typed);
     expect(readout('angle')).toBe(angle);
     expect(readout('position')).toBe('na osi');
     expect(readout('signs')).toBe(signs);
@@ -205,15 +230,15 @@ test.each([
     expect(graph.state.angle).toBe((Number(typed) * 2) % 720);
 });
 
-test('the angle shows as a reduced multiple of pi on the half-degree grid', () => {
-    mountGraph();
-    act(() => { enterNumber(field('Kot θ (°)'), '315'); });
+test('the angle shows as a reduced multiple of pi on the half-degree grid', async () => {
+    await mountPucks();
+    typePuck('unit-angle', '315');
     expect(readout('angle')).toBe('315°, 7π/4 rad');
-    act(() => { enterNumber(field('Kot θ (°)'), '120'); });
+    typePuck('unit-angle', '120');
     expect(readout('angle')).toBe('120°, 2π/3 rad');
-    act(() => { enterNumber(field('Kot θ (°)'), '30'); });
+    typePuck('unit-angle', '30');
     expect(readout('angle')).toBe('30°, π/6 rad');
-    act(() => { enterNumber(field('Kot θ (°)'), '0,5'); });
+    typePuck('unit-angle', '0,5');
     expect(readout('angle')).toBe('0,5°, π/360 rad');
 });
 
@@ -223,19 +248,18 @@ test('the traces carry on-graph names, the cosine name only while the cosine is 
         .map(o => o as unknown as {elType: string; plaintext: string; evalVisProp(name: string): unknown})
         .filter(o => o.elType === 'text' && o.plaintext.includes('θ')).map(o => `${o.plaintext}:${o.evalVisProp('visible') ? 'on' : 'off'}`);
     expect(labels()).toEqual(['sin θ:on', 'cos θ:off']);
-    act(() => { graph.setState({showCosine: true}); });
+    asLearner(() => { graph.setState({showCosine: true}); });
     expect(labels()).toEqual(['sin θ:on', 'cos θ:on']);
 });
 
-test('keyboard steps are one degree for an arrow and ten degrees for Shift with an arrow or a Page key (the angle slider)', () => {
-    const {graph} = mountGraph();
-    const input = field('Kot θ (°)');
-    act(() => { fireEvent.keyDown(input, {key: 'ArrowUp'}); });
-    expect(graph.state.angle).toBe(122);
-    act(() => { fireEvent.keyDown(field('Kot θ (°)'), {key: 'ArrowDown', shiftKey: true}); });
-    expect(graph.state.angle).toBe(102);
-    act(() => { fireEvent.keyDown(field('Kot θ (°)'), {key: 'PageUp'}); });
-    expect(graph.state.angle).toBe(122);
+test('keyboard steps are half a degree for an arrow and five degrees for Shift with an arrow or a Page key (the angle puck)', async () => {
+    const {graph} = await mountPucks();
+    act(() => { fireEvent.keyDown(puckControl('unit-angle'), {key: 'ArrowUp'}); });
+    expect(graph.state.angle).toBe(121);
+    act(() => { fireEvent.keyDown(puckControl('unit-angle'), {key: 'ArrowDown', shiftKey: true}); });
+    expect(graph.state.angle).toBe(111);
+    act(() => { fireEvent.keyDown(puckControl('unit-angle'), {key: 'PageUp'}); });
+    expect(graph.state.angle).toBe(121);
 });
 
 test('dragging snaps the handle to the nearest half-degree on the circle and updates state and readout', () => {
@@ -274,24 +298,24 @@ test('the unrolled traces are the circle point doubles at all 720 half-degrees, 
     expect(sinCurve.dataX).not.toBe(unrolledTrace().xs);
     expect(sinCurve.dataY).not.toBe(unrolledTrace().sin);
     for (const halfDegrees of [0, 75, 180, 400, 719]) {
-        act(() => { graph.setState({angle: halfDegrees}); });
+        asLearner(() => { graph.setState({angle: halfDegrees}); });
         expect(sinCurve.dataY[halfDegrees]).toBe(handleOf(graph).Y());
     }
 });
 
-test('the toggles show the cosine, the three symmetric points and the second angle with its rotated frame', () => {
-    const {graph} = mountGraph();
+test('the toggles show the cosine, the three symmetric points and the second angle with its rotated frame', async () => {
+    const {graph} = await mountPucks();
     expect(readout('symmetry-x')).toBeUndefined();
-    act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Prikaži simetrične točke'})); });
+    flip('symmetries');
     expect(graph.state.showSymmetries).toBe(true);
     // 60 degrees: reflection in the x-axis is 300 degrees, in the y-axis 120, the half-turn 240 (integer operations)
     expect(readout('symmetry-x')).toBe('(0,5; −0,8660254)');
     expect(readout('symmetry-origin')).toBe('(−0,5; −0,8660254)');
     expect(readout('symmetry-y')).toBe('(−0,5; 0,8660254)');
 
-    act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Prikaži tudi kosinus'})); });
+    flip('cosine');
     expect(graph.state.showCosine).toBe(true);
-    act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Drugi kot β in zasukani sistem'})); });
+    flip('addition');
     expect(graph.state.showAddition).toBe(true);
     expect(readout('sum-angle')).toBe('105°');
     // The first angle is θ in the field and in the sum (not α), in both languages.
@@ -302,7 +326,8 @@ test('the toggles show the cosine, the three symmetric points and the second ang
     expect(label('sum-angle')).toBe('Angle θ + β');
     expect(label('sum-point')).toBe('(cos (θ + β), sin (θ + β))');
     act(() => { setLanguage('sl'); });
-    expect(field('Drugi kot β (°)').value).toBe('45');
+    await waitForPucks('unit-second-angle');
+    expect(puckControl('unit-second-angle').getAttribute('aria-valuenow')).toBe('45');
     const second = graph.handles().second!;
     dragHandleTo(second, 0, 2);
     expect(graph.state.secondAngle).toBe(180);
@@ -319,7 +344,7 @@ test('mount, state change and unmount: objects and listeners are owned and relea
     const boardCount = board.objectsList.length;
     expect(graph.ownedListenerCount()).toBe(2);
     expect(dragListeners(handleOf(graph))).toBe(1);
-    act(() => { graph.setState({angle: 300, showSymmetries: true, showAddition: true}); });
+    asLearner(() => { graph.setState({angle: 300, showSymmetries: true, showAddition: true}); });
     expect(graph.ownedObjectCount()).toBe(owned);
     expect(board.objectsList.length).toBe(boardCount);
 
@@ -355,14 +380,15 @@ test('StrictMode mount registers its listeners once and unmount releases the own
     expect(strict.graph.ownedObjectCount()).toBe(0);
 });
 
-test('the status and labels follow a language switch', () => {
-    mountGraph();
+test('the status and labels follow a language switch', async () => {
+    await mountPucks();
     act(() => { setLanguage('en'); });
     expect(document.querySelector('[data-unit-circle-status]')!.textContent)
         .toBe('Point at angle 60° (π/3 rad): cos θ = 1/2 ≈ 0.5, sin θ = √3/2 ≈ 0.8660254, in the first quadrant.');
     expect(screen.getByLabelText('Angle θ (multiple of π)')).toBeInTheDocument();
-    expect(document.querySelector('[data-readout-live]')!.textContent).toContain('Point at angle 60°');
-    act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Show the symmetric points'})); });
+    // the live regions settle after a pause: the graph's own region carries the English sentence
+    expect([...document.querySelectorAll('[data-readout-live]')].map(node => node.textContent).join(' | ')).toContain('Point at angle 60°');
+    flip('symmetries');
     expect(readout('symmetry-x')).toBe('(0.5, −0.8660254)');
 });
 
@@ -383,7 +409,7 @@ test('a scene restore hides the cosine trace in the same tick, with no later boa
     const {graph} = mountGraph();
     const capabilities = graph.getLessonCapabilities();
     const checkpoint = capabilities.captureState();
-    act(() => { graph.setState({showCosine: true}); });
+    asLearner(() => { graph.setState({showCosine: true}); });
     const cosineShown = () => curves(graph).filter(c => c.visPropCalc.visible && c.visProp.dash === 2).length;
     expect(cosineShown()).toBe(1);
     act(() => { capabilities.restoreState(checkpoint); });
@@ -391,16 +417,16 @@ test('a scene restore hides the cosine trace in the same tick, with no later boa
     expect(cosineShown()).toBe(0);
 });
 
-test('a drag or a typed angle change redraws without fullUpdate; a visibility switch still calls it', () => {
-    const {graph} = mountGraph();
+test('a drag or a typed angle change redraws without fullUpdate; a visibility switch still calls it', async () => {
+    const {graph} = await mountPucks();
     const board = graph.liveBoard();
     const fullUpdate = vi.spyOn(board, 'fullUpdate');
     const target = pointOnCircle(angleFromHalfDegrees(100));
     dragHandleTo(handleOf(graph), target[0], target[1]);
     expect(graph.state.angle).toBe(100);
-    act(() => { enterNumber(field('Kot θ (°)'), '200'); });
+    typePuck('unit-angle', '200');
     expect(graph.state.angle).toBe(400);
     expect(fullUpdate).not.toHaveBeenCalled();
-    act(() => { graph.setState({showCosine: true}); });
+    asLearner(() => { graph.setState({showCosine: true}); });
     expect(fullUpdate).toHaveBeenCalledTimes(1);
 });

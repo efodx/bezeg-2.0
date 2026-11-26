@@ -771,6 +771,23 @@ const SAMPLES: readonly Sample[] = [
             {name: 'solve, SSA below height', apply: run({mode: 'solve', data: {type: 'ssa', a: 3, b: 8, angleA: 30}})},
         ] satisfies ParityState[];
     })()},
+    {file: 'trig/__parity__/unit-circle.json', demonstration: 'unit-circle', states: (() => {
+        type Circle = {setState(state: Record<string, unknown>): void};
+        const fresh = {angle: 120, secondAngle: 0, showSymmetries: false, showCosine: false, showAddition: false};
+        // every state starts from the default state (60 degrees, switches off), so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Circle).setState({...fresh, ...state})); };
+        return [
+            {name: 'default, 60 degrees', apply: run({})},
+            {name: '0 degrees', apply: run({angle: 0})},
+            {name: '90 degrees, cosine', apply: run({angle: 180, showCosine: true})},
+            {name: '135 degrees, second quadrant', apply: run({angle: 270})},
+            {name: '225 degrees, third quadrant', apply: run({angle: 450})},
+            {name: '37,5 degrees, not special', apply: run({angle: 75})},
+            {name: '300 degrees, symmetries', apply: run({angle: 600, showSymmetries: true})},
+            {name: '60 and 45 degrees, addition', apply: run({angle: 120, secondAngle: 90, showAddition: true})},
+            {name: 'all overlays', apply: run({angle: 210, secondAngle: 330, showAddition: true, showSymmetries: true, showCosine: true})},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root = path.resolve(__dirname, '../..');

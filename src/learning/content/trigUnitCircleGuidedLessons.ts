@@ -356,8 +356,8 @@ const tr2Steps: readonly GuidedLessonStep[] = [
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Preizkusiti drugačna para kotov in zrcalne slike hkrati.', 'Trying other pairs of angles and the mirror images at the same time.'),
         explanation: text(
-            'Vklopljeni sta obe stikali: zrcalne slike prvega kota in drugi kot z zavrtenim okvirjem. Spreminjaj oba kota in preveri formuli pri vsakem paru. Vsak izbrani par je le en primer; formuli veljata za vsak par kotov. Poskusi par, ki je vsota več kot \\(360^\\circ\\); graf kot zloži v enkratni obhod.',
-            'Both switches are on: the mirror images of the first angle and the second angle with the rotated frame. Change both angles and check the formulas for each pair. Each chosen pair is only one example; the formulas hold for every pair of angles. Try a pair whose sum is more than \\(360^\\circ\\); the graph folds the angle into one turn.',
+            'Vklopljena sta prikaza Simetrične točke in Seštevanje kotov: zrcalne slike prvega kota in drugi kot z zavrtenim okvirjem. Spreminjaj oba kota in preveri formuli pri vsakem paru. Vsak izbrani par je le en primer; formuli veljata za vsak par kotov. Poskusi par, ki je vsota več kot \\(360^\\circ\\); graf kot zloži v enkratni obhod.',
+            'Both Symmetric points and Angle addition are on: the mirror images of the first angle and the second angle with the rotated frame. Change both angles and check the formulas for each pair. Each chosen pair is only one example; the formulas hold for every pair of angles. Try a pair whose sum is more than \\(360^\\circ\\); the graph folds the angle into one turn.',
         ),
         formulaIds: [],
         observationPrompt: text('Izberi par kotov, pri katerem je \\(\\alpha+\\beta=180^\\circ\\), in razloži, kam pade točka.', 'Choose a pair of angles with \\(\\alpha+\\beta=180^\\circ\\) and explain where the point lands.'),

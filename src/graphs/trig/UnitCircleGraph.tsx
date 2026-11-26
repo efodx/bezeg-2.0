@@ -4,7 +4,12 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {unitCirclePresetCollection} from "./trigPresetCollection";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import AngleSlider from "../../inputs/AngleSlider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -13,7 +18,6 @@ import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
-import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {addAngles, Angle, angleFromHalfDegrees, degreesOf, Quadrant, toRadians} from "../../trig/angle";
 import {pointInRotatedFrame, pointOnCircle, Point, rotationFrame, sumPoint, symmetricImages} from "../../trig/unitCircle";
@@ -29,6 +33,26 @@ export interface UnitCircleGraphState extends BaseGraphState, UnitCircleState {
 }
 
 type AngleField = "angle" | "secondAngle";
+
+/** The ids of the declaration (`param` are arbiter keys): the two angles, the display switches as board actions, the legend of the markers drawn on demand. */
+export type UnitCircleIds = {
+    param: "unit-angle" | "unit-second-angle";
+    row: "angle" | "cos" | "sin" | "position" | "signs" | "symmetry-x" | "symmetry-y" | "symmetry-origin" | "sum-angle" | "sum-point";
+    note: "status" | "approx";
+    legend: "symmetry-x" | "symmetry-y" | "symmetry-origin" | "second-radius";
+    section: never;
+    action: "cosine" | "symmetries" | "addition";
+};
+type UnitCircleRow = {readonly id: UnitCircleIds["row"]; readonly name: Message; readonly value: Message | FormattedValue};
+type LegendId = UnitCircleIds["legend"];
+const formatted = (text: string): FormattedValue => ({kind: "formatted", text});
+/** The switch each board action flips (the lesson action `set-overlay` names them by the overlay). */
+const SWITCH_FIELDS = {cosine: "showCosine", symmetries: "showSymmetries", addition: "showAddition"} as const satisfies Record<UnitCircleIds["action"], keyof UnitCircleGraphState>;
+const SWITCH_KEYS = {cosine: "unitcircle_cosine_puck", symmetries: "unitcircle_symmetries_puck", addition: "unitcircle_addition_puck"} as const satisfies Record<UnitCircleIds["action"], string>;
+const LEGEND_KEYS = {
+    "symmetry-x": "unit_circle_legend_sym_x", "symmetry-y": "unit_circle_legend_sym_y", "symmetry-origin": "unit_circle_legend_sym_origin",
+    "second-radius": "unit_circle_legend_second",
+} as const satisfies Record<LegendId, string>;
 
 /** The unrolled axis starts here, to the right of the unit circle. */
 export const TRACE_ORIGIN_X = 1.7;
@@ -107,13 +131,13 @@ interface View {
     readonly sum: Point;
 }
 
-const whereText = (q: Quadrant | undefined): string => {
+const whereMessage = (q: Quadrant | undefined): Message => {
     switch (q) {
-        case 1: return t("unit_circle_where_1");
-        case 2: return t("unit_circle_where_2");
-        case 3: return t("unit_circle_where_3");
-        case 4: return t("unit_circle_where_4");
-        default: return t("unit_circle_where_axis");
+        case 1: return message("unit_circle_where_1");
+        case 2: return message("unit_circle_where_2");
+        case 3: return message("unit_circle_where_3");
+        case 4: return message("unit_circle_where_4");
+        default: return message("unit_circle_where_axis");
     }
 };
 
@@ -141,6 +165,8 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
     /** The state key the note `adjustedTo` belongs to: any other stored-state change drops the note. */
     private adjustedKey = "";
     private readonly status = new SettledReadout();
+    /** The objects the legend entries name (recorded in `buildScene`, cleared with the scene). */
+    private legendObjects: Partial<Record<LegendId, JXG.GeometryElement>> = {};
 
     override getInitialState(): UnitCircleGraphState {
         return {initialized: false, ...DEFAULT_UNIT_CIRCLE_STATE, showAddition: false};
@@ -360,9 +386,9 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
         marker(traceAt, () => view().derived.point[0], "square", GraphPalette.comparisonCurve, 4, showCosine);
 
         // The three symmetric points: integer operations on the half-degree angle, then drawn.
-        marker(() => view().images.xAxis[0], () => view().images.xAxis[1], SYMMETRY_FACES.xAxis, GraphPalette.constructionLevels[1], 5, showSymmetries);
-        marker(() => view().images.yAxis[0], () => view().images.yAxis[1], SYMMETRY_FACES.yAxis, GraphPalette.constructionLevels[2], 5, showSymmetries);
-        marker(() => view().images.origin[0], () => view().images.origin[1], SYMMETRY_FACES.origin, GraphPalette.constructionLevels[3], 5, showSymmetries);
+        this.legendObjects["symmetry-x"] = marker(() => view().images.xAxis[0], () => view().images.xAxis[1], SYMMETRY_FACES.xAxis, GraphPalette.constructionLevels[1], 5, showSymmetries);
+        this.legendObjects["symmetry-y"] = marker(() => view().images.yAxis[0], () => view().images.yAxis[1], SYMMETRY_FACES.yAxis, GraphPalette.constructionLevels[2], 5, showSymmetries);
+        this.legendObjects["symmetry-origin"] = marker(() => view().images.origin[0], () => view().images.origin[1], SYMMETRY_FACES.origin, GraphPalette.constructionLevels[3], 5, showSymmetries);
 
         // TR2: the second angle, the frame rotated by the first angle and the second point expressed in it.
         const second = this.own(board.create("point", [view().secondPoint[0], view().secondPoint[1]], {
@@ -374,7 +400,7 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
         segment(origin, e1, GraphPalette.constructionAccent, 2, 0, showAddition, true);
         segment(origin, e2, GraphPalette.constructionAccent, 2, 0, showAddition, true);
         const rotated = marker(() => view().rotated[0], () => view().rotated[1], "square", GraphPalette.constructionLevels[3], 5, showAddition);
-        segment(origin, second, GraphPalette.comparisonCurve, 1, 2, showAddition);
+        this.legendObjects["second-radius"] = segment(origin, second, GraphPalette.comparisonCurve, 1, 2, showAddition);
         segment(origin, rotated, GraphPalette.constructionLevels[3], 2, 0, showAddition);
 
         this.wireDrag(handle, "angle");
@@ -385,7 +411,8 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
 
     /** Snaps a dragged handle to the nearest half-degree on the circle and writes the angle to the scene state. */
     private wireDrag(point: JXG.Point, field: AngleField): void {
-        const onDrag = () => this.dragTo(point, field);
+        // A JSXGraph drag handler is outside the DOM listeners that tag input: the learner's drag is tagged here.
+        const onDrag = () => runAs("learner", () => this.dragTo(point, field));
         const board = this.board;
         const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
@@ -419,6 +446,7 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
         this.objects = [];
         this.handle = undefined;
         this.secondHandle = undefined;
+        this.legendObjects = {};
         this.drawnKey = "";
         this.drawnVisibility = "";
     }
@@ -448,50 +476,62 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
     }
 
     private statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    /** The status sentence as a catalog message (a declared note; `statusText` is its text in the current language). */
+    private statusMessage(): Message {
         const language = currentLanguage();
         const {derived} = this.view();
         const exact = derived.special;
-        return t("unit_circle_status", {
+        return message("unit_circle_status", {
             value0: formatNumber(degreesOf(derived.angle), language, 1),
             value1: this.radianText(derived.angle),
             value2: this.coordinateText(derived.point[0], exact?.cos, language),
             value3: this.coordinateText(derived.point[1], exact?.sin, language),
-            value4: whereText(derived.quadrant),
+            value4: renderMessage(whereMessage(derived.quadrant)),
         });
     }
 
-    private pointText(point: Point, language: NumberLanguage): string {
-        return t("unit_circle_point_format", {value0: this.number(point[0], language), value1: this.number(point[1], language)});
+    private pointMessage(point: Point, language: NumberLanguage): Message {
+        return message("unit_circle_point_format", {value0: this.number(point[0], language), value1: this.number(point[1], language)});
     }
 
-    private readoutRows(): ReadoutListRow[] {
+    /** The declared rows: the angle, the point's coordinates, its place and signs, and the rows of the switches that are on. */
+    readoutRows(): UnitCircleRow[] {
         const language = currentLanguage();
         const {derived, images, sumAngle, sum} = this.view();
         const exact = derived.special;
         const [cosSign, sinSign] = derived.quadrant !== undefined ? QUADRANT_SIGNS[derived.quadrant] : AXIS_SIGNS[derived.angle.halfDegrees / 180];
-        const signs = `cos θ ${cosSign} 0, sin θ ${sinSign} 0`;
-        const rows: ReadoutListRow[] = [
-            {id: "angle", label: t("unit_circle_readout_angle"), value: t("unit_circle_readout_angle_value", {
+        const rows: UnitCircleRow[] = [
+            {id: "angle", name: message("unit_circle_readout_angle"), value: message("unit_circle_readout_angle_value", {
                 value0: formatNumber(degreesOf(derived.angle), language, 1), value1: this.radianText(derived.angle)})},
-            {id: "cos", label: t("unit_circle_readout_cos"), value: this.coordinateText(derived.point[0], exact?.cos, language)},
-            {id: "sin", label: t("unit_circle_readout_sin"), value: this.coordinateText(derived.point[1], exact?.sin, language)},
-            {id: "position", label: t("unit_circle_readout_position"), value: whereText(derived.quadrant)},
-            {id: "signs", label: t("unit_circle_readout_signs"), value: signs},
+            {id: "cos", name: message("unit_circle_readout_cos"), value: formatted(this.coordinateText(derived.point[0], exact?.cos, language))},
+            {id: "sin", name: message("unit_circle_readout_sin"), value: formatted(this.coordinateText(derived.point[1], exact?.sin, language))},
+            {id: "position", name: message("unit_circle_readout_position"), value: whereMessage(derived.quadrant)},
+            {id: "signs", name: message("unit_circle_readout_signs"), value: message("unitcircle_signs_value", {value0: cosSign, value1: sinSign})},
         ];
         if (this.state.showSymmetries) {
             rows.push(
-                {id: "symmetry-x", label: t("unit_circle_readout_sym_x"), value: this.pointText(images.xAxis, language)},
-                {id: "symmetry-y", label: t("unit_circle_readout_sym_y"), value: this.pointText(images.yAxis, language)},
-                {id: "symmetry-origin", label: t("unit_circle_readout_sym_origin"), value: this.pointText(images.origin, language)},
+                {id: "symmetry-x", name: message("unit_circle_readout_sym_x"), value: this.pointMessage(images.xAxis, language)},
+                {id: "symmetry-y", name: message("unit_circle_readout_sym_y"), value: this.pointMessage(images.yAxis, language)},
+                {id: "symmetry-origin", name: message("unit_circle_readout_sym_origin"), value: this.pointMessage(images.origin, language)},
             );
         }
         if (this.state.showAddition) {
             rows.push(
-                {id: "sum-angle", label: t("unit_circle_readout_sum"), value: `${formatNumber(degreesOf(sumAngle), language, 1)}°`},
-                {id: "sum-point", label: t("unit_circle_readout_sum_point"), value: this.pointText(sum, language)},
+                {id: "sum-angle", name: message("unit_circle_readout_sum"), value: formatted(`${formatNumber(degreesOf(sumAngle), language, 1)}°`)},
+                {id: "sum-point", name: message("unit_circle_readout_sum_point"), value: this.pointMessage(sum, language)},
             );
         }
         return rows;
+    }
+
+    /** The panel's text of the declared rows. */
+    private listRows(rows: readonly UnitCircleRow[]): ReadoutListRow[] {
+        return rows.map(({id, name, value}): ReadoutListRow => ({
+            id, label: renderMessage(name), value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
     }
 
     /**
@@ -537,45 +577,120 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
     }
 
     /** The legend entries for the styles of the symmetric points and the second radius, shown while those are drawn. */
-    legendItems(): {id: string; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] {
-        const items: {id: string; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] = [];
-        if (this.state.showSymmetries) {
-            items.push(
-                {id: "symmetry-x", color: GraphPalette.constructionLevels[1], label: t("unit_circle_legend_sym_x"), kind: SYMMETRY_FACES.xAxis},
-                {id: "symmetry-y", color: GraphPalette.constructionLevels[2], label: t("unit_circle_legend_sym_y"), kind: SYMMETRY_FACES.yAxis},
-                {id: "symmetry-origin", color: GraphPalette.constructionLevels[3], label: t("unit_circle_legend_sym_origin"), kind: SYMMETRY_FACES.origin},
-            );
-        }
-        if (this.state.showAddition) {
-            items.push({id: "second-radius", color: GraphPalette.comparisonCurve, label: t("unit_circle_legend_second"), kind: "dashed-line"});
-        }
-        return items;
+    legendItems(): {id: LegendId; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] {
+        return this.allLegendItems().filter(item => item.id === "second-radius" ? this.state.showAddition : this.state.showSymmetries);
+    }
+
+    private allLegendItems(): {id: LegendId; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] {
+        return [
+            {id: "symmetry-x", color: GraphPalette.constructionLevels[1], label: t("unit_circle_legend_sym_x"), kind: SYMMETRY_FACES.xAxis},
+            {id: "symmetry-y", color: GraphPalette.constructionLevels[2], label: t("unit_circle_legend_sym_y"), kind: SYMMETRY_FACES.yAxis},
+            {id: "symmetry-origin", color: GraphPalette.constructionLevels[3], label: t("unit_circle_legend_sym_origin"), kind: SYMMETRY_FACES.origin},
+            {id: "second-radius", color: GraphPalette.comparisonCurve, label: t("unit_circle_legend_second"), kind: "dashed-line"},
+        ];
+    }
+
+    // ---- Declaration ------------------------------------------------------------------------------------------------------
+
+    /**
+     * What the view director keeps visible: the unit circle with its handle, projections, arc and the three symmetric points (all on or in
+     * it), and the unrolled sine and cosine traces to their right with their names above them.
+     */
+    private viewMarks(): ViewMarks {
+        return {must: [{kind: "box", left: -1, top: 1.35, right: traceX(TURN), bottom: -1}]};
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const angle = (field: AngleField) => (value: unknown) => {
+            // Like the old exact field: wrap modulo 360 degrees and snap to the half-degree grid (the model's snapping, with its note).
+            if (typeof value !== "number" || !this.editAngle(field, "degrees", value)) {
+                throw new DomainError(message("unitcircle_angle_refused"));
+            }
+        };
+        return {
+            "unit-angle": {read: () => this.state.angle / 2, apply: angle("angle")},
+            "unit-second-angle": {read: () => this.state.secondAngle / 2, apply: angle("secondAngle")},
+        };
+    }
+
+    /**
+     * Pure data from the state: the angle (and, with the addition switch, the second angle) are range pucks in degrees on the half-degree grid; the
+     * three display switches are switch pucks (flipping one is the observation of the lessons). The multiple of pi and the rounding note stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<UnitCircleIds> {
+        const state = this.state;
+        const range = (key: UnitCircleIds["param"], label: Message, symbol: string): ParameterDeclaration<UnitCircleIds["param"]> => ({
+            key, kind: "range", label, symbol, placement: "board", min: 0, max: ANGLE_MAX_DEGREES, step: ANGLE_STEP_DEGREES,
+            bigStep: ANGLE_BIG_STEP_DEGREES, maxDecimals: 1, unit: message("unitcircle_degrees"),
+        });
+        const parameters = [
+            range("unit-angle", message("unitcircle_angle_name"), "θ"),
+            ...(state.showAddition ? [range("unit-second-angle", message("unitcircle_second_name"), "β")] : []),
+        ];
+        const actions: ActionDeclaration<UnitCircleIds>[] = (Object.keys(SWITCH_FIELDS) as UnitCircleIds["action"][]).map(id => ({
+            id, label: message(SWITCH_KEYS[id]), placement: "board", puck: true, enabled: true, pressed: state[SWITCH_FIELDS[id]],
+        }));
+        const legend: LegendEntry<UnitCircleIds>[] = this.legendItems().map(item => ({
+            id: item.id, label: message(LEGEND_KEYS[item.id]), object: item.id,
+            kind: item.kind === "dashed-line" ? "dashed" as const : item.kind === "diamond" ? "point" as const : "cross" as const,
+        }));
+        return {
+            parameters, actions, legend, marks: this.viewMarks(),
+            readouts: [{id: "values", rows: this.readoutRows()}],
+            notes: [{id: "status", text: this.statusMessage()}, {id: "approx", text: message("unit_circle_approx_note"), tone: "muted"}],
+        };
+    }
+
+    /** A switch pressed as the learner: flips the same field the panel's switch does. */
+    override performAction(id: string): void {
+        if (!(id in SWITCH_FIELDS)) { super.performAction(id); return; }
+        const field = SWITCH_FIELDS[id as UnitCircleIds["action"]];
+        runAs("learner", () => this.setState({[field]: !this.state[field]}));
+    }
+
+    /** The element a legend entry names, as the board holds it now: its colour and whether it is drawn. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const item = this.allLegendItems().find(candidate => candidate.id === id);
+        if (!item) return undefined;
+        const element = this.legendObjects[item.id];
+        if (!element) return {color: item.color, visible: false};
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(item.kind === "diamond" ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
     }
 
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
         const commands: JSX.Element[] = [
-            <AngleSlider key="degrees" customText={t("unit_circle_angle_degrees_label")} value={degreesOf(angleFromHalfDegrees(state.angle))}
-                         onChange={value => this.editAngle("angle", "degrees", value)}/>,
+            <PuckOwned key="degrees" param="unit-angle">
+                <AngleSlider customText={t("unit_circle_angle_degrees_label")} value={degreesOf(angleFromHalfDegrees(state.angle))}
+                             onChange={value => this.editAngle("angle", "degrees", value)}/>
+            </PuckOwned>,
             <NumberInput key="pi" label={t("unit_circle_angle_pi_label")} value={state.angle / 360}
                          step={1 / 360} bigStep={1 / 72} decimals={4} min={0} max={ANGLE_MAX_PI} grid={1 / 360}
                          help={t("unit_circle_angle_pi_help")}
                          onChange={value => this.editAngle("angle", "pi", value)}/>,
         ];
         if (state.showAddition) {
-            commands.push(<AngleSlider key="second" customText={t("unit_circle_second_angle_label")} value={state.secondAngle / 2}
-                                       onChange={value => this.editAngle("secondAngle", "degrees", value)}/>);
+            commands.push(<PuckOwned key="second" param="unit-second-angle">
+                <AngleSlider customText={t("unit_circle_second_angle_label")} value={state.secondAngle / 2}
+                             onChange={value => this.editAngle("secondAngle", "degrees", value)}/>
+            </PuckOwned>);
         }
         if (this.adjustedTo !== undefined && this.adjustedKey === this.stateKey()) {
             commands.push(<p key="note" className="form-text" data-unit-circle-note="">
                 {t("unit_circle_snapped_note", {value0: formatNumber(this.adjustedTo, currentLanguage(), 1)})}</p>);
         }
         commands.push(
-            <OnOffSwitch key="cosine" checked={state.showCosine} label={t("unit_circle_show_cosine")} onChange={checked => this.setState({showCosine: checked})}/>,
-            <OnOffSwitch key="symmetries" checked={state.showSymmetries} label={t("unit_circle_show_symmetries")}
-                         onChange={checked => this.setState({showSymmetries: checked})}/>,
-            <OnOffSwitch key="addition" checked={state.showAddition} label={t("unit_circle_show_addition")}
-                         onChange={checked => this.setState({showAddition: checked})}/>,
+            <PuckOwned key="cosine" param="cosine">
+                <OnOffSwitch checked={state.showCosine} label={t("unit_circle_show_cosine")} onChange={checked => this.setState({showCosine: checked})}/>
+            </PuckOwned>,
+            <PuckOwned key="symmetries" param="symmetries">
+                <OnOffSwitch checked={state.showSymmetries} label={t("unit_circle_show_symmetries")} onChange={checked => this.setState({showSymmetries: checked})}/>
+            </PuckOwned>,
+            <PuckOwned key="addition" param="addition">
+                <OnOffSwitch checked={state.showAddition} label={t("unit_circle_show_addition")} onChange={checked => this.setState({showAddition: checked})}/>
+            </PuckOwned>,
         );
         return commands;
     }
@@ -583,12 +698,11 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("unit_circle_readout_title")}</ReadoutHeading>
-                <p data-unit-circle-status="">{this.statusText()}</p>
-                <ReadoutList label={t("unit_circle_readout_title")} rows={this.readoutRows()}/>
-                <p className="form-text">{t("unit_circle_approx_note")}</p>
-                {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
+                <p data-unit-circle-status="" data-readout-note="">{this.statusText()}</p>
+                <ReadoutList label={t("unit_circle_readout_title")} rows={this.listRows(this.readoutRows())}/>
+                <p className="form-text" data-readout-note="">{t("unit_circle_approx_note")}</p>
                 <LiveReadout readout={this.status}/>
             </div>
         </>;
