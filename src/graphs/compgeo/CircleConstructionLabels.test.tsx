@@ -3,6 +3,7 @@ import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {setLanguage} from '../../localization';
 import {sampleLine, type PxBox} from '../legend/boardLabelPlacement';
 import {exampleState, type CircleMode} from '../../compgeo/circleConstructionModel';
@@ -25,7 +26,7 @@ const overlaps = (a: PxBox, b: PxBox) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.
 function mountMode(mode: CircleMode) {
     const graph = new Probe();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-    act(() => { graph.setState(exampleState(mode)); });
+    act(() => { runAs('learner', () => graph.setState(exampleState(mode))); });
     act(() => { graph.liveBoard().update(); });
     act(() => { graph.liveBoard().update(); });
     return graph;
@@ -116,7 +117,7 @@ describe('CircleConstructionGraph layout cache', () => {
         class Layout extends Probe { layout() { return (this as unknown as {labelBoxes(): Record<string, PxBox>}).labelBoxes(); } }
         const graph = new Layout();
         render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-        act(() => { graph.setState(exampleState('common')); });
+        act(() => { runAs('learner', () => graph.setState(exampleState('common'))); });
         act(() => { graph.liveBoard().update(); });
         const before = graph.layout();
         expect(Object.keys(before).length).toBeGreaterThan(0);
@@ -131,7 +132,7 @@ describe('CircleConstructionGraph texts at the card scale (12.4 px per unit, the
     function cardBoard(mode: CircleMode, box: [number, number, number, number]) {
         const graph = mountMode(mode);
         const board = graph.liveBoard();
-        act(() => {
+        act(() => { runAs('learner', () => {
             // The card capture hides the axes and their tick numbers.
             type Ticked = {setAttribute(a: object): void; defaultTicks: {setAttribute(a: object): void; labels: {setAttribute(a: object): void}[]}};
             const axes = (board as unknown as {defaultAxes: {x: Ticked; y: Ticked}}).defaultAxes;
@@ -143,7 +144,7 @@ describe('CircleConstructionGraph texts at the card scale (12.4 px per unit, the
             board.setBoundingBox(box, true, 'update');
             board.fullUpdate();
             board.update();
-        });
+        }); });
         return graph;
     }
 

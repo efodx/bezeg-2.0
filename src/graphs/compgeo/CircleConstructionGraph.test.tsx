@@ -4,7 +4,8 @@ import {MemoryRouter} from 'react-router-dom';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
-import {setLanguage, t} from '../../localization';
+import {renderMessage, setLanguage, t} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
 import {enterNumber} from '../../inputs/testEntry';
 import {exampleState, type CircleMode} from '../../compgeo/circleConstructionModel';
 import {
@@ -19,6 +20,9 @@ beforeEach(() => setLanguage('sl'));
 class ObservedGraph extends CircleConstructionGraph {
     liveBoard() { return this.board; }
     disposeNow() { this.disposeFigureScene(); }
+    /** The tests play the learner: a state write is a learner write, as a handler tagged by `learnerInputTagging`. */
+    override setState(...args: Parameters<CircleConstructionGraph['setState']>) { runAs('learner', () => { super.setState(...args); }); }
+    typeRadius(n: number, value: number) { return runAs('learner', () => this.editRadius(`c${n}` as 'c1' | 'c2' | 'c3', value)); }
 }
 
 function mountGraph(strict = false) {
@@ -35,8 +39,9 @@ const field = (label: string) => screen.getByLabelText(label) as HTMLInputElemen
 const centreName = (n: number) => `O${'₁₂₃'[n - 1]}`;
 const centreX = (n: number) => `${centreName(n)}, x`;
 const centreY = (n: number) => `${centreName(n)}, y`;
-const radiusLabel = (n: number) => t('number_field_label', {value0: t('circle_construction_radius', {value0: String(n)})});
-const ratioLabel = () => t('number_field_label', {value0: t('circle_construction_ratio_label')});
+// A radius and the ratio are pucks on the board (task 08): they are set through the parameter arbiter as the learner, as a typed puck value is.
+const setRadius = (graph: ObservedGraph, n: number, value: string) => { graph.typeRadius(n, Number(value.replace(',', '.'))); };
+const setRatio = (graph: ObservedGraph, value: string) => { graph.parameters!.write('ratio', Number(value.replace(',', '.')), 'learner'); };
 const pointX = (name: string) => `${name}, x`;
 const pointY = (name: string) => `${name}, y`;
 type EventedPoint = JXG.Point & {eventHandlers: Record<string, unknown[]>; triggerEventHandlers(names: string[], args: unknown[]): void};
@@ -44,7 +49,7 @@ const dragListeners = (point: JXG.Point) => (point as EventedPoint).eventHandler
 
 function dragHandleTo(point: JXG.Point, x: number, y: number) {
     point.setPosition(JXG.COORDS_BY_USER, [x, y]);
-    act(() => { (point as EventedPoint).triggerEventHandlers(['drag'], []); });
+    act(() => { runAs('learner', () => { (point as EventedPoint).triggerEventHandlers(['drag'], []); }); });
 }
 
 const chooseMode = (mode: CircleMode) => act(() => { fireEvent.change(field(t('circle_construction_mode_label')), {target: {value: mode}}); });
@@ -130,7 +135,7 @@ describe('the four modes draw their spec elements and read the exact kernel', ()
         expect(readout('locus')).toContain('16');
         // the inverse of A in the circle: distance 8 from the centre, so 16 / 8 = 2 from the centre towards A, that is B
         expect(readout('inverse')).toBe('(6; 0)');
-        act(() => { graph.setState({k: 1}); });
+        act(() => { runAs('learner', () => graph.setState({k: 1})); });
         expect(shown(graph, 'circle')).toBe(0);
         expect(shown(graph, 'line')).toBe(1); // the perpendicular bisector
     });
@@ -242,7 +247,7 @@ describe('numeric input per handle', () => {
         expect(graph.state.c1).toMatchObject({x: 3, y: -2});
         expect(handlePosition('c1')).toEqual([3, -2]);
         expect(handlePosition('c1r')).toEqual([3 + 5, -2]);
-        act(() => { enterNumber(field(radiusLabel(1)), '2,5'); });
+        act(() => { setRadius(graph, 1, '2,5'); });
         expect(graph.state.c1.r).toBe(2.5);
         expect(handlePosition('c1r')).toEqual([5.5, -2]);
         act(() => { enterNumber(field(pointX('P')), '-7'); enterNumber(field(pointY('P')), '4'); });
@@ -252,8 +257,8 @@ describe('numeric input per handle', () => {
 
         chooseMode('radical');
         act(() => {
-            enterNumber(field(centreX(2)), '1'); enterNumber(field(centreY(2)), '2'); enterNumber(field(radiusLabel(2)), '4');
-            enterNumber(field(centreX(3)), '-3'); enterNumber(field(centreY(3)), '5'); enterNumber(field(radiusLabel(3)), '1,25');
+            enterNumber(field(centreX(2)), '1'); enterNumber(field(centreY(2)), '2'); setRadius(graph, 2, '4');
+            enterNumber(field(centreX(3)), '-3'); enterNumber(field(centreY(3)), '5'); setRadius(graph, 3, '1,25');
         });
         expect(handlePosition('c2')).toEqual([1, 2]);
         expect(handlePosition('c2r')).toEqual([5, 2]);
@@ -265,7 +270,7 @@ describe('numeric input per handle', () => {
         act(() => {
             enterNumber(field(pointX('A')), '-4'); enterNumber(field(pointY('A')), '1');
             enterNumber(field(pointX('B')), '7'); enterNumber(field(pointY('B')), '-6');
-            enterNumber(field(ratioLabel()), '3');
+            setRatio(graph, '3');
         });
         expect(handlePosition('a')).toEqual([-4, 1]);
         expect(handlePosition('b')).toEqual([7, -6]);
@@ -273,19 +278,19 @@ describe('numeric input per handle', () => {
         hitZones();
 
         chooseMode('common');
-        act(() => { enterNumber(field(centreX(2)), '9'); enterNumber(field(radiusLabel(2)), '0,25'); });
+        act(() => { enterNumber(field(centreX(2)), '9'); setRadius(graph, 2, '0,25'); });
         expect(handlePosition('c2')).toEqual([9, 0]);
         expect(handlePosition('c2r')).toEqual([9.25, 0]);
         hitZones();
     });
 
-    test('a value outside the range is refused, a value off the grid is rounded to it', () => {
+    test('a radius outside the range clamps, a centre outside is refused, a value off the grid is rounded to it', () => {
         const {graph} = mountGraph();
         act(() => { enterNumber(field(centreX(1)), '17'); });
         expect(graph.state.c1.x).toBe(0);
-        act(() => { enterNumber(field(radiusLabel(1)), '9'); });
-        expect(graph.state.c1.r).toBe(5);
-        act(() => { enterNumber(field(radiusLabel(1)), '2,6'); });
+        act(() => { setRadius(graph, 1, '9'); });
+        expect(graph.state.c1.r).toBe(8);
+        act(() => { setRadius(graph, 1, '2,6'); });
         expect(graph.state.c1.r).toBe(2.5);
         act(() => { enterNumber(field(pointX('P')), '2,4'); });
         expect(graph.state.p.x).toBe(2);
@@ -311,14 +316,14 @@ describe('keyboard and touch', () => {
         expect(graph.state.c1.x).toBe(5);
         act(() => { fireEvent.keyDown(field(centreX(1)), {key: 'PageDown'}); });
         expect(graph.state.c1.x).toBe(1);
-        act(() => { fireEvent.keyDown(field(radiusLabel(1)), {key: 'ArrowDown'}); });
+        act(() => { setRadius(graph, 1, String(graph.state.c1.r - RADIUS_STEP)); });
         expect(graph.state.c1.r).toBe(4.75);
-        act(() => { fireEvent.keyDown(field(radiusLabel(1)), {key: 'PageUp'}); });
+        act(() => { setRadius(graph, 1, String(graph.state.c1.r + RADIUS_BIG_STEP)); });
         expect(graph.state.c1.r).toBe(5.75);
         act(() => { fireEvent.keyDown(field(pointY('P')), {key: 'ArrowDown'}); });
         expect(graph.state.p.y).toBe(-1);
         chooseMode('apollonius');
-        act(() => { fireEvent.keyDown(field(ratioLabel()), {key: 'ArrowUp'}); });
+        act(() => { setRatio(graph, String(graph.state.k + RATIO_STEP)); });
         expect(graph.state.k).toBe(2.5);
     });
 
@@ -409,16 +414,16 @@ const shownCaptions = (graph: ObservedGraph) =>
     probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible')).map(o => (o as unknown as {plaintext: string}).plaintext);
 
 describe('review repairs', () => {
-    test('every numeric field of every mode is reachable by its name: a point row, a radius or ratio slider with its exact field', () => {
+    test('every numeric field of every mode is reachable by its name: a point row with its exact fields (the radii and the ratio are pucks)', () => {
         mountGraph();
         for (const mode of ['tangents', 'radical', 'apollonius', 'common'] as const) {
             chooseMode(mode);
-            const circles = (n: number) => [centreX(n), centreY(n), radiusLabel(n)];
+            const circles = (n: number) => [centreX(n), centreY(n)];
             const points = (name: string) => [pointX(name), pointY(name)];
             const labels = {
                 tangents: [...circles(1), ...points('P')],
                 radical: [...circles(1), ...circles(2), ...circles(3), ...points('P')],
-                apollonius: [...points('A'), ...points('B'), ...points('P'), ratioLabel()],
+                apollonius: [...points('A'), ...points('B'), ...points('P')],
                 common: [...circles(1), ...circles(2)],
             }[mode];
             for (const label of labels) expect(field(label).getAttribute('type'), label).toBe('text');
@@ -463,11 +468,11 @@ describe('review repairs', () => {
     test('a typed ratio goes through the model snapping: NaN is refused, an out-of-range value clamps', () => {
         const {graph} = mountGraph();
         chooseMode('apollonius');
-        expect(graph.editRatio(Number.NaN)).toBe(false);
+        expect(runAs('learner', () => graph.editRatio(Number.NaN))).toBe(false);
         expect(graph.state.k).toBe(2);
-        expect(graph.editRatio(9)).toBe(true);
+        expect(runAs('learner', () => graph.editRatio(9))).toBe(true);
         expect(graph.state.k).toBe(4);
-        expect(graph.editRatio(1.3)).toBe(true);
+        expect(runAs('learner', () => graph.editRatio(1.3))).toBe(true);
         expect(graph.state.k).toBe(1.5);
     });
 });
@@ -476,7 +481,7 @@ test('the status, the labels and the board name follow a language switch', () =>
     mountGraph();
     act(() => { setLanguage('en'); });
     expect(statusText()).toBe('P is outside the circle (power 144): two tangents, each of length 12.');
-    expect(screen.getByLabelText('Circle 1: radius')).toBeInTheDocument();
+    expect(screen.getByLabelText('O₁, x')).toBeInTheDocument();
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('two tangents');
     expect(readout('contact-1')).toBe('(1.9231, −4.6154)');
     expect(document.querySelector(`[aria-label="${t('circle_construction_board_label')}"]`)).not.toBeNull();
@@ -485,16 +490,19 @@ test('the status, the labels and the board name follow a language switch', () =>
 describe('the legend also states the chord of contact and the Apollonius locus, and the marker faces are drawn in their colour', () => {
     const drawn = (graph: ObservedGraph, elType: string, color: string, dashed: boolean) => probes(graph).filter(o => o.elType === elType
         && o.evalVisProp('visible') && String(o.evalVisProp('strokecolor')) === color && (Number(o.evalVisProp('dash')) > 0) === dashed).length;
-    const ids = (graph: ObservedGraph) => graph.legendItems().map(i => i.id);
+    const entries = (graph: ObservedGraph) => graph.getDeclaration()!.legend ?? [];
+    const ids = (graph: ObservedGraph) => entries(graph).map(i => i.id);
+    const colorOf = (graph: ObservedGraph, id: string) => graph.drawnObject(id)!.color;
 
     test('the chord entry is shown exactly while the chord is drawn (P outside the circle)', () => {
         const {graph} = mountGraph();
-        const chord = graph.legendItems().find(i => i.id === 'chord')!;
-        expect(chord.kind).toBe('dashed-line');
-        expect(drawn(graph, 'segment', chord.color, true)).toBe(1);
+        const chord = entries(graph).find(i => i.id === 'chord')!;
+        expect(chord.kind).toBe('dashed');
+        expect(drawn(graph, 'segment', colorOf(graph, chord.object), true)).toBe(1);
+        const color = colorOf(graph, chord.object);
         act(() => { graph.setState({p: {x: 3, y: 0}}); }); // on the circle: no chord
         expect(ids(graph)).not.toContain('chord');
-        expect(drawn(graph, 'segment', chord.color, true)).toBe(0);
+        expect(drawn(graph, 'segment', color, true)).toBe(0);
         act(() => { graph.setState({p: {x: 0, y: 0}}); }); // inside
         expect(ids(graph)).not.toContain('chord');
     });
@@ -502,13 +510,13 @@ describe('the legend also states the chord of contact and the Apollonius locus, 
     test('the locus entry follows the locus status and matches the drawn element', () => {
         const {graph} = mountGraph();
         chooseMode('apollonius');
-        let items = graph.legendItems();
-        expect(items.map(i => [i.id, i.kind, i.label])).toEqual([['locus', 'line', t('circle_construction_legend_locus_circle')]]);
-        expect(drawn(graph, 'circle', items[0].color, false)).toBe(1);
-        act(() => { graph.setState({k: 1}); });
-        items = graph.legendItems();
-        expect(items.map(i => [i.id, i.kind, i.label])).toEqual([['locus', 'line', t('circle_construction_legend_locus_line')]]);
-        expect(drawn(graph, 'line', items[0].color, false)).toBe(1);
+        let items = entries(graph);
+        expect(items.map(i => [i.id, i.kind, renderMessage(i.label)])).toEqual([['locus', 'line', t('circle_construction_legend_locus_circle')]]);
+        expect(drawn(graph, 'circle', colorOf(graph, 'locus'), false)).toBe(1);
+        act(() => { runAs('learner', () => graph.setState({k: 1})); });
+        items = entries(graph);
+        expect(items.map(i => [i.id, i.kind, renderMessage(i.label)])).toEqual([['locus', 'line', t('circle_construction_legend_locus_line')]]);
+        expect(drawn(graph, 'line', colorOf(graph, 'locus'), false)).toBe(1);
         act(() => { graph.setState({b: graph.state.a}); });
         expect(ids(graph)).toEqual([]);
     });
@@ -516,26 +524,27 @@ describe('the legend also states the chord of contact and the Apollonius locus, 
     test('the pair of circles in the axis entries comes from the pair key', () => {
         const {graph} = mountGraph();
         chooseMode('radical');
-        const axis = graph.legendItems().filter(i => i.id.startsWith('axis'));
-        expect(axis.map(i => i.label)).toEqual([
+        const axis = entries(graph).filter(i => i.id.startsWith('axis'));
+        expect(axis.map(i => renderMessage(i.label))).toEqual([
             t('circle_construction_legend_axis_solid', {value0: t('circle_construction_pair', {value0: 1, value1: 2})}),
             t('circle_construction_legend_axis_dashed', {value0: t('circle_construction_pair', {value0: 1, value1: 3})}),
             t('circle_construction_legend_axis_dashed', {value0: t('circle_construction_pair', {value0: 2, value1: 3})}),
         ]);
         act(() => { setLanguage('en'); });
-        expect(graph.legendItems()[0].label).toBe('Solid line: radical axis of circles 1, 2');
+        expect(renderMessage(entries(graph)[0].label)).toBe('Solid line: radical axis of circles 1, 2');
     });
 
-    test('a cross or plus marker is stroked in the colour its legend entry states', () => {
+    test('a cross marker is stroked in the colour its legend entry states', () => {
         const {graph} = mountGraph();
         for (const mode of ['radical', 'common'] as const) {
             chooseMode(mode);
-            const faced = graph.legendItems().filter(i => i.kind === 'cross' || i.kind === 'plus');
+            const faced = entries(graph).filter(i => i.kind === 'cross');
             expect(faced.length).toBeGreaterThan(0);
             for (const item of faced) {
-                const found = probes(graph).filter(o => o.elType === 'point' && String(o.evalVisProp('face')) === item.kind
-                    && o.evalVisProp('visible') && String(o.evalVisProp('strokecolor')) === item.color);
-                expect(found).toHaveLength(1);
+                const color = colorOf(graph, item.object);
+                const found = probes(graph).filter(o => o.elType === 'point' && ['cross', 'plus'].includes(String(o.evalVisProp('face')))
+                    && o.evalVisProp('visible') && String(o.evalVisProp('fillcolor')) === color);
+                expect(found.length).toBeGreaterThan(0);
             }
         }
     });
@@ -545,19 +554,21 @@ describe('the legend states the style of the Thales circle, the radical axes and
     const lines = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'line' && o.evalVisProp('visible'));
     test('every entry matches a drawn element of that colour and dash', () => {
         const {graph} = mountGraph();
+        const entries = () => graph.getDeclaration()!.legend ?? [];
+        const colorOf = (id: string) => graph.drawnObject(id)!.color;
         const drawn = (elType: string, color: string, dashed: boolean) => probes(graph).filter(o => o.elType === elType && o.evalVisProp('visible')
             && String(o.evalVisProp('strokecolor')) === color && (Number(o.evalVisProp('dash')) > 0) === dashed).length;
-        expect(graph.legendItems().map(i => [i.id, i.kind])).toEqual([['thales', 'dashed-line'], ['chord', 'dashed-line']]);
-        expect(drawn('circle', graph.legendItems()[0].color, true)).toBe(1);
-        expect(drawn('segment', graph.legendItems()[1].color, true)).toBe(1);
+        expect(entries().map(i => [i.id, i.kind])).toEqual([['thales', 'dashed'], ['chord', 'dashed']]);
+        expect(drawn('circle', colorOf('thales'), true)).toBe(1);
+        expect(drawn('segment', colorOf('chord'), true)).toBe(1);
         chooseMode('radical');
-        const items = graph.legendItems();
-        expect(items.filter(i => i.id.startsWith('axis')).map(i => i.kind)).toEqual(['line', 'dashed-line', 'dashed-line']);
-        for (const item of items.filter(i => i.id.startsWith('axis'))) expect(drawn('line', item.color, item.kind === 'dashed-line')).toBe(1);
-        expect(drawn('circle', items.find(i => i.id === 'orthogonal')!.color, true)).toBe(1);
+        const items = entries();
+        expect(items.filter(i => i.id.startsWith('axis')).map(i => i.kind)).toEqual(['line', 'dashed', 'dashed']);
+        for (const item of items.filter(i => i.id.startsWith('axis'))) expect(drawn('line', colorOf(item.object), item.kind === 'dashed')).toBe(1);
+        expect(drawn('circle', colorOf('orthogonal'), true)).toBe(1);
         expect(lines(graph)).toHaveLength(3);
         chooseMode('common');
-        for (const item of graph.legendItems().filter(i => i.id.endsWith('tangents'))) expect(drawn('line', item.color, item.kind === 'dashed-line')).toBe(2);
-        expect(document.querySelectorAll('[data-legend]').length).toBe(graph.legendItems().length);
+        for (const item of entries().filter(i => i.id.endsWith('tangents'))) expect(drawn('line', colorOf(item.object), item.kind === 'dashed')).toBe(2);
+        expect(document.querySelectorAll('[data-legend]').length).toBe(0);
     });
 });

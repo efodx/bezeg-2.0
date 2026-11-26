@@ -5,6 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
 import {enterNumber} from '../../inputs/testEntry';
 import {CircleConstructionGraph} from './CircleConstructionGraph';
 
@@ -30,12 +31,13 @@ const setPoint = (x: number, y: number): LessonAction => ({kind: 'circle', opera
 type Apollonius = Omit<Extract<LessonAction, {kind: 'circle'; operation: 'set-apollonius'}>, 'kind' | 'operation'>;
 const setApollonius = (fields: Apollonius): LessonAction => ({kind: 'circle', operation: 'set-apollonius', ...fields});
 const pointField = (axis: 'x' | 'y', name: string) => `${name}, ${axis}`;
-const ratioField = t('number_field_label', {value0: t('circle_construction_ratio_label')});
 const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label) as HTMLInputElement, value); });
 const choose = (mode: Mode) => act(() => { fireEvent.change(screen.getByLabelText(t('circle_construction_mode_label')), {target: {value: mode}}); });
 const centreX = (n: number) => `O${'₁₂₃'[n - 1]}, x`;
 const centreY = (n: number) => `O${'₁₂₃'[n - 1]}, y`;
-const radius = (n: number) => t('number_field_label', {value0: t('circle_construction_radius', {value0: String(n)})});
+// A radius and the ratio are pucks on the board (task 08): a typed puck value is a learner write through the graph's own setter.
+const setRadius = (graph: CircleConstructionGraph, n: number, value: string) => act(() => { runAs('learner', () => graph.editRadius(`c${n}` as 'c1' | 'c2', Number(value))); });
+const setRatio = (graph: CircleConstructionGraph, value: string) => act(() => { runAs('learner', () => graph.editRatio(Number(value))); });
 const pointX = 'P, x';
 const pointY = 'P, y';
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
@@ -52,8 +54,8 @@ function after(edit: (graph: CircleConstructionGraph) => void) {
 
 test('set-point and set-circle reach the state and readouts of typing into the fields', () => {
     const viaAction = after(graph => { apply(graph, setCircle('c1', 1, 2, 3.5)); apply(graph, setPoint(-6, 4)); });
-    const viaControl = after(() => {
-        type(centreX(1), '1'); type(centreY(1), '2'); type(radius(1), '3.5');
+    const viaControl = after(graph => {
+        type(centreX(1), '1'); type(centreY(1), '2'); setRadius(graph, 1, '3.5');
         type(pointX, '-6'); type(pointY, '4');
     });
     expect(viaAction).toEqual(viaControl);
@@ -63,9 +65,9 @@ test('set-point and set-circle reach the state and readouts of typing into the f
 
 test('set-mode reaches the state and readouts of the Konstrukcija select, and set-circle on c2 matches its fields', () => {
     const viaAction = after(graph => { apply(graph, setMode('radical')); apply(graph, setCircle('c2', 8, 0, 3)); });
-    const viaControl = after(() => {
+    const viaControl = after(graph => {
         choose('radical');
-        type(centreX(2), '8'); type(centreY(2), '0'); type(radius(2), '3');
+        type(centreX(2), '8'); type(centreY(2), '0'); setRadius(graph, 2, '3');
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state.mode).toBe('radical');
@@ -127,12 +129,12 @@ test('set-apollonius reaches the state and readouts of typing into the A, B, P a
         apply(graph, setMode('apollonius'));
         apply(graph, setApollonius({a: {x: 1, y: 2}, b: {x: 7, y: 2}, p: {x: 5, y: -3}, k: 3}));
     });
-    const viaControl = after(() => {
+    const viaControl = after(graph => {
         choose('apollonius');
         type(pointField('x', 'A'), '1'); type(pointField('y', 'A'), '2');
         type(pointField('x', 'B'), '7'); type(pointField('y', 'B'), '2');
         type(pointField('x', 'P'), '5'); type(pointField('y', 'P'), '-3');
-        type(ratioField, '3');
+        setRatio(graph, '3');
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state).toEqual(expect.objectContaining({a: {x: 1, y: 2}, b: {x: 7, y: 2}, p: {x: 5, y: -3}, k: 3}));

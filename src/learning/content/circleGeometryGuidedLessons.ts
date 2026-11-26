@@ -12,10 +12,13 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-circle-a.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {CircleConstructionIds} from '../../graphs/compgeo/CircleConstructionGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const declared = frameDeclarer<CircleConstructionIds>();
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 interface StepContent {
     readonly id: string;
@@ -26,16 +29,18 @@ interface StepContent {
     readonly formulaIds: readonly string[];
     readonly workedExampleId?: string;
     readonly observationPrompt: LocalizedText;
+    /** What the observation frame highlights and asks the learner to use; never a value the step asks to predict. */
+    readonly observationDeclare?: FrameDeclaration;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({observationDeclare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', observationDeclare),
     ],
 });
 
@@ -173,6 +178,7 @@ const cg1Steps: readonly GuidedLessonStep[] = [
             'Move \\(P\\) to \\((3,0)\\): the power is \\(3^2-25=-16\\), inside, so there is no tangent. At \\(P=(5,0)\\) the power is \\(0\\): \\(P\\) is on the circle, there is one tangent, \\(x=5\\), and its point of contact is \\(P\\) itself. At \\(P=(13,0)\\) the power is \\(144>0\\) and there are two tangents. The decision is the sign of the exactly computed power, not how the picture looks. Through a point inside every line is a secant; through a point on the circle every line except the tangent is a secant with a second point on the circle.',
         ),
         formulaIds: ['power-of-point'],
+        observationDeclare: declared({highlight: ['power', 'count']}),
         observationPrompt: text('Povleci \\(P\\) čez krožnico in opazuj vrstici moči in števila tangent.', 'Drag \\(P\\) across the circle and watch the rows for the power and the number of tangents.'),
         expectedObservations: [text('Pri \\(P=(3,0)\\) je potenca \\(-16\\) in tangent ni; pri \\(P=(5,0)\\) je potenca \\(0\\) in tangenta je ena.', 'At \\(P=(3,0)\\) the power is \\(-16\\) and there is no tangent; at \\(P=(5,0)\\) the power is \\(0\\) and there is one tangent.')],
         scene: scene('cg1-count-scene', {mode: 'tangents', c1: O, p: [3, 0]},
@@ -188,6 +194,7 @@ const cg1Steps: readonly GuidedLessonStep[] = [
             'For the outer point \\(P=(13,0)\\) we draw the circle that has \\(OP\\) as a diameter: its centre is the midpoint \\((\\tfrac{13}{2},0)\\) and its squared radius is \\(\\tfrac{169}{4}\\). This circle meets the given circle in two points \\(T_1\\) and \\(T_2\\); in the readout they are approximately \\((1.9231,\\ 4.6154)\\) and \\((1.9231,\\ -4.6154)\\), both on the chord of contact \\(13x=25\\). The next step shows why these are the points of contact.',
         ),
         formulaIds: [],
+        observationDeclare: declared({highlight: ['thales', 'contact-1', 'chord']}),
         observationPrompt: text('Poišči v odčitku Talesovo krožnico, obe točki dotika in tetivo dotikališč.', 'Find the Thales circle, both points of contact and the chord of contact in the readout.'),
         expectedObservations: [text('Talesova krožnica ima središče \\((\\tfrac{13}{2},0)\\) in kvadrat polmera \\(\\tfrac{169}{4}=42{,}25\\); tetiva dotikališč je \\(13x=25\\).', 'The Thales circle has centre \\((\\tfrac{13}{2},0)\\) and squared radius \\(\\tfrac{169}{4}=42.25\\); the chord of contact is \\(13x=25\\).')],
         scene: scene('cg1-thales-scene', {mode: 'tangents', c1: O, p: [13, 0]},
@@ -203,6 +210,7 @@ const cg1Steps: readonly GuidedLessonStep[] = [
             'Argument: the point \\(T\\) is on the Thales circle over \\(OP\\), so by Thales\' theorem the angle \\(OTP\\) is right (the lesson on the inscribed angle and Thales\' theorem). So \\(PT\\perp OT\\). Since \\(T\\) is also on the given circle, \\(OT\\) is a radius, and a line through \\(T\\) perpendicular to the radius is a tangent. The computation \\((T-O)\\cdot(T-P)=0\\) says the same. The line through \\(P\\) and any other point of the circle is a secant. Moving \\(P\\) is an illustration; the argument is the right angle.',
         ),
         formulaIds: ['thales-contact'],
+        observationDeclare: declared({highlight: ['contact-1', 'contact-2']}),
         observationPrompt: text('Preveri, da so točke dotika res na obeh krožnicah, in poišči pravi kot pri njiju.', 'Check that the points of contact are on both circles, and find the right angle at them.'),
         expectedObservations: [text('Točki \\(T_1\\) in \\(T_2\\) sta na obeh krožnicah; za \\(T_1\\) je \\((T_1-O)\\cdot(T_1-P)=0\\).', 'The points \\(T_1\\) and \\(T_2\\) are on both circles; for \\(T_1\\) we have \\((T_1-O)\\cdot(T_1-P)=0\\).')],
         scene: scene('cg1-right-angle-scene', {mode: 'tangents', c1: O, p: [13, 0]},
@@ -219,6 +227,7 @@ const cg1Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['tangent-length'],
         workedExampleId: 'cg1-lengths',
+        observationDeclare: declared({highlight: ['power', 'length']}),
         observationPrompt: text('Preberi potenco in dolžino tangente ter preveri, da je kvadrat dolžine enak potenci.', 'Read the power and the tangent length and check that the square of the length equals the power.'),
         expectedObservations: [text('Potenca je \\(144\\), dolžina tangente \\(12\\) in \\(12^2=144\\).', 'The power is \\(144\\), the tangent length is \\(12\\) and \\(12^2=144\\).')],
         scene: scene('cg1-lengths-scene', {mode: 'tangents', c1: O, p: [13, 0]},
@@ -234,6 +243,7 @@ const cg1Steps: readonly GuidedLessonStep[] = [
             'Change the centre, the radius and the point \\(P\\). Find a position where the power is \\(0\\), and one with a small positive power where the points of contact are close together. If \\(P=O\\) there is no tangent: the graph says so in the status. The radius must be positive. The power of a point and secants are in the lesson Power of a point and inversion in the chapter Triangle geometry and inversion. What the picture shows is an illustration of one position; only the theorem and the arguments of the previous steps hold.',
         ),
         formulaIds: [],
+        observationDeclare: declared({highlight: ['power', 'count']}),
         observationPrompt: text('Poišči lego z eno tangento in lego brez tangente ter prebereš potenco v obeh.', 'Find a position with one tangent and one with none, and read the power in both.'),
         expectedObservations: [text('Število tangent je \\(2\\), \\(1\\) ali \\(0\\), glede na to, ali je potenca pozitivna, \\(0\\) ali negativna.', 'The number of tangents is \\(2\\), \\(1\\) or \\(0\\), depending on whether the power is positive, \\(0\\) or negative.')],
         scene: scene('cg1-explore-scene', {mode: 'tangents', c1: O, p: [13, 0]},
@@ -309,6 +319,7 @@ const cg2Steps: readonly GuidedLessonStep[] = [
             'At \\(P=(4,2)\\) the powers are \\(-5\\) and \\(-1\\), the first is smaller. Move \\(P\\) to \\((5,2)\\): the powers are \\(4\\) and \\(-4\\), now the first is larger. The difference of the powers changed from negative to positive between \\(x=4\\) and \\(x=5\\), so somewhere in between it is \\(0\\). This is an illustration on one horizontal line; there is no grid point of equal power, so the readout "P on the radical axis of circles 1 and 2" always says "no" here.',
         ),
         formulaIds: [],
+        observationDeclare: declared({highlight: ['power-1', 'power-2']}),
         observationPrompt: text('Premikaj \\(P\\) po mreži in opazuj, kje se razlika potenc zamenja predznak.', 'Move \\(P\\) along the grid and watch where the difference of the powers changes sign.'),
         expectedObservations: [text('Pri \\(P=(5,2)\\) sta potenci \\(4\\) in \\(-4\\).', 'At \\(P=(5,2)\\) the powers are \\(4\\) and \\(-4\\).')],
         scene: scene('cg2-probe-scene', {mode: 'radical', c1: O, c2: C2, c3: C3, p: [5, 2]},
@@ -325,6 +336,7 @@ const cg2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['radical-axis'],
         workedExampleId: 'cg2-axis',
+        observationDeclare: declared({highlight: ['axis-12']}),
         observationPrompt: text('Preberi enačbo potenčne premice krožnic \\(1\\) in \\(2\\) in preveri, da je pravokotna na zveznico središč.', 'Read the equation of the radical axis of the circles \\(1\\) and \\(2\\) and check that it is perpendicular to the line of centres.'),
         expectedObservations: [text('Potenčna premica krožnic \\(1\\) in \\(2\\) je \\(12x=52\\), to je \\(x=\\tfrac{13}{3}\\).', 'The radical axis of the circles \\(1\\) and \\(2\\) is \\(12x=52\\), that is \\(x=\\tfrac{13}{3}\\).')],
         scene: scene('cg2-line-scene', {mode: 'radical', c1: O, c2: C2, c3: C3, p: [4, 2]},
@@ -340,6 +352,7 @@ const cg2Steps: readonly GuidedLessonStep[] = [
             'Argument: a common point of the two circles has power \\(0\\) with respect to both, so it has equal power and lies on the radical axis. The circles \\(c_1\\) and \\(c_2\\) meet in two points, and the readout says "two common points". They lie on \\(x=\\tfrac{13}{3}\\), where \\(y^2=25-\\tfrac{169}{9}=\\tfrac{56}{9}\\), so \\(y=\\pm\\tfrac{\\sqrt{56}}{3}\\approx\\pm2.4944\\). Check for \\(c_2\\): \\((\\tfrac{13}{3}-6)^2+\\tfrac{56}{9}=\\tfrac{25}{9}+\\tfrac{56}{9}=9=3^2\\).',
         ),
         formulaIds: [],
+        observationDeclare: declared({highlight: ['meet']}),
         observationPrompt: text('Poišči v odčitku vrstico skupnih točk in poglej, kje potenčna premica seka obe krožnici.', 'Find the row of common points in the readout and look where the radical axis meets both circles.'),
         expectedObservations: [text('Odčitek navede dve skupni točki, obe na premici \\(12x=52\\).', 'The readout lists two common points, both on the line \\(12x=52\\).')],
         scene: scene('cg2-common-scene', {mode: 'radical', c1: O, c2: C2, c3: C3, p: [4, 2]},
@@ -355,6 +368,7 @@ const cg2Steps: readonly GuidedLessonStep[] = [
             'Put \\(c_2\\) at centre \\((8,0)\\) with radius \\(3\\): the circles touch externally and the readout says "one common point (touching)". The radical axis is \\(16x=80\\), that is \\(x=5\\), through the point of contact \\((5,0)\\) and perpendicular to the line of centres, so the common tangent. Then put \\(c_2\\) at centre \\((10,0)\\) with radius \\(2\\): the circles are apart, the readout says "no common points", and the radical axis is \\(20x=121\\), that is \\(x=\\tfrac{121}{20}=6.05\\), between them, since \\(c_1\\) reaches to \\(x=5\\) and \\(c_2\\) from \\(x=8\\). The third circle still waits for step 6.',
         ),
         formulaIds: ['radical-axis'],
+        observationDeclare: declared({highlight: ['axis-12'], uses: ['radius-2']}),
         observationPrompt: text('Spreminjaj središče in polmer krožnice \\(c_2\\) ter opazuj, kam gre potenčna premica.', 'Change the centre and the radius of the circle \\(c_2\\) and watch where the radical axis goes.'),
         expectedObservations: [text('Pri dotiku je potenčna premica \\(16x=80\\), pri središču \\((10,0)\\) in polmeru \\(2\\) pa \\(20x=121\\).', 'At the touching position the radical axis is \\(16x=80\\), and at centre \\((10,0)\\) with radius \\(2\\) it is \\(20x=121\\).')],
         scene: scene('cg2-apart-scene', {mode: 'radical', c1: O, c2: [8, 0, 3], c3: C3, p: [4, 2]},
@@ -370,6 +384,7 @@ const cg2Steps: readonly GuidedLessonStep[] = [
             'Now include the circle \\(c_3\\) with centre \\((3,6)\\) and radius \\(2\\). The centres \\((0,0)\\), \\((6,0)\\), \\((3,6)\\) are not on one line. The radical axes of the circles \\(1\\), \\(3\\) and \\(2\\), \\(3\\) are \\(6x+12y=66\\) and \\(-6x+12y=14\\); they meet in the radical centre \\((\\tfrac{13}{3},\\tfrac{10}{3})\\approx(4.3333,\\ 3.3333)\\). Argument: it has equal power with respect to \\(c_1\\) and \\(c_2\\) (it lies on the first line) and with respect to \\(c_1\\) and \\(c_3\\), so also with respect to \\(c_2\\) and \\(c_3\\), hence on all three lines. The common power is \\(\\tfrac{44}{9}\\approx4.8889\\) and is positive: the centre is outside all three circles, and its tangent length to each circle is \\(\\sqrt{44/9}\\approx2.2111\\). The circle about the centre with this radius cuts all three at right angles.',
         ),
         formulaIds: ['equal-power'],
+        observationDeclare: declared({highlight: ['centre', 'centre-power', 'orthogonal']}),
         observationPrompt: text('Preberi potenčno središče, skupno potenco in kvadrat polmera pravokotne krožnice.', 'Read the radical centre, the common power and the squared radius of the orthogonal circle.'),
         expectedObservations: [text('Potenčno središče je \\((\\tfrac{13}{3},\\tfrac{10}{3})\\), skupna potenca in kvadrat polmera pravokotne krožnice sta \\(\\tfrac{44}{9}\\approx4{,}8889\\).', 'The radical centre is \\((\\tfrac{13}{3},\\tfrac{10}{3})\\); the common power and the squared radius of the orthogonal circle are \\(\\tfrac{44}{9}\\approx4.8889\\).')],
         scene: scene('cg2-centre-scene', {mode: 'radical', c1: O, c2: C2, c3: C3, p: [4, 2]},
@@ -515,6 +530,7 @@ const cg3Steps: readonly GuidedLessonStep[] = [
             'The points \\(A=(0,0)\\) and \\(B=(6,0)\\) are given and the point \\(P\\) is arbitrary. You set the ratio \\(k=|PA|:|PB|\\) with the slider Ratio. We are interested in the set of all points \\(P\\) for which the ratio equals the given \\(k\\). Before you change anything, predict the shape of this set for \\(k=1\\), that is for \\(|PA|=|PB|\\), and for \\(k=2\\), that is for \\(|PA|=2|PB|\\), and on which side of the points \\(A\\) and \\(B\\) it lies.',
         ),
         formulaIds: [],
+        observationDeclare: declared({uses: ['ratio']}),
         observationPrompt: text('Zapiši dve napovedi, nato preberi stanje pri \\(k=1\\); nastavi \\(k=2\\) in preberi stanje še enkrat.', 'Write down two predictions, then read the status at \\(k=1\\); set \\(k=2\\) and read the status again.'),
         expectedObservations: [
             text('Pri \\(k=1\\) stanje pove, da so točke na simetrali daljice \\(AB\\); vrstica množice kaže \\(12x=36\\), to je premica \\(x=3\\).', 'At \\(k=1\\) the status says the points lie on the perpendicular bisector of \\(AB\\); the set row shows \\(12x=36\\), the line \\(x=3\\).'),
@@ -533,6 +549,7 @@ const cg3Steps: readonly GuidedLessonStep[] = [
             'The readout in the row Ratio PA : PB shows \\(|PA|:|PB|\\) for the current point \\(P\\). The point \\(P\\) has integer coordinates, so the test whether \\(P\\) is on the set is exact: we compare \\(|PA|^2\\) and \\(m|PB|^2\\). The ratio in the readout is the square root of the ratio of the squares and is rounded when it is not an integer. Drag \\(P\\) or type its coordinates and watch the ratio; at \\(k=1\\) the row P on the set says whether \\(P\\) has the ratio \\(1\\). If \\(P=B\\), the denominator is \\(0\\) and the ratio is not defined.',
         ),
         formulaIds: ['apollonius-ratio'],
+        observationDeclare: declared({highlight: ['ratio', 'on-locus']}),
         observationPrompt: text('Postavi \\(P\\) v \\((5,0)\\), v \\((3,3)\\) in v \\(B=(6,0)\\) ter preberi razmerje in vrstico Točka P na množici.', 'Put \\(P\\) at \\((5,0)\\), at \\((3,3)\\) and at \\(B=(6,0)\\), and read the ratio and the row P on the set.'),
         expectedObservations: [
             text('V \\((5,0)\\) je razmerje \\(5\\), saj je \\(|PA|=5\\) in \\(|PB|=1\\); v \\((3,3)\\) je razmerje \\(1\\), ker je \\(|PA|^2=|PB|^2=18\\), in točka je na množici; v \\(B\\) razmerje ni določeno.', 'At \\((5,0)\\) the ratio is \\(5\\), since \\(|PA|=5\\) and \\(|PB|=1\\); at \\((3,3)\\) the ratio is \\(1\\), because \\(|PA|^2=|PB|^2=18\\), and the point is on the set; at \\(B\\) the ratio is not defined.'),
@@ -569,6 +586,7 @@ const cg3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['apollonius-circle'],
         workedExampleId: 'cg3-expansion',
+        observationDeclare: declared({highlight: ['locus']}),
         observationPrompt: text('Preberi središče in kvadrat polmera v vrstici množice in preveri, da krožnica poteka skozi obe delilni točki.', 'Read the centre and the squared radius in the set row and check that the circle passes through both division points.'),
         expectedObservations: [text('Središče je \\((8,0)\\), kvadrat polmera \\(16\\); krožnica poteka skozi \\((4,0)\\) in \\((12,0)\\).', 'The centre is \\((8,0)\\), the squared radius is \\(16\\); the circle passes through \\((4,0)\\) and \\((12,0)\\).')],
         scene: apolloniusScene('cg3-circle-scene', {p: [8, 4], k: 2},
@@ -584,6 +602,7 @@ const cg3Steps: readonly GuidedLessonStep[] = [
             'The point \\((8,4)\\) is on the circle \\((x-8)^2+y^2=16\\), because \\(0+16=16\\). The exact computation: \\(|PA|^2=8^2+4^2=80\\), \\(|PB|^2=2^2+4^2=20\\) and \\(80=4\\cdot20\\), so the ratio is \\(\\sqrt{80/20}=2\\) without rounding. The mirror point \\((8,-4)\\) gives the same. Moving \\(P\\) is an illustration; that every point of the circle has the ratio \\(2\\) follows from the equivalence in the previous step.',
         ),
         formulaIds: [],
+        observationDeclare: declared({highlight: ['ratio', 'on-locus']}),
         observationPrompt: text('Postavi \\(P\\) v \\((8,4)\\), \\((8,-4)\\), \\((4,0)\\), \\((12,0)\\) in nazadnje v \\((5,0)\\); preberi razmerje in vrstico Točka P na množici.', 'Put \\(P\\) at \\((8,4)\\), \\((8,-4)\\), \\((4,0)\\), \\((12,0)\\) and finally at \\((5,0)\\); read the ratio and the row P on the set.'),
         expectedObservations: [text('V prvih štirih točkah je razmerje \\(2\\) in točka je na množici; v \\((5,0)\\) je razmerje \\(5\\) in točka ni na množici.', 'At the first four points the ratio is \\(2\\) and the point is on the set; at \\((5,0)\\) the ratio is \\(5\\) and the point is not on the set.')],
         scene: apolloniusScene('cg3-points-scene', {p: [8, 4], k: 2},
@@ -617,6 +636,7 @@ const cg3Steps: readonly GuidedLessonStep[] = [
             'Change the ratio \\(k\\) in steps of \\(\\tfrac12\\), and the points \\(A\\), \\(B\\) and \\(P\\). At \\(k=\\tfrac12\\) and the original \\(A\\), \\(B\\) the centre is \\((-2,0)\\) and the squared radius is again \\(16\\): the circle is on the side of the point \\(A\\). At \\(k=1\\) the set is a line. If you put \\(A\\) and \\(B\\) at the same point, the status says that the set is not defined. The picture shows single cases; the general statement is the argument from the expansion.',
         ),
         formulaIds: [],
+        observationDeclare: declared({highlight: ['locus'], uses: ['ratio']}),
         observationPrompt: text('Nastavi \\(k=\\tfrac12\\) in preberi vrstico množice; nato postavi \\(B\\) v \\(A\\) in preberi stanje.', 'Set \\(k=\\tfrac12\\) and read the set row; then put \\(B\\) at \\(A\\) and read the status.'),
         expectedObservations: [
             text('Pri \\(k=\\tfrac12\\) je središče \\((-2,0)\\), kvadrat polmera \\(16\\).', 'At \\(k=\\tfrac12\\) the centre is \\((-2,0)\\) and the squared radius is \\(16\\).'),
@@ -720,6 +740,7 @@ const cg4Steps: readonly GuidedLessonStep[] = [
             'The radii stay \\(r_1=5\\), \\(r_2=3\\), so \\(r_1+r_2=8\\) and \\(|r_1-r_2|=2\\). Move the centre of the second circle along the \\(x\\) axis so that the distance of the centres \\(d\\) equals \\(8\\), \\(7\\), \\(2\\) and \\(1\\), and at each position read the status and the number of common tangents. The number changes at the distances \\(8\\) and \\(2\\), where the circles touch. It is decided by an exact computation, not by how the picture looks.',
         ),
         formulaIds: ['common-tangent-count'],
+        observationDeclare: declared({highlight: ['count']}),
         observationPrompt: text('Nastavi središče druge krožnice na \\((8,0)\\), \\((7,0)\\), \\((2,0)\\) in \\((1,0)\\) ter pri vsakem preberi število skupnih tangent.', 'Set the centre of the second circle to \\((8,0)\\), \\((7,0)\\), \\((2,0)\\) and \\((1,0)\\) and read the number of common tangents at each.'),
         expectedObservations: [text('Pri \\(d=8\\) so tri tangente (zunanji dotik), pri \\(d=7\\) dve (krožnici se sekata), pri \\(d=2\\) ena (notranji dotik), pri \\(d=1\\) nobene (ena krožnica leži v drugi).', 'At \\(d=8\\) there are three tangents (external contact), at \\(d=7\\) two (the circles cross), at \\(d=2\\) one (internal contact), at \\(d=1\\) none (one circle lies inside the other).')],
         scene: commonScene('cg4-count-scene', [0, 0, 5], [8, 0, 3],
@@ -736,6 +757,7 @@ const cg4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['similarity-centre'],
         workedExampleId: 'cg4-contact',
+        observationDeclare: declared({highlight: ['external-centre', 'count']}),
         observationPrompt: text('Preberi zunanje središče raztega in število skupnih tangent ter poišči tangenti, ki se sekata v njem.', 'Read the external centre of similarity and the number of common tangents, and find the tangents that meet at it.'),
         expectedObservations: [text('Zunanje središče raztega je \\((15,0)\\), skupnih tangent je \\(4\\); dve se sekata v \\(X\\).', 'The external centre of similarity is \\((15,0)\\), there are \\(4\\) common tangents; two of them meet at \\(X\\).')],
         scene: commonScene('cg4-external-scene', [0, 0, 3], [10, 0, 1],
@@ -751,6 +773,7 @@ const cg4Steps: readonly GuidedLessonStep[] = [
             'The dilation with the negative factor \\(-\\tfrac13\\) also maps \\(c_1\\) to \\(c_2\\); its centre \\(I\\) lies between the centres with \\(|IO_1|:|IO_2|=3:1\\) and \\(|IO_1|+|IO_2|=10\\), so \\(|IO_1|=7.5\\) and \\(I=(\\tfrac{15}{2},0)\\). The same argument as before: each of the two tangents from \\(I\\) to \\(c_1\\) is mapped to itself, so they are common tangents of the circles; since the centre of similarity lies between the circles, they cross the space between them. A line from \\(I\\) makes the angle \\(\\arcsin\\tfrac{3}{7.5}=\\arcsin0.4\\approx23.58^\\circ\\) with the line of centres.',
         ),
         formulaIds: ['similarity-centre'],
+        observationDeclare: declared({highlight: ['internal-centre']}),
         observationPrompt: text('Preberi notranje središče raztega in poišči tangenti, ki prečkata med krožnicama.', 'Read the internal centre of similarity and find the tangents that cross between the circles.'),
         expectedObservations: [text('Notranje središče raztega je \\((\\tfrac{15}{2},0)=(7{,}5;\\ 0)\\); skupaj z zunanjima sta to vse štiri skupne tangente.', 'The internal centre of similarity is \\((\\tfrac{15}{2},0)=(7.5,\\ 0)\\); together with the external two these are all four common tangents.')],
         scene: commonScene('cg4-internal-scene', [0, 0, 3], [10, 0, 1],
@@ -766,6 +789,7 @@ const cg4Steps: readonly GuidedLessonStep[] = [
             'The radius of the first circle is \\(3\\) and the centres are \\((0,0)\\) and \\((10,0)\\). The external centre of similarity \\(X\\) lies on the line of centres. First set the radius of the second circle to \\(2\\), then to \\(3\\). Before you check, predict where \\(X\\) goes at \\(r_2=2\\) and what happens to it at \\(r_2=3\\), when the radii are equal.',
         ),
         formulaIds: [],
+        observationDeclare: declared({uses: ['radius-2']}),
         observationPrompt: text('Zapiši napoved, nato nastavi \\(r_2=2\\) in \\(r_2=3\\), preberi zunanje in notranje središče raztega ter stanje in preveri napoved.', 'Write down your prediction, then set \\(r_2=2\\) and \\(r_2=3\\), read the external and the internal centre of similarity and the status, and check the prediction.'),
         expectedObservations: [
             text('Pri \\(r_2=2\\) je zunanje središče raztega \\((30,0)\\): \\(|XO_1|:|XO_2|=3:2\\) in \\(|XO_1|-|XO_2|=10\\), zato \\(|XO_1|=30\\). Večji ko je \\(r_2\\) proti \\(r_1\\), dlje je \\(X\\).', 'At \\(r_2=2\\) the external centre of similarity is \\((30,0)\\): \\(|XO_1|:|XO_2|=3:2\\) and \\(|XO_1|-|XO_2|=10\\), so \\(|XO_1|=30\\). The closer \\(r_2\\) comes to \\(r_1\\), the farther \\(X\\) is.'),
@@ -784,6 +808,7 @@ const cg4Steps: readonly GuidedLessonStep[] = [
             'The circles have radii \\(3\\) and \\(1\\) and the first has its centre at \\((0,0)\\). With the centre of the second at \\((4,0)\\) we have \\(d=4=r_1+r_2\\): the circles touch externally. With the centre at \\((2,0)\\) we have \\(d=2=r_1-r_2\\): they touch internally. Before you check, predict where the internal centre of similarity lies when \\(d=r_1+r_2\\), and how many common tangents the circles have in both cases.',
         ),
         formulaIds: [],
+        observationDeclare: declared({highlight: ['count', 'external-centre', 'internal-centre']}),
         observationPrompt: text('Nastavi središče druge krožnice na \\((4,0)\\) in nato na \\((2,0)\\); preberi število tangent in središči raztega.', 'Set the centre of the second circle to \\((4,0)\\) and then to \\((2,0)\\); read the number of tangents and the centres of similarity.'),
         expectedObservations: [
             text('Pri \\((4,0)\\) so tri tangente, notranje središče raztega je \\((3,0)\\), to je točka dotika; zunanje je \\((6,0)\\).', 'At \\((4,0)\\) there are three tangents, the internal centre of similarity is \\((3,0)\\), the point of contact; the external one is \\((6,0)\\).'),
@@ -802,6 +827,7 @@ const cg4Steps: readonly GuidedLessonStep[] = [
             'Change the centres and radii of both circles. Put the centres at the same point: if the radii differ, the circles are concentric and there are no common tangents. If the radii are equal too, the circles coincide, there are infinitely many common tangents and the graph draws none. The picture shows single cases; in general the number of tangents is given by the rule from step 2.',
         ),
         formulaIds: [],
+        observationDeclare: declared({uses: ['radius-1', 'radius-2']}),
         observationPrompt: text('Postavi obe središči v \\((0,0)\\) s polmeroma \\(5\\) in \\(3\\), nato oba polmera na \\(5\\) in preberi stanje.', 'Put both centres at \\((0,0)\\) with radii \\(5\\) and \\(3\\), then both radii at \\(5\\), and read the status.'),
         expectedObservations: [
             text('Pri polmerih \\(5\\) in \\(3\\) sta krožnici sosrediščni in skupnih tangent ni.', 'With radii \\(5\\) and \\(3\\) the circles are concentric and there are no common tangents.'),

@@ -62,6 +62,10 @@ const reductionAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the tolerance sentence the old panel showed beside its readouts (it carries no readout marker, so the recording holds none)'},
 ];
 
+const circleConstructionAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the readout help carries the approximation sentence the old panel showed under its readouts (it carries no readout marker, so the recording holds none)'},
+];
+
 const SAMPLES: readonly Sample[] = [
     {file: 'functions/__parity__/taylor.json', demonstration: 'taylor', states: [
         state('default', {}),
@@ -260,6 +264,36 @@ const SAMPLES: readonly Sample[] = [
             {name: 'P2, free end points', apply: run(g => g.setControlPoints(P2))},
             {name: 'P2, fixed end points', apply: run(g => g.setReductionMode('fixed'))},
             {name: 'a flat cubic', apply: run(g => g.setControlPoints([[0, 0], [1, 0], [2, 0], [3, 0]]))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'compgeo/__parity__/circle-construction.json', demonstration: 'circle-construction', accepted: circleConstructionAccepted, states: (() => {
+        type Circle = {applyCircleAction(action: Record<string, unknown>): void};
+        const act = (...actions: Record<string, unknown>[]): ParityState['apply'] => graph => {
+            runAs('learner', () => actions.forEach(action => (graph as unknown as Circle).applyCircleAction({kind: 'circle', ...action})));
+        };
+        const mode = (value: string) => ({operation: 'set-mode', mode: value});
+        const point = (x: number, y: number) => ({operation: 'set-point', x, y});
+        const circle = (which: string, x: number, y: number, r: number) => ({operation: 'set-circle', circle: which, x, y, r});
+        return [
+            {name: 'default (tangents, P outside)', apply: () => undefined},
+            {name: 'tangents, P inside', apply: act(point(3, 1))},
+            {name: 'tangents, P on the circle', apply: act(point(5, 0))},
+            {name: 'tangents, P at the centre', apply: act(point(0, 0))},
+            {name: 'tangents, P outside, radius 2', apply: act(point(8, 6), circle('c1', 0, 0, 2))},
+            {name: 'radical example', apply: act(mode('radical'))},
+            {name: 'radical, probe moved', apply: act(point(-3, 5))},
+            {name: 'radical, second circle moved', apply: act(circle('c2', 6, 2, 3))},
+            {name: 'radical, circles 1 and 2 concentric', apply: act(circle('c2', 0, 0, 3))},
+            {name: 'radical, circles 1 and 2 coincide', apply: act(circle('c2', 0, 0, 5))},
+            {name: 'radical, centres on a line', apply: act(circle('c1', 0, 0, 5), circle('c2', 6, 0, 3), circle('c3', 12, 0, 2))},
+            {name: 'apollonius example', apply: act(mode('apollonius'))},
+            {name: 'apollonius, ratio 1 (a line)', apply: act({operation: 'set-apollonius', k: 1})},
+            {name: 'apollonius, P at B', apply: act({operation: 'set-apollonius', k: 2, p: {x: 6, y: 0}})},
+            {name: 'common example', apply: act(mode('common'))},
+            {name: 'common, crossing', apply: act(circle('c2', 4, 0, 3))},
+            {name: 'common, touching outside', apply: act(circle('c2', 7, 0, 4))},
+            {name: 'common, nested', apply: act(circle('c2', 1, 0, 1))},
+            {name: 'common, equal radii', apply: act(circle('c1', 0, 0, 3), circle('c2', 9, 0, 3))},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/function-inverse.json', demonstration: 'function-inverse', states: (() => {

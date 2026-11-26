@@ -2,16 +2,19 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, type Message, message, messageNumber, onLanguageChange, renderMessage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutRow, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
 import {PointListInput} from "../../inputs/PointListInput";
-import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
+import {ReadoutHeading, ReadoutList} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
-import {FunctionLegend, LegendItem} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointLabelMath} from "../styles/pointLabelMath";
 import {Line} from "../../compgeo/circle";
@@ -26,6 +29,34 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import {circleConstructionPresetCollection} from "./circleConstruction/circleConstructionPresetCollection";
+
+/**
+ * The ids this graph declares. Parameters (arbiter keys): the radius of each circle the mode draws and the ratio of the Apollonius mode, the
+ * values the lessons ask the learner to set while reading the rows. Rows: what the old panel listed per mode. Legend: the drawn construction
+ * objects. No notes, sections or actions: the mode (it loads an example) and the point rows stay in Orodja.
+ */
+export type CircleConstructionIds = {
+    param: "radius-1" | "radius-2" | "radius-3" | "ratio";
+    row: "power" | "length" | "count" | "contact-1" | "contact-2" | "chord" | "thales"
+        | "power-1" | "power-2" | "power-3" | "on-axis" | "axis-12" | "axis-13" | "axis-23" | "meet" | "centre" | "centre-power" | "orthogonal"
+        | "ratio" | "on-locus" | "internal" | "external" | "locus" | "inverse"
+        | "external-centre" | "internal-centre" | "distance2";
+    note: never;
+    legend: "thales" | "chord" | "locus" | "axis-0" | "axis-1" | "axis-2" | "centre" | "orthogonal" | "external-tangents" | "internal-tangents"
+        | "external-centre" | "internal-centre";
+    section: never;
+    action: never;
+};
+
+type CircleRadiusKey = "radius-1" | "radius-2" | "radius-3";
+const RADIUS_KEYS: Readonly<Record<"c1" | "c2" | "c3", CircleRadiusKey>> = {c1: "radius-1", c2: "radius-2", c3: "radius-3"};
+
+/** The text of a declared row value, as the old panel showed it. */
+function valueText(value: ReadoutRow["value"]): string {
+    if ("kind" in value && value.kind === "formatted") return value.text;
+    if ("kind" in value && value.kind === "number") return formatNumber(value.value, currentLanguage(), value.maxDecimals);
+    return renderMessage(value as Message);
+}
 
 /** The scene state is the stored circle construction state (ADR 0045 sections 1 and 2); everything else is derived from it. */
 export interface CircleConstructionGraphState extends BaseGraphState, CircleConstructionState {}
@@ -92,8 +123,8 @@ function coefficientsOf(line: Line | InexactLine): Coefficients {
     return [numberOf(line.a), numberOf(line.b), numberOf(line.c)];
 }
 
-/** A line as text, for example `13 x = 25` or `6 x + 12 y = 66`. */
-function lineText(line: Line | InexactLine): string {
+/** A line as a message, for example `13 x = 25` or `6 x + 12 y = 66` (the left side has letters, so it is a template, not a formatted value). */
+function lineMessage(line: Line | InexactLine): Message {
     const [a, b, c] = coefficientsOf(line);
     let text = "";
     for (const [coefficient, name] of [[a, "x"], [b, "y"]] as const) {
@@ -102,7 +133,7 @@ function lineText(line: Line | InexactLine): string {
         const body = `${size === 1 ? "" : `${dec(size)} `}${name}`;
         text += text === "" ? `${coefficient < 0 ? "−" : ""}${body}` : ` ${coefficient < 0 ? "−" : "+"} ${body}`;
     }
-    return `${text} = ${dec(c)}`;
+    return message("circle_construction_line_equation", {value0: text, value1: dec(c)});
 }
 
 interface Anchors {
@@ -143,6 +174,8 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private readonly handleMap = new Map<HandleId, JXG.Point>();
+    /** The board elements each legend entry stands for (an entry may stand for several: both tangents of a kind, the locus circle or line). */
+    private readonly legendObjects = new Map<string, JXG.GeometryElement[]>();
     private viewCache?: {key: string; derived: CircleConstructionDerived};
     /** The mode the board was last drawn for; a sync that finds the same mode redraws nothing but the handle positions. */
     private builtMode: CircleMode | undefined;
@@ -476,6 +509,11 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         type Coordinate = number | (() => number);
         type PointFace = NonNullable<JXG.PointAttributes["face"]>;
         const frame = (): Frame => ({state: this.state, derived: this.view()});
+        /** Records the element a legend entry stands for, for `drawnObject`. */
+        const legendFor = <E extends JXG.GeometryElement>(id: CircleConstructionIds["legend"], element: E): E => {
+            this.legendObjects.set(id, [...(this.legendObjects.get(id) ?? []), element]);
+            return element;
+        };
 
         // ---- Primitives. Every one is owned; the accessors return finite numbers whatever the mode of the cached view is. ----
         const hidden = (x: Coordinate, y: Coordinate) =>
@@ -565,16 +603,16 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             const centre = circleWithHandles("c1", GraphPalette.referenceCurve, "o");
             const thales = hidden(
                 numberAt(f => tangents(f)?.thales?.centre.x.toNumber()), numberAt(f => tangents(f)?.thales?.centre.y.toNumber()));
-            circleAbout(thales, numberAt(f => {
+            legendFor("thales", circleAbout(thales, numberAt(f => {
                 const r2 = tangents(f)?.thales?.r2;
                 return r2 ? Math.sqrt(r2.toNumber()) : undefined;
-            }), THALES_STYLE.color, 1, THALES_STYLE.dash, flag(f => tangents(f)?.thales != null));
+            }), THALES_STYLE.color, 1, THALES_STYLE.dash, flag(f => tangents(f)?.thales != null)));
             const p = handle("p", GraphPalette.controlPoint, "o");
             const t1 = marker(contact(0, "x"), contact(0, "y"), "square", GraphPalette.primaryCurve, 5, outside);
             const t2 = marker(contact(1, "x"), contact(1, "y"), "square", GraphPalette.primaryCurve, 5, outside);
             segment(p, t1, GraphPalette.primaryCurve, 2, 0, outside);
             segment(p, t2, GraphPalette.primaryCurve, 2, 0, outside);
-            segment(t1, t2, CHORD_STYLE.color, 1, CHORD_STYLE.dash, outside);
+            legendFor("chord", segment(t1, t2, CHORD_STYLE.color, 1, CHORD_STYLE.dash, outside));
             segment(centre, p, GraphPalette.label, 1, 2, flag(f => !(tangents(f)?.atCentre ?? true)));
             caption("T1", contact(0, "x"), contact(0, "y"), GraphPalette.label, outside, true);
             caption("T2", contact(1, "x"), contact(1, "y"), GraphPalette.label, outside, true);
@@ -597,13 +635,13 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             label("3", "c3", colors[2]);
             handle("p", GraphPalette.controlPoint, "o");
             ([0, 1, 2] as const).forEach(index => {
-                lineAlong(() => {
+                legendFor(`axis-${index}` as "axis-0" | "axis-1" | "axis-2", lineAlong(() => {
                     const d = this.view();
                     const axis = d.mode === "radical" ? d.axes[index].axis : undefined;
                     return axis?.status === "line" ? coefficientsOf(axis.line) : null;
-                }, AXIS_STYLES[index].color, 2, AXIS_STYLES[index].dash);
+                }, AXIS_STYLES[index].color, 2, AXIS_STYLES[index].dash));
             });
-            const centre = marker(
+            const centre = legendFor("centre", marker(
                 numberAt(f => {
                     const c = radical(f)?.centre;
                     return c?.status === "centre" ? c.point.x.toNumber() : undefined;
@@ -612,11 +650,11 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                     const c = radical(f)?.centre;
                     return c?.status === "centre" ? c.point.y.toNumber() : undefined;
                 }),
-                "cross", GraphPalette.constructionAccent, 6, flag(f => radical(f)?.centre.status === "centre"));
-            circleAbout(centre, numberAt(f => {
+                "cross", GraphPalette.constructionAccent, 6, flag(f => radical(f)?.centre.status === "centre")));
+            legendFor("orthogonal", circleAbout(centre, numberAt(f => {
                 const r2 = radical(f)?.orthogonal?.r2;
                 return r2 ? Math.sqrt(r2.toNumber()) : undefined;
-            }), ORTHOGONAL_STYLE.color, 1, ORTHOGONAL_STYLE.dash, flag(f => radical(f)?.orthogonal != null));
+            }), ORTHOGONAL_STYLE.color, 1, ORTHOGONAL_STYLE.dash, flag(f => radical(f)?.orthogonal != null)));
         } else if (mode === "apollonius") {
             const apollonius = (f: Frame) => (f.derived.mode === "apollonius" ? f.derived : undefined);
             const a = handle("a", GraphPalette.referenceCurve, "o");
@@ -634,14 +672,14 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                     const l = apollonius(f)?.locus;
                     return l?.status === "circle" ? l.circle.centre.y.toNumber() : undefined;
                 }));
-            circleAbout(locusCentre, numberAt(f => {
+            legendFor("locus", circleAbout(locusCentre, numberAt(f => {
                 const l = apollonius(f)?.locus;
                 return l?.status === "circle" ? Math.sqrt(l.circle.r2.toNumber()) : undefined;
-            }), LOCUS_STYLE.color, 2, LOCUS_STYLE.dash, flag(f => apollonius(f)?.locus.status === "circle"));
-            lineAlong(() => {
+            }), LOCUS_STYLE.color, 2, LOCUS_STYLE.dash, flag(f => apollonius(f)?.locus.status === "circle")));
+            legendFor("locus", lineAlong(() => {
                 const d = this.view();
                 return d.mode === "apollonius" && d.locus.status === "line" ? coefficientsOf(d.locus.line) : null;
-            }, LOCUS_STYLE.color, 2, LOCUS_STYLE.dash);
+            }, LOCUS_STYLE.color, 2, LOCUS_STYLE.dash));
             const division = (kind: "internal" | "external", axis: "x" | "y") => numberAt(f => {
                 const l = apollonius(f)?.locus;
                 if (!l || l.status === "degenerate") return undefined;
@@ -680,19 +718,19 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 const point = kind === "internal" ? r?.internalCentre : r?.externalCentre;
                 return point?.[axis].toNumber();
             });
-            marker(centreCoordinate("external", "x"), centreCoordinate("external", "y"), "cross", GraphPalette.constructionLevels[1], 6,
-                flag(f => okResult(f)?.externalCentre != null));
-            marker(centreCoordinate("internal", "x"), centreCoordinate("internal", "y"), "plus", GraphPalette.constructionLevels[2], 6,
-                flag(f => okResult(f) !== undefined));
+            legendFor("external-centre", marker(centreCoordinate("external", "x"), centreCoordinate("external", "y"), "cross", GraphPalette.constructionLevels[1], 6,
+                flag(f => okResult(f)?.externalCentre != null)));
+            legendFor("internal-centre", marker(centreCoordinate("internal", "x"), centreCoordinate("internal", "y"), "plus", GraphPalette.constructionLevels[2], 6,
+                flag(f => okResult(f) !== undefined)));
             for (const kind of ["external", "internal"] as const) {
                 for (const index of [0, 1] as const) {
-                    lineAlong(() => {
+                    legendFor(`${kind}-tangents`, lineAlong(() => {
                         const d = this.view();
                         if (d.mode !== "common" || d.result.status !== "ok") return null;
                         const tangent = d.result.tangents.filter(candidate => candidate.kind === kind)[index];
                         return tangent ? coefficientsOf(tangent.line) : null;
                     }, (kind === "external" ? EXTERNAL_TANGENT_STYLE : INTERNAL_TANGENT_STYLE).color, 2,
-                        (kind === "external" ? EXTERNAL_TANGENT_STYLE : INTERNAL_TANGENT_STYLE).dash);
+                        (kind === "external" ? EXTERNAL_TANGENT_STYLE : INTERNAL_TANGENT_STYLE).dash));
                 }
             }
         }
@@ -757,206 +795,312 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         }
         this.objects = [];
         this.handleMap.clear();
+        this.legendObjects.clear();
         this.builtMode = undefined;
     }
 
     // ---- Text and controls ---------------------------------------------------------------------------------------------
 
-    private yesNo(value: boolean): string {
-        return t(value ? "circle_construction_yes" : "circle_construction_no");
+    private yesNo(value: boolean): Message {
+        return message(value ? "circle_construction_yes" : "circle_construction_no");
     }
 
-    private none(): string {
-        return t("circle_construction_none");
+    private none(): Message {
+        return message("circle_construction_none");
     }
 
-    /** One sentence for the whole state; degenerate states say what they are. */
-    statusText(): string {
+    /** The sentences for the whole state, one message each; degenerate states say what they are. */
+    private statusMessages(): Message[] {
         const d = this.view();
         switch (d.mode) {
             case "tangents": {
-                if (d.atCentre) return t("circle_construction_status_tangents_centre");
+                if (d.atCentre) return [message("circle_construction_status_tangents_centre")];
                 const r = d.result;
-                if (r.status === "inside") return t("circle_construction_status_tangents_inside", {value0: rat(r.power)});
-                if (r.status === "on") return t("circle_construction_status_tangents_on");
-                return t("circle_construction_status_tangents_outside", {value0: rat(r.power), value1: dec(r.tangentLength)});
+                if (r.status === "inside") return [message("circle_construction_status_tangents_inside", {value0: rat(r.power)})];
+                if (r.status === "on") return [message("circle_construction_status_tangents_on")];
+                return [message("circle_construction_status_tangents_outside", {value0: rat(r.power), value1: dec(r.tangentLength)})];
             }
             case "radical": {
                 const statuses = d.axes.map(pair => pair.axis.status);
-                if (statuses.includes("coincident")) return t("circle_construction_status_radical_coincident");
-                if (statuses.includes("concentric")) return t("circle_construction_status_radical_concentric");
+                if (statuses.includes("coincident")) return [message("circle_construction_status_radical_coincident")];
+                if (statuses.includes("concentric")) return [message("circle_construction_status_radical_concentric")];
                 const c = d.centre;
-                if (c.status === "centre") return t("circle_construction_status_radical_centre", {value0: ratPoint(c.point), value1: rat(c.power)});
-                if (c.status === "coaxal") return t("circle_construction_status_radical_coaxal");
-                return t("circle_construction_status_radical_parallel");
+                if (c.status === "centre") return [message("circle_construction_status_radical_centre", {value0: ratPoint(c.point), value1: rat(c.power)})];
+                if (c.status === "coaxal") return [message("circle_construction_status_radical_coaxal")];
+                return [message("circle_construction_status_radical_parallel")];
             }
             case "apollonius": {
                 const l = d.locus;
                 const locus = l.status === "circle"
-                    ? t("circle_construction_status_apollonius_circle", {value0: rat(l.k), value1: ratPoint(l.circle.centre), value2: rat(l.circle.r2)})
-                    : l.status === "line" ? t("circle_construction_status_apollonius_line") : t("circle_construction_status_apollonius_degenerate");
+                    ? message("circle_construction_status_apollonius_circle", {value0: rat(l.k), value1: ratPoint(l.circle.centre), value2: rat(l.circle.r2)})
+                    : l.status === "line" ? message("circle_construction_status_apollonius_line") : message("circle_construction_status_apollonius_degenerate");
                 const probe = d.ratio === null
-                    ? t("circle_construction_status_apollonius_at_b")
-                    : t("circle_construction_status_apollonius_ratio", {value0: dec(d.ratio)});
-                return `${locus} ${probe}`;
+                    ? message("circle_construction_status_apollonius_at_b")
+                    : message("circle_construction_status_apollonius_ratio", {value0: dec(d.ratio)});
+                return [locus, probe];
             }
             case "common": {
-                if (d.relation === "coincident") return t("circle_construction_status_common_coincident");
-                if (d.relation === "concentric") return t("circle_construction_status_common_concentric");
-                const text = {
-                    separate: t("circle_construction_status_common_separate"),
-                    "touching-outside": t("circle_construction_status_common_touching_outside"),
-                    crossing: t("circle_construction_status_common_crossing"),
-                    "touching-inside": t("circle_construction_status_common_touching_inside"),
-                    nested: t("circle_construction_status_common_nested"),
+                if (d.relation === "coincident") return [message("circle_construction_status_common_coincident")];
+                if (d.relation === "concentric") return [message("circle_construction_status_common_concentric")];
+                const relation = {
+                    separate: message("circle_construction_status_common_separate"),
+                    "touching-outside": message("circle_construction_status_common_touching_outside"),
+                    crossing: message("circle_construction_status_common_crossing"),
+                    "touching-inside": message("circle_construction_status_common_touching_inside"),
+                    nested: message("circle_construction_status_common_nested"),
                 }[d.relation];
                 return d.result.status === "ok" && d.result.externalCentre === null
-                    ? `${text} ${t("circle_construction_status_common_equal_radii")}` : text;
+                    ? [relation, message("circle_construction_status_common_equal_radii")] : [relation];
             }
         }
     }
 
-    /** The legend of the drawn construction lines and circles, each with the style it is drawn in (the same constants the board uses). */
-    legendItems(): LegendItem[] {
+    /** The status as one text (the live region and `data-circle-status`): the lines joined by a space. */
+    statusText(): string {
+        return this.statusMessages().map(renderMessage).join(" ");
+    }
+
+    /**
+     * The legend of the drawn construction lines and circles; the conditions are those of the board's visibility. A plus-faced marker is
+     * declared as a cross (the legend has no plus kind); the label still says "plus".
+     */
+    private legendEntries(): LegendEntry<CircleConstructionIds>[] {
         const d = this.view();
-        const dash = (style: {dash: number}) => (style.dash > 0 ? "dashed-line" : "line") as "dashed-line" | "line";
+        const line = (style: {dash: number}) => (style.dash > 0 ? "dashed" : "line") as "dashed" | "line";
+        const entry = (id: CircleConstructionIds["legend"], label: Message, kind: LegendEntry["kind"]): LegendEntry<CircleConstructionIds> =>
+            ({id, label, kind, object: id});
         switch (d.mode) {
             case "tangents": {
-                const items: LegendItem[] = [];
-                if (d.thales) items.push({id: "thales", color: THALES_STYLE.color, kind: dash(THALES_STYLE), label: t("circle_construction_legend_thales")});
-                if (d.result.status === "outside") {
-                    items.push({id: "chord", color: CHORD_STYLE.color, kind: dash(CHORD_STYLE), label: t("circle_construction_legend_chord")});
-                }
-                return items;
+                const entries: LegendEntry<CircleConstructionIds>[] = [];
+                if (d.thales) entries.push(entry("thales", message("circle_construction_legend_thales"), line(THALES_STYLE)));
+                if (d.result.status === "outside") entries.push(entry("chord", message("circle_construction_legend_chord"), line(CHORD_STYLE)));
+                return entries;
             }
             case "apollonius": {
-                if (d.locus.status === "circle") {
-                    return [{id: "locus", color: LOCUS_STYLE.color, kind: dash(LOCUS_STYLE), label: t("circle_construction_legend_locus_circle")}];
-                }
-                return d.locus.status === "line"
-                    ? [{id: "locus", color: LOCUS_STYLE.color, kind: dash(LOCUS_STYLE), label: t("circle_construction_legend_locus_line")}]
-                    : [];
+                if (d.locus.status === "circle") return [entry("locus", message("circle_construction_legend_locus_circle"), line(LOCUS_STYLE))];
+                return d.locus.status === "line" ? [entry("locus", message("circle_construction_legend_locus_line"), line(LOCUS_STYLE))] : [];
             }
             case "radical": {
-                const items: LegendItem[] = [];
+                const entries: LegendEntry<CircleConstructionIds>[] = [];
                 const pairs = [[1, 2], [1, 3], [2, 3]] as const;
                 AXIS_STYLES.forEach((style, index) => {
                     if (d.axes[index].axis.status !== "line") return;
-                    items.push({id: `axis-${index}`, color: style.color, kind: dash(style),
-                        label: t(style.dash > 0 ? "circle_construction_legend_axis_dashed" : "circle_construction_legend_axis_solid", {value0: t("circle_construction_pair", {value0: pairs[index][0], value1: pairs[index][1]})})});
+                    const pair = message("circle_construction_pair", {value0: pairs[index][0], value1: pairs[index][1]});
+                    entries.push(entry(`axis-${index}` as "axis-0" | "axis-1" | "axis-2",
+                        message(style.dash > 0 ? "circle_construction_legend_axis_dashed" : "circle_construction_legend_axis_solid", {value0: pair}), line(style)));
                 });
-                if (d.centre.status === "centre") {
-                    items.push({id: "centre", color: GraphPalette.constructionAccent, kind: "cross", label: t("circle_construction_legend_centre")});
-                }
-                if (d.orthogonal) {
-                    items.push({id: "orthogonal", color: ORTHOGONAL_STYLE.color, kind: dash(ORTHOGONAL_STYLE), label: t("circle_construction_legend_orthogonal")});
-                }
-                return items;
+                if (d.centre.status === "centre") entries.push(entry("centre", message("circle_construction_legend_centre"), "cross"));
+                if (d.orthogonal) entries.push(entry("orthogonal", message("circle_construction_legend_orthogonal"), line(ORTHOGONAL_STYLE)));
+                return entries;
             }
             case "common": {
                 if (d.result.status !== "ok") return [];
-                const items: LegendItem[] = [];
+                const entries: LegendEntry<CircleConstructionIds>[] = [];
                 if (d.result.tangents.some(tangent => tangent.kind === "external")) {
-                    items.push({id: "external-tangents", color: EXTERNAL_TANGENT_STYLE.color, kind: dash(EXTERNAL_TANGENT_STYLE),
-                        label: t("circle_construction_legend_external_tangents")});
+                    entries.push(entry("external-tangents", message("circle_construction_legend_external_tangents"), line(EXTERNAL_TANGENT_STYLE)));
                 }
                 if (d.result.tangents.some(tangent => tangent.kind === "internal")) {
-                    items.push({id: "internal-tangents", color: INTERNAL_TANGENT_STYLE.color, kind: dash(INTERNAL_TANGENT_STYLE),
-                        label: t("circle_construction_legend_internal_tangents")});
+                    entries.push(entry("internal-tangents", message("circle_construction_legend_internal_tangents"), line(INTERNAL_TANGENT_STYLE)));
                 }
-                if (d.result.externalCentre) {
-                    items.push({id: "external-centre", color: GraphPalette.constructionLevels[1], kind: "cross", label: t("circle_construction_legend_external_centre")});
-                }
-                items.push({id: "internal-centre", color: GraphPalette.constructionLevels[2], kind: "plus", label: t("circle_construction_legend_internal_centre")});
-                return items;
+                if (d.result.externalCentre) entries.push(entry("external-centre", message("circle_construction_legend_external_centre"), "cross"));
+                entries.push(entry("internal-centre", message("circle_construction_legend_internal_centre"), "cross"));
+                return entries;
             }
-            default:
-                return [];
         }
     }
 
-    readoutRows(): ReadoutListRow[] {
+    /** The rows of the old panel in its order; a row of a drawn object links to its legend entry while that entry exists. */
+    private readoutRows(legend: readonly LegendEntry<CircleConstructionIds>[]): ReadoutRow<CircleConstructionIds>[] {
         const d = this.view();
-        const row = (id: string, label: string, value: string): ReadoutListRow => ({id, label, value});
+        const text = (value: string) => ({kind: "formatted" as const, text: value});
+        const row = (id: CircleConstructionIds["row"], name: Message, value: ReadoutRow["value"], link?: CircleConstructionIds["legend"]): ReadoutRow<CircleConstructionIds> =>
+            ({id, name, value, ...(link !== undefined && legend.some(entry => entry.id === link) ? {legend: link} : {})});
         switch (d.mode) {
             case "tangents": {
                 const r = d.result;
-                const rows = [row("power", t("circle_construction_readout_power"), rat(r.power))];
+                const rows = [row("power", message("circle_construction_readout_power"), text(rat(r.power)))];
                 if (r.status === "outside") {
                     rows.push(
-                        row("length", t("circle_construction_readout_tangent_length"), dec(r.tangentLength)),
-                        row("count", t("circle_construction_readout_tangent_count"), "2"),
-                        row("contact-1", t("circle_construction_readout_contact", {value0: "1"}), xyPoint(r.contacts[0].x, r.contacts[0].y)),
-                        row("contact-2", t("circle_construction_readout_contact", {value0: "2"}), xyPoint(r.contacts[1].x, r.contacts[1].y)),
-                        row("chord", t("circle_construction_readout_chord"), lineText(r.chord)),
+                        row("length", message("circle_construction_readout_tangent_length"), text(dec(r.tangentLength))),
+                        row("count", message("circle_construction_readout_tangent_count"), messageNumber(2)),
+                        row("contact-1", message("circle_construction_readout_contact", {value0: 1}), text(xyPoint(r.contacts[0].x, r.contacts[0].y))),
+                        row("contact-2", message("circle_construction_readout_contact", {value0: 2}), text(xyPoint(r.contacts[1].x, r.contacts[1].y))),
+                        row("chord", message("circle_construction_readout_chord"), lineMessage(r.chord), "chord"),
                     );
                     if (d.thales) {
-                        rows.push(row("thales", t("circle_construction_readout_thales"),
-                            t("circle_construction_readout_thales_value", {value0: ratPoint(d.thales.centre), value1: rat(d.thales.r2)})));
+                        rows.push(row("thales", message("circle_construction_readout_thales"),
+                            message("circle_construction_readout_thales_value", {value0: ratPoint(d.thales.centre), value1: rat(d.thales.r2)}), "thales"));
                     }
                 } else if (r.status === "on") {
                     rows.push(
-                        row("count", t("circle_construction_readout_tangent_count"), "1"),
-                        row("contact-1", t("circle_construction_readout_contact", {value0: "1"}), plainPoint(this.state.p.x, this.state.p.y)),
+                        row("count", message("circle_construction_readout_tangent_count"), messageNumber(1)),
+                        row("contact-1", message("circle_construction_readout_contact", {value0: 1}), text(plainPoint(this.state.p.x, this.state.p.y))),
                     );
                 } else {
-                    rows.push(row("count", t("circle_construction_readout_tangent_count"), "0"));
+                    rows.push(row("count", message("circle_construction_readout_tangent_count"), messageNumber(0)));
                 }
                 return rows;
             }
             case "radical": {
                 const meet = d.firstPairMeet.kind === "two" ? "circle_construction_readout_meet_two"
                     : d.firstPairMeet.kind === "tangent" ? "circle_construction_readout_meet_one" : "circle_construction_readout_meet_none";
-                const axisText = (index: 0 | 1 | 2) => {
+                const axisValue = (index: 0 | 1 | 2) => {
                     const axis = d.axes[index].axis;
-                    return axis.status === "line" ? lineText(axis.line) : this.none();
+                    return axis.status === "line" ? lineMessage(axis.line) : this.none();
                 };
                 const c = d.centre;
                 return [
-                    ...d.powers.map((power, index) =>
-                        row(`power-${index + 1}`, t("circle_construction_readout_probe_power", {value0: String(index + 1)}), rat(power))),
-                    row("on-axis", t("circle_construction_readout_on_axis"), this.yesNo(d.onFirstAxis)),
-                    row("axis-12", t("circle_construction_readout_axis", {value0: "1, 2"}), axisText(0)),
-                    row("axis-13", t("circle_construction_readout_axis", {value0: "1, 3"}), axisText(1)),
-                    row("axis-23", t("circle_construction_readout_axis", {value0: "2, 3"}), axisText(2)),
-                    row("meet", t("circle_construction_readout_meet"), t(meet)),
-                    row("centre", t("circle_construction_readout_centre"), c.status === "centre" ? ratPoint(c.point) : this.none()),
-                    row("centre-power", t("circle_construction_readout_centre_power"), c.status === "centre" ? rat(c.power) : this.none()),
-                    row("orthogonal", t("circle_construction_readout_orthogonal"), d.orthogonal ? rat(d.orthogonal.r2) : this.none()),
+                    ...d.powers.map((power, index) => row(`power-${index + 1}` as "power-1" | "power-2" | "power-3",
+                        message("circle_construction_readout_probe_power", {value0: index + 1}), text(rat(power)))),
+                    row("on-axis", message("circle_construction_readout_on_axis"), this.yesNo(d.onFirstAxis)),
+                    row("axis-12", message("circle_construction_readout_axis", {value0: "1, 2"}), axisValue(0), "axis-0"),
+                    row("axis-13", message("circle_construction_readout_axis", {value0: "1, 3"}), axisValue(1), "axis-1"),
+                    row("axis-23", message("circle_construction_readout_axis", {value0: "2, 3"}), axisValue(2), "axis-2"),
+                    row("meet", message("circle_construction_readout_meet"), message(meet)),
+                    row("centre", message("circle_construction_readout_centre"), c.status === "centre" ? text(ratPoint(c.point)) : this.none(), "centre"),
+                    row("centre-power", message("circle_construction_readout_centre_power"), c.status === "centre" ? text(rat(c.power)) : this.none()),
+                    row("orthogonal", message("circle_construction_readout_orthogonal"), d.orthogonal ? text(rat(d.orthogonal.r2)) : this.none(), "orthogonal"),
                 ];
             }
             case "apollonius": {
                 const l = d.locus;
-                const internal = l.status === "degenerate" ? this.none() : ratPoint(l.internal);
                 const locus = l.status === "circle"
-                    ? t("circle_construction_readout_thales_value", {value0: ratPoint(l.circle.centre), value1: rat(l.circle.r2)})
-                    : l.status === "line" ? lineText(l.line) : this.none();
+                    ? message("circle_construction_readout_thales_value", {value0: ratPoint(l.circle.centre), value1: rat(l.circle.r2)})
+                    : l.status === "line" ? lineMessage(l.line) : this.none();
                 return [
-                    row("ratio", t("circle_construction_readout_ratio"),
-                        d.ratio === null ? t("circle_construction_readout_ratio_undefined") : dec(d.ratio)),
-                    row("on-locus", t("circle_construction_readout_on_locus"), this.yesNo(d.onLocus)),
-                    row("internal", t("circle_construction_readout_internal"), internal),
-                    row("external", t("circle_construction_readout_external"), l.status === "circle" ? ratPoint(l.external) : this.none()),
-                    row("locus", t("circle_construction_readout_locus"), locus),
-                    row("inverse", t("circle_construction_readout_inverse"), d.inverseOfA ? ratPoint(d.inverseOfA) : this.none()),
+                    row("ratio", message("circle_construction_readout_ratio"),
+                        d.ratio === null ? message("circle_construction_readout_ratio_undefined") : text(dec(d.ratio))),
+                    row("on-locus", message("circle_construction_readout_on_locus"), this.yesNo(d.onLocus)),
+                    row("internal", message("circle_construction_readout_internal"), l.status === "degenerate" ? this.none() : text(ratPoint(l.internal))),
+                    row("external", message("circle_construction_readout_external"), l.status === "circle" ? text(ratPoint(l.external)) : this.none()),
+                    row("locus", message("circle_construction_readout_locus"), locus, "locus"),
+                    row("inverse", message("circle_construction_readout_inverse"), d.inverseOfA ? text(ratPoint(d.inverseOfA)) : this.none()),
                 ];
             }
             case "common": {
                 const r = d.result;
                 return [
-                    row("count", t("circle_construction_readout_count"), r.status === "ok" ? String(r.count) : this.none()),
-                    row("external-centre", t("circle_construction_readout_external_centre"),
-                        r.status === "ok" && r.externalCentre ? ratPoint(r.externalCentre) : this.none()),
-                    row("internal-centre", t("circle_construction_readout_internal_centre"), r.status === "ok" ? ratPoint(r.internalCentre) : this.none()),
-                    row("distance2", t("circle_construction_readout_distance2"), rat(d.distanceSquared)),
+                    row("count", message("circle_construction_readout_count"), r.status === "ok" ? messageNumber(r.count) : this.none()),
+                    row("external-centre", message("circle_construction_readout_external_centre"),
+                        r.status === "ok" && r.externalCentre ? text(ratPoint(r.externalCentre)) : this.none(), "external-centre"),
+                    row("internal-centre", message("circle_construction_readout_internal_centre"),
+                        r.status === "ok" ? text(ratPoint(r.internalCentre)) : this.none(), "internal-centre"),
+                    row("distance2", message("circle_construction_readout_distance2"), text(rat(d.distanceSquared))),
                 ];
             }
         }
     }
 
+    // ---- Declaration ---------------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the radius of each circle the mode draws and the ratio, through the snapping the panel's sliders use. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const radius = (key: CircleKey): ParameterBinding<number> => ({
+            read: () => this.state[key].r,
+            apply: value => { if (!this.editRadius(key, value)) throw new DomainError(message("circle_construction_value_not_finite")); },
+        });
+        return {
+            [RADIUS_KEYS.c1]: radius("c1"), [RADIUS_KEYS.c2]: radius("c2"), [RADIUS_KEYS.c3]: radius("c3"),
+            ratio: {read: () => this.state.k, apply: (value: number) => { if (!this.editRatio(value)) throw new DomainError(message("circle_construction_value_not_finite")); }},
+        };
+    }
+
+    /**
+     * The radii of the circles of the mode and the ratio are range pucks: the lessons ask the learner to set them while reading the rows
+     * (the radius of the second circle, r2, k). The mode (it loads an example, a setup choice) and the point rows (typed or dragged
+     * places, no arbiter key) stay in Orodja.
+     */
+    private parameterDeclarations(): ParameterDeclaration<CircleConstructionIds["param"]>[] {
+        const radius = (key: CircleRadiusKey, label: Message, symbol: string): ParameterDeclaration<CircleConstructionIds["param"]> =>
+            ({key, kind: "range", label, symbol, placement: "board", min: RADIUS_MIN, max: RADIUS_MAX, step: RADIUS_STEP, bigStep: RADIUS_BIG_STEP, maxDecimals: 2});
+        const first = message("circle_construction_radius_first");
+        const second = message("circle_construction_radius_second");
+        switch (this.state.mode) {
+            case "tangents": return [radius("radius-1", message("circle_construction_radius_name"), "r")];
+            case "radical": return [radius("radius-1", first, "r_1"), radius("radius-2", second, "r_2"), radius("radius-3", message("circle_construction_radius_third"), "r_3")];
+            case "common": return [radius("radius-1", first, "r_1"), radius("radius-2", second, "r_2")];
+            case "apollonius": return [{key: "ratio", kind: "range", label: message("circle_construction_ratio_name"), symbol: "k", placement: "board",
+                min: RATIO_MIN, max: RATIO_MAX, step: RATIO_STEP, bigStep: RATIO_BIG_STEP, maxDecimals: 1}];
+        }
+    }
+
+    /** Pure data from the state: the radius and ratio pucks, the rows of the old panel, its status lines and approximation note, the legend and the marks. */
+    protected override declaration(): GraphDeclaration<CircleConstructionIds> {
+        const legend = this.legendEntries();
+        return {
+            parameters: this.parameterDeclarations(),
+            readouts: [{id: "construction", rows: this.readoutRows(legend)}],
+            readoutHelp: message("circle_construction_approx_note"),
+            status: this.statusMessages().map((text, index) => ({id: `status-${index + 1}`, text})),
+            legend,
+            marks: this.viewMarks(),
+        };
+    }
+
+    private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /**
+     * What the view director keeps visible: the circles of the mode, the handles and the derived centres (must); the construction circles
+     * (Thales, orthogonal, Apollonius) when there is room (nice). Memoized on the state `view()` is.
+     */
+    private viewMarks(): ViewMarks {
+        const s = this.state;
+        const key = JSON.stringify([s.mode, s.c1, s.c2, s.c3, s.p, s.a, s.b, s.k]);
+        if (this.viewMarksCache?.key === key) return this.viewMarksCache.marks;
+        const d = this.view();
+        const finite = (...values: number[]) => values.every(Number.isFinite);
+        const must: ViewMark[] = [];
+        const nice: ViewMark[] = [];
+        const point = (list: ViewMark[], x: number, y: number) => { if (finite(x, y)) list.push({kind: "point", x, y}); };
+        const circle = (list: ViewMark[], x: number, y: number, r: number) => {
+            if (finite(x, y, r)) list.push({kind: "box", left: x - r, top: y + r, right: x + r, bottom: y - r});
+        };
+        const ratPointMark = (list: ViewMark[], p: RationalPoint) => point(list, p.x.toNumber(), p.y.toNumber());
+        for (const circleKey of ({tangents: ["c1"], radical: ["c1", "c2", "c3"], common: ["c1", "c2"], apollonius: []} as const)[s.mode] as readonly CircleKey[]) {
+            circle(must, s[circleKey].x, s[circleKey].y, s[circleKey].r);
+        }
+        for (const id of MODE_HANDLES[s.mode]) if (id === "p" || id === "a" || id === "b") point(must, s[id].x, s[id].y);
+        switch (d.mode) {
+            case "tangents":
+                if (d.thales) circle(nice, d.thales.centre.x.toNumber(), d.thales.centre.y.toNumber(), Math.sqrt(d.thales.r2.toNumber()));
+                break;
+            case "radical":
+                if (d.centre.status === "centre") ratPointMark(must, d.centre.point);
+                if (d.centre.status === "centre" && d.orthogonal) circle(nice, d.centre.point.x.toNumber(), d.centre.point.y.toNumber(), Math.sqrt(d.orthogonal.r2.toNumber()));
+                break;
+            case "apollonius":
+                if (d.locus.status !== "degenerate") ratPointMark(must, d.locus.internal);
+                if (d.locus.status === "circle") {
+                    ratPointMark(must, d.locus.external);
+                    circle(nice, d.locus.circle.centre.x.toNumber(), d.locus.circle.centre.y.toNumber(), Math.sqrt(d.locus.circle.r2.toNumber()));
+                }
+                break;
+            case "common":
+                if (d.result.status === "ok") {
+                    ratPointMark(must, d.result.internalCentre);
+                    if (d.result.externalCentre) ratPointMark(must, d.result.externalCentre);
+                }
+                break;
+        }
+        const marks: ViewMarks = {must, nice};
+        this.viewMarksCache = {key, marks};
+        return marks;
+    }
+
+    /** The first shown element of the legend entry's object (its colour and visibility), else the first one drawn, else `undefined`. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.legendObjects.get(id);
+        if (!elements?.length) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const read = (element: JXG.GeometryElement) => element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const drawn = elements.find(element => Boolean(read(element).evalVisProp("visible"))) ?? elements[0];
+        const colorProperty = drawn.elType === "point" ? "fillcolor" : "strokecolor";
+        return {color: String(read(drawn).evalVisProp(colorProperty)), visible: Boolean(read(drawn).evalVisProp("visible"))};
+    }
+
     // ---- Numeric input -------------------------------------------------------------------------------------------------
 
-    private editRadius(key: CircleKey, value: number): boolean {
+    editRadius(key: CircleKey, value: number): boolean {
         const snapped = snapRadiusInput(value, "radius");
         if (!snapped.ok) return false;
         this.setCircle(key, {...this.state[key], r: snapped.value.value});
@@ -992,8 +1136,10 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     private circleInputs(key: CircleKey, number: string): JSX.Element[] {
         return [
             this.pointRows(t("circle_construction_centre_group"), [{key, name: `O${"₁₂₃"[Number(number) - 1]}`}]),
-            <Slider key={`${key}r`} customText={t("circle_construction_radius", {value0: number})} value={this.state[key].r} min={RADIUS_MIN} max={RADIUS_MAX}
-                    step={RADIUS_STEP} bigStep={RADIUS_BIG_STEP} grid={RADIUS_STEP} decimals={2} onChange={value => this.editRadius(key, value)}/>,
+            <PuckOwned key={`${key}r`} param={RADIUS_KEYS[key]}>
+                <Slider customText={t("circle_construction_radius", {value0: number})} value={this.state[key].r} min={RADIUS_MIN} max={RADIUS_MAX}
+                        step={RADIUS_STEP} bigStep={RADIUS_BIG_STEP} grid={RADIUS_STEP} decimals={2} onChange={value => this.editRadius(key, value)}/>
+            </PuckOwned>,
         ];
     }
 
@@ -1027,8 +1173,10 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             case "apollonius":
                 commands.push(
                     this.pointRows(t("circle_construction_points_group"), [{key: "a", name: "A"}, {key: "b", name: "B"}, {key: "p", name: "P"}]),
-                    <Slider key="ratio" customText={t("circle_construction_ratio_label")} value={state.k} min={RATIO_MIN} max={RATIO_MAX} step={RATIO_STEP}
-                            bigStep={RATIO_BIG_STEP} grid={RATIO_STEP} decimals={1} onChange={value => this.editRatio(value)}/>,
+                    <PuckOwned key="ratio" param="ratio">
+                        <Slider customText={t("circle_construction_ratio_label")} value={state.k} min={RATIO_MIN} max={RATIO_MAX} step={RATIO_STEP}
+                                bigStep={RATIO_BIG_STEP} grid={RATIO_STEP} decimals={1} onChange={value => this.editRatio(value)}/>
+                    </PuckOwned>,
                 );
                 break;
             case "common":
@@ -1041,12 +1189,12 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("circle_construction_readout_title")}</ReadoutHeading>
                 <p data-circle-status="">{this.statusText()}</p>
-                <ReadoutList label={t("circle_construction_readout_title")} rows={this.readoutRows()}/>
+                <ReadoutList label={t("circle_construction_readout_title")}
+                             rows={this.readoutRows(this.legendEntries()).map(row => ({id: row.id, label: renderMessage(row.name!), value: valueText(row.value)}))}/>
                 <p className="form-text">{t("circle_construction_approx_note")}</p>
-                {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
             </div>
         </>;
