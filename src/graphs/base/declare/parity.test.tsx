@@ -50,6 +50,10 @@ const phaseAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help that carries the sentences the short values leave out'},
 ];
 
+const extractionAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its readouts (it carries no readout marker, so the recording holds none)'},
+];
+
 const SAMPLES: readonly Sample[] = [
     {file: 'functions/__parity__/taylor.json', demonstration: 'taylor', states: [
         state('default', {}),
@@ -204,6 +208,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'segment [1, 2), a 0,5, b 1,25', apply: run(g => { g.setArgument(0, 0.5); g.setArgument(1, 1.25); })},
             {name: 'Bezier points hidden, a 1, b 1,75', apply: run(g => { g.setShowBezier(false); g.setArgument(0, 1); g.setArgument(1, 1.75); })},
             {name: 'degree 3', apply: run(g => { g.setShowBezier(true); g.setDegree(3); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/bspline/__parity__/bspline-extraction.json', demonstration: 'bspline-extraction', accepted: extractionAccepted, states: (() => {
+        type Extraction = {selectExample(id: 'quadratic' | 'cubic'): void; editPoint(index: number, value: readonly [number, number]): void;
+            editKnot(index: number, value: number): string | undefined; resetToOrigin(): void};
+        const run = (edit: (graph: Extraction) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Extraction)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'point 2 moved', apply: run(g => g.editPoint(2, [2, 3.5]))},
+            {name: 'point 0 moved', apply: run(g => g.editPoint(0, [0.5, 0.5]))},
+            {name: 'reset', apply: run(g => g.resetToOrigin())},
+            {name: 'cubic example', apply: run(g => g.selectExample('cubic'))},
+            {name: 'cubic, point 3 moved', apply: run(g => g.editPoint(3, [3, 2]))},
+            {name: 'cubic, knot 5 typed', apply: run(g => { g.resetToOrigin(); g.editKnot(5, 1.5); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/function-inverse.json', demonstration: 'function-inverse', states: (() => {

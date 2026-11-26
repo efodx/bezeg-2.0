@@ -1,6 +1,9 @@
 import type {StoredGraphState} from "../../base/presets/Presets";
 import React from "react";
-import {currentLanguage, renderMessage, t} from "../../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t} from "../../../localization";
+import {formatNumber} from "../../../analysis/format";
+import {evaluate} from "../../../bezeg/impl/curve/bspline";
+import type {GraphDeclaration, LegendEntry, ReadoutNote, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {ResetExampleButton} from "../../../inputs/ResetExampleButton";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
@@ -17,7 +20,20 @@ import {KnotEditor} from "./KnotEditor";
 import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
 import {assertDrawableCurve, drawableRejection, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
 import {INSERTION_EXAMPLE_IDS, INSERTION_MAX_POINTS, InsertionData, InsertionExampleId, insertionExample} from "./bsplineInsertionModel";
-import {affectedPieces, movedIndices, pieceColor, pieceReadoutLines, piecesOf} from "./bsplineExtractionModel";
+import {affectedPieces, movedIndices, piecesOf} from "./bsplineExtractionModel";
+import {blossomDomain} from "./bsplineBlossomModel";
+
+/** The ids this graph declares: the piece count, the moved-pieces sentence and one sentence and legend entry per Bezier piece (1-based). No parameters or actions: the points are dragged on the board, the rest is setup in Orodja. */
+export type BSplineExtractionIds = {
+    param: never;
+    row: never;
+    note: 'count' | 'affected' | 'none' | `piece-${number}`;
+    legend: 'control' | `piece-${number}`;
+    section: never;
+    action: never;
+};
+
+const VIEW_MARK_SAMPLES = 24;
 
 export interface BSplineExtractionState extends BaseGraphState {
     degree: number;
@@ -249,35 +265,106 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         }
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** The sentences of the old inspector: the piece count, the moved-pieces sentence and one sentence per piece (its interval and Bezier points, marked when the last drag changed it). */
+    private pieceNotes(): ReadoutNote<BSplineExtractionIds>[] {
+        const pieces = this.pieces();
+        const affected = this.affected();
+        const language = currentLanguage();
+        const num = (v: number) => formatNumber(v, language, 4);
+        const notes: ReadoutNote<BSplineExtractionIds>[] = [{id: 'count', text: message('bse_count', {value0: messageNumber(pieces.length)})}];
+        if (this.state.moved.length) notes.push({id: 'affected', text: message('bse_affected_note', {value0: messageNumber(affected.length)})});
+        if (!pieces.length) notes.push({id: 'none', text: message('bse_no_pieces')});
+        pieces.forEach((piece, index) => {
+            const parameters = {
+                value0: messageNumber(index + 1), value1: messageNumber(piece.start, 4), value2: messageNumber(piece.end, 4),
+                value3: piece.points.map(p => `(${num(p[0])}, ${num(p[1])})`).join(', '),
+            };
+            notes.push({id: `piece-${index + 1}`, text: message(affected.includes(index) ? 'bse_piece_row_changed' : 'bse_piece_row', parameters)});
+        });
+        return notes;
+    }
+
+    /**
+     * Pure data from the state: the sentences of the old panel as notes, its help line, the legend (control points and one entry
+     * per Bezier piece, each in its own colour) and the marks. Nothing is a parameter or an action: the points are dragged on the
+     * board (points are rows and legend only), and the example, Reset and knots are setup that stays in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<BSplineExtractionIds> {
+        const legend: LegendEntry<BSplineExtractionIds>[] = [
+            {id: 'control', label: message('control_points'), kind: 'point', object: 'control'},
+            ...this.pieces().map((_piece, index): LegendEntry<BSplineExtractionIds> =>
+                ({id: `piece-${index + 1}`, label: message('bse_legend_piece', {value0: messageNumber(index + 1)}), kind: 'line', object: `piece-${index + 1}`})),
+        ];
+        return {notes: this.pieceNotes(), readoutHelp: message('bse_help'), legend, marks: this.viewMarks()};
+    }
+
+    private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /** What the view director keeps visible: the control points (must) and samples of the curve over its domain (nice); memoized on the state's data. */
+    private viewMarks(): ViewMarks {
+        const {degree, knots, points} = this.state;
+        const key = `${degree}|${knots.join(',')}|${points.map(p => p.join(',')).join(';')}`;
+        if (this.viewMarksCache?.key === key) return this.viewMarksCache.marks;
+        const finite = (p: readonly number[]) => Number.isFinite(p[0]) && Number.isFinite(p[1]);
+        const must: ViewMark[] = points.filter(finite).map(([x, y]): ViewMark => ({kind: 'point', x, y}));
+        const [start, end] = blossomDomain(knots, degree);
+        const samples: (readonly [number, number])[] = [];
+        for (let i = 0; i < VIEW_MARK_SAMPLES; i++) {
+            try {
+                const p = evaluate(knots, degree, points, start + (end - start) * i / (VIEW_MARK_SAMPLES - 1));
+                if (finite(p)) samples.push([p[0], p[1]]);
+            } catch {
+                // a sample the kernel refuses is left out
+            }
+        }
+        const marks: ViewMarks = {must, nice: samples.length > 1 ? [{kind: 'polyline', points: samples}] : []};
+        this.viewMarksCache = {key, marks};
+        return marks;
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const scene = this.scene;
+        if (!scene) return undefined;
+        const read = (element: JXG.GeometryElement | undefined, colorProperty: 'strokecolor' | 'fillcolor') => {
+            if (!element) return undefined;
+            // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+            const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            return {color: String(drawn.evalVisProp(colorProperty)), visible: Boolean(drawn.evalVisProp('visible'))};
+        };
+        if (id === 'control') return read(scene.curve.getJxgPoints()[0], 'fillcolor');
+        const piece = /^piece-(\d+)$/.exec(id);
+        return piece ? read(scene.pieceCurveElements()[Number(piece[1]) - 1], 'strokecolor') : undefined;
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
-        const {knots, example, moved} = this.state;
+        const {knots, example} = this.state;
         const pieces = this.pieces();
-        const affected = this.affected();
-        const lines = pieceReadoutLines(pieces, affected, currentLanguage());
         const options: { value: string, text: string }[] = INSERTION_EXAMPLE_IDS.map(id => ({value: id, text: t(id === 'quadratic' ? "bse_example_quadratic" : "bse_example_cubic")}));
         if (example === 'custom') options.push({value: 'custom', text: t("bse_example_custom")});
         return super.getGraphCommands().concat(
-            <div key="reset" className="inspector-group">
+            // The old panel, rendered from the declared sentences: the board cards show them, so the panel is hidden when declared
+            // (`data-declared-panel`) and stays the parity recorder's and the tests' reading of the same text.
+            <div key="readout" className="inspector-group" data-declared-panel="">
                 <p className="inspector-help">{t("bse_help")}</p>
+                <h3 id="bse-readout-title">{t("bse_pieces_title")}</h3>
+                {this.pieceNotes().map(note => <p key={note.id} data-readout-note data-extraction-readout={note.id}>{renderMessage(note.text)}</p>)}
             </div>,
-            <div key="pieces" className="inspector-group" role="group" aria-labelledby="bse-pieces-title">
-                <h3 id="bse-pieces-title">{t("bse_pieces_title")}</h3>
-                <p data-readout-note data-extraction-readout="count">{t("bse_count", {value0: pieces.length})}</p>
-                {moved.length ? <p data-readout-note className="inspector-help" data-extraction-readout="affected">{t("bse_affected_note", {value0: affected.length})}</p> : null}
-                {pieces.length
-                    ? <ul data-extraction-readout="pieces">{lines.map((line, index) =>
-                        <li data-readout-note key={index} data-affected={affected.includes(index) ? 'true' : 'false'}
-                            style={{borderLeft: `4px solid ${pieceColor(index)}`, paddingLeft: '0.4em'}}>{line}
-                            {this.hostBridge.openAsBezier
-                                ? <> <button type="button" className="btn" data-action="open-as-bezier" data-piece={index}
-                                             aria-label={t("bse_open_as_bezier_piece", {value0: index + 1})}
-                                             onClick={() => this.openAsBezier(index)}>{t("bse_open_as_bezier")}</button></>
-                                : null}</li>)}</ul>
-                    : <p className="inspector-help">{t("bse_no_pieces")}</p>}
-            </div>,
+            // The host-dependent "open as Bezier" buttons stay visible in Orodja.
+            this.hostBridge.openAsBezier && pieces.length
+                ? <div key="pieces" className="inspector-group" role="group" aria-labelledby="bse-pieces-title">
+                    <h3 id="bse-pieces-title">{t("bse_pieces_title")}</h3>
+                    <ul>{pieces.map((_piece, index) =>
+                        <li key={index}><button type="button" className="btn" data-action="open-as-bezier" data-piece={index}
+                                                aria-label={t("bse_open_as_bezier_piece", {value0: index + 1})}
+                                                onClick={() => this.openAsBezier(index)}>{t("bse_open_as_bezier")}</button></li>)}</ul>
+                </div>
+                : <React.Fragment key="pieces"/>,
             <div key="points"><BSplinePointList points={this.state.points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="example"><ChoiceSelect label={t("bse_example")} value={example} options={options}
                                              onChange={value => this.selectExample(value as InsertionExampleId)}/>

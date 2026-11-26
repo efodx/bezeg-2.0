@@ -1,0 +1,90 @@
+{
+  "graph": "bspline-extraction",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Število odsekov: 2 (različni notranji vozli + 1)",
+        "Odsek 1: u ∈ [0, 1], točke (0, 0), (1, 2), (2, 2)",
+        "Odsek 2: u ∈ [1, 2], točke (2, 2), (3, 2), (4, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "point 2 moved",
+      "rows": [],
+      "notes": [
+        "Število odsekov: 2 (različni notranji vozli + 1)",
+        "Zadnji premik je spremenil odsekov: 2.",
+        "Odsek 1: u ∈ [0, 1], točke (0, 0), (1, 2), (1,5, 2,75) (spremenjen)",
+        "Odsek 2: u ∈ [1, 2], točke (1,5, 2,75), (2, 3,5), (4, 0) (spremenjen)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "point 0 moved",
+      "rows": [],
+      "notes": [
+        "Število odsekov: 2 (različni notranji vozli + 1)",
+        "Zadnji premik je spremenil odsekov: 1.",
+        "Odsek 1: u ∈ [0, 1], točke (0,5, 0,5), (1, 2), (1,5, 2,75) (spremenjen)",
+        "Odsek 2: u ∈ [1, 2], točke (1,5, 2,75), (2, 3,5), (4, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "reset",
+      "rows": [],
+      "notes": [
+        "Število odsekov: 2 (različni notranji vozli + 1)",
+        "Odsek 1: u ∈ [0, 1], točke (0, 0), (1, 2), (2, 2)",
+        "Odsek 2: u ∈ [1, 2], točke (2, 2), (3, 2), (4, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cubic example",
+      "rows": [],
+      "notes": [
+        "Število odsekov: 3 (različni notranji vozli + 1)",
+        "Odsek 1: u ∈ [0, 1], točke (0, 0), (1, 2), (1,5, 2,5), (2, 2,25)",
+        "Odsek 2: u ∈ [1, 2], točke (2, 2,25), (2,5, 2), (3, 1), (3,5, 1)",
+        "Odsek 3: u ∈ [2, 3], točke (3,5, 1), (4, 1), (5, 3), (6, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cubic, point 3 moved",
+      "rows": [],
+      "notes": [
+        "Število odsekov: 3 (različni notranji vozli + 1)",
+        "Zadnji premik je spremenil odsekov: 3.",
+        "Odsek 1: u ∈ [0, 1], točke (0, 0), (1, 2), (1,5, 2,5), (2, 2,5) (spremenjen)",
+        "Odsek 2: u ∈ [1, 2], točke (2, 2,5), (2,5, 2,5), (3, 2), (3,5, 1,5) (spremenjen)",
+        "Odsek 3: u ∈ [2, 3], točke (3,5, 1,5), (4, 1), (5, 3), (6, 0) (spremenjen)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cubic, knot 5 typed",
+      "rows": [],
+      "notes": [
+        "Število odsekov: 4 (različni notranji vozli + 1)",
+        "Odsek 1: u ∈ [0, 1], točke (0, 0), (1, 2), (1,6667, 2,6667), (2,2222, 2,2222)",
+        "Odsek 2: u ∈ [1, 1,5], točke (2,2222, 2,2222), (2,5, 2), (2,75, 1,5), (3, 1,25)",
+        "Odsek 3: u ∈ [1,5, 2], točke (3, 1,25), (3,25, 1), (3,5, 1), (3,7778, 1,2222)",
+        "Odsek 4: u ∈ [2, 3], točke (3,7778, 1,2222), (4,3333, 1,6667), (5, 3), (6, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

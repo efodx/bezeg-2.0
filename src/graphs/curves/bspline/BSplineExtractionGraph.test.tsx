@@ -7,7 +7,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
 import BSplineExtractionGraph from './BSplineExtractionGraph';
 import {GraphHost} from '../../base/GraphHost';
-import {setLanguage} from '../../../localization';
+import {renderMessage, setLanguage} from '../../../localization';
 import {affectedPieces, casteljau, distinctInteriorKnots, expectedPieceCount, extract, movedIndices, pieceParameter, piecesOf} from './bsplineExtractionModel';
 import {insertionExample} from './bsplineInsertionModel';
 import type {ControlPoint} from './bsplineDeBoorModel';
@@ -61,6 +61,10 @@ const mount = () => {
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return {graph, view, board: graph.liveBoard()};
 };
+
+/** The per-piece sentences the declaration carries (they were the inspector's list items). */
+const pieceSentences = (graph: BSplineExtractionGraph) =>
+    graph.getDeclaration()!.notes!.filter(note => note.id.startsWith('piece-')).map(note => renderMessage(note.text));
 
 const TOL = 1e-12;
 const expectRows = (actual: readonly (readonly number[])[], expected: readonly (readonly number[])[]) => {
@@ -144,7 +148,7 @@ describe('L4 acceptance 2: every piece as a Bezier equals the B-spline', () => {
 describe('L4 acceptance 3: piece count = distinct interior knots + 1', () => {
     test('shown in the inspector and after a knot edit', () => {
         const {graph, view} = mount();
-        const count = () => document.querySelector('[data-extraction-readout="count"]')!.textContent;
+        const count = () => renderMessage(graph.getDeclaration()!.notes!.find(n => n.id === 'count')!.text);
         expect(count()).toContain('2');
         act(() => graph.selectExample('cubic'));
         expect(graph.pieces()).toHaveLength(3);
@@ -241,8 +245,7 @@ describe('moving a control point updates the pieces and highlights the affected 
                 piece.points.some((p, j) => Math.hypot(p[0] - before[i].points[j][0], p[1] - before[i].points[j][1]) > 1e-9) ? i : -1).filter(i => i >= 0);
             expect(graph.affected()).toEqual(changed);
             expect(graph.emphasized()).toEqual(changed);
-            const marked = [...document.querySelectorAll('[data-extraction-readout="pieces"] li')]
-                .map((li, i) => li.getAttribute('data-affected') === 'true' ? i : -1).filter(i => i >= 0);
+            const marked = pieceSentences(graph).map((sentence, i) => sentence.includes('(spremenjen)') ? i : -1).filter(i => i >= 0);
             expect(marked).toEqual(changed);
             view.unmount();
         });
@@ -264,10 +267,9 @@ describe('moving a control point updates the pieces and highlights the affected 
 });
 
 describe('the readout and examples', () => {
-    const items = () => [...document.querySelectorAll('[data-extraction-readout="pieces"] li')].map(li => li.textContent);
-
     test('lists interval and points per piece and follows the language', () => {
         const {graph, view} = mount();
+        const items = () => pieceSentences(graph);
         expect(items()).toHaveLength(2);
         expect(items()[0]).toBe('Odsek 1: u ∈ [0, 1], točke (0, 0), (1, 2), (2, 2)');
         act(() => graph.selectExample('cubic'));

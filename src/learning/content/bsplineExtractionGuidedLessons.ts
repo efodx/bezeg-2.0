@@ -9,9 +9,12 @@
 import {BSPLINE_EXAMPLE_CUBIC, BSPLINE_EXAMPLE_QUADRATIC} from '../../graphs/curves/bspline/bsplineInsertionModel';
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {BSplineExtractionIds} from '../../graphs/curves/bspline/BSplineExtractionGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<BSplineExtractionIds>();
 
 /** The L2 quadratic and the L3 cubic, as in the spec. */
 export const EXTRACTION_QUADRATIC_FIXTURE: LessonCurveFixture = BSPLINE_EXAMPLE_QUADRATIC;
@@ -85,7 +88,7 @@ const extractionLesson: GuidedLesson = {
                 'The curve of degree \\(2\\) has the knots \\((0,0,0,1,2,2,2)\\) and four control points. Predict: how many Bézier pieces is it made of? The answer is \\(2\\): one piece on \\([0,1]\\) and another on \\([1,2]\\).',
             ),
             formulaIds: ['bspline-extraction-count'],
-            frames: [frame('bspline-extraction-predict-explanation', 'explanation'), frame('bspline-extraction-predict-observation', 'observation')],
+            frames: [frame('bspline-extraction-predict-explanation', 'explanation'), frame('bspline-extraction-predict-observation', 'observation', f({highlight: ['count']}))],
             observationPrompt: text('Preberi število odsekov v seznamu Bézierjevih odsekov.', 'Read the number of pieces in the list of Bézier pieces.'),
             expectedObservations: [text('Število odsekov je \\(2\\), odseka sta obarvana različno.', 'The number of pieces is \\(2\\) and the pieces have different colours.')],
             scene: extractionScene('bspline-extraction-predict-start', EXTRACTION_QUADRATIC_FIXTURE, [],
@@ -101,7 +104,7 @@ const extractionLesson: GuidedLesson = {
                 'The knot \\(u=1\\) is inserted until its multiplicity is \\(2\\). Predict: where is the junction? The new point lies on the segment between \\((1;2)\\) and \\((3;2)\\) in the ratio \\(\\tfrac{1-0}{2-0}=\\tfrac12\\), that is, at \\((2;2)\\). The first piece has the points \\((0;0)\\), \\((1;2)\\), \\((2;2)\\), the second \\((2;2)\\), \\((3;2)\\), \\((4;0)\\).',
             ),
             formulaIds: ['bspline-extraction-junction'], workedExampleId: 'bspline-extraction-junction-example',
-            frames: [frame('bspline-extraction-pieces-explanation', 'explanation'), frame('bspline-extraction-pieces-calculation', 'calculation'), frame('bspline-extraction-pieces-observation', 'observation')],
+            frames: [frame('bspline-extraction-pieces-explanation', 'explanation'), frame('bspline-extraction-pieces-calculation', 'calculation'), frame('bspline-extraction-pieces-observation', 'observation', f({highlight: ['piece-1', 'piece-2']}))],
             observationPrompt: text('Poišči točko, v kateri se stikata barvi obeh odsekov.', 'Find the point where the colours of the two pieces meet.'),
             expectedObservations: [text('Odseka se stikata v točki \\((2;2)\\), ki je zadnja točka prvega in prva točka drugega odseka.', 'The pieces meet at \\((2;2)\\), which is the last point of the first piece and the first point of the second.')],
             scene: extractionScene('bspline-extraction-pieces-quadratic', EXTRACTION_QUADRATIC_FIXTURE, [],
@@ -133,7 +136,7 @@ const extractionLesson: GuidedLesson = {
                 'The cubic has the knots \\((0,0,0,0,1,2,2,3,3,3,3)\\) and three pieces on \\([0,1]\\), \\([1,2]\\) and \\([2,3]\\). The point \\(P_2=(2;3)\\) is moved to \\((2;4)\\). Predict: which pieces change? The point \\(P_2\\) influences only the part of the curve on \\((0,2)\\), so pieces \\(1\\) and \\(2\\) change, while piece \\(3\\) with the points \\((3.5;1)\\), \\((4;1)\\), \\((5;3)\\), \\((6;0)\\) stays the same.',
             ),
             formulaIds: ['bspline-extraction-count'],
-            frames: [frame('bspline-extraction-move-explanation', 'explanation'), frame('bspline-extraction-move-observation', 'observation')],
+            frames: [frame('bspline-extraction-move-explanation', 'explanation'), frame('bspline-extraction-move-observation', 'observation', f({highlight: ['affected', 'piece-1', 'piece-2']}))],
             observationPrompt: text('Poišči odseke z oznako »spremenjen« in jih primerjaj s tretjim odsekom.', 'Find the pieces marked “changed” and compare them with the third piece.'),
             expectedObservations: [text('Spremenjena sta odseka \\(1\\) in \\(2\\); odsek \\(3\\) ima še vedno točke \\((3{,}5;1)\\), \\((4;1)\\), \\((5;3)\\), \\((6;0)\\).', 'Pieces \\(1\\) and \\(2\\) are marked changed; piece \\(3\\) still has the points \\((3.5;1)\\), \\((4;1)\\), \\((5;3)\\), \\((6;0)\\).')],
             scene: extractionScene('bspline-extraction-move-cubic', EXTRACTION_CUBIC_FIXTURE,
@@ -150,7 +153,7 @@ const extractionLesson: GuidedLesson = {
                 'The cubic has the interior knots \\(u=1\\) and \\(u=2\\) (the double knot counts once). Predict: how many pieces does it have? There are \\(2\\) distinct interior knots and \\(2+1=3\\) pieces. The quadratic example has one distinct interior knot \\(u=1\\) and \\(1+1=2\\) pieces.',
             ),
             formulaIds: ['bspline-extraction-count'],
-            frames: [frame('bspline-extraction-count-explanation', 'explanation'), frame('bspline-extraction-count-observation', 'observation')],
+            frames: [frame('bspline-extraction-count-explanation', 'explanation'), frame('bspline-extraction-count-observation', 'observation', f({highlight: ['count']}))],
             observationPrompt: text('Primerjaj število odsekov s številom različnih notranjih vozlov v urejevalniku vozlov.', 'Compare the number of pieces with the number of distinct interior knots in the knot editor.'),
             expectedObservations: [text('Število odsekov je \\(3\\); notranja vozla sta \\(1\\) in \\(2\\), torej \\(2+1\\).', 'The number of pieces is \\(3\\); the interior knots are \\(1\\) and \\(2\\), so \\(2+1\\).')],
             scene: extractionScene('bspline-extraction-count-cubic', EXTRACTION_CUBIC_FIXTURE, [],
@@ -166,7 +169,7 @@ const extractionLesson: GuidedLesson = {
                 'The default quadratic curve is back. Drag control points and see which pieces change, edit a knot and count the pieces, or open one of the pieces as a Bézier curve. The “Reset example” button returns to the original knots and points.',
             ),
             formulaIds: ['bspline-extraction-junction', 'bspline-extraction-count'],
-            frames: [frame('bspline-extraction-explore-explanation', 'explanation'), frame('bspline-extraction-explore-observation', 'observation')],
+            frames: [frame('bspline-extraction-explore-explanation', 'explanation'), frame('bspline-extraction-explore-observation', 'observation', f({highlight: ['count']}))],
             observationPrompt: text('Preveri, da število odsekov ostane enako število različnih notranjih vozlov in ena.', 'Check that the number of pieces stays equal to the number of distinct interior knots plus one.'),
             expectedObservations: [text('Premik točke ne spremeni števila odsekov; spremeni ga le sprememba vozlov.', 'Moving a point does not change the number of pieces; only editing the knots does.')],
             scene: extractionScene('bspline-extraction-explore-start', EXTRACTION_QUADRATIC_FIXTURE, [],
