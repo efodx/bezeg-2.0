@@ -116,7 +116,8 @@ export function RangePuck(props: RangePuckProps) {
         if (!result.ok) { setNotice(refuse(result)); return; }
         const before = latest.current;
         const applied = write(result.value, isJump(before, result.value, parameter.step) ? before : undefined);
-        if (applied) setNotice(result.snapped ? t('puck_snapped', {value0: fmt(result.value)}) : undefined);
+        // A refused write keeps its refusal; an accepted one, or one equal to the value already shown, says how the entry was read.
+        if (applied || result.value === before) setNotice(result.snapped ? t('puck_snapped', {value0: fmt(result.value)}) : undefined);
         closeEntry();
     };
 
