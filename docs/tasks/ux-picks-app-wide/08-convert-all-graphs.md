@@ -74,9 +74,9 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 2 | L38 | root-finding | graph files + `numericalMethodsGuidedLessons`; owns first `IterativeFunctionGraph` | done `ac2972f09` |
 | 2 | L40 | bezier-clipping | graph files + `bezierClippingGuidedLessons` | done `a1b67415b` |
 | 2 | L46 | arc-length, area-between-curves, continuity ; definite-integral, derivative ; linear-function, trigonometric-functions | graph files + `functionGuidedLessons` | done `b7ebb428e`, `e28e14a31`, `fdfeec8bc` |
-| 3 | L02 | bspline-extraction | graph files + `bsplineExtractionGuidedLessons`; owns first `KnotEditor` | not started |
-| 3 | L07 | interp-least-squares | graph files + `interpolationLeastSquaresLesson` | not started |
-| 3 | L08 | reduction | graph files + `degreeReductionGuidedLessons` | not started |
+| 3 | L02 | bspline-extraction | graph files + `bsplineExtractionGuidedLessons`; owns first `KnotEditor` | done `1a3393445` |
+| 3 | L07 | interp-least-squares | graph files + `interpolationLeastSquaresLesson` | done `8f17c48a6` |
+| 3 | L08 | reduction | graph files + `degreeReductionGuidedLessons` | done `cccbccdaa` |
 | 4 | L03 | bspline-insertion | graph files + `bsplineInsertionGuidedLessons` | not started |
 | 4 | L09 | circle-construction | graph files + `circleGeometryGuidedLessons` | not started |
 | 4 | L10 | euler-method | graph files + `numericalEulerGuidedLesson` | not started |
