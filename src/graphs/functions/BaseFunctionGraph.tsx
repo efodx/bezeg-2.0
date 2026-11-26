@@ -1,3 +1,4 @@
+import {currentWrite, runAs} from "../base/writes/writeSource";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, Message, MessageNumber, message, onLanguageChange, renderMessage, t} from "../../localization";
@@ -397,6 +398,8 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     }
 
     override importPreset(preset: Preset): void {
+        // The default model written after `super` is part of the same import: one learner source around all of it.
+        if (!currentWrite()) { runAs("learner", () => this.importPreset(preset)); return; }
         this.checkPersistedPreset(preset); // a refusal precedes the flag below; `graphState` is replaced before `super` sees it
         const previousExample = this.exampleView()?.key;
         // Only a preset applied before the scene exists is followed by the `initialize()` that would reset the view; one

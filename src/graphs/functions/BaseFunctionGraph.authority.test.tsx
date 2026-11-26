@@ -70,13 +70,8 @@ const COORDS_BY_USER = 1;
 
 class ObservedLinearGraph extends LinearFunctionGraph {
     liveBoard() { return this.board; }
-    // Slope and intercept are bound parameters now: a whole-model replacement outside a control or a lesson must name its source.
+    // Models a control's commit (no production caller commits a whole model with no source open), so it stays tagged here.
     commit(model: ReturnType<LinearFunctionGraph['exportPresetData']>) { runAs('learner', () => this.commitModel(model)); }
-    override importPreset(preset: Parameters<LinearFunctionGraph['importPreset']>[0]) { runAs('learner', () => super.importPreset(preset)); }
-    override getLessonCapabilities() {
-        const capabilities = super.getLessonCapabilities();
-        return {...capabilities, restoreState: (state: Parameters<typeof capabilities.restoreState>[0]) => runAs('learner', () => capabilities.restoreState(state))};
-    }
     currentModel() { return this.model; }
     draggable() {
         const points = objectsOf(this).filter(object => object.elType === 'point');
@@ -314,11 +309,22 @@ describe('linear function: replacement paths keep domain, controls and board tog
         const checkpoint = graph.getLessonCapabilities().captureState();
         const view = box(graph);
         typeLinear('y₁', 3);
+        // Stands in for a wheel zoom, which production tags through the learner input listeners.
         act(() => { runAs('learner', () => graph.liveBoard().setBoundingBox([-1, 2, 3, -2], false)); });
         expect(box(graph)).not.toEqual(view);
         act(() => { graph.getLessonCapabilities().restoreState(checkpoint); });
         expect(linearShown(graph)).toEqual(LINEAR_DEFAULT_SHOWN);
         near(box(graph), view);
+    });
+
+    test('strict mode: importing a Preset and restoring a lesson checkpoint name their own source', () => {
+        const {graph} = mountLinear();
+        const checkpoint = graph.getLessonCapabilities().captureState();
+        // No runAs: the base opens `learner` for the import and `lesson` for the restore.
+        expect(() => act(() => { graph.importPreset({id: 'p', data: {x1: 1, y1: 2, x2: 3, y2: 5}}); })).not.toThrow();
+        expect(graph.exportPresetData()).toMatchObject({x1: 1, y1: 2, x2: 3, y2: 5});
+        expect(() => act(() => { graph.getLessonCapabilities().restoreState(checkpoint); })).not.toThrow();
+        expect(linearShown(graph)).toEqual(LINEAR_DEFAULT_SHOWN);
     });
 
     test('a figure batch shows each Preset (data wins over graphState) and returns to the entry scene', async () => {
