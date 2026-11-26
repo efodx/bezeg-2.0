@@ -6,10 +6,13 @@
  * `set-clip-tolerance` return the trace to step 0.
  */
 import type {LessonAction, LessonViewBox} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {BezierClippingIds} from '../../graphs/compgeo/BezierClippingGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const declared = frameDeclarer<BezierClippingIds>();
 
 /** High on the board: the lesson panel covers its upper part, and the curves (y from -1 to 4.5) stay below. */
 export const CLIPPING_LESSON_VIEW: LessonViewBox = [-1.5, 9.5, 5.5, -1.5];
@@ -136,7 +139,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'The curve \\(A\\) with control points \\((0,0)\\), \\((2,4)\\), \\((4,0)\\) (solid) and the curve \\(B\\) with \\((0,3)\\), \\((2,-1)\\), \\((4,3)\\) (dashed) are shown with their control polygons and hulls. The hulls overlap, so the curves may meet, but they need not: overlap is only a necessary condition. Predict whether they really cross and how often before you press Next step; the status in the Tools panel is overlapping.',
             ),
             formulaIds: [],
-            frames: [frame('clipping-hulls-explanation', 'explanation'), frame('clipping-hulls-observation', 'observation')],
+            frames: [frame('clipping-hulls-explanation', 'explanation'), frame('clipping-hulls-observation', 'observation', declared({highlight: ['status', 'clips']}))],
             observationPrompt: text('Preglej, kje se ovojnici prekrivata, in napovej število presečišč.', 'Look at where the hulls overlap and predict the number of crossings.'),
             expectedObservations: [text('Ovojnici se prekrivata, število rezov je \\(0\\) in stanje je prekrivanje; iz tega še ne sledi presečišče.', 'The hulls overlap, the clip count is \\(0\\) and the status is overlapping; a crossing does not follow from that.')],
             scene: scene('clipping-hulls',
@@ -152,7 +155,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'The fat line of the curve \\(B\\) is a strip along its chord that contains all of its control points. In the Tools panel the distance graph shows how far the curve \\(A\\) is from the chord: crosses are the distance points, the solid line is their hull, the dashed strip is the fat line. Where the hull meets the strip \\(A\\) may still meet \\(B\\); elsewhere it cannot.',
             ),
             formulaIds: ['clipping-distance'],
-            frames: [frame('clipping-fat-line-explanation', 'explanation'), frame('clipping-fat-line-observation', 'observation')],
+            frames: [frame('clipping-fat-line-explanation', 'explanation'), frame('clipping-fat-line-observation', 'observation', declared({highlight: ['clips'], open: ['tools']}))],
             observationPrompt: text('Poišči v grafu razdalje del, kjer ovojnica leži zunaj pasu.', 'Find the part of the distance graph where the hull lies outside the strip.'),
             expectedObservations: [text('Debela premica je narisana okoli krivulje \\(B\\), graf razdalje pa kaže krivuljo \\(A\\); število rezov je še \\(0\\).', 'The fat line is drawn around the curve \\(B\\) and the distance graph shows the curve \\(A\\); the clip count is still \\(0\\).')],
             scene: scene('clipping-fat-line',
@@ -168,7 +171,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'The first clip of the curve \\(A\\) discards nothing, because the hull of the distance meets the strip over the whole range; clipping stalls, so the pair is halved. Now a clip of the curve \\(A\\) against the fat line of the curve \\(B\\) on the halved pair is shown: thick lines are the kept ranges, thin grey lines the discarded parts. A discarded part cannot contain an intersection, a kept one still may.',
             ),
             formulaIds: ['clipping-distance'],
-            frames: [frame('clipping-clip-a-explanation', 'explanation'), frame('clipping-clip-a-observation', 'observation')],
+            frames: [frame('clipping-clip-a-explanation', 'explanation'), frame('clipping-clip-a-observation', 'observation', declared({highlight: ['status', 'clips'], open: ['tools']}))],
             observationPrompt: text('Primerjaj debele in tanke dele krivulje \\(A\\) in preberi živ obseg v tabeli.', 'Compare the thick and thin parts of the curve \\(A\\) and read the live range in the table.'),
             expectedObservations: [text('Del krivulje \\(A\\) je zavržen (siv), preostanek je ohranjen (debel); stanje je, da rezanje še poteka.', 'Part of the curve \\(A\\) is discarded (grey), the rest is kept (thick); the status is that clipping is still running.')],
             scene: scene('clipping-clip-a',
@@ -184,7 +187,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'The next clip swaps the roles: the fat line of the curve \\(A\\) (of its narrower kept part) clips the curve \\(B\\). The caption of the distance graph changes to the distance of the curve \\(B\\) from the fat line of the curve \\(A\\). The swap helps because a shorter kept part of \\(A\\) gives a narrower fat line, which in turn cuts a shorter part of \\(B\\).',
             ),
             formulaIds: ['clipping-distance'],
-            frames: [frame('clipping-swap-explanation', 'explanation'), frame('clipping-swap-observation', 'observation')],
+            frames: [frame('clipping-swap-explanation', 'explanation'), frame('clipping-swap-observation', 'observation', declared({highlight: ['status', 'clips']}))],
             observationPrompt: text('Preberi napis grafa razdalje in primerjaj ohranjena obsega obeh krivulj.', 'Read the caption of the distance graph and compare the kept ranges of the two curves.'),
             expectedObservations: [text('Graf razdalje kaže krivuljo \\(B\\) ob debeli premici krivulje \\(A\\); ohranjena obsega se krčita.', 'The distance graph shows the curve \\(B\\) against the fat line of the curve \\(A\\); the kept ranges are shrinking.')],
             scene: scene('clipping-swap',
@@ -200,7 +203,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'Clipping repeats until both ranges are narrower than the tolerance \\(10^{-6}\\). At a crossing the ranges shrink fast: after \\(21\\) clips there is one range around \\(t=0.25\\) and one around \\(t=0.75\\) on both curves, which agrees with the solution of the equation \\(16t^2-16t+3=0\\). With the tolerance \\(10^{-3}\\) there are \\(17\\) clips. A tolerance is a stopping rule, not a proof: a narrow range does not prove that a root lies in it, and a finite run only illustrates the algorithm.',
             ),
             formulaIds: ['clipping-stopping'], workedExampleId: 'clipping-crossing-example',
-            frames: [frame('clipping-repeat-explanation', 'explanation'), frame('clipping-repeat-calculation', 'calculation'), frame('clipping-repeat-observation', 'observation')],
+            frames: [frame('clipping-repeat-explanation', 'explanation'), frame('clipping-repeat-calculation', 'calculation'), frame('clipping-repeat-observation', 'observation', declared({highlight: ['status', 'clips']}))],
             observationPrompt: text('Najprej pritisni Skrij. Preberi obsega v tabeli in število rezov; nato v podoknu Orodja izberi toleranco \\(10^{-3}\\), pritisni Predvajaj do konca teka in primerjaj.', 'First press Hide. Read the ranges in the table and the clip count; then choose the tolerance \\(10^{-3}\\) in the Tools panel, press Play until the run ends and compare.'),
             expectedObservations: [text('Stanje je najdeno, število rezov \\(21\\), dva rezultata okoli \\(0{,}25\\) in \\(0{,}75\\); pri toleranci \\(10^{-3}\\) je rezov \\(17\\).', 'The status is found, the clip count is \\(21\\), two results around \\(0.25\\) and \\(0.75\\); with the tolerance \\(10^{-3}\\) there are \\(17\\) clips.')],
             scene: scene('clipping-repeat',
@@ -216,7 +219,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'The curve \\(B=(0,4),(2,0),(4,4)\\) touches the curve \\(A\\) at the point \\((2,2)\\) at \\(t=0.5\\) (the double root of the equation \\(16t^2-16t+4=0\\)). Clipping is slow here: with the tolerance \\(10^{-3}\\) there are \\(53\\) clips, with \\(10^{-6}\\) there are \\(113\\), about \\(5.4\\) times as many as the \\(21\\) at the crossing. With the tolerance \\(10^{-10}\\), which is selected now, clipping stops at the limit of \\(200\\) clips with the status limit: one result and \\(28\\) unresolved pairs remain. Of these, \\(26\\) are near \\(0.5\\); clipping did not reach the last two, which are wide, so the widest range is \\(1\\). The table rounds the result to \\(0.5\\), but it lies about \\(5\\cdot10^{-7}\\) below \\(t=0.5\\) and does not contain that value, so it is not the touching point, which stays among the unresolved pairs. That is not an error and it proves nothing: at a tangency the hull cannot confirm a double root.',
             ),
             formulaIds: ['clipping-stopping'],
-            frames: [frame('clipping-tangent-explanation', 'explanation'), frame('clipping-tangent-observation', 'observation')],
+            frames: [frame('clipping-tangent-explanation', 'explanation'), frame('clipping-tangent-observation', 'observation', declared({highlight: ['status', 'clips']}))],
             observationPrompt: text('Najprej pritisni Skrij. Preberi stanje, število rezov in tabelo; nato izberi toleranco \\(10^{-3}\\), pritisni Predvajaj do konca teka in primerjaj število rezov.', 'First press Hide. Read the status, the clip count and the table; then choose the tolerance \\(10^{-3}\\), press Play until the run ends and compare the clip count.'),
             expectedObservations: [text('Stanje je meja, \\(200\\) rezov, en rezultat, \\(28\\) nerešenih parov in najširši obseg \\(1\\); pri \\(10^{-3}\\) je stanje najdeno s \\(53\\) rezi.', 'The status is limit, \\(200\\) clips, one result, \\(28\\) unresolved pairs and the widest range \\(1\\); with \\(10^{-3}\\) the status is found with \\(53\\) clips.')],
             scene: scene('clipping-tangent',
@@ -232,7 +235,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'The curve \\(B=(0;\\ 4.5),(2;\\ 0.5),(4;\\ 4.5)\\) is above \\(A\\), yet the control hulls overlap. Press Reset and you see the overlap at the start. After \\(17\\) clips clipping discards every range and the status is empty: the vertical gap \\(4.5-16t+16t^2\\) is at least \\(0.5\\), so there is no intersection. Overlapping hulls are necessary, not sufficient.',
             ),
             formulaIds: ['clipping-distance'], workedExampleId: 'clipping-offset-example',
-            frames: [frame('clipping-offset-explanation', 'explanation'), frame('clipping-offset-calculation', 'calculation'), frame('clipping-offset-observation', 'observation')],
+            frames: [frame('clipping-offset-explanation', 'explanation'), frame('clipping-offset-calculation', 'calculation'), frame('clipping-offset-observation', 'observation', declared({highlight: ['status', 'clips']}))],
             observationPrompt: text('Preberi stanje na koncu, nato pritisni Ponastavi in preberi stanje na začetku.', 'Read the status at the end, then press Reset and read the status at the start.'),
             expectedObservations: [text('Na koncu je stanje prazno po \\(17\\) rezih in tabela nima obsega; na začetku je stanje prekrivanje.', 'At the end the status is empty after \\(17\\) clips and the table has no range; at the start the status is overlapping.')],
             scene: scene('clipping-offset',
@@ -248,7 +251,7 @@ const bezierClippingLesson: GuidedLesson = {
                 'The first pair is shown again. Move the control points of both curves, change the tolerance and press Next step. Moving a point or the tolerance returns the display to the start. Find a position where the curves barely touch and one where the hulls overlap but the curves do not meet. Remember: overlap is a necessary condition, a tolerance is a stopping rule, and a finite run proves nothing. Degrees above \\(3\\) are not offered.',
             ),
             formulaIds: ['clipping-distance', 'clipping-stopping'],
-            frames: [frame('clipping-explore-explanation', 'explanation'), frame('clipping-explore-observation', 'observation')],
+            frames: [frame('clipping-explore-explanation', 'explanation', declared({uses: ['next-step'], open: ['tools']})), frame('clipping-explore-observation', 'observation')],
             observationPrompt: text('Poskusi najti položaj, pri katerem rezanje doseže mejo, in položaj, pri katerem je stanje prazno kljub prekrivanju ovojnic.', 'Try to find a position where clipping reaches the limit and one where the status is empty despite overlapping hulls.'),
             expectedObservations: [text('Blizu dotika število rezov hitro naraste in doseže mejo; pri prekrivanju ovojnic je stanje lahko prazno.', 'Near a tangency the clip count grows fast and reaches the limit; with overlapping hulls the status can still be empty.')],
             scene: scene('clipping-explore',

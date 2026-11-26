@@ -95,6 +95,34 @@ const SAMPLES: readonly Sample[] = [
             step('bow tie', load(polygon([[0, 0], [4, 4], [4, 0], [0, 4]]))),
         ];
     })()},
+    {file: 'compgeo/__parity__/bezier-clipping.json', demonstration: 'bezier-clipping', states: (() => {
+        type Pair = [number, number][];
+        type Clipping = {applyPointSetAction(action: unknown): void; setClipTolerance(exponent: number): boolean};
+        const crossing: Pair = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
+        const tangent: Pair = [[0, 0], [2, 4], [4, 0], [0, 4], [2, 0], [4, 4]];
+        const offset: Pair = [[0, 0], [2, 4], [4, 0], [0, 4.5], [2, 0.5], [4, 4.5]];
+        const apart: Pair = [[0, 0], [2, 1], [4, 0], [0, 6], [2, 8], [4, 6]];
+        const point = (operation: string, rest: Record<string, unknown>) => ({kind: 'point-set', operation, ...rest});
+        const run = (pair: Pair, exponent: number, tolerance: number, step: number | 'end'): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Clipping;
+                g.applyPointSetAction(point('load-model', {points: pair, gridStepExponent: exponent}));
+                g.setClipTolerance(tolerance);
+                g.applyPointSetAction(point('set-trace-step', {step}));
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('crossing, step 4', run(crossing, 0, 6, 4)),
+            step('crossing, step 5', run(crossing, 0, 6, 5)),
+            step('crossing, end', run(crossing, 0, 6, 'end')),
+            step('crossing, tolerance 3, end', run(crossing, 0, 3, 'end')),
+            step('hulls apart', run(apart, 0, 6, 0)),
+            step('tangent, tolerance 10, end', run(tangent, 0, 10, 'end')),
+            step('offset, end (empty)', run(offset, -1, 6, 'end')),
+        ];
+    })()},
     {file: 'patches/__parity__/patch-coons.json', demonstration: 'patch-coons', states: (() => {
         type Coons = {selectBoundaryPoint(name: string, index: number): void; setSelectedCoordinates(xyz: [number, number, number]): void; setLinkedCorners(linked: boolean): void};
         const move = (name: string, index: number, xyz: [number, number, number]) => (graph: unknown) => runAs('learner', () => {

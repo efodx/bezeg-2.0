@@ -1,5 +1,9 @@
 import React from "react";
-import {t} from "../../localization";
+import {currentLanguage, message, Message, t} from "../../localization";
+import {formatSignificant} from "../../analysis/format";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
+import {bezierClippingReadout} from "./bezierClippingReadout";
+import {runAs} from "../base/writes/writeSource";
 import {clipBezierPair, ClipPoint, ClipRange, ClipState, clipFold, ClipTrace, INITIAL_CLIP_STATE, subNet} from "../../bezeg/impl/kernels/bezier-clipping";
 import type {LessonAction} from "../../learning/model";
 import {bezierAt} from "../../compgeo/curvePairNets";
@@ -8,7 +12,7 @@ import {isGridStepExponent, parsePointSetModel, PointSetModel} from "../../compg
 import {stateAt} from "../../compgeo/trace";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
-import {CURVE_PAIR_SAMPLES, CurveName, CurvePairOverlayId} from "./CurvePairGraph";
+import {CURVE_PAIR_SAMPLES, CurveName, CurvePairOverlayId, isCurvePairModel} from "./CurvePairGraph";
 import {PointSetGraphState} from "./PointSetGraph";
 import {aliveRanges, ClippingStepView, clippingStepView, discardedRanges, fatLineStrip} from "./bezierClippingView";
 import {DEFAULT_CLIP_TOLERANCE_EXPONENT, parseClipToleranceExponent} from "./bezierClippingPresetCollection";
@@ -23,6 +27,15 @@ export const BEZIER_CLIPPING_STEP_INTERVAL_MS = TRACE_STEP_INTERVAL_MS;
 
 export type BezierClippingOverlayId = "fatLine" | "kept" | "discarded";
 export {BEZIER_CLIPPING_OVERLAY_IDS};
+
+/** The ids of this graph's declaration (frames name them): the four readout sentences, the legend, the switches and the playback. */
+export type BezierClippingNoteId = "step" | "status" | "clips" | "widest";
+export type BezierClippingIds = {
+    param: never; row: never; note: BezierClippingNoteId;
+    legend: "points" | "curveA" | "curveB" | CurvePairOverlayId | BezierClippingOverlayId;
+    section: "playback";
+    action: CurvePairOverlayId | BezierClippingOverlayId | "next-step" | "play" | "reset";
+};
 
 /** The saved configuration beyond the points: the step index and the tolerance exponent k (tolerance 10^-k). Playback is never state. */
 export interface BezierClippingGraphState extends TraceCurvePairGraphState {
@@ -210,6 +223,90 @@ export class BezierClippingGraph extends TraceCurvePairGraph<BezierClippingOverl
     /** The tolerance exponent is persisted; a Preset that names none (or an invalid one) shows the default 6. */
     protected override settingFields(): readonly PointSetExtraField[] {
         return [{name: "clipToleranceExponent", parse: parseClipToleranceExponent, fallback: DEFAULT_CLIP_TOLERANCE_EXPONENT}];
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: CurvePairOverlayId | BezierClippingOverlayId | "grid"): Message {
+        if (id === "control") return message("control_polygons");
+        if (id === "hull") return message("hulltrace_overlay_hull");
+        if (id === "fatLine") return message("bezierclipping_overlay_fatline");
+        if (id === "kept") return message("bezierclipping_overlay_kept");
+        if (id === "discarded") return message("bezierclipping_overlay_discarded");
+        return super.overlayMessage(id);
+    }
+
+    /** What the clipping story flips while watching the curves (the fat line, the kept and the discarded parts) is a puck; the rest is chosen once. */
+    protected override overlayIsPuck(id: CurvePairOverlayId | BezierClippingOverlayId | "grid"): boolean {
+        return id === "fatLine" || id === "kept" || id === "discarded";
+    }
+
+    protected override overlaySwatch(id: CurvePairOverlayId | BezierClippingOverlayId | "grid") {
+        if (id === "control") return {kind: "line" as const, color: GraphPalette.primaryCurve};
+        if (id === "hull" || id === "fatLine") return {kind: "area" as const, color: GraphPalette.primaryCurve};
+        if (id === "kept") return {kind: "line" as const, color: GraphPalette.primaryCurve};
+        if (id === "discarded") return {kind: "line" as const, color: GraphPalette.referenceCurve};
+        return undefined;
+    }
+
+    /** The sentences of the readout (step, status, clip count, widest live range), in the order the panel shows them. */
+    protected override pointSetNotes(): readonly ReadoutNote<BezierClippingIds>[] {
+        // Before the first Preset is applied the model is not yet a curve pair, so there is no run to read.
+        if (!isCurvePairModel(this.model)) return [];
+        const readout = bezierClippingReadout(this.clipState, this.hullsApart);
+        const status = {
+            overlapping: message("bezierclipping_status_overlapping"), separated: message("bezierclipping_status_separated"),
+            running: message("bezierclipping_status_running"), found: message("bezierclipping_status_found"),
+            empty: message("bezierclipping_status_empty"), limit: message("bezierclipping_status_limit"),
+        }[readout.status];
+        return [
+            {id: "step", text: message("step_counter", {value0: this.step + 1, value1: Math.max(this.run().length, 1)})},
+            {id: "status", text: status},
+            {id: "clips", text: message("bezierclipping_clip_count", {value0: readout.clipCount})},
+            ...(readout.widest === null ? [] : [{id: "widest" as const, text: message("bezierclipping_widest", {value0: formatSignificant(readout.widest, currentLanguage(), 3)})}]),
+        ];
+    }
+
+    protected override declaration(): GraphDeclaration<BezierClippingIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<BezierClippingIds>;
+        const [points, ...overlays] = common.legend ?? [];
+        const legend: LegendEntry<BezierClippingIds>[] = [
+            ...(points ? [points] : []),
+            {id: "curveA", label: message("bezierclipping_curve_a"), kind: "line", object: "curveA"},
+            {id: "curveB", label: message("bezierclipping_curve_b"), kind: "dashed", object: "curveB"},
+            ...overlays,
+        ];
+        const ready = isCurvePairModel(this.model);
+        const atEnd = !ready || this.step >= this.run().length - 1;
+        const step = ready ? this.step : 0;
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<BezierClippingIds>[] = [
+            // The puck labels are at most 16 characters; the legend and Orodja keep the long texts.
+            ...(common.actions ?? []).map(candidate => candidate.id === "kept" ? {...candidate, label: message("bezierclipping_puck_kept")}
+                : candidate.id === "discarded" ? {...candidate, label: message("bezierclipping_puck_discarded")} : candidate),
+            {id: "next-step", label: message("next_step"), enabled: !atEnd && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: true, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, legend, actions};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id === "curveA" || id === "curveB") {
+            type Drawn = JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            const curve = this.hasBoard ? (this.board.objectsList as JXG.GeometryElement[]).find(object => object.name === `curve${id.slice(-1)}`) as Drawn | undefined : undefined;
+            return curve ? {color: String(curve.evalVisProp("strokecolor")), visible: Boolean(curve.evalVisProp("visible"))} : {color: GraphPalette.primaryCurve, visible: false};
+        }
+        return super.drawnObject(id);
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
