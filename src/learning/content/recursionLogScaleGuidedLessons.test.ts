@@ -4,7 +4,7 @@
  * opens on the state its prompt asks the learner to produce, the learner's typed values and chosen options give the readouts the text quotes, and a prediction step does
  * not show the answer to its own prediction. The expected values are computed here from closed forms (ln of 1000 q^n, difference quotients), not with the graph.
  */
-import {act, fireEvent, screen} from '@testing-library/react';
+import {act, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {recursionLogScaleLesson} from './recursionLogScaleGuidedLessons';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
@@ -49,9 +49,11 @@ const status = () => document.querySelector('[data-recursion-status]')?.textCont
 
 // ---- the graph -------------------------------------------------------------------------------------------------------------------------
 
+let growth: GrowthGraph;
 function mountGrowth() {
     const graph = createGraph('recursion-growth');
     if (!(graph instanceof GrowthGraph)) throw new Error('recursion-growth must be the growth graph.');
+    growth = graph;
     const mounted = mountGraph(graph);
     const capabilities = graph.getLessonCapabilities();
     const checkpoint = capabilities.captureState();
@@ -67,8 +69,16 @@ function mountGrowth() {
 type ControlKey = 'recursion_graph_growth_panel_label' | 'recursion_graph_growth_model_label' | 'recursion_graph_growth_y0_label' | 'recursion_graph_growth_logq_label';
 /** The typed field of a slider: the exact field is named "<label>, vrednost" and shares the label with its range input. */
 const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-const type = (key: ControlKey, value: string) => act(() => { enterNumber(field(t(key)), value); });
-const choose = (key: ControlKey, value: string) => act(() => { fireEvent.change(screen.getByRole('combobox', {name: t(key)}), {target: {value}}); });
+/** The panel, the model and the growth factor are pucks on the board: the learner's entry reaches the graph through its writes; the starting value stays a typed Orodja field. */
+const PUCKS: Partial<Record<ControlKey, string>> = {
+    recursion_graph_growth_panel_label: 'growth-panel', recursion_graph_growth_model_label: 'growth-model', recursion_graph_growth_logq_label: 'growth-logq',
+};
+const type = (key: ControlKey, value: string) => act(() => {
+    const puck = PUCKS[key];
+    if (puck) growth.parameters!.write(puck, Number(value.replace(',', '.').replace('\u2212', '-')), 'learner');
+    else enterNumber(field(t(key)), value);
+});
+const choose = (key: ControlKey, value: string) => act(() => { growth.parameters!.write(PUCKS[key]!, value, 'learner'); });
 const typed = (value: number, language: Language) => fmt(value, 4, language);
 
 // ---- the openings ----------------------------------------------------------------------------------------------------------------------

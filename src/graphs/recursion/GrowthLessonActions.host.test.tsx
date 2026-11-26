@@ -7,6 +7,7 @@ import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {GrowthPanel, SequenceKind} from '../../recursion/recursionModel';
+import {runAs} from '../base/writes/writeSource';
 import {GrowthGraph} from './GrowthGraph';
 
 beforeAll(installBoardShims);
@@ -17,8 +18,10 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+let current: GrowthGraph;
 const mount = (): GrowthGraph => {
     const graph = new GrowthGraph();
+    current = graph;
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return graph;
 };
@@ -31,9 +34,18 @@ const setParams = (fields: Omit<ParamsAction, 'kind' | 'operation'>): LessonActi
 const setInterest = (fields: Omit<InterestAction, 'kind' | 'operation'>): LessonAction => ({kind: 'recursion', operation: 'set-interest', ...fields});
 /** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
 const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+/** The parameter of a lesson control that sits on a puck: the learner's typed entry reaches the graph through its writes. */
+const PUCK_KEYS: Record<string, string> = {
+    [t('recursion_graph_growth_n_label')]: 'growth-n', [t('recursion_graph_growth_d_label')]: 'growth-d', [t('recursion_graph_growth_q_label')]: 'growth-q',
+    [t('recursion_graph_growth_rate_label')]: 'growth-rate', [t('recursion_graph_growth_years_label')]: 'growth-years', [t('recursion_graph_growth_logq_label')]: 'growth-logq',
+};
+const type = (label: string, value: string) => act(() => {
+    const key = PUCK_KEYS[label];
+    if (key) current.parameters!.write(key, Number(value.replace(',', '.')), 'learner');
+    else enterNumber(field(label), value);
+});
 const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByRole('combobox', {name: label}), {target: {value}}); });
-const panel = (value: GrowthPanel) => choose(t('recursion_graph_growth_panel_label'), value);
+const panel = (value: GrowthPanel) => act(() => { runAs('learner', () => { current.setState({panel: value}); }); });
 const kind = (value: SequenceKind) => choose(t('recursion_graph_growth_kind_label'), value);
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-recursion-status]')?.textContent;
@@ -180,7 +192,7 @@ test('set-log reaches the state, readouts and status of typing y0, the factor q 
         panel('log');
         type(t('recursion_graph_growth_y0_label'), '500');
         type(t('recursion_graph_growth_logq_label'), '1,2');
-        choose(t('recursion_graph_growth_model_label'), 'power');
+        act(() => { current.parameters!.write('growth-model', 'power', 'learner'); });
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state).toEqual(expect.objectContaining({panel: 'log', y0: 500, logQ: 120, logModel: 'power'}));

@@ -7,10 +7,13 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-rec-a.md. The growth graph shows one sequence kind at a time, so RG1 step 4 shows the two kinds in turn.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {GrowthIds} from '../../graphs/recursion/GrowthGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const growthFrame = frameDeclarer<GrowthIds>();
 
 interface StepContent {
     readonly id: string;
@@ -23,6 +26,8 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame asks the learner to use (the board pucks, the Orodja controls). */
+    readonly observationFrame?: FrameDeclaration;
 }
 
 const step = (content: StepContent): GuidedLessonStep => ({
@@ -30,7 +35,7 @@ const step = (content: StepContent): GuidedLessonStep => ({
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', content.observationFrame),
     ],
 });
 
@@ -163,6 +168,7 @@ const rg1Examples: readonly WorkedExample[] = [
 const rg1Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'rg1-first-terms', order: 1,
+        observationFrame: growthFrame({uses: ['growth-n']}),
         title: text('Pravilo, ki ga ponavljamo', 'A rule applied again and again'),
         purpose: text('Napovedati deseti člen, preden ga graf pokaže.', 'Predicting the tenth term before the graph shows it.'),
         explanation: text(
@@ -170,7 +176,7 @@ const rg1Steps: readonly GuidedLessonStep[] = [
             'A sequence is a list of numbers counted by \\(n=1,2,3,\\dots\\). A recursive formula says how to get the next term from one term. Here the rule is \\(a_{n+1}=a_n+2\\): add \\(2\\) to every term. The first term is \\(a_1=3\\), and the graph shows the first six terms as bars of height \\(3;\\ 5;\\ 7;\\ 9;\\ 11;\\ 13\\). Prediction: what will \\(a_{10}\\) be? Write your answer down before typing \\(10\\) into the field Number of terms; the picture is only a bar display of these six terms.',
         ),
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved za \\(a_{10}\\), nato v polje Število členov vpiši \\(10\\) in preberi odčitek Člen (zaprta oblika).', 'Write down your prediction for \\(a_{10}\\), then type \\(10\\) into the field Number of terms and read the readout Term (closed form).'),
+        observationPrompt: text('Zapiši napoved za \\(a_{10}\\), nato na plošči pri grafu na kazalcu Število členov vpiši \\(10\\) in preberi odčitek Člen (zaprta oblika).', 'Write down your prediction for \\(a_{10}\\), then type \\(10\\) on the board control Number of terms and read the readout Term (closed form).'),
         expectedObservations: [text('Prvi členi \\(3;\\ 5;\\ 7;\\ 9;\\ 11;\\ 13\\); pri \\(n=10\\) odčitek kaže \\(21\\).', 'The first terms are \\(3;\\ 5;\\ 7;\\ 9;\\ 11;\\ 13\\); at \\(n=10\\) the readout shows \\(21\\).')],
         scene: recursionScene('rg1-first-terms-scene', RG1_FIRST_TERMS,
             'Aritmetično zaporedje, \\(a_1=3\\), \\(d=2\\), \\(n=6\\): prvi členi \\(3;\\ 5;\\ 7;\\ 9;\\ 11;\\ 13\\), \\(a_6=13\\).',
@@ -178,6 +184,7 @@ const rg1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg1-arithmetic-closed', order: 2,
+        observationFrame: growthFrame({uses: ['growth-d']}),
         title: text('Zaprta oblika aritmetičnega zaporedja', 'The closed form of the arithmetic sequence'),
         purpose: text('Priti do desetega člena in do vsote brez računanja vseh členov.', 'Getting the tenth term and the sum without computing every term.'),
         explanation: text(
@@ -194,6 +201,7 @@ const rg1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg1-geometric', order: 3,
+        observationFrame: growthFrame({uses: ['growth-n']}),
         title: text('Pravilo z množenjem', 'A rule with multiplication'),
         purpose: text('Napovedati, ali geometrijsko zaporedje preseže \\(21\\), preden se pokaže deseti člen.', 'Predicting whether the geometric sequence exceeds \\(21\\) before the tenth term appears.'),
         explanation: text(
@@ -224,6 +232,7 @@ const rg1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg1-sums', order: 5,
+        observationFrame: growthFrame({uses: ['growth-q']}),
         title: text('Vsoti obeh zaporedij', 'The sums of both sequences'),
         purpose: text('Izračunati vsoto geometrijskega zaporedja in jo primerjati z aritmetično.', 'Computing the sum of the geometric sequence and comparing it with the arithmetic one.'),
         explanation: text(
@@ -240,6 +249,7 @@ const rg1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg1-halving', order: 6,
+        observationFrame: growthFrame({uses: ['growth-n']}),
         title: text('Členi, ki se manjšajo', 'Terms that shrink'),
         purpose: text('Videti, da se vsota približuje limiti \\(6\\), ki jo da zaprta oblika.', 'Seeing that the sum approaches the limit \\(6\\) which the closed form gives.'),
         explanation: text(
@@ -360,6 +370,7 @@ const rg3Examples: readonly WorkedExample[] = [
 const rg3Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'rg3-predict', order: 1,
+        observationFrame: growthFrame({uses: ['growth-years']}),
         title: text('Navadno ali obrestno obrestovanje?', 'Simple or compound interest?'),
         purpose: text('Napovedati vrednost po desetih letih za obe vrsti obrestovanja.', 'Predicting the value after ten years for both kinds of interest.'),
         explanation: text(
@@ -367,7 +378,7 @@ const rg3Steps: readonly GuidedLessonStep[] = [
             'The capital is \\(1000\\) euros, the yearly interest rate \\(5\\,\\%\\). With simple interest the same amount, taken from the initial capital, is added every year; with compound interest the interest earns interest as well. After one year the values are equal: both \\(1050\\). Prediction: what will the value be after \\(10\\) years with simple and with compound interest? Type \\(10\\) into the field Time once you have written your prediction down.',
         ),
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved, nato v polje Čas vpiši \\(10\\) in preberi obe vrednosti.', 'Write down your prediction, then type \\(10\\) into the field Time and read both values.'),
+        observationPrompt: text('Zapiši napoved, nato na plošči pri grafu na kazalcu Čas (leta) vpiši \\(10\\) in preberi obe vrednosti.', 'Write down your prediction, then type \\(10\\) on the board control Time (years) and read both values.'),
         expectedObservations: [text('Po enem letu je vsaka vrednost \\(1050\\); po \\(10\\) letih je navadno obrestovanje \\(1500\\), obrestno \\(1628{,}89\\) (zaokroženo na cent).', 'After one year each value is \\(1050\\); after \\(10\\) years simple interest gives \\(1500\\), compound interest \\(1628.89\\) (rounded to the cent).')],
         scene: recursionScene('rg3-predict-scene', RG3_ONE_YEAR,
             'Obrestovanje, \\(1000\\) pri \\(5\\,\\%\\) za \\(1\\) leto, letno obračunavanje: navadno \\(1050\\), obrestno \\(1050\\).',
@@ -375,6 +386,7 @@ const rg3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg3-curves', order: 2,
+        observationFrame: growthFrame({uses: ['growth-years']}),
         title: text('Premica in krivulja', 'A line and a curve'),
         purpose: text('Razložiti, zakaj je obrestno obrestovanje po desetih letih večje.', 'Explaining why compound interest is larger after ten years.'),
         explanation: text(
@@ -391,6 +403,7 @@ const rg3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg3-parts', order: 3,
+        observationFrame: growthFrame({open: ['tools']}),
         title: text('Leto razdelimo na dele', 'Splitting the year into parts'),
         purpose: text('Napovedati, kako število obdobij v letu vpliva na vrednost.', 'Predicting how the number of periods per year affects the value.'),
         explanation: text(
@@ -406,6 +419,7 @@ const rg3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg3-conformal', order: 4,
+        observationFrame: growthFrame({open: ['tools']}),
         title: text('Konformna obrestna mera', 'The conformal rate'),
         purpose: text('Utemeljiti, zakaj mesečna konformna mera da isto letno rast.', 'Justifying why the monthly conformal rate gives the same yearly growth.'),
         explanation: text(
@@ -437,6 +451,7 @@ const rg3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg3-doubling', order: 6,
+        observationFrame: growthFrame({uses: ['growth-years', 'growth-rate']}),
         title: text('Čas podvojitve', 'Doubling time'),
         purpose: text('Izračunati, v koliko letih se glavnica podvoji.', 'Computing in how many years the capital doubles.'),
         explanation: text(

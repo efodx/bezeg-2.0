@@ -8,11 +8,14 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-rec-c.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {GrowthIds} from '../../graphs/recursion/GrowthGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 import type {RecursionSceneInterest} from './recursionGuidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const growthFrame = frameDeclarer<GrowthIds>();
 
 interface StepContent {
     readonly id: string;
@@ -25,6 +28,8 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame asks the learner to use (the board pucks, the Orodja controls). */
+    readonly observationFrame?: FrameDeclaration;
 }
 
 const step = (content: StepContent): GuidedLessonStep => ({
@@ -32,7 +37,7 @@ const step = (content: StepContent): GuidedLessonStep => ({
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', content.observationFrame),
     ],
 });
 
@@ -152,6 +157,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg5-predict-log', order: 2,
+        observationFrame: growthFrame({uses: ['growth-panel']}),
         title: text('Vrednosti zamenjamo z logaritmi', 'Replacing the values by their logarithms'),
         purpose: text('Napovedati sliko točk \\((n,\\ln y_n)\\), preden jo graf pokaže.', 'Predicting the picture of the points \\((n,\\ln y_n)\\) before the graph shows it.'),
         explanation: text(
@@ -159,7 +165,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
             'The same data, \\(y_n=1000\\cdot1.05^n\\), are drawn on an ordinary axis. Prediction: replace every value \\(y_n\\) by its natural logarithm \\(\\ln y_n\\) and draw the points \\((n,\\ln y_n)\\). Will the points lie on a curve or on a line? If on a line, roughly what slope will it have (hint: what do we know about the ratio of successive values)? In the chooser View pick Logarithm of y and compare with your prediction.',
         ),
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved, nato v izbirniku Prikaz izberi Logaritem y in preberi stanje ter naklon.', 'Write down your prediction, then pick Logarithm of y in the chooser View and read the status and the slope.'),
+        observationPrompt: text('Zapiši napoved, nato na plošči pri grafu v izbirniku Prikaz izberi Logaritem y in preberi stanje ter naklon.', 'Write down your prediction, then pick Logarithm of y on the board chooser View and read the status and the slope.'),
         expectedObservations: [text('Točke ležijo na premici z naklonom \\(0{,}04879\\); stanje piše tudi \\(\\ln q=0{,}04879\\) in \\(q\\approx1{,}05\\).', 'The points lie on a line with slope \\(0.04879\\); the status also writes \\(\\ln q=0.04879\\) and \\(q\\approx1.05\\).')],
         scene: logScene('rg5-predict-log-scene', RG5_INTEREST,
             'Obrestovanje, \\(1000\\) pri \\(5\\,\\%\\) za \\(10\\) let, letno obračunavanje, kakor v prvem koraku.',
@@ -167,6 +173,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg5-line', order: 3,
+        observationFrame: growthFrame({open: ['tools']}),
         title: text('Zakaj takšna slika', 'Why this picture'),
         purpose: text('Utemeljiti sliko iz obrazca in napovedati učinek začetne vrednosti.', 'Justifying the picture from the formula and predicting the effect of the starting value.'),
         explanation: text(
@@ -183,6 +190,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg5-slope', order: 4,
+        observationFrame: growthFrame({uses: ['growth-logq']}),
         title: text('Naklon in faktor rasti', 'The slope and the growth factor'),
         purpose: text('Napovedati naklon pri drugih faktorjih in iz naklona prebrati \\(q\\).', 'Predicting the slope for other factors and reading \\(q\\) from the slope.'),
         explanation: text(
@@ -190,7 +198,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
             'At \\(q=1.05\\) the slope is \\(0.04879\\), which is \\(\\ln1.05\\) rounded to five decimals. Argument: \\(\\ln y_{n+1}-\\ln y_n=\\ln q\\) for every \\(n\\), so the slope tells \\(\\ln q\\), and the growth factor is \\(q=e^{\\text{slope}}\\). Prediction: what will the slope be at \\(q=2\\) and what at \\(q=0.5\\)? Will the sign be the same? On the slider Growth factor q set \\(2\\), then \\(0.5\\). The row q from the slope (e to the slope) is a check on your prediction, not the answer you look for first.',
         ),
         formulaIds: ['log-slope'],
-        observationPrompt: text('Zapiši napovedana naklona, nato na drsniku Faktor rasti q nastavi \\(2\\) in \\(0{,}5\\) ter preberi naklon in vrstico q iz naklona.', 'Write down both predicted slopes, then set \\(2\\) and \\(0.5\\) on the slider Growth factor q and read the slope and the row q from the slope.'),
+        observationPrompt: text('Zapiši napovedana naklona, nato na kazalcu Faktor rasti nastavi \\(2\\) in \\(0{,}5\\) ter preberi naklon in vrstico q iz naklona.', 'Write down both predicted slopes, then set \\(2\\) and \\(0.5\\) on the board control Growth factor and read the slope and the row q from the slope.'),
         expectedObservations: [text('Pri \\(q=2\\) je naklon \\(0{,}693147\\) (\\(\\ln2\\)) in q iz naklona \\(2\\); pri \\(q=0{,}5\\) je naklon \\(-0{,}693147\\), torej negativen, in q iz naklona \\(0{,}5\\).', 'At \\(q=2\\) the slope is \\(0.693147\\) (\\(\\ln2\\)) and q from the slope \\(2\\); at \\(q=0.5\\) the slope is \\(-0.693147\\), negative, and q from the slope \\(0.5\\).')],
         scene: logScene('rg5-slope-scene', RG5_LOG,
             'Prikaz Logaritem y, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: naklon \\(0{,}04879\\), q iz naklona \\(1{,}05\\).',
@@ -198,6 +206,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'rg5-power', order: 5,
+        observationFrame: growthFrame({uses: ['growth-model']}),
         title: text('Potenčna rast za primerjavo', 'Power growth for comparison'),
         purpose: text('Napovedati, ali potenčni model da premico, in primerjati s pravim razlogom.', 'Predicting whether the power model gives a line and comparing it with the reason.'),
         explanation: text(
@@ -206,7 +215,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
         ),
         // The contrast formula and the two-slope example answer this step's prediction, so they are shown in the next step, after the reveal.
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved, nato v izbirniku Model izberi Potenčni in preberi stanje ter Naklon prvega koraka in Naklon zadnjega koraka.', 'Write down your prediction, then pick Power in the chooser Model and read the status and the Slope of the first step and the Slope of the last step.'),
+        observationPrompt: text('Zapiši napoved, nato na plošči pri grafu v izbirniku Model izberi Potenčni in preberi stanje ter Naklon prvega koraka in Naklon zadnjega koraka.', 'Write down your prediction, then pick Power on the board chooser Model and read the status and the Slope of the first step and the Slope of the last step.'),
         expectedObservations: [text('Točke niso na premici: naklon prvega koraka je \\(1{,}386294\\), zadnjega \\(0{,}19062\\); vrstica Točke na premici? piše ne.', 'The points are not on a line: the slope of the first step is \\(1.386294\\), of the last step \\(0.19062\\); the row Points on a line? writes no.')],
         scene: logScene('rg5-power-scene', RG5_LOG,
             'Prikaz Logaritem y, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: točke ležijo na premici z naklonom \\(0{,}04879\\).',

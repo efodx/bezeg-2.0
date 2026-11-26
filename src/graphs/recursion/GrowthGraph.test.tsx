@@ -2,12 +2,13 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, settle} from '../base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, openTools, settle, typePuck, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {DEFAULT_GROWTH_STATE, deriveGrowth, GrowthPanel} from '../../recursion/recursionModel';
 import {barsPath, chord, sampleCurve} from './growthScene';
 import {GrowthGraph, LOG_POINTS} from './GrowthGraph';
+import {runAs} from '../base/writes/writeSource';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -22,6 +23,7 @@ class ObservedGraph extends GrowthGraph {
 
 function mountGraph(strict = false) {
     const graph = new ObservedGraph();
+    current = graph;
     const tree = <MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>;
     const view = render(strict ? <React.StrictMode>{tree}</React.StrictMode> : tree);
     return {graph, view};
@@ -52,7 +54,8 @@ const status = () => document.querySelector('[data-recursion-status]')!.textCont
 const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const select = (label: string) => screen.getByRole('combobox', {name: label}) as HTMLSelectElement;
 const choose = (label: string, value: string) => act(() => { fireEvent.change(select(label), {target: {value}}); });
-const panel = (value: GrowthPanel) => choose(t('recursion_graph_growth_panel_label'), value);
+let current: ObservedGraph;
+const panel = (value: GrowthPanel) => act(() => { runAs('learner', () => { current.setState({panel: value}); }); });
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 const described = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean)
     .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
@@ -95,7 +98,7 @@ describe('mount and the sequence panel', () => {
 
     test('geometric with q = 2: a10 = 1536, S10 = 3069 exact, no limit line', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({kind: 'geometric', a1: 3, q: 20, n: 10}); });
+        act(() => { runAs('learner', () => { graph.setState({kind: 'geometric', a1: 3, q: 20, n: 10}); }); });
         expect(readout('ratio')).toBe('2');
         expect(readout('nth')).toBe('1536');
         expect(readout('sum')).toBe('3069');
@@ -109,7 +112,7 @@ describe('mount and the sequence panel', () => {
 
     test('geometric with q = 0,5: the sum is computed, the limit 6 is a line and a caption, and the status says it is not the last term', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({kind: 'geometric', a1: 3, q: 5, n: 10}); });
+        act(() => { runAs('learner', () => { graph.setState({kind: 'geometric', a1: 3, q: 5, n: 10}); }); });
         expect(readout('sum')).toBe('5,994141'); // 5,994140625 at six decimals
         expect(readout('nth')).toBe('0,005859'); // 3 * 0,5^9
         expect(readout('precision')).toBe(t('recursion_graph_growth_precision_computed'));
@@ -119,23 +122,23 @@ describe('mount and the sequence panel', () => {
         expect(line.dataY).toEqual([6, 6]);
         expect(shown(graph)).toContain(t('recursion_graph_growth_cap_limit', {value0: '6'}));
         expect(status()).toContain(t('recursion_graph_growth_status_limit', {value0: '6'}));
-        act(() => { graph.setState({q: 10}); }); // |q| = 1: no limit
+        act(() => { runAs('learner', () => { graph.setState({q: 10}); }); }); // |q| = 1: no limit
         expect(readout('limit')).toBe(t('recursion_graph_growth_limit_none'));
         expect(curves(graph)[LIMIT].evalVisProp('visible')).toBe(false);
-        act(() => { graph.setState({q: -5}); }); // |q| < 1 with a negative ratio: the limit is a1/(1 - q) = 2
+        act(() => { runAs('learner', () => { graph.setState({q: -5}); }); }); // |q| < 1 with a negative ratio: the limit is a1/(1 - q) = 2
         expect(readout('limit')).toBe(t('recursion_graph_growth_limit_value', {value0: '2'}));
     });
 
     test('whole ratio (Q % 10 = 0) stays exact in BigInt beyond 2^53, with the true minus', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({kind: 'geometric', a1: 99, q: 30, n: 30}); });
+        act(() => { runAs('learner', () => { graph.setState({kind: 'geometric', a1: 99, q: 30, n: 30}); }); });
         expect(readout('nth')).toBe('6794407359123417'); // 99 * 3^29
         expect(readout('sum')).toBe('10191611038685076'); // 99 * (3^30 - 1) / 2, above 2^53
         expect(readout('precision')).toBe(t('recursion_graph_growth_precision_exact'));
-        act(() => { graph.setState({a1: 100, q: -20}); });
+        act(() => { runAs('learner', () => { graph.setState({a1: 100, q: -20}); }); });
         expect(readout('nth')).toBe('−53687091200'); // 100 * (-2)^29
         expect(readout('sum')).toBe('−35791394100'); // 100 * (1 - (-2)^30) / 3
-        act(() => { graph.setState({q: -30, a1: -100}); });
+        act(() => { runAs('learner', () => { graph.setState({q: -30, a1: -100}); }); });
         expect(readout('first')).toBe('−100');
         expect(readout('nth')).toBe('6863037736488300'); // -100 * (-3)^29 = 100 * 3^29
         noBadText();
@@ -143,7 +146,7 @@ describe('mount and the sequence panel', () => {
 
     test('a ratio with a decimal part is computed with doubles, and the status says so', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({kind: 'geometric', a1: 1, q: 25, n: 3}); });
+        act(() => { runAs('learner', () => { graph.setState({kind: 'geometric', a1: 1, q: 25, n: 3}); }); });
         expect(readout('nth')).toBe('6,25');
         expect(readout('sum')).toBe('9,75');
         expect(readout('terms')).toBe('1; 2,5; 6,25');
@@ -154,7 +157,7 @@ describe('mount and the sequence panel', () => {
     test('the board window follows the panel and the data: a negative sequence reaches below the axis', () => {
         const {graph} = mountGraph();
         const before = graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)));
-        act(() => { graph.setState({a1: -50, d: -10}); });
+        act(() => { runAs('learner', () => { graph.setState({a1: -50, d: -10}); }); });
         const after = graph.liveBoard().getBoundingBox();
         expect(after[3]).toBeLessThan(-140); // the lowest term, with room below it
         expect(after[3]).toBeLessThan(before[3]);
@@ -244,7 +247,7 @@ describe('the interest panel', () => {
         const {graph} = mountGraph();
         panel('interest');
         const small = graph.liveBoard().getBoundingBox()[1];
-        act(() => { graph.setState({capital: 50000, rate: 80, years: 40}); });
+        act(() => { runAs('learner', () => { graph.setState({capital: 50000, rate: 80, years: 40}); }); });
         expect(graph.liveBoard().getBoundingBox()[1]).toBeGreaterThan(small * 100);
         expect(graph.liveBoard().getBoundingBox()[2]).toBeGreaterThan(40);
     });
@@ -292,10 +295,10 @@ describe('the logarithm panel (n, ln y) on an ordinary axis', () => {
         expect(t('recursion_graph_growth_board_log')).toMatch(/ln y/);
     });
 
-    test('power y = 1000 * n^2: n = 1 .. 11, the slope differs along the run, the points are not a line', () => {
+    test('power y = 1000 * n^2: n = 1 .. 11, the slope differs along the run, the points are not a line', async () => {
         const {graph} = mountGraph();
         panel('log');
-        choose(t('recursion_graph_growth_model_label'), 'power');
+        await chooseOnPuck('growth-model', 'power');
         expect(curves(graph)[LOG_LINE].dataX).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
         near(curves(graph)[LOG_LINE].dataY![10], Math.log(121000), 12);
         expect(readout('slope')).toBe('0,479579'); // ln 121 / 10
@@ -313,10 +316,10 @@ describe('the logarithm panel (n, ln y) on an ordinary axis', () => {
     test('the number of visible points follows n, from 2 (n = 1) to all 31 (n = 30)', () => {
         const {graph} = mountGraph();
         panel('log');
-        act(() => { graph.setState({n: 1}); });
+        act(() => { runAs('learner', () => { graph.setState({n: 1}); }); });
         expect(visible(markers(graph))).toHaveLength(2);
         expect(readout('slope')).toBe('0,04879');
-        act(() => { graph.setState({n: 30}); });
+        act(() => { runAs('learner', () => { graph.setState({n: 30}); }); });
         expect(visible(markers(graph))).toHaveLength(LOG_POINTS);
         expect(graph.ownedObjectCount()).toBe(SCENE_OBJECTS);
     });
@@ -338,62 +341,82 @@ describe('panels', () => {
         expect(counts).toEqual({sequence: 1, interest: 8, log: 2});
     });
 
-    test('the control set follows the panel', () => {
+    test('the control set follows the panel: the setup controls in Orodja, the lesson controls on pucks', async () => {
         mountGraph();
+        await waitForPucks();
+        await openTools();
         const has = (...labels: string[]) => labels.every(label => find(label) !== undefined);
-        expect(has(t('recursion_graph_growth_a1_label'), t('recursion_graph_growth_d_label'), t('recursion_graph_growth_n_label'))).toBe(true);
+        const pucks = () => [...document.querySelectorAll('.puck-strip [data-puck-key]')].map(el => el.getAttribute('data-puck-key')).sort();
+        expect(has(t('recursion_graph_growth_a1_label'))).toBe(true);
+        expect(pucks()).toEqual(['growth-d', 'growth-n', 'growth-panel']);
         panel('interest');
-        expect(has(t('recursion_graph_growth_capital_label'), t('recursion_graph_growth_rate_label'), t('recursion_graph_growth_years_label'))).toBe(true);
+        await waitForPucks('growth-rate');
+        expect(has(t('recursion_graph_growth_capital_label'))).toBe(true);
         expect(screen.getByRole('combobox', {name: t('recursion_graph_growth_parts_label')})).toBeTruthy();
         expect(find(t('recursion_graph_growth_a1_label'))).toBeUndefined();
+        expect(pucks()).toEqual(['growth-panel', 'growth-rate', 'growth-years']);
         panel('log');
-        expect(has(t('recursion_graph_growth_y0_label'), t('recursion_graph_growth_logq_label'), t('recursion_graph_growth_steps_label'))).toBe(true);
+        await waitForPucks('growth-logq');
+        expect(has(t('recursion_graph_growth_y0_label'))).toBe(true);
+        expect(pucks()).toEqual(['growth-logq', 'growth-model', 'growth-n', 'growth-panel']);
+    });
+
+    test('a puck is absent from the Orodja card: the controls of the panel are not repeated there', async () => {
+        mountGraph();
+        await waitForPucks();
+        await openTools();
+        const tools = document.querySelector('#board-card-tools')!;
+        expect(tools.querySelector('[data-puck-key]')).toBeNull();
     });
 });
 
 describe('fields: ranges, help, refusal, program-changed values', () => {
-    test('sliders carry their range and step, counters their bounds; capital stays typed with its help; only help that explains stays', () => {
+    test('the setup controls in Orodja carry their range; capital stays typed with its help; the pucks carry the lesson ranges', async () => {
         mountGraph();
+        await waitForPucks();
+        await openTools();
         const shape = (label: string) => { const input = rangeOf(label); return [input.min, input.max, input.step]; };
-        expect(described(select(t('recursion_graph_growth_panel_label')))).toBe(t('recursion_graph_growth_panel_help'));
+        const bounds = (key: string) => { const c = puckControl(key); return [c.getAttribute('aria-valuemin'), c.getAttribute('aria-valuemax')]; };
         expect(described(select(t('recursion_graph_growth_kind_label')))).toBe(t('recursion_graph_growth_kind_help'));
         expect(shape(t('recursion_graph_growth_a1_label'))).toEqual(['-100', '100', '1']);
-        expect(shape(t('recursion_graph_growth_d_label'))).toEqual(['-20', '20', '1']);
-        expect(screen.getByRole('group', {name: t('recursion_graph_growth_n_label')})).toBeTruthy();
+        expect(bounds('growth-d')).toEqual(['-20', '20']);
+        expect(bounds('growth-n')).toEqual(['1', '30']);
         choose(t('recursion_graph_growth_kind_label'), 'geometric');
-        expect(shape(t('recursion_graph_growth_q_label'))).toEqual(['-3', '3', '0.1']);
-        expect(described(rangeOf(t('recursion_graph_growth_q_label')))).toContain(t('recursion_graph_growth_q_help'));
+        await waitForPucks('growth-q');
+        expect(bounds('growth-q')).toEqual(['-3', '3']);
         panel('interest');
+        await waitForPucks('growth-rate');
         expect(described(field(t('recursion_graph_growth_capital_label')))).toBe('');
-        expect(shape(t('recursion_graph_growth_rate_label'))).toEqual(['0.5', '40', '0.5']);
-        expect(screen.getByRole('group', {name: t('recursion_graph_growth_years_label')})).toBeTruthy();
+        expect(bounds('growth-rate')).toEqual(['0.5', '40']);
+        expect(bounds('growth-years')).toEqual(['1', '40']);
         expect(described(select(t('recursion_graph_growth_parts_label')))).toBe(t('recursion_graph_growth_parts_help'));
         panel('log');
+        await waitForPucks('growth-logq');
         expect(shape(t('recursion_graph_growth_y0_label'))).toEqual(['1', '1000', '1']);
-        expect(shape(t('recursion_graph_growth_logq_label'))).toEqual(['0.5', '3', '0.01']);
-        expect(screen.getByRole('group', {name: t('recursion_graph_growth_steps_label')})).toBeTruthy();
-        expect(described(select(t('recursion_graph_growth_model_label')))).toBe(t('recursion_graph_growth_model_help'));
+        expect(bounds('growth-logq')).toEqual(['0.5', '3']);
+        expect(bounds('growth-n')).toEqual(['1', '30']);
     });
 
-    test('typed values on the grid are taken; values outside the range are refused (aria-invalid) and never clamped', () => {
+    test('typed values are taken; values outside the range are refused (aria-invalid) and never clamped', async () => {
         const {graph} = mountGraph();
+        await waitForPucks();
+        await openTools();
         enter(t('recursion_graph_growth_a1_label'), '-7');
-        enter(t('recursion_graph_growth_d_label'), '4');
-        enter(t('recursion_graph_growth_n_label'), '12');
+        typePuck('growth-d', '4');
+        typePuck('growth-n', '12');
         expect(graph.state).toMatchObject({a1: -7, d: 4, n: 12});
         const kept = graph.state;
         enter(t('recursion_graph_growth_a1_label'), '101');
         expect(field(t('recursion_graph_growth_a1_label')).getAttribute('aria-invalid')).toBe('true');
-        enter(t('recursion_graph_growth_d_label'), '-21');
-        expect(field(t('recursion_graph_growth_d_label')).getAttribute('aria-invalid')).toBe('true');
-        enter(t('recursion_graph_growth_n_label'), '31');
-        expect(field(t('recursion_graph_growth_n_label')).getAttribute('aria-invalid')).toBe('true');
+        typePuck('growth-d', '-21');
+        typePuck('growth-n', '31');
         expect(graph.state).toBe(kept);
         expect(readout('nth')).toBe('37'); // -7 + 11 * 4
     });
 
     test('every edit method refuses without changing the state object, and writes exactly its own stored field', () => {
         const {graph} = mountGraph();
+        runAs('learner', () => {
         const kept = graph.state;
         for (const refused of [
             graph.editFirstTerm(101), graph.editFirstTerm(-100.5), graph.editFirstTerm(NaN), graph.editDifference(21), graph.editRatio(3.1), graph.editRatio(-3.1),
@@ -417,23 +440,25 @@ describe('fields: ranges, help, refusal, program-changed values', () => {
         expect(graph.editGrowthFactor(0.5)).toBe(true);
         expect(graph.state.logQ).toBe(50);
         expect(Object.keys(graph.state).sort()).toEqual(['initialized', ...Object.keys(DEFAULT_GROWTH_STATE)].sort());
+        });
     });
 
-    test('a value changed by the program (setState from outside) updates the picture and is announced in the live status', () => {
-        vi.useFakeTimers();
+    test('a value changed by the program (setState from outside) updates the picture and is announced in the live status', async () => {
         const {graph} = mountGraph();
-        const live = () => document.querySelector('[data-readout-live]')!.textContent!;
+        await waitForPucks();
+        vi.useFakeTimers();
+        const live = status;
         expect(live()).toContain(t('recursion_graph_growth_status_arithmetic', {value0: '₁₀', value1: '21', value2: '120'}));
-        act(() => { graph.setState({n: 20}); });
-        expect(field(t('recursion_graph_growth_n_label')).value).toBe('20');
+        act(() => { runAs('learner', () => { graph.setState({n: 20}); }); });
+        expect(puckControl('growth-n').getAttribute('aria-valuenow')).toBe('20');
         expect(readout('nth')).toBe('41');
         expect(curves(graph)[BARS].dataX!.length).toBe(20 * 5 + 19);
         act(() => { vi.advanceTimersByTime(1000); });
         expect(live()).toContain(t('recursion_graph_growth_status_arithmetic', {value0: '₂₀', value1: '41', value2: '440'}));
-        act(() => { graph.setState({a1: 4, d: 3, n: 5}); }); // one synchronous write of several fields
+        act(() => { runAs('learner', () => { graph.setState({a1: 4, d: 3, n: 5}); }); }); // one synchronous write of several fields
         expect(readout('nth')).toBe('16');
         expect(readout('sum')).toBe('50');
-        act(() => { graph.setState({panel: 'interest', rate: 20}); });
+        act(() => { runAs('learner', () => { graph.setState({panel: 'interest', rate: 20}); }); });
         expect(readout('rate')).toBe('10 %');
         expect(readout('simple')).toBe('2000');
         act(() => { vi.advanceTimersByTime(1000); });
@@ -442,15 +467,16 @@ describe('fields: ranges, help, refusal, program-changed values', () => {
         }));
     });
 
-    test('decimal comma in Slovenian, decimal point in English; the true minus in both', () => {
+    test('decimal comma in Slovenian, decimal point in English; the true minus in both', async () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({kind: 'geometric', a1: -3, q: 25, n: 3}); });
+        act(() => { runAs('learner', () => { graph.setState({kind: 'geometric', a1: -3, q: 25, n: 3}); }); });
+        await waitForPucks('growth-q');
         expect(readout('ratio')).toBe('2,5');
         expect(readout('nth')).toBe('−18,75');
         act(() => { setLanguage('en'); });
         expect(readout('ratio')).toBe('2.5');
         expect(readout('nth')).toBe('−18.75');
-        expect(field(t('recursion_graph_growth_q_label')).value).toMatch(/2\.5/);
+        expect(puckControl('growth-q').getAttribute('aria-valuetext') ?? puckControl('growth-q').getAttribute('aria-valuenow')).toMatch(/2\.5/);
     });
 });
 
@@ -462,7 +488,7 @@ describe('ownership', () => {
         expect(owned).toBe(SCENE_OBJECTS);
         const base = count() - owned;
         const ids = new Set(ownIds(graph));
-        act(() => { graph.setState({n: 20, d: -3}); });
+        act(() => { runAs('learner', () => { graph.setState({n: 20, d: -3}); }); });
         panel('log');
         expect(new Set(ownIds(graph))).toEqual(ids);
         expect(graph.ownedObjectCount()).toBe(owned);
@@ -492,7 +518,7 @@ describe('ownership', () => {
     test('unmount removes the board label, the language listener and every timer of this graph', () => {
         vi.useFakeTimers();
         // JSXGraph leaves timers of its own for redrawn texts; the same changes on a second mount must leave the same number.
-        const change = (graph: ObservedGraph) => { act(() => { graph.setState({n: 11}); }); act(() => { graph.setState({n: 12}); }); };
+        const change = (graph: ObservedGraph) => { act(() => { runAs('learner', () => { graph.setState({n: 11}); }); act(() => { runAs('learner', () => { graph.setState({n: 12}); }); }); }); };
         const before = vi.getTimerCount();
         const reference = mountGraph();
         change(reference.graph);
@@ -513,7 +539,7 @@ describe('ownership', () => {
 
     test('StrictMode: the same number of objects as a plain mount, and no timer left after unmount', () => {
         vi.useFakeTimers();
-        const change = (graph: ObservedGraph) => { act(() => { graph.setState({n: 3}); }); };
+        const change = (graph: ObservedGraph) => { act(() => { runAs('learner', () => { graph.setState({n: 3}); }); }); };
         const strictBefore = vi.getTimerCount();
         const first = mountGraph(true);
         change(first.graph);
@@ -540,7 +566,7 @@ describe('ownership', () => {
         act(() => { graph.liveBoard().update(); });
         act(() => { graph.liveBoard().update(); });
         expect(graph.derived()).toBe(first);
-        act(() => { graph.setState({n: 11}); });
+        act(() => { runAs('learner', () => { graph.setState({n: 11}); }); });
         expect(graph.derived()).not.toBe(first);
     });
 
@@ -576,7 +602,7 @@ describe('the view of a replaced scene', () => {
     test('a rebuild after a disposal keeps the view the board has (a restore brings its own)', () => {
         const {graph} = mountGraph();
         const stored: [number, number, number, number] = [-3, 70, 19, -5];
-        act(() => { graph.liveBoard().setBoundingBox(stored, false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox(stored, false); }); });
         graph.disposeNow();
         act(() => { graph.rebuildNow(); });
         expect(view(graph)).toEqual(stored);
@@ -585,8 +611,8 @@ describe('the view of a replaced scene', () => {
     test('a reset shows the exact opening window, not one widened to the canvas', async () => {
         const {graph} = mountGraph();
         const opening = view(graph);
-        act(() => { graph.setState({a1: -50, d: -10}); });
-        act(() => { graph.liveBoard().setBoundingBox([-3, 70, 19, -5], false); });
+        act(() => { runAs('learner', () => { graph.setState({a1: -50, d: -10}); }); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-3, 70, 19, -5], false); }); });
         await settle(() => graph.reset());
         expect(view(graph)).toEqual(opening);
     });

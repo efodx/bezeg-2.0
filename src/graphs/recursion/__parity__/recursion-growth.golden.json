@@ -41,7 +41,10 @@
           "value": "natančno (cela števila)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Aritmetično zaporedje: a₁₀ = 21 in vsota S₁₀ = 120 po obrazcih (natančno, cela števila).",
+        "Obrazca za člen in vsoto sta izpeljana (argument); stolpci so ponazoritev. Pri celih številih so vrednosti natančne, sicer izračunane."
+      ],
       "outputs": [],
       "captions": [
         "a₁₀ = 21",
@@ -89,7 +92,10 @@
           "value": "natančno (cela števila)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Aritmetično zaporedje: a₆ = 13 in vsota S₆ = 48 po obrazcih (natančno, cela števila).",
+        "Obrazca za člen in vsoto sta izpeljana (argument); stolpci so ponazoritev. Pri celih številih so vrednosti natančne, sicer izračunane."
+      ],
       "outputs": [],
       "captions": [
         "a₆ = 13",
@@ -142,7 +148,10 @@
           "value": "je ni (|q| ≥ 1)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Geometrijsko zaporedje: a₃ = 12 in vsota S₃ = 21 po obrazcih (natančno, cela števila).",
+        "Obrazca za člen in vsoto sta izpeljana (argument); stolpci so ponazoritev. Pri celih številih so vrednosti natančne, sicer izračunane."
+      ],
       "outputs": [],
       "captions": [
         "a₃ = 12",
@@ -195,7 +204,10 @@
           "value": "je ni (|q| ≥ 1)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Geometrijsko zaporedje: a₁₀ = 1536 in vsota S₁₀ = 3069 po obrazcih (natančno, cela števila).",
+        "Obrazca za člen in vsoto sta izpeljana (argument); stolpci so ponazoritev. Pri celih številih so vrednosti natančne, sicer izračunane."
+      ],
       "outputs": [],
       "captions": [
         "a₁₀ = 1536",
@@ -248,7 +260,10 @@
           "value": "6 (zaprta oblika)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Geometrijsko zaporedje: a₁₀ = 0,005859 in vsota S₁₀ = 5,994141 po obrazcih (izračunano z decimalkami). Ker je |q| < 1, je limita vsote a₁/(1 - q) = 6; to je vrednost zaprte oblike, ne zadnji narisani člen.",
+        "Obrazca za člen in vsoto sta izpeljana (argument); stolpci so ponazoritev. Pri celih številih so vrednosti natančne, sicer izračunane."
+      ],
       "outputs": [],
       "captions": [
         "a₁₀ = 0,005859",
@@ -302,7 +317,10 @@
           "value": "je ni (|q| ≥ 1)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Geometrijsko zaporedje: a₁₂ = 172,995117 in vsota S₁₂ = 514,985352 po obrazcih (izračunano z decimalkami).",
+        "Obrazca za člen in vsoto sta izpeljana (argument); stolpci so ponazoritev. Pri celih številih so vrednosti natančne, sicer izračunane."
+      ],
       "outputs": [],
       "captions": [
         "a₁₂ = 172,995117",
@@ -405,7 +423,10 @@
           "value": "2,718282"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Po 10 letih: navadno obrestovanje 1500, obrestno obrestovanje 1628,89, relativno (1 obdobij na leto) 1628,89, zvezno 1648,72 (izračunano).",
+        "Enakost konformne in letne rasti je argument (produkt enakih faktorjev); tabela (1 + 1/n)ⁿ je izračunana ponazoritev limite. Za n > 10⁶ se tabela ne ponuja, ker dvojna natančnost ne zadošča."
+      ],
       "outputs": [],
       "captions": [
         "navadno obrestovanje: 1500",
@@ -510,7 +531,10 @@
           "value": "2,718282"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Po 10 letih: navadno obrestovanje 1500, obrestno obrestovanje 1628,89, relativno (12 obdobij na leto) 1647,01, zvezno 1648,72 (izračunano).",
+        "Enakost konformne in letne rasti je argument (produkt enakih faktorjev); tabela (1 + 1/n)ⁿ je izračunana ponazoritev limite. Za n > 10⁶ se tabela ne ponuja, ker dvojna natančnost ne zadošča."
+      ],
       "outputs": [],
       "captions": [
         "navadno obrestovanje: 1500",
@@ -615,7 +639,10 @@
           "value": "2,718282"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Po 10 letih: navadno obrestovanje 1500, obrestno obrestovanje 1628,89, relativno (365 obdobij na leto) 1648,66, zvezno 1648,72 (izračunano).",
+        "Enakost konformne in letne rasti je argument (produkt enakih faktorjev); tabela (1 + 1/n)ⁿ je izračunana ponazoritev limite. Za n > 10⁶ se tabela ne ponuja, ker dvojna natančnost ne zadošča."
+      ],
       "outputs": [],
       "captions": [
         "navadno obrestovanje: 1500",
@@ -720,7 +747,10 @@
           "value": "2,718282"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Po 14 letih: navadno obrestovanje 1700, obrestno obrestovanje 1979,93, relativno (1 obdobij na leto) 1979,93, zvezno 2013,75 (izračunano).",
+        "Enakost konformne in letne rasti je argument (produkt enakih faktorjev); tabela (1 + 1/n)ⁿ je izračunana ponazoritev limite. Za n > 10⁶ se tabela ne ponuja, ker dvojna natančnost ne zadošča."
+      ],
       "outputs": [],
       "captions": [
         "navadno obrestovanje: 1700",
@@ -825,7 +855,10 @@
           "value": "2,718282"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Po 20 letih: navadno obrestovanje 3200, obrestno obrestovanje 3612,22, relativno (4 obdobij na leto) 3636,09, zvezno 3644,24 (izračunano).",
+        "Enakost konformne in letne rasti je argument (produkt enakih faktorjev); tabela (1 + 1/n)ⁿ je izračunana ponazoritev limite. Za n > 10⁶ se tabela ne ponuja, ker dvojna natančnost ne zadošča."
+      ],
       "outputs": [],
       "captions": [
         "navadno obrestovanje: 3200",
@@ -895,7 +928,10 @@
           "value": "da (model je eksponenten)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točke (n, ln y) ležijo na premici z naklonom 0,04879; ln q = 0,04879, zato je q ≈ 1,05 (izračunano).",
+        "Premica sledi iz ln(y₀·qⁿ) = ln y₀ + n·ln q (argument). Naklon je razlika ln y med dvema točkama, ne prilagoditev. Navpična os kaže ln y na navadnem merilu in ni pravo logaritemsko merilo. Potenčni model je ponazoritev razlike."
+      ],
       "outputs": [],
       "captions": [
         "ln y (logaritem y, brez enote)",

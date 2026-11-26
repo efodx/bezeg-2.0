@@ -695,6 +695,25 @@ const SAMPLES: readonly Sample[] = [
         state('pendulum', {'phase-system': 'pendulum'}),
         state('weak spiral', {'phase-system': 'weak-spiral'}),
     ]},
+    {file: 'recursion/__parity__/recursion-growth.json', demonstration: 'recursion-growth', states: (() => {
+        type Growth = {setState(state: Record<string, unknown>): void};
+        const fresh = {panel: 'sequence', kind: 'arithmetic', a1: 3, d: 2, q: 20, n: 10, capital: 1000, rate: 10, years: 10, parts: 12, y0: 1000, logQ: 105, logModel: 'exponential'};
+        // every state starts from the default state, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Growth).setState({...fresh, ...state})); };
+        return [
+            {name: 'arithmetic, default', apply: run({})},
+            {name: 'arithmetic, a1 -5, d 4, n 6', apply: run({a1: -5, d: 4, n: 6})},
+            {name: 'geometric, q 2', apply: run({kind: 'geometric'})},
+            {name: 'geometric, q 0,5 (limit)', apply: run({kind: 'geometric', q: 5, a1: 8, n: 12})},
+            {name: 'geometric, q 3, n 30 (computed)', apply: run({kind: 'geometric', q: 30, n: 30})},
+            {name: 'interest, default', apply: run({panel: 'interest'})},
+            {name: 'interest, 5 % twice a year, 25 years', apply: run({panel: 'interest', capital: 2500, rate: 10, years: 25, parts: 2})},
+            {name: 'interest, 365 parts, 3 years', apply: run({panel: 'interest', rate: 24, years: 3, parts: 365})},
+            {name: 'log, exponential default', apply: run({panel: 'log'})},
+            {name: 'log, exponential factor 2, 20 steps', apply: run({panel: 'log', logQ: 200, n: 20, y0: 50})},
+            {name: 'log, power', apply: run({panel: 'log', logModel: 'power'})},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root = path.resolve(__dirname, '../..');

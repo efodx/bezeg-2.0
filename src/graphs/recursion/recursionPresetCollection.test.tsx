@@ -11,6 +11,7 @@ import {
 import {GrowthGraph} from './GrowthGraph';
 import {RecursionCobwebGraph} from './RecursionCobwebGraph';
 import {growthPresetCollection, recursionCobwebPresetCollection} from './recursionPresetCollection';
+import {runAs} from '../base/writes/writeSource';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -60,7 +61,7 @@ describe('recursion-cobweb Preset collection', () => {
 describe('recursion-growth Preset collection', () => {
     test.each([['the default', DEFAULT_GROWTH_STATE], ['the interest panel', interest]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new GrowthGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => { source.setState(state); }); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('recursion-growth');
         expect(preset.data).toEqual(serializeGrowthState(state));
@@ -95,7 +96,7 @@ describe('a Preset file with a stored view keeps that view', () => {
     test('growth: the log panel is imported with the stored boardState, not refitted to the panel window', () => {
         const state: GrowthState = {...DEFAULT_GROWTH_STATE, panel: 'log'};
         const source = mountGraph(new ViewedGrowth());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => { source.setState(state); }); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedGrowth());
         act(() => { fresh.importPreset(preset); });
