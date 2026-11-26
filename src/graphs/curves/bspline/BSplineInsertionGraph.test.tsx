@@ -299,7 +299,7 @@ describe('L3 acceptance 3 and 5: the cubic continuity demo and the comb', () => 
         const list = () => document.querySelector('[data-insertion-readout="jumps"]');
         expect(elements.map(shown)).toEqual([true, true]);
         expect(list()).not.toBeNull();
-        fireEvent.click(screen.getByLabelText('Glavnik ukrivljenosti'));
+        fireEvent.click(document.querySelector('[data-puck-key="comb"] [role="switch"]')!);
         expect(graph.state.showComb).toBe(false);
         expect(elements.map(shown)).toEqual([false, false]);
         expect(list()).toBeNull();

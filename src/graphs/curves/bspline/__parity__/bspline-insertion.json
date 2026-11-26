@@ -1,0 +1,130 @@
+{
+  "graph": "bspline-insertion",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "u = 1: večkratnost 1, zveznost C1",
+        "u = 1: κ -1 → -1, skok 0, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "insert 1",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 1: večkratnost 2, zveznost C0",
+        "u = 1: κ -1 → -1, skok 0, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "insert 0,5",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 0,5: večkratnost 1, zveznost C1",
+        "u = 1: večkratnost 1, zveznost C1",
+        "u = 0,5: κ -0,3536 → -0,3536, skok 0, tangenta zvezna",
+        "u = 1: κ -1 → -1, skok 0, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "insert 1,5 after 0,5, comb hidden",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 0,5: večkratnost 1, zveznost C1",
+        "u = 1: večkratnost 1, zveznost C1",
+        "u = 1,5: večkratnost 1, zveznost C1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "comb shown, a point moved",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 0,5: večkratnost 1, zveznost C1",
+        "u = 1: večkratnost 1, zveznost C1",
+        "u = 1,5: večkratnost 1, zveznost C1",
+        "u = 0,5: κ -0,0914 → -0,0457, skok 0,0457, tangenta zvezna",
+        "u = 1: κ -1,0733 → 1,0733, skok 2,1466, tangenta zvezna",
+        "u = 1,5: κ 0,5303 → -0,3536, skok -0,8839, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "reset",
+      "rows": [],
+      "notes": [
+        "u = 1: večkratnost 1, zveznost C1",
+        "u = 1: κ -1 → -1, skok 0, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cubic example",
+      "rows": [],
+      "notes": [
+        "u = 1: večkratnost 1, zveznost C2",
+        "u = 2: večkratnost 2, zveznost C1",
+        "u = 1: κ -1,4311 → -1,4311, skok 0, tangenta zvezna",
+        "u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cubic, insert 1,5",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 1: večkratnost 1, zveznost C2",
+        "u = 1,5: večkratnost 1, zveznost C2",
+        "u = 2: večkratnost 2, zveznost C1",
+        "u = 1: κ -1,4311 → -1,4311, skok 0, tangenta zvezna",
+        "u = 1,5: κ 0,0977 → 0,0977, skok 0, tangenta zvezna",
+        "u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cubic, insert 2 (triple knot)",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 1: večkratnost 1, zveznost C2",
+        "u = 2: večkratnost 3, zveznost C0",
+        "u = 1: κ -1,4311 → -1,4311, skok 0, tangenta zvezna",
+        "u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cubic, insert 2 again (a break)",
+      "rows": [],
+      "notes": [
+        "Bledi poligon je poligon pred zadnjim vstavljanjem.",
+        "u = 1: večkratnost 1, zveznost C2",
+        "u = 2: večkratnost 4, zveznost prekinitev (nezvezno)",
+        "u = 1: κ -1,4311 → -1,4311, skok 0, tangenta zvezna",
+        "u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna"
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

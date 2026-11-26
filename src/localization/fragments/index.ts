@@ -8,6 +8,7 @@ import {bezierClipping} from "./bezier-clipping";
 import {bisection} from "./bisection";
 import {bsplineBlossom} from "./bspline-blossom";
 import {bsplineExtraction} from "./bspline-extraction";
+import {bsplineInsertion} from "./bspline-insertion";
 import {curves} from "./curves";
 import {dynamics} from "./dynamics";
 import {functionInverse} from "./function-inverse";
@@ -26,7 +27,7 @@ import {workspace} from "./workspace";
 import {workspacePucks} from "./workspace-pucks";
 
 /** Every fragment by family; add a new family here and nowhere else. `sl.ts` and `en.ts` spread the merged objects. */
-export const catalogFragments = {arcLength, areaBetweenCurves, continuity, definiteIntegral, derivative, bezier, bezierClipping, bisection, bsplineBlossom, bsplineExtraction, curves, dynamics, functionInverse, interpLeastSquares, linear, linearFunction, patches, projective, reduction, rootFinding, taylor, transformations, trigonometricFunctions, workspace, workspacePucks, workspaceShell};
+export const catalogFragments = {arcLength, areaBetweenCurves, continuity, definiteIntegral, derivative, bezier, bezierClipping, bisection, bsplineBlossom, bsplineExtraction, bsplineInsertion, curves, dynamics, functionInverse, interpLeastSquares, linear, linearFunction, patches, projective, reduction, rootFinding, taylor, transformations, trigonometricFunctions, workspace, workspacePucks, workspaceShell};
 
-export const fragmentSl = {...arcLength.sl, ...areaBetweenCurves.sl, ...continuity.sl, ...definiteIntegral.sl, ...derivative.sl, ...bezier.sl, ...bezierClipping.sl, ...bisection.sl, ...bsplineBlossom.sl, ...bsplineExtraction.sl, ...curves.sl, ...dynamics.sl, ...functionInverse.sl, ...interpLeastSquares.sl, ...linear.sl, ...linearFunction.sl, ...patches.sl, ...projective.sl, ...reduction.sl, ...rootFinding.sl, ...taylor.sl, ...transformations.sl, ...trigonometricFunctions.sl,...workspace.sl, ...workspacePucks.sl, ...workspaceShell.sl};
-export const fragmentEn = {...arcLength.en, ...areaBetweenCurves.en, ...continuity.en, ...definiteIntegral.en, ...derivative.en, ...bezier.en, ...bezierClipping.en, ...bisection.en, ...bsplineBlossom.en, ...bsplineExtraction.en, ...curves.en, ...dynamics.en, ...functionInverse.en, ...interpLeastSquares.en, ...linear.en, ...linearFunction.en, ...patches.en, ...projective.en, ...reduction.en, ...rootFinding.en, ...taylor.en, ...transformations.en, ...trigonometricFunctions.en,...workspace.en, ...workspacePucks.en, ...workspaceShell.en};
+export const fragmentSl = {...arcLength.sl, ...areaBetweenCurves.sl, ...continuity.sl, ...definiteIntegral.sl, ...derivative.sl, ...bezier.sl, ...bezierClipping.sl, ...bisection.sl, ...bsplineBlossom.sl, ...bsplineExtraction.sl, ...bsplineInsertion.sl, ...curves.sl, ...dynamics.sl, ...functionInverse.sl, ...interpLeastSquares.sl, ...linear.sl, ...linearFunction.sl, ...patches.sl, ...projective.sl, ...reduction.sl, ...rootFinding.sl, ...taylor.sl, ...transformations.sl, ...trigonometricFunctions.sl,...workspace.sl, ...workspacePucks.sl, ...workspaceShell.sl};
+export const fragmentEn = {...arcLength.en, ...areaBetweenCurves.en, ...continuity.en, ...definiteIntegral.en, ...derivative.en, ...bezier.en, ...bezierClipping.en, ...bisection.en, ...bsplineBlossom.en, ...bsplineExtraction.en, ...bsplineInsertion.en, ...curves.en, ...dynamics.en, ...functionInverse.en, ...interpLeastSquares.en, ...linear.en, ...linearFunction.en, ...patches.en, ...projective.en, ...reduction.en, ...rootFinding.en, ...taylor.en, ...transformations.en, ...trigonometricFunctions.en,...workspace.en, ...workspacePucks.en, ...workspaceShell.en};

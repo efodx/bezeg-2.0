@@ -232,6 +232,23 @@ const SAMPLES: readonly Sample[] = [
             {name: 'cubic, knot 5 typed', apply: run(g => { g.resetToOrigin(); g.editKnot(5, 1.5); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'curves/bspline/__parity__/bspline-insertion.json', demonstration: 'bspline-insertion', states: (() => {
+        type Insertion = {selectExample(id: 'quadratic' | 'cubic'): void; insert(x?: number): boolean; setShowComb(show: boolean): void;
+            editPoint(index: number, value: readonly [number, number]): void; resetToOrigin(): void};
+        const run = (edit: (graph: Insertion) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Insertion)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'insert 1', apply: run(g => g.insert(1))},
+            {name: 'insert 0,5', apply: run(g => { g.resetToOrigin(); g.insert(0.5); })},
+            {name: 'insert 1,5 after 0,5, comb hidden', apply: run(g => { g.insert(1.5); g.setShowComb(false); })},
+            {name: 'comb shown, a point moved', apply: run(g => { g.setShowComb(true); g.editPoint(2, [3, 3]); })},
+            {name: 'reset', apply: run(g => g.resetToOrigin())},
+            {name: 'cubic example', apply: run(g => g.selectExample('cubic'))},
+            {name: 'cubic, insert 1,5', apply: run(g => g.insert(1.5))},
+            {name: 'cubic, insert 2 (triple knot)', apply: run(g => { g.resetToOrigin(); g.insert(2); })},
+            {name: 'cubic, insert 2 again (a break)', apply: run(g => g.insert(2))},
+        ] satisfies ParityState[];
+    })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {
         type Reduction = {setControlPoints(points: ReadonlyArray<readonly [number, number]>): void; setReductionMode(mode: 'fixed' | 'free'): void};
         const run = (edit: (graph: Reduction) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Reduction)); };

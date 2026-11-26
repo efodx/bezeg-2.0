@@ -8,9 +8,12 @@
 import {BSPLINE_EXAMPLE_CUBIC, BSPLINE_EXAMPLE_QUADRATIC} from '../../graphs/curves/bspline/bsplineInsertionModel';
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {BSplineInsertionIds} from '../../graphs/curves/bspline/BSplineInsertionGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<BSplineInsertionIds>();
 
 /** The L2 quadratic (the graph's own quadratic example) and the L3 continuity cubic, as in the spec. */
 export const INSERTION_QUADRATIC_FIXTURE: LessonCurveFixture = BSPLINE_EXAMPLE_QUADRATIC;
@@ -88,7 +91,7 @@ const insertionLesson: GuidedLesson = {
                 'The curve of degree \\(2\\) has the knots \\((0,0,0,1,2,2,2)\\) and four control points. Predict: what happens to the curve when a new knot is inserted, and what to the control polygon? The curve does not change, but there is one more control point because the knot vector has one more knot.',
             ),
             formulaIds: ['bspline-insertion-boehm'],
-            frames: [frame('bspline-insertion-predict-explanation', 'explanation'), frame('bspline-insertion-predict-observation', 'observation')],
+            frames: [frame('bspline-insertion-predict-explanation', 'explanation'), frame('bspline-insertion-predict-observation', 'observation', f({highlight: ['mult-1']}))],
             observationPrompt: text('Preštej kontrolne točke in poglej seznam večkratnosti; po vstavitvi bo točk za eno več.', 'Count the control points and look at the multiplicity list; after an insertion there will be one more point.'),
             expectedObservations: [text('Štiri kontrolne točke in en notranji vozel \\(u=1\\) z večkratnostjo \\(1\\) (zveznost \\(C^1\\)).', 'Four control points and one interior knot \\(u=1\\) of multiplicity \\(1\\) (continuity \\(C^1\\)).')],
             scene: insertionScene('bspline-insertion-predict-start', INSERTION_QUADRATIC_FIXTURE, true, [],
@@ -104,7 +107,7 @@ const insertionLesson: GuidedLesson = {
                 'Insert the knot \\(u=1\\), which is already in the knot vector. Predict: where are the new control points? The point \\(P_2=(3;2)\\) splits into \\((2;2)\\) and \\((3;2)\\), so the points are \\((0;0)\\), \\((1;2)\\), \\((2;2)\\), \\((3;2)\\), \\((4;0)\\). The knot \\(u=1\\) now has multiplicity \\(2\\), and the curve is exactly the same.',
             ),
             formulaIds: ['bspline-insertion-boehm'],
-            frames: [frame('bspline-insertion-one-explanation', 'explanation'), frame('bspline-insertion-one-observation', 'observation')],
+            frames: [frame('bspline-insertion-one-explanation', 'explanation'), frame('bspline-insertion-one-observation', 'observation', f({highlight: ['ghost']}))],
             observationPrompt: text('Primerjaj bledi stari poligon z novim in preveri, da krivulja ostane na istem mestu.', 'Compare the faded old polygon with the new one and check that the curve stays in the same place.'),
             expectedObservations: [text('Pet točk \\((0;0)\\), \\((1;2)\\), \\((2;2)\\), \\((3;2)\\), \\((4;0)\\); krivulja se ni premaknila in skok ukrivljenosti pri \\(u=1\\) je še vedno \\(0\\). Seznam večkratnosti zdaj zagotavlja le \\(C^0\\), to je spodnja meja: krivulja sama ostaja \\(C^1\\).', 'Five points \\((0;0)\\), \\((1;2)\\), \\((2;2)\\), \\((3;2)\\), \\((4;0)\\); the curve did not move and the curvature jump at \\(u=1\\) is still \\(0\\). The multiplicity list now guarantees only \\(C^0\\), which is a lower bound: the curve itself stays \\(C^1\\).')],
             scene: insertionScene('bspline-insertion-one-knot', INSERTION_QUADRATIC_FIXTURE, true, [1],
@@ -120,7 +123,7 @@ const insertionLesson: GuidedLesson = {
                 'Start again from the original curve and insert \\(u=\\tfrac12\\). Predict: where are the two new points? The knots become \\((0,0,0,\\tfrac12,1,2,2,2)\\) and the points \\((0;0)\\), \\((0.5;1)\\), \\((1.5;2)\\), \\((3;2)\\), \\((4;0)\\). The points \\((0.5;1)\\) and \\((1.5;2)\\) are the level-1 points of de Boor\'s algorithm at \\(t=\\tfrac12\\), and the curve point \\((1;1.5)\\) lies on the segment between them.',
             ),
             formulaIds: ['bspline-insertion-boehm'], workedExampleId: 'bspline-insertion-half-example',
-            frames: [frame('bspline-insertion-half-explanation', 'explanation'), frame('bspline-insertion-half-calculation', 'calculation'), frame('bspline-insertion-half-observation', 'observation')],
+            frames: [frame('bspline-insertion-half-explanation', 'explanation'), frame('bspline-insertion-half-calculation', 'calculation'), frame('bspline-insertion-half-observation', 'observation', f({highlight: ['ghost']}))],
             observationPrompt: text('Preveri, da bledi poligon vsebuje staro točko \\(P_1=(1;2)\\), ki jo novi poligon nadomesti s \\(Q_1\\) in \\(Q_2\\).', 'Check that the faded polygon contains the old point \\(P_1=(1;2)\\), which the new polygon replaces by \\(Q_1\\) and \\(Q_2\\).'),
             expectedObservations: [text('Pet točk; vozla \\(u=\\tfrac12\\) in \\(u=1\\) imata vsak večkratnost \\(1\\); krivulja je ista kot prej.', 'Five points; the knots \\(u=\\tfrac12\\) and \\(u=1\\) each have multiplicity \\(1\\); the curve is the same as before.')],
             scene: insertionScene('bspline-insertion-half-knot', INSERTION_QUADRATIC_FIXTURE, true, [0.5],
@@ -136,7 +139,7 @@ const insertionLesson: GuidedLesson = {
                 'Switch to the cubic example. The knot \\(u=2\\) is already double and the knot \\(u=1\\) is simple; inserting does not create the double knot, because the default points are not the result of such an insertion. Predict: which derivative can break at a double knot? For \\(k=3\\) and \\(m=2\\) the continuity is \\(C^{k-m}=C^1\\): the tangent agrees, while the second derivative, and so the curvature \\(\\kappa\\), can differ. At the simple knot the continuity is \\(C^2\\).',
             ),
             formulaIds: ['bspline-insertion-continuity'],
-            frames: [frame('bspline-insertion-double-explanation', 'explanation'), frame('bspline-insertion-double-observation', 'observation')],
+            frames: [frame('bspline-insertion-double-explanation', 'explanation'), frame('bspline-insertion-double-observation', 'observation', f({highlight: ['mult-1', 'mult-2']}))],
             observationPrompt: text('Preberi seznam večkratnosti: kateri vozel ima katero zveznost?', 'Read the multiplicity list: which knot has which continuity?'),
             expectedObservations: [text('Vozel \\(u=1\\) ima večkratnost \\(1\\) in zveznost \\(C^2\\), vozel \\(u=2\\) večkratnost \\(2\\) in zveznost \\(C^1\\).', 'The knot \\(u=1\\) has multiplicity \\(1\\) and continuity \\(C^2\\), the knot \\(u=2\\) multiplicity \\(2\\) and continuity \\(C^1\\).')],
             scene: insertionScene('bspline-insertion-double-cubic', INSERTION_CUBIC_FIXTURE, false, [],
@@ -152,7 +155,7 @@ const insertionLesson: GuidedLesson = {
                 'Show the curvature comb. Predict: at which knot does the comb jump? At the simple knot \\(u=1\\) we have \\(\\kappa=-1.4311\\) on both sides. At the double knot \\(u=2\\) it jumps from \\(\\tfrac83\\approx2.6667\\) to \\(\\tfrac{16}3\\approx5.3333\\), while the tangent \\((1.5;0)\\) is the same on both sides.',
             ),
             formulaIds: ['bspline-insertion-continuity'],
-            frames: [frame('bspline-insertion-comb-explanation', 'explanation'), frame('bspline-insertion-comb-observation', 'observation')],
+            frames: [frame('bspline-insertion-comb-explanation', 'explanation'), frame('bspline-insertion-comb-observation', 'observation', f({highlight: ['jump-1', 'jump-2']}))],
             observationPrompt: text('Preberi seznam skokov ukrivljenosti v vozlih in poišči vrstico, kjer skok ni \\(0\\).', 'Read the list of curvature jumps at the knots and find the row where the jump is not \\(0\\).'),
             expectedObservations: [text('Pri \\(u=1\\) je skok \\(0\\); pri \\(u=2\\) je skok \\(2{,}6667\\) in tangenta je zvezna.', 'At \\(u=1\\) the jump is \\(0\\); at \\(u=2\\) the jump is \\(2.6667\\) and the tangent is continuous.')],
             scene: insertionScene('bspline-insertion-comb-cubic', INSERTION_CUBIC_FIXTURE, true, [],
@@ -168,7 +171,7 @@ const insertionLesson: GuidedLesson = {
                 'The default quadratic curve is back. Insert a knot, insert it again until it reaches the largest multiplicity, or type a value outside the domain and read the reason for the refusal. The “Reset example” button returns to the original knots and points.',
             ),
             formulaIds: ['bspline-insertion-boehm', 'bspline-insertion-continuity'],
-            frames: [frame('bspline-insertion-explore-explanation', 'explanation'), frame('bspline-insertion-explore-observation', 'observation')],
+            frames: [frame('bspline-insertion-explore-explanation', 'explanation'), frame('bspline-insertion-explore-observation', 'observation', f({highlight: ['mult-1'], uses: ['insert'], open: ['tools']}))],
             observationPrompt: text('Preveri, da vstavljanje nikoli ne spremeni krivulje, večkratnost pa le zniža zveznost v vozlu.', 'Check that inserting never changes the curve, while the multiplicity only lowers the continuity at the knot.'),
             expectedObservations: [text('Krivulja ostane enaka; večji \\(m\\) pomeni nižjo zveznost \\(C^{k-m}\\).', 'The curve stays the same; a larger \\(m\\) means a lower continuity \\(C^{k-m}\\).')],
             scene: insertionScene('bspline-insertion-explore-start', INSERTION_QUADRATIC_FIXTURE, true, [],

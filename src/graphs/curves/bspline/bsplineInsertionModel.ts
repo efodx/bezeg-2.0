@@ -1,4 +1,4 @@
-import {currentLanguage, Language, Message, message, t} from "../../../localization";
+import {currentLanguage, Message, message, messageNumber} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {checkKnotInsertion, domain, insertKnot, knotJoins, multiplicity, spanSources} from "../../../bezeg/impl/curve/bspline";
 import {combAtJoin, curvatureAt, sampleComb} from "../../../bezeg/impl/curve/curvature";
@@ -146,14 +146,22 @@ export function combPolylines(spans: readonly CombTooth[][]): { teeth: [number[]
     return {teeth, envelope};
 }
 
-/** The jump readout, one line per interior knot. */
-export function jumpReadoutLines(reports: readonly JoinReport[], language: Language): string[] {
-    const num = (v: number) => formatNumber(v, language, 4);
+/** The jump readout, one message per interior knot (the numbers are formatted to four decimals when the message is rendered). */
+export function jumpMessages(reports: readonly JoinReport[]): Message[] {
+    const num = (v: number) => messageNumber(v, 4);
     return reports.map(r => {
         if (r.kappaLeft === undefined || r.kappaRight === undefined || r.jump === undefined) {
-            return t("bsi_join_singular", {value0: num(r.t)});
+            return message("bsi_join_singular", {value0: num(r.t)});
         }
         const args = {value0: num(r.t), value1: num(r.kappaLeft), value2: num(r.kappaRight), value3: num(r.jump)};
-        return r.tangentContinuous ? t("bsi_join_row_same", args) : t("bsi_join_row_differs", args);
+        return message(r.tangentContinuous ? "bsi_join_row_same" : "bsi_join_row_differs", args);
+    });
+}
+
+/** The multiplicity readout of one interior knot: its multiplicity and the continuity `C^(k-m)`, or a break. */
+export function multiplicityMessage(row: MultiplicityRow): Message {
+    return message("bsi_multiplicity_row", {
+        value0: messageNumber(row.knot, 4), value1: row.multiplicity,
+        value2: row.continuity >= 0 ? `C${row.continuity}` : message("bsi_multiplicity_break"),
     });
 }

@@ -1,8 +1,11 @@
 import type {StoredGraphState} from "../../base/presets/Presets";
 import {CONTROL_ROW_FILL} from "../../../inputs/controlRow";
 import React from "react";
-import {currentLanguage, renderMessage, t} from "../../../localization";
-import {formatNumber} from "../../../analysis/format";
+import {type Message, message, renderMessage, t} from "../../../localization";
+import {evaluate} from "../../../bezeg/impl/curve/bspline";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {ResetExampleButton} from "../../../inputs/ResetExampleButton";
 import {NumberInput} from "../../../inputs/NumberInput";
@@ -22,8 +25,25 @@ import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
 import {assertDrawableCurve, drawableRejection, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
 import {
     INSERTION_DEFAULT_VALUE, INSERTION_EXAMPLE_IDS, INSERTION_MAX_POINTS, InsertionData, InsertionExampleId, InsertionRefusal,
-    insertionExample, insertionRefusalMessage, joinReports, jumpReadoutLines, multiplicityRows, planInsertion,
+    insertionExample, insertionRefusalMessage, joinReports, jumpMessages, multiplicityMessage, multiplicityRows, planInsertion,
 } from "./bsplineInsertionModel";
+import {blossomDomain} from "./bsplineBlossomModel";
+
+/**
+ * The ids this graph declares: the sentences of the old panel (the faded polygon, one multiplicity sentence and one curvature jump
+ * sentence per interior knot, 1-based in knot order), the legend, and two actions: the comb switch (a puck) and the insertion (a
+ * button in Orodja, next to its knot field). No parameters: the knot to insert is a typed value and the points are dragged on the board.
+ */
+export type BSplineInsertionIds = {
+    param: never;
+    row: never;
+    note: 'ghost' | 'no-interior' | `mult-${number}` | `jump-${number}`;
+    legend: 'curve' | 'control' | 'ghost' | 'comb';
+    section: never;
+    action: 'comb' | 'insert';
+};
+
+const VIEW_MARK_SAMPLES = 24;
 
 export interface BSplineInsertionState extends BaseGraphState {
     degree: number;
@@ -238,14 +258,19 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         return undefined;
     }
 
-    /** The kappa jump lines, one per interior knot, in the current language (none when the curve cannot be evaluated). */
-    jumpLines(): string[] {
+    /** The kappa jump messages, one per interior knot (none when the curve cannot be evaluated). */
+    private jumpTexts(): Message[] {
         const {knots, degree, points} = this.state;
         try {
-            return jumpReadoutLines(joinReports(knots, degree, points), currentLanguage());
+            return jumpMessages(joinReports(knots, degree, points));
         } catch {
             return [];
         }
+    }
+
+    /** The kappa jump lines, one per interior knot, in the current language (none when the curve cannot be evaluated). */
+    jumpLines(): string[] {
+        return this.jumpTexts().map(renderMessage);
     }
 
     // ---- Lesson actions ----------------------------------------------------------------------------------------------
@@ -270,13 +295,99 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         }
     }
 
+
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** The sentences of the old panel in its order: the faded polygon, one multiplicity sentence per interior knot, the jump sentences while the comb is shown. */
+    private readoutNotes(): ReadoutNote<BSplineInsertionIds>[] {
+        const {knots, degree, ghost, showComb} = this.state;
+        const rows = multiplicityRows(knots, degree);
+        const notes: ReadoutNote<BSplineInsertionIds>[] = [];
+        if (ghost.length) notes.push({id: 'ghost', text: message('bsi_ghost_note')});
+        if (rows.length) rows.forEach((row, index) => notes.push({id: `mult-${index + 1}`, text: multiplicityMessage(row)}));
+        else notes.push({id: 'no-interior', text: message('bsi_no_interior')});
+        if (showComb) this.jumpTexts().forEach((text, index) => notes.push({id: `jump-${index + 1}`, text}));
+        return notes;
+    }
+
+    /**
+     * Pure data from the state: the sentences of the old panel as notes, the comb switch as a puck, the insertion as a button in
+     * Orodja (its knot field is typed setup), the legend of what the board draws and the marks. The points are dragged on the board
+     * (points are rows and legend only); the example, Reset and the point and knot editors stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<BSplineInsertionIds> {
+        const {ghost, showComb} = this.state;
+        const actions: ActionDeclaration<BSplineInsertionIds>[] = [
+            {id: 'comb', label: message('bsi_puck_comb'), help: message('bsi_comb_help'), placement: 'board', puck: true, enabled: true, pressed: showComb},
+            {id: 'insert', label: message('bsi_insert'), help: message('bsi_insert_help'), placement: 'tools', section: 'insert', enabled: true},
+        ];
+        const legend: LegendEntry<BSplineInsertionIds>[] = [
+            {id: 'curve', label: message('curve'), kind: 'line', object: 'curve'},
+            {id: 'control', label: message('control_points'), kind: 'point', object: 'control'},
+            ...(ghost.length ? [{id: 'ghost' as const, label: message('bsi_legend_ghost'), kind: 'dashed' as const, object: 'ghost'}] : []),
+            ...(showComb ? [{id: 'comb' as const, label: message('bsi_comb'), kind: 'line' as const, object: 'comb'}] : []),
+        ];
+        return {notes: this.readoutNotes(), legend, actions, marks: this.viewMarks()};
+    }
+
+    private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /** What the view director keeps visible: the control points (must) and samples of the curve over its domain (nice); memoized on the state's data. */
+    private viewMarks(): ViewMarks {
+        const {degree, knots, points} = this.state;
+        const key = `${degree}|${knots.join(',')}|${points.map(p => p.join(',')).join(';')}`;
+        if (this.viewMarksCache?.key === key) return this.viewMarksCache.marks;
+        const finite = (p: readonly number[]) => Number.isFinite(p[0]) && Number.isFinite(p[1]);
+        const must: ViewMark[] = points.filter(finite).map(([x, y]): ViewMark => ({kind: 'point', x, y}));
+        const [start, end] = blossomDomain(knots, degree);
+        const samples: (readonly [number, number])[] = [];
+        for (let i = 0; i < VIEW_MARK_SAMPLES; i++) {
+            try {
+                const p = evaluate(knots, degree, points, start + (end - start) * i / (VIEW_MARK_SAMPLES - 1));
+                if (finite(p)) samples.push([p[0], p[1]]);
+            } catch {
+                // a sample the kernel refuses is left out
+            }
+        }
+        const marks: ViewMarks = {must, nice: samples.length > 1 ? [{kind: 'polyline', points: samples}] : []};
+        this.viewMarksCache = {key, marks};
+        return marks;
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const scene = this.scene;
+        if (!scene) return undefined;
+        const read = (element: JXG.GeometryElement | undefined, colorProperty: 'strokecolor' | 'fillcolor') => {
+            if (!element) return undefined;
+            // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+            const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            return {color: String(drawn.evalVisProp(colorProperty)), visible: Boolean(drawn.evalVisProp('visible'))};
+        };
+        switch (id) {
+            case 'curve': return read(scene.curve.getJxgCurve(), 'strokecolor');
+            case 'control': return read(scene.curve.getJxgPoints()[0], 'fillcolor');
+            case 'ghost': return read(scene.ghostSegmentElements()[0], 'strokecolor');
+            case 'comb': return read(scene.combElements()[1], 'strokecolor');
+            default: return undefined;
+        }
+    }
+
+    override performAction(id: string): void {
+        if (id === 'comb') runAs('learner', () => this.setShowComb(!this.state.showComb));
+        else if (id === 'insert') runAs('learner', () => { this.insert(); });
+        else throw new Error('Unknown action');
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
-        const {degree, knots, points, example, ghost, showComb, insertValue} = this.state;
-        const rows = multiplicityRows(knots, degree);
-        const jumps = this.jumpLines();
+        const {points, knots, example, showComb, insertValue} = this.state;
+        const notes = this.readoutNotes();
+        const note = (id: string) => notes.find(candidate => candidate.id === id);
+        const multiplicity = notes.filter(candidate => candidate.id.startsWith('mult-') || candidate.id === 'no-interior');
+        const jumps = notes.filter(candidate => candidate.id.startsWith('jump-'));
         const options: { value: string, text: string }[] = INSERTION_EXAMPLE_IDS.map(id => ({value: id, text: t(id === 'quadratic' ? "bsi_example_quadratic" : "bsi_example_cubic")}));
         if (example === 'custom') options.push({value: 'custom', text: t("bsi_example_custom")});
         return super.getGraphCommands().concat(
@@ -288,28 +399,28 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
                 </div>
                 <p className="inspector-help">{t("bsi_insert_help")}</p>
                 <RefusalNotice channel={this.refusals}/>
-                {ghost.length ? <p data-readout-note className="inspector-help" data-insertion-status="ghost">{t("bsi_ghost_note")}</p> : null}
             </div>,
             <div key="example"><ChoiceSelect label={t("bsi_example")} value={example} options={options}
                                              onChange={value => this.selectExample(value as InsertionExampleId)}/>
                 <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
-            <div key="multiplicity" className="inspector-group" role="group" aria-labelledby="bsi-multiplicity-title">
-                <h3 id="bsi-multiplicity-title">{t("bsi_multiplicity_title")}</h3>
-                {rows.length
-                    ? <ul data-insertion-readout="multiplicity">{rows.map(row =>
-                        <li data-readout-note key={row.knot}>{t("bsi_multiplicity_row", {
-                            value0: formatNumber(row.knot, currentLanguage(), 4), value1: row.multiplicity,
-                            value2: row.continuity >= 0 ? `C${row.continuity}` : t("bsi_multiplicity_break"),
-                        })}</li>)}</ul>
-                    : <p className="inspector-help">{t("bsi_no_interior")}</p>}
+            // The old panel, rendered from the declared sentences: the board cards show them, so the panel is hidden when declared
+            // (`data-declared-panel`) and stays the parity recorder's and the tests' reading of the same text.
+            <div key="readout" data-declared-panel="">
+                {note('ghost') ? <div className="inspector-group"><p data-readout-note className="inspector-help" data-insertion-status="ghost">{renderMessage(note('ghost')!.text)}</p></div> : null}
+                <div className="inspector-group" role="group" aria-labelledby="bsi-multiplicity-title">
+                    <h3 id="bsi-multiplicity-title">{t("bsi_multiplicity_title")}</h3>
+                    {multiplicity[0]?.id === 'no-interior'
+                        ? <p className="inspector-help">{renderMessage(multiplicity[0].text)}</p>
+                        : <ul data-insertion-readout="multiplicity">{multiplicity.map(row => <li data-readout-note key={row.id}>{renderMessage(row.text)}</li>)}</ul>}
+                </div>
+                <div className="inspector-group"><p className="inspector-help">{t("bsi_comb_help")}</p>
+                    {showComb && jumps.length ? <div role="group" aria-labelledby="bsi-jumps-title">
+                        <h3 id="bsi-jumps-title">{t("bsi_join_title")}</h3>
+                        <ul data-insertion-readout="jumps">{jumps.map(line => <li data-readout-note key={line.id}>{renderMessage(line.text)}</li>)}</ul>
+                    </div> : null}</div>
             </div>,
-            <div key="comb" className="inspector-group"><OnOffSwitch checked={showComb} label={t("bsi_comb")} onChange={show => this.setShowComb(show)}/>
-                <p className="inspector-help">{t("bsi_comb_help")}</p>
-                {showComb && jumps.length ? <div role="group" aria-labelledby="bsi-jumps-title">
-                    <h3 id="bsi-jumps-title">{t("bsi_join_title")}</h3>
-                    <ul data-insertion-readout="jumps">{jumps.map(line => <li data-readout-note key={line}>{line}</li>)}</ul>
-                </div> : null}</div>,
+            <PuckOwned key="comb" param="comb"><div className="inspector-group"><OnOffSwitch checked={showComb} label={t("bsi_comb")} onChange={show => this.setShowComb(show)}/></div></PuckOwned>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );
     }
