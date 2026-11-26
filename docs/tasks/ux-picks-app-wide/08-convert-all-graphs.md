@@ -86,9 +86,9 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 6 | L13 | isometries | graph files + `isometriesFriezeGuidedLessons +2` | done `d7efff433` |
 | 6 | L14 | line-geometry | graph files + `analyticLinesGuidedLessons, analyticLinesIntersectGuidedLessons` | done `70785a8f9` |
 | 6 | L15 | linear-program | graph files + `levelSetsGuidedLessons` | done `f3d1e51b4` |
-| 7 | L16 | projective-five-point | graph files + `projectiveFivePointGuidedLesson` | not started |
-| 7 | L18 | quadrature | graph files + `numericalQuadratureGuidedLesson` | not started |
-| 7 | L19 | recursion-growth | graph files + `recursionGuidedLessons, recursionLogScaleGuidedLessons` | not started |
+| 7 | L16 | projective-five-point | graph files + `projectiveFivePointGuidedLesson` | done `c50c78a72` |
+| 7 | L18 | quadrature | graph files + `numericalQuadratureGuidedLesson` | done `7995cde3e` |
+| 7 | L19 | recursion-growth | graph files + `recursionGuidedLessons, recursionLogScaleGuidedLessons` | done `42d9317ca` |
 | 8 | L17 | projective-three-views | graph files + `projectiveThreeViewsGuidedLesson` | not started |
 | 8 | L20 | triangle-solver | graph files + `trigSolveGuidedLessons, trigTriangleGuidedLessons` | not started |
 | 8 | L23 | arc-length-param | graph files + `arcLengthGuidedLessons` | not started |
