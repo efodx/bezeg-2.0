@@ -1,0 +1,307 @@
+{
+  "graph": "arc-length",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3,14"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "2"
+        },
+        {
+          "key": "Dolžina lomljenke (n daljic)#0",
+          "label": "Dolžina lomljenke (n daljic)",
+          "value": "3,7242"
+        },
+        {
+          "key": "Dolžina loka ∫ √(1 + f′(x)²) dx#0",
+          "label": "Dolžina loka ∫ √(1 + f′(x)²) dx",
+          "value": "3,8202"
+        },
+        {
+          "key": "Razlika lok - lomljenka#0",
+          "label": "Razlika lok - lomljenka",
+          "value": "0,096"
+        }
+      ],
+      "notes": [
+        "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "lomljenka 3,7242, lok 3,8202"
+      ]
+    },
+    {
+      "name": "n 1",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3,14"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "1"
+        },
+        {
+          "key": "Dolžina lomljenke (n daljic)#0",
+          "label": "Dolžina lomljenke (n daljic)",
+          "value": "3,1416"
+        },
+        {
+          "key": "Dolžina loka ∫ √(1 + f′(x)²) dx#0",
+          "label": "Dolžina loka ∫ √(1 + f′(x)²) dx",
+          "value": "3,8202"
+        },
+        {
+          "key": "Razlika lok - lomljenka#0",
+          "label": "Razlika lok - lomljenka",
+          "value": "0,6786"
+        }
+      ],
+      "notes": [
+        "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "lomljenka 3,1416, lok 3,8202"
+      ]
+    },
+    {
+      "name": "n 10",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3,14"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "10"
+        },
+        {
+          "key": "Dolžina lomljenke (n daljic)#0",
+          "label": "Dolžina lomljenke (n daljic)",
+          "value": "3,8153"
+        },
+        {
+          "key": "Dolžina loka ∫ √(1 + f′(x)²) dx#0",
+          "label": "Dolžina loka ∫ √(1 + f′(x)²) dx",
+          "value": "3,8202"
+        },
+        {
+          "key": "Razlika lok - lomljenka#0",
+          "label": "Razlika lok - lomljenka",
+          "value": "0,0049"
+        }
+      ],
+      "notes": [
+        "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "lomljenka 3,8153, lok 3,8202"
+      ]
+    },
+    {
+      "name": "n 100",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "3,14"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "100"
+        },
+        {
+          "key": "Dolžina lomljenke (n daljic)#0",
+          "label": "Dolžina lomljenke (n daljic)",
+          "value": "3,8201"
+        },
+        {
+          "key": "Dolžina loka ∫ √(1 + f′(x)²) dx#0",
+          "label": "Dolžina loka ∫ √(1 + f′(x)²) dx",
+          "value": "3,8202"
+        },
+        {
+          "key": "Razlika lok - lomljenka#0",
+          "label": "Razlika lok - lomljenka",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "lomljenka 3,8201, lok 3,8202"
+      ]
+    },
+    {
+      "name": "a 0.5, b 2.5",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "0,5"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "2,5"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "100"
+        },
+        {
+          "key": "Dolžina lomljenke (n daljic)#0",
+          "label": "Dolžina lomljenke (n daljic)",
+          "value": "2,2495"
+        },
+        {
+          "key": "Dolžina loka ∫ √(1 + f′(x)²) dx#0",
+          "label": "Dolžina loka ∫ √(1 + f′(x)²) dx",
+          "value": "2,2495"
+        },
+        {
+          "key": "Razlika lok - lomljenka#0",
+          "label": "Razlika lok - lomljenka",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "lomljenka 2,2495, lok 2,2495"
+      ]
+    },
+    {
+      "name": "a = b",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "1,5"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "1,5"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "100"
+        },
+        {
+          "key": "Dolžina lomljenke (n daljic)#0",
+          "label": "Dolžina lomljenke (n daljic)",
+          "value": "0"
+        },
+        {
+          "key": "Dolžina loka ∫ √(1 + f′(x)²) dx#0",
+          "label": "Dolžina loka ∫ √(1 + f′(x)²) dx",
+          "value": "0"
+        },
+        {
+          "key": "Razlika lok - lomljenka#0",
+          "label": "Razlika lok - lomljenka",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "lomljenka 0, lok 0"
+      ]
+    },
+    {
+      "name": "a > b",
+      "rows": [
+        {
+          "key": "a#0",
+          "label": "a",
+          "value": "3"
+        },
+        {
+          "key": "b#0",
+          "label": "b",
+          "value": "0,25"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "4"
+        },
+        {
+          "key": "Dolžina lomljenke (n daljic)#0",
+          "label": "Dolžina lomljenke (n daljic)",
+          "value": "3,2453"
+        },
+        {
+          "key": "Dolžina loka ∫ √(1 + f′(x)²) dx#0",
+          "label": "Dolžina loka ∫ √(1 + f′(x)²) dx",
+          "value": "3,2686"
+        },
+        {
+          "key": "Razlika lok - lomljenka#0",
+          "label": "Razlika lok - lomljenka",
+          "value": "0,0233"
+        }
+      ],
+      "notes": [
+        "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "lomljenka 3,2453, lok 3,2686"
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import {ArcLengthGraph} from './ArcLengthGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
-import {onLanguageChange, setLanguage} from '../../localization';
+import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 
@@ -244,7 +244,7 @@ test('readouts: a, b, n, polyline length, arc length and difference, in both lan
     setLanguage('en');
     apply(graph, parameter('n', 100));
     expect(byId()).toEqual({a: '0', b: '3.14', n: '100', polyline: '3.8201', arc: '3.8202', difference: '0'});
-    expect(graph.renderReadout().props.note).toMatch(/never longer/);
+    expect(renderMessage(graph.getDeclaration()!.readoutHelp!)).toMatch(/never longer/);
     for (const [a, b] of [[-7, 7], [7, -7], [0, 0], [3, 3]]) for (const n of [1, 2, 100]) {
         apply(graph, parameter('a', a));
         apply(graph, parameter('b', b));
