@@ -9,10 +9,13 @@
  * so step 6 names the K4 lesson (weights above 1) in prose only; S6 is unreleased and is not linked.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ThreeViewsIds} from '../../graphs/projective/ThreeViewsGraph';
 import type {GuidedLesson, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frameOf = (id: string, kind: GuidedLessonFrameKind) => ({id, kind});
+const frame = frameDeclarer<ThreeViewsIds>();
+const frameOf = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration) => ({id, kind, ...(declare ? {declare} : {})});
 
 interface StepContent {
     readonly id: string;
@@ -23,16 +26,17 @@ interface StepContent {
     readonly formulaIds: readonly string[];
     readonly workedExampleId?: string;
     readonly observationPrompt: LocalizedText;
+    readonly declare?: Readonly<{observation?: FrameDeclaration}>;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frameOf(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frameOf(`${content.id}-calculation`, 'calculation')] : []),
-        frameOf(`${content.id}-observation`, 'observation'),
+        frameOf(`${content.id}-observation`, 'observation', declare?.observation),
     ],
 });
 
@@ -113,7 +117,8 @@ export const threeViewsLesson: GuidedLesson = {
                 'On the left is the original plane with the unit circle \\(x^2+y^2=1\\) and the horizontal line \\(L\\colon y=c\\). Now \\(c=2\\): the line \\(L\\) lies above the circle and does not meet it. On the right will be the image of the circle under the map that sends \\(L\\) to infinity.',
             ),
             formulaIds: ['three-views-map'],
-            observationPrompt: text('Preberi stanje pod drsnikom.', 'Read the status under the slider.'),
+            observationPrompt: text('Preberi stanje.', 'Read the status.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['status']})},
             expectedObservations: [text('Stanje pravi, da premica \\(L\\colon y=2\\) ne seka krožnice.', 'The status says that the line \\(L\\colon y=2\\) misses the circle.')],
             scene: threeViewsScene('three-views-source-scene', 20, null,
                 'Premica \\(L\\colon y=2\\) ne seka krožnice (\\(|c|>1\\)).',
@@ -129,6 +134,7 @@ export const threeViewsLesson: GuidedLesson = {
             ),
             formulaIds: ['three-views-map'],
             observationPrompt: text('Preberi vrsto slike in vrstico o točkah v neskončnosti.', 'Read the type of the image and the line about points at infinity.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['status', 'infinity']})},
             expectedObservations: [text('Slika je elipsa in nima točk v neskončnosti.', 'The image is an ellipse and has no points at infinity.')],
             scene: threeViewsScene('three-views-predict-scene', 20, null,
                 'Slika krožnice je elipsa, brez točk v neskončnosti.',
@@ -145,6 +151,7 @@ export const threeViewsLesson: GuidedLesson = {
             formulaIds: ['three-views-image'],
             workedExampleId: 'k5-image-equation',
             observationPrompt: text('Preberi enačbo, \\(B^2-4AC\\), determinanto in sliko točke \\(P\\).', 'Read the equation, \\(B^2-4AC\\), the determinant and the image of the point \\(P\\).'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['discriminant', 'determinant', 'point']})},
             expectedObservations: [text('Enačba je \\(X^2+3Y^2+4Y+1=0\\), \\(B^2-4AC=-12\\), determinanta \\(-1\\).', 'The equation is \\(X^2+3Y^2+4Y+1=0\\), \\(B^2-4AC=-12\\), the determinant \\(-1\\).')],
             scene: threeViewsScene('three-views-ellipse-scene', 20, {angle: 3},
                 'Elipsa \\(X^2+3Y^2+4Y+1=0\\), \\(B^2-4AC=-12\\), determinanta \\(-1\\); točka \\(P=(0{,}7071;\\ 0{,}7071)\\) gre v \\(P\'=(-0{,}5469;\\ -0{,}7735)\\).',
@@ -160,6 +167,7 @@ export const threeViewsLesson: GuidedLesson = {
             ),
             formulaIds: ['three-views-image'],
             observationPrompt: text('Preberi stanje in vrstico o točkah v neskončnosti.', 'Read the status and the line about points at infinity.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['status', 'infinity']})},
             expectedObservations: [text('Stanje pravi, da se \\(L\\) dotika krožnice, slika je parabola z \\(B^2-4AC=0\\) in točka \\(P=(0,1)\\) gre v točko v neskončnosti s smerjo \\((0,1)\\).', 'The status says that \\(L\\) touches the circle, the image is a parabola with \\(B^2-4AC=0\\), and the point \\(P=(0,1)\\) goes to the point at infinity with direction \\((0,1)\\).')],
             scene: threeViewsScene('three-views-parabola-scene', 10, {angle: 6},
                 'Premica \\(L\\colon y=1\\) se dotika krožnice v \\((0,1)\\); parabola \\(X^2+2Y+1=0\\), \\(B^2-4AC=0\\), determinanta \\(-1\\); točka \\(P=(0,1)\\) gre v točko v neskončnosti s smerjo \\((0,1)\\).',
@@ -175,6 +183,7 @@ export const threeViewsLesson: GuidedLesson = {
             ),
             formulaIds: ['three-views-image'],
             observationPrompt: text('Preberi vrstico o točkah v neskončnosti in poglej asimptoti.', 'Read the line about points at infinity and look at the asymptotes.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['infinity']})},
             expectedObservations: [text('Stanje pravi, da \\(L\\) seka krožnico, slika je hiperbola, točki v neskončnosti imata smeri \\((-1,1)\\) in \\((1,1)\\), točka \\(P=(1,0)\\) pa gre v neskončnost s smerjo \\((1,1)\\).', 'The status says that \\(L\\) cuts the circle, the image is a hyperbola, the points at infinity have directions \\((-1,1)\\) and \\((1,1)\\), and the point \\(P=(1,0)\\) goes to infinity with direction \\((1,1)\\).')],
             scene: threeViewsScene('three-views-hyperbola-scene', 0, {angle: 0},
                 'Premica \\(L\\colon y=0\\) seka krožnico v \\((-1,0)\\) in \\((1,0)\\); hiperbola \\(X^2-Y^2+1=0\\), \\(B^2-4AC=4\\), determinanta \\(-1\\), točki v neskončnosti s smerema \\((-1,1)\\) in \\((1,1)\\); točka \\(P=(1,0)\\) gre v točko v neskončnosti s smerjo \\((1,1)\\).',
@@ -190,6 +199,7 @@ export const threeViewsLesson: GuidedLesson = {
             ),
             formulaIds: ['three-views-map'],
             observationPrompt: text('Poglej, kje hiperbola zapusti pogled, in preberi vrstico o točkah v neskončnosti.', 'Look where the hyperbola leaves the view and read the line about points at infinity.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['infinity']})},
             expectedObservations: [text('Hiperbola ima dve točki v neskončnosti, ki ležita na premici v neskončnosti, to je na sliki premice \\(L\\).', 'The hyperbola has two points at infinity, which lie on the line at infinity, that is on the image of the line \\(L\\).')],
             scene: threeViewsScene('three-views-infinity-scene', 0, null,
                 'Hiperbola \\(X^2-Y^2+1=0\\) s točkama v neskončnosti s smerema \\((-1,1)\\) in \\((1,1)\\); premica skozi njuni sliki je slika premice \\(L\\), premica v neskončnosti.',
@@ -205,6 +215,7 @@ export const threeViewsLesson: GuidedLesson = {
             ),
             formulaIds: ['three-views-image'],
             observationPrompt: text('Poišči vrednosti \\(c\\), pri katerih se vrsta slike spremeni.', 'Find the values of \\(c\\) where the type of the image changes.'),
+            declare: {observation: frame({open: ['readouts']})},
             expectedObservations: [text('Vrsta se spremeni pri \\(c=\\pm1\\), ko se \\(L\\) dotika krožnice.', 'The type changes at \\(c=\\pm1\\), when \\(L\\) touches the circle.')],
             scene: threeViewsScene('three-views-explore-scene', -15, null,
                 'Premica \\(L\\colon y=-1{,}5\\) ne seka krožnice (\\(|c|>1\\)), slika je elipsa.',

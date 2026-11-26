@@ -142,6 +142,19 @@ const SAMPLES: readonly Sample[] = [
             {name: 'ellipse made degenerate (stale conic)', apply: on(g => { g.loadExample('ellipse'); g.moveTo(3, 2, 0); })},
         ];
     })()},
+    {file: 'projective/__parity__/projective-three-views.json', demonstration: 'projective-three-views', states: (() => {
+        type Three = {setCTenths(tenths: number): boolean; togglePoint(on: boolean): boolean; placePoint(step: number): boolean};
+        const on = (apply: (g: Three) => void): ParityState['apply'] => graph => { runAs('learner', () => apply(graph as unknown as Three)); };
+        return [
+            {name: 'default ellipse (c = 2)', apply: () => {}},
+            {name: 'parabola (c = 1)', apply: on(g => g.setCTenths(10))},
+            {name: 'hyperbola (c = 0)', apply: on(g => g.setCTenths(0))},
+            {name: 'point on the circle', apply: on(g => { g.setCTenths(5); g.togglePoint(true); g.placePoint(2); })},
+            {name: 'point on L (at infinity)', apply: on(g => { g.setCTenths(0); g.togglePoint(true); g.placePoint(0); })},
+            {name: 'clipped image', apply: on(g => { g.setCTenths(9); g.togglePoint(true); g.placePoint(6); })},
+            {name: 'L below the circle', apply: on(g => g.setCTenths(-15))},
+        ];
+    })()},
     {file: 'compgeo/__parity__/polygon-area.json', demonstration: 'polygon-area', states: (() => {
         type Area = {loadModel(model: unknown): void; setOverlay(id: string, shown: boolean): void; setPolygonClosed(closed: boolean): boolean; reverseOrder(): boolean};
         const polygon = (points: [number, number][], closed = true) => ({mode: 'polygon', closed, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});

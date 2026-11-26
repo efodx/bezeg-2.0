@@ -2,7 +2,7 @@ import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointLabelMath} from "../styles/pointLabelMath";
@@ -15,7 +15,8 @@ import {
 } from "./threeViewsModel";
 import {nudgeC, setAngle, setC, setPointOn} from "./threeViewsEdit";
 import {ThreeViewsControls} from "./ThreeViewsControls";
-import {describeThreeViews} from "./threeViewsText";
+import {describeThreeViews, threeViewsMessages} from "./threeViewsText";
+import type {GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
 import {threeViewsPresetCollection} from "./projectivePresetCollection";
 import {threeViewsPersistence} from "./projectivePersistence";
 
@@ -58,7 +59,22 @@ interface FillCurve {
 
 interface DrawnScene {
     readonly all: readonly JXG.GeometryElement[];
+    /** The elements a legend entry names (`ThreeViewsIds["legend"]`); an entry with several elements shows the first that is visible. */
+    readonly named: ReadonlyMap<string, readonly JXG.GeometryElement[]>;
 }
+
+/**
+ * The ids of the declaration. No parameters: c and the point are not bound in the arbiter (and no lesson text needs them as pucks), so
+ * only the panel's sentences (notes, the status among them) and the legend are declared; the controls stay in Orodja.
+ */
+export type ThreeViewsIds = {
+    param: never;
+    row: never;
+    note: "c" | "status" | "equation" | "discriminant" | "determinant" | "infinity" | "point" | "clipped";
+    legend: "circle" | "line" | "image" | "directions" | "points";
+    section: never;
+    action: never;
+};
 
 export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsModel> {
     private drawn?: DrawnScene;
@@ -278,6 +294,11 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
             return element;
         };
         // The shared point-label attributes (MathJax, no parsing, display font size, visibility); each element adds its own offset.
+        const named = new Map<string, JXG.GeometryElement[]>();
+        const legendOf = <E extends JXG.GeometryElement>(id: ThreeViewsIds["legend"], element: E): E => {
+            named.set(id, [...(named.get(id) ?? []), element]);
+            return element;
+        };
         const label = {...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label};
         const curveOf = (fill: (curve: FillCurve) => void, attributes: Record<string, unknown>) => {
             const curve = add(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes}) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
@@ -316,7 +337,7 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         }
 
         // Source plane: the unit circle, the line L and its label.
-        fixedCurve(() => {
+        legendOf("circle", fixedCurve(() => {
             const x: number[] = [];
             const y: number[] = [];
             for (let i = 0; i <= CIRCLE_SAMPLES; i++) {
@@ -325,11 +346,11 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
                 y.push(sourceY(Math.sin(theta)));
             }
             return {x, y};
-        }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4});
-        fixedCurve(() => {
+        }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4}));
+        legendOf("line", fixedCurve(() => {
             const height = sourceY(this.scene().cValue);
             return {x: [SOURCE_CENTRE - PANEL_HALF_WIDTH, SOURCE_CENTRE + PANEL_HALF_WIDTH], y: [height, height]};
-        }, {strokeColor: GraphPalette.emphasis, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth), layer: 5});
+        }, {strokeColor: GraphPalette.emphasis, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth), layer: 5}));
         text(() => SOURCE_CENTRE + PANEL_HALF_WIDTH - 1.6, () => sourceY(this.scene().cValue) + 0.3, () => `L: y = ${describeThreeViews(this.scene(), t, currentLanguage()).cText}`);
 
         // The points where L meets the circle (one or two, none when L misses it).
@@ -339,24 +360,24 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
                 return p ? [sourceX(p.x), sourceY(this.scene().cValue)] : undefined;
             }, {size: 4, face: "o", fillColor: GraphPalette.derivedPoint});
         }
-        marker("P", () => {
+        legendOf("points", marker("P", () => {
             const p = this.scene().point;
             return p ? [sourceX(p.x), sourceY(p.y)] : undefined;
-        }, {size: 5, face: "o", fillColor: GraphPalette.controlPoint});
+        }, {size: 5, face: "o", fillColor: GraphPalette.controlPoint}));
 
         // Image plane: the image conic (the sampler breaks the hyperbola at its points at infinity, so the branches are never joined).
-        fixedCurve(() => {
+        legendOf("image", fixedCurve(() => {
             const d = this.polyline(this.scene());
             return {x: d.x.map(imageX), y: d.y};
-        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4});
+        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4}));
 
         // The asymptote directions (hyperbola) or the axis direction (parabola): a dashed ray to the window edge and a marker for the point at infinity.
         for (const index of [0, 1] as const) {
             const segment = () => directionSegments(this.scene())[index];
-            fixedCurve(() => {
+            legendOf("directions", fixedCurve(() => {
                 const s = segment();
                 return s ? {x: [imageX(s[0].x), imageX(s[1].x)], y: [s[0].y, s[1].y]} : {x: [], y: []};
-            }, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: 2, layer: 3, visible: () => segment() !== undefined});
+            }, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: 2, layer: 3, visible: () => segment() !== undefined}));
             marker(index === 0 ? "Q₁′" : "Q₂′", () => {
                 const s = segment();
                 return s ? [imageX(s[1].x), s[1].y] : undefined;
@@ -364,7 +385,7 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         }
 
         // The image of the optional point: on the conic, or at the window edge in its direction when it lies on L (a point at infinity).
-        marker("P′", () => {
+        legendOf("points", marker("P′", () => {
             const p = this.scene().point;
             if (!p) return undefined;
             if (p.image.kind === "finite") {
@@ -373,8 +394,8 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
             }
             const edge = windowExit(directionAnchor(this.scene()), p.image.direction);
             return [imageX(edge.x), edge.y];
-        }, {size: 5, face: "o", fillColor: GraphPalette.controlPoint});
-        return {all};
+        }, {size: 5, face: "o", fillColor: GraphPalette.controlPoint}));
+        return {all, named};
     }
 
     /** Removes this family's drawn objects; the next sync rebuilds them. */
@@ -385,6 +406,45 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
     override unmount(): void {
         this.removeDrawn();
         super.unmount();
+    }
+
+    // ---- Declaration (task 08 lane L17) ----------------------------------------------------------------------------
+
+    /**
+     * Pure data from the state: the panel's sentences as notes in its order (the slider's value line, then the status), the legend of what
+     * the board draws and the two panels as the view's must marks. No parameters: c and the point are not bound in the arbiter.
+     */
+    protected override declaration(): GraphDeclaration<ThreeViewsIds> {
+        const text = threeViewsMessages(this.scene());
+        const notes: ReadoutNote<ThreeViewsIds>[] = [
+            {id: "c", text: text.c},
+            {id: "status", text: text.status},
+            {id: "equation", text: text.equation},
+            {id: "discriminant", text: text.discriminant},
+            {id: "determinant", text: text.determinant},
+            {id: "infinity", text: text.infinity},
+        ];
+        if (this.scene().point && text.point) notes.push({id: "point", text: text.point});
+        if (text.clipped) notes.splice(notes.length - (text.point ? 1 : 0), 0, {id: "clipped", text: text.clipped});
+        const legend: LegendEntry<ThreeViewsIds>[] = [
+            {id: "circle", label: message("projective_three_views_legend_circle"), kind: "line", object: "circle"},
+            {id: "line", label: message("projective_three_views_legend_line"), kind: "line", object: "line"},
+            {id: "image", label: message("projective_three_views_legend_image"), kind: "line", object: "image"},
+            {id: "directions", label: message("projective_three_views_legend_directions"), kind: "dashed", object: "directions"},
+            {id: "points", label: message("projective_three_views_legend_points"), kind: "point", object: "points"},
+        ];
+        const panel = (centre: number) => ({kind: "box" as const, left: centre - PANEL_HALF_WIDTH, top: PANEL_HALF_HEIGHT, right: centre + PANEL_HALF_WIDTH, bottom: -PANEL_HALF_HEIGHT});
+        return {notes, legend, marks: {must: [panel(SOURCE_CENTRE), panel(IMAGE_CENTRE)]}};
+    }
+
+    /** The element a legend entry names, as the board holds it now (the first visible one when several: the two direction rays, P and P′). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.drawn?.named.get(id);
+        if (!elements?.length) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = (element: JXG.GeometryElement) => element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const found = elements.find(element => Boolean(drawn(element).evalVisProp("visible"))) ?? elements[0];
+        return {color: String(drawn(found).evalVisProp(id === "points" ? "fillcolor" : "strokecolor")), visible: Boolean(drawn(found).evalVisProp("visible"))};
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

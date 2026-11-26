@@ -207,6 +207,9 @@ test('the app-level Reset restores the default controls and board; there is no s
     act(() => { pending = graph.reset(); });
     await act(async () => { await pending; });
     expect(graph.model).toEqual(DEFAULT_THREE_VIEWS_MODEL);
+    // The reset puts the board cards back to their default layout, where Orodja is folded: unfold it to read the controls.
+    const fold = document.querySelector<HTMLElement>('#board-card-tools .board-card-fold');
+    if (fold?.getAttribute('aria-expanded') === 'false') await act(async () => { fold.click(); });
     expect(slider().value).toBe('2');
     expect((screen.getByLabelText(/Točka P na krožnici/) as HTMLInputElement).checked).toBe(false);
     expect(status()?.getAttribute('data-projective-status')).toBe('ellipse');

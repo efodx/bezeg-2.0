@@ -41,18 +41,22 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
                     step={1 / THREE_VIEWS_TENTHS} decimals={1} value={model.c / THREE_VIEWS_TENTHS} grid={1 / THREE_VIEWS_TENTHS}
                     valueText={c => t("projective_three_views_slider_value", {value0: formatNumber(c, language, 1)})}
                     onChange={c => { actions.setC(Math.round(c * THREE_VIEWS_TENTHS)); }}/>
-            <p data-readout-note className="inspector-help" data-projective-line="c">{t("projective_three_views_slider_value", {value0: formatNumber(model.c / THREE_VIEWS_TENTHS, language, 1)})}</p>
+            <div data-declared-panel="">
+                <p data-readout-note className="inspector-help" data-projective-line="c">{t("projective_three_views_slider_value", {value0: formatNumber(model.c / THREE_VIEWS_TENTHS, language, 1)})}</p>
+            </div>
         </div>
         <div className="inspector-group">
-            <div data-projective-status={scene.type} data-projective-contact={scene.contact}>
-                <p data-readout-note className="inspector-help" data-projective-line="status">{text.status}</p>
+            <div data-declared-panel="">
+                <div data-projective-status={scene.type} data-projective-contact={scene.contact}>
+                    <p data-readout-note className="inspector-help" data-projective-line="status">{text.status}</p>
+                </div>
+                <p data-readout-note className="inspector-help" data-projective-line="equation">{text.equation}</p>
+                <p data-readout-note className="inspector-help" data-projective-line="discriminant">{text.discriminant}</p>
+                <p data-readout-note className="inspector-help" data-projective-line="determinant">{text.determinant}</p>
+                <p data-readout-note className="inspector-help" data-projective-line="infinity">{text.infinity}</p>
+                {text.clipped && <p data-readout-note className="inspector-help" data-projective-line="clipped">{text.clipped}</p>}
             </div>
             <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
-            <p data-readout-note className="inspector-help" data-projective-line="equation">{text.equation}</p>
-            <p data-readout-note className="inspector-help" data-projective-line="discriminant">{text.discriminant}</p>
-            <p data-readout-note className="inspector-help" data-projective-line="determinant">{text.determinant}</p>
-            <p data-readout-note className="inspector-help" data-projective-line="infinity">{text.infinity}</p>
-            {text.clipped && <p data-readout-note className="inspector-help" data-projective-line="clipped">{text.clipped}</p>}
         </div>
         <div className="inspector-group">
             <BooleanField variant="checkbox" checked={model.pointOn} label={t("projective_three_views_point_toggle")} onChange={actions.setPointOn}/>
@@ -61,7 +65,7 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
                     unavailableReason={model.pointOn ? undefined : t("projective_three_views_angle_unavailable")}
                     valueText={degrees => `${formatNumber(degrees, language, 0)}°`}
                     onChange={degrees => { actions.setAngle(Math.round(degrees / THREE_VIEWS_STEP_DEGREES)); }}/>
-            {text.point && <p data-readout-note className="inspector-help" data-projective-line="point">{text.point}</p>}
+            {text.point && <div data-declared-panel=""><p data-readout-note className="inspector-help" data-projective-line="point">{text.point}</p></div>}
         </div>
     </div>;
 }

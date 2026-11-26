@@ -1,0 +1,139 @@
+{
+  "graph": "projective-three-views",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default ellipse (c = 2)",
+      "rows": [],
+      "notes": [
+        "c = 2",
+        "Premica L: y = 2 ne seka krožnice (|c| > 1), zato je slika krožnice elipsa: premica v neskončnosti ne seka slike.",
+        "Slika krožnice: X² + 3Y² + 4Y + 1 = 0",
+        "B² - 4AC = -12 (predznak odloči vrsto stožnice; izračunano natančno iz c v desetinkah).",
+        "Determinanta 3 × 3 matrike stožnice je -1, zato slika ostane nedegenerirana stožnica.",
+        "Slika nima točk v neskončnosti."
+      ],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 2",
+        "Slika: elipsa"
+      ]
+    },
+    {
+      "name": "parabola (c = 1)",
+      "rows": [],
+      "notes": [
+        "c = 1",
+        "Premica L: y = 1 se dotika krožnice (|c| = 1), zato je slika krožnice parabola.",
+        "Slika krožnice: X² + 2Y + 1 = 0",
+        "B² - 4AC = 0 (predznak odloči vrsto stožnice; izračunano natančno iz c v desetinkah).",
+        "Determinanta 3 × 3 matrike stožnice je -1, zato slika ostane nedegenerirana stožnica.",
+        "Dotikališče (0, 1) premice L s krožnico se preslika v edino točko slike v neskončnosti, s smerjo (0, 1): parabola se v njej dotika premice v neskončnosti."
+      ],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 1",
+        "Slika: parabola"
+      ]
+    },
+    {
+      "name": "hyperbola (c = 0)",
+      "rows": [],
+      "notes": [
+        "c = 0",
+        "Premica L: y = 0 seka krožnico (|c| < 1), zato je slika krožnice hiperbola.",
+        "Slika krožnice: X² - Y² + 1 = 0",
+        "B² - 4AC = 4 (predznak odloči vrsto stožnice; izračunano natančno iz c v desetinkah).",
+        "Determinanta 3 × 3 matrike stožnice je -1, zato slika ostane nedegenerirana stožnica.",
+        "Premica L seka krožnico v točkah (-1, 0) in (1, 0). Njuni sliki sta dve točki v neskončnosti s smerema (-1, 1) in (1, 1); to sta smeri asimptot hiperbole, ki ju hiperbola doseže na premici v neskončnosti."
+      ],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 0",
+        "Slika: hiperbola"
+      ]
+    },
+    {
+      "name": "point on the circle",
+      "rows": [],
+      "notes": [
+        "c = 0,5",
+        "Premica L: y = 0,5 seka krožnico (|c| < 1), zato je slika krožnice hiperbola.",
+        "Slika krožnice: 4X² - 3Y² + 4Y + 4 = 0",
+        "B² - 4AC = 48 (predznak odloči vrsto stožnice; izračunano natančno iz c v desetinkah).",
+        "Determinanta 3 × 3 matrike stožnice je -1, zato slika ostane nedegenerirana stožnica.",
+        "Premica L seka krožnico v točkah (-0,866, 0,5) in (0,866, 0,5). Njuni sliki sta dve točki v neskončnosti s smerema (-0,866, 1) in (0,866, 1); to sta smeri asimptot hiperbole, ki ju hiperbola doseže na premici v neskončnosti.",
+        "Točka P = (0,866, 0,5) leži na premici L, zato je njena slika točka v neskončnosti s smerjo (0,866, 1)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 0,5",
+        "Slika: hiperbola"
+      ]
+    },
+    {
+      "name": "point on L (at infinity)",
+      "rows": [],
+      "notes": [
+        "c = 0",
+        "Premica L: y = 0 seka krožnico (|c| < 1), zato je slika krožnice hiperbola.",
+        "Slika krožnice: X² - Y² + 1 = 0",
+        "B² - 4AC = 4 (predznak odloči vrsto stožnice; izračunano natančno iz c v desetinkah).",
+        "Determinanta 3 × 3 matrike stožnice je -1, zato slika ostane nedegenerirana stožnica.",
+        "Premica L seka krožnico v točkah (-1, 0) in (1, 0). Njuni sliki sta dve točki v neskončnosti s smerema (-1, 1) in (1, 1); to sta smeri asimptot hiperbole, ki ju hiperbola doseže na premici v neskončnosti.",
+        "Točka P = (1, 0) leži na premici L, zato je njena slika točka v neskončnosti s smerjo (1, 1)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = 0",
+        "Slika: hiperbola"
+      ]
+    },
+    {
+      "name": "clipped image",
+      "rows": [],
+      "notes": [
+        "c = 0,9",
+        "Premica L: y = 0,9 seka krožnico (|c| < 1), zato je slika krožnice hiperbola.",
+        "Slika krožnice: 100X² - 19Y² + 180Y + 100 = 0",
+        "B² - 4AC = 7600 (predznak odloči vrsto stožnice; izračunano natančno iz c v desetinkah).",
+        "Determinanta 3 × 3 matrike stožnice je -1, zato slika ostane nedegenerirana stožnica.",
+        "Premica L seka krožnico v točkah (-0,4359, 0,9) in (0,4359, 0,9). Njuni sliki sta dve točki v neskončnosti s smerema (-0,4359, 1) in (0,4359, 1); to sta smeri asimptot hiperbole, ki ju hiperbola doseže na premici v neskončnosti.",
+        "Del slike stožnice je zunaj tega pogleda. Slika točke P je zunaj tega pogleda.",
+        "Točka P = (0, 1) se preslika v (0, 10)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Del slike stožnice je zunaj tega pogleda.",
+        "Izvirna ravnina",
+        "L: y = 0,9",
+        "Slika točke P je zunaj tega pogleda.",
+        "Slika: hiperbola"
+      ]
+    },
+    {
+      "name": "L below the circle",
+      "rows": [],
+      "notes": [
+        "c = -1,5",
+        "Premica L: y = -1,5 ne seka krožnice (|c| > 1), zato je slika krožnice elipsa: premica v neskončnosti ne seka slike.",
+        "Slika krožnice: 4X² + 5Y² - 12Y + 4 = 0",
+        "B² - 4AC = -80 (predznak odloči vrsto stožnice; izračunano natančno iz c v desetinkah).",
+        "Determinanta 3 × 3 matrike stožnice je -1, zato slika ostane nedegenerirana stožnica.",
+        "Slika nima točk v neskončnosti.",
+        "Točka P = (0, 1) se preslika v (0, 0,4)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Izvirna ravnina",
+        "L: y = -1,5",
+        "Slika: elipsa"
+      ]
+    }
+  ]
+}
