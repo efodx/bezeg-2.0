@@ -1,0 +1,694 @@
+{
+  "graph": "fourier-series",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "11"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "11"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 4/π · (sin x + sin 3x/3 + sin 5x/5 + sin 7x/7 + sin 9x/9 + sin 11x/11)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1,57"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,25"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "0,94731"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "1"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0,052693"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "-1"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "1"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "0,2618"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "1,1813"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "9,07 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
+        "N = 11, x = 1,57, ε = 0,25",
+        "Sₙ(x) = 0,94731, f(x) = 1, napaka 0,052693",
+        "Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    },
+    {
+      "name": "N 1",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "1"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "1"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 4/π · (sin x)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1,57"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,25"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "1,27324"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "1"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0,27324"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "-1"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "1"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "1,5708"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "1,27324"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "13,66 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
+        "N = 1, x = 1,57, ε = 0,25",
+        "Sₙ(x) = 1,27324, f(x) = 1, napaka 0,27324",
+        "Vrh: x = 1,5708, Sₙ = 1,27324, preseg 13,66 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    },
+    {
+      "name": "N 100 (even)",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "100"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "99"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 4/π · (sin x + sin 3x/3 + sin 5x/5 + sin 7x/7 + sin 9x/9 + sin 11x/11 + … + sin 99x/99)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1,57"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,25"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "0,99365"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "1"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0,0063454"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "-1"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "1"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "0,03142"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "1,17901"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "8,95 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
+        "N = 100, x = 1,57, ε = 0,25",
+        "Sₙ(x) = 0,99365, f(x) = 1, napaka 0,0063454",
+        "Vrh: x = 0,03142, Sₙ = 1,17901, preseg 8,95 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    },
+    {
+      "name": "at the jump x 0",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "11"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "11"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 4/π · (sin x + sin 3x/3 + sin 5x/5 + sin 7x/7 + sin 9x/9 + sin 11x/11)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,25"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "0"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "0"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "-1"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "1"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "0,2618"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "1,1813"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "9,07 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
+        "N = 11, x = 0, ε = 0,25",
+        "Sₙ(x) = 0, f(x) = 0, napaka 0",
+        "Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    },
+    {
+      "name": "x 2.5, epsilon 0.1",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "11"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "11"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 4/π · (sin x + sin 3x/3 + sin 5x/5 + sin 7x/7 + sin 9x/9 + sin 11x/11)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "2,5"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,1"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "0,97777"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "1"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0,022233"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "-1"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "1"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "0,2618"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "1,1813"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "9,07 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
+        "N = 11, x = 2,5, ε = 0,1",
+        "Sₙ(x) = 0,97777, f(x) = 1, napaka 0,022233",
+        "Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    },
+    {
+      "name": "N 1001",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "1001"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "1001"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 4/π · (sin x + sin 3x/3 + sin 5x/5 + sin 7x/7 + sin 9x/9 + sin 11x/11 + … + sin 1001x/1001)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0,05"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "1"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "0,98751"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "1"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0,012487"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "-1"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "1"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "0,00314"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "1,17898"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "8,95 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
+        "N = 1001, x = 0,05, ε = 1",
+        "Sₙ(x) = 0,98751, f(x) = 1, napaka 0,012487",
+        "Vrh: x = 0,00314, Sₙ = 1,17898, preseg 8,95 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    },
+    {
+      "name": "sawtooth",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "11"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "11"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 2 · (sin x - sin 2x/2 + sin 3x/3 - sin 4x/4 + sin 5x/5 - sin 6x/6 + … + sin 11x/11)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1,57"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,25"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "1,48643"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "1,57"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0,083566"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "3,1416"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "-3,1416"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "2,87979"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "3,43844"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "4,72 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = x, x ∈ (-π, π)",
+        "N = 11, x = 1,57, ε = 0,25",
+        "Sₙ(x) = 1,48643, f(x) = 1,57, napaka 0,083566",
+        "Vrh: x = 2,87979, Sₙ = 3,43844, preseg 4,72 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    },
+    {
+      "name": "sawtooth N 40 x -2",
+      "rows": [
+        {
+          "key": "Število harmonikov N#0",
+          "label": "Število harmonikov N",
+          "value": "40"
+        },
+        {
+          "key": "Uporabljeno število harmonikov#0",
+          "label": "Uporabljeno število harmonikov",
+          "value": "40"
+        },
+        {
+          "key": "Členi vrste Sₙ#0",
+          "label": "Členi vrste Sₙ",
+          "value": "Sₙ(x) = 2 · (sin x - sin 2x/2 + sin 3x/3 - sin 4x/4 + sin 5x/5 - sin 6x/6 + … - sin 40x/40)"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "-2"
+        },
+        {
+          "key": "Toleranca ε#0",
+          "label": "Toleranca ε",
+          "value": "0,5"
+        },
+        {
+          "key": "Sₙ(x)#0",
+          "label": "Sₙ(x)",
+          "value": "-2,02808"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "-2"
+        },
+        {
+          "key": "Napaka |f(x) - Sₙ(x)|#0",
+          "label": "Napaka |f(x) - Sₙ(x)|",
+          "value": "0,028079"
+        },
+        {
+          "key": "Leva limita pri skoku#0",
+          "label": "Leva limita pri skoku",
+          "value": "3,1416"
+        },
+        {
+          "key": "Desna limita pri skoku#0",
+          "label": "Desna limita pri skoku",
+          "value": "-3,1416"
+        },
+        {
+          "key": "Abscisa vrha π/(N + 1) od skoka#0",
+          "label": "Abscisa vrha π/(N + 1) od skoka",
+          "value": "3,06497"
+        },
+        {
+          "key": "Vrednost vrha#0",
+          "label": "Vrednost vrha",
+          "value": "3,62694"
+        },
+        {
+          "key": "Preseg vrha (delež skoka)#0",
+          "label": "Preseg vrha (delež skoka)",
+          "value": "7,72 %"
+        },
+        {
+          "key": "Preseg v limiti N → ∞#0",
+          "label": "Preseg v limiti N → ∞",
+          "value": "8,95 %"
+        }
+      ],
+      "notes": [
+        "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
+      ],
+      "outputs": [],
+      "captions": [
+        "Fourierova vrsta: f(x) = x, x ∈ (-π, π)",
+        "N = 40, x = -2, ε = 0,5",
+        "Sₙ(x) = -2,02808, f(x) = -2, napaka 0,028079",
+        "Vrh: x = 3,06497, Sₙ = 3,62694, preseg 7,72 %",
+        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+      ]
+    }
+  ]
+}

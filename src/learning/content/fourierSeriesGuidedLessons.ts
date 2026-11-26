@@ -9,10 +9,22 @@
  * `uniform-convergence` (a source entry and the prerequisite text name it); that lesson is not changed.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {FourierSeriesIds} from '../../graphs/functions/FourierSeriesGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const fourierFrame = frameDeclarer<FourierSeriesIds>();
+
+/** The rows each step talks about (never a value it asks the learner to predict) and the puck its observation asks them to use. */
+const FOCUS: Readonly<Record<string, {highlight: readonly FourierSeriesIds['row'][]; uses?: readonly FourierSeriesIds['param'][]}>> = {
+    'fourier-third': {highlight: ['terms', 'sum'], uses: ['fourier-n']},
+    'fourier-more': {highlight: ['order', 'sum'], uses: ['fourier-n']},
+    'fourier-gibbs-peak': {highlight: ['peak-x', 'peak-value', 'overshoot']},
+    'fourier-gibbs-narrow': {highlight: ['peak-x'], uses: ['fourier-n']},
+    'fourier-gibbs-fixed': {highlight: ['peak-value', 'overshoot-limit'], uses: ['fourier-n']},
+};
 
 /** A scene from the default scene: the example, N, x and epsilon, all four set so that no scene depends on the one before it. */
 const fourierScene = (
@@ -41,14 +53,21 @@ interface StepContent {
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
-    ...content,
-    frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
-    ],
-});
+const step = (content: StepContent): GuidedLessonStep => {
+    const focus = FOCUS[content.id];
+    const declare = (observation: boolean) => focus ? fourierFrame({
+        highlight: [...focus.highlight],
+        ...(observation && focus.uses ? {uses: [...focus.uses]} : {}),
+    }) : undefined;
+    return {
+        ...content,
+        frames: [
+            frame(`${content.id}-explanation`, 'explanation', declare(false)),
+            ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare(false))] : []),
+            frame(`${content.id}-observation`, 'observation', declare(true)),
+        ],
+    };
+};
 
 const fourierLesson: GuidedLesson = {
     demonstrationId: 'fourier-series',

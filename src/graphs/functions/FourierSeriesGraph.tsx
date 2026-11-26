@@ -1,13 +1,15 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
+import type {GraphDeclaration, LegendEntry, StatusLine} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t} from "../../localization";
 import {formatNumber, formatSignificant, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {
     changeFourierEpsilon, changeFourierN, chooseFourierSeriesExample, DEFAULT_FOURIER_SERIES_MODEL, effectiveOrder, FOURIER_EPSILON_MAX, FOURIER_EPSILON_MIN,
@@ -40,7 +42,14 @@ const EXAMPLE_FORMULA: Readonly<Record<FourierSeriesExampleId, string>> = {
     sawtooth: "f(x) = x, x ∈ (−π, π)",
 };
 
-type StatusKind = "even-square" | "jump" | "gibbs" | "outside-band";
+/** The ids of the declaration: the number of harmonics (an arbiter key, flipped while the sum is watched), the rows, the legend. */
+export type FourierSeriesIds = {
+    param: "fourier-n";
+    row: "n" | "order" | "terms" | "x" | "epsilon" | "sum" | "target" | "error" | "jump-left" | "jump-right" | "peak-x" | "peak-value" | "overshoot" | "overshoot-limit";
+    note: "about";
+    legend: "sum" | "target" | "jump" | "band" | "error" | "peak" | "window";
+    section: never; action: never;
+};
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -73,6 +82,8 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
     // Not the base `modelCache`: it keys on the model object and would sample again on every x or epsilon drag; this keys on (example, n).
     /** The sampled curve for the (example, n) it was computed for, so a drag of x or epsilon does not sample again. */
     private sampled?: { example: FourierSeriesExampleId; n: number; data: FourierSamples };
+    /** The drawn objects the legend entries name (`drawnObject`); cleared with the scene. */
+    private drawn: Partial<Record<FourierSeriesIds["legend"], unknown>> = {};
 
     override presetCollection() {
         return functionPresetCollections["fourier-series"];
@@ -214,12 +225,14 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         }));
 
         // Layers, lowest first: the band and its edges, f, the zoom window, S_N, the error, the markers, the point.
+        this.drawn = {};
         for (let i = 0; i < MAX_PIECES; i++) {
             const piece = () => view().pieces[i];
             const shown = () => piece() !== undefined;
             const band = this.own(board.create("curve", [[], []], {
                 fillColor: GraphPalette.additionalCurves[0], fillOpacity: 0.22, strokeOpacity: 0, strokeWidth: 0, highlight: false, fixed: true, visible: shown,
             })) as unknown as FillCurve;
+            if (i === 0) this.drawn.band = band;
             band.updateDataArray = () => {
                 const p = piece();
                 const e = model().epsilon;
@@ -231,14 +244,16 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
                     [() => piece()?.x0 ?? 0, () => (piece()?.y0 ?? 0) + sign * model().epsilon], [() => piece()?.x1 ?? 0, () => (piece()?.y1 ?? 0) + sign * model().epsilon],
                 ], {strokeColor: GraphPalette.additionalCurves[0], dash: EDGE_DASH, strokeWidth: thin, highlight: false, fixed: true, withLabel: false, visible: shown}));
             }
-            this.own(board.create("segment", [[() => piece()?.x0 ?? 0, () => piece()?.y0 ?? 0], [() => piece()?.x1 ?? 0, () => piece()?.y1 ?? 0]], {
+            const target = this.own(board.create("segment", [[() => piece()?.x0 ?? 0, () => piece()?.y0 ?? 0], [() => piece()?.x1 ?? 0, () => piece()?.y1 ?? 0]], {
                 strokeColor: GraphPalette.comparisonCurve, dash: TARGET_DASH, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: shown,
             }));
+            if (i === 0) this.drawn.target = target;
         }
 
         const zoomWindow = this.own(board.create("curve", [[], []], {
             strokeColor: GraphPalette.label, dash: WINDOW_DASH, strokeWidth: thin, highlight: false, fixed: true,
         })) as unknown as FillCurve;
+        this.drawn.window = zoomWindow;
         zoomWindow.updateDataArray = () => {
             const [left, top, right, bottom] = fourierZoomWindow(model().example, model().n);
             zoomWindow.dataX = [left, right, right, left, left];
@@ -248,30 +263,32 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         const curve = this.own(board.create("curve", [[], []], {
             strokeColor: GraphPalette.primaryCurve, strokeWidth, highlight: false, fixed: true,
         })) as unknown as FillCurve;
+        this.drawn.sum = curve;
         curve.updateDataArray = () => {
             const data = this.samplesOf(model());
             curve.dataX = data.x;
             curve.dataY = data.y;
         };
 
-        this.own(board.create("segment", [[() => model().x, () => view().target], [() => model().x, () => view().sum]], {
+        this.drawn.error = this.own(board.create("segment", [[() => model().x, () => view().target], [() => model().x, () => view().sum]], {
             strokeColor: GraphPalette.warningText, strokeWidth: () => Math.max(2.5, this.displaySettings.strokeWidth * 1.4), highlight: false, fixed: true,
             withLabel: false, visible: () => view().error > 0,
         }));
 
         // The jump: the one-sided limits as open circles and the midpoint, where every S_N passes, as a filled point.
         for (const side of ["left", "right"] as const) {
-            marker(() => view().jump.x, () => view().jump[side], {
+            const ring = marker(() => view().jump.x, () => view().jump[side], {
                 face: "o", fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface, strokeColor: GraphPalette.comparisonCurve,
                 strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
             });
+            if (side === "left") this.drawn.jump = ring;
         }
         marker(() => view().jump.x, () => view().jump.midpoint, {
             fillColor: GraphPalette.comparisonCurve, highlightFillColor: GraphPalette.comparisonCurve, strokeColor: GraphPalette.comparisonCurve,
             size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
         });
         // The Gibbs peak: a cross at the closed-form abscissa.
-        marker(() => view().peak.x, () => view().peak.value, {
+        this.drawn.peak = marker(() => view().peak.x, () => view().peak.value, {
             face: "x", strokeColor: GraphPalette.warningText, highlightStrokeColor: GraphPalette.warningText, size: () => Math.max(5, this.displaySettings.pointSize * 1.2),
             strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
         });
@@ -306,6 +323,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
     protected override onSceneRemoved(): void {
         this.pointX = undefined;
         this.sampled = undefined;
+        this.drawn = {};
     }
 
     /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
@@ -326,11 +344,11 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
                               onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <CountSetter label={t("fourier_n_label")} n={state.n} min={FOURIER_N_MIN} max={FOURIER_N_MAX} help={nHelp}
+                <PuckOwned param="fourier-n"><CountSetter label={t("fourier_n_label")} n={state.n} min={FOURIER_N_MIN} max={FOURIER_N_MAX} help={nHelp}
                              rejectedHint={t("fourier_n_rejected_hint", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX})}
                              onPlus={() => this.guarded(() => this.setN(this.model.n + 1))}
                              onMinus={() => this.guarded(() => this.setN(this.model.n - 1))}
-                             onSet={next => guardField(this.refusals, () => this.setN(next))}/>
+                             onSet={next => guardField(this.refusals, () => this.setN(next))}/></PuckOwned>
             </div>
             <div className="inspector-group">
                 <Slider customText={t("fourier_x_label")} value={state.x} min={FOURIER_X_MIN} max={FOURIER_X_MAX} step={FOURIER_X_STEP}
@@ -352,54 +370,99 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         </>;
     }
 
+    // ---- Declaration ---------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson name is the key. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {"fourier-n": {read: () => this.model.n, apply: (value: number) => this.setN(value)}};
+    }
+
+    /**
+     * Pure data from the model. Board: the number of harmonics N (flipped while the sum and the peak are watched). Orodja,
+     * undeclared: the example (setup, resets the view), the tolerance epsilon, and the point x (also dragged on the board).
+     */
+    protected override declaration(): GraphDeclaration {
+        const legend: LegendEntry<FourierSeriesIds>[] = [
+            {id: "sum", label: message("fourier_series_legend_sum"), kind: "line", object: "sum"},
+            {id: "target", label: message("fourier_series_legend_target"), kind: "dashed", object: "target"},
+            {id: "jump", label: message("fourier_series_legend_jump"), kind: "ring", object: "jump"},
+            {id: "band", label: message("fourier_series_legend_band"), kind: "area", object: "band"},
+            {id: "error", label: message("fourier_series_legend_error"), kind: "line", object: "error"},
+            {id: "peak", label: message("fourier_series_legend_peak"), kind: "cross", object: "peak"},
+            {id: "window", label: message("fourier_series_legend_window"), kind: "dashed", object: "window"},
+        ];
+        return {
+            ...this.commonDeclaration(),
+            parameters: [{
+                key: "fourier-n", kind: "count", label: message("fourier_series_n_name"), symbol: "N", help: message("fourier_series_n_help"), placement: "board",
+                min: FOURIER_N_MIN, max: FOURIER_N_MAX,
+            }],
+            legend,
+        };
+    }
+
+    /** The rows, the note, the statuses and the marks of the inspector as declared data (`renderReadout` draws them from it). */
+    protected override functionPanel(): FunctionPanel {
+        const model = this.model;
+        const view = this.viewOf(model);
+        const formatted = (text: string) => ({kind: "formatted" as const, text});
+        return {
+            rows: [
+                {id: "n", name: message("fourier_n_label"), value: messageNumber(model.n, 0)},
+                {id: "order", name: message("fourier_readout_order"), value: messageNumber(view.order, 0)},
+                {id: "terms", name: message("fourier_readout_terms"), value: message("fourier_series_terms_value", {value0: fourierTermsText(fourierTermList(model.example, model.n))})},
+                {id: "x", name: message("fourier_x_label"), value: messageNumber(model.x, 4)},
+                {id: "epsilon", name: message("fourier_epsilon_label"), value: messageNumber(model.epsilon, 2)},
+                {id: "sum", name: message("fourier_readout_sum"), value: messageNumber(view.sum, 5)},
+                {id: "target", name: message("fourier_readout_target"), value: messageNumber(view.target, 4)},
+                {id: "error", name: message("fourier_readout_error"), value: formatted(this.small(view.error))},
+                {id: "jump-left", name: message("fourier_readout_jump_left"), value: messageNumber(view.jump.left, 4)},
+                {id: "jump-right", name: message("fourier_readout_jump_right"), value: messageNumber(view.jump.right, 4)},
+                {id: "peak-x", name: message("fourier_readout_peak_x"), value: messageNumber(view.peak.x, 5)},
+                {id: "peak-value", name: message("fourier_readout_peak_value"), value: messageNumber(view.peak.value, 5)},
+                {id: "overshoot", name: message("fourier_readout_overshoot"), value: formatted(this.overshootText(view))},
+                {id: "overshoot-limit", name: message("fourier_readout_overshoot_limit"), value: formatted(this.percent(view.limitOvershoot))},
+            ],
+            notes: [{id: "about", text: message("fourier_note")}],
+            status: this.statuses(model, view),
+            // The learner compares f with the partial sum: both stay in view.
+            plotted: [(x: number) => fourierTarget(model.example, x), (x: number) => fourierPartialSum(model.example, model.n, x)],
+        };
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.drawn[id as FourierSeriesIds["legend"]];
+        if (typeof element !== "object" || element === null || Array.isArray(element)) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(id === "band" ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    /** A declared legend replaces the panel's own, so Orodja shows no second one. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "sum", color: GraphPalette.primaryCurve, label: t("fourier_legend_sum"), kind: "line"},
-            {id: "target", color: GraphPalette.comparisonCurve, label: t("fourier_legend_target"), kind: "dashed-line"},
-            {id: "jump", color: GraphPalette.comparisonCurve, label: t("fourier_legend_jump"), kind: "ring"},
-            {id: "band", color: GraphPalette.additionalCurves[0], label: t("fourier_legend_band"), kind: "area"},
-            {id: "error", color: GraphPalette.warningText, label: t("fourier_legend_error"), kind: "line"},
-            {id: "peak", color: GraphPalette.warningText, label: t("fourier_legend_peak"), kind: "cross"},
-            {id: "window", color: GraphPalette.label, label: t("fourier_legend_window"), kind: "dotted-line"},
-        ]}/>;
+        return null;
     }
 
     /** The statuses to state in words, most important first; each has a stable id for tests and for assistive technology. */
-    private statuses(model: FourierSeriesModel, view: View): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
+    private statuses(model: FourierSeriesModel, view: View): StatusLine[] {
+        const result: StatusLine[] = [];
         if (model.example === "square" && model.n % 2 === 0) {
-            result.push({id: "even-square", text: t("fourier_status_even_square", {value0: model.n, value1: view.order})});
+            result.push({id: "even-square", text: message("fourier_status_even_square", {value0: model.n, value1: view.order})});
         }
-        if (view.onJump) result.push({id: "jump", text: t("fourier_status_jump")});
-        result.push({id: "gibbs", text: t("fourier_status_gibbs", {value0: this.percent(view.limitOvershoot)})});
+        if (view.onJump) result.push({id: "jump", text: message("fourier_status_jump")});
+        result.push({id: "gibbs", text: message("fourier_status_gibbs", {value0: this.percent(view.limitOvershoot)})});
         if (view.peak.value - view.jump.high > model.epsilon) {
-            result.push({id: "outside-band", text: t("fourier_status_outside_band", {value0: this.number(model.epsilon)})});
+            result.push({id: "outside-band", text: message("fourier_status_outside_band", {value0: this.number(model.epsilon)})});
         }
         return result;
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.model;
-        const view = this.viewOf(model);
-        const rows = [
-            {id: "n", label: t("fourier_n_label"), value: String(model.n)},
-            {id: "order", label: t("fourier_readout_order"), value: String(view.order)},
-            {id: "terms", label: t("fourier_readout_terms"), value: fourierTermsText(fourierTermList(model.example, model.n))},
-            {id: "x", label: t("fourier_x_label"), value: this.number(model.x)},
-            {id: "epsilon", label: t("fourier_epsilon_label"), value: formatNumber(model.epsilon, currentLanguage(), 2)},
-            {id: "sum", label: t("fourier_readout_sum"), value: this.precise(view.sum)},
-            {id: "target", label: t("fourier_readout_target"), value: this.number(view.target)},
-            {id: "error", label: t("fourier_readout_error"), value: this.small(view.error)},
-            {id: "jump-left", label: t("fourier_readout_jump_left"), value: this.number(view.jump.left)},
-            {id: "jump-right", label: t("fourier_readout_jump_right"), value: this.number(view.jump.right)},
-            {id: "peak-x", label: t("fourier_readout_peak_x"), value: this.precise(view.peak.x)},
-            {id: "peak-value", label: t("fourier_readout_peak_value"), value: this.precise(view.peak.value)},
-            {id: "overshoot", label: t("fourier_readout_overshoot"), value: this.overshootText(view)},
-            {id: "overshoot-limit", label: t("fourier_readout_overshoot_limit"), value: this.percent(view.limitOvershoot)},
-        ];
+        const lines = this.functionPanel().status ?? [];
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("fourier_note")}/>
-            <FunctionStatus className="demo-status" lines={this.statuses(model, view)} dataAttribute="fourier-status"/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="demo-status" lines={lines.map(line => ({id: line.id, text: renderMessage(line.text)}))} dataAttribute="fourier-status"/>
         </>;
     }
 }

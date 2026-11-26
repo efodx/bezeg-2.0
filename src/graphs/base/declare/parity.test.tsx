@@ -500,6 +500,26 @@ const SAMPLES: readonly Sample[] = [
             {name: 'revealed 2 of 8', apply: graph => { scene('exponential', '0.125', 1, 1)(graph); reveal(2)(graph); }},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/fourier-series.json', demonstration: 'fourier-series', states: (() => {
+        // Every state sets every field (the example first, as it keeps N, x and epsilon), so none depends on the one before it.
+        const scene = (example: string, n: number, x: number, epsilon: number): ParityState['apply'] => graph => {
+            const driven = graph as unknown as {applyLessonAction(action: unknown): void};
+            driven.applyLessonAction({kind: 'function-choice', name: 'fourier-example', value: example});
+            driven.applyLessonAction({kind: 'function-parameter', name: 'fourier-n', value: n});
+            driven.applyLessonAction({kind: 'function-parameter', name: 'fourier-x', value: x});
+            driven.applyLessonAction({kind: 'function-parameter', name: 'fourier-epsilon', value: epsilon});
+        };
+        return [
+            {name: 'default', apply: scene('square', 11, 1.57, 0.25)},
+            {name: 'N 1', apply: scene('square', 1, 1.57, 0.25)},
+            {name: 'N 100 (even)', apply: scene('square', 100, 1.57, 0.25)},
+            {name: 'at the jump x 0', apply: scene('square', 11, 0, 0.25)},
+            {name: 'x 2.5, epsilon 0.1', apply: scene('square', 11, 2.5, 0.1)},
+            {name: 'N 1001', apply: scene('square', 1001, 0.05, 1)},
+            {name: 'sawtooth', apply: scene('sawtooth', 11, 1.57, 0.25)},
+            {name: 'sawtooth N 40 x -2', apply: scene('sawtooth', 40, -2, 0.5)},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/fourier-coefficients.json', demonstration: 'fourier-coefficients', states: (() => {
         const choice = (name: string, value: unknown) => ({kind: 'function-choice', name, value});
         const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
