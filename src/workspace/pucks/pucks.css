@@ -241,7 +241,8 @@
 @media (hover: hover) and (pointer: fine) {
     .puck {
         display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(22px, auto); align-content: space-between;
-        gap: 3px 10px; max-width: 200px; padding: 6px 11px; --puck-clear: 17px;
+        /* A switch's slip is as tall as a range's (two rows), so a lone one beside Play and reset stands level with its neighbour. */
+        gap: 3px 10px; min-height: 56px; max-width: 200px; padding: 6px 11px; --puck-clear: 17px;
     }
     .puck-head { display: contents; }
     .puck-label { grid-area: 1 / 1; align-self: baseline; line-height: 1.0625rem; }
