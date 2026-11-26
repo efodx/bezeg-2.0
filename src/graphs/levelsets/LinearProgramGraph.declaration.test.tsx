@@ -24,23 +24,24 @@ function setup(constraints: Row[], p: number, q: number, sweep: number) {
     return {graph, view, declaration: () => graph.getDeclaration() as GraphDeclaration<LinearProgramIds>};
 }
 
-const states: {name: string; constraints: Row[]; p: number; q: number; sweep: number; row: string; value: string; status: string; puck: boolean}[] = [
-    {name: 'default', constraints: dflt, p: 3, q: 2, sweep: 9, row: 'optimum', value: '12', puck: true,
+const ALL = ['region', 'rows', 'vertex', 'optimum', 'objective', 'sweep', 'direction', 'walk'];
+const states:{name: string; constraints: Row[]; p: number; q: number; sweep: number; row: string; value: string; status: string; puck: boolean; legend: string[]}[] = [
+    {name: 'default', constraints: dflt, p: 3, q: 2, sweep: 9, row: 'optimum', value: '12', puck: true, legend: ALL,
         status: 'Največja vrednost 12 je v oglišču (2; 3) (točno).'},
-    {name: 'sweep at 6', constraints: dflt, p: 3, q: 2, sweep: 6, row: 'sweep', value: '3x + 2y = 6', puck: true,
+    {name: 'sweep at 6', constraints: dflt, p: 3, q: 2, sweep: 6, row: 'sweep', value: '3x + 2y = 6', puck: true, legend: ALL,
         status: 'Največja vrednost 12 je v oglišču (2; 3) (točno).'},
-    {name: 'segment of optima', constraints: dflt, p: 1, q: 2, sweep: 8, row: 'status', value: 'optimalna daljica', puck: true,
+    {name: 'segment of optima', constraints: dflt, p: 1, q: 2, sweep: 8, row: 'status', value: 'optimalna daljica', puck: true, legend: ALL,
         status: 'Največja vrednost 8 je na vsej daljici od (0; 4) do (2; 3); optimumov je neskončno (točno).'},
-    {name: 'unbounded', constraints: [{a: 1, b: -1, c: 2}], p: 1, q: 1, sweep: 0, row: 'ray', value: '(1; 1)', puck: true,
+    {name: 'unbounded', constraints: [{a: 1, b: -1, c: 2}], p: 1, q: 1, sweep: 0, row: 'ray', value: '(1; 1)', puck: true, legend: ['region', 'rows', 'vertex', 'sweep', 'direction', 'clip'],
         status: 'Cilj ni omejen: v smeri (1; 1) raste brez meje (točno).'},
-    {name: 'infeasible', constraints: [{a: 1, b: 1, c: -1}], p: 1, q: 1, sweep: 0, row: 'region', value: 'prazno', puck: true,
+    {name: 'infeasible', constraints: [{a: 1, b: 1, c: -1}], p: 1, q: 1, sweep: 0, row: 'region', value: 'prazno', puck: true, legend: ['rows', 'sweep', 'direction'],
         status: 'Dopustnega območja ni: omejitveni pogoji se izključujejo (točno).'},
-    {name: 'flat objective: no line, no sweep puck', constraints: dflt, p: 0, q: 0, sweep: 0, row: 'status', value: 'cilj je povsod 0', puck: false,
+    {name: 'flat objective: no line, no sweep puck', constraints: dflt, p: 0, q: 0, sweep: 0, row: 'status', value: 'cilj je povsod 0', puck: false, legend: ['region', 'rows', 'vertex', 'direction', 'walk'],
         status: 'Kriterijska funkcija je povsod 0, zato je optimalna vsaka dopustna točka (točno).'},
 ];
 
 describe('Linear program declaration', () => {
-    for (const {name, constraints, p, q, sweep, row, value, status, puck} of states) {
+    for (const {name, constraints, p, q, sweep, row, value, status, puck, legend} of states) {
         test(`${name}: consistent, the rows of the panel, the status as a note`, () => {
             const {graph, declaration, view} = setup(constraints, p, q, sweep);
             const current = declaration();
@@ -55,7 +56,14 @@ describe('Linear program declaration', () => {
                 expect(graph.parameters!.read(entry.key)).toBe(sweep);
             }
             expect(current.actions ?? []).toEqual([]);
-            expect(current.legend ?? []).toEqual([]);
+            // the legend card names what is drawn now: each entry is a drawn object, the wording is the panel's former legend
+            expect((current.legend ?? []).map(entry => entry.id)).toEqual(legend);
+            expect((current.legend ?? []).map(entry => entry.id)).toEqual(graph.legend().map(entry => entry.id));
+            for (const entry of current.legend ?? []) {
+                expect(graph.drawnObject(entry.object)).toMatchObject({visible: true});
+                expect(renderMessage(entry.label)).toBe(graph.legend().find(candidate => candidate.id === entry.id)!.text);
+            }
+            expect(graph.drawnObject('nothing')).toBeUndefined();
 
             // the declared rows are the panel's rows, with the values of the model
             const rows = current.readouts![0].rows;

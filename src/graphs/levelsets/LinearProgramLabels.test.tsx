@@ -25,31 +25,23 @@ function mountProbe() {
 const overlaps = (a: PxBox, b: PxBox) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
 
 describe('LinearProgramGraph board text placement', () => {
-    it('the legend is a short stack that holds every style word, and the plot (vertices, handle) lies below it', () => {
+    it('the legend is the card, not board text: all eight rows are declared and the plot (vertices, handle) is framed on the whole board', () => {
         const graph = mountProbe();
-        const legend = graph.legendBox();
-        expect(legend).toBeDefined();
-        const rows = graph.boardLegend();
-        expect(rows.length).toBeLessThanOrEqual(5);
-        const words = rows.map(row => row.text).join(' ');
-        for (const word of ['območje', 'pogoj', 'oglišče', 'optimum', 'cilj', 'sprehod', 'ročico']) expect(words).toContain(word);
-        // The panel list keeps the eight rows in full.
-        expect(graph.legend().map(row => row.id)).toEqual(expect.arrayContaining(['region', 'rows', 'vertex', 'optimum', 'objective', 'sweep', 'direction', 'walk']));
+        expect(graph.getDeclaration()?.legend?.map(entry => entry.id)).toEqual(expect.arrayContaining(['region', 'rows', 'vertex', 'optimum', 'objective', 'sweep', 'direction', 'walk']));
         const board = graph.liveBoard();
         const [left, top] = board.getBoundingBox();
         const toPx = (x: number, y: number) => [(x - left) * board.unitX, (top - y) * board.unitY];
         const plotted = [...graph.solution().result.vertices.map(v => [v.x.toNumber(), v.y.toNumber()]), [DEFAULT_LP_STATE.objective.p, DEFAULT_LP_STATE.objective.q]];
         for (const [x, y] of plotted) {
             const [px, py] = toPx(x, y);
-            expect(py, `point (${x}, ${y}) lies under the legend`).toBeGreaterThan(legend!.y1);
+            expect(py, `point (${x}, ${y}) is on the board`).toBeGreaterThan(0);
             expect(px).toBeGreaterThan(0);
         }
     });
 
-    it('every vertex text and the handle caption clear the markers, the axes, the legend and each other', () => {
+    it('every vertex text and the handle caption clear the markers, the axes and each other', () => {
         const graph = mountProbe();
         const boxes = graph.labelBoxes();
-        const legend = graph.legendBox()!;
         const board = graph.liveBoard();
         const [left, top] = board.getBoundingBox();
         const toPx = (x: number, y: number) => [(x - left) * board.unitX, (top - y) * board.unitY];
@@ -59,7 +51,6 @@ describe('LinearProgramGraph board text placement', () => {
         for (const id of ids) {
             const box = boxes[id];
             expect(box, `${id} has a box`).toBeDefined();
-            expect(overlaps(box, legend), `${id} lies on the legend`).toBe(false);
             for (const [mx, my] of markers) {
                 expect(mx + 7 > box.x0 && mx - 7 < box.x1 && my + 7 > box.y0 && my - 7 < box.y1, `${id} touches a marker`).toBe(false);
             }

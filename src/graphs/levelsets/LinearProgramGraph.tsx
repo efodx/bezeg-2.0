@@ -2,11 +2,11 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React, {useSyncExternalStore} from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, message, onLanguageChange, renderMessage, t, useT, type Message} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, useT, type Message, type MessageKey} from "../../localization";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {PuckOwned} from "../base/controls/PuckOwnership";
 import {DomainError} from "../functions/BaseFunctionGraph";
-import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutRow, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
+import type {FormattedValue, GraphDeclaration, LegendEntry, LegendKind, ParameterDeclaration, ReadoutRow, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber} from "../../analysis/format";
 import {CountSetter} from "../../inputs/CountSetter";
 import Slider from "../../inputs/Slider";
@@ -25,8 +25,7 @@ import {
 } from "./lpScene";
 import {emptyPoly, type Poly} from "./contourScene";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
-import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
-import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
+import {fitBoundingBox} from "../base/fitBoundingBox";
 import {Memo} from "./Memo";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -36,7 +35,7 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /**
  * Ids of the declaration (task 02, task 08 lane L15). Bound: the sweep value k (a range puck, absent while the objective is 0).
- * The objective, the rows and their count stay in Orodja (setup; the objective is also a board handle); the legend is the board's own.
+ * The objective, the rows and their count stay in Orodja (setup; the objective is also a board handle); the legend is a card.
  * Declared: the readout rows and the status sentence as a note.
  */
 export type LinearProgramIds = {
@@ -44,7 +43,7 @@ export type LinearProgramIds = {
     row: "region" | `row-${number}` | "axes" | "objective" | "vertex-count" | `vertex-${number}` | "status" | "optimum" | `optimal-${number}` | "ray" | "walk"
         | `walk-${number}` | "sweep" | "through" | "window";
     note: "summary";
-    legend: never;
+    legend: "region" | "rows" | "vertex" | "optimum" | "objective" | "sweep" | "direction" | "walk" | "clip";
     section: never;
     action: never;
 };
@@ -86,17 +85,25 @@ const boardBox = (box: Box): [number, number, number, number] => {
     return [box.xMin - margin, box.yMax + margin, box.xMax + margin, box.yMin - margin];
 };
 
-/** The board legend's measured width of a character (14 px font), the estimate of a label's width and height, and the backdrop that lets the text read over a line. */
-const LEGEND_CHAR_PX = 6.2;
+/** The estimate of a label width and height. */
 const LABEL_CHAR_PX = 6.6;
 const LABEL_HEIGHT_PX = 18;
 
 /** One row of the legend: what an element of the board is, with its drawing style said in words. */
 export interface LegendRow {
-    readonly id: string;
+    readonly id: LinearProgramIds["legend"];
     readonly text: string;
     readonly color: string;
 }
+
+/** The legend card's wording and swatch per row id. */
+const LEGEND_KEYS = {
+    region: {key: "levelsets_graph_lp_cap_region", kind: "area"}, rows: {key: "levelsets_graph_lp_cap_rows", kind: "line"},
+    vertex: {key: "levelsets_graph_lp_cap_vertex", kind: "point"}, optimum: {key: "levelsets_graph_lp_cap_optimum", kind: "ring"},
+    objective: {key: "levelsets_graph_lp_cap_objective", kind: "line"}, sweep: {key: "levelsets_graph_lp_cap_sweep", kind: "dashed"},
+    direction: {key: "levelsets_graph_lp_cap_direction", kind: "line"}, walk: {key: "levelsets_graph_lp_cap_walk", kind: "dashed"},
+    clip: {key: "levelsets_graph_lp_cap_clip", kind: "area"},
+} as const satisfies Record<LinearProgramIds["legend"], {key: MessageKey; kind: LegendKind}>;
 
 type Geometry = {readonly box: Box; readonly clip: Box; readonly region: Poly; readonly rows: readonly Poly[]};
 
@@ -319,26 +326,15 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         this.boardView.following(() => this.boardView.setIntent(this.frameOf(solution, this.state.objective), {keepAspectRatio: true}));
     }
 
-    /**
-     * What decides a reframe: the framed points (not the handle, so dragging the objective never moves the view) and the height of the
-     * legend band, which follows the rows the state shows and the board width.
-     */
+    /** What decides a reframe: the framed points (not the handle, so dragging the objective never moves the view) and the board width. */
     private viewKeyOf(solution: LpSolution): string {
-        return `${viewKey(framePoints(solution, {p: 0, q: 0}).flat())}|${this.legendBand()}`;
+        return `${viewKey(framePoints(solution, {p: 0, q: 0}).flat())}|${this.board.canvasWidth}`;
     }
 
-    /**
-     * The pixels the legend takes from the top of the board: its own strip, above the framed data. It is the height of every caption
-     * stacked, whatever rows the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
-     */
-    private legendBand(): number {
-        return legendBandPx(this.boardLegendTexts(true), this.board.canvasWidth);
-    }
-
-    /** The view with the feasible region, its vertices and the objective handle framed with margin below the legend band. */
+    /** The view with the feasible region, its vertices and the objective handle framed with margin. */
     private frameOf(solution: LpSolution, handle: {readonly p: number; readonly q: number}): [number, number, number, number] {
         const {canvasWidth, canvasHeight} = this.board;
-        return frameBelowLegend(framePoints(solution, handle), canvasWidth, canvasHeight, this.legendBand()) ?? boardBox(viewBox(solution));
+        return fitBoundingBox(framePoints(solution, handle), canvasWidth, canvasHeight) ?? boardBox(viewBox(solution));
     }
 
     /** Moves the objective handle to the stored (p, q) (idempotent). */
@@ -365,45 +361,6 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         return element;
     }
 
-    /**
-     * The rows of the legend as the board writes them: the line styles that only need a word are merged two to a row, so the stack stays
-     * short (a 420 px card keeps its plot). The panel list keeps every row in full (`legend`); `all` gives the rows of the fullest state.
-     */
-    boardLegend(all = false): LegendRow[] {
-        const full = all ? undefined : this.legend();
-        const has = (id: string): boolean => full === undefined || full.some(row => row.id === id);
-        const part: Record<string, () => string> = {
-            region: () => t("levelsets_graph_lp_capb_region"), rows: () => t("levelsets_graph_lp_capb_rows"),
-            vertex: () => t("levelsets_graph_lp_capb_vertex"), optimum: () => t("levelsets_graph_lp_capb_optimum"),
-            objective: () => t("levelsets_graph_lp_capb_objective"), sweep: () => t("levelsets_graph_lp_capb_sweep"),
-            direction: () => t("levelsets_graph_lp_capb_direction"), walk: () => t("levelsets_graph_lp_capb_walk"),
-        };
-        const color: Record<string, string> = {
-            region: GraphPalette.primaryCurve, rows: GraphPalette.additionalCurves[0], vertex: GraphPalette.label, optimum: GraphPalette.label,
-            objective: GraphPalette.comparisonCurve, sweep: GraphPalette.constructionAccent, direction: GraphPalette.controlPoint, walk: GraphPalette.additionalCurves[3],
-        };
-        const merged = (id: string, parts: string[]): LegendRow[] => {
-            const shown = parts.filter(has);
-            return shown.length === 0 ? [] : [{id, text: shown.map(name => part[name]()).join(" · "), color: color[shown[0]]}];
-        };
-        const rows = [...merged("region", ["region", "rows"]), ...merged("vertex", ["vertex", "optimum"]), ...merged("objective", ["objective", "sweep"]),
-            ...merged("direction", ["direction", "walk"])];
-        if (full === undefined || full.some(row => row.id === "clip")) rows.push({id: "clip", text: t("levelsets_graph_lp_cap_clip"), color: GraphPalette.warningText});
-        return rows;
-    }
-
-    private boardLegendTexts(all = false): string[] { return this.boardLegend(all).map(row => row.text); }
-
-    /** The legend stack's screen box (px from the board's top left corner, y down). */
-    legendBox(): PxBox | undefined {
-        if (!this.hasBoard) return undefined;
-        const texts = this.boardLegendTexts();
-        const width = this.board.canvasWidth;
-        if (texts.length === 0 || !(width > 0)) return undefined;
-        const wide = Math.min(Math.max(...texts.map(text => text.length * LEGEND_CHAR_PX)), width - 20) + 20;
-        return {x0: 0, y0: 0, x1: wide, y1: legendRowOffset(texts, texts.length, width)};
-    }
-
     private layoutCache: {key: string; boxes: Record<string, PxBox>; anchors: Record<string, number>} = {key: "", boxes: {}, anchors: {}};
 
     /**
@@ -414,9 +371,8 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         if (!this.hasBoard || !(this.board.canvasWidth > 0)) return {};
         const {ux, uy, left, top} = this.scaleOf();
         const width = this.board.canvasWidth, height = this.board.canvasHeight;
-        const legend = this.legendBox();
         const {constraints, objective, sweep} = this.state;
-        const key = [ux, uy, left, top, width, height, JSON.stringify(constraints), objective.p, objective.q, sweep, legend?.x1, legend?.y1, currentLanguage()].join("|");
+        const key = [ux, uy, left, top, width, height, JSON.stringify(constraints), objective.p, objective.q, sweep, currentLanguage()].join("|");
         if (key === this.layoutCache.key) return this.layoutCache.boxes;
         const solution = this.solution();
         const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * ux, (top - y) * uy];
@@ -436,7 +392,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
             const [ax, ay] = toPx(v.x.toNumber(), v.y.toNumber());
             items.push({id: `v${i}`, ax, ay, ...sized(this.pointText(v))});
         });
-        const floor = (legend?.y1 ?? 0) + 14;
+        const floor = 14;
         constraints.forEach((k, i) => {
             const row = geometry.rows[i];
             if (!row) return;
@@ -448,7 +404,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
             if (anchor) items.push({id: `row${i}`, ax: anchor[0], ay: anchor[1], alts, ...size});
         });
         const strips: PxBox[] = [{x0: 0, y0: axisY, x1: width, y1: axisY + 22}, {x0: axisX - 40, y0: 0, x1: axisX, y1: height}];
-        const boxes = placeLpLabels(items, {width, height, markers, samples, strips, blocks: legend ? [legend] : [], axisX, axisY});
+        const boxes = placeLpLabels(items, {width, height, markers, samples, strips, blocks: [], axisX, axisY});
         const anchors: Record<string, number> = {};
         for (const item of items) if (!item.alts) anchors[item.id] = item.ax;
         this.layoutCache = {key, boxes, anchors};
@@ -488,39 +444,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         return {x: (box.x0 + box.x1) / 2, anchorX: "middle"};
     }
 
-    /** The axes: a tick number that the legend stack would cover is not written (the stack sits where the numbers are). */
-    protected override defaultAxesAttributes() {
-        const axis = this.styles.axis;
-        const boardExists = (): boolean => this.hasBoard;
-        const covered = (x0: number, y0: number, x1: number, y1: number): boolean => {
-            const b = this.legendBox();
-            return b !== undefined && x0 < b.x1 && x1 > b.x0 && y0 < b.y1 && y1 > b.y0;
-        };
-        const hiding = (labelOf: ((this: object, ...label: unknown[]) => string) | undefined, box: (x: number, y: number) => readonly [number, number, number, number]) =>
-            function (this: object, ...label: unknown[]): string {
-                const tick = label[0] as {usrCoords?: number[]} | undefined;
-                if (tick?.usrCoords && boardExists() && covered(...box(tick.usrCoords[1], tick.usrCoords[2]))) return "";
-                return labelOf ? labelOf.apply(this, label) : "";
-            };
-        const onX = (x: number): readonly [number, number, number, number] => {
-            const {ux, uy, left, top} = this.scaleOf();
-            const px = (x - left) * ux, py = top * uy;
-            return [px - 16, py, px + 16, py + 24];
-        };
-        const onY = (_x: number, y: number): readonly [number, number, number, number] => {
-            const {ux, uy, left, top} = this.scaleOf();
-            const px = -left * ux, py = (top - y) * uy;
-            return [px - 46, py - 12, px, py + 12];
-        };
-        const labelOfX = axis.defaultX.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
-        const labelOfY = axis.defaultY.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
-        return {
-            x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: hiding(labelOfX, onX)}},
-            y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: hiding(labelOfY, onY)}},
-        };
-    }
-
-    /** The legend: one row for every element the readouts name, the drawing style in words. Used by the panel list. */
+    /** The legend: one row for every element the readouts name that is drawn now. It feeds the declared legend card. */
     legend(): LegendRow[] {
         const solution = this.solution();
         const rows: LegendRow[] = [];
@@ -585,17 +509,6 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
             fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.controlPoint, strokeWidth: 3, lastArrow: true, visible: () => !this.flat(),
         }));
         this.boxText("handle", () => this.handleCaption(), GraphPalette.controlPoint);
-
-        // The legend: stacked from the top left. It names every element the readout names.
-        const MAX_ROWS = 5;
-        for (let index = 0; index < MAX_ROWS; index++) {
-            this.scene.own(board.create("text", [
-                () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.boardLegendTexts(), index, board.canvasWidth) / uy; },
-                () => this.boardLegend()[index]?.text ?? "",
-            ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
-                withLabel: false, visible: () => index < this.boardLegend().length, cssStyle: LEGEND_BACKDROP}));
-        }
     }
 
     private disposeScene(): void {
@@ -872,7 +785,14 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
             key: "lp-sweep", kind: "range", label: message("lp_sweep_name"), symbol: "k", help: message("levelsets_graph_lp_sweep_help"), placement: "board",
             min: SWEEP_RANGE.min, max: SWEEP_RANGE.max, step: 1, bigStep: 5, maxDecimals: 0,
         }];
-        return {parameters, readouts: [{id: "values", rows: this.declaredRows()}], notes: [{id: "summary", text: this.statusMessage()}], marks: this.viewMarks()};
+        const legend: LegendEntry<LinearProgramIds>[] = this.legend().map(row => ({id: row.id,label: message(LEGEND_KEYS[row.id].key), kind: LEGEND_KEYS[row.id].kind, object: row.id}));
+        return {parameters, legend, readouts: [{id: "values", rows: this.declaredRows()}], notes: [{id: "summary", text: this.statusMessage()}], marks: this.viewMarks()};
+    }
+
+    /** The legend card names what is drawn now: colour and visibility come from the same rule as the board's objects (`legend`). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const row = this.legend().find(entry => entry.id === id);
+        return row ? {color: row.color, visible: true} : undefined;
     }
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
@@ -923,7 +843,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
     }
 }
 
-/** The status sentence, the labelled readout rows and the legend of the drawn elements (the contour graph keeps `LpReadout`). */
+/** The status sentence and the labelled readout rows (the legend is the legend card; the contour graph keeps `LpReadout`). */
 function LinearProgramReadout(props: {graph: LinearProgramGraph}) {
     const text = useT();
     const {graph} = props;
@@ -932,9 +852,6 @@ function LinearProgramReadout(props: {graph: LinearProgramGraph}) {
         <ReadoutHeading>{text("levelsets_graph_lp_readout_title")}</ReadoutHeading>
         <p data-lp-status="" data-readout-note="">{graph.statusText()}</p>
         <ReadoutList label={text("levelsets_graph_lp_readout_title")} rows={graph.readoutRows()}/>
-        <ul className="readout-list readout-list-sentences" aria-label={text("levelsets_graph_lp_legend_title")} data-lp-legend="">
-            {graph.legend().map(row => <li key={row.id} data-legend={row.id}>{row.text}</li>)}
-        </ul>
         <LiveReadout readout={graph.status}/>
     </div>;
 }

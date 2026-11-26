@@ -48,6 +48,8 @@ const INSTANCES = {
     ray: state([{a: 1, b: -1, c: 0}], 1, -1), // x - y <= 0 everywhere on the ray x = y, value 0
 };
 
+const legendIds = (graph: {getDeclaration(): {legend?: readonly {id: string}[]} | undefined}): string[] => (graph.getDeclaration()?.legend ?? []).map(entry => entry.id);
+
 describe('LinearProgramGraph', () => {
     it('shows the LS5 default: unique optimum 12 at (2; 3), four vertices, the walk', () => {
         const {graph} = mountGraph();
@@ -58,7 +60,7 @@ describe('LinearProgramGraph', () => {
         expect(readout('optimum')).toBe('12');
         expect(readout('walk-0')).toContain('(0; 0)');
         expect(readout('walk-2')).toContain('(2; 3)');
-        expect(document.querySelector('[data-legend="optimum"]')).not.toBeNull();
+        expect(legendIds(graph)).toContain('optimum');
         noBadText();
     });
 
@@ -84,12 +86,12 @@ describe('LinearProgramGraph', () => {
         load(graph, INSTANCES.infeasible);
         expect(readout('optimum')).toBeUndefined();
         expect(readout('vertex-count')).toBe('0');
-        expect(document.querySelector('[data-legend="region"]')).toBeNull();
+        expect(legendIds(graph)).not.toContain('region');
         load(graph, INSTANCES.unbounded);
         expect(readout('optimum')).toBeUndefined();
         expect(readout('ray')).toBe('(1; 1)');
         expect(statusText()).toContain('(1; 1)');
-        expect(document.querySelector('[data-legend="clip"]')).not.toBeNull();
+        expect(legendIds(graph)).toContain('clip');
     });
 
     it('flat: every feasible point is optimal, value 0, no sweep line row', () => {
@@ -98,7 +100,7 @@ describe('LinearProgramGraph', () => {
         expect(readout('optimum')).toBe('0');
         expect(readout('optimal-0')).toBeUndefined();
         expect(readout('sweep')).toBeUndefined();
-        expect(document.querySelector('[data-legend="sweep"]')).toBeNull();
+        expect(legendIds(graph)).not.toContain('sweep');
     });
 
     it('segment: both end vertices of x + 2y = 8, value 8; ray: one vertex (0; 0), value 0', () => {

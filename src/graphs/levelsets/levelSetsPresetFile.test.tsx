@@ -117,7 +117,8 @@ describe('the legend on a narrow board (390 x 480 px)', () => {
         .filter(o => o.visPropCalc.visible && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() > board.getBoundingBox()[1] - 200 / board.unitY && o.Y() <= board.getBoundingBox()[1])
         .sort((a, b) => b.Y() - a.Y());
     for (const language of ['sl', 'en'] as const) {
-        for (const [name, create] of [['contour map', () => new ViewedContour()], ['linear program', () => new ViewedLp()]] as const) {
+        // The linear program's legend is the legend card, not board text, so only the contour map keeps rows to space.
+        for (const [name, create] of [['contour map', () => new ViewedContour()]] as const) {
             test(`${name}: a row that wraps leaves room for its lines (${language})`, () => {
                 setLanguage(language);
                 const graph = mountGraph(create());
@@ -164,7 +165,7 @@ describe('the opening view keeps the legend off the data', () => {
     const sizes = [[600, 400], [390, 480]] as const;
     for (const [width, height] of sizes) {
         for (const language of ['sl', 'en'] as const) {
-            test(`linear program: the region and its vertices lie below the legend and fill the rest (${width} x ${height}, ${language})`, () => {
+            test(`linear program: no board legend, the region and its vertices fill the whole board (${width} x ${height}, ${language})`, () => {
                 sizeBoard(width, height);
                 setLanguage(language);
                 const graph = mountGraph(new ViewedLp());
@@ -173,11 +174,12 @@ describe('the opening view keeps the legend off the data', () => {
                 const [left, , right] = board.getBoundingBox();
                 const top = Math.min(...vertices.map(v => pxFromTop(board, v[1])));
                 const bottom = Math.max(...vertices.map(v => pxFromTop(board, v[1])));
-                expect(top).toBeGreaterThanOrEqual(legendBottomPx(board, width));
+                expect((board.objectsList as unknown as Row[]).filter(o => o.visPropCalc.visible && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left')).toHaveLength(0);
+                expect(top).toBeGreaterThanOrEqual(0);
                 expect(bottom).toBeLessThanOrEqual(height - 10);
                 for (const v of vertices) { expect(v[0]).toBeGreaterThan(left); expect(v[0]).toBeLessThan(right); }
-                // The region is not a small patch in a corner: it takes at least a third of the strip below the legend.
-                expect(bottom - top).toBeGreaterThanOrEqual((height - legendBottomPx(board, width)) / 3);
+                // The region is not a small patch in a corner: it takes at least a third of the board.
+                expect(bottom - top).toBeGreaterThanOrEqual(height / 3);
             });
         }
         for (const mode of ['level-sets', 'gradient', 'descent', 'lagrange'] as const) {

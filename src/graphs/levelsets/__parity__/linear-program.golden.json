@@ -111,12 +111,8 @@
         "(2; 3)",
         "(3; 0)",
         "Cilj (3; 2)",
-        "Debel rob s polnilom: območje · Tanka črta: pogoj",
-        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
-        "Krog: oglišče · Kvadrat: optimum",
         "Pogoj 1: x + 2y ≤ 8",
-        "Pogoj 2: 3x + y ≤ 9",
-        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+        "Pogoj 2: 3x + y ≤ 9"
       ]
     },
     {
@@ -228,12 +224,8 @@
         "(2; 3)",
         "(3; 0)",
         "Cilj (3; 2)",
-        "Debel rob s polnilom: območje · Tanka črta: pogoj",
-        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
-        "Krog: oglišče · Kvadrat: optimum",
         "Pogoj 1: x + 2y ≤ 8",
-        "Pogoj 2: 3x + y ≤ 9",
-        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+        "Pogoj 2: 3x + y ≤ 9"
       ]
     },
     {
@@ -345,12 +337,8 @@
         "(2; 3)",
         "(3; 0)",
         "Cilj (3; 2)",
-        "Debel rob s polnilom: območje · Tanka črta: pogoj",
-        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
-        "Krog: oglišče · Kvadrat: optimum",
         "Pogoj 1: x + 2y ≤ 8",
-        "Pogoj 2: 3x + y ≤ 9",
-        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+        "Pogoj 2: 3x + y ≤ 9"
       ]
     },
     {
@@ -462,12 +450,8 @@
         "(2; 3)",
         "(3; 0)",
         "Cilj (1; 2)",
-        "Debel rob s polnilom: območje · Tanka črta: pogoj",
-        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
-        "Krog: oglišče · Kvadrat: optimum",
         "Pogoj 1: x + 2y ≤ 8",
-        "Pogoj 2: 3x + y ≤ 9",
-        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+        "Pogoj 2: 3x + y ≤ 9"
       ]
     },
     {
@@ -584,13 +568,9 @@
         "(3; 0)",
         "(3; 1)",
         "Cilj (3; 2)",
-        "Debel rob s polnilom: območje · Tanka črta: pogoj",
-        "Debela črta: cilj skozi optimum · Črtkana: cilj pri k",
-        "Krog: oglišče · Kvadrat: optimum",
         "Pogoj 1: x + y ≤ 4",
         "Pogoj 2: x + 3y ≤ 6",
-        "Pogoj 3: x ≤ 3",
-        "Puščica: smer (p; q), ročico vlečeš · Pikčasta: sprehod"
+        "Pogoj 3: x ≤ 3"
       ]
     },
     {
@@ -665,12 +645,7 @@
         "(0; 0)",
         "(2; 0)",
         "Cilj (1; 1)",
-        "Debel rob s polnilom: območje · Tanka črta: pogoj",
-        "Krog: oglišče",
-        "Območje se nadaljuje zunaj okna; narisano je le znotraj okna",
-        "Pogoj 1: x - y ≤ 2",
-        "Puščica: smer (p; q), ročico vlečeš",
-        "Črtkana: cilj pri k"
+        "Pogoj 1: x - y ≤ 2"
       ]
     }
   ]
