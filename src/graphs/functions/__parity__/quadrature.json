@@ -1,0 +1,356 @@
+{
+  "graph": "quadrature",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "2"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "1,5708"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "2"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,4292"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = 1#0",
+          "label": "Absolutna napaka pri n/2 = 1",
+          "value": "2"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "4,66"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "n = 2, približek 1,5708, napaka 0,4292",
+        "napaka(n/2) / napaka(n) = 4,66"
+      ]
+    },
+    {
+      "name": "trapezoid n 4",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "4"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "1,8961"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "2"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,1039"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = 2#0",
+          "label": "Absolutna napaka pri n/2 = 2",
+          "value": "0,4292"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "4,13"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "n = 4, približek 1,8961, napaka 0,1039",
+        "napaka(n/2) / napaka(n) = 4,13"
+      ]
+    },
+    {
+      "name": "trapezoid n 8",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "8"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "1,9742"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "2"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,02577"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = 4#0",
+          "label": "Absolutna napaka pri n/2 = 4",
+          "value": "0,1039"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "4,03"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "n = 8, približek 1,9742, napaka 0,02577",
+        "napaka(n/2) / napaka(n) = 4,03"
+      ]
+    },
+    {
+      "name": "simpson n 4",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "4"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "2,0046"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "2"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,00456"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = 2#0",
+          "label": "Absolutna napaka pri n/2 = 2",
+          "value": "0,0944"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "20,7"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "n = 4, približek 2,0046, napaka 0,00456",
+        "napaka(n/2) / napaka(n) = 20,7"
+      ]
+    },
+    {
+      "name": "simpson n 16",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "16"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "2"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "2"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "1,659·10⁻⁵"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = 8#0",
+          "label": "Absolutna napaka pri n/2 = 8",
+          "value": "0,0002692"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "16,2"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = sin x",
+        "n = 16, približek 2, napaka 1,659·10⁻⁵",
+        "napaka(n/2) / napaka(n) = 16,2"
+      ]
+    },
+    {
+      "name": "simpson exact square",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "2"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "9"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "9"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = ni#0",
+          "label": "Absolutna napaka pri n/2 = ni",
+          "value": "ni"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x²",
+        "n = 2, približek 9, napaka 0"
+      ]
+    },
+    {
+      "name": "trapezoid odd n, exp",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "7"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "7,1283"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "7,0212"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,1071"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = ni#0",
+          "label": "Absolutna napaka pri n/2 = ni",
+          "value": "ni"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = eˣ",
+        "n = 7, približek 7,1283, napaka 0,1071"
+      ]
+    },
+    {
+      "name": "rule switch raises n",
+      "rows": [
+        {
+          "key": "Število podintervalov n#0",
+          "label": "Število podintervalov n",
+          "value": "8"
+        },
+        {
+          "key": "Približek#0",
+          "label": "Približek",
+          "value": "7,0219"
+        },
+        {
+          "key": "Natančna vrednost (iz primitivne funkcije)#0",
+          "label": "Natančna vrednost (iz primitivne funkcije)",
+          "value": "7,0212"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,0007586"
+        },
+        {
+          "key": "Absolutna napaka pri n/2 = 4#0",
+          "label": "Absolutna napaka pri n/2 = 4",
+          "value": "0,01156"
+        },
+        {
+          "key": "Razmerje napak: napaka pri n/2 deljena z napako pri n#0",
+          "label": "Razmerje napak: napaka pri n/2 deljena z napako pri n",
+          "value": "15,2"
+        }
+      ],
+      "notes": [
+        "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = eˣ",
+        "n = 8, približek 7,0219, napaka 0,0007586",
+        "napaka(n/2) / napaka(n) = 15,2"
+      ]
+    }
+  ]
+}

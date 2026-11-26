@@ -8,10 +8,24 @@
  * never a silent change of n by the graph (which would raise it by one when the rule is switched).
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {QuadratureIds} from '../../graphs/functions/QuadratureGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const quadratureFrame = frameDeclarer<QuadratureIds>();
+
+/** The readout rows each step talks about (never a value it asks the learner to predict) and the controls its observation asks them to use. */
+const FOCUS: Readonly<Record<string, {highlight: readonly QuadratureIds['row'][]; uses?: readonly QuadratureIds['param'][]; tools?: boolean}>> = {
+    'trapezoid-predict': {highlight: ['n', 'approximation', 'exact'], uses: ['quadrature-n']},
+    'trapezoid-halve': {highlight: ['n', 'error', 'ratio'], uses: ['quadrature-n']},
+    'simpson-parabolas': {highlight: ['approximation', 'error', 'ratio'], uses: ['quadrature-rule']},
+    'simpson-halve': {highlight: ['n', 'error', 'ratio'], uses: ['quadrature-n']},
+    'simpson-exact': {highlight: ['approximation', 'exact', 'error'], uses: ['quadrature-rule', 'quadrature-n']},
+    'simpson-even': {highlight: ['n', 'approximation', 'error'], uses: ['quadrature-n']},
+    'quadrature-explore': {highlight: ['error', 'ratio'], uses: ['quadrature-n', 'quadrature-rule', 'quadrature-function', 'quadrature-a', 'quadrature-b'], tools: true},
+};
 
 type QuadratureFunction = 'square' | 'sin' | 'exp';
 type Rule = 'trapezoid' | 'simpson';
@@ -49,14 +63,22 @@ interface StepContent {
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
-    ...content,
-    frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
-    ],
-});
+const step = (content: StepContent): GuidedLessonStep => {
+    const focus = FOCUS[content.id];
+    const declare = (observation: boolean) => focus ? quadratureFrame({
+        highlight: [...focus.highlight],
+        ...(observation && focus.uses ? {uses: [...focus.uses]} : {}),
+        ...(observation && focus.tools ? {open: ['tools']} : {}),
+    }) : undefined;
+    return {
+        ...content,
+        frames: [
+            frame(`${content.id}-explanation`, 'explanation', declare(false)),
+            ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare(false))] : []),
+            frame(`${content.id}-observation`, 'observation', declare(true)),
+        ],
+    };
+};
 
 const quadratureLesson: GuidedLesson = {
     demonstrationId: 'quadrature',
@@ -204,11 +226,11 @@ const quadratureLesson: GuidedLesson = {
             title: text('Zakaj je \\(n\\) sodo', 'Why \\(n\\) is even'),
             purpose: text('Razumeti, da ena parabola potrebuje dva podintervala.', 'Understanding that one parabola needs two subintervals.'),
             explanation: text(
-                'Parabola je določena s tremi točkami, torej pokrije dva sosednja podintervala. Pri \\(n=2\\) je ena parabola skozi \\((0,0)\\), \\((\\tfrac\\pi2,1)\\) in \\((\\pi,0)\\), približek je \\(S_2=\\tfrac{2\\pi}3=2{,}0944\\) in napaka \\(0{,}0944\\). Pri lihem \\(n\\) bi en podinterval ostal brez para, zato je pri Simpsonovem pravilu \\(n\\) sodo: drsnik se premika za \\(2\\), lihega \\(n\\) ni mogoče vnesti, pri preklopu s trapeznega pravila z lihim \\(n\\) pa graf \\(n\\) poveča za \\(1\\) in to izrecno sporoči.',
-                'A parabola is determined by three points, so it covers two neighbouring subintervals. At \\(n=2\\) there is one parabola through \\((0,0)\\), \\((\\tfrac\\pi2,1)\\) and \\((\\pi,0)\\), the approximation is \\(S_2=\\tfrac{2\\pi}3=2.0944\\) and the error \\(0.0944\\). With an odd \\(n\\) one subinterval would be left without a partner, so for the Simpson rule \\(n\\) is even: the slider moves by \\(2\\), an odd \\(n\\) cannot be entered, and when the rule is switched from the trapezoid rule with an odd \\(n\\) the graph raises \\(n\\) by \\(1\\) and says so.',
+                'Parabola je določena s tremi točkami, torej pokrije dva sosednja podintervala. Pri \\(n=2\\) je ena parabola skozi \\((0,0)\\), \\((\\tfrac\\pi2,1)\\) in \\((\\pi,0)\\), približek je \\(S_2=\\tfrac{2\\pi}3=2{,}0944\\) in napaka \\(0{,}0944\\). Pri lihem \\(n\\) bi en podinterval ostal brez para, zato je pri Simpsonovem pravilu \\(n\\) sodo: nastavitev Podintervali se premika za \\(2\\), lihega \\(n\\) ni mogoče vnesti, pri preklopu s trapeznega pravila z lihim \\(n\\) pa graf \\(n\\) poveča za \\(1\\) in to izrecno sporoči.',
+                'A parabola is determined by three points, so it covers two neighbouring subintervals. At \\(n=2\\) there is one parabola through \\((0,0)\\), \\((\\tfrac\\pi2,1)\\) and \\((\\pi,0)\\), the approximation is \\(S_2=\\tfrac{2\\pi}3=2.0944\\) and the error \\(0.0944\\). With an odd \\(n\\) one subinterval would be left without a partner, so for the Simpson rule \\(n\\) is even: the Subintervals setting moves by \\(2\\), an odd \\(n\\) cannot be entered, and when the rule is switched from the trapezoid rule with an odd \\(n\\) the graph raises \\(n\\) by \\(1\\) and says so.',
             ),
             formulaIds: ['simpson-rule'],
-            observationPrompt: text('V številsko polje ob drsniku poskusi vpisati liho \\(n\\) pri Simpsonovem pravilu in preberi sporočilo.', 'Try to type an odd \\(n\\) for the Simpson rule into the number field next to the slider and read the message.'),
+            observationPrompt: text('Pri Simpsonovem pravilu poskusi nastaviti Podintervali \\(n\\) na liho vrednost in preberi sporočilo.', 'For the Simpson rule try to set Subintervals \\(n\\) to an odd value and read the message.'),
             expectedObservations: [text('Pri \\(n=2\\) je ena parabola, približek \\(2{,}0944\\) in napaka \\(0{,}0944\\); lihega \\(n\\) graf zavrne.', 'At \\(n=2\\) there is one parabola, the approximation is \\(2.0944\\) and the error \\(0.0944\\); the graph rejects an odd \\(n\\).')],
             scene: quadratureScene('quadrature-simpson-even', 'simpson', 'sin', 0, Math.PI, 2,
                 'Simpsonovo pravilo, \\(\\sin x\\) na \\([0,\\pi]\\), \\(n=2\\): ena parabola, približek \\(2{,}0944\\), napaka \\(0{,}0944\\).',

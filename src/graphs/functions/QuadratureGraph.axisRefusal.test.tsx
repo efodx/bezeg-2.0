@@ -5,6 +5,7 @@ import {QuadratureGraph} from './QuadratureGraph';
 import {DomainError} from './BaseFunctionGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {message, setLanguage} from '../../localization';
 
 beforeAll(installBoardShims);
@@ -26,7 +27,7 @@ class StrictQuadratureGraph extends QuadratureGraph {
     }
     dragA(x: number) {
         const handle = this.pointAHandle();
-        act(() => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); });
+        act(() => { runAs('learner', () => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); }); });
     }
 }
 

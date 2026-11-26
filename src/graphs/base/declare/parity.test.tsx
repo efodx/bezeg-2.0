@@ -63,7 +63,9 @@ const nurbsAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed under its error sentence (it carries no readout marker, so the recording holds none)'},
 ];
 
-const eulerAccepted: readonly AcceptedDifference[] = [
+const quadratureAccepted: readonly AcceptedDifference[] = [];
+
+const eulerAccepted:readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the step slider read the step h (e.g. "0,5"); the step puck now counts halvings k, so the same value is shown by the declared row h, which the recorded panel row "Korak h" already matches'},
 ];
 
@@ -658,6 +660,28 @@ const SAMPLES: readonly Sample[] = [
             {name: 'intersect circle, tangent', apply: run({mode: 'intersect', target: 'circle'})},
             {name: 'intersect circle, two points', apply: run({mode: 'intersect', target: 'circle', O: at(0, 0), B: at(3, 1)})},
             {name: 'intersect circle, no points', apply: run({mode: 'intersect', target: 'circle', O: at(-6, -6), B: at(-5, -6)})},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/quadrature.json', demonstration: 'quadrature', accepted: quadratureAccepted, states: (() => {
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);
+        };
+        const choice = (name: string, value: string) => ({kind: 'function-choice', name, value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        // States accumulate on one graph, so each one sets every field it shows: the trapezoid rule first (any n), then the bounds
+        // through b = 7 (so a < b holds at every step), n, and last the rule (Simpson needs an even n).
+        const scene = (rule: string, fn: string, a: number, b: number, n: number) => act(
+            choice('quadrature-rule', 'trapezoid'), choice('quadrature-function', fn), parameter('quadrature-b', 7), parameter('quadrature-a', a),
+            parameter('quadrature-b', b), parameter('quadrature-n', n), choice('quadrature-rule', rule));
+        return [
+            {name: 'default', apply: scene('trapezoid', 'sin', 0, Math.PI, 2)},
+            {name: 'trapezoid n 4', apply: scene('trapezoid', 'sin', 0, Math.PI, 4)},
+            {name: 'trapezoid n 8', apply: scene('trapezoid', 'sin', 0, Math.PI, 8)},
+            {name: 'simpson n 4', apply: scene('simpson', 'sin', 0, Math.PI, 4)},
+            {name: 'simpson n 16', apply: scene('simpson', 'sin', 0, Math.PI, 16)},
+            {name: 'simpson exact square', apply: scene('simpson', 'square', 0, 3, 2)},
+            {name: 'trapezoid odd n, exp', apply: scene('trapezoid', 'exp', -1, 2, 7)},
+            {name: 'rule switch raises n', apply: act(...[choice('quadrature-rule', 'trapezoid'), parameter('quadrature-n', 7), choice('quadrature-rule', 'simpson')])},
         ] satisfies ParityState[];
     })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', accepted: phaseAccepted, states: [
