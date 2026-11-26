@@ -13,7 +13,10 @@ export function createAutofitSwitch(storage: () => Pick<Storage, 'getItem' | 'se
 }): AutofitSwitch {
     const listeners = new Set<() => void>();
     let memory = true;
+    // Once this session has chosen, the choice is authoritative even when saving it failed.
+    let chosen = false;
     const read = (): boolean => {
+        if (chosen) return memory;
         try {
             const stored = storage()?.getItem(AUTOFIT_STORAGE_KEY);
             return stored === null || stored === undefined ? memory : stored !== 'off';
@@ -25,6 +28,7 @@ export function createAutofitSwitch(storage: () => Pick<Storage, 'getItem' | 'se
         get: read,
         set(on) {
             memory = on;
+            chosen = true;
             try { storage()?.setItem(AUTOFIT_STORAGE_KEY, on ? 'on' : 'off'); } catch { /* the choice lasts for this session */ }
             for (const listener of [...listeners]) listener();
         },
