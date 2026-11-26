@@ -1,0 +1,356 @@
+{
+  "graph": "derivative",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "x₀#0",
+          "label": "x₀",
+          "value": "1"
+        },
+        {
+          "key": "h#0",
+          "label": "h",
+          "value": "1"
+        },
+        {
+          "key": "f(x₀)#0",
+          "label": "f(x₀)",
+          "value": "1"
+        },
+        {
+          "key": "f(x₀ + h)#0",
+          "label": "f(x₀ + h)",
+          "value": "4"
+        },
+        {
+          "key": "Diferenčni kvocient (naklon sekante)#0",
+          "label": "Diferenčni kvocient (naklon sekante)",
+          "value": "3"
+        },
+        {
+          "key": "Odvod f′(x₀) (natančno)#0",
+          "label": "Odvod f′(x₀) (natančno)",
+          "value": "2"
+        },
+        {
+          "key": "Razlika kvocient - f′(x₀)#0",
+          "label": "Razlika kvocient - f′(x₀)",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
+      ],
+      "outputs": [
+        "1"
+      ],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 3, f′(x₀) = 2"
+      ]
+    },
+    {
+      "name": "h 0.5",
+      "rows": [
+        {
+          "key": "x₀#0",
+          "label": "x₀",
+          "value": "1"
+        },
+        {
+          "key": "h#0",
+          "label": "h",
+          "value": "0,5"
+        },
+        {
+          "key": "f(x₀)#0",
+          "label": "f(x₀)",
+          "value": "1"
+        },
+        {
+          "key": "f(x₀ + h)#0",
+          "label": "f(x₀ + h)",
+          "value": "2,25"
+        },
+        {
+          "key": "Diferenčni kvocient (naklon sekante)#0",
+          "label": "Diferenčni kvocient (naklon sekante)",
+          "value": "2,5"
+        },
+        {
+          "key": "Odvod f′(x₀) (natančno)#0",
+          "label": "Odvod f′(x₀) (natančno)",
+          "value": "2"
+        },
+        {
+          "key": "Razlika kvocient - f′(x₀)#0",
+          "label": "Razlika kvocient - f′(x₀)",
+          "value": "0,5"
+        }
+      ],
+      "notes": [
+        "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
+      ],
+      "outputs": [
+        "0,5"
+      ],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 2,5, f′(x₀) = 2"
+      ]
+    },
+    {
+      "name": "h 0.01",
+      "rows": [
+        {
+          "key": "x₀#0",
+          "label": "x₀",
+          "value": "1"
+        },
+        {
+          "key": "h#0",
+          "label": "h",
+          "value": "0,01"
+        },
+        {
+          "key": "f(x₀)#0",
+          "label": "f(x₀)",
+          "value": "1"
+        },
+        {
+          "key": "f(x₀ + h)#0",
+          "label": "f(x₀ + h)",
+          "value": "1,0201"
+        },
+        {
+          "key": "Diferenčni kvocient (naklon sekante)#0",
+          "label": "Diferenčni kvocient (naklon sekante)",
+          "value": "2,01"
+        },
+        {
+          "key": "Odvod f′(x₀) (natančno)#0",
+          "label": "Odvod f′(x₀) (natančno)",
+          "value": "2"
+        },
+        {
+          "key": "Razlika kvocient - f′(x₀)#0",
+          "label": "Razlika kvocient - f′(x₀)",
+          "value": "0,01"
+        }
+      ],
+      "notes": [
+        "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
+      ],
+      "outputs": [
+        "0,01"
+      ],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 2,01, f′(x₀) = 2"
+      ]
+    },
+    {
+      "name": "h -0.5",
+      "rows": [
+        {
+          "key": "x₀#0",
+          "label": "x₀",
+          "value": "1"
+        },
+        {
+          "key": "h#0",
+          "label": "h",
+          "value": "-0,5"
+        },
+        {
+          "key": "f(x₀)#0",
+          "label": "f(x₀)",
+          "value": "1"
+        },
+        {
+          "key": "f(x₀ + h)#0",
+          "label": "f(x₀ + h)",
+          "value": "0,25"
+        },
+        {
+          "key": "Diferenčni kvocient (naklon sekante)#0",
+          "label": "Diferenčni kvocient (naklon sekante)",
+          "value": "1,5"
+        },
+        {
+          "key": "Odvod f′(x₀) (natančno)#0",
+          "label": "Odvod f′(x₀) (natančno)",
+          "value": "2"
+        },
+        {
+          "key": "Razlika kvocient - f′(x₀)#0",
+          "label": "Razlika kvocient - f′(x₀)",
+          "value": "-0,5"
+        }
+      ],
+      "notes": [
+        "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
+      ],
+      "outputs": [
+        "-0,5"
+      ],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 1,5, f′(x₀) = 2"
+      ]
+    },
+    {
+      "name": "tangent shown, x0 2",
+      "rows": [
+        {
+          "key": "x₀#0",
+          "label": "x₀",
+          "value": "2"
+        },
+        {
+          "key": "h#0",
+          "label": "h",
+          "value": "-0,5"
+        },
+        {
+          "key": "f(x₀)#0",
+          "label": "f(x₀)",
+          "value": "4"
+        },
+        {
+          "key": "f(x₀ + h)#0",
+          "label": "f(x₀ + h)",
+          "value": "2,25"
+        },
+        {
+          "key": "Diferenčni kvocient (naklon sekante)#0",
+          "label": "Diferenčni kvocient (naklon sekante)",
+          "value": "3,5"
+        },
+        {
+          "key": "Odvod f′(x₀) (natančno)#0",
+          "label": "Odvod f′(x₀) (natančno)",
+          "value": "4"
+        },
+        {
+          "key": "Razlika kvocient - f′(x₀)#0",
+          "label": "Razlika kvocient - f′(x₀)",
+          "value": "-0,5"
+        }
+      ],
+      "notes": [
+        "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
+      ],
+      "outputs": [
+        "-0,5"
+      ],
+      "captions": [
+        "f(x) = x²",
+        "naklon sekante 3,5, f′(x₀) = 4"
+      ]
+    },
+    {
+      "name": "sin x0 0.5",
+      "rows": [
+        {
+          "key": "x₀#0",
+          "label": "x₀",
+          "value": "0,5"
+        },
+        {
+          "key": "h#0",
+          "label": "h",
+          "value": "0,1"
+        },
+        {
+          "key": "f(x₀)#0",
+          "label": "f(x₀)",
+          "value": "0,4794"
+        },
+        {
+          "key": "f(x₀ + h)#0",
+          "label": "f(x₀ + h)",
+          "value": "0,5646"
+        },
+        {
+          "key": "Diferenčni kvocient (naklon sekante)#0",
+          "label": "Diferenčni kvocient (naklon sekante)",
+          "value": "0,8522"
+        },
+        {
+          "key": "Odvod f′(x₀) (natančno)#0",
+          "label": "Odvod f′(x₀) (natančno)",
+          "value": "0,8776"
+        },
+        {
+          "key": "Razlika kvocient - f′(x₀)#0",
+          "label": "Razlika kvocient - f′(x₀)",
+          "value": "-0,0254"
+        }
+      ],
+      "notes": [
+        "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
+      ],
+      "outputs": [
+        "0,1"
+      ],
+      "captions": [
+        "f(x) = sin x",
+        "naklon sekante 0,8522, f′(x₀) = 0,8776"
+      ]
+    },
+    {
+      "name": "exp x0 -1",
+      "rows": [
+        {
+          "key": "x₀#0",
+          "label": "x₀",
+          "value": "-1"
+        },
+        {
+          "key": "h#0",
+          "label": "h",
+          "value": "1"
+        },
+        {
+          "key": "f(x₀)#0",
+          "label": "f(x₀)",
+          "value": "0,3679"
+        },
+        {
+          "key": "f(x₀ + h)#0",
+          "label": "f(x₀ + h)",
+          "value": "1"
+        },
+        {
+          "key": "Diferenčni kvocient (naklon sekante)#0",
+          "label": "Diferenčni kvocient (naklon sekante)",
+          "value": "0,6321"
+        },
+        {
+          "key": "Odvod f′(x₀) (natančno)#0",
+          "label": "Odvod f′(x₀) (natančno)",
+          "value": "0,3679"
+        },
+        {
+          "key": "Razlika kvocient - f′(x₀)#0",
+          "label": "Razlika kvocient - f′(x₀)",
+          "value": "0,2642"
+        }
+      ],
+      "notes": [
+        "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
+      ],
+      "outputs": [
+        "1"
+      ],
+      "captions": [
+        "f(x) = eˣ",
+        "naklon sekante 0,6321, f′(x₀) = 0,3679"
+      ]
+    }
+  ]
+}

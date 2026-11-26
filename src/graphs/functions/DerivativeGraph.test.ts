@@ -1,7 +1,7 @@
 import {DerivativeGraph} from './DerivativeGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
-import {onLanguageChange, setLanguage} from '../../localization';
+import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 
@@ -230,7 +230,7 @@ test('readouts: x0, h, values, quotient, exact derivative and difference, in bot
     apply(graph, parameter('h', 0.2));
     setLanguage('en');
     expect(byId()).toEqual({x0: '1', h: '0.2', 'f-x0': '0.8415', 'f-x0h': '0.932', quotient: '0.4528', derivative: '0.5403', difference: '−0.0875'});
-    expect(graph.renderReadout().props.note).toMatch(/0\/0/);
+    expect(renderMessage(graph.getDeclaration()!.readoutHelp!)).toMatch(/0\/0/);
     apply(graph, choice('exp'));
     apply(graph, parameter('x0', 4));
     apply(graph, parameter('h', 2));

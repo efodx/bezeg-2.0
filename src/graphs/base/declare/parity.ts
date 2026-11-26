@@ -187,7 +187,7 @@ export function checkParity(recording: ParityRecording, declarations: readonly (
         const usedRows = new Set<number>();
         const usedNotes = new Set<number>();
         for (const row of state.rows) {
-            const at = rendered.rows.findIndex((candidate, i) => !usedRows.has(i) && [candidate.name, candidate.symbol, candidate.id, candidate.name && candidate.symbol ? `${candidate.name} ${plainSymbol(candidate.symbol)}` : ''].some(label => label !== '' && normalise(label) === row.label));
+            const at = rendered.rows.findIndex((candidate, i) => !usedRows.has(i) && [candidate.name, candidate.symbol, candidate.symbol ? plainSymbol(candidate.symbol) : '', candidate.id, candidate.name && candidate.symbol ? `${candidate.name} ${plainSymbol(candidate.symbol)}` : ''].some(label => label !== '' && normalise(label) === row.label));
             if (at >= 0) {
                 usedRows.add(at);
                 const candidate = rendered.rows[at];

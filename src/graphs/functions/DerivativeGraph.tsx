@@ -1,6 +1,9 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -16,6 +19,13 @@ import {functionPresetCollections} from "./functionPresetCollections";
 import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
 import {cleanNumber} from "../../analysis/numbers";
 
+/** The ids of the derivative declaration: the step and the point are board pucks, the tangent a switch puck; the drawn objects are the legend. */
+export type DerivativeIds = {
+    param: "x0" | "h";
+    row: "x0" | "h" | "f-x0" | "f-x0h" | "quotient" | "derivative" | "difference"; note: never;
+    legend: "curve" | "secant" | "tangent" | "point-p" | "point-q"; section: never; action: "tangent";
+};
+
 /** Derivative-related numbers show four decimals so that the lesson's 0.4528 and 0.5403 can be read off. */
 const PRECISE = 4;
 
@@ -28,6 +38,8 @@ const PRECISE = 4;
  */
 export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     private pointP?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections.derivative;
@@ -91,13 +103,13 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the function, the exact tangent, the secant, then the points.
-        this.own(board.create("functiongraph", [(x: number) => fn().value(x)], {
+        this.drawn.set("curve", this.own(board.create("functiongraph", [(x: number) => fn().value(x)], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth,
-        }));
-        this.own(board.create("functiongraph", [(x: number) => lineValue(tangentLine(fn(), model().x0), x)], {
+        })));
+        this.drawn.set("tangent", this.own(board.create("functiongraph", [(x: number) => lineValue(tangentLine(fn(), model().x0), x)], {
             strokeColor: GraphPalette.primaryCurve, dash: 2, highlight: false, fixed: true,
             strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.85), visible: () => model().tangent,
-        }));
+        })));
 
         // P is a free point whose drag is projected onto the graph; the model is written from the projected x.
         // A dragged x0 is rounded to X0_STEP (0.01) so that the readout of x0 shows exactly the value used for f(x0). The
@@ -112,9 +124,11 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         }) as JXG.Point);
 
         // The secant is a full line through P and Q; its slope is the difference quotient.
-        this.own(board.create("line", [pointP, pointQ], {
+        this.drawn.set("secant", this.own(board.create("line", [pointP, pointQ], {
             strokeColor: GraphPalette.constructionAccent, highlight: false, fixed: true, strokeWidth,
-        }));
+        })));
+        this.drawn.set("point-p", pointP);
+        this.drawn.set("point-q", pointQ);
 
         // The function and the slopes, the most important readouts, stay on the board.
         // At the top centre: the catalog graphs rise at both sides of x0 only far from the centre of the default view.
@@ -134,6 +148,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
 
     protected override onSceneRemoved(): void {
         this.pointP = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -141,45 +156,100 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     protected renderControls(): React.ReactNode {
         const {fn, x0, h} = this.model;
         return <>
-            <div className="inspector-group">
+            <PuckOwnedGroup params={["h"]} className="inspector-group">
                 <Slider customText={t("derivative_h_label")} min={H_MIN} max={H_MAX} step={H_STEP} value={h}
                         help={t("derivative_h_help")} formatValue={localizedSliderValue}
                         onChange={next => this.ignoreOutOfDomain(() => this.setStep(stepOutOfBand(next, this.model.h)))}/>
-            </div>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("derivative_function_label")} value={fn} help={t("derivative_function_help")}
                               options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
-                <Slider customText={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
+                <PuckOwned param="x0"><Slider customText={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/></PuckOwned>
             </div>
         </>;
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {
-        return <div className="inspector-group">
+        return <PuckOwnedGroup params={["tangent"]} className="inspector-group">
             <OnOffSwitch checked={this.model.tangent} label={t("derivative_show_tangent")}
                          onChange={checked => this.setTangentVisible(checked)}/>
-        </div>;
+        </PuckOwnedGroup>;
+    }
+
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys; a step inside the forbidden band around 0 moves to its edge, as the slider did. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            x0: {read: () => this.model.x0, apply: (value: number) => this.setX0(value)},
+            h: {read: () => this.model.h, apply: (value: number) => this.setStep(stepOutOfBand(value, this.model.h))},
+        };
+    }
+
+    /** The common declaration (rows, view marks) plus the point and the step as board pucks, the tangent switch and the legend of the drawn objects. */
+    protected override declaration(): GraphDeclaration {
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "h", kind: "range", label: message("derivative_h_name"), symbol: "h", help: message("derivative_h_help"), placement: "board",
+                    min: H_MIN, max: H_MAX, step: H_STEP, maxDecimals: 2},
+                {key: "x0", kind: "range", label: message("derivative_x0_name"), symbol: "x_0", placement: "board",
+                    min: X0_MIN, max: X0_MAX, step: X0_STEP, maxDecimals: 2},
+            ],
+            legend: [
+                {id: "curve", label: message("derivative_legend_curve"), kind: "line", object: "curve"},
+                {id: "secant", label: message("derivative_legend_secant"), kind: "line", object: "secant"},
+                ...(this.model.tangent ? [{id: "tangent" as const, label: message("derivative_legend_tangent"), kind: "dashed" as const, object: "tangent"}] : []),
+                {id: "point-p", label: message("derivative_legend_point_p"), kind: "point", object: "point-p"},
+                {id: "point-q", label: message("derivative_legend_point_q"), kind: "point", object: "point-q"},
+            ],
+            actions: [
+                {id: "tangent", label: message("derivative_tangent_name"), help: message("derivative_show_tangent"), placement: "board", enabled: true,
+                    pressed: this.model.tangent, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "tangent") runAs("learner", () => this.setTangentVisible(!this.model.tangent));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "point-p" || id === "point-q" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base (task 08): the readout rows, the note and the plotted curve; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
+        const {fn, x0, h} = this.model;
+        const entry = catalogFunction(fn);
+        const quotient = differenceQuotient(entry, x0, h);
+        const exact = entry.derivative(x0);
+        return {
+            rows: [
+                {id: "x0", symbol: "x_0", value: messageNumber(x0)},
+                {id: "h", symbol: "h", value: messageNumber(h)},
+                {id: "f-x0", symbol: "f(x_0)", value: messageNumber(entry.value(x0), PRECISE)},
+                {id: "f-x0h", symbol: "f(x_0 + h)", value: messageNumber(entry.value(x0 + h), PRECISE)},
+                {id: "quotient", name: message("derivative_quotient"), value: messageNumber(quotient, PRECISE)},
+                {id: "derivative", name: message("derivative_exact"), value: messageNumber(exact, PRECISE)},
+                {id: "difference", name: message("derivative_difference"), value: messageNumber(quotient - exact, PRECISE)},
+            ],
+            help: message("derivative_h_note"),
+            plotted: x => entry.value(x),
+            must: [{x: x0, y: entry.value(x0)}, {x: x0 + h, y: entry.value(x0 + h)}],
+        };
     }
 
     protected renderReadout(): React.ReactNode {
-        const {fn, x0, h} = this.model;
-            const entry = catalogFunction(fn);
-        const language = currentLanguage();
-        const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);
-        const quotient = differenceQuotient(entry, x0, h);
-        const exact = entry.derivative(x0);
-        const rows = [
-            {id: "x0", label: "x₀", value: number(x0)},
-            {id: "h", label: "h", value: number(h)},
-            {id: "f-x0", label: "f(x₀)", value: number(entry.value(x0), PRECISE)},
-            {id: "f-x0h", label: "f(x₀ + h)", value: number(entry.value(x0 + h), PRECISE)},
-            {id: "quotient", label: t("derivative_quotient"), value: number(quotient, PRECISE)},
-            {id: "derivative", label: t("derivative_exact"), value: number(exact, PRECISE)},
-            {id: "difference", label: t("derivative_difference"), value: number(quotient - exact, PRECISE)},
-        ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("derivative_h_note")}/>;
+        return this.renderDeclaredReadout();
     }
 }
 

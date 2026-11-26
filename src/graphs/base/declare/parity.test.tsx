@@ -239,6 +239,33 @@ const SAMPLES: readonly Sample[] = [
             {name: 'reversed a > b', apply: run(g => { g.setBound('a', 4); g.setBound('b', 0); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/definite-integral.json', demonstration: 'definite-integral', states: (() => {
+        type IntegralSetters = {setBound(which: 'a' | 'b', value: number): void; setCount(value: number): void; setMethod(value: string): void; setFunction(value: string): void};
+        const run = (edit: (graph: IntegralSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as IntegralSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'n 10', apply: run(g => g.setCount(10))},
+            {name: 'right sum', apply: run(g => g.setMethod('right'))},
+            {name: 'midpoint, n 4', apply: run(g => { g.setMethod('midpoint'); g.setCount(4); })},
+            {name: 'trapezoid, n 20', apply: run(g => { g.setMethod('trapezoid'); g.setCount(20); })},
+            {name: 'a 0.5, b 1.5', apply: run(g => { g.setBound('a', 0.5); g.setBound('b', 1.5); })},
+            {name: 'sin 0..2pi', apply: run(g => { g.setFunction('sin'); g.setBound('a', 0); g.setBound('b', 6.28); g.setCount(8); })},
+            {name: 'exp reversed a > b', apply: run(g => { g.setFunction('exp'); g.setBound('a', 2); g.setBound('b', 0); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/derivative.json', demonstration: 'derivative', states: (() => {
+        type DerivativeSetters = {setX0(value: number): void; setStep(value: number): void; setFunction(value: string): void; setTangentVisible(value: boolean): void};
+        const run = (edit: (graph: DerivativeSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as DerivativeSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'h 0.5', apply: run(g => g.setStep(0.5))},
+            {name: 'h 0.01', apply: run(g => g.setStep(0.01))},
+            {name: 'h -0.5', apply: run(g => g.setStep(-0.5))},
+            {name: 'tangent shown, x0 2', apply: run(g => { g.setTangentVisible(true); g.setX0(2); })},
+            {name: 'sin x0 0.5', apply: run(g => { g.setFunction('sin'); g.setX0(0.5); g.setStep(0.1); })},
+            {name: 'exp x0 -1', apply: run(g => { g.setFunction('exp'); g.setX0(-1); g.setStep(1); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/continuity.json', demonstration: 'continuity', accepted: continuityAccepted, states: (() => {
         const run = (value: number): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as {setParameter(value: number): void}).setParameter(value)); };
         return [
