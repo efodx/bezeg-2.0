@@ -6,10 +6,13 @@
  * a state that is not the answer: the learner predicts the effect of a change, then makes it with the fields the prose names.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {LineGeometryIds} from '../../graphs/lines/LineGeometryGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<LineGeometryIds>();
 
 interface StepContent {
     readonly id: string;
@@ -22,14 +25,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights or opens (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -163,6 +168,7 @@ const l5Examples: readonly WorkedExample[] = [
 const l5Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l5-meeting', order: 1,
+        declare: f({highlight: ['point', 'point-approx']}),
         title: text('Presečišče dveh premic', 'The meeting point of two lines'),
         purpose: text('Izračunati presečišče dveh premic na roko, preden ga graf izpiše, in primerjati.', 'Computing the meeting point of two lines by hand before the graph shows it, and comparing.'),
         explanation: text(
@@ -185,6 +191,7 @@ const l5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-parallel-same', order: 2,
+        declare: f({highlight: ['point']}),
         title: text('Vzporedni in enaki premici', 'Parallel and equal lines'),
         purpose: text('Napovedati lego druge premice, pri kateri je vzporedna in pri kateri sovpada s prvo, in jo nastaviti.', 'Predicting the position of the second line at which it is parallel to and at which it coincides with the first, and setting it.'),
         explanation: text(
@@ -206,6 +213,7 @@ const l5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-line-circle', order: 3,
+        declare: f({uses: ['lines-target']}),
         title: text('Premica in krožnica', 'A line and a circle'),
         purpose: text('Napovedati število skupnih točk premice in krožnice s kvadratno enačbo, nato izbrati krožnico in primerjati.', 'Predicting the number of common points of a line and a circle with a quadratic equation, then choosing the circle and comparing.'),
         explanation: text(
@@ -228,6 +236,7 @@ const l5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-tangent', order: 4,
+        declare: f({highlight: ['discriminant', 'count']}),
         title: text('Tangenta in polmer', 'The tangent and the radius'),
         purpose: text('Napovedati polmer, pri katerem se premica dotika krožnice, ga nastaviti in napovedati še primer brez skupne točke.', 'Predicting the radius at which the line touches the circle, setting it, and predicting a case without a common point.'),
         explanation: text(
@@ -249,6 +258,7 @@ const l5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-free', order: 5,
+        declare: f({open: ['readouts']}),
         title: text('Raziskovanje', 'Free exploration'),
         purpose: text('Samostojno premikati premici in krožnico ter napovedati stanje.', 'Moving the lines and the circle on your own and predicting the status.'),
         explanation: text(

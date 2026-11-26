@@ -2,7 +2,7 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
@@ -113,10 +113,16 @@ test('the graph supports the lines actions; invalid scene data is a lesson-conte
 
 const setTarget = (target: string): LessonAction => ({kind: 'lines', operation: 'set-target', target: target as 'lines'});
 
-test('set-target reaches the state and readouts of the target select, for both values', () => {
+test('set-target reaches the state and readouts of the target puck, for both values', async () => {
     for (const target of ['circle', 'lines'] as const) {
         const viaAction = after(graph => { apply(graph, setMode('intersect')); apply(graph, setTarget(target)); });
-        const viaControl = after(() => { choose('Prikaz', 'intersect'); choose('Presečišče premice z', target); });
+        const graph = mount();
+        choose('Prikaz', 'intersect');
+        await chooseOnPuck('lines-target', target);
+        const viaControl = {state: stateOf(graph), readouts: readouts()};
+        expect(document.querySelector('#board-card-tools [data-puck-key="lines-target"]')).toBeNull();
+        expect(document.querySelector('#board-card-tools')?.textContent).not.toContain('Presek z');
+        cleanup();
         expect(viaAction).toEqual(viaControl);
         expect(viaAction.state.target).toBe(target);
     }

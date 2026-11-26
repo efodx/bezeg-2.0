@@ -2,6 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
+import {runAs} from '../base/writes/writeSource';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
@@ -60,7 +61,7 @@ function dragHandleTo(point: JXG.Point, x: number, y: number) {
     act(() => { (point as EventedPoint).triggerEventHandlers(['drag'], []); });
 }
 
-const set = (graph: Observed, patch: Parameters<Observed['setState']>[0]) => act(() => { graph.setState(patch); });
+const set = (graph: Observed, patch: Parameters<Observed['setState']>[0]) => act(() => { runAs('learner', () => graph.setState(patch)); });
 const pt = (x: number, y: number) => ({x, y});
 const NO_NAN = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 

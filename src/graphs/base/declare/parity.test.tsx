@@ -590,6 +590,35 @@ const SAMPLES: readonly Sample[] = [
             {name: 'frieze, nothing chosen', apply: run({mode: 'frieze', friezeFeatures: {vertical: false, horizontal: false, halfTurn: false, glide: false}})},
         ] satisfies ParityState[];
     })()},
+    {file: 'lines/__parity__/line-geometry.json', demonstration: 'line-geometry', states: (() => {
+        type Lines = {setState(state: Record<string, unknown>): void};
+        const at = (x: number, y: number) => ({x, y});
+        const fresh = {target: 'lines', P: at(-2, 1), Q: at(4, 4), R: at(3, -2), S: at(2, 0), T: at(3, -2), O: at(1, 0), B: at(3, 1)};
+        // every state starts from the default points, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Lines).setState({...fresh, ...state})); };
+        return [
+            {name: 'forms, default', apply: run({mode: 'forms'})},
+            {name: 'forms, vertical line', apply: run({mode: 'forms', P: at(3, -1), Q: at(3, 4)})},
+            {name: 'forms, through the origin', apply: run({mode: 'forms', P: at(0, 0), Q: at(2, 3)})},
+            {name: 'forms, parallel to an axis', apply: run({mode: 'forms', P: at(-2, 2), Q: at(3, 2)})},
+            {name: 'forms, a point twice (coincident)', apply: run({mode: 'forms', P: at(1, 1), Q: at(1, 1)})},
+            {name: 'normal, default', apply: run({mode: 'normal'})},
+            {name: 'normal, parallel', apply: run({mode: 'normal', P: at(0, 0), Q: at(2, 1), R: at(0, 2), S: at(2, 3)})},
+            {name: 'normal, perpendicular', apply: run({mode: 'normal', P: at(0, 0), Q: at(2, 1), R: at(1, 3), S: at(0, 5)})},
+            {name: 'normal, the same line', apply: run({mode: 'normal', P: at(0, 0), Q: at(2, 1), R: at(4, 2), S: at(-2, -1)})},
+            {name: 'angle, default', apply: run({mode: 'angle'})},
+            {name: 'angle, perpendicular', apply: run({mode: 'angle', P: at(0, 0), Q: at(2, 1), R: at(1, 3), S: at(0, 5)})},
+            {name: 'angle, parallel', apply: run({mode: 'angle', P: at(0, 0), Q: at(2, 1), R: at(0, 2), S: at(2, 3)})},
+            {name: 'distance, default', apply: run({mode: 'distance'})},
+            {name: 'distance, point on the line', apply: run({mode: 'distance', P: at(-2, 1), Q: at(4, 4), T: at(0, 2)})},
+            {name: 'distance, far point', apply: run({mode: 'distance', T: at(-7, 6)})},
+            {name: 'intersect lines, default', apply: run({mode: 'intersect', target: 'lines'})},
+            {name: 'intersect lines, parallel', apply: run({mode: 'intersect', target: 'lines', P: at(0, 0), Q: at(2, 1), R: at(0, 2), S: at(2, 3)})},
+            {name: 'intersect circle, tangent', apply: run({mode: 'intersect', target: 'circle'})},
+            {name: 'intersect circle, two points', apply: run({mode: 'intersect', target: 'circle', O: at(0, 0), B: at(3, 1)})},
+            {name: 'intersect circle, no points', apply: run({mode: 'intersect', target: 'circle', O: at(-6, -6), B: at(-5, -6)})},
+        ] satisfies ParityState[];
+    })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', accepted: phaseAccepted, states: [
         state('default', {}),
         state('spiral entries', {'phase-a': 1, 'phase-b': -2, 'phase-c': 2, 'phase-d': 1}),

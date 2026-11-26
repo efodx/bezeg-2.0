@@ -1,0 +1,8 @@
+
+graph-check line-geometry: PASS
+  pass  contract     1 passed
+  pass  parity       2 passed
+  pass  golden       1 passed
+  pass  declaration  9 passed
+  pass  probe        exit 0
+  pass  fuzz         exit 0

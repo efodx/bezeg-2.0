@@ -7,10 +7,13 @@
  * with plain integer arithmetic (not the line kernel).
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {LineGeometryIds} from '../../graphs/lines/LineGeometryGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<LineGeometryIds>();
 
 interface StepContent {
     readonly id: string;
@@ -23,14 +26,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights or opens (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -120,6 +125,7 @@ const l1Examples: readonly WorkedExample[] = [
 const l1Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l1-predict', order: 1,
+        declare: f({open: ['readouts']}),
         title: text('Napoved naklona', 'Predicting the slope'),
         purpose: text('Napovedati smerni koeficient premice skozi dve točki, preden ga odčitamo.', 'Predicting the slope of the line through two points before reading it.'),
         explanation: text(
@@ -135,6 +141,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-drag', order: 2,
+        declare: f({highlight: ['implicit-raw', 'implicit', 'explicit']}),
         title: text('Premakni točko \\(Q\\)', 'Move the point \\(Q\\)'),
         purpose: text('Videti, da vse oblike opisujejo isto premico in se skupaj spreminjajo.', 'Seeing that all forms describe the same line and change together.'),
         explanation: text(
@@ -151,6 +158,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-vertical', order: 3,
+        declare: f({highlight: ['two-point', 'explicit', 'vertical']}),
         title: text('Navpična premica', 'A vertical line'),
         purpose: text('Videti, da eksplicitna oblika odpove pri navpični premici, implicitna pa ne.', 'Seeing that the explicit form fails for a vertical line while the implicit form does not.'),
         explanation: text(
@@ -166,6 +174,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-origin', order: 4,
+        declare: f({highlight: ['implicit', 'intercept']}),
         title: text('Premica skozi izhodišče', 'A line through the origin'),
         purpose: text('Videti, da odsekovna oblika odpove, ko sta oba odseka \\(0\\).', 'Seeing that the intercept form fails when both intercepts are \\(0\\).'),
         explanation: text(
@@ -181,6 +190,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-free', order: 5,
+        declare: f({open: ['readouts']}),
         title: text('Ista premica, drugi točki', 'The same line, other points'),
         purpose: text('Videti, da različna para točk dasta isto okrajšano obliko.', 'Seeing that different pairs of points give the same reduced form.'),
         explanation: text(
@@ -241,6 +251,7 @@ const l2Examples: readonly WorkedExample[] = [
 const l2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l2-predict', order: 1,
+        declare: f({open: ['readouts']}),
         title: text('Napoved normale', 'Predicting the normal'),
         purpose: text('Napovedati normalni vektor premice iz njenih koeficientov.', 'Predicting the normal vector of a line from its coefficients.'),
         explanation: text(
@@ -256,6 +267,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-perpendicular', order: 2,
+        declare: f({highlight: ['dot', 'relation']}),
         title: text('Pravokotnica', 'The perpendicular'),
         purpose: text('Premakniti drugo premico, da stanje pove, da sta pravokotni.', 'Moving the second line until the status says the lines are perpendicular.'),
         explanation: text(
@@ -272,6 +284,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-vertical-horizontal', order: 3,
+        declare: f({highlight: ['normal-1', 'normal-2', 'relation']}),
         title: text('Navpična in vodoravna premica', 'A vertical and a horizontal line'),
         purpose: text('Videti, da pravokotnost drži, tudi kadar zmnožek smernih koeficientov ne obstaja.', 'Seeing that perpendicularity holds even when the product of the slopes does not exist.'),
         explanation: text(
@@ -287,6 +300,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-parallel', order: 4,
+        declare: f({highlight: ['cross', 'relation']}),
         title: text('Vzporedni premici', 'Parallel lines'),
         purpose: text('Videti, da sta premici z enakima normalama in različnima \\(c\\) vzporedni.', 'Seeing that lines with proportional normals and different \\(c\\) are parallel.'),
         explanation: text(
@@ -302,6 +316,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-free', order: 5,
+        declare: f({open: ['readouts']}),
         title: text('Sovpadajoči premici', 'Coinciding lines'),
         purpose: text('Videti, da stanje loči sovpadanje od vzporednosti, nato raziskati sam.', 'Seeing that the status tells coincidence from parallelism, then exploring alone.'),
         explanation: text(
@@ -374,6 +389,7 @@ const l3Examples: readonly WorkedExample[] = [
 const l3Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l3-predict', order: 1,
+        declare: f({open: ['readouts']}),
         title: text('Napoved kota', 'Predicting the angle'),
         purpose: text('Napovedati kot med premicama iz njunih smeri, preden ga odčitamo.', 'Predicting the angle between two lines from their directions before reading it.'),
         explanation: text(
@@ -392,6 +408,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-other-direction', order: 2,
+        declare: f({highlight: ['dot', 'angle']}),
         title: text('Druga smer', 'Another direction'),
         purpose: text('Izračunati kot s skalarnim produktom in determinanto \\(\\vec u\\times\\vec v\\) ter ga preveriti s kosinusnim izrekom.', 'Computing an angle with the dot product and the expression \\(\\vec u\\times\\vec v\\) and checking it with the law of cosines.'),
         explanation: text(
@@ -411,6 +428,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-swap', order: 3,
+        declare: f({highlight: ['direction-u', 'direction-v', 'angle']}),
         title: text('Zamenjaj \\(R\\) in \\(S\\)', 'Swap \\(R\\) and \\(S\\)'),
         purpose: text('Napovedati, kaj se zgodi s skalarnim produktom, determinanto in kotom med premicama, ko zamenjamo točki druge premice.', 'Predicting what happens to the dot product, the determinant and the angle between the lines when the points of the second line are swapped.'),
         explanation: text(
@@ -429,6 +447,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-perpendicular', order: 4,
+        declare: f({highlight: ['dot', 'angle']}),
         title: text('Še ena lega druge premice', 'One more position of the second line'),
         purpose: text('Napovedati skalarni produkt, kot med premicama in obliko kosinusnega izreka za novo lego točke \\(S\\).', 'Predicting the dot product, the angle between the lines and the shape of the law of cosines for the new position of the point \\(S\\).'),
         explanation: text(
@@ -447,6 +466,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-free', order: 5,
+        declare: f({open: ['readouts']}),
         title: text('Raziskovanje', 'Free exploration'),
         purpose: text('Samostojno poiskati vzporedni in pravokotni premici ter opazovati kosinusni izrek.', 'Finding parallel and perpendicular lines on your own and watching the law of cosines.'),
         explanation: text(
@@ -510,6 +530,7 @@ const l4Examples: readonly WorkedExample[] = [
 const l4Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l4-predict', order: 1,
+        declare: f({open: ['readouts']}),
         title: text('Napoved nožišča', 'Predicting the foot'),
         purpose: text('Napovedati, kje na premici je nožišče pravokotnice, preden ga odčitamo.', 'Predicting where on the line the foot of the perpendicular lies before reading it.'),
         explanation: text(
@@ -528,6 +549,7 @@ const l4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-other-side', order: 2,
+        declare: f({highlight: ['value', 'distance']}),
         title: text('Točka na drugi strani', 'A point on the other side'),
         purpose: text('Napovedati predznak vrednosti v točki \\(T\\) in obnašanje razdalje, ko točka preide na drugo stran premice.', 'Predicting the sign of the value at \\(T\\) and the behaviour of the distance when the point crosses to the other side of the line.'),
         explanation: text(
@@ -546,6 +568,7 @@ const l4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-projection', order: 3,
+        declare: f({highlight: ['foot', 'projection']}),
         title: text('Razdalja kot projekcija', 'The distance as a projection'),
         purpose: text('Videti, da je razdalja dolžina pravokotne projekcije vektorja \\(\\overrightarrow{PT}\\) na normalo.', 'Seeing that the distance is the length of the orthogonal projection of \\(\\overrightarrow{PT}\\) on the normal.'),
         explanation: text(
@@ -565,6 +588,7 @@ const l4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-on-line', order: 4,
+        declare: f({highlight: ['value', 'distance']}),
         title: text('Točka na premici', 'A point on the line'),
         purpose: text('Napovedati vrednost v točki \\(T\\) in razdaljo za novo lego točke \\(T\\).', 'Predicting the value at \\(T\\) and the distance for the new position of the point \\(T\\).'),
         explanation: text(
@@ -583,6 +607,7 @@ const l4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-free', order: 5,
+        declare: f({open: ['readouts']}),
         title: text('Raziskovanje', 'Free exploration'),
         purpose: text('Samostojno premikati premico in točko ter opazovati razdaljo.', 'Moving the line and the point on your own and watching the distance.'),
         explanation: text(

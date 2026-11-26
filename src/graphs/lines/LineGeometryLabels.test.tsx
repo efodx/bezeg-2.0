@@ -2,6 +2,7 @@ import React from 'react';
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
+import {runAs} from '../base/writes/writeSource';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {sampleLine, type PxBox} from '../legend/boardLabelPlacement';
@@ -36,7 +37,7 @@ function mountScene(scene: Scene) {
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     act(() => {
         graph.applyLinesAction({kind: 'lines', operation: 'set-mode', mode: scene.mode});
-        if (scene.target) graph.applyLinesAction({kind: 'lines', operation: 'set-target', target: scene.target});
+        if (scene.target) runAs('learner', () => graph.applyLinesAction({kind: 'lines', operation: 'set-target', target: scene.target!}));
         graph.applyLinesAction({kind: 'lines', operation: 'set-points', points: Object.fromEntries(Object.entries(scene.points).map(([k, [x, y]]) => [k, {x, y}]))});
     });
     act(() => { graph.liveBoard().update(); });

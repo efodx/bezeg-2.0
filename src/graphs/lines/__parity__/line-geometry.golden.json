@@ -36,7 +36,9 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Premica x - 2y = -4 ima implicitno, eksplicitno in odsekovno obliko."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$"
@@ -76,7 +78,9 @@
           "value": "da, x = 3"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Navpična premica x = 3: eksplicitne oblike ni, ker smerni koeficient ni določen."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$"
@@ -116,7 +120,9 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Premica x + 2y = 0 gre skozi izhodišče, zato odsekovne oblike ni."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$"
@@ -166,7 +172,9 @@
           "value": "ne vzporedni ne pravokotni"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Izraz a₁b₂ - a₂b₁ je 1, skalarni produkt pa -2: premici nista ne vzporedni ne pravokotni."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$",
@@ -219,7 +227,9 @@
           "value": "pravokotni"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Skalarni produkt normalnih vektorjev je 0, zato sta premici pravokotni."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$",
@@ -272,7 +282,9 @@
           "value": "premici sovpadata"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Premici sovpadata."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$",
@@ -335,7 +347,9 @@
           "value": "(0; 2)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Kot med premicama je 45°."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$",
@@ -399,7 +413,9 @@
           "value": "(0; 2)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Kot med premicama je 45°."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$",
@@ -458,7 +474,9 @@
           "value": "(11/5; -22/5)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Razdalja točke T od premice: d² = 121/5, d ≈ 4,9193."
+      ],
       "outputs": [],
       "captions": [
         "$$PT$$",
@@ -516,7 +534,9 @@
           "value": "(0; 0)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točka T leži na premici, razdalja je 0."
+      ],
       "outputs": [],
       "captions": [
         "$$PT$$",
@@ -547,7 +567,9 @@
           "value": "(4; 4)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Presečišče premic je (4; 4)."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$",
@@ -598,7 +620,9 @@
           "value": "≈ (1,5492; 2,7746)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Premica seka krožnico v dveh točkah (diskriminanta 15)."
+      ],
       "outputs": [],
       "captions": [
         "$$\\ell$$"

@@ -1,0 +1,975 @@
+{
+  "graph": "line-geometry",
+  "language": "sl",
+  "states": [
+    {
+      "name": "forms, default",
+      "rows": [
+        {
+          "key": "Dvotočkovna oblika#0",
+          "label": "Dvotočkovna oblika",
+          "value": "y - 1 = 3/6 · (x + 2)"
+        },
+        {
+          "key": "Implicitna oblika (neokrajšana)#0",
+          "label": "Implicitna oblika (neokrajšana)",
+          "value": "3x - 6y = -12"
+        },
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Eksplicitna oblika#0",
+          "label": "Eksplicitna oblika",
+          "value": "y = (1/2)x + 2"
+        },
+        {
+          "key": "Odsekovna oblika#0",
+          "label": "Odsekovna oblika",
+          "value": "x/(-4) + y/2 = 1"
+        },
+        {
+          "key": "Navpična premica#0",
+          "label": "Navpična premica",
+          "value": "ne"
+        }
+      ],
+      "notes": [
+        "Premica x - 2y = -4 ima implicitno, eksplicitno in odsekovno obliko."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$"
+      ]
+    },
+    {
+      "name": "forms, vertical line",
+      "rows": [
+        {
+          "key": "Dvotočkovna oblika#0",
+          "label": "Dvotočkovna oblika",
+          "value": "ni določena (navpična premica)"
+        },
+        {
+          "key": "Implicitna oblika (neokrajšana)#0",
+          "label": "Implicitna oblika (neokrajšana)",
+          "value": "5x = 15"
+        },
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x = 3"
+        },
+        {
+          "key": "Eksplicitna oblika#0",
+          "label": "Eksplicitna oblika",
+          "value": "ni določena (navpična premica)"
+        },
+        {
+          "key": "Odsekovna oblika#0",
+          "label": "Odsekovna oblika",
+          "value": "je ni (premica je vzporedna z osjo)"
+        },
+        {
+          "key": "Navpična premica#0",
+          "label": "Navpična premica",
+          "value": "da, x = 3"
+        }
+      ],
+      "notes": [
+        "Navpična premica x = 3: eksplicitne oblike ni, ker smerni koeficient ni določen."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$"
+      ]
+    },
+    {
+      "name": "forms, through the origin",
+      "rows": [
+        {
+          "key": "Dvotočkovna oblika#0",
+          "label": "Dvotočkovna oblika",
+          "value": "y = 3/2 · x"
+        },
+        {
+          "key": "Implicitna oblika (neokrajšana)#0",
+          "label": "Implicitna oblika (neokrajšana)",
+          "value": "3x - 2y = 0"
+        },
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "3x - 2y = 0"
+        },
+        {
+          "key": "Eksplicitna oblika#0",
+          "label": "Eksplicitna oblika",
+          "value": "y = (3/2)x"
+        },
+        {
+          "key": "Odsekovna oblika#0",
+          "label": "Odsekovna oblika",
+          "value": "je ni (premica gre skozi izhodišče)"
+        },
+        {
+          "key": "Navpična premica#0",
+          "label": "Navpična premica",
+          "value": "ne"
+        }
+      ],
+      "notes": [
+        "Premica 3x - 2y = 0 gre skozi izhodišče, zato odsekovne oblike ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$"
+      ]
+    },
+    {
+      "name": "forms, parallel to an axis",
+      "rows": [
+        {
+          "key": "Dvotočkovna oblika#0",
+          "label": "Dvotočkovna oblika",
+          "value": "y - 2 = 0/5 · (x + 2)"
+        },
+        {
+          "key": "Implicitna oblika (neokrajšana)#0",
+          "label": "Implicitna oblika (neokrajšana)",
+          "value": "-5y = -10"
+        },
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "y = 2"
+        },
+        {
+          "key": "Eksplicitna oblika#0",
+          "label": "Eksplicitna oblika",
+          "value": "y = 2"
+        },
+        {
+          "key": "Odsekovna oblika#0",
+          "label": "Odsekovna oblika",
+          "value": "je ni (premica je vzporedna z osjo)"
+        },
+        {
+          "key": "Navpična premica#0",
+          "label": "Navpična premica",
+          "value": "ne"
+        }
+      ],
+      "notes": [
+        "Premica y = 2 je vzporedna z osjo, zato odsekovne oblike ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$"
+      ]
+    },
+    {
+      "name": "forms, a point twice (coincident)",
+      "rows": [],
+      "notes": [
+        "Točki P in Q sovpadata, zato ne določata premice."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "normal, default",
+      "rows": [
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "2x + y = 4"
+        },
+        {
+          "key": "Normalni vektor n₁, prva premica (ℓ)#0",
+          "label": "Normalni vektor n₁, prva premica (ℓ)",
+          "value": "(1; -2)"
+        },
+        {
+          "key": "Normalni vektor n₂, druga premica (m)#0",
+          "label": "Normalni vektor n₂, druga premica (m)",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "a₁b₂ - a₂b₁#0",
+          "label": "a₁b₂ - a₂b₁",
+          "value": "5"
+        },
+        {
+          "key": "a₁a₂ + b₁b₂#0",
+          "label": "a₁a₂ + b₁b₂",
+          "value": "0"
+        },
+        {
+          "key": "k₁ · k₂#0",
+          "label": "k₁ · k₂",
+          "value": "-1"
+        },
+        {
+          "key": "Lega premic#0",
+          "label": "Lega premic",
+          "value": "pravokotni"
+        }
+      ],
+      "notes": [
+        "Skalarni produkt normalnih vektorjev je 0, zato sta premici pravokotni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$",
+        "$$n_{1}$$",
+        "$$n_{2}$$"
+      ]
+    },
+    {
+      "name": "normal, parallel",
+      "rows": [
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = 0"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Normalni vektor n₁, prva premica (ℓ)#0",
+          "label": "Normalni vektor n₁, prva premica (ℓ)",
+          "value": "(1; -2)"
+        },
+        {
+          "key": "Normalni vektor n₂, druga premica (m)#0",
+          "label": "Normalni vektor n₂, druga premica (m)",
+          "value": "(1; -2)"
+        },
+        {
+          "key": "a₁b₂ - a₂b₁#0",
+          "label": "a₁b₂ - a₂b₁",
+          "value": "0"
+        },
+        {
+          "key": "a₁a₂ + b₁b₂#0",
+          "label": "a₁a₂ + b₁b₂",
+          "value": "5"
+        },
+        {
+          "key": "k₁ · k₂#0",
+          "label": "k₁ · k₂",
+          "value": "1/4"
+        },
+        {
+          "key": "Lega premic#0",
+          "label": "Lega premic",
+          "value": "vzporedni"
+        }
+      ],
+      "notes": [
+        "Normalna vektorja sta vzporedna, zato sta premici vzporedni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$",
+        "$$n_{1}$$",
+        "$$n_{2}$$"
+      ]
+    },
+    {
+      "name": "normal, perpendicular",
+      "rows": [
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = 0"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "2x + y = 5"
+        },
+        {
+          "key": "Normalni vektor n₁, prva premica (ℓ)#0",
+          "label": "Normalni vektor n₁, prva premica (ℓ)",
+          "value": "(1; -2)"
+        },
+        {
+          "key": "Normalni vektor n₂, druga premica (m)#0",
+          "label": "Normalni vektor n₂, druga premica (m)",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "a₁b₂ - a₂b₁#0",
+          "label": "a₁b₂ - a₂b₁",
+          "value": "5"
+        },
+        {
+          "key": "a₁a₂ + b₁b₂#0",
+          "label": "a₁a₂ + b₁b₂",
+          "value": "0"
+        },
+        {
+          "key": "k₁ · k₂#0",
+          "label": "k₁ · k₂",
+          "value": "-1"
+        },
+        {
+          "key": "Lega premic#0",
+          "label": "Lega premic",
+          "value": "pravokotni"
+        }
+      ],
+      "notes": [
+        "Skalarni produkt normalnih vektorjev je 0, zato sta premici pravokotni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$",
+        "$$n_{1}$$",
+        "$$n_{2}$$"
+      ]
+    },
+    {
+      "name": "normal, the same line",
+      "rows": [
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = 0"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "x - 2y = 0"
+        },
+        {
+          "key": "Normalni vektor n₁, prva premica (ℓ)#0",
+          "label": "Normalni vektor n₁, prva premica (ℓ)",
+          "value": "(1; -2)"
+        },
+        {
+          "key": "Normalni vektor n₂, druga premica (m)#0",
+          "label": "Normalni vektor n₂, druga premica (m)",
+          "value": "(1; -2)"
+        },
+        {
+          "key": "a₁b₂ - a₂b₁#0",
+          "label": "a₁b₂ - a₂b₁",
+          "value": "0"
+        },
+        {
+          "key": "a₁a₂ + b₁b₂#0",
+          "label": "a₁a₂ + b₁b₂",
+          "value": "5"
+        },
+        {
+          "key": "k₁ · k₂#0",
+          "label": "k₁ · k₂",
+          "value": "1/4"
+        },
+        {
+          "key": "Lega premic#0",
+          "label": "Lega premic",
+          "value": "premici sovpadata"
+        }
+      ],
+      "notes": [
+        "Premici sovpadata."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$",
+        "$$n_{1}$$",
+        "$$n_{2}$$"
+      ]
+    },
+    {
+      "name": "angle, default",
+      "rows": [
+        {
+          "key": "Smerni vektor u#0",
+          "label": "Smerni vektor u",
+          "value": "(6; 3)"
+        },
+        {
+          "key": "Smerni vektor v#0",
+          "label": "Smerni vektor v",
+          "value": "(-1; 2)"
+        },
+        {
+          "key": "u · v#0",
+          "label": "u · v",
+          "value": "0"
+        },
+        {
+          "key": "u × v#0",
+          "label": "u × v",
+          "value": "15"
+        },
+        {
+          "key": "Kot med premicama#0",
+          "label": "Kot med premicama",
+          "value": "90°"
+        },
+        {
+          "key": "Kosinusni izrek#0",
+          "label": "Kosinusni izrek",
+          "value": "50 = 45 + 5 - 2 · 0"
+        },
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "2x + y = 4"
+        },
+        {
+          "key": "Presečišče#0",
+          "label": "Presečišče",
+          "value": "(4/5; 12/5)"
+        },
+        {
+          "key": "Presečišče (približno)#0",
+          "label": "Presečišče (približno)",
+          "value": "(0,8; 2,4)"
+        }
+      ],
+      "notes": [
+        "Premici sta pravokotni, kot med njima je 90°."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$",
+        "$$u$$",
+        "$$v$$",
+        "α = 90°"
+      ]
+    },
+    {
+      "name": "angle, perpendicular",
+      "rows": [
+        {
+          "key": "Smerni vektor u#0",
+          "label": "Smerni vektor u",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Smerni vektor v#0",
+          "label": "Smerni vektor v",
+          "value": "(-1; 2)"
+        },
+        {
+          "key": "u · v#0",
+          "label": "u · v",
+          "value": "0"
+        },
+        {
+          "key": "u × v#0",
+          "label": "u × v",
+          "value": "5"
+        },
+        {
+          "key": "Kot med premicama#0",
+          "label": "Kot med premicama",
+          "value": "90°"
+        },
+        {
+          "key": "Kosinusni izrek#0",
+          "label": "Kosinusni izrek",
+          "value": "10 = 5 + 5 - 2 · 0"
+        },
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = 0"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "2x + y = 5"
+        },
+        {
+          "key": "Presečišče#0",
+          "label": "Presečišče",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Presečišče (približno)#0",
+          "label": "Presečišče (približno)",
+          "value": "(2; 1)"
+        }
+      ],
+      "notes": [
+        "Premici sta pravokotni, kot med njima je 90°."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$",
+        "$$u$$",
+        "$$v$$",
+        "α = 90°"
+      ]
+    },
+    {
+      "name": "angle, parallel",
+      "rows": [
+        {
+          "key": "Smerni vektor u#0",
+          "label": "Smerni vektor u",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "Smerni vektor v#0",
+          "label": "Smerni vektor v",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "u · v#0",
+          "label": "u · v",
+          "value": "5"
+        },
+        {
+          "key": "u × v#0",
+          "label": "u × v",
+          "value": "0"
+        },
+        {
+          "key": "Kot med premicama#0",
+          "label": "Kot med premicama",
+          "value": "0°"
+        },
+        {
+          "key": "Kosinusni izrek#0",
+          "label": "Kosinusni izrek",
+          "value": "0 = 5 + 5 - 2 · 5"
+        },
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = 0"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Presečišče#0",
+          "label": "Presečišče",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Premici sta vzporedni, kot med njima je 0°."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$",
+        "$$u$$",
+        "$$v$$"
+      ]
+    },
+    {
+      "name": "distance, default",
+      "rows": [
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Vrednost izraza v točki T#0",
+          "label": "Vrednost izraza v točki T",
+          "value": "11"
+        },
+        {
+          "key": "a² + b²#0",
+          "label": "a² + b²",
+          "value": "5"
+        },
+        {
+          "key": "d²#0",
+          "label": "d²",
+          "value": "121/5"
+        },
+        {
+          "key": "Razdalja#0",
+          "label": "Razdalja",
+          "value": "≈ 4,9193"
+        },
+        {
+          "key": "Nožišče pravokotnice F#0",
+          "label": "Nožišče pravokotnice F",
+          "value": "(4/5; 12/5)"
+        },
+        {
+          "key": "Vektor PT#0",
+          "label": "Vektor PT",
+          "value": "(5; -3)"
+        },
+        {
+          "key": "PT · n#0",
+          "label": "PT · n",
+          "value": "11"
+        },
+        {
+          "key": "Pravokotna projekcija PT na normalo (PTₙ)#0",
+          "label": "Pravokotna projekcija PT na normalo (PTₙ)",
+          "value": "(11/5; -22/5)"
+        }
+      ],
+      "notes": [
+        "Razdalja točke T od premice: d² = 121/5, d ≈ 4,9193."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$PT$$",
+        "$$PT_{n}$$",
+        "$$\\ell$$",
+        "d ≈ 4,9193"
+      ]
+    },
+    {
+      "name": "distance, point on the line",
+      "rows": [
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Vrednost izraza v točki T#0",
+          "label": "Vrednost izraza v točki T",
+          "value": "0"
+        },
+        {
+          "key": "a² + b²#0",
+          "label": "a² + b²",
+          "value": "5"
+        },
+        {
+          "key": "d²#0",
+          "label": "d²",
+          "value": "0"
+        },
+        {
+          "key": "Razdalja#0",
+          "label": "Razdalja",
+          "value": "≈ 0"
+        },
+        {
+          "key": "Nožišče pravokotnice F#0",
+          "label": "Nožišče pravokotnice F",
+          "value": "(0; 2)"
+        },
+        {
+          "key": "Vektor PT#0",
+          "label": "Vektor PT",
+          "value": "(2; 1)"
+        },
+        {
+          "key": "PT · n#0",
+          "label": "PT · n",
+          "value": "0"
+        },
+        {
+          "key": "Pravokotna projekcija PT na normalo (PTₙ)#0",
+          "label": "Pravokotna projekcija PT na normalo (PTₙ)",
+          "value": "(0; 0)"
+        }
+      ],
+      "notes": [
+        "Točka T leži na premici, razdalja je 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$PT$$",
+        "$$\\ell$$"
+      ]
+    },
+    {
+      "name": "distance, far point",
+      "rows": [
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Vrednost izraza v točki T#0",
+          "label": "Vrednost izraza v točki T",
+          "value": "-15"
+        },
+        {
+          "key": "a² + b²#0",
+          "label": "a² + b²",
+          "value": "5"
+        },
+        {
+          "key": "d²#0",
+          "label": "d²",
+          "value": "45"
+        },
+        {
+          "key": "Razdalja#0",
+          "label": "Razdalja",
+          "value": "≈ 6,7082"
+        },
+        {
+          "key": "Nožišče pravokotnice F#0",
+          "label": "Nožišče pravokotnice F",
+          "value": "(-4; 0)"
+        },
+        {
+          "key": "Vektor PT#0",
+          "label": "Vektor PT",
+          "value": "(-5; 5)"
+        },
+        {
+          "key": "PT · n#0",
+          "label": "PT · n",
+          "value": "-15"
+        },
+        {
+          "key": "Pravokotna projekcija PT na normalo (PTₙ)#0",
+          "label": "Pravokotna projekcija PT na normalo (PTₙ)",
+          "value": "(-3; 6)"
+        }
+      ],
+      "notes": [
+        "Razdalja točke T od premice: d² = 45, d ≈ 6,7082."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$PT$$",
+        "$$PT_{n}$$",
+        "$$\\ell$$",
+        "d ≈ 6,7082"
+      ]
+    },
+    {
+      "name": "intersect lines, default",
+      "rows": [
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "2x + y = 4"
+        },
+        {
+          "key": "Presečišče#0",
+          "label": "Presečišče",
+          "value": "(4/5; 12/5)"
+        },
+        {
+          "key": "Presečišče (približno)#0",
+          "label": "Presečišče (približno)",
+          "value": "(0,8; 2,4)"
+        }
+      ],
+      "notes": [
+        "Presečišče premic je (4/5; 12/5)."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$"
+      ]
+    },
+    {
+      "name": "intersect lines, parallel",
+      "rows": [
+        {
+          "key": "Implicitna oblika, prva premica (ℓ)#0",
+          "label": "Implicitna oblika, prva premica (ℓ)",
+          "value": "x - 2y = 0"
+        },
+        {
+          "key": "Implicitna oblika, druga premica (m)#0",
+          "label": "Implicitna oblika, druga premica (m)",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "Presečišče#0",
+          "label": "Presečišče",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Premici sta vzporedni in se ne sekata."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$",
+        "$$m$$"
+      ]
+    },
+    {
+      "name": "intersect circle, tangent",
+      "rows": [
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "r²#0",
+          "label": "r²",
+          "value": "5"
+        },
+        {
+          "key": "Vrednost a·x₀ + b·y₀ - c v središču O#0",
+          "label": "Vrednost a·x₀ + b·y₀ - c v središču O",
+          "value": "5"
+        },
+        {
+          "key": "a² + b²#0",
+          "label": "a² + b²",
+          "value": "5"
+        },
+        {
+          "key": "Diskriminanta#0",
+          "label": "Diskriminanta",
+          "value": "0"
+        },
+        {
+          "key": "Število presečišč#0",
+          "label": "Število presečišč",
+          "value": "1"
+        },
+        {
+          "key": "Dotikališče#0",
+          "label": "Dotikališče",
+          "value": "(0; 2)"
+        }
+      ],
+      "notes": [
+        "Premica je tangenta krožnice v točki (0; 2)."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$"
+      ]
+    },
+    {
+      "name": "intersect circle, two points",
+      "rows": [
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "r²#0",
+          "label": "r²",
+          "value": "10"
+        },
+        {
+          "key": "Vrednost a·x₀ + b·y₀ - c v središču O#0",
+          "label": "Vrednost a·x₀ + b·y₀ - c v središču O",
+          "value": "4"
+        },
+        {
+          "key": "a² + b²#0",
+          "label": "a² + b²",
+          "value": "5"
+        },
+        {
+          "key": "Diskriminanta#0",
+          "label": "Diskriminanta",
+          "value": "34"
+        },
+        {
+          "key": "Število presečišč#0",
+          "label": "Število presečišč",
+          "value": "2"
+        },
+        {
+          "key": "Presečišče 1#0",
+          "label": "Presečišče 1",
+          "value": "≈ (-3,1324; 0,4338)"
+        },
+        {
+          "key": "Presečišče 2#0",
+          "label": "Presečišče 2",
+          "value": "≈ (1,5324; 2,7662)"
+        }
+      ],
+      "notes": [
+        "Premica seka krožnico v dveh točkah (diskriminanta 34)."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$"
+      ]
+    },
+    {
+      "name": "intersect circle, no points",
+      "rows": [
+        {
+          "key": "Implicitna oblika#0",
+          "label": "Implicitna oblika",
+          "value": "x - 2y = -4"
+        },
+        {
+          "key": "r²#0",
+          "label": "r²",
+          "value": "1"
+        },
+        {
+          "key": "Vrednost a·x₀ + b·y₀ - c v središču O#0",
+          "label": "Vrednost a·x₀ + b·y₀ - c v središču O",
+          "value": "10"
+        },
+        {
+          "key": "a² + b²#0",
+          "label": "a² + b²",
+          "value": "5"
+        },
+        {
+          "key": "Diskriminanta#0",
+          "label": "Diskriminanta",
+          "value": "-95"
+        },
+        {
+          "key": "Število presečišč#0",
+          "label": "Število presečišč",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Premica ne seka krožnice (diskriminanta -95)."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$\\ell$$"
+      ]
+    }
+  ]
+}

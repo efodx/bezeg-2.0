@@ -4,11 +4,11 @@
  * is already the state its prompt asks the learner to produce, no prediction step renders its own answer, and the controls and readouts the prompts name exist.
  * Part B (below) recomputes every quoted number with plain integer arithmetic, independently of the graph and the line kernel.
  */
-import {act, fireEvent, screen} from '@testing-library/react';
+import {act, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {lineIntersectionsLesson} from './analyticLinesIntersectGuidedLessons';
 import type {LocalizedText} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import {LineGeometryGraph} from '../../graphs/lines/LineGeometryGraph';
 import {enterNumber} from '../../inputs/testEntry';
@@ -78,7 +78,6 @@ const OPENING_OBS: Record<StepId, Obs> = {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent ?? null;
 const status = () => document.querySelector('[data-line-status]')?.textContent ?? '';
 const type = (label: string, value: string) => act(() => { enterNumber(screen.getByRole('spinbutton', {name: label}), value); });
-const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByRole('combobox', {name: label}), {target: {value}}); });
 /** The scene's own state: mode, target and the six handles (T and the init flag are not part of an L5 scene). */
 const stateOf = (graph: LineGeometryGraph) => {
     const {T: _t, initialized: _i, ...scene} = JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
@@ -171,12 +170,12 @@ describe.each(LANGUAGES)('L5 scenes (%s)', language => {
         }
     });
 
-    test('step 3: choosing the circle in the target select gives the quoted two-point readout', () => {
+    test('step 3: choosing the circle on the target puck gives the quoted two-point readout', async () => {
         setLanguage(language);
         const m = mount();
         try {
             m.scene('l5-line-circle');
-            choose(t('line_geometry_target_label'), 'circle');
+            await chooseOnPuck('lines-target', 'circle');
             expectObs('circle', CIRCLE_TWO, language);
             expect(stateOf(m.graph)).toEqual(toSpecState({...OPENING['l5-line-circle'], target: 'circle'}));
         } finally {
@@ -205,12 +204,12 @@ describe.each(LANGUAGES)('L5 scenes (%s)', language => {
         }
     });
 
-    test('step 5: the suggested horizontal line y = 3 with B(4,0) is tangent at (1;3) with the quoted rows', () => {
+    test('step 5: the suggested horizontal line y = 3 with B(4,0) is tangent at (1;3) with the quoted rows', async () => {
         setLanguage(language);
         const m = mount();
         try {
             m.scene('l5-free');
-            choose(t('line_geometry_target_label'), 'circle');
+            await chooseOnPuck('lines-target', 'circle');
             type('P, x', '-2'); type('P, y', '3'); type('Q, x', '2'); type('Q, y', '3');
             type('B, x', '4'); type('B, y', '0');
             expectObs('free', {
@@ -329,13 +328,14 @@ test.each(LANGUAGES)('every label a prompt names is quoted in the lesson exactly
     }
 });
 
-test.each(LANGUAGES)('the row and field controls the steps ask the learner to read or edit exist on the graph when the scene is open (%s)', language => {
+test.each(LANGUAGES)('the row and field controls the steps ask the learner to read or edit exist on the graph when the scene is open (%s)', async language => {
     setLanguage(language);
     const m = mount();
     try {
         m.scene('l5-meeting');
         for (const name of ['R, x', 'R, y', 'S, x', 'S, y']) expect({name, found: screen.queryByRole('spinbutton', {name}) !== null}).toEqual({name, found: true});
-        expect(screen.queryByRole('combobox', {name: catalogue(language, 'line_geometry_target_label')})).not.toBeNull();
+        await waitForPucks('lines-target'); // the target is a puck on the board, not an Orodja select
+        expect(document.querySelector('#board-card-tools [data-puck-key="lines-target"]')).toBeNull();
         expect(screen.queryByText(catalogue(language, 'line_geometry_group_second'))).not.toBeNull();
         m.scene('l5-tangent');
         for (const name of ['B, x', 'B, y', 'O, x', 'O, y']) expect({name, found: screen.queryByRole('spinbutton', {name}) !== null}).toEqual({name, found: true});

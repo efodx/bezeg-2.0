@@ -1,7 +1,11 @@
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -22,6 +26,22 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {lineGeometryPresetCollection} from "./linePresetCollection";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
+
+/**
+ * Ids of the declaration (task 02, task 08 lane L14). Bound: the intersect target (a two-option choice puck, only in intersect mode,
+ * which the lessons ask the learner to switch). The mode (five options) stays in Orodja, the points are board handles and coordinate
+ * rows. Declared: the status sentence as a note and the rows of the mode.
+ */
+export type LineGeometryIds = {
+    param: "lines-target";
+    row: "two-point" | "implicit-raw" | "implicit" | "explicit" | "intercept" | "vertical" | "implicit-1" | "implicit-2" | "normal-1" | "normal-2" | "cross" | "dot"
+        | "slopes" | "relation" | "direction-u" | "direction-v" | "angle" | "cosine-rule" | "value" | "norm" | "distance-squared" | "distance" | "foot" | "pt"
+        | "pt-dot-n" | "projection" | "point" | "point-approx" | "r-squared" | "s" | "discriminant" | "count" | "points" | "points-1" | "points-2";
+    note: "status";
+    legend: never;
+    section: never;
+    action: never;
+};
 
 /** The scene state: the mode, what the intersect mode meets, and the integer grid handles. */
 export type LineGeometryGraphState = BaseGraphState & LineGeometryState;
@@ -707,144 +727,212 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         return t("line_geometry_point_format", {value0: this.num(x, language), value1: this.num(y, language)});
     }
 
-    private relationText(relation: NormalRelation): string {
+    private relationMessage(relation: NormalRelation): Message {
         switch (relation) {
-            case "same": return t("line_geometry_relation_same");
-            case "parallel": return t("line_geometry_relation_parallel");
-            case "perpendicular": return t("line_geometry_relation_perpendicular");
-            default: return t("line_geometry_relation_neither");
+            case "same": return message("line_geometry_relation_same");
+            case "parallel": return message("line_geometry_relation_parallel");
+            case "perpendicular": return message("line_geometry_relation_perpendicular");
+            default: return message("line_geometry_relation_neither");
         }
     }
 
-    private statusText(): string {
+    /** `base` followed by the off-view note, when there is one. */
+    private withNote(base: Message, note: Message | undefined): Message {
+        return note ? message("lines_status_with_note", {value0: base, value1: note}) : base;
+    }
+
+    /** A line equation `left = right` as a catalog message: the letters are parameters of the template, never numbers. */
+    private equation(text: string): Message {
+        const cut = text.indexOf(" = ");
+        return message("lines_equation", {value0: text.slice(0, cut), value1: text.slice(cut + 3)});
+    }
+
+    private statusMessage(): Message | undefined {
         const language = currentLanguage();
         const view = this.view();
         const {derived} = view;
         switch (derived.degenerate) {
-            case "first-line": return t("line_geometry_status_coincident_first");
-            case "second-line": return t("line_geometry_status_coincident_second");
-            case "circle": return t("line_geometry_status_coincident_circle");
+            case "first-line": return message("line_geometry_status_coincident_first");
+            case "second-line": return message("line_geometry_status_coincident_second");
+            case "circle": return message("line_geometry_status_coincident_circle");
             default: break;
         }
-        const note = view.offView ? ` ${t(this.state.mode === "angle" ? "line_geometry_status_arc_off_view" : "line_geometry_status_off_view")}` : "";
+        const note = view.offView ? message(this.state.mode === "angle" ? "line_geometry_status_arc_off_view" : "line_geometry_status_off_view") : undefined;
         const {first, forms, normal, angle, distance, lines, circle} = derived;
         if (forms && first) {
-            if (forms.explicit.vertical) return t("line_geometry_status_forms_vertical", {value0: formatExplicit(forms.explicit)});
+            if (forms.explicit.vertical) return message("line_geometry_status_forms_vertical", {value0: formatExplicit(forms.explicit)});
             const equation = formatImplicit(first.line);
-            if (forms.intercept.kind === "origin") return t("line_geometry_status_forms_origin", {value0: equation});
-            if (forms.intercept.kind === "axis-parallel") return t("line_geometry_status_forms_axis", {value0: equation});
-            return t("line_geometry_status_forms_all", {value0: equation});
+            if (forms.intercept.kind === "origin") return message("line_geometry_status_forms_origin", {value0: equation});
+            if (forms.intercept.kind === "axis-parallel") return message("line_geometry_status_forms_axis", {value0: equation});
+            return message("line_geometry_status_forms_all", {value0: equation});
         }
         if (normal) {
             switch (normal.relation) {
-                case "same": return t("line_geometry_status_normal_same");
-                case "parallel": return t("line_geometry_status_normal_parallel");
-                case "perpendicular": return t("line_geometry_status_normal_perpendicular");
-                default: return t("line_geometry_status_normal_neither", {value0: signed(normal.cross), value1: signed(normal.dot)});
+                case "same": return message("line_geometry_status_normal_same");
+                case "parallel": return message("line_geometry_status_normal_parallel");
+                case "perpendicular": return message("line_geometry_status_normal_perpendicular");
+                default: return message("line_geometry_status_normal_neither", {value0: signed(normal.cross), value1: signed(normal.dot)});
             }
         }
         if (angle) {
             const degrees = this.num(toDegrees(angle.radians), language);
-            if (angle.relation === "parallel") return t("line_geometry_status_angle_parallel");
-            if (angle.relation === "perpendicular") return t("line_geometry_status_angle_perpendicular") + note;
-            return t("line_geometry_status_angle", {value0: degrees}) + note;
+            if (angle.relation === "parallel") return message("line_geometry_status_angle_parallel");
+            if (angle.relation === "perpendicular") return this.withNote(message("line_geometry_status_angle_perpendicular"), note);
+            return this.withNote(message("line_geometry_status_angle", {value0: degrees}), note);
         }
         if (distance) {
-            if (distance.onLine) return t("line_geometry_status_distance_on_line");
-            return t("line_geometry_status_distance", {value0: signed(distance.distanceSquared), value1: this.num(distance.distance, language)})
-                + (view.footNotDrawn ? ` ${t("line_geometry_status_foot_off_view")}` : "");
+            if (distance.onLine) return message("line_geometry_status_distance_on_line");
+            return this.withNote(message("line_geometry_status_distance", {value0: signed(distance.distanceSquared), value1: this.num(distance.distance, language)}),
+                view.footNotDrawn ? message("line_geometry_status_foot_off_view") : undefined);
         }
         if (lines) {
-            if (lines.kind === "same") return t("line_geometry_status_lines_same");
-            if (lines.kind === "parallel") return t("line_geometry_status_lines_parallel");
-            return t("line_geometry_status_lines_point", {value0: this.exactPoint(lines.point)}) + note;
+            if (lines.kind === "same") return message("line_geometry_status_lines_same");
+            if (lines.kind === "parallel") return message("line_geometry_status_lines_parallel");
+            return this.withNote(message("line_geometry_status_lines_point", {value0: this.exactPoint(lines.point)}), note);
         }
         if (circle) {
             switch (circle.result.kind) {
-                case "none": return t("line_geometry_status_circle_none", {value0: signed(circle.discriminant)});
-                case "tangent": return t("line_geometry_status_circle_tangent", {value0: this.exactPoint(new RationalPoint(circle.result.exact.x, circle.result.exact.y))}) + note;
-                default: return t("line_geometry_status_circle_two", {value0: signed(circle.discriminant)}) + note;
+                case "none": return message("line_geometry_status_circle_none", {value0: signed(circle.discriminant)});
+                case "tangent": return this.withNote(message("line_geometry_status_circle_tangent", {value0: this.exactPoint(new RationalPoint(circle.result.exact.x, circle.result.exact.y))}), note);
+                default: return this.withNote(message("line_geometry_status_circle_two", {value0: signed(circle.discriminant)}), note);
             }
         }
-        return "";
+        return undefined;
     }
 
-    private rows(): ReadoutListRow[] {
+    statusText(): string {
+        const status = this.statusMessage();
+        return status ? renderMessage(status) : "";
+    }
+
+    /** The rows of the mode, as declared (same words, same order); `readoutRows` gives the legacy panel's text of them. */
+    private declaredRows(): ReadoutRow<LineGeometryIds>[] {
         const language = currentLanguage();
-        const view = this.view();
-        const {derived} = view;
+        const {derived} = this.view();
         const {first, second, forms, normal, angle, distance, lines, circle} = derived;
-        const rows: ReadoutListRow[] = [];
-        const row = (id: string, labelText: string, value: string) => rows.push({id, label: labelText, value});
+        const rows: ReadoutRow<LineGeometryIds>[] = [];
+        const row = (id: LineGeometryIds["row"], name: Message | undefined, value: ReadoutRow<LineGeometryIds>["value"], symbol?: string) =>
+            rows.push({id, ...(name ? {name} : {}), ...(symbol ? {symbol} : {}), value});
+        const text = (value: string): FormattedValue => ({kind: "formatted", text: value});
+        const point = (p: RationalPoint) => text(this.exactPoint(p));
+        const approx = (x: number, y: number) => text(this.approxPoint(x, y, language));
         if (forms && first) {
             const {explicit, intercept, twoPoint} = forms;
-            row("two-point", t("line_geometry_row_two_point"),
-                twoPoint.vertical ? t("line_geometry_value_undefined_vertical") : formatTwoPoint(this.state.P, twoPoint.dx, twoPoint.dy));
-            row("implicit-raw", t("line_geometry_row_implicit_raw"), formatImplicit(first.raw));
-            row("implicit", t("line_geometry_row_implicit"), formatImplicit(first.line));
-            row("explicit", t("line_geometry_row_explicit"), explicit.vertical ? t("line_geometry_value_undefined_vertical") : formatExplicit(explicit));
-            row("intercept", t("line_geometry_row_intercept"),
-                intercept.kind === "form" ? formatIntercept(intercept.form)
-                    : intercept.kind === "origin" ? t("line_geometry_value_undefined_origin") : t("line_geometry_value_undefined_axis"));
-            row("vertical", t("line_geometry_row_vertical"),
-                explicit.vertical ? t("line_geometry_value_vertical_yes", {value0: formatExplicit(explicit)}) : t("line_geometry_value_vertical_no"));
+            row("two-point", message("line_geometry_row_two_point"),
+                twoPoint.vertical ? message("line_geometry_value_undefined_vertical") : this.equation(formatTwoPoint(this.state.P, twoPoint.dx, twoPoint.dy)));
+            row("implicit-raw", message("line_geometry_row_implicit_raw"), this.equation(formatImplicit(first.raw)));
+            row("implicit", message("line_geometry_row_implicit"), this.equation(formatImplicit(first.line)));
+            row("explicit", message("line_geometry_row_explicit"), explicit.vertical ? message("line_geometry_value_undefined_vertical") : this.equation(formatExplicit(explicit)));
+            row("intercept", message("line_geometry_row_intercept"),
+                intercept.kind === "form" ? this.equation(formatIntercept(intercept.form))
+                    : intercept.kind === "origin" ? message("line_geometry_value_undefined_origin") : message("line_geometry_value_undefined_axis"));
+            row("vertical", message("line_geometry_row_vertical"),
+                explicit.vertical ? message("line_geometry_value_vertical_yes", {value0: formatExplicit(explicit)}) : message("line_geometry_value_vertical_no"));
         }
         if (normal && first && second) {
-            row("implicit-1", t("line_geometry_row_implicit_first"), formatImplicit(first.line));
-            row("implicit-2", t("line_geometry_row_implicit_second"), formatImplicit(second.line));
-            row("normal-1", t("line_geometry_row_normal_first"), this.exactPoint(normal.n1));
-            row("normal-2", t("line_geometry_row_normal_second"), this.exactPoint(normal.n2));
-            row("cross", "a₁b₂ − a₂b₁", signed(normal.cross));
-            row("dot", "a₁a₂ + b₁b₂", signed(normal.dot));
-            row("slopes", "k₁ · k₂", normal.slopeProduct ? signed(normal.slopeProduct) : t("line_geometry_value_no_slope"));
-            row("relation", t("line_geometry_row_relation"), this.relationText(normal.relation));
+            row("implicit-1", message("line_geometry_row_implicit_first"), this.equation(formatImplicit(first.line)));
+            row("implicit-2", message("line_geometry_row_implicit_second"), this.equation(formatImplicit(second.line)));
+            row("normal-1", message("line_geometry_row_normal_first"), point(normal.n1));
+            row("normal-2", message("line_geometry_row_normal_second"), point(normal.n2));
+            row("cross", undefined, text(signed(normal.cross)), "a₁b₂ − a₂b₁");
+            row("dot", undefined, text(signed(normal.dot)), "a₁a₂ + b₁b₂");
+            row("slopes", undefined, normal.slopeProduct ? text(signed(normal.slopeProduct)) : message("line_geometry_value_no_slope"), "k₁ · k₂");
+            row("relation", message("line_geometry_row_relation"), this.relationMessage(normal.relation));
         }
         if (angle) {
-            row("direction-u", t("line_geometry_row_direction_u"), this.exactPoint(angle.u));
-            row("direction-v", t("line_geometry_row_direction_v"), this.exactPoint(angle.v));
-            row("dot", "u · v", signed(angle.dot));
-            row("cross", "u × v", signed(angle.cross));
-            row("angle", t("line_geometry_row_angle"), `${this.num(toDegrees(angle.radians), language)}°`);
-            row("cosine-rule", t("line_geometry_row_cosine_rule"),
-                `${signed(angle.differenceSquared)} = ${signed(angle.uSquared)} + ${signed(angle.vSquared)} − 2 · ${signed(angle.dot)}`);
+            row("direction-u", message("line_geometry_row_direction_u"), point(angle.u));
+            row("direction-v", message("line_geometry_row_direction_v"), point(angle.v));
+            row("dot", undefined, text(signed(angle.dot)), "u · v");
+            row("cross", undefined, text(signed(angle.cross)), "u × v");
+            row("angle", message("line_geometry_row_angle"), text(`${this.num(toDegrees(angle.radians), language)}°`));
+            row("cosine-rule", message("line_geometry_row_cosine_rule"),
+                text(`${signed(angle.differenceSquared)} = ${signed(angle.uSquared)} + ${signed(angle.vSquared)} − 2 · ${signed(angle.dot)}`));
         }
         if (distance && first) {
-            row("implicit", t("line_geometry_row_implicit"), formatImplicit(first.line));
-            row("value", t("line_geometry_row_value"), signed(distance.value));
-            row("norm", "a² + b²", signed(distance.normSquared));
-            row("distance-squared", "d²", signed(distance.distanceSquared));
-            row("distance", t("line_geometry_row_distance"), `≈ ${this.num(distance.distance, language)}`);
-            row("foot", t("line_geometry_row_foot"), this.exactPoint(distance.foot));
-            row("pt", t("line_geometry_row_pt"), this.exactPoint(distance.pt));
-            row("pt-dot-n", "PT · n", signed(distance.ptDotN));
-            row("projection", t("line_geometry_row_projection"), this.exactPoint(distance.projection));
+            row("implicit", message("line_geometry_row_implicit"), this.equation(formatImplicit(first.line)));
+            row("value", message("line_geometry_row_value"), text(signed(distance.value)));
+            row("norm", undefined, text(signed(distance.normSquared)), "a² + b²");
+            row("distance-squared", undefined, text(signed(distance.distanceSquared)), "d²");
+            row("distance", message("line_geometry_row_distance"), text(`≈ ${this.num(distance.distance, language)}`));
+            row("foot", message("line_geometry_row_foot"), point(distance.foot));
+            row("pt", message("line_geometry_row_pt"), point(distance.pt));
+            row("pt-dot-n", undefined, text(signed(distance.ptDotN)), "PT · n");
+            row("projection", message("line_geometry_row_projection"), point(distance.projection));
         }
         if (lines && first && second) {
-            row("implicit-1", t("line_geometry_row_implicit_first"), formatImplicit(first.line));
-            row("implicit-2", t("line_geometry_row_implicit_second"), formatImplicit(second.line));
+            row("implicit-1", message("line_geometry_row_implicit_first"), this.equation(formatImplicit(first.line)));
+            row("implicit-2", message("line_geometry_row_implicit_second"), this.equation(formatImplicit(second.line)));
             if (lines.kind === "point") {
-                row("point", t("line_geometry_row_point"), this.exactPoint(lines.point));
-                row("point-approx", t("line_geometry_row_point_approx"), this.approxPoint(lines.point.x.toNumber(), lines.point.y.toNumber(), language));
+                row("point", message("line_geometry_row_point"), point(lines.point));
+                row("point-approx", message("line_geometry_row_point_approx"), approx(lines.point.x.toNumber(), lines.point.y.toNumber()));
             } else {
-                row("point", t("line_geometry_row_point"), t(lines.kind === "same" ? "line_geometry_value_no_point_same" : "line_geometry_value_no_point_parallel"));
+                row("point", message("line_geometry_row_point"), message(lines.kind === "same" ? "line_geometry_value_no_point_same" : "line_geometry_value_no_point_parallel"));
             }
         }
         if (circle && first) {
             const result = circle.result;
-            row("implicit", t("line_geometry_row_implicit"), formatImplicit(first.line));
-            row("r-squared", "r²", signed(circle.circle.r2));
-            row("s", t("line_geometry_row_s"), signed(circle.s));
-            row("norm", "a² + b²", signed(circle.normSquared));
-            row("discriminant", t("line_geometry_row_discriminant"), signed(circle.discriminant));
-            row("count", t("line_geometry_row_count"), `${result.kind === "none" ? 0 : result.kind === "tangent" ? 1 : 2}`);
+            row("implicit", message("line_geometry_row_implicit"), this.equation(formatImplicit(first.line)));
+            row("r-squared", undefined, text(signed(circle.circle.r2)), "r²");
+            row("s", message("line_geometry_row_s"), text(signed(circle.s)));
+            row("norm", undefined, text(signed(circle.normSquared)), "a² + b²");
+            row("discriminant", message("line_geometry_row_discriminant"), text(signed(circle.discriminant)));
+            row("count", message("line_geometry_row_count"), text(`${result.kind === "none" ? 0 : result.kind === "tangent" ? 1 : 2}`));
             if (result.kind === "tangent") {
-                row("points", t("line_geometry_row_tangent_point"),this.exactPoint(new RationalPoint(result.exact.x, result.exact.y)));
+                row("points", message("line_geometry_row_tangent_point"), point(new RationalPoint(result.exact.x, result.exact.y)));
             } else if (result.kind === "two") {
-                result.points.forEach((p, index) => row(`points-${index + 1}`, t("line_geometry_row_point_n", {value0: `${index + 1}`}),
-                    `≈ ${this.approxPoint(p.x, p.y, language)}`));
+                result.points.forEach((p, index) => row(`points-${index + 1}` as "points-1", message("line_geometry_row_point_n", {value0: `${index + 1}`}),
+                    text(`≈ ${this.approxPoint(p.x, p.y, language)}`)));
             }
         }
         return rows;
+    }
+
+    /** The rows as the old panel's list shows them (a symbol-only row shows its symbol). */
+    readoutRows(): ReadoutListRow[] {
+        return this.declaredRows().map(({id, name, symbol, value}): ReadoutListRow => ({
+            id,
+            label: name ? renderMessage(name) : symbol ?? "",
+            value: "kind" in value && value.kind === "formatted" ? value.text
+                : "kind" in value && value.kind === "number" ? formatNumber(value.value, currentLanguage(), value.maxDecimals)
+                    : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** What the view director keeps visible: the handles of the mode and the crossing or foot when they are in view. */
+    private viewMarks(): ViewMarks {
+        const state = this.state;
+        const {crossing, foot} = this.view();
+        const at = (p: GridXY | undefined): ViewMark[] => p ? [{kind: "point", x: p.x, y: p.y}] : [];
+        return {must: [...shownHandles(state).flatMap(field => at(state[field])), ...at(crossing), ...at(foot)]};
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "lines-target": {
+                read: () => this.state.target,
+                apply: (value: string) => {
+                    const target = INTERSECT_TARGETS.find(candidate => candidate === value);
+                    if (!target) throw new DomainError(message("lines_target_rejected"));
+                    this.setState({target});
+                },
+            },
+        };
+    }
+
+    /** Pure data from the state: the intersect target as a choice puck, the status sentence as a note and the rows of the mode. */
+    protected override declaration(): GraphDeclaration<LineGeometryIds> {
+        const status = this.statusMessage();
+        const notes: ReadoutNote<LineGeometryIds>[] = status ? [{id: "status", text: status}] : [];
+        const parameters: ParameterDeclaration<LineGeometryIds["param"]>[] = this.state.mode !== "intersect" ? [] : [{
+            key: "lines-target", kind: "choice", label: message("lines_target_name"), help: message("line_geometry_target_label"), placement: "board", puck: true,
+            options: [
+                {value: "lines", label: message("line_geometry_target_lines"), short: message("lines_target_lines_short")},
+                {value: "circle", label: message("line_geometry_target_circle"), short: message("lines_target_circle_short")},
+            ],
+        }];
+        return {parameters, readouts: [{id: "values", rows: this.declaredRows()}], notes, marks: this.viewMarks()};
     }
 
     // ---- Controls -----------------------------------------------------------------------------------------------------
@@ -885,7 +973,7 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         ];
         if (state.mode === "intersect") {
             commands.push(
-                <ChoiceSelect key="target" label={t("line_geometry_target_label")} value={state.target}
+                <PuckOwned key="target" param="lines-target"><ChoiceSelect label={t("line_geometry_target_label")} value={state.target}
                               options={[
                                   {value: "lines", text: t("line_geometry_target_lines")},
                                   {value: "circle", text: t("line_geometry_target_circle")},
@@ -893,7 +981,7 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
                               onChange={value => {
                                   const target = INTERSECT_TARGETS.find(candidate => candidate === value);
                                   if (target) this.setState({target});
-                              }}/>,
+                              }}/></PuckOwned>,
             );
         }
         const shown = shownHandles(state);
@@ -912,10 +1000,10 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("line_geometry_readout_title")}</ReadoutHeading>
-                <p data-line-status="">{this.statusText()}</p>
-                <ReadoutList label={t("line_geometry_readout_title")} rows={this.rows()}/>
+                <p data-line-status="" data-readout-note="">{this.statusText()}</p>
+                <ReadoutList label={t("line_geometry_readout_title")} rows={this.readoutRows()}/>
                 <LiveReadout readout={this.status}/>
             </div>
         </>;
