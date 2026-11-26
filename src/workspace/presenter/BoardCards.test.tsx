@@ -347,7 +347,7 @@ describe('Orodja\'s width', () => {
     // 215 px must not set the column: the card gets its 310 px natural width when the column cap (0.32 of the board) allows it.
     test('is at least 310 px when its content reads narrower and the column cap allows it', async () => {
         naturalWidths = {tools: 215};
-        mountGraph(new RootFindingGraph());
+        mountGraph(new FixedPointGraph());
         await waitUntil(() => shown('tools') !== null);
         await waitUntil(() => parseFloat(shown('tools')!.style.width) > 0);
         expect(parseFloat(shown('tools')!.style.width)).toBeGreaterThanOrEqual(310);
