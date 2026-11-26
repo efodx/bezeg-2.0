@@ -28,10 +28,11 @@
 .board-card :is(.ws-group-title, .ws-more):focus-visible { outline: 3px solid var(--board-focus); outline-offset: -3px; }
 
 .ws-rows { margin: 0; display: flex; flex-direction: column; }
-/* A row is one box: name and value on one baseline, the value at the right edge. A value that does not fit beside its name takes the
-   next line, still at the right; only a value longer than the whole card breaks inside. */
+/* A row is one box: name and value on one baseline, the value at the right edge. A long name wraps beside a short value (the name
+   claims only 8em before it grows), as the prototype's cards do; a value that does not fit beside those 8em takes the next line, still
+   at the right; only a value longer than the whole card breaks inside. */
 .ws-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 14px; box-sizing: border-box; padding: 4px 9px; border-radius: 6px; }
-.ws-name { display: flex; align-items: flex-start; gap: 8px; min-width: 0; margin: 0; font-weight: 400; color: var(--board-ink-quiet); }
+.ws-name { display: flex; flex: 1 1 8em; align-items: flex-start; gap: 8px; min-width: 0; margin: 0; font-weight: 400; color: var(--board-ink-quiet); }
 /* The label, not the mark before it, gives the row its baseline. */
 .ws-label { min-width: 0; align-self: baseline; }
 .ws-symbol { color: var(--board-ink); }
