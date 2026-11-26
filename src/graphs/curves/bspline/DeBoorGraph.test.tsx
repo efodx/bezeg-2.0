@@ -12,6 +12,7 @@ import {AnimationScheduler} from '../../../learning/runtime/animation';
 import {bsplinePresetCollection, type BSplinePresetData} from './bsplinePresetCollection';
 import type {LessonAction} from '../../../learning/model';
 import type {Preset} from '../../base/presets/Presets';
+import {runAs} from '../../base/writes/writeSource';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
 vi.mock('../../../localization', async importOriginal => {
@@ -85,7 +86,7 @@ const dragPoint = (graph: ObservedGraph, index: number, x: number, y: number) =>
     drag(point);
 };
 const show = (graph: ObservedGraph, t: number, level = 99) => {
-    act(() => { graph.setT(t); graph.setState({level: Math.min(level, graph.state.degree)}); });
+    act(() => { runAs('learner', () => graph.setT(t)); graph.setState({level: Math.min(level, graph.state.degree)}); });
     graph.boardUpdate();
 };
 const TOL = 1e-12;
@@ -276,7 +277,7 @@ describe('the deboor iteration', () => {
         act(() => dragPoint(graph, 1, 1, 3));
         expect([graph.playing, graph.state.level]).toEqual([false, 0]);
         act(() => graph.play());
-        act(() => graph.setT(1.2));
+        act(() => runAs('learner', () => graph.setT(1.2)));
         expect(graph.playing).toBe(false);
         view.unmount();
     });
@@ -312,7 +313,7 @@ describe('the deboor iteration', () => {
         expect([graph.playing, frames.pending()]).toEqual([false, 0]);
         act(() => graph.play());
         act(() => graph.importPresetData(graph.defaultPreset()));
-        act(() => graph.setT(0.6));
+        act(() => runAs('learner', () => graph.setT(0.6)));
         expect(graph.playing).toBe(false);
         act(() => graph.play());
         act(() => graph.pausePlayback());
@@ -370,7 +371,7 @@ describe('knot editor, degree and point count', () => {
 describe('Reset, scenes, language and disposal', () => {
     test('reset restores the defaults', async () => {
         const {graph, view} = mount();
-        act(() => { graph.changePointCount(true); graph.setT(1.7); graph.setState({level: 2}); });
+        act(() => { graph.changePointCount(true); runAs('learner', () => graph.setT(1.7)); graph.setState({level: 2}); });
         act(() => { void graph.reset(); });
         await waitFor(() => expect(graph.state.points).toHaveLength(4));
         expect(graph.state).toMatchObject({degree: 2, knots: [0, 0, 0, 1, 2, 2, 2], t: 0.5, level: 0});
@@ -511,7 +512,7 @@ describe('drawing cost (jsdom, real JSXGraph board)', () => {
         for (let i = 0; i < drags; i++) dragPoint(graph, 1, 1 + 0.5 * ((i % 40) / 40), 2);
         const dragMs = (performance.now() - start) / drags;
         const sweepStart = performance.now();
-        for (let i = 0; i < drags; i++) act(() => graph.setT(2 * (i / drags)));
+        for (let i = 0; i < drags; i++) act(() => runAs('learner', () => graph.setT(2 * (i / drags))));
         const sweepMs = (performance.now() - sweepStart) / drags;
         console.info(`BSPLINE_DEBOOR_MEASURE drag ${dragMs.toFixed(2)} ms/event, t sweep ${sweepMs.toFixed(2)} ms/step (jsdom, degree 2, 4 points)`);
         expect(dragMs).toBeLessThan(100);

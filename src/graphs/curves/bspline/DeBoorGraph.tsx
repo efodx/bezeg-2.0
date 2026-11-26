@@ -1,6 +1,12 @@
 import type {StoredGraphState} from "../../base/presets/Presets";
 import React from "react";
-import {renderMessage, t} from "../../../localization";
+import {message, renderMessage, t} from "../../../localization";
+import {domain as curveDomain, evaluate} from "../../../bezeg/impl/curve/bspline";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
+import {DomainError} from "../../functions/BaseFunctionGraph";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
 import Slider from "../../../inputs/Slider";
 import {CountSetter} from "../../../inputs/CountSetter";
 import BaseGraph, {BaseGraphState, TransientState} from "../../base/BaseGraph";
@@ -38,7 +44,24 @@ export interface DeBoorGraphState extends BaseGraphState {
     level: number;
 }
 
-const initialData = (): Omit<DeBoorGraphState, 'initialized'> => {
+/**
+ * The ids this graph declares: the parameter t (a board slider puck), the legend of what the board draws (curve, control points, the
+ * active points of level 0, the intermediate points and C(t)) and the three playback actions (the next level, play and reset, which stay
+ * in the playback group). The degree, the point count, the point list and the knots are setup and stay in Orodja; the readout of the
+ * levels is board text.
+ */
+export type DeBoorIds = {
+    param: 'deboor-t';
+    row: never;
+    note: never;
+    legend: 'curve' | 'control' | 'active' | 'levels' | 'point';
+    section: never;
+    action: 'next-level' | 'play' | 'reset-levels';
+};
+
+const VIEW_MARK_SAMPLES = 25;
+
+const initialData =(): Omit<DeBoorGraphState, 'initialized'> => {
     const {degree, knots, points} = defaultDeBoorData();
     return {degree, knots, points, t: DEBOOR_DEFAULT_T, level: 0};
 };
@@ -138,7 +161,8 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData, 
                 t: () => this.state.t,
                 level: () => this.state.level,
                 fontSize: () => this.displaySettings.fontSize,
-                onPointsDrag: points => this.setState({points}),
+                // A JSXGraph drag handler is outside the DOM input tagging, so the write names its source.
+                onPointsDrag: points => runAs('learner', () => this.setState({points})),
             })),
             sync: scene => {
                 const {degree, points} = this.state;
@@ -306,6 +330,114 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData, 
         else if (command === 'reset') this.resetLevels();
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064). Key `deboor-t`: the slider parameter, through the setter the slider calls (held inside the domain). */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'deboor-t': {
+                read: () => this.state.t,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value)) throw new DomainError(message('bsd_t_not_finite'));
+                    this.setT(value);
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state: the parameter t on the board (changed while the triangle is watched), the legend, and the playback
+     * actions (kept in the playback group, so in Edit). Setup (degree, point count, points, knots) stays in Orodja; the levels' sentences
+     * are board text, so no note is declared.
+     */
+    protected override declaration(): GraphDeclaration<DeBoorIds> {
+        const {knots, degree, points, level} = this.state;
+        const [start, end] = this.knotDomain(knots, degree, points.length);
+        const parameters: ParameterDeclaration<DeBoorIds['param']>[] = [{
+            key: 'deboor-t', kind: 'range', label: message('bsd_param_name'), symbol: 't', placement: 'board', min: start, max: end, step: 0.01, maxDecimals: 2,
+        }];
+        const legend: LegendEntry<DeBoorIds>[] = [
+            {id: 'curve', label: message('curve'), kind: 'line', object: 'curve'},
+            {id: 'control', label: message('control_points'), kind: 'point', object: 'control'},
+            {id: 'active', label: message('bsd_legend_active'), kind: 'ring', object: 'active'},
+            ...(degree >= 2 ? [{id: 'levels' as const, label: message('bsd_legend_levels'), kind: 'point' as const, object: 'levels'}] : []),
+            {id: 'point', label: message('bsd_legend_point'), kind: 'point', object: 'point'},
+        ];
+        const playback = {placement: 'tools' as const, tab: 'edit' as const};
+        const actions: ActionDeclaration<DeBoorIds>[] = [
+            {id: 'next-level', label: message('bsd_next_level'), enabled: this.canAdvance && !this.playing, ...playback},
+            {id: 'play', label: message('play'), enabled: true, pressed: this.playing, ...playback},
+            {id: 'reset-levels', label: message('bsd_reset_levels'), enabled: level > 0 || this.playing, ...playback},
+        ];
+        return {parameters, legend, actions, marks: this.viewMarks()};
+    }
+
+    /** The parameter domain from the state alone (no board read): the knot span [u_k, u_n+1]. */
+    private knotDomain(knots: readonly number[], degree: number, count: number): [number, number] {
+        try {
+            return curveDomain(knots, degree, count - 1);
+        } catch {
+            return [knots[degree], knots[knots.length - degree - 1]];
+        }
+    }
+
+    private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /** What the view director keeps visible: the control points and C(t) (must), samples of the curve over its domain (nice); memoized on the state's data. */
+    private viewMarks(): ViewMarks {
+        const {degree, knots, points, t: position} = this.state;
+        const key = `${degree}|${knots.join(',')}|${points.map(p => p.join(',')).join(';')}|${position}`;
+        if (this.viewMarksCache?.key === key) return this.viewMarksCache.marks;
+        const finite = (p: readonly number[]) => Number.isFinite(p[0]) && Number.isFinite(p[1]);
+        const [start, end] = this.knotDomain(knots, degree, points.length);
+        let value: readonly number[] | undefined;
+        try {
+            value = evaluate(knots, degree, points, clampParameter(knots, degree, position));
+        } catch {
+            value = undefined;
+        }
+        const must: ViewMark[] = [...points, ...(value ? [value] : [])].filter(finite).map(([x, y]): ViewMark => ({kind: 'point', x, y}));
+        const samples: (readonly [number, number])[] = [];
+        for (let i = 0; i < VIEW_MARK_SAMPLES; i++) {
+            try {
+                const p = evaluate(knots, degree, points, start + (end - start) * i / (VIEW_MARK_SAMPLES - 1));
+                if (finite(p)) samples.push([p[0], p[1]]);
+            } catch {
+                // a sample the kernel refuses is left out
+            }
+        }
+        const marks: ViewMarks = {must, nice: samples.length > 1 ? [{kind: 'polyline', points: samples}] : []};
+        this.viewMarksCache = {key, marks};
+        return marks;
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const scene = this.scene;
+        if (!scene) return undefined;
+        const read = (element: JXG.GeometryElement | undefined, colorProperty: 'strokecolor' | 'fillcolor') => {
+            if (!element) return undefined;
+            // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+            const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            return {color: String(drawn.evalVisProp(colorProperty)), visible: Boolean(drawn.evalVisProp('visible'))};
+        };
+        switch (id) {
+            case 'curve': return read(scene.curve.getJxgCurve(), 'strokecolor');
+            case 'control': return read(scene.curve.getJxgPoints()[0], 'fillcolor');
+            case 'active': return read(scene.ringElements()[0], 'strokecolor');
+            case 'levels': return read(scene.levelElements(1)?.[0], 'fillcolor');
+            case 'point': return read(scene.levelElements(scene.degree)?.[0], 'fillcolor');
+            default: return undefined;
+        }
+    }
+
+    override performAction(id: string): void {
+        if (id === 'next-level') runAs('learner', () => { this.nextStep(); });
+        else if (id === 'play') runAs('learner', () => { if (this.playing) this.pause(); else this.play(); });
+        else if (id === 'reset-levels') runAs('learner', () => this.resetLevels());
+        else throw new Error('Unknown action');
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
@@ -325,8 +457,8 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData, 
                 <p className="inspector-help" data-deboor-status="levels">{status}</p>
                 <LiveReadout readout={this.liveReadout} muted={playing}/>
             </div>,
-            <div key="position"><Slider min={start} max={end} step={0.01} value={Math.min(end, Math.max(start, position))}
-                                        customText={t("bsb_slider_t")} help={t("bsd_slider_help")} onChange={value => this.setT(value)}/></div>,
+            <PuckOwned key="position" param="deboor-t"><div><Slider min={start} max={end} step={0.01} value={Math.min(end, Math.max(start, position))}
+                                        customText={t("bsb_slider_t")} help={t("bsd_slider_help")} onChange={value => this.setT(value)}/></div></PuckOwned>,
             <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BASIS_MIN_DEGREE} max={maxDegree}
                                            maxReason={maxDegree < BASIS_MAX_DEGREE ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
                                            onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}

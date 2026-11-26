@@ -7,9 +7,12 @@
  */
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {DeBoorIds} from '../../graphs/curves/bspline/DeBoorGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const declared = frameDeclarer<DeBoorIds>();
 
 /** The lesson vector, degree and control points of L2 (the graph's own defaults). */
 export const DEBOOR_LESSON_KNOTS: readonly number[] = [0, 0, 0, 1, 2, 2, 2];
@@ -88,14 +91,14 @@ const deBoorLesson: GuidedLesson = {
         },
         {
             id: 'bspline-deboor-slide', order: 2,
-            title: text('Drsnik \\(t\\) in aktivne točke', 'The slider \\(t\\) and the active points'),
+            title: text('Parameter \\(t\\) in aktivne točke', 'The parameter \\(t\\) and the active points'),
             purpose: text('Pred razkritjem napovedati, katere tri točke so aktivne pri \\(t=\\tfrac32\\), in videti, kako se aktivna trojica premakne.', 'Predicting, before the reveal, which three points are active at \\(t=\\tfrac32\\), and seeing the active triple move.'),
             explanation: text(
-                'Premakni drsnik \\(t\\) čez vozel \\(1\\). Napovej: katere točke so aktivne pri \\(t=\\tfrac32\\)? Parameter leži na razponu \\([1,2)\\), zato \\(P_1\\), \\(P_2\\), \\(P_3\\); \\(P_0\\) ne šteje več. Točka krivulje je tam \\((3;1{,}5)\\), pri \\(t=1\\) pa \\((2;2)\\).',
-                'Move the slider \\(t\\) across the knot \\(1\\). Predict: which points are active at \\(t=\\tfrac32\\)? The parameter lies in the span \\([1,2)\\), so \\(P_1\\), \\(P_2\\), \\(P_3\\); \\(P_0\\) no longer counts. The curve point there is \\((3;1.5)\\), and at \\(t=1\\) it is \\((2;2)\\).',
+                'Premakni parameter \\(t\\) čez vozel \\(1\\). Napovej: katere točke so aktivne pri \\(t=\\tfrac32\\)? Parameter leži na razponu \\([1,2)\\), zato \\(P_1\\), \\(P_2\\), \\(P_3\\); \\(P_0\\) ne šteje več. Točka krivulje je tam \\((3;1{,}5)\\), pri \\(t=1\\) pa \\((2;2)\\).',
+                'Move the parameter \\(t\\) across the knot \\(1\\). Predict: which points are active at \\(t=\\tfrac32\\)? The parameter lies in the span \\([1,2)\\), so \\(P_1\\), \\(P_2\\), \\(P_3\\); \\(P_0\\) no longer counts. The curve point there is \\((3;1.5)\\), and at \\(t=1\\) it is \\((2;2)\\).',
             ),
             formulaIds: ['bspline-deboor-recurrence'],
-            frames: [frame('bspline-deboor-slide-explanation', 'explanation'), frame('bspline-deboor-slide-observation', 'observation')],
+            frames: [frame('bspline-deboor-slide-explanation', 'explanation'), frame('bspline-deboor-slide-observation', 'observation', declared({uses: ['deboor-t']}))],
             observationPrompt: text('Premakni \\(t\\) čez \\(1\\) in opazuj, kako obroč preskoči s \\(P_0\\) na \\(P_3\\).', 'Move \\(t\\) across \\(1\\) and watch the ring jump from \\(P_0\\) to \\(P_3\\).'),
             expectedObservations: [text('Vedno so natanko tri točke z obročem; do \\(t=1\\) so to \\(P_0\\), \\(P_1\\), \\(P_2\\), nato \\(P_1\\), \\(P_2\\), \\(P_3\\).', 'There are always exactly three points with a ring; up to \\(t=1\\) they are \\(P_0\\), \\(P_1\\), \\(P_2\\), then \\(P_1\\), \\(P_2\\), \\(P_3\\).')],
             scene: deBoorScene('bspline-deboor-slide-three-halves', DEBOOR_LESSON_POINTS, 1.5, 0,
@@ -111,7 +114,7 @@ const deBoorLesson: GuidedLesson = {
                 'Again \\(t=\\tfrac12\\) and the triangle is shown to the end. Predict: where is the curve point? Level \\(1\\) gives \\((0.5;1)\\) with \\(\\alpha=\\tfrac12\\) and \\((1.5;2)\\) with \\(\\alpha=\\tfrac14\\), level \\(2\\) gives \\((1;1.5)\\) with \\(\\alpha=\\tfrac12\\). The ratios differ because the knot spacings differ. Press the reset-levels button and then the next-level button to watch the triangle being built.',
             ),
             formulaIds: ['bspline-deboor-recurrence'], workedExampleId: 'bspline-deboor-half-example',
-            frames: [frame('bspline-deboor-triangle-explanation', 'explanation'), frame('bspline-deboor-triangle-calculation', 'calculation'), frame('bspline-deboor-triangle-observation', 'observation')],
+            frames: [frame('bspline-deboor-triangle-explanation', 'explanation'), frame('bspline-deboor-triangle-calculation', 'calculation'), frame('bspline-deboor-triangle-observation', 'observation', declared({uses: ['reset-levels'], open: ['tools']}))],
             observationPrompt: text('Ponastavi ravni in jih razkrij ena po ena; preberi \\(\\alpha\\) v plošči.', 'Reset the levels and reveal them one by one; read \\(\\alpha\\) in the panel.'),
             expectedObservations: [text('Raven \\(1\\) ima dve točki, raven \\(2\\) eno: točko krivulje \\((1;1{,}5)\\), ki leži na daljici med \\((0{,}5;1)\\) in \\((1{,}5;2)\\).', 'Level \\(1\\) has two points and level \\(2\\) one: the curve point \\((1;1.5)\\), which lies on the segment between \\((0.5;1)\\) and \\((1.5;2)\\).')],
             scene: deBoorScene('bspline-deboor-triangle-half', DEBOOR_LESSON_POINTS, 0.5, 2,
@@ -143,7 +146,7 @@ const deBoorLesson: GuidedLesson = {
                 'The parameter is at the knot \\(t=1\\). Predict: how many polynomial pieces does the curve have? The knots \\((0,0,0,1,2,2,2)\\) have two spans of length greater than \\(0\\), namely \\([0,1)\\) and \\([1,2)\\), so the curve has two pieces of degree \\(2\\). They join at the point \\((2;2)\\), which belongs to \\(t=1\\).',
             ),
             formulaIds: ['bspline-deboor-recurrence'],
-            frames: [frame('bspline-deboor-pieces-explanation', 'explanation'), frame('bspline-deboor-pieces-observation', 'observation')],
+            frames: [frame('bspline-deboor-pieces-explanation', 'explanation'), frame('bspline-deboor-pieces-observation', 'observation', declared({uses: ['deboor-t']}))],
             observationPrompt: text('Premakni \\(t\\) mimo \\(1\\) in poišči spoj dveh kosov.', 'Move \\(t\\) past \\(1\\) and find the join of the two pieces.'),
             expectedObservations: [text('Dva kosa se stikata pri \\(t=1\\) v točki \\((2;2)\\); več razponov bi pomenilo več kosov.', 'Two pieces meet at \\(t=1\\) in the point \\((2;2)\\); more spans would mean more pieces.')],
             scene: deBoorScene('bspline-deboor-pieces-knot', DEBOOR_LESSON_POINTS, 1, 2,

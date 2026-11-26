@@ -63,6 +63,10 @@ const nurbsAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed under its error sentence (it carries no readout marker, so the recording holds none)'},
 ];
 
+const deBoorAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the only read-off is the point count of the "Število kontrolnih točk" count setter, a setup control that stays in Orodja and shows its own value; the sentences of the levels are board captions'},
+];
+
 const arcAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its details (it carries no readout marker, so the recording holds none), and the mover line "t = .., s(t) = .." is declared as a note while the old panel drew it only as a board caption, which the recording holds as a caption'},
 ];
@@ -312,6 +316,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'weight 4 is 0,5, t = 0,3', apply: run(g => { g.setWeight(3, 0.5); g.setT(0.3); })},
             {name: 'circle hidden, a point moved', apply: run(g => { g.resetToOrigin(); g.setShowCircle(false); g.editPoint(2, [0.2, 1.4]); })},
             {name: 'reset', apply: run(g => g.resetToOrigin())},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/bspline/__parity__/bspline-deboor.json', demonstration: 'bspline-deboor', accepted: deBoorAccepted, states: (() => {
+        type DeBoor = {setT(t: number): void; setDegree(degree: number): void; changePointCount(add: boolean): void; nextStep(): boolean; resetLevels(): void;
+            editPoint(index: number, value: readonly [number, number]): void};
+        const run = (edit: (graph: DeBoor) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as DeBoor)); };
+        return [
+            {name: 'default (degree 2, t = 0,5)', apply: () => undefined},
+            {name: 't = 1,5', apply: run(g => g.setT(1.5))},
+            {name: 'two levels revealed', apply: run(g => { g.nextStep(); g.nextStep(); })},
+            {name: 'degree 3', apply: run(g => g.setDegree(3))},
+            {name: 'a fifth point', apply: run(g => g.changePointCount(true))},
+            {name: 'a point moved, t = 1', apply: run(g => { g.editPoint(1, [1, 3]); g.setT(1); })},
+            {name: 'degree 1, levels reset', apply: run(g => { g.setDegree(1); g.resetLevels(); })},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/arclength/__parity__/arc-length-param.json', demonstration: 'arc-length-param', accepted: arcAccepted, states: (() => {
