@@ -319,7 +319,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         const {ghost, showComb} = this.state;
         const actions: ActionDeclaration<BSplineInsertionIds>[] = [
             {id: 'comb', label: message('bsi_puck_comb'), help: message('bsi_comb_help'), placement: 'board', puck: true, enabled: true, pressed: showComb},
-            {id: 'insert', label: message('bsi_insert'), help: message('bsi_insert_help'), placement: 'tools', section: 'insert', enabled: true},
+            {id: 'insert', label: message('bsi_insert'), help: message('bsi_insert_help'), placement: 'tools', tab: 'edit', enabled: true},
         ];
         const legend: LegendEntry<BSplineInsertionIds>[] = [
             {id: 'curve', label: message('curve'), kind: 'line', object: 'curve'},

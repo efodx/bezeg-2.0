@@ -33,6 +33,9 @@ export interface DeclarationIds {
 /** Where a parameter or action is shown (decision 11; the conversion guide gives the placement rule per kind). */
 export type Placement = "board" | "tools";
 
+/** The Orodja tabs a control can render in (task 04: Uredi, Prikaz, Shrani). A control names its tab; `section` is only a free group name. */
+export type ToolsTab = "edit" | "display" | "save";
+
 interface ParameterBase<K extends string> {
     /** The arbiter key. */
     readonly key: K;
@@ -41,7 +44,9 @@ interface ParameterBase<K extends string> {
     readonly symbol?: string;
     readonly help?: Message;
     readonly placement: Placement;
-    /** The Orodja section that holds it when `placement` is `tools` (a frame that uses it opens Orodja there, A9). */
+    /** The Orodja tab that holds it when `placement` is `tools` (a frame that uses it opens Orodja there, A9). */
+    readonly tab?: ToolsTab;
+    /** A free group name; for a control without `tab`, a tab name stands for the tab (older declarations). */
     readonly section?: string;
     /** Shown but not operable for a real reason of its own (a fixed example). A parameter that does not apply in this state is omitted, not locked. */
     readonly locked?: boolean;
@@ -183,6 +188,8 @@ export interface ActionDeclaration<Ids extends DeclarationIds = DeclarationIds> 
     readonly label: Message;
     readonly help?: Message;
     readonly placement: Placement;
+    /** The Orodja tab that holds it when `placement` is `tools` (see {@link ParameterBase.tab}). */
+    readonly tab?: ToolsTab;
     readonly section?: string;
     readonly enabled: boolean;
     /** A toggle-like action shows its state ("Pokaži oceno napake" pressed). */

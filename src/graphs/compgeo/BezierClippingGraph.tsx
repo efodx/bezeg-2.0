@@ -33,7 +33,7 @@ export type BezierClippingNoteId = "step" | "status" | "clips" | "widest";
 export type BezierClippingIds = {
     param: never; row: never; note: BezierClippingNoteId;
     legend: "points" | "curveA" | "curveB" | CurvePairOverlayId | BezierClippingOverlayId;
-    section: "playback";
+    section: never;
     action: CurvePairOverlayId | BezierClippingOverlayId | "next-step" | "play" | "reset";
 };
 
@@ -281,7 +281,7 @@ export class BezierClippingGraph extends TraceCurvePairGraph<BezierClippingOverl
         const ready = isCurvePairModel(this.model);
         const atEnd = !ready || this.step >= this.run().length - 1;
         const step = ready ? this.step : 0;
-        const playback = {placement: "tools" as const, section: "playback"};
+        const playback = {placement: "tools" as const, tab: "edit" as const};
         const actions: ActionDeclaration<BezierClippingIds>[] = [
             // The puck labels are at most 16 characters; the legend and Orodja keep the long texts.
             ...(common.actions ?? []).map(candidate => candidate.id === "kept" ? {...candidate, label: message("bezierclipping_puck_kept")}

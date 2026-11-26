@@ -16,7 +16,10 @@ import {render} from '@testing-library/react';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {SiteContext} from '../../graphs/context/react/SiteContext';
 import {BOARD_LAYOUT_KEY, loadBoardLayout} from '../layout/storedLayout';
-import {CARD_MIN_WIDTH} from './BoardCards';
+import {BoardCards, CARD_MIN_WIDTH} from './BoardCards';
+import {BezierClippingGraph} from '../../graphs/compgeo/BezierClippingGraph';
+import type {WorkspaceCardHost} from './cardHost';
+import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 
 // The measure pass waits for MathJax; jsdom has none.
 vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
@@ -359,6 +362,41 @@ describe('Orodja\'s width', () => {
         await mountTaylor();
         await waitUntil(() => parseFloat(shown('readouts')!.style.width) > 0);
         expect(parseFloat(shown('readouts')!.style.width)).toBeGreaterThanOrEqual(CARD_MIN_WIDTH);
+    });
+});
+
+describe('two tabs share one stored layout', () => {
+    test('a fold commits on top of what another tab stored after this one mounted', async () => {
+        await mountTaylor();
+        // Another tab opens the legend and stores that; this tab saw nothing of it (no storage event yet).
+        appStorage.setItem(BOARD_LAYOUT_KEY, JSON.stringify({version: 1, placements: {}, folds: {legend: false}}));
+        fireEvent.click(live('[data-card-id="readouts"] .board-card-fold')!);
+        expect(loadBoardLayout().folds).toEqual({legend: false, readouts: true});
+    });
+
+    test('a storage event for the layout key refreshes the copy this tab commits from', async () => {
+        await mountTaylor();
+        const next = JSON.stringify({version: 1, placements: {}, folds: {legend: true}});
+        appStorage.setItem(BOARD_LAYOUT_KEY, next);
+        act(() => { window.dispatchEvent(new StorageEvent('storage', {key: `bezeg-2.0:${BOARD_LAYOUT_KEY}`, newValue: next})); });
+        await waitUntil(() => live('[data-card-id="legend"] .board-card-body') === null);
+        fireEvent.click(live('[data-card-id="readouts"] .board-card-fold')!);
+        expect(loadBoardLayout().folds).toEqual({legend: true, readouts: true});
+    });
+});
+
+describe('a lesson frame that uses an Orodja control', () => {
+    const hostFor = (frame: FrameDeclaration, setSection: (section: 'edit' | 'display' | 'save') => void): WorkspaceCardHost => ({
+        tools: {panels: {edit: <div/>, display: <div/>, save: <div/>}, section: 'save', setSection, locked: false},
+        lesson: {slot: document.createElement('div'), active: true, mode: 'content', foldRequest: undefined, reportCardFolded: () => undefined},
+        frame, fullScreen: false, toolsFolded: undefined, setToolsFolded: () => undefined,
+    });
+
+    test('shows the tab the playback control renders in, whatever tab the learner had', async () => {
+        const setSection = vi.fn();
+        render(<MemoryRouter><BoardCards graph={new BezierClippingGraph()} host={hostFor({uses: ['play'], open: ['tools']} as FrameDeclaration, setSection)}/></MemoryRouter>);
+        await waitUntil(() => shown('tools') !== null);
+        expect(setSection).toHaveBeenCalledWith('edit');
     });
 });
 

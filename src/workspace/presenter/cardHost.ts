@@ -1,10 +1,10 @@
 // What the workspace hands the card layer (task 04, docs/reviews/ux-picks-app-wide/04-design.md section 2). The workspace keeps
 // owning the panels, the lesson state and Presentation; the presenter only reads this and stays free of route knowledge.
 import type {ReactNode} from 'react';
-import type {FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {FrameDeclaration, ToolsTab} from '../../graphs/base/declare/graphDeclaration';
 import type {ViewDirector} from '../view/viewDirector';
 
-export type ToolsSection = 'edit' | 'display' | 'save';
+export type ToolsSection = ToolsTab;
 
 export interface WorkspaceCardHost {
     tools: {

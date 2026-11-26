@@ -8,7 +8,7 @@ import {
   type CardInput, type DropIndex, type LayoutInput, type LayoutResult, type Placement, type Rect, type Size, type StripDock,
 } from '../layout/boardLayout';
 import {
-  loadBoardLayout, resetCard, saveBoardLayout, setFold, setPlacement, setStripDock, type StoredBoardLayout,
+  BOARD_LAYOUT_KEY, loadBoardLayout, resetCard, saveBoardLayout, setFold, setPlacement, setStripDock, type StoredBoardLayout,
 } from '../layout/storedLayout';
 import {neighbourDock} from '../pucks/StripGrip';
 import {measureSlot} from '../pucks/measureSlot';
@@ -86,6 +86,12 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   ], [declaration, declared, graph, highlight, lessonActive]);
 
   const [stored, setStored] = useState<StoredBoardLayout>(() => loadBoardLayout());
+  // Another tab stored the layout: take it over (a `null` key is `storage.clear()`).
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => { if (event.key === null || event.key.endsWith(BOARD_LAYOUT_KEY)) setStored(loadBoardLayout()); };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
   const [board, setBoard] = useState<Size>({w: 0, h: 0});
   const [ready, setReady] = useState(false);
   // The last layout that was final (measured for the current content and every width assigned). It stays on screen while a
@@ -191,7 +197,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     const uses = new Set<string>(frame?.uses ?? []);
     const used = [...(declaration?.parameters ?? []), ...(declaration?.actions ?? [])].filter(control => uses.has('key' in control ? control.key : control.id));
     const inTools = used.filter(control => control.placement === 'tools');
-    return {usesTools: lessonActive && (declaration === undefined || inTools.length > 0), section: inTools.map(control => control.section).find(section => TOOLS_SECTIONS.includes(section as ToolsSection)) as ToolsSection | undefined};
+    return {usesTools: lessonActive && (declaration === undefined || inTools.length > 0), section: inTools.map(control => control.tab ?? control.section).find((tab): tab is ToolsSection => TOOLS_SECTIONS.includes(tab as ToolsSection))};
   }, [declaration, frame, lessonActive]);
   const frameInput = useMemo(() => lessonActive ? {open: frame?.open ?? [], usesTools: usedToolsSection.usesTools} : undefined,
     [lessonActive, frame, usedToolsSection.usesTools]);
@@ -245,12 +251,13 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     pending = changed;
   }
 
-  const commit = (next: StoredBoardLayout) => { setStored(next); saveBoardLayout(next); };
+  // One card's operation applies to the layout as stored now, not to this tab's copy from mount: another tab may have stored since.
+  const commit = (operation: (layout: StoredBoardLayout) => StoredBoardLayout) => { const next = operation(loadBoardLayout()); setStored(next); saveBoardLayout(next); };
   // In Presentation the header button owns Orodja's fold: it is not stored. Everywhere else a fold is the learner's stored choice.
   const setToolsOrCardFold = (id: string, folded: boolean) => {
     if (id === LESSON_ID) setLessonFold(folded);
     else if (id === TOOLS_ID && host.toolsFolded !== undefined) host.setToolsFolded(folded);
-    else commit(setFold(stored, id, folded));
+    else commit(layout => setFold(layout, id, folded));
   };
   const chooseToolsSection = (section: ToolsSection) => {
     host.tools.setSection(section);
@@ -282,7 +289,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   const dropStrip = (dock: StripDock) => {
     setStripDrag(null);
     stripPickupRef.current = null;
-    if (dock !== storedDock) commit(setStripDock(stored, dock));
+    if (dock !== storedDock) commit(layout => setStripDock(layout, dock));
   };
   const stripGrip = {
     candidate: stripDrag?.candidate ?? storedDock, picked: stripPicked, blocked: drag !== null,
@@ -317,11 +324,8 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
     const target = dropTarget(layoutInput, id, pointer, visibleRect(id, state.first ?? pointer, pointer));
     const rect = base.cards.find(card => card.id === id)?.rect;
     const placements = dragStored(state, rect, pointer, target);
-    let next = stored;
-    for (const [key, placement] of Object.entries(placements)) {
-      if (JSON.stringify(stored.placements[key]) !== JSON.stringify(placement)) next = setPlacement(next, key, placement);
-    }
-    commit(next);
+    const changed = Object.entries(placements).filter(([key, placement]) => JSON.stringify(stored.placements[key]) !== JSON.stringify(placement));
+    commit(layout => changed.reduce((next, [key, placement]) => setPlacement(next, key, placement), layout));
   };
 
   const final = ready && !pending && preview !== null;
@@ -434,7 +438,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
           resettable={stored.placements[spec.id] !== undefined || stored.folds[spec.id] !== undefined}
           headActions={isTools ? <ToolsHeadActions section={host.tools.section} onChoose={chooseToolsSection} sections={toolsSections}/> : undefined}
           onFold={folded => setToolsOrCardFold(spec.id, folded)}
-          onReset={() => commit(resetCard(stored, spec.id))}
+          onReset={() => commit(layout => resetCard(layout, spec.id))}
           onPickup={point => { pickupRef.current = point ? {id: spec.id, point} : null; }}
           onDragMove={pointer => onDragMove(spec.id, pointer)}
           onDrop={pointer => onDrop(spec.id, pointer)}
