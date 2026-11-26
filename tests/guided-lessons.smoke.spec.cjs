@@ -619,6 +619,8 @@ const linear = {
         expect(stats.total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
     },
     prepareUserState: async page => {
+        // The point fields live in Orodja, which the board workspace folds by default.
+        await h.openToolsCard(page);
         await linearField(page, 'P2, x').fill('3');
         await linearField(page, 'P2, x').press('Enter');
         await expect.poll(() => linearEquation(page)).toBe('y = 1.33x + 1');

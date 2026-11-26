@@ -7,6 +7,7 @@ import {BSplineNurbsGraph} from '../../curves/bspline/BSplineNurbsGraph';
 import {BSplineInsertionGraph} from '../../curves/bspline/BSplineInsertionGraph';
 import {BSplineExtractionGraph} from '../../curves/bspline/BSplineExtractionGraph';
 import {LinearFunctionGraph} from '../../functions/LinearFunctionGraph';
+import {runAs} from '../writes/writeSource';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../realGraphTestHarness';
 import type {Preset} from './Presets';
@@ -195,7 +196,8 @@ describe('partial Presets outside NURBS (linear function)', () => {
         const expectedView = viewOf(fresh);
         const graph = new Linear();
         const view = mountGraph(graph).view;
-        graph.liveBoard().setBoundingBox([-9, 9, 9, -9], true);
+        // Stands in for a wheel zoom, which production tags through the learner input listeners.
+        runAs('learner', () => graph.liveBoard().setBoundingBox([-9, 9, 9, -9], true));
         graph.importPreset({id: 'data-only', data: {x1: 1, y1: 2, x2: 3, y2: 4}});
         expect(graph.exportPresetData()).toMatchObject({x1: 1, y1: 2, x2: 3, y2: 4});
         near(viewOf(graph), expectedView);

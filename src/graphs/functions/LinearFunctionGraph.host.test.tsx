@@ -31,11 +31,11 @@ function mount() {
     return graph;
 }
 
-test('wiring: the k field is a shared number field and a typed slope reaches the model', () => {
+test('wiring: slope and intercept are board pucks, so Orodja has no k field, and a written slope reaches the model', () => {
     const graph = mount();
     const before = graph.modelNow();
-    expect(field(/^Naklon k$/)).toHaveAttribute('role', 'spinbutton');
-    typeIn(/^Naklon k$/, before.y2 - before.y1 === 0 ? 1 : 3);
+    expect(screen.queryByLabelText(/^Naklon k$/, {selector: 'input:not([type="range"])'})).toBeNull();
+    act(() => { graph.parameters!.write('k', before.y2 - before.y1 === 0 ? 1 : 3, 'learner'); });
     const after = graph.modelNow();
     expect(after.x1).toBe(before.x1);
     expect(after.y2).not.toBe(before.y2);

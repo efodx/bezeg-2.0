@@ -6,16 +6,24 @@ import type {FunctionParameterName, LessonAction, LessonViewBox} from '../model'
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {ExponentialIds} from '../../graphs/functions/ExponentialFunctionGraph';
+import type {LinearFunctionIds} from '../../graphs/functions/LinearFunctionGraph';
+import type {TrigonometricIds} from '../../graphs/functions/TrigonometricFunctionsGraph';
 import type {ContinuityIds} from '../../graphs/functions/ContinuityGraph';
 import type {AreaBetweenIds} from '../../graphs/functions/AreaBetweenCurvesGraph';
 import type {ArcLengthIds} from '../../graphs/functions/ArcLengthGraph';
+import type {DerivativeIds} from '../../graphs/functions/DerivativeGraph';
+import type {DefiniteIntegralIds} from '../../graphs/functions/DefiniteIntegralGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
-const exponentialFrame = frameDeclarer<ExponentialIds>();
+const linearFrame = frameDeclarer<LinearFunctionIds>();
+const trigFrame = frameDeclarer<TrigonometricIds>();
+const exponentialFrame =frameDeclarer<ExponentialIds>();
 const continuityFrame = frameDeclarer<ContinuityIds>();
 const areaFrame = frameDeclarer<AreaBetweenIds>();
 const arcFrame = frameDeclarer<ArcLengthIds>();
+const derivativeFrame = frameDeclarer<DerivativeIds>();
+const integralFrame = frameDeclarer<DefiniteIntegralIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 
 const linearFunction: GuidedLesson = {
@@ -106,7 +114,7 @@ const linearFunction: GuidedLesson = {
                 'A linear function has the equation \\(y=kx+n\\), and its graph is a line. Two points with different \\(x\\)-coordinates determine the line: move \\(P_1\\) and \\(P_2\\) and watch the line follow them.',
             ),
             formulaIds: ['linear-function-form'],
-            frames: [frame('linear-line-through-points-explanation', 'explanation'), frame('linear-line-through-points-observation', 'observation')],
+            frames: [frame('linear-line-through-points-explanation', 'explanation', linearFrame({highlight: ['equation']})), frame('linear-line-through-points-observation', 'observation', linearFrame({highlight: ['equation']}))],
             observationPrompt: text(
                 'Premakni točko \\(P_1\\) in opazuj, kaj se zgodi s premico in z enačbo na grafu.',
                 'Move point \\(P_1\\) and observe what happens to the line and to the equation on the graph.',
@@ -133,7 +141,7 @@ const linearFunction: GuidedLesson = {
                 'The slope tells how much \\(y\\) changes when \\(x\\) grows by 1. From two points we compute it as the ratio of the legs of the dashed triangle, \\(k=\\Delta y/\\Delta x\\).',
             ),
             formulaIds: ['linear-slope'], workedExampleId: 'linear-two-points',
-            frames: [frame('linear-slope-triangle-explanation', 'explanation'), frame('linear-slope-triangle-calculation', 'calculation'), frame('linear-slope-triangle-observation', 'observation')],
+            frames: [frame('linear-slope-triangle-explanation', 'explanation', linearFrame({highlight: ['k', 'dx', 'dy']})), frame('linear-slope-triangle-calculation', 'calculation', linearFrame({highlight: ['k', 'dx', 'dy']})), frame('linear-slope-triangle-observation', 'observation', linearFrame({highlight: ['k', 'dx', 'dy']}))],
             observationPrompt: text(
                 'Odčitaj \\(\\Delta x\\) in \\(\\Delta y\\) s trikotnika ter ju deli.',
                 'Read \\(\\Delta x\\) and \\(\\Delta y\\) off the triangle and divide them.',
@@ -160,7 +168,7 @@ const linearFunction: GuidedLesson = {
                 'At \\(x=0\\) we get \\(y=n\\), so the line crosses the \\(y\\)-axis at \\((0,n)\\). If you change \\(n\\) and keep \\(k\\), the line shifts up or down in parallel while the points keep their \\(x\\)-coordinates.',
             ),
             formulaIds: ['linear-intercept'],
-            frames: [frame('linear-intercept-step-explanation', 'explanation'), frame('linear-intercept-step-observation', 'observation')],
+            frames: [frame('linear-intercept-step-explanation', 'explanation', linearFrame({highlight: ['n']})), frame('linear-intercept-step-observation', 'observation', linearFrame({highlight: ['n']}))],
             observationPrompt: text(
                 'Poišči označeno točko na osi \\(y\\) in primerjaj njeno višino z odčitkom \\(n\\).',
                 'Find the marked point on the \\(y\\)-axis and compare its height with the readout of \\(n\\).',
@@ -187,7 +195,7 @@ const linearFunction: GuidedLesson = {
                 'For \\(k>0\\) the function rises, for \\(k=0\\) it is constant and for \\(k<0\\) it falls. The larger \\(|k|\\) is, the steeper the line.',
             ),
             formulaIds: ['linear-slope'],
-            frames: [frame('linear-slope-sign-explanation', 'explanation'), frame('linear-slope-sign-observation', 'observation')],
+            frames: [frame('linear-slope-sign-explanation', 'explanation', linearFrame({highlight: ['k']})), frame('linear-slope-sign-observation', 'observation', linearFrame({highlight: ['k']}))],
             observationPrompt: text(
                 'Premakni točko tako, da dobiš \\(k=0\\), nato pa še tako, da dobiš \\(k>0\\).',
                 'Move a point so that \\(k=0\\), and then so that \\(k>0\\).',
@@ -214,7 +222,7 @@ const linearFunction: GuidedLesson = {
                 'Parallel lines have the same slope \\(k\\) and differ only in \\(n\\). If the points have the same \\(x\\), then \\(\\Delta x=0\\): the line is vertical with the equation \\(x=c\\), and it has no slope because we must not divide by \\(0\\). A vertical line is not the graph of any function.',
             ),
             formulaIds: ['linear-vertical'],
-            frames: [frame('linear-parallel-vertical-explanation', 'explanation'), frame('linear-parallel-vertical-observation', 'observation')],
+            frames: [frame('linear-parallel-vertical-explanation', 'explanation', linearFrame({highlight: ['k', 'dx']})), frame('linear-parallel-vertical-observation', 'observation', linearFrame({highlight: ['k', 'dx']}))],
             observationPrompt: text(
                 'Premakni \\(P_2\\) vodoravno stran od navpičnice in opazuj, kdaj spet dobiš naklon. Nato poskusi dobiti premico, vzporedno s prvotno.',
                 'Move \\(P_2\\) sideways away from the vertical line and observe when the slope returns. Then try to get a line parallel to the original one.',
@@ -623,7 +631,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'With the default settings \\(A=1\\), \\(\\omega=1\\), \\(\\varphi=0\\) and \\(B=0\\) we have \\(f(x)=\\sin x\\). The wave repeats every \\(2\\pi\\approx6.28\\) and never rises above \\(1\\) or falls below \\(-1\\). Try the sliders, then return to these values.',
             ),
             formulaIds: ['trig-form'],
-            frames: [frame('trig-base-sine-explanation', 'explanation'), frame('trig-base-sine-observation', 'observation')],
+            frames: [frame('trig-base-sine-explanation', 'explanation', trigFrame({highlight: ['range', 'period']})), frame('trig-base-sine-observation', 'observation', trigFrame({highlight: ['range', 'period']}))],
             observationPrompt: text(
                 'Poišči najvišjo in najnižjo točko grafa ter dve točki, kjer se val začne ponavljati, in primerjaj z odčitkoma zaloge vrednosti in periode.',
                 'Find the highest and the lowest point of the graph and two points where the wave starts to repeat, and compare them with the readouts of the range and the period.',
@@ -650,7 +658,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(A\\): for \\(A=2\\) we have \\(f(x)=2\\sin x\\), and the wave reaches \\(|A|=2\\) above the midline \\(y=0\\) and \\(2\\) below it. The range is therefore \\([B-|A|,B+|A|]=[-2,2]\\), while the period \\(2\\pi\\) and the midline stay the same as for the reference graph.',
             ),
             formulaIds: ['trig-range'],
-            frames: [frame('trig-amplitude-midline-explanation', 'explanation'), frame('trig-amplitude-midline-observation', 'observation')],
+            frames: [frame('trig-amplitude-midline-explanation', 'explanation', trigFrame({highlight: ['amplitude', 'range']})), frame('trig-amplitude-midline-observation', 'observation', trigFrame({highlight: ['amplitude', 'range'], uses: ['A']}))],
             observationPrompt: text(
                 'Primerjaj višino vrhov polnega in črtkanega grafa ter njuna prečkanja osi \\(x\\). Nato premakni drsnik \\(A\\) čez \\(0\\) v negativne vrednosti in opazuj graf ter odčitek amplitude.',
                 'Compare the height of the peaks of the solid and the dashed graph and where they cross the \\(x\\)-axis. Then move the slider \\(A\\) across \\(0\\) to negative values and watch the graph and the amplitude readout.',
@@ -677,7 +685,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The reference graph is again the basic \\(\\sin x\\). We change only \\(B\\): for \\(B=1\\) we have \\(f(x)=\\sin x+1\\), the midline is \\(y=1\\), the maximum is \\(B+|A|=1+1=2\\) and the minimum is \\(B-|A|=1-1=0\\). The height of the wave above the midline is still \\(|A|=1\\) and the period is \\(2\\pi\\).',
             ),
             formulaIds: ['trig-range'],
-            frames: [frame('trig-vertical-shift-explanation', 'explanation'), frame('trig-vertical-shift-observation', 'observation')],
+            frames: [frame('trig-vertical-shift-explanation', 'explanation', trigFrame({highlight: ['range']})), frame('trig-vertical-shift-observation', 'observation', trigFrame({highlight: ['range']}))],
             observationPrompt: text(
                 'Izberi točko na črtkanem grafu in poišči točko polnega grafa z istim \\(x\\): za koliko je višja? Primerjaj še srednjo črto in odčitek zaloge vrednosti.',
                 'Pick a point on the dashed graph and find the point of the solid graph with the same \\(x\\): how much higher is it? Also compare the midline and the range readout.',
@@ -704,7 +712,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The reference graph is the basic \\(\\sin x\\). We change only \\(\\omega\\): for \\(\\omega=2\\) we have \\(f(x)=\\sin 2x\\). The argument \\(2x\\) runs through \\(2\\pi\\) already when \\(x\\) grows by \\(\\pi\\), so the period is \\(2\\pi/\\omega=\\pi\\) and the wave repeats twice in the same distance \\(2\\pi\\). The height of the wave does not change, and the range stays \\([-1,1]\\).',
             ),
             formulaIds: ['trig-period-shift'],
-            frames: [frame('trig-frequency-explanation', 'explanation'), frame('trig-frequency-observation', 'observation')],
+            frames: [frame('trig-frequency-explanation', 'explanation', trigFrame({highlight: ['period']})), frame('trig-frequency-observation', 'observation', trigFrame({highlight: ['period']}))],
             observationPrompt: text(
                 'Preštej vrhove črtkanega in polnega grafa na razmiku od \\(0\\) do \\(2\\pi\\) in primerjaj razmik med dvema zaporednima vrhovoma polnega grafa z odčitkom periode.',
                 'Count the peaks of the dashed and of the solid graph between \\(0\\) and \\(2\\pi\\) and compare the distance between two consecutive peaks of the solid graph with the period readout.',
@@ -731,7 +739,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The dashed reference graph is the basic \\(\\sin x\\). We change only \\(\\varphi\\): the solid graph is \\(\\sin(x+\\pi/2)\\) for \\(\\varphi=\\pi/2\\). A positive \\(\\varphi\\) moves the graph to the left and a negative one to the right. The solid graph is shifted by \\(-\\varphi/\\omega=-\\pi/2\\), that is to the left, and has its maximum \\(1\\) at \\(x=0\\), just like \\(\\cos x\\). Check it: choose \\(\\cos\\) and set \\(\\varphi=0\\); you get the same graph.',
             ),
             formulaIds: ['trig-cos-sin'],
-            frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation'), frame('trig-cosine-shifted-sine-observation', 'observation')],
+            frames: [frame('trig-cosine-shifted-sine-explanation', 'explanation', trigFrame({highlight: ['shift']})), frame('trig-cosine-shifted-sine-observation', 'observation', trigFrame({highlight: ['shift'], uses: ['phi']}))],
             observationPrompt: text(
                 'Primerjaj polni graf s črtkanim: za koliko in v katero smer je zamaknjen? Nato nastavi \\(\\varphi=-\\pi/2\\) in preveri, da se graf zamakne v desno, nato pa izberi \\(\\cos\\), nastavi \\(\\varphi=0\\) in preveri, da se polni graf ne spremeni.',
                 'Compare the solid graph with the dashed one: by how much and in which direction is it shifted? Then set \\(\\varphi=-\\pi/2\\) and check that the graph moves to the right, and finally choose \\(\\cos\\), set \\(\\varphi=0\\) and check that the solid graph does not change.',
@@ -758,7 +766,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'The factor \\(\\omega\\) squeezes the graph horizontally: the period is \\(2\\pi/\\omega\\). Since \\(\\omega x+\\varphi=\\omega(x+\\varphi/\\omega)\\), the graph is shifted by \\(-\\varphi/\\omega\\). For \\(A=2\\), \\(\\omega=2\\), \\(\\varphi=\\pi/2\\) and \\(B=1\\) the maximum is \\(1+2=3\\), the minimum \\(1-2=-1\\), the period \\(2\\pi/2=\\pi\\) and the shift \\(-(\\pi/2)/2=-\\pi/4\\).',
             ),
             formulaIds: ['trig-period-shift'], workedExampleId: 'trig-period-shift-example',
-            frames: [frame('trig-period-shift-explanation', 'explanation'), frame('trig-period-shift-calculation', 'calculation'), frame('trig-period-shift-observation', 'observation')],
+            frames: [frame('trig-period-shift-explanation', 'explanation', trigFrame({highlight: ['period', 'shift', 'range']})), frame('trig-period-shift-calculation', 'calculation', trigFrame({highlight: ['period', 'shift', 'range']})), frame('trig-period-shift-observation', 'observation', trigFrame({highlight: ['period', 'shift', 'range']}))],
             observationPrompt: text(
                 'Poišči najvišjo točko grafa blizu \\(x=0\\) in preveri njeno višino. Primerjaj razmik med dvema zaporednima vrhovoma z odčitkom periode.',
                 'Find the highest point of the graph near \\(x=0\\) and check its height. Compare the distance between two consecutive peaks with the period readout.',
@@ -785,7 +793,7 @@ const trigonometricFunctions: GuidedLesson = {
                 'For \\(\\tan\\) the period is \\(\\pi/\\omega\\). The graph has vertical asymptotes where \\(\\cos(\\omega x+\\varphi)=0\\), that is at \\(\\omega x+\\varphi=\\pi/2+m\\pi\\) for integers \\(m\\). For \\(\\omega=1\\) and \\(\\varphi=0\\) the visible asymptotes are at \\(x=\\pm\\pi/2\\approx\\pm1.57\\) and \\(x=\\pm3\\pi/2\\approx\\pm4.71\\). Between asymptotes the graph (for \\(A>0\\)) rises through all values, so it has no maximum, no minimum and no amplitude, and its range is all real numbers. The branches are not joined across asymptotes.',
             ),
             formulaIds: ['trig-tan-asymptotes'],
-            frames: [frame('trig-tangent-explanation', 'explanation'), frame('trig-tangent-observation', 'observation')],
+            frames: [frame('trig-tangent-explanation', 'explanation', trigFrame({highlight: ['period']})), frame('trig-tangent-observation', 'observation', trigFrame({highlight: ['period'], uses: ['omega', 'phi']}))],
             observationPrompt: text(
                 'Spremeni \\(\\omega\\) in \\(\\varphi\\) ter opazuj, kako se premikajo asimptote in kako se spreminja razmik med njimi.',
                 'Change \\(\\omega\\) and \\(\\varphi\\) and watch how the asymptotes move and how the distance between them changes.',
@@ -1172,7 +1180,7 @@ const derivative: GuidedLesson = {
                 'The point \\(P=(x_0,f(x_0))\\) lies on the graph, and the point \\(Q=(x_0+h,f(x_0+h))\\) is \\(h\\) horizontally away from it. The line through \\(P\\) and \\(Q\\) is the secant; its slope is the ratio \\(\\Delta y/\\Delta x\\), that is the difference quotient \\(\\frac{f(x_0+h)-f(x_0)}{h}\\). For the default \\(f(x)=x^2\\), \\(x_0=1\\) and \\(h=1\\) we get \\(P=(1,1)\\), \\(Q=(2,4)\\) and the slope \\((4-1)/1=3\\).',
             ),
             formulaIds: ['derivative-difference-quotient'],
-            frames: [frame('derivative-secant-explanation', 'explanation'), frame('derivative-secant-observation', 'observation')],
+            frames: [frame('derivative-secant-explanation', 'explanation', derivativeFrame({highlight: ['quotient']})), frame('derivative-secant-observation', 'observation', derivativeFrame({highlight: ['quotient'], uses: ['h', 'x0']}))],
             observationPrompt: text(
                 'Povleci točko \\(P\\) po grafu in premakni drsnik \\(h\\). Primerjaj naklon sekante na grafu z odčitkom diferenčnega kvocienta.',
                 'Drag the point \\(P\\) along the graph and move the slider \\(h\\). Compare the slope of the secant on the board with the difference quotient readout.',
@@ -1199,7 +1207,7 @@ const derivative: GuidedLesson = {
                 'For \\(f(x)=x^2\\) and \\(x_0=1\\) we have \\(\\frac{(1+h)^2-1}{h}=\\frac{2h+h^2}{h}=2+h\\). For \\(h=1\\) we get \\(3\\) and for \\(h=0.5\\) we get \\(2.5\\). The scene sets \\(h=0.5\\): the point \\(Q=(1.5,\\,2.25)\\) and the secant slope \\(2.5\\).',
             ),
             formulaIds: ['derivative-square-quotient'], workedExampleId: 'derivative-square-example',
-            frames: [frame('derivative-quotient-explanation', 'explanation'), frame('derivative-quotient-calculation', 'calculation'), frame('derivative-quotient-observation', 'observation')],
+            frames: [frame('derivative-quotient-explanation', 'explanation', derivativeFrame({highlight: ['quotient', 'f-x0h']})), frame('derivative-quotient-calculation', 'calculation', derivativeFrame({highlight: ['quotient', 'f-x0h']})), frame('derivative-quotient-observation', 'observation', derivativeFrame({highlight: ['quotient', 'f-x0h'], uses: ['h']}))],
             observationPrompt: text(
                 'Nastavi nekaj vrednosti \\(h\\) in za vsako primerjaj odčitek kvocienta z izrazom \\(2+h\\).',
                 'Set a few values of \\(h\\) and for each compare the quotient readout with the expression \\(2+h\\).',
@@ -1226,7 +1234,7 @@ const derivative: GuidedLesson = {
                 'As \\(h\\) shrinks, \\(Q\\) approaches \\(P\\) and the secant turns towards the tangent. At \\(h=0.1\\) the quotient is \\(2+0.1=2.1\\) and at \\(h=0.01\\) it is \\(2.01\\). The values approach \\(2\\), the derivative \\(f\'(1)=2\\cdot1=2\\). The derivative is the limit \\(\\lim_{h\\to0}(2+h)=2\\).',
             ),
             formulaIds: ['derivative-limit'],
-            frames: [frame('derivative-shrinking-explanation', 'explanation'), frame('derivative-shrinking-observation', 'observation')],
+            frames: [frame('derivative-shrinking-explanation', 'explanation', derivativeFrame({highlight: ['difference']})), frame('derivative-shrinking-observation', 'observation', derivativeFrame({highlight: ['difference'], uses: ['h']}))],
             observationPrompt: text(
                 'Počasi manjšaj \\(h\\) do \\(0{,}01\\) in opazuj odčitek razlike med kvocientom in \\(f\'(1)\\).',
                 'Slowly decrease \\(h\\) down to \\(0.01\\) and watch the readout of the difference between the quotient and \\(f\'(1)\\).',
@@ -1253,7 +1261,7 @@ const derivative: GuidedLesson = {
                 'The tangent is the line through \\(P\\) with slope \\(f\'(x_0)\\); you show it with the switch. For a negative \\(h\\), the point \\(Q\\) lies to the left of \\(P\\). For \\(h=-0.5\\) we get \\(Q=(0.5,\\,0.25)\\) and the quotient \\(\\frac{0.25-1}{-0.5}=1.5=2+h\\). From the left as well, the quotient approaches \\(2\\).',
             ),
             formulaIds: ['derivative-limit'],
-            frames: [frame('derivative-tangent-explanation', 'explanation'), frame('derivative-tangent-observation', 'observation')],
+            frames: [frame('derivative-tangent-explanation', 'explanation', derivativeFrame({highlight: ['derivative', 'quotient']})), frame('derivative-tangent-observation', 'observation', derivativeFrame({highlight: ['derivative', 'quotient'], uses: ['h']}))],
             observationPrompt: text(
                 'Primerjaj črtkano tangento s sekanto, ko je \\(h\\) pozitiven in ko je negativen. Na kateri strani od \\(P\\) leži \\(Q\\)?',
                 'Compare the dashed tangent with the secant when \\(h\\) is positive and when it is negative. On which side of \\(P\\) does \\(Q\\) lie?',
@@ -1280,7 +1288,7 @@ const derivative: GuidedLesson = {
                 'Choose \\(f(x)=\\sin x\\) at \\(x_0=1\\). The derivative is \\(\\cos 1\\approx0.5403\\). At \\(h=0.2\\) the quotient is \\(\\frac{\\sin1.2-\\sin1}{0.2}\\approx0.4528\\), about \\(0.0875\\) below it. At \\(h=0.01\\) the quotient is \\(\\approx0.5361\\). The quotient approaches \\(\\cos1\\), but \\(h\\) must never become \\(0\\): there the quotient would be \\(0/0\\).',
             ),
             formulaIds: ['derivative-limit'],
-            frames: [frame('derivative-sin-explanation', 'explanation'), frame('derivative-sin-observation', 'observation')],
+            frames: [frame('derivative-sin-explanation', 'explanation', derivativeFrame({highlight: ['quotient', 'derivative']})), frame('derivative-sin-observation', 'observation', derivativeFrame({highlight: ['quotient', 'derivative'], uses: ['h', 'x0']}))],
             observationPrompt: text(
                 'Manjšaj \\(h\\) in primerjaj kvocient z natančnim odvodom \\(\\cos x_0\\). Poskusi tudi povleči \\(P\\) po grafu in poišči mesto z vodoravno tangento.',
                 'Decrease \\(h\\) and compare the quotient with the exact derivative \\(\\cos x_0\\). Also try dragging \\(P\\) along the graph and find the place with a horizontal tangent.',
@@ -1415,7 +1423,7 @@ const definiteIntegral: GuidedLesson = {
                 'We split the interval \\([a,b]\\) into \\(n\\) equally wide subintervals of width \\(h=\\frac{b-a}{n}\\) and draw a rectangle on each one. For the default \\(f(x)=x^2\\), \\(a=0\\), \\(b=2\\) and \\(n=4\\) we get \\(h=\\frac{2-0}{4}=0.5\\). The default is the left sum: the height of a rectangle is the value of \\(f\\) at the left end of its subinterval. The exact integral is \\(\\int_0^2 x^2\\,dx=\\frac{8}{3}\\approx2.6667\\).',
             ),
             formulaIds: ['integral-width', 'integral-exact'],
-            frames: [frame('integral-area-explanation', 'explanation'), frame('integral-area-observation', 'observation')],
+            frames: [frame('integral-area-explanation', 'explanation', integralFrame({highlight: ['h', 'sum']})), frame('integral-area-observation', 'observation', integralFrame({highlight: ['h', 'sum'], uses: ['a', 'b']}))],
             observationPrompt: text(
                 'Povleci točki \\(a\\) in \\(b\\) po osi \\(x\\) in opazuj širino \\(h\\), pravokotnike ter vsoto. Nato ju vrni na \\(0\\) in \\(2\\).',
                 'Drag the points \\(a\\) and \\(b\\) along the \\(x\\)-axis and watch the width \\(h\\), the rectangles and the sum. Then return them to \\(0\\) and \\(2\\).',
@@ -1442,7 +1450,7 @@ const definiteIntegral: GuidedLesson = {
                 'Left sum: the heights at the left ends are \\(0\\), \\(0.25\\), \\(1\\) and \\(2.25\\) with sum \\(3.5\\), so \\(L=0.5\\cdot3.5=1.75\\). The right sum uses the right ends: the heights \\(0.25\\), \\(1\\), \\(2.25\\) and \\(4\\) have sum \\(7.5\\), so \\(R=0.5\\cdot7.5=3.75\\). The exact value is \\(\\frac{8}{3}\\approx2.6667\\). Since \\(x^2\\) is increasing on \\([0,2]\\), the left sum underestimates (\\(1.75<\\frac{8}{3}\\)) and the right sum overestimates (\\(3.75>\\frac{8}{3}\\)). The scene selects the right sum.',
             ),
             formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example',
-            frames: [frame('integral-left-right-explanation', 'explanation'), frame('integral-left-right-calculation', 'calculation'), frame('integral-left-right-observation', 'observation')],
+            frames: [frame('integral-left-right-explanation', 'explanation', integralFrame({highlight: ['sum', 'exact']})), frame('integral-left-right-calculation', 'calculation', integralFrame({highlight: ['sum', 'exact']})), frame('integral-left-right-observation', 'observation', integralFrame({highlight: ['sum', 'exact'], uses: ['sum-method']}))],
             observationPrompt: text(
                 'Preklopi med levo in desno vsoto in primerjaj višine pravokotnikov z grafom. Kateri pravokotniki ležijo pod grafom in kateri nad njim?',
                 'Switch between the left and the right sum and compare the heights of the rectangles with the graph. Which rectangles lie under the graph and which stick out above it?',
@@ -1469,7 +1477,7 @@ const definiteIntegral: GuidedLesson = {
                 'The midpoint sum takes the height at the middle of the subinterval, at \\(x=0.25\\), \\(0.75\\), \\(1.25\\) and \\(1.75\\). The heights have sum \\(5.25\\), so \\(M=0.5\\cdot5.25=2.625\\). The trapezoid sum is the mean of the left and right sums: \\(T=\\frac{1.75+3.75}{2}=2.75\\); it draws trapezoids instead of rectangles. The errors are \\(\\frac{8}{3}-2.625=\\frac{1}{24}\\approx0.0417\\) and \\(2.75-\\frac{8}{3}=\\frac{1}{12}\\approx0.0833\\), against \\(\\frac{11}{12}\\) and \\(\\frac{13}{12}\\) for the left and right sums. The scene selects the midpoint sum.',
             ),
             formulaIds: ['integral-sums'], workedExampleId: 'integral-square-example',
-            frames: [frame('integral-midpoint-explanation', 'explanation'), frame('integral-midpoint-calculation', 'calculation'), frame('integral-midpoint-observation', 'observation')],
+            frames: [frame('integral-midpoint-explanation', 'explanation', integralFrame({highlight: ['difference']})), frame('integral-midpoint-calculation', 'calculation', integralFrame({highlight: ['difference']})), frame('integral-midpoint-observation', 'observation', integralFrame({highlight: ['difference'], uses: ['sum-method']}))],
             observationPrompt: text(
                 'Preklopi med sredinsko in trapezno vsoto ter primerjaj odčitek razlike med vsoto in integralom z obema prejšnjima vsotama.',
                 'Switch between the midpoint and the trapezoid sum and compare the readout of the difference between the sum and the integral with the two earlier sums.',
@@ -1496,7 +1504,7 @@ const definiteIntegral: GuidedLesson = {
                 'With \\(n=100\\) the width is \\(h=0.02\\) and the sums are: left \\(2.6268\\), right \\(2.7068\\), midpoint \\(2.6666\\), trapezoid \\(2.6668\\). All of them are within \\(0.05\\) of \\(\\frac{8}{3}\\approx2.6667\\). The error of the left and right sums is about \\(0.04\\), and that of the midpoint and trapezoid sums is below \\(0.0002\\). With larger \\(n\\) the rectangles are narrower and cover the area better; the integral is the limit of these sums. The scene sets \\(n=100\\) with the left sum.',
             ),
             formulaIds: ['integral-sums', 'integral-exact'],
-            frames: [frame('integral-more-explanation', 'explanation'), frame('integral-more-observation', 'observation')],
+            frames: [frame('integral-more-explanation', 'explanation', integralFrame({highlight: ['difference']})), frame('integral-more-observation', 'observation', integralFrame({highlight: ['difference'], uses: ['n', 'sum-method']}))],
             observationPrompt: text(
                 'Premakni drsnik \\(n\\) od \\(1\\) do \\(150\\) in pri vsaki vrsti vsote opazuj razliko med vsoto in integralom.',
                 'Move the slider \\(n\\) from \\(1\\) to \\(150\\) and, for each kind of sum, watch the difference between the sum and the integral.',
@@ -1523,7 +1531,7 @@ const definiteIntegral: GuidedLesson = {
                 'For \\(f(x)=\\sin x\\) on \\([0,2\\pi]\\) the exact integral is \\(-\\cos2\\pi+\\cos0=-1+1=0\\). The part on \\([0,\\pi]\\) above the axis gives \\(+2\\) and the part on \\([\\pi,2\\pi]\\) below the axis gives \\(-2\\); the differently coloured rectangles below the axis are subtracted. The scene sets the midpoint sum with \\(n=12\\) and the sum is \\(0\\). The ordinary (unsigned) area would be \\(2+2=4\\), but the integral is not that. For \\(a=b\\) we get \\(h=0\\) and both the sum and the integral are \\(0\\); for swapped bounds \\(a>b\\) we get \\(h<0\\) and both change sign.',
             ),
             formulaIds: ['integral-exact'],
-            frames: [frame('integral-signed-explanation', 'explanation'), frame('integral-signed-observation', 'observation')],
+            frames: [frame('integral-signed-explanation', 'explanation', integralFrame({highlight: ['sum', 'h']})), frame('integral-signed-observation', 'observation', integralFrame({highlight: ['sum', 'h'], uses: ['a', 'b']}))],
             observationPrompt: text(
                 'Premakni \\(b\\) na \\(\\pi\\) in nazaj na \\(2\\pi\\) ter primerjaj odčitek vsote. Nato zamenjaj \\(a\\) in \\(b\\) ter nastavi \\(a=b\\).',
                 'Move \\(b\\) to \\(\\pi\\) and back to \\(2\\pi\\) and compare the sum readout. Then swap \\(a\\) and \\(b\\) and set \\(a=b\\).',

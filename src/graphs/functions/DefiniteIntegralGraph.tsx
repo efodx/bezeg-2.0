@@ -1,9 +1,11 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t} from "../../localization";
+import type {GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {formatNumber} from "../../analysis/format";
 import {catalogFunction, FUNCTION_IDS, FunctionId, isFunctionId} from "../../analysis/functions";
 import {
@@ -15,6 +17,26 @@ import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {choiceRejected, integerRangeRejected, numberRangeRejected} from "./functionSetterMessages";
+
+/** The ids of the definite-integral declaration: the count, the bounds and the sum type are board pucks; the drawn objects are the legend. */
+export type DefiniteIntegralIds = {
+    param: "a" | "b" | "n" | "sum-method";
+    row: "a" | "b" | "n" | "h" | "sum" | "exact" | "difference"; note: "integral" | "reversed";
+    legend: "curve" | "positive" | "negative" | "point-a" | "point-b"; section: never; action: never;
+};
+
+const METHOD_SHORT_KEYS = {
+    left: "integral_method_short_left",
+    right: "integral_method_short_right",
+    midpoint: "integral_method_short_midpoint",
+    trapezoid: "integral_method_short_trapezoid",
+} as const satisfies Record<SumMethod, string>;
+const METHOD_KEYS = {
+    left: "integral_method_left",
+    right: "integral_method_right",
+    midpoint: "integral_method_midpoint",
+    trapezoid: "integral_method_trapezoid",
+} as const satisfies Record<SumMethod, string>;
 
 /** Sums and integrals show four decimals so that the lesson's 2.6268 and 2.6667 can be read off. */
 const PRECISE = 4;
@@ -51,6 +73,8 @@ const FUNCTION_VIEWS: Readonly<Record<FunctionId, BoundingBox>> = {
 export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     private readonly fillOf = this.modelCache((model: RiemannModel) => fillData(catalogFunction(model.fn), model.a, model.b, model.n, model.method));
 
     override presetCollection() {
@@ -132,7 +156,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
 
         // Layers, lowest first: the shapes above the axis, the shapes below it, the function, then the bound points.
         const fill = (color: string, part: "positive" | "negative") => {
-            this.signedFill(color, () => this.fillOf(this.model)[part]);
+            this.drawn.set(part, this.signedFill(color, () => this.fillOf(this.model)[part]) as unknown as JXG.GeometryElement);
         };
         fill(GraphPalette.additionalCurves[0], "positive");
         fill(GraphPalette.additionalCurves[1], "negative");
@@ -145,9 +169,9 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
             const y = fn().value(x);
             return y > top + margin || y < bottom - margin ? NaN : y;
         };
-        this.own(board.create("functiongraph", [clipped], {
+        this.drawn.set("curve", this.own(board.create("functiongraph", [clipped], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth,
-        }));
+        })));
 
         // The bounds slide along the x-axis: a drag keeps y = 0 and writes the rounded x to the model.
         // Their labels go below the axis, under the tick numbers, away from the graph that starts on the axis (x^2 and e^x touch it near a = 0).
@@ -158,6 +182,8 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         });
         this.pointA = bound("a");
         this.pointB = bound("b");
+        this.drawn.set("point-a", this.pointA);
+        this.drawn.set("point-b", this.pointB);
 
         // The function and the two results, the most important readouts, stay on the board, top left: every catalog graph rises to the right or is small there.
         this.caption("top-left", [
@@ -178,6 +204,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -185,20 +212,20 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     protected renderControls(): React.ReactNode {
         const {fn, a, b, n, method} = this.model;
         return <>
-            <div className="inspector-group">
+            <PuckOwnedGroup params={["n"]} className="inspector-group">
                 <Slider customText={t("integral_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
-            </div>
-            <div className="inspector-group">
-                <ChoiceSelect label={t("integral_method_label")} value={method} help={t("integral_method_help")}
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["sum-method", "a", "b"]} className="inspector-group">
+                <PuckOwned param="sum-method"><ChoiceSelect label={t("integral_method_label")} value={method} help={t("integral_method_help")}
                               options={SUM_METHODS.map(id => ({value: id, text: METHOD_LABELS[id]()}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setMethod(next))}/>
-                <Slider customText={t("integral_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <Slider customText={t("integral_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
+                              onChange={next => this.ignoreOutOfDomain(() => this.setMethod(next))}/></PuckOwned>
+                <PuckOwned param="a"><Slider customText={t("integral_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/></PuckOwned>
+                <PuckOwned param="b"><Slider customText={t("integral_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/></PuckOwned>
                 <p className="inspector-help">{t("integral_bounds_help")}</p>
-            </div>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("integral_function_label")} value={fn} help={t("integral_function_help")}
                               options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
@@ -207,31 +234,79 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
-        const {fn, a, b, n, method} = this.model;
-        const language = currentLanguage();
-        const entry = catalogFunction(fn);
-        const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);
-        const sum = riemannSum(entry, a, b, n, method);
-        const exact = exactIntegral(entry, a, b);
-        const rows = [
-            {id: "a", label: "a", value: number(a)},
-            {id: "b", label: "b", value: number(b)},
-            {id: "n", label: "n", value: number(n, 0)},
-            {id: "h", label: t("integral_width"), value: number(subintervalWidth(a, b, n), PRECISE)},
-            {id: "sum", label: t("integral_sum"), value: number(sum, PRECISE)},
-            {id: "exact", label: t("integral_exact"), value: number(exact, PRECISE)},
-            {id: "difference", label: t("integral_difference"), value: number(sum - exact, PRECISE)},
-        ];
-        const notes = a > b ? [t("integral_note"), t("integral_reversed_note")] : t("integral_note");
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={notes}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            a: {read: () => this.model.a, apply: (value: number) => this.setBound("a", value)},
+            b: {read: () => this.model.b, apply: (value: number) => this.setBound("b", value)},
+            n: {read: () => this.model.n, apply: (value: number) => this.setCount(value)},
+            "sum-method": {read: () => this.model.method, apply: (value: string) => this.setMethod(value)},
+        };
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "positive", color: GraphPalette.additionalCurves[0], label: t("integral_legend_positive")},
-            {id: "negative", color: GraphPalette.additionalCurves[1], label: t("integral_legend_negative")},
-        ]}/>;
+    /** The common declaration (rows, notes, view marks) plus the count, the bounds and the sum type as board pucks and the legend of the drawn objects. */
+    protected override declaration(): GraphDeclaration {
+        const bound = (key: "a" | "b"): ParameterDeclaration => ({
+            key, kind: "range", label: message(key === "a" ? "integral_a_name" : "integral_b_name"), symbol: key, help: message("integral_bounds_help"),
+            placement: "board", min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP, maxDecimals: 2,
+        });
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "n", kind: "count", label: message("integral_n_name"), symbol: "n", placement: "board", min: N_MIN, max: N_MAX},
+                bound("a"),
+                bound("b"),
+                {key: "sum-method", kind: "choice", label: message("integral_method_name"), help: message("integral_method_help"), placement: "board", puck: true,
+                    options: SUM_METHODS.map(id => ({value: id, label: message(METHOD_KEYS[id]), short: message(METHOD_SHORT_KEYS[id])}))},
+            ],
+            legend: [
+                {id: "curve", label: message("integral_legend_curve"), kind: "line", object: "curve"},
+                {id: "positive", label: message("integral_legend_positive"), kind: "area", object: "positive"},
+                {id: "negative", label: message("integral_legend_negative"), kind: "area", object: "negative"},
+                {id: "point-a", label: message("integral_legend_point_a"), kind: "point", object: "point-a"},
+                {id: "point-b", label: message("integral_legend_point_b"), kind: "point", object: "point-b"},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "positive" || id === "negative" || id === "point-a" || id === "point-b" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base (task 08): the readout rows, the notes and the plotted curve; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
+        const {a, b, n, method} = this.model;
+        const entry = this.currentFunction();
+        const sum = riemannSum(entry, a, b, n, method);
+        const exact = exactIntegral(entry, a, b);
+        return {
+            rows: [
+                {id: "a", symbol: "a", value: messageNumber(a)},
+                {id: "b", symbol: "b", value: messageNumber(b)},
+                {id: "n", symbol: "n", value: messageNumber(n, 0)},
+                {id: "h", name: message("integral_width"), value: messageNumber(subintervalWidth(a, b, n), PRECISE)},
+                {id: "sum", name: message("integral_sum"), value: messageNumber(sum, PRECISE)},
+                {id: "exact", name: message("integral_exact"), value: messageNumber(exact, PRECISE)},
+                {id: "difference", name: message("integral_difference"), value: messageNumber(sum - exact, PRECISE)},
+            ],
+            notes: [
+                {id: "integral", text: message("integral_note")},
+                ...(a > b ? [{id: "reversed", text: message("integral_reversed_note")}] : []),
+            ],
+            plotted: x => entry.value(x),
+            must: [{x: a, y: 0}, {x: b, y: 0}],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
+        return this.renderDeclaredReadout();
     }
 }
 

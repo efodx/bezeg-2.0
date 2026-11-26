@@ -29,7 +29,7 @@ import {FigureExportScope} from "./export/FigureExportOperation";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
 import {ParameterArbiter, type ParameterBinding} from "./writes/parameterArbiter";
-import {runAs} from "./writes/writeSource";
+import {currentWrite, runAs} from "./writes/writeSource";
 import type {GraphDeclaration, RangeParameter} from "./declare/graphDeclaration";
 import {LessonMorph} from "../../workspace/view/lessonMorph";
 import {SceneReveal} from "../../workspace/view/sceneReveal";
@@ -1303,6 +1303,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
      * default data (`persistedDefaultData`).
      */
     importPreset(preset: Preset) {
+        // A Preset import is the learner's act (a file, a stored Preset, a URL). Scene replacement and lesson actions already
+        // open their own source, and an input event its ambient one; only a call with no source open names the learner here.
+        if (!currentWrite()) { runAs("learner", () => this.importPreset(preset)); return; }
         const checked = this.checkPersistedPreset(preset);
         if (checked.boardState) {
             this.importBoardState(checked.boardState);

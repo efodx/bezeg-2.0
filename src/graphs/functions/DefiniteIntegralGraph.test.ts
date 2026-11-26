@@ -2,7 +2,7 @@ import {act, render, screen} from '@testing-library/react';
 import {DefiniteIntegralGraph} from './DefiniteIntegralGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
-import {onLanguageChange, setLanguage} from '../../localization';
+import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {enterNumber} from '../../inputs/testEntry';
@@ -274,7 +274,7 @@ test('readouts: a, b, n, h, sum, exact integral and difference, in both language
     apply(graph, parameter('n', 100));
     apply(graph, methodChoice('left'));
     expect(byId()).toEqual({a: '0', b: '2', n: '100', h: '0.02', sum: '2.6268', exact: '2.6667', difference: '−0.0399'});
-    expect(graph.renderReadout().props.note).toMatch(/negative/);
+    expect(renderMessage(graph.getDeclaration()!.notes![0].text)).toMatch(/negative/);
     for (const fn of ['square', 'sin', 'exp']) for (const method of ['left', 'right', 'midpoint', 'trapezoid']) for (const [a, b] of [[-7, 7], [7, -7], [0, 0], [3, 3]]) {
         apply(graph, fnChoice(fn));
         apply(graph, methodChoice(method));
@@ -323,17 +323,17 @@ test('importing a model without a view shows the initial view of its function (a
 
 test('reversed bounds add a readout note and the legend names the two colours in words', () => {
     const graph = makeGraph();
-    const notes = () => ([] as string[]).concat(graph.renderReadout().props.note);
+    const notes = () => (graph.getDeclaration()!.notes ?? []).map((note: {text: unknown}) => renderMessage(note.text as never));
     expect(notes()).toHaveLength(1);
     apply(graph, parameter('a', 3));
     apply(graph, parameter('b', 1));
     expect(notes()).toHaveLength(2);
     expect(notes()[1]).toMatch(/obrnjeni/);
-    const legend = graph.renderLegend().props.items;
+    const legend = graph.getDeclaration()!.legend!.filter((item: {id: string}) => item.id === 'positive' || item.id === 'negative');
     expect(legend.map((item: any) => item.id)).toEqual(['positive', 'negative']);
-    expect(legend.map((item: any) => item.color)).toEqual([GraphPalette.additionalCurves[0], GraphPalette.additionalCurves[1]]);
-    expect(legend[0].label).toMatch(/pozitivno/);
-    expect(legend[1].label).toMatch(/negativno/);
+    expect(ofType(graph, 'curve').map((curve: any) => curve.attributes.fillColor)).toEqual([GraphPalette.additionalCurves[0], GraphPalette.additionalCurves[1]]);
+    expect(renderMessage(legend[0].label)).toMatch(/pozitivno/);
+    expect(renderMessage(legend[1].label)).toMatch(/negativno/);
 });
 
 test('controls: function select, bound inputs, n slider 1-150 and method select', () => {
@@ -557,10 +557,10 @@ test('the n slider shows an integer number field that commits typed whole number
     expect(graph.model.n).toBe(12);
 });
 
-test('Edit order: controls, then the readout, then the legend (no reveal area when the graph has no reveals)', () => {
+test('Edit order: controls, then the readout (the legend is declared, so Orodja draws none)', () => {
     const graph = makeGraph();
     const children = (graph.workspaceEdit() as any).props.children;
-    expect(children.map((child: any) => child?.type?.name ?? (child ? 'controls' : null))).toEqual(['controls', null, 'FunctionReadout', 'RefusalNotice', 'FunctionLegend']);
+    expect(children.map((child: any) => child?.type?.name ?? (child ? 'controls' : null))).toEqual(['controls', null, 'FunctionReadout', 'RefusalNotice', null]);
 });
 
 test('the refusals of a lesson action are localized in Slovenian and English', () => {

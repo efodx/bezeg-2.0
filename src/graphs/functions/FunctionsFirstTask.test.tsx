@@ -45,8 +45,6 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     'rational-functions': {first: () => t('rational_function_numerator'), later: [() => t('rational_function_k_label'), () => t('rational_function_probe_label'), () => t('rational_function_example_label')]},
     'geometric-series': {first: () => t('series_q_label'), later: [() => t('series_a_label'), () => t('series_tolerance_label'), () => t('series_example_label')]},
     conics: {first: () => t('conic_phi_label'), later: [() => t('conic_epsilon_label'), () => t('conic_ell_label'), () => t('conic_example_label')]},
-    derivative: {first: () => t('derivative_h_label'), later: [() => t('derivative_function_label'), () => t('derivative_x0_label')]},
-    integral: {first: () => t('integral_n_label'), later: [() => t('integral_method_label'), () => t('integral_a_label'), () => t('integral_function_label')]},
     waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label'), () => t('waves_graph_a1_sum_label'), () => t('waves_graph_p1_label')]},
     'function-inverse': {first: () => t('function_inverse_x0_label'), later: [() => 'action:toggle-inverse', () => 'action:toggle-tangent', () => t('function_inverse_restriction_label')]},
     'polynomial-zeros': {first: () => t('zero_list_position_label', {value0: 1}), later: [() => t('zero_list_multiplicity_label', {value0: 1}), () => 'action:add-zero', () => t('polynomial_zeros_example_label'), () => t('polynomial_zeros_k_label'), () => 'action:toggle-derivative']},
@@ -99,6 +97,18 @@ describe.each(Object.keys(routes))('%s', key => {
             const names = editControls();
             const labels = key === 'area-between' ? [t('area_a_label'), t('area_b_label'), t('area_mode_label')] : [t('arc_n_label'), t('arc_a_label'), t('arc_b_label')];
             for (const label of labels) expect(names.some(name => name.startsWith(label)), names.join(' | ')).toBe(false);
+            return;
+        }
+        if (key === 'derivative' || key === 'integral') {
+            // the step, point and tangent (derivative) or the count, bounds and sum type (integral) are board pucks leading the strip; the function choice stays in Edit
+            const params = key === 'derivative' ? ['h', 'x0', 'tangent'] : ['n', 'a', 'b', 'sum-method'];
+            await waitForPucks(params[0]);
+            expect(puckOrder().slice(0, params.length), puckOrder().join(' | ')).toEqual(params);
+            const names = editControls();
+            const labels = key === 'derivative' ? [t('derivative_h_label'), t('derivative_x0_label'), t('derivative_show_tangent')]
+                : [t('integral_n_label'), t('integral_method_label'), t('integral_a_label'), t('integral_b_label')];
+            for (const label of labels) expect(names.some(name => name.startsWith(label)), names.join(' | ')).toBe(false);
+            expect(names.some(name => name.startsWith(t(key === 'derivative' ? 'derivative_function_label' : 'integral_function_label'))), names.join(' | ')).toBe(true);
             return;
         }
         const names = editControls();

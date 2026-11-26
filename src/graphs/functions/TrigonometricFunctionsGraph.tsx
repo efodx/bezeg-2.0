@@ -1,10 +1,13 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t} from "../../localization";
 import {formatNumber, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {
     AMPLITUDE_MAX, AMPLITUDE_MIN, AMPLITUDE_STEP, amplitude, basicValue, equationText, formatPhase, formatWithPi, GraphPiece, joinPieces, MIDLINE_MAX,
@@ -19,6 +22,13 @@ import {functionPresetCollections} from "./functionPresetCollections";
 import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
 import {cleanNumber} from "../../analysis/numbers";
 
+/** The ids of the trigonometric declaration: the four parameters are board pucks, the reference graph a switch puck; the drawn graphs are the legend. */
+export type TrigonometricIds = {
+    param: "A" | "omega" | "phi" | "B";
+    row: "equation" | "A" | "omega" | "phase-value" | "B" | "phi" | "amplitude" | "period" | "shift" | "range";
+    note: "tangent"; legend: "curve" | "midline" | "reference"; section: never; action: "reference";
+};
+
 /** The reference graph is the plain basic function: A = 1, omega = 1, phi = 0, B = 0. */
 const REFERENCE = {A: 1, omega: 1, phi: 0, B: 0} as const;
 
@@ -29,6 +39,9 @@ const REFERENCE = {A: 1, omega: 1, phi: 0, B: 0} as const;
  * `{fn, A, omega, phi, B, reference}`; the mathematics comes from `src/analysis/trigonometric`.
  */
 export class TrigonometricFunctionsGraph extends BaseFunctionGraph<TrigonometricModel> {
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`); a tangent graph is a separate data curve. */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
+
     override presetCollection() {
         return functionPresetCollections["trigonometric-functions"];
     }
@@ -118,17 +131,17 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         };
 
         // Layers, lowest first: midline, reference graph, asymptotes, then the main graph over them.
-        this.own(board.create("functiongraph", [() => model().B], {
+        this.drawn.set("midline", this.own(board.create("functiongraph", [() => model().B], {
             strokeColor: GraphPalette.referenceCurve, dash: 3, highlight: false, fixed: true, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.6),
-        }));
+        })));
 
         const referenceVisible = () => model().reference;
-        this.own(board.create("functiongraph", [(x: number) => basicValue(model().fn, x)], {
+        this.drawn.set("reference", this.own(board.create("functiongraph", [(x: number) => basicValue(model().fn, x)], {
             strokeColor: GraphPalette.constructionAccent, dash: 2, strokeOpacity: 0.88, highlight: false, fixed: true, strokeWidth: referenceStrokeWidth, visible: () => referenceVisible() && !isTangent(),
-        }));
-        this.dataCurve(() => referenceVisible() && isTangent() ? branches(REFERENCE)() : [], {
+        })));
+        this.drawn.set("reference-tan", this.dataCurve(() => referenceVisible() && isTangent() ? branches(REFERENCE)() : [], {
             strokeColor: GraphPalette.constructionAccent, dash: 2, strokeOpacity: 0.88, highlight: false, fixed: true, strokeWidth: referenceStrokeWidth, visible: () => referenceVisible() && isTangent(),
-        });
+        }));
 
         this.dataCurve(() => {
             if (!isTangent()) return [];
@@ -137,12 +150,12 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
             return tangentAsymptotes(omega, phi, left, right).map(x => ({x: [x, x], y: [bottom, top]}));
         }, {strokeColor: GraphPalette.referenceCurve, dash: 3, strokeOpacity: 0.7, highlight: false, fixed: true, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.6), visible: isTangent});
 
-        this.own(board.create("functiongraph", [(x: number) => trigValue(model(), x)], {
+        this.drawn.set("curve", this.own(board.create("functiongraph", [(x: number) => trigValue(model(), x)], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth, visible: () => !isTangent(),
-        }));
-        this.dataCurve(() => isTangent() ? branches(model())() : [], {
+        })));
+        this.drawn.set("curve-tan", this.dataCurve(() => isTangent() ? branches(model())() : [], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth, visible: isTangent,
-        });
+        }));
 
         // The equation, the most important readout, stays on the board; the reference has its own line while it is shown.
         this.caption("top-left", [
@@ -162,46 +175,134 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
                               options={TRIG_FUNCTIONS.map(name => ({value: name, text: `${name} x`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("trig_amplitude_label")} min={AMPLITUDE_MIN} max={AMPLITUDE_MAX} step={AMPLITUDE_STEP} value={A}
-                        formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setAmplitude(next))}/>
-                <Slider customText={t("trig_omega_label")} min={OMEGA_MIN} max={OMEGA_MAX} step={OMEGA_STEP} value={omega}
-                        help={t("trig_omega_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setOmega(next))}/>
-                <Slider customText={t("trig_phase_label")} min={PHASE_MIN} max={PHASE_MAX} step={PHASE_STEP} value={phi}
+            <PuckOwnedGroup params={["A", "omega", "phi", "B"]} className="inspector-group">
+                <PuckOwned param="A"><Slider customText={t("trig_amplitude_label")} min={AMPLITUDE_MIN} max={AMPLITUDE_MAX} step={AMPLITUDE_STEP} value={A}
+                        formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setAmplitude(next))}/></PuckOwned>
+                <PuckOwned param="omega"><Slider customText={t("trig_omega_label")} min={OMEGA_MIN} max={OMEGA_MAX} step={OMEGA_STEP} value={omega}
+                        help={t("trig_omega_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setOmega(next))}/></PuckOwned>
+                <PuckOwned param="phi"><Slider customText={t("trig_phase_label")} min={PHASE_MIN} max={PHASE_MAX} step={PHASE_STEP} value={phi}
                         help={t("trig_phase_help")} formatValue={value => formatPhase(value, language)}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setPhase(next))}/>
-                <Slider customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} value={B}
-                        formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setMidline(next))}/>
-            </div>
+                        onChange={next => this.ignoreOutOfDomain(() => this.setPhase(next))}/></PuckOwned>
+                <PuckOwned param="B"><Slider customText={t("trig_midline_label")} min={MIDLINE_MIN} max={MIDLINE_MAX} step={MIDLINE_STEP} value={B}
+                        formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setMidline(next))}/></PuckOwned>
+            </PuckOwnedGroup>
         </>;
     }
 
     protected override workspaceGraphDisplay(): React.ReactNode {
-        return <div className="inspector-group">
+        return <PuckOwnedGroup params={["reference"]} className="inspector-group">
             <OnOffSwitch checked={this.model.reference} label={t("trig_show_reference")}
                          onChange={checked => this.setReferenceVisible(checked)}/>
-        </div>;
+        </PuckOwnedGroup>;
     }
 
-    protected renderReadout(): React.ReactNode {
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys; each applies the existing validated setter. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            A: {read: () => this.model.A, apply: (value: number) => this.setAmplitude(value)},
+            omega: {read: () => this.model.omega, apply: (value: number) => this.setOmega(value)},
+            phi: {read: () => this.model.phi, apply: (value: number) => this.setPhase(value)},
+            B: {read: () => this.model.B, apply: (value: number) => this.setMidline(value)},
+        };
+    }
+
+    /** The common declaration (rows, view marks) plus the four parameters as board pucks, the reference switch and the legend of the drawn graphs. */
+    protected override declaration(): GraphDeclaration {
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "A", kind: "range", label: message("trig_amplitude_name"), symbol: "A", placement: "board",
+                    min: AMPLITUDE_MIN, max: AMPLITUDE_MAX, step: AMPLITUDE_STEP, maxDecimals: 1},
+                {key: "omega", kind: "range", label: message("trig_omega_name"), symbol: "\\omega", help: message("trig_omega_help"), placement: "board",
+                    min: OMEGA_MIN, max: OMEGA_MAX, step: OMEGA_STEP, maxDecimals: 2},
+                {key: "phi", kind: "range", label: message("trig_phase_name"), symbol: "\\varphi", help: message("trig_phase_help"), placement: "board",
+                    min: PHASE_MIN, max: PHASE_MAX, step: PHASE_STEP, maxDecimals: 2},
+                {key: "B", kind: "range", label: message("trig_midline_name"), symbol: "B", placement: "board",
+                    min: MIDLINE_MIN, max: MIDLINE_MAX, step: MIDLINE_STEP, maxDecimals: 1},
+            ],
+            legend: [
+                {id: "curve", label: message("trig_legend_curve"), kind: "line", object: "curve"},
+                {id: "midline", label: message("trig_legend_midline"), kind: "dashed", object: "midline"},
+                ...(this.model.reference ? [{id: "reference" as const, label: message("trig_legend_reference"), kind: "dashed" as const, object: "reference"}] : []),
+            ],
+            actions: [
+                {id: "reference", label: message("trig_reference_name"), help: message("trig_show_reference"), placement: "board", enabled: true,
+                    pressed: this.model.reference, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "reference") runAs("learner", () => this.setReferenceVisible(!this.model.reference));
+        else throw new Error("Unknown action");
+    }
+
+    /** The main graph and the reference are a function graph, or a separate branch-by-branch data curve while the function is tan. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(this.model.fn === "tan" && (id === "curve" || id === "reference") ? `${id}-tan` : id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    protected override onSceneRemoved(): void {
+        this.drawn.clear();
+    }
+
+    /**
+     * The highest and lowest point of sine and cosine nearest to x = 0 (the lessons read heights and peak distances off them), so the
+     * view keeps them visible; tangent has none.
+     */
+    private extremes({fn, A, omega, phi, B}: {fn: TrigonometricModel["fn"]; A: number; omega: number; phi: number; B: number}): {x: number; y: number}[] {
+        if (fn === "tan" || A === 0) return [];
+        const half = Math.PI / omega;
+        // The argument is 0 or pi/2 away from a peak for cos and sin respectively: peak of sin at omega x + phi = pi/2, of cos at 0.
+        const peak = ((fn === "sin" ? Math.PI / 2 : 0) - phi) / omega;
+        const nearest = (x: number) => x - Math.round(x / (2 * half)) * 2 * half;
+        const high = nearest(peak);
+        const low = nearest(peak + half);
+        const top = B + Math.abs(A);
+        const bottom = B - Math.abs(A);
+        const [highX, lowX] = A > 0 ? [high, low] : [low, high];
+        return [{x: highX, y: top}, {x: lowX, y: bottom}];
+    }
+
+    /** Declared by the base (task 08): the readout rows, the note and the plotted curve; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
         const {fn, A, omega, phi, B} = this.model;
         const language = currentLanguage();
         const parameters = {fn, A, omega, phi, B};
         const number = (value: number) => formatNumber(value, language);
         const amplitudeValue = amplitude(parameters);
         const range = valueRange(parameters);
-        const rows = [
-            {id: "equation", label: "f(x)", value: equationText(parameters, language)},
-            {id: "phi", label: t("trig_phase_readout"), value: formatWithPi(phi, language)},
-            {id: "amplitude", label: t("trig_amplitude_readout"), value: amplitudeValue === null ? NOT_A_NUMBER_TEXT : number(amplitudeValue)},
-            {id: "period", label: t("trig_period_readout"), value: formatWithPi(period(parameters), language)},
-            {id: "shift", label: t("trig_shift_readout"), value: formatWithPi(phaseShift(parameters), language)},
-            {
-                id: "range", label: t("trig_range_readout"),
-                value: range === null ? t("trig_all_reals") : `[${number(range[0])}${language === "sl" ? "; " : ", "}${number(range[1])}]`,
-            },
-        ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={fn === "tan" ? t("trig_tangent_note") : undefined}/>;
+        const formatted = (text: string) => ({kind: "formatted", text} as const);
+        return {
+            rows: [
+                {id: "equation", symbol: "f(x)", value: message("trig_equation_value", {value0: equationText(parameters, language)})},
+                {id: "A", symbol: "A", value: messageNumber(A)},
+                {id: "omega", symbol: "\\omega", value: messageNumber(omega)},
+                {id: "phase-value", symbol: "\\varphi", value: formatted(formatPhase(phi, language))},
+                {id: "B", symbol: "B", value: messageNumber(B)},
+                {id: "phi", name: message("trig_phase_readout"), value: formatted(formatWithPi(phi, language))},
+                {id: "amplitude", name: message("trig_amplitude_readout"), value: amplitudeValue === null ? formatted(NOT_A_NUMBER_TEXT) : messageNumber(amplitudeValue)},
+                {id: "period", name: message("trig_period_readout"), value: formatted(formatWithPi(period(parameters), language))},
+                {id: "shift", name: message("trig_shift_readout"), value: formatted(formatWithPi(phaseShift(parameters), language))},
+                {
+                    id: "range", name: message("trig_range_readout"),
+                    value: range === null ? message("trig_all_reals") : formatted(`[${number(range[0])}${language === "sl" ? "; " : ", "}${number(range[1])}]`),
+                },
+            ],
+            notes: fn === "tan" ? [{id: "tangent", text: message("trig_tangent_note")}] : [],
+            plotted: x => trigValue(parameters, x),
+            must: this.extremes(parameters),
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
+        return this.renderDeclaredReadout();
     }
 }
 

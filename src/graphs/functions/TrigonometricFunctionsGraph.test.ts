@@ -277,19 +277,21 @@ test('readouts: amplitude, period, shift and range, with exact multiples of pi, 
     const graph = makeGraph();
     const rows = () => graph.renderReadout().props.rows as { id: string; value: string }[];
     const byId = () => Object.fromEntries(rows().map(row => [row.id, row.value]));
-    expect(byId()).toEqual({equation: 'f(x) = sin(x)', phi: '0', amplitude: '1', period: '6,28 (2π)', shift: '0', range: '[−1; 1]'});
+    expect(byId()).toMatchObject({equation: 'f(x) = sin(x)', phi: '0', amplitude: '1', period: '6,28 (2π)', shift: '0', range: '[−1; 1]'});
     apply(graph, parameter('A', 2));
     apply(graph, parameter('omega', 2));
     apply(graph, parameter('phi', Math.PI / 2));
     apply(graph, parameter('B', 1));
-    expect(byId()).toEqual({
+    // The slider read-offs A, omega, phase-value and B are rows now (the pucks took the sliders over).
+    expect(byId()).toMatchObject({
+        A: '2', omega: '2', 'phase-value': 'π/2', B: '1',
         equation: 'f(x) = 2·sin(2x + π/2) + 1', phi: '1,57 (π/2)', amplitude: '2', period: '3,14 (π)', shift: '−0,79 (−π/4)', range: '[−1; 3]',
     });
     setLanguage('en');
     expect(byId()).toMatchObject({period: '3.14 (π)', shift: '−0.79 (−π/4)', range: '[−1, 3]'});
     apply(graph, choice('tan'));
     expect(byId()).toMatchObject({amplitude: '—', period: '1.57 (π/2)', range: 'all real numbers'});
-    expect(graph.renderReadout().props.note).toMatch(/asymptotes/);
+    expect(graph.renderReadout().props.note.join(' ')).toMatch(/asymptotes/);
     setLanguage('sl');
     expect(byId().range).toBe('vsa realna števila');
     apply(graph, choice('sin'));

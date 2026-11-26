@@ -1,0 +1,2 @@
+# 08 untagged replacements
+importPreset: BaseGraph.tsx importPreset and BaseFunctionGraph.tsx override now open learner only when no source is open. Mount/replaceScene (source none, unbound) and BaseGraph 1476 (learner) already safe. restoreState: runLessonReplacement source lesson already tagged; no change. setBoundingBox: wheel/pan is DOM-tagged, resize is wrapped by viewAdapter.resizing; wrappers kept in 2 tests as stand-ins. Red log: 08-untagged-red.log (7 failures with guards off).
