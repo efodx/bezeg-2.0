@@ -11,6 +11,26 @@
           "value": "f(x) = sin(x)"
         },
         {
+          "key": "A#0",
+          "label": "A",
+          "value": "1"
+        },
+        {
+          "key": "\\omega#0",
+          "label": "\\omega",
+          "value": "1"
+        },
+        {
+          "key": "\\varphi#0",
+          "label": "\\varphi",
+          "value": "0"
+        },
+        {
+          "key": "B#0",
+          "label": "B",
+          "value": "0"
+        },
+        {
           "key": "Faza φ#0",
           "label": "Faza φ",
           "value": "0"
@@ -37,12 +57,7 @@
         }
       ],
       "notes": [],
-      "outputs": [
-        "1",
-        "1",
-        "0",
-        "0"
-      ],
+      "outputs": [],
       "captions": [
         "f(x) = sin(x)"
       ]
@@ -54,6 +69,26 @@
           "key": "f(x)#0",
           "label": "f(x)",
           "value": "f(x) = 2·sin(x)"
+        },
+        {
+          "key": "A#0",
+          "label": "A",
+          "value": "2"
+        },
+        {
+          "key": "\\omega#0",
+          "label": "\\omega",
+          "value": "1"
+        },
+        {
+          "key": "\\varphi#0",
+          "label": "\\varphi",
+          "value": "0"
+        },
+        {
+          "key": "B#0",
+          "label": "B",
+          "value": "0"
         },
         {
           "key": "Faza φ#0",
@@ -82,12 +117,7 @@
         }
       ],
       "notes": [],
-      "outputs": [
-        "2",
-        "1",
-        "0",
-        "0"
-      ],
+      "outputs": [],
       "captions": [
         "f(x) = 2·sin(x)",
         "sin(x) (referenčni graf)"
@@ -100,6 +130,26 @@
           "key": "f(x)#0",
           "label": "f(x)",
           "value": "f(x) = sin(x) + 1"
+        },
+        {
+          "key": "A#0",
+          "label": "A",
+          "value": "1"
+        },
+        {
+          "key": "\\omega#0",
+          "label": "\\omega",
+          "value": "1"
+        },
+        {
+          "key": "\\varphi#0",
+          "label": "\\varphi",
+          "value": "0"
+        },
+        {
+          "key": "B#0",
+          "label": "B",
+          "value": "1"
         },
         {
           "key": "Faza φ#0",
@@ -128,12 +178,7 @@
         }
       ],
       "notes": [],
-      "outputs": [
-        "1",
-        "1",
-        "0",
-        "1"
-      ],
+      "outputs": [],
       "captions": [
         "f(x) = sin(x) + 1",
         "sin(x) (referenčni graf)"
@@ -146,6 +191,26 @@
           "key": "f(x)#0",
           "label": "f(x)",
           "value": "f(x) = sin(2x)"
+        },
+        {
+          "key": "A#0",
+          "label": "A",
+          "value": "1"
+        },
+        {
+          "key": "\\omega#0",
+          "label": "\\omega",
+          "value": "2"
+        },
+        {
+          "key": "\\varphi#0",
+          "label": "\\varphi",
+          "value": "0"
+        },
+        {
+          "key": "B#0",
+          "label": "B",
+          "value": "0"
         },
         {
           "key": "Faza φ#0",
@@ -174,12 +239,7 @@
         }
       ],
       "notes": [],
-      "outputs": [
-        "1",
-        "2",
-        "0",
-        "0"
-      ],
+      "outputs": [],
       "captions": [
         "f(x) = sin(2x)",
         "sin(x) (referenčni graf)"
@@ -192,6 +252,26 @@
           "key": "f(x)#0",
           "label": "f(x)",
           "value": "f(x) = sin(x + π/2)"
+        },
+        {
+          "key": "A#0",
+          "label": "A",
+          "value": "1"
+        },
+        {
+          "key": "\\omega#0",
+          "label": "\\omega",
+          "value": "1"
+        },
+        {
+          "key": "\\varphi#0",
+          "label": "\\varphi",
+          "value": "π/2"
+        },
+        {
+          "key": "B#0",
+          "label": "B",
+          "value": "0"
         },
         {
           "key": "Faza φ#0",
@@ -220,12 +300,7 @@
         }
       ],
       "notes": [],
-      "outputs": [
-        "1",
-        "1",
-        "π/2",
-        "0"
-      ],
+      "outputs": [],
       "captions": [
         "f(x) = sin(x + π/2)",
         "sin(x) (referenčni graf)"
@@ -238,6 +313,26 @@
           "key": "f(x)#0",
           "label": "f(x)",
           "value": "f(x) = 2·sin(2x + π/2) + 1"
+        },
+        {
+          "key": "A#0",
+          "label": "A",
+          "value": "2"
+        },
+        {
+          "key": "\\omega#0",
+          "label": "\\omega",
+          "value": "2"
+        },
+        {
+          "key": "\\varphi#0",
+          "label": "\\varphi",
+          "value": "π/2"
+        },
+        {
+          "key": "B#0",
+          "label": "B",
+          "value": "1"
         },
         {
           "key": "Faza φ#0",
@@ -266,12 +361,7 @@
         }
       ],
       "notes": [],
-      "outputs": [
-        "2",
-        "2",
-        "π/2",
-        "1"
-      ],
+      "outputs": [],
       "captions": [
         "f(x) = 2·sin(2x + π/2) + 1"
       ]
@@ -283,6 +373,26 @@
           "key": "f(x)#0",
           "label": "f(x)",
           "value": "f(x) = tan(x)"
+        },
+        {
+          "key": "A#0",
+          "label": "A",
+          "value": "1"
+        },
+        {
+          "key": "\\omega#0",
+          "label": "\\omega",
+          "value": "1"
+        },
+        {
+          "key": "\\varphi#0",
+          "label": "\\varphi",
+          "value": "0"
+        },
+        {
+          "key": "B#0",
+          "label": "B",
+          "value": "0"
         },
         {
           "key": "Faza φ#0",
@@ -313,12 +423,7 @@
       "notes": [
         "Tangens ima navpične asimptote, kjer je ωx + φ = π/2 + mπ, in nima največje ali najmanjše vrednosti, zato amplitude ni."
       ],
-      "outputs": [
-        "1",
-        "1",
-        "0",
-        "0"
-      ],
+      "outputs": [],
       "captions": [
         "f(x) = tan(x)"
       ]

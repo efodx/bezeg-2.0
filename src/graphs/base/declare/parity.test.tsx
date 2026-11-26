@@ -36,7 +36,13 @@ interface Sample {
 const continuityAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
 ];
-const SHORT_VALUE = 'the declaration shows a short value; the panel keeps the sentence, which the declaration carries as its readout help';
+const trigAccepted: readonly AcceptedDifference[] = [
+    ['A', 'omega', 'phase-value', 'B'].map(key => ({
+        kind: 'extra', where: `row ${key}`,
+        reason: 'the parameter is a board puck now, so its slider read-off is a readout row; the panel showed the value only on the slider',
+    }) as const),
+].flat();
+const SHORT_VALUE ='the declaration shows a short value; the panel keeps the sentence, which the declaration carries as its readout help';
 const phaseAccepted: readonly AcceptedDifference[] = [
     ...['Izračunano območje#0', 'Začetna točka 1#0', 'Začetna točka 2#0', 'Začetna točka 3#0', 'Energija začetne točke 1#0', 'Energija začetne točke 2#0',
         'Energija začetne točke 3#0', 'Obroč trajektorij (izračunan)#0', 'Linearizacija na obroču (izračunana)#0', 'Kaj določa linearizacija#0']
@@ -264,6 +270,34 @@ const SAMPLES: readonly Sample[] = [
             {name: 'tangent shown, x0 2', apply: run(g => { g.setTangentVisible(true); g.setX0(2); })},
             {name: 'sin x0 0.5', apply: run(g => { g.setFunction('sin'); g.setX0(0.5); g.setStep(0.1); })},
             {name: 'exp x0 -1', apply: run(g => { g.setFunction('exp'); g.setX0(-1); g.setStep(1); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/linear-function.json', demonstration: 'linear-function', states: (() => {
+        type LinearSetters = {setPoint(index: 0 | 1, x: number, y: number): void; setLineParameter(change: {k?: number; n?: number}): void};
+        const run = (edit: (graph: LinearSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as LinearSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'P1 moved', apply: run(g => g.setPoint(0, -1, 2))},
+            {name: 'k -0.5', apply: run(g => g.setLineParameter({k: -0.5}))},
+            {name: 'n -2', apply: run(g => g.setLineParameter({n: -2}))},
+            {name: 'horizontal k 0', apply: run(g => g.setLineParameter({k: 0}))},
+            {name: 'vertical', apply: run(g => { g.setPoint(0, 1, -1); g.setPoint(1, 1, 3); })},
+            {name: 'coincident points', apply: run(g => { g.setPoint(0, 2, 2); g.setPoint(1, 2, 2); })},
+            {name: 'fractional slope', apply: run(g => { g.setPoint(0, 0, 0); g.setPoint(1, 3, 1); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/trigonometric-functions.json', demonstration: 'trigonometric-functions', accepted: trigAccepted, states: (() => {
+        type TrigSetters = {setFunction(value: string): void; setAmplitude(value: number): void; setOmega(value: number): void; setPhase(value: number): void; setMidline(value: number): void; setReferenceVisible(value: boolean): void};
+        const run = (edit: (graph: TrigSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as TrigSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'amplitude 2', apply: run(g => g.setAmplitude(2))},
+            {name: 'omega 2', apply: run(g => g.setOmega(2))},
+            {name: 'phase pi/2', apply: run(g => g.setPhase(Math.PI / 2))},
+            {name: 'midline 1', apply: run(g => g.setMidline(1))},
+            {name: 'cos, reference shown', apply: run(g => { g.setFunction('cos'); g.setReferenceVisible(true); })},
+            {name: 'tan', apply: run(g => { g.setFunction('tan'); g.setAmplitude(1); g.setOmega(0.5); g.setPhase(0); g.setMidline(0); })},
+            {name: 'sin, A -1.5, omega 3, phi -pi/4, B -1', apply: run(g => { g.setFunction('sin'); g.setAmplitude(-1.5); g.setOmega(3); g.setPhase(-Math.PI / 4); g.setMidline(-1); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/continuity.json', demonstration: 'continuity', accepted: continuityAccepted, states: (() => {

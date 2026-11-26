@@ -15,6 +15,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGr
 import {internals} from '../base/realGraphScenes';
 import {capturePNGBlob} from '../base/export/FigureCapture';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
+import {runAs} from '../base/writes/writeSource';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
@@ -69,7 +70,13 @@ const COORDS_BY_USER = 1;
 
 class ObservedLinearGraph extends LinearFunctionGraph {
     liveBoard() { return this.board; }
-    commit(model: ReturnType<LinearFunctionGraph['exportPresetData']>) { this.commitModel(model); }
+    // Slope and intercept are bound parameters now: a whole-model replacement outside a control or a lesson must name its source.
+    commit(model: ReturnType<LinearFunctionGraph['exportPresetData']>) { runAs('learner', () => this.commitModel(model)); }
+    override importPreset(preset: Parameters<LinearFunctionGraph['importPreset']>[0]) { runAs('learner', () => super.importPreset(preset)); }
+    override getLessonCapabilities() {
+        const capabilities = super.getLessonCapabilities();
+        return {...capabilities, restoreState: (state: Parameters<typeof capabilities.restoreState>[0]) => runAs('learner', () => capabilities.restoreState(state))};
+    }
     currentModel() { return this.model; }
     draggable() {
         const points = objectsOf(this).filter(object => object.elType === 'point');
@@ -307,7 +314,7 @@ describe('linear function: replacement paths keep domain, controls and board tog
         const checkpoint = graph.getLessonCapabilities().captureState();
         const view = box(graph);
         typeLinear('y₁', 3);
-        act(() => { graph.liveBoard().setBoundingBox([-1, 2, 3, -2], false); });
+        act(() => { runAs('learner', () => graph.liveBoard().setBoundingBox([-1, 2, 3, -2], false)); });
         expect(box(graph)).not.toEqual(view);
         act(() => { graph.getLessonCapabilities().restoreState(checkpoint); });
         expect(linearShown(graph)).toEqual(LINEAR_DEFAULT_SHOWN);

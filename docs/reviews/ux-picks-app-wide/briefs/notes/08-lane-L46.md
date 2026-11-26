@@ -43,3 +43,32 @@ Session 1 (07:54, budget stop) did parity recordings, fragments, arc-length and 
 - typecheck, lint (changed files), unit paths, build, smoke-lesson derivative + definite-integral: pass. graph-check definite-integral: PASS.
 - graph-check derivative: FAIL parity + golden. Parity: symbol-only rows are matched raw (parity.ts:190 applies plainSymbol only with a name), so recorded `x₀`, `f(x₀)`, `f(x₀ + h)` are "missing" and declared `x_0`, `f(x_0)`, `f(x_0 + h)` "extra" in all 5 states. Golden: same label/key typesetting plus `outputs: golden [..] now []` (h slider output moved to row `h`). Not re-recorded, no accepted list added.
 - Parity report files removed.
+
+## Session 3 (linear-function, trigonometric-functions): PARTIAL (budget handoff)
+
+### Done (observed)
+- Parity recorded before conversion: SAMPLES `linear-function` (8 states) and `trigonometric-functions` (8 states) in parity.test.tsx; `functions/__parity__/linear-function.json`, `trigonometric-functions.json` recorded.
+- Both graphs converted (typecheck passed after the edits, 58 s, clean): `LinearFunctionIds`/`TrigonometricIds`, `drawn` maps, `parameterBindings`, `declaration()`, `drawnObject`, `functionPanel()`, `renderDeclaredReadout`, `PuckOwnedGroup`/`PuckOwned` in the controls.
+- Fragments `src/localization/fragments/linear-function.ts`, `trigonometric-functions.ts` registered in `fragments/index.ts` (keys incl. `linear_equation_value`/`trig_equation_value` = "{value0}", because a formatted row value may not contain letters and the equation does).
+
+### Design
+- Linear: k and n are board range pucks (-10..10, step 0.1) declared only while the line has them (vertical/coincident omit them; Orodja then shows the two NumberInputs with the reason); PointListInput stays in Orodja; legend line, triangle (leg-dx or leg-dy), intercept, P1, P2. Rows equation/k/n/dx/dy keep ids; symbols k, n, Δx, Δy (Unicode Δ, parity matches symbols raw). Binding read returns NaN when no line.
+- Trig: A, omega, phi, B board range pucks (maxDecimals 1/2/2/1; phase puck shows decimals, not pi fractions); function sin/cos/tan stays in Orodja (setup); reference graph is an action switch puck `reference` (action puck, `performAction`); legend curve, midline, reference (when shown); `drawnObject` resolves the data-curve twin for tan. New rows A, omega, phase-value (symbol \varphi, value formatPhase), B carry the slider read-offs; old rows keep ids equation/phi/amplitude/period/shift/range.
+
+### Not done
+- Parity check not yet run: expect `extra row A/ω/φ/B` (the slider read-offs now rows) in trig; needs an `accepted` list in the SAMPLES entry with reasons (as continuityAccepted). Linear should match exactly (check `row Δx`/`Δy` symbol matching).
+- Declaration tests `LinearFunctionGraph.declaration.test.tsx`, `TrigonometricFunctionsGraph.declaration.test.tsx` (copy DerivativeGraph.declaration.test.tsx; linear states: default, P1 moved, k, n, vertical, coincident; trig: tan, reference shown) and the red check.
+- Old tests to adapt: LinearFunctionGraph.test.ts, LinearFunctionGraph.host.test.tsx, TrigonometricFunctionsGraph.test.ts (legend/old slider assumptions), FunctionsFirstTask.test.tsx cases for linear and trig (puck cases, remove plan entries).
+- Lesson frames in functionGuidedLessons.ts (linear lines ~113-221, trig ~630-792; add `linearFrame`/`trigFrame` declarers with highlight/uses: k, n rows; A/omega/phi/B params).
+- `just graph-check linear-function --route /functions/linear`, `... trigonometric-functions --route /functions/trigonometric`; `just lint` on changed files; `just unit` brief paths; `just build`; `just smoke-lesson linear-function trigonometric-functions --port 4391 --workers=1` (smoke reads `[data-readout="equation|period|shift|range|amplitude"] dd` and `P2, x` PointListInput field: ids kept).
+- Unverified: puck range clamp for k/n beyond +-10 and for dragged points; legend default place; golden diff (old slider outputs now carried by pucks).
+- Scratch files `.command-logs/{trig,lin}_{new,head}.txt` can be deleted.
+
+## Session 3 (continued): DONE (golden differs for trig, expected)
+- Parity: linear matches exactly; trig needed `trigAccepted` (extra rows A, omega, phase-value, B: slider read-offs now rows) in parity.test.tsx.
+- Declaration tests written for both; red check (dx +1 / amplitude +1) failed as expected ("expected [ '1', '2', '5', '4' ] to deeply equal [ '1', '2', '4', '4' ]"; trig "expected '3' to be '2'"), reverted.
+- Old tests adapted (linear host: puck replaces k field; trig readouts: toMatchObject + note array). FunctionsFirstTask has no linear/trig cases (nothing to adapt).
+- Shared tests (authority, PartialPresetDefaults) wrap whole-model replacement (commit, importPreset, restoreState, setBoundingBox) in runAs('learner') for linear: base gap for bound parameters in strict mode. Linear drag handler now tagged runAs('learner') (production fix).
+- Marks: linear adds the triangle corner; trig adds the max/min nearest x=0 (sin/cos).
+- Smoke row linear-function: prepareUserState opens the Tools card first (the card is folded by default).
+- Trig golden differs only by the four new rows (A, omega, phi, B values), "outputs: golden [...] now []"; handler re-records.

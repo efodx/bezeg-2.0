@@ -1,0 +1,296 @@
+{
+  "graph": "linear-function",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = 2x + 1"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "2"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "1"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "2"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = 2x + 1",
+        "Δx = 2",
+        "Δy = 4"
+      ]
+    },
+    {
+      "name": "P1 moved",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = x + 3"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "1"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "3"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "3"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "3"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = x + 3",
+        "Δx = 3",
+        "Δy = 3"
+      ]
+    },
+    {
+      "name": "k -0.5",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = -0,5x + 3"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "-0,5"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "3"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "3"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "-1,5"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = -0,5x + 3",
+        "Δx = 3",
+        "Δy = -1,5"
+      ]
+    },
+    {
+      "name": "n -2",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = -0,5x - 2"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "-0,5"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "-2"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "3"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "-1,5"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = -0,5x - 2",
+        "Δx = 3",
+        "Δy = -1,5"
+      ]
+    },
+    {
+      "name": "horizontal k 0",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = -2"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "0"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "-2"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "3"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = -2",
+        "Δx = 3"
+      ]
+    },
+    {
+      "name": "vertical",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "x = 1"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "ni določen"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "ni določen"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "0"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "4"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "x = 1",
+        "Δy = 4"
+      ]
+    },
+    {
+      "name": "coincident points",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "—"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "ni določen"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "ni določen"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "0"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "0"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "fractional slope",
+      "rows": [
+        {
+          "key": "Enačba#0",
+          "label": "Enačba",
+          "value": "y = 0,33x"
+        },
+        {
+          "key": "k#0",
+          "label": "k",
+          "value": "0,33"
+        },
+        {
+          "key": "n#0",
+          "label": "n",
+          "value": "0"
+        },
+        {
+          "key": "Δx#0",
+          "label": "Δx",
+          "value": "3"
+        },
+        {
+          "key": "Δy#0",
+          "label": "Δy",
+          "value": "1"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "y = 0,33x",
+        "Δx = 3",
+        "Δy = 1"
+      ]
+    }
+  ]
+}
