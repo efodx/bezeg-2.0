@@ -1,11 +1,13 @@
 import React from "react";
-import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import IterativeFunctionGraph from "./IterativeFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import IterativeFunctionGraph, {IterationActionId} from "./IterativeFunctionGraph";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, Message, t} from "../../localization";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {NumberLanguage} from "../../analysis/format";
 import {
     ROOT_FINDING_EXAMPLE_IDS, ROOT_FINDING_MAX_STEPS, ROOT_START_MAX, ROOT_START_MIN, rootFindingExample, RootFindingExampleId, RootFindingHistory,
@@ -44,6 +46,19 @@ const methodTitle = (method: RootFindingMethod): string => method === "newton" ?
 
 type StatusKind = "ready" | "running" | Exclude<RootFindingTermination, "running">;
 
+/** The ids of the root-finding declaration: the starts, method and example by arbiter key; the rows; the playback actions. */
+export type RootFindingIds = {
+    param: "root-x0" | "root-x1" | "root-finding-method" | "root-finding-example";
+    row: "step" | "iterate" | "f-iterate" | "error" | "reference"; note: "reference";
+    legend: "function" | "line" | "iterate" | "start"; section: never; action: IterationActionId;
+};
+
+const EXAMPLE_LABEL_KEYS = {
+    "square-minus-two": "root_finding_example_square_minus_two",
+    "cubic-two-cycle": "root_finding_example_cubic_two_cycle",
+    "cubic-three-roots": "root_finding_example_cubic_three_roots",
+} as const satisfies Record<RootFindingExampleId, Parameters<typeof message>[0]>;
+
 /** One plotted line segment of the last step: from a graph point to where the tangent or secant meets the x-axis (or the second graph point). */
 interface LineSegment {
     from: { x: number; y: number };
@@ -70,6 +85,8 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
     /** A derived value keyed by the identity of the model it was computed from; it can never be stale. */
     private readonly historyOf = this.modelCache(rootFindingHistoryOf);
     private startPoints: Partial<Record<RootFindingStart, JXG.Point>> = {};
+    /** The drawn objects the legend entries name (`drawnObject`); cleared with the scene. */
+    private drawn: Partial<Record<"function" | "line" | "iterate", unknown>> = {};
 
     override presetCollection() {
         return functionPresetCollections["root-finding"];
@@ -177,6 +194,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
 
     protected override onSceneRemoved(): void {
         this.startPoints = {};
+        this.drawn = {};
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -210,12 +228,12 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         const hasLine = () => view().line !== undefined;
         const secant = () => this.model.method === "secant";
 
-        this.own(board.create("functiongraph", [(x: number) => example().value(x)], {
+        this.drawn.function = this.own(board.create("functiongraph", [(x: number) => example().value(x)], {
             strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth,
         }));
 
         // The tangent or secant of the last step, as a segment from its graph point to the x-axis.
-        this.own(board.create("segment", [[() => view().line?.from.x ?? 0, () => view().line?.from.y ?? 0], [() => view().line?.to.x ?? 0, () => view().line?.to.y ?? 0]], {
+        this.drawn.line = this.own(board.create("segment", [[() => view().line?.from.x ?? 0, () => view().line?.from.y ?? 0], [() => view().line?.to.x ?? 0, () => view().line?.to.y ?? 0]], {
             strokeColor: GraphPalette.constructionAccent, strokeWidth: thick, highlight: false, fixed: true, withLabel: false, visible: hasLine,
         }));
         // Drop line from the last iterate on the axis to its function value.
@@ -223,12 +241,15 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
             strokeColor: GraphPalette.referenceCurve, dash: 2, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.7),
             highlight: false, fixed: true, withLabel: false,
         }));
-        const marker = (x: () => number, y: () => number, color: string, visible: () => boolean = () => true) =>
-            this.own(board.create("point", [x, y], {
+        const marker = (x: () => number, y: () => number, color: string, visible: () => boolean = () => true) => {
+            const point = board.create("point", [x, y], {
                 ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, fillColor: color, highlightFillColor: color,
                 size: () => Math.max(3, this.displaySettings.pointSize * 0.7), visible,
-            }));
-        marker(() => view().last, () => view().fLast, GraphPalette.constructionAccent);
+            });
+            this.own(point);
+            return point;
+        };
+        this.drawn.iterate = marker(() => view().last, () => view().fLast, GraphPalette.constructionAccent);
         marker(() => view().last, () => 0, GraphPalette.constructionAccent);
         marker(() => view().line?.from.x ?? 0, () => view().line?.from.y ?? 0, GraphPalette.comparisonCurve, hasLine);
 
@@ -263,20 +284,20 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         const canAdvance = history.termination === "running";
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("root_finding_method_label")} value={method} help={t("root_finding_method_help")}
+                <PuckOwned param="root-finding-method"><ChoiceSelect label={t("root_finding_method_label")} value={method} help={t("root_finding_method_help")}
                               options={ROOT_FINDING_METHODS.map(id => ({value: id, text: methodTitle(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setMethod(next))}/>
+                              onChange={next => this.ignoreOutOfDomain(() => this.setMethod(next))}/></PuckOwned>
                 <ChoiceSelect label={t("root_finding_example_label")} value={example} help={t("root_finding_example_help")}
                               options={ROOT_FINDING_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("root_finding_x0_label")} value={x0} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} fieldDecimals={9}
-                        rejectedHint={t("root_finding_x0_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x0", next))}/>
-                {method === "secant" && <Slider customText={t("root_finding_x1_label")} value={x1} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} fieldDecimals={9}
-                        rejectedHint={t("root_finding_x1_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x1", next))}/>}
+            <PuckOwnedGroup params={method === "secant" ? ["root-x0", "root-x1"] : ["root-x0"]} className="inspector-group">
+                <PuckOwned param="root-x0"><Slider customText={t("root_finding_x0_label")} value={x0} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("root_finding_x0_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x0", next))}/></PuckOwned>
+                {method === "secant" && <PuckOwned param="root-x1"><Slider customText={t("root_finding_x1_label")} value={x1} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("root_finding_x1_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x1", next))}/></PuckOwned>}
                 <p className="inspector-help">{t("root_finding_starts_help")}</p>
-            </div>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <PlaybackButtons placement="graph" groupLabel={t("root_finding_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("root_finding_reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
@@ -287,51 +308,124 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         </>;
     }
 
+    /** A declared legend replaces the panel's own, so Orodja shows no second one. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.primaryCurve, label: t("root_finding_legend_function"), kind: "line"},
-            {id: "line", color: GraphPalette.constructionAccent, label: t("root_finding_legend_line"), kind: "line"},
-            {id: "iterate", color: GraphPalette.constructionAccent, label: t("root_finding_legend_iterate"), kind: "dot"},
-            {id: "start", color: GraphPalette.comparisonCurve, label: t("root_finding_legend_start"), kind: "dot"},
-        ]}/>;
+        return null;
     }
 
-    /** The status to state in words, with a stable id for tests and for assistive technology. */
-    private status(model: RootFindingModel, language: NumberLanguage): { id: StatusKind; text: string } {
+    /** The status to state in words, with a stable id for tests and for assistive technology; one source for the panel and the declaration. */
+    private status(model: RootFindingModel, language: NumberLanguage): { id: StatusKind; text: Message; tone?: "warning" | "success" } {
         const {history, last} = this.viewOf(model);
         const newton = model.method === "newton";
         switch (history.termination) {
             case "running":
                 return history.stepsTaken === 0
-                    ? {id: "ready", text: t(newton ? "root_finding_status_ready_newton" : "root_finding_status_ready_secant")}
-                    : {id: "running", text: t(newton ? "root_finding_status_running_newton" : "root_finding_status_running_secant")};
-            case "root-found": return {id: "root-found", text: t("root_finding_status_root_found", {value0: formatPrecise(last, language)})};
-            case "flat-tangent": return {id: "flat-tangent", text: t("root_finding_status_flat_tangent")};
-            case "flat-secant": return {id: "flat-secant", text: t("root_finding_status_flat_secant")};
-            case "repeated-iterate": return {id: "repeated-iterate", text: t("root_finding_status_repeated")};
-            case "non-finite": return {id: "non-finite", text: t("root_finding_status_non_finite")};
-            case "step-cap": return {id: "step-cap", text: t("root_finding_status_cap", {value0: ROOT_FINDING_MAX_STEPS})};
+                    ? {id: "ready", text: message(newton ? "root_finding_status_ready_newton" : "root_finding_status_ready_secant")}
+                    : {id: "running", text: message(newton ? "root_finding_status_running_newton" : "root_finding_status_running_secant")};
+            case "root-found": return {id: "root-found", text: message("root_finding_status_root_found", {value0: formatPrecise(last, language)}), tone: "success"};
+            case "flat-tangent": return {id: "flat-tangent", text: message("root_finding_status_flat_tangent"), tone: "warning"};
+            case "flat-secant": return {id: "flat-secant", text: message("root_finding_status_flat_secant"), tone: "warning"};
+            case "repeated-iterate": return {id: "repeated-iterate", text: message("root_finding_status_repeated"), tone: "warning"};
+            case "non-finite": return {id: "non-finite", text: message("root_finding_status_non_finite"), tone: "warning"};
+            case "step-cap": return {id: "step-cap", text: message("root_finding_status_cap", {value0: ROOT_FINDING_MAX_STEPS}), tone: "warning"};
         }
+    }
+
+    // ---- Declaration ---------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "root-x0": {read: () => this.model.x0, apply: (value: number) => this.setStart("x0", value)},
+            "root-x1": {read: () => this.model.x1, apply: (value: number) => this.setStart("x1", value)},
+            "root-finding-method": {read: () => this.model.method, apply: (value: unknown) => this.setMethod(value)},
+            "root-finding-example": {read: () => this.model.example, apply: (value: unknown) => this.setExample(value)},
+        };
+    }
+
+    /**
+     * Pure data from the model. Board: the two starts (x1 only for the secant method) and the method as a segmented puck, the playback
+     * actions, the legend of what the board draws. Orodja: the example (chosen once, it resets the starts). The rows, note and status
+     * come from the panel; the table of iterates has no declared form and stays in Orodja.
+     */
+    protected override declaration(): GraphDeclaration {
+        const range = (key: "root-x0" | "root-x1", label: "root_finding_x0_name" | "root_finding_x1_name", symbol: string): ParameterDeclaration => ({
+            key, kind: "range", label: message(label), symbol, help: message("root_finding_starts_help"), placement: "board",
+            min: ROOT_START_MIN, max: ROOT_START_MAX, step: 0.1, maxDecimals: 3, morph: false,
+        });
+        const secant = this.model.method === "secant";
+        const legend: LegendEntry<RootFindingIds>[] = [
+            {id: "function", label: message("root_finding_legend_function"), kind: "line", object: "function"},
+            {id: "line", label: message("root_finding_legend_line"), kind: "line", object: "line"},
+            {id: "iterate", label: message("root_finding_legend_iterate"), kind: "point", object: "iterate"},
+            {id: "start", label: message("root_finding_legend_start"), kind: "point", object: "start"},
+        ];
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "root-finding-method", kind: "choice", label: message("root_finding_method_label"), help: message("root_finding_method_help"), placement: "board", puck: true,
+                    options: ROOT_FINDING_METHODS.map(id => ({
+                        value: id, label: message(id === "newton" ? "root_finding_method_newton" : "root_finding_method_secant"),
+                        short: message(id === "newton" ? "root_finding_method_short_newton" : "root_finding_method_short_secant"),
+                    }))},
+                {key: "root-finding-example", kind: "choice", label: message("root_finding_example_label"), help: message("root_finding_example_help"), placement: "tools",
+                    options: ROOT_FINDING_EXAMPLE_IDS.map(id => ({value: id, label: message(EXAMPLE_LABEL_KEYS[id])}))},
+                range("root-x0", "root_finding_x0_name", "x_0"),
+                ...(secant ? [range("root-x1", "root_finding_x1_name", "x_1")] : []),
+            ],
+            legend,
+            actions: this.iterationActions(),
+        };
+    }
+
+    /** The rows, the note and the status of the inspector as declared data (`renderReadout` draws them from it). */
+    protected override functionPanel(): FunctionPanel {
+        const model = this.model;
+        const language = currentLanguage();
+        const {history, last, fLast} = this.viewOf(model);
+        const reference = rootFindingExample(model.example).referenceRoot;
+        const text = (value: number) => ({kind: "formatted", text: formatPrecise(value, language)} as const);
+        const status = this.status(model, language);
+        const example = rootFindingExample(model.example);
+        return {
+            rows: [
+                {id: "step", name: message("root_finding_readout_step", {value0: messageNumber(ROOT_FINDING_MAX_STEPS, 0)}), value: messageNumber(history.stepsTaken, 0)},
+                {id: "iterate", name: message("root_finding_readout_iterate"), value: text(last)},
+                {id: "f-iterate", name: message("root_finding_readout_value"), value: text(fLast)},
+                {id: "error", name: message("root_finding_readout_error"), value: text(this.errorOf(model, last))},
+                {id: "reference", name: message("root_finding_readout_reference"), value: text(reference)},
+            ],
+            notes: [{id: "reference", text: message("root_finding_note", {value0: formatPrecise(reference, language)})}],
+            status: [{id: status.id, text: status.text, ...(status.tone ? {tone: status.tone} : {})}],
+            plotted: x => example.value(x),
+            must: [{x: model.x0, y: 0}, ...(model.method === "secant" ? [{x: model.x1, y: 0}] : [])],
+        };
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = id === "start" ? this.startPoints.x0 : id === "function" || id === "line" || id === "iterate" ? this.drawn[id] : undefined;
+        if (typeof element !== "object" || element === null || Array.isArray(element)) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const filled = id === "iterate" || id === "start";
+        return {color: String(drawn.evalVisProp(filled ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (!this.performIterationAction(id)) throw new Error("Unknown action");
     }
 
     protected renderReadout(): React.ReactNode {
         const model = this.model;
         const language = currentLanguage();
-        const {history, last, fLast} = this.viewOf(model);
-        const reference = rootFindingExample(model.example).referenceRoot;
+        const {history} = this.viewOf(model);
         const number = (value: number) => formatPrecise(value, language);
-        const rows = [
-            {id: "step", label: t("root_finding_readout_step", {value0: ROOT_FINDING_MAX_STEPS}), value: String(history.stepsTaken)},
-            {id: "iterate", label: t("root_finding_readout_iterate"), value: number(last)},
-            {id: "f-iterate", label: t("root_finding_readout_value"), value: number(fLast)},
-            {id: "error", label: t("root_finding_readout_error"), value: number(this.errorOf(model, last))},
-            {id: "reference", label: t("root_finding_readout_reference"), value: number(reference)},
-        ];
         const all = history.iterates;
         const first = Math.max(0, all.length - ROOT_FINDING_TABLE_ROWS);
         const status = this.status(model, language);
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("root_finding_note", {value0: number(reference)})}/>
+            {this.renderDeclaredReadout()}
             <div className="inspector-group function-readout root-finding-table">
                 <h3>{t("root_finding_table_title")}</h3>
                 <table aria-label={t("root_finding_table_title")}>
@@ -347,7 +441,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                 </table>
                 {first > 0 && <ReadoutHelp>{t("root_finding_table_truncated", {value0: ROOT_FINDING_TABLE_ROWS})}</ReadoutHelp>}
             </div>
-            <FunctionStatus className="bisection-status" dataAttribute="root-finding-status" lines={[status]} muted={this.playback.isPlaying}/>
+            <FunctionStatus className="bisection-status" dataAttribute="root-finding-status" lines={[{id: status.id, text: renderMessage(status.text)}]} muted={this.playback.isPlaying}/>
         </>;
     }
 }

@@ -1,0 +1,352 @@
+{
+  "graph": "root-finding",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "1"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "-1"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "0,414213562373"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1,414213562373"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1,414213562373; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 0, napaka 0,414213562373"
+      ]
+    },
+    {
+      "name": "newton step 1",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "1"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "1,5"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "0,25"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "0,085786437627"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1,414213562373"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1,414213562373; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 1, napaka 0,085786437627"
+      ]
+    },
+    {
+      "name": "newton step 4",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "4"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "1,414213562375"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "4,511·10⁻¹²"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "1,595·10⁻¹²"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1,414213562373"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1,414213562373; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 4, napaka 1,595·10⁻¹²"
+      ]
+    },
+    {
+      "name": "three roots, x0 0.5, step 1",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "1"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "-1"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "0"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "2"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x³ - x",
+        "korak 1, napaka 2",
+        "ustalitev pri -1"
+      ]
+    },
+    {
+      "name": "two-cycle, x0 0, step 2",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "2"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "0"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "2"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "1,769292354239"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "-1,769292354239"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo -1,769292354239; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x³ - 2x + 2",
+        "korak 2, napaka 1,769292354239",
+        "približki se ponavljajo: ni konvergence"
+      ]
+    },
+    {
+      "name": "flat tangent",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "0"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "-2"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "1,414213562373"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1,414213562373"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1,414213562373; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 0, napaka 1,414213562373",
+        "vodoravna tangenta: konec"
+      ]
+    },
+    {
+      "name": "secant default",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "2"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "2"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "0,585786437627"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1,414213562373"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1,414213562373; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 0, napaka 0,585786437627"
+      ]
+    },
+    {
+      "name": "secant step 3",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "3"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "1,428571428571"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "0,040816326531"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "0,014357866198"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1,414213562373"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1,414213562373; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x² - 2",
+        "korak 3, napaka 0,014357866198"
+      ]
+    },
+    {
+      "name": "secant three roots",
+      "rows": [
+        {
+          "key": "Korak (največ 60)#0",
+          "label": "Korak (največ 60)",
+          "value": "1"
+        },
+        {
+          "key": "Zadnji približek#0",
+          "label": "Zadnji približek",
+          "value": "-1"
+        },
+        {
+          "key": "Vrednost f v zadnjem približku#0",
+          "label": "Vrednost f v zadnjem približku",
+          "value": "0"
+        },
+        {
+          "key": "Napaka glede na primerjalno ničlo#0",
+          "label": "Napaka glede na primerjalno ničlo",
+          "value": "2"
+        },
+        {
+          "key": "Primerjalna ničla#0",
+          "label": "Primerjalna ničla",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo 1; iz drugega začetka lahko iteracija konvergira k drugi ničli."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = x³ - x",
+        "korak 1, napaka 2",
+        "ustalitev pri -1"
+      ]
+    }
+  ]
+}

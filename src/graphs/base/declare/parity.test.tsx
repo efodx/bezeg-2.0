@@ -187,6 +187,25 @@ const SAMPLES: readonly Sample[] = [
             {name: 'sign step, step 3', apply: next(3)},
         ];
     })()},
+    {file: 'functions/__parity__/root-finding.json', demonstration: 'root-finding', states: (() => {
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);
+        };
+        const next = (count: number) => Array.from({length: count}, () => ({kind: 'animation', animationId: 'root-finding', command: 'next-step'}));
+        const choice = (name: string, value: string) => ({kind: 'function-choice', name, value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        return [
+            {name: 'default', apply: act()},
+            {name: 'newton step 1', apply: act(...next(1))},
+            {name: 'newton step 4', apply: act(...next(3))},
+            {name: 'three roots, x0 0.5, step 1', apply: act(choice('root-finding-example', 'cubic-three-roots'), parameter('root-x0', 0.5), ...next(1))},
+            {name: 'two-cycle, x0 0, step 2', apply: act(choice('root-finding-example', 'cubic-two-cycle'), parameter('root-x0', 0), ...next(2))},
+            {name: 'flat tangent', apply: act(choice('root-finding-example', 'square-minus-two'), parameter('root-x0', 0))},
+            {name: 'secant default', apply: act(choice('root-finding-method', 'secant'))},
+            {name: 'secant step 3', apply: act(parameter('root-x1', 2), ...next(3))},
+            {name: 'secant three roots', apply: act(choice('root-finding-example', 'cubic-three-roots'), parameter('root-x0', 0.4), parameter('root-x1', 0.6), ...next(1))},
+        ] satisfies ParityState[];
+    })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', states: [
         state('default', {}),
         state('spiral entries', {'phase-a': 1, 'phase-b': -2, 'phase-c': 2, 'phase-d': 1}),

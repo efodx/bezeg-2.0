@@ -1,7 +1,7 @@
 import {act, cleanup, fireEvent} from '@testing-library/react';
 import {afterEach, beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {TaylorGraph, type TaylorIds} from '../../graphs/functions/TaylorGraph';
-import {RootFindingGraph} from '../../graphs/functions/RootFindingGraph';
+import {FixedPointGraph} from '../../graphs/functions/FixedPointGraph';
 import {CrossRatioGraph} from '../../graphs/projective/CrossRatioGraph';
 import {NotablePointsGraph} from '../../graphs/compgeo/NotablePointsGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from '../../graphs/base/realGraphTestHarness';
@@ -300,7 +300,7 @@ describe('the old panels of other declared pilots', () => {
 
 describe('Orodja never waits for the measure pass', () => {
     test('its controls are in the first commit, before any timer or promise settles', () => {
-        mountGraph(new RootFindingGraph());
+        mountGraph(new FixedPointGraph());
         // No waitUntil: the card and its panels must already be there.
         expect(shown('tools')).not.toBeNull();
         expect(document.querySelector('[data-testid="inspector-edit"]')).not.toBeNull();
@@ -308,7 +308,7 @@ describe('Orodja never waits for the measure pass', () => {
 
     test('a board whose size is unknown (0 x 0) still shows the card, unpositioned', () => {
         unmeasuredBoard = true;
-        mountGraph(new RootFindingGraph());
+        mountGraph(new FixedPointGraph());
         const card = shown('tools')!;
         expect(card).not.toBeNull();
         expect(card.classList.contains('board-card--static')).toBe(true);
@@ -331,7 +331,7 @@ describe('Orodja\'s live reading settles', () => {
             return {...r, width: (Number.isFinite(assigned) ? assigned : r.width) + extra, height: reads < 4 ? 105 : 338, bottom: r.top + (reads < 4 ? 105 : 338)} as DOMRect;
         };
         try {
-            mountGraph(new RootFindingGraph());
+            mountGraph(new FixedPointGraph());
             await waitUntil(() => shown('tools') !== null);
             await new Promise(resolve => setTimeout(resolve, 150));
             const settled = reads;
@@ -344,7 +344,7 @@ describe('Orodja\'s live reading settles', () => {
 
 describe('the presenter on an undeclared graph', () => {
     test('Orodja is the only card, starts open and holds the panels', async () => {
-        mountGraph(new RootFindingGraph());
+        mountGraph(new FixedPointGraph());
         await waitUntil(() => shown('tools') !== null);
         expect([...document.querySelectorAll('.board-cards-layer [data-card-id]')].map(el => (el as HTMLElement).dataset.cardId)).toEqual(['tools']);
         expect(live('[data-card-id="tools"] .board-card-body:not([hidden])')).not.toBeNull();
