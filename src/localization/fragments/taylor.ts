@@ -10,6 +10,8 @@ const sl = {
     "taylor_center_name": "Središče",
     "taylor_x_name": "Točka",
     "taylor_degree_name": "Stopnja",
+    "taylor_polynomial_name": "Polinom",
+    "taylor_function_name": "Funkcija",
 } as const;
 
 export const taylor = {
@@ -25,5 +27,7 @@ export const taylor = {
         "taylor_center_name": "Center",
         "taylor_x_name": "Point",
         "taylor_degree_name": "Degree",
+        "taylor_polynomial_name": "Polynomial",
+        "taylor_function_name": "Function",
     } satisfies Record<keyof typeof sl, string>,
 };

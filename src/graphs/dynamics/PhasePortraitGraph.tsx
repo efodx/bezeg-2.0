@@ -1248,20 +1248,20 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     private stopMessage(stop: StopReason, points: number): Message {
         const seconds = messageNumber((points - 1) * RK4_STEP, 2);
         switch (stop) {
-            case "complete": return message("phase_graph_stop_complete", {value0: messageNumber(ORBIT_DURATION, 0)});
-            case "left-view": return message("phase_graph_stop_left_view", {value0: seconds});
-            case "diverged": return message("phase_graph_stop_diverged", {value0: seconds});
-            case "non-finite": return message("phase_graph_stop_non_finite", {value0: seconds});
+            case "complete": return message("dynamics_stop_complete", {value0: messageNumber(ORBIT_DURATION, 0)});
+            case "left-view": return message("dynamics_stop_left_view", {value0: seconds});
+            case "diverged": return message("dynamics_stop_diverged", {value0: seconds});
+            case "non-finite": return message("dynamics_stop_non_finite", {value0: seconds});
         }
     }
 
     private energyMessage(energy: EnergyStatus): Message {
         const params = {value0: messageNumber(energy.H, 6)};
         switch (energy.kind) {
-            case "swing": return message("phase_graph_energy_swing", params);
-            case "rotation": return message("phase_graph_energy_rotation", params);
-            case "separatrix-exact": return message("phase_graph_energy_separatrix_exact", params);
-            case "separatrix-near": return message("phase_graph_energy_separatrix_near", params);
+            case "swing": return message("dynamics_energy_swing", params);
+            case "rotation": return message("dynamics_energy_rotation", params);
+            case "separatrix-exact":
+            case "separatrix-near": return message("dynamics_energy_separatrix", params);
         }
     }
 
@@ -1271,7 +1271,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             case "distinct-real": return message("phase_graph_eig_real", {value0: messageNumber(eigen.eigenvalues[0], 4), value1: messageNumber(eigen.eigenvalues[1], 4)});
             case "complex": return message("phase_graph_eig_complex", {value0: messageNumber(eigen.real, 4), value1: messageNumber(eigen.imaginary, 4)});
             case "repeated":
-                return message(eigen.repeated === "scalar" ? "phase_graph_eig_scalar" : "phase_graph_eig_defective", {value0: messageNumber(eigen.eigenvalue, 4)});
+                return message(eigen.repeated === "scalar" ? "dynamics_eig_scalar" : "dynamics_eig_defective", {value0: messageNumber(eigen.eigenvalue, 4)});
         }
     }
 
@@ -1318,8 +1318,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const {tau, delta, discriminant} = derived.plane;
         const j = derived.jacobian;
         const halves = (orbits: readonly Orbit[]) => orbits.reduce((sum, orbit) => sum + Number(stopped(orbit.forwardStop)) + Number(stopped(orbit.backwardStop)), 0);
-        const ringValue = (orbits: readonly Orbit[]): Message => message("phase_graph_ring_value", {value0: orbits.length, value1: halves(orbits), value2: 2 * orbits.length});
-        const half = halfWidthOf(state.zoom);
+        const ringValue = (orbits: readonly Orbit[]): Message => message("dynamics_ring_value", {value0: orbits.length, value1: halves(orbits), value2: 2 * orbits.length});
         const rows: ReadoutRow<PhasePortraitIds>[] = [
             {id: "time", name: message("phase_graph_r_time"), value: messageNumber(this.timeValue, 2), unit: message("phase_graph_unit_s")},
             {id: "system", name: message("phase_graph_r_system"), value: message(SYSTEM_KEYS[state.system])},
@@ -1332,15 +1331,15 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 value0: messageNumber(j[0][0], 3), value1: messageNumber(j[0][1], 3), value2: messageNumber(j[1][0], 3), value3: messageNumber(j[1][1], 3)})},
             {id: "hyperbolic", name: message("phase_graph_r_hyperbolic"), value: message(derived.hyperbolic ? "phase_graph_yes" : "phase_graph_no")},
         ];
-        if (!linear) rows.push({id: "decision", name: message("phase_graph_r_decision"), value: message(derived.hyperbolic ? "phase_graph_decision_yes" : "phase_graph_decision_no")});
+        if (!linear) rows.push({id: "decision", name: message("phase_graph_r_decision"), value: message(derived.hyperbolic ? "dynamics_decision_yes" : "dynamics_decision_no")});
         rows.push({id: "eigen", name: message("phase_graph_r_eigen"), value: this.eigenMessage(), legend: "eigen"});
-        rows.push({id: "view", name: message("phase_graph_r_view"), value: message("phase_graph_view_value", {
+        rows.push({id: "view", name: message("phase_graph_r_view"), value: message("dynamics_view_value", {
             value0: messageNumber(derived.view.xMin, 4), value1: messageNumber(derived.view.xMax, 4), value2: messageNumber(derived.view.yMin, 4),
-            value3: messageNumber(derived.view.yMax, 4), value4: messageNumber(half, 4)}), legend: "frame"});
+            value3: messageNumber(derived.view.yMax, 4)}), legend: "frame"});
         state.seeds.forEach((seed, index) => {
             const orbit = derived.orbits[index];
             const number = (index + 1) as SeedNumber;
-            rows.push({id: `seed-${number}`, name: message("phase_graph_r_seed", {value0: number}), value: message("phase_graph_seed_value", {
+            rows.push({id: `seed-${number}`, name: message("phase_graph_r_seed", {value0: number}), value: message("dynamics_seed_value", {
                 value0: point(seedOf(seed.X), seedOf(seed.Y)), value1: this.stopMessage(orbit.forwardStop, orbit.forward.length),
                 value2: this.stopMessage(orbit.backwardStop, orbit.backward.length)}), legend: "trajectories"});
             const energy = derived.energies[index];
@@ -1361,6 +1360,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         return {
             parameters,
             readouts: [{id: "values", title: message("phase_graph_readout_title"), rows}],
+            readoutHelp: message("dynamics_readout_help"),
             legend: [
                 {id: "trajectories", label: message("phase_graph_cap_trajectories"), kind: "line", object: "trajectories"},
                 {id: "moving", label: message("phase_graph_cap_moving"), kind: "ring", object: "moving"},

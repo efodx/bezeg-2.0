@@ -140,6 +140,19 @@ export function renderDeclaration(declaration: GraphDeclaration | undefined): Re
     return {rows, notes, formula, parameterSymbols};
 }
 
+/** A deliberate difference a sample tolerates in every state: exactly this kind at exactly this place (a row's recorded key or `note`), with why. */
+export interface AcceptedDifference {
+    readonly kind: 'missing' | 'extra' | 'different';
+    readonly where: string;
+    readonly reason: string;
+}
+
+const SUBSCRIPTS: Record<string, string> = {'0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉', n: 'ₙ', i: 'ᵢ', k: 'ₖ', m: 'ₘ'};
+
+/** A declared TeX symbol as the recorded panel writes it: `x_0` becomes `x₀`, `T_n(x)` becomes `Tₙ(x)`, `c` stays `c`. */
+export const plainSymbol = (tex: string): string =>
+    tex.replace(/_\{?([0-9nikm])\}?/g, (_all, sub: string) => SUBSCRIPTS[sub]);
+
 export interface ParityDifference {
     readonly state: number;
     readonly stateName: string;
@@ -161,7 +174,7 @@ export interface ParityReport {
  * instead be a declared note carrying that text (a graph may turn a labelled sentence into a note). Recorded notes must
  * be declared notes in order; a declared row or note nothing recorded is `extra`.
  */
-export function checkParity(recording: ParityRecording, declarations: readonly (GraphDeclaration | undefined)[]): ParityReport {
+export function checkParity(recording: ParityRecording, declarations: readonly (GraphDeclaration | undefined)[], accepted: readonly AcceptedDifference[] = []): ParityReport {
     const differences: ParityDifference[] = [];
     const uncoveredCaptions: {state: number; caption: string}[] = [];
     recording.states.forEach((state, index) => {
@@ -174,7 +187,7 @@ export function checkParity(recording: ParityRecording, declarations: readonly (
         const usedRows = new Set<number>();
         const usedNotes = new Set<number>();
         for (const row of state.rows) {
-            const at = rendered.rows.findIndex((candidate, i) => !usedRows.has(i) && [candidate.name, candidate.symbol, candidate.id].some(label => label !== '' && normalise(label) === row.label));
+            const at = rendered.rows.findIndex((candidate, i) => !usedRows.has(i) && [candidate.name, candidate.symbol, candidate.id, candidate.name && candidate.symbol ? `${candidate.name} ${plainSymbol(candidate.symbol)}` : ''].some(label => label !== '' && normalise(label) === row.label));
             if (at >= 0) {
                 usedRows.add(at);
                 const candidate = rendered.rows[at];
@@ -213,7 +226,8 @@ export function checkParity(recording: ParityRecording, declarations: readonly (
             if (!pool.some(text => text.includes(caption))) uncoveredCaptions.push({state: index, caption});
         }
     });
-    return {differences, uncoveredCaptions};
+    const tolerated = (d: ParityDifference) => accepted.some(a => a.kind === d.kind && a.where === d.where);
+    return {differences: differences.filter(d => !tolerated(d)), uncoveredCaptions};
 }
 
 /**
