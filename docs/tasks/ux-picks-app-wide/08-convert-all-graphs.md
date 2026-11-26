@@ -77,9 +77,9 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 3 | L02 | bspline-extraction | graph files + `bsplineExtractionGuidedLessons`; owns first `KnotEditor` | done `1a3393445` |
 | 3 | L07 | interp-least-squares | graph files + `interpolationLeastSquaresLesson` | done `8f17c48a6` |
 | 3 | L08 | reduction | graph files + `degreeReductionGuidedLessons` | done `cccbccdaa` |
-| 4 | L03 | bspline-insertion | graph files + `bsplineInsertionGuidedLessons` | not started |
-| 4 | L09 | circle-construction | graph files + `circleGeometryGuidedLessons` | not started |
-| 4 | L10 | euler-method | graph files + `numericalEulerGuidedLesson` | not started |
+| 4 | L03 | bspline-insertion | graph files + `bsplineInsertionGuidedLessons` | done `392bc89f5` |
+| 4 | L09 | circle-construction | graph files + `circleGeometryGuidedLessons` | done `6772a3f2e` |
+| 4 | L10 | euler-method | graph files + `numericalEulerGuidedLesson` | done `bfdf1a5df` |
 | 5 | L04 | bspline-nurbs | graph files + `bsplineNurbsGuidedLessons` | not started |
 | 5 | L11 | fourier-coefficients | graph files + `fourierCoefficientsGuidedLessons` | not started |
 | 5 | L12 | fourier-series | graph files + `fourierSeriesGuidedLessons` | not started |
