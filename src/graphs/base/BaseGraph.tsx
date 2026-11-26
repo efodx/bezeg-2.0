@@ -1,4 +1,5 @@
 import type {StoredGraphState} from "./presets/Presets";
+import {isUndoEscape} from "./escapeClaims";
 import {LocalizedError, message, Message, onLanguageChange, renderMessage, t} from "../../localization";
 import {presetWritesAllowed, type UserActionMode} from "../context/react/PresetLockContext";
 import React from 'react';
@@ -1140,7 +1141,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
      */
     private listenForEscape(): () => void {
         const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key !== "Escape" || event.defaultPrevented) return;
+            if (event.key !== "Escape" || (event.defaultPrevented && !isUndoEscape(event))) return;
             const target = event.target;
             if (target instanceof Element && target.closest('[role="dialog"], dialog, [role="menu"], [role="listbox"], [role="combobox"][aria-expanded="true"]')) return;
             runAs("learner", () => {

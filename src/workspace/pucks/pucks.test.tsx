@@ -323,3 +323,29 @@ describe('count puck', () => {
         expect(screen.getByRole('status')).toHaveTextContent('Zaklenjeno v tem koraku');
     });
 });
+
+describe('one Escape, one undo offer', () => {
+    beforeEach(() => { vi.useFakeTimers(); });
+    afterEach(() => { vi.useRealTimers(); });
+
+    it('with two offers open, Escape undoes only the puck that has focus', () => {
+        const first = vi.fn();
+        const second = vi.fn();
+        render(<><RangeH parameter={range({key: 'a'})} initial={0} onWrite={first}/><RangeH parameter={range({key: 'b'})} initial={0} onWrite={second}/></>);
+        const typeJump = (index: number) => {
+            const el = screen.getAllByRole('slider')[index];
+            fireEvent.keyDown(el, {key: 'Enter'});
+            const input = screen.getByRole('textbox');
+            fireEvent.change(input, {target: {value: '2'}});
+            fireEvent.keyDown(input, {key: 'Enter'});
+        };
+        typeJump(0);
+        typeJump(1);
+        expect(screen.getAllByRole('button', {name: /Razveljavi/})).toHaveLength(2);
+        screen.getAllByRole('slider')[1].focus();
+        fireEvent.keyDown(screen.getAllByRole('slider')[1], {key: 'Escape'});
+        expect(second).toHaveBeenLastCalledWith(0);
+        expect(first).toHaveBeenCalledTimes(1); // only its own jump, not undone
+        expect(screen.getAllByRole('button', {name: /Razveljavi/})).toHaveLength(1);
+    });
+});

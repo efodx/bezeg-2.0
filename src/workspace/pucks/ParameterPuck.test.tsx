@@ -11,12 +11,13 @@ const range: RangeParameter = {kind: 'range', key: 'a', label: message('shell_ca
 const count: CountParameter = {kind: 'count', key: 'n', label: message('shell_card_legend'), placement: 'board', min: 1, max: 9};
 
 /** A graph with an arbiter over two keys and a store version; `setValue` writes the values like a scene change. */
-function fakeGraph(refuse?: string) {
+function fakeGraph(refuse?: string | ((value: number) => boolean)) {
     const values: Record<string, number> = {a: 3, n: 4};
     const listeners = new Set<() => void>();
     const write = vi.fn((key: string, value: unknown, source: string) => {
         void source;
-        if (refuse !== undefined) return {status: 'refused-domain' as const, error: new Error(refuse)};
+        const refused = typeof refuse === 'function' ? refuse(Number(value)) : refuse !== undefined;
+        if (refused) return {status: 'refused-domain' as const, error: new Error(typeof refuse === 'string' ? refuse : 'refused')};
         values[key] = Number(value);
         listeners.forEach(listener => listener());
         return {status: 'applied' as const};
@@ -48,6 +49,25 @@ describe('ParameterPuck', () => {
         expect(write).toHaveBeenCalledWith('n', 5, 'learner');
         expect(screen.getByRole('status')).toHaveTextContent('Stopnja je prevelika.');
         expect(screen.getByRole('spinbutton')).toHaveAttribute('aria-valuenow', '4');
+    });
+
+    it('a refused write keeps the earlier accepted undo offer: Escape restores the old value', () => {
+        vi.useFakeTimers();
+        try {
+            const {graph, write} = fakeGraph(value => value === 9);
+            render(<ParameterPuck graph={graph} parameter={count}/>);
+            const type = (text: string) => {
+                fireEvent.keyDown(screen.getByRole('spinbutton'), {key: 'Enter'});
+                const input = screen.getByRole('textbox');
+                fireEvent.change(input, {target: {value: text}});
+                fireEvent.keyDown(input, {key: 'Enter'});
+            };
+            type('7'); // accepted jump 4 -> 7, offers the undo to 4
+            type('9'); // refused by the arbiter
+            expect(write).toHaveBeenLastCalledWith('n', 9, 'learner');
+            fireEvent.keyDown(document.body, {key: 'Escape'});
+            expect(write).toHaveBeenLastCalledWith('n', 4, 'learner');
+        } finally { vi.useRealTimers(); }
     });
 
     it('a typed value out of range is refused by the puck and never written', () => {

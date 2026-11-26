@@ -1,4 +1,6 @@
-import {act, fireEvent, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen, within} from '@testing-library/react';
+import {RangePuck} from '../../workspace/pucks/RangePuck';
+import {message} from '../../localization';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import {appStorage} from '../../storage/appStorage';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from './realGraphTestHarness';
@@ -71,4 +73,24 @@ test('the Escape listener is removed with the graph', async () => {
     const {unmount} = await mountPlaying();
     unmount();
     expect(remove.mock.calls.some(([type]) => type === 'keydown')).toBe(true);
+});
+
+test('the Escape that undoes a puck jump also stops the running animation, and the value stays still', async () => {
+    const {graph, frames} = await mountPlaying();
+    const onWrite = vi.fn();
+    const view = render(<RangePuck parameter={{kind: 'range', key: 'x', label: message('shell_card_tools'), placement: 'board', min: 0, max: 10, step: 1}} value={0} onWrite={onWrite}/>);
+    const puck = within(view.container);
+    const slider = puck.getByRole('slider');
+    fireEvent.keyDown(slider, {key: 'Enter'});
+    const input = puck.getByRole('textbox');
+    fireEvent.change(input, {target: {value: '8'}});
+    fireEvent.keyDown(input, {key: 'Enter'});
+    expect(puck.getByRole('button', {name: /Razveljavi/})).toBeInTheDocument();
+    act(() => { fireEvent.keyDown(document.body, {key: 'Escape'}); });
+    expect(onWrite).toHaveBeenLastCalledWith(0);
+    expect(graph.state.animationStatus).toBe('paused');
+    const at = graph.parameters!.read('decasteljau-t');
+    frames(3);
+    expect(graph.parameters!.read('decasteljau-t')).toBe(at);
+    view.unmount();
 });

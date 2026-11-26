@@ -2,26 +2,24 @@ import {useCallback, useEffect, useId, useRef, useState} from 'react';
 import type {FocusEvent, PointerEvent, ReactNode} from 'react';
 import {useT} from '../../localization';
 import {PuckSymbol, bareName, spokenName} from './puckSymbol';
+import type {JumpUndoController} from './jumpUndo';
 import './pucks.css';
 
 /** Pieces both pucks share: the undo pill, the help card and its tooltip, the frame with its notice and lock reason. */
 
 /** "Razveljavi" for 4 s after a jump; clicking it or pressing Esc anywhere restores the previous value. */
-export function UndoPill(props: {open: boolean; name: string; onUndo(): void}) {
+export function UndoPill(props: {open: boolean; name: string; onUndo(): void; controller?: JumpUndoController}) {
     const t = useT();
-    const {open, onUndo} = props;
+    const {open, onUndo, controller} = props;
+    const button = useRef<HTMLButtonElement>(null);
+    // Escape is handled by the one registry in jumpUndo.ts; the pill only tells it where this puck is.
     useEffect(() => {
-        if (!open) return;
-        const onKey = (event: KeyboardEvent) => {
-            if (event.key !== 'Escape' || event.defaultPrevented) return;
-            event.preventDefault();
-            onUndo();
-        };
-        document.addEventListener('keydown', onKey);
-        return () => document.removeEventListener('keydown', onKey);
-    }, [open, onUndo]);
+        if (!open || !controller) return;
+        controller.setOwner(() => button.current?.closest('[data-puck]') ?? null);
+        return () => controller.setOwner(undefined);
+    }, [open, controller]);
     if (!open) return null;
-    return <button type="button" className="puck-undo" aria-label={t('puck_undo_label', {value0: props.name})} onClick={onUndo}>{t('puck_undo')}</button>;
+    return <button ref={button} type="button" className="puck-undo" aria-label={t('puck_undo_label', {value0: props.name})} onClick={onUndo}>{t('puck_undo')}</button>;
 }
 
 /**

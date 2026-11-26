@@ -23,7 +23,8 @@ export interface RangePuckProps {
     parameter: RangeParameter;
     value: number;
     /** Called with a value on the step grid inside the range; the caller writes it as `learner`. */
-    onWrite(value: number): void;
+    /** Returns false when the write was not applied (refused), so no undo is offered for it. */
+    onWrite(value: number): boolean | void;
     /** The board's rectangle: the drag ruler stays inside it. Read at drag time. */
     bounds?: () => PuckBounds | undefined;
     /** A domain refusal from the setter, shown at the puck. */
@@ -91,13 +92,17 @@ export function RangePuck(props: RangePuckProps) {
     const valueText = unit ? `${fmt(value)} ${unit}` : fmt(value);
     const widthCh = widestChars(parameter, language) + (unit ? unit.length + 1 : 0) + 0.4;
 
-    const write = (next: number) => {
-        if (next === latest.current) return;
+    /** Writes `next`; only once it was applied does it offer the undo for a jump from `jumpFrom`, or end the offer for any other write. */
+    const write = (next: number, jumpFrom?: number): boolean => {
+        const previous = latest.current;
+        if (next === previous) return false;
         latest.current = next;
         setNotice(undefined);
-        onWrite(next);
+        if (onWrite(next) === false) { latest.current = previous; return false; }
+        if (jumpFrom !== undefined) controller.offer(jumpFrom); else controller.dismiss();
+        return true;
     };
-    const step = (delta: number) => { controller.dismiss(); write(snapValue(latest.current + delta, parameter)); };
+    const step = (delta: number) => { write(snapValue(latest.current + delta, parameter)); };
 
     const refuse = (result: Extract<EntryResult, {ok: false}>): string => {
         if (result.reason === 'number') return t('puck_refuse_number', {value0: fmt(snapValue(parameter.min + span / 2, parameter))});
@@ -110,9 +115,8 @@ export function RangePuck(props: RangePuckProps) {
         const result = parseEntry(entry.text, parameter);
         if (!result.ok) { setNotice(refuse(result)); return; }
         const before = latest.current;
-        if (isJump(before, result.value, parameter.step)) controller.offer(before); else controller.dismiss();
-        write(result.value);
-        setNotice(result.snapped ? t('puck_snapped', {value0: fmt(result.value)}) : undefined);
+        const applied = write(result.value, isJump(before, result.value, parameter.step) ? before : undefined);
+        if (applied) setNotice(result.snapped ? t('puck_snapped', {value0: fmt(result.value)}) : undefined);
         closeEntry();
     };
 
@@ -221,8 +225,7 @@ export function RangePuck(props: RangePuckProps) {
         if (!rect || rect.width <= 0) { hold.end(); return; }
         const target = snapValue(parameter.min + (event.clientX - rect.left) / rect.width * span, parameter);
         const before = latest.current;
-        if (isJump(before, target, parameter.step)) controller.offer(before);
-        write(target);
+        write(target, isJump(before, target, parameter.step) ? before : undefined);
         hold.end();
     };
 
@@ -232,7 +235,6 @@ export function RangePuck(props: RangePuckProps) {
         if (delta !== undefined) { event.preventDefault(); step(delta); return; }
         if (event.key === 'Home' || event.key === 'End') {
             event.preventDefault();
-            controller.dismiss();
             write(event.key === 'Home' ? parameter.min : parameter.max);
         } else if (event.key === 'Enter') {
             event.preventDefault();
@@ -251,7 +253,7 @@ export function RangePuck(props: RangePuckProps) {
     return <PuckFrame label={name} symbol={parameter.symbol} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
         tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-range${props.sweep?.running ? ' is-sweeping' : ''}`}
         headExtra={props.sweep && !locked && <SweepButton name={spoken} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
-        pill={<UndoPill open={pending !== undefined} name={spoken} onUndo={controller.undo}/>}>
+        pill={<UndoPill open={pending !== undefined} name={spoken} onUndo={controller.undo} controller={controller}/>}>
         {entry
             // The entry keeps the body's structure (value line over the track) so the puck's height does not change either.
             ? <div className="puck-body puck-body-entry">

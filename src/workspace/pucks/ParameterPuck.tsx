@@ -68,6 +68,7 @@ function NumberParameterPuck({graph, parameter, bounds}: ParameterPuckProps & {p
         const result = graph.parameters?.write(key, next, 'learner');
         if (result?.status === 'refused-domain') setRefusal(result.error.message);
         else setRefusal(undefined);
+        return result?.status === 'applied';
     }, [graph, key]);
     const sweep = useSweep(graph, parameter);
     const onHold = useCallback(() => graph.parameters?.hold(key) ?? (() => undefined), [graph, key]);

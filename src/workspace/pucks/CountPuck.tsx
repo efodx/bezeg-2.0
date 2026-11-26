@@ -17,7 +17,8 @@ export interface CountPuckProps {
     /** The declared parameter (`kind: "count"`). */
     parameter: CountParameter;
     value: number;
-    onWrite(value: number): void;
+    /** Returns false when the write was not applied (refused), so no undo is offered for it. */
+    onWrite(value: number): boolean | void;
     /** A domain refusal from the setter, shown at the puck. */
     refusal?: Message | string;
     lockReason?: Message;
@@ -75,14 +76,18 @@ export function CountPuck(props: CountPuckProps) {
     useEffect(() => { if (active.current && (locked || !preview)) endHover(); }, [locked, preview]); // eslint-disable-line react-hooks/exhaustive-deps
     useEffect(() => endHover, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const write = (next: number) => {
+    /** Writes `next`; only once it was applied does it offer the undo for a jump from `jumpFrom`, or end the offer for any other write. */
+    const write = (next: number, jumpFrom?: number): boolean => {
         const bounded = Math.min(parameter.max, Math.max(parameter.min, next));
-        if (bounded === latest.current) return;
+        const previous = latest.current;
+        if (bounded === previous) return false;
         latest.current = bounded;
         setNotice(undefined);
-        onWrite(bounded);
+        if (onWrite(bounded) === false) { latest.current = previous; return false; }
+        if (jumpFrom !== undefined) controller.offer(jumpFrom); else controller.dismiss();
+        return true;
     };
-    const step = (delta: number) => { controller.dismiss(); write(latest.current + delta); };
+    const step = (delta: number) => { write(latest.current + delta); };
     const closeEntry = () => { refocus.current = true; setEntry(null); };
     const submitEntry = () => {
         if (entry === null) return;
@@ -94,8 +99,7 @@ export function CountPuck(props: CountPuckProps) {
         }
         const before = latest.current;
         // A typed count more than one step away offers the undo, like a range jump.
-        if (Math.abs(parsed - before) > 1) controller.offer(before); else controller.dismiss();
-        write(parsed);
+        write(parsed, Math.abs(parsed - before) > 1 ? before : undefined);
         closeEntry();
     };
 
@@ -117,7 +121,6 @@ export function CountPuck(props: CountPuckProps) {
         else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') { event.preventDefault(); step(-1); }
         else if (event.key === 'Home' || event.key === 'End') {
             event.preventDefault();
-            controller.dismiss();
             write(event.key === 'Home' ? parameter.min : parameter.max);
         } else if (event.key === 'Enter') { event.preventDefault(); setEntry(fmt(latest.current)); }
         else if (TYPED_START.test(event.key)) { event.preventDefault(); setEntry(event.key); }
@@ -134,7 +137,7 @@ export function CountPuck(props: CountPuckProps) {
     return <PuckFrame label={name} symbol={parameter.symbol} help={help} locked={locked} lockReason={lockText} lockId={lockId} notice={notice ?? asText(props.refusal)}
         tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-count${props.sweep?.running ? ' is-sweeping' : ''}`}
         headExtra={props.sweep && !locked && <SweepButton name={spoken} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
-        pill={<UndoPill open={pending !== undefined} name={spoken} onUndo={controller.undo}/>}>
+        pill={<UndoPill open={pending !== undefined} name={spoken} onUndo={controller.undo} controller={controller}/>}>
         {/* The value comes first in the tab order: with a mouse it heads the slip (top right) over − scale +. CSS orders the touch row. */}
         <div className="puck-stepper">
             {entry !== null
