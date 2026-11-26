@@ -46,6 +46,8 @@ interface Drag { id: string; target: DropIndex | 'free'; first: BoardPoint | nul
 interface StripDrag { candidate: StripDock; offset: {x: number; y: number} | null }
 
 const NO_WIDTHS: Readonly<Record<string, number>> = {};
+/** The folded Orodja head at max-content (grip, title, Uredi, Prikaz, Shrani, fold: 213 px) with the reset arrow (32 px) and a little air. */
+export const CARD_MIN_WIDTH = 248;
 const noop = () => undefined;
 const keySet = (joined: string): ReadonlySet<string> => new Set(joined === '' ? [] : joined.split('|'));
 const stableDiffers = (a: readonly Placed[], b: readonly Placed[]) => JSON.stringify(a) !== JSON.stringify(b);
@@ -173,6 +175,9 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
       if (card && spec.id === TOOLS_ID && card.natural.w < TOOLS_NATURAL.w) {
         card = {...card, natural: {...card.natural, w: TOOLS_NATURAL.w}};
       }
+      // A column is as wide as its widest open card, and its folded cards take that width: a short Odčitki (bezier-clipping, 126 px)
+      // left the folded Orodja head without its title and Legenda as "Legen…". No card reads narrower than a folded head needs.
+      if (card && card.natural.w < CARD_MIN_WIDTH) card = {...card, natural: {...card.natural, w: CARD_MIN_WIDTH}};
       const reserve = spec.id === LESSON_ID ? bar + LESSON_RESTORE_ROW : bar; // the lesson's Povrni row is always there, cut or not
       return card ? [{...card, reserve, exactCut: spec.id === LESSON_ID, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
     });

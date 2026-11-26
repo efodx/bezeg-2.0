@@ -16,6 +16,7 @@ import {render} from '@testing-library/react';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {SiteContext} from '../../graphs/context/react/SiteContext';
 import {BOARD_LAYOUT_KEY, loadBoardLayout} from '../layout/storedLayout';
+import {CARD_MIN_WIDTH} from './BoardCards';
 
 // The measure pass waits for MathJax; jsdom has none.
 vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
@@ -351,6 +352,13 @@ describe('Orodja\'s width', () => {
         await waitUntil(() => shown('tools') !== null);
         await waitUntil(() => parseFloat(shown('tools')!.style.width) > 0);
         expect(parseFloat(shown('tools')!.style.width)).toBeGreaterThanOrEqual(310);
+    });
+
+    test('a short open card still leaves a folded Orodja head its width', async () => {
+        naturalWidths = {readouts: 126, legend: 126};
+        await mountTaylor();
+        await waitUntil(() => parseFloat(shown('readouts')!.style.width) > 0);
+        expect(parseFloat(shown('readouts')!.style.width)).toBeGreaterThanOrEqual(CARD_MIN_WIDTH);
     });
 });
 
