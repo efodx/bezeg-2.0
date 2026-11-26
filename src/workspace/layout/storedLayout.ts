@@ -18,7 +18,7 @@ export interface StoredBoardLayout {
     strip?: StripDock;
 }
 
-const STRIP_DOCKS: readonly StripDock[] = ['bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'];
+const STRIP_DOCKS: readonly StripDock[] = ['top-centre', 'bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'];
 const ANCHORS: readonly Anchor[] = ['tl', 'tc', 'tr', 'ml', 'mr', 'bc', 'br'];
 const COORD_LIMIT = 1e6;
 

@@ -467,7 +467,7 @@ function prng(seed: number): () => number {
 }
 
 // ---- Movable strip (rules 2j-2l) ----
-const DOCKS: StripDock[] = ['bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'];
+const DOCKS: StripDock[] = ['top-centre', 'bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'];
 const BOARDS = [{ w: 1230, h: 600 }, { w: 1870, h: 960 }];
 const SLOTS = [{ w: 120, h: 155 }, ...[0, 1, 2, 3].map(() => ({ w: 160, h: 71 })), { w: 160, h: 85 }, { w: 120, h: 85 }];
 const STRIP = { w: 1088, h: 155 };
@@ -620,6 +620,31 @@ describe('movable strip', () => {
     expect(byId(r, 'f').rect.x).toBeGreaterThanOrEqual(0);
   });
 
+  // Rule 2l: the top-centre strip is the top member of the centre stack; top-anchored cards of the centre stack sit below it.
+  for (const board of [{ w: 1440, h: 900 }, { w: 1280, h: 720 }]) {
+    it(`2l: top-centre at ${board.w}x${board.h}: strip at the top, centred, tc cards below it, no card overlaps it`, () => {
+      const cards = [
+        card('l', 'tl', { natural: { w: 320, h: 380 }, min: { w: 320, h: 120 } }),
+        card('r', 'tr', { natural: { w: 300, h: 260 }, min: { w: 300, h: 100 } }),
+        card('t', 'tc', { natural: { w: 420, h: 220 }, min: { w: 420, h: 90 } }),
+      ];
+      const r = layoutBoard(stripInput(cards, board, 'top-centre'));
+      const s = r.pucks!;
+      expect(s.y).toBe(8);
+      expect(s.x + s.w / 2).toBeCloseTo(board.w / 2, 5);
+      expect(byId(r, 't').rect.y).toBeGreaterThanOrEqual(s.y + s.h + 8 - 1e-6);
+      for (const c of r.cards) expect(overlaps(s, c.rect), `${c.id} under the strip`).toBe(false);
+      expect(overlaps(s, r.free)).toBe(false);
+    });
+  }
+
+  it('2l: top-centre leaves a bottom-anchored centre card at the bottom and free cards in place', () => {
+    const cards = [card('b', 'bc', { natural: { w: 420, h: 220 } }), card('f', 'tl')];
+    const r = layoutBoard({ ...stripInput(cards, { w: 1440, h: 900 }, 'top-centre'), stored: { f: { kind: 'free', x: 700, y: 500 } } });
+    expect(byId(r, 'b').rect.y + byId(r, 'b').rect.h).toBe(900 - 8);
+    expect(byId(r, 'f').rect).toMatchObject({ x: 700, y: 500 });
+  });
+
   it('bottom-left is the default dock', () => {
     const base = input(taylorLike(), { board: { w: 1230, h: 600 }, maxSpan: 1800, pucks: STRIP, puckSlots: SLOTS });
     expect(layoutBoard({ ...base, stripDock: 'bottom-left' })).toEqual(layoutBoard(base));
@@ -636,8 +661,12 @@ describe('stripDropTarget', () => {
     expect(at(40, 300)).toBe('left');
     expect(at(960, 300)).toBe('right');
   });
+  it('the top centre is a dock: the strip dragged to the top middle docks there', () => {
+    expect(at(500, 30)).toBe('top-centre');
+    expect(at(600, 20)).toBe('top-centre');
+    expect(at(500, 400)).toBe('bottom-centre'); // below the middle the bottom wins
+  });
   it('the top half picks the nearest dock too, never free', () => {
-    expect(at(600, 20)).toBe('right');
     expect(at(20, 10)).toBe('left');
     expect(at(980, 10)).toBe('right');
   });

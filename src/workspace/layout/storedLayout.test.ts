@@ -95,12 +95,12 @@ describe('stored board layout', () => {
 
 describe('stored strip dock', () => {
     it('round-trips every dock and parses junk as absent', () => {
-        for (const dock of ['bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'] as const) {
+        for (const dock of ['top-centre', 'bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'] as const) {
             const storage = fakeStorage();
             expect(saveBoardLayout(setStripDock(emptyBoardLayout(), dock), storage)).toBe(true);
             expect(loadBoardLayout(storage).strip).toBe(dock);
         }
-        for (const junk of ['top', 3, null, {}, ['left']]) {
+        for (const junk of ['top', 'top-left', 3, null, {}, ['left']]) {
             expect(parseBoardLayout({version: BOARD_LAYOUT_VERSION, placements: {}, folds: {}, strip: junk}).strip).toBeUndefined();
         }
         expect(parseBoardLayout({version: BOARD_LAYOUT_VERSION}).strip).toBeUndefined();

@@ -2,7 +2,7 @@
 // Spec: docs/reviews/ux-picks-app-wide/03-layout-design.md. No React, JSXGraph or DOM.
 
 export type Anchor = 'tl' | 'tc' | 'tr' | 'ml' | 'mr' | 'bc' | 'br';
-export type StripDock = 'bottom-left' | 'bottom-centre' | 'bottom-right' | 'left' | 'right';
+export type StripDock = 'top-centre' | 'bottom-left' | 'bottom-centre' | 'bottom-right' | 'left' | 'right';
 export interface Size { w: number; h: number }
 export interface Rect { x: number; y: number; w: number; h: number }
 
@@ -205,7 +205,8 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
   // Rule 2: strip. Only the left column gives up the strip's height; the strip's width is
   // capped after the columns are placed (see below).
   const dock = input.stripDock ?? 'bottom-left';
-  const stripCol: Column | null = pucks ? (dock === 'bottom-centre' ? 'centre' : dock === 'bottom-right' ? 'right' : null) : null;
+  const stripCol: Column | null = pucks ? (dock === 'bottom-centre' || dock === 'top-centre' ? 'centre' : dock === 'bottom-right' ? 'right' : null) : null;
+  const topStrip = dock === 'top-centre'; // rule 2l: the strip is the top member of the centre stack, so tc cards sit below it
   let bottomStrip = { x: 0, w: 0, h: 0 }; // rule 2j: the strip as the bottom member of the centre or right stack
   const reserve = pucks && dock === 'bottom-left' ? pucks.h + gap : 0;
   const colWidth: Partial<Record<Column, number>> = {};
@@ -365,14 +366,14 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
     colX[col] = x;
 
     // Rule 3: stacks. Order 0 sits nearest the anchor's edge; ml/mr start below the top stack.
-    let y = gap;
+    let y = col === stripCol && topStrip ? gap + colReserve : gap;
     for (const a of TOP_ANCHORS[col]) {
       for (const s of members.filter((m) => m.placement.anchor === a).sort(byOrderThenId)) {
         rects.set(s.card.id, { x, y, w: colW, h: heightOf(s) });
         y += heightOf(s) + gap;
       }
     }
-    y = board.h - gap - colReserve;
+    y = board.h - gap - (col === stripCol && topStrip ? 0 : colReserve);
     for (const a of BOTTOM_ANCHORS[col]) {
       for (const s of members.filter((m) => m.placement.anchor === a).sort(byOrderThenId)) {
         rects.set(s.card.id, { x, y: y - heightOf(s), w: colW, h: heightOf(s) });
@@ -385,7 +386,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
   // (else the band's edge). Extension: a centre card reaching down into the strip's rows caps it too.
   let stripRect: Rect | null = null;
   if (pucks && stripCol) {
-    stripRect = { x: bottomStrip.x, y: board.h - gap - bottomStrip.h, w: bottomStrip.w, h: bottomStrip.h };
+    stripRect = { x: bottomStrip.x, y: topStrip ? gap : board.h - gap - bottomStrip.h, w: bottomStrip.w, h: bottomStrip.h };
   } else if (pucks) {
     const x = stripAfterLeft && colX.left !== undefined ? besideX() : band.x + gap;
     let h = pucks.h;
@@ -529,11 +530,14 @@ export function stripDropTarget(board: Size, strip: Rect): StripDock {
   const nx = board.w > 0 ? (strip.x + strip.w / 2) / board.w : 0;
   const ny = board.h > 0 ? (strip.y + strip.h / 2) / board.h : 1;
   const points: [StripDock, number, number][] = [
-    ['bottom-left', 0, 1], ['bottom-centre', 0.5, 1], ['bottom-right', 1, 1], ['left', 0, 0.5], ['right', 1, 0.5],
+    ['top-centre', 0.5, 0], ['bottom-left', 0, 1], ['bottom-centre', 0.5, 1], ['bottom-right', 1, 1], ['left', 0, 0.5], ['right', 1, 0.5],
   ];
   let best: StripDock = 'bottom-left';
   let bestD = Infinity;
   for (const [dock, px, py] of points) {
+    // The top centre is only a target in the top quarter, middle half of the width: a strip dragged towards a side edge or a top
+    // corner still means that side (a wide strip's centre sits near the middle whichever edge it is pulled to).
+    if (dock === 'top-centre' && (Math.abs(nx - 0.5) > 0.25 || ny > 0.25)) continue;
     const d = Math.hypot(nx - px, ny - py);
     if (d < bestD) { bestD = d; best = dock; }
   }

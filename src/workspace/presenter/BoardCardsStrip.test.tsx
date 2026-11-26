@@ -65,7 +65,7 @@ describe('the strip grip', () => {
     });
 
     test.each<[StripDock, number, number]>([
-        ['bottom-centre', 250, 0], ['bottom-right', 700, 80], ['left', 0, -330], ['right', 900, -330],
+        ['bottom-centre', 250, 0], ['top-centre', 250, -640], ['bottom-right', 700, 80], ['left', 0, -200], ['right', 900, -330],
     ])('a pointer drag toward %s stores that dock', async (dock, dx, dy) => {
         await mountTaylor();
         dragStrip(dx, dy);
@@ -177,7 +177,7 @@ describe('the strip grip', () => {
         const roles = () => [...strip().querySelectorAll('[role="slider"], [role="spinbutton"]')].map(el => el.getAttribute('role') + ':' + (el.getAttribute('aria-label') ?? el.getAttribute('aria-labelledby')));
         const rowRoles = roles();
         expect(rowRoles.length).toBeGreaterThan(1);
-        dragStrip(0, -330);
+        dragStrip(0, -200);
         expect(strip().getAttribute('data-puck-strip-orientation')).toBe('column');
         expect(strip()).toHaveClass('puck-strip--column');
         expect(roles()).toEqual(rowRoles);
@@ -231,7 +231,15 @@ describe('the ring and the director', () => {
         expect(neighbourDock('right', 'ArrowDown')).toBe('bottom-right');
     });
 
-    test.each<StripDock>(['bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'])('the strip is among the director\'s obstacles at %s', dock => {
+    test('the keyboard reaches the top centre with Up from the bottom centre and leaves it with Down, Left or Right', () => {
+        expect(neighbourDock('bottom-centre', 'ArrowUp')).toBe('top-centre');
+        expect(neighbourDock('top-centre', 'ArrowUp')).toBe('top-centre');
+        expect(neighbourDock('top-centre', 'ArrowDown')).toBe('bottom-centre');
+        expect(neighbourDock('top-centre', 'ArrowLeft')).toBe('left');
+        expect(neighbourDock('top-centre', 'ArrowRight')).toBe('right');
+    });
+
+    test.each<StripDock>(['top-centre', 'bottom-left', 'bottom-centre', 'bottom-right', 'left', 'right'])('the strip is among the director\'s obstacles at %s', dock => {
         const layout = layoutBoard({board: {w: 1280, h: 720}, cards: [], stored: {}, storedFolds: {}, pucks: {w: 400, h: 64}, stripDock: dock, maxSpan: 3, columnMaxFraction: 0.4, gap: 8});
         expect(layout.pucks).not.toBeNull();
         const strip = layout.pucks!;

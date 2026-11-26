@@ -14,10 +14,12 @@ export const STRIP_RING: readonly StripDock[] = ['left', 'bottom-left', 'bottom-
 
 /** The dock one arrow key away: Left and Right walk the ring; Up and Down step between a bottom corner and the side above it. */
 export function neighbourDock(dock: StripDock, key: string): StripDock {
+    // The top centre sits above the ring: Down returns to the bottom centre, Left and Right go to the side edges.
+    if (dock === 'top-centre') return key === 'ArrowDown' ? 'bottom-centre' : key === 'ArrowLeft' ? 'left' : key === 'ArrowRight' ? 'right' : dock;
     const at = STRIP_RING.indexOf(dock);
     if (key === 'ArrowLeft') return STRIP_RING[Math.max(0, at - 1)];
     if (key === 'ArrowRight') return STRIP_RING[Math.min(STRIP_RING.length - 1, at + 1)];
-    if (key === 'ArrowUp') return dock === 'bottom-left' ? 'left' : dock === 'bottom-right' ? 'right' : dock;
+    if (key === 'ArrowUp') return dock === 'bottom-left' ? 'left' : dock === 'bottom-right' ? 'right' : dock === 'bottom-centre' ? 'top-centre' : dock;
     if (key === 'ArrowDown') return dock === 'left' ? 'bottom-left' : dock === 'right' ? 'bottom-right' : dock;
     return dock;
 }
@@ -51,6 +53,7 @@ export function StripGrip({column, candidate, picked, blocked, onPickup, onMove,
     const [said, setSaid] = useState('');
     const dockName = (dock: StripDock): string => {
         switch (dock) {
+            case 'top-centre': return t('strip_dock_top_centre');
             case 'bottom-left': return t('strip_dock_bottom_left');
             case 'bottom-centre': return t('strip_dock_bottom_centre');
             case 'bottom-right': return t('strip_dock_bottom_right');
