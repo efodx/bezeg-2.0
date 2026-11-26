@@ -188,7 +188,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   const toolsSectionToShow = usedToolsSection.section;
   const setToolsSection = host.tools.setSection;
   useEffect(() => { if (toolsSectionToShow) setToolsSection(toolsSectionToShow); }, [frame, toolsSectionToShow, setToolsSection]);
-  const toolsSections = useToolsSectionsWithContent(declared, host.tools.section, setToolsSection);
+  const toolsSections = useToolsSectionsWithContent(declared, host.tools.section, setToolsSection, toolsSectionToShow);
   // The pucks (task 05): the declared board range and count parameters the graph binds, in declared order. The strip is laid out at its
   // natural size (measured from its pucks, whose widths are constant), estimated until the first reading.
   const puckList = puckItems(declaration, graph.parameters?.keys());
