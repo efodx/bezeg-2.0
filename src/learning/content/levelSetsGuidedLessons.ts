@@ -7,10 +7,13 @@
  * The contour lessons (LS1 to LS4) belong to later batches and the contour graph.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {LinearProgramIds} from '../../graphs/levelsets/LinearProgramGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<LinearProgramIds>();
 
 interface StepContent {
     readonly id: string;
@@ -23,14 +26,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights or opens (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -126,6 +131,7 @@ const ls5Examples: readonly WorkedExample[] = [
 const ls5Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'ls5-region', order: 1,
+        declare: f({open: ['readouts'], highlight: ['vertex-count', 'vertex-0', 'vertex-1']}),
         title: text('Dopustno območje', 'The feasible region'),
         purpose: text('Napovedati oglišča mnogokotnika, ki ga določajo neenačbe, preden jih graf pokaže.', 'Predicting the vertices of the polygon given by the inequalities before the graph shows them.'),
         explanation: text(
@@ -144,6 +150,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls5-line', order: 2,
+        declare: f({open: ['readouts'], uses: ['lp-sweep'], highlight: ['sweep']}),
         title: text('Premica kriterijske funkcije', 'The line of the objective'),
         purpose: text('Napovedati, kaj se zgodi s premico \\(3x+2y=k\\), ko večamo \\(k\\).', 'Predicting what happens to the line \\(3x+2y=k\\) as \\(k\\) grows.'),
         explanation: text(
@@ -151,7 +158,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
             'We look for the largest value of the objective function \\(3x+2y\\). The points with the same value \\(k\\) lie on the line \\(3x+2y=k\\); different \\(k\\) give parallel lines. Now \\(k=6\\) and the line crosses the region. Write down a prediction: where does the line move as you increase \\(k\\), and when does it leave the region? This is an illustration, not a proof.',
         ),
         formulaIds: [],
-        observationPrompt: text('Z drsnikom Vrednost k premice cilja nastavi \\(9\\) in nato \\(12\\) ter opazuj, kam se premakne črtkana premica.', 'With the slider Value k of the objective line set \\(9\\) and then \\(12\\) and watch where the dashed line moves.'),
+        observationPrompt: text('Vrednost k premice cilja nastavi na \\(9\\) in nato \\(12\\) ter opazuj, kam se premakne črtkana premica.', 'Set the Value k of the objective line to \\(9\\) and then \\(12\\) and watch where the dashed line moves.'),
         expectedObservations: [text(
             'Pri \\(k=6\\) odčitek Premica cilja pri izbranem k kaže \\(3x+2y=6\\); pri \\(k=9\\) gre premica skozi oglišče \\((3;\\ 0)\\), pri \\(k=12\\) skozi \\((2;\\ 3)\\).',
             'At \\(k=6\\) the readout Objective line at the chosen k shows \\(3x+2y=6\\); at \\(k=9\\) the line passes through the vertex \\((3,\\ 0)\\), at \\(k=12\\) through \\((2,\\ 3)\\).',
@@ -162,6 +169,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls5-last-touch', order: 3,
+        declare: f({open: ['readouts'], uses: ['lp-sweep'], highlight: ['optimum', 'through']}),
         title: text('Zadnji dotik je oglišče', 'The last touch is a vertex'),
         purpose: text('Videti, da največjo vrednost dosežemo v oglišču, in znati povedati zakaj.', 'Seeing that the largest value is reached at a vertex and being able to say why.'),
         explanation: text(
@@ -170,7 +178,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['lp-vertex'],
         workedExampleId: 'ls5-vertices',
-        observationPrompt: text('Preberi Največja vrednost (točno) in Optimalna točka; nato z drsnikom nastavi \\(k=13\\) in preveri, da premica ne seka več dopustnega območja.', 'Read Largest value (exact) and Optimal point; then set \\(k=13\\) with the slider and check that the line no longer crosses the feasible region.'),
+        observationPrompt: text('Preberi Največja vrednost (točno) in Optimalna točka; nato nastavi Vrednost k premice cilja na \\(13\\) in preveri, da premica ne seka več dopustnega območja.', 'Read Largest value (exact) and Optimal point; then set the Value k of the objective line to \\(13\\) and check that the line no longer crosses the feasible region.'),
         expectedObservations: [text(
             'Največja vrednost je \\(12\\) v točki \\((2;\\ 3)\\); odčitek Premica cilja skozi optimum je \\(3x+2y=12\\), enaka premici pri \\(k=12\\).',
             'The largest value is \\(12\\) at the point \\((2,\\ 3)\\); the readout Objective line through the optimum is \\(3x+2y=12\\), the same as the line at \\(k=12\\).',
@@ -181,6 +189,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls5-walk', order: 4,
+        declare: f({open: ['readouts'], highlight: ['walk-0', 'walk-1', 'walk-2']}),
         title: text('Sprehod po ogliščih', 'The walk along the vertices'),
         purpose: text('Napovedati, v katero sosednje oglišče se splača iti, in kdaj se sprehod ustavi.', 'Predicting which neighbouring vertex is worth moving to and when the walk stops.'),
         explanation: text(
@@ -199,6 +208,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls5-parallel', order: 5,
+        declare: f({open: ['readouts'], highlight: ['status', 'optimal-0', 'walk-0']}),
         title: text('Premica vzporedna stranici', 'A line parallel to a side'),
         purpose: text('Napovedati, kaj se zgodi, ko je kriterijska funkcija vzporedna eni stranici mnogokotnika.', 'Predicting what happens when the objective is parallel to one side of the polygon.'),
         explanation: text(
@@ -218,6 +228,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls5-degenerate', order: 6,
+        declare: f({open: ['readouts'], highlight: ['vertex-count', 'vertex-2']}),
         title: text('Izrojeno oglišče', 'A degenerate vertex'),
         purpose: text('Napovedati, v katerem oglišču se stikajo trije pogoji, in prepoznati odvečni pogoj.', 'Predicting at which vertex three constraints meet and recognising the redundant constraint.'),
         explanation: text(
@@ -236,6 +247,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls5-unbounded', order: 7,
+        declare: f({open: ['readouts'], highlight: ['status', 'ray']}),
         title: text('Neomejen primer in raziskovanje', 'The unbounded case and free exploration'),
         purpose: text('Napovedati, kdaj cilj nima največje vrednosti, in nato prosto raziskovati.', 'Predicting when the objective has no largest value and then exploring freely.'),
         explanation: text(

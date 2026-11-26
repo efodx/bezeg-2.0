@@ -78,7 +78,7 @@ test('set-constraints reaches the state, readouts and status of the count and th
 
 test('set-sweep reaches the state and readouts of typing the value k', () => {
     const viaAction = after(graph => apply(graph, setSweep(12)));
-    expect(viaAction).toEqual(after(() => type(t('levelsets_graph_lp_sweep'), '12')));
+    expect(viaAction).toEqual(after(graph => act(() => { graph.parameters!.write('lp-sweep', 12, 'learner'); })));
     expect(viaAction.state).toEqual(expect.objectContaining({sweep: 12}));
 });
 
@@ -96,11 +96,11 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     expect(stateOf(graph)).not.toEqual(free);
     const here = {state: stateOf(graph), readouts: readouts(), status: status()};
     cleanup();
-    const viaControl = after(() => {
+    const viaControl = after(graph => {
         typeDegenerate();
         type(t('levelsets_graph_lp_objective_p'), '1');
         type(t('levelsets_graph_lp_objective_q'), '2');
-        type(t('levelsets_graph_lp_sweep'), '11');
+        act(() => { graph.parameters!.write('lp-sweep', 11, 'learner'); });
     });
     expect(viaControl).toEqual(here);
 });

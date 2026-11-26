@@ -1,0 +1,9 @@
+
+graph-check linear-program: PASS
+  pass  contract     1 passed
+  pass  parity       2 passed
+  pass  golden       1 passed
+  pass  declaration  7 passed
+  pass  shared       22 passed
+  pass  probe        exit 0
+  pass  fuzz         exit 0

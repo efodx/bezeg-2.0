@@ -590,6 +590,33 @@ const SAMPLES: readonly Sample[] = [
             {name: 'frieze, nothing chosen', apply: run({mode: 'frieze', friezeFeatures: {vertical: false, horizontal: false, halfTurn: false, glide: false}})},
         ] satisfies ParityState[];
     })()},
+    {file: 'levelsets/__parity__/linear-program.json', demonstration: 'linear-program', states: (() => {
+        type Row = {a: number; b: number; c: number};
+        type Lp = {applyLevelSetsAction(action: unknown): void};
+        const dflt: Row[] = [{a: 1, b: 2, c: 8}, {a: 3, b: 1, c: 9}];
+        // every state sets rows, objective and sweep, so it does not inherit the previous one
+        const lp = (constraints: Row[], objective: {p: number; q: number}, sweep: number): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Lp;
+                g.applyLevelSetsAction({kind: 'levelsets', operation: 'set-constraints', constraints});
+                g.applyLevelSetsAction({kind: 'levelsets', operation: 'set-objective', ...objective});
+                g.applyLevelSetsAction({kind: 'levelsets', operation: 'set-sweep', sweep});
+            });
+        };
+        return [
+            {name: 'default', apply: lp(dflt, {p: 3, q: 2}, 9)},
+            {name: 'sweep at 6', apply: lp(dflt, {p: 3, q: 2}, 6)},
+            {name: 'sweep at the optimum', apply: lp(dflt, {p: 3, q: 2}, 12)},
+            {name: 'objective parallel to a side (segment)', apply: lp(dflt, {p: 1, q: 2}, 8)},
+            {name: 'degenerate vertex', apply: lp([{a: 1, b: 1, c: 4}, {a: 1, b: 3, c: 6}, {a: 1, b: 0, c: 3}], {p: 3, q: 2}, 11)},
+            {name: 'unbounded (ray of improvement)', apply: lp([{a: 1, b: -1, c: 2}], {p: 1, q: 1}, 0)},
+            {name: 'infeasible', apply: lp([{a: 1, b: 1, c: -1}], {p: 1, q: 1}, 0)},
+            {name: 'flat objective', apply: lp(dflt, {p: 0, q: 0}, 0)},
+            {name: 'fractional vertex', apply: lp([{a: 2, b: 3, c: 7}, {a: 3, b: 1, c: 8}], {p: 1, q: 1}, 3)},
+            {name: 'ray of optima', apply: lp([{a: 1, b: -1, c: 2}], {p: 1, q: -1}, 2)},
+            {name: 'five rows', apply: lp([...dflt, {a: 1, b: 0, c: 3}, {a: 0, b: 1, c: 3}, {a: 1, b: 1, c: 5}], {p: 2, q: 3}, 10)},
+        ] satisfies ParityState[];
+    })()},
     {file: 'lines/__parity__/line-geometry.json', demonstration: 'line-geometry', states: (() => {
         type Lines = {setState(state: Record<string, unknown>): void};
         const at = (x: number, y: number) => ({x, y});

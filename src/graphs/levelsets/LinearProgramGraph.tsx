@@ -1,13 +1,17 @@
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
-import React from "react";
+import React, {useSyncExternalStore} from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, useT, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutRow, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber} from "../../analysis/format";
 import {CountSetter} from "../../inputs/CountSetter";
 import Slider from "../../inputs/Slider";
-import type {ReadoutListRow} from "../base/controls/ReadoutParts";
-import {SettledReadout} from "../base/controls/LiveReadout";
+import {ReadoutHeading, ReadoutList, type ReadoutListRow} from "../base/controls/ReadoutParts";
+import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
 import type {Rational, RationalPoint} from "../../compgeo/rational";
@@ -20,7 +24,6 @@ import {
     type Box, type LpSolution, type LpStatus,
 } from "./lpScene";
 import {emptyPoly, type Poly} from "./contourScene";
-import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
 import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
 import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
@@ -30,6 +33,21 @@ import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+
+/**
+ * Ids of the declaration (task 02, task 08 lane L15). Bound: the sweep value k (a range puck, absent while the objective is 0).
+ * The objective, the rows and their count stay in Orodja (setup; the objective is also a board handle); the legend is the board's own.
+ * Declared: the readout rows and the status sentence as a note.
+ */
+export type LinearProgramIds = {
+    param: "lp-sweep";
+    row: "region" | `row-${number}` | "axes" | "objective" | "vertex-count" | `vertex-${number}` | "status" | "optimum" | `optimal-${number}` | "ray" | "walk"
+        | `walk-${number}` | "sweep" | "through" | "window";
+    note: "summary";
+    legend: never;
+    section: never;
+    action: never;
+};
 
 /** The scene state: the stored fields of `LpState`, nothing derived. */
 export interface LinearProgramGraphState extends BaseGraphState, LpState {}
@@ -730,78 +748,131 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         return t("levelsets_graph_lp_label_row", {value0: String(index + 1), value1: this.inequality(k)});
     }
 
-    inequality(k: LpConstraint): string {
-        return t("levelsets_graph_lp_inequality", {value0: rowLeft(k), value1: integerText(k.c)});
+    inequality(k: LpConstraint): string { return renderMessage(this.inequalityMessage(k)); }
+
+    private inequalityMessage(k: LpConstraint): Message {
+        return message("levelsets_graph_lp_inequality", {value0: rowLeft(k), value1: integerText(k.c)});
     }
 
+    private pointMessage(x: string, y: string): Message { return message("levelsets_graph_point_format", {value0: x, value1: y}); }
+
     /** A rational, exactly, with its decimal beside it when it is a proper fraction. */
-    exactValue(value: Rational): string {
+    private exactMessage(value: Rational): Message | string {
         const exact = exactText(value);
-        return isFraction(value) ? t("levelsets_graph_lp_exact_decimal", {value0: exact, value1: dec(value.toNumber(), 4)}) : exact;
+        return isFraction(value) ? message("levelsets_graph_lp_exact_decimal", {value0: exact, value1: dec(value.toNumber(), 4)}) : exact;
+    }
+
+    exactValue(value: Rational): string {
+        const shown = this.exactMessage(value);
+        return typeof shown === "string" ? shown : renderMessage(shown);
     }
 
     /** A vertex, exactly "(7/2; 3)", with the decimal point beside it when a coordinate is a proper fraction. */
-    pointText(v: RationalPoint): string {
-        const exact = point(exactText(v.x), exactText(v.y));
+    private pointValueMessage(v: RationalPoint): Message {
+        const exact = this.pointMessage(exactText(v.x), exactText(v.y));
         return isFraction(v.x) || isFraction(v.y)
-            ? t("levelsets_graph_lp_exact_decimal", {value0: exact, value1: point(dec(v.x.toNumber(), 4), dec(v.y.toNumber(), 4))}) : exact;
+            ? message("levelsets_graph_lp_exact_decimal", {value0: exact, value1: this.pointMessage(dec(v.x.toNumber(), 4), dec(v.y.toNumber(), 4))}) : exact;
     }
+
+    pointText(v: RationalPoint): string { return renderMessage(this.pointValueMessage(v)); }
 
     private objectiveText(): string { return linearText(this.state.objective.p, this.state.objective.q); }
 
-    /** The one status sentence. */
-    statusText(): string {
+    /** The one status sentence, as a catalog message. */
+    private statusMessage(): Message {
         const solution = this.solution();
-        const value = solution.value === null ? "" : this.exactValue(solution.value);
+        const value = solution.value === null ? "" : this.exactMessage(solution.value);
         switch (solution.status) {
-            case "infeasible": return t("levelsets_graph_lp_say_infeasible");
+            case "infeasible": return message("levelsets_graph_lp_say_infeasible");
             case "unbounded": {
                 const ray = solution.improvingRay;
-                return t("levelsets_graph_lp_say_unbounded", {value0: ray === null ? "" : point(integerText(ray.x), integerText(ray.y))});
+                return message("levelsets_graph_lp_say_unbounded", {value0: ray === null ? "" : this.pointMessage(integerText(ray.x), integerText(ray.y))});
             }
-            case "flat": return t("levelsets_graph_lp_say_flat");
-            case "unique": return t("levelsets_graph_lp_say_unique", {value0: value, value1: this.pointText(solution.optimal[0])});
-            case "segment": return t("levelsets_graph_lp_say_segment", {value0: value, value1: this.pointText(solution.optimal[0]), value2: this.pointText(solution.optimal[1])});
-            case "ray": return t("levelsets_graph_lp_say_ray", {value0: value, value1: this.pointText(solution.optimal[0])});
+            case "flat": return message("levelsets_graph_lp_say_flat");
+            case "unique": return message("levelsets_graph_lp_say_unique", {value0: value, value1: this.pointValueMessage(solution.optimal[0])});
+            case "segment": return message("levelsets_graph_lp_say_segment", {value0: value, value1: this.pointValueMessage(solution.optimal[0]), value2: this.pointValueMessage(solution.optimal[1])});
+            case "ray": return message("levelsets_graph_lp_say_ray", {value0: value, value1: this.pointValueMessage(solution.optimal[0])});
         }
     }
 
-    readoutRows(): ReadoutListRow[] {
+    /** The one status sentence. */
+    statusText(): string { return renderMessage(this.statusMessage()); }
+
+    /** The rows of the readout, as declared (same words, same order); `readoutRows` gives the panel's text of them. */
+    private declaredRows(): ReadoutRow<LinearProgramIds>[] {
         const state = this.state;
         const solution = this.solution();
-        const rows: ReadoutListRow[] = [{id: "region", label: t("levelsets_graph_lp_r_region"), value: t(REGION_KEYS[solution.result.region])}];
-        state.constraints.forEach((k, index) => rows.push({id: `row-${index}`, label: t("levelsets_graph_lp_r_row", {value0: String(index + 1)}), value: this.inequality(k)}));
-        rows.push({id: "axes", label: t("levelsets_graph_lp_r_axes"), value: t("levelsets_graph_lp_axes_value")});
-        rows.push({id: "objective", label: t("levelsets_graph_lp_r_objective"), value: t("levelsets_graph_lp_objective_value", {value0: this.objectiveText()})});
-        rows.push({id: "vertex-count", label: t("levelsets_graph_lp_r_vertex_count"), value: String(solution.vertexInfo.length)});
-        solution.vertexInfo.forEach((info, index) => rows.push({
-            id: `vertex-${index}`, label: t("levelsets_graph_lp_r_vertex", {value0: String(index + 1)}),
-            value: t("levelsets_graph_lp_vertex_value", {value0: this.pointText(info.point), value1: this.exactValue(info.value), value2: String(info.tight)}),
-        }));
-        rows.push({id: "status", label: t("levelsets_graph_lp_r_status"), value: t(STATUS_KEYS[solution.status])});
+        const rows: ReadoutRow<LinearProgramIds>[] = [];
+        const row = (id: LinearProgramIds["row"], name: Message, value: ReadoutRow<LinearProgramIds>["value"]) => rows.push({id, name, value});
+        const formatted = (value: string): FormattedValue => ({kind: "formatted", text: value});
+        const rational = (value: Rational) => { const shown = this.exactMessage(value); return typeof shown === "string" ? formatted(shown) : shown; };
+        const pointOf = (v: RationalPoint) => this.pointValueMessage(v);
+        row("region", message("levelsets_graph_lp_r_region"), message(REGION_KEYS[solution.result.region]));
+        state.constraints.forEach((k, index) => row(`row-${index}` as "row-0", message("levelsets_graph_lp_r_row", {value0: String(index + 1)}), this.inequalityMessage(k)));
+        row("axes", message("levelsets_graph_lp_r_axes"), message("levelsets_graph_lp_axes_value"));
+        row("objective", message("levelsets_graph_lp_r_objective"), message("levelsets_graph_lp_objective_value", {value0: this.objectiveText()}));
+        row("vertex-count", message("levelsets_graph_lp_r_vertex_count"), formatted(String(solution.vertexInfo.length)));
+        solution.vertexInfo.forEach((info, index) => row(`vertex-${index}` as "vertex-0", message("levelsets_graph_lp_r_vertex", {value0: String(index + 1)}),
+            message("levelsets_graph_lp_vertex_value", {value0: pointOf(info.point), value1: this.exactMessage(info.value), value2: String(info.tight)})));
+        row("status", message("levelsets_graph_lp_r_status"), message(STATUS_KEYS[solution.status]));
         if (solution.value !== null) {
-            rows.push({id: "optimum", label: t("levelsets_graph_lp_r_optimum"), value: this.exactValue(solution.value)});
+            row("optimum", message("levelsets_graph_lp_r_optimum"), rational(solution.value));
             if (solution.status !== "flat") {
-                solution.optimal.forEach((v, index) => rows.push({id: `optimal-${index}`, label: t("levelsets_graph_lp_r_optimal"), value: this.pointText(v)}));
+                solution.optimal.forEach((v, index) => row(`optimal-${index}` as "optimal-0", message("levelsets_graph_lp_r_optimal"), pointOf(v)));
             }
         } else if (solution.improvingRay !== null) {
-            rows.push({id: "ray", label: t("levelsets_graph_lp_r_ray"), value: point(integerText(solution.improvingRay.x), integerText(solution.improvingRay.y))});
+            row("ray", message("levelsets_graph_lp_r_ray"), this.pointMessage(integerText(solution.improvingRay.x), integerText(solution.improvingRay.y)));
         }
         const walk = solution.result.walk;
-        if (walk.length === 0) rows.push({id: "walk", label: t("levelsets_graph_lp_r_walk"), value: t("levelsets_graph_lp_walk_none")});
-        walk.forEach((v, index) => rows.push({
-            id: `walk-${index}`, label: t("levelsets_graph_lp_r_walk_step", {value0: String(index)}),
-            value: t("levelsets_graph_lp_walk_step", {value0: this.pointText(v), value1: this.exactValue(evaluate(state.objective.p, state.objective.q, v))}),
-        }));
+        if (walk.length === 0) row("walk", message("levelsets_graph_lp_r_walk"), message("levelsets_graph_lp_walk_none"));
+        walk.forEach((v, index) => row(`walk-${index}` as "walk-0", message("levelsets_graph_lp_r_walk_step", {value0: String(index)}),
+            message("levelsets_graph_lp_walk_step", {value0: pointOf(v), value1: this.exactMessage(evaluate(state.objective.p, state.objective.q, v))})));
         if (!this.flat()) {
-            rows.push({id: "sweep", label: t("levelsets_graph_lp_r_sweep"), value: t("levelsets_graph_lp_equation", {value0: this.objectiveText(), value1: integerText(state.sweep)})});
+            row("sweep", message("levelsets_graph_lp_r_sweep"), message("levelsets_graph_lp_equation", {value0: this.objectiveText(), value1: integerText(state.sweep)}));
             if (solution.value !== null) {
-                rows.push({id: "through", label: t("levelsets_graph_lp_r_through"), value: t("levelsets_graph_lp_equation", {value0: this.objectiveText(), value1: this.exactValue(solution.value)})});
+                row("through", message("levelsets_graph_lp_r_through"), message("levelsets_graph_lp_equation", {value0: this.objectiveText(), value1: this.exactMessage(solution.value)}));
             }
         }
         const box = this.geometry().box;
-        rows.push({id: "window", label: t("levelsets_graph_lp_r_window"), value: t("levelsets_graph_lp_window_value", {value0: integerText(box.xMin), value1: integerText(box.xMax)})});
+        row("window", message("levelsets_graph_lp_r_window"), message("levelsets_graph_lp_window_value", {value0: integerText(box.xMin), value1: integerText(box.xMax)}));
         return rows;
+    }
+
+    readoutRows(): ReadoutListRow[] {
+        return this.declaredRows().map(({id, name, value}): ReadoutListRow => ({
+            id,
+            label: name ? renderMessage(name) : "",
+            value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration ------------------------------------------------------------------------------------------------------
+
+    /** What the view director keeps visible: the objective handle and the exact optimum points (the walk's vertices). */
+    private viewMarks(): ViewMarks {
+        const solution = this.solution();
+        const at = (x: number, y: number): ViewMark => ({kind: "point", x, y});
+        return {must: [at(this.state.objective.p, this.state.objective.q), ...solution.optimal.map(v => at(v.x.toNumber(), v.y.toNumber()))]};
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "lp-sweep": {
+                read: () => this.state.sweep,
+                apply: (value: number) => {
+                    if (!this.setSweep(value)) throw new DomainError(message("levelsets_graph_lp_sweep_rejected", {value0: integerText(SWEEP_RANGE.min), value1: integerText(SWEEP_RANGE.max)}));
+                },
+            },
+        };
+    }
+
+    /** Pure data from the state: the sweep value k as a range puck (absent while the objective is 0, when there is no line), the status as a note and the rows. */
+    protected override declaration(): GraphDeclaration<LinearProgramIds> {
+        const parameters: ParameterDeclaration<LinearProgramIds["param"]>[] = this.flat() ? [] : [{
+            key: "lp-sweep", kind: "range", label: message("lp_sweep_name"), symbol: "k", help: message("levelsets_graph_lp_sweep_help"), placement: "board",
+            min: SWEEP_RANGE.min, max: SWEEP_RANGE.max, step: 1, bigStep: 5, maxDecimals: 0,
+        }];
+        return {parameters, readouts: [{id: "values", rows: this.declaredRows()}], notes: [{id: "summary", text: this.statusMessage()}], marks: this.viewMarks()};
     }
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
@@ -833,11 +904,11 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
                     onChange={value => this.setObjective(0, value)}/>,
             <Slider key="q" customText={t("levelsets_graph_lp_objective_q")} value={state.objective.q} step={1} bigStep={5} min={OBJECTIVE_RANGE.min} max={OBJECTIVE_RANGE.max} decimals={0}
                     onChange={value => this.setObjective(1, value)}/>,
-            <Slider key="sweep" customText={t("levelsets_graph_lp_sweep")} value={state.sweep} step={1} bigStep={5} min={SWEEP_RANGE.min} max={SWEEP_RANGE.max} decimals={0}
+            <PuckOwned key="sweep" param="lp-sweep"><Slider customText={t("levelsets_graph_lp_sweep")} value={state.sweep} step={1} bigStep={5} min={SWEEP_RANGE.min} max={SWEEP_RANGE.max} decimals={0}
                     help={t("levelsets_graph_lp_sweep_help")}
                          rejectedHint={t("levelsets_graph_lp_sweep_rejected", {value0: integerText(SWEEP_RANGE.min), value1: integerText(SWEEP_RANGE.max)})}
                          unavailableReason={this.flat() ? t("levelsets_graph_lp_sweep_reason") : undefined}
-                         onChange={value => this.setSweep(value)}/>,
+                         onChange={value => this.setSweep(value)}/></PuckOwned>,
         );
         // The first task leads: the objective direction and the sweep that shows its supporting line; the constraints are problem setup.
         const lead = ["p", "q", "sweep"];
@@ -847,9 +918,25 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <LpReadout graph={this}/>
+            <LinearProgramReadout graph={this}/>
         </>;
     }
+}
+
+/** The status sentence, the labelled readout rows and the legend of the drawn elements (the contour graph keeps `LpReadout`). */
+function LinearProgramReadout(props: {graph: LinearProgramGraph}) {
+    const text = useT();
+    const {graph} = props;
+    useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
+    return <div className="inspector-group" data-declared-panel="">
+        <ReadoutHeading>{text("levelsets_graph_lp_readout_title")}</ReadoutHeading>
+        <p data-lp-status="" data-readout-note="">{graph.statusText()}</p>
+        <ReadoutList label={text("levelsets_graph_lp_readout_title")} rows={graph.readoutRows()}/>
+        <ul className="readout-list readout-list-sentences" aria-label={text("levelsets_graph_lp_legend_title")} data-lp-legend="">
+            {graph.legend().map(row => <li key={row.id} data-legend={row.id}>{row.text}</li>)}
+        </ul>
+        <LiveReadout readout={graph.status}/>
+    </div>;
 }
 
 export default LinearProgramGraph;

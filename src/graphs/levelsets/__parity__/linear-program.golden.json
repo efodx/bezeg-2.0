@@ -101,7 +101,9 @@
           "value": "od -10 do 10 v obeh smereh"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Največja vrednost 12 je v oglišču (2; 3) (točno)."
+      ],
       "outputs": [],
       "captions": [
         "(0; 0)",
@@ -216,7 +218,9 @@
           "value": "od -10 do 10 v obeh smereh"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Največja vrednost 12 je v oglišču (2; 3) (točno)."
+      ],
       "outputs": [],
       "captions": [
         "(0; 0)",
@@ -331,7 +335,9 @@
           "value": "od -10 do 10 v obeh smereh"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Največja vrednost 12 je v oglišču (2; 3) (točno)."
+      ],
       "outputs": [],
       "captions": [
         "(0; 0)",
@@ -446,7 +452,9 @@
           "value": "od -10 do 10 v obeh smereh"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Največja vrednost 8 je na vsej daljici od (0; 4) do (2; 3); optimumov je neskončno (točno)."
+      ],
       "outputs": [],
       "captions": [
         "(0; 0)",
@@ -566,7 +574,9 @@
           "value": "od -10 do 10 v obeh smereh"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Največja vrednost 11 je v oglišču (3; 1) (točno)."
+      ],
       "outputs": [],
       "captions": [
         "(0; 0)",
@@ -647,7 +657,9 @@
           "value": "od -10 do 10 v obeh smereh"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Cilj ni omejen: v smeri (1; 1) raste brez meje (točno)."
+      ],
       "outputs": [],
       "captions": [
         "(0; 0)",

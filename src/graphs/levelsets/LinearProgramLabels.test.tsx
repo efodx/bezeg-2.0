@@ -5,6 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {DEFAULT_LP_STATE} from '../../optimization/lpModel';
+import {runAs} from '../base/writes/writeSource';
 import LinearProgramGraph from './LinearProgramGraph';
 import type {PxBox} from '../legend/boardLabelPlacement';
 
@@ -71,11 +72,11 @@ describe('LinearProgramGraph board text placement', () => {
     it('at the catalog board size a vertex text is drawn from the box edge nearest its vertex, so a narrower font closes up to the vertex', () => {
         const graph = mountProbe();
         const board = graph.liveBoard();
-        act(() => {
+        act(() => runAs('learner', () => {
             board.resizeContainer(360, 220, true, true);
             board.setBoundingBox([-5.4, 9.5, 12.4, -2.3], false);
             board.fullUpdate();
-        });
+        }));
         const boxes = graph.labelBoxes();
         const [left, top] = board.getBoundingBox();
         const texts = (Object.values(board.objects) as Array<{elType: string}>).filter(o => o.elType === 'text') as unknown as Array<{plaintext: string; visPropCalc: {visible: boolean}; X(): number; visProp: Record<string, unknown>; evalVisProp(name: string): unknown}>;
@@ -104,7 +105,7 @@ describe('LinearProgramGraph board text placement', () => {
 
     it('a constraint name sits inside the board on its line, not past the window', () => {
         const graph = mountProbe();
-        act(() => { graph.importPresetData([['LinearProgram', DEFAULT_LP_STATE]]); });
+        act(() => runAs('learner', () => { graph.importPresetData([['LinearProgram', DEFAULT_LP_STATE]]); }));
         const boxes = graph.labelBoxes();
         const board = graph.liveBoard();
         for (const id of ['row0', 'row1']) {

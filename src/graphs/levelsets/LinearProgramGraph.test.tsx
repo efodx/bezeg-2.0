@@ -1,16 +1,17 @@
 import React from 'react';
 import fs from 'node:fs';
 import path from 'node:path';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
 import {setLanguage, t} from '../../localization';
 import {DEFAULT_LP_STATE, type LpState} from '../../optimization/lpModel';
 import LinearProgramGraph from './LinearProgramGraph';
+import {runAs} from '../base/writes/writeSource';
 import {lpPresetCollection} from './lpPresetCollection';
 
 beforeAll(installBoardShims);
@@ -24,7 +25,7 @@ function mountGraph() {
 }
 
 const state = (constraints: LpState['constraints'], p: number, q: number, sweep = 0): LpState => ({constraints, objective: {p, q}, sweep});
-const load = (graph: LinearProgramGraph, next: LpState) => act(() => { graph.importPresetData([['LinearProgram', next]]); });
+const load = (graph: LinearProgramGraph, next: LpState) => act(() => runAs('learner', () => { graph.importPresetData([['LinearProgram', next]]); }));
 const statusText = () => document.querySelector('[data-lp-status]')?.textContent ?? '';
 const live = () => document.querySelector('[data-readout-live]')?.textContent ?? '';
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
@@ -137,7 +138,7 @@ describe('LinearProgramGraph', () => {
         graph.solution();
         graph.solution();
         expect(graph.computationCounts().solution).toBe(before.solution + 1);
-        act(() => { graph.setSweep(5); });
+        act(() => { runAs('learner', () => graph.setSweep(5)); });
         expect(graph.computationCounts().solution).toBe(before.solution + 1); // the sweep does not re-solve
         expect(readout('sweep')).toBe('3x + 2y = 5');
     });
@@ -164,10 +165,10 @@ describe('LinearProgramGraph', () => {
         expect(graph.state.constraints[0]).toEqual({a: 0, b: 2, c: 8});
     });
 
-    it('refuses a typed value through the input and keeps the state', () => {
+    it('refuses a typed value on the sweep puck and keeps the state', async () => {
         const {graph} = mountGraph();
-        const input = screen.getByRole('spinbutton', {name: t('number_field_label', {value0: t('levelsets_graph_lp_sweep')})});
-        act(() => { fireEvent.change(input, {target: {value: '500'}}); fireEvent.blur(input); });
+        await waitForPucks('lp-sweep');
+        typePuck('lp-sweep', '500');
         expect(graph.state.sweep).toBe(DEFAULT_LP_STATE.sweep);
     });
 
@@ -206,7 +207,7 @@ describe('LinearProgramGraph', () => {
         if (!('data' in checked)) throw new Error('rejected');
         first.view.unmount();
         const second = mountGraph();
-        act(() => { second.graph.importPresetData(checked.data); });
+        act(() => { runAs('learner', () => second.graph.importPresetData(checked.data)); });
         expect(second.graph.state).toMatchObject({constraints: [{a: 2, b: 1, c: 7}, {a: 1, b: 3, c: 12}], objective: {p: -2, q: 5}, sweep: -7});
         expect(statusText()).toBe(text);
         expect(second.graph.exportPresetData()).toEqual(checked.data);
@@ -270,7 +271,7 @@ describe('ownership', () => {
     it('changing the row count keeps the object count', () => {
         const {graph} = mountGraph();
         const owned = graph.ownedObjectCount();
-        act(() => { graph.setRowCount(5); graph.setRowCount(2); graph.setSweep(4); });
+        act(() => { graph.setRowCount(5); graph.setRowCount(2); runAs('learner', () => graph.setSweep(4)); });
         expect(graph.ownedObjectCount()).toBe(owned);
     });
 });
