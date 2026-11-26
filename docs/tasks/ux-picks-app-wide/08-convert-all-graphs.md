@@ -89,9 +89,9 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 7 | L16 | projective-five-point | graph files + `projectiveFivePointGuidedLesson` | done `c50c78a72` |
 | 7 | L18 | quadrature | graph files + `numericalQuadratureGuidedLesson` | done `7995cde3e` |
 | 7 | L19 | recursion-growth | graph files + `recursionGuidedLessons, recursionLogScaleGuidedLessons` | done `42d9317ca` |
-| 8 | L17 | projective-three-views | graph files + `projectiveThreeViewsGuidedLesson` | not started |
-| 8 | L20 | triangle-solver | graph files + `trigSolveGuidedLessons, trigTriangleGuidedLessons` | not started |
-| 8 | L23 | arc-length-param | graph files + `arcLengthGuidedLessons` | not started |
+| 8 | L17 | projective-three-views | graph files + `projectiveThreeViewsGuidedLesson` | done `9e13f7430` |
+| 8 | L20 | triangle-solver | graph files + `trigSolveGuidedLessons, trigTriangleGuidedLessons` | done `483671065` |
+| 8 | L23 | arc-length-param | graph files + `arcLengthGuidedLessons` | done `13468437e` |
 | 9 | L22 | unit-circle | graph files + `trigUnitCircleGuidedLessons` | not started |
 | 9 | L24 | bspline-deboor | graph files + `bsplineDeBoorGuidedLessons` | not started |
 | 9 | L25 | logistic-map | graph files + `phasePortraitsGuidedLessons` | not started |
