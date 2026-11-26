@@ -2,7 +2,7 @@
 
 /* Parameter pucks (task 05; look task 11). A puck is a small slip of the cards' paper: the parameter's name with its symbol as a quiet
    caption, and under it the control with the value in ink at its right (a thin track with its thumb, a scale between − and +, a switch,
-   segments). Compact: 112 to 160 px wide; the value box has a fixed width (set inline), so a sweep never moves the puck. Nothing else
+   segments). Compact: 112 to 160 px wide (200 with a mouse, so a two-word name keeps its words whole); the value box has a fixed width (set inline), so a sweep never moves the puck. Nothing else
    shows at rest: with a mouse the sweep and "?" buttons ride the slip's top edge while it is pointed at or holds the focus, so they
    cover neither the name nor the value; on touch they sit at the end of the caption. The workspace styles every `button` (bordered,
    34 px tall); the rules for a puck's own buttons carry `.puck` in front so that blanket rule never reaches them. */
@@ -121,8 +121,9 @@
 .puck > .puck-body:focus-visible { outline: none; }
 .puck :is(.puck-count-value, .puck-step, .puck-help-button, .puck-sweep, .puck-input, .puck-segment):focus-visible { outline: 3px solid var(--board-focus); outline-offset: 2px; }
 /* Notice, tip, help card and pill sit out of flow so a message never changes the puck's size or shifts the strip. */
+/* The notice stands above the slip like the tip: the strip docks at the board's foot, where anything below would be cut or covered. */
 .puck-notice {
-    position: absolute; left: 0; right: 0; top: 100%; z-index: 3; margin-top: 4px; padding: 4px 8px; border: 1px solid #e6c2bc; border-radius: 8px;
+    position: absolute; left: 0; right: 0; bottom: 100%; z-index: 5; margin-bottom: var(--puck-clear); padding: 4px 8px; border: 1px solid #e6c2bc; border-radius: 8px;
     font-size: .75rem; line-height: 1.3; color: #8f1d17; background: #fff8f6; box-shadow: var(--board-shadow);
 }
 .puck-notice:empty { display: none; }
@@ -133,6 +134,8 @@
     font-size: .8125rem; line-height: 1.4; font-weight: 400; text-wrap: pretty;
 }
 .puck-tip { pointer-events: none; }
+/* One message above a slip at a time: an open undo pill or notice takes the place of the tip. */
+.puck:has(.puck-undo, .puck-notice:not(:empty)) .puck-tip { display: none; }
 .puck .puck-undo {
     position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); z-index: 5; min-height: 0; margin: 0 0 var(--puck-clear); padding: 5px 14px; cursor: pointer;
     border: 0; border-radius: 999px; font: inherit; font-size: .8rem; line-height: 1.2; font-weight: 600; white-space: nowrap;
@@ -190,6 +193,8 @@
    `.puck-host` (display: contents), so the rule reaches through it. */
 .puck-strip:not(.puck-strip--column) { align-items: stretch; }
 .puck-slot > .puck:last-child, .puck-slot > .puck-host:last-child > .puck { flex: 1 1 auto; }
+/* Except beside Play and reset: a slip there keeps its own height, level with the slip above the buttons, instead of reaching their foot. */
+.puck-strip:has(.puck-playback) :is(.puck-slot > .puck, .puck-slot > .puck-host > .puck) { flex: none; }
 /* A column: every slot takes the column's width (PUCK_COLUMN_WIDTH in boardLayout.ts), so the pucks' edges align across wrapped columns. */
 .puck-strip--column .puck-slot { width: 160px; }
 .puck-host { display: contents; }
@@ -236,7 +241,7 @@
 @media (hover: hover) and (pointer: fine) {
     .puck {
         display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(22px, auto); align-content: space-between;
-        gap: 3px 10px; padding: 6px 11px; --puck-clear: 17px;
+        gap: 3px 10px; max-width: 200px; padding: 6px 11px; --puck-clear: 17px;
     }
     .puck-head { display: contents; }
     .puck-label { grid-area: 1 / 1; align-self: baseline; line-height: 1.0625rem; }
@@ -251,12 +256,16 @@
     .puck-stepper > .puck-scale { grid-area: 2 / 1 / 3 / -1; align-self: center; min-width: 44px; margin-inline: 30px; }
     .puck-toggle .puck-label { grid-row: 1 / -1; align-self: center; }
     .puck-toggle-body > .puck-switch { grid-area: 1 / 2 / -1 / -1; align-self: center; }
+    /* A choice may grow past the slip's usual 160 px so its segments keep one row (a column dock's slot still bounds it). */
+    .puck-choice { max-width: 260px; }
     .puck-choice .puck-label { grid-column: 1 / -1; }
     .puck-segments { grid-area: 2 / 1 / 3 / -1; align-self: center; }
     .puck-lock { grid-column: 1 / -1; }
     /* The small buttons ride a little higher, clear of the value, and step aside while the slider is held: the ruler stands there. */
     .puck .puck-help-button, .puck .puck-sweep { top: -13px; }
     .puck:has(> .puck-body:active) :is(.puck-help-button, .puck-sweep) { opacity: 0; }
+    /* A typed entry has the slip to itself: the small buttons would crowd the input in the value's place. */
+    .puck:has(.puck-input) :is(.puck-help-button, .puck-sweep):not([aria-pressed="true"]) { opacity: 0; pointer-events: none; }
 }
 
 /* Touch: nothing can wait for a hover, and every target is at least 32 px (the steppers 36 px, 44 with their halo; Play 44 px). The

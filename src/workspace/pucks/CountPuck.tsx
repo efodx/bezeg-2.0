@@ -135,10 +135,8 @@ export function CountPuck(props: CountPuckProps) {
         tip={hovered ?? (tip.shown ? help : undefined)} tipId={tipId} className={`puck-count${props.sweep?.running ? ' is-sweeping' : ''}`}
         headExtra={props.sweep && !locked && <SweepButton name={spoken} running={props.sweep.running} onToggle={props.sweep.toggle}/>}
         pill={<UndoPill open={pending !== undefined} name={spoken} onUndo={controller.undo}/>}>
+        {/* The value comes first in the tab order: with a mouse it heads the slip (top right) over − scale +. CSS orders the touch row. */}
         <div className="puck-stepper">
-            <button type="button" className="puck-step" aria-label={t('puck_decrease', {value0: spoken})} aria-disabled={locked || atMin || undefined}
-                onPointerEnter={event => { if (event.pointerType === 'mouse') showStep(-1); }} onPointerLeave={endHover}
-                onClick={() => { if (!locked && !atMin) { step(-1); if (hovered !== undefined) showStep(-1); } }}>−</button>
             {entry !== null
                 ? <input ref={inputRef} className="puck-input" style={{width: `${widthCh}ch`}} inputMode="numeric" autoComplete="off" value={entry}
                     aria-label={t('puck_entry_label', {value0: spoken})} aria-invalid={notice !== undefined}
@@ -154,6 +152,9 @@ export function CountPuck(props: CountPuckProps) {
                     onKeyDown={onKeyDown} onDoubleClick={() => { if (!locked) setEntry(fmt(latest.current)); }}>
                     <span className="puck-value" style={{width: `${widthCh}ch`}}>{fmt(value)}</span>
                 </div>}
+            <button type="button" className="puck-step" aria-label={t('puck_decrease', {value0: spoken})} aria-disabled={locked || atMin || undefined}
+                onPointerEnter={event => { if (event.pointerType === 'mouse') showStep(-1); }} onPointerLeave={endHover}
+                onClick={() => { if (!locked && !atMin) { step(-1); if (hovered !== undefined) showStep(-1); } }}>−</button>
             <button type="button" className="puck-step" aria-label={t('puck_increase', {value0: spoken})} aria-disabled={locked || atMax || undefined}
                 onPointerEnter={event => { if (event.pointerType === 'mouse') showStep(1); }} onPointerLeave={endHover}
                 onClick={() => { if (!locked && !atMax) { step(1); if (hovered !== undefined) showStep(1); } }}>+</button>
