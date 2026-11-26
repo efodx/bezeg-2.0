@@ -90,19 +90,31 @@ export async function recordParity(id: string, graph: BaseGraph<BaseGraphState>,
 export async function recordParityWithDeclarations(id: string, graph: BaseGraph<BaseGraphState>, states: readonly ParityState[]):
     Promise<{recording: ParityRecording; declarations: (GraphDeclaration | undefined)[]}> {
     setLanguage('sl');
+    // The view director glides the board to its fit on animation frames timed by the wall clock, and a caption's visibility follows the
+    // view: a recording read mid-glide differs under load. Reduced motion makes the director jump, and a frame wait then settles the view.
+    const matchMedia = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+        matches: query.includes('prefers-reduced-motion: reduce'), media: query, onchange: null,
+        addEventListener: () => undefined, removeEventListener: () => undefined, addListener: () => undefined, removeListener: () => undefined, dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+    const frame = () => act(async () => { await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); });
     const mounted = mountGraph(graph);
     const recorded: RecordedState[] = [];
     const declarations: (GraphDeclaration | undefined)[] = [];
     try {
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 1)); });
+        await frame();
         for (const state of states) {
             await act(async () => { await state.apply(graph); });
             await act(async () => { await new Promise(resolve => setTimeout(resolve, 1)); });
+            await frame();
+            await frame();
             recorded.push(readPanel(mounted.view.container, graph, state.name));
             declarations.push(graph.getDeclaration());
         }
     } finally {
         mounted.view.unmount();
+        window.matchMedia = matchMedia;
     }
     return {recording: {graph: id, language: 'sl', states: recorded}, declarations};
 }
