@@ -1,8 +1,8 @@
 import React from 'react';
-import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
+import {act, cleanup, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
@@ -25,22 +25,22 @@ const apply = (graph: TriangleSolverGraph, action: LessonAction) => act(() => { 
 const setMode = (mode: 'sides' | 'circle' | 'solve'): LessonAction => ({kind: 'triangle', operation: 'set-mode', mode});
 const setVertex = (vertex: 'A' | 'B' | 'C', x: number, y: number): LessonAction => ({kind: 'triangle', operation: 'set-vertex', vertex, x, y});
 const type = (label: string, value: string) => act(() => { enterNumber((screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement, value); });
-const pick = (value: string) => act(() => { fireEvent.change(screen.getByLabelText('Način'), {target: {value}}); });
+const pick = (value: string) => chooseOnPuck('triangle-mode', value);
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const stateOf = (graph: TriangleSolverGraph) => ({mode: graph.state.mode, A: graph.state.A, B: graph.state.B, C: graph.state.C, data: graph.state.data});
 
 /** The state, the status text and the readouts after running `edit` on a fresh graph and then unmounting it. */
-function after(edit: (graph: TriangleSolverGraph) => void) {
+async function after(edit: (graph: TriangleSolverGraph) => void | Promise<void>) {
     const graph = mount();
-    edit(graph);
+    await edit(graph);
     const result = {state: stateOf(graph), status: document.querySelector('[data-triangle-status]')?.textContent, readouts: readouts()};
     cleanup();
     return result;
 }
 
-test.each(['circle', 'sides', 'solve'] as const)('set-mode %s reaches the state of the mode select', mode => {
-    const viaAction = after(graph => { apply(graph, setMode(mode === 'sides' ? 'circle' : mode)); apply(graph, setMode(mode)); });
-    const viaControl = after(() => { pick(mode === 'sides' ? 'circle' : mode); pick(mode); });
+test.each(['circle', 'sides', 'solve'] as const)('set-mode %s reaches the state of the mode puck', async mode => {
+    const viaAction = await after(graph => { apply(graph, setMode(mode === 'sides' ? 'circle' : mode)); apply(graph, setMode(mode)); });
+    const viaControl = await after(async () => { await pick(mode === 'sides' ? 'circle' : mode); await pick(mode); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state.mode).toBe(mode);
 });
@@ -49,9 +49,9 @@ test.each([
     ['A', 1, 2],
     ['B', 8, -7],
     ['C', -2, 11],
-] as const)('set-vertex %s reaches the state of its two coordinate fields', (vertex, x, y) => {
-    const viaAction = after(graph => apply(graph, setVertex(vertex, x, y)));
-    const viaControl = after(() => { type(`${vertex}, x`, String(x)); type(`${vertex}, y`, String(y)); });
+] as const)('set-vertex %s reaches the state of its two coordinate fields', async (vertex, x, y) => {
+    const viaAction = await after(graph => apply(graph, setVertex(vertex, x, y)));
+    const viaControl = await after(() => { type(`${vertex}, x`, String(x)); type(`${vertex}, y`, String(y)); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state[vertex]).toEqual({x, y});
 });
@@ -105,7 +105,7 @@ test('the graph supports both operations; invalid scene data is a lesson-content
 
 type DataAction = Extract<LessonAction, {operation: 'set-data'}>;
 const setData = (type: DataAction['type'], fields: Omit<DataAction, 'kind' | 'operation' | 'type'> = {}): LessonAction => ({kind: 'triangle', operation: 'set-data', type, ...fields});
-const chooseData = (value: string) => act(() => { fireEvent.change(screen.getByLabelText('Podani podatki'), {target: {value}}); });
+const chooseData = (value: string) => chooseOnPuck('triangle-data', value);
 const FIELD_LABEL = {a: 'Stranica a', b: 'Stranica b', c: 'Stranica c', angleA: 'Kot A (°)', angleB: 'Kot B (°)'} as const;
 
 test.each([
@@ -113,12 +113,12 @@ test.each([
     ['sas', {b: 3.5, c: 9, angleA: 120}],
     ['asa', {angleA: 70, angleB: 45, c: 6.75}],
     ['ssa', {a: 3.5, b: 8, angleA: 30}],
-] as const)('set-data %s reaches the state of the data-type chooser and its typed fields', (dataType, fields) => {
-    const viaAction = after(graph => { apply(graph, setMode('solve')); apply(graph, setData(dataType, fields)); });
-    const viaControl = after(() => {
-        pick('solve');
-        chooseData(dataType === 'sss' ? 'ssa' : 'sss');
-        chooseData(dataType);
+] as const)('set-data %s reaches the state of the data-type puck and its typed fields', async (dataType, fields) => {
+    const viaAction = await after(graph => { apply(graph, setMode('solve')); apply(graph, setData(dataType, fields)); });
+    const viaControl = await after(async () => {
+        await pick('solve');
+        await chooseData(dataType === 'sss' ? 'ssa' : 'sss');
+        await chooseData(dataType);
         for (const [name, value] of Object.entries(fields)) type(FIELD_LABEL[name as keyof typeof FIELD_LABEL], String(value));
     });
     expect(viaAction).toEqual(viaControl);

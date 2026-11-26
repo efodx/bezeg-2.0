@@ -7,10 +7,13 @@
  * `probe2.txt`) or plain arithmetic.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {TriangleSolverIds} from '../../graphs/trig/TriangleSolverGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const solverFrame = frameDeclarer<TriangleSolverIds>();
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 interface StepContent {
     readonly id: string;
@@ -22,11 +25,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** The puck the explanation asks the learner to use (the data type choice), opened with the frame. */
+    readonly uses?: 'triangle-data';
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({uses, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation', uses ? solverFrame({uses: [uses]}) : undefined), frame(`${content.id}-observation`, 'observation')],
 });
 
 /** What a scene sets: the data type and the given fields (omitted fields take the type's defaults, see `set-data`). */
@@ -131,12 +136,12 @@ const steps: readonly GuidedLessonStep[] = [
             'The mode Solve a triangle, data SSS \\(a=2\\), \\(b=3\\), \\(c=6\\): the status "No such triangle", no readouts.'),
     }),
     step({
-        id: 'tr5-sas', order: 3,
+        id: 'tr5-sas', uses: 'triangle-data', order: 3,
         title: text('Dve stranici in kot med njima', 'Two sides and the angle between them'),
         purpose: text('Izračunati tretjo stranico s kosinusnim izrekom, preden jo graf pokaže.', 'Calculating the third side with the cosine rule before the graph shows it.'),
         explanation: text(
-            'Graf kaže podatke SSS \\(a=5\\), \\(b=6\\), \\(c=7\\). Pri podatkih SKS poznaš dve stranici in kot med njima. Vzemi \\(b=5\\), \\(c=7\\) in \\(A=60^\\circ\\) ter uporabi \\(\\cos60^\\circ=\\tfrac12\\): s kosinusnim izrekom izračunaj \\(a^2\\) in \\(a\\). Nato v polju Podani podatki izberi «SKS (dve stranici in kot med njima)»; naloži se primer \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\).',
-            'The graph shows the SSS data \\(a=5\\), \\(b=6\\), \\(c=7\\). In SAS data you know two sides and the angle between them. Take \\(b=5\\), \\(c=7\\) and \\(A=60^\\circ\\) and use \\(\\cos60^\\circ=\\tfrac12\\): calculate \\(a^2\\) and \\(a\\) with the cosine rule. Then in the field Given data choose "SAS (two sides and the included angle)"; the example \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\) loads.',
+            'Graf kaže podatke SSS \\(a=5\\), \\(b=6\\), \\(c=7\\). Pri podatkih SKS poznaš dve stranici in kot med njima. Vzemi \\(b=5\\), \\(c=7\\) in \\(A=60^\\circ\\) ter uporabi \\(\\cos60^\\circ=\\tfrac12\\): s kosinusnim izrekom izračunaj \\(a^2\\) in \\(a\\). Nato med možnostmi Podani podatki izberi «SKS (dve stranici in kot med njima)»; naloži se primer \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\).',
+            'The graph shows the SSS data \\(a=5\\), \\(b=6\\), \\(c=7\\). In SAS data you know two sides and the angle between them. Take \\(b=5\\), \\(c=7\\) and \\(A=60^\\circ\\) and use \\(\\cos60^\\circ=\\tfrac12\\): calculate \\(a^2\\) and \\(a\\) with the cosine rule. Then under Given data choose "SAS (two sides and the included angle)"; the example \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\) loads.',
         ),
         formulaIds: ['cosine-rule-a'],
         observationPrompt: text('Preberi stranico \\(a\\) in kota \\(B\\), \\(C\\) v odčitkih ter ju primerjaj s svojim računom.', 'Read the side \\(a\\) and the angles \\(B\\), \\(C\\) in the readouts and compare them with your calculation.'),
@@ -149,12 +154,12 @@ const steps: readonly GuidedLessonStep[] = [
             'The mode Solve a triangle, data SSS \\(a=5\\), \\(b=6\\), \\(c=7\\); choosing SAS loads \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\).'),
     }),
     step({
-        id: 'tr5-asa', order: 4,
+        id: 'tr5-asa', uses: 'triangle-data', order: 4,
         title: text('Stranica in priležna kota', 'A side and the two adjacent angles'),
         purpose: text('Izračunati tretji kot in stranico s sinusnim izrekom ter napovedati, kdaj kota ne moreta pripadati trikotniku.', 'Calculating the third angle and a side with the sine rule and predicting when the two angles cannot belong to a triangle.'),
         explanation: text(
-            'Graf kaže podatke SKS \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\). Pri podatkih KSK poznaš stranico in kota ob njej: vzemi \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\). Najprej izračunaj \\(C\\) iz vsote kotov, nato \\(a\\) iz sinusnega izreka \\(a:\\sin A=c:\\sin C\\). Nato v polju Podani podatki izberi «KSK (stranica in priležna kota)»; naloži se primer \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\). Napovej še, kaj se zgodi, če v polje Kot B (°) vpišeš \\(150\\), in ga vpiši.',
-            'The graph shows the SAS data \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\). In ASA data you know a side and the two angles at its ends: take \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\). First calculate \\(C\\) from the angle sum, then \\(a\\) from the sine rule \\(a:\\sin A=c:\\sin C\\). Then in the field Given data choose "ASA (a side and the two adjacent angles)"; the example \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\) loads. Also predict what happens if you type \\(150\\) in the field Angle B (°), and type it.',
+            'Graf kaže podatke SKS \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\). Pri podatkih KSK poznaš stranico in kota ob njej: vzemi \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\). Najprej izračunaj \\(C\\) iz vsote kotov, nato \\(a\\) iz sinusnega izreka \\(a:\\sin A=c:\\sin C\\). Nato med možnostmi Podani podatki izberi «KSK (stranica in priležna kota)»; naloži se primer \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\). Napovej še, kaj se zgodi, če v polje Kot B (°) vpišeš \\(150\\), in ga vpiši.',
+            'The graph shows the SAS data \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\). In ASA data you know a side and the two angles at its ends: take \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\). First calculate \\(C\\) from the angle sum, then \\(a\\) from the sine rule \\(a:\\sin A=c:\\sin C\\). Then under Given data choose "ASA (a side and the two adjacent angles)"; the example \\(A=40^\\circ\\), \\(B=60^\\circ\\), \\(c=8\\) loads. Also predict what happens if you type \\(150\\) in the field Angle B (°), and type it.',
         ),
         formulaIds: ['angle-sum-sine-rule'],
         observationPrompt: text('Preberi kot \\(C\\) in stranico \\(a\\) pri primeru KSK, nato status po vpisu \\(B=150\\), ter primerjaj z napovedmi.', 'Read the angle \\(C\\) and the side \\(a\\) for the ASA example, then the status after the entry \\(B=150\\), and compare with your predictions.'),
@@ -203,7 +208,7 @@ const steps: readonly GuidedLessonStep[] = [
             'The mode Solve a triangle, data SSA \\(A=30^\\circ\\), \\(b=8\\), \\(a=5\\): two solutions, \\(c\\approx9.9282\\) and \\(c\\approx3.9282\\).'),
     }),
     step({
-        id: 'tr5-explore', order: 7,
+        id: 'tr5-explore', uses: 'triangle-data', order: 7,
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno poiskati razpon stranice \\(a\\) z dvema rešitvama pri SSK.', 'Finding on your own the range of the side \\(a\\) with two solutions for SSA.'),
         explanation: text(

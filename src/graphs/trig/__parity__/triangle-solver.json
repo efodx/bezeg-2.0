@@ -1,0 +1,689 @@
+{
+  "graph": "triangle-solver",
+  "language": "sl",
+  "states": [
+    {
+      "name": "sides, default",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√41 ≈ 6,40312"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√20 ≈ 4,47214"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "7"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "63,4349°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "38,6598°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "77,9052°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "6"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "12"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "49 = 41 + 20 - (12)"
+        }
+      ],
+      "notes": [
+        "Trikotnik je ostrokoten, kot pri C je oster: c² = 49, a² + b² = 61, popravek 2·CA·CB = 12."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = 12"
+      ]
+    },
+    {
+      "name": "sides, right angle at A",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "5"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "4"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "3"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "90°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "53,1301°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "36,8699°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "16"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "32"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "9 = 25 + 16 - (32)"
+        }
+      ],
+      "notes": [
+        "Trikotnik je pravokoten, kot pri C je oster: c² = 9, a² + b² = 41, popravek 2·CA·CB = 32."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = 32"
+      ]
+    },
+    {
+      "name": "sides, obtuse",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√26 ≈ 5,09902"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√5 ≈ 2,23607"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "7"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "26,5651°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "11,3099°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "142,125°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 11,40175"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 11,40175"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 11,40175"
+        },
+        {
+          "key": "Skalarni produkt CA · CB#0",
+          "label": "Skalarni produkt CA · CB",
+          "value": "-9"
+        },
+        {
+          "key": "Popravek 2·CA·CB#0",
+          "label": "Popravek 2·CA·CB",
+          "value": "-18"
+        },
+        {
+          "key": "Kosinusni izrek (c² = a² + b² - popravek)#0",
+          "label": "Kosinusni izrek (c² = a² + b² - popravek)",
+          "value": "49 = 26 + 5 - (-18)"
+        }
+      ],
+      "notes": [
+        "Trikotnik je topokoten, kot pri C je top: c² = 49, a² + b² = 31, popravek 2·CA·CB = -18."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$a^2$$",
+        "$$b$$",
+        "$$b^2$$",
+        "$$c$$",
+        "$$c^2$$",
+        "popravek 2·CA·CB = -18"
+      ]
+    },
+    {
+      "name": "sides, flat",
+      "rows": [],
+      "notes": [
+        "Točke A, B in C ležijo na premici (sploščen trikotnik), zato očrtane krožnice ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$b$$",
+        "$$c$$"
+      ]
+    },
+    {
+      "name": "circle, default",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "√41 ≈ 6,40312"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "√20 ≈ 4,47214"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "7"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "63,4349°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "38,6598°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "77,9052°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "Premer očrtane krožnice 2R#0",
+          "label": "Premer očrtane krožnice 2R",
+          "value": "≈ 7,15891"
+        },
+        {
+          "key": "R²#0",
+          "label": "R²",
+          "value": "205/16"
+        },
+        {
+          "key": "Središče očrtane krožnice#0",
+          "label": "Središče očrtane krožnice",
+          "value": "(7/2, 3/4)"
+        },
+        {
+          "key": "Točka A′ (nasprotna točki B)#0",
+          "label": "Točka A′ (nasprotna točki B)",
+          "value": "(0, 3/2)"
+        },
+        {
+          "key": "Skalarni produkt CB · CA′ (Talesov izrek)#0",
+          "label": "Skalarni produkt CB · CA′ (Talesov izrek)",
+          "value": "0"
+        },
+        {
+          "key": "Kot pri A′ v trikotniku BA′C#0",
+          "label": "Kot pri A′ v trikotniku BA′C",
+          "value": "63,4349°"
+        }
+      ],
+      "notes": [
+        "Trikotnik je ostrokoten: premer očrtane krožnice 2R ≈ 7,15891, R² = 205/16."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A'$$",
+        "$$a$$",
+        "$$b$$",
+        "$$c$$"
+      ]
+    },
+    {
+      "name": "circle, right angle at A",
+      "rows": [
+        {
+          "key": "Stranica a#0",
+          "label": "Stranica a",
+          "value": "5"
+        },
+        {
+          "key": "Stranica b#0",
+          "label": "Stranica b",
+          "value": "4"
+        },
+        {
+          "key": "Stranica c#0",
+          "label": "Stranica c",
+          "value": "3"
+        },
+        {
+          "key": "Kot A#0",
+          "label": "Kot A",
+          "value": "90°"
+        },
+        {
+          "key": "Kot B#0",
+          "label": "Kot B",
+          "value": "53,1301°"
+        },
+        {
+          "key": "Kot C#0",
+          "label": "Kot C",
+          "value": "36,8699°"
+        },
+        {
+          "key": "Razmerje a : sin A#0",
+          "label": "Razmerje a : sin A",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Razmerje b : sin B#0",
+          "label": "Razmerje b : sin B",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Razmerje c : sin C#0",
+          "label": "Razmerje c : sin C",
+          "value": "≈ 5"
+        },
+        {
+          "key": "Premer očrtane krožnice 2R#0",
+          "label": "Premer očrtane krožnice 2R",
+          "value": "≈ 5"
+        },
+        {
+          "key": "R²#0",
+          "label": "R²",
+          "value": "25/4"
+        },
+        {
+          "key": "Središče očrtane krožnice#0",
+          "label": "Središče očrtane krožnice",
+          "value": "(3/2, 2)"
+        },
+        {
+          "key": "Točka A′ (nasprotna točki B)#0",
+          "label": "Točka A′ (nasprotna točki B)",
+          "value": "(0, 4)"
+        },
+        {
+          "key": "Skalarni produkt CB · CA′ (Talesov izrek)#0",
+          "label": "Skalarni produkt CB · CA′ (Talesov izrek)",
+          "value": "0"
+        },
+        {
+          "key": "Kot pri A′ v trikotniku BA′C#0",
+          "label": "Kot pri A′ v trikotniku BA′C",
+          "value": "ni (A′ = C)"
+        }
+      ],
+      "notes": [
+        "Pri A je pravi kot, zato je BC premer očrtane krožnice (2R = 5) in pomožnega trikotnika ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A'$$",
+        "$$a$$",
+        "$$b$$",
+        "$$c$$"
+      ]
+    },
+    {
+      "name": "circle, flat",
+      "rows": [],
+      "notes": [
+        "Točke A, B in C ležijo na premici (sploščen trikotnik), zato očrtane krožnice ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$a$$",
+        "$$b$$",
+        "$$c$$"
+      ]
+    },
+    {
+      "name": "solve, SSS default",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a = 5; b = 6; c = 7"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A ≈ 44,4153°; B ≈ 57,1217°; C ≈ 78,463°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "14,69694"
+        }
+      ],
+      "notes": [
+        "Ena rešitev."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$"
+      ]
+    },
+    {
+      "name": "solve, SSS no triangle",
+      "rows": [],
+      "notes": [
+        "Takega trikotnika ni: vsota dveh stranic mora biti večja od tretje."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "solve, SAS",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a ≈ 6,245; b = 5; c = 7"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 60°; B ≈ 43,8979°; C ≈ 76,1021°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "15,15544"
+        }
+      ],
+      "notes": [
+        "Ena rešitev."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$"
+      ]
+    },
+    {
+      "name": "solve, ASA",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a ≈ 5,22163; b ≈ 7,03508; c = 8"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 40°; B = 60°; C = 80°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "18,08825"
+        }
+      ],
+      "notes": [
+        "Ena rešitev."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$"
+      ]
+    },
+    {
+      "name": "solve, ASA angle sum",
+      "rows": [],
+      "notes": [
+        "Takega trikotnika ni: vsota kotov bi bila najmanj 180°."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "solve, SSA two triangles",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a = 5; b = 8; c ≈ 9,9282"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 30°; B ≈ 53,1301°; C ≈ 96,8699°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "19,85641"
+        },
+        {
+          "key": "Rešitev 2: stranice#0",
+          "label": "Rešitev 2: stranice",
+          "value": "a = 5; b = 8; c ≈ 3,9282"
+        },
+        {
+          "key": "Rešitev 2: koti#0",
+          "label": "Rešitev 2: koti",
+          "value": "A = 30°; B ≈ 126,8699°; C ≈ 23,1301°"
+        },
+        {
+          "key": "Rešitev 2: ploščina#0",
+          "label": "Rešitev 2: ploščina",
+          "value": "7,85641"
+        },
+        {
+          "key": "Višina h iz oglišča C#0",
+          "label": "Višina h iz oglišča C",
+          "value": "≈ 4"
+        }
+      ],
+      "notes": [
+        "Dve rešitvi (dvoumni primer): dva trikotnika, B₁ (polna črta) s c ≈ 9,9282 in B₂ (črtkana) s c ≈ 3,9282."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B_{1}$$",
+        "$$B_{2}$$",
+        "$$C$$",
+        "$$h$$"
+      ]
+    },
+    {
+      "name": "solve, SSA one triangle",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a = 8; b = 8; c ≈ 13,85641"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 30°; B = 30°; C = 120°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "27,71281"
+        },
+        {
+          "key": "Višina h iz oglišča C#0",
+          "label": "Višina h iz oglišča C",
+          "value": "≈ 4"
+        }
+      ],
+      "notes": [
+        "Ena rešitev: poltrak in krožni lok se sekata v eni točki."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$",
+        "$$h$$"
+      ]
+    },
+    {
+      "name": "solve, SSA tangent",
+      "rows": [
+        {
+          "key": "Rešitev 1: stranice#0",
+          "label": "Rešitev 1: stranice",
+          "value": "a = 4; b = 8; c ≈ 6,9282"
+        },
+        {
+          "key": "Rešitev 1: koti#0",
+          "label": "Rešitev 1: koti",
+          "value": "A = 30°; B = 90°; C = 60°"
+        },
+        {
+          "key": "Rešitev 1: ploščina#0",
+          "label": "Rešitev 1: ploščina",
+          "value": "13,85641"
+        },
+        {
+          "key": "Višina h iz oglišča C#0",
+          "label": "Višina h iz oglišča C",
+          "value": "≈ 4"
+        }
+      ],
+      "notes": [
+        "Ena rešitev: stranica a je enaka višini h ≈ 4, zato je trikotnik pravokoten (pravi kot pri B)."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "$$C$$",
+        "$$h$$"
+      ]
+    },
+    {
+      "name": "solve, SSA below height",
+      "rows": [
+        {
+          "key": "Višina h iz oglišča C#0",
+          "label": "Višina h iz oglišča C",
+          "value": "≈ 4"
+        }
+      ],
+      "notes": [
+        "Takega trikotnika ni: stranica a je krajša od višine h ≈ 4."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$h$$"
+      ]
+    }
+  ]
+}

@@ -1,13 +1,14 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
-import {setLanguage} from '../../localization';
+import {chooseOnPuck, installBoardShims, openTools, waitForPucks} from '../base/realGraphTestHarness';
+import {renderMessage, setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {appStorage} from '../../storage/appStorage';
 import {GraphPalette} from '../styles/GraphPalette';
+import {runAs} from '../base/writes/writeSource';
 import {
     BAR_ROW_AB, BAR_ROW_C, BAR_X, HANDLE_TOUCH_RADIUS, HIT_SLACK, measureDrawn, RAY_OVERSHOOT, sideNamePlace, TriangleSolverGraph, VERTEX_BIG_STEP, VERTEX_STEP,
     VERTEX_X_MAX, VERTEX_X_MIN, VERTEX_Y_MAX, VERTEX_Y_MIN,
@@ -63,7 +64,8 @@ function dragHandleTo(point: JXG.Point, x: number, y: number) {
     act(() => { (point as EventedPoint).triggerEventHandlers(['drag'], []); });
 }
 
-const solve = (graph: Observed, patch: Parameters<Observed['setState']>[0]) => act(() => { graph.setState(patch); });
+const asLearner = (fn: () => void) => act(() => { runAs('learner', fn); });
+const solve = (graph: Observed, patch: Parameters<Observed['setState']>[0]) => asLearner(() => { graph.setState(patch); });
 
 test('mounts the sides mode: the exact cosine-rule numbers, the correction term, a text status and the length bars', () => {
     const {graph} = mountGraph();
@@ -140,10 +142,10 @@ test('collinear vertices give a flat-triangle status and no circle, bars or NaN'
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
 
-test('SSA a = 5, b = 8, A = 30 degrees draws two triangles in two colours, measured on the drawn vertices', () => {
+test('SSA a = 5, b = 8, A = 30 degrees draws two triangles in two colours, measured on the drawn vertices', async () => {
     const {graph} = mountGraph();
-    act(() => { fireEvent.change(screen.getByLabelText('Način'), {target: {value: 'solve'}}); });
-    act(() => { fireEvent.change(screen.getByLabelText('Podani podatki'), {target: {value: 'ssa'}}); });
+    await chooseOnPuck('triangle-mode', 'solve');
+    await chooseOnPuck('triangle-data', 'ssa');
     expect(graph.state.data).toEqual({type: 'ssa', a: 5, b: 8, angleA: 30});
     expect(shownSegments(graph, GraphPalette.primaryCurve)).toHaveLength(3);
     expect(shownSegments(graph, GraphPalette.comparisonCurve)).toHaveLength(3);
@@ -239,8 +241,8 @@ test('mount, state change and unmount: objects and listeners are owned and relea
     const boardCount = countObjects(board);
     expect(graph.ownedListenerCount()).toBe(3);
     for (const vertex of ['A', 'B', 'C'] as const) expect(dragListeners(graph.handles()[vertex]!)).toBe(1);
-    act(() => { graph.setState({mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
-    act(() => { graph.setState({mode: 'circle', C: {x: 1, y: 5}}); });
+    asLearner(() => { graph.setState({mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
+    asLearner(() => { graph.setState({mode: 'circle', C: {x: 1, y: 5}}); });
     expect(graph.ownedObjectCount()).toBe(owned);
     expect(countObjects(board)).toBe(boardCount);
     // a real rebuild: `initialize` runs `buildScene`, which first disposes the scene it replaces
@@ -293,11 +295,12 @@ test('the status, labels and readouts follow a language switch', () => {
     expect(screen.getByLabelText('A, x')).toBeInTheDocument();
     expect(readout('side-a')).toBe('√41 ≈ 6.40312');
     expect(texts(graph)).toContain('correction 2·CA·CB = 12');
-    act(() => { graph.setState({mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
+    asLearner(() => { graph.setState({mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
     expect(status()).toBe('Two solutions (the ambiguous case): two triangles, B₁ (solid) with c ≈ 9.9282 and B₂ (dashed) with c ≈ 3.9282.');
 });
 
 /** The board's bounding box [left, top, right, bottom] and whether a user-space point lies inside it. */
+const marksOf = (graph: Observed) => graph.getDeclaration()?.marks;
 const boxOf = (graph: Observed) => graph.liveBoard().getBoundingBox() as [number, number, number, number];
 const inBox = (box: [number, number, number, number], x: number, y: number) => x >= box[0] && x <= box[2] && y >= box[3] && y <= box[1];
 
@@ -391,18 +394,17 @@ test('the tangent status names the right angle at B', () => {
     expect(status()).toContain('right angle at B');
 });
 
-test('the data type select says that changing it replaces the entered values, and it does', () => {
+test('the data type puck says that changing it replaces the entered values, and it does', async () => {
     const {graph} = mountGraph();
     solve(graph, {mode: 'solve'});
-    const select = screen.getByLabelText('Podani podatki');
-    const helpId = select.getAttribute('aria-describedby')!;
-    expect(document.getElementById(helpId)!.textContent).toBe('Če spremenite vrsto podatkov, se vnesene vrednosti nadomestijo s primerom za novo vrsto.');
+    const param = graph.getDeclaration()?.parameters?.find(candidate => candidate.key === 'triangle-data');
+    expect(renderMessage(param!.help!)).toBe('Če spremenite vrsto podatkov, se vnesene vrednosti nadomestijo s primerom za novo vrsto.');
     act(() => { enterNumber(field('Stranica a'), '9'); });
     expect(graph.state.data).toMatchObject({type: 'sss', a: 9});
-    act(() => { fireEvent.change(select, {target: {value: 'ssa'}}); });
+    await chooseOnPuck('triangle-data', 'ssa');
     expect(graph.state.data).toEqual({type: 'ssa', a: 5, b: 8, angleA: 30});
     act(() => { setLanguage('en'); });
-    expect(document.getElementById(screen.getByLabelText('Given data').getAttribute('aria-describedby')!)!.textContent)
+    expect(renderMessage(graph.getDeclaration()!.parameters!.find(candidate => candidate.key === 'triangle-data')!.help!))
         .toBe('Changing the given data type replaces the entered values with the example for the new type.');
 });
 
@@ -438,7 +440,7 @@ describe('the legend states the style of the circumcircle, the point A′, the S
             ['circumcircle', 'line', 'Polna črta: očrtana krožnica'],
             ['antipode', 'diamond', 'Romb: točka A′ na premeru iz B'],
         ]);
-        expect(document.querySelectorAll('[data-legend]')).toHaveLength(2);
+        expect(graph.getDeclaration()?.legend).toHaveLength(2);
         const [circumcircle, antipode] = graph.legendItems();
         const [circle] = circles(graph);
         expect(circles(graph)).toHaveLength(1);
@@ -477,12 +479,12 @@ test('restoring a checkpoint keeps the stored view instead of refitting the solv
     const {graph} = mountGraph();
     const capabilities = graph.getLessonCapabilities();
     const base = graph.exportPresetData();
-    act(() => { graph.importPresetData({...base, mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
-    act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+    asLearner(() => { graph.importPresetData({...base, mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
+    asLearner(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
     const checkpoint = capabilities.captureState();
     const stored = graph.liveBoard().getBoundingBox();
-    act(() => { graph.importPresetData({...base, mode: 'circle', C: {x: 3, y: 5}}); });
-    act(() => { capabilities.restoreState(checkpoint); });
+    asLearner(() => { graph.importPresetData({...base, mode: 'circle', C: {x: 3, y: 5}}); });
+    asLearner(() => { capabilities.restoreState(checkpoint); });
     expect(graph.liveBoard().getBoundingBox()).toEqual(stored);
 });
 
@@ -496,22 +498,24 @@ describe('a replaced scene frames the solve data only when it brings no view of 
     };
     beforeEach(() => appStorage.clear());
 
-    test('Reset from a solve view returns to the default sides mode and its fixed view', async () => {
+    test('Reset from a solve view returns to the default sides mode and the marks the view director frames', async () => {
         const {graph} = mountGraph();
-        const fixed = boxOf(graph);
-        act(() => { graph.importPresetData({...graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
-        act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        const sidesMarks = marksOf(graph);
+        asLearner(() => { graph.importPresetData({...graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
+        expect(marksOf(graph)).not.toEqual(sidesMarks);
+        asLearner(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
         let pending: Promise<void> = Promise.resolve();
         act(() => { pending = graph.reset(); });
         await act(async () => { await pending; });
         expect(graph.state.mode).toBe('sides');
-        expect(boxOf(graph)).toEqual(fixed);
+        // The declared marks, not a graph-owned fixed view, tell the view director what to frame (the refit is covered in viewDirector.test.ts).
+        expect(marksOf(graph)).toEqual(sidesMarks);
     });
 
     test('the first mount with a stored solve Preset selected shows the Preset\'s stored view, not a refit', () => {
         const first = mountGraph();
-        act(() => { first.graph.importPresetData({...first.graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
-        act(() => { first.graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        asLearner(() => { first.graph.importPresetData({...first.graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
+        asLearner(() => { first.graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
         const stored = boxOf(first.graph);
         act(() => first.graph.saveCurrentPreset('mine'));
         first.view.unmount();
@@ -520,11 +524,11 @@ describe('a replaced scene frames the solve data only when it brings no view of 
         expect(boxOf(graph)).toEqual(stored);
     });
 
-    test('selecting a stored solve Preset on a live graph shows the Preset\'s stored view, not a refit', async () => {
+    test('selecting a stored solve Preset on a live graph declares the Preset solve marks', async () => {
         const {graph} = mountGraph();
-        act(() => { graph.importPresetData({...graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
-        act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
-        const stored = boxOf(graph);
+        asLearner(() => { graph.importPresetData({...graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
+        asLearner(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        const stored = marksOf(graph);
         act(() => graph.saveCurrentPreset('mine'));
         let pending: Promise<void> = Promise.resolve();
         act(() => { pending = graph.selectPreset(''); });
@@ -533,27 +537,27 @@ describe('a replaced scene frames the solve data only when it brings no view of 
         act(() => { pending = graph.selectPreset('mine'); });
         await act(async () => { await pending; });
         expect(graph.state.mode).toBe('solve');
-        expect(boxOf(graph)).toEqual(stored);
+        expect(marksOf(graph)).toEqual(stored);
     });
 
-    test('a solve Preset without a view is framed to the solve data on selection, not left at the previous view', async () => {
+    test('a solve Preset without a view declares the solve marks on selection', async () => {
         const reference = mountGraph();
         // a = 9: the far end of the ray lies past the fixed view, so framing differs from the initial view.
         solve(reference.graph, {mode: 'solve', data: {type: 'ssa', a: 9, b: 8, angleA: 30}});
-        const framed = boxOf(reference.graph);
-        expect(framed).not.toEqual(boxOf(mountGraph().graph));
+        const framed = marksOf(reference.graph);
+        expect(framed).not.toEqual(marksOf(mountGraph().graph));
         const {boardState: _view, ...withoutView} = reference.graph.exportPreset();
         expect(_view).toBeDefined();
         reference.view.unmount();
         const {graph} = mountGraph();
         graph.presetService?.savePreset({...withoutView, id: 'bare'});
-        act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        asLearner(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
         let pending: Promise<void> = Promise.resolve();
         act(() => { pending = graph.selectPreset('bare'); });
         await act(async () => { await pending; });
         expect(graph.selectedPresetId).toBe('bare');
         expect(graph.state.mode).toBe('solve');
-        expect(boxOf(graph)).toEqual(framed);
+        expect(marksOf(graph)).toEqual(framed);
     });
 });
 
@@ -621,6 +625,26 @@ describe('the bar texts keep clear of the bars and of each other', () => {
     });
 });
 
+describe('the mode and the data type are pucks', () => {
+    test('the mode puck is always on the board, the data type puck only in the solve mode, and neither is repeated in Orodja', async () => {
+        const {graph} = mountGraph();
+        await waitForPucks('triangle-mode');
+        const keys = () => [...document.querySelectorAll('.puck-strip [data-puck-key]')].map(node => node.getAttribute('data-puck-key')).sort();
+        expect(keys()).toEqual(['triangle-mode']);
+        await chooseOnPuck('triangle-mode', 'solve');
+        expect(graph.state.mode).toBe('solve');
+        await waitForPucks('triangle-data');
+        expect(keys()).toEqual(['triangle-data', 'triangle-mode']);
+        await chooseOnPuck('triangle-data', 'asa');
+        expect(graph.state.data.type).toBe('asa');
+        await openTools();
+        const tools = document.querySelector('#board-card-tools')!;
+        expect(tools.querySelector('[data-puck-key]')).toBeNull();
+        expect(within(tools as HTMLElement).queryByLabelText('Način')).toBeNull();
+        expect(within(tools as HTMLElement).queryByLabelText('Podani podatki')).toBeNull();
+    });
+});
+
 describe('in the circle mode the side names and A′ stay clear of the construction at the 1366 x 768 board', () => {
     /** The board of the page at 1366 x 768 (smoke 4): 942 x 520 px, about 20.4 px per unit, the origin 326 px from the left and 294 px from the top. */
     const WIDTH = 942, HEIGHT = 520, UNIT = 20.4, ORIGIN_X = 326, ORIGIN_Y = 294;
@@ -639,8 +663,8 @@ describe('in the circle mode the side names and A′ stay clear of the construct
         const {graph} = mountGraph();
         const board = graph.liveBoard();
         board.resizeContainer(WIDTH, HEIGHT, false, true);
-        act(() => { board.setBoundingBox([-ORIGIN_X / UNIT, ORIGIN_Y / UNIT, (WIDTH - ORIGIN_X) / UNIT, -(HEIGHT - ORIGIN_Y) / UNIT], true); });
-        act(() => { graph.setState({mode: 'circle', A: {x: 0, y: 0}, B: {x: 7, y: 0}, C: {x: 2, y: 4}}); });
+        asLearner(() => { board.setBoundingBox([-ORIGIN_X / UNIT, ORIGIN_Y / UNIT, (WIDTH - ORIGIN_X) / UNIT, -(HEIGHT - ORIGIN_Y) / UNIT], true); });
+        asLearner(() => { graph.setState({mode: 'circle', A: {x: 0, y: 0}, B: {x: 7, y: 0}, C: {x: 2, y: 4}}); });
         act(() => { board.update(); });
         act(() => { board.update(); });
         const toPx = (x: number, y: number): Px => [(x - board.getBoundingBox()[0]) * board.unitX, (board.getBoundingBox()[1] - y) * board.unitY];

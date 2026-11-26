@@ -4,7 +4,11 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {triangleSolverPresetCollection} from "./trigPresetCollection";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PointListInput} from "../../inputs/PointListInput";
@@ -13,7 +17,6 @@ import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/Read
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {tickStrips} from "../legend/pointNamePlacement";
 import {pointLabelMath} from "../styles/pointLabelMath";
@@ -25,7 +28,7 @@ import {angleAtAntipode, CosineRule, SineRule} from "../../trig/sineCosineRules"
 import {SolveResult, triangleFromSolution, Vertices} from "../../trig/triangleSolver";
 import {
     DEFAULT_SOLVE_DATA, DEFAULT_TRIANGLE_STATE, deriveTriangle, parseTriangleState, serializeTriangleState, SIDE_MAX, SIDE_MIN, SOLVE_DATA_TYPES, SOLVER_ANGLE_MAX,
-    SOLVER_ANGLE_MIN, snapSideInput, snapSolverAngleInput, snapVertexInput, TRIANGLE_MODES, TriangleDerived, TriangleState,
+    SOLVER_ANGLE_MIN, snapSideInput, snapSolverAngleInput, snapVertexInput, SolveDataType, TRIANGLE_MODES, TriangleDerived, TriangleMode, TriangleState,
 } from "../../trig/trigModel";
 
 /** The scene state: the stored triangle fields (mode, vertices, solver data); the vertices are integer grid points. */
@@ -148,20 +151,53 @@ const toRad = (degrees: number) => (degrees * Math.PI) / 180;
 const toDegrees = (radians: number) => (radians * 180) / Math.PI;
 const signed = (value: bigint): string => value.toString().replace("-", "−");
 
-const shapeText = (shape: TriangleShape): string => {
+const shapeText = (shape: TriangleShape): Message => {
     switch (shape) {
-        case "acute": return t("triangle_solver_shape_acute");
-        case "right": return t("triangle_solver_shape_right");
-        default: return t("triangle_solver_shape_obtuse");
+        case "acute": return message("triangle_solver_shape_acute");
+        case "right": return message("triangle_solver_shape_right");
+        default: return message("triangle_solver_shape_obtuse");
     }
 };
-const angleShapeText = (shape: TriangleShape): string => {
+const angleShapeText = (shape: TriangleShape): Message => {
     switch (shape) {
-        case "acute": return t("triangle_solver_angle_acute");
-        case "right": return t("triangle_solver_angle_right");
-        default: return t("triangle_solver_angle_obtuse");
+        case "acute": return message("triangle_solver_angle_acute");
+        case "right": return message("triangle_solver_angle_right");
+        default: return message("triangle_solver_angle_obtuse");
     }
 };
+
+/** The ids of the declaration (`param` are arbiter keys). */
+type Letters3 = "a" | "b" | "c";
+export type TriangleSolverIds = {
+    param: "triangle-mode" | "triangle-data";
+    row: `side-${Letters3}` | `angle-${"A" | "B" | "C"}` | `ratio-${Letters3}` | "two-r" | "r-squared" | "centre" | "antipode" | "thales" | "apex-angle"
+        | "dot" | "correction" | "identity" | `solved-sides-${"1" | "2"}` | `solved-angles-${"1" | "2"}` | `solved-area-${"1" | "2"}` | "height";
+    note: "status";
+    legend: "circumcircle" | "antipode" | "ssa-arc" | "height";
+    section: never;
+    action: never;
+};
+type TriangleSolverRow = {readonly id: TriangleSolverIds["row"]; readonly name: Message; readonly value: Message | FormattedValue};
+const formatted = (text: string): FormattedValue => ({kind: "formatted", text});
+const LEGEND_KEYS = {
+    circumcircle: "triangle_solver_legend_circumcircle", antipode: "triangle_solver_legend_antipode",
+    "ssa-arc": "triangle_solver_legend_ssa_arc", height: "triangle_solver_legend_height",
+} as const satisfies Record<TriangleSolverIds["legend"], string>;
+const LEGEND_COLORS: Readonly<Record<TriangleSolverIds["legend"], string>> = {
+    circumcircle: CIRCUMCIRCLE_COLOR, antipode: GraphPalette.constructionAccent, "ssa-arc": SSA_ARC_COLOR, height: GraphPalette.constructionAccent,
+};
+const MODE_KEYS = {
+    sides: "triangle_solver_mode_sides", circle: "triangle_solver_mode_circle", solve: "triangle_solver_mode_solve",
+} as const satisfies Record<TriangleMode, string>;
+const MODE_SHORT_KEYS = {
+    sides: "trisolve_mode_sides_short", circle: "trisolve_mode_circle_short", solve: "trisolve_mode_solve_short",
+} as const satisfies Record<TriangleMode, string>;
+const DATA_KEYS = {
+    sss: "triangle_solver_data_sss", sas: "triangle_solver_data_sas", asa: "triangle_solver_data_asa", ssa: "triangle_solver_data_ssa",
+} as const satisfies Record<SolveDataType, string>;
+const DATA_SHORT_KEYS = {
+    sss: "trisolve_data_sss_short", sas: "trisolve_data_sas_short", asa: "trisolve_data_asa_short", ssa: "trisolve_data_ssa_short",
+} as const satisfies Record<SolveDataType, string>;
 
 type FieldKind = "side" | "angle";
 interface DataField {
@@ -189,6 +225,8 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private handles_: Partial<Record<Vertex, JXG.Point>> = {};
+    /** The objects the legend entries name (recorded in `buildScene`, cleared with the scene). */
+    private legendObjects: Partial<Record<TriangleSolverIds["legend"], JXG.GeometryElement>> = {};
     private viewCache?: {key: string; view: View};
     /** The state key the board was last drawn for; a sync that finds the same key draws nothing. */
     private drawnKey = "";
@@ -496,7 +534,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
 
         // The circumcircle, the diameter B A' and the auxiliary triangle B A' C (circle mode, exact centre and antipode).
         const centre = hidden(() => this.proper()?.sine.circumcentre.x.toNumber() ?? 0, () => this.proper()?.sine.circumcentre.y.toNumber() ?? 0);
-        this.own(board.create("circle", [centre, () => Math.sqrt(this.proper()?.sine.r2.toNumber() ?? 0)], {
+        this.legendObjects.circumcircle = this.own(board.create("circle", [centre, () => Math.sqrt(this.proper()?.sine.r2.toNumber() ?? 0)], {
             strokeColor: CIRCUMCIRCLE_COLOR, strokeWidth: 2, fillColor: "none", highlightFillColor: "none", fixed: true,
             highlight: false, withLabel: false, visible: circleDrawn,
         }));
@@ -505,6 +543,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             fixed: true, highlight: false, withLabel: false, name: "A′", face: "diamond", size: 5, fillColor: GraphPalette.constructionAccent,
             strokeColor: GraphPalette.pointOutline, visible: circleDrawn,
         }));
+        this.legendObjects.antipode = antipode;
         label(nameAt("A'", "x"), nameAt("A'", "y"), () => "A′", GraphPalette.label, circleDrawn, true);
         segment(hB, antipode, GraphPalette.constructionAccent, 3, 0, circleDrawn);
         segment(antipode, hC, GraphPalette.comparisonCurve, 2, 2, auxDrawn);
@@ -573,9 +612,9 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         const ssaC = marker(() => this.view().ssa?.C.x ?? 0, () => this.view().ssa?.C.y ?? 0, "o", GraphPalette.primaryCurve, 5, ssaDrawn);
         const ssaFoot = hidden(() => this.view().ssa?.C.x ?? 0, () => 0);
         segment(ssaOrigin, ssaEnd, GraphPalette.label, 2, 0, ssaDrawn, true);
-        segment(ssaC, ssaFoot, GraphPalette.constructionAccent, 2, 2, ssaDrawn);
+        this.legendObjects.height = segment(ssaC, ssaFoot, GraphPalette.constructionAccent, 2, 2, ssaDrawn);
         segment(ssaOrigin, ssaC, GraphPalette.primaryCurve, 2, 0, () => ssaDrawn() && this.view().drawn.length === 0);
-        this.own(board.create("circle", [ssaC, () => this.view().ssa?.a ?? 0], {
+        this.legendObjects["ssa-arc"] = this.own(board.create("circle", [ssaC, () => this.view().ssa?.a ?? 0], {
             strokeColor: SSA_ARC_COLOR, strokeWidth: 2, fillColor: "none", highlightFillColor: "none", fixed: true,
             highlight: false, withLabel: false, visible: ssaDrawn,
         }));
@@ -629,6 +668,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         }
         this.objects = [];
         this.handles_ = {};
+        this.legendObjects = {};
         this.drawnKey = "";
         this.framedKey = "";
     }
@@ -643,25 +683,25 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         return `${formatNumber(toDegrees(radians), language, 4)}°`;
     }
 
-    private approx(value: number, language: NumberLanguage): string {
-        return t("triangle_solver_approx_value", {value0: this.num(value, language)});
+    private approx(value: number, language: NumberLanguage): Message {
+        return message("triangle_solver_approx_value", {value0: this.num(value, language)});
     }
 
-    /** A measured quantity as `name = value` when the shown (rounded) value is the value itself, otherwise `name ≈ value`. */
-    private measured(name: string, value: number, shown: string, decimals: number): string {
+    /** A measured quantity's value part: `= value` when the shown (rounded) value is the value itself, otherwise `≈ value`; the letter comes from the list template. */
+    private measured(value: number, shown: string, decimals: number): string | Message {
         const exact = !Number.isFinite(value) || Math.abs(value - Number(value.toFixed(decimals))) < 1e-9;
-        return exact ? `${name} = ${shown}` : `${name} ${t("triangle_solver_approx_value", {value0: shown})}`;
+        return exact ? `= ${shown}` : message("triangle_solver_approx_value", {value0: shown});
     }
 
     /** A side from its exact squared length: an integer when the square is perfect, otherwise the radical with its rounded value. */
-    private sideText(square: bigint, language: NumberLanguage): string {
+    private sideText(square: bigint, language: NumberLanguage): Message | FormattedValue {
         const root = Math.round(Math.sqrt(Number(square)));
-        if (BigInt(root) * BigInt(root) === square) return `${root}`;
-        return t("triangle_solver_sqrt_value", {value0: `${square}`, value1: this.num(Math.sqrt(Number(square)), language)});
+        if (BigInt(root) * BigInt(root) === square) return formatted(`${root}`);
+        return message("triangle_solver_sqrt_value", {value0: `${square}`, value1: this.num(Math.sqrt(Number(square)), language)});
     }
 
-    private pointText(point: RationalPoint): string {
-        return t("triangle_solver_point_format", {value0: point.x.format(), value1: point.y.format()});
+    private pointText(point: RationalPoint): Message {
+        return message("triangle_solver_point_format", {value0: point.x.format(), value1: point.y.format()});
     }
 
     private rationalText(value: Rational): string {
@@ -669,103 +709,109 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
     }
 
     private statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    /** The status sentence as a catalog message (a declared note; `statusText` is its text in the current language). */
+    private statusMessage(): Message {
         const language = currentLanguage();
         if (this.state.mode === "solve") return this.solveStatus(language);
         const proper = this.proper();
-        if (!proper) return t("triangle_solver_status_degenerate");
+        if (!proper) return message("triangle_solver_status_degenerate");
         const {sine, cosine} = proper;
         if (this.state.mode === "circle") {
-            if (sine.rightAtA) return t("triangle_solver_status_circle_right_a", {value0: this.num(sine.twoR, language)});
-            return t("triangle_solver_status_circle", {
+            if (sine.rightAtA) return message("triangle_solver_status_circle_right_a", {value0: this.num(sine.twoR, language)});
+            return message("triangle_solver_status_circle", {
                 value0: shapeText(cosine.triangleShape), value1: this.num(sine.twoR, language), value2: this.rationalText(sine.r2),
             });
         }
-        return t("triangle_solver_status_sides", {
+        return message("triangle_solver_status_sides", {
             value0: shapeText(cosine.triangleShape), value1: angleShapeText(cosine.shapeAtC),
             value2: signed(cosine.c2), value3: signed(cosine.a2 + cosine.b2), value4: signed(cosine.correction),
         });
     }
 
-    private solveStatus(language: NumberLanguage): string {
+    private solveStatus(language: NumberLanguage): Message {
         const {derived, drawn, ssa} = this.view();
         const result = derived.solution;
         switch (result.kind) {
-            case "degenerate": return t("triangle_solver_status_flat");
+            case "degenerate": return message("triangle_solver_status_flat");
             case "none":
                 switch (result.reason) {
-                    case "out-of-grid": return t("triangle_solver_status_off_grid");
-                    case "triangle-inequality": return t("triangle_solver_status_inequality");
-                    case "angle-sum": return t("triangle_solver_status_angle_sum");
-                    case "a-below-height": return t("triangle_solver_status_below_height", {value0: this.num(ssa?.h ?? NaN, language)});
-                    default: return t("triangle_solver_status_not_greater");
+                    case "out-of-grid": return message("triangle_solver_status_off_grid");
+                    case "triangle-inequality": return message("triangle_solver_status_inequality");
+                    case "angle-sum": return message("triangle_solver_status_angle_sum");
+                    case "a-below-height": return message("triangle_solver_status_below_height", {value0: this.num(ssa?.h ?? NaN, language)});
+                    default: return message("triangle_solver_status_not_greater");
                 }
             case "one":
-                if (result.tangent) return t("triangle_solver_status_tangent", {value0: this.num(ssa?.h ?? NaN, language)});
-                return t(this.state.data.type === "ssa" ? "triangle_solver_status_one_ssa" : "triangle_solver_status_one");
+                if (result.tangent) return message("triangle_solver_status_tangent", {value0: this.num(ssa?.h ?? NaN, language)});
+                return message(this.state.data.type === "ssa" ? "triangle_solver_status_one_ssa" : "triangle_solver_status_one");
             default: {
                 const [first, second] = drawn.map(measureDrawn);
-                return t("triangle_solver_status_two", {value0: this.num(first?.c ?? NaN, language), value1: this.num(second?.c ?? NaN, language)});
+                return message("triangle_solver_status_two", {value0: this.num(first?.c ?? NaN, language), value1: this.num(second?.c ?? NaN, language)});
             }
         }
     }
 
-    private geometryRows(language: NumberLanguage): ReadoutListRow[] {
+    private geometryRows(language: NumberLanguage): TriangleSolverRow[] {
         const proper = this.proper();
         if (!proper) return [];
         const {sine, cosine} = proper;
-        const sides: Array<[string, bigint, number, number, number]> = [
+        const sides: Array<[Letters3, bigint, number, number, number]> = [
             ["a", cosine.a2, sine.sides.a, sine.angles.A, sine.ratios[0]],
             ["b", cosine.b2, sine.sides.b, sine.angles.B, sine.ratios[1]],
             ["c", cosine.c2, sine.sides.c, sine.angles.C, sine.ratios[2]],
         ];
-        const letters = ["A", "B", "C"];
-        const rows: ReadoutListRow[] = [];
+        const letters = ["A", "B", "C"] as const;
+        const rows: TriangleSolverRow[] = [];
         sides.forEach(([name, square]) =>
-            rows.push({id: `side-${name}`, label: t("triangle_solver_readout_side", {value0: name}), value: this.sideText(square, language)}));
+            rows.push({id: `side-${name}`, name: message("triangle_solver_readout_side", {value0: name}), value: this.sideText(square, language)}));
         sides.forEach(([, , , angle], index) =>
-            rows.push({id: `angle-${letters[index]}`, label: t("triangle_solver_readout_angle", {value0: letters[index]}), value: this.degrees(angle, language)}));
+            rows.push({id: `angle-${letters[index]}`, name: message("triangle_solver_readout_angle", {value0: letters[index]}), value: formatted(this.degrees(angle, language))}));
         sides.forEach(([name, , , , ratio], index) =>
-            rows.push({id: `ratio-${name}`, label: t("triangle_solver_readout_ratio", {value0: name, value1: letters[index]}),
-                value: this.approx(ratio, language)}));
+            rows.push({id: `ratio-${name}`, name: message("triangle_solver_readout_ratio", {value0: name, value1: letters[index]}), value: this.approx(ratio, language)}));
         if (this.state.mode === "circle") {
             const apex = angleAtAntipode(sine, this.state.C, this.state.B);
             rows.push(
-                {id: "two-r", label: t("triangle_solver_readout_two_r"), value: this.approx(sine.twoR, language)},
-                {id: "r-squared", label: t("triangle_solver_readout_r_squared"), value: this.rationalText(sine.r2)},
-                {id: "centre", label: t("triangle_solver_readout_centre"), value: this.pointText(sine.circumcentre)},
-                {id: "antipode", label: t("triangle_solver_readout_antipode"), value: this.pointText(sine.antipode)},
-                {id: "thales", label: t("triangle_solver_readout_thales"), value: this.rationalText(sine.thalesAtC)},
-                {id: "apex-angle", label: t("triangle_solver_readout_apex_angle"),
-                    value: apex === undefined ? t("triangle_solver_apex_none") : this.degrees(apex, language)},
+                {id: "two-r", name: message("triangle_solver_readout_two_r"), value: this.approx(sine.twoR, language)},
+                {id: "r-squared", name: message("triangle_solver_readout_r_squared"), value: formatted(this.rationalText(sine.r2))},
+                {id: "centre", name: message("triangle_solver_readout_centre"), value: this.pointText(sine.circumcentre)},
+                {id: "antipode", name: message("triangle_solver_readout_antipode"), value: this.pointText(sine.antipode)},
+                {id: "thales", name: message("triangle_solver_readout_thales"), value: formatted(this.rationalText(sine.thalesAtC))},
+                {id: "apex-angle", name: message("triangle_solver_readout_apex_angle"),
+                    value: apex === undefined ? message("triangle_solver_apex_none") : formatted(this.degrees(apex, language))},
             );
         } else {
             rows.push(
-                {id: "dot", label: t("triangle_solver_readout_dot"), value: signed(cosine.dot)},
-                {id: "correction", label: t("triangle_solver_readout_correction"), value: signed(cosine.correction)},
-                {id: "identity", label: t("triangle_solver_readout_identity"),
-                    value: `${signed(cosine.c2)} = ${signed(cosine.a2)} + ${signed(cosine.b2)} − (${signed(cosine.correction)})`},
+                {id: "dot", name: message("triangle_solver_readout_dot"), value: formatted(signed(cosine.dot))},
+                {id: "correction", name: message("triangle_solver_readout_correction"), value: formatted(signed(cosine.correction))},
+                {id: "identity", name: message("triangle_solver_readout_identity"),
+                    value: formatted(`${signed(cosine.c2)} = ${signed(cosine.a2)} + ${signed(cosine.b2)} − (${signed(cosine.correction)})`)},
             );
         }
         return rows;
     }
 
-    private solveRows(language: NumberLanguage): ReadoutListRow[] {
+    private solveRows(language: NumberLanguage): TriangleSolverRow[] {
         const {drawn, ssa} = this.view();
-        const rows: ReadoutListRow[] = [];
+        const rows: TriangleSolverRow[] = [];
         drawn.map(measureDrawn).forEach((m, index) => {
-            const n = `${index + 1}`;
-            const separator = t("triangle_solver_list_separator");
-            const sides: Array<[string, number]> = [["a", m.a], ["b", m.b], ["c", m.c]];
-            const angles: Array<[string, number]> = [["A", m.angleA], ["B", m.angleB], ["C", m.angleC]];
+            const n = index === 0 ? "1" : "2";
             rows.push(
-                {id: `solved-sides-${n}`, label: t("triangle_solver_readout_solved_sides", {value0: n}),
-                    value: sides.map(([name, side]) => this.measured(name, side, this.num(side, language), 5)).join(separator)},
-                {id: `solved-angles-${n}`, label: t("triangle_solver_readout_solved_angles", {value0: n}),
-                    value: angles.map(([name, angle]) => this.measured(name, toDegrees(angle), this.degrees(angle, language), 4)).join(separator)},
-                {id: `solved-area-${n}`, label: t("triangle_solver_readout_solved_area", {value0: n}), value: this.num(m.area, language)},
+                {id: `solved-sides-${n}`, name: message("triangle_solver_readout_solved_sides", {value0: n}),
+                    value: message("trisolve_sides_list", {
+                        value0: this.measured(m.a, this.num(m.a, language), 5), value1: this.measured(m.b, this.num(m.b, language), 5), value2: this.measured(m.c, this.num(m.c, language), 5),
+                    })},
+                {id: `solved-angles-${n}`, name: message("triangle_solver_readout_solved_angles", {value0: n}),
+                    value: message("trisolve_angles_list", {
+                        value0: this.measured(toDegrees(m.angleA), this.degrees(m.angleA, language), 4), value1: this.measured(toDegrees(m.angleB), this.degrees(m.angleB, language), 4),
+                        value2: this.measured(toDegrees(m.angleC), this.degrees(m.angleC, language), 4),
+                    })},
+                {id: `solved-area-${n}`, name: message("triangle_solver_readout_solved_area", {value0: n}), value: formatted(this.num(m.area, language))},
             );
         });
-        if (ssa) rows.push({id: "height", label: t("triangle_solver_readout_height"), value: this.approx(ssa.h, language)});
+        if (ssa) rows.push({id: "height", name: message("triangle_solver_readout_height"), value: this.approx(ssa.h, language)});
         return rows;
     }
 
@@ -787,9 +833,95 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         return items;
     }
 
-    private readoutRows(): ReadoutListRow[] {
+    readoutRows(): TriangleSolverRow[] {
         const language = currentLanguage();
         return this.state.mode === "solve" ? this.solveRows(language) : this.geometryRows(language);
+    }
+
+    /** The panel's text of the declared rows. */
+    private listRows(rows: readonly TriangleSolverRow[]): ReadoutListRow[] {
+        return rows.map(({id, name, value}): ReadoutListRow => ({
+            id, label: renderMessage(name), value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration ------------------------------------------------------------------------------------------------------
+
+    /** What the view director keeps visible: the drawn triangle with the bars (sides), the circumcircle (circle) or everything the solution draws (solve). */
+    private viewMarks(): ViewMarks {
+        const {mode, A, B, C} = this.state;
+        if (mode === "solve") return {must: this.view().solveExtent.length ? [{kind: "polyline", points: this.view().solveExtent.map(([x, y]): [number, number] => [x, y])}] : []};
+        const corners: Array<[number, number]> = [[A.x, A.y], [B.x, B.y], [C.x, C.y]];
+        const proper = this.proper();
+        if (mode === "sides" && proper) corners.push([BAR_X, BAR_ROW_AB], [BAR_X + BAR_LENGTH, BAR_ROW_C]);
+        if (mode === "circle" && proper) {
+            const x = proper.sine.circumcentre.x.toNumber();
+            const y = proper.sine.circumcentre.y.toNumber();
+            const r = Math.sqrt(proper.sine.r2.toNumber());
+            corners.push([x - r, y - r], [x + r, y + r]);
+        }
+        return {must: [{kind: "polyline", points: corners}]};
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const unknown = (value: unknown): DomainError => new DomainError(message("trisolve_choice_rejected", {value0: String(value)}));
+        return {
+            "triangle-mode": {
+                read: () => this.state.mode,
+                apply: (value: unknown) => {
+                    const mode = TRIANGLE_MODES.find(candidate => candidate === value);
+                    if (!mode) throw unknown(value);
+                    this.setState({mode});
+                },
+            },
+            "triangle-data": {
+                read: () => this.state.data.type,
+                apply: (value: unknown) => {
+                    const type = SOLVE_DATA_TYPES.find(candidate => candidate === value);
+                    if (!type) throw unknown(value);
+                    this.setState({data: DEFAULT_SOLVE_DATA[type]});
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state: the mode (three options) is a puck, and in the solving mode so is the kind of given data (four options): lessons
+     * and exploration switch them to compare. The sides and angles typed as data, and the vertices (points have no parameter kind), stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<TriangleSolverIds> {
+        const state = this.state;
+        const parameters: ParameterDeclaration<TriangleSolverIds["param"]>[] = [{
+            key: "triangle-mode", kind: "choice", label: message("triangle_solver_mode_label"), placement: "board", puck: true,
+            options: TRIANGLE_MODES.map(value => ({value, label: message(MODE_KEYS[value]), short: message(MODE_SHORT_KEYS[value])})),
+        }];
+        if (state.mode === "solve") {
+            parameters.push({
+                key: "triangle-data", kind: "choice", label: message("triangle_solver_data_label"), help: message("triangle_solver_data_help"), placement: "board", puck: true,
+                options: SOLVE_DATA_TYPES.map(value => ({value, label: message(DATA_KEYS[value]), short: message(DATA_SHORT_KEYS[value])})),
+            });
+        }
+        return {
+            parameters,
+            readouts: [{id: "values", rows: this.readoutRows()}],
+            notes: [{id: "status", text: this.statusMessage()}],
+            legend: this.legendItems().map(item => ({
+                id: item.id as TriangleSolverIds["legend"], label: message(LEGEND_KEYS[item.id as TriangleSolverIds["legend"]]),
+                kind: item.kind === "diamond" ? "point" as const : item.kind === "dashed-line" ? "dashed" as const : "line" as const, object: item.id,
+            })),
+            marks: this.viewMarks(),
+        };
+    }
+
+    /** The element a legend entry names, as the board holds it now: its colour and whether it is drawn. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (!(id in LEGEND_COLORS)) return undefined;
+        const known = id as TriangleSolverIds["legend"];
+        const element = this.legendObjects[known];
+        if (!element) return {color: LEGEND_COLORS[known], visible: false};
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(id === "antipode" ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
     }
 
     // ---- Controls -----------------------------------------------------------------------------------------------------
@@ -898,7 +1030,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
         const commands: JSX.Element[] = [
-            <ChoiceSelect key="mode" label={t("triangle_solver_mode_label")} value={state.mode}
+            <PuckOwned key="mode" param="triangle-mode"><ChoiceSelect label={t("triangle_solver_mode_label")} value={state.mode}
                           options={[
                               {value: "sides", text: t("triangle_solver_mode_sides")},
                               {value: "circle", text: t("triangle_solver_mode_circle")},
@@ -907,11 +1039,11 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
                           onChange={value => {
                               const mode = TRIANGLE_MODES.find(candidate => candidate === value);
                               if (mode) this.setState({mode});
-                          }}/>,
+                          }}/></PuckOwned>,
         ];
         if (state.mode === "solve") {
             commands.push(
-                <ChoiceSelect key="data-type" label={t("triangle_solver_data_label")} value={state.data.type} help={t("triangle_solver_data_help")}
+                <PuckOwned key="data-type" param="triangle-data"><ChoiceSelect label={t("triangle_solver_data_label")} value={state.data.type} help={t("triangle_solver_data_help")}
                               options={[
                                   {value: "sss", text: t("triangle_solver_data_sss")},
                                   {value: "sas", text: t("triangle_solver_data_sas")},
@@ -921,7 +1053,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
                               onChange={value => {
                                   const type = SOLVE_DATA_TYPES.find(candidate => candidate === value);
                                   if (type) this.setState({data: DEFAULT_SOLVE_DATA[type]});
-                              }}/>,
+                              }}/></PuckOwned>,
             );
             for (const field of DATA_FIELDS[state.data.type]) {
                 const side = field.kind === "side";
@@ -953,11 +1085,10 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("triangle_solver_readout_title")}</ReadoutHeading>
-                <p data-triangle-status="">{this.statusText()}</p>
-                <ReadoutList label={t("triangle_solver_readout_title")} rows={this.readoutRows()}/>
-                {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
+                <p data-triangle-status="" data-readout-note="">{this.statusText()}</p>
+                <ReadoutList label={t("triangle_solver_readout_title")} rows={this.listRows(this.readoutRows())}/>
                 <LiveReadout readout={this.status}/>
             </div>
         </>;

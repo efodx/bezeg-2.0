@@ -11,6 +11,7 @@ import {
 import {TriangleSolverGraph} from './TriangleSolverGraph';
 import {triangleSolverPresetCollection, unitCirclePresetCollection} from './trigPresetCollection';
 import {UnitCircleGraph} from './UnitCircleGraph';
+import {runAs} from '../base/writes/writeSource';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -60,7 +61,7 @@ describe('unit-circle Preset collection', () => {
 describe('triangle-solver Preset collection', () => {
     test.each([['the default', DEFAULT_TRIANGLE_STATE], ['an SSA solve state', SSA_STATE]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new TriangleSolverGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => source.setState(state)); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('triangle-solver');
         expect(preset.data).toEqual(serializeTriangleState(state));

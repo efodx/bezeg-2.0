@@ -66,7 +66,9 @@
           "value": "49 = 41 + 20 - (12)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Trikotnik je ostrokoten, kot pri C je oster: c² = 49, a² + b² = 61, popravek 2·CA·CB = 12."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
@@ -142,7 +144,9 @@
           "value": "49 = 26 + 61 - (38)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Trikotnik je ostrokoten, kot pri C je oster: c² = 49, a² + b² = 87, popravek 2·CA·CB = 38."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
@@ -233,7 +237,9 @@
           "value": "63,4349°"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Trikotnik je ostrokoten: premer očrtane krožnice 2R ≈ 7,15891, R² = 205/16."
+      ],
       "outputs": [],
       "captions": [
         "$$A'$$",
@@ -321,7 +327,9 @@
           "value": "45°"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Trikotnik je topokoten: premer očrtane krožnice 2R ≈ 13,0384, R² = 85/2."
+      ],
       "outputs": [],
       "captions": [
         "$$A'$$",
@@ -394,7 +402,9 @@
           "value": "25 = 9 + 16 - (0)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Trikotnik je pravokoten, kot pri C je prav: c² = 25, a² + b² = 25, popravek 2·CA·CB = 0."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
@@ -470,7 +480,9 @@
           "value": "40 = 29 + 17 - (6)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Trikotnik je ostrokoten, kot pri C je oster: c² = 40, a² + b² = 46, popravek 2·CA·CB = 6."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
@@ -546,7 +558,9 @@
           "value": "16 = 13 + 5 - (2)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Trikotnik je ostrokoten, kot pri C je oster: c² = 16, a² + b² = 18, popravek 2·CA·CB = 2."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
@@ -577,7 +591,9 @@
           "value": "14,69694"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Ena rešitev."
+      ],
       "outputs": [],
       "captions": [
         "$$A$$",
@@ -588,7 +604,9 @@
     {
       "name": "triangle-solve/tr5-inequality",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Takega trikotnika ni: vsota dveh stranic mora biti večja od tretje."
+      ],
       "outputs": [],
       "captions": []
     },
@@ -611,7 +629,9 @@
           "value": "15,15544"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Ena rešitev."
+      ],
       "outputs": [],
       "captions": [
         "$$A$$",
@@ -643,7 +663,9 @@
           "value": "≈ 4"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Ena rešitev: poltrak in krožni lok se sekata v eni točki."
+      ],
       "outputs": [],
       "captions": [
         "$$A$$",
@@ -691,7 +713,9 @@
           "value": "≈ 4"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Dve rešitvi (dvoumni primer): dva trikotnika, B₁ (polna črta) s c ≈ 9,9282 in B₂ (črtkana) s c ≈ 3,9282."
+      ],
       "outputs": [],
       "captions": [
         "$$A$$",

@@ -4,11 +4,11 @@
  * sl/en strings and in the rendered controls; no opening is already the state its prompt asks the learner to produce; the learner actions the text asks for, done through the real controls,
  * give the statuses and rows the text quotes; no step shows the answer to its prediction before the observation.
  */
-import {act, fireEvent, screen} from '@testing-library/react';
+import {act, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {triangleSolveLesson} from './trigSolveGuidedLessons';
 import type {GuidedLessonStep} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import {TriangleSolverGraph} from '../../graphs/trig/TriangleSolverGraph';
 import {enterNumber} from '../../inputs/testEntry';
@@ -73,14 +73,13 @@ const fieldLabel = (kind: 'side' | 'angle', name: string, language: Language) =>
 const numberField = (label: string) => (screen.queryByRole('spinbutton', {name: new RegExp(`^${escapeRegExp(label)}(,|$)`)}) ?? screen.getByLabelText(label)) as HTMLInputElement;
 /** The learner types `value` (a number in the language's notation) into the field and presses Enter. */
 const type = (label: string, value: number, language: Language) => act(() => { enterNumber(numberField(label), shown(value, 4, language)); });
-const dataOption = (language: Language, key: 'sss' | 'sas' | 'asa' | 'ssa') => {
-    const chooser = screen.getByLabelText(catalog[language].triangle_solver_data_label) as HTMLSelectElement;
-    const wanted = catalog[language][`triangle_solver_data_${key}`];
-    const option = [...chooser.options].find(candidate => candidate.textContent === wanted);
-    if (!option) throw new Error(`The chooser has no option "${wanted}".`);
-    return {chooser, value: option.value};
+/** The segment of the data type puck for an option: the data type is a puck on the board, not a select in Orodja. */
+const dataOption = (_language: Language, key: 'sss' | 'sas' | 'asa' | 'ssa') => {
+    const segment = document.querySelector<HTMLElement>(`.puck-strip [data-puck-key="triangle-data"] [role="radio"][data-value="${key}"]`);
+    if (!segment) throw new Error(`The data type puck has no option "${key}".`);
+    return {segment, value: key};
 };
-const choose = (language: Language, key: 'sss' | 'sas' | 'asa' | 'ssa') => act(() => { const {chooser, value} = dataOption(language, key); fireEvent.change(chooser, {target: {value}}); });
+const choose = (_language: Language, key: 'sss' | 'sas' | 'asa' | 'ssa') => chooseOnPuck('triangle-data', key);
 
 // ---- expected openings and readouts ---------------------------------------------------------------------------------------------------
 
@@ -178,6 +177,16 @@ describe('every control and readout a prompt names exists in the graph strings a
         'tr5-explore': () => [],
     };
     for (const language of LANGUAGES) {
+        test(`${language}: the data type puck is named by its label, not as a field, and the frames that ask for it use it`, () => {
+            const label = catalog[language].triangle_solver_data_label;
+            for (const id of ['tr5-sas', 'tr5-asa'] as const) {
+                const explanation = prose(stepOf(id).explanation[language]);
+                expect({id, label: explanation.includes(label), field: /polju Podani|field Given/.test(explanation)}).toEqual({id, label: true, field: false});
+            }
+            for (const id of ['tr5-sas', 'tr5-asa', 'tr5-explore'] as const) {
+                expect({id, uses: stepOf(id).frames.find(frame => frame.kind === 'explanation')?.declare?.uses}).toEqual({id, uses: ['triangle-data']});
+            }
+        });
         test(`${language}: the names in the explanation are catalog strings`, () => {
             for (const id of STEP_IDS) {
                 const explanation = prose(stepOf(id).explanation[language]);
@@ -186,17 +195,18 @@ describe('every control and readout a prompt names exists in the graph strings a
             // the chooser the step 7 prompt names
             expect(prose(stepOf('tr5-explore').observationPrompt[language])).toContain(language === 'sl' ? 'SSK' : 'SSA');
         });
-        test(`${language}: the controls exist in the rendered solve mode and the row label the text names is rendered`, () => {
+        test(`${language}: the controls exist in the rendered solve mode and the row label the text names is rendered`, async () => {
             setLanguage(language);
             const m = mountTriangle();
             try {
                 m.scene('tr5-ssa');
+                await waitForPucks('triangle-data');
                 expect(numberField(fieldLabel('side', 'a', language))).toBeTruthy();
                 for (const key of ['sss', 'sas', 'asa', 'ssa'] as const) expect(dataOption(language, key).value.length).toBeGreaterThan(0);
                 const height = document.querySelector('[data-readout="height"]')?.textContent ?? '';
                 expect(height.startsWith(catalog[language].triangle_solver_readout_height.split(' ').slice(0, 2).join(' '))).toBe(true);
                 m.scene('tr5-asa');
-                choose(language, 'asa');
+                await choose(language, 'asa');
                 expect(numberField(fieldLabel('angle', 'B', language))).toBeTruthy();
                 m.scene('tr5-exists');
                 for (const name of ['c', 'b', 'a']) expect(numberField(fieldLabel('side', name, language))).toBeTruthy();
@@ -211,7 +221,7 @@ describe('every control and readout a prompt names exists in the graph strings a
 // ---- Part A: the learner actions the text asks for ------------------------------------------------------------------------------------------
 
 for (const language of LANGUAGES) {
-    test(`${language}: the learner actions through the real controls give the statuses and rows the text quotes, and no opening is already the state its prompt asks for`, () => {
+    test(`${language}: the learner actions through the real controls give the statuses and rows the text quotes, and no opening is already the state its prompt asks for`, async () => {
         setLanguage(language);
         const m = mountTriangle();
         const produced = (id: StepId) => { const snap = snapshot(); expect({id, differsFromOpening: snap !== openings[id]}).toEqual({id, differsFromOpening: true}); };
@@ -246,14 +256,14 @@ for (const language of LANGUAGES) {
 
             // step 3: the chooser to SKS loads b = 5, c = 7, A = 60
             m.scene('tr5-sas');
-            choose(language, 'sas');
+            await choose(language, 'sas');
             expect(dataOf(m.graph)).toEqual({type: 'sas', b: 5, c: 7, angleA: 60});
             checkState('tr5-sas chooser', E_SAS_5_7_60, language);
             produced('tr5-sas');
 
             // step 4: the chooser to KSK, then B = 150
             m.scene('tr5-asa');
-            choose(language, 'asa');
+            await choose(language, 'asa');
             expect(dataOf(m.graph)).toEqual({type: 'asa', angleA: 40, angleB: 60, c: 8});
             checkState('tr5-asa chooser', E_ASA_40_60_8, language);
             expect(numbersOf(solverRows()['solved-sides-1'], language)[1]).toBeCloseTo(7.03508, 4);
@@ -284,7 +294,7 @@ for (const language of LANGUAGES) {
 
             // step 7: the chooser to SSK loads A = 30, b = 8, a = 5; the range ends and their neighbours
             m.scene('tr5-explore');
-            choose(language, 'ssa');
+            await choose(language, 'ssa');
             expect(dataOf(m.graph)).toEqual({type: 'ssa', a: 5, b: 8, angleA: 30});
             const solutionCount = () => Object.keys(solverRows()).filter(key => key.startsWith('solved-sides-')).length;
             const counts: Record<string, number> = {};

@@ -727,6 +727,30 @@ const SAMPLES: readonly Sample[] = [
             {name: 'log, power', apply: run({panel: 'log', logModel: 'power'})},
         ] satisfies ParityState[];
     })()},
+    {file: 'trig/__parity__/triangle-solver.json', demonstration: 'triangle-solver', states: (() => {
+        type Solver = {setState(state: Record<string, unknown>): void};
+        const fresh = {mode: 'sides', A: {x: 0, y: 0}, B: {x: 7, y: 0}, C: {x: 2, y: 4}, data: {type: 'sss', a: 5, b: 6, c: 7}};
+        // every state starts from the default state, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Solver).setState({...fresh, ...state})); };
+        return [
+            {name: 'sides, default', apply: run({})},
+            {name: 'sides, right angle at A', apply: run({B: {x: 3, y: 0}, C: {x: 0, y: 4}})},
+            {name: 'sides, obtuse', apply: run({C: {x: 2, y: 1}})},
+            {name: 'sides, flat', apply: run({C: {x: 5, y: 0}})},
+            {name: 'circle, default', apply: run({mode: 'circle'})},
+            {name: 'circle, right angle at A', apply: run({mode: 'circle', B: {x: 3, y: 0}, C: {x: 0, y: 4}})},
+            {name: 'circle, flat', apply: run({mode: 'circle', C: {x: 5, y: 0}})},
+            {name: 'solve, SSS default', apply: run({mode: 'solve'})},
+            {name: 'solve, SSS no triangle', apply: run({mode: 'solve', data: {type: 'sss', a: 2, b: 3, c: 6}})},
+            {name: 'solve, SAS', apply: run({mode: 'solve', data: {type: 'sas', b: 5, c: 7, angleA: 60}})},
+            {name: 'solve, ASA', apply: run({mode: 'solve', data: {type: 'asa', angleA: 40, angleB: 60, c: 8}})},
+            {name: 'solve, ASA angle sum', apply: run({mode: 'solve', data: {type: 'asa', angleA: 40, angleB: 150, c: 8}})},
+            {name: 'solve, SSA two triangles', apply: run({mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}})},
+            {name: 'solve, SSA one triangle', apply: run({mode: 'solve', data: {type: 'ssa', a: 8, b: 8, angleA: 30}})},
+            {name: 'solve, SSA tangent', apply: run({mode: 'solve', data: {type: 'ssa', a: 4, b: 8, angleA: 30}})},
+            {name: 'solve, SSA below height', apply: run({mode: 'solve', data: {type: 'ssa', a: 3, b: 8, angleA: 30}})},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root = path.resolve(__dirname, '../..');
