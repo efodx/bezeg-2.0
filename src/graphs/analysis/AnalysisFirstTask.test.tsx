@@ -58,7 +58,8 @@ describe('taylor first task', () => {
         await waitForPucks('taylor-degree');
         const root = document.querySelector('#inspector-edit') as HTMLElement;
         const strip = document.querySelector('.puck-strip') as HTMLElement;
-        for (const [label, name] of [[t('taylor_degree_label'), t('taylor_degree_name')], [t('taylor_center_label'), t('taylor_center_name')]]) {
+        // A puck is named by its bare label followed by its symbol.
+        for (const [label, name] of [[t('taylor_degree_label'), `${t('taylor_degree_name')} n`], [t('taylor_center_label'), `${t('taylor_center_name')} c`]]) {
             expect(within(strip).queryAllByRole('spinbutton', {name}).length + within(strip).queryAllByRole('slider', {name}).length).toBeGreaterThan(0);
             expect(within(root).queryAllByLabelText(label)).toEqual([]);
         }
