@@ -80,9 +80,9 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 4 | L03 | bspline-insertion | graph files + `bsplineInsertionGuidedLessons` | done `392bc89f5` |
 | 4 | L09 | circle-construction | graph files + `circleGeometryGuidedLessons` | done `6772a3f2e` |
 | 4 | L10 | euler-method | graph files + `numericalEulerGuidedLesson` | done `bfdf1a5df` |
-| 5 | L04 | bspline-nurbs | graph files + `bsplineNurbsGuidedLessons` | not started |
-| 5 | L11 | fourier-coefficients | graph files + `fourierCoefficientsGuidedLessons` | not started |
-| 5 | L12 | fourier-series | graph files + `fourierSeriesGuidedLessons` | not started |
+| 5 | L04 | bspline-nurbs | graph files + `bsplineNurbsGuidedLessons` | done `7728055cb` |
+| 5 | L11 | fourier-coefficients | graph files + `fourierCoefficientsGuidedLessons` | done `5cf68a631` |
+| 5 | L12 | fourier-series | graph files + `fourierSeriesGuidedLessons` | done `61ea0ddda` |
 | 6 | L13 | isometries | graph files + `isometriesFriezeGuidedLessons +2` | not started |
 | 6 | L14 | line-geometry | graph files + `analyticLinesGuidedLessons, analyticLinesIntersectGuidedLessons` | not started |
 | 6 | L15 | linear-program | graph files + `levelSetsGuidedLessons` | not started |
