@@ -1,0 +1,10 @@
+# 08 lane L04: bspline-nurbs (done, t slider not on the board)
+
+Base class plain `BaseGraph`. Parity recorded first (`curves/bspline/__parity__/bspline-nurbs.json`, 8 states, `SAMPLES` entry with `nurbsAccepted`: the readout help is an extra note, as for extraction). The recording was re-run once after conversion (same sentences, golden unchanged).
+
+- Graph: `BSplineNurbsIds` (notes `error|point`, legend `curve|control|marker|circle`, action `circle` puck), `declaration()`, memoized marks (control points and C(t) must, curve samples nice), `drawnObject`, `performAction`. Old panel sentences kept in `data-declared-panel` rendered from the declared notes. Fragment `bspline-nurbs.ts`: `bsn_legend_marker`.
+- Placement: unit circle is a switch puck (the lesson flips it to compare the curve with the circle). Slider t, weights (a vector of typed values), example, Reset and point list stay in Orodja.
+- Contract gap: a board slider for `t` (key `nurbs-t`, bound by `parameterBindings`) was built and worked, but shared `PartialPresetDefaults.test.tsx:58` and `standaloneSceneLifecycle.test.tsx:672` call `setT` outside a write source (UntaggedWriteError, 11 cases). Not owned, so t is undeclared. To enable: wrap those two calls in `runAs('learner', ...)`, then declare a `range` param (min/max from `domain`, step 0.001, symbol `t`, bare label "Parameter") and wrap the Orodja slider in `PuckOwned`.
+- Frames: observations highlight error / point; compare uses `circle`; explore opens tools (weights).
+- Red check: `pressed: !showCircle` -> `AssertionError: expected { id: 'circle', label: { …(2) }, …(4) } to match object { Object (placement, puck, ...) }`. Reverted.
+- Checks: graph-check PASS (contract, parity, golden, declaration 10, shared 218); units curves/bspline + content + localization + presets + declare passed; tsc 0 errors; lint, build, `just smoke-lesson bspline-nurbs` passed. Not run: browser probe, fuzz, screenshots. The `--route` given was `/curves/bspline-nurbs`; the real route is `/bezeg-2.0/bspline/nurbs` (browser step skipped).

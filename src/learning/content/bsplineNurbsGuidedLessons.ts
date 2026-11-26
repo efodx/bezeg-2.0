@@ -8,9 +8,12 @@
  */
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {BSplineNurbsIds} from '../../graphs/curves/bspline/BSplineNurbsGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<BSplineNurbsIds>();
 
 const CORNER = Math.SQRT1_2;
 const NURBS_POINTS: LessonCurveFixture['points'] = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0]];
@@ -94,7 +97,7 @@ const nurbsLesson: GuidedLesson = {
                 'A quadratic B-spline on nine points is drawn beside the unit circle, with all weights \\(1\\). Predict: can any polynomial B-spline coincide exactly with a circle? It cannot: a polynomial piece cannot keep a constant distance from the centre. The maximum deviation \\(E\\) is about \\(6.07\\cdot10^{-2}\\).',
             ),
             formulaIds: ['bspline-nurbs-error'],
-            frames: [frame('bspline-nurbs-predict-explanation', 'explanation'), frame('bspline-nurbs-predict-observation', 'observation')],
+            frames: [frame('bspline-nurbs-predict-explanation', 'explanation'), frame('bspline-nurbs-predict-observation', 'observation', f({highlight: ['error']}))],
             observationPrompt: text('Preberi največji odmik od enotske krožnice.', 'Read the maximum deviation from the unit circle.'),
             expectedObservations: [text('Največji odmik je približno \\(6{,}07\\cdot10^{-2}\\), krivulja ni krožnica.', 'The maximum deviation is about \\(6.07\\cdot10^{-2}\\); the curve is not a circle.')],
             scene: nurbsScene('bspline-nurbs-predict-unit', NURBS_UNIT_FIXTURE, [],
@@ -110,7 +113,7 @@ const nurbsLesson: GuidedLesson = {
                 'The points and the knot vector are the same, the weights are unit weights. At \\(t=\\tfrac18\\) the curve point is \\((0.75,\\,0.75)\\), its distance from the centre is about \\(1.0607\\), so the curve is outside the circle there. The deviation \\(E\\) is larger than \\(10^{-2}\\) and does not vanish while the control points stay the same.',
             ),
             formulaIds: ['bspline-nurbs-error'],
-            frames: [frame('bspline-nurbs-polynomial-explanation', 'explanation'), frame('bspline-nurbs-polynomial-observation', 'observation')],
+            frames: [frame('bspline-nurbs-polynomial-explanation', 'explanation'), frame('bspline-nurbs-polynomial-observation', 'observation', f({highlight: ['point', 'error']}))],
             observationPrompt: text('Preberi točko \\(C(t)\\) pri \\(t=\\tfrac18\\) in jo primerjaj s točko \\((\\tfrac{\\sqrt2}2,\\tfrac{\\sqrt2}2)\\) na krožnici.', 'Read the point \\(C(t)\\) at \\(t=\\tfrac18\\) and compare it with the point \\((\\tfrac{\\sqrt2}2,\\tfrac{\\sqrt2}2)\\) on the circle.'),
             expectedObservations: [text('Točka je \\((0{,}75;\\,0{,}75)\\) pri kotu \\(45^\\circ\\), zunaj krožnice.', 'The point is \\((0.75,\\,0.75)\\) at the angle \\(45^\\circ\\), outside the circle.')],
             scene: nurbsScene('bspline-nurbs-polynomial-eighth', NURBS_UNIT_FIXTURE, [setT(NURBS_T_EIGHTH)],
@@ -126,7 +129,7 @@ const nurbsLesson: GuidedLesson = {
                 'The weight of every second point (the second, fourth, sixth and eighth) is set to \\(\\tfrac{\\sqrt2}2\\). The curve is no longer polynomial, and the deviation \\(E\\) falls below \\(10^{-12}\\), which is rounding error. At \\(t=\\tfrac18\\) the point is \\((\\tfrac{\\sqrt2}2,\\tfrac{\\sqrt2}2)\\). The samples show that the points lie on the circle; that is not a proof.',
             ),
             formulaIds: ['bspline-nurbs-rational', 'bspline-nurbs-error'],
-            frames: [frame('bspline-nurbs-weights-explanation', 'explanation'), frame('bspline-nurbs-weights-observation', 'observation')],
+            frames: [frame('bspline-nurbs-weights-explanation', 'explanation'), frame('bspline-nurbs-weights-observation', 'observation', f({highlight: ['error', 'point']}))],
             observationPrompt: text('Preberi največji odmik in točko pri \\(t=\\tfrac18\\).', 'Read the maximum deviation and the point at \\(t=\\tfrac18\\).'),
             expectedObservations: [text('Odmik je pod \\(10^{-12}\\); točka je \\((0{,}70711;\\,0{,}70711)\\) pri kotu \\(45^\\circ\\).', 'The deviation is below \\(10^{-12}\\); the point is \\((0.70711,\\,0.70711)\\) at the angle \\(45^\\circ\\).')],
             scene: nurbsScene('bspline-nurbs-weights-corners', NURBS_UNIT_FIXTURE,
@@ -143,7 +146,7 @@ const nurbsLesson: GuidedLesson = {
                 'The first arc covers a quarter of the circle on \\([0,\\tfrac14]\\), so \\(t=\\tfrac1{16}\\) lies a quarter of the way along it. Predict: what is the angle of the point? The naive answer is \\(22.5^\\circ\\). The point is \\((0.92979,\\,0.36809)\\) at the angle \\(21.598^\\circ\\). At \\(t=\\tfrac18\\) the angle really is \\(45^\\circ\\). The circle is exact but the parametrization is not uniform in the angle.',
             ),
             formulaIds: ['bspline-nurbs-rational'], workedExampleId: 'bspline-nurbs-angle-example',
-            frames: [frame('bspline-nurbs-angle-explanation', 'explanation'), frame('bspline-nurbs-angle-calculation', 'calculation'), frame('bspline-nurbs-angle-observation', 'observation')],
+            frames: [frame('bspline-nurbs-angle-explanation', 'explanation'), frame('bspline-nurbs-angle-calculation', 'calculation'), frame('bspline-nurbs-angle-observation', 'observation', f({highlight: ['point']}))],
             observationPrompt: text('Preberi točko in kot v inšpektorju pri \\(t=\\tfrac1{16}\\).', 'Read the point and the angle in the inspector at \\(t=\\tfrac1{16}\\).'),
             expectedObservations: [text('Točka je \\((0{,}92979;\\,0{,}36809)\\) pri kotu \\(21{,}598^\\circ\\), ne pri \\(22{,}5^\\circ\\).', 'The point is \\((0.92979,\\,0.36809)\\) at the angle \\(21.598^\\circ\\), not \\(22.5^\\circ\\).')],
             scene: nurbsScene('bspline-nurbs-angle-sixteenth', NURBS_CIRCLE_FIXTURE, [setT(NURBS_T_SIXTEENTH)],
@@ -159,7 +162,7 @@ const nurbsLesson: GuidedLesson = {
                 'The Demonstration “Circle from n pieces” in the chapter on rational Bézier curves builds the same circle from four joined arcs. Here the same circle is one single curve with one knot vector in which the interior knots \\(\\tfrac14\\), \\(\\tfrac12\\) and \\(\\tfrac34\\) are double. The picture illustrates exactness only at the sampled parameters; the proof is the rational identity from the chapter on rational Bézier curves. Sampling alone does not prove it.',
             ),
             formulaIds: ['bspline-nurbs-error'],
-            frames: [frame('bspline-nurbs-compare-explanation', 'explanation'), frame('bspline-nurbs-compare-observation', 'observation')],
+            frames: [frame('bspline-nurbs-compare-explanation', 'explanation'), frame('bspline-nurbs-compare-observation', 'observation', f({uses: ['circle']}))],
             observationPrompt: text('Preštej dvojne notranje vozle \\(\\tfrac14\\), \\(\\tfrac12\\), \\(\\tfrac34\\) in poišči stike lokov na krožnici.', 'Count the double interior knots \\(\\tfrac14\\), \\(\\tfrac12\\), \\(\\tfrac34\\) and find where the arcs join on the circle.'),
             expectedObservations: [text('Trije dvojni notranji vozli ločijo štiri loke; krožnica je ena krivulja.', 'Three double interior knots separate four arcs; the circle is one curve.')],
             scene: nurbsScene('bspline-nurbs-compare-circle', NURBS_CIRCLE_FIXTURE, [setT(NURBS_T_SIXTEENTH), {kind: 'nurbs-circle', operation: 'set-circle', visible: true}],
@@ -175,7 +178,7 @@ const nurbsLesson: GuidedLesson = {
                 'The NURBS circle is back. Change one weight, for example the second, and see how the deviation \\(E\\) grows; multiply all weights by the same number and check that the curve does not change. A weight must be positive. The “Reset example” button returns the original weights.',
             ),
             formulaIds: ['bspline-nurbs-rational', 'bspline-nurbs-error'],
-            frames: [frame('bspline-nurbs-explore-explanation', 'explanation'), frame('bspline-nurbs-explore-observation', 'observation')],
+            frames: [frame('bspline-nurbs-explore-explanation', 'explanation'), frame('bspline-nurbs-explore-observation', 'observation', f({highlight: ['error'], open: ['tools']}))],
             observationPrompt: text('Spremeni utež in primerjaj odmik \\(E\\) z vrednostjo pred spremembo.', 'Change a weight and compare the deviation \\(E\\) with its value before the change.'),
             expectedObservations: [text('Vsaka sprememba ene uteži odmik poveča nad zaokrožitveno napako; nepozitivna utež je zavrnjena z razlogom.', 'Any change of a single weight raises the deviation above rounding error; a nonpositive weight is refused with the reason.')],
             scene: nurbsScene('bspline-nurbs-explore-start', NURBS_CIRCLE_FIXTURE, [setT(NURBS_T_SIXTEENTH)],

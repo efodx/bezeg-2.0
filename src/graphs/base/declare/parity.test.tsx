@@ -54,6 +54,10 @@ const extractionAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its readouts (it carries no readout marker, so the recording holds none)'},
 ];
 
+const nurbsAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed under its error sentence (it carries no readout marker, so the recording holds none)'},
+];
+
 const eulerAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the step slider read the step h (e.g. "0,5"); the step puck now counts halvings k, so the same value is shown by the declared row h, which the recorded panel row "Korak h" already matches'},
 ];
@@ -255,6 +259,21 @@ const SAMPLES: readonly Sample[] = [
             {name: 'cubic, insert 1,5', apply: run(g => g.insert(1.5))},
             {name: 'cubic, insert 2 (triple knot)', apply: run(g => { g.resetToOrigin(); g.insert(2); })},
             {name: 'cubic, insert 2 again (a break)', apply: run(g => g.insert(2))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/bspline/__parity__/bspline-nurbs.json', demonstration: 'bspline-nurbs', accepted: nurbsAccepted, states: (() => {
+        type Nurbs = {selectExample(id: 'circle' | 'unit'): void; setT(t: number): void; setWeight(index: number, value: number): string | undefined;
+            setShowCircle(show: boolean): void; editPoint(index: number, value: readonly [number, number]): void; resetToOrigin(): void};
+        const run = (edit: (graph: Nurbs) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Nurbs)); };
+        return [
+            {name: 'default (the circle, t = 1/16)', apply: () => undefined},
+            {name: 't = 1/8', apply: run(g => g.setT(0.125))},
+            {name: 't = 0,6', apply: run(g => g.setT(0.6))},
+            {name: 'unit weights example', apply: run(g => { g.selectExample('unit'); g.setT(0.125); })},
+            {name: 'a corner weight 2', apply: run(g => { g.selectExample('circle'); g.setWeight(1, 2); })},
+            {name: 'weight 4 is 0,5, t = 0,3', apply: run(g => { g.setWeight(3, 0.5); g.setT(0.3); })},
+            {name: 'circle hidden, a point moved', apply: run(g => { g.resetToOrigin(); g.setShowCircle(false); g.editPoint(2, [0.2, 1.4]); })},
+            {name: 'reset', apply: run(g => g.resetToOrigin())},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {

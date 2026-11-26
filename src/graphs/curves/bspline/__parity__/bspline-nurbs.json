@@ -1,0 +1,86 @@
+{
+  "graph": "bspline-nurbs",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (the circle, t = 1/16)",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 2,22·10⁻¹⁶",
+        "C(t) = (0,92979, 0,36809), kot 21,598°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "t = 1/8",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 2,22·10⁻¹⁶",
+        "C(t) = (0,70711, 0,70711), kot 45°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "t = 0,6",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 2,22·10⁻¹⁶",
+        "C(t) = (-0,81383, -0,58111), kot 215,529°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "unit weights example",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 6,07·10⁻²",
+        "C(t) = (0,75, 0,75), kot 45°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "a corner weight 2",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 1,79·10⁻¹",
+        "C(t) = (0,83333, 0,83333), kot 45°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "weight 4 is 0,5, t = 0,3",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 1,79·10⁻¹",
+        "C(t) = (-0,2381, 0,95238), kot 104,036°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "circle hidden, a point moved",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 4,14·10⁻¹",
+        "C(t) = (0,94383, 0,39618), kot 22,771°"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "reset",
+      "rows": [],
+      "notes": [
+        "Največji odmik od enotske krožnice: 2,22·10⁻¹⁶",
+        "C(t) = (0,92979, 0,36809), kot 21,598°"
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

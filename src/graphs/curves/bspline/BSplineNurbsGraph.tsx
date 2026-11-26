@@ -8,6 +8,9 @@ import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import {domain} from "../../../bezeg/impl/curve/bspline";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
@@ -36,6 +39,22 @@ export interface BSplineNurbsState extends BaseGraphState {
     /** The latest refused weight; shown as text in the current language. */
     refusal: WeightRefusal | null;
 }
+
+/**
+ * The ids this graph declares: the two sentences of the old panel (the radial error and the point C(t) with its angle), the
+ * legend, and the unit-circle switch (a puck). No parameters: t has no arbiter binding yet (the shared lifecycle and partial-Preset
+ * tests set it outside a write source), the weights are a vector of typed values and the points are dragged on the board.
+ */
+export type BSplineNurbsIds = {
+    param: never;
+    row: never;
+    note: 'error' | 'point';
+    legend: 'curve' | 'control' | 'marker' | 'circle';
+    section: never;
+    action: 'circle';
+};
+
+const VIEW_MARK_SAMPLES = 24;
 
 /** The first parameter shown: the spec's t = 1/16, where the point is not at 22.5 degrees. */
 export const NURBS_DEFAULT_T = 1 / 16;
@@ -247,6 +266,90 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         this.setState({...copyNurbs(origin), origin, example: id, refusal: null});
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** The two sentences of the old panel: the maximum radial error and the point C(t) with its angle (none while it cannot be evaluated). */
+    private readoutNotes(): ReadoutNote<BSplineNurbsIds>[] {
+        const language = currentLanguage();
+        const notes: ReadoutNote<BSplineNurbsIds>[] = [{id: 'error', text: message('bsn_radial_error', {value0: errorText(this.radialError())})}];
+        const point = this.markerPoint();
+        if (point) {
+            notes.push({id: 'point', text: message('bsn_point', {
+                value0: formatNumber(point[0], language, 5), value1: formatNumber(point[1], language, 5),
+                value2: formatNumber(angleDegrees(point), language, 3),
+            })});
+        }
+        return notes;
+    }
+
+    /**
+     * Pure data from the state: the unit circle as a switch puck (flipped to compare the curve with it), the radial error and the
+     * point as notes, the help line and the legend. The slider t, the weights (a vector of typed values), the example, Reset and the
+     * point list stay in Orodja; the control points are dragged on the board.
+     */
+    protected override declaration(): GraphDeclaration<BSplineNurbsIds> {
+        const {showCircle} = this.state;
+        const actions: ActionDeclaration<BSplineNurbsIds>[] = [
+            {id: 'circle', label: message('bsn_circle'), placement: 'board', puck: true, enabled: true, pressed: showCircle},
+        ];
+        const legend: LegendEntry<BSplineNurbsIds>[] = [
+            {id: 'curve', label: message('curve'), kind: 'line', object: 'curve'},
+            {id: 'control', label: message('control_points'), kind: 'point', object: 'control'},
+            ...(this.markerPoint() ? [{id: 'marker' as const, label: message('bsn_legend_marker'), kind: 'point' as const, object: 'marker'}] : []),
+            ...(showCircle ? [{id: 'circle' as const, label: message('bsn_circle'), kind: 'dashed' as const, object: 'circle'}] : []),
+        ];
+        return {notes: this.readoutNotes(), readoutHelp: message('bsn_radial_error_help'), legend, actions, marks: this.viewMarks()};
+    }
+
+    private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /** What the view director keeps visible: the control points and C(t) (must), samples of the curve over its domain (nice); memoized on the state's data. */
+    private viewMarks(): ViewMarks {
+        const {degree, knots, points, weights, t} = this.state;
+        const key = `${degree}|${knots.join(',')}|${points.map(p => p.join(',')).join(';')}|${weights.join(',')}|${t}`;
+        if (this.viewMarksCache?.key === key) return this.viewMarksCache.marks;
+        const finite = (p: readonly number[]) => Number.isFinite(p[0]) && Number.isFinite(p[1]);
+        const marker = this.markerPoint();
+        const must: ViewMark[] = [...points, ...(marker ? [marker] : [])].filter(finite).map(([x, y]): ViewMark => ({kind: 'point', x, y}));
+        const [start, end] = domain(knots, degree, points.length - 1);
+        const samples: (readonly [number, number])[] = [];
+        for (let i = 0; i < VIEW_MARK_SAMPLES; i++) {
+            try {
+                const p = nurbsPointAt(this.state, start + (end - start) * i / (VIEW_MARK_SAMPLES - 1));
+                if (finite(p)) samples.push([p[0], p[1]]);
+            } catch {
+                // a sample the kernel refuses is left out
+            }
+        }
+        const marks: ViewMarks = {must, nice: samples.length > 1 ? [{kind: 'polyline', points: samples}] : []};
+        this.viewMarksCache = {key, marks};
+        return marks;
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const scene = this.scene;
+        if (!scene) return undefined;
+        const read = (element: JXG.GeometryElement | undefined, colorProperty: 'strokecolor' | 'fillcolor') => {
+            if (!element) return undefined;
+            // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+            const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            return {color: String(drawn.evalVisProp(colorProperty)), visible: Boolean(drawn.evalVisProp('visible'))};
+        };
+        switch (id) {
+            case 'curve': return read(scene.curve.getJxgCurve(), 'strokecolor');
+            case 'control': return read(scene.curve.getJxgPoints()[0], 'fillcolor');
+            case 'marker': return read(scene.markerElement(), 'fillcolor');
+            case 'circle': return read(scene.circleElement(), 'strokecolor');
+            default: return undefined;
+        }
+    }
+
+    override performAction(id: string): void {
+        if (id === 'circle') runAs('learner', () => this.setShowCircle(!this.state.showCircle));
+        else throw new Error('Unknown action');
+    }
+
     // ---- Lesson actions ----------------------------------------------------------------------------------------------
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
@@ -288,24 +391,26 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         if (!this.state.initialized) return [];
         const {knots, degree, points, weights, example, showCircle, t: param, refusal} = this.state;
         const [start, end] = domain(knots, degree, points.length - 1);
-        const point = this.markerPoint();
-        const language = currentLanguage();
-        const num = (v: number) => formatNumber(v, language, 5);
+        const notes = this.readoutNotes();
         const options: { value: string, text: string }[] = NURBS_EXAMPLE_IDS.map(id => ({value: id, text: t(id === 'circle' ? "bsn_example_circle" : "bsn_example_unit")}));
         if (example === 'custom') options.push({value: 'custom', text: t("bsn_example_custom")});
         return super.getGraphCommands().concat(
             <div key="example"><ChoiceSelect label={t("bsn_example")} value={example} options={options}
                                              onChange={value => this.selectExample(value as NurbsExampleId)}/>
                 <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
-            <div key="error" className="inspector-group">
-                <p data-readout-note data-nurbs-readout="radial-error">{t("bsn_radial_error", {value0: errorText(this.radialError())})}</p>
+            // The old panel's sentences, rendered from the declared notes: the board cards show them, so the panel is hidden when declared
+            // (`data-declared-panel`) and stays the parity recorder's and the tests' reading of the same text.
+            <div key="error" className="inspector-group" data-declared-panel="">
+                {notes.filter(note => note.id === 'error').map(note => <p key={note.id} data-readout-note data-nurbs-readout="radial-error">{renderMessage(note.text)}</p>)}
                 <p className="inspector-help">{t("bsn_radial_error_help")}</p>
             </div>,
-            <div key="circle"><OnOffSwitch checked={showCircle} label={t("bsn_circle")} onChange={show => this.setShowCircle(show)}/></div>,
+            <PuckOwned key="circle" param="circle"><div><OnOffSwitch checked={showCircle} label={t("bsn_circle")} onChange={show => this.setShowCircle(show)}/></div></PuckOwned>,
             <div key="position">
                 <Slider min={start} max={end} step={0.001} decimals={3} value={Math.min(end, Math.max(start, param))}
                         customText={t("bsb_slider_t")} help={t("bsn_slider_help")} onChange={value => this.setT(value)}/>
-                {point ? <p data-readout-note data-nurbs-readout="point">{t("bsn_point", {value0: num(point[0]), value1: num(point[1]), value2: formatNumber(angleDegrees(point), language, 3)})}</p> : null}
+            </div>,
+            <div key="point" data-declared-panel="">
+                {notes.filter(note => note.id === 'point').map(note => <p key={note.id} data-readout-note data-nurbs-readout="point">{renderMessage(note.text)}</p>)}
             </div>,
             <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="weights" className="inspector-group" role="group" aria-labelledby="bsn-weights-title">
