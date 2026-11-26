@@ -62,6 +62,12 @@ files, lesson files, own tests) and its worktree. Everything else is here.
    group or orphan label is left. A subclass that drives a switch itself vetoes the base's puck for it (`curveDisplayPuck`).
    Refusal text uses the shared `DomainError` with a catalog `message(...)` (Slovenian and English), never English strings.
 
+## Tough choices (owner, 2026-11-27)
+
+When a choice is genuinely hard (two defensible placements, a contract reading you are unsure of, a fix that might change
+meaning), do not guess: stop at a consistent point, write the question with the options and their trade-offs to your notes,
+and return it as `QUESTION:` at the top of your report. The handler asks a Fable advisor and continues you with the answer.
+
 ## Report
 
 At most 300 words: per demonstration one line `id: done | stopped (reason) — minutes — files — placement judgements`, the
