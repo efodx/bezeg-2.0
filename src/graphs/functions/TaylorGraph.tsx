@@ -30,8 +30,7 @@ const PRECISE = 4;
 
 /**
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
- * `taylor-example` lesson action) and for the default scene; a view stored in a preset still wins on import. The caption sits
- * in the top-left corner, where every example's graph stays low or flat.
+ * `taylor-example` lesson action) and for the default scene; a view stored in a preset still wins on import.
  */
 const EXAMPLE_VIEWS: Readonly<Record<TaylorExampleId, BoundingBox>> = {
     exp: [-3.5, 10, 3.5, -4],
@@ -246,11 +245,6 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         return t(model.example === "flat" ? "taylor_series_flat" : "taylor_series_everywhere");
     }
 
-    private boardBound(model: TaylorModel, view: View): string {
-        if (!model.boundVisible) return t("taylor_board_bound_hidden");
-        return view.bound.kind === "bound" ? t("taylor_board_bound", {value0: this.small(view.bound.value)}) : t("taylor_board_bound_none");
-    }
-
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     protected createScene(): void {
@@ -339,16 +333,6 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         });
         this.drawn.set("center-point", this.pointCenter);
         this.drawn.set("x-point", this.pointX);
-
-        // The formula, the numbers, the bound (or the word hidden) and the key stay on the board (projection needs them).
-        this.caption("top-left", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {text: () => t("taylor_board_parameters", {value0: this.number(model().center), value1: model().degree, value2: this.number(model().x)})},
-            {text: () => t("taylor_board_values", {value0: this.number(view().polynomial), value1: this.number(view().value)})},
-            {text: () => t("taylor_board_error", {value0: this.small(view().absoluteError)}), color: GraphPalette.warningText},
-            {text: () => this.boardBound(model(), view()), minBoardWidth: 520},
-            {text: () => t("taylor_board_key"), minBoardWidth: 520},
-        ]);
     }
 
     protected override syncSceneToModel(): void {

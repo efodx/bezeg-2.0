@@ -64,7 +64,7 @@ const resolve = (value: any) => typeof value === 'function' ? value() : value;
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 
 // Creation order per type: segments are the convergence interval, the bound band, the drop line at c and the error; functiongraphs are f and T_n;
-// points are the value points (f(c), f(x), T_n(x)) and then the draggable c and x; texts are the convergence label and the one caption.
+// points are the value points (f(c), f(x), T_n(x)) and then the draggable c and x; texts are the convergence label.
 const segments = (graph: any) => ofType(graph, 'segment');
 const [CONVERGENCE, BOUND_BAND, , ERROR] = [0, 1, 2, 3];
 const functionGraphs = (graph: any) => ofType(graph, 'functiongraph');
@@ -145,18 +145,15 @@ test('initialization draws e^x about 0 with T_1 at x = 1 and the error bound hid
     expect(segments(graph)).toHaveLength(4);
     expect(functionGraphs(graph)).toHaveLength(2);
     expect(ofType(graph, 'point')).toHaveLength(5);
-    expect(ofType(graph, 'text')).toHaveLength(2);
-    expect(boardObjectCount(graph)).toBe(13);
-    expect(graph.generatedObjectCount).toBe(13);
+    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(boardObjectCount(graph)).toBe(12);
+    expect(graph.generatedObjectCount).toBe(12);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect(functionGraphs(graph)[0].parents[0](1)).toBe(Math.E);
     expect(functionGraphs(graph)[1].parents[0](1)).toBe(2);
     expect(axisPoints(graph).map((point: any) => [point.x, point.y])).toEqual([[0, 0], [1, 0]]);
     expect(valuePoints(graph).map(at)).toEqual([[0, 1], [1, Math.E], [1, 2]]);
-    expect(caption(graph)).toEqual([
-        'f(x) = eˣ', 'c = 0, n = 1, x = 1', 'Tₙ(x) = 2, f(x) = 2,7183', 'napaka |f(x) − Tₙ(x)| = 0,7183', 'ocena napake: skrita',
-        'polna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka',
-    ]);
+    expect(caption(graph)).toEqual([]); // the numbers, the bound and the key live in the declared rows and legend
 });
 
 test('f is a solid line and T_n a dashed line, the error a vertical segment at x between T_n(x) and f(x), distinguishable by pattern and not only colour', () => {
@@ -190,7 +187,6 @@ test('before the reveal the bound reads hidden everywhere; the polynomial, funct
     expect(statusIds(graph)).toEqual(['hidden']);
     expect(statusTexts(graph)[0]).toMatch(/skrita/);
     expect(visible(segments(graph)[BOUND_BAND])).toBe(false);
-    expect(caption(graph)[4]).toBe('ocena napake: skrita');
 });
 
 test('e^x about 0 at x = 1: T_1 = 2, T_3 = 8/3, T_6 = 1957/720 and the revealed bound e/7! contains the error', () => {
@@ -207,7 +203,6 @@ test('e^x about 0 at x = 1: T_1 = 2, T_3 = 8/3, T_6 = 1957/720 and the revealed 
     expect(Math.E / 5040).toBeCloseTo(0.000539, 6);
     expect(rows(graph)['bound-hypothesis']).toMatch(/max\(e\^c, e\^x\)/);
     expect(statusIds(graph)).toEqual(['revealed']);
-    expect(caption(graph)[4]).toBe('napaka ≤ 0,0005393 (Lagrangeeva ocena)');
     // the band around T_n(x) has half-width equal to the bound
     const band = segments(graph)[BOUND_BAND];
     expect(visible(band)).toBe(true);
@@ -301,7 +296,6 @@ test('the flat function: every T_n is 0, f(1) = e^-1 > 0, the series converges t
     expect(rows(graph)['bound-hypothesis']).toMatch(/ni ocene/);
     expect(statusIds(graph)).toEqual(['revealed', 'no-bound', 'flat']);
     expect(statusTexts(graph)[1]).toMatch(/ne modelira/);
-    expect(caption(graph)[4]).toBe('ocena napake: je ni (glej opombo)');
     expect(visible(segments(graph)[BOUND_BAND])).toBe(false);
     // for x <= 0 the function is 0 and so is the polynomial
     apply(graph, parameter('taylor-x', -1));
@@ -717,7 +711,7 @@ test('unmount leaves no generated object and a late edit changes nothing on the 
 test('generated objects are disposed and not duplicated across repeated generation, example changes and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(13);
+    expect(baseline).toBe(12);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -737,19 +731,18 @@ test('generated objects are disposed and not duplicated across repeated generati
     expect(axisPoints(graph).every((point: any) => graph.board.objectsList.includes(point))).toBe(true);
 });
 
-test('the caption follows the language and a language change notifies subscribers', () => {
+test('the rows follow the language and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    expect(caption(graph)[1]).toBe('c = 0, n = 1, x = 1');
+    expect(rows(graph).function).toBe('2,7183');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)[2]).toBe('Tₙ(x) = 2, f(x) = 2.7183');
-    expect(caption(graph)[3]).toBe('error |f(x) − Tₙ(x)| = 0.7183');
-    expect(caption(graph)[4]).toBe('error bound: hidden');
-    expect(caption(graph)[5]).toBe('solid line: f; dashed line: Tₙ; vertical line at x: the error');
+    expect(rows(graph).function).toBe('2.7183');
+    expect(rows(graph)['absolute-error']).toBe('0.7183');
+    expect(rows(graph).bound).toBe('hidden');
     apply(graph, reveal(true));
-    expect(caption(graph)[4]).toBe('error ≤ 1.359 (Lagrange bound)'); // M = e, |x - c|^2 / 2! = 1/2
+    expect(rows(graph).bound).toBe('1.359'); // M = e, |x - c|^2 / 2! = 1/2
     expect(rows(graph).convergence).toBe('The series converges to f for every x.');
     expect(rows(graph)['bound-hypothesis']).toMatch(/because e\^t is increasing/);
     unsubscribe();
