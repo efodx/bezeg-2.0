@@ -239,7 +239,8 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
         const kn = (name: "k" | "n") => () => {
             const line = this.currentLine();
-            return line.kind === "line" ? line[name] : Number.NaN;
+            // Rounded to 1e-6: rewriting the points (rounded to 1e-9) must not make the other of k and n drift on its puck.
+            return line.kind === "line" ? Math.round(line[name] * 1e6) / 1e6 + 0 : Number.NaN;
         };
         return {
             k: {read: kn("k"), apply: (value: number) => this.setLineParameter({k: value})},

@@ -31,7 +31,7 @@ const MOUNTED = '[data-navigation], input[type=range], .workspace-board-stage';
 // standalone number field (count setters, point coordinates) plus whether a playback is running.
 const SAMPLER = () => {
     window.__fzTok = 1; window.__fz = [];
-    const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+    const vis = e => { if (e.closest('details:not([open])')) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
     const read = () => {
         const p = {}; let ix = 0;
         for (const f of document.querySelectorAll('form.slider-field')) { const r = f.querySelector('input[type=range]'); if (r && vis(r)) p['s' + ix] = r.value; ix++; }
@@ -69,7 +69,7 @@ async function launchPage(browser, route, lesson) {
 
 // Tags the live controls with data-fz* attributes and returns their geometry; keys match the sampler's.
 const info = p => p.evaluate(() => {
-    const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight; };
+    const vis = e => { if (e.closest('details:not([open])')) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight; };
     const sliders = [], counts = [], points = [];
     let ix = 0, n = 0;
     for (const f of document.querySelectorAll('form.slider-field')) {
@@ -302,7 +302,9 @@ function seriesOf(log, k, t0, t1) {
     const moved = s.some((q, i) => i > 0 && (q.pl || s[i - 1].pl) && q.v !== s[i - 1].v);
     return s.map(q => ({t: q.t, v: q.v, on: moved && q.pl}));
 }
-const keysOf = (log, t0, t1) => [...new Set(log.filter(e => e.t >= t0 && e.t <= t1).flatMap(e => Object.keys(e.p)))];
+// Routes whose parameters are derived from their point fields (linear function: k and n move both points).
+const COUPLED_FIELDS = {'functions/linear': true};
+const keysOf =(log, t0, t1) => [...new Set(log.filter(e => e.t >= t0 && e.t <= t1).flatMap(e => Object.keys(e.p)))];
 
 async function runOnce(browser, route, lesson, seed, getAction, nSteps) {
     let g; try { g = await launchPage(browser, route, lesson); } catch (e) { return {status: 'INVALID', actions: [], err: 'launch: ' + String(e.message).split('\n')[0]}; }
@@ -335,6 +337,8 @@ async function runOnce(browser, route, lesson, seed, getAction, nSteps) {
                 if (!f) for (const k of keys) { const x = inv.checkI2(seriesOf(log, k, r.lesson ? tE + 800 : tE, tEnd), swing[k]); if (x) { f = mkFail('I2', `${x.a} -> ${x.b} -> ${x.a} within 300 ms`, {param: k, ...x}); break; } }
                 if (!f && !r.lesson && !r.anyWrite) for (const k of keys) {
                     if (w && w.k === k) continue;
+                    // A line's slope or intercept is not independent of its points: the point fields follow it by definition.
+                    if (w && /^n\d+$/.test(k) && COUPLED_FIELDS[route]) continue;
                     const x = inv.checkI5(seriesOf(log, k, tS, tEnd)); if (x) { f = mkFail('I5', x.why, {param: k, ...x}); break; }
                 }
             }
