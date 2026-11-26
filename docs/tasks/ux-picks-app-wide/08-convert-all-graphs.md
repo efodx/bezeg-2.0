@@ -93,8 +93,8 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 8 | L20 | triangle-solver | graph files + `trigSolveGuidedLessons, trigTriangleGuidedLessons` | done `483671065` |
 | 8 | L23 | arc-length-param | graph files + `arcLengthGuidedLessons` | done `13468437e` |
 | 9 | L22 | unit-circle | graph files + `trigUnitCircleGuidedLessons` | done `a47d30bbf` |
-| 9 | L24 | bspline-deboor | graph files + `bsplineDeBoorGuidedLessons` | not started |
-| 9 | L25 | logistic-map | graph files + `phasePortraitsGuidedLessons` | not started |
+| 9 | L24 | bspline-deboor | graph files + `bsplineDeBoorGuidedLessons` | done `5b6fd2f20` |
+| 9 | L25 | logistic-map | graph files + `phasePortraitsGuidedLessons` | done (round 9 gate `smoke/08-round1/round9-*`) |
 | 10 | L26 | complex-euler | graph files + `complexEulerGuidedLessons` | not started |
 | 10 | L28 | complex-reciprocal, complex-roots | graph files + `complexMapsChapterLessons` | not started |
 | 10 | L29 | contour-map | graph files + `levelSetsContourGuidedLessons, levelSetsOptimizationGuidedLessons`; owns first `SurfaceCameraPanel` | not started |

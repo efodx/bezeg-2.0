@@ -1,0 +1,8 @@
+
+graph-check logistic-map: PASS
+  pass  contract     1 passed
+  pass  parity       2 passed
+  pass  golden       1 passed
+  pass  declaration  10 passed
+  pass  shared       11 passed
+  pass  browser      skipped (no --base)

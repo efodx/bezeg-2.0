@@ -1,0 +1,3 @@
+Selected 71 unit test files (registries not followed; CI runs all)
+check-changed: passed in 255.9s (test slot 1/2 alone, 10 workers); revision 5b6fd2f208926fb4a47641579b79ba2135e5450a; dirty; log .command-logs\2026-11-26T22-52-28-057Z-18112-97c2b96a.log
+check-changed build: passed in 5.3s; revision 5b6fd2f208926fb4a47641579b79ba2135e5450a; dirty; log .command-logs\2026-11-26T22-56-44-271Z-18112-1b5a3e03.log; warnings present (see log)

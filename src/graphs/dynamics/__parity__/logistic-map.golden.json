@@ -56,7 +56,9 @@
           "value": "r = 2,8985 (stolpec 107 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 2,9, x₀ = 0,2; korak 0 od 60: x₀ = 0,2. Negibna točka x* = 0,655172 privlači: njen množitelj 2 - r = -0,9 ima absolutno vrednost manj kot 1. Perioda: 1 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -127,7 +129,9 @@
           "value": "r = 2,8985 (stolpec 107 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 2,9, x₀ = 0,2; korak 20 od 60: x₂₀ = 0,66383. Negibna točka x* = 0,655172 privlači: njen množitelj 2 - r = -0,9 ima absolutno vrednost manj kot 1. Perioda: 1 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -199,7 +203,9 @@
           "value": "r = 3 (stolpec 134 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3, x₀ = 0,2; korak 20 od 60: x₂₀ = 0,709631. Pri r = 3 je množitelj negibne točke x* = 0,666667 natanko -1: nevtralno, odvod ne odloči. Perioda: ni najdena do 64 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -276,7 +282,9 @@
           "value": "r = 3,1015 (stolpec 161 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3,1, x₀ = 0,2; korak 59 od 60: x₅₉ = 0,558014. Negibna točka x* = 0,677419 odbija (množitelj -1,1); privlačen je dvocikel 0,558014 ↔ 0,764567 z množiteljem 0,59. Perioda: 2 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -354,7 +362,9 @@
           "value": "r = 3,5 (stolpec 267 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3,5, x₀ = 0,2; korak 56 od 60: x₅₆ = 0,826941. Dvocikel ne privlači več (r > 1 + √6); višje periode so samo izračunane. Perioda: 4 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -432,7 +442,9 @@
           "value": "r = 3,5489 (stolpec 280 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3,55, x₀ = 0,2; korak 52 od 60: x₅₂ = 0,812682. Dvocikel ne privlači več (r > 1 + √6); višje periode so samo izračunane. Perioda: 8 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -515,7 +527,9 @@
           "value": "Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 4, x₀ = 0,2; korak 5 od 60: x₅ = 0,585421. Dvocikel ne privlači več (r > 1 + √6); višje periode so samo izračunane. Perioda: brez trditve za r > 3,56995. Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -593,7 +607,9 @@
           "value": "r = 3,5 (stolpec 267 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3,5, x₀ = 0,2; korak 0 od 60: x₀ = 0,2. Dvocikel ne privlači več (r > 1 + √6); višje periode so samo izračunane. Perioda: 4 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -665,7 +681,9 @@
           "value": "r = 3 (stolpec 134 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3, x₀ = 0,2; korak 0 od 60: x₀ = 0,2. Pri r = 3 je množitelj negibne točke x* = 0,666667 natanko -1: nevtralno, odvod ne odloči. Perioda: ni najdena do 64 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -741,7 +759,9 @@
           "value": "r = 3,4511 (stolpec 254 od 400)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3,45, x₀ = 0,2; korak 0 od 60: x₀ = 0,2. Dvocikel ne privlači več (r > 1 + √6); višje periode so samo izračunane. Perioda: 4 (izračunano, toleranca 10⁻⁹)."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -823,7 +843,9 @@
           "value": "Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3,83, x₀ = 0,2; korak 54 od 60: x₅₄ = 0,504667. Dvocikel ne privlači več (r > 1 + √6); višje periode so samo izračunane. Perioda: brez trditve za r > 3,56995. Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",
@@ -906,7 +928,9 @@
           "value": "Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
         }
       ],
-      "notes": [],
+      "notes": [
+        "r = 3,9, x₀ = 0,2; korak 0 od 60: x₀ = 0,2. Dvocikel ne privlači več (r > 1 + √6); višje periode so samo izračunane. Perioda: brez trditve za r > 3,56995. Pri r ≥ 3,56995 so dolge orbite zaradi končne natančnosti (dvojna natančnost) nezanesljive: pri r = 4 po približno 50 korakih."
+      ],
       "outputs": [],
       "captions": [
         "bifurkacijski diagram: dolgoročne vrednosti x glede na r od 2,5 do 4 (izračunano, dvojna natančnost)",

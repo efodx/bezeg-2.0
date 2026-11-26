@@ -15,9 +15,13 @@ import type {FormulaBlock, GuidedLesson, GuidedLessonStep, LessonScene, Localize
 import {guidedStep as step} from './guidedStep';
 import {frameDeclarer} from '../../graphs/base/declare/graphDeclaration';
 import type {PhasePortraitIds} from '../../graphs/dynamics/PhasePortraitGraph';
+import type {LogisticMapIds} from '../../graphs/dynamics/LogisticMapGraph';
 
 /** Frame declarations of the `phase-portrait` steps (PP1 to PP3), typed by the graph's ids. */
 const frame = frameDeclarer<PhasePortraitIds>();
+
+/** Frame declarations of the `logistic-map` steps (PP4, PP5), typed by the graph's ids. */
+const logisticFrame = frameDeclarer<LogisticMapIds>();
 
 /** The lesson text is written once with decimal commas in math (`{,}`); the English text gets decimal points. */
 const text = (sl: string, en: string): LocalizedText => ({sl, en: en.replace(/\{,\}/g, '.')});
@@ -782,6 +786,7 @@ const pp4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp4-four-cycle', order: 4,
+        declare: {observation: logisticFrame({highlight: ['cycle-multiplier', 'period'], uses: ['logistic-r']})},
         title: text('Dvocikel odpove: štiricikel', 'The 2-cycle fails: a 4-cycle'),
         purpose: text('Napovedati, kdaj dvocikel preneha privlačiti, in prebrati štiri vrednosti, ki se ponavljajo.', 'Predicting when the 2-cycle stops attracting and reading the four values that repeat.'),
         explanation: text(
@@ -790,8 +795,8 @@ const pp4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['logistic-two-cycle'],
         observationPrompt: text(
-            'Pritisni Naslednji korak štirikrat in zapiši \\(x_{57}\\) do \\(x_{60}\\); primerjaj \\(x_{60}\\) z \\(x_{56}\\). Nato v polje Parameter r vpiši \\(3{,}46\\) in preberi Množitelj dvocikla in Perioda.',
-            'Press Next step four times and write down \\(x_{57}\\) to \\(x_{60}\\); compare \\(x_{60}\\) with \\(x_{56}\\). Then type \\(3{,}46\\) in the field Parameter r and read Multiplier of the 2-cycle and Period.',
+            'Pritisni Naslednji korak štirikrat in zapiši \\(x_{57}\\) do \\(x_{60}\\); primerjaj \\(x_{60}\\) z \\(x_{56}\\). Nato v krmilnik Parameter \\(r\\) vpiši \\(3{,}46\\) in preberi Množitelj dvocikla in Perioda.',
+            'Press Next step four times and write down \\(x_{57}\\) to \\(x_{60}\\); compare \\(x_{60}\\) with \\(x_{56}\\). Then type \\(3{,}46\\) in the control Parameter \\(r\\) and read Multiplier of the 2-cycle and Period.',
         ),
         expectedObservations: [text(
             'Pri \\(r=3{,}5\\) je \\(x_{56}=0{,}826941\\), nato \\(x_{57}=0{,}500884\\), \\(x_{58}=0{,}874997\\), \\(x_{59}=0{,}38282\\), \\(x_{60}=0{,}826941\\): štiri vrednosti se ponavljajo, perioda \\(4\\) (izračunano), množitelj dvocikla \\(-1{,}25\\). Pri \\(r=3{,}46\\) je množitelj dvocikla \\(-1{,}0516\\) in perioda \\(4\\) (izračunano).',
@@ -803,6 +808,7 @@ const pp4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp4-eight-cycle', order: 5,
+        declare: {observation: logisticFrame({highlight: ['period'], uses: ['logistic-r']})},
         title: text('Perioda \\(8\\) in naprej', 'Period \\(8\\) and beyond'),
         purpose: text('Napovedati, kje se perioda spet podvoji, in videti, da se to ponavlja.', 'Predicting where the period doubles again and seeing that it keeps happening.'),
         explanation: text(
@@ -811,8 +817,8 @@ const pp4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'V polje Parameter r vpiši \\(3{,}54\\) in preberi Perioda, nato \\(3{,}55\\), nato \\(3{,}57\\) in preberi Perioda in Opomba. Pri \\(3{,}55\\) primerjaj \\(x_{52}\\) in \\(x_{60}\\).',
-            'In the field Parameter r type \\(3{,}54\\) and read Period, then \\(3{,}55\\), then \\(3{,}57\\) and read Period and Note. At \\(3{,}55\\) compare \\(x_{52}\\) and \\(x_{60}\\).',
+            'V krmilnik Parameter \\(r\\) vpiši \\(3{,}54\\) in preberi Perioda, nato \\(3{,}55\\), nato \\(3{,}57\\) in preberi Perioda in Opomba. Pri \\(3{,}55\\) primerjaj \\(x_{52}\\) in \\(x_{60}\\).',
+            'In the control Parameter \\(r\\) type \\(3{,}54\\) and read Period, then \\(3{,}55\\), then \\(3{,}57\\) and read Period and Note. At \\(3{,}55\\) compare \\(x_{52}\\) and \\(x_{60}\\).',
         ),
         expectedObservations: [text(
             'Pri \\(3{,}54\\) je perioda \\(4\\), pri \\(3{,}55\\) je \\(8\\) (obe izračunani). Pri \\(3{,}55\\) je \\(x_{52}=0{,}812682\\) in \\(x_{60}=0{,}812668\\), razlika je okoli \\(1{,}4\\cdot10^{-5}\\). Pri \\(3{,}57\\), večjem od \\(3{,}56995\\), odčitek Perioda ne trdi ničesar.',
@@ -824,6 +830,7 @@ const pp4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp4-chaos', order: 6,
+        declare: {observation: logisticFrame({highlight: ['iterate'], uses: ['logistic-x0']})},
         title: text('Pri \\(r=4\\) se bližnja začetka razmakneta', 'At \\(r=4\\) two close starts separate'),
         purpose: text('Napovedati, kaj se zgodi z dvema skoraj enakima začetkoma, in poznati mejo računskih orbit.', 'Predicting what happens to two almost equal starts and knowing the limit of computed orbits.'),
         explanation: text(
@@ -832,8 +839,8 @@ const pp4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Preberi \\(x_5\\), nato na drsniku Začetek \\(x_0\\) nastavi \\(0{,}21\\) in spet preberi \\(x_5\\) (število narisanih korakov se pri spremembi začetka ohrani). Pritisni Ponastavi, dvakrat pritisni Naslednji korak in preberi \\(x_1\\) in \\(x_2\\); nato spet vpiši \\(0{,}2\\) in ju preberi še za ta začetek.',
-            'Read \\(x_5\\), then set the slider Start \\(x_0\\) to \\(0{,}21\\) and read \\(x_5\\) again (the number of drawn steps is kept when the start changes). Press Reset, press Next step twice and read \\(x_1\\) and \\(x_2\\); then type \\(0{,}2\\) again and read them for that start too.',
+            'Preberi \\(x_5\\), nato v krmilniku Začetek \\(x_0\\) nastavi \\(0{,}21\\) in spet preberi \\(x_5\\) (število narisanih korakov se pri spremembi začetka ohrani). Pritisni Ponastavi, dvakrat pritisni Naslednji korak in preberi \\(x_1\\) in \\(x_2\\); nato spet vpiši \\(0{,}2\\) in ju preberi še za ta začetek.',
+            'Read \\(x_5\\), then set the control Start \\(x_0\\) to \\(0{,}21\\) and read \\(x_5\\) again (the number of drawn steps is kept when the start changes). Press Reset, press Next step twice and read \\(x_1\\) and \\(x_2\\); then type \\(0{,}2\\) again and read them for that start too.',
         ),
         expectedObservations: [text(
             'Pri začetku \\(0{,}2\\) je \\(x_5=0{,}585421\\), pri \\(0{,}21\\) je \\(x_5=0{,}209062\\): razlika je okoli \\(0{,}38\\), čeprav sta začetka \\(0{,}01\\) narazen. Za začetka \\(0{,}2\\) in \\(0{,}21\\) je \\(x_1=0{,}64\\) in \\(0{,}6636\\), \\(x_2=0{,}9216\\) in \\(0{,}89294\\). To velja za ta dva začetka: razlika ne naraste pri vsakem koraku (pri \\(x_8\\) sta \\(0{,}401974\\) in \\(0{,}37345\\)).',
@@ -845,6 +852,7 @@ const pp4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp4-free', order: 7,
+        declare: {observation: logisticFrame({highlight: ['period'], uses: ['logistic-r']})},
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Samostojno poiskati, kje se obnašanje orbite spremeni, in ločiti točno od izračunanega.', 'Finding on your own where the behaviour of the orbit changes and telling exact from computed.'),
         explanation: text(
@@ -853,8 +861,8 @@ const pp4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'V polje Parameter r vpiši \\(3{,}55\\), \\(3{,}56\\) in \\(3{,}57\\) in vsakič preberi Perioda in Opomba; zapiši, kaj je točno in kaj izračunano ter zakaj se \\(16\\) ne pojavi.',
-            'In the field Parameter r type \\(3{,}55\\), \\(3{,}56\\) and \\(3{,}57\\) and each time read Period and Note; write down what is exact and what is computed and why \\(16\\) does not appear.',
+            'V krmilnik Parameter \\(r\\) vpiši \\(3{,}55\\), \\(3{,}56\\) in \\(3{,}57\\) in vsakič preberi Perioda in Opomba; zapiši, kaj je točno in kaj izračunano ter zakaj se \\(16\\) ne pojavi.',
+            'In the control Parameter \\(r\\) type \\(3{,}55\\), \\(3{,}56\\) and \\(3{,}57\\) and each time read Period and Note; write down what is exact and what is computed and why \\(16\\) does not appear.',
         ),
         expectedObservations: [text(
             'Pri \\(3{,}55\\) in \\(3{,}56\\) je perioda \\(8\\), pri \\(3{,}57\\) odčitek Perioda ne trdi ničesar: največji \\(r\\) na mreži s številom je \\(3{,}56\\). Perioda \\(16\\) se začne pri \\(r_4\\approx3{,}564407\\), med mrežnima točkama \\(3{,}56\\) in \\(3{,}57\\), zato je na tej mreži ne vidiš. Vrsta negibne točke in dvocikla je točna, perioda in vrednosti \\(x_n\\) so izračunane.',
@@ -892,6 +900,7 @@ const pp5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp5-first-split', order: 2,
+        declare: {observation: logisticFrame({highlight: ['cycle', 'period', 'column'], uses: ['logistic-r']})},
         title: text('Prvi razcep pri \\(r=3\\)', 'The first split at \\(r=3\\)'),
         purpose: text('Napovedati, kaj naredi veja po razcepu, in prebrati obe novi vrednosti.', 'Predicting what the branch does after the split and reading the two new values.'),
         explanation: text(
@@ -900,8 +909,8 @@ const pp5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['logistic-two-cycle'],
         observationPrompt: text(
-            'V polje Parameter r vpiši \\(3{,}1\\) in preberi Dvocikel, Perioda in Stolpec diagrama pri kazalcu; kazalec stoji na dveh vejah.',
-            'Type \\(3{,}1\\) in the field Parameter r and read 2-cycle, Period and Diagram column at the cursor; the cursor stands on two branches.',
+            'V krmilnik Parameter \\(r\\) vpiši \\(3{,}1\\) in preberi Dvocikel, Perioda in Stolpec diagrama pri kazalcu; kazalec stoji na dveh vejah.',
+            'Type \\(3{,}1\\) in the control Parameter \\(r\\) and read 2-cycle, Period and Diagram column at the cursor; the cursor stands on two branches.',
         ),
         expectedObservations: [text(
             'Pri \\(r=3\\) je množitelj \\(-1\\), stolpec \\(r=3\\) in perioda ni najdena do \\(64\\) (izračunano). Pri \\(r=3{,}1\\) je dvocikel \\(0{,}558014\\leftrightarrow0{,}764567\\), perioda \\(2\\) (izračunano), stolpec \\(r=3{,}1015\\): dve veji.',
@@ -913,6 +922,7 @@ const pp5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'pp5-faster', order: 3,
+        declare: {observation: logisticFrame({highlight: ['cycle-multiplier', 'period'], uses: ['logistic-r']})},
         title: text('Razcepi so vedno bližje', 'The splits come faster'),
         purpose: text('Napovedati, kje je drugi razcep, in primerjati razmake med razcepi.', 'Predicting where the second split is and comparing the gaps between splits.'),
         explanation: text(
@@ -922,8 +932,8 @@ const pp5Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['logistic-doublings'],
         workedExampleId: 'pp5-ratios',
         observationPrompt: text(
-            'V polje Parameter r vpiši \\(3{,}44\\) in preberi Množitelj dvocikla in Perioda; nato \\(3{,}45\\) in preberi isto.',
-            'Type \\(3{,}44\\) in the field Parameter r and read Multiplier of the 2-cycle and Period; then \\(3{,}45\\) and read the same.',
+            'V krmilnik Parameter \\(r\\) vpiši \\(3{,}44\\) in preberi Množitelj dvocikla in Perioda; nato \\(3{,}45\\) in preberi isto.',
+            'Type \\(3{,}44\\) in the control Parameter \\(r\\) and read Multiplier of the 2-cycle and Period; then \\(3{,}45\\) and read the same.',
         ),
         expectedObservations: [text(
             'Pri \\(3{,}44\\) je množitelj dvocikla \\(-0{,}9536\\), perioda \\(2\\), stolpec \\(r=3{,}4398\\); pri \\(3{,}45\\) je \\(-1{,}0025\\), perioda \\(4\\), stolpec \\(r=3{,}4511\\) (perioda je izračunana). Število \\(1+\\sqrt6\\) leži med \\(3{,}44\\) in \\(3{,}45\\).',

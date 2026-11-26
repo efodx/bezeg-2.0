@@ -8,7 +8,12 @@ import {logisticMapPresetCollection} from "./dynamicsPresetCollection";
 import type {SceneStateUpdate} from "../base/SceneStore";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, isMessageNumber, message, messageNumber, onLanguageChange, renderMessage, t, type Message, type MessageNumber} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber} from "../../analysis/format";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -26,6 +31,22 @@ import {
     DEFAULT_LOGISTIC_STATE, deriveLogistic, LogisticDerived, LogisticState, parseLogisticState, R_RANGE, R_SCALE, rOf, serializeLogisticState, snapDragInteger, startOf, STEP_RANGE, typedInteger,
     X_RANGE, X_SCALE,
 } from "../../dynamics/phaseModel";
+
+/**
+ * The ids this graph declares: the parameters r and x0 (board range pucks), the rows of the readout, the status sentence, the legend of what the
+ * board draws and the three playback actions (which stay in the playback group of Edit). The step count has no arbiter key, so it is undeclared.
+ */
+export type LogisticMapIds = {
+    param: "logistic-r" | "logistic-x0";
+    row: "r" | "x0" | "steps" | "iterate" | "kind" | "fixed" | "fixed-multiplier" | "cycle" | "cycle-multiplier" | "period" | "column" | "note";
+    note: "status";
+    legend: "map" | "diagonal" | "cobweb" | "fixed" | "cycle" | "iterate" | "diagram";
+    section: never;
+    action: "next-step" | "play-pause" | "reset-run";
+};
+
+/** One row of the readout as a catalog message (the declaration's text; the panel renders it). */
+type LogisticRow = {readonly id: LogisticMapIds["row"]; readonly name: Message; readonly value: Message | MessageNumber};
 
 /** The scene state: the stored fields of `LogisticState`, nothing derived and no playback. */
 export interface LogisticMapGraphState extends BaseGraphState, LogisticState {}
@@ -187,7 +208,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         const box = this.board.getBoundingBox();
         const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
         if (!box.every((value, index) => near(value, this.shownBox![index]))) return;
-        this.showInitialView();
+        runAs("learner", () => this.showInitialView()); // the view is a declared parameter now: framing it again is tagged like the base's Reset
         this.board.update();
     }
 
@@ -254,7 +275,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         super.createMainView(session, container);
         const previous = container.getAttribute("aria-label");
-        const label = () => container.setAttribute("aria-label", t("phase_graph_logistic_board_label"));
+        const label = () => container.setAttribute("aria-label", t("logistic_board_label"));
         label();
         session.registerCleanup(onLanguageChange(label));
         session.registerCleanup(() => {
@@ -341,7 +362,10 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         return {ux, uy, left, top};
     }
 
-    private curve(data: () => Poly, color: string, width: number, dash: number, still = false): JXG.Curve {
+    /** The elements the legend names, by the `object` id of their entry (`drawnObject`); rebuilt with the scene. */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
+
+    private curve(data: () => Poly, color: string, width: number, dash: number, still = false, legendId?: LogisticMapIds["legend"]): JXG.Curve {
         const element = this.scene.own(this.board.create("curve", [[], []], {
             highlight: false, fixed: true, withLabel: false, strokeColor: color, strokeWidth: width, dash, needsRegularUpdate: !still,
         }));
@@ -355,6 +379,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             element.needsUpdate = true;
             element.update().updateRenderer();
         }
+        if (legendId) this.drawn.set(legendId, element);
         return element;
     }
 
@@ -371,10 +396,12 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
     }
 
     /** A fixed marker on the diagonal at (value, value). */
-    private marker(value: () => number, visible: () => boolean, face: string, color: string): JXG.Point {
-        return this.scene.own(this.board.create("point", [value, value], {
+    private marker(value: () => number, visible: () => boolean, face: string, color: string, legendId?: LogisticMapIds["legend"]): JXG.Point {
+        const point: JXG.Point = this.scene.own(this.board.create("point", [value, value], {
             fixed: true, highlight: false, withLabel: false, name: "", face, size: 5, fillColor: color, strokeColor: GraphPalette.pointOutline, visible,
         }));
+        if (legendId && !this.drawn.has(legendId)) this.drawn.set(legendId, point);
+        return point;
     }
 
     /** The captions of the column under the x axis, in order: the map, the diagonal, the cobweb, the diagram, the second split, the onset of chaos. */
@@ -431,7 +458,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             }
             return {x, y};
         }, GraphPalette.tick, 1, 0, true);
-        this.curve(diagramPolyline, GraphPalette.primaryCurve, 1, 0, true);
+        this.curve(diagramPolyline, GraphPalette.primaryCurve, 1, 0, true, "diagram");
         this.curve(() => {
             const x: number[] = [];
             const y: number[] = [];
@@ -452,8 +479,8 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             const map = f();
             for (let i = 0; i <= 120; i++) { x.push(i / 120); y.push(map(i / 120)); }
             return {x, y};
-        }, GraphPalette.comparisonCurve, 3, 0);
-        this.curve(() => ({x: [0, 1], y: [0, 1]}), GraphPalette.referenceCurve, 2, 2);
+        }, GraphPalette.comparisonCurve, 3, 0, false, "map");
+        this.curve(() => ({x: [0, 1], y: [0, 1]}), GraphPalette.referenceCurve, 2, 2, false, "diagonal");
         this.curve(() => {
             const {iterates} = derived();
             const x = [iterates[0]];
@@ -466,11 +493,11 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             // but still evaluates to finite points (a one-point data curve evaluates to NaN, which the preview capture refuses).
             if (x.length === 1) { x.push(x[0]); y.push(y[0]); }
             return {x, y};
-        }, GraphPalette.label, 2, 0);
-        this.marker(() => derived().fixedPoint, () => true, "square", GraphPalette.comparisonCurve);
-        this.marker(() => derived().twoCycle?.[0] ?? 0, hasCycle, "triangleup", GraphPalette.additionalCurves[1]);
-        this.marker(() => derived().twoCycle?.[1] ?? 0, hasCycle, "triangleup", GraphPalette.additionalCurves[1]);
-        this.marker(() => derived().iterates[this.state.step], () => this.state.step > 0, "diamond", GraphPalette.label);
+        }, GraphPalette.label, 2, 0, false, "cobweb");
+        this.marker(() => derived().fixedPoint, () => true, "square", GraphPalette.comparisonCurve, "fixed");
+        this.marker(() => derived().twoCycle?.[0] ?? 0, hasCycle, "triangleup", GraphPalette.additionalCurves[1], "cycle");
+        this.marker(() => derived().twoCycle?.[1] ?? 0, hasCycle, "triangleup", GraphPalette.additionalCurves[1], "cycle");
+        this.marker(() => derived().iterates[this.state.step], () => this.state.step > 0, "diamond", GraphPalette.label, "iterate");
         const handle = this.scene.own(board.create("point", [startOf(this.state.X), startOf(this.state.X)], {
             withLabel: false, name: "", size: HANDLE_SIZE, fillColor: GraphPalette.constructionAccent, strokeColor: GraphPalette.pointOutline,
             highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false,
@@ -510,6 +537,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
 
     private disposeScene(): void {
         this.scene.dispose(this.hasBoard ? this.board : undefined);
+        this.drawn.clear();
         this.handle = undefined;
         this.built = false;
     }
@@ -532,7 +560,8 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             return;
         }
         this.pausePlayback();
-        if (X !== this.state.X) this.setState({X});
+        // A JSXGraph drag handler is outside the DOM input tagging, so the write names its source.
+        if (X !== this.state.X) runAs("learner", () => this.setState({X}));
         const x0 = startOf(X);
         point.setPosition(JXG.COORDS_BY_USER, [x0, x0]);
     }
@@ -692,75 +721,186 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------
 
-    /** The period as computed text, or that no claim is made past the onset of chaos. */
-    private periodText(): string {
-        if (this.claimless()) return t("phase_graph_logistic_period_claimless_value", {value0: dec(CHAOS_ONSET, 5)});
+    /** The period as a message, or that no claim is made past the onset of chaos. */
+    private periodMessage(): Message {
+        if (this.claimless()) return message("phase_graph_logistic_period_claimless_value", {value0: messageNumber(CHAOS_ONSET, 5)});
         const {period} = this.derived();
-        return period.kind === "computed" ? t("phase_graph_logistic_period_value", {value0: String(period.period)})
-            : t("phase_graph_logistic_period_none_value", {value0: String(period.maxPeriod)});
+        return period.kind === "computed" ? message("phase_graph_logistic_period_value", {value0: String(period.period)})
+            : message("phase_graph_logistic_period_none_value", {value0: String(period.maxPeriod)});
     }
 
-    private noteText(): string {
-        return t("phase_graph_logistic_note_precision", {value0: dec(CHAOS_ONSET, 5)});
+    /** The period as computed text. */
+    private periodText(): string {
+        return renderMessage(this.periodMessage());
     }
 
-    private kindSentence(): string {
+    private noteMessage(): Message {
+        return message("phase_graph_logistic_note_precision", {value0: messageNumber(CHAOS_ONSET, 5)});
+    }
+
+    private kindMessage(): Message {
         const d = this.derived();
-        const star = dec(d.fixedPoint);
-        const multiplier = dec(d.fixedMultiplier, 4);
+        const star = messageNumber(d.fixedPoint, 6);
+        const multiplier = messageNumber(d.fixedMultiplier, 4);
         switch (d.kind) {
-            case "fixed-attracting": return t("phase_graph_logistic_kind_fixed", {value0: star, value1: multiplier});
-            case "neutral-at-3": return t("phase_graph_logistic_kind_neutral", {value0: star});
+            case "fixed-attracting": return message("phase_graph_logistic_kind_fixed", {value0: star, value1: multiplier});
+            case "neutral-at-3": return message("phase_graph_logistic_kind_neutral", {value0: star});
             case "two-cycle-attracting": {
                 const cycle = d.twoCycle ?? [NaN, NaN];
-                return t("phase_graph_logistic_kind_two", {value0: star, value1: multiplier, value2: dec(cycle[0]), value3: dec(cycle[1]), value4: dec(d.twoCycleMultiplier ?? NaN, 4)});
+                return message("phase_graph_logistic_kind_two", {value0: star, value1: multiplier, value2: messageNumber(cycle[0], 6), value3: messageNumber(cycle[1], 6),
+                    value4: messageNumber(d.twoCycleMultiplier ?? NaN, 4)});
             }
-            case "beyond-two-cycle": return t("phase_graph_logistic_kind_beyond");
+            case "beyond-two-cycle": return message("phase_graph_logistic_kind_beyond");
         }
     }
 
-    private kindRow(): string {
+    private kindRowMessage(): Message {
         switch (this.derived().kind) {
-            case "fixed-attracting": return t("phase_graph_logistic_row_kind_fixed");
-            case "neutral-at-3": return t("phase_graph_logistic_row_kind_neutral");
-            case "two-cycle-attracting": return t("phase_graph_logistic_row_kind_two");
-            case "beyond-two-cycle": return t("phase_graph_logistic_row_kind_beyond");
+            case "fixed-attracting": return message("phase_graph_logistic_row_kind_fixed");
+            case "neutral-at-3": return message("phase_graph_logistic_row_kind_neutral");
+            case "two-cycle-attracting": return message("phase_graph_logistic_row_kind_two");
+            case "beyond-two-cycle": return message("phase_graph_logistic_row_kind_beyond");
         }
     }
 
-    /** The status sentence: where the iteration is, what the parameter means (exact), and the computed period. */
-    statusText(): string {
+    /** The status sentence: where the iteration is, what the parameter means (exact), and the computed period (a declared note). */
+    private statusMessage(): Message {
         const d = this.derived();
         const {step} = this.state;
-        return [t("phase_graph_logistic_status", {value0: dec(d.r, 2), value1: dec(d.x0, 2), value2: String(step), value3: String(STEP_RANGE.max),
-            value4: subscript(step), value5: dec(d.iterates[step])}),
-            this.kindSentence(), t("phase_graph_logistic_period_sentence", {value0: this.periodText()}), this.claimless() ? this.noteText() : ""].filter(Boolean).join(" ");
+        const parts = {
+            value0: message("phase_graph_logistic_status", {value0: messageNumber(d.r, 2), value1: messageNumber(d.x0, 2), value2: String(step), value3: String(STEP_RANGE.max),
+                value4: subscript(step), value5: messageNumber(d.iterates[step], 6)}),
+            value1: this.kindMessage(),
+            value2: message("phase_graph_logistic_period_sentence", {value0: this.periodMessage()}),
+        };
+        return this.claimless() ? message("logistic_status_claimless", {...parts, value3: this.noteMessage()}) : message("logistic_status_plain", parts);
     }
 
-    readoutRows(): ReadoutListRow[] {
+    /** The status sentence as text in the current language. */
+    statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    /** The rows of the readout as messages: the declaration's rows, and what the panel lists. */
+    private rowSpecs(): LogisticRow[] {
         const d = this.derived();
         const {step} = this.state;
         const cursor = this.cursor();
         const cycle = d.twoCycle;
-        const rows: ReadoutListRow[] = [
-            {id: "r", label: t("phase_graph_logistic_r_r"), value: dec(d.r, 2)},
-            {id: "x0", label: t("phase_graph_logistic_r_x0"), value: dec(d.x0, 2)},
-            {id: "steps", label: t("phase_graph_logistic_r_steps"), value: t("phase_graph_logistic_steps_value", {value0: String(step), value1: String(STEP_RANGE.max)})},
-            {id: "iterate", label: t("phase_graph_logistic_r_iterate", {value0: subscript(step)}), value: dec(d.iterates[step])},
-            {id: "kind", label: t("phase_graph_logistic_r_kind"), value: this.kindRow()},
-            {id: "fixed", label: t("phase_graph_logistic_r_fixed"), value: dec(d.fixedPoint)},
-            {id: "fixed-multiplier", label: t("phase_graph_logistic_r_fixed_mult"), value: dec(d.fixedMultiplier, 4)},
-            {id: "cycle", label: t("phase_graph_logistic_r_cycle"), value: cycle ? t("phase_graph_logistic_cycle_value", {value0: dec(cycle[0]), value1: dec(cycle[1])})
-                : t("phase_graph_logistic_cycle_none")},
+        const rows: LogisticRow[] = [
+            {id: "r", name: message("phase_graph_logistic_r_r"), value: messageNumber(d.r, 2)},
+            {id: "x0", name: message("phase_graph_logistic_r_x0"), value: messageNumber(d.x0, 2)},
+            {id: "steps", name: message("phase_graph_logistic_r_steps"), value: message("phase_graph_logistic_steps_value", {value0: String(step), value1: String(STEP_RANGE.max)})},
+            {id: "iterate", name: message("phase_graph_logistic_r_iterate", {value0: subscript(step)}), value: messageNumber(d.iterates[step], 6)},
+            {id: "kind", name: message("phase_graph_logistic_r_kind"), value: this.kindRowMessage()},
+            {id: "fixed", name: message("phase_graph_logistic_r_fixed"), value: messageNumber(d.fixedPoint, 6)},
+            {id: "fixed-multiplier", name: message("phase_graph_logistic_r_fixed_mult"), value: messageNumber(d.fixedMultiplier, 4)},
+            {id: "cycle", name: message("phase_graph_logistic_r_cycle"), value: cycle ? message("phase_graph_logistic_cycle_value", {value0: messageNumber(cycle[0], 6), value1: messageNumber(cycle[1], 6)})
+                : message("phase_graph_logistic_cycle_none")},
         ];
-        if (cycle) rows.push({id: "cycle-multiplier", label: t("phase_graph_logistic_r_cycle_mult"), value: dec(d.twoCycleMultiplier ?? NaN, 4)});
+        if (cycle) rows.push({id: "cycle-multiplier", name: message("phase_graph_logistic_r_cycle_mult"), value: messageNumber(d.twoCycleMultiplier ?? NaN, 4)});
         rows.push(
-            {id: "period", label: t("phase_graph_logistic_r_period"), value: this.periodText()},
-            {id: "column", label: t("phase_graph_logistic_r_column"), value: t("phase_graph_logistic_column_value",
-                {value0: dec(cursor.r, 4), value1: String(cursor.column + 1), value2: String(DIAGRAM_COLUMNS)})},
+            {id: "period", name: message("phase_graph_logistic_r_period"), value: this.periodMessage()},
+            {id: "column", name: message("phase_graph_logistic_r_column"), value: message("phase_graph_logistic_column_value",
+                {value0: messageNumber(cursor.r, 4), value1: String(cursor.column + 1), value2: String(DIAGRAM_COLUMNS)})},
         );
-        if (this.claimless()) rows.push({id: "note", label: t("phase_graph_logistic_r_note"), value: this.noteText()});
+        if (this.claimless()) rows.push({id: "note", name: message("phase_graph_logistic_r_note"), value: this.noteMessage()});
         return rows;
+    }
+
+    /** The panel's text of the rows. */
+    readoutRows(): ReadoutListRow[] {
+        return this.rowSpecs().map(({id, name, value}): ReadoutListRow => ({
+            id, label: renderMessage(name), value: isMessageNumber(value) ? formatNumber(value.value, currentLanguage(), value.maxDecimals) : renderMessage(value),
+        }));
+    }
+
+    // ---- Declaration ----------------------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064). Keys `logistic-r` and `logistic-x0`: the real values r and x0, through the setters the sliders call
+     * (the stored integers are r and x0 times 100, so a value off the grid or out of range is refused, never rounded).
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const refused = (key: "phase_graph_logistic_r_rejected" | "phase_graph_logistic_x_rejected", min: number, max: number, scale: number): DomainError =>
+            new DomainError(message(key, {value0: messageNumber(min / scale, 2), value1: messageNumber(max / scale, 2), value2: messageNumber(1 / scale, 2)}));
+        return {
+            "logistic-r": {
+                read: () => rOf(this.state.R),
+                apply: (value: unknown) => {
+                    if (typeof value !== "number" || !this.editR(value)) throw refused("phase_graph_logistic_r_rejected", R_RANGE.min, R_RANGE.max, R_SCALE);
+                },
+            },
+            "logistic-x0": {
+                read: () => startOf(this.state.X),
+                apply: (value: unknown) => {
+                    if (typeof value !== "number" || !this.editStart(value)) throw refused("phase_graph_logistic_x_rejected", X_RANGE.min, X_RANGE.max, X_SCALE);
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state: r and x0 are board range pucks (the learner moves them while watching the cobweb and the diagram), the
+     * readout rows and the status sentence, the legend of what the board draws (the 2-cycle and the last step only while drawn) and the
+     * playback actions, which stay in the playback group of Edit. The step count has no arbiter key and is undeclared.
+     */
+    protected override declaration(): GraphDeclaration<LogisticMapIds> {
+        const {R, step} = this.state;
+        const playing = this.isPlaying();
+        const blocks = playbackBlocks({atStart: step === 0, atEnd: step >= STEP_RANGE.max, playing});
+        const parameters: ParameterDeclaration<LogisticMapIds["param"]>[] = [
+            {key: "logistic-r", kind: "range", label: message("logistic_r_name"), symbol: "r", placement: "board", min: R_RANGE.min / R_SCALE, max: R_RANGE.max / R_SCALE,
+                step: 1 / R_SCALE, bigStep: 0.1, maxDecimals: 2},
+            {key: "logistic-x0", kind: "range", label: message("logistic_x0_name"), symbol: "x_0", placement: "board", min: X_RANGE.min / X_SCALE, max: X_RANGE.max / X_SCALE,
+                step: 1 / X_SCALE, bigStep: 0.1, maxDecimals: 2, help: message("phase_graph_logistic_x_help")},
+        ];
+        const legend: LegendEntry<LogisticMapIds>[] = [
+            {id: "map", label: message("logistic_legend_map"), kind: "line", object: "map"},
+            {id: "diagonal", label: message("logistic_legend_diagonal"), kind: "dashed", object: "diagonal"},
+            {id: "cobweb", label: message("logistic_legend_cobweb"), kind: "line", object: "cobweb"},
+            {id: "fixed", label: message("logistic_legend_fixed"), kind: "point", object: "fixed"},
+            ...(R > 300 ? [{id: "cycle" as const, label: message("logistic_legend_cycle"), kind: "point" as const, object: "cycle"}] : []),
+            ...(step > 0 ? [{id: "iterate" as const, label: message("logistic_legend_iterate"), kind: "point" as const, object: "iterate"}] : []),
+            {id: "diagram", label: message("logistic_legend_diagram"), kind: "line", object: "diagram"},
+        ];
+        const playback = {placement: "tools" as const, tab: "edit" as const};
+        const actions: ActionDeclaration<LogisticMapIds>[] = [
+            {id: "next-step", label: message("next_step"), enabled: blocks.nextBlock === undefined, ...playback},
+            {id: "play-pause", label: message("play"), enabled: playing || (blocks.playBlock === undefined && !this.reducedMotion()), pressed: playing, ...playback},
+            {id: "reset-run", label: message("reset"), enabled: blocks.resetBlock === undefined, ...playback},
+        ];
+        const rows: ReadoutRow<LogisticMapIds>[] = this.rowSpecs();
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("phase_graph_logistic_readout_title"), rows}],
+            notes: [{id: "status", text: this.statusMessage()}],
+            legend,
+            actions,
+            marks: this.viewMarks(),
+        };
+    }
+
+    /** What the view director keeps visible: both panels, the cobweb panel [0, 1] x [0, 1] and the diagram right of it (the curve, the diagonal, the orbit and the diagram lie inside). */
+    private viewMarks(): ViewMarks {
+        return {must: [{kind: "box", left: 0, top: 1, right: diagramX(BIFURCATION_R_MAX), bottom: 0}]};
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.drawn.get(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const filled = id === "fixed" || id === "cycle" || id === "iterate";
+        return {color: String(drawn.evalVisProp(filled ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") runAs("learner", () => this.stepOnce());
+        else if (id === "play-pause") runAs("learner", () => { if (this.isPlaying()) this.pausePlayback(); else this.play(); });
+        else if (id === "reset-run") runAs("learner", () => this.resetRun());
+        else throw new Error("Unknown action");
     }
 
     // ---- Controls -------------------------------------------------------------------------------------------------------------
@@ -773,12 +913,12 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         const rArgs = this.range(R_RANGE.min, R_RANGE.max, R_SCALE);
         const xArgs = this.range(X_RANGE.min, X_RANGE.max, X_SCALE);
         return [
-            <Slider key="r" customText={t("phase_graph_logistic_r_label")} min={R_RANGE.min / R_SCALE} max={R_RANGE.max / R_SCALE} step={1 / R_SCALE} bigStep={0.1}
+            <PuckOwned key="r" param="logistic-r"><Slider customText={t("phase_graph_logistic_r_label")} min={R_RANGE.min / R_SCALE} max={R_RANGE.max / R_SCALE} step={1 / R_SCALE} bigStep={0.1}
                     value={rOf(this.state.R)} decimals={2} rejectedHint={t("phase_graph_logistic_r_rejected", rArgs)}
-                    onChange={value => this.editR(value)}/>,
-            <Slider key="x" customText={t("phase_graph_logistic_x_label")} value={startOf(this.state.X)} step={1 / X_SCALE} bigStep={0.1} min={X_RANGE.min / X_SCALE}
+                    onChange={value => this.editR(value)}/></PuckOwned>,
+            <PuckOwned key="x" param="logistic-x0"><Slider customText={t("phase_graph_logistic_x_label")} value={startOf(this.state.X)} step={1 / X_SCALE} bigStep={0.1} min={X_RANGE.min / X_SCALE}
                     max={X_RANGE.max / X_SCALE} decimals={2} help={t("phase_graph_logistic_x_help")} rejectedHint={t("phase_graph_logistic_x_rejected", xArgs)}
-                    onChange={value => this.editStart(value)}/>,
+                    onChange={value => this.editStart(value)}/></PuckOwned>,
         ];
     }
 
@@ -802,8 +942,10 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
                 }}
                 </ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: STEP_RANGE.max})}</p>
+            </div>
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("phase_graph_logistic_readout_title")}</ReadoutHeading>
-                <p data-logistic-status="">{this.statusText()}</p>
+                <p data-logistic-status="" data-readout-note="">{this.statusText()}</p>
                 <ReadoutList label={t("phase_graph_logistic_readout_title")} rows={this.readoutRows()}/>
                 <LiveReadout readout={this.status} muted={playing}/>
             </div>

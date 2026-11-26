@@ -4114,7 +4114,6 @@ export const en: Record<keyof typeof sl, string> = {
     "phase_graph_notice_time_refused": "The saved time is outside the computed time and was not used; the time is 0.",
     "phase_graph_inset_label": "Trace–determinant plane, τ from −{value2} to {value2}, δ from −{value3} to {value3}, with the parabola δ = τ²/4. The marker is at τ = {value0}, δ = {value1}.",
     "phase_graph_inset_title": "Trace–determinant plane",
-    "phase_graph_logistic_board_label": "Logistic map: on the left the cobweb of y = r·x·(1 − x) with the diagonal, on the right the bifurcation diagram of the long-run values of x against r with a cursor at the current r. Drag the start x₀ along the diagonal or type it; set the parameter r with the slider or in the field.",
     "phase_graph_logistic_r_label": "Parameter r",
     "phase_graph_logistic_r_rejected": "The parameter r must be a multiple of {value2} from {value0} to {value1}; the field kept its previous value.",
     "phase_graph_logistic_x_label": "Start x₀",

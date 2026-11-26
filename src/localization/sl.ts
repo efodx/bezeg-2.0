@@ -4113,7 +4113,6 @@ export const sl = {
     "phase_graph_notice_time_refused": "Shranjeni čas je zunaj izračunanega časa in ni bil uporabljen; čas je 0.",
     "phase_graph_inset_label": "Ravnina sled–determinanta, τ od −{value2} do {value2}, δ od −{value3} do {value3}, s parabolo δ = τ²/4. Oznaka je pri τ = {value0}, δ = {value1}.",
     "phase_graph_inset_title": "Ravnina sled–determinanta",
-    "phase_graph_logistic_board_label": "Logistična preslikava: levo pajkova mreža preslikave y = r·x·(1 − x) z diagonalo, desno bifurkacijski diagram dolgoročnih vrednosti x glede na r s kazalcem pri trenutnem r. Začetek x₀ povleci po diagonali ali ga vpiši, parameter r nastavi z drsnikom ali v polju.",
     "phase_graph_logistic_r_label": "Parameter r",
     "phase_graph_logistic_r_rejected": "Parameter r mora biti večkratnik števila {value2} od {value0} do {value1}; polje je ohranilo prejšnjo vrednost.",
     "phase_graph_logistic_x_label": "Začetek x₀",

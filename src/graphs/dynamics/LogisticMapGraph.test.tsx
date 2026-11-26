@@ -3,11 +3,11 @@ import {readFileSync} from 'node:fs';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, settle} from '../base/realGraphTestHarness';
+import {installBoardShims, openTools, puckControl, settle, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
-import {setLanguage, t} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {renderMessage, setLanguage, t} from '../../localization';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {BIFURCATION_R_MAX, BIFURCATION_R_MIN, columnR} from '../../dynamics/bifurcation';
 import {DEFAULT_LOGISTIC_STATE, STEP_RANGE} from '../../dynamics/phaseModel';
@@ -72,22 +72,29 @@ function countUpdates(curve: Probe): {count: () => number} {
     return {count: () => calls};
 }
 
-/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
-const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const hasRow = (id: string) => document.querySelector(`[data-readout="${id}"]`) !== null;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
-/** The range input of a slider named `label`. */
-const rangeOf = (label: string) => screen.getByRole('slider', {name: label}) as HTMLInputElement;
-const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+/** The range input of the puck `logistic-r` or `logistic-x0` (a slider in the puck strip). */
+const rangeOf = (key: string) => puckControl(key) as HTMLInputElement;
+/** The learner types a value into the puck of a parameter key. */
+const enter = (key: string, value: string) => typePuck(key, value);
+/** The text the puck shows (its value, its hint when a typed value was refused). */
+const puckText = (key: string) => document.querySelector('.puck-strip [data-puck-key="' + key + '"]')!.textContent ?? '';
+/** A mount that waits until the puck strip has laid out. */
+async function mountPucks(strict = false, reduced = false) {
+    const mounted = mountGraph(strict, reduced);
+    await waitForPucks('logistic-r');
+    return mounted;
+}
+const asLearner = (fn: () => void) => act(() => { runAs('learner', fn); });
 const status = () => document.querySelector('[data-logistic-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
-const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_LOGISTIC_STATE>) => act(() => { graph.setState(patch); });
+/** A write from outside the DOM (a lesson action, a test) is the learner's. */
+const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_LOGISTIC_STATE>) => act(() => { runAs('learner', () => graph.setState(patch)); });
 const setR = (graph: ObservedGraph, R: number) => set(graph, {R});
-const rField = () => t('number_field_label', {value0: t('phase_graph_logistic_r_label')});
-const xField = () => t('phase_graph_logistic_x_label');
 const dec = (value: number, digits: number) => value.toFixed(digits).replace('.', ',').replace('-', '−');
 function stepsPlayed(graph: ObservedGraph, ticks: number) {
     graph.clock.tick(0);
@@ -109,7 +116,7 @@ describe('mount and the numbers', () => {
     test('the default r = 2,9, x0 = 0,2 shows the exact fixed point and a computed period 1, with the board labelled', () => {
         const {graph} = mountGraph();
         expect(graph.state).toMatchObject(DEFAULT_LOGISTIC_STATE);
-        expect(document.querySelector(`[aria-label="${t('phase_graph_logistic_board_label')}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${t('logistic_board_label')}"]`)).not.toBeNull();
         expect(readout('r')).toBe('2,9');
         expect(readout('x0')).toBe('0,2');
         expect(readout('fixed')).toBe('0,655172');
@@ -414,8 +421,9 @@ describe('stepping and playback', () => {
 });
 
 describe('every stored-field change pauses a playing run', () => {
-    const playing = () => {
-        const mounted = mountGraph();
+    const playing = async () => {
+        const mounted = await mountPucks();
+        await openTools(); // the playback buttons sit in the Orodja card
         press(t('play'));
         stepsPlayed(mounted.graph, 1);
         expect(mounted.graph.isPlaying()).toBe(true);
@@ -423,23 +431,23 @@ describe('every stored-field change pauses a playing run', () => {
         return mounted.graph;
     };
 
-    test('the r control', () => {
-        const graph = playing();
-        act(() => { fireEvent.change(rangeOf(t('phase_graph_logistic_r_label')), {target: {value: '3.1'}}); });
+    test('the r control', async () => {
+        const graph = await playing();
+        enter('logistic-r', '3,1');
         expect(graph.state.R).toBe(310);
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
     });
 
-    test('the x0 field', () => {
-        const graph = playing();
-        enter(xField(), '0,5');
+    test('the x0 field', async () => {
+        const graph = await playing();
+        enter('logistic-x0', '0,5');
         expect(graph.state.X).toBe(50);
         expect(graph.isPlaying()).toBe(false);
     });
 
-    test('the drag', () => {
-        const graph = playing();
+    test('the drag', async () => {
+        const graph = await playing();
         dragHandleTo(graph.dragHandle()!, 0.7, 0.7);
         expect(graph.state.X).toBe(70);
         expect(graph.isPlaying()).toBe(false);
@@ -447,16 +455,16 @@ describe('every stored-field change pauses a playing run', () => {
 
     test.each([
         ['R', {R: 301}], ['X', {X: 33}], ['step + 1', {step: 2}], ['another step', {step: 9}], ['step 0', {step: 0}],
-    ] as const)('a direct setState of %s', (_name, patch) => {
-        const graph = playing();
+    ] as const)('a direct setState of %s', async (_name, patch) => {
+        const graph = await playing();
         set(graph, patch);
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
     });
 
-    test('an initialized-only write does not pause', () => {
-        const graph = playing();
-        act(() => { graph.setState({initialized: true}); });
+    test('an initialized-only write does not pause', async () => {
+        const graph = await playing();
+        act(() => { runAs('learner', () => graph.setState({initialized: true})); });
         expect(graph.isPlaying()).toBe(true);
         graph.clock.tick(2 * STEP_INTERVAL_MS);
         expect(graph.state.step).toBe(2);
@@ -464,52 +472,61 @@ describe('every stored-field change pauses a playing run', () => {
 });
 
 describe('typed values and the drag', () => {
-    test('a typed r off the grid, below or above the range is refused: the state is the same object and the field is invalid with the range in its help', () => {
-        const {graph} = mountGraph();
+    test('a typed r outside the range is refused by the puck (the state is the same object, the range in its hint); the binding and the setter refuse a value off the grid', async () => {
+        const {graph} = await mountPucks();
         const before = graph.state;
-        for (const bad of ['3,456', '4,5', '2,49', '4,01', 'abc']) {
-            enter(rField(), bad);
+        enter('logistic-r', '5');
+        expect(graph.state).toBe(before);
+        expect(puckText('logistic-r')).toMatch(/2,5/);
+        expect(puckText('logistic-r')).toMatch(/4/);
+        for (const bad of ['5', '4,5', '2,49', '4,01', 'abc']) {
+            enter('logistic-r', bad);
             expect(graph.state, bad).toBe(before);
         }
-        expect(graph.editR(3.456)).toBe(false);
-        expect(graph.editR(Number.NaN)).toBe(false);
-        expect(graph.editR(4.5)).toBe(false);
-        enter(rField(), '3,456');
-        const input = field(rField());
-        expect(input.getAttribute('aria-invalid')).toBe('true');
-        const hint = (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
-        expect(hint).toContain(t('phase_graph_logistic_r_rejected', {value0: '2,5', value1: '4', value2: '0,01'}));
-        enter(rField(), '3,46');
+        asLearner(() => {
+            expect(graph.editR(3.456)).toBe(false);
+            expect(graph.editR(Number.NaN)).toBe(false);
+            expect(graph.editR(4.5)).toBe(false);
+        });
+        expect(graph.parameters!.write('logistic-r', 3.456, 'learner').status).not.toBe('applied');
+        expect(graph.state).toBe(before);
+        enter('logistic-r', '3,46');
         expect(graph.state.R).toBe(346);
-        expect(graph.editR(2.5)).toBe(true);
-        expect(graph.editR(4)).toBe(true);
+        asLearner(() => {
+            expect(graph.editR(2.5)).toBe(true);
+            expect(graph.editR(4)).toBe(true);
+        });
         expect(graph.state.R).toBe(400);
     });
 
-    test('a typed x0 of 0 or 1, or off the grid, is refused; 0,01 and 0,99 are accepted', () => {
-        const {graph} = mountGraph();
+    test('a typed x0 of 0 or 1 is refused; 0,01 and 0,99 are accepted; the setter refuses a value off the grid', async () => {
+        const {graph} = await mountPucks();
         const before = graph.state;
-        for (const bad of ['0', '1', '0,505', '-0,2', '1,5']) {
-            enter(xField(), bad);
+        for (const bad of ['0', '1', '-0,2', '1,5']) {
+            enter('logistic-x0', bad);
             expect(graph.state, bad).toBe(before);
         }
-        expect(graph.editStart(0)).toBe(false);
-        expect(graph.editStart(1)).toBe(false);
-        expect(graph.editStart(0.01)).toBe(true);
+        asLearner(() => {
+            expect(graph.editStart(0)).toBe(false);
+            expect(graph.editStart(1)).toBe(false);
+            expect(graph.editStart(0.505)).toBe(false);
+            expect(graph.editStart(0.01)).toBe(true);
+        });
         expect(graph.state.X).toBe(1);
-        expect(graph.editStart(0.99)).toBe(true);
+        asLearner(() => { expect(graph.editStart(0.99)).toBe(true); });
         expect(graph.state.X).toBe(99);
-        expect(graph.editStart(0.5)).toBe(true);
+        enter('logistic-x0', '0,5');
         expect(graph.state.X).toBe(50);
     });
 
-    test('both controls state the range in their help (aria-describedby), the slider and the field', () => {
-        mountGraph();
-        const help = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
-        expect(help(rangeOf(t('phase_graph_logistic_r_label')))).not.toContain('v korakih'); // the track shows the range; no help repeats it
-        const range = rangeOf(xField());
-        expect([range.min, range.max, range.step]).toEqual(['0.01', '0.99', '0.01']);
-        expect(help(range)).toContain(t('phase_graph_logistic_x_help'));
+    test('both pucks carry their range and x0 says what it means in its help', async () => {
+        const {graph} = await mountPucks();
+        const r = rangeOf('logistic-r');
+        expect([r.getAttribute('aria-valuemin'), r.getAttribute('aria-valuemax')]).toEqual(['2.5', '4']);
+        const x = rangeOf('logistic-x0');
+        expect([x.getAttribute('aria-valuemin'), x.getAttribute('aria-valuemax')]).toEqual(['0.01', '0.99']);
+        const help = graph.getDeclaration()!.parameters!.find(entry => entry.key === 'logistic-x0')!.help!;
+        expect(renderMessage(help)).toBe(t('phase_graph_logistic_x_help'));
     });
 
     test('dragging the start handle snaps to the grid on the diagonal; a drag outside clamps inside (0, 1); non-finite changes nothing', () => {
@@ -654,7 +671,8 @@ describe('ownership, rebuild and StrictMode', () => {
         // number: no frame, interval or settle timer of this graph (the status settle is cancelled by the unmount).
         const before = vi.getTimerCount();
         const reference = mountGraph();
-        act(() => { reference.graph.setState({step: 1}); });
+        press(t('play')); // the play press leaves one timer of the workspace in the same way for the reference and the played run
+        act(() => { reference.graph.setState({step: 1}); }); // the step has no binding: an untagged write is allowed (and pauses the run)
         reference.view.unmount();
         const plainDelta = vi.getTimerCount() - before;
         const afterPlain = vi.getTimerCount();
@@ -669,7 +687,7 @@ describe('ownership, rebuild and StrictMode', () => {
         expect(graph.isPlaying()).toBe(false);
         expect(vi.getTimerCount() - afterPlain).toBeLessThanOrEqual(plainDelta);
         expect(graph.ownedObjectCount()).toBe(0);
-        expect(document.querySelector(`[aria-label="${t('phase_graph_logistic_board_label')}"]`)).toBeNull();
+        expect(document.querySelector(`[aria-label="${t('logistic_board_label')}"]`)).toBeNull();
         expect(() => setLanguage('en')).not.toThrow();
     });
 
@@ -678,7 +696,7 @@ describe('ownership, rebuild and StrictMode', () => {
         const count = graph.derivationCount();
         act(() => setLanguage('en'));
         act(() => setLanguage('sl'));
-        act(() => { graph.setState({initialized: true}); });
+        act(() => { runAs('learner', () => graph.setState({initialized: true})); });
         expect(graph.derivationCount()).toBe(count);
         setR(graph, 310);
         expect(graph.derivationCount()).toBe(count + 1);
@@ -692,14 +710,14 @@ describe('language and the catalog', () => {
         const {graph} = mountGraph();
         setR(graph, 310);
         act(() => setLanguage('en'));
-        expect(document.querySelector(`[aria-label="${en.phase_graph_logistic_board_label}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${en.logistic_board_label}"]`)).not.toBeNull();
         expect(labelOf('period')).toBe(en.phase_graph_logistic_r_period);
         expect(readout('r')).toBe('3.1');
         expect(readout('cycle')).toBe(t('phase_graph_logistic_cycle_value', {value0: '0.558014', value1: '0.764567'}));
         expect(captionTexts(graph)).toContain(t('phase_graph_logistic_cap_map', {value0: '3.1'}));
         expect(status()).toContain('3.1');
         act(() => setLanguage('sl'));
-        expect(document.querySelector(`[aria-label="${sl.phase_graph_logistic_board_label}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${sl.logistic_board_label}"]`)).not.toBeNull();
         expect(captionTexts(graph)).toContain(t('phase_graph_logistic_cap_map', {value0: '3,1'}));
     });
 
@@ -714,7 +732,7 @@ describe('language and the catalog', () => {
     test('every phase_graph_logistic key exists in both languages with the same placeholder names, and the source uses exactly these keys', () => {
         const names = (text: string) => Array.from(text.matchAll(/\{(\w+)\}/g), m => m[1]).sort();
         const keys = Object.keys(sl).filter(key => key.startsWith('phase_graph_logistic_'));
-        expect(keys.length).toBeGreaterThanOrEqual(50);
+        expect(keys.length).toBeGreaterThanOrEqual(49);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];
@@ -834,7 +852,7 @@ describe('the view follows the board size (a board that settles after the first 
         const board = graph.liveBoard() as unknown as SizedBoard;
         let moved: number[] = [];
         settleTo(board, 547, () => {
-            board.moveOrigin(board.origin.scrCoords[1] + 40, board.origin.scrCoords[2] + 30);
+            runAs('learner', () => board.moveOrigin(board.origin.scrCoords[1] + 40, board.origin.scrCoords[2] + 30)); // a pan is the learner's
             board.update();
             moved = [...board.getBoundingBox()];
         });

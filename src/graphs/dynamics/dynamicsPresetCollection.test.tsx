@@ -62,7 +62,7 @@ describe('phase-portrait Preset collection', () => {
 describe('logistic-map Preset collection', () => {
     test.each([['the default', DEFAULT_LOGISTIC_STATE], ['r = 3,8 after twelve steps', chaotic]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new LogisticMapGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => source.setState(state)); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('logistic-map');
         expect(preset.data).toEqual(serializeLogisticState(state));
@@ -106,7 +106,7 @@ describe('a Preset file with a stored view keeps that view', () => {
     test('logistic map: the stored boardState is kept exactly, not widened to the board aspect', () => {
         const view: [number, number, number, number] = [-0.2, 1.1, 2.5, -0.1];
         const source = mountGraph(new ViewedLogistic());
-        act(() => { source.setState(chaotic); });
+        act(() => { runAs('learner', () => source.setState(chaotic)); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedLogistic());
         act(() => { runAs('learner', () => fresh.importPreset(preset)); });

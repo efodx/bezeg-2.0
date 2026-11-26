@@ -806,6 +806,21 @@ const SAMPLES: readonly Sample[] = [
             {name: 'all overlays', apply: run({angle: 210, secondAngle: 330, showAddition: true, showSymmetries: true, showCosine: true})},
         ] satisfies ParityState[];
     })()},
+    {file: 'dynamics/__parity__/logistic-map.json', demonstration: 'logistic-map', states: (() => {
+        type Logistic = {setState(state: Record<string, unknown>): void};
+        const fresh = {R: 290, X: 20, step: 0};
+        // every state starts from the default state (r = 2,9, x0 = 0,2, no steps), so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Logistic).setState({...fresh, ...state})); };
+        return [
+            {name: 'default, r = 2,9', apply: run({})},
+            {name: 'r = 2,5, ten steps', apply: run({R: 250, step: 10})},
+            {name: 'r = 3, neutral', apply: run({R: 300, X: 50, step: 5})},
+            {name: 'r = 3,2, 2-cycle', apply: run({R: 320, X: 33, step: 30})},
+            {name: 'r = 3,5, beyond the 2-cycle', apply: run({R: 350, X: 75, step: 60})},
+            {name: 'r = 3,8, chaos', apply: run({R: 380, X: 10, step: 25})},
+            {name: 'r = 4, last step', apply: run({R: 400, X: 99, step: 60})},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root = path.resolve(__dirname, '../..');

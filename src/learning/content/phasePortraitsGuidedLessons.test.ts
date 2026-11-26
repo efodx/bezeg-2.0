@@ -433,6 +433,18 @@ describe('the numbers each step quotes are those of its scene, in sl and en', ()
         }
     });
 
+    test('the prompts name the controls of r and x0 (krmilnik / control), not a field or a slider', () => {
+        const texts = (language: Language) => allSteps().map(step => step.observationPrompt[language]);
+        const sl = texts('sl').join('\n'), en = texts('en').join('\n');
+        expect(sl).toContain('V krmilnik Parameter \\(r\\) vpiši \\(3{,}54\\)');
+        expect(sl).toContain('Nato v krmilnik Parameter \\(r\\) vpiši \\(3{,}46\\)');
+        expect(sl).toContain('v krmilniku Začetek \\(x_0\\) nastavi \\(0{,}21\\)');
+        expect(en).toContain('In the control Parameter \\(r\\) type \\(3.54\\)');
+        expect(en).toContain('Type \\(3.1\\) in the control Parameter \\(r\\)');
+        expect(en).toContain('set the control Start \\(x_0\\) to \\(0.21\\)');
+        for (const text of [sl, en]) expect(text).not.toMatch(/polje Parameter|field Parameter|drsniku Začetek|slider Start/);
+    });
+
     test('the chapter owns both lessons and they are the ones the test checks', () => {
         const owned = getChapterOwnedLessons('phase-portraits')!;
         expect(owned.lesson('logistic-map')!.steps.map(step => step.id)).toEqual(logisticMapLesson.steps.map(step => step.id));
