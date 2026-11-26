@@ -32,7 +32,7 @@ async function boardSnapshot(page) {
 
 // Taylor's degree is a puck: Enter on the focused value opens its entry field, Enter in the field commits.
 async function setDegree(page, degree) {
-    await page.getByRole('spinbutton', {name: 'Degree n', exact: true}).focus();
+    await page.getByRole('spinbutton', {name: /^Degree( n)?$/}).focus();
     await page.keyboard.press('Enter');
     const entry = page.locator('.puck-input');
     await entry.fill(String(degree));
@@ -70,7 +70,7 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     const observationProgress = await h.progress(page);
     // An observation frame's task card sits above the live tools (ADR 0061): the tools are visible and not inert.
     // The frame's own control (the degree puck) stays in reach and not locked beside the task card.
-    const degreePuck = page.getByRole('spinbutton', {name: 'Degree n', exact: true});
+    const degreePuck = page.getByRole('spinbutton', {name: /^Degree( n)?$/});
     await expect(degreePuck, 'the frame control stays in reach beside the task card at desktop width').toBeInViewport();
     await expect(degreePuck).toBeEnabled();
     await expect(page.locator('.guided-lesson-graph-catcher')).toHaveCount(0);
@@ -88,7 +88,7 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     await expect(page.locator('section.workspace-graph')).not.toHaveAttribute('data-lesson-locked', 'true');
     const reopen = h.reopenButton(page);
     await expect(reopen).toBeVisible();
-    await expect(page.getByRole('spinbutton', {name: 'Degree n', exact: true})).toBeEnabled();
+    await expect(page.getByRole('spinbutton', {name: /^Degree( n)?$/})).toBeEnabled();
 
     await setDegree(page, 8);
     await expect.poll(() => readout(page, 'degree')).toBe('8');

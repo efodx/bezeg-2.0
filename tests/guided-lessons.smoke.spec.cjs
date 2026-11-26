@@ -2464,7 +2464,7 @@ const coonsPatch = {
     steps: 7,
     minFrames: 16, // the SL and EN walks visit 16 frames (prediction and reveal per guided step, calculation frames on steps 4 and 5)
     stepProbe: async (page, ctx, step, label) => {
-        await expect.poll(() => page.getByLabel(/^(Ploskev|Surface)$/).inputValue(), {message: `Coons shown surface at ${label}`}).toBe(COONS_SHOWN[step - 1]);
+        await expect.poll(() => page.getByRole('radiogroup', {name: /^(Ploskev|Surface)$/}).getByRole('radio', {checked: true}).innerText().then(s => s.trim().toLowerCase()), {message: `Coons shown surface at ${label}`}).toBe(COONS_SHOWN[step - 1]);
         await expect.poll(() => page.locator('[data-corner-status]').getAttribute('data-corner-status'), {message: `Coons corner status at ${label}`}).toBe(COONS_CORNERS[step - 1]);
     },
 };
