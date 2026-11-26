@@ -500,6 +500,45 @@ const SAMPLES: readonly Sample[] = [
             {name: 'revealed 2 of 8', apply: graph => { scene('exponential', '0.125', 1, 1)(graph); reveal(2)(graph); }},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/fourier-coefficients.json', demonstration: 'fourier-coefficients', states: (() => {
+        const choice = (name: string, value: unknown) => ({kind: 'function-choice', name, value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        interface Scene {view: string; layout: string; handles: number[]; term: string; K: number; k: number; selections: string[]; n: number; scale: string}
+        // States accumulate on one graph, so each one sets every field it shows (the harmonic goes to 0 first so K may drop below it).
+        const scene = (s: Scene): ParityState['apply'] => graph => {
+            const driven = graph as unknown as {applyLessonAction(action: unknown): void};
+            const act = (action: unknown) => driven.applyLessonAction(action);
+            act(choice('fourier-view', s.view));
+            act(choice('fourier-layout', s.layout));
+            s.handles.forEach((value, index) => act(parameter(`fourier-handle-${index}`, value)));
+            act(choice('fourier-term', 'a'));
+            act(parameter('fourier-harmonic', 0));
+            act(parameter('fourier-order', s.K));
+            act(parameter('fourier-harmonic', s.k));
+            act(choice('fourier-term', s.term));
+            // A slot may not repeat another slot's example: retry the refused ones after the others moved.
+            let pending = s.selections.map((value, slot) => ({value, slot}));
+            for (let pass = 0; pass < 3 && pending.length > 0; pass++) {
+                pending = pending.filter(({value, slot}) => {
+                    try { act(choice(`fourier-selection-${slot + 1}`, value)); return false; } catch { return true; }
+                });
+            }
+            if (pending.length > 0) throw new Error('selections could not be set');
+            act(parameter('fourier-n', s.n));
+            act(choice('fourier-scale', s.scale));
+        };
+        const base: Scene = {view: 'projection', layout: 'abs', handles: [Math.PI, 0], term: 'a', K: 16, k: 1, selections: ['square', 'abs', 'smooth'], n: 11, scale: 'linear'};
+        return [
+            {name: 'default', apply: scene(base)},
+            {name: 'sine coefficient k 3', apply: scene({...base, term: 'b', k: 3})},
+            {name: 'constant term a0', apply: scene({...base, k: 0})},
+            {name: 'jump layout, K 8, b1', apply: scene({...base, layout: 'jump', handles: [-1, -1, 1, 1], K: 8, term: 'b', k: 1})},
+            {name: 'free layout, K 32', apply: scene({...base, layout: 'free', handles: [1, -2, 0.5, 3, -1], K: 32, k: 5})},
+            {name: 'decay default', apply: scene({...base, view: 'decay'})},
+            {name: 'decay N 3, other examples', apply: scene({...base, view: 'decay', n: 3, selections: ['sawtooth', 'jump', 'abs']})},
+            {name: 'decay N 40 log', apply: scene({...base, view: 'decay', n: 40, scale: 'log'})},
+        ] satisfies ParityState[];
+    })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', accepted: phaseAccepted, states: [
         state('default', {}),
         state('spiral entries', {'phase-a': 1, 'phase-b': -2, 'phase-c': 2, 'phase-d': 1}),

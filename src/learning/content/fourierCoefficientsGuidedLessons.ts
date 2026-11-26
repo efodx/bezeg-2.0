@@ -9,10 +9,20 @@
  * visibility target `fourier-partial-sum`. Every scene sets every one of these, so it works after any other scene.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {FourierCoefficientsIds} from '../../graphs/functions/FourierCoefficientsGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const fourierFrame = frameDeclarer<FourierCoefficientsIds>();
+
+/** The rows each step talks about (never a value it asks the learner to predict) and the pucks its observation asks them to use. */
+const FOCUS: Readonly<Record<string, {highlight: readonly FourierCoefficientsIds['row'][]; uses?: readonly FourierCoefficientsIds['param'][]}>> = {
+    'coef-area': {highlight: ['selected'], uses: ['fourier-harmonic']},
+    'coef-parseval': {highlight: ['square-integral', 'parseval'], uses: ['fourier-order']},
+    'decay-sup': {highlight: ['sup-1', 'sup-2'], uses: ['fourier-n']},
+};
 
 type Example = 'square' | 'sawtooth' | 'abs' | 'jump' | 'smooth';
 
@@ -82,14 +92,21 @@ interface StepContent {
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
-    ...content,
-    frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
-    ],
-});
+const step = (content: StepContent): GuidedLessonStep => {
+    const focus = FOCUS[content.id];
+    const declare = (observation: boolean) => focus ? fourierFrame({
+        highlight: [...focus.highlight],
+        ...(observation && focus.uses ? {uses: [...focus.uses]} : {}),
+    }) : undefined;
+    return {
+        ...content,
+        frames: [
+            frame(`${content.id}-explanation`, 'explanation', declare(false)),
+            ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare(false))] : []),
+            frame(`${content.id}-observation`, 'observation', declare(true)),
+        ],
+    };
+};
 
 const coefficientsLesson: GuidedLesson = {
     demonstrationId: 'fourier-coefficients',

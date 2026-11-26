@@ -5,7 +5,7 @@ import {FourierCoefficientsGraph} from './FourierCoefficientsGraph';
 import {GraphHost} from '../base/GraphHost';
 import {DomainError} from './BaseFunctionGraph';
 import {fourierSupError} from '../../analysis/fourierDecay';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {renderMessage, setLanguage} from '../../localization';
 import {LessonAction} from '../../learning/model';
 import {
@@ -61,7 +61,6 @@ const readout = (id: string) => document.querySelector(`[data-readout="${id}"] d
 const label = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const tableCell = (k: number, term: 'a' | 'b') => document.querySelector(`[data-testid="fourier-spectrum-table"] tr[data-k="${k}"] td[data-term="${term}"]`)?.textContent;
 const handleFields = () => screen.getAllByRole('spinbutton', {name: /^(Vrednost f pri x|Leva limita f pri x|Desna limita f pri x) = /}) as HTMLInputElement[];
-const field = (name: RegExp) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
 const overlaySwitch = () => screen.getByLabelText(/^Pokaži delno vsoto S_K$/) as HTMLInputElement;
 /** The app's Slovenian number text: decimal comma, minus sign, no trailing zeros. */
 const sl = (value: number, decimals: number) => String(Number(value.toFixed(decimals))).replace('.', ',').replace('-', '−');
@@ -166,7 +165,7 @@ test('a Preset keeps the handles, the layout and K through export and import, an
     expect(graph.modelNow()).toEqual(stored);
     expect(handleFields().map(input => input.value)).toEqual(['0', '1,25', '0', '−2', '0']);
     expect(graph.handleHeights(5)).toEqual([0, 1.25, 0, -2, 0]);
-    expect(field(/^Največji harmonik K$/).value).toBe('7');
+    expect(graph.parameters!.read('fourier-order')).toBe(7);
     expect(graph.sumCurve().dataY).toBeDefined();
     act(() => { graph.importPreset({id: 'default-again', data: DEFAULT_FOURIER_COEFFICIENTS_MODEL}); });
     expect(graph.ownedObjects()).toBe(baseline);
@@ -197,7 +196,7 @@ test('both languages: a live language switch keeps the scene, the model and the 
     act(() => { setLanguage('en'); });
     expect(graph.modelNow()).toBe(model);
     expect(graph.ownedObjects()).toBe(objects);
-    expect(screen.getByRole('spinbutton', {name: /^Highest harmonic K$/})).toBeInTheDocument();
+    expect(graph.parameters!.read('fourier-order')).toBe(model.K); // K is a puck on the board, not an Orodja field (task 08)
     expect(screen.getAllByRole('spinbutton', {name: /^Value of f at x = /})).toHaveLength(2);
     expect(graph.handleHeights(2)[1]).toBeCloseTo(0.5, 12);
     expect(readout('square-integral')).toMatch(/^\d+\.\d{1,5}$/);
@@ -237,7 +236,6 @@ const decayRows = (example: string) => document.querySelectorAll(`[data-testid="
 const bars = (example: string) => document.querySelectorAll(`[data-testid="fourier-decay-panel"][data-example="${example}"] rect[data-k]`);
 const zeroMarkers = (example: string) => document.querySelectorAll(`[data-testid="fourier-decay-panel"][data-example="${example}"] circle[data-zero]`);
 const zeroNote = () => document.querySelector('[data-testid="fourier-decay-zero-note"]');
-const nField = () => screen.getByRole('spinbutton', {name: /^Število členov N$/}) as HTMLInputElement;
 const scaleSelect = () => screen.getByLabelText(/^Merilo navpične osi$/) as HTMLSelectElement;
 const selectionSelect = (slot: number) => screen.getByLabelText(new RegExp(`^Funkcija ${slot}$`)) as HTMLSelectElement;
 
@@ -271,11 +269,11 @@ test('switching to the decay view and back keeps the fields of both views', () =
     });
     const before = graph.modelNow();
     choose(viewSelect(), 'decay');
-    expect(nField().value).toBe('21');
+    expect(graph.parameters!.read('fourier-n')).toBe(21);
     expect(scaleSelect().value).toBe('log');
     choose(viewSelect(), 'projection');
     expect(graph.modelNow()).toEqual({...before, view: 'projection'});
-    expect(field(/^Največji harmonik K$/).value).toBe('7');
+    expect(graph.parameters!.read('fourier-order')).toBe(7);
     expect(graph.sumCurve().visPropCalc?.visible).not.toBe(false);
     choose(viewSelect(), 'decay');
     expect(graph.modelNow()).toEqual({...before, view: 'decay'});
@@ -294,7 +292,7 @@ test('a change of N updates the tables, the bars and the sup error readouts', ()
     expect(readout('n')).toBe('5');
     expect(readout('sup-2')).toBe(sl(fourierSupError('abs', 5), 5));
     expect(readout('sup-2')).not.toBe('0,05293');
-    act(() => { fireEvent.keyDown(nField(), {key: 'ArrowUp'}); });
+    act(() => { graph.parameters!.write('fourier-n', 6, 'learner'); });
     expect(graph.modelNow().n).toBe(6);
     expect(decayRows('smooth')).toBe(6);
     expect(label('sup-1')).toBe('sup |f − Sₙ|, Kvadratni val sgn(x)');
@@ -396,7 +394,7 @@ test('a Preset keeps the decay fields through export and import', () => {
     expect(graph.modelNow()).toEqual(stored);
     expect(panelExamples()).toEqual(['sawtooth', 'abs', 'jump']);
     expect(decayRows('jump')).toBe(31);
-    expect(nField().value).toBe('31');
+    expect(graph.parameters!.read('fourier-n')).toBe(31);
     expect(scaleSelect().value).toBe('log');
 });
 
@@ -407,7 +405,7 @@ test('the decay view in both languages: a live switch keeps the model, and the n
     expect(document.body.textContent).toContain('Obrata ne trdimo');
     act(() => { setLanguage('en'); });
     expect(graph.modelNow()).toBe(model);
-    expect(screen.getByRole('spinbutton', {name: /^Number of terms N$/})).toBeInTheDocument();
+    expect(graph.parameters!.read('fourier-n')).toBe(model.n); // N is a puck on the board (task 08)
     expect(screen.getByLabelText(/^Function 1$/)).toBeInTheDocument();
     expect(document.body.textContent).toContain('The converse is not claimed');
     expect(document.body.textContent).toContain('not a law');
@@ -434,4 +432,21 @@ test('a lesson scene with the decay actions runs in one synchronous tick and rea
     expect(decayRows('jump')).toBe(40);
     expect(readout('n')).toBe('40');
     expect(document.body.textContent).toContain('zgornja ovojnica 4/(πk)');
+});
+
+test('K and N are pucks: typing in them changes the model, and Orodja holds no field for them', async () => {
+    const graph = mount();
+    await waitForPucks('fourier-order');
+    expect(document.querySelector('#board-card-tools [data-puck-key="fourier-order"]')).toBeNull();
+    expect(screen.queryByRole('spinbutton', {name: /^Največji harmonik K$/})).toBeNull();
+    expect(puckControl('fourier-order')).not.toBeNull();
+    typePuck('fourier-order', '7');
+    expect(graph.modelNow().K).toBe(7);
+    choose(viewSelect(), 'decay');
+    await waitForPucks('fourier-n');
+    expect(document.querySelector('#board-card-tools [data-puck-key="fourier-n"]')).toBeNull();
+    expect(puckControl('fourier-n')).not.toBeNull();
+    typePuck('fourier-n', '21');
+    expect(graph.modelNow().n).toBe(21);
+    expect(readout('n')).toBe('21');
 });

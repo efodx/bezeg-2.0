@@ -1,6 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import {FourierSpectrumBars} from "./FourierSpectrumBars";
 import {FourierDecaySpectra} from "./FourierDecaySpectra";
 import {guard, guardField} from "../base/controls/guard";
@@ -8,7 +7,10 @@ import Slider from "../../inputs/Slider";
 import {CountSetter} from "../../inputs/CountSetter";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t} from "../../localization";
+import type {GraphDeclaration, LegendEntry} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {formatNumber} from "../../analysis/format";
 import {FOURIER_EXAMPLE_IDS, FOURIER_EXAMPLES, FourierExampleId} from "../../analysis/fourierExamples";
 import {fourierExampleCoefficients, fourierSupError} from "../../analysis/fourierDecay";
@@ -34,6 +36,20 @@ const FOURIER_COLORS = {
     function: "#2468a2", harmonic: "#596a78", positive: "#4c9a8a", negative: "#c67978", sum: "#bd6047",
     decay: ["#2468a2", "#438d7d", "#875b91"] as const,
 };
+
+/** The ids of the declaration: the four numbers and choices flipped while watching (arbiter keys), the rows of both views, the legends. */
+export type FourierCoefficientsIds = {
+    param: "fourier-order" | "fourier-harmonic" | "fourier-term" | "fourier-n";
+    row: "order" | "selected" | "square-integral" | "parseval" | "seam" | "n" | "sup-1" | "sup-2" | "sup-3";
+    note: "about" | "sup-help" | "decay-theorem" | "uniform";
+    legend: "f" | "harmonic" | "positive" | "negative" | "sum" | "midpoint" | "f-0" | "f-1" | "f-2" | "sum-0" | "sum-1" | "sum-2";
+    section: never; action: never;
+};
+
+const EXAMPLE_NAME_KEYS = {
+    square: "fourier_decay_example_square", sawtooth: "fourier_decay_example_sawtooth", abs: "fourier_decay_example_abs",
+    jump: "fourier_decay_example_jump", smooth: "fourier_decay_example_smooth",
+} as const satisfies Record<FourierExampleId, Parameters<typeof message>[0]>;
 
 /** The names of x at the breakpoints, language-neutral. */
 const X_TEXT: ReadonlyArray<readonly [number, string]> = [[-Math.PI, "−π"], [-Math.PI / 2, "−π/2"], [0, "0"], [1, "1"], [Math.PI / 2, "π/2"], [Math.PI, "π"]];
@@ -92,6 +108,10 @@ interface View extends FourierProjection {
 export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficientsModel> {
     private handles: JXG.Point[] = [];
     private seamMirror?: JXG.Point;
+    /** The drawn objects the legend entries name (`drawnObject`); cleared with the scene. */
+    private drawn: Partial<Record<FourierCoefficientsIds["legend"], unknown>> = {};
+    /** The Dirichlet midpoints (the seam at both ends and every interior jump) as one legend entry. */
+    private midpoints: unknown[] = [];
 
     override presetCollection() {
         return functionPresetCollections["fourier-coefficients"];
@@ -255,6 +275,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 curve.dataX = polygon.x;
                 curve.dataY = polygon.y;
             };
+            return curve;
         };
         const line = (color: string, width: () => number, dash: number, data: () => { x: number[]; y: number[] }, visible: () => boolean = projection) => {
             const curve = this.own(board.create("curve", [[], []], {
@@ -265,19 +286,22 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 curve.dataX = samples.x;
                 curve.dataY = samples.y;
             };
+            return curve;
         };
 
         // Layers, lowest first: the signed product (fills, then its edge), the harmonic, S_K, f, the markers, the handles.
-        fill(FOURIER_COLORS.positive, () => view().product.positive);
-        fill(FOURIER_COLORS.negative, () => view().product.negative);
+        this.drawn = {};
+        this.midpoints = [];
+        this.drawn.positive = fill(FOURIER_COLORS.positive, () => view().product.positive);
+        this.drawn.negative = fill(FOURIER_COLORS.negative, () => view().product.negative);
         line(FOURIER_COLORS.harmonic, thin, 0, () => view().product.line);
-        line(FOURIER_COLORS.harmonic, thin, HARMONIC_DASH, () => {
+        this.drawn.harmonic = line(FOURIER_COLORS.harmonic, thin, HARMONIC_DASH, () => {
             const {term, k} = model().selected;
             const count = Math.max(64, 16 * k + 1);
             const x = Array.from({length: count + 1}, (_, i) => -Math.PI + (2 * Math.PI * i) / count);
             return {x, y: x.map(xi => fourierHarmonic(term, k, xi))};
         });
-        line(FOURIER_COLORS.sum, strokeWidth, SUM_DASH, () => view().sum, () => projection() && model().overlay);
+        this.drawn.sum = line(FOURIER_COLORS.sum, strokeWidth, SUM_DASH, () => view().sum, () => projection() && model().overlay);
         // Each decay function and its dashed partial sum share their spectrum colour.
         for (let slot = 0; slot < 3; slot++) {
             const colour = () => decayColors()[slot];
@@ -290,24 +314,30 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                     curve.dataX = samples?.x ?? [];
                     curve.dataY = samples?.y ?? [];
                 };
+                return curve;
             };
-            draw(0, () => view().decay?.functions[slot]);
-            draw(SUM_DASH, () => view().decay?.sums[slot]);
+            this.drawn[`f-${slot}` as "f-0"] = draw(0, () => view().decay?.functions[slot]);
+            this.drawn[`sum-${slot}` as "sum-0"] = draw(SUM_DASH, () => view().decay?.sums[slot]);
         }
         for (let i = 0; i < MAX_PIECES; i++) {
             const piece = () => view().shape.breakpoints.length - 1 > i ? {
                 x0: view().shape.breakpoints[i], y0: view().shape.right[i], x1: view().shape.breakpoints[i + 1], y1: view().shape.left[i + 1],
             } : undefined;
-            this.own(board.create("segment", [[() => piece()?.x0 ?? 0, () => piece()?.y0 ?? 0], [() => piece()?.x1 ?? 0, () => piece()?.y1 ?? 0]], {
+            const segment = this.own(board.create("segment", [[() => piece()?.x0 ?? 0, () => piece()?.y0 ?? 0], [() => piece()?.x1 ?? 0, () => piece()?.y1 ?? 0]], {
                 strokeColor: FOURIER_COLORS.function, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: () => projection() && piece() !== undefined,
             }));
+            if (i === 0) this.drawn.f = segment;
         }
 
         // The Dirichlet midpoint at the seam and at every interior jump: the value the series converges to there.
-        const midpoint = (x: () => number, y: () => number, visible: () => boolean) => this.own(board.create("point", [x, y], {
-            ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
-            fillColor: FOURIER_COLORS.sum, strokeColor: FOURIER_COLORS.sum, visible,
-        }));
+        const midpoint = (x: () => number, y: () => number, visible: () => boolean) => {
+            const point = this.own(board.create("point", [x, y], {
+                ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
+                fillColor: FOURIER_COLORS.sum, strokeColor: FOURIER_COLORS.sum, visible,
+            }));
+            this.midpoints.push(point);
+            return point;
+        };
         const jumpAt = (i: number) => () => {
             const shape = view().shape;
             return projection() && i < shape.breakpoints.length - 1 && Math.abs(shape.left[i] - shape.right[i]) > 1e-12;
@@ -364,6 +394,8 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
     }
 
     protected override onSceneRemoved(): void {
+        this.drawn = {};
+        this.midpoints = [];
         this.handles = [];
         this.seamMirror = undefined;
     }
@@ -410,11 +442,11 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                                                                   value: option, text: this.exampleName(option), disabled: option !== id && state.selections.includes(option),
                                                               }))}
                                                               onChange={next => this.guarded(() => this.setSelection(slot, next))}/>)}
-            <CountSetter label={t("fourier_decay_n_label")} n={state.n} min={FOURIER_DECAY_N_MIN} max={FOURIER_DECAY_N_MAX}
+            <PuckOwned param="fourier-n"><CountSetter label={t("fourier_decay_n_label")} n={state.n} min={FOURIER_DECAY_N_MIN} max={FOURIER_DECAY_N_MAX}
                          rejectedHint={t("fourier_coef_issue_n", {value0: FOURIER_DECAY_N_MIN, value1: FOURIER_DECAY_N_MAX})}
                          onPlus={() => this.guarded(() => this.setDecayN(this.model.n + 1))}
                          onMinus={() => this.guarded(() => this.setDecayN(this.model.n - 1))}
-                         onSet={next => guardField(this.refusals, () => this.setDecayN(next))}/>
+                         onSet={next => guardField(this.refusals, () => this.setDecayN(next))}/></PuckOwned>
             <ChoiceSelect label={t("fourier_decay_scale_label")} value={state.scale} options={FOURIER_DECAY_SCALES.map(id => ({value: id, text: scaleText[id]}))}
                           onChange={next => this.guarded(() => this.setScale(next))}/>
             <p className="inspector-help">{t("fourier_decay_help")}</p>
@@ -440,77 +472,160 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 <p className="inspector-help">{t("fourier_coef_handles_help")}</p>
             </div>
             <div className="inspector-group">
-                <CountSetter label={t("fourier_coef_k_label")} n={state.K} min={FOURIER_K_MIN} max={FOURIER_K_MAX}
+                <PuckOwned param="fourier-order"><CountSetter label={t("fourier_coef_k_label")} n={state.K} min={FOURIER_K_MIN} max={FOURIER_K_MAX}
                              rejectedHint={t("fourier_coef_issue_k", {value0: FOURIER_K_MIN, value1: FOURIER_K_MAX})}
                              onPlus={() => this.guarded(() => this.setK(this.model.K + 1))}
                              onMinus={() => this.guarded(() => this.setK(this.model.K - 1))}
-                             onSet={next => guardField(this.refusals, () => this.setK(next))}/>
-                <ChoiceSelect label={t("fourier_coef_term_label")} value={state.selected.term}
+                             onSet={next => guardField(this.refusals, () => this.setK(next))}/></PuckOwned>
+                <PuckOwned param="fourier-term"><ChoiceSelect label={t("fourier_coef_term_label")} value={state.selected.term}
                               options={FOURIER_COEFFICIENT_TERMS.map(id => ({value: id, text: id === "a" ? t("fourier_coef_term_a") : t("fourier_coef_term_b")}))}
-                              onChange={next => this.guarded(() => this.setTerm(next))}/>
-                <Slider customText={t("fourier_coef_harmonic_label")} value={state.selected.k} min={0} max={state.K} step={1}
+                              onChange={next => this.guarded(() => this.setTerm(next))}/></PuckOwned>
+                <PuckOwned param="fourier-harmonic"><Slider customText={t("fourier_coef_harmonic_label")} value={state.selected.k} min={0} max={state.K} step={1}
                         rejectedHint={t("fourier_coef_issue_harmonic", {value0: 0, value1: state.K})}
                         onChange={next => guardField(this.refusals, () => this.setHarmonic(next))}/>
-                <p className="inspector-help">{t("fourier_coef_harmonic_help")}</p>
+                <p className="inspector-help">{t("fourier_coef_harmonic_help")}</p></PuckOwned>
                 <OnOffSwitch checked={state.overlay} label={t("fourier_coef_overlay_label")} onChange={next => this.guarded(() => this.setOverlay(next))}/>
             </div>
         </>;
     }
 
-    protected override renderLegend(): React.ReactNode {
-        if (this.model.view === "decay") {
-            const colors = decayColors();
-            return <FunctionLegend items={[
-                ...this.model.selections.flatMap((id, slot) => [
-                    {id: `f-${slot}`, color: colors[slot], label: t("fourier_decay_legend_f", {value0: this.exampleName(id)}), kind: "line" as const},
-                    {id: `sum-${slot}`, color: colors[slot], label: `${t("fourier_decay_legend_sum")} · ${this.exampleName(id)}`, kind: "dashed-line" as const},
-                ]),
-            ]}/>;
+    // ---- Declaration ---------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "fourier-order": {read: () => this.model.K, apply: (value: number) => this.setK(value)},
+            "fourier-harmonic": {read: () => this.model.selected.k, apply: (value: number) => this.setHarmonic(value)},
+            "fourier-term": {read: () => this.model.selected.term, apply: (value: unknown) => this.setTerm(value)},
+            "fourier-n": {read: () => this.model.n, apply: (value: number) => this.setDecayN(value)},
+        };
+    }
+
+    /**
+     * Pure data from the model. Board: the highest harmonic K, the chosen harmonic k and its sine or cosine (flipped together while
+     * the product and the spectrum are watched), and the decay view's N. Orodja, undeclared: the view, the shape of f and its
+     * handle values (setup; the handles are also dragged on the board), the examples and the scale of the decay view, the S_K switch.
+     */
+    protected override declaration(): GraphDeclaration {
+        const decay = this.model.view === "decay";
+        const legend: LegendEntry<FourierCoefficientsIds>[] = decay
+            ? this.model.selections.flatMap((id, slot): LegendEntry<FourierCoefficientsIds>[] => [
+                {id: `f-${slot}` as "f-0", label: message("fourier_decay_legend_f", {value0: message(EXAMPLE_NAME_KEYS[id])}), kind: "line", object: `f-${slot}`},
+                {id: `sum-${slot}` as "sum-0", label: message("fourier_decay_legend_sum_of", {value0: message(EXAMPLE_NAME_KEYS[id])}), kind: "dashed", object: `sum-${slot}`},
+            ])
+            : [
+                {id: "f", label: message("fourier_coef_legend_f"), kind: "line", object: "f"},
+                {id: "harmonic", label: message("fourier_coef_legend_harmonic"), kind: "dashed", object: "harmonic"},
+                {id: "positive", label: message("fourier_coef_legend_positive"), kind: "area", object: "positive"},
+                {id: "negative", label: message("fourier_coef_legend_negative"), kind: "area", object: "negative"},
+                {id: "sum", label: message("fourier_coef_legend_sum"), kind: "dashed", object: "sum"},
+                {id: "midpoint", label: message("fourier_coef_legend_midpoint"), kind: "ring", object: "midpoint"},
+            ];
+        return {
+            ...this.commonDeclaration(),
+            parameters: decay ? [
+                {key: "fourier-n", kind: "count", label: message("fourier_decay_n_name"), symbol: "N", help: message("fourier_decay_n_help"), placement: "board",
+                    min: FOURIER_DECAY_N_MIN, max: FOURIER_DECAY_N_MAX},
+            ] : [
+                {key: "fourier-order", kind: "count", label: message("fourier_coef_k_name"), symbol: "K", help: message("fourier_coef_k_help"), placement: "board",
+                    min: FOURIER_K_MIN, max: FOURIER_K_MAX},
+                {key: "fourier-harmonic", kind: "count", label: message("fourier_coef_harmonic_name"), symbol: "k", help: message("fourier_coef_harmonic_help"), placement: "board",
+                    min: 0, max: this.model.K},
+                {key: "fourier-term", kind: "choice", label: message("fourier_coef_term_name"), help: message("fourier_coef_term_help"), placement: "board", puck: true,
+                    options: FOURIER_COEFFICIENT_TERMS.map(id => ({
+                        value: id, label: message(id === "a" ? "fourier_coef_term_a" : "fourier_coef_term_b"), short: message(id === "a" ? "fourier_coef_term_a_short" : "fourier_coef_term_b_short"),
+                    }))},
+            ],
+            legend,
+        };
+    }
+
+    /** The rows, the notes and the marks of the inspector as declared data (`renderReadout` draws them from it). */
+    protected override functionPanel(): FunctionPanel {
+        const model = this.model;
+        if (model.view === "decay") {
+            return {
+                rows: [
+                    {id: "n", name: message("fourier_decay_n_label"), value: messageNumber(model.n, 0)},
+                    ...model.selections.map((id, slot) => ({
+                        id: `sup-${slot + 1}`, name: message("fourier_decay_readout_sup", {value0: message(EXAMPLE_NAME_KEYS[id])}),
+                        value: messageNumber(fourierSupError(id, model.n), 5),
+                    })),
+                ],
+                notes: [
+                    {id: "sup-help", text: message("fourier_decay_sup_help")}, {id: "decay-theorem", text: message("fourier_decay_note")},
+                    {id: "uniform", text: message("fourier_decay_note_uniform")},
+                ],
+                plotted: model.selections.map(id => (x: number) => {
+                    const source = FOURIER_EXAMPLES[id].source;
+                    return source.kind === "function" ? source.f(x) : NaN;
+                }),
+            };
         }
-        return <FunctionLegend items={[
-            {id: "f", color: FOURIER_COLORS.function, label: t("fourier_coef_legend_f"), kind: "line"},
-            {id: "harmonic", color: FOURIER_COLORS.harmonic, label: t("fourier_coef_legend_harmonic"), kind: "dotted-line"},
-            {id: "positive", color: FOURIER_COLORS.positive, label: t("fourier_coef_legend_positive"), kind: "area"},
-            {id: "negative", color: FOURIER_COLORS.negative, label: t("fourier_coef_legend_negative"), kind: "area"},
-            {id: "sum", color: FOURIER_COLORS.sum, label: t("fourier_coef_legend_sum"), kind: "dashed-line"},
-            {id: "midpoint", color: FOURIER_COLORS.sum, label: t("fourier_coef_legend_midpoint"), kind: "ring"},
-        ]}/>;
+        const view = this.viewOf(model);
+        /** For a_0 the readout gives the constant term a_0/2, as the spectrum does; the board caption keeps a_0 = area / pi. */
+        const constant = model.selected.term === "a" && model.selected.k === 0;
+        const shape = view.shape;
+        return {
+            rows: [
+                {id: "order", name: message("fourier_coef_k_label"), value: messageNumber(model.K, 0)},
+                constant
+                    ? {id: "selected", name: message("fourier_coef_readout_constant"), value: messageNumber(view.selectedValue / 2, 5)}
+                    : {id: "selected", name: message("fourier_coef_readout_selected", {value0: this.coefficientName(model)}), value: messageNumber(view.selectedValue, 5)},
+                {id: "square-integral", name: message("fourier_coef_readout_square_integral"), value: messageNumber(view.squareIntegral, 5)},
+                {id: "parseval", name: message("fourier_coef_readout_parseval"), value: messageNumber(view.parseval, 5)},
+                {id: "seam", name: message("fourier_coef_readout_seam"), value: messageNumber(view.seamMidpoint, 5)},
+            ],
+            notes: [{id: "about", text: message("fourier_coef_note")}],
+            // f as drawn: linear between the right limit at one breakpoint and the left limit at the next.
+            plotted: (x: number) => {
+                for (let i = 0; i + 1 < shape.breakpoints.length; i++) {
+                    const x0 = shape.breakpoints[i];
+                    const x1 = shape.breakpoints[i + 1];
+                    if (x >= x0 && x <= x1) return shape.right[i] + ((shape.left[i + 1] - shape.right[i]) * (x - x0)) / (x1 - x0);
+                }
+                return NaN;
+            },
+        };
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const evaluated = (element: object, colour: "strokecolor" | "fillcolor") => {
+            // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+            const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            return {color: String(drawn.evalVisProp(colour)), visible: Boolean(drawn.evalVisProp("visible"))};
+        };
+        const isElement = (element: unknown): element is object => typeof element === "object" && element !== null && !Array.isArray(element);
+        if (id === "midpoint") {
+            const points = this.midpoints.filter(isElement).map(point => evaluated(point, "fillcolor"));
+            return points.length === 0 ? undefined : {color: points[0].color, visible: points.some(point => point.visible)};
+        }
+        const element = this.drawn[id as FourierCoefficientsIds["legend"]];
+        if (!isElement(element)) return undefined;
+        return evaluated(element, id === "positive" || id === "negative" ? "fillcolor" : "strokecolor");
+    }
+
+    /** A declared legend replaces the panel's own, so Orodja shows no second one. */
+    protected override renderLegend(): React.ReactNode {
+        return null;
     }
 
     protected renderReadout(): React.ReactNode {
         const model = this.model;
-        if (model.view === "decay") return this.renderDecayReadout(model);
+        if (model.view === "decay") {
+            return <>
+                {this.renderDeclaredReadout()}
+                <div className="inspector-group">
+                    <FourierDecaySpectra selections={model.selections} N={model.n} scale={model.scale} colors={decayColors()} exampleName={id => this.exampleName(id)}/>
+                </div>
+            </>;
+        }
         const view = this.viewOf(model);
-        /** For a_0 the readout gives the constant term a_0/2, as the spectrum does; the board caption keeps a_0 = area / pi. */
-        const constant = model.selected.term === "a" && model.selected.k === 0;
-        const rows = [
-            {id: "order", label: t("fourier_coef_k_label"), value: String(model.K)},
-            constant
-                ? {id: "selected", label: t("fourier_coef_readout_constant"), value: this.number(view.selectedValue / 2, 5)}
-                : {id: "selected", label: t("fourier_coef_readout_selected", {value0: this.coefficientName(model)}), value: this.number(view.selectedValue, 5)},
-            {id: "square-integral", label: t("fourier_coef_readout_square_integral"), value: this.number(view.squareIntegral, 5)},
-            {id: "parseval", label: t("fourier_coef_readout_parseval"), value: this.number(view.parseval, 5)},
-            {id: "seam", label: t("fourier_coef_readout_seam"), value: this.number(view.seamMidpoint, 5)},
-        ];
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("fourier_coef_note")}/>
+            {this.renderDeclaredReadout()}
             <div className="inspector-group">
                 <FourierSpectrumBars coefficients={view.coefficients} K={model.K} selected={model.selected}/>
-            </div>
-        </>;
-    }
-
-    private renderDecayReadout(model: FourierCoefficientsModel): React.ReactNode {
-        const rows = [
-            {id: "n", label: t("fourier_decay_n_label"), value: String(model.n)},
-            ...model.selections.map((id, slot) => ({
-                id: `sup-${slot + 1}`, label: t("fourier_decay_readout_sup", {value0: this.exampleName(id)}), value: this.number(fourierSupError(id, model.n), 5),
-            })),
-        ];
-        return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={[t("fourier_decay_sup_help"), t("fourier_decay_note"), t("fourier_decay_note_uniform")]}/>
-            <div className="inspector-group">
-                <FourierDecaySpectra selections={model.selections} N={model.n} scale={model.scale} colors={decayColors()} exampleName={id => this.exampleName(id)}/>
             </div>
         </>;
     }
