@@ -92,6 +92,21 @@ describe('CardShell', () => {
     expect(host.querySelector('.board-card-reset')).not.toBeNull();
   });
 
+  it('hands the focus to the fold button when a reset takes the reset button away', () => {
+    const show = (resettable: boolean) => act(() => {
+      root.render(createElement(CardShell, {id: 'readouts', title: message('shell_card_readouts'), rect: {x: 0, y: 0, w: 200, h: 120}, folded: false, resettable, ...handlers}, 'x'));
+    });
+    show(true);
+    const reset = q<HTMLButtonElement>('.board-card-reset');
+    reset.focus();
+    expect(document.activeElement).toBe(reset);
+    act(() => { reset.click(); });
+    expect(handlers.onReset).toHaveBeenCalledTimes(1);
+    show(false); // the card is back at its place: nothing stored, no reset button
+    expect(host.querySelector('.board-card-reset')).toBeNull();
+    expect(document.activeElement).toBe(q('.board-card-fold'));
+  });
+
   it('renders head actions between title and reset/fold, in tab order, without starting a drag', () => {
     act(() => {
       root.render(createElement(CardShell, {

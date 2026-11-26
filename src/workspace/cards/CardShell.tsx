@@ -232,7 +232,13 @@ export function CardShell({id, title, rect, folded, cut = null, onFold, onReset,
                 onKeyDown={onGripKeyDown} onBlur={onGripBlur}><GripIcon/></button>
         <h3 className="board-card-title">{name}</h3>
         {headActions && <span className="board-card-actions" data-card-action>{headActions}</span>}
-        {resettable && <button type="button" className="board-card-button board-card-reset" aria-label={t('shell_reset', {value0: name})} onClick={() => { onReset(); }}><ResetIcon/></button>}
+        {resettable && <button type="button" className="board-card-button board-card-reset" aria-label={t('shell_reset', {value0: name})}
+                onClick={event => {
+                  // The button leaves once nothing is stored: a focus it holds goes to its neighbour first, so a keyboard user keeps their place.
+                  const button = event.currentTarget;
+                  if (document.activeElement === button) button.parentElement?.querySelector<HTMLElement>('.board-card-fold')?.focus();
+                  onReset();
+                }}><ResetIcon/></button>}
         <button type="button" className="board-card-button board-card-fold" aria-expanded={!folded} aria-label={name}
                 onClick={() => onFold(!folded)}><Chevron/></button>
       </div>
