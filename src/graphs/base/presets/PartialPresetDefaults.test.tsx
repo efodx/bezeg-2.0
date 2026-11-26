@@ -44,7 +44,7 @@ const viewOf = (graph: Nurbs | Linear) => graph.liveBoard().getBoundingBox();
 function referenceView(make: () => Nurbs | Linear, box?: [number, number, number, number]) {
     const graph = make();
     const view = mountGraph(graph).view;
-    if (box) graph.liveBoard().setBoundingBox(box, true);
+    if (box) runAs('learner', () => graph.liveBoard().setBoundingBox(box, true));
     const result = viewOf(graph);
     view.unmount();
     return result;
@@ -55,8 +55,8 @@ const initialView = () => referenceView(() => new Nurbs());
 function disturb(graph: Nurbs, example: 'circle' | 'unit', t: number, box: [number, number, number, number]) {
     graph.selectExample(example);
     graph.editPoint(1, [3, 3]);
-    graph.setT(t);
-    graph.liveBoard().setBoundingBox(box, true);
+    runAs('learner', () => graph.setT(t));
+    runAs('learner', () => graph.liveBoard().setBoundingBox(box, true));
 }
 
 describe('partial Presets start omitted parts from graph defaults (NURBS)', () => {

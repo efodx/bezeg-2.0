@@ -669,7 +669,7 @@ describe('NURBS: ordinary same-shape commit versus replacement with different kn
 
     test('the marker follows the state on the replaced knots', () => {
         const {graph, mounted, nurbs} = mountWith(dataB);
-        act(() => nurbs.setT(U));
+        act(() => runAs('learner', () => nurbs.setT(U)));
         const marker = (sceneOf(graph) as unknown as BSplineNurbsScene).markerElement()!;
         near([marker.X(), marker.Y()], rationalPoint(2, knotsB, points, weights, U), 1e-9);
         mounted.view.unmount();

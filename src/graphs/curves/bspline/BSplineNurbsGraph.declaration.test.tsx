@@ -6,6 +6,7 @@ import {checkDeclaration, type GraphDeclaration} from '../../base/declare/graphD
 import {currentLanguage, renderMessage, setLanguage} from '../../../localization';
 import {formatNumber} from '../../../analysis/format';
 import {runAs} from '../../base/writes/writeSource';
+import {domain} from '../../../bezeg/impl/curve/bspline';
 import {angleDegrees, nurbsPointAt} from './bsplineNurbsModel';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -53,7 +54,10 @@ describe('NURBS declaration', () => {
             const num = (value: number, digits: number) => formatNumber(value, currentLanguage(), digits);
             expect(notes.point).toBe(`C(t) = (${num(point[0], 5)}, ${num(point[1], 5)}), kot ${num(angleDegrees(point), 3)}°`);
 
-            expect(current.parameters ?? []).toEqual([]);
+            // the parameter t is a board range puck over the knot domain, bound by key
+            const [low, high] = domain(graph.state.knots, graph.state.degree, points.length - 1);
+            expect(current.parameters).toEqual([expect.objectContaining({key: 'nurbs-t', kind: 'range', symbol: 't', placement: 'board', min: low, max: high, step: 0.001})]);
+            expect(renderMessage(current.parameters![0].label)).toBe('Parameter');
 
             // the circle switch is a pressed puck and follows the state
             const action = current.actions!.find(candidate => candidate.id === 'circle')!;

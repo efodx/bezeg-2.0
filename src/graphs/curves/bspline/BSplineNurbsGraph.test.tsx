@@ -11,6 +11,7 @@ import {angleDegrees, maxRadialError, nurbsExample, nurbsPointAt, radialErrorPar
 import {BSplineNurbsScene} from './BSplineNurbsScene';
 import {enterNumber} from '../../../inputs/testEntry';
 import {expectResetCycle} from '../../base/resetAvailabilityBehaviour';
+import {runAs} from '../../base/writes/writeSource';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
 vi.mock('../../../localization', async importOriginal => {
@@ -144,7 +145,7 @@ describe('L5 acceptance 2: the point and the angle', () => {
         // The inspector shows the default t = 1/16, then 1/8 after the slider moves; the board marker agrees.
         const point = () => document.querySelector('[data-nurbs-readout="point"]')!.textContent!;
         expect(point()).toContain('21,598°');
-        act(() => graph.setT(0.125));
+        act(() => runAs('learner', () => graph.setT(0.125)));
         expect(point()).toContain('45°');
         graph.boardUpdate();
         const marker = graph.sceneOf().markerElement()!;
@@ -155,9 +156,9 @@ describe('L5 acceptance 2: the point and the angle', () => {
 
     test('the parameter is clamped to the domain', () => {
         const {graph, view} = mount();
-        act(() => graph.setT(7));
+        act(() => runAs('learner', () => graph.setT(7)));
         expect(graph.state.t).toBe(1);
-        act(() => graph.setT(-2));
+        act(() => runAs('learner', () => graph.setT(-2)));
         expect(graph.state.t).toBe(0);
         view.unmount();
     });
@@ -223,7 +224,7 @@ describe('controls', () => {
         const {graph, view} = mount();
         expectResetCycle({
             reset: () => screen.getByRole('button', {name: 'Ponastavi primer'}),
-            edit: () => { graph.setWeight(1, 3); graph.setT(0.5); },
+            edit: () => { graph.setWeight(1, 3); runAs('learner', () => graph.setT(0.5)); },
         });
         expect(graph.state.weights).toEqual(nurbsExample('circle').weights);
         expect(graph.state.t).toBe(1 / 16);
@@ -349,7 +350,7 @@ describe('lesson scenes and refused data', () => {
 
     test('a lesson fixture keeps points, weights (unit when absent), origin and example; t, circle and refusal reset', () => {
         const {graph, view} = mount();
-        act(() => { graph.setT(0.4); graph.setShowCircle(false); graph.setWeight(1, 0); });
+        act(() => { runAs('learner', () => graph.setT(0.4)); graph.setShowCircle(false); graph.setWeight(1, 0); });
         expect(graph.state.refusal).not.toBeNull();
         act(() => graph.getLessonCapabilities().apply(fixture({points: square, degree: 2, weights: [1, 2, 3, 4]})));
         expect([graph.state.points, graph.state.weights, graph.state.degree]).toEqual([square, [1, 2, 3, 4], 2]);
@@ -357,7 +358,7 @@ describe('lesson scenes and refused data', () => {
         expect(graph.state.origin.points).toEqual(square);
         expect(graph.state.example).toBe('custom');
         expect([graph.state.t, graph.state.showCircle, graph.state.refusal]).toEqual([1 / 16, true, null]);
-        act(() => { graph.setT(0.5); graph.setShowCircle(false); });
+        act(() => { runAs('learner', () => graph.setT(0.5)); graph.setShowCircle(false); });
         act(() => graph.getLessonCapabilities().apply(fixture({points: square, degree: 2})));
         expect(graph.state.weights).toEqual([1, 1, 1, 1]);
         expect(graph.state.origin.weights).toEqual([1, 1, 1, 1]);

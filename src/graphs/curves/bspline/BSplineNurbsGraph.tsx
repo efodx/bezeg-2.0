@@ -8,7 +8,9 @@ import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import {domain} from "../../../bezeg/impl/curve/bspline";
-import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import {DomainError} from "../../functions/BaseFunctionGraph";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
 import {PuckOwned} from "../../base/controls/PuckOwnership";
 import {runAs} from "../../base/writes/writeSource";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
@@ -42,11 +44,11 @@ export interface BSplineNurbsState extends BaseGraphState {
 
 /**
  * The ids this graph declares: the two sentences of the old panel (the radial error and the point C(t) with its angle), the
- * legend, and the unit-circle switch (a puck). No parameters: t has no arbiter binding yet (the shared lifecycle and partial-Preset
- * tests set it outside a write source), the weights are a vector of typed values and the points are dragged on the board.
+ * legend, the unit-circle switch (a puck) and the parameter t (a board range puck, bound by `parameterBindings`). The weights are a
+ * vector of typed values and the points are dragged on the board.
  */
 export type BSplineNurbsIds = {
-    param: never;
+    param: 'nurbs-t';
     row: never;
     note: 'error' | 'point';
     legend: 'curve' | 'control' | 'marker' | 'circle';
@@ -282,13 +284,30 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         return notes;
     }
 
+    /** Parameter writes (ADR 0064). Key `nurbs-t`: the slider parameter, through the setter the slider calls (held inside the domain). */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'nurbs-t': {
+                read: () => this.state.t,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value)) throw new DomainError(message('bsn_t_not_finite'));
+                    this.setT(value);
+                },
+            },
+        };
+    }
+
     /**
      * Pure data from the state: the unit circle as a switch puck (flipped to compare the curve with it), the radial error and the
      * point as notes, the help line and the legend. The slider t, the weights (a vector of typed values), the example, Reset and the
      * point list stay in Orodja; the control points are dragged on the board.
      */
     protected override declaration(): GraphDeclaration<BSplineNurbsIds> {
-        const {showCircle} = this.state;
+        const {showCircle, knots, degree, points} = this.state;
+        const [start, end] = domain(knots, degree, points.length - 1);
+        const parameters: ParameterDeclaration<BSplineNurbsIds['param']>[] = [{
+            key: 'nurbs-t', kind: 'range', label: message('bsn_param_name'), symbol: 't', placement: 'board', min: start, max: end, step: 0.001, maxDecimals: 3,
+        }];
         const actions: ActionDeclaration<BSplineNurbsIds>[] = [
             {id: 'circle', label: message('bsn_circle'), placement: 'board', puck: true, enabled: true, pressed: showCircle},
         ];
@@ -298,7 +317,7 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
             ...(this.markerPoint() ? [{id: 'marker' as const, label: message('bsn_legend_marker'), kind: 'point' as const, object: 'marker'}] : []),
             ...(showCircle ? [{id: 'circle' as const, label: message('bsn_circle'), kind: 'dashed' as const, object: 'circle'}] : []),
         ];
-        return {notes: this.readoutNotes(), readoutHelp: message('bsn_radial_error_help'), legend, actions, marks: this.viewMarks()};
+        return {parameters, notes: this.readoutNotes(), readoutHelp: message('bsn_radial_error_help'), legend, actions, marks: this.viewMarks()};
     }
 
     private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
@@ -405,10 +424,10 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
                 <p className="inspector-help">{t("bsn_radial_error_help")}</p>
             </div>,
             <PuckOwned key="circle" param="circle"><div><OnOffSwitch checked={showCircle} label={t("bsn_circle")} onChange={show => this.setShowCircle(show)}/></div></PuckOwned>,
-            <div key="position">
+            <PuckOwned key="position" param="nurbs-t"><div>
                 <Slider min={start} max={end} step={0.001} decimals={3} value={Math.min(end, Math.max(start, param))}
                         customText={t("bsb_slider_t")} help={t("bsn_slider_help")} onChange={value => this.setT(value)}/>
-            </div>,
+            </div></PuckOwned>,
             <div key="point" data-declared-panel="">
                 {notes.filter(note => note.id === 'point').map(note => <p key={note.id} data-readout-note data-nurbs-readout="point">{renderMessage(note.text)}</p>)}
             </div>,
