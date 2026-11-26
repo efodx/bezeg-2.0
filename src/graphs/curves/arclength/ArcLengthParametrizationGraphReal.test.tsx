@@ -6,6 +6,8 @@ import ArcLengthParametrizationGraph, {ARC_Q_POINTS, ARC_TRAVERSAL_MS} from './A
 import {ARC_PIECES_DEFAULT} from './arcLengthModel';
 import {arcLengthTableOfBezier, equalArcParameters, parameterAtArcLength} from '../../../bezeg/impl/kernels/arc-length';
 import {setLanguage} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
+import {puckControl} from '../../base/realGraphTestHarness';
 import {GraphHost} from '../../base/GraphHost';
 import {LessonAction} from '../../../learning/model';
 import type {CurveCollectionPresetData} from '../curvePresetCollections';
@@ -63,6 +65,8 @@ class Probe extends ArcLengthParametrizationGraph {
         this.liveBoard().update();
     }
 }
+
+const learner = (work: () => void) => runAs('learner', work);
 
 function mount() {
     const graph = new Probe();
@@ -124,7 +128,7 @@ describe('the real board on the cubic Q', () => {
         try {
             const overlay = graph.arcOverlay()!;
             const before = overlay.modelBuilds();
-            act(() => graph.setArcPieces(4));
+            act(() => learner(() => graph.setArcPieces(4)));
             expect(overlay.modelBuilds()).toBe(before + 1);
             expect(graph.visible(graph.equalArc())).toHaveLength(5);
             expect(graph.visible(graph.equalT())).toHaveLength(5);
@@ -145,15 +149,15 @@ describe('the real board on the cubic Q', () => {
     test('Reset and a restored Preset recompute the marks, and the multi-action scene reads each action', async () => {
         const {graph, view} = mount();
         try {
-            act(() => { graph.setArcPieces(16); graph.setArcMoverMode('arc'); graph.setArcMoverPosition(0.4); });
+            act(() => { learner(() => graph.setArcPieces(16)); learner(() => graph.setArcMoverMode('arc')); learner(() => graph.setArcMoverPosition(0.4)); });
             act(() => graph.saveCurrentPreset('mine'));
-            act(() => { graph.setArcPieces(3); graph.setArcMoverMode('parameter'); graph.setArcMoverPosition(0.9); graph.movePoint(2, [3, 1]); });
+            act(() => { learner(() => graph.setArcPieces(3)); learner(() => graph.setArcMoverMode('parameter')); learner(() => graph.setArcMoverPosition(0.9)); graph.movePoint(2, [3, 1]); });
             await settle(() => graph.selectPreset('mine'));
             expect(graph.state).toMatchObject({arcPieces: 16, arcMoverMode: 'arc', arcMoverPosition: 0.4});
             expect(graph.controlRows()).toEqual(ARC_Q_POINTS);
             expect(graph.visible(graph.equalArc())).toHaveLength(17);
-            act(() => { graph.setArcPieces(5); graph.movePoint(1, [2, 0]); });
-            await settle(() => graph.reset());
+            act(() => { learner(() => graph.setArcPieces(5)); graph.movePoint(1, [2, 0]); });
+            await settle(() => runAs('learner', () => graph.reset()));
             expect(graph.controlRows()).toEqual(ARC_Q_POINTS);
             marksAt(graph.visible(graph.equalArc()), ARC_Q_POINTS,
                 equalArcParameters(arcLengthTableOfBezier(ARC_Q_POINTS), graph.state.arcPieces).parameters);
@@ -221,7 +225,7 @@ describe('the PH cubic and special curves', () => {
             expect(flat.equalT.ratio).toBeUndefined();
             expect(flat.equalArc.parameters.every(Number.isFinite)).toBe(true);
             expect(graph.arcOverlay()!.readoutText()).toContain('dolžino 0');
-            act(() => { graph.setArcMoverMode('arc'); graph.setArcMoverPosition(0.7); });
+            act(() => { learner(() => graph.setArcMoverMode('arc')); learner(() => graph.setArcMoverPosition(0.7)); });
             expect(Number.isFinite(graph.arcOverlay()!.mover()!.t)).toBe(true);
         } finally { view.unmount(); }
     });
@@ -241,7 +245,7 @@ describe('playback', () => {
             graph.clock.tick(1000 + ARC_TRAVERSAL_MS / 2);
             expect(graph.arcOverlay()!.mover()!.t).toBeCloseTo(0.5, 9);
             expect(graph.moverPoint().X!()).toBeCloseTo(bezierPoint(ARC_Q_POINTS, 0.5)[0], 9);
-            act(() => graph.pause());
+            act(() => learner(() => graph.pause()));
             expect(graph.isPlaying()).toBe(false);
             expect(graph.state.arcMoverPosition).toBeCloseTo(0.5, 9);
             expect(graph.clock.pending()).toBe(false);
@@ -251,7 +255,7 @@ describe('playback', () => {
     test('in arc mode the playing point sits at parameterAtArcLength(position * L) and the loop wraps at 1', () => {
         const {graph, view} = mount();
         try {
-            act(() => graph.setArcMoverMode('arc'));
+            act(() => learner(() => graph.setArcMoverMode('arc')));
             act(() => graph.play());
             graph.clock.tick(0);
             graph.clock.tick(ARC_TRAVERSAL_MS * 0.3);
@@ -260,7 +264,7 @@ describe('playback', () => {
             graph.clock.tick(ARC_TRAVERSAL_MS * 1.1);
             expect(graph.isPlaying()).toBe(true);
             expect(graph.arcOverlay()!.mover()!.t).toBeCloseTo(parameterAtArcLength(table, 0.1 * table.length), 6);
-            act(() => graph.pause());
+            act(() => learner(() => graph.pause()));
         } finally { view.unmount(); }
     });
 
@@ -269,19 +273,19 @@ describe('playback', () => {
         act(() => graph.play());
         graph.clock.tick(0);
         graph.clock.tick(600);
-        act(() => { (graph.liveBoard() as unknown as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers(['down'], [{}]); });
+        act(() => learner(() => { (graph.liveBoard() as unknown as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers(['down'], [{}]); }));
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         expect(graph.state.arcMoverPosition).toBeCloseTo(0.1, 9);
 
         act(() => graph.play());
-        await settle(() => graph.reset());
+        await settle(() => runAs('learner', () => graph.reset()));
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
 
         act(() => graph.play());
         expect(graph.isPlaying()).toBe(true);
-        act(() => graph.setArcMoverPosition(0.8));
+        act(() => learner(() => graph.setArcMoverPosition(0.8)));
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
 
@@ -310,7 +314,7 @@ describe('playback', () => {
             expect(graph.isPlaying()).toBe(false);
             expect(graph.clock.requests).toBe(0);
             expect(document.querySelector('.arc-playback [data-action="play-pause"]')).toHaveAccessibleDescription(/predvajanje ni na voljo/);
-            act(() => graph.setArcMoverPosition(0.3));
+            act(() => learner(() => graph.setArcMoverPosition(0.3)));
             expect(graph.arcOverlay()!.mover()!.t).toBeCloseTo(0.3, 12);
         } finally { view.unmount(); }
     });
@@ -335,7 +339,8 @@ describe('the board caption and the details list', () => {
     const cuspScene: CurveCollectionPresetData = [['JSXBezierCurve', {points: [[0, 0], [1, 2], [0, 1], [1, 1]], state: {showingJxgPoints: true,
         showingControlPolygon: false, showingConvexHull: false, showingDecasteljauScheme: false, subdivisionT: 0.5, decasteljauT: 0.5, extrapolationT: 1.2}}]];
     const details = () => Array.from(document.querySelectorAll('[data-testid="arc-details"] li')).map(li => li.textContent ?? '');
-    const rangeSlider = () => Array.from(document.querySelectorAll('input[type="range"]')).find(el => (el as HTMLInputElement).max === '1') as HTMLInputElement;
+    const rangeSlider = () => puckControl('arc-mover-position');
+    const sliderValue = () => Number(rangeSlider().getAttribute('aria-valuenow'));
 
     test('the board shows at most four short lines on Q, PH and a cusp curve, in both languages', () => {
         const {graph, view} = mount();
@@ -376,7 +381,7 @@ describe('the board caption and the details list', () => {
         } finally { view.unmount(); }
     });
 
-    test('the slider is unavailable (with its reason) while playing, the Play button turns into Pause, and both reset after Pause', () => {
+    test('the position puck stays live while playing, the Play button turns into Pause, and the puck holds the paused position', () => {
         const {graph, view} = mount();
         try {
             const button = () => document.querySelector('.arc-playback [data-action="play-pause"]') as HTMLButtonElement;
@@ -384,25 +389,21 @@ describe('the board caption and the details list', () => {
             expect(button().textContent).toBe('Predvajaj');
             expect(button().getAttribute('aria-disabled')).toBe('false');
             act(() => graph.play());
-            expect(rangeSlider().getAttribute('aria-disabled')).toBe('true');
-            expect(rangeSlider()).toHaveAccessibleDescription(/Točko premika predvajanje/);
             expect(button().textContent).toBe('Premor');
-            act(() => graph.pause());
-            expect(rangeSlider().getAttribute('aria-disabled')).toBeNull();
+            act(() => learner(() => graph.pause()));
             expect(button().textContent).toBe('Predvajaj');
+            expect(sliderValue()).toBe(graph.state.arcMoverPosition);
         } finally { view.unmount(); }
     });
 
-    test('the disabled slider follows the moving point at a low rate, not on every frame', () => {
+    test('the position puck follows the moving point while playing', () => {
         const {graph, view} = mount();
         try {
             act(() => graph.play());
             graph.clock.tick(0);
-            graph.clock.tick(100);
-            expect(Number(rangeSlider().value)).toBe(0);
             graph.clock.tick(ARC_TRAVERSAL_MS / 2);
-            expect(Number(rangeSlider().value)).toBeCloseTo(0.5, 2);
-            act(() => graph.pause());
+            expect(sliderValue()).toBeCloseTo(0.5, 2);
+            act(() => learner(() => graph.pause()));
         } finally { view.unmount(); }
     });
 
@@ -412,7 +413,7 @@ describe('the board caption and the details list', () => {
             act(() => graph.play());
             graph.clock.tick(0);
             graph.clock.tick(ARC_TRAVERSAL_MS * 0.4);
-            act(() => graph.setArcMoverMode('arc'));
+            act(() => learner(() => graph.setArcMoverMode('arc')));
             expect(graph.isPlaying()).toBe(false);
             expect(graph.state.arcMoverPosition).toBeCloseTo(0.4, 9);
             expect(graph.state.arcMoverMode).toBe('arc');

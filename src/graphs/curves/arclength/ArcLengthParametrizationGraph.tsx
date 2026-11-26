@@ -1,10 +1,17 @@
 import React from "react";
-import {t} from "../../../localization";
+import {currentLanguage, message, t} from "../../../localization";
+import {formatNumber} from "../../../analysis/format";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
+import {GAUSS_LEGENDRE_ORDER, TABLE_SUBINTERVALS} from "../../../bezeg/impl/kernels/arc-length";
 import {AnimationDriver, AnimationScheduler} from "../../../learning/runtime/animation";
-import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
+import BaseCurveGraph, {BaseCurveIds, BaseGraphStates} from "../../base/BaseCurveGraph";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ViewMarks} from "../../base/declare/graphDeclaration";
+import {PuckOwned, type PuckLiveValues} from "../../base/controls/PuckOwnership";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {DomainError} from "../../functions/BaseFunctionGraph";
+import {LiveParameter} from "../bezier/decasteljauLiveParameter";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {fitBoundingBox} from "../../base/fitBoundingBox";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
@@ -75,6 +82,20 @@ export interface ArcLengthStates extends BaseGraphStates {
     arcMoverPosition: number;
 }
 
+/**
+ * The ids this graph declares: the pieces count, the mover mode and the mover position (board pucks, bound in the arbiter), the
+ * sentences of the old details list as notes, and the legend of the curve, its control points, the moving point and the two kinds
+ * of mark. The display switches and the control polygon and hull stay in Orodja (the common curve switches, vetoed as pucks).
+ */
+export type ArcLengthIds = {
+    param: 'arc-pieces' | 'arc-mover-mode' | 'arc-mover-position';
+    row: never;
+    note: 'mover' | 'length' | 'exact' | 'bracket' | 'ratio-t' | 'ratio-arc' | 'polyline' | 'status';
+    legend: BaseCurveIds['legend'] | 'mover' | 'equal-t' | 'equal-arc';
+    section: never;
+    action: BaseCurveIds['action'];
+};
+
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {
     return typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
 }
@@ -96,9 +117,15 @@ function curveLabel(kind: ArcCurveKind): string {
  * A press on the board (a drag), Reset, a scene import, an undo that changes the mover, and unmount stop the loop. The
  * position slider is disabled while playing, since the frame loop owns the position.
  */
-class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
+class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> implements PuckLiveValues {
     /** Typed coordinates for the draggable control points (shared edit-only list). */
     protected override workspaceTypedPoints() { return true; }
+    protected override declaresCurveWorkspace() { return true; }
+    /** The control polygon and hull are not what this demonstration flips; the three pucks are the pieces, the mode and the position. */
+    protected override curveDisplayPuck() { return false; }
+    /** The playback position while the loop runs (it is not a store write), so the position puck follows the point. */
+    private readonly liveStore = new LiveParameter();
+    puckLiveValue(key: string): LiveParameter | undefined { return key === 'arc-mover-position' ? this.liveStore : undefined; }
     private overlay?: ArcLengthOverlay;
     private drawn?: { pieces: number, equalT: boolean, equalArc: boolean, mode: ArcMoverMode };
     private readonly liveReadout = new SettledReadout();
@@ -274,6 +301,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
         this.livePosition = start >= 1 ? 0 : start;
         this.sinceSliderSync = 0;
         this.playing = true;
+        this.liveStore.report(this.livePosition);
         this.driver = new AnimationDriver(delta => this.advance(delta), this.animationScheduler());
         this.driver.play();
         this.refreshWorkspace();
@@ -290,6 +318,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
         const next = this.livePosition + delta / ARC_TRAVERSAL_MS;
         this.livePosition = next >= 1 ? next - Math.floor(next) : next;
         this.board.update();
+        this.liveStore.report(this.livePosition);
         this.sinceSliderSync += delta;
         if (this.sinceSliderSync >= ARC_SLIDER_SYNC_MS) {
             this.sinceSliderSync = 0;
@@ -302,6 +331,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
         this.driver = undefined;
         if (!this.playing) return;
         this.playing = false;
+        this.liveStore.report(undefined);
         if (commit && this.graphSession?.isAlive) this.setState({arcMoverPosition: this.livePosition});
         if (this.graphSession?.isAlive) this.refreshWorkspace();
     }
@@ -380,6 +410,115 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
         registry.on('arc-pause', () => this.pause());
     }
 
+    // ---- Declaration -----------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064). Keys `arc-pieces` (the count N), `arc-mover-mode` (`parameter` or `arc`) and `arc-mover-position`
+     * (a fraction of t or of L). The position reads the playback position while the loop runs, since playback writes no state.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'arc-pieces': {
+                read: () => this.effectivePieces(),
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isInteger(value) || value < ARC_PIECES_MIN || value > ARC_PIECES_MAX) {
+                        throw new DomainError(message('arcparam_pieces_refused', {value0: String(ARC_PIECES_MIN), value1: String(ARC_PIECES_MAX)}));
+                    }
+                    this.setArcPieces(value);
+                },
+            },
+            'arc-mover-mode': {
+                read: () => this.effectiveMode(),
+                apply: (value: unknown) => {
+                    if (!isArcMoverMode(value)) throw new DomainError(message('arcparam_mode_refused'));
+                    this.setArcMoverMode(value);
+                },
+            },
+            'arc-mover-position': {
+                read: () => this.effectivePosition(),
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) throw new DomainError(message('arcparam_position_refused'));
+                    this.setArcMoverPosition(value);
+                },
+            },
+        };
+    }
+
+    /** The sentences of the old details list and the mover line (the board caption's first line), none without a curve. */
+    private readoutNotes(): ReadoutNote<ArcLengthIds>[] {
+        const model = this.overlay?.model();
+        const mover = this.overlay?.mover();
+        if (!model || !mover) return [];
+        const num = (value: number, decimals = 4) => formatNumber(value, currentLanguage(), decimals);
+        const notes: ReadoutNote<ArcLengthIds>[] = [{id: 'mover', text: message('arcparam_readout_t', {value0: num(mover.t), value1: num(mover.s)})}];
+        if (model.degenerate) return [...notes, {id: 'status', text: message('arcparam_readout_degenerate')}];
+        notes.push({id: 'length', text: message('arcparam_readout_length', {
+            value0: num(model.length, 6), value1: String(GAUSS_LEGENDRE_ORDER), value2: String(TABLE_SUBINTERVALS),
+        })});
+        const exact = this.exactLength();
+        if (exact !== undefined) notes.push({id: 'exact', text: message('arcparam_readout_exact', {value0: num(exact, 6)})});
+        notes.push({id: 'bracket', text: message('arcparam_readout_bracket', {value0: num(model.bracket.chord, 6), value1: num(model.bracket.polygon, 6)})});
+        const n = String(model.pieces);
+        if (model.equalT.ratio !== undefined) notes.push({id: 'ratio-t', text: message('arcparam_readout_ratio_t', {value0: n, value1: num(model.equalT.ratio, 3)})});
+        if (model.equalArc.ratio !== undefined) notes.push({id: 'ratio-arc', text: message('arcparam_readout_ratio_arc', {value0: n, value1: num(model.equalArc.ratio, 3)})});
+        notes.push({id: 'polyline', text: message('arcparam_readout_polyline', {value0: n, value1: num(model.polylineError, 6)})});
+        notes.push({id: 'status', text: model.status.kind === 'cusp'
+            ? message('arcparam_readout_cusp', {value0: model.status.parameters.map(p => num(p, 3)).join("; ")})
+            : message('arcparam_readout_regular')});
+        return notes;
+    }
+
+    /**
+     * Pure data from the state: three board pucks (the pieces count and the mover mode, which the lessons flip and compare, and the
+     * position, which they move), the details sentences as notes with the help line, and the legend (the curve, its points, the
+     * moving point, and each kind of mark while it is shown). The curve switches, the mark switches and the curve choice stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<ArcLengthIds> {
+        const common = this.commonCurveDeclaration();
+        const parameters: ParameterDeclaration<ArcLengthIds['param']>[] = [
+            {key: 'arc-pieces', kind: 'count', label: message('arcparam_pieces_name'), symbol: 'N', placement: 'board', min: ARC_PIECES_MIN, max: ARC_PIECES_MAX},
+            {key: 'arc-mover-mode', kind: 'choice', label: message('arcparam_mover_mode'), placement: 'board', puck: true, options: [
+                {value: 'parameter', label: message('arcparam_mode_parameter'), short: message('arcparam_mode_parameter_short')},
+                {value: 'arc', label: message('arcparam_mode_arc'), short: message('arcparam_mode_arc_short')},
+            ]},
+            {key: 'arc-mover-position', kind: 'range', label: message('arcparam_mover_position'), placement: 'board', min: 0, max: 1, step: 0.001, maxDecimals: 3},
+        ];
+        const legend: LegendEntry<ArcLengthIds>[] = [
+            ...(common.legend ?? []),
+            ...(this.overlay?.mover() ? [{id: 'mover' as const, label: message('arcparam_legend_mover'), kind: 'point' as const, object: 'mover'}] : []),
+            ...(this.effectiveEqualT() ? [{id: 'equal-t' as const, label: message('arcparam_equal_t_shown'), kind: 'point' as const, object: 'equal-t'}] : []),
+            ...(this.effectiveEqualArc() ? [{id: 'equal-arc' as const, label: message('arcparam_equal_arc_shown'), kind: 'ring' as const, object: 'equal-arc'}] : []),
+        ];
+        return {...common, parameters, notes: this.readoutNotes(), readoutHelp: message('arcparam_help'), legend};
+    }
+
+    private moverMarksCache: {base: ViewMarks; x: number; y: number; marks: ViewMarks} | undefined;
+
+    /** The control points and curve samples of the base, and the moving point (must), so the view never leaves it behind. Memoized on both. */
+    protected override curveViewMarks(): ViewMarks {
+        const base = super.curveViewMarks();
+        const model = this.overlay?.model();
+        const mover = this.overlay?.mover();
+        const point = model && mover ? model.table.source.at(mover.t).point : undefined;
+        if (!point || !Number.isFinite(point[0]) || !Number.isFinite(point[1])) return base;
+        const cached = this.moverMarksCache;
+        if (cached && cached.base === base && cached.x === point[0] && cached.y === point[1]) return cached.marks;
+        const marks: ViewMarks = {...base, must: [...base.must, {kind: 'point', x: point[0], y: point[1]}]};
+        this.moverMarksCache = {base, x: point[0], y: point[1], marks};
+        return marks;
+    }
+
+    /** The overlay's first element of a pool stands for it (its visibility is the switch); the base owns the curve and its control points. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const index = id === 'equal-t' ? 0 : id === 'equal-arc' ? ARC_PIECES_MAX + 1 : id === 'mover' ? 2 * (ARC_PIECES_MAX + 1) : undefined;
+        if (index === undefined) return super.drawnObject(id);
+        const element = this.overlay?.ownedElements()[index];
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(id === 'equal-arc' ? 'strokecolor' : 'fillcolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
     // ---- Controls --------------------------------------------------------------------------------------------------
 
     protected override workspaceEdit(): React.ReactNode {
@@ -389,20 +528,20 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
     private arcControls() {
         const kind = this.curveKind();
         return <div className="inspector-group">
-            <p className="inspector-help">{t("arcparam_help")}</p>
-            <Slider min={ARC_PIECES_MIN} max={ARC_PIECES_MAX} step={1} value={this.effectivePieces()} customText={t("arcparam_pieces")}
-                    onChange={value => this.setArcPieces(Math.round(value))}/>
+            <div data-declared-panel=""><p className="inspector-help">{t("arcparam_help")}</p></div>
+            <PuckOwned param="arc-pieces"><Slider min={ARC_PIECES_MIN} max={ARC_PIECES_MAX} step={1} value={this.effectivePieces()} customText={t("arcparam_pieces")}
+                    onChange={value => this.setArcPieces(Math.round(value))}/></PuckOwned>
             <OnOffSwitch label={t("arcparam_equal_t_shown")} checked={this.effectiveEqualT()} onChange={checked => this.setArcEqualTShown(checked)}/>
             <OnOffSwitch label={t("arcparam_equal_arc_shown")} checked={this.effectiveEqualArc()} onChange={checked => this.setArcEqualArcShown(checked)}/>
             <ChoiceSelect label={t("parametric_curve_label")} value={kind}
                           options={ARC_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
                           onChange={value => { if (isArcCurveKind(value) && value !== kind) this.setCurveKind(value); }}/>
-            <ChoiceSelect label={t("arcparam_mover_mode")} value={this.effectiveMode()}
+            <PuckOwned param="arc-mover-mode"><ChoiceSelect label={t("arcparam_mover_mode")} value={this.effectiveMode()}
                           options={ARC_MOVER_MODES.map(value => ({value, text: value === 'arc' ? t("arcparam_mode_arc") : t("arcparam_mode_parameter")}))}
-                          onChange={value => { if (isArcMoverMode(value)) this.setArcMoverMode(value); }}/>
-            <Slider min={0} max={1} step={0.001} value={this.moverPosition()} customText={t("arcparam_mover_position")}
+                          onChange={value => { if (isArcMoverMode(value)) this.setArcMoverMode(value); }}/></PuckOwned>
+            <PuckOwned param="arc-mover-position"><Slider min={0} max={1} step={0.001} value={this.moverPosition()} customText={t("arcparam_mover_position")}
                     unavailableReason={this.playing ? t("arcparam_position_while_playing") : undefined}
-                    onChange={value => this.setArcMoverPosition(value)}/>
+                    onChange={value => this.setArcMoverPosition(value)}/></PuckOwned>
             <ReducedMotion>{() =>
                 <PlaybackButtons placement="graph" groupLabel={t("arcparam_playback_group")} className="arc-playback" playing={this.playing}
                                  playBlock={this.reducedMotion() ? 'reduced-motion' : undefined} reducedMotionReason={t("playback_block_reduced_motion_position")}
@@ -411,7 +550,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
             <OnOffSwitch label={t("arcparam_speed_plot_shown")} checked={this.state.arcSpeedPlotShown}
                          onChange={checked => this.setArcSpeedPlotShown(checked)}/>
             {this.state.arcSpeedPlotShown && <ArcSpeedPlot controller={this.plot} fontSize={this.displaySettings.fontSize}/>}
-            <ReadoutDetails controller={this.details} label={t("arcparam_details_aria")} testId="arc-details"/>
+            <div data-declared-panel=""><ReadoutDetails controller={this.details} label={t("arcparam_details_aria")} testId="arc-details"/></div>
         </div>;
     }
 }

@@ -1,0 +1,130 @@
+{
+  "graph": "arc-length-param",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (the cubic Q, N = 8)",
+      "rows": [],
+      "notes": [
+        "Ločna dolžina L = 6,390976 (numerično: Gauss-Legendre z 24 točkami, 32 delov).",
+        "Tetiva 4 ≤ L ≤ kontrolni poligon 8,324555.",
+        "Razmerje največje in najmanjše tetive pri enakih korakih v t (N = 8): 1,857.",
+        "Razmerje največje in najmanjše tetive pri enakih ločnih dolžinah (N = 8): 1,015.",
+        "Napaka včrtanega poligona |L - dolžina poligona| pri N = 8: 0,025086. Ponazoritev vedenja O(h²) na tem primeru, ne dokaz.",
+        "Krivulja nima osti."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0, s(t) = 0"
+      ]
+    },
+    {
+      "name": "position 0,5",
+      "rows": [],
+      "notes": [
+        "Ločna dolžina L = 6,390976 (numerično: Gauss-Legendre z 24 točkami, 32 delov).",
+        "Tetiva 4 ≤ L ≤ kontrolni poligon 8,324555.",
+        "Razmerje največje in najmanjše tetive pri enakih korakih v t (N = 8): 1,857.",
+        "Razmerje največje in najmanjše tetive pri enakih ločnih dolžinah (N = 8): 1,015.",
+        "Napaka včrtanega poligona |L - dolžina poligona| pri N = 8: 0,025086. Ponazoritev vedenja O(h²) na tem primeru, ne dokaz.",
+        "Krivulja nima osti."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0,5, s(t) = 3,1955"
+      ]
+    },
+    {
+      "name": "N = 16",
+      "rows": [],
+      "notes": [
+        "Ločna dolžina L = 6,390976 (numerično: Gauss-Legendre z 24 točkami, 32 delov).",
+        "Tetiva 4 ≤ L ≤ kontrolni poligon 8,324555.",
+        "Razmerje največje in najmanjše tetive pri enakih korakih v t (N = 16): 1,992.",
+        "Razmerje največje in najmanjše tetive pri enakih ločnih dolžinah (N = 16): 1,005.",
+        "Napaka včrtanega poligona |L - dolžina poligona| pri N = 16: 0,006267. Ponazoritev vedenja O(h²) na tem primeru, ne dokaz.",
+        "Krivulja nima osti."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0,5, s(t) = 3,1955"
+      ]
+    },
+    {
+      "name": "constant arc speed, position 0,25",
+      "rows": [],
+      "notes": [
+        "Ločna dolžina L = 6,390976 (numerično: Gauss-Legendre z 24 točkami, 32 delov).",
+        "Tetiva 4 ≤ L ≤ kontrolni poligon 8,324555.",
+        "Razmerje največje in najmanjše tetive pri enakih korakih v t (N = 16): 1,992.",
+        "Razmerje največje in najmanjše tetive pri enakih ločnih dolžinah (N = 16): 1,005.",
+        "Napaka včrtanega poligona |L - dolžina poligona| pri N = 16: 0,006267. Ponazoritev vedenja O(h²) na tem primeru, ne dokaz.",
+        "Krivulja nima osti."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 6,390976",
+        "t = 0,1983, s(t) = 1,5977"
+      ]
+    },
+    {
+      "name": "the PH curve",
+      "rows": [],
+      "notes": [
+        "Ločna dolžina L = 10,333333 (numerično: Gauss-Legendre z 24 točkami, 32 delov).",
+        "Točna dolžina s(1) = 10,333333 (PH krivulja).",
+        "Tetiva 8,422122 ≤ L ≤ kontrolni poligon 12,292408.",
+        "Razmerje največje in najmanjše tetive pri enakih korakih v t (N = 16): 1,679.",
+        "Razmerje največje in najmanjše tetive pri enakih ločnih dolžinah (N = 16): 1,001.",
+        "Napaka včrtanega poligona |L - dolžina poligona| pri N = 16: 0,006964. Ponazoritev vedenja O(h²) na tem primeru, ne dokaz.",
+        "Krivulja nima osti."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 10,333333",
+        "s(1) = 10,333333 (točno)",
+        "t = 0,1901, s(t) = 2,5833"
+      ]
+    },
+    {
+      "name": "PH, N = 4, position 0,3",
+      "rows": [],
+      "notes": [
+        "Ločna dolžina L = 10,333333 (numerično: Gauss-Legendre z 24 točkami, 32 delov).",
+        "Točna dolžina s(1) = 10,333333 (PH krivulja).",
+        "Tetiva 8,422122 ≤ L ≤ kontrolni poligon 12,292408.",
+        "Razmerje največje in najmanjše tetive pri enakih korakih v t (N = 4): 1,495.",
+        "Razmerje največje in najmanjše tetive pri enakih ločnih dolžinah (N = 4): 1,015.",
+        "Napaka včrtanega poligona |L - dolžina poligona| pri N = 4: 0,111771. Ponazoritev vedenja O(h²) na tem primeru, ne dokaz.",
+        "Krivulja nima osti."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 10,333333",
+        "s(1) = 10,333333 (točno)",
+        "t = 0,2334, s(t) = 3,1"
+      ]
+    },
+    {
+      "name": "a cusp curve",
+      "rows": [],
+      "notes": [
+        "Ločna dolžina L = 1,959267 (numerično: Gauss-Legendre z 24 točkami, 32 delov).",
+        "Tetiva 1,414214 ≤ L ≤ kontrolni poligon 4,650282.",
+        "Razmerje največje in najmanjše tetive pri enakih korakih v t (N = 8): 17,108.",
+        "Razmerje največje in najmanjše tetive pri enakih ločnih dolžinah (N = 8): 3,384.",
+        "Napaka včrtanega poligona |L - dolžina poligona| pri N = 8: 0,004182. Ponazoritev vedenja O(h²) na tem primeru, ne dokaz.",
+        "Osti (hitrost 0) pri t = 0,5; dolžine blizu osti so manj natančne."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 1,959267",
+        "Osti pri t = 0,5",
+        "t = 0, s(t) = 0"
+      ]
+    }
+  ]
+}

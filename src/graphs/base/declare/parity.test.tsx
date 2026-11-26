@@ -63,6 +63,10 @@ const nurbsAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed under its error sentence (it carries no readout marker, so the recording holds none)'},
 ];
 
+const arcAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its details (it carries no readout marker, so the recording holds none), and the mover line "t = .., s(t) = .." is declared as a note while the old panel drew it only as a board caption, which the recording holds as a caption'},
+];
+
 const quadratureAccepted: readonly AcceptedDifference[] = [];
 
 const eulerAccepted:readonly AcceptedDifference[] = [
@@ -308,6 +312,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 'weight 4 is 0,5, t = 0,3', apply: run(g => { g.setWeight(3, 0.5); g.setT(0.3); })},
             {name: 'circle hidden, a point moved', apply: run(g => { g.resetToOrigin(); g.setShowCircle(false); g.editPoint(2, [0.2, 1.4]); })},
             {name: 'reset', apply: run(g => g.resetToOrigin())},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/arclength/__parity__/arc-length-param.json', demonstration: 'arc-length-param', accepted: arcAccepted, states: (() => {
+        type Arc = {setArcMoverPosition(value: number): void; setArcPieces(value: number): void; setArcMoverMode(mode: 'parameter' | 'arc'): void;
+            setCurveKind(kind: 'bezier' | 'ph'): void; runLessonReplacement(spec: Record<string, unknown>): void; importPresetData(data: unknown): void; getInitialState(): object; lessonDefaultState(): object};
+        const run = (edit: (graph: Arc) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Arc)); };
+        const cuspState = {showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false, showingDecasteljauScheme: false,
+            subdivisionT: 0.5, decasteljauT: 0.5, extrapolationT: 1.2};
+        return [
+            {name: 'default (the cubic Q, N = 8)', apply: () => undefined},
+            {name: 'position 0,5', apply: run(g => g.setArcMoverPosition(0.5))},
+            {name: 'N = 16', apply: run(g => g.setArcPieces(16))},
+            {name: 'constant arc speed, position 0,25', apply: run(g => { g.setArcMoverMode('arc'); g.setArcMoverPosition(0.25); })},
+            {name: 'the PH curve', apply: run(g => g.setCurveKind('ph'))},
+            {name: 'PH, N = 4, position 0,3', apply: run(g => { g.setArcPieces(4); g.setArcMoverPosition(0.3); })},
+            {name: 'a cusp curve', apply: run(g => g.runLessonReplacement({importData: () => g.importPresetData([['JSXBezierCurve', {points: [[0, 0], [1, 2], [0, 1], [1, 1]], state: cuspState}]]), afterImport: () => undefined, state: () => ({...g.getInitialState(), ...g.lessonDefaultState()}), transientState: undefined}))},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {

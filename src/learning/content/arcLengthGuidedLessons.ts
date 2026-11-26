@@ -5,10 +5,15 @@
  * Scenes use the `arc-curve`, `arc-pieces`, `arc-mover-mode`, `arc-mover-position`, `arc-pause` and `curve-visibility` actions.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ArcLengthIds} from '../../graphs/curves/arclength/ArcLengthParametrizationGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+
+/** Typed by the arc-length graph's declaration ids: an unknown id fails the type check. */
+const arcFrame = frameDeclarer<ArcLengthIds>();
 
 interface ArcSceneSettings {
     curve: 'bezier' | 'ph';
@@ -97,11 +102,11 @@ const arcLengthLesson: GuidedLesson = {
             title: text('Enaka hitrost v \\(t\\) ni enaka hitrost po krivulji', 'Constant speed in \\(t\\) is not constant speed along the curve'),
             purpose: text('Pred razkritjem napovedati, ali so točke z enakimi koraki v \\(t\\) enakomerno razporejene po krivulji.', 'Predicting, before the reveal, whether points with equal steps in \\(t\\) are evenly spread along the curve.'),
             explanation: text(
-                'Prikazana je kubična Bézierjeva krivulja \\(Q\\) s kontrolnimi točkami \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\) in \\(8\\) enakimi koraki v \\(t\\) (polni krogci). Točka se giblje po enakih korakih v \\(t\\). Napovej: ali so krogci enakomerno razporejeni po krivulji? Pritisni Predvajaj ali premakni drsnik lege. Točka je zdaj pri \\(t=0{,}25\\), a je prepotovala \\(s(0{,}25)=1{,}9289\\) od dolžine \\(L=6{,}390976\\), to je \\(30{,}2\\,\\%\\) in ne \\(25\\,\\%\\). Razmerje največje in najmanjše tetive med sosednjima krogcema je \\(1{,}857\\).',
-                'The cubic Bézier curve \\(Q\\) with control points \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\) is shown with \\(8\\) equal steps in \\(t\\) (filled circles). The point moves in equal steps of \\(t\\). Predict: are the circles evenly spread along the curve? Press Play or move the position slider. The point is now at \\(t=0.25\\), but it has covered \\(s(0.25)=1.9289\\) of the length \\(L=6.390976\\), that is \\(30.2\\,\\%\\) and not \\(25\\,\\%\\). The ratio of the longest to the shortest chord between neighbouring circles is \\(1.857\\).',
+                'Prikazana je kubična Bézierjeva krivulja \\(Q\\) s kontrolnimi točkami \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\) in \\(8\\) enakimi koraki v \\(t\\) (polni krogci). Točka se giblje po enakih korakih v \\(t\\). Napovej: ali so krogci enakomerno razporejeni po krivulji? Pritisni Predvajaj ali spremeni vrednost Lega točke. Točka je zdaj pri \\(t=0{,}25\\), a je prepotovala \\(s(0{,}25)=1{,}9289\\) od dolžine \\(L=6{,}390976\\), to je \\(30{,}2\\,\\%\\) in ne \\(25\\,\\%\\). Razmerje največje in najmanjše tetive med sosednjima krogcema je \\(1{,}857\\).',
+                'The cubic Bézier curve \\(Q\\) with control points \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\) is shown with \\(8\\) equal steps in \\(t\\) (filled circles). The point moves in equal steps of \\(t\\). Predict: are the circles evenly spread along the curve? Press Play or change Point position. The point is now at \\(t=0.25\\), but it has covered \\(s(0.25)=1.9289\\) of the length \\(L=6.390976\\), that is \\(30.2\\,\\%\\) and not \\(25\\,\\%\\). The ratio of the longest to the shortest chord between neighbouring circles is \\(1.857\\).',
             ),
             formulaIds: ['arc-length-integral'],
-            frames: [frame('arc-constant-t-explanation', 'explanation'), frame('arc-constant-t-observation', 'observation')],
+            frames: [frame('arc-constant-t-explanation', 'explanation'), frame('arc-constant-t-observation', 'observation', arcFrame({uses: ['arc-mover-position']}))],
             observationPrompt: text('Poženi točko in opazuj, kje se premika hitro in kje počasi.', 'Play the point and watch where it moves fast and where slowly.'),
             expectedObservations: [text('Točka je hitra na koncih krivulje in počasna na sredini, čeprav se \\(t\\) enakomerno povečuje; krogci so na koncih redkejši.', 'The point is fast near the ends of the curve and slow in the middle although \\(t\\) grows evenly; the circles are sparser near the ends.')],
             scene: arcScene('arc-constant-t-scene', {curve: 'bezier', pieces: 8, mode: 'parameter', position: 0.25, equalT: true, equalArc: false, plot: false},
@@ -149,7 +154,7 @@ const arcLengthLesson: GuidedLesson = {
                 'The equations \\(s(t_k)=kL/N\\) are solved by inverting the table, giving the parameters \\(t_k\\) (hollow squares). For \\(N=8\\) the first three are \\(0.0906\\), \\(0.1983\\), \\(0.3324\\), and the middle one is \\(0.5\\). Each piece of the curve has length \\(L/8\\). Predict: what is the ratio of the longest to the shortest chord now? For equal steps in \\(t\\) it was \\(1.857\\); for equal arcs it is \\(1.015\\). Arcs of equal length bend by different amounts, so their chords fall short by different amounts and the ratio is not exactly \\(1\\). In the Constant speed along the curve mode the point is at \\(s=L/4=1.5977\\), that is at \\(t=0.1983\\), not at \\(t=0.25\\).',
             ),
             formulaIds: ['arc-length-integral'],
-            frames: [frame('arc-equal-arcs-explanation', 'explanation'), frame('arc-equal-arcs-observation', 'observation')],
+            frames: [frame('arc-equal-arcs-explanation', 'explanation'), frame('arc-equal-arcs-observation', 'observation', arcFrame({uses: ['arc-mover-mode']}))],
             observationPrompt: text('Primerjaj razmik polnih krogcev in praznih kvadratov ter pritisni Predvajaj v načinu Stalna hitrost po krivulji.', 'Compare the spacing of the filled circles and the hollow squares, and press Play in the Constant speed along the curve mode.'),
             expectedObservations: [text('Kvadrati so po krivulji skoraj enakomerno razporejeni (razmerje \\(1{,}015\\)), krogci pa ne (\\(1{,}857\\)); točka s stalno ločno hitrostjo se giblje enakomerno.', 'The squares are almost evenly spread along the curve (ratio \\(1.015\\)) and the circles are not (\\(1.857\\)); the point at constant arc speed moves evenly.')],
             scene: arcScene('arc-equal-arcs-scene', {curve: 'bezier', pieces: 8, mode: 'arc', position: 0.25, equalT: true, equalArc: true, plot: true},
