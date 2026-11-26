@@ -366,7 +366,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         const model = this.model;
         const [x0Min, x0Max] = inverseX0Range(model.restriction, model.base);
         const parameters: ParameterDeclaration[] = [
-            {key: "inverse-x0", kind: "range", label: message("function_inverse_x0_label"), symbol: "x₀", placement: "board",
+            {key: "inverse-x0", kind: "range", label: message("function_inverse_x0_name"), symbol: "x_0", placement: "board",
                 min: x0Min, max: x0Max, step: INVERSE_X0_STEP, maxDecimals: PRECISE},
             {key: "inverse-restriction", kind: "choice", label: message("function_inverse_restriction_label"), help: message("function_inverse_restriction_help"), placement: "tools",
                 options: INVERSE_RESTRICTION_IDS.map(id => ({value: id, label: message(RESTRICTION_KEYS[id])}))},

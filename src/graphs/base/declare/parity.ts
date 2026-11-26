@@ -53,7 +53,10 @@ const textOf = (element: Element | null | undefined): string => normalise(elemen
 export function readPanel(container: HTMLElement, graph: BaseGraph<BaseGraphState>, name: string): RecordedState {
     const counts = new Map<string, number>();
     const rows: RecordedRow[] = [];
+    // A control the declaration does not take over (the curve point editor stays in Orodja) is marked `data-parity-retained`.
+    const shown = (element: Element): boolean => element.closest('[data-parity-retained]') === null;
     container.querySelectorAll('[data-readout]:not([data-readout-live])').forEach(element => {
+        if (!shown(element)) return;
         const term = element.querySelector('dt');
         const value = element.querySelector('dd');
         const label = term ? textOf(term) : '';
@@ -61,8 +64,8 @@ export function readPanel(container: HTMLElement, graph: BaseGraph<BaseGraphStat
         counts.set(label, order + 1);
         rows.push({key: `${label}#${order}`, label, value: value ? textOf(value) : textOf(element)});
     });
-    const notes = [...container.querySelectorAll('[data-readout-note]')].map(textOf);
-    const outputs = [...container.querySelectorAll('output')].map(textOf).filter(text => text !== '');
+    const notes = [...container.querySelectorAll('[data-readout-note]')].filter(shown).map(textOf);
+    const outputs = [...container.querySelectorAll('output')].filter(shown).map(textOf).filter(text => text !== '');
     const board = (graph as unknown as {board?: JXG.Board}).board;
     const captions: string[] = [];
     for (const object of (board?.objectsList ?? []) as any[]) {
