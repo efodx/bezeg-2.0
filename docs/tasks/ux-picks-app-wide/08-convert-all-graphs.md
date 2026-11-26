@@ -83,9 +83,9 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 5 | L04 | bspline-nurbs | graph files + `bsplineNurbsGuidedLessons` | done `7728055cb` |
 | 5 | L11 | fourier-coefficients | graph files + `fourierCoefficientsGuidedLessons` | done `5cf68a631` |
 | 5 | L12 | fourier-series | graph files + `fourierSeriesGuidedLessons` | done `61ea0ddda` |
-| 6 | L13 | isometries | graph files + `isometriesFriezeGuidedLessons +2` | not started |
-| 6 | L14 | line-geometry | graph files + `analyticLinesGuidedLessons, analyticLinesIntersectGuidedLessons` | not started |
-| 6 | L15 | linear-program | graph files + `levelSetsGuidedLessons` | not started |
+| 6 | L13 | isometries | graph files + `isometriesFriezeGuidedLessons +2` | done `d7efff433` |
+| 6 | L14 | line-geometry | graph files + `analyticLinesGuidedLessons, analyticLinesIntersectGuidedLessons` | done `70785a8f9` |
+| 6 | L15 | linear-program | graph files + `levelSetsGuidedLessons` | done `f3d1e51b4` |
 | 7 | L16 | projective-five-point | graph files + `projectiveFivePointGuidedLesson` | not started |
 | 7 | L18 | quadrature | graph files + `numericalQuadratureGuidedLesson` | not started |
 | 7 | L19 | recursion-growth | graph files + `recursionGuidedLessons, recursionLogScaleGuidedLessons` | not started |
