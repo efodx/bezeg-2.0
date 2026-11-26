@@ -52,7 +52,7 @@ Lead 3: `210823404` … `fb985f062` (cards, Orodja tabs, reset focus, repeated s
 
 - Desktop pucks: readout row over a full-width control (kept). Card titles: small capitals (kept).
 - Legenda starts open where it fits: done in `4323d1876` (`defaultFolded` dropped; new layout rule 5b `reopenWhenRoom` reopens it when later folds left room; 03-layout-design and 04-design updated). Open at 1440 on Taylor, transformations, linear map, phase portrait, polygon area, clipping; folded where Orodja fills the column and at 1280 on most boards. Tell handler 9 at the merge.
-- He said "Much better" to the screenshots (before the Legenda change). Final sign-off asked with the new 1440 sheet; he cannot reach the tailnet, so screenshots go into the conversation (Read the sheet PNGs).
+- **Signed off (owner, 2026-11-26)** on the screenshots shown in the conversation ("Much better", then sign-off with Legenda open). Task 11 is closed; branch head `311a7a61c` + this note sent to handler 9 to merge. Servers stopped, tailnet serves for 4491 and 4493 turned off. No successor lead is needed.
 
 ## With handler 9
 
