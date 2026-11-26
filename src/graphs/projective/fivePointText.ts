@@ -1,4 +1,4 @@
-import {t as translate} from "../../localization";
+import {message, messageNumber, t as translate, type Message} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {Conic} from "../../projective/conic";
 import {fractionText} from "./crossRatioModel";
@@ -111,5 +111,75 @@ export function describeFivePoint(scene: FivePointScene, stale: boolean, t: Tran
         deviation: scene.deviation === undefined ? undefined
             : t("projective_five_point_deviation", {value0: String(DEVIATION_SAMPLES), value1: deviationText(scene.deviation, language)}),
         weightBoard: `w² = ${fractionText(arc.weightSquared)}, w ${exact ? "=" : "≈"} ${exact ? fractionText(exact) : approx(arc.weight, language)}`,
+    };
+}
+
+/** The sentences of {@link describeFivePoint} as catalog messages (same words), so a declaration holds data and the language renders it. */
+export interface FivePointMessages {
+    readonly kind: FivePointStatusKind;
+    readonly status: Message;
+    readonly conic?: Message;
+    readonly control?: Message;
+    readonly weight?: Message;
+    readonly weightKind?: Message;
+    readonly farin?: Message;
+    readonly deviation?: Message;
+}
+
+const pair = (p: {x: number; y: number}): Message => message("projective_five_point_pair", {value0: messageNumber(p.x, 4), value1: messageNumber(p.y, 4)});
+
+export function fivePointMessages(scene: FivePointScene, stale: boolean, language: NumberLanguage): FivePointMessages {
+    const arc = scene.arc;
+    let status: Message;
+    switch (scene.kind) {
+        case "ok": {
+            const type = scene.type === "ellipse" || scene.type === "circle" || scene.type === "parabola" || scene.type === "hyperbola" ? scene.type : "ellipse";
+            status = message("projective_five_point_status_ok", {value0: message(TYPE_KEYS[type])});
+            break;
+        }
+        case "line-pair":
+            status = message("projective_five_point_status_line_pair", {value0: names(scene.collinearSet)});
+            break;
+        case "pencil-collinear":
+            status = message("projective_five_point_status_pencil_collinear", {value0: names(scene.collinearSet)});
+            break;
+        case "pencil-repeated":
+            status = message("projective_five_point_status_pencil_repeated", {value0: names(scene.repeated ?? [])});
+            break;
+        case "split-needed":
+            status = message("projective_five_point_status_split", {value0: String(MIN_CIRCLE_PIECES)});
+            break;
+        case "complementary-arc":
+            status = message("projective_five_point_status_complementary");
+            break;
+        case "no-real-weight":
+            status = message("projective_five_point_status_no_real_weight");
+            break;
+        case "arc-invalid":
+            status = message("projective_five_point_status_arc_invalid");
+            break;
+        default:
+            status = message("projective_five_point_status_invalid");
+    }
+    if (stale) status = message("projective_five_point_status_stale", {value0: status, value1: message("projective_five_point_stale")});
+    const typeKey = scene.status === "unique" && scene.type && scene.type in TYPE_KEYS ? TYPE_KEYS[scene.type as keyof typeof TYPE_KEYS] : "projective_five_point_type_line_pair";
+    const conic = scene.conic && scene.status !== "invalid" && scene.status !== "pencil"
+        ? message("projective_five_point_conic", {value0: message(typeKey), value1: conicEquation(scene.conic)}) : undefined;
+    if (!arc || arc.status !== "ok") return {kind: scene.kind, status, conic};
+    const [p0, p1, p2] = arc.points;
+    const exact = arc.weightExact;
+    const weight = exact
+        ? message("projective_five_point_weight_exact", {value0: fractionText(exact), value1: fractionText(arc.weightSquared)})
+        : message("projective_five_point_weight_decimal", {value0: messageNumber(arc.weight, 4), value1: fractionText(arc.weightSquared)});
+    const w2 = arc.weightSquared;
+    const weightKind = w2.num > w2.den
+        ? message("projective_five_point_weight_hyperbola", {value0: messageNumber(arc.denominatorZeros[0], 4), value1: messageNumber(arc.denominatorZeros[1], 4)})
+        : w2.num === w2.den ? message("projective_five_point_weight_parabola") : message("projective_five_point_weight_ellipse");
+    return {
+        kind: scene.kind, status, conic, weight, weightKind,
+        control: message("projective_five_point_control", {value0: pointText(p0), value1: pointText(p1), value2: pointText(p2)}),
+        farin: message("projective_five_point_farin", {value0: pair(arc.farinPoints[0]), value1: pair(arc.farinPoints[1]), value2: pair(arc.shoulder)}),
+        deviation: scene.deviation === undefined ? undefined
+            : message("projective_five_point_deviation", {value0: String(DEVIATION_SAMPLES), value1: deviationText(scene.deviation, language)}),
     };
 }

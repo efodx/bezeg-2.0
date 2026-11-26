@@ -8,11 +8,14 @@
  * the `circle` lesson and its `MIN_CIRCLE_PIECES` note in prose only.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {FivePointIds} from '../../graphs/projective/FivePointGraph';
 import type {FivePointExampleId} from '../../graphs/projective/fivePointModel';
 import type {GuidedLesson, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frameOf = (id: string, kind: GuidedLessonFrameKind) => ({id, kind});
+const frame = frameDeclarer<FivePointIds>();
+const frameOf = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration) => ({id, kind, ...(declare ? {declare} : {})});
 
 interface StepContent {
     readonly id: string;
@@ -23,16 +26,17 @@ interface StepContent {
     readonly formulaIds: readonly string[];
     readonly workedExampleId?: string;
     readonly observationPrompt: LocalizedText;
+    readonly declare?: Readonly<{observation?: FrameDeclaration}>;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frameOf(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frameOf(`${content.id}-calculation`, 'calculation')] : []),
-        frameOf(`${content.id}-observation`, 'observation'),
+        frameOf(`${content.id}-observation`, 'observation', declare?.observation),
     ],
 });
 
@@ -121,6 +125,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-conic'],
             observationPrompt: text('Preberi stanje pod petimi točkami.', 'Read the status under the five points.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['status']})},
             expectedObservations: [text('Stanje pravi, da pet točk določa natanko eno stožnico.', 'The status says that the five points determine exactly one conic.')],
             scene: fivePointScene('five-point-predict-scene', 'ellipse', false, [],
                 `Pet točk ${ELLIPSE_POINTS_SL}, skozi katere poteka natanko ena stožnica.`,
@@ -136,6 +141,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-conic'],
             observationPrompt: text('Preberi enačbo stožnice v seznamu.', 'Read the equation of the conic in the list.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['conic']})},
             expectedObservations: [text('Seznam navede stožnico (elipsa) z enačbo \\(9x^2+25y^2-225=0\\).', 'The list gives the conic (ellipse) with the equation \\(9x^2+25y^2-225=0\\).')],
             scene: fivePointScene('five-point-conic-scene', 'ellipse', false, [],
                 'Elipsa \\(9x^2+25y^2=225\\) skozi vseh pet točk.',
@@ -151,6 +157,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-rational'],
             observationPrompt: text('Preberi kontrolne točke v seznamu.', 'Read the control points in the list.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['control']})},
             expectedObservations: [text('Seznam navede \\(P_0=(5,0)\\), \\(P_1=(5,3)\\) in \\(P_2=(0,3)\\).', 'The list gives \\(P_0=(5,0)\\), \\(P_1=(5,3)\\) and \\(P_2=(0,3)\\).')],
             scene: fivePointScene('five-point-ends-scene', 'ellipse', false, [
                 {kind: 'projective', operation: 'five-point-set-end', which: 'a', index: 0},
@@ -170,6 +177,7 @@ export const fivePointLesson: GuidedLesson = {
             formulaIds: ['five-point-rational'],
             workedExampleId: 'k4-default-weight',
             observationPrompt: text('Preberi utež in Farinovi točki v seznamu.', 'Read the weight and the Farin points in the list.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['weight', 'farin']})},
             expectedObservations: [text('Utež je \\(w\\approx0{,}7071\\) z \\(w^2=\\tfrac12\\), in graf pravi, da je \\(w<1\\) lok elipse.', 'The weight is \\(w\\approx0.7071\\) with \\(w^2=\\tfrac12\\), and the graph says that \\(w<1\\) is an arc of an ellipse.')],
             scene: fivePointScene('five-point-weight-scene', 'ellipse', false, [
                 {kind: 'projective', operation: 'five-point-set-end', which: 'a', index: 0},
@@ -189,6 +197,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-rational'],
             observationPrompt: text('Preberi odmik in poglej črtkani dopolnilni lok.', 'Read the deviation and look at the dashed complementary arc.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['deviation']})},
             expectedObservations: [text('Odmik je naveden kot vzorčni preizkus in je pod \\(10^{-9}\\); črtkani del je dopolnilni lok stožnice.', 'The deviation is given as a sampled check and is below \\(10^{-9}\\); the dashed part is the complementary arc of the conic.')],
             scene: fivePointScene('five-point-bezier-scene', 'ellipse', true, [
                 {kind: 'projective', operation: 'five-point-set-end', which: 'a', index: 0},
@@ -207,6 +216,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-rational'],
             observationPrompt: text('Preberi stanje, ko izbereš \\(A\\) in \\(C\\) za krajišči.', 'Read the status with \\(A\\) and \\(C\\) as the ends.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['status']})},
             expectedObservations: [text('Stanje pravi, da sta tangenti vzporedni in da lok ne more biti en končen kvadratni kos; omenja najmanjše število kosov krožnice, \\(3\\).', 'The status says that the tangents are parallel and that the arc cannot be one finite quadratic piece; it mentions the smallest number of circle pieces, \\(3\\).')],
             scene: fivePointScene('five-point-parallel-scene', 'ellipse', false, [
                 {kind: 'projective', operation: 'five-point-set-end', which: 'a', index: 0},
@@ -225,6 +235,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-rational'],
             observationPrompt: text('Preberi utež in obe ničli imenovalca.', 'Read the weight and the two zeros of the denominator.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['weight', 'weight-kind']})},
             expectedObservations: [text('Graf pravi, da je \\(w>1\\), lok se nadaljuje skozi točko v neskončnosti, ničli imenovalca pa sta \\(t\\approx-1{,}366\\) in \\(t\\approx2{,}366\\).', 'The graph says that \\(w>1\\), the arc continues through a point at infinity, and the zeros of the denominator are \\(t\\approx-1.366\\) and \\(t\\approx2.366\\).')],
             scene: fivePointScene('five-point-hyperbola-scene', 'hyperbola', true, [],
                 'Hiperbola \\(16x^2-9y^2=144\\), lok od \\((3,0)\\) do \\((5,\\tfrac{16}3)\\) z \\(P_1=(3,2)\\) in \\(w=\\tfrac2{\\sqrt3}>1\\), nadaljevanje vklopljeno.',
@@ -240,6 +251,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-conic'],
             observationPrompt: text('Preberi stanje in enačbo.', 'Read the status and the equation.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['status', 'conic']})},
             expectedObservations: [text('Stanje pravi, da točke \\(A\\), \\(B\\), \\(C\\) ležijo na isti premici in da je stožnica par premic.', 'The status says that the points \\(A\\), \\(B\\), \\(C\\) lie on one line and that the conic is a line pair.')],
             scene: fivePointScene('five-point-line-pair-scene', 'three-collinear', false, [],
                 'Točke \\(A=(0,0)\\), \\(B=(1,1)\\), \\(C=(2,2)\\), \\(D=(3,0)\\), \\(E=(0,4)\\); stanje je par premic \\(4x^2-xy-3y^2-12x+12y=0\\).',
@@ -255,6 +267,7 @@ export const fivePointLesson: GuidedLesson = {
             ),
             formulaIds: ['five-point-conic'],
             observationPrompt: text('Preberi stanje.', 'Read the status.'),
+            declare: {observation: frame({open: ['readouts'], highlight: ['status']})},
             expectedObservations: [text('Stanje pravi, da točke \\(A\\), \\(B\\), \\(C\\), \\(D\\) ležijo na isti premici in da skozi pet točk poteka cel šop stožnic.', 'The status says that the points \\(A\\), \\(B\\), \\(C\\), \\(D\\) lie on one line and that a whole pencil of conics passes through the five points.')],
             scene: fivePointScene('five-point-pencil-scene', 'four-collinear', false, [],
                 'Točke \\(A=(0,0)\\), \\(B=(1,1)\\), \\(C=(2,2)\\), \\(D=(3,3)\\), \\(E=(0,4)\\); stanje je šop stožnic, ena sama ni določena.',

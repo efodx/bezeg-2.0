@@ -2,7 +2,7 @@ import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {Conic} from "../../projective/conic";
@@ -13,7 +13,8 @@ import {
 } from "./fivePointModel";
 import {movePoint, nudgePoint, setEnd, setNumerators, setThird} from "./fivePointEdit";
 import {FivePointControls} from "./FivePointControls";
-import {describeFivePoint} from "./fivePointText";
+import {describeFivePoint, fivePointMessages} from "./fivePointText";
+import type {GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
 import {definingPoints} from "./definingPoints";
 import {fivePointPresetCollection} from "./projectivePresetCollection";
 import {fivePointPersistence} from "./projectivePersistence";
@@ -76,7 +77,22 @@ interface FillCurve {
 interface DrawnScene {
     readonly points: readonly JXG.Point[];
     readonly all: readonly JXG.GeometryElement[];
+    /** The elements a legend entry names (`FivePointIds["legend"]`); an entry with several elements shows the first that is visible. */
+    readonly named: ReadonlyMap<string, readonly JXG.GeometryElement[]>;
 }
+
+/**
+ * The ids of the declaration. No parameters: the example, the arc ends, the weight point and the continuation are not bound in the
+ * arbiter (and the points are board-owned), so only the panel's sentences (notes, the status among them) and the legend are declared.
+ */
+export type FivePointIds = {
+    param: never;
+    row: never;
+    note: "status" | "conic" | "control" | "weight" | "weight-kind" | "farin" | "deviation";
+    legend: "conic" | "line-pair" | "arc" | "continuation" | "polygon" | "tangents" | "points";
+    section: never;
+    action: never;
+};
 
 const HIDDEN_LINE: [number, number, number] = [1, 0, 1];
 const coordinate = (numerator: number): number => numerator / FIVE_POINT_DENOMINATOR;
@@ -433,6 +449,8 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             const frame = pxFrame(board);
             return point && frame ? this.labels.offset(placed()[id], frame.toPx(point.X(), point.Y()), fallback) : [fallback[0], fallback[1]];
         };
+        const named = new Map<string, JXG.GeometryElement[]>();
+        const legendOf = (id: FivePointIds["legend"], element: JXG.GeometryElement) => { named.set(id, [...(named.get(id) ?? []), element]); };
         const curveOf = (fill: (curve: FillCurve) => void, attributes: Record<string, unknown>) => {
             const curve = add(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes}) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
             curve.updateDataArray = () => fill(curve);
@@ -440,7 +458,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         };
 
         // The conic, drawn from the sampler; the hyperbola's two branches are one polyline broken by NaN. A stale conic is grey and dashed.
-        curveOf(curve => {
+        legendOf("conic", curveOf(curve => {
             const shown = this.shown();
             const data = shown ? this.polyline(shown.conic) : {x: [], y: []};
             curve.dataX = data.x;
@@ -449,18 +467,18 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             strokeColor: () => this.shown()?.stale ? GraphPalette.referenceCurve : GraphPalette.primaryCurve,
             strokeWidth: () => this.displaySettings.strokeWidth, dash: () => this.shown()?.stale ? 3 : 0, layer: 4,
             visible: () => this.shown() !== undefined,
-        });
+        }));
 
         // A line pair (three collinear points) is drawn in the warning colour: it is the only conic, and it is not smooth.
-        curveOf(curve => {
+        legendOf("line-pair", curveOf(curve => {
             const scene = this.scene();
             const data = scene.kind === "line-pair" && scene.conic ? this.polyline(scene.conic) : {x: [], y: []};
             curve.dataX = data.x;
             curve.dataY = data.y;
-        }, {strokeColor: GraphPalette.warningText, strokeWidth: 2, dash: 2, layer: 4, visible: () => this.scene().kind === "line-pair"});
+        }, {strokeColor: GraphPalette.warningText, strokeWidth: 2, dash: 2, layer: 4, visible: () => this.scene().kind === "line-pair"}));
 
         // The arc as the shared rational de Casteljau evaluator draws it, over the conic, and its extrapolation (dashed, never joined across a zero).
-        curveOf(curve => {
+        legendOf("arc", curveOf(curve => {
             const arc = okArc();
             curve.dataX = [];
             curve.dataY = [];
@@ -470,9 +488,9 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
                 curve.dataX.push(x);
                 curve.dataY.push(y);
             }
-        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth + 3, layer: 3, visible: () => okArc() !== undefined});
+        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth + 3, layer: 3, visible: () => okArc() !== undefined}));
 
-        curveOf(curve => {
+        legendOf("continuation", curveOf(curve => {
             const arc = okArc();
             curve.dataX = [];
             curve.dataY = [];
@@ -482,14 +500,14 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
                 curve.dataX.push(...piece.x);
                 curve.dataY.push(...piece.y);
             });
-        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2, layer: 3, visible: () => okArc() !== undefined && this.extrapolation});
+        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2, layer: 3, visible: () => okArc() !== undefined && this.extrapolation}));
 
         // The control polygon P0 P1 P2.
-        curveOf(curve => {
+        legendOf("polygon", curveOf(curve => {
             const arc = okArc();
             curve.dataX = arc ? arc.controlPoints.map(p => p.x) : [];
             curve.dataY = arc ? arc.controlPoints.map(p => p.y) : [];
-        }, {strokeColor: GraphPalette.controlPolygon, strokeWidth: 1.5, dash: 1, layer: 2, visible: () => okArc() !== undefined});
+        }, {strokeColor: GraphPalette.controlPolygon, strokeWidth: 1.5, dash: 1, layer: 2, visible: () => okArc() !== undefined}));
 
         // The end tangents: the lines P0 P1 and P2 P1.
         const tangent = (end: 0 | 2): [number, number, number] => {
@@ -502,9 +520,9 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             return a === 0 && b === 0 ? HIDDEN_LINE : [-(a * p.x + b * p.y), a, b];
         };
         for (const end of [0, 2] as const) {
-            add(board.create("line", [() => tangent(end)[0], () => tangent(end)[1], () => tangent(end)[2]], {
+            legendOf("tangents", add(board.create("line", [() => tangent(end)[0], () => tangent(end)[1], () => tangent(end)[2]], {
                 strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: 2, highlight: false, fixed: true, layer: 3, visible: () => okArc() !== undefined,
-            }) as JXG.GeometryElement);
+            }) as JXG.GeometryElement));
         }
 
         // P1, the Farin points and the shoulder.
@@ -544,6 +562,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             }) as JXG.Point);
             point.label?.setText(pointLabelMath(name));
             elements.set(`h${i}`, point);
+            legendOf("points", point);
             point.on("down", () => {
                 this.selected = i;
                 this.requestRender();
@@ -559,7 +578,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             fixed: true, highlight: false, strokeColor: GraphPalette.label, layer: 8, visible: () => okArc() !== undefined,
         }) as JXG.GeometryElement);
         ready = true;
-        return {points, all};
+        return {points, all, named};
     }
 
     /**
@@ -627,6 +646,45 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
     override unmount(): void {
         this.removeDrawn();
         super.unmount();
+    }
+
+    // ---- Declaration (task 08 lane L16) ----------------------------------------------------------------------------
+
+    /**
+     * Pure data from the state: the panel's sentences as notes, in its order (the status among them, a warning when the points give no
+     * unique conic with an arc), the legend of what the board draws, and the five points the view keeps visible. No parameters: the
+     * example, the arc ends, the weight point and the continuation are not bound in the arbiter, and the points are board-owned.
+     */
+    protected override declaration(): GraphDeclaration<FivePointIds> {
+        const text = fivePointMessages(this.scene(), this.shown()?.stale === true, currentLanguage());
+        const notes: ReadoutNote<FivePointIds>[] = [{id: "status", text: text.status, ...(text.kind === "ok" ? {} : {tone: "warning" as const})}];
+        if (text.conic) notes.push({id: "conic", text: text.conic});
+        if (text.control) notes.push({id: "control", text: text.control});
+        if (text.weight) notes.push({id: "weight", text: text.weight});
+        if (text.weightKind) notes.push({id: "weight-kind", text: text.weightKind});
+        if (text.farin) notes.push({id: "farin", text: text.farin});
+        if (text.deviation) notes.push({id: "deviation", text: text.deviation});
+        const legend: LegendEntry<FivePointIds>[] = [
+            {id: "conic", label: message("projective_five_point_legend_conic"), kind: "line", object: "conic"},
+            {id: "line-pair", label: message("projective_five_point_legend_line_pair"), kind: "dashed", object: "line-pair"},
+            {id: "arc", label: message("projective_five_point_legend_arc"), kind: "line", object: "arc"},
+            {id: "continuation", label: message("projective_five_point_legend_continuation"), kind: "dashed", object: "continuation"},
+            {id: "polygon", label: message("projective_five_point_legend_polygon"), kind: "dashed", object: "polygon"},
+            {id: "tangents", label: message("projective_five_point_legend_tangents"), kind: "dashed", object: "tangents"},
+            {id: "points", label: message("projective_five_point_legend_points"), kind: "point", object: "points"},
+        ];
+        const points = this.model.points.map(p => ({kind: "point" as const, x: coordinate(p.x), y: coordinate(p.y)}));
+        return {notes, legend, marks: {must: points}};
+    }
+
+    /** The element a legend entry names, as the board holds it now (the first visible one when several: the two end tangents, the five points). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.drawn?.named.get(id);
+        if (!elements?.length) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = (element: JXG.GeometryElement) => element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const found = elements.find(element => Boolean(drawn(element).evalVisProp("visible"))) ?? elements[0];
+        return {color: String(drawn(found).evalVisProp(id === "points" ? "fillcolor" : "strokecolor")), visible: Boolean(drawn(found).evalVisProp("visible"))};
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

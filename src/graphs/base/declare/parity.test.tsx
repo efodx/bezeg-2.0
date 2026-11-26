@@ -126,6 +126,20 @@ const SAMPLES: readonly Sample[] = [
         {name: 'two points coincide', apply: graph => { runAs('learner', () => { const g = graph as unknown as {moveHandleTo(h: number, x: number, y: number): void}; g.moveHandleTo(4, 0, 5); g.moveHandleTo(1, 0, 0); }); }},
         {name: 'second line degenerate', apply: graph => { runAs('learner', () => { const g = graph as unknown as {loadExample(id: string): void; moveHandleTo(h: number, x: number, y: number): void}; g.loadExample('harmonic'); g.moveHandleTo(6, 0, 1); }); }},
     ]},
+    {file: 'projective/__parity__/projective-five-point.json', demonstration: 'projective-five-point', states: (() => {
+        type Five = {loadExample(id: string): void; moveTo(i: number, x: number, y: number): boolean; chooseEnd(which: 'a' | 'b', i: number): boolean; chooseThird(i: number): boolean};
+        const on = (apply: (g: Five) => void): ParityState['apply'] => graph => { runAs('learner', () => apply(graph as unknown as Five)); };
+        return [
+            {name: 'default ellipse', apply: () => {}},
+            {name: 'hyperbola', apply: on(g => g.loadExample('hyperbola'))},
+            {name: 'parabola', apply: on(g => g.loadExample('parabola'))},
+            {name: 'three collinear', apply: on(g => g.loadExample('three-collinear'))},
+            {name: 'four collinear', apply: on(g => g.loadExample('four-collinear'))},
+            {name: 'point moved', apply: on(g => { g.loadExample('ellipse'); g.moveTo(3, 5, 2); })},
+            {name: 'arc ends changed', apply: on(g => { g.loadExample('ellipse'); g.chooseEnd('a', 2); g.chooseEnd('b', 4); g.chooseThird(0); })},
+            {name: 'ellipse made degenerate (stale conic)', apply: on(g => { g.loadExample('ellipse'); g.moveTo(3, 2, 0); })},
+        ];
+    })()},
     {file: 'compgeo/__parity__/polygon-area.json', demonstration: 'polygon-area', states: (() => {
         type Area = {loadModel(model: unknown): void; setOverlay(id: string, shown: boolean): void; setPolygonClosed(closed: boolean): boolean; reverseOrder(): boolean};
         const polygon = (points: [number, number][], closed = true) => ({mode: 'polygon', closed, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
