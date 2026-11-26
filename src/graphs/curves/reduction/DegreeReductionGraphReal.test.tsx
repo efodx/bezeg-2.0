@@ -5,7 +5,7 @@ import {MemoryRouter} from 'react-router-dom';
 import type {GeometryElement} from 'jsxgraph';
 import DegreeReductionGraph, {REDUCTION_ELEVATED_POINTS, REDUCTION_P2_POINTS, REDUCTION_P_POINTS} from './DegreeReductionGraph';
 import {reduce} from '../../../bezeg/impl/kernels/degree-reduction';
-import {setLanguage, t} from '../../../localization';
+import {renderMessage, setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
 import {LessonAction} from '../../../learning/model';
 
@@ -33,7 +33,8 @@ class Probe extends DegreeReductionGraph {
     netPoints() { return this.owned().filter(e => e.elType === 'point').slice(3).map(p => [p.X!(), p.Y!()]); }
     captions() { return this.owned().filter(e => e.elType === 'text').map(e => e.plaintext ?? '').filter(Boolean); }
     published(): string { return this['liveReadout'].getSnapshot(); }
-    detailLines(): readonly string[] { return this['details'].lastLines(); }
+    /** The five readout sentences the graph declares for the Readouts card. */
+    detailLines(): readonly string[] { return (this.getDeclaration()?.notes ?? []).map(note => renderMessage(note.text)); }
     movePoint(index: number, to: number[]) {
         const point = this.getFirstJxgCurve().getJxgPoints()[index];
         point.moveTo(to, 0);
@@ -144,15 +145,13 @@ describe('DegreeReductionGraph scene', () => {
         } finally { view.unmount(); }
     });
 
-    test('the board carries two lines and the inspector list all five readouts', () => {
+    test('the board carries two lines and the Readouts card all five readouts, as the overlay words them', () => {
         const {graph, view} = mount();
         try {
             useP(graph);
             expect(graph.captions()).toEqual([t('reduction_readout_not_reducible'), t('reduction_readout_max_error', {value0: '0,0962'})]);
-            const list = document.querySelector('[data-testid="reduction-details"]') as HTMLUListElement;
-            const items = Array.from(list.children).map(item => item.textContent);
-            expect(items).toHaveLength(5);
-            expect(items).toEqual([...graph.detailLines()]);
+            expect(graph.detailLines()).toHaveLength(5);
+            expect(graph.detailLines()).toEqual(graph.reduction()!.readoutLines());
         } finally { view.unmount(); }
     });
 
@@ -225,7 +224,8 @@ describe('Reset, Presets and the live region', () => {
             expect(graph.state).toMatchObject({reductionMode: 'free', reductionElevationShown: true});
             near(graph.quadraticPoints(), [[-0.1, 0.6], [2, 3], [4.1, 2.4]]);
             expect(graph.captions()).toContain(t('reduction_readout_max_error', {value0: '0,6083'}));
-            expect(screen.getByRole('combobox', {name: t('reduction_mode')})).toHaveValue('free');
+            // The end-point choice is a board puck now (declaration test); the restored state is asserted above.
+            expect(screen.queryByRole('combobox', {name: t('reduction_mode')})).toBeNull();
         } finally { view.unmount(); }
     });
 

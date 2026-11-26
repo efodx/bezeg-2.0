@@ -1,17 +1,19 @@
 import React from "react";
-import {t} from "../../../localization";
+import {message, messageNumber, t} from "../../../localization";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
-import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {BaseGraphStates, type BaseCurveIds} from "../../base/BaseCurveGraph";
+import type {GraphDeclaration, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import {PuckOwnedGroup} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
 import {Attributes} from "../../attributes/Attributes";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {reductionPresetCollection} from "../bezier/collections";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
-import {ReadoutDetails, ReadoutDetailsController} from "../ReadoutDetails";
 import type {ReductionMode} from "../../../bezeg/impl/kernels/degree-reduction";
-import {ReductionOverlay} from "./ReductionOverlay";
+import {ReductionOverlay, reductionOf} from "./ReductionOverlay";
 
 export const REDUCTION_MODES: readonly ReductionMode[] = ['fixed', 'free'];
 
@@ -24,6 +26,14 @@ export const REDUCTION_P2_POINTS: number[][] = [[0, 0], [1, 4], [3, 1], [4, 3]];
 
 /** Room for the three cubics, the free-endpoint quadratics (x from -0.1 to 4.1) and the readout caption on top. */
 const REDUCTION_VIEW: [number, number, number, number] = [-1.2, 6.6, 5.2, -1.2];
+
+/** The ids of the reduction declaration: the generic curve workspace plus the five readout notes, the reduced objects, the end-point choice and two switches. */
+export type ReductionIds = Omit<BaseCurveIds, "action" | "legend" | "note" | "section"> & {
+    note: "third" | "reducible" | "max-error" | "l2-error" | "bound";
+    section: "approximation";
+    legend: BaseCurveIds["legend"] | "reduced" | "reduced-points" | "elevated-net";
+    action: BaseCurveIds["action"] | "reduction-fixed" | "reduction-free" | "reduction-shown" | "reduction-elevation-shown";
+};
 
 export interface DegreeReductionStates extends BaseGraphStates {
     /** `fixed`: end points kept; `free`: all three quadratic control points optimised (L2 in both). */
@@ -62,7 +72,7 @@ class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
     private drawn?: { mode: ReductionMode, shown: boolean, elevation: boolean };
     /** Owned by the graph so it survives overlay recreation on scene import. */
     private readonly liveReadout = new SettledReadout();
-    private readonly details = new ReadoutDetailsController();
+    private marksCache?: {base: ViewMarks; key: string; marks: ViewMarks};
 
     override getInitialState(): DegreeReductionStates {
         return {...super.getInitialState(), reductionMode: 'fixed', reductionShown: true, reductionElevationShown: false};
@@ -139,7 +149,6 @@ class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
             elevationShown: () => this.effectiveElevationShown(),
             fontSize: () => this.displaySettings.fontSize,
             onReadout: text => this.liveReadout.report(text),
-            details: this.details,
         });
     }
 
@@ -172,6 +181,74 @@ class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
         const changed = stale || prevState.reductionMode !== this.state.reductionMode || prevState.reductionShown !== this.state.reductionShown
             || prevState.reductionElevationShown !== this.state.reductionElevationShown;
         if (changed) this.boardUpdate();
+    }
+
+    // ---- Declaration -----------------------------------------------------------------------------------------------
+
+    protected override declaresCurveWorkspace() { return true; }
+
+    /** What the card layer shows: the five readout sentences, the end-point choice as a puck, the reduced objects in the legend and the view marks. */
+    protected override declaration(): GraphDeclaration<ReductionIds> | undefined {
+        const common = this.commonCurveDeclaration();
+        const mode = this.effectiveMode(), shown = this.effectiveShown(), elevation = this.effectiveElevationShown();
+        const result = reductionOf(this.controlRows(), mode);
+        const decimals = (value: number, places = 4) => messageNumber(value, places);
+        const choice = (id: "reduction-fixed" | "reduction-free", label: "reduction_mode_fixed" | "reduction_mode_free", short: "reduction_puck_fixed" | "reduction_puck_free") => ({
+            id, label: message(label), placement: "board" as const, enabled: true, pressed: mode === (id === "reduction-fixed" ? "fixed" : "free"),
+            puck: {group: {key: "reduction-mode", label: message("reduction_puck_ends"), help: message(mode === "fixed" ? "reduction_help_fixed" : "reduction_help_free")}, short: message(short)},
+        });
+        return {
+            notes: result ? [
+                {id: "third" as const, text: message("reduction_readout_third", {value0: decimals(result.third[0]), value1: decimals(result.third[1])})},
+                {id: "reducible" as const, text: message(result.reducible ? "reduction_readout_reducible" : "reduction_readout_not_reducible")},
+                {id: "max-error" as const, text: message("reduction_readout_max_error", {value0: decimals(result.maxError)})},
+                {id: "l2-error" as const, text: message("reduction_readout_l2_error", {value0: decimals(result.l2, 6)})},
+                {id: "bound" as const, text: message("reduction_readout_bound", {value0: decimals(result.bound)})},
+            ] : [],
+            readoutHelp: message("reduction_help_tolerance"),
+            sections: [{id: "approximation" as const, title: message("reduction_title"), body: [{kind: "text" as const, text: message("reduction_help_approximation")}]}],
+            legend: [...(common.legend ?? []), ...(result && shown ? [
+                {id: "reduced" as const, label: message("reduction_legend_quadratic"), kind: "dashed" as const, object: "reduced"},
+                {id: "reduced-points" as const, label: message("reduction_legend_quadratic_points"), kind: "point" as const, object: "reduced-points"},
+            ] : []), ...(result && elevation ? [{id: "elevated-net" as const, label: message("reduction_legend_net"), kind: "dashed" as const, object: "elevated-net"}] : [])],
+            actions: [...(common.actions ?? []),
+                choice("reduction-fixed", "reduction_mode_fixed", "reduction_puck_fixed"),
+                choice("reduction-free", "reduction_mode_free", "reduction_puck_free"),
+                {id: "reduction-shown" as const, label: message("reduction_shown"), placement: "tools" as const, section: "display", enabled: true, pressed: shown},
+                {id: "reduction-elevation-shown" as const, label: message("reduction_elevation_shown"), placement: "tools" as const, section: "display", enabled: true, pressed: elevation}],
+            marks: this.reductionMarks(common.marks!, result && {quadratic: shown ? result.quadratic : [], net: elevation ? result.elevated : []}),
+        };
+    }
+
+    /** The curve marks plus the points of the reduced quadratic and the elevated net while they are shown; the same object while nothing changed. */
+    private reductionMarks(base: ViewMarks, extra: {quadratic: number[][]; net: number[][]} | undefined): ViewMarks {
+        const points = [...(extra?.quadratic ?? []), ...(extra?.net ?? [])];
+        const key = points.map(point => point.join(",")).join(";");
+        if (this.marksCache?.base === base && this.marksCache.key === key) return this.marksCache.marks;
+        const marks: ViewMarks = points.length === 0 ? base
+            : {must: [...base.must, ...points.map((point): ViewMark => ({kind: "point", x: point[0], y: point[1]}))], nice: base.nice};
+        this.marksCache = {base, key, marks};
+        return marks;
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.overlay?.legendElements();
+        const [element, property] = id === "reduced" ? [elements?.quadratic, "strokecolor"] : id === "reduced-points" ? [elements?.quadraticPoint, "fillcolor"]
+            : id === "elevated-net" ? [elements?.net, "strokecolor"] : [undefined, ""];
+        if (!element) return id === "reduced" || id === "reduced-points" || id === "elevated-net" ? undefined : super.drawnObject(id);
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(property)), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        switch (id) {
+            case "reduction-fixed": runAs("learner", () => this.setReductionMode("fixed")); return;
+            case "reduction-free": runAs("learner", () => this.setReductionMode("free")); return;
+            case "reduction-shown": runAs("learner", () => this.setReductionShown(!this.effectiveShown())); return;
+            case "reduction-elevation-shown": runAs("learner", () => this.setReductionElevationShown(!this.effectiveElevationShown())); return;
+            default: super.performAction(id);
+        }
     }
 
     // ---- Operations ------------------------------------------------------------------------------------------------
@@ -213,24 +290,27 @@ class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
 
     // ---- Controls --------------------------------------------------------------------------------------------------
 
-    /** The reduction controls come first in the Edit group, as on the offset route. */
+    /** The end-point choice leads Edit while it is not a puck, as on the offset route; the live region follows the point list. */
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.state.initialized && this.reductionControls()}{super.workspaceEdit()}<LiveReadout readout={this.liveReadout}/></>;
+        return <>{this.state.initialized && this.modeControl()}{super.workspaceEdit()}<LiveReadout readout={this.liveReadout}/></>;
     }
 
-    private reductionControls() {
-        return <div className="inspector-group">
+    /** The two switches are display settings chosen once (no lesson asks to flip them), so they stay in Orodja, after the curve display. */
+    protected override workspaceGraphDisplay(): React.ReactNode {
+        return <>{super.workspaceGraphDisplay()}<div className="inspector-group">
+            <OnOffSwitch label={t("reduction_shown")} checked={this.effectiveShown()} onChange={checked => this.setReductionShown(checked)}/>
+            <OnOffSwitch label={t("reduction_elevation_shown")} checked={this.effectiveElevationShown()}
+                         onChange={checked => this.setReductionElevationShown(checked)}/>
+        </div></>;
+    }
+
+    private modeControl() {
+        return <PuckOwnedGroup className="inspector-group" params={["reduction-mode", "reduction-fixed", "reduction-free"]}>
             <ChoiceSelect label={t("reduction_mode")} value={this.effectiveMode()}
                           options={[{value: 'fixed', text: t("reduction_mode_fixed")}, {value: 'free', text: t("reduction_mode_free")}]}
                           onChange={value => { if (isReductionMode(value)) this.setReductionMode(value); }}/>
             <p className="inspector-help">{this.effectiveMode() === 'fixed' ? t("reduction_help_fixed") : t("reduction_help_free")}</p>
-            <OnOffSwitch label={t("reduction_shown")} checked={this.effectiveShown()} onChange={checked => this.setReductionShown(checked)}/>
-            <OnOffSwitch label={t("reduction_elevation_shown")} checked={this.effectiveElevationShown()}
-                         onChange={checked => this.setReductionElevationShown(checked)}/>
-            <ReadoutDetails controller={this.details} label={t("reduction_details_aria")} testId="reduction-details"/>
-            <p className="inspector-help">{t("reduction_help_approximation")}</p>
-            <p className="inspector-help">{t("reduction_help_tolerance")}</p>
-        </div>;
+        </PuckOwnedGroup>;
     }
 }
 

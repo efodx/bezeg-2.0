@@ -317,7 +317,7 @@ test('the live region publishes third difference, L2 error and bound once the qu
         const published = (h.graph as unknown as Live).liveReadout.getSnapshot();
         for (const piece of ['−2', '0,1', '0,037796', '0,3']) expect(published, piece).toContain(piece);
         expect(published).toContain(h.graph.reduction()!.readoutLines()[3].replace(/\.$/, ''));
-        for (const l of LANGUAGES) expect(prose(stepOf('reduction-third-difference-step'), l)).toContain(l === 'sl' ? 'Orodja' : 'Tools panel');
+        for (const l of LANGUAGES) expect(prose(stepOf('reduction-third-difference-step'), l)).toContain(l === 'sl' ? 'Odčitki' : 'Readouts');
     } finally {
         h.mounted.view.unmount();
     }

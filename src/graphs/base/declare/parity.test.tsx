@@ -58,6 +58,10 @@ const leastSquaresAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the point count read-off belongs to the retained point editor in Orodja (data-parity-retained); the declared points row shows the same count'},
 ];
 
+const reductionAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the readout help carries the tolerance sentence the old panel showed beside its readouts (it carries no readout marker, so the recording holds none)'},
+];
+
 const SAMPLES: readonly Sample[] = [
     {file: 'functions/__parity__/taylor.json', demonstration: 'taylor', states: [
         state('default', {}),
@@ -226,6 +230,19 @@ const SAMPLES: readonly Sample[] = [
             {name: 'cubic example', apply: run(g => g.selectExample('cubic'))},
             {name: 'cubic, point 3 moved', apply: run(g => g.editPoint(3, [3, 2]))},
             {name: 'cubic, knot 5 typed', apply: run(g => { g.resetToOrigin(); g.editKnot(5, 1.5); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {
+        type Reduction = {setControlPoints(points: ReadonlyArray<readonly [number, number]>): void; setReductionMode(mode: 'fixed' | 'free'): void};
+        const run = (edit: (graph: Reduction) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Reduction)); };
+        const P = [[0, 0], [1, 3], [3, 3], [4, 0]] as const, P2 = [[0, 0], [1, 4], [3, 1], [4, 3]] as const;
+        return [
+            {name: 'default (the elevated quadratic, reducible)', apply: () => undefined},
+            {name: 'P, fixed end points', apply: run(g => g.setControlPoints(P))},
+            {name: 'P, free end points', apply: run(g => g.setReductionMode('free'))},
+            {name: 'P2, free end points', apply: run(g => g.setControlPoints(P2))},
+            {name: 'P2, fixed end points', apply: run(g => g.setReductionMode('fixed'))},
+            {name: 'a flat cubic', apply: run(g => g.setControlPoints([[0, 0], [1, 0], [2, 0], [3, 0]]))},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/function-inverse.json', demonstration: 'function-inverse', states: (() => {

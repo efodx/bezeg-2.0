@@ -2694,7 +2694,7 @@ const degreeReduction = {
     steps: 7,
     minFrames: 16,
     stepProbe: async (page, ctx, step, label) => {
-        await expect.poll(() => page.getByLabel(/^(Krajišči kvadratne krivulje|End points of the quadratic)$/).inputValue(), {message: `reduction mode at ${label}`}).toBe(REDUCTION_MODES[step - 1]);
+        await expect.poll(() => page.locator('[data-puck-key="reduction-mode"] [role="radio"][aria-checked="true"]').getAttribute('data-value'), {message: `reduction mode at ${label}`}).toBe(`reduction-${REDUCTION_MODES[step - 1]}`);
     },
 };
 

@@ -1,4 +1,3 @@
-import type {ReadoutDetailsController} from "../ReadoutDetails";
 import type {Board, GeometryElement, Point, Text} from "jsxgraph";
 import {currentLanguage, onLanguageChange, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
@@ -24,8 +23,6 @@ interface ReductionSettings {
     fontSize: () => number;
     /** Called with the readout text on every board update that draws it (for a live region). */
     onReadout?: (text: string) => void;
-    /** Receives every readout line for the inspector list. */
-    details?: ReadoutDetailsController;
 }
 
 /** Everything one reduction of the current cubic yields; computed once per change of control points or mode. */
@@ -41,6 +38,17 @@ export interface ReductionResult {
 }
 
 type DataCurve = GeometryElement & { dataX: number[]; dataY: number[]; updateDataArray: () => void; needsUpdate: boolean; update: () => void };
+
+/** The reduction of a cubic's four control rows; undefined unless they are four finite points. Pure: the graph's declaration reads it too. */
+export function reductionOf(rows: Rows | undefined, mode: ReductionMode): ReductionResult | undefined {
+    if (!rows || rows.length !== 4 || !rows.every(row => row.length === 2 && row.every(Number.isFinite))) return undefined;
+    const cubic = rows.map(row => [...row]);
+    const quadratic = reduce(cubic, mode);
+    return {
+        cubic, quadratic, elevated: elevatedQuadratic(quadratic), third: thirdDifference(cubic), reducible: isExactlyReducible(cubic),
+        maxError: maxCurveError(cubic, quadratic), l2: l2Error(cubic, quadratic), bound: controlPointBound(cubic, quadratic),
+    };
+}
 
 function quadraticSamples(q: number[][]): { x: number[]; y: number[] } {
     const x: number[] = [], y: number[] = [];
@@ -86,14 +94,14 @@ export class ReductionOverlay {
         const key = [mode === 'fixed' ? 0 : 1, ...rows.flat()];
         const cached = this.cache;
         if (cached && cached.key.every((value, i) => Object.is(value, key[i]))) return cached.result;
-        const cubic = rows.map(row => [...row]);
-        const quadratic = reduce(cubic, mode);
-        const result: ReductionResult = {
-            cubic, quadratic, elevated: elevatedQuadratic(quadratic), third: thirdDifference(cubic), reducible: isExactlyReducible(cubic),
-            maxError: maxCurveError(cubic, quadratic), l2: l2Error(cubic, quadratic), bound: controlPointBound(cubic, quadratic),
-        };
+        const result = reductionOf(rows, mode)!;
         this.cache = {key, result};
         return result;
+    }
+
+    /** What the legend names, in build order: the reduced quadratic, its first control point and the dashed elevated net. */
+    legendElements(): {quadratic?: GeometryElement; quadraticPoint?: GeometryElement; net?: GeometryElement} {
+        return {quadratic: this.elements[0], quadraticPoint: this.elements[2], net: this.elements[5]};
     }
 
     /** Every readout line; feeds the live region and the inspector list. Empty without a four-point curve. */
@@ -180,7 +188,6 @@ export class ReductionOverlay {
                 () => {
                     if (k === 0) {
                         this.settings.onReadout?.(this.readoutText());
-                        this.settings.details?.push(this.readoutLines());
                     }
                     return this.captionLines()[k] ?? "";
                 },

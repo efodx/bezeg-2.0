@@ -7,9 +7,12 @@
  */
 import type {LessonAction, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ReductionIds} from '../../graphs/curves/reduction/DegreeReductionGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const declared = frameDeclarer<ReductionIds>();
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 /** Low on the board: the lesson panel covers its upper part and the readout caption sits at the top, so the curves (y from 0 to 4.5) stay below. */
 export const REDUCTION_LESSON_VIEW: LessonViewBox = [-1.5, 9.5, 5.5, -1.5];
@@ -84,8 +87,8 @@ const degreeReductionLesson: GuidedLesson = {
             calculationLatex: 'b_3-3b_2+3b_1-b_0=(4,0)-3(3,3)+3(1,3)-(0,0)',
             resultLatex: '(-2,\\;0)',
             check: text(
-                'Prva komponenta je \\(4-9+3-0=-2\\), druga \\(0-9+9-0=0\\). Polje Tretja diferenca v podoknu Orodja pokaže \\((-2;\\ 0)\\) in izpiše, da krivulja ni nižljiva.',
-                'The first component is \\(4-9+3-0=-2\\), the second \\(0-9+9-0=0\\). The Third difference readout in the Tools panel shows \\((-2;\\ 0)\\) and says that the curve is not reducible.',
+                'Prva komponenta je \\(4-9+3-0=-2\\), druga \\(0-9+9-0=0\\). Vrstica Tretja diferenca v kartici Odčitki pokaže \\((-2;\\ 0)\\) in izpiše, da krivulja ni nižljiva.',
+                'The first component is \\(4-9+3-0=-2\\), the second \\(0-9+9-0=0\\). The Third difference line in the Readouts card shows \\((-2;\\ 0)\\) and says that the curve is not reducible.',
             ),
         },
         {
@@ -109,8 +112,8 @@ const degreeReductionLesson: GuidedLesson = {
                 'The cubic with control points \\((0,0)\\), \\((\\tfrac43,\\tfrac83)\\), \\((\\tfrac83,\\tfrac83)\\), \\((4,0)\\) is the quadratic \\((0,0)\\), \\((2,4)\\), \\((4,0)\\) elevated by one degree: the same curve, written with four points. The reduced quadratic lies exactly on it, and its elevated net equals the cubic one. The third difference is \\((0;\\ 0)\\), the maximum error \\(0\\), the \\(L^2\\) error \\(0\\) and the control-point bound \\(0\\). This is the only case in this lesson that the readout calls exactly reducible.',
             ),
             formulaIds: ['reduction-third-difference'],
-            frames: [frame('reduction-elevated-explanation', 'explanation'), frame('reduction-elevated-observation', 'observation')],
-            observationPrompt: text('Primerjaj zvišano mrežo s kubičnimi kontrolnimi točkami in preberi polje v podoknu Orodja.', 'Compare the elevated net with the cubic control points and read the readout in the Tools panel.'),
+            frames: [frame('reduction-elevated-explanation', 'explanation'), frame('reduction-elevated-observation', 'observation', declared({highlight: ['reducible', 'max-error'], open: ['legend']}))],
+            observationPrompt: text('Primerjaj zvišano mrežo s kubičnimi kontrolnimi točkami in preberi kartico Odčitki.', 'Compare the elevated net with the cubic control points and read the Readouts card.'),
             expectedObservations: [text('Zvišana mreža leži na kubičnih kontrolnih točkah, krivulji sta ista, vse napake so \\(0\\) in polje izpiše, da je krivulja točno nižljiva.', 'The elevated net lies on the cubic control points, the two curves coincide, every error is \\(0\\) and the readout says that the curve is exactly reducible.')],
             scene: reductionScene('reduction-elevated-start', REDUCTION_LESSON_ELEVATED, 'fixed', {quadratic: true, elevation: true},
                 'Kubična krivulja je zvišana kvadratna krivulja \\((0,0)\\), \\((2,4)\\), \\((4,0)\\); vse napake so \\(0\\) in krivulja je točno nižljiva.',
@@ -121,8 +124,8 @@ const degreeReductionLesson: GuidedLesson = {
             title: text('Ali gre kubična krivulja nazaj?', 'Can the cubic go back?'),
             purpose: text('Pred razkritjem napovedati, ali je kubična krivulja \\(P\\) zvišana kvadratna.', 'Predicting, before the reveal, whether the cubic \\(P\\) is an elevated quadratic.'),
             explanation: text(
-                'Zdaj je prikazana kubična krivulja \\(P\\) s kontrolnimi točkami \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\). Kvadratna in zvišana krivulja sta skriti. Napovej: ali je \\(P\\) zvišana kvadratna krivulja? Njena tretja diferenca je \\((-2;\\ 0)\\), kar ni nič, zato ni: nobena kvadratna krivulja ne leži natanko na njej. Polje v podoknu Orodja to že izpiše; odloči se, preden ga prebereš.',
-                'Now the cubic \\(P\\) with control points \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\) is shown. The quadratic and the elevated net are hidden. Predict: is \\(P\\) an elevated quadratic? Its third difference is \\((-2;\\ 0)\\), which is not zero, so it is not: no quadratic lies exactly on it. The readout in the Tools panel already says so; decide before you read it.',
+                'Zdaj je prikazana kubična krivulja \\(P\\) s kontrolnimi točkami \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\). Kvadratna in zvišana krivulja sta skriti. Napovej: ali je \\(P\\) zvišana kvadratna krivulja? Njena tretja diferenca je \\((-2;\\ 0)\\), kar ni nič, zato ni: nobena kvadratna krivulja ne leži natanko na njej. Kartica Odčitki to že izpiše; odloči se, preden ga prebereš.',
+                'Now the cubic \\(P\\) with control points \\((0,0)\\), \\((1,3)\\), \\((3,3)\\), \\((4,0)\\) is shown. The quadratic and the elevated net are hidden. Predict: is \\(P\\) an elevated quadratic? Its third difference is \\((-2;\\ 0)\\), which is not zero, so it is not: no quadratic lies exactly on it. The Readouts card already says so; decide before you read it.',
             ),
             formulaIds: ['reduction-third-difference'],
             frames: [frame('reduction-predict-explanation', 'explanation'), frame('reduction-predict-observation', 'observation')],
@@ -141,7 +144,7 @@ const degreeReductionLesson: GuidedLesson = {
                 'The starting point is the reducible position of the first step. The points \\(b_1\\) and \\(b_2\\) are now at \\((1,3)\\) and \\((3,3)\\): \\(b_1\\) has moved by \\((-\\tfrac13,\\tfrac13)\\), \\(b_2\\) by \\((\\tfrac13,\\tfrac13)\\). The third difference changes by \\(3(-\\tfrac13,\\tfrac13)-3(\\tfrac13,\\tfrac13)=(-2,0)\\), so it is now \\((-2;\\ 0)\\) and the curve is no longer reducible. The quadratic that replaces it best is shown; read its error in the next steps. Drag the points yourself and watch when the third difference returns to \\((0;\\ 0)\\).',
             ),
             formulaIds: ['reduction-third-difference'], workedExampleId: 'reduction-third-difference-example',
-            frames: [frame('reduction-third-difference-explanation', 'explanation'), frame('reduction-third-difference-calculation', 'calculation'), frame('reduction-third-difference-observation', 'observation')],
+            frames: [frame('reduction-third-difference-explanation', 'explanation'), frame('reduction-third-difference-calculation', 'calculation'), frame('reduction-third-difference-observation', 'observation', declared({highlight: ['third', 'reducible']}))],
             observationPrompt: text('Povleci kontrolno točko in opazuj polje Tretja diferenca ter vrstico o nižljivosti.', 'Drag a control point and watch the Third difference readout and the reducibility line.'),
             expectedObservations: [text('Tretja diferenca je \\((-2;\\ 0)\\), polje izpiše, da krivulja ni nižljiva (toleranca \\(10^{-9}\\)), in kvadratna krivulja se od kubične vidno loči.', 'The third difference is \\((-2;\\ 0)\\), the readout says that the curve is not reducible (tolerance \\(10^{-9}\\)), and the quadratic visibly differs from the cubic.')],
             scene: reductionScene('reduction-third-difference-p', REDUCTION_LESSON_P, 'fixed', {quadratic: true, elevation: false},
@@ -157,7 +160,7 @@ const degreeReductionLesson: GuidedLesson = {
                 'The end points stay, \\(q_0=b_0\\) and \\(q_2=b_3\\), and the middle point \\(q_1\\) is chosen to make the \\(L^2\\) error as small as possible. Predict \\(q_1\\) from Forrest\'s formula: \\(q_1=(2;\\ 4.5)\\). The elevated net of this curve is dashed and differs from \\(P\\). The maximum error (sampled) is \\(0.0962\\), the \\(L^2\\) error is \\(0.069007\\). "Best" here means the smallest \\(L^2\\) error with fixed end points; the optimum is an approximation and not exact.',
             ),
             formulaIds: ['reduction-norms'], workedExampleId: 'reduction-forrest-example',
-            frames: [frame('reduction-fixed-explanation', 'explanation'), frame('reduction-fixed-calculation', 'calculation'), frame('reduction-fixed-observation', 'observation')],
+            frames: [frame('reduction-fixed-explanation', 'explanation'), frame('reduction-fixed-calculation', 'calculation'), frame('reduction-fixed-observation', 'observation', declared({highlight: ['max-error', 'l2-error'], open: ['legend']}))],
             observationPrompt: text('Primerjaj črtkano zvišano mrežo s kontrolnimi točkami \\(P\\) in preberi obe napaki.', 'Compare the dashed elevated net with the control points of \\(P\\) and read both errors.'),
             expectedObservations: [text('Krajišči sta enaki, srednja točka je \\((2;\\ 4{,}5)\\), največja napaka je \\(0{,}0962\\) in napaka \\(L^2\\) \\(0{,}069007\\); zvišana mreža ni enaka \\(P\\).', 'The end points agree, the middle point is \\((2;\\ 4.5)\\), the maximum error is \\(0.0962\\) and the \\(L^2\\) error \\(0.069007\\); the elevated net is not equal to \\(P\\).')],
             scene: reductionScene('reduction-fixed-p', REDUCTION_LESSON_P, 'fixed', {quadratic: true, elevation: true},
@@ -173,8 +176,8 @@ const degreeReductionLesson: GuidedLesson = {
                 'Now all three control points of the quadratic may move: \\((-0.1;\\ 0)\\), \\((2;\\ 4.5)\\), \\((4.1;\\ 0)\\). Predict: what happens to the two errors? The \\(L^2\\) error is smaller, \\(0.037796\\) against the earlier \\(0.069007\\), since there are fewer restrictions. The maximum error is larger, though, \\(0.1\\) against \\(0.0962\\), because the optimum does not measure the maximum error. Both curves are "the best" for the same \\(L^2\\) norm, but under different constraints; another norm or constraint would give a third curve.',
             ),
             formulaIds: ['reduction-norms'],
-            frames: [frame('reduction-free-explanation', 'explanation'), frame('reduction-free-observation', 'observation')],
-            observationPrompt: text('Preklopi med načinoma Krajišči ostaneta in Krajišči se smeta premakniti ter primerjaj obe napaki.', 'Switch between the modes Fixed end points and Free end points and compare the two errors.'),
+            frames: [frame('reduction-free-explanation', 'explanation'), frame('reduction-free-observation', 'observation', declared({uses: ['reduction-fixed', 'reduction-free']}))],
+            observationPrompt: text('Preklopi krajišči med Fiksni in Prosti ter primerjaj obe napaki.', 'Switch the end points between Fixed and Free and compare the two errors.'),
             expectedObservations: [text('Pri prostih krajiščih je napaka \\(L^2\\) \\(0{,}037796\\) (manjša), največja napaka \\(0{,}1\\) (večja), krajišči pa se premakneta na \\((-0{,}1;\\ 0)\\) in \\((4{,}1;\\ 0)\\).', 'With free end points the \\(L^2\\) error is \\(0.037796\\) (smaller), the maximum error \\(0.1\\) (larger), and the end points move to \\((-0.1;\\ 0)\\) and \\((4.1;\\ 0)\\).')],
             scene: reductionScene('reduction-free-p', REDUCTION_LESSON_P, 'free', {quadratic: true, elevation: true},
                 'Prosta krajišča: \\((-0{,}1;\\ 0)\\), \\((2;\\ 4{,}5)\\), \\((4{,}1;\\ 0)\\); napaka \\(L^2\\) \\(0{,}037796\\), največja napaka \\(0{,}1\\).',

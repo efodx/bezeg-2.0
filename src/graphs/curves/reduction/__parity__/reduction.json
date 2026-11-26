@@ -1,0 +1,102 @@
+{
+  "graph": "reduction",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (the elevated quadratic, reducible)",
+      "rows": [],
+      "notes": [
+        "Tretja diferenca: (0; 0)",
+        "Točno nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0.",
+        "Napaka L²: 0.",
+        "Meja iz kontrolnih točk: 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Največja napaka (vzorčena): 0.",
+        "Točno nižljiva (toleranca 10⁻⁹)"
+      ]
+    },
+    {
+      "name": "P, fixed end points",
+      "rows": [],
+      "notes": [
+        "Tretja diferenca: (-2; 0)",
+        "Ni nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0,0962.",
+        "Napaka L²: 0,069007.",
+        "Meja iz kontrolnih točk: 0,3333."
+      ],
+      "outputs": [],
+      "captions": [
+        "Največja napaka (vzorčena): 0,0962.",
+        "Ni nižljiva (toleranca 10⁻⁹)"
+      ]
+    },
+    {
+      "name": "P, free end points",
+      "rows": [],
+      "notes": [
+        "Tretja diferenca: (-2; 0)",
+        "Ni nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0,1.",
+        "Napaka L²: 0,037796.",
+        "Meja iz kontrolnih točk: 0,3."
+      ],
+      "outputs": [],
+      "captions": [
+        "Največja napaka (vzorčena): 0,1.",
+        "Ni nižljiva (toleranca 10⁻⁹)"
+      ]
+    },
+    {
+      "name": "P2, free end points",
+      "rows": [],
+      "notes": [
+        "Tretja diferenca: (-2; 12)",
+        "Ni nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0,6083.",
+        "Napaka L²: 0,229907.",
+        "Meja iz kontrolnih točk: 1,8248."
+      ],
+      "outputs": [],
+      "captions": [
+        "Največja napaka (vzorčena): 0,6083.",
+        "Ni nižljiva (toleranca 10⁻⁹)"
+      ]
+    },
+    {
+      "name": "P2, fixed end points",
+      "rows": [],
+      "notes": [
+        "Tretja diferenca: (-2; 12)",
+        "Ni nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0,5853.",
+        "Napaka L²: 0,41975.",
+        "Meja iz kontrolnih točk: 2,0276."
+      ],
+      "outputs": [],
+      "captions": [
+        "Največja napaka (vzorčena): 0,5853.",
+        "Ni nižljiva (toleranca 10⁻⁹)"
+      ]
+    },
+    {
+      "name": "a flat cubic",
+      "rows": [],
+      "notes": [
+        "Tretja diferenca: (0; 0)",
+        "Točno nižljiva (toleranca 10⁻⁹)",
+        "Največja napaka (vzorčena): 0.",
+        "Napaka L²: 0.",
+        "Meja iz kontrolnih točk: 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Največja napaka (vzorčena): 0.",
+        "Točno nižljiva (toleranca 10⁻⁹)"
+      ]
+    }
+  ]
+}
