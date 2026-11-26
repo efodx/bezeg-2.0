@@ -1,8 +1,10 @@
-import {useCallback, useEffect, useId, useRef, useState} from 'react';
+import {useCallback, useEffect, useId, useLayoutEffect, useRef, useState} from 'react';
 import type {FocusEvent, PointerEvent, ReactNode} from 'react';
 import {useT} from '../../localization';
 import {PuckSymbol, bareName, spokenName} from './puckSymbol';
 import type {JumpUndoController} from './jumpUndo';
+import {helpPlacement} from './helpPlacement';
+import type {Box} from './helpPlacement';
 import './pucks.css';
 
 /** Pieces both pucks share: the undo pill, the help card and its tooltip, the frame with its notice and lock reason. */
@@ -89,13 +91,47 @@ export function SweepButton(props: {name: string; running: boolean; onToggle(): 
     </button>;
 }
 
+/** The box the card must stay inside: the nearest clipping ancestor, cut to the viewport. */
+function clippingBounds(el: HTMLElement): Box {
+    const view = {left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight};
+    for (let p = el.parentElement; p; p = p.parentElement) {
+        const s = getComputedStyle(p);
+        if (/(hidden|clip|auto|scroll)/.test(s.overflowX + s.overflowY)) {
+            const r = p.getBoundingClientRect();
+            return {left: Math.max(view.left, r.left), top: Math.max(view.top, r.top), right: Math.min(view.right, r.right), bottom: Math.min(view.bottom, r.bottom)};
+        }
+    }
+    return view;
+}
+
+/** Measures the card at its natural size, then puts it on the side of the puck with room (see helpPlacement). */
+function placeHelpCard(puck: HTMLElement, card: HTMLElement): void {
+    card.style.cssText = '';
+    card.removeAttribute('data-side');
+    const p = puck.getBoundingClientRect();
+    const c = card.getBoundingClientRect();
+    const column = puck.closest('[data-puck-strip-orientation="column"]') !== null;
+    const placement = helpPlacement(p, {width: c.width, height: c.height}, clippingBounds(puck), column);
+    card.dataset.side = placement.side;
+    card.style.maxWidth = `${Math.min(240, placement.maxWidth)}px`;
+    card.style.maxHeight = `${placement.maxHeight}px`;
+    card.style.overflowY = 'auto';
+    if (placement.side === 'above' || placement.side === 'below') card.style.left = `${placement.shift}px`;
+    else card.style.top = `${placement.shift}px`;
+}
+
 /** The puck's outer box: label row with the "?" help, the control, the notice and the lock reason. */
 export function PuckFrame(props: FrameProps) {
     const t = useT();
     const [helpOpen, setHelpOpen] = useState(false);
     const helpId = useId();
+    const frame = useRef<HTMLDivElement>(null);
+    const card = useRef<HTMLDivElement>(null);
+    useLayoutEffect(() => {
+        if (helpOpen && frame.current && card.current) placeHelpCard(frame.current, card.current);
+    }, [helpOpen]);
     const spoken = spokenName(props.label, props.symbol);
-    return <div className={`puck${props.locked ? ' is-locked' : ''} ${props.className ?? ''}`} data-puck=""
+    return <div ref={frame} className={`puck${props.locked ? ' is-locked' : ''} ${props.className ?? ''}`} data-puck=""
         onKeyDown={event => { if (event.key === 'Escape' && helpOpen) { event.stopPropagation(); setHelpOpen(false); } }}>
         {props.pill}
         <div className="puck-head">
@@ -107,7 +143,7 @@ export function PuckFrame(props: FrameProps) {
         </div>
         {props.children}
         {props.tip && !helpOpen && <div role="tooltip" id={props.tipId} className="puck-tip">{props.tip}</div>}
-        {props.help && helpOpen && <div id={helpId} className="puck-help-card" role="group" aria-label={spoken}>{props.help}</div>}
+        {props.help && helpOpen && <div ref={card} id={helpId} className="puck-help-card" role="group" aria-label={spoken}>{props.help}</div>}
         <div className="puck-notice" role="status" aria-live="polite">{props.notice ?? ''}</div>
         {props.locked && <div className="puck-lock" id={props.lockId} data-puck-lock="">{props.lockReason}</div>}
     </div>;

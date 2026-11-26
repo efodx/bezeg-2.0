@@ -134,6 +134,10 @@
     font-size: .8125rem; line-height: 1.4; font-weight: 400; text-wrap: pretty;
 }
 .puck-tip { pointer-events: none; }
+/* The help card moves to the side of its puck with room (placed by PuckFrame): default above, else below, left or right. */
+.puck-help-card[data-side="below"] { top: 100%; bottom: auto; margin: var(--puck-clear) 0 0; }
+.puck-help-card[data-side="right"] { left: 100%; top: 0; bottom: auto; margin: 0 0 0 var(--puck-clear); }
+.puck-help-card[data-side="left"] { left: auto; right: 100%; top: 0; bottom: auto; margin: 0 var(--puck-clear) 0 0; }
 /* One message above a slip at a time: an open undo pill or notice takes the place of the tip. */
 .puck:has(.puck-undo, .puck-notice:not(:empty)) .puck-tip { display: none; }
 .puck .puck-undo {
