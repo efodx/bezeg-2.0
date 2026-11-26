@@ -20,7 +20,7 @@ A running Claude handler's working summary of [the workflow](../agent-workflow.m
 
 **Brief (handoff-v13).** Role and edit permission; goal, source spec and checkable acceptance; owned paths and changes to preserve; entry files and settled decisions; checks per criterion, with an observed failure for each new assertion; a capped return (≤N words, `file:line`, bulky evidence to a named file); a handoff note path. Workers cannot invoke skills, so name skill and checklist paths. Start the preview yourself and give its URL: a worker cannot stop a background shell it starts. When a worker's notification says it is waiting on its own background work, read its report, then stop it with TaskStop, or it stays listed as running. The [full field list](../agent-workflow.md#assignment-brief-handoff-v13) covers Presets, routes, UI and browser checks.
 
-**Budgets.** The project hook signals everyone after each tool call. Workers get `HANDOFF` at 135k (Haiku 78k) and return partial with a note. Continue from that note with a fresh worker when the old history is unnecessary.
+**Budgets.** The project hook signals everyone after each tool call. Workers get `HANDOFF` at 175k (Haiku 78k) and return partial with a note. Continue from that note with a fresh worker when the old history is unnecessary.
 
 - `BUDGET SOFT` (315k Opus and Fable, 175k others): dispatch nothing new and start no new step. Finish, integrate and verify.
 - `BUDGET HANDOFF` (387k Opus, 342k Fable, 190k others): send `HANDOFF` to running workers, collect notes, and close out.

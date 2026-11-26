@@ -51,7 +51,8 @@ def transcript_for(payload):
 
 
 def worker_message(tokens, model, args):
-    limit = args.worker_until or (78000 if 'haiku' in model else 135000)
+    # Owner decision 2026-11-27: non-Haiku workers signal at 175k (was 135k).
+    limit = args.worker_until or (78000 if 'haiku' in model else 175000)
     if tokens >= limit:
         return (f'HANDOFF: input {tokens:,} reached the {limit:,} budget signal. Stop at a consistent point, '
                 'write the handoff note to the path in your brief, and return partial.')

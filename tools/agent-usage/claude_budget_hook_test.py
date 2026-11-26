@@ -32,9 +32,9 @@ class Hook(unittest.TestCase):
         return json.loads(result.stdout)['hookSpecificOutput']['additionalContext']
 
     def test_worker_thresholds_follow_the_model(self):
-        self.worker.write_text(assistant(134999) + '\n')
+        self.worker.write_text(assistant(174999) + '\n')
         self.assertIsNone(self.run_hook('abc'))
-        self.worker.write_text(assistant(135000) + '\n')
+        self.worker.write_text(assistant(175000) + '\n')
         self.assertIn('HANDOFF', self.run_hook('abc'))
         self.worker.write_text(assistant(78000, 'claude-haiku-5-5') + '\n')
         self.assertIn('HANDOFF', self.run_hook('abc'))
@@ -90,7 +90,7 @@ class Hook(unittest.TestCase):
         self.assertIn('BUDGET HANDOFF', self.run_hook(env=scaled))
 
     def test_handler_scale_leaves_workers_alone_and_ignores_bad_values(self):
-        self.worker.write_text(assistant(135000) + '\n')
+        self.worker.write_text(assistant(175000) + '\n')
         self.assertIn('HANDOFF', self.run_hook('abc', env={'BEZEG_HANDLER_BUDGET_SCALE': '1.5'}))
         self.main.write_text(assistant(315000, 'claude-opus-5-5') + '\n')
         for bad in ('x', '0', '-2'):
@@ -103,7 +103,7 @@ class Hook(unittest.TestCase):
 
     def test_sample_older_than_the_tail_is_still_found(self):
         filler = json.dumps({'type': 'user', 'message': {'content': 'x' * (600 * 1024)}})
-        self.worker.write_text(assistant(140000) + '\n' + filler + '\n')
+        self.worker.write_text(assistant(180000) + '\n' + filler + '\n')
         self.assertIn('HANDOFF', self.run_hook('abc'))
 
     def state_note(self, size, name='state.md', folder='reviews'):
