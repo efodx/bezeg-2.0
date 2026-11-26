@@ -133,6 +133,21 @@ describe('ReadoutsBody', () => {
         expect(container.querySelector('.ws-label > span')?.textContent).toBe('Čas');
         expect(container.querySelector('.ws-label .ws-symbol')).not.toBeNull();
     });
+
+    test('a value cell reserves its width through a variable the CSS clamps to the row, never an inline min-width', () => {
+        // An inline min-width beats `max-width: 100%`: the hidden measure copy, read at its natural width, would keep a long value on one
+        // line at the width the layout later gives the card, measure it too short, and the shown card would be clipped instead of cut.
+        const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({width: 611, height: 19, x: 0, y: 0, top: 0, left: 0, right: 611, bottom: 19, toJSON: () => ({})});
+        try {
+            const group: ReadoutGroup = {id: 'g', rows: [{id: 'r', name: message('phase_graph_time_label'), value: {kind: 'formatted', text: 'a long value'}}]};
+            const {container} = render(<ReadoutsBody groups={[group]}/>);
+            const cell = container.querySelector<HTMLElement>('.ws-value')!;
+            expect(cell.style.minWidth).toBe('');
+            expect(cell.style.getPropertyValue('--ws-reserved')).toBe('611px');
+        } finally {
+            spy.mockRestore();
+        }
+    });
 });
 
 describe('LegendBody', () => {

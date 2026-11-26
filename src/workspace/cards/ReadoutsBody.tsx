@@ -82,7 +82,7 @@ function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry;
         if (!el || row.valueTex) return;
         const width = el.getBoundingClientRect().width;
         const reserved = Number(el.dataset.reserved ?? 0);
-        if (width > reserved + 0.5) { el.dataset.reserved = String(width); el.style.minWidth = `${Math.ceil(width)}px`; }
+        if (width > reserved + 0.5) { el.dataset.reserved = String(width); el.style.setProperty('--ws-reserved', `${Math.ceil(width)}px`); }
     });
     return <div className="ws-row" data-card-row="" data-card-readout={row.id} data-highlight={props.highlighted || undefined} data-muted={row.muted || undefined}>
         <dt className="ws-name">

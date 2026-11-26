@@ -35,7 +35,8 @@
 /* The label, not the mark before it, gives the row its baseline. */
 .ws-label { min-width: 0; align-self: baseline; }
 .ws-symbol { color: var(--board-ink); }
-.ws-value { max-width: 100%; margin: 0 0 0 auto; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--board-ink); overflow-wrap: anywhere; text-wrap: balance; }
+/* --ws-reserved (set by ReadoutsBody) keeps the cell from narrowing during a sweep, but never beyond the row: a plain min-width would beat max-width and keep a long value on one line at a width that wraps it. */
+.ws-value { max-width: 100%; min-width: min(var(--ws-reserved, 0px), 100%); margin: 0 0 0 auto; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--board-ink); overflow-wrap: anywhere; text-wrap: balance; }
 .ws-number { display: inline-block; text-align: right; }
 .ws-unit { font-weight: 400; color: var(--board-ink-quiet); }
 .ws-row[data-muted] .ws-value { font-weight: 400; color: var(--board-ink-quiet); }
