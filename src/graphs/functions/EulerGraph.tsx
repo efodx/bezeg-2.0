@@ -1,14 +1,16 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React, {useState} from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
+import type {FormattedValue, GraphDeclaration, LegendEntry, StatusLine} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {EULER_EXAMPLE_IDS, EULER_X_MAX, EULER_X_MIN, eulerExample, EulerExampleId, STEP_SIZES} from "../../analysis/odeEuler";
 import {
@@ -22,6 +24,19 @@ import {cleanNumber} from "../../analysis/numbers";
 import {GraphPalette} from "../styles/GraphPalette";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {functionPresetCollections} from "./functionPresetCollections";
+
+/** The ids of the Euler declaration: the step (as halvings), the end x and the equation by arbiter key; the readout rows; the legend. */
+export type EulerIds = {
+    param: "euler-step" | "euler-end" | "euler-example";
+    row: "h" | "steps" | "end" | "value" | "exact" | "error" | "double-error" | "ratio"; note: "about";
+    legend: "field" | "polyline" | "exact" | "initial"; section: never; action: never;
+};
+
+const EXAMPLE_LABEL_KEYS = {
+    exponential: "euler_ode_example_exponential",
+    "linear-relaxation": "euler_ode_example_linear_relaxation",
+    "blow-up": "euler_ode_example_blow_up",
+} as const satisfies Record<EulerExampleId, Parameters<typeof message>[0]>;
 
 const RATIO_DIGITS = 3;
 /** End values and exact values: four decimals, as the quadrature readouts. */
@@ -57,6 +72,8 @@ const EXAMPLE_VIEWS: Readonly<Record<EulerExampleId, BoundingBox>> = {
  */
 export class EulerGraph extends BaseFunctionGraph<EulerModel> {
     private pointP?: JXG.Point;
+    /** The drawn objects the legend entries name (`drawnObject`); cleared with the scene. */
+    private drawn: Partial<Record<"field" | "polyline" | "exact" | "initial", unknown>> = {};
     /** How often the field marks were generated since the scene was created (tests assert that a drag does not regenerate them). */
     protected fieldBuilds = 0;
 
@@ -160,7 +177,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         let cache: { key: string; marks: FieldMarks } | undefined;
 
         // Layers, lowest first: the field, the exact solution, the polyline with its nodes, then the initial point.
-        const field = this.own(board.create("curve", [[], []], {
+        const field = this.drawn.field = this.own(board.create("curve", [[], []], {
             strokeColor: EULER_COLORS.field, strokeOpacity: 0.65, strokeWidth: thin, highlight: false, fixed: true,
         })) as unknown as { dataX: number[]; dataY: number[]; updateDataArray: () => void; viewportGenerated?: boolean };
         // Rebuilt for every view: guided-example capture checks this curve against the presented window instead of the opening one.
@@ -180,12 +197,12 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
             field.dataY = cache.marks.y;
         };
 
-        this.own(board.create("functiongraph", [(x: number) => exactAt(model(), x)], {
+        this.drawn.exact = this.own(board.create("functiongraph", [(x: number) => exactAt(model(), x)], {
             strokeColor: EULER_COLORS.exact, dash: 2, highlight: false, fixed: true, strokeWidth: this.displayStrokeWidth,
             visible: () => model().showExact,
         }));
 
-        const polyline = this.own(board.create("curve", [[], []], {
+        const polyline = this.drawn.polyline = this.own(board.create("curve", [[], []], {
             strokeColor: EULER_COLORS.polyline, highlight: false, fixed: true, strokeWidth: this.displayStrokeWidth,
             // A single node (end x = x0, or a reveal of zero steps) is no polyline: hidden rather than a degenerate one-sample curve.
             visible: () => this.viewOf(model()).visibleNodes.length > 1,
@@ -230,6 +247,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
             point.moveTo([x, y]);
         });
         this.pointP = point;
+        this.drawn.initial = point;
 
         // The equation, the end value with its error and the error ratio stay on the board (projection needs them), top left.
         this.caption("top-left", [
@@ -265,6 +283,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
     protected override onSceneRemoved(): void {
         this.pointP = undefined;
+        this.drawn = {};
         this.fieldBuilds = 0;
     }
 
@@ -284,11 +303,11 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
                                     onNext={() => this.ignoreOutOfDomain(() => this.nextStep())} onShowAll={() => this.showAllSteps()}/>
                 <p className="inspector-help">{t("euler_ode_reveal_note")}</p>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("euler_ode_step_label")} min={0} max={STEP_SIZES.length - 1} step={1} value={stepIndex}
+            <PuckOwnedGroup params={["euler-step"]} className="inspector-group">
+                <PuckOwned param="euler-step"><Slider customText={t("euler_ode_step_label")} min={0} max={STEP_SIZES.length - 1} step={1} value={stepIndex}
                         formatValue={index => formatNumber(STEP_SIZES[Math.round(index)] ?? NaN, language, PRECISE)} help={t("euler_ode_step_help")}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setStep(STEP_SIZES[Math.round(next)]))}/>
-            </div>
+                        onChange={next => this.ignoreOutOfDomain(() => this.setStep(STEP_SIZES[Math.round(next)]))}/></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("euler_ode_example_label")} value={model.example} help={t("euler_ode_example_help")}
                               options={EULER_EXAMPLE_IDS.map(id => ({value: id, text: eulerExample(id).plain}))}
@@ -307,63 +326,113 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
                                 }}/>
                 <p className="inspector-help">{t("euler_ode_initial_help")}</p>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("euler_ode_end_label")} value={model.xEnd} min={EULER_X_MIN} max={EULER_X_MAX} step={EULER_DRAG_STEP}
-                             rejectedHint={t("euler_ode_end_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setEnd(next))}/>
-            </div>
+            <PuckOwnedGroup params={["euler-end"]} className="inspector-group">
+                <PuckOwned param="euler-end"><Slider customText={t("euler_ode_end_label")} value={model.xEnd} min={EULER_X_MIN} max={EULER_X_MAX} step={EULER_DRAG_STEP}
+                             rejectedHint={t("euler_ode_end_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setEnd(next))}/></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <OnOffSwitch checked={model.showExact} label={t("euler_ode_exact_label")} onChange={next => this.setShowExact(next)}/>
             </div>
         </>;
     }
 
-    /** The statuses to state in words; each has a stable id. */
-    private statuses(model: EulerModel, view: EulerView): { id: string; text: string }[] {
-        const language = currentLanguage();
-        const result: { id: string; text: string }[] = [];
-        const lastX = formatNumber(view.path.nodes[view.path.nodes.length - 1].x, language, PRECISE);
-        if (view.path.termination === "left-window") result.push({id: "left-window", text: t("euler_ode_status_left_window", {value0: lastX})});
-        if (view.path.termination === "non-finite") result.push({id: "non-finite", text: t("euler_ode_status_non_finite", {value0: lastX})});
-        if (!exactReaches(model)) result.push({id: "no-exact", text: t("euler_ode_status_no_exact")});
+    /** The statuses to state in words; each has a stable id. One source for the panel and the declaration. */
+    private statuses(model: EulerModel, view: EulerView): StatusLine[] {
+        const result: StatusLine[] = [];
+        const lastX = messageNumber(view.path.nodes[view.path.nodes.length - 1].x, PRECISE);
+        if (view.path.termination === "left-window") result.push({id: "left-window", text: message("euler_ode_status_left_window", {value0: lastX}), tone: "warning"});
+        if (view.path.termination === "non-finite") result.push({id: "non-finite", text: message("euler_ode_status_non_finite", {value0: lastX}), tone: "warning"});
+        if (!exactReaches(model)) result.push({id: "no-exact", text: message("euler_ode_status_no_exact")});
         if (model.revealed !== null) {
-            result.push({id: "revealed", text: t("euler_ode_status_revealed", {value0: Math.min(model.revealed, view.stepsTaken), value1: view.stepsTaken})});
+            result.push({id: "revealed", text: message("euler_ode_status_revealed", {value0: messageNumber(Math.min(model.revealed, view.stepsTaken), 0), value1: messageNumber(view.stepsTaken, 0)})});
         }
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    // ---- Declaration ---------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys; the step is bound as the number of halvings of 1 (index into the step sizes). */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "euler-step": {read: () => STEP_SIZES.indexOf(this.model.step), apply: (value: number) => this.setStep(STEP_SIZES[value])},
+            "euler-end": {read: () => this.model.xEnd, apply: (value: number) => this.setEnd(value)},
+            "euler-example": {read: () => this.model.example, apply: (value: unknown) => this.setExample(value)},
+        };
+    }
+
+    /**
+     * Pure data from the model. Board: the step (as halvings) and the end x, the two numbers compared while the polyline and the errors
+     * are watched. Orodja: the equation, a setup choice that replaces the whole scene; the initial point (one row of the point editor, also
+     * draggable), the reveal buttons and the exact-curve switch stay in Orodja undeclared. The rows, note and status come from the panel.
+     */
+    protected override declaration(): GraphDeclaration {
+        const legend: LegendEntry<EulerIds>[] = [
+            {id: "field", label: message("euler_ode_legend_field"), kind: "line", object: "field"},
+            {id: "polyline", label: message("euler_ode_legend_polyline"), kind: "line", object: "polyline"},
+            {id: "exact", label: message("euler_ode_legend_exact"), kind: "dashed", object: "exact"},
+            {id: "initial", label: message("euler_ode_legend_initial"), kind: "point", object: "initial"},
+        ];
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "euler-step", kind: "count", label: message("euler_ode_halvings_name"), symbol: "k", help: message("euler_ode_halvings_help"), placement: "board",
+                    min: 0, max: STEP_SIZES.length - 1},
+                {key: "euler-end", kind: "range", label: message("euler_ode_end_label"), help: message("euler_ode_end_help"), placement: "board",
+                    min: EULER_X_MIN, max: EULER_X_MAX, step: EULER_DRAG_STEP, maxDecimals: 2},
+                {key: "euler-example", kind: "choice", label: message("euler_ode_example_label"), help: message("euler_ode_example_help"), placement: "tools",
+                    options: EULER_EXAMPLE_IDS.map(id => ({value: id, label: message(EXAMPLE_LABEL_KEYS[id])}))},
+            ],
+            legend,
+        };
+    }
+
+    /** The rows, the note and the statuses of the inspector as declared data (`renderReadout` draws them from it). */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
-        const number = (value: number | undefined) => value === undefined ? t("euler_ode_none") : formatNumber(value, language, PRECISE);
-        const error = (value: number | undefined) => value === undefined ? t("euler_ode_none") : formatSignificant(value, language, ERROR_DISPLAY_DIGITS);
-        const rows = [
-            {id: "h", label: t("euler_ode_readout_h"), value: formatNumber(model.step, language, PRECISE)},
-            {id: "steps", label: t("euler_ode_readout_steps"), value: String(view.stepsTaken)},
-            {id: "end", label: t("euler_ode_readout_end"), value: formatNumber(model.xEnd, language, PRECISE)},
-            {id: "value", label: t("euler_ode_readout_value"), value: number(view.endValue)},
-            {id: "exact", label: t("euler_ode_readout_exact"), value: number(view.exact)},
-            {id: "error", label: t("euler_ode_readout_error"), value: error(view.error)},
-            {
-                id: "double-error",
-                label: t("euler_ode_readout_double_error", {value0: view.doubleStep === undefined ? t("euler_ode_none") : formatNumber(view.doubleStep, language, PRECISE)}),
-                value: error(view.doubleError),
-            },
-            {id: "ratio", label: t("euler_ode_readout_ratio"), value: view.ratio === undefined ? t("euler_ode_none") : formatSignificant(view.ratio, language, RATIO_DIGITS)},
-        ];
+        const none = message("euler_ode_none");
+        const precise = (value: number | undefined) => value === undefined ? none : messageNumber(value, PRECISE);
+        const significant = (value: number | undefined, digits: number): Message | FormattedValue =>
+            value === undefined ? none : {kind: "formatted", text: formatSignificant(value, language, digits)};
+        return {
+            rows: [
+                {id: "h", name: message("euler_ode_readout_h"), value: messageNumber(model.step, PRECISE)},
+                {id: "steps", name: message("euler_ode_readout_steps"), value: messageNumber(view.stepsTaken, 0)},
+                {id: "end", name: message("euler_ode_readout_end"), value: messageNumber(model.xEnd, PRECISE)},
+                {id: "value", name: message("euler_ode_readout_value"), value: precise(view.endValue)},
+                {id: "exact", name: message("euler_ode_readout_exact"), value: precise(view.exact)},
+                {id: "error", name: message("euler_ode_readout_error"), value: significant(view.error, ERROR_DISPLAY_DIGITS)},
+                {id: "double-error", name: message("euler_ode_readout_double_error", {value0: precise(view.doubleStep)}), value: significant(view.doubleError, ERROR_DISPLAY_DIGITS)},
+                {id: "ratio", name: message("euler_ode_readout_ratio"), value: significant(view.ratio, RATIO_DIGITS)},
+            ],
+            notes: [{id: "about", text: message("euler_ode_note")}],
+            status: this.statuses(model, view),
+            // The learner watches the polyline: every drawn node, the initial point among them, stays in view.
+            must: view.visibleNodes.map(node => ({x: node.x, y: node.y})),
+        };
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = id === "field" || id === "polyline" || id === "exact" || id === "initial" ? this.drawn[id] : undefined;
+        if (typeof element !== "object" || element === null || Array.isArray(element)) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(id === "initial" ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    protected renderReadout(): React.ReactNode {
+        const lines = this.functionPanel().status ?? [];
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("euler_ode_note")}/>
-            <FunctionStatus className="euler-status" dataAttribute="euler-status" lines={this.statuses(model, view)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="euler-status" dataAttribute="euler-status" lines={lines.map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 
+    /** A declared legend replaces the panel's own, so Orodja shows no second one. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "field", color: EULER_COLORS.field, label: t("euler_ode_legend_field"), kind: "line"},
-            {id: "polyline", color: EULER_COLORS.polyline, label: t("euler_ode_legend_polyline"), kind: "line"},
-            {id: "exact", color: EULER_COLORS.exact, label: t("euler_ode_legend_exact"), kind: "dashed-line"},
-            {id: "initial", color: EULER_COLORS.initial, label: t("euler_ode_legend_initial"), kind: "dot"},
-        ]}/>;
+        return null;
     }
 }
 

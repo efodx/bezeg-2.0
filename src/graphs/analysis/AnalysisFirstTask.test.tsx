@@ -22,7 +22,7 @@ const labelled = (label: string): Find => root => within(root).getAllByLabelText
 interface Route {lead: Find; later: Find[]}
 const routes: Record<string, Route> = {
     'bisection': {lead: button(t('next_step')), later: [labelled(t('bisection_example_label'))]},
-    'euler-method': {lead: button(t('next_step')), later: [labelled(t('euler_ode_example_label')), labelled(t('euler_ode_end_label'))]},
+    'euler-method': {lead: button(t('next_step')), later: [labelled(t('euler_ode_example_label'))]},
     'mean-value': {lead: labelled(t('mean_value_c_label')), later: [labelled(t('mean_value_example_label')), labelled(t('mean_value_a_label'))]},
     'darboux': {lead: labelled(t('darboux_n_label')), later: [labelled(t('darboux_example_label')), labelled(t('darboux_a_label'))]},
     'sequence': {lead: labelled(t('sequence_epsilon_label')), later: [labelled(t('sequence_example_label'))]},
@@ -80,6 +80,21 @@ describe('bisection endpoints', () => {
             expect(within(strip).queryAllByRole('spinbutton', {name: label}).length + within(strip).queryAllByRole('slider', {name: label}).length).toBeGreaterThan(0);
             expect(within(root).queryAllByLabelText(label)).toEqual([]);
         }
+    });
+});
+
+describe('euler step and end', () => {
+    // The step (as halvings) and the end x are pucks on the board (task 08): there once, and not in Edit, where the playback button still leads.
+    test('the step and the end x are pucks, Edit holds no second copy', async () => {
+        mountGraph(graphFactories['euler-method']());
+        await waitForPucks('euler-step');
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(strip.querySelector('[data-puck-key="euler-step"]')).not.toBeNull();
+        expect(strip.querySelector('[data-puck-key="euler-end"]')).not.toBeNull();
+        expect(root.querySelector('[data-puck-key="euler-step"], [data-puck-key="euler-end"]')).toBeNull();
+        expect(within(root).queryAllByLabelText(t('euler_ode_end_label'))).toEqual([]);
+        expect(within(root).queryAllByLabelText(t('euler_ode_step_label'))).toEqual([]);
     });
 });
 

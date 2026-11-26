@@ -1,0 +1,506 @@
+{
+  "graph": "euler-method",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,5"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "2"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "1"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "2,25"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "2,7183"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,4683"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = 1#0",
+          "label": "Absolutna napaka pri koraku 2h = 1",
+          "value": "0,7183"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "1,53"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,5"
+      ],
+      "captions": [
+        "h = 0,5, y(1) ≈ 2,25, napaka 0,4683",
+        "napaka(2h) / napaka(h) = 1,53",
+        "y' = y"
+      ]
+    },
+    {
+      "name": "h 0.25",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,25"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "4"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "1"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "2,4414"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "2,7183"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,2769"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = 0,5#0",
+          "label": "Absolutna napaka pri koraku 2h = 0,5",
+          "value": "0,4683"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "1,69"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,25"
+      ],
+      "captions": [
+        "h = 0,25, y(1) ≈ 2,4414, napaka 0,2769",
+        "napaka(2h) / napaka(h) = 1,69",
+        "y' = y"
+      ]
+    },
+    {
+      "name": "h 0.125, end 2",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,125"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "16"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "2"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "6,5833"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "7,3891"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,8058"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = 0,25#0",
+          "label": "Absolutna napaka pri koraku 2h = 0,25",
+          "value": "1,429"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "1,77"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,125"
+      ],
+      "captions": [
+        "h = 0,125, y(2) ≈ 6,5833, napaka 0,8058",
+        "napaka(2h) / napaka(h) = 1,77",
+        "y' = y"
+      ]
+    },
+    {
+      "name": "y0 2, h 1",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "1"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "2"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "2"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "8"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "14,7781"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "6,778"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = ni#0",
+          "label": "Absolutna napaka pri koraku 2h = ni",
+          "value": "ni"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "1"
+      ],
+      "captions": [
+        "h = 1, y(2) ≈ 8, napaka 6,778",
+        "y' = y"
+      ]
+    },
+    {
+      "name": "relaxation",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,25"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "8"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "2"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "1,2002"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "1,2707"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,07044"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = 0,5#0",
+          "label": "Absolutna napaka pri koraku 2h = 0,5",
+          "value": "0,1457"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "2,07"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,25"
+      ],
+      "captions": [
+        "h = 0,25, y(2) ≈ 1,2002, napaka 0,07044",
+        "napaka(2h) / napaka(h) = 2,07",
+        "y' = x - y"
+      ]
+    },
+    {
+      "name": "blow-up stops early",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,0625"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "20"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "3"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "ni"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "ni"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "ni"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = 0,125#0",
+          "label": "Absolutna napaka pri koraku 2h = 0,125",
+          "value": "ni"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,0625"
+      ],
+      "captions": [
+        "izračun se ustavi pri x = 1,25",
+        "y' = y²"
+      ]
+    },
+    {
+      "name": "blow-up, no exact value",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,5"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "3"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "1,5"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "6,0703"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "ni"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "ni"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = 1#0",
+          "label": "Absolutna napaka pri koraku 2h = 1",
+          "value": "ni"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,5"
+      ],
+      "captions": [
+        "h = 0,5, y(1,5) ≈ 6,0703, napaka ni",
+        "y' = y²"
+      ]
+    },
+    {
+      "name": "end at x0, exact hidden",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,5"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "0"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "0"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "1"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "1"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = ni#0",
+          "label": "Absolutna napaka pri koraku 2h = ni",
+          "value": "ni"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "ni"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,5"
+      ],
+      "captions": [
+        "h = 0,5, y(0) ≈ 1, napaka 0",
+        "y' = y"
+      ]
+    },
+    {
+      "name": "revealed 2 of 8",
+      "rows": [
+        {
+          "key": "Korak h#0",
+          "label": "Korak h",
+          "value": "0,125"
+        },
+        {
+          "key": "Število korakov#0",
+          "label": "Število korakov",
+          "value": "8"
+        },
+        {
+          "key": "Končni x#0",
+          "label": "Končni x",
+          "value": "1"
+        },
+        {
+          "key": "Eulerjev približek pri končnem x#0",
+          "label": "Eulerjev približek pri končnem x",
+          "value": "2,5658"
+        },
+        {
+          "key": "Natančna vrednost pri končnem x#0",
+          "label": "Natančna vrednost pri končnem x",
+          "value": "2,7183"
+        },
+        {
+          "key": "Absolutna napaka#0",
+          "label": "Absolutna napaka",
+          "value": "0,1525"
+        },
+        {
+          "key": "Absolutna napaka pri koraku 2h = 0,25#0",
+          "label": "Absolutna napaka pri koraku 2h = 0,25",
+          "value": "0,2769"
+        },
+        {
+          "key": "Razmerje napak: napaka pri 2h deljena z napako pri h#0",
+          "label": "Razmerje napak: napaka pri 2h deljena z napako pri h",
+          "value": "1,82"
+        }
+      ],
+      "notes": [
+        "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
+      ],
+      "outputs": [
+        "0,125"
+      ],
+      "captions": [
+        "h = 0,125, y(1) ≈ 2,5658, napaka 0,1525",
+        "napaka(2h) / napaka(h) = 1,82",
+        "y' = y"
+      ]
+    }
+  ]
+}

@@ -54,6 +54,10 @@ const extractionAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its readouts (it carries no readout marker, so the recording holds none)'},
 ];
 
+const eulerAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the step slider read the step h (e.g. "0,5"); the step puck now counts halvings k, so the same value is shown by the declared row h, which the recorded panel row "Korak h" already matches'},
+];
+
 const leastSquaresAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the point count read-off belongs to the retained point editor in Orodja (data-parity-retained); the declared points row shows the same count'},
 ];
@@ -450,6 +454,31 @@ const SAMPLES: readonly Sample[] = [
             {name: 'secant default', apply: act(choice('root-finding-method', 'secant'))},
             {name: 'secant step 3', apply: act(parameter('root-x1', 2), ...next(3))},
             {name: 'secant three roots', apply: act(choice('root-finding-example', 'cubic-three-roots'), parameter('root-x0', 0.4), parameter('root-x1', 0.6), ...next(1))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/euler-method.json', demonstration: 'euler-method', accepted: eulerAccepted, states: (() => {
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);
+        };
+        const choice = (name: string, value: string) => ({kind: 'function-choice', name, value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        const reveal = (count: number): ParityState['apply'] => graph => {
+            for (let i = 0; i < count; i++) runAs('learner', () => (graph as unknown as {nextStep(): void}).nextStep());
+        };
+        // States accumulate on one graph, so each one sets every field it shows.
+        const scene = (example: string, step: string, y0: number, end: number, exact = true) => act(
+            {kind: 'function-visibility', target: 'euler-exact', visible: exact}, choice('euler-example', example), choice('euler-step', step),
+            parameter('euler-x0', 0), parameter('euler-y0', y0), parameter('euler-end', end));
+        return [
+            {name: 'default', apply: scene('exponential', '0.5', 1, 1)},
+            {name: 'h 0.25', apply: scene('exponential', '0.25', 1, 1)},
+            {name: 'h 0.125, end 2', apply: scene('exponential', '0.125', 1, 2)},
+            {name: 'y0 2, h 1', apply: scene('exponential', '1', 2, 2)},
+            {name: 'relaxation', apply: scene('linear-relaxation', '0.25', 1, 2)},
+            {name: 'blow-up stops early', apply: scene('blow-up', '0.0625', 1, 3)},
+            {name: 'blow-up, no exact value', apply: scene('blow-up', '0.5', 1, 1.5)},
+            {name: 'end at x0, exact hidden', apply: scene('exponential', '0.5', 1, 0, false)},
+            {name: 'revealed 2 of 8', apply: graph => { scene('exponential', '0.125', 1, 1)(graph); reveal(2)(graph); }},
         ] satisfies ParityState[];
     })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', accepted: phaseAccepted, states: [

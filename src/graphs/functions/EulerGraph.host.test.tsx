@@ -5,6 +5,7 @@ import {EulerGraph} from './EulerGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {installBoardShims, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -73,7 +74,10 @@ const mount = () => {
     giveView(graph);
     return {graph, view};
 };
-const slider = () => screen.getByRole('slider', {name: 'Korak h'}) as HTMLInputElement;
+// The step (as halvings) and the end x are pucks on the board (task 08); the host tests write through the arbiter as a learner, and one test goes through the puck.
+const stepTo = (graph: ObservedEulerGraph, index: number) => act(() => { graph.parameters!.write('euler-step', index, 'learner'); });
+const stepIndex = (graph: ObservedEulerGraph) => graph.parameters!.read('euler-step');
+const endTo = (graph: ObservedEulerGraph, value: number) => act(() => { graph.parameters!.write('euler-end', value, 'learner'); });
 const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label), value); });
 const click = (name: string) => act(() => { fireEvent.click(screen.getByRole('button', {name})); });
 const texts = (graph: ObservedEulerGraph) => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text').map((text: any) => String(text.plaintext)).join('|');
@@ -94,13 +98,13 @@ test('the default scene is the lesson example with exactly one field curve, and 
     expect(readout('ratio')).toBe('1,53');
     const baseline = boardObjects(graph);
 
-    act(() => { enterNumber(slider(), '2'); });
+    stepTo(graph, 2);
     expect(graph.modelNow().step).toBe(0.25);
     expect(readout('value')).toBe('2,4414');
     expect(readout('error')).toBe('0,2769');
     expect(readout('double-error')).toBe('0,4683');
     expect(readout('ratio')).toBe('1,69');
-    act(() => { enterNumber(slider(), '3'); });
+    stepTo(graph, 3);
     expect(readout('value')).toBe('2,5658');
     expect(readout('ratio')).toBe('1,82');
     expect(boardObjects(graph)).toBe(baseline);
@@ -156,7 +160,7 @@ test('a view change regenerates the field, a drag or a step change does not', ()
     const {graph} = mount();
     const stub = vi.spyOn(graph.liveBoard(), 'getBoundingBox');
     const builds = graph.builds();
-    act(() => { enterNumber(slider(), '2'); });
+    stepTo(graph, 2);
     dragTo(graph, 0, 0.5);
     expect(graph.builds()).toBe(builds);
     const before = graph.fieldCurves()[0].dataX.slice();
@@ -183,10 +187,10 @@ test('the example switch keeps the other fields, changes the equation and the nu
     expect(graph.modelNow()).toMatchObject({example: 'linear-relaxation', x0: 0, y0: 1, step: 0.5, xEnd: 1});
     expect(readout('value')).toBe('0,5');
     expect(readout('error')).toBe('0,2358');
-    act(() => { enterNumber(slider(), '2'); });
+    stepTo(graph, 2);
     expect(readout('value')).toBe('0,6328');
     expect(readout('error')).toBe('0,1029');
-    act(() => { enterNumber(slider(), '3'); });
+    stepTo(graph, 3);
     expect(readout('value')).toBe('0,6872');
     expect(readout('error')).toBe('0,04854');
     expect(graph.fieldCurves()).toHaveLength(1);
@@ -219,7 +223,7 @@ const nextStepButton = (): HTMLElement => screen.getByRole('button', {name: 'Nas
 
 test('Next step reveals the polyline one step at a time and Show all restores it', () => {
     const {graph} = mount();
-    act(() => { enterNumber(slider(), '3'); });
+    stepTo(graph, 3);
     expect(graph.polyline().dataX).toHaveLength(9);
     click('Naslednji korak');
     expect(graph.modelNow().revealed).toBe(1);
@@ -251,7 +255,7 @@ test('Next step reveals the polyline one step at a time and Show all restores it
 test('a blow-up run stops the polyline at the last finite point, says so, and hides the exact value', () => {
     const {graph} = mount();
     act(() => { fireEvent.change(screen.getByLabelText('Enačba'), {target: {value: 'blow-up'}}); });
-    type('Končni x, vrednost', '3');
+    endTo(graph, 3);
     const ids = statusIds();
     expect(ids).toContain('no-exact');
     expect(ids.some(id => id === 'left-window' || id === 'non-finite')).toBe(true);
@@ -289,7 +293,7 @@ test('Preset import and Reset restore the controls and the board objects; unmoun
     expect(graph.modelNow()).toEqual(stored);
     expect((screen.getByLabelText('Enačba') as HTMLSelectElement).value).toBe('linear-relaxation');
     expect((screen.getByLabelText('P₀, x₀') as HTMLInputElement).value).toBe('−1');
-    expect(slider().value).toBe('3');
+    expect(stepIndex(graph)).toBe(3);
     expect(graph.initialPoint().X()).toBe(-1);
     expect(graph.polyline().dataX).toHaveLength(4);
     expect(boardObjects(graph)).toBe(baseline);
@@ -299,7 +303,7 @@ test('Preset import and Reset restore the controls and the board objects; unmoun
     click('Ponastavi prednastavitev');
     click('Uredi');
     expect(graph.modelNow()).toEqual({example: 'exponential', x0: 0, y0: 1, step: 0.5, xEnd: 1, showExact: true, revealed: null});
-    expect(slider().value).toBe('1');
+    expect(stepIndex(graph)).toBe(1);
     expect(readout('value')).toBe('2,25');
     expect(graph.initialPoint().Y()).toBe(1);
     expect(boardObjects(graph)).toBe(baseline);
@@ -322,7 +326,7 @@ test('StrictMode does not duplicate board objects or the field curve', () => {
     giveView(graph);
     const baseline = boardObjects(graph);
     expect(graph.fieldCurves()).toHaveLength(1);
-    act(() => { enterNumber(slider(), '2'); });
+    stepTo(graph, 2);
     expect(boardObjects(graph)).toBe(baseline);
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);
@@ -339,4 +343,18 @@ test('Show all is an unavailable button with a reason while everything is shown;
     expect(graph.modelNow().revealed).toBeNull();
     click('Naslednji korak');
     expect(showAll().getAttribute('aria-disabled')).toBe('false');
+});
+
+test('the step and the end x are pucks: typing in them changes the model and the readouts, and Orodja holds no slider for them', async () => {
+    installBoardShims(); // the puck strip needs a laid-out board; last test of the file, so the shims touch no other test
+    const {graph} = mount();
+    await waitForPucks('euler-step');
+    expect(document.querySelector('#board-card-tools [data-puck-key="euler-step"]')).toBeNull();
+    expect(screen.queryByRole('slider', {name: 'Korak h'})).toBeNull();
+    expect(puckControl('euler-step')).not.toBeNull();
+    typePuck('euler-step', '2');
+    expect(graph.modelNow().step).toBe(0.25);
+    expect(readout('value')).toBe('2,4414');
+    typePuck('euler-end', '2');
+    expect(graph.modelNow().xEnd).toBe(2);
 });

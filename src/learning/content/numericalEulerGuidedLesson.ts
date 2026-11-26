@@ -9,10 +9,24 @@
  * drawn) and hides the exact curve, so that the class predicts before anything else appears; step 2 shows one step with end x = x0 + h.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {EulerIds} from '../../graphs/functions/EulerGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const eulerFrame = frameDeclarer<EulerIds>();
+
+/** The readout rows each step talks about (never a value it asks the learner to predict) and the controls its observation asks them to use. */
+const FOCUS: Readonly<Record<string, {highlight: readonly EulerIds['row'][]; uses?: readonly EulerIds['param'][]; tools?: boolean}>> = {
+    'field-predict': {highlight: ['h', 'end']},
+    'one-step': {highlight: ['h', 'steps', 'value']},
+    'polyline': {highlight: ['steps', 'value']},
+    'halve-h': {highlight: ['value', 'exact', 'error'], uses: ['euler-step']},
+    'error-ratios': {highlight: ['error', 'double-error', 'ratio'], uses: ['euler-step', 'euler-example'], tools: true},
+    'initial-point': {highlight: ['value', 'error', 'ratio']},
+    'euler-explore': {highlight: ['error', 'ratio'], uses: ['euler-step', 'euler-end', 'euler-example'], tools: true},
+};
 
 type EulerStepSize = '1' | '0.5' | '0.25' | '0.125' | '0.0625';
 
@@ -51,14 +65,22 @@ interface StepContent {
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
-    ...content,
-    frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
-    ],
-});
+const step = (content: StepContent): GuidedLessonStep => {
+    const focus = FOCUS[content.id];
+    const declare = (observation: boolean) => focus ? eulerFrame({
+        highlight: [...focus.highlight],
+        ...(observation && focus.uses ? {uses: [...focus.uses]} : {}),
+        ...(observation && focus.tools ? {open: ['tools']} : {}),
+    }) : undefined;
+    return {
+        ...content,
+        frames: [
+            frame(`${content.id}-explanation`, 'explanation', declare(false)),
+            ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare(false))] : []),
+            frame(`${content.id}-observation`, 'observation', declare(true)),
+        ],
+    };
+};
 
 const eulerLesson: GuidedLesson = {
     demonstrationId: 'euler-method',

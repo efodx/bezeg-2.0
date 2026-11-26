@@ -49,9 +49,7 @@
       "notes": [
         "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
       ],
-      "outputs": [
-        "0,5"
-      ],
+      "outputs": [],
       "captions": [
         "h = 0,5, y(1) ≈ 2,25, napaka 0,4683",
         "napaka(2h) / napaka(h) = 1,53",
@@ -105,9 +103,7 @@
       "notes": [
         "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
       ],
-      "outputs": [
-        "0,5"
-      ],
+      "outputs": [],
       "captions": [
         "h = 0,5, y(0) ≈ 1, napaka 0",
         "y' = y"
@@ -160,9 +156,7 @@
       "notes": [
         "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
       ],
-      "outputs": [
-        "0,5"
-      ],
+      "outputs": [],
       "captions": [
         "h = 0,5, y(0,5) ≈ 1,5, napaka 0,1487",
         "y' = y"
@@ -215,9 +209,7 @@
       "notes": [
         "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
       ],
-      "outputs": [
-        "0,25"
-      ],
+      "outputs": [],
       "captions": [
         "h = 0,25, y(1) ≈ 2,4414, napaka 0,2769",
         "napaka(2h) / napaka(h) = 1,69",
@@ -271,9 +263,7 @@
       "notes": [
         "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
       ],
-      "outputs": [
-        "0,125"
-      ],
+      "outputs": [],
       "captions": [
         "h = 0,125, y(1) ≈ 2,5658, napaka 0,1525",
         "napaka(2h) / napaka(h) = 1,82",
@@ -327,9 +317,7 @@
       "notes": [
         "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo."
       ],
-      "outputs": [
-        "0,25"
-      ],
+      "outputs": [],
       "captions": [
         "h = 0,25, y(1) ≈ 4,8828, napaka 0,5538",
         "napaka(2h) / napaka(h) = 1,69",
