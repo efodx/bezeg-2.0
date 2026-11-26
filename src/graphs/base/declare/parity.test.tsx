@@ -54,6 +54,10 @@ const extractionAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its readouts (it carries no readout marker, so the recording holds none)'},
 ];
 
+const leastSquaresAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the point count read-off belongs to the retained point editor in Orodja (data-parity-retained); the declared points row shows the same count'},
+];
+
 const SAMPLES: readonly Sample[] = [
     {file: 'functions/__parity__/taylor.json', demonstration: 'taylor', states: [
         state('default', {}),
@@ -235,6 +239,23 @@ const SAMPLES: readonly Sample[] = [
             {name: 'exp base 0.5', apply: run(g => { g.setBase(0.5); g.setX0(-1); })},
             {name: 'exp base 3', apply: run(g => { g.setBase(3); g.setX0(0.5); })},
             {name: 'natural x0 1.5', apply: run(g => { g.setRestriction('natural'); g.setX0(1.5); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/interp-least-squares.json', demonstration: 'interp-least-squares', accepted: leastSquaresAccepted, states: (() => {
+        type Lsq = {setDegree(value: number): void; setPoint(index: number, value: readonly [number, number]): void; setManualLine(value: boolean): void;
+            setLine(field: 'slope' | 'intercept', value: number): void; addPoint(): void; removePoint(): void};
+        const run = (edit: (graph: Lsq) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Lsq)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'degree 2', apply: run(g => g.setDegree(2))},
+            {name: 'degree 3', apply: run(g => g.setDegree(3))},
+            {name: 'degree 1, outlier (3, 8)', apply: run(g => { g.setDegree(1); g.setPoint(3, [3, 8]); })},
+            {name: 'manual line y = x + 1', apply: run(g => { g.setManualLine(true); g.setLine('slope', 1); g.setLine('intercept', 1); })},
+            {name: 'manual line y = 2', apply: run(g => { g.setLine('slope', 0); g.setLine('intercept', 2); })},
+            {name: 'best fit, five points', apply: run(g => { g.setManualLine(false); g.addPoint(); })},
+            {name: 'degree 4 through five points', apply: run(g => g.setDegree(4))},
+            {name: 'three points, quadratic', apply: run(g => { g.removePoint(); g.removePoint(); g.setDegree(2); })},
+            {name: 'vertical data', apply: run(g => { g.setDegree(1); g.setPoint(0, [2, 0]); g.setPoint(1, [2, 1]); g.setPoint(2, [2, 3]); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/arc-length.json', demonstration: 'arc-length', states: (() => {

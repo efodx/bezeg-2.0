@@ -34,9 +34,7 @@
       "notes": [
         "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
       ],
-      "outputs": [
-        "4"
-      ],
+      "outputs": [],
       "captions": [
         "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
         "Prileganje: polinom stopnje 1",
@@ -76,9 +74,7 @@
       "notes": [
         "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
       ],
-      "outputs": [
-        "4"
-      ],
+      "outputs": [],
       "captions": [
         "Najmanjša možna vsota (najboljša premica): 0,7",
         "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
@@ -119,9 +115,7 @@
       "notes": [
         "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
       ],
-      "outputs": [
-        "4"
-      ],
+      "outputs": [],
       "captions": [
         "Najmanjša možna vsota (najboljša premica): 0,7",
         "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
@@ -162,9 +156,7 @@
       "notes": [
         "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
       ],
-      "outputs": [
-        "4"
-      ],
+      "outputs": [],
       "captions": [
         "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
         "Prileganje: polinom stopnje 1",
@@ -204,9 +196,7 @@
       "notes": [
         "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne."
       ],
-      "outputs": [
-        "4"
-      ],
+      "outputs": [],
       "captions": [
         "Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat.",
         "Prileganje: polinom stopnje 2",

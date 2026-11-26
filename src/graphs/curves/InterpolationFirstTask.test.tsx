@@ -63,11 +63,13 @@ describe('exact point entry follows the first-task group', () => {
         expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_show_basis')));
     });
 
-    test('least squares: residual display, then the points, then the manual line', () => {
+    test('least squares: the points lead Edit; squares and manual line are declared pucks', () => {
         mountGraph(new LeastSquaresGraph());
         const names = editControls();
         expect(at(names, point()), names.join(' | ')).toBeGreaterThanOrEqual(0);
-        expect(at(names, t('interp_lsq_show_squares')), names.join(' | ')).toBeLessThan(at(names, point()));
-        expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_lsq_manual_label')));
+        expect(document.querySelector('[data-puck-strip]'), 'puck strip').not.toBeNull();
+        for (const label of [t('interp_lsq_show_squares'), t('interp_lsq_manual_label')]) {
+            expect(at(names, label), names.join(' | ')).toBe(-1);
+        }
     });
 });

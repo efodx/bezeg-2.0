@@ -6,10 +6,13 @@
  * `set-overlay`).
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer} from '../../graphs/base/declare/graphDeclaration';
+import type {LeastSquaresIds} from '../../graphs/functions/LeastSquaresGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const lsqFrame = frameDeclarer<LeastSquaresIds>();
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: ReturnType<typeof lsqFrame>): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 interface LsqSceneOptions {
     readonly degree: number;
@@ -78,7 +81,7 @@ export const leastSquaresLesson: GuidedLesson = {
                 'The graph shows the four data points \\((0,1)\\), \\((1,2)\\), \\((2,2)\\), \\((3,4)\\) and the horizontal manual line \\(y=2\\). Predict by eye: where does the line that fits the data best run? Then switch off the manual line and switch on the squares of the residuals. The best line is \\(y=0.9x+0.9\\), the residuals are \\(0.1\\), \\(0.2\\), \\(-0.7\\) and \\(0.4\\), and the sum of their squares is \\(0.7\\). A residual is the vertical distance to the line, not the shortest distance; squaring it is a modelling choice.',
             ),
             formulaIds: ['normal-equations'],
-            frames: [frame('lsq-predict-explanation', 'explanation'), frame('lsq-predict-observation', 'observation')],
+            frames: [frame('lsq-predict-explanation', 'explanation'), frame('lsq-predict-observation', 'observation', lsqFrame({uses: ['manual', 'squares']}))],
             observationPrompt: text('Pred razkritjem se odloči: ali bo najboljša premica nad ali pod premico \\(y=2\\) pri \\(x=3\\), in kolikšen naj bo naklon?', 'Before the reveal decide: will the best line be above or below the level \\(y=2\\) at \\(x=3\\), and roughly what slope should it have?'),
             expectedObservations: [text('Najboljša premica ima naklon \\(0{,}9\\) in teče nad vodoravno premico pri \\(x=3\\); kvadrati ostankov so največji pri točki \\((2,2)\\).', 'The best line has slope \\(0.9\\) and runs above the horizontal line at \\(x=3\\); the squares of the residuals are largest at the point \\((2,2)\\).')],
             scene: lsqScene('lsq-predict-start', {degree: 1, squares: false, normalEquations: false, manual: [0, 2]},
@@ -94,7 +97,7 @@ export const leastSquaresLesson: GuidedLesson = {
                 'The manual line is now \\(y=x+1\\) and the squares of the residuals are shown. Its sum of squares is \\(1\\); beside it the smallest possible sum \\(0.7\\) is written. Move the sliders for the slope \\(k\\) and the intercept \\(n\\) and watch the sum. When you set \\(k=0.9\\) and \\(n=0.9\\) the sum meets the smallest one, \\(0.7\\); no line gives a smaller sum.',
             ),
             formulaIds: ['normal-equations'],
-            frames: [frame('lsq-manual-explanation', 'explanation'), frame('lsq-manual-observation', 'observation')],
+            frames: [frame('lsq-manual-explanation', 'explanation'), frame('lsq-manual-observation', 'observation', lsqFrame({highlight: ['sum', 'optimal-sum'], uses: ['lsq-slope', 'lsq-intercept']}))],
             observationPrompt: text('Poskusi spustiti vsoto pod \\(0{,}7\\). Kaj opaziš, ko premico premikaš na eno ali drugo stran od najboljše?', 'Try to push the sum below \\(0.7\\). What do you notice when you move the line to either side of the best one?'),
             expectedObservations: [text('Vsota ne gre pod \\(0{,}7\\); na obeh straneh najboljše premice narašča.', 'The sum does not go below \\(0.7\\); it grows on both sides of the best line.')],
             scene: lsqScene('lsq-manual-start', {degree: 1, squares: true, normalEquations: false, manual: [1, 1]},
@@ -110,7 +113,7 @@ export const leastSquaresLesson: GuidedLesson = {
                 'The point \\((3,4)\\) is replaced by the point \\((3,8)\\); the other three stay. Predict: how far does the best line move and what is the sum of squares now? The best line is now \\(y=2.1x+0.1\\) and the sum of squares is \\(8.7\\), before \\(0.7\\). One single point has turned the line strongly, because the square of a large residual counts for a lot: such a point is called an outlier. Least squares is therefore sensitive to outliers.',
             ),
             formulaIds: ['normal-equations'],
-            frames: [frame('lsq-outlier-explanation', 'explanation'), frame('lsq-outlier-observation', 'observation')],
+            frames: [frame('lsq-outlier-explanation', 'explanation'), frame('lsq-outlier-observation', 'observation', lsqFrame({highlight: ['equation', 'sum']}))],
             observationPrompt: text('Primerjaj ostanke s tistimi pri prvotnih podatkih. Kateri se je najbolj povečal?', 'Compare the residuals with those of the original data. Which one grew the most?'),
             expectedObservations: [text('Naklon naraste z \\(0{,}9\\) na \\(2{,}1\\) in vsota z \\(0{,}7\\) na \\(8{,}7\\); ostanki pri večini ostalih točk so zdaj večji kot prej.', 'The slope grows from \\(0.9\\) to \\(2.1\\) and the sum from \\(0.7\\) to \\(8.7\\); the residuals at most of the other points are larger now than before.')],
             scene: lsqScene('lsq-outlier-start', {degree: 1, squares: true, normalEquations: false, outlier: true},
@@ -126,7 +129,7 @@ export const leastSquaresLesson: GuidedLesson = {
                 'The data are the original ones again. The normal equations \\(A^{T}A\\,c=A^{T}y\\) for a line read \\(4c_0+6c_1=9\\) and \\(6c_0+14c_1=18\\). The solution is \\(c_0=0.9\\) and \\(c_1=0.9\\), so \\(y=0.9x+0.9\\). The residuals \\(0.1\\), \\(0.2\\), \\(-0.7\\), \\(0.4\\) add up to \\(0\\) and are also orthogonal to the column of \\(x\\): \\(0.2-1.4+1.2=0\\). That is why the sum of squares, \\(0.7\\), is the smallest.',
             ),
             formulaIds: ['normal-equations'],
-            frames: [frame('lsq-normal-explanation', 'explanation'), frame('lsq-normal-observation', 'observation')],
+            frames: [frame('lsq-normal-explanation', 'explanation'), frame('lsq-normal-observation', 'observation', lsqFrame({highlight: ['equation', 'residuals']}))],
             observationPrompt: text('Preveri v inspektorju, da prikazana rešitev \\(c\\) ustreza obema enačbama, in seštej ostanke.', 'Check in the inspector that the shown solution \\(c\\) satisfies both equations, and add up the residuals.'),
             expectedObservations: [text('Obe enačbi veljata za \\(c_0=c_1=0{,}9\\), vsota ostankov je \\(0\\).', 'Both equations hold for \\(c_0=c_1=0.9\\), and the residuals add up to \\(0\\).')],
             scene: lsqScene('lsq-normal-start', {degree: 1, squares: true, normalEquations: true},
@@ -142,7 +145,7 @@ export const leastSquaresLesson: GuidedLesson = {
                 'The degree is now \\(2\\): the fit is \\(y=1.15+0.15x+0.25x^2\\) with sum of squares \\(0.45\\), less than for the line. Predict what happens at degree \\(3\\), then raise it. The polynomial of degree \\(3\\) passes through all \\(4\\) points, \\(y=1+2.5x-2x^2+0.5x^3\\), the residuals and the sum of squares are \\(0\\) up to rounding. That is the interpolation of the Lagrange lesson (zero residuals), but such a polynomial easily wiggles between the points; the lesson on the Runge phenomenon covers that. A smaller sum of squares is not necessarily a better model.',
             ),
             formulaIds: ['normal-equations'],
-            frames: [frame('lsq-degree-explanation', 'explanation'), frame('lsq-degree-observation', 'observation')],
+            frames: [frame('lsq-degree-explanation', 'explanation'), frame('lsq-degree-observation', 'observation', lsqFrame({highlight: ['equation', 'sum'], uses: ['lsq-degree']}))],
             observationPrompt: text('Pred povečanjem stopnje se odloči: ali bo vsota kvadratov padla, in ali bo krivulja še vedno blizu podatkov tudi med njimi?', 'Before raising the degree decide: will the sum of squares fall, and will the curve still stay near the data between the points too?'),
             expectedObservations: [text('Pri stopnji \\(3\\) so vsi ostanki do zaokrožitve \\(0\\) in krivulja gre skozi vse točke.', 'At degree \\(3\\) all residuals are \\(0\\) up to rounding and the curve passes through every point.')],
             scene: lsqScene('lsq-degree-quadratic', {degree: 2, squares: true, normalEquations: false},
@@ -158,7 +161,7 @@ export const leastSquaresLesson: GuidedLesson = {
                 'The graph is back at the start: four points, the best line and the squares of the residuals. Move the points by dragging or type the coordinates, add up to \\(12\\) points, raise the degree up to \\(5\\) and try the manual line. The degree must be smaller than the number of points. If all points have the same \\(x\\) there is no curve: \\(y\\) is not a function of \\(x\\). Watch how the sum of squares and the squares of the residuals respond to a far-away point.',
             ),
             formulaIds: ['normal-equations'],
-            frames: [frame('lsq-explore-explanation', 'explanation'), frame('lsq-explore-observation', 'observation')],
+            frames: [frame('lsq-explore-explanation', 'explanation'), frame('lsq-explore-observation', 'observation', lsqFrame({uses: ['lsq-degree']}))],
             observationPrompt: text('Premakni eno točko daleč stran in primerjaj, kako se premakne premica in kako polinom višje stopnje.', 'Move one point far away and compare how the line moves with how a polynomial of a higher degree moves.'),
             expectedObservations: [text('Premica se z osamelcem zasuka; polinom z več parametri se osamelcu prilagodi bolj, a med točkami niha.', 'The line turns with the outlier; a polynomial with more parameters adapts to it more, but wiggles between the points.')],
             scene: lsqScene('lsq-explore-default', {degree: 1, squares: true, normalEquations: false},

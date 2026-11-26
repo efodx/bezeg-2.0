@@ -3,9 +3,10 @@ import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {LeastSquaresGraph} from './LeastSquaresGraph';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
+import {installBoardShims, openTools, puckControl, REAL_GRAPH_TEST_TIMEOUT, settle, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {LocalizedError, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
+import {runAs} from '../base/writes/writeSource';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DEFAULT_LEAST_SQUARES_MODEL} from '../../analysis/leastSquaresModel';
@@ -42,27 +43,27 @@ class ObservedLeastSquaresGraph extends LeastSquaresGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const list = (index: number, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^(Točka|Point) ${index}, ${axis}$`)) as HTMLInputElement;
-const squaresSwitch = () => screen.getByLabelText(/^Pokaži kvadrate ostankov$|^Show the squares of the residuals$/) as HTMLInputElement;
-const manualSwitch = () => screen.getByLabelText(/^Ročna premica$|^Manual line$/) as HTMLInputElement;
+// The degree, the slope and the intercept, the manual-line switch and the squares switch are pucks on the board (task 08): the strip appears once the board has laid out.
 const normalSwitch = () => screen.getByLabelText(/^Pokaži normalni sistem$|^Show the normal equations$/) as HTMLInputElement;
-const degreeGroup = () => screen.getByRole('group', {name: /^Stopnja polinoma$|^Polynomial degree$/});
 const countGroup = () => screen.getByRole('group', {name: /^Število podatkovnih točk$|^Number of data points$/});
-const degreeField = () => within(degreeGroup()).getByRole('spinbutton') as HTMLInputElement;
+const squaresSwitch = () => puckControl('squares');
+const manualSwitch = () => puckControl('manual');
+const isOn = (control: HTMLElement) => control.getAttribute('aria-checked') === 'true';
+const degreeStep = (name: 'Povečaj' | 'Zmanjšaj') =>
+    [...document.querySelectorAll<HTMLElement>('.puck-strip [data-puck-key="lsq-degree"] [role="button"], .puck-strip [data-puck-key="lsq-degree"] button')]
+        .find(button => (button.getAttribute('aria-label') ?? '').startsWith(name))!;
 const mount = () => {
     const graph = new ObservedLeastSquaresGraph();
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     expect(graph.state.initialized).toBe(true);
     return {graph, ...view};
 };
-const setDegree = (value: number) => act(() => {
-    fireEvent.change(degreeField(), {target: {value: String(value)}});
-    fireEvent.keyDown(degreeField(), {key: 'Enter'});
-});
+const setDegree = (value: number) => typePuck('lsq-degree', String(value));
 const typeCoordinate = (index: number, axis: 'x' | 'y', value: number) => act(() => {
     fireEvent.change(list(index, axis), {target: {value: String(value)}});
     fireEvent.keyDown(list(index, axis), {key: 'Enter'});
 });
-const setLine = (label: RegExp, value: number) => act(() => { fireEvent.change(screen.getByLabelText(label, {selector: 'input[type="range"]'}), {target: {value: String(value)}}); });
+const setLine = (key: 'lsq-slope' | 'lsq-intercept', value: number) => typePuck(key, String(value));
 
 test('defaults: four points, degree 1, fit mode; the readouts give the line y = 0,9x + 0,9, the residuals and the sum 0,7', () => {
     const {graph} = mount();
@@ -81,8 +82,9 @@ test('defaults: four points, degree 1, fit mode; the readouts give the line y = 
     expect(graph.captionPlainLines().join('\n')).toMatch(/Vsota kvadratov ostankov: 0,7/);
 });
 
-test('degree 2 and 3 reproduce the spec equations and sums; English uses the decimal point', () => {
+test('degree 2 and 3 reproduce the spec equations and sums; English uses the decimal point', async () => {
     const {graph} = mount();
+    await waitForPucks('lsq-degree');
     setDegree(2);
     expect(readout('equation')).toBe('y = 1,15 + 0,15x + 0,25x²');
     expect(readout('sum')).toBe('0,45');
@@ -123,14 +125,16 @@ test('the typed list moves the board point; an out-of-range coordinate is refuse
     expect(graph.handles()[1].Y()).toBe(3);
 });
 
-test('the degree is limited to min(points - 1, 5) and removing points clamps it', () => {
+test('the degree is limited to min(points - 1, 5) and removing points clamps it', async () => {
     const {graph} = mount();
+    await waitForPucks('lsq-degree');
+    await openTools();
     const plus = () => within(countGroup()).getByRole('button', {name: 'Povečaj število'});
     const minus = () => within(countGroup()).getByRole('button', {name: 'Zmanjšaj število'});
     setDegree(3);
     setDegree(4);
     expect(graph.modelNow().degree).toBe(3);
-    expect(within(degreeGroup()).getByRole('button', {name: 'Povečaj število'})).toHaveAttribute('aria-disabled', 'true');
+    expect(degreeStep('Povečaj')).toHaveAttribute('aria-disabled', 'true');
     act(() => { fireEvent.click(minus()); });
     expect(graph.modelNow()).toMatchObject({degree: 2});
     expect(graph.modelNow().points).toHaveLength(3);
@@ -171,9 +175,10 @@ test('vertical data show a localized reason instead of a curve; the board and th
     expect(graph.ownedObjects()).toBe(baseline);
 });
 
-test('the squares are true squares on screen although the axes have unequal units, and follow a zoom', () => {
+test('the squares are true squares on screen although the axes have unequal units, and follow a zoom', async () => {
     const {graph} = mount();
-    expect(squaresSwitch().checked).toBe(true);
+    await waitForPucks('squares');
+    expect(isOn(squaresSwitch())).toBe(true);
     const board = graph.liveBoard();
     expect(Math.abs(board.unitX - board.unitY) / board.unitX).toBeGreaterThan(0.05);
     const residuals = [0.1, 0.2, -0.7, 0.4];
@@ -190,16 +195,18 @@ test('the squares are true squares on screen although the axes have unequal unit
         });
     };
     check();
-    act(() => { board.setBoundingBox([-0.5, 5, 6, -1], false); board.update(); });
+    act(() => { runAs('learner', () => { board.setBoundingBox([-0.5, 5, 6, -1], false); board.update(); }); });
     check();
     act(() => { fireEvent.click(squaresSwitch()); });
     expect(graph.modelNow().showSquares).toBe(false);
     expect(graph.squares().filter(square => square.visPropCalc?.visible === true)).toHaveLength(0);
 });
 
-test('manual line mode draws the manual line, shows its sum beside the optimum and enables the sliders', () => {
+test('manual line mode draws the manual line, shows its sum beside the optimum and enables the sliders', async () => {
     const {graph} = mount();
+    await waitForPucks('manual');
     act(() => { fireEvent.click(manualSwitch()); });
+    await waitForPucks('lsq-slope');
     expect(graph.modelNow().manualLine).toBe(true);
     expect(readout('equation')).toBe('y = x + 1');
     expect(readout('sum')).toBe('1');
@@ -207,12 +214,12 @@ test('manual line mode draws the manual line, shows its sum beside the optimum a
     expect(readout('residuals')).toBe('0; 0; −1; 0');
     expect(graph.visibleFunctionGraphs()).toHaveLength(1);
     expect(graph.visibleFunctionGraphs()[0].Y(2)).toBeCloseTo(3, 12);
-    setLine(/^Naklon k$/, 0.9);
-    setLine(/^Začetna vrednost n$/, 0.9);
+    setLine('lsq-slope', 0.9);
+    setLine('lsq-intercept', 0.9);
     expect(graph.modelNow()).toMatchObject({slope: 0.9, intercept: 0.9});
     expect(readout('sum')).toBe('0,7');
     expect(readout('optimal-sum')).toBe('0,7');
-    setLine(/^Naklon k$/, 2);
+    setLine('lsq-slope', 2);
     expect(readout('sum')).toBe('17,64');
     expect(graph.visibleFunctionGraphs()[0].Y(1)).toBeCloseTo(2.9, 12);
     expect(graph.captionPlainLines().join('\n')).toMatch(/Najmanjša možna vsota \(najboljša premica\): 0,7/);
@@ -220,8 +227,9 @@ test('manual line mode draws the manual line, shows its sum beside the optimum a
     expect(readout('equation')).toBe('y = 0,9x + 0,9');
 });
 
-test('the normal equations are displayed with the numbers of the fit for degree 1 and 2 and not for degree 3', () => {
+test('the normal equations are displayed with the numbers of the fit for degree 1 and 2 and not for degree 3', async () => {
     mount();
+    await waitForPucks('lsq-degree');
     expect(document.querySelector('[data-lsq="normal-equations"]')).toBeNull();
     act(() => { fireEvent.click(normalSwitch()); });
     const text = () => document.querySelector('[data-lsq="normal-latex"]')?.textContent ?? '';
@@ -248,29 +256,32 @@ test('the help text says that squared vertical residuals are a modelling choice,
 
 test('Reset restores the defaults, the fields, the readouts, the view and the board objects', async () => {
     const {graph} = mount();
+    await waitForPucks('lsq-degree');
     const baseline = graph.ownedObjects();
     graph.drag(3, 3, 8);
     setDegree(2);
     act(() => { fireEvent.click(manualSwitch()); });
     act(() => { fireEvent.click(normalSwitch()); });
     act(() => { fireEvent.click(squaresSwitch()); });
-    graph.liveBoard().setBoundingBox([-0.5, 5, 6, -1], false);
+    runAs('learner', () => graph.liveBoard().setBoundingBox([-0.5, 5, 6, -1], false));
     await settle(() => graph.reset());
     expect(graph.modelNow()).toEqual(DEFAULT_LEAST_SQUARES_MODEL);
     expect(list(4, 'y').value).toBe('4');
     expect(graph.handles()[3].Y()).toBe(4);
-    expect(manualSwitch().checked).toBe(false);
-    expect(squaresSwitch().checked).toBe(true);
+    await waitForPucks('lsq-degree');
+    expect(isOn(manualSwitch())).toBe(false);
+    expect(isOn(squaresSwitch())).toBe(true);
     expect(normalSwitch().checked).toBe(false);
-    expect(degreeField().value).toBe('1');
+    expect(graph.modelNow().degree).toBe(1);
     expect(readout('equation')).toBe('y = 0,9x + 0,9');
     expect(readout('sum')).toBe('0,7');
-    expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(-1.5, 6);
+    expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(-1.5, 2); // the puck strip's layout changes the board size by a few pixels
     expect(graph.ownedObjects()).toBe(baseline);
 });
 
-test('Preset round trip: the exported model is imported back with the same state and the same board', () => {
+test('Preset round trip: the exported model is imported back with the same state and the same board', async () => {
     const {graph} = mount();
+    await waitForPucks('lsq-degree');
     graph.drag(3, 3, 8);
     setDegree(2);
     act(() => { fireEvent.click(normalSwitch()); });
@@ -287,7 +298,7 @@ test('Preset round trip: the exported model is imported back with the same state
     expect(graph.modelNow()).toEqual(exported.data);
     expect(list(4, 'y').value).toBe('8');
     expect(graph.handles()[3].Y()).toBe(8);
-    expect(degreeField().value).toBe('2');
+    expect(graph.modelNow().degree).toBe(2);
     expect(normalSwitch().checked).toBe(true);
     expect(readout('equation')).toBe(equation);
     // through the file importer too (stored Preset collection key interp-least-squares)
@@ -351,15 +362,17 @@ test('dispose removes the owned board objects, and a later drag or language chan
     expect(update).not.toHaveBeenCalled();
 });
 
-test('the cubic fit through four points shows its float-noise sum of squares and residuals with ≈ 0', () => {
+test('the cubic fit through four points shows its float-noise sum of squares and residuals with ≈ 0', async () => {
     mount();
+    await waitForPucks('lsq-degree');
     setDegree(3);
     expect(readout('sum')).toBe('≈ 0');
     expect(readout('residuals')).toBe('≈ 0; ≈ 0; ≈ 0; ≈ 0');
 });
 
-test('in manual mode the normal-equations display says it is the best line\'s system; in fit mode it does not', () => {
+test('in manual mode the normal-equations display says it is the best line\'s system; in fit mode it does not', async () => {
     mount();
+    await waitForPucks('manual');
     act(() => { fireEvent.click(normalSwitch()); });
     const note = () => document.querySelector('[data-lsq="normal-manual-note"]')?.textContent;
     expect(note()).toBeUndefined();
