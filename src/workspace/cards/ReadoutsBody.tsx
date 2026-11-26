@@ -3,6 +3,7 @@ import {formatNumber} from '../../analysis/format';
 import {currentLanguage, isMessageNumber, renderMessage, useT, type Message, type MessageNumber} from '../../localization';
 import type {FormattedValue, FormulaDeclaration, LegendEntry, ReadoutGroup, ReadoutNote, ReadoutRow} from '../../graphs/base/declare/graphDeclaration';
 import {LiveReadout, SettledReadout} from '../../graphs/base/controls/LiveReadout';
+import {bareName} from '../pucks/puckSymbol';
 import {useIsMeasurePass} from './MeasurePass';
 import {Swatch, type DrawnObject} from './Swatch';
 import {Tex} from './Tex';
@@ -87,7 +88,7 @@ function Row(props: {row: ReadoutRow; highlighted: boolean; entry?: LegendEntry;
         <dt className="ws-name">
             {props.entry && drawn ? <Swatch kind={props.entry.kind} color={drawn.color}/> : props.reserveMark && <span className="ws-swatch ws-swatch-none" aria-hidden="true"/>}
             <span className="ws-label">
-                {row.name && <span>{renderMessage(row.name)}</span>}{row.name && row.symbol && ' '}
+                {row.name && <span>{bareName(renderMessage(row.name), row.symbol)}</span>}{row.name && row.symbol && ' '}
                 {row.symbol && <Tex tex={row.symbol} className="ws-symbol"/>}
             </span>
         </dt>

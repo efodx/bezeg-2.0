@@ -101,7 +101,7 @@ export function PuckFrame(props: FrameProps) {
         onKeyDown={event => { if (event.key === 'Escape' && helpOpen) { event.stopPropagation(); setHelpOpen(false); } }}>
         {props.pill}
         <div className="puck-head">
-            <span className="puck-label" title={spoken}><span className="puck-name">{bareName(props.label, props.symbol)}</span>{props.symbol && <>{' '}<PuckSymbol tex={props.symbol}/></>}</span>
+            <span className="puck-label" title={spoken}><span className="puck-name">{bareName(props.label, props.symbol)}</span>{props.symbol && <>{'\u00A0'}<PuckSymbol tex={props.symbol}/></>}</span>
             {props.headExtra}
             {props.help && <button type="button" className="puck-help-button" aria-expanded={helpOpen} aria-controls={helpId}
                 aria-label={helpOpen ? t('puck_help_close') : t('puck_help_open', {value0: spoken})}

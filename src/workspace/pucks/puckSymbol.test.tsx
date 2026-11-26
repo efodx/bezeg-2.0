@@ -70,7 +70,7 @@ describe('Unicode scripts and legacy labels', () => {
         expect(container).toBeTruthy();
         cleanup();
         const view = render(<RangePuck parameter={{kind: 'range', key: 'a', label: message('shell_card_tools'), symbol: 'x', placement: 'board', min: 0, max: 1, step: 0.1}} value={0} onWrite={() => undefined}/>);
-        expect(view.container.querySelector('.puck-label')?.textContent).toBe('Orodja x');
+        expect(view.container.querySelector('.puck-label')?.textContent).toBe('Orodja\u00A0x');
     });
 });
 

@@ -125,6 +125,14 @@ describe('ReadoutsBody', () => {
             Object.defineProperty(HTMLElement.prototype, 'offsetHeight', original);
         }
     });
+
+    test('a row whose name still ends with its symbol shows the symbol once', () => {
+        // "Čas t" with the symbol t: the name is shown bare and the symbol is typeset after it.
+        const group: ReadoutGroup = {id: 'g', rows: [{id: 'r', name: message('phase_graph_time_label'), symbol: 't', value: {kind: 'formatted', text: '1'}}]};
+        const {container} = render(<ReadoutsBody groups={[group]}/>);
+        expect(container.querySelector('.ws-label > span')?.textContent).toBe('Čas');
+        expect(container.querySelector('.ws-label .ws-symbol')).not.toBeNull();
+    });
 });
 
 describe('LegendBody', () => {
