@@ -72,7 +72,8 @@ export function buildCardSpecs(graph: PresentedGraph, declaration: GraphDeclarat
   const shown = shownLegendEntries(legend, drawnObject, linked);
   if (!isLegendHidden(shown)) {
     specs.push({
-      id: LEGEND_ID, title: message('shell_card_legend'), priority: PRIORITY.legend, defaultAnchor: 'br', defaultOrder: 0, defaultFolded: true,
+      // Owner, 2026-11-26: Legenda starts open where it fits; as the lowest priority it is the first card a full column folds (rule 5).
+      id: LEGEND_ID, title: message('shell_card_legend'), priority: PRIORITY.legend, defaultAnchor: 'br', defaultOrder: 0,
       shape: shown.map(({entry}) => entry.id).join(','),
       body: <LegendBody legend={legend} drawnObject={drawnObject} linkedIds={linked}/>,
     });

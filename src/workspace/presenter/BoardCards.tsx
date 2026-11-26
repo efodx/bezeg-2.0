@@ -21,7 +21,7 @@ import {useToolsSectionsWithContent} from '../cards/toolsContent';
 import {LessonCardBody} from '../cards/LessonCardBody';
 import {PuckOwnershipContext} from '../../graphs/base/controls/PuckOwnership';
 import {PuckStrip, estimateStrip, puckItems, puckOwnedKeys, puckShapeOf, wrappedStripHeight} from '../pucks/PuckStrip';
-import {buildCardSpecs, lessonCardSpec, toolsCardSpec, LESSON_ID, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
+import {buildCardSpecs, lessonCardSpec, toolsCardSpec, LEGEND_ID, LESSON_ID, READOUTS_ID, TOOLS_ID, type PresentedGraph} from './cardSpecs';
 import type {ToolsSection, WorkspaceCardHost} from './cardHost';
 import {COLUMN_MAX_FRACTION, GAP, MAX_SPAN} from './layoutConstants';
 import {useViewDirector} from './useViewDirector';
@@ -179,7 +179,7 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
       // left the folded Orodja head without its title and Legenda as "Legen…". No card reads narrower than a folded head needs.
       if (card && card.natural.w < CARD_MIN_WIDTH) card = {...card, natural: {...card.natural, w: CARD_MIN_WIDTH}};
       const reserve = spec.id === LESSON_ID ? bar + LESSON_RESTORE_ROW : bar; // the lesson's Povrni row is always there, cut or not
-      return card ? [{...card, reserve, exactCut: spec.id === LESSON_ID, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];
+      return card ? [{...card, reserve, exactCut: spec.id === LESSON_ID, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded, reopenWhenRoom: spec.id === LEGEND_ID}] : [];
     });
   }, [measured, specs, heldLessonHeight]);
   // First-view budget (04-design section 9): lesson, readouts, tools; an undeclared graph has only Orodja, which starts open.

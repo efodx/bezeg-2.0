@@ -26,6 +26,8 @@ export interface CardInput {
   exactCut?: boolean;
   /** Starts folded when nothing else decides (rule 4, after the budget): Legenda and `section:` cards. */
   defaultFolded?: boolean;
+  /** Rule 5b: when rule 5 folded this card but later folds left room for it, it opens again (Legenda). */
+  reopenWhenRoom?: boolean;
 }
 
 export type Placement =
@@ -300,6 +302,7 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
 
     // Rule 5: fold before clip (skipped while a drag freezes the folds).
     if (!frozenFolds) {
+      const foldedByRule5: State[] = [];
       while (total() > avail) {
         // With an expanded card only lower-priority cards of its column give way to it.
         const open = members.filter((s) => !s.folded && (!s.pinned || (foldLast === 2 && col !== 'left' && s.card.priority !== Infinity)) && (!wide || (s !== wide && s.card.priority < wide.card.priority)));
@@ -307,6 +310,13 @@ function layoutOnce(input: LayoutInput, beside: boolean, foldLast: 0 | 1 | 2 = 0
         if (open.length === 0 || (members.filter((s) => !s.folded).length <= 1 && !(foldLast && col !== 'left'))) break;
         open.sort((a, b) => a.card.priority - b.card.priority || (a.card.id < b.card.id ? -1 : 1));
         open[0].folded = true;
+        foldedByRule5.push(open[0]);
+      }
+      // Rule 5b: a card that starts open and was folded only to make room (Legenda, the lowest priority, goes first) is opened again
+      // when the folds that followed left room for it: it folded before the higher-priority cards that actually had to give way.
+      for (const s of foldedByRule5.filter((c) => c.card.reopenWhenRoom && c.folded)) {
+        s.folded = false;
+        if (total() > avail) s.folded = true;
       }
     }
 

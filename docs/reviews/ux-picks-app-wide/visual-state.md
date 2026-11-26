@@ -48,13 +48,11 @@ Lead 3: `210823404` … `fb985f062` (cards, Orodja tabs, reset focus, repeated s
 - The measure copy is first read at max-content; it has no live region: never style card bodies with `:last-child`.
 - Couplings: "Več" bar 28 px (44 coarse) = `measureCards.ts:19`; strip gap 8 and column slot 160 = `boardLayout.ts`; grip 24 px; `RULER_HEIGHT` 44; glide .26 s = `CardShell.tsx:62`.
 
-## Open questions for the owner (ask at the preview, not before)
+## Owner decisions (2026-11-26, AskUserQuestion)
 
-- Desktop pucks as a readout row over a full-width control (now), or lead 2's caption over the control (`states-l3a`).
-- Card titles as small capitals (the prototype's look) or in Literata.
-- Pucks show "?" and sweep only on hover or focus; a card's reset arrow only after the card was moved or folded.
-- Should Legenda start open when it fits (folded by default, `cardSpecs.tsx:75`)?
-- Slips up to 200 px wide with a mouse keep names whole; transformations' strip is then about 1060 px.
+- Desktop pucks: readout row over a full-width control (kept). Card titles: small capitals (kept).
+- Legenda starts open where it fits (`cardSpecs.tsx`, `defaultFolded` dropped; rule 5 folds it first, priority 1). Lead 4 implements it on this branch and tells handler 9.
+- Sign-off: still open. He cannot reach the tailnet; screenshots go into the conversation (Read the sheet PNGs: `after-board-1440-1`, `before-board-1440-1`, `states-after-3`, `after-cards-1` were shown).
 
 ## With handler 9
 

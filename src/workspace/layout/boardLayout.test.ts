@@ -169,6 +169,26 @@ describe('layoutBoard', () => {
     });
   });
 
+  describe('rule 5b: Legenda opens again when the folds that followed leave it room', () => {
+    const column = (legend: Partial<CardInput> = {}): CardInput[] => [
+      card('readouts', 'tr', { priority: 3, natural: { w: 300, h: 300 }, defaultOrder: 0 }),
+      card('tools', 'tr', { priority: 2.5, natural: { w: 300, h: 300 }, defaultOrder: 1 }),
+      card('legend', 'br', { priority: 1, natural: { w: 300, h: 100 }, min: { w: 300, h: 100 }, defaultOrder: 0, ...legend }),
+    ];
+    const run = (cards: CardInput[], over: Partial<LayoutInput> = {}) =>
+      layoutBoard(input(cards, { board: { w: 1400, h: 600 }, budget: { open: 2, order: ['readouts', 'tools'] }, ...over }));
+
+    it('starts open when only Orodja had to fold for room', () => {
+      const r = run(column({ reopenWhenRoom: true }));
+      expect([byId(r, 'readouts').folded, byId(r, 'tools').folded, byId(r, 'legend').folded]).toEqual([false, true, false]);
+    });
+
+    it('stays folded when it does not fit, or when the learner folded it', () => {
+      expect(byId(run(column({ reopenWhenRoom: true, natural: { w: 300, h: 400 }, min: { w: 300, h: 400 } })), 'legend').folded).toBe(true);
+      expect(byId(run(column({ reopenWhenRoom: true }), { storedFolds: { legend: true } }), 'legend').folded).toBe(true);
+    });
+  });
+
   describe('expanded ("Več")', () => {
     const steps = (n: number, h: number): number[] => Array.from({ length: n }, (_, i) => ((i + 1) * h) / n);
     it('exempts that card from its cut; the cut moves to the other cards', () => {
