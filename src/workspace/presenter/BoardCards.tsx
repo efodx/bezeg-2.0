@@ -16,7 +16,7 @@ import {MeasurePassContext} from '../cards/MeasurePass';
 import {useMeasuredCards, type MeasureOptions} from '../layout/useMeasuredCards';
 import {moreBarHeight} from '../layout/measureCards';
 import {holdHeight, type HeldHeight} from '../layout/holdHeight';
-import {ToolsBody, ToolsHeadActions} from '../cards/ToolsBody';
+import {ToolsBody, ToolsHeadActions, TOOLS_NATURAL} from '../cards/ToolsBody';
 import {useToolsSectionsWithContent} from '../cards/toolsContent';
 import {LessonCardBody} from '../cards/LessonCardBody';
 import {PuckOwnershipContext} from '../../graphs/base/controls/PuckOwnership';
@@ -167,6 +167,11 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
       let card = byId.get(spec.id);
       if (card && spec.id === LESSON_ID && heldLessonHeight !== undefined) {
         card = {...card, natural: {...card.natural, h: heldLessonHeight}};
+      }
+      // Orodja is live, so it is read at the width its content shrinks to (the proxy is only for hidden measuring): its panels were
+      // 310 px inspector panels and cramp narrower, so its natural width is never below TOOLS_NATURAL.w (the column cap still applies).
+      if (card && spec.id === TOOLS_ID && card.natural.w < TOOLS_NATURAL.w) {
+        card = {...card, natural: {...card.natural, w: TOOLS_NATURAL.w}};
       }
       const reserve = spec.id === LESSON_ID ? bar + LESSON_RESTORE_ROW : bar; // the lesson's Povrni row is always there, cut or not
       return card ? [{...card, reserve, exactCut: spec.id === LESSON_ID, priority: spec.priority, defaultAnchor: spec.defaultAnchor, defaultOrder: spec.defaultOrder, defaultFolded: spec.defaultFolded}] : [];

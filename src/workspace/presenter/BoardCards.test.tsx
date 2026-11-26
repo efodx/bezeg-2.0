@@ -342,6 +342,18 @@ describe('Orodja\'s live reading settles', () => {
     });
 });
 
+describe('Orodja\'s width', () => {
+    // Orodja is read live at the width its content shrinks to (the hidden-layer proxy is not used for it); panels that shrink to
+    // 215 px must not set the column: the card gets its 310 px natural width when the column cap (0.32 of the board) allows it.
+    test('is at least 310 px when its content reads narrower and the column cap allows it', async () => {
+        naturalWidths = {tools: 215};
+        mountGraph(new RootFindingGraph());
+        await waitUntil(() => shown('tools') !== null);
+        await waitUntil(() => parseFloat(shown('tools')!.style.width) > 0);
+        expect(parseFloat(shown('tools')!.style.width)).toBeGreaterThanOrEqual(310);
+    });
+});
+
 describe('the presenter on an undeclared graph', () => {
     test('Orodja is the only card, starts open and holds the panels', async () => {
         mountGraph(new RootFindingGraph());
