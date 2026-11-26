@@ -135,6 +135,21 @@ describe('the lesson morph', () => {
         expect(made.clock.pending()).toBe(0);
     });
 
+    test('a sweep or animation taking one key mid-morph leaves the other keys at their targets the same tick', () => {
+        const made = rig();
+        made.morph.step(stepTo(made, {a: 10, b: 90}));
+        made.clock.frame(16);
+        made.clock.frame(16);
+        expect(made.values.b).toBeLessThan(90);
+        const taken = made.arbiter.lease(['a']);
+        expect(taken).toBeDefined();
+        expect(made.values.b).toBe(90);
+        made.clock.run(GLIDE_MS + 100);
+        expect(made.values.b).toBe(90);
+        expect(made.morph.isRunning()).toBe(false);
+        taken?.release();
+    });
+
     test('a new step during a morph never writes the old morph\'s targets, and its morph starts from the shown value', () => {
         const made = rig();
         made.morph.step(stepTo(made, {a: 10}));

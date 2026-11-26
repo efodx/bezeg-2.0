@@ -1476,6 +1476,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         try {
             const releaseTransition = session.beginTransition();
             try {
+                // The outgoing scene's sweeps and animations end with it: the arbiter revokes a lease only on a value
+                // change, and a reset to the current value is none (audit finding 9).
+                runAs("learner", () => this.parameterArbiter?.endAllLeases("frame"));
                 this.stopLessonAnimations();
                 await replaceScene(this.sceneReplacementHost(session), {
                     // Preset selection, Reset, import and figure batches are learner commands.

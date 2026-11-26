@@ -30,8 +30,8 @@ export interface LessonMorphDeps {
 const MAX_FRAME_GAP_MS = 120;
 /** A value that moves by no more than this share of its range is not a change. */
 const CHANGE_TOLERANCE = 1e-9;
-/** Lease ends that are not the learner or the lesson taking over a key. */
-const QUIET_ENDS: readonly LeaseEndReason[] = ['frame', 'disposed', 'replaced', 'released'];
+/** Lease ends that are not someone taking a key: a frame change, disposal, or the morph's own release. A replacing lease (a sweep or animation taking a key) is not quiet: the other keys finish at once. */
+const QUIET_ENDS: readonly LeaseEndReason[] = ['frame', 'disposed', 'released'];
 
 interface Moving {
     readonly range: MorphRange;
