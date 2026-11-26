@@ -83,6 +83,14 @@ const snapshot = (h: Mounted) => ({
     overlays: OVERLAYS.map(name => h.graph.overlayShown(name)), status: status(h), clips: h.graph.clipState.clipCount, playing: h.graph.isPlaying,
 });
 
+test('an observation that asks for Play or Reset opens Orodja and names the control it uses (A9)', () => {
+    const observation = (id: string) => lesson.steps.find(step => step.id === id)!.frames.find(frame => frame.kind === 'observation')!;
+    for (const [id, uses] of [['clipping-repeat', 'play'], ['clipping-tangent', 'play'], ['clipping-offset', 'reset']]) {
+        expect(observation(id).declare?.uses, id).toEqual([uses]);
+        expect(observation(id).declare?.open, id).toContain('tools');
+    }
+});
+
 // ---- Lesson shape ---------------------------------------------------------------------------------------------------------
 
 test('the lesson has eight steps with the contract order, both languages, a calculation frame per worked example and a scene each', () => {
