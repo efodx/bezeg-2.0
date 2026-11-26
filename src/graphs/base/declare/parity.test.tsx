@@ -95,6 +95,34 @@ const SAMPLES: readonly Sample[] = [
             step('bow tie', load(polygon([[0, 0], [4, 4], [4, 0], [0, 4]]))),
         ];
     })()},
+    {file: 'compgeo/__parity__/bezier-clipping.json', demonstration: 'bezier-clipping', states: (() => {
+        type Pair = [number, number][];
+        type Clipping = {applyPointSetAction(action: unknown): void; setClipTolerance(exponent: number): boolean};
+        const crossing: Pair = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
+        const tangent: Pair = [[0, 0], [2, 4], [4, 0], [0, 4], [2, 0], [4, 4]];
+        const offset: Pair = [[0, 0], [2, 4], [4, 0], [0, 4.5], [2, 0.5], [4, 4.5]];
+        const apart: Pair = [[0, 0], [2, 1], [4, 0], [0, 6], [2, 8], [4, 6]];
+        const point = (operation: string, rest: Record<string, unknown>) => ({kind: 'point-set', operation, ...rest});
+        const run = (pair: Pair, exponent: number, tolerance: number, step: number | 'end'): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Clipping;
+                g.applyPointSetAction(point('load-model', {points: pair, gridStepExponent: exponent}));
+                g.setClipTolerance(tolerance);
+                g.applyPointSetAction(point('set-trace-step', {step}));
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('crossing, step 4', run(crossing, 0, 6, 4)),
+            step('crossing, step 5', run(crossing, 0, 6, 5)),
+            step('crossing, end', run(crossing, 0, 6, 'end')),
+            step('crossing, tolerance 3, end', run(crossing, 0, 3, 'end')),
+            step('hulls apart', run(apart, 0, 6, 0)),
+            step('tangent, tolerance 10, end', run(tangent, 0, 10, 'end')),
+            step('offset, end (empty)', run(offset, -1, 6, 'end')),
+        ];
+    })()},
     {file: 'patches/__parity__/patch-coons.json', demonstration: 'patch-coons', states: (() => {
         type Coons = {selectBoundaryPoint(name: string, index: number): void; setSelectedCoordinates(xyz: [number, number, number]): void; setLinkedCorners(linked: boolean): void};
         const move = (name: string, index: number, xyz: [number, number, number]) => (graph: unknown) => runAs('learner', () => {
@@ -186,6 +214,25 @@ const SAMPLES: readonly Sample[] = [
             state('sign step', {'bisection-example': 'sign-step', 'bisect-a': -1, 'bisect-b': 1}),
             {name: 'sign step, step 3', apply: next(3)},
         ];
+    })()},
+    {file: 'functions/__parity__/root-finding.json', demonstration: 'root-finding', states: (() => {
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);
+        };
+        const next = (count: number) => Array.from({length: count}, () => ({kind: 'animation', animationId: 'root-finding', command: 'next-step'}));
+        const choice = (name: string, value: string) => ({kind: 'function-choice', name, value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        return [
+            {name: 'default', apply: act()},
+            {name: 'newton step 1', apply: act(...next(1))},
+            {name: 'newton step 4', apply: act(...next(3))},
+            {name: 'three roots, x0 0.5, step 1', apply: act(choice('root-finding-example', 'cubic-three-roots'), parameter('root-x0', 0.5), ...next(1))},
+            {name: 'two-cycle, x0 0, step 2', apply: act(choice('root-finding-example', 'cubic-two-cycle'), parameter('root-x0', 0), ...next(2))},
+            {name: 'flat tangent', apply: act(choice('root-finding-example', 'square-minus-two'), parameter('root-x0', 0))},
+            {name: 'secant default', apply: act(choice('root-finding-method', 'secant'))},
+            {name: 'secant step 3', apply: act(parameter('root-x1', 2), ...next(3))},
+            {name: 'secant three roots', apply: act(choice('root-finding-example', 'cubic-three-roots'), parameter('root-x0', 0.4), parameter('root-x1', 0.6), ...next(1))},
+        ] satisfies ParityState[];
     })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', states: [
         state('default', {}),

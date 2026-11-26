@@ -1,0 +1,99 @@
+{
+  "graph": "bezier-clipping",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 26",
+        "Konveksni ovojnici kontrolnih točk se prekrivata. To je le potreben pogoj: krivulji se lahko sekata ali pa tudi ne.",
+        "Število rezov: 0",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, step 4",
+      "rows": [],
+      "notes": [
+        "Korak 5 od 26",
+        "Rezanje poteka. Žive obsege še ožimo.",
+        "Število rezov: 3",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, step 5",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 26",
+        "Rezanje poteka. Žive obsege še ožimo.",
+        "Število rezov: 4",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, end",
+      "rows": [],
+      "notes": [
+        "Korak 26 od 26",
+        "Najdeno: preostali obsegi so rezultat do tolerance. To ni dokaz.",
+        "Število rezov: 21"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, tolerance 3, end",
+      "rows": [],
+      "notes": [
+        "Korak 22 od 22",
+        "Najdeno: preostali obsegi so rezultat do tolerance. To ni dokaz.",
+        "Število rezov: 17"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "hulls apart",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 3",
+        "Konveksni ovojnici kontrolnih točk sta ločeni, zato se krivulji ne sekata.",
+        "Število rezov: 0",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "tangent, tolerance 10, end",
+      "rows": [],
+      "notes": [
+        "Korak 505 od 505",
+        "Dosežena je meja rezanja. To ni dokaz v nobeno smer; živi obsegi ostanejo na seznamu.",
+        "Število rezov: 200",
+        "Najširši živ obseg: 1"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "offset, end (empty)",
+      "rows": [],
+      "notes": [
+        "Korak 22 od 22",
+        "Prazno: vsi obsegi so zavrženi, krivulji se ne sekata.",
+        "Število rezov: 17"
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

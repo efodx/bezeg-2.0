@@ -1,5 +1,7 @@
 import BaseFunctionGraph, {DomainError} from "./BaseFunctionGraph";
-import {Message} from "../../localization";
+import {Message, message} from "../../localization";
+import type {ActionDeclaration} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {LessonAnimationCommand} from "../../learning/model";
@@ -8,6 +10,10 @@ import {TracePlayback} from "../base/tracePlayback";
 
 /** The lesson animation commands an iteration handles. `stop` is rejected: the iteration has no separate stopped state (use pause or reset). */
 const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["play", "pause", "replay", "next-step", "reset"];
+
+/** The action ids of {@link IterativeFunctionGraph.iterationActions}; a subclass's ids union includes them in `action`. */
+export type IterationActionId = "next-step" | "play" | "reset";
+type IterationIds = {param: never; row: never; note: never; legend: never; section: never; action: IterationActionId};
 
 /**
  * A function demonstration that reveals one step at a time (a bisection, a sequence, a fixed-point iteration): the
@@ -83,6 +89,34 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
 
     protected play(): void {
         this.playback.play();
+    }
+
+    /**
+     * The three board actions every iteration declares (Next step, Play with `pressed`, Reset), as data from the live playback and
+     * the subclass's `canAdvance`/`iterationIndex`; enabled by the same rule the Orodja buttons use (`playbackBlocks`). A subclass
+     * spreads them into `actions` and hands `performIterationAction` the ids it does not own from `performAction`.
+     */
+    protected iterationActions(): ActionDeclaration<IterationIds>[] {
+        const playing = this.playback.isPlaying;
+        const atEnd = !this.canAdvance();
+        const atStart = this.iterationIndex(this.model) === 0;
+        return [
+            {id: "next-step", label: message("next_step"), placement: "board", enabled: !atEnd && !playing},
+            {id: "play", label: message("play"), placement: "board", enabled: !atEnd || playing, pressed: playing},
+            {id: "reset", label: message("reset"), placement: "board", enabled: !atStart || playing},
+        ];
+    }
+
+    /** Runs one of {@link iterationActions} as the learner (an entry point outside the DOM); false for an id it does not own. */
+    protected performIterationAction(id: string): boolean {
+        if (id !== "next-step" && id !== "play" && id !== "reset") return false;
+        runAs("learner", () => {
+            if (id === "next-step") this.nextStep();
+            else if (id === "play") {
+                if (this.playback.isPlaying) this.pauseIteration(); else this.play();
+            } else this.resetIteration();
+        });
+        return true;
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

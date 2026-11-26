@@ -88,7 +88,7 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
                              {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("bezierclipping_playback_note")}</p>
         </div>
-        <div className="inspector-group" data-bezier-clipping="readout">
+        <div className="inspector-group" data-bezier-clipping="readout" data-declared-panel="">
             <StepCounter step={step} length={length} hooks={{"data-bezier-clipping": "step", "data-readout-note": ""}}/>
             <p data-readout-note className="inspector-help" data-bezier-clipping="status" data-status={readout.status}>{status}</p>
             <p data-readout-note className="inspector-help" data-bezier-clipping="clips">{count}</p>

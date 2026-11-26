@@ -5,7 +5,7 @@ import {RootFindingGraph, ROOT_FINDING_STEP_INTERVAL_MS} from './RootFindingGrap
 import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {chooseOnPuck, installBoardShims, openTools, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -16,6 +16,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => setLanguage('sl'));
+beforeAll(() => installBoardShims());
 
 function manualScheduler() {
     let nextHandle = 0;
@@ -57,10 +58,11 @@ class ObservedRootFindingGraph extends RootFindingGraph {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusId = () => document.querySelector('[data-root-finding-status]')?.getAttribute('data-root-finding-status');
 
-test('a real board shows the iteration: Next step, Play and Pause, Reset, the method switch and the readouts work through the real controls', () => {
+test('a real board shows the iteration: Next step, Play and Pause, Reset, the method switch and the readouts work through the real controls', async () => {
     const frames = manualScheduler();
     const graph = new ObservedRootFindingGraph(frames.scheduler);
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await openTools();
     expect(graph.state.initialized).toBe(true);
     expect(readout('step')).toBe('0');
     expect(statusId()).toBe('ready');
@@ -75,6 +77,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
     expect(document.querySelectorAll('[data-iterate-row]').length).toBe(2);
 
     // Play runs the shared transition at the frame interval and ends at the root
+    await openTools();
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
     expect(graph.playing()).toBe(true);
     expect(nextButton().getAttribute('aria-disabled')).toBe('true');
@@ -85,8 +88,8 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
     expect(readout('iterate')).toBe('1,414213562373');
 
     // a start edit through the real input restarts the history; Reset keeps the model
-    const inputX0 = screen.getByLabelText('Začetni približek x₀, vrednost') as HTMLInputElement;
-    act(() => { enterNumber(inputX0, '0.5'); });
+    await waitForPucks('root-x0');
+    typePuck('root-x0', '0.5');
     expect(graph.modelNow()).toEqual({method: 'newton', example: 'square-minus-two', x0: 0.5, x1: 2, step: 0});
     expect(statusId()).toBe('ready');
     act(() => { fireEvent.click(nextButton()); });
@@ -95,25 +98,27 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
 
     // the method switch keeps example and start, shows the second start, and restarts
     act(() => { fireEvent.click(nextButton()); });
-    act(() => { fireEvent.change(screen.getByLabelText('Metoda'), {target: {value: 'secant'}}); });
+    await chooseOnPuck('root-finding-method', 'secant');
     expect(graph.modelNow()).toEqual({method: 'secant', example: 'square-minus-two', x0: 0.5, x1: 2, step: 0});
-    expect(screen.getByLabelText('Drugi začetni približek x₁, vrednost')).toBeInTheDocument();
+    await waitForPucks('root-x1');
+    expect(puckControl('root-x1')).not.toBeNull();
     expect(statusId()).toBe('ready');
 });
 
-test('the label of the second start x1 is drawn only with its point, in the secant method', () => {
+test('the label of the second start x1 is drawn only with its point, in the secant method', async () => {
     const graph = new ObservedRootFindingGraph(manualScheduler().scheduler);
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     expect(graph.shown('$$x_1$$')).toEqual({point: false, label: false});
     expect(graph.shown('$$x_0$$')).toEqual({point: true, label: true});
-    act(() => { fireEvent.change(screen.getByLabelText('Metoda'), {target: {value: 'secant'}}); });
+    await chooseOnPuck('root-finding-method', 'secant');
     expect(graph.shown('$$x_1$$')).toEqual({point: true, label: true});
 });
 
-test('unmount leaves no timer and Play stops when the preset is replaced', () => {
+test('unmount leaves no timer and Play stops when the preset is replaced', async () => {
     const frames = manualScheduler();
     const graph = new ObservedRootFindingGraph(frames.scheduler);
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await openTools();
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
     expect(frames.callbacks.size).toBe(1);
     view.unmount();

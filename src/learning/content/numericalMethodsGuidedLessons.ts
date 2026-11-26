@@ -11,9 +11,12 @@ import type {LessonAction} from '../model';
 import {eulerGuidedLessons} from './numericalEulerGuidedLesson';
 import {quadratureGuidedLessons} from './numericalQuadratureGuidedLesson';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {RootFindingIds} from '../../graphs/functions/RootFindingGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const rootFrame = frameDeclarer<RootFindingIds>();
 
 /**
  * A Newton scene from the default scene: the method, the example, the start x0 (in this order, because choosing an example resets the start),
@@ -63,15 +66,47 @@ interface StepContent {
     readonly scene: LessonScene;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
-    ...content,
-    frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
-    ],
-    animation: {animationId: 'root-finding'},
-});
+/**
+ * What each step's text talks about (rows to highlight, at most 3, never a value the step asks to predict) and the controls its
+ * observation prompt asks the learner to use (`uses`, on the observation frame only). Rows and notes are those of the root-finding
+ * declaration; `root-x0`/`root-x1` are the start pucks, `next-step` the board action, `root-finding-method` the method puck.
+ */
+const FOCUS: Readonly<Record<string, {highlight: readonly RootFindingIds['row'][]; uses?: readonly (RootFindingIds['param'] | RootFindingIds['action'])[]}>> = {
+    'newton-predict': {highlight: ['reference']},
+    'newton-tangent': {highlight: ['iterate', 'error']},
+    'newton-iterates': {highlight: ['step'], uses: ['next-step']},
+    'newton-vs-bisection': {highlight: ['step', 'error']},
+    'newton-start': {highlight: ['iterate'], uses: ['root-x0']},
+    'newton-explore': {highlight: ['iterate', 'error'], uses: ['root-x0']},
+    'newton-fail-predict': {highlight: ['step'], uses: ['next-step']},
+    'newton-fail-cycle': {highlight: ['iterate', 'error']},
+    'newton-fail-why': {highlight: ['iterate'], uses: ['next-step']},
+    'newton-fail-converge': {highlight: ['error'], uses: ['root-x0']},
+    'newton-fail-flat': {highlight: ['iterate']},
+    'newton-fail-bisection': {highlight: []},
+    'newton-fail-explore': {highlight: ['iterate'], uses: ['root-x0']},
+    'secant-predict': {highlight: ['reference']},
+    'secant-reveal': {highlight: ['iterate', 'error']},
+    'secant-iterates': {highlight: ['step'], uses: ['next-step']},
+    'secant-vs-newton': {highlight: ['step', 'error'], uses: ['root-finding-method']},
+    'secant-flat': {highlight: ['iterate'], uses: ['root-x1']},
+    'secant-start': {highlight: ['iterate'], uses: ['root-x0', 'root-x1']},
+    'secant-explore': {highlight: ['iterate'], uses: ['root-x0', 'root-x1']},
+};
+
+const step = (content: StepContent): GuidedLessonStep => {
+    const focus = FOCUS[content.id];
+    const declare = (observation: boolean) => focus ? rootFrame({highlight: [...focus.highlight], ...(observation && focus.uses ? {uses: [...focus.uses]} : {})}) : undefined;
+    return {
+        ...content,
+        frames: [
+            frame(`${content.id}-explanation`, 'explanation', declare(false)),
+            ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare(false))] : []),
+            frame(`${content.id}-observation`, 'observation', declare(true)),
+        ],
+        animation: {animationId: 'root-finding'},
+    };
+};
 
 const rootFindingLesson: GuidedLesson = {
     demonstrationId: 'root-finding',
