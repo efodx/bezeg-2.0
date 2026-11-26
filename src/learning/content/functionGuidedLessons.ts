@@ -6,10 +6,16 @@ import type {FunctionParameterName, LessonAction, LessonViewBox} from '../model'
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {ExponentialIds} from '../../graphs/functions/ExponentialFunctionGraph';
+import type {ContinuityIds} from '../../graphs/functions/ContinuityGraph';
+import type {AreaBetweenIds} from '../../graphs/functions/AreaBetweenCurvesGraph';
+import type {ArcLengthIds} from '../../graphs/functions/ArcLengthGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 const exponentialFrame = frameDeclarer<ExponentialIds>();
+const continuityFrame = frameDeclarer<ContinuityIds>();
+const areaFrame = frameDeclarer<AreaBetweenIds>();
+const arcFrame = frameDeclarer<ArcLengthIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 
 const linearFunction: GuidedLesson = {
@@ -923,7 +929,7 @@ const continuity: GuidedLesson = {
                 'The function has two rules: \\(f(x)=ax^2\\) for \\(x\\le1\\) and \\(f(x)=-ax+3\\) for \\(x>1\\). The point \\(x=1\\) belongs to the left piece, so \\(f(1)=a\\cdot1^2=a\\); for the default \\(a=1\\) we get \\(f(1)=1\\). The filled point \\((1,a)\\) shows this value. The right piece starts only to the right of \\(x=1\\).',
             ),
             formulaIds: ['continuity-piecewise'],
-            frames: [frame('continuity-piecewise-explanation', 'explanation'), frame('continuity-piecewise-observation', 'observation')],
+            frames: [frame('continuity-piecewise-explanation', 'explanation', continuityFrame({highlight: ['value'], uses: ['a']})), frame('continuity-piecewise-observation', 'observation', continuityFrame({highlight: ['value'], uses: ['a']}))],
             observationPrompt: text(
                 'Premikaj drsnik \\(a\\) in opazuj zapolnjeno točko na navpičnici \\(x=1\\). Primerjaj njeno višino z odčitkom \\(f(1)\\).',
                 'Move the slider \\(a\\) and watch the filled point on the vertical line \\(x=1\\). Compare its height with the readout \\(f(1)\\).',
@@ -950,7 +956,7 @@ const continuity: GuidedLesson = {
                 'When \\(x\\) approaches \\(1\\) from the left we use the left rule: \\(\\lim_{x\\to1^-}f(x)=a\\). From the right we use the right rule: \\(\\lim_{x\\to1^+}f(x)=-a\\cdot1+3=3-a\\). The hollow point \\((1,3-a)\\) shows the limit from the right; it is not the value of the function, because \\(x=1\\) does not belong to the right piece. The difference is the jump \\(|(3-a)-a|=|3-2a|\\). For \\(a=1\\) the left limit is \\(1\\), the right limit is \\(2\\) and the jump is \\(1\\).',
             ),
             formulaIds: ['continuity-one-sided'],
-            frames: [frame('continuity-one-sided-explanation', 'explanation'), frame('continuity-one-sided-observation', 'observation')],
+            frames: [frame('continuity-one-sided-explanation', 'explanation', continuityFrame({highlight: ['left-limit', 'right-limit', 'jump']})), frame('continuity-one-sided-observation', 'observation', continuityFrame({highlight: ['left-limit', 'right-limit', 'jump']}))],
             observationPrompt: text(
                 'Poišči zapolnjeno in votlo točko ter odčitaj navpično razdaljo med njima. Primerjaj jo z odčitkom skoka.',
                 'Find the filled and the hollow point and read off the vertical distance between them. Compare it with the jump readout.',
@@ -977,7 +983,7 @@ const continuity: GuidedLesson = {
                 'The function is continuous at \\(x=1\\) if \\(\\lim_{x\\to1^-}f(x)=\\lim_{x\\to1^+}f(x)=f(1)\\). Since \\(f(1)=a\\) already equals the left limit, the remaining condition is \\(a=3-a\\). It gives \\(2a=3\\), so \\(a=3/2\\). For this value \\(f(1)=3/2\\), the left limit is \\(3/2\\) and the right limit is \\(3-3/2=3/2\\). For the default \\(a=1\\) the condition is not met.',
             ),
             formulaIds: ['continuity-condition'], workedExampleId: 'continuity-condition-example',
-            frames: [frame('continuity-condition-explanation', 'explanation'), frame('continuity-condition-calculation', 'calculation'), frame('continuity-condition-observation', 'observation')],
+            frames: [frame('continuity-condition-explanation', 'explanation', continuityFrame({highlight: ['left-limit', 'right-limit', 'status'], uses: ['a']})), frame('continuity-condition-calculation', 'calculation', continuityFrame({highlight: ['left-limit', 'right-limit', 'status'], uses: ['a']})), frame('continuity-condition-observation', 'observation', continuityFrame({highlight: ['left-limit', 'right-limit', 'status'], uses: ['a']}))],
             observationPrompt: text(
                 'Poskusi z drsnikom \\(a\\) najti vrednost, pri kateri se zapolnjena in votla točka pokrijeta. Kaj se zgodi z barvo točk in z odčitkom skoka?',
                 'Try the slider \\(a\\) to find the value at which the filled and the hollow point coincide. What happens to the color of the points and to the jump readout?',
@@ -1004,7 +1010,7 @@ const continuity: GuidedLesson = {
                 'For \\(a=3/2\\) the filled point \\((1,3/2)\\) sits inside the hollow one: both are green, the jump is \\(0\\) and the board says the function is continuous at \\(x=1\\). The slider has the step \\(0.05\\), so \\(a=1.5\\) is reachable; the decision about continuity allows a difference of \\(10^{-9}\\), so that rounding errors from moving the slider do not hide continuity.',
             ),
             formulaIds: ['continuity-condition'],
-            frames: [frame('continuity-continuous-explanation', 'explanation'), frame('continuity-continuous-observation', 'observation')],
+            frames: [frame('continuity-continuous-explanation', 'explanation', continuityFrame({highlight: ['jump', 'status'], uses: ['a']})), frame('continuity-continuous-observation', 'observation', continuityFrame({highlight: ['jump', 'status'], uses: ['a']}))],
             observationPrompt: text(
                 'Premakni drsnik \\(a\\) za en korak v vsako smer in opazuj, kdaj se točki razmakneta in kdaj se barva spremeni.',
                 'Move the slider \\(a\\) one step in each direction and watch when the points separate and when the color changes.',
@@ -1031,7 +1037,7 @@ const continuity: GuidedLesson = {
                 'For \\(a=3/2\\) the graph is continuous but has a corner at \\(x=1\\). The left piece has the slope \\(2a=3\\) there and the right piece has \\(-a=-1.5\\). Because the slopes differ, the function is not smooth. You meet the same distinction for splines: \\(C^0\\) continuity only means that the pieces join, while \\(C^1\\) continuity also requires equal slopes at the joint.',
             ),
             formulaIds: ['continuity-slopes'],
-            frames: [frame('continuity-not-smooth-explanation', 'explanation'), frame('continuity-not-smooth-observation', 'observation')],
+            frames: [frame('continuity-not-smooth-explanation', 'explanation', continuityFrame({highlight: ['left-slope', 'right-slope', 'corner']})), frame('continuity-not-smooth-observation', 'observation', continuityFrame({highlight: ['left-slope', 'right-slope', 'corner']}))],
             observationPrompt: text(
                 'Primerjaj odčitka levega in desnega naklona ter poišči vogal na grafu. Ali obstaja \\(a\\), pri katerem sta naklona enaka?',
                 'Compare the readouts of the left and the right slope and find the corner on the graph. Is there an \\(a\\) for which the slopes are equal?',
@@ -1651,7 +1657,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'The area between the curves is the area under the upper one minus the area under the lower one: \\(A=\\int_a^b g\\,dx-\\int_a^b f\\,dx\\), that is \\(A=\\int_a^b(g-f)\\,dx\\), if \\(g\\ge f\\) on \\([a,b]\\). For \\(a=1\\) and \\(b=3\\), which lie between the intersections, \\(g-f=3-2(x-2)^2\\) has the antiderivative \\(3x-\\frac23(x-2)^3\\), so \\(A=\\left(9-\\frac23\\right)-\\left(3+\\frac23\\right)\\), which is \\(\\frac{14}{3}\\approx4.6667\\). The readouts \\(\\int g\\,dx=\\frac{16}{3}\\) and \\(\\int f\\,dx=\\frac23\\) have exactly this difference. The scene selects the mode “Area between f and g”.',
             ),
             formulaIds: ['area-between-difference'],
-            frames: [frame('area-difference-explanation', 'explanation'), frame('area-difference-observation', 'observation')],
+            frames: [frame('area-difference-explanation', 'explanation', areaFrame({highlight: ['int-f', 'int-g', 'signed'], uses: ['a', 'b']})), frame('area-difference-observation', 'observation', areaFrame({highlight: ['int-f', 'int-g', 'signed'], uses: ['a', 'b']}))],
             observationPrompt: text(
                 'Povleci točki \\(a\\) in \\(b\\) po osi \\(x\\), ostani med presečiščema in preveri, da je \\(\\int g\\,dx-\\int f\\,dx\\) enak \\(\\int(g-f)\\,dx\\).',
                 'Drag the points \\(a\\) and \\(b\\) along the \\(x\\)-axis, stay between the intersections, and check that \\(\\int g\\,dx-\\int f\\,dx\\) equals \\(\\int(g-f)\\,dx\\).',
@@ -1678,7 +1684,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'On the same interval \\([1,3]\\) we switch to the mode “Area under g”. Under \\(g\\) down to the \\(x\\)-axis the area is \\(\\int_1^3 g(x)\\,dx=\\left[3x-\\frac{(x-2)^3}{3}\\right]_1^3=\\frac{16}{3}\\approx5.3333\\); the scene shades this. Under \\(f\\) it is \\(\\int_1^3 f(x)\\,dx=\\left[\\frac{(x-2)^3}{3}\\right]_1^3=\\frac23\\approx0.6667\\). The difference \\(\\frac{16}{3}-\\frac23=\\frac{14}{3}\\) is the area between the curves from the previous step. The selector “What is shaded” switches between the modes.',
             ),
             formulaIds: ['area-between-difference'],
-            frames: [frame('area-under-explanation', 'explanation'), frame('area-under-observation', 'observation')],
+            frames: [frame('area-under-explanation', 'explanation', areaFrame({highlight: ['int-f', 'int-g'], uses: ['area-mode']})), frame('area-under-observation', 'observation', areaFrame({highlight: ['int-f', 'int-g'], uses: ['area-mode']}))],
             observationPrompt: text(
                 'Preklopi med »Ploščina pod f« in »Ploščina pod g« ter primerjaj pobarvana lika in odčitka \\(\\int f\\,dx\\) ter \\(\\int g\\,dx\\).',
                 'Switch between “Area under f” and “Area under g” and compare the two shaded regions and the readouts of \\(\\int f\\,dx\\) and \\(\\int g\\,dx\\).',
@@ -1705,7 +1711,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'The region between the curves is bounded by the intersections: \\((x-2)^2=3-(x-2)^2\\) gives \\((x-2)^2=\\frac32\\) and \\(x=2\\mp\\sqrt{1.5}\\approx0.7753;\\;3.2247\\). With \\(u=x-2\\) the area equals \\(\\int_{-\\sqrt{1.5}}^{\\sqrt{1.5}}(3-2u^2)\\,du\\), which is \\(6\\sqrt{1.5}-\\frac43(1.5)^{3/2}\\), that is \\(6\\sqrt{1.5}-2\\sqrt{1.5}\\), and finally \\(4\\sqrt{1.5}=2\\sqrt6\\approx4.8990\\). The points \\(P_1\\) and \\(P_2\\) on the graph lie at the height \\(\\frac32\\) and are the ends of the region. The scene returns the bounds to their default values.',
             ),
             formulaIds: ['area-between-intersections', 'area-between-unsigned'], workedExampleId: 'area-between-example',
-            frames: [frame('area-intersections-explanation', 'explanation'), frame('area-intersections-calculation', 'calculation'), frame('area-intersections-observation', 'observation')],
+            frames: [frame('area-intersections-explanation', 'explanation', areaFrame({highlight: ['signed'], uses: ['a', 'b']})), frame('area-intersections-calculation', 'calculation', areaFrame({highlight: ['signed'], uses: ['a', 'b']})), frame('area-intersections-observation', 'observation', areaFrame({highlight: ['signed'], uses: ['a', 'b']}))],
             observationPrompt: text(
                 'Poskusi premakniti \\(a\\) in \\(b\\) čim bliže presečiščema (na stotinko natančno) in opazuj, kako se \\(\\int(g-f)\\,dx\\) približa \\(4{,}8990\\).',
                 'Try moving \\(a\\) and \\(b\\) as close to the intersections as possible (to the nearest hundredth) and watch \\(\\int(g-f)\\,dx\\) approach \\(4.8990\\).',
@@ -1732,7 +1738,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'For \\(a=0\\) and \\(b=4\\) the interval reaches beyond the intersections. On the end pieces \\([0,0.7753]\\) and \\([3.2247,4]\\) the curve \\(f\\) is on top, so \\(g-f<0\\) there: each piece contributes \\(\\frac23-2\\sqrt{1.5}\\approx-1.7828\\) to \\(\\int(g-f)\\,dx\\). Altogether \\(\\int_0^4(g-f)\\,dx\\) equals \\(4\\sqrt{1.5}+2\\left(\\frac23-2\\sqrt{1.5}\\right)\\), which is \\(\\frac43\\approx1.3333\\). The true area counts each piece as positive: \\(\\int_0^4|g-f|\\,dx\\) equals \\(2\\sqrt6+2\\left(2\\sqrt{1.5}-\\frac23\\right)\\), which is about \\(8.4646\\). The parts where \\(f\\) is on top are subtracted in the signed integral. The two regions at the edges, in the other colour, show exactly these parts.',
             ),
             formulaIds: ['area-between-unsigned'],
-            frames: [frame('area-beyond-explanation', 'explanation'), frame('area-beyond-observation', 'observation')],
+            frames: [frame('area-beyond-explanation', 'explanation', areaFrame({highlight: ['signed', 'unsigned'], uses: ['a', 'b']})), frame('area-beyond-observation', 'observation', areaFrame({highlight: ['signed', 'unsigned'], uses: ['a', 'b']}))],
             observationPrompt: text(
                 'Primerjaj odčitka \\(\\int(g-f)\\,dx\\) in \\(\\int|g-f|\\,dx\\) ter obe barvi lika. Nato poglej, kaj se zgodi z obema odčitkoma, če zamenjaš \\(a\\) in \\(b\\).',
                 'Compare the readouts of \\(\\int(g-f)\\,dx\\) and \\(\\int|g-f|\\,dx\\) and the two colours of the region. Then see what happens to both readouts if you swap \\(a\\) and \\(b\\).',
@@ -1759,7 +1765,7 @@ const areaBetweenCurves: GuidedLesson = {
                 'The scene sets \\(a=1\\) and \\(b=3.5\\): the bound \\(b\\) is already to the right of the intersection \\(3.2247\\). Up to the intersection \\(g\\) is on top and beyond it \\(f\\) is, so the last little piece with area \\(\\approx0.1995\\) is subtracted in \\(\\int(g-f)\\,dx=\\frac{55}{12}\\approx4.5833\\) and added in the area \\(\\approx4.9823\\). For \\(b=3.2\\) both values are equal to \\(4.7813\\); for \\(b=3.3\\) the integral \\(\\int(g-f)\\,dx\\approx4.7687\\) is smaller and the area \\(\\approx4.7970\\) is larger. The sign of the difference \\(g-f\\) tells which curve is on top.',
             ),
             formulaIds: ['area-between-unsigned'],
-            frames: [frame('area-crossing-explanation', 'explanation'), frame('area-crossing-observation', 'observation')],
+            frames: [frame('area-crossing-explanation', 'explanation', areaFrame({highlight: ['signed', 'unsigned'], uses: ['b']})), frame('area-crossing-observation', 'observation', areaFrame({highlight: ['signed', 'unsigned'], uses: ['b']}))],
             observationPrompt: text(
                 'Povleci \\(b\\) počasi čez presečišče pri \\(3{,}2247\\) in opazuj barvo pobarvanega lika ter obe vrednosti: kdaj se \\(\\int(g-f)\\,dx\\) in ploščina razideta?',
                 'Slowly drag \\(b\\) across the intersection at \\(3.2247\\) and watch the colour of the shaded region and both values: when do \\(\\int(g-f)\\,dx\\) and the area part ways?',
@@ -1894,7 +1900,7 @@ const arcLength: GuidedLesson = {
                 'We cannot measure the length of a bent line directly, but we know the length of a segment: between \\((x_{i-1},y_{i-1})\\) and \\((x_i,y_i)\\) it is \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\). So we replace the graph \\(y=\\sin x\\) on \\([0,\\pi]\\) by a polyline of \\(n\\) chords whose vertices lie on the graph. The scene sets \\(n=1\\): a single chord runs from \\(A=(0,0)\\) to \\(B=(\\pi,0)\\) along the \\(x\\)-axis and has length \\(\\pi\\approx3.1416\\), which is clearly too short.',
             ),
             formulaIds: ['arc-length-chord'],
-            frames: [frame('arc-chord-explanation', 'explanation'), frame('arc-chord-observation', 'observation')],
+            frames: [frame('arc-chord-explanation', 'explanation', arcFrame({highlight: ['polyline', 'arc', 'difference']})), frame('arc-chord-observation', 'observation', arcFrame({highlight: ['polyline', 'arc', 'difference']}))],
             observationPrompt: text(
                 'Primerjaj eno tetivo z lokom sinusoide: koliko manjka in kje je razlika največja?',
                 'Compare the single chord with the arch of the sine: how much is missing and where is the difference largest?',
@@ -1921,7 +1927,7 @@ const arcLength: GuidedLesson = {
                 'For \\(n=2\\) the vertices are at \\(x=0,\\frac{\\pi}{2},\\pi\\): the points \\((0,0)\\), \\(\\left(\\frac{\\pi}{2},1\\right)\\) and \\((\\pi,0)\\). Each chord has \\(\\Delta x=\\frac{\\pi}{2}\\) and \\(|\\Delta y|=1\\), so its length is \\(\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx1.8621\\) and \\(P_2=2\\sqrt{\\left(\\frac{\\pi}{2}\\right)^2+1}\\approx3.7242\\). This is already much closer to the arc \\(L\\approx3.8202\\) than \\(P_1=\\pi\\). The scene returns to the default \\(n=2\\).',
             ),
             formulaIds: ['arc-length-chord'], workedExampleId: 'arc-length-example',
-            frames: [frame('arc-two-explanation', 'explanation'), frame('arc-two-calculation', 'calculation'), frame('arc-two-observation', 'observation')],
+            frames: [frame('arc-two-explanation', 'explanation', arcFrame({highlight: ['polyline', 'arc'], uses: ['n']})), frame('arc-two-calculation', 'calculation', arcFrame({highlight: ['polyline', 'arc'], uses: ['n']})), frame('arc-two-observation', 'observation', arcFrame({highlight: ['polyline', 'arc'], uses: ['n']}))],
             observationPrompt: text(
                 'Premakni drsnik \\(n\\) z \\(1\\) na \\(2\\) in nazaj ter opazuj, kako se oglišče doda na vrh loka in lomljenka podaljša.',
                 'Move the slider \\(n\\) from \\(1\\) to \\(2\\) and back and watch the vertex appear at the top of the arch and the polyline get longer.',
@@ -1948,7 +1954,7 @@ const arcLength: GuidedLesson = {
                 'For \\(n=10\\) we have \\(P_{10}\\approx3.8153\\) and for \\(n=100\\) we have \\(P_{100}\\approx3.8201\\), while \\(L\\approx3.8202\\). The polyline length never exceeds the arc length: each chord is the shortest path between its two ends, so it is no longer than the piece of arc between them, and the sum is no longer than the whole arc. The scene sets \\(n=10\\); continue to \\(n=100\\) with the slider.',
             ),
             formulaIds: ['arc-length-chord'],
-            frames: [frame('arc-more-explanation', 'explanation'), frame('arc-more-observation', 'observation')],
+            frames: [frame('arc-more-explanation', 'explanation', arcFrame({highlight: ['difference'], uses: ['n']})), frame('arc-more-observation', 'observation', arcFrame({highlight: ['difference'], uses: ['n']}))],
             observationPrompt: text(
                 'Povečuj \\(n\\) od \\(10\\) do \\(100\\) in spremljaj odčitek razlike lok \\(-\\) lomljenka: ali kdaj postane negativna?',
                 'Increase \\(n\\) from \\(10\\) to \\(100\\) and follow the readout of the difference arc \\(-\\) polyline: does it ever become negative?',
@@ -1975,7 +1981,7 @@ const arcLength: GuidedLesson = {
                 'On a small piece \\(\\Delta y\\approx f\'(x)\\,\\Delta x\\), so \\(\\ell_i=\\sqrt{\\Delta x^2+\\Delta y^2}\\), which is approximately \\(\\sqrt{1+f\'(x_i)^2}\\,\\Delta x\\). The sum \\(P_n\\) is therefore approximately a Riemann sum for \\(\\sqrt{1+f\'(x)^2}\\), and its limit is the arc length \\(L=\\int_a^b\\sqrt{1+f\'(x)^2}\\,dx\\). For \\(f=\\sin\\) we have \\(f\'=\\cos\\) and \\(L=\\int_0^{\\pi}\\sqrt{1+\\cos^2 x}\\,dx\\approx3.8202\\); this integral has no simple closed form, so the app computes it numerically. The scene sets \\(n=100\\), where \\(P_{100}\\approx3.8201\\) is hardly distinguishable from \\(L\\).',
             ),
             formulaIds: ['arc-length-integral'],
-            frames: [frame('arc-limit-explanation', 'explanation'), frame('arc-limit-observation', 'observation')],
+            frames: [frame('arc-limit-explanation', 'explanation', arcFrame({highlight: ['polyline', 'arc'], uses: ['b']})), frame('arc-limit-observation', 'observation', arcFrame({highlight: ['polyline', 'arc'], uses: ['b']}))],
             observationPrompt: text(
                 'Povleci \\(B\\) po grafu in primerjaj odčitka lomljenke in loka za več intervalov.',
                 'Drag \\(B\\) along the graph and compare the polyline and arc readouts for several intervals.',
@@ -2002,7 +2008,7 @@ const arcLength: GuidedLesson = {
                 'The same idea applies to a parametric curve \\(r(t)\\): the chord between nearby points has length about \\(\\|r\'(t)\\|\\,\\Delta t\\), so \\(L=\\int\\|r\'(t)\\|\\,dt\\). The graph of a function is the case \\(r(t)=(t,f(t))\\) with speed \\(\\sqrt{1+f\'(t)^2}\\). For the sine this speed is not a polynomial, so the integral has to be computed numerically. PH curves (see the cubic PH curve lesson and the PH-curve graphs in Bezeg, which show the exact arc length) are exactly the polynomial curves whose speed \\(\\|r\'(t)\\|\\) is a polynomial, so their arc length is exact. The scene sets \\(b=2\\pi\\) and \\(n=2\\): both vertices lie on the \\(x\\)-axis, the polyline has length \\(2\\pi\\approx6.2832\\) and the arc has \\(7.6404\\).',
             ),
             formulaIds: ['arc-length-parametric'],
-            frames: [frame('arc-link-explanation', 'explanation'), frame('arc-link-observation', 'observation')],
+            frames: [frame('arc-link-explanation', 'explanation', arcFrame({highlight: ['arc']})), frame('arc-link-observation', 'observation', arcFrame({highlight: ['arc']}))],
             observationPrompt: text(
                 'Pri \\(b=2\\pi\\) povečaj \\(n\\) z \\(2\\) na \\(3\\), \\(4\\), \\(8\\) in opazuj, kako lomljenka sledi grafu; nato zamenjaj \\(a\\) in \\(b\\).',
                 'With \\(b=2\\pi\\), increase \\(n\\) from \\(2\\) to \\(3\\), \\(4\\), \\(8\\) and watch how the polyline follows the graph; then swap \\(a\\) and \\(b\\).',

@@ -1,0 +1,296 @@
+{
+  "graph": "continuity",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "1"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "1"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "2"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "1"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "skok 1 pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "2"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "-1"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1"
+      ],
+      "captions": [
+        "limita z leve 1, z desne 2",
+        "skok 1 pri x = 1"
+      ]
+    },
+    {
+      "name": "a 0",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "0"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "0"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "3"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "3"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "skok 3 pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "0"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "0"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "0"
+      ],
+      "captions": [
+        "limita z leve 0, z desne 3",
+        "skok 3 pri x = 1"
+      ]
+    },
+    {
+      "name": "a 1",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "1"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "1"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "2"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "1"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "skok 1 pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "2"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "-1"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "1"
+      ],
+      "captions": [
+        "limita z leve 1, z desne 2",
+        "skok 1 pri x = 1"
+      ]
+    },
+    {
+      "name": "a 1.5 (continuous)",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "1,5"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "1,5"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "1,5"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "0"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "zvezna pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "3"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "-1,5"
+        }
+      ],
+      "notes": [
+        "Zvezna ne pomeni gladka: kosa se stikata, a imata v točki x = 1 različna naklona 3 in -1,5, zato ima graf ostri vogal."
+      ],
+      "outputs": [
+        "1,5"
+      ],
+      "captions": [
+        "limita z leve 1,5, z desne 1,5",
+        "zvezna pri x = 1"
+      ]
+    },
+    {
+      "name": "a 2.25",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "2,25"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "2,25"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "0,75"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "1,5"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "skok 1,5 pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "4,5"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "-2,25"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "2,25"
+      ],
+      "captions": [
+        "limita z leve 2,25, z desne 0,75",
+        "skok 1,5 pri x = 1"
+      ]
+    },
+    {
+      "name": "a 3",
+      "rows": [
+        {
+          "key": "f(1)#0",
+          "label": "f(1)",
+          "value": "3"
+        },
+        {
+          "key": "Limita z leve#0",
+          "label": "Limita z leve",
+          "value": "3"
+        },
+        {
+          "key": "Limita z desne#0",
+          "label": "Limita z desne",
+          "value": "0"
+        },
+        {
+          "key": "Skok |3 - 2a|#0",
+          "label": "Skok |3 - 2a|",
+          "value": "3"
+        },
+        {
+          "key": "Zveznost#0",
+          "label": "Zveznost",
+          "value": "skok 3 pri x = 1"
+        },
+        {
+          "key": "Levi naklon 2a#0",
+          "label": "Levi naklon 2a",
+          "value": "6"
+        },
+        {
+          "key": "Desni naklon -a#0",
+          "label": "Desni naklon -a",
+          "value": "-3"
+        }
+      ],
+      "notes": [],
+      "outputs": [
+        "3"
+      ],
+      "captions": [
+        "limita z leve 3, z desne 0",
+        "skok 3 pri x = 1"
+      ]
+    }
+  ]
+}

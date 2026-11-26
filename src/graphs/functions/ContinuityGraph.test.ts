@@ -1,7 +1,7 @@
 import {ContinuityGraph} from './ContinuityGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
-import {onLanguageChange, setLanguage} from '../../localization';
+import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 
@@ -28,6 +28,9 @@ function fakeBoard() {
 }
 
 /** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+/** The declared notes of the graph, rendered in the current language and joined. */
+const notesOf = (graph: {getDeclaration(): {notes?: readonly {text: unknown}[]} | undefined}) => (graph.getDeclaration()?.notes ?? []).map(note => renderMessage(note.text as never)).join(' ');
+
 function makeGraph() {
     const graph = new ContinuityGraph() as any;
     graph.board = fakeBoard();
@@ -199,20 +202,20 @@ test('readouts: f(1), both limits, the jump, the status and the one-sided slopes
     const rows = () => graph.renderReadout().props.rows as { id: string; value: string }[];
     const byId = () => Object.fromEntries(rows().map(row => [row.id, row.value]));
     expect(byId()).toEqual({
-        value: '1', 'left-limit': '1', 'right-limit': '2', jump: '1', status: 'skok 1 pri x = 1', 'left-slope': '2', 'right-slope': '−1',
+        a: '1', value: '1', 'left-limit': '1', 'right-limit': '2', jump: '1', status: 'skok 1 pri x = 1', 'left-slope': '2', 'right-slope': '−1',
     });
-    expect(graph.renderReadout().props.note).toBeUndefined();
+    expect(notesOf(graph)).toBe('');
     apply(graph, parameter('a', 1.5));
     expect(byId()).toEqual({
-        value: '1,5', 'left-limit': '1,5', 'right-limit': '1,5', jump: '0', status: 'zvezna pri x = 1', 'left-slope': '3', 'right-slope': '−1,5',
+        a: '1,5', value: '1,5', 'left-limit': '1,5', 'right-limit': '1,5', jump: '0', status: 'zvezna pri x = 1', 'left-slope': '3', 'right-slope': '−1,5',
     });
-    expect(graph.renderReadout().props.note).toMatch(/ostri vogal/);
+    expect(notesOf(graph)).toMatch(/ostri vogal/);
     setLanguage('en');
     expect(byId()).toMatchObject({value: '1.5', status: 'continuous at x = 1', 'right-slope': '−1.5'});
-    expect(graph.renderReadout().props.note).toMatch(/corner/);
+    expect(notesOf(graph)).toMatch(/corner/);
     apply(graph, parameter('a', 0));
     expect(byId()).toEqual({
-        value: '0', 'left-limit': '0', 'right-limit': '3', jump: '3', status: 'jump 3 at x = 1', 'left-slope': '0', 'right-slope': '0',
+        a: '0', value: '0', 'left-limit': '0', 'right-limit': '3', jump: '3', status: 'jump 3 at x = 1', 'left-slope': '0', 'right-slope': '0',
     });
     for (const a of [0, 0.05, 1, 1.5, 2.95, 3]) {
         apply(graph, parameter('a', a));

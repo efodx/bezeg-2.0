@@ -9,9 +9,9 @@ import type {DemonstrationId} from '../../../demonstrations';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../realGraphTestHarness';
 import {createGraph} from '../createTestGraph';
 import {runAs} from '../writes/writeSource';
-import {message, messageNumber} from '../../../localization';
+import {message, messageNumber, renderMessage} from '../../../localization';
 import type {GraphDeclaration} from './graphDeclaration';
-import {checkParity, describeDifferences, normalise, type ParityRecording, type ParityState, recordParityWithDeclarations} from './parity';
+import {type AcceptedDifference, checkParity, describeDifferences, normalise, plainSymbol,type ParityRecording, type ParityState, recordParityWithDeclarations} from './parity';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -29,7 +29,20 @@ interface Sample {
     readonly file: string;
     readonly demonstration: DemonstrationId;
     readonly states: readonly ParityState[];
+    /** Deliberate differences check mode tolerates; anything not listed still fails. */
+    readonly accepted?: readonly AcceptedDifference[];
 }
+
+const continuityAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
+];
+const SHORT_VALUE = 'the declaration shows a short value; the panel keeps the sentence, which the declaration carries as its readout help';
+const phaseAccepted: readonly AcceptedDifference[] = [
+    ...['Izračunano območje#0', 'Začetna točka 1#0', 'Začetna točka 2#0', 'Začetna točka 3#0', 'Energija začetne točke 1#0', 'Energija začetne točke 2#0',
+        'Energija začetne točke 3#0', 'Obroč trajektorij (izračunan)#0', 'Linearizacija na obroču (izračunana)#0', 'Kaj določa linearizacija#0']
+        .map(key => ({kind: 'different', where: `row ${key}`, reason: SHORT_VALUE}) as const),
+    {kind: 'extra', where: 'note', reason: 'the readout help that carries the sentences the short values leave out'},
+];
 
 const SAMPLES: readonly Sample[] = [
     {file: 'functions/__parity__/taylor.json', demonstration: 'taylor', states: [
@@ -200,6 +213,43 @@ const SAMPLES: readonly Sample[] = [
             {name: 'natural x0 1.5', apply: run(g => { g.setRestriction('natural'); g.setX0(1.5); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/arc-length.json', demonstration: 'arc-length', states: (() => {
+        type ArcSetters = {setBound(which: 'a' | 'b', value: number): void; setCount(value: number): void};
+        const run = (edit: (graph: ArcSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as ArcSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'n 1', apply: run(g => g.setCount(1))},
+            {name: 'n 10', apply: run(g => g.setCount(10))},
+            {name: 'n 100', apply: run(g => g.setCount(100))},
+            {name: 'a 0.5, b 2.5', apply: run(g => { g.setBound('a', 0.5); g.setBound('b', 2.5); })},
+            {name: 'a = b', apply: run(g => { g.setBound('a', 1.5); g.setBound('b', 1.5); })},
+            {name: 'a > b', apply: run(g => { g.setBound('a', 3); g.setBound('b', 0.25); g.setCount(4); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/area-between-curves.json', demonstration: 'area-between-curves', states: (() => {
+        type AreaSetters = {setBound(which: 'a' | 'b', value: number): void; setMode(value: string): void};
+        const run = (edit: (graph: AreaSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as AreaSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'between 1..3', apply: run(g => { g.setBound('a', 1); g.setBound('b', 3); })},
+            {name: 'under g 1..3', apply: run(g => { g.setMode('under-g'); g.setBound('a', 1); g.setBound('b', 3); })},
+            {name: 'under f 1..3', apply: run(g => g.setMode('under-f'))},
+            {name: 'between 0..4', apply: run(g => { g.setMode('between'); g.setBound('a', 0); g.setBound('b', 4); })},
+            {name: 'between 1..3.5', apply: run(g => g.setBound('b', 3.5))},
+            {name: 'reversed a > b', apply: run(g => { g.setBound('a', 4); g.setBound('b', 0); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/continuity.json', demonstration: 'continuity', accepted: continuityAccepted, states: (() => {
+        const run = (value: number): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as {setParameter(value: number): void}).setParameter(value)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'a 0', apply: run(0)},
+            {name: 'a 1', apply: run(1)},
+            {name: 'a 1.5 (continuous)', apply: run(1.5)},
+            {name: 'a 2.25', apply: run(2.25)},
+            {name: 'a 3', apply: run(3)},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/bisection.json', demonstration: 'bisection', states: (() => {
         const next = (count: number): ParityState['apply'] => graph => {
             for (let i = 0; i < count; i++) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction({kind: 'animation', animationId: 'bisection', command: 'next-step'});
@@ -234,7 +284,7 @@ const SAMPLES: readonly Sample[] = [
             {name: 'secant three roots', apply: act(choice('root-finding-example', 'cubic-three-roots'), parameter('root-x0', 0.4), parameter('root-x1', 0.6), ...next(1))},
         ] satisfies ParityState[];
     })()},
-    {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', states: [
+    {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', accepted: phaseAccepted, states: [
         state('default', {}),
         state('spiral entries', {'phase-a': 1, 'phase-b': -2, 'phase-c': 2, 'phase-d': 1}),
         state('centre entries', {'phase-a': 0, 'phase-b': 1, 'phase-c': -1, 'phase-d': 0}),
@@ -272,7 +322,7 @@ describe.each(SAMPLES.map(sample => [path.basename(sample.file, '.json'), sample
         if (declarations.every(declaration => declaration === undefined)) return;
         const target = path.join(root, sample.file);
         if (!fs.existsSync(target)) return;
-        const report = checkParity(JSON.parse(fs.readFileSync(target, 'utf8')), declarations);
+        const report = checkParity(JSON.parse(fs.readFileSync(target, 'utf8')), declarations, sample.accepted);
         if (process.env.BEZEG_PARITY_REPORT) fs.writeFileSync(path.join(root, `${sample.file}.report.txt`), `${describeDifferences(report)}\ncaptions not covered: ${report.uncoveredCaptions.length}\n`);
         expect(describeDifferences(report)).toBe('');
     });
@@ -317,6 +367,24 @@ describe('checker on a fake declaration', () => {
         expect(checkParity(rec, [declaration(0.7183)]).differences).toEqual([]);
         const different = checkParity(rec, [declaration(0.7184)]).differences;
         expect(different).toEqual([{state: 0, stateName: 's', kind: 'different', where: 'row Napaka f(x) - Tₙ(x)#0', recorded: '0,7183', declared: '0,7184'}]);
+    });
+
+    test('a declared name and symbol match the recorded label "name symbol" (TeX subscripts as the panel writes them)', () => {
+        expect(['c', 'x_0', 'T_n(x)', 'f(x)'].map(plainSymbol)).toEqual(['c', 'x₀', 'Tₙ(x)', 'f(x)']);
+        const rec: ParityRecording = {graph: 'fake', language: 'sl', states: [{name: 's', rows: [{key: 'Polinom Tₙ(x)#0', label: 'Polinom Tₙ(x)', value: '2'}], notes: [], outputs: [], captions: []}]};
+        const declaration = (value: number): GraphDeclaration => ({readouts: [{id: 'g', rows: [{id: 'polynomial', name: message('taylor_polynomial_name'), symbol: 'T_n(x)', value: messageNumber(value, 4)}]}]});
+        expect(checkParity(rec, [declaration(2)]).differences).toEqual([]);
+        expect(checkParity(rec, [declaration(3)]).differences).toEqual([{state: 0, stateName: 's', kind: 'different', where: 'row Polinom Tₙ(x)#0', recorded: '2', declared: '3'}]);
+    });
+
+    test('accepted differences tolerate exactly their kind and place, and nothing else', () => {
+        const row = (key: 'taylor_readout_signed_error' | 'taylor_readout_bound') => ({key: `${normalise(renderMessage(message(key)))}#0`, label: normalise(renderMessage(message(key))), value: '1'});
+        const [first, second] = [row('taylor_readout_signed_error'), row('taylor_readout_bound')];
+        const rec: ParityRecording = {graph: 'fake', language: 'sl', states: [{name: 's', rows: [first, second], notes: [], outputs: [], captions: []}]};
+        const declaration: GraphDeclaration = {readouts: [{id: 'g', rows: [
+            {id: 'error', name: message('taylor_readout_signed_error'), value: messageNumber(2, 4)}, {id: 'other', name: message('taylor_readout_bound'), value: messageNumber(2, 4)}]}]};
+        const accepted = [{kind: 'different', where: `row ${first.key}`, reason: 'test'}] as const;
+        expect(checkParity(rec, [declaration], accepted).differences.map(d => d.where)).toEqual([`row ${second.key}`]);
     });
 
     test("a control's read-off is covered by the declared parameter with that symbol, and missing without it", () => {

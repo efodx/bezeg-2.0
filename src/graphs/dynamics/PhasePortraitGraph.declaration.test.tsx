@@ -37,6 +37,22 @@ const states: {name: string; writes: Write[]; system: string}[] = [
     {name: 'weak spiral at time 10', writes: [['phase-system', 'weak-spiral'], ['phase-time', 10]], system: 'weak-spiral'},
 ];
 
+/** The values the declaration shows for the rows whose sentence moved to the readout help, per state (from the model: H = -cos(1), the view is the centre +- the zoom's half-width, ...). */
+const SHORTENED = /^(view|decision|ring|ring-linear|seed-\d|energy-\d)$/;
+const EXPECTED_SHORT: Record<string, Record<string, string>> = {
+    'default': {view: 'x ∈ [−4; 4], y ∈ [−4; 4]', 'seed-1': '(1; 0): naprej 10 s; nazaj 0,34 s, rob'},
+    'unstable spiral, two seeds': {view: 'x ∈ [−4; 4], y ∈ [−4; 4]', 'seed-1': '(1; 0): naprej 1,44 s, rob; nazaj 10 s', 'seed-2': '(0; 1): naprej 1,44 s, rob; nazaj 10 s'},
+    'saddle at time 3': {view: 'x ∈ [−4; 4], y ∈ [−4; 4]', 'seed-1': '(1; 0): naprej 0,7 s, rob; nazaj 10 s'},
+    'pendulum hanging': {decision: 'ne določa portreta', view: 'x ∈ [−4; 4], y ∈ [−4; 4]', 'seed-1': '(1; 0): naprej 10 s; nazaj 10 s', 'energy-1': 'H = −0,540302: nihanje',
+        ring: '12 trajektorij, ustavljenih polovic 20 od 24', 'ring-linear': '12 trajektorij, ustavljenih polovic 0 od 24'},
+    'pendulum upright, zoomed, three seeds': {decision: 'določa portret', view: 'x ∈ [2,6416; 3,6416], y ∈ [−0,5; 0,5]',
+        'seed-1': '(1; 0): naprej 0 s, rob; nazaj 0 s, rob', 'energy-1': 'H = −0,540302: nihanje', 'seed-2': '(0; 1): naprej 0 s, rob; nazaj 0 s, rob', 'energy-2': 'H = −0,5: nihanje',
+        'seed-3': '(−1; 0): naprej 0 s, rob; nazaj 0 s, rob', 'energy-3': 'H = −0,540302: nihanje',
+        ring: '12 trajektorij, ustavljenih polovic 24 od 24', 'ring-linear': '12 trajektorij, ustavljenih polovic 24 od 24'},
+    'weak spiral at time 10': {decision: 'ne določa portreta', view: 'x ∈ [−4; 4], y ∈ [−4; 4]', 'seed-1': '(1; 0): naprej 10 s; nazaj 0,48 s, rob',
+        ring: '12 trajektorij, ustavljenih polovic 12 od 24', 'ring-linear': '12 trajektorij, ustavljenih polovic 0 od 24'},
+};
+
 describe('Phase portrait declaration', () => {
     for (const {name, writes, system} of states) {
         test(`${name}: consistent, bound, drawn and equal to the inspector`, () => {
@@ -48,7 +64,7 @@ describe('Phase portrait declaration', () => {
 
             // the legend resolves to drawn objects whose visibility matches the board
             const eigen = rowsOf(current).find(row => row.id === 'eigen')!;
-            const hasEigenLines = !/\(dvojna; vsaka smer/.test(text(eigen.value)) && !text(eigen.value).includes('±');
+            const hasEigenLines = !/\(dvojna, vse smeri/.test(text(eigen.value)) && !text(eigen.value).includes('±');
             const expectedVisible: Partial<Record<PhasePortraitIds['legend'], boolean>> = {
                 trajectories: true, frame: true, equilibrium: true,
                 ring: system !== 'linear', 'ring-linear': system !== 'linear', separatrix: system === 'pendulum', columns: system === 'linear', eigen: hasEigenLines,
@@ -66,7 +82,14 @@ describe('Phase portrait declaration', () => {
             // every readout row shows what the inspector shows
             const rows = rowsOf(current);
             expect(rows.length).toBeGreaterThanOrEqual(11);
-            for (const row of rows) expect(normalise(`${text(row.value)} ${row.unit ? renderMessage(row.unit) : ''}`), row.id).toBe(readout(row.id));
+            // (rows whose sentence the declaration moved to its readout help show a shorter value than the panel's sentence)
+            const exact = Object.fromEntries(rows.filter(row => SHORTENED.test(row.id)).map(row => [row.id, normalise(text(row.value))]));
+            expect(exact).toEqual(Object.fromEntries(Object.entries(EXPECTED_SHORT[name]).map(([id, value]) => [id, normalise(value)])));
+            for (const row of rows) {
+                const declared = normalise(`${text(row.value)} ${row.unit ? renderMessage(row.unit) : ''}`);
+                if (SHORTENED.test(row.id)) expect(declared.length, row.id).toBeLessThan(readout(row.id).length);
+                else expect(declared, row.id).toBe(readout(row.id));
+            }
             // and no inspector row is missing from the declaration
             const shown = [...document.querySelectorAll('[data-readout]:not([data-readout-live])')].map(element => element.getAttribute('data-readout'));
             expect(rows.map(row => row.id)).toEqual(shown);

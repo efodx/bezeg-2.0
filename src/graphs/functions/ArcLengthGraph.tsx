@@ -1,8 +1,10 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t} from "../../localization";
+import type {GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {formatNumber} from "../../analysis/format";
 import {
     arcLength, arcValue, BOUND_MAX, BOUND_MIN, BOUND_STEP, isBound, isSegmentCount, lengthDifference, N_MAX, N_MIN, N_STEP, polylineLength, polylineVertices,
@@ -11,6 +13,13 @@ import {ArcLengthModel, DEFAULT_ARC_LENGTH_MODEL} from "../../analysis/arcLength
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {integerRangeRejected, numberRangeRejected} from "./functionSetterMessages";
+
+/** The ids of the arc-length declaration: the endpoints and the segment count are board pucks; the drawn objects are the legend. */
+export type ArcLengthIds = {
+    param: "a" | "b" | "n";
+    row: "a" | "b" | "n" | "polyline" | "arc" | "difference"; note: never;
+    legend: "curve" | "polyline" | "point-a" | "point-b"; section: never; action: never;
+};
 
 /** Lengths show four decimals so that the lesson's 3.7242, 3.8153 and 3.8202 can be read off. */
 const PRECISE = 4;
@@ -40,6 +49,8 @@ const DEFAULT_VIEW: BoundingBox = [-0.6, 2.2, 3.8, -1.3];
 export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     private readonly verticesOf = this.modelCache((model: ArcLengthModel) => polylineVertices(model.a, model.b, model.n));
 
     override presetCollection() {
@@ -85,12 +96,13 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the curve, the polyline, the polyline vertices, then the endpoints.
-        this.own(board.create("functiongraph", [arcValue], {
+        this.drawn.set("curve", this.own(board.create("functiongraph", [arcValue], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth,
-        }));
+        })));
         const polyline = this.own(board.create("curve", [[], []], {
             strokeColor: GraphPalette.constructionAccent, highlight: false, fixed: true, strokeWidth,
         })) as unknown as DataCurve;
+        this.drawn.set("polyline", polyline as unknown as JXG.GeometryElement);
         polyline.updateDataArray = () => {
             const vertices = this.verticesOf(this.model);
             polyline.dataX = vertices.map(([x]) => x);
@@ -132,6 +144,8 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         });
         this.pointA = endpoint("a");
         this.pointB = endpoint("b");
+        this.drawn.set("point-a", this.pointA);
+        this.drawn.set("point-b", this.pointB);
 
         // The function and the two lengths, the most important readouts, stay on the board, top right: the arch never rises above y = 1.
         this.caption("top-right", [
@@ -152,6 +166,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -159,33 +174,82 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     protected renderControls(): React.ReactNode {
         const {a, b, n} = this.model;
         return <>
-            <div className="inspector-group">
+            <PuckOwnedGroup params={["n"]} className="inspector-group">
                 <Slider customText={t("arc_n_label")} min={N_MIN} max={N_MAX} step={N_STEP} value={n}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("arc_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <Slider customText={t("arc_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["a", "b"]} className="inspector-group">
+                <PuckOwned param="a"><Slider customText={t("arc_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/></PuckOwned>
+                <PuckOwned param="b"><Slider customText={t("arc_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/></PuckOwned>
                 <p className="inspector-help">{t("arc_bounds_help")}</p>
-            </div>
+            </PuckOwnedGroup>
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            a: {read: () => this.model.a, apply: (value: number) => this.setBound("a", value)},
+            b: {read: () => this.model.b, apply: (value: number) => this.setBound("b", value)},
+            n: {read: () => this.model.n, apply: (value: number) => this.setCount(value)},
+        };
+    }
+
+    /** The common declaration (rows, view marks) plus the count and the endpoints as board pucks and the legend of the drawn objects. */
+    protected override declaration(): GraphDeclaration {
+        const bound = (key: "a" | "b"): ParameterDeclaration => ({
+            key, kind: "range", label: message(key === "a" ? "arc_a_name" : "arc_b_name"), symbol: key, help: message("arc_bounds_help"),
+            placement: "board", min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP, maxDecimals: 2,
+        });
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "n", kind: "count", label: message("arc_n_name"), symbol: "n", placement: "board", min: N_MIN, max: N_MAX},
+                bound("a"),
+                bound("b"),
+            ],
+            legend: [
+                {id: "curve", label: message("arc_legend_curve"), kind: "line", object: "curve"},
+                {id: "polyline", label: message("arc_legend_polyline"), kind: "line", object: "polyline"},
+                {id: "point-a", label: message("arc_legend_point_a"), kind: "point", object: "point-a"},
+                {id: "point-b", label: message("arc_legend_point_b"), kind: "point", object: "point-b"},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "point-a" || id === "point-b" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base (task 08): the readout rows, the note and the plotted curve; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
         const {a, b, n} = this.model;
-        const language = currentLanguage();
-        const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);
-        const rows = [
-            {id: "a", label: "a", value: number(a)},
-            {id: "b", label: "b", value: number(b)},
-            {id: "n", label: "n", value: number(n, 0)},
-            {id: "polyline", label: t("arc_polyline"), value: number(polylineLength(a, b, n), PRECISE)},
-            {id: "arc", label: t("arc_exact"), value: number(arcLength(a, b), PRECISE)},
-            {id: "difference", label: t("arc_difference"), value: number(lengthDifference(a, b, n), PRECISE)},
-        ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("arc_note")}/>;
+        return {
+            rows: [
+                {id: "a", symbol: "a", value: messageNumber(a)},
+                {id: "b", symbol: "b", value: messageNumber(b)},
+                {id: "n", symbol: "n", value: messageNumber(n, 0)},
+                {id: "polyline", name: message("arc_polyline"), value: messageNumber(polylineLength(a, b, n), PRECISE)},
+                {id: "arc", name: message("arc_exact"), value: messageNumber(arcLength(a, b), PRECISE)},
+                {id: "difference", name: message("arc_difference"), value: messageNumber(lengthDifference(a, b, n), PRECISE)},
+            ],
+            help: message("arc_note"),
+            plotted: arcValue,
+            must: [{x: a, y: arcValue(a)}, {x: b, y: arcValue(b)}],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
+        return this.renderDeclaredReadout();
     }
 }
 

@@ -1,7 +1,7 @@
 import {AreaBetweenCurvesGraph} from './AreaBetweenCurvesGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
-import {onLanguageChange, setLanguage} from '../../localization';
+import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {areaFill, INTERSECTIONS} from '../../analysis/areaBetween';
@@ -43,6 +43,9 @@ function fakeBoard() {
 }
 
 /** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+/** The declared notes of the graph, rendered in the current language and joined. */
+const notesOf = (graph: {getDeclaration(): {notes?: readonly {text: unknown}[]} | undefined}) => (graph.getDeclaration()?.notes ?? []).map(note => renderMessage(note.text as never)).join(' ');
+
 function makeGraph() {
     const graph = new AreaBetweenCurvesGraph() as any;
     graph.board = fakeBoard();
@@ -351,7 +354,7 @@ test('readouts: a, b, ∫f, ∫g, signed ∫(g-f), unsigned ∫|g-f| and the sha
     apply(graph, parameter('b', 4));
     expect(readout(graph)).toEqual({a: '0', b: '4', 'int-f': '5.3333', 'int-g': '6.6667', signed: '1.3333', unsigned: '8.4646', shaded: '8.4646'});
     expect(labels().slice(4)).toEqual(['∫ (g(x) − f(x)) dx (signed)', '∫ |g(x) − f(x)| dx (area)', 'Shaded: area between f and g']);
-    expect(graph.renderReadout().props.note).toMatch(/counts as negative/);
+    expect(notesOf(graph)).toMatch(/counts as negative/);
     for (const value of ['under-f', 'under-g', 'between']) for (const [a, b] of [[-1, 5], [5, -1], [0, 0], [3, 3]]) {
         apply(graph, mode(value));
         apply(graph, parameter('a', a));
@@ -376,13 +379,13 @@ test('the caption follows the language, and a language change notifies subscribe
 
 test('the legend names the colours in words for each mode, and reversed bounds add a note', () => {
     const graph = makeGraph();
-    const legend = () => graph.renderLegend().props.items.map((item: any) => [item.id, item.label]);
+    const legend = () => (graph.getDeclaration()!.legend ?? []).map((item: {id: unknown; label: unknown}) => [item.id, renderMessage(item.label as never)]);
     expect(legend()).toEqual([
         ['f', 'f(x) = (x − 2)²'], ['g', 'g(x) = 3 − (x − 2)²'], ['positive', 'g nad f: šteje pozitivno (+)'], ['negative', 'f nad g: šteje negativno (−)'],
     ]);
     apply(graph, mode('under-f'));
     expect(legend().slice(2)).toEqual([['positive', 'Krivulja nad osjo x: šteje pozitivno (+)'], ['negative', 'Krivulja pod osjo x: šteje negativno (−)']]);
-    const notes = () => ([] as string[]).concat(graph.renderReadout().props.note);
+    const notes = () => (graph.getDeclaration()!.notes ?? []).map((note: {text: unknown}) => renderMessage(note.text as never));
     expect(notes()).toHaveLength(1);
     apply(graph, parameter('a', 3));
     apply(graph, parameter('b', 1));

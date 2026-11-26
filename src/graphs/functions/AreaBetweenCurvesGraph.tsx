@@ -1,9 +1,11 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, t} from "../../localization";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {formatNumber} from "../../analysis/format";
 import {
     AREA_MODES, AreaFill, areaFill, AreaMode, BOUND_MAX, BOUND_MIN, BOUND_STEP, f, g, INTERSECTION_HEIGHT, INTERSECTIONS, integralF, integralG,
@@ -14,19 +16,33 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
 
+/** The ids of the area declaration: the bounds and the shaded quantity are board pucks; the two curves and the two fills are the legend. */
+export type AreaBetweenIds = {
+    param: "a" | "b" | "area-mode";
+    row: "a" | "b" | "int-f" | "int-g" | "signed" | "unsigned" | "shaded"; note: "intersections" | "reversed";
+    legend: "f" | "g" | "positive" | "negative"; section: never; action: never;
+};
+
 /** Integrals and areas show four decimals so that the lesson's 4.8990, 4.8990 and 8.4646 can be read off. */
 const PRECISE = 4;
 
-const MODE_LABELS: Readonly<Record<AreaMode, () => string>> = {
-    "under-f": () => t("area_mode_under_f"),
-    "under-g": () => t("area_mode_under_g"),
-    "between": () => t("area_mode_between"),
-};
+const MODE_KEYS = {
+    "under-f": "area_mode_under_f", "under-g": "area_mode_under_g", "between": "area_mode_between",
+} as const satisfies Record<AreaMode, string>;
 
-const SHADED_LABELS: Readonly<Record<AreaMode, () => string>> = {
-    "under-f": () => t("area_shaded_under_f"),
-    "under-g": () => t("area_shaded_under_g"),
-    "between": () => t("area_shaded_between"),
+/** The segment text of a mode on the choice puck. */
+const MODE_SHORT_KEYS = {
+    "under-f": "area_mode_short_under_f", "under-g": "area_mode_short_under_g", "between": "area_mode_short_between",
+} as const satisfies Record<AreaMode, string>;
+
+const SHADED_KEYS = {
+    "under-f": "area_shaded_under_f", "under-g": "area_shaded_under_g", "between": "area_shaded_between",
+} as const satisfies Record<AreaMode, string>;
+
+const MODE_LABELS: Readonly<Record<AreaMode, () => string>> = {
+    "under-f": () => t(MODE_KEYS["under-f"]),
+    "under-g": () => t(MODE_KEYS["under-g"]),
+    "between": () => t(MODE_KEYS.between),
 };
 
 
@@ -50,6 +66,8 @@ const WIDE_BOARD = 620;
 export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     private readonly fillOf = this.modelCache((model: AreaBetweenModel) => areaFill(model.mode, model.a, model.b));
 
     override presetCollection() {
@@ -108,11 +126,11 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
 
         // Layers, lowest first: the shading, the dashed bound lines, the curves, the intersection and bound points.
         const fill = (color: string, part: "positive" | "negative") => {
-            this.signedFill(color, () => {
+            this.drawn.set(part, this.signedFill(color, () => {
                 const data = this.currentFill()[part];
                 const {high, low} = limits();
                 return {x: data.x, y: data.y.map(y => Math.min(high, Math.max(low, y)))};
-            });
+            }) as unknown as JXG.GeometryElement);
         };
         fill(GraphPalette.additionalCurves[0], "positive");
         fill(GraphPalette.additionalCurves[1], "negative");
@@ -129,13 +147,13 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         boundLine("b");
 
         // JSXGraph 1.13 enabled RDP smoothing by default; retain the pre-upgrade samples across Preset round trips.
-        const curve = (value: (x: number) => number, color: string) => this.own(board.create("functiongraph", [(x: number) => {
+        const curve = (id: "f" | "g", value: (x: number) => number, color: string) => this.drawn.set(id, this.own(board.create("functiongraph", [(x: number) => {
             const {high, low} = limits();
             const y = value(x);
             return y > high || y < low ? NaN : y;
-        }], {strokeColor: color, highlight: false, fixed: true, strokeWidth, RDPsmoothing: false}));
-        curve(f, GraphPalette.comparisonCurve);
-        curve(g, GraphPalette.primaryCurve);
+        }], {strokeColor: color, highlight: false, fixed: true, strokeWidth, RDPsmoothing: false})));
+        curve("f", f, GraphPalette.comparisonCurve);
+        curve("g", g, GraphPalette.primaryCurve);
 
         // The intersections are fixed points of the figure, not of the model.
         INTERSECTIONS.forEach((x, index) => {
@@ -180,6 +198,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -187,53 +206,94 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     protected renderControls(): React.ReactNode {
         const {a, b, mode} = this.model;
         return <>
-            <div className="inspector-group">
-                <Slider customText={t("area_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <Slider customText={t("area_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
+            <PuckOwnedGroup params={["a", "b"]} className="inspector-group">
+                <PuckOwned param="a"><Slider customText={t("area_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/></PuckOwned>
+                <PuckOwned param="b"><Slider customText={t("area_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/></PuckOwned>
                 <p className="inspector-help">{t("area_bounds_help")}</p>
-            </div>
-            <div className="inspector-group">
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["area-mode"]} className="inspector-group">
                 <ChoiceSelect label={t("area_mode_label")} value={mode} help={t("area_mode_help")}
                               options={AREA_MODES.map(id => ({value: id, text: MODE_LABELS[id]()}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setMode(next))}/>
-            </div>
+            </PuckOwnedGroup>
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
-        const {a, b, mode} = this.model;
-        const language = currentLanguage();
-        const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);
-        const rows = [
-            {id: "a", label: "a", value: number(a)},
-            {id: "b", label: "b", value: number(b)},
-            {id: "int-f", label: "∫ f(x) dx", value: number(integralF(a, b), PRECISE)},
-            {id: "int-g", label: "∫ g(x) dx", value: number(integralG(a, b), PRECISE)},
-            {id: "signed", label: t("area_signed"), value: number(signedBetween(a, b), PRECISE)},
-            {id: "unsigned", label: t("area_unsigned"), value: number(unsignedBetween(a, b), PRECISE)},
-            {id: "shaded", label: SHADED_LABELS[mode](), value: number(shadedQuantity(mode, a, b), PRECISE)},
-        ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={a > b ? [t("area_note"), t("area_reversed_note")] : t("area_note")}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            a: {read: () => this.model.a, apply: (value: number) => this.setBound("a", value)},
+            b: {read: () => this.model.b, apply: (value: number) => this.setBound("b", value)},
+            "area-mode": {read: () => this.model.mode, apply: (value: unknown) => this.setMode(value)},
+        };
     }
 
-    protected override renderLegend(): React.ReactNode {
+    /** The common declaration (rows, notes, view marks) plus the bounds and the shaded quantity as board pucks and the legend of the drawn objects. */
+    protected override declaration(): GraphDeclaration {
         const {mode} = this.model;
-        const legend = mode === "between"
-            ? [
-                {id: "positive", color: GraphPalette.additionalCurves[0], label: t("area_legend_g_top")},
-                {id: "negative", color: GraphPalette.additionalCurves[1], label: t("area_legend_f_top")},
-            ]
-            : [
-                {id: "positive", color: GraphPalette.additionalCurves[0], label: t("area_legend_above_axis")},
-                {id: "negative", color: GraphPalette.additionalCurves[1], label: t("area_legend_below_axis")},
-            ];
-        return <FunctionLegend items={[
-            {id: "f", kind: "line", color: GraphPalette.comparisonCurve, label: "f(x) = (x − 2)²"},
-            {id: "g", kind: "line", color: GraphPalette.primaryCurve, label: "g(x) = 3 − (x − 2)²"},
-            ...legend,
-        ]}/>;
+        const bound = (key: "a" | "b") => ({
+            key, kind: "range" as const, label: message(key === "a" ? "area_a_name" : "area_b_name"), symbol: key, help: message("area_bounds_help"),
+            placement: "board" as const, min: BOUND_MIN, max: BOUND_MAX, step: BOUND_STEP, maxDecimals: 2,
+        });
+        const fills = mode === "between"
+            ? [message("area_legend_g_top"), message("area_legend_f_top")]
+            : [message("area_legend_above_axis"), message("area_legend_below_axis")];
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                bound("a"),
+                bound("b"),
+                {key: "area-mode", kind: "choice", label: message("area_mode_label"), help: message("area_mode_help"), placement: "board", puck: true,
+                    options: AREA_MODES.map(id => ({
+                        value: id, label: message(MODE_KEYS[id]), short: message(MODE_SHORT_KEYS[id]),
+                    }))},
+            ],
+            legend: [
+                {id: "f", label: message("area_legend_f"), kind: "line", object: "f"},
+                {id: "g", label: message("area_legend_g"), kind: "line", object: "g"},
+                {id: "positive", label: fills[0], kind: "area", object: "positive"},
+                {id: "negative", label: fills[1], kind: "area", object: "negative"},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "positive" || id === "negative" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base (task 08): the readout rows, the notes and the plotted curves; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
+        const {a, b, mode} = this.model;
+        return {
+            rows: [
+                {id: "a", symbol: "a", value: messageNumber(a)},
+                {id: "b", symbol: "b", value: messageNumber(b)},
+                {id: "int-f", name: message("area_int_f"), value: messageNumber(integralF(a, b), PRECISE)},
+                {id: "int-g", name: message("area_int_g"), value: messageNumber(integralG(a, b), PRECISE)},
+                {id: "signed", name: message("area_signed"), value: messageNumber(signedBetween(a, b), PRECISE)},
+                {id: "unsigned", name: message("area_unsigned"), value: messageNumber(unsignedBetween(a, b), PRECISE)},
+                {id: "shaded", name: message(SHADED_KEYS[mode]), value: messageNumber(shadedQuantity(mode, a, b), PRECISE)},
+            ],
+            notes: [
+                {id: "intersections", text: message("area_note")},
+                ...(a > b ? [{id: "reversed", text: message("area_reversed_note")}] : []),
+            ],
+            plotted: [f, g],
+            must: [{x: a, y: 0}, {x: b, y: 0}, ...INTERSECTIONS.map(x => ({x, y: INTERSECTION_HEIGHT}))],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
+        return this.renderDeclaredReadout();
     }
 }
 

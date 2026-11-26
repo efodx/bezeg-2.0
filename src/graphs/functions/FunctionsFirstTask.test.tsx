@@ -47,8 +47,6 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     conics: {first: () => t('conic_phi_label'), later: [() => t('conic_epsilon_label'), () => t('conic_ell_label'), () => t('conic_example_label')]},
     derivative: {first: () => t('derivative_h_label'), later: [() => t('derivative_function_label'), () => t('derivative_x0_label')]},
     integral: {first: () => t('integral_n_label'), later: [() => t('integral_method_label'), () => t('integral_a_label'), () => t('integral_function_label')]},
-    'area-between': {first: () => t('area_a_label'), later: [() => t('area_mode_label')]},
-    'arc-length': {first: () => t('arc_n_label'), later: [() => t('arc_a_label'), () => t('arc_b_label')]},
     waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label'), () => t('waves_graph_a1_sum_label'), () => t('waves_graph_p1_label')]},
     'function-inverse': {first: () => t('function_inverse_x0_label'), later: [() => 'action:toggle-inverse', () => 'action:toggle-tangent', () => t('function_inverse_restriction_label')]},
     'polynomial-zeros': {first: () => t('zero_list_position_label', {value0: 1}), later: [() => t('zero_list_multiplicity_label', {value0: 1}), () => 'action:add-zero', () => t('polynomial_zeros_example_label'), () => t('polynomial_zeros_k_label'), () => 'action:toggle-derivative']},
@@ -91,6 +89,16 @@ describe.each(Object.keys(routes))('%s', key => {
             const names = editControls();
             expect(names.some(name => name.startsWith(t('function_inverse_x0_label'))), names.join(' | ')).toBe(false);
             expect(names.some(name => name.startsWith(t('function_inverse_restriction_label'))), names.join(' | ')).toBe(true);
+            return;
+        }
+        if (key === 'area-between' || key === 'arc-length') {
+            // every control is a board puck: they lead the puck strip in declaration order and nothing is left in Edit
+            const params = key === 'area-between' ? ['a', 'b', 'area-mode'] : ['n', 'a', 'b'];
+            await waitForPucks(params[0]);
+            expect(puckOrder().slice(0, params.length), puckOrder().join(' | ')).toEqual(params);
+            const names = editControls();
+            const labels = key === 'area-between' ? [t('area_a_label'), t('area_b_label'), t('area_mode_label')] : [t('arc_n_label'), t('arc_a_label'), t('arc_b_label')];
+            for (const label of labels) expect(names.some(name => name.startsWith(label)), names.join(' | ')).toBe(false);
             return;
         }
         const names = editControls();
