@@ -4,7 +4,14 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, messageNumber, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {
+    ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMark, ViewMarks,
+} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
+import {DomainError} from "../functions/BaseFunctionGraph";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
@@ -29,11 +36,31 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {isometryPresetCollection} from "./isometryPresetCollection";
 import type {IsometryClass} from "../../isometry/isometry2";
+import type {FriezeType} from "../../isometry/frieze";
 import type {RosetteImage} from "../../isometry/rosette";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
 /** The scene state is the stored isometry state (ADR 0047 sections 1 to 3); everything else is derived from it. */
 export interface IsometryGraphState extends BaseGraphState, IsometryState {}
+
+type IsometryRowId = "composite" | "centre" | "angle" | "half-angle" | "vector" | "axis" | "fixed" | "orientation" | "first-image" | "last-image"
+    | "side-ratio" | "area-ratio" | "area" | "isometry" | "image-1" | "image-2" | "group" | "order" | "distinct" | "point" | "type" | "copies" | "period"
+    | `has-${"vertical" | "horizontal" | "halfTurn" | "glide"}`;
+
+/**
+ * The ids this graph declares. Board: the ratio k, the number of rotations n, the number of mirrors and the period (bound parameters),
+ * the rosette's mirror switch and the four frieze features (switch pucks). Orodja, undeclared: the view, the example, the turn and the
+ * point lists (setup; the points are also dragged on the board).
+ */
+export type IsometryIds = {
+    param: "isometry-k" | "isometry-n" | "isometry-length" | "isometry-period";
+    row: IsometryRowId;
+    note: "status";
+    legend: "motif" | "image-1" | "image-2" | "image-3" | "mirror-1" | "mirror-2" | "mirror-3" | "centre" | "axis" | "vector" | "point"
+        | "direct" | "reflected" | "mirrors" | "translates" | "symmetric";
+    section: never;
+    action: "rosette-mirrors" | "feature-vertical" | "feature-horizontal" | "feature-halfTurn" | "feature-glide";
+};
 
 /** Keyboard steps: the arrow keys move a coordinate, the order and the period by 1 and the ratio by 1/4; the Page keys take the big steps. */
 export const COORDINATE_STEP = 1;
@@ -83,18 +110,6 @@ const degrees = (radians: number): string => `${dec2((radians * 180) / Math.PI)}
 const MARKER_PAD_PX = 3;
 /** A point name that has a clear spot within this many px of its marker (centre to box) sits there. */
 const NEAR_PX = 30;
-
-/** A line as text, for example `13 x = 25` or `6 x + 12 y = 66`. */
-function lineText(line: Line): string {
-    let text = "";
-    for (const [coefficient, name] of [[line.a.toNumber(), "x"], [line.b.toNumber(), "y"]] as const) {
-        if (coefficient === 0) continue;
-        const size = Math.abs(coefficient);
-        const body = `${size === 1 ? "" : `${dec(size)} `}${name}`;
-        text += text === "" ? `${coefficient < 0 ? "−" : ""}${body}` : ` ${coefficient < 0 ? "−" : "+"} ${body}`;
-    }
-    return `${text} = ${dec(line.c.toNumber())}`;
-}
 
 type Poly = {readonly x: readonly number[]; readonly y: readonly number[]};
 const EMPTY_POLY: Poly = {x: [], y: []};
@@ -171,6 +186,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private readonly handleMap = new Map<HandleId, JXG.Point>();
+    /** The board elements a legend entry names (an entry may stand for several, such as the marker pools of the rosette). */
+    private readonly drawn = new Map<string, JXG.GeometryElement[]>();
     private viewCache?: {state: Readonly<IsometryGraphState>; derived: IsometryDerived};
     private rosetteCache?: {derived: IsometryDerived; split: ReturnType<IsometryGraph["rosetteImages"]>};
     /** What the board was last drawn for; a sync that finds the same key redraws nothing but the handle positions. */
@@ -549,6 +566,11 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const value = read();
             return value !== undefined && Number.isFinite(value) ? value : 0;
         };
+        /** Names an element for the legend (`drawnObject`); returns it unchanged. */
+        const track = <E,>(id: string, element: E): E => {
+            this.drawn.set(id, [...(this.drawn.get(id) ?? []), element as unknown as JXG.GeometryElement]);
+            return element;
+        };
         const mirrorColors = [GraphPalette.referenceCurve, GraphPalette.comparisonCurve, GraphPalette.constructionLevels[1]] as const;
         const text = (key: "isometry_graph_cap_motif" | "isometry_graph_cap_centre" | "isometry_graph_cap_axis" | "isometry_graph_cap_k" | "isometry_graph_cap_point"
             | "isometry_graph_cap_vector") => () => t(key);
@@ -565,13 +587,13 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 const m = this.motion();
                 return m?.status === "ok" ? m.steps[index]?.image : undefined;
             };
-            curveOf(poly(() => {
+            track("motif", curveOf(poly(() => {
                 const m = this.motion();
                 return m?.status === "ok" ? m.motif : undefined;
-            }), GraphPalette.label, 2, 0, ok);
+            }), GraphPalette.label, 2, 0, ok));
             const colors = [GraphPalette.referenceCurve, GraphPalette.comparisonCurve, GraphPalette.primaryCurve] as const;
             for (let i = 0; i < count; i++) {
-                curveOf(poly(stepImage(i)), colors[i], i === count - 1 ? 3 : 2, i === count - 1 ? 0 : 2, ok);
+                track(`image-${i + 1}`, curveOf(poly(stepImage(i)), colors[i], i === count - 1 ? 3 : 2, i === count - 1 ? 0 : 2, ok));
                 caption(imageText(i + 1), cornersOf(stepImage(i)), colors[i], ok);
             }
             caption(text("isometry_graph_cap_motif"), cornersOf(() => {
@@ -582,11 +604,11 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             for (let i = 0; i < count; i++) {
                 const p = handle(MIRROR_HANDLES[i][0], mirrorColors[i], "o");
                 const q = handle(MIRROR_HANDLES[i][1], mirrorColors[i], "diamond");
-                this.own(board.create("line", [p, q], {
+                track(`mirror-${i + 1}`, this.own(board.create("line", [p, q], {
                     strokeColor: mirrorColors[i], strokeWidth: 2, dash: i === 0 ? 0 : 2, fixed: true, highlight: false, withLabel: false,
                     straightFirst: true, straightLast: true, visible: () => this.state.mirrors[i].p.x !== this.state.mirrors[i].q.x
                         || this.state.mirrors[i].p.y !== this.state.mirrors[i].q.y,
-                }));
+                })));
                 // Mirrors often share a handle position (the defaults both start at the origin): the placer keeps their names apart.
                 // The name sits at the first handle, else at the second one or further along the mirror.
                 caption(() => t("isometry_graph_cap_mirror", {value0: String(i + 1)}), () => {
@@ -606,7 +628,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 return c?.kind === "rotation" ? c.centre[axis].toNumber() : undefined;
             });
             const isRotation = () => classOf()?.kind === "rotation";
-            marker(centreOf("x"), centreOf("y"), "cross", GraphPalette.constructionAccent, 6, isRotation);
+            track("centre", marker(centreOf("x"), centreOf("y"), "cross", GraphPalette.constructionAccent, 6, isRotation));
             caption(text("isometry_graph_cap_centre"), () => {
                 const [x, y] = [centreOf("x")(), centreOf("y")()];
                 return [[x, y], [x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]];
@@ -617,10 +639,10 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             };
             const first = hidden(() => anchorsOf(axisLine()).first[0], () => anchorsOf(axisLine()).first[1]);
             const second = hidden(() => anchorsOf(axisLine()).second[0], () => anchorsOf(axisLine()).second[1]);
-            this.own(board.create("line", [first, second], {
+            track("axis", this.own(board.create("line", [first, second], {
                 strokeColor: GraphPalette.constructionAccent, strokeWidth: 1, dash: 3, fixed: true, highlight: false, withLabel: false,
                 straightFirst: true, straightLast: true, visible: () => axisLine() !== null,
-            }));
+            })));
             // The axis name may sit anywhere along the axis: the foot of the origin first, then further along it both ways.
             caption(text("isometry_graph_cap_axis"), () => {
                 const {first, second} = anchorsOf(axisLine());
@@ -637,9 +659,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const arrowFrom = hidden(() => anchorsOf(axisLine()).first[0], () => anchorsOf(axisLine()).first[1]);
             const arrowTo = hidden(() => anchorsOf(axisLine()).first[0] + (glideVector()?.[0] ?? 0),
                 () => anchorsOf(axisLine()).first[1] + (glideVector()?.[1] ?? 0));
-            this.own(board.create("arrow", [arrowFrom, arrowTo], {
+            track("vector", this.own(board.create("arrow", [arrowFrom, arrowTo], {
                 strokeColor: GraphPalette.primaryCurve, strokeWidth: 3, fixed: true, highlight: false, withLabel: false, visible: isGlide,
-            }));
+            })));
             caption(text("isometry_graph_cap_vector"), () => {
                 const [vx, vy] = glideVector() ?? [0, 0];
                 const [x, y] = [anchorsOf(axisLine()).first[0] + vx / 2, anchorsOf(axisLine()).first[1] + vy / 2];
@@ -658,10 +680,10 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 return d.mode === "similarity" ? d : undefined;
             };
             const corner = (index: number, axis: "x" | "y", which: "motif" | "image") => numberAt(() => sim()?.[which][index][axis].toNumber());
-            curveOf(() => exactPoly(sim()?.motif ?? []), GraphPalette.label, 2, 0);
-            curveOf(() => exactPoly(sim()?.image ?? []), GraphPalette.primaryCurve, 3, 0);
+            track("motif", curveOf(() => exactPoly(sim()?.motif ?? []), GraphPalette.label, 2, 0));
+            track("image-1", curveOf(() => exactPoly(sim()?.image ?? []), GraphPalette.primaryCurve, 3, 0));
             // dashed rays from the centre through each vertex to its image
-            const centre = handle("centre", GraphPalette.controlPoint, "o");
+            const centre = track("centre", handle("centre", GraphPalette.controlPoint, "o"));
             for (let i = 0; i < 3; i++) {
                 const from = hidden(corner(i, "x", "motif"), corner(i, "y", "motif"));
                 const to = hidden(corner(i, "x", "image"), corner(i, "y", "image"));
@@ -675,23 +697,23 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             caption(imageText(1), cornersOf(() => sim()?.image), GraphPalette.primaryCurve);
         } else if (mode === "rosette") {
             const rosetteOf = () => this.rosetteImages().all;
-            curveOf(() => (this.state.rosetteMirrors ? rosetteMirrorPoly(this.state.rosetteN) : EMPTY_POLY), GraphPalette.constructionLevels[1], 1, 3,
-                () => this.state.rosetteMirrors);
-            marker(0, 0, "cross", GraphPalette.constructionAccent, 6);
+            track("mirrors", curveOf(() => (this.state.rosetteMirrors ? rosetteMirrorPoly(this.state.rosetteN) : EMPTY_POLY), GraphPalette.constructionLevels[1], 1, 3,
+                () => this.state.rosetteMirrors));
+            track("centre", marker(0, 0, "cross", GraphPalette.constructionAccent, 6));
             caption(text("isometry_graph_cap_centre"), atPoint(0, 0), GraphPalette.constructionAccent, true, false, true);
             // Two pools of markers: circles for direct images, diamonds for reflected ones; an image beyond the pool end is hidden.
             for (const reflected of [false, true] as const) {
                 for (let j = 0; j < ROSETTE_N_MAX; j++) {
                     const nth = () => (reflected ? this.rosetteImages().reflected : this.rosetteImages().direct)[j];
-                    marker(numberAt(() => nth()?.x), numberAt(() => nth()?.y), reflected ? "diamond" : "circle",
-                        reflected ? GraphPalette.comparisonCurve : GraphPalette.primaryCurve, 4, () => nth() !== undefined);
+                    track(reflected ? "reflected" : "direct", marker(numberAt(() => nth()?.x), numberAt(() => nth()?.y), reflected ? "diamond" : "circle",
+                        reflected ? GraphPalette.comparisonCurve : GraphPalette.primaryCurve, 4, () => nth() !== undefined));
                 }
             }
             for (let i = 0; i < 2 * ROSETTE_N_MAX; i++) {
                 caption(imageText(i + 1), atPoint(numberAt(() => rosetteOf()[i]?.x), numberAt(() => rosetteOf()[i]?.y)),
                     GraphPalette.label, () => rosetteOf()[i] !== undefined);
             }
-            handle("point", GraphPalette.controlPoint, "o");
+            track("point", handle("point", GraphPalette.controlPoint, "o"));
             label(text("isometry_graph_cap_point"), "point", GraphPalette.controlPoint);
         } else {
             const frieze = () => {
@@ -707,9 +729,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const bracketB = hidden(() => period(), -0.8);
             segment(bracketA, bracketB, GraphPalette.constructionAccent, 2, 0);
             caption(() => t("isometry_graph_cap_period", {value0: String(period())}), atPoint(() => period() / 2 - 1, -1.8), GraphPalette.constructionAccent);
-            curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period !== 0)), GraphPalette.referenceCurve, 2, 0);
-            curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element !== 0)), GraphPalette.comparisonCurve, 2, 0);
-            curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period === 0)), GraphPalette.primaryCurve, 3, 0);
+            track("translates", curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period !== 0)), GraphPalette.referenceCurve, 2, 0));
+            track("symmetric", curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element !== 0)), GraphPalette.comparisonCurve, 2, 0));
+            track("motif", curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period === 0)), GraphPalette.primaryCurve, 3, 0));
             caption(text("isometry_graph_cap_motif"), atPoint(FRIEZE_MOTIF_TENTHS[0][0] / 10, FRIEZE_MOTIF_TENTHS[0][1] / 10), GraphPalette.primaryCurve);
             caption(() => {
                 const d = frieze();
@@ -722,7 +744,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
 
     /** Snaps a dragged handle to the grid (the ratio to quarters) and writes the field to the scene state. */
     private wireDrag(id: HandleId, point: JXG.Point): void {
-        const onDrag = () => this.dragTo(id, point);
+        const onDrag = () => runAs("learner", () => this.dragTo(id, point)); // a JSXGraph handler is outside the DOM tagging
         const board = this.board;
         const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
@@ -773,6 +795,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         }
         this.objects = [];
         this.handleMap.clear();
+        this.drawn.clear();
         this.builtKey = undefined;
     }
 
@@ -978,143 +1001,362 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
 
     // ---- Text -----------------------------------------------------------------------------------------------------------
 
-    private yesNo(value: boolean): string {
-        return t(value ? "isometry_graph_yes" : "isometry_graph_no");
+    private yesNo(value: boolean): Message {
+        return message(value ? "isometry_graph_yes" : "isometry_graph_no");
     }
 
-    private none(): string {
-        return t("isometry_graph_none");
+    private none(): Message {
+        return message("isometry_graph_none");
     }
 
-    private className(cls: IsometryClass): string {
+    private className(cls: IsometryClass): Message {
         switch (cls.kind) {
-            case "identity": return t("isometry_graph_class_identity");
-            case "translation": return t("isometry_graph_class_translation");
-            case "rotation": return t("isometry_graph_class_rotation");
-            case "reflection": return t("isometry_graph_class_reflection");
-            case "glide": return t("isometry_graph_class_glide");
-            case "notIsometry": return t("isometry_graph_class_not_isometry");
+            case "identity": return message("isometry_graph_class_identity");
+            case "translation": return message("isometry_graph_class_translation");
+            case "rotation": return message("isometry_graph_class_rotation");
+            case "reflection": return message("isometry_graph_class_reflection");
+            case "glide": return message("isometry_graph_class_glide");
+            case "notIsometry": return message("isometry_graph_class_not_isometry");
         }
     }
 
-    private fixedText(fixed: FixedPoints | "all"): string {
+    private fixedText(fixed: FixedPoints | "all"): Message {
         switch (fixed) {
-            case "none": return t("isometry_graph_fixed_none");
-            case "one": return t("isometry_graph_fixed_one");
-            case "line": return t("isometry_graph_fixed_line");
+            case "none": return message("isometry_graph_fixed_none");
+            case "one": return message("isometry_graph_fixed_one");
+            case "line": return message("isometry_graph_fixed_line");
             case "plane":
-            case "all": return t("isometry_graph_fixed_all");
+            case "all": return message("isometry_graph_fixed_all");
         }
     }
 
-    private orientationText(orientation: 1 | -1): string {
-        return t(orientation === 1 ? "isometry_graph_orientation_kept" : "isometry_graph_orientation_reversed");
+    private orientationText(orientation: 1 | -1): Message {
+        return message(orientation === 1 ? "isometry_graph_orientation_kept" : "isometry_graph_orientation_reversed");
     }
 
-    private offViewText(count: number): string {
-        return count > 0 ? ` ${t("isometry_graph_status_off_view", {value0: String(count)})}` : "";
+    /** The sentence under a status that names the points beyond the view; `undefined` when none are. */
+    private offViewMessage(count: number): Message | undefined {
+        return count > 0 ? message("isometry_graph_status_off_view", {value0: String(count)}) : undefined;
+    }
+
+    private withOffView(base: Message, count: number): Message {
+        const off = this.offViewMessage(count);
+        return off ? message("isometries_status_with_off_view", {value0: base, value1: off}) : base;
     }
 
     /** One sentence for the whole state; degenerate states say what they are. */
-    statusText(): string {
+    private statusMessage(): Message {
         const d = this.view();
         switch (d.mode) {
             case "mirrors":
             case "classify": {
                 const m = d.motion;
-                if (m.status === "coincident") return t("isometry_graph_status_coincident", {value0: String(m.mirror)});
+                if (m.status === "coincident") return message("isometry_graph_status_coincident", {value0: String(m.mirror)});
                 const last = m.steps[m.steps.length - 1];
-                return t("isometry_graph_status_motion", {value0: this.className(m.cls), value1: this.orientationText(last.orientation)})
-                    + this.offViewText(m.offView);
+                return this.withOffView(message("isometry_graph_status_motion", {value0: this.className(m.cls), value1: this.orientationText(last.orientation)}), m.offView);
             }
             case "similarity": {
-                const base = t("isometry_graph_status_similarity", {
+                const base = message("isometry_graph_status_similarity", {
                     value0: ratPoint(RationalPoint.fromGrid(this.state.dilationCentre)), value1: dec(this.state.dilationK), value2: rat(d.sideRatio),
                     value3: rat(d.areaRatio),
                 });
-                const iso = d.isometry ? ` ${t("isometry_graph_status_similarity_isometry", {value0: this.className(d.cls)})}` : "";
-                return base + iso + this.offViewText(d.offView);
+                const sentence = d.isometry
+                    ? message("isometries_status_with_off_view", {value0: base, value1: message("isometry_graph_status_similarity_isometry", {value0: this.className(d.cls)})})
+                    : base;
+                return this.withOffView(sentence, d.offView);
             }
             case "rosette": {
                 const p = this.state.rosettePoint;
-                if (p.x === 0 && p.y === 0) return t("isometry_graph_status_rosette_centre") + this.offViewText(d.offView);
+                if (p.x === 0 && p.y === 0) return this.withOffView(message("isometry_graph_status_rosette_centre"), d.offView);
                 if (d.distinct < d.order) {
-                    return t("isometry_graph_status_rosette_mirror", {value0: String(d.distinct), value1: String(d.order)}) + this.offViewText(d.offView);
+                    return this.withOffView(message("isometry_graph_status_rosette_mirror", {value0: String(d.distinct), value1: String(d.order)}), d.offView);
                 }
-                return t("isometry_graph_status_rosette", {value0: String(d.order), value1: String(d.distinct)}) + this.offViewText(d.offView);
+                return this.withOffView(message("isometry_graph_status_rosette", {value0: String(d.order), value1: String(d.distinct)}), d.offView);
             }
             case "frieze":
-                if (d.status === "reducesPeriod") return t("isometry_graph_status_frieze_reduces");
-                return t("isometry_graph_status_frieze", {value0: d.type, value1: String(d.copiesPerPeriod)});
+                if (d.status === "reducesPeriod") return message("isometry_graph_status_frieze_reduces");
+                return message("isometry_graph_status_frieze", {value0: d.type, value1: String(d.copiesPerPeriod)});
         }
     }
 
-    readoutRows(): ReadoutListRow[] {
+    statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    /** A line as a catalog message: the left side (letters) is a parameter of a template, never a number. */
+    private lineMessage(line: Line): Message {
+        let text = "";
+        for (const [coefficient, name] of [[line.a.toNumber(), "x"], [line.b.toNumber(), "y"]] as const) {
+            if (coefficient === 0) continue;
+            const size = Math.abs(coefficient);
+            const body = `${size === 1 ? "" : `${dec(size)} `}${name}`;
+            text += text === "" ? `${coefficient < 0 ? "−" : ""}${body}` : ` ${coefficient < 0 ? "−" : "+"} ${body}`;
+        }
+        return message("isometries_line_equation", {value0: text, value1: dec(line.c.toNumber())});
+    }
+
+    private friezeTypeMessage(type: FriezeType): Message {
+        switch (type) {
+            case "p1": return message("isometries_frieze_type_p1");
+            case "p11g": return message("isometries_frieze_type_p11g");
+            case "p1m1": return message("isometries_frieze_type_p1m1");
+            case "p11m": return message("isometries_frieze_type_p11m");
+            case "p2": return message("isometries_frieze_type_p2");
+            case "p2mg": return message("isometries_frieze_type_p2mg");
+            case "p2mm": return message("isometries_frieze_type_p2mm");
+        }
+    }
+
+    /** The values the old panel listed, as declared rows (same words, same order); the legacy panel and the tests read them through `readoutRows`. */
+    private declaredRows(): ReadoutRow<IsometryIds>[] {
         const d = this.view();
-        const row = (id: string, label: string, value: string): ReadoutListRow => ({id, label, value});
+        const row = (id: IsometryRowId, name: Message, value: ReadoutRow<IsometryIds>["value"]): ReadoutRow<IsometryIds> => ({id, name, value});
+        const formatted = (text: string): FormattedValue => ({kind: "formatted", text});
         switch (d.mode) {
             case "mirrors":
             case "classify": {
                 const m = d.motion;
-                if (m.status === "coincident") return [row("composite", t("isometry_graph_readout_class"), this.none())];
+                if (m.status === "coincident") return [row("composite", message("isometry_graph_readout_class"), this.none())];
                 const cls = m.cls;
-                const rows = [row("composite", t("isometry_graph_readout_class"), this.className(cls))];
+                const rows = [row("composite", message("isometry_graph_readout_class"), this.className(cls))];
                 if (cls.kind === "rotation") {
                     rows.push(
-                        row("centre", t("isometry_graph_readout_centre"), ratPoint(cls.centre)),
-                        row("angle", t("isometry_graph_readout_angle"), degrees(cls.angle)),
+                        row("centre", message("isometry_graph_readout_centre"), formatted(ratPoint(cls.centre))),
+                        row("angle", message("isometry_graph_readout_angle"), formatted(degrees(cls.angle))),
                     );
-                    if (d.mode === "mirrors") rows.push(row("half-angle", t("isometry_graph_readout_half_angle"), degrees(cls.angle / 2)));
+                    if (d.mode === "mirrors") rows.push(row("half-angle", message("isometry_graph_readout_half_angle"), formatted(degrees(cls.angle / 2))));
                 } else if (cls.kind === "translation") {
-                    rows.push(row("vector", t("isometry_graph_readout_vector"), ratPoint(cls.vector)));
+                    rows.push(row("vector", message("isometry_graph_readout_vector"), formatted(ratPoint(cls.vector))));
                 } else if (cls.kind === "reflection" || cls.kind === "glide") {
-                    rows.push(row("axis", t("isometry_graph_readout_axis"), lineText(cls.axis)));
-                    if (cls.kind === "glide") rows.push(row("vector", t("isometry_graph_readout_vector"), ratPoint(cls.vector)));
+                    rows.push(row("axis", message("isometry_graph_readout_axis"), this.lineMessage(cls.axis)));
+                    if (cls.kind === "glide") rows.push(row("vector", message("isometry_graph_readout_vector"), formatted(ratPoint(cls.vector))));
                 }
                 const last = m.steps[m.steps.length - 1];
                 rows.push(
-                    row("fixed", t("isometry_graph_readout_fixed"), this.fixedText(m.fixed)),
-                    row("orientation", t("isometry_graph_readout_orientation"), this.orientationText(last.orientation)),
-                    row("first-image", t("isometry_graph_readout_first_image"), ratPoint(m.steps[0].image[0])),
-                    row("last-image", t("isometry_graph_readout_last_image"), ratPoint(last.image[0])),
+                    row("fixed", message("isometry_graph_readout_fixed"), this.fixedText(m.fixed)),
+                    row("orientation", message("isometry_graph_readout_orientation"), this.orientationText(last.orientation)),
+                    row("first-image", message("isometry_graph_readout_first_image"), formatted(ratPoint(m.steps[0].image[0]))),
+                    row("last-image", message("isometry_graph_readout_last_image"), formatted(ratPoint(last.image[0]))),
                 );
                 return rows;
             }
             case "similarity":
                 return [
-                    row("side-ratio", t("isometry_graph_readout_side_ratio"), rat(d.sideRatio)),
-                    row("area-ratio", t("isometry_graph_readout_area_ratio"), rat(d.areaRatio)),
-                    row("area", t("isometry_graph_readout_area"), t("isometry_graph_readout_area_value", {value0: rat(d.area), value1: rat(d.imageArea)})),
-                    row("orientation", t("isometry_graph_readout_orientation"), this.orientationText(d.orientation)),
-                    row("fixed", t("isometry_graph_readout_fixed_point"),
-                        d.fixedPoint === "all" ? this.fixedText("all") : ratPoint(d.fixedPoint)),
-                    row("isometry", t("isometry_graph_readout_isometry"), this.yesNo(d.isometry)),
-                    row("image-1", t("isometry_graph_readout_image_vertex", {value0: "1"}), ratPoint(d.image[0])),
+                    row("side-ratio", message("isometry_graph_readout_side_ratio"), formatted(rat(d.sideRatio))),
+                    row("area-ratio", message("isometry_graph_readout_area_ratio"), formatted(rat(d.areaRatio))),
+                    row("area", message("isometry_graph_readout_area"), message("isometry_graph_readout_area_value", {value0: rat(d.area), value1: rat(d.imageArea)})),
+                    row("orientation", message("isometry_graph_readout_orientation"), this.orientationText(d.orientation)),
+                    row("fixed", message("isometry_graph_readout_fixed_point"),
+                        d.fixedPoint === "all" ? this.fixedText("all") : formatted(ratPoint(d.fixedPoint))),
+                    row("isometry", message("isometry_graph_readout_isometry"), this.yesNo(d.isometry)),
+                    row("image-1", message("isometry_graph_readout_image_vertex", {value0: "1"}), formatted(ratPoint(d.image[0]))),
                 ];
             case "rosette": {
                 const n = this.state.rosetteN;
                 const first = d.images[0];
+                const second = d.images[1];
                 return [
-                    row("group", t("isometry_graph_readout_group"), t(this.state.rosetteMirrors ? "isometry_graph_group_dihedral" : "isometry_graph_group_cyclic", {value0: String(n)})),
-                    row("order", t("isometry_graph_readout_order"), String(d.order)),
-                    row("distinct", t("isometry_graph_readout_distinct"), String(d.distinct)),
-                    row("point", t("isometry_graph_readout_point"), ratPoint(RationalPoint.fromGrid(this.state.rosettePoint))),
-                    row("image-1", t("isometry_graph_readout_image_computed", {value0: "1"}), first ? xyPoint(first.x, first.y) : this.none()),
-                    row("image-2", t("isometry_graph_readout_image_computed", {value0: "2"}), d.images[1] ? xyPoint(d.images[1].x, d.images[1].y) : this.none()),
+                    row("group", message("isometry_graph_readout_group"), message(this.state.rosetteMirrors ? "isometry_graph_group_dihedral" : "isometry_graph_group_cyclic", {value0: String(n)})),
+                    row("order", message("isometry_graph_readout_order"), messageNumber(d.order)),
+                    row("distinct", message("isometry_graph_readout_distinct"), messageNumber(d.distinct)),
+                    row("point", message("isometry_graph_readout_point"), formatted(ratPoint(RationalPoint.fromGrid(this.state.rosettePoint)))),
+                    row("image-1", message("isometry_graph_readout_image_computed", {value0: "1"}), first ? formatted(xyPoint(first.x, first.y)) : this.none()),
+                    row("image-2", message("isometry_graph_readout_image_computed", {value0: "2"}), second ? formatted(xyPoint(second.x, second.y)) : this.none()),
                 ];
             }
             case "frieze": {
-                if (d.status === "reducesPeriod") {
-                    return [row("type", t("isometry_graph_readout_type"), this.none()), row("period", t("isometry_graph_readout_period"), String(this.state.friezePeriod))];
-                }
+                const period = row("period", message("isometry_graph_readout_period"), messageNumber(this.state.friezePeriod));
+                if (d.status === "reducesPeriod") return [row("type", message("isometry_graph_readout_type"), this.none()), period];
                 return [
-                    row("type", t("isometry_graph_readout_type"), d.type),
-                    row("copies", t("isometry_graph_readout_copies"), String(d.copiesPerPeriod)),
-                    row("period", t("isometry_graph_readout_period"), String(this.state.friezePeriod)),
-                    ...FEATURE_NAMES.map(name => row(`has-${name}`, t(FEATURE_KEYS[name]), this.yesNo(d.signature[name]))),
+                    row("type", message("isometry_graph_readout_type"), this.friezeTypeMessage(d.type)),
+                    row("copies", message("isometry_graph_readout_copies"), messageNumber(d.copiesPerPeriod)),
+                    period,
+                    ...FEATURE_NAMES.map(name => row(`has-${name}`, message(FEATURE_KEYS[name]), this.yesNo(d.signature[name]))),
                 ];
             }
         }
+    }
+
+    /** The rows as the old panel's list shows them. */
+    readoutRows(): ReadoutListRow[] {
+        return this.declaredRows().map(({id, name, value}): ReadoutListRow => ({
+            id,
+            label: name ? renderMessage(name) : "",
+            value: "kind" in value && value.kind === "formatted" ? value.text
+                : "kind" in value && value.kind === "number" ? formatNumber(value.value, currentLanguage(), value.maxDecimals)
+                    : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration ------------------------------------------------------------------------------------------------------
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const refuse = () => new DomainError(message("isometries_count_rejected"));
+        return {
+            "isometry-k": {
+                read: () => this.state.dilationK,
+                apply: (value: number) => { if (!this.stepRatio(value)) throw new DomainError(message("isometry_graph_k_rejected", {value0: dec(K_MIN), value1: dec(K_MAX)})); },
+            },
+            "isometry-n": {read: () => this.state.rosetteN, apply: (value: number) => { if (!this.editRosetteN(value)) throw refuse(); }},
+            "isometry-length": {read: () => this.state.motionLength, apply: (value: number) => { if (!this.editMotionLength(value)) throw refuse(); }},
+            "isometry-period": {read: () => this.state.friezePeriod, apply: (value: number) => { if (!this.editPeriod(value)) throw refuse(); }},
+        };
+    }
+
+    private declaredParameters(): ParameterDeclaration<IsometryIds["param"]>[] {
+        switch (this.state.mode) {
+            case "classify":
+                return [{key: "isometry-length", kind: "count", label: message("isometry_graph_length_label"), min: MOTION_LENGTH_MIN, max: MOTION_LENGTH_MAX, placement: "board"}];
+            case "similarity":
+                return [{
+                    key: "isometry-k", kind: "range", label: message("isometries_k_name"), symbol: "k", min: -K_MAX, max: K_MAX, step: RATIO_STEP,
+                    bigStep: RATIO_BIG_STEP, maxDecimals: 2, placement: "board",
+                }];
+            case "rosette":
+                return [{key: "isometry-n", kind: "count", label: message("isometries_n_name"), symbol: "n", min: ROSETTE_N_MIN, max: ROSETTE_N_MAX, placement: "board"}];
+            case "frieze":
+                return [{key: "isometry-period", kind: "count", label: message("isometry_graph_period_label"), min: PERIOD_MIN, max: PERIOD_MAX, placement: "board"}];
+            default:
+                return [];
+        }
+    }
+
+    private declaredActions(): ActionDeclaration<IsometryIds>[] {
+        const {mode, rosetteMirrors, friezeFeatures} = this.state;
+        if (mode === "rosette") {
+            return [{id: "rosette-mirrors", label: message("isometries_rosette_mirrors_short"), help: message("isometry_graph_rosette_mirrors_label"), placement: "board", puck: true, enabled: true, pressed: rosetteMirrors}];
+        }
+        if (mode === "frieze") {
+            return FEATURE_NAMES.map((name): ActionDeclaration<IsometryIds> => ({
+                id: `feature-${name}`, label: message(FEATURE_KEYS[name]), placement: "board", puck: true, enabled: true, pressed: friezeFeatures[name],
+            }));
+        }
+        return [];
+    }
+
+    /** One entry per drawn object that is shown now; the board captions name the same objects, the legend gives their colours. */
+    private legendEntries(): LegendEntry<IsometryIds>[] {
+        const d = this.view();
+        const entry = (id: IsometryIds["legend"], label: Message, kind: LegendEntry["kind"]): LegendEntry<IsometryIds> => ({id, label, kind, object: id});
+        const motif = entry("motif", message("isometry_graph_cap_motif"), "line");
+        switch (d.mode) {
+            case "mirrors":
+            case "classify": {
+                const m = d.motion;
+                if (m.status !== "ok") return [];
+                const count = d.mode === "mirrors" ? 2 : this.state.motionLength;
+                const entries = [motif];
+                for (let i = 0; i < count; i++) {
+                    entries.push(entry(`image-${i + 1}` as "image-1", message("isometry_graph_cap_image", {value0: String(i + 1)}), i === count - 1 ? "line" : "dashed"));
+                }
+                for (let i = 0; i < count; i++) {
+                    const {p, q} = this.state.mirrors[i];
+                    if (p.x !== q.x || p.y !== q.y) entries.push(entry(`mirror-${i + 1}` as "mirror-1", message("isometry_graph_cap_mirror", {value0: String(i + 1)}), i === 0 ? "line" : "dashed"));
+                }
+                if (m.cls.kind === "rotation") entries.push(entry("centre", message("isometry_graph_cap_centre"), "cross"));
+                if (m.cls.kind === "reflection" || m.cls.kind === "glide") entries.push(entry("axis", message("isometry_graph_cap_axis"), "dashed"));
+                if (m.cls.kind === "glide") entries.push(entry("vector", message("isometry_graph_cap_vector"), "line"));
+                return entries;
+            }
+            case "similarity":
+                return [motif, entry("image-1", message("isometry_graph_cap_image", {value0: "1"}), "line"), entry("centre", message("isometry_graph_cap_centre"), "ring")];
+            case "rosette": {
+                const split = this.rosetteImages();
+                return [
+                    entry("centre", message("isometry_graph_cap_centre"), "cross"),
+                    ...(this.state.rosetteMirrors ? [entry("mirrors", message("isometries_legend_mirrors"), "dashed")] : []),
+                    ...(split.direct.length > 0 ? [entry("direct", message("isometries_legend_direct"), "ring")] : []),
+                    ...(split.reflected.length > 0 ? [entry("reflected", message("isometries_legend_reflected"), "ring")] : []),
+                    entry("point", message("isometry_graph_cap_point"), "ring"),
+                ];
+            }
+            case "frieze": {
+                const translates = d.polygons.some(p => p.element === 0 && p.period !== 0);
+                const symmetric = d.polygons.some(p => p.element !== 0);
+                return [
+                    motif,
+                    ...(translates ? [entry("translates", message("isometries_legend_translates"), "line")] : []),
+                    ...(symmetric ? [entry("symmetric", message("isometries_legend_symmetric"), "line")] : []),
+                ];
+            }
+        }
+    }
+
+    private marksCache?: {state: Readonly<IsometryGraphState>; marks: ViewMarks};
+
+    /** What the view director keeps visible: the figure, its images and the handles of the mode (must); the frieze's period strip (must). */
+    private viewMarks(): ViewMarks {
+        if (this.marksCache?.state === this.state) return this.marksCache.marks;
+        const d = this.view();
+        const points = (list: readonly RationalPoint[]): ViewMark[] => list.map((p): ViewMark => ({kind: "point", x: p.x.toNumber(), y: p.y.toNumber()}));
+        const at = (id: HandleId): ViewMark => {
+            const [x, y] = this.handleTarget(id);
+            return {kind: "point", x, y};
+        };
+        let must: ViewMark[] = [];
+        switch (d.mode) {
+            case "mirrors":
+            case "classify": {
+                const count = d.mode === "mirrors" ? 2 : this.state.motionLength;
+                must = [...(d.motion.status === "ok" ? [...points(d.motion.motif), ...d.motion.steps.flatMap(step => points(step.image))] : []),
+                    ...MIRROR_HANDLES.slice(0, count).flatMap(pair => pair.map(at))];
+                break;
+            }
+            case "similarity":
+                must = [...points(d.motif), ...points(d.image), at("centre"), at("k")];
+                break;
+            case "rosette":
+                must = [{kind: "point", x: 0, y: 0}, at("point"), ...this.rosetteImages().all.map((image): ViewMark => ({kind: "point", x: image.x, y: image.y}))];
+                break;
+            case "frieze":
+                must = [{kind: "box", left: -1, top: 4, right: this.state.friezePeriod + 1, bottom: -2}];
+                break;
+        }
+        const marks: ViewMarks = {must: must.filter(mark => mark.kind !== "point" || (Number.isFinite(mark.x) && Number.isFinite(mark.y)))};
+        this.marksCache = {state: this.state, marks};
+        return marks;
+    }
+
+    /** Pure data from the state: the status sentence as a note, the rows of the mode, the legend, the four bound parameters and the switch pucks. */
+    protected override declaration(): GraphDeclaration<IsometryIds> {
+        const notes: ReadoutNote<IsometryIds>[] = [{id: "status", text: this.statusMessage()}];
+        return {
+            parameters: this.declaredParameters(),
+            readouts: [{id: "values", rows: this.declaredRows()}],
+            notes,
+            readoutHelp: message("isometry_graph_approx_note"),
+            legend: this.legendEntries(),
+            actions: this.declaredActions(),
+            marks: this.viewMarks(),
+        };
+    }
+
+    /** The element a legend entry names, as the board holds it now (the first shown one of a pool). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.drawn.get(id);
+        if (!elements || elements.length === 0) return undefined;
+        const read = (element: JXG.GeometryElement) => {
+            // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+            const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            const filled = drawn.evalVisProp("fillcolor");
+            const useFill = id === "direct" || id === "reflected" || id === "point" || (id === "centre" && this.state.mode === "similarity");
+            const color = useFill ? filled : drawn.evalVisProp("strokecolor");
+            return {color: String(color), visible: Boolean(drawn.evalVisProp("visible"))};
+        };
+        const shown = elements.map(read);
+        return shown.find(candidate => candidate.visible) ?? shown[0];
+    }
+
+    override performAction(id: string): void {
+        runAs("learner", () => {
+            if (id === "rosette-mirrors") {
+                this.setState({rosetteMirrors: !this.state.rosetteMirrors});
+                return;
+            }
+            const name = FEATURE_NAMES.find(candidate => `feature-${candidate}` === id);
+            if (!name) throw new Error("Unknown action");
+            this.setFeature(name, !this.state.friezeFeatures[name]);
+        });
     }
 
     // ---- Controls ---------------------------------------------------------------------------------------------------------
@@ -1195,10 +1437,10 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                                       const id = CLASSIFY_EXAMPLE_IDS.find(candidate => candidate === value);
                                       if (id) this.setState({...CLASSIFY_EXAMPLES[id]});
                                   }}/>,
-                    <CountSetter key="length" label={t("isometry_graph_length_label")} n={state.motionLength} min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX}
+                    <PuckOwned key="length" param="isometry-length"><CountSetter key="length" label={t("isometry_graph_length_label")} n={state.motionLength} min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX}
                                  onPlus={() => this.editMotionLength(this.state.motionLength + 1)}
                                  onMinus={() => this.editMotionLength(this.state.motionLength - 1)}
-                                 onSet={value => this.editMotionLength(value)}/>,
+                                 onSet={value => this.editMotionLength(value)}/></PuckOwned>,
                     <PointListInput key="mirror-points" title={t("isometry_graph_mirrors_title")} points={this.mirrorPoints(state.motionLength)}
                                     pointLabel={index => this.mirrorPointName(index)} min={-COORD_LIMIT} max={COORD_LIMIT}
                                     step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP} grid={1} decimals={0}
@@ -1212,9 +1454,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                                     pointLabel={() => "C"} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP}
                                     grid={1} decimals={0}
                                     onCommit={(_index, value) => this.commitPoint(this.state.dilationCentre, value, (axis, next) => this.editCentre(axis, next))}/>,
-                    <Slider key="k" customText={t("isometry_graph_k_label")} value={state.dilationK} step={RATIO_STEP} bigStep={RATIO_BIG_STEP} min={-K_MAX}
+                    <PuckOwned key="k" param="isometry-k"><Slider key="k" customText={t("isometry_graph_k_label")} value={state.dilationK} step={RATIO_STEP} bigStep={RATIO_BIG_STEP} min={-K_MAX}
                             max={K_MAX} grid={RATIO_STEP} decimals={2} onChange={value => this.stepRatio(value)} onTypedChange={value => this.editRatio(value)}
-                            rejectedHint={t("isometry_graph_k_rejected", {value0: dec(K_MIN), value1: dec(K_MAX)})}/>,
+                            rejectedHint={t("isometry_graph_k_rejected", {value0: dec(K_MIN), value1: dec(K_MAX)})}/></PuckOwned>,
                     <ChoiceSelect key="turn" label={t("isometry_graph_turn_label")} value={state.dilationTurn}
                                   options={DILATION_TURNS.map(turn => ({value: turn, text: this.turnName(turn)}))}
                                   help={t("isometry_graph_turn_help")}
@@ -1226,11 +1468,11 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 break;
             case "rosette":
                 commands.push(
-                    <CountSetter key="n" label={t("isometry_graph_n_label")} n={state.rosetteN} min={ROSETTE_N_MIN} max={ROSETTE_N_MAX}
+                    <PuckOwned key="n" param="isometry-n"><CountSetter key="n" label={t("isometry_graph_n_label")} n={state.rosetteN} min={ROSETTE_N_MIN} max={ROSETTE_N_MAX}
                                  onPlus={() => this.editRosetteN(this.state.rosetteN + 1)} onMinus={() => this.editRosetteN(this.state.rosetteN - 1)}
-                                 onSet={value => this.editRosetteN(value)}/>,
-                    <BooleanField key="mirrors" variant="switch" label={t("isometry_graph_rosette_mirrors_label")} checked={state.rosetteMirrors}
-                                  onChange={checked => this.setState({rosetteMirrors: checked})}/>,
+                                 onSet={value => this.editRosetteN(value)}/></PuckOwned>,
+                    <PuckOwned key="mirrors" param="rosette-mirrors"><BooleanField key="mirrors" variant="switch" label={t("isometry_graph_rosette_mirrors_label")} checked={state.rosetteMirrors}
+                                  onChange={checked => this.setState({rosetteMirrors: checked})}/></PuckOwned>,
                     <PointListInput key="point" title={t("isometry_graph_point_title")} points={[[state.rosettePoint.x, state.rosettePoint.y]]}
                                     pointLabel={() => "P"} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP}
                                     grid={1} decimals={0}
@@ -1238,15 +1480,15 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 );
                 break;
             case "frieze":
-                commands.push(<CheckboxGroup key="features" label={t("isometry_graph_features_group")}
+                commands.push(<PuckOwnedGroup key="features" params={FEATURE_NAMES.map(name => `feature-${name}`)}><CheckboxGroup label={t("isometry_graph_features_group")}
                                              options={FEATURE_NAMES.map(name => ({key: name, label: t(FEATURE_KEYS[name]), checked: state.friezeFeatures[name]}))}
                                              onChange={(key, checked) => {
                                                  const name = FEATURE_NAMES.find(candidate => candidate === key);
                                                  if (name) this.setFeature(name, checked);
-                                             }}/>);
-                commands.push(<Slider key="period" customText={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
+                                             }}/></PuckOwnedGroup>);
+                commands.push(<PuckOwned key="period" param="isometry-period"><Slider key="period" customText={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
                                       bigStep={SMALL_INTEGER_BIG_STEP} min={PERIOD_MIN} max={PERIOD_MAX} grid={1} decimals={0}
-                                      onChange={value => this.editPeriod(value)}/>);
+                                      onChange={value => this.editPeriod(value)}/></PuckOwned>);
                 break;
         }
         return commands;
@@ -1255,9 +1497,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("isometry_graph_readout_title")}</ReadoutHeading>
-                <p data-isometry-status="">{this.statusText()}</p>
+                <p data-isometry-status="" data-readout-note="">{this.statusText()}</p>
                 <ReadoutList label={t("isometry_graph_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("isometry_graph_approx_note")}</p>
                 <LiveReadout readout={this.status}/>

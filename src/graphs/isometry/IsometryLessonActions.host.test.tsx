@@ -35,6 +35,8 @@ const typeMirror = (n: number, [px, py, qx, qy]: [number, number, number, number
     type(`Q${n}, x`, String(qx)); type(`Q${n}, y`, String(qy));
 };
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
+/** A bound parameter written as the learner: k, n, the number of mirrors and the period are pucks on the board (task 08). */
+const put = (graph: IsometryGraph, key: string, value: number) => act(() => { graph.parameters!.write(key, value, 'learner'); });
 const stateOf = (graph: IsometryGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
 
 /** The state and the readouts after running `edit` on a fresh graph and then unmounting it. */
@@ -66,9 +68,9 @@ test('set-mode and set-mirror-count reach the state and readouts of the Način s
         apply(graph, setCount(3));
         apply(graph, setMirrors({'1': mirror(0, 0, 1, -1), '2': mirror(1, 1, 2, 0), '3': mirror(0, 0, 1, 1)}));
     });
-    const viaControl = after(() => {
+    const viaControl = after(graph => {
         choose('Način', 'classify');
-        type('Število zrcal', '3');
+        put(graph, 'isometry-length', 3);
         typeMirror(1, [0, 0, 1, -1]); typeMirror(2, [1, 1, 2, 0]); typeMirror(3, [0, 0, 1, 1]);
     });
     expect(viaAction).toEqual(viaControl);
@@ -138,10 +140,10 @@ test('set-dilation reaches the state and readouts of the centre, ratio and turn 
         apply(graph, setMode('similarity'));
         apply(graph, setDilation({centre: {x: 2, y: -1}, k: -0.5, turn: 'pythagorean'}));
     });
-    const viaControl = after(() => {
+    const viaControl = after(graph => {
         choose('Način', 'similarity');
         type('C, x', '2'); type('C, y', '-1');
-        type('Razmerje k', '-0.5');
+        put(graph, 'isometry-k', -0.5);
         choose('Vrtež okoli središča', 'pythagorean');
     });
     expect(viaAction).toEqual(viaControl);
@@ -205,18 +207,16 @@ type Rosette = Extract<LessonAction, {kind: 'isometry'; operation: 'set-rosette'
 type Frieze = Extract<LessonAction, {kind: 'isometry'; operation: 'set-frieze'}>;
 const setRosette = (fields: Omit<Rosette, 'kind' | 'operation'>): LessonAction => ({kind: 'isometry', operation: 'set-rosette', ...fields});
 const setFrieze = (fields: Omit<Frieze, 'kind' | 'operation'>): LessonAction => ({kind: 'isometry', operation: 'set-frieze', ...fields});
-/** Clicks a switch or checkbox by its label. */
-const toggle = (label: string) => act(() => { fireEvent.click(screen.getByLabelText(label)); });
 
 test('set-rosette reaches the state and readouts of the count, mirrors and point fields (L4 scenes)', () => {
     const viaAction = after(graph => {
         apply(graph, setMode('rosette'));
         apply(graph, setRosette({n: 5, mirrors: true, point: {x: 3, y: -1}}));
     });
-    const viaControl = after(() => {
+    const viaControl = after(graph => {
         choose('Način', 'rosette');
-        type('Število vrtežev n', '5');
-        toggle('Zrcala (diedrska grupa)');
+        put(graph, 'isometry-n', 5);
+        act(() => graph.performAction('rosette-mirrors'));
         type('P, x', '3'); type('P, y', '-1');
     });
     expect(viaAction).toEqual(viaControl);
@@ -231,10 +231,10 @@ test('set-frieze reaches the state and readouts of the feature checkboxes and th
         apply(graph, setMode('frieze'));
         apply(graph, setFrieze({features: {vertical: true, glide: true}, period: 6}));
     });
-    const viaControl = after(() => {
+    const viaControl = after(graph => {
         choose('Način', 'frieze');
-        toggle('Navpično zrcalo'); toggle('Zrcalni zdrs');
-        type('Perioda', '6');
+        act(() => { graph.performAction('feature-vertical'); graph.performAction('feature-glide'); });
+        put(graph, 'isometry-period', 6);
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state.friezeFeatures).toEqual({vertical: true, horizontal: false, halfTurn: true, glide: true});

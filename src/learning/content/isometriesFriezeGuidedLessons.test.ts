@@ -148,7 +148,7 @@ const labelOf = (language: Language, feature: Feature) => (language === 'sl' ? s
 } as const)[feature]];
 /** A feature checkbox as the learner clicks it, by its label. */
 const toggle = (language: Language, feature: Feature) => act(() => { fireEvent.click(screen.getByLabelText(labelOf(language, feature))); });
-const isChecked = (language: Language, feature: Feature) => (screen.getByLabelText(labelOf(language, feature)) as HTMLInputElement).checked;
+const isChecked = (language: Language, feature: Feature) => screen.getByLabelText(labelOf(language, feature)).getAttribute('aria-checked') === 'true'; // a switch puck on the board (task 08)
 const tickedOnScreen = (language: Language): Ticks => ({
     vertical: isChecked(language, 'vertical'), horizontal: isChecked(language, 'horizontal'),
     halfTurn: isChecked(language, 'halfTurn'), glide: isChecked(language, 'glide'),
@@ -201,11 +201,10 @@ describe('L5 friezes, part A: scenes, labels, learner actions and predictions', 
         // The feature checkboxes in their group, the caption named in step 1, the period slider named in step 6.
         runScene(m, 'l5-seven-types');
         for (const f of FEATURES) expect(screen.getByLabelText(labelOf(language, f))).toBeTruthy();
-        expect(document.body.textContent).toContain(catalog.isometry_graph_features_group);
         expect(stepOf('l5-half-turn').explanation[language]).toContain(catalog.isometry_graph_features_group);
         expect(stepOf('l5-half-turn').observationPrompt[language]).toContain(caption);
         expect(stepOf('l5-free').explanation[language]).toContain(catalog.isometry_graph_period_label);
-        expect(document.body.textContent).toContain(catalog.isometry_graph_period_label);
+        expect(m.graph.getDeclaration()!.parameters!.map(entry => entry.key)).toContain('isometry-period'); // the period is a puck (task 08)
         expect(readoutLabel('period')).toBe(catalog.isometry_graph_readout_period);
     });
 

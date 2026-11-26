@@ -1,10 +1,11 @@
 import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {GraphPalette} from '../styles/GraphPalette';
@@ -12,6 +13,10 @@ import {CLASSIFY_EXAMPLES, DEFAULT_ISOMETRY_STATE, VIEW_HALF, INITIAL_VIEW_HALF,
 import {
     COORDINATE_BIG_STEP, COORDINATE_STEP, handlesFor, HANDLE_TOUCH_RADIUS, HIT_SLACK, IsometryGraph, mergedPoly, RATIO_STEP, rosetteMirrorPoly,
 } from './IsometryGraph';
+
+/** A test stands in for the learner when it writes the scene directly (a bound parameter must have a write source). */
+const learnerSet = (graph: {setState(update: Partial<IsometryState>): void}, update: Partial<IsometryState>) => runAs('learner', () => graph.setState(update));
+
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -68,7 +73,7 @@ test('every point on the board has finite coordinates in every mode', () => {
     for (const mode of ['mirrors', 'classify', 'similarity', 'rosette', 'frieze'] as const) {
         chooseMode(mode);
         if (mode !== 'frieze') {
-            act(() => { graph.setState({motionLength: 3}); });
+            act(() => { learnerSet(graph, {motionLength: 3}); });
             expectHandleHitZones(graph.liveBoard(), graph.handles().values(), HANDLE_TOUCH_RADIUS + HIT_SLACK);
         }
         for (const o of probes(graph).filter(p => p.elType === 'point')) {
@@ -135,7 +140,7 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
     test('L1 parallel mirrors x = 0 and x = 3 give the translation (6, 0) with no fixed point', () => {
         const {graph} = mountGraph();
         act(() => {
-            graph.setState({mirrors: [{p: {x: 0, y: 0}, q: {x: 0, y: 1}}, {p: {x: 3, y: 0}, q: {x: 3, y: 1}}, DEFAULT_ISOMETRY_STATE.mirrors[2]]});
+            learnerSet(graph, {mirrors: [{p: {x: 0, y: 0}, q: {x: 0, y: 1}}, {p: {x: 3, y: 0}, q: {x: 3, y: 1}}, DEFAULT_ISOMETRY_STATE.mirrors[2]]});
         });
         expect(readout('composite')).toBe(t('isometry_graph_class_translation'));
         expect(readout('vector')).toBe('(6; 0)');
@@ -147,7 +152,7 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
     test('the rotation centre cross is stroked in its colour (a cross has no fill, so a white outline would hide it)', () => {
         const {graph} = mountGraph();
         chooseMode('classify');
-        act(() => { graph.setState({...CLASSIFY_EXAMPLES.rotation}); });
+        act(() => { learnerSet(graph, {...CLASSIFY_EXAMPLES.rotation}); });
         const crosses = probes(graph).filter(o => o.elType === 'point' && o.evalVisProp('visible') && String(o.evalVisProp('face')) === 'cross');
         expect(crosses).toHaveLength(1);
         expect(String(crosses[0].evalVisProp('strokecolor'))).toBe(GraphPalette.constructionAccent);
@@ -157,14 +162,14 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
         const {graph} = mountGraph();
         chooseMode('classify');
         expect([...graph.handles().keys()]).toEqual(handlesFor('classify', 2));
-        act(() => { graph.setState({...CLASSIFY_EXAMPLES.rotation}); });
+        act(() => { learnerSet(graph, {...CLASSIFY_EXAMPLES.rotation}); });
         expect(readout('composite')).toBe(t('isometry_graph_class_rotation'));
         expect(readout('centre')).toBe('(1; 2)');
         expect(readout('angle')).toBe('90°');
         expect(readout('half-angle')).toBeUndefined(); // two mirrors only in the first mode
         expect(readout('fixed')).toBe(t('isometry_graph_fixed_one'));
 
-        act(() => { graph.setState({...CLASSIFY_EXAMPLES.glide}); });
+        act(() => { learnerSet(graph, {...CLASSIFY_EXAMPLES.glide}); });
         expect([...graph.handles().keys()]).toEqual(handlesFor('classify', 3));
         expect(readout('composite')).toBe(t('isometry_graph_class_glide'));
         expect(readout('vector')).toBe('(2; 2)');
@@ -174,7 +179,7 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
         expect(readout('last-image')).toBe('(3; 5)');
         expect(shown(graph, 'line')).toBe(4); // three mirrors and the glide axis
 
-        act(() => { graph.setState({...CLASSIFY_EXAMPLES.reflection}); });
+        act(() => { learnerSet(graph, {...CLASSIFY_EXAMPLES.reflection}); });
         expect([...graph.handles().keys()]).toEqual(handlesFor('classify', 1));
         expect(readout('composite')).toBe(t('isometry_graph_class_reflection'));
         expect(readout('fixed')).toBe(t('isometry_graph_fixed_line'));
@@ -195,12 +200,12 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
         expect(readout('isometry')).toBe(t('isometry_graph_no'));
         expect(readout('image-1')).toBe('(−1/2 ≈ −0,5; −1/2 ≈ −0,5)');
         expect(pointShownAt(graph, 1, 1)).toBe(true);
-        act(() => { graph.setState({dilationK: -0.5}); });
+        act(() => { learnerSet(graph, {dilationK: -0.5}); });
         expect(readout('side-ratio')).toBe('1/2 ≈ 0,5');
         expect(readout('area-ratio')).toBe('1/4 ≈ 0,25');
         expect(readout('image-1')).toBe('(3/2 ≈ 1,5; 3/2 ≈ 1,5)');
         expect(readout('orientation')).toBe(t('isometry_graph_orientation_kept'));
-        act(() => { graph.setState({dilationK: 1}); });
+        act(() => { learnerSet(graph, {dilationK: 1}); });
         expect(readout('fixed')).toBe(t('isometry_graph_fixed_all'));
         expect(readout('isometry')).toBe(t('isometry_graph_yes'));
         expect(statusText()).toContain(t('isometry_graph_class_identity'));
@@ -227,16 +232,16 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
         // the rotation by 72 degrees of (4,1): (4 cos - sin, 4 sin + cos)
         expect(pointShownAt(graph, 0.28501146118, 4.11324305957, 1e-6)).toBe(true);
         expect(readout('image-2')).toBe('(0,285; 4,1132)');
-        act(() => { graph.setState({rosetteMirrors: true}); });
+        act(() => { learnerSet(graph, {rosetteMirrors: true}); });
         expect(readout('group')).toBe('diedrska grupa D5');
         expect(readout('order')).toBe('10');
         expect(readout('distinct')).toBe('10');
         expect(statusText()).toBe(t('isometry_graph_status_rosette', {value0: '10', value1: '10'}));
         expect(curvePolygons(graph)).toEqual([5]); // five mirror lines as one curve
-        act(() => { graph.setState({rosettePoint: {x: 4, y: 0}}); });
+        act(() => { learnerSet(graph, {rosettePoint: {x: 4, y: 0}}); });
         expect(readout('distinct')).toBe('5');
         expect(statusText()).toBe(t('isometry_graph_status_rosette_mirror', {value0: '5', value1: '10'}));
-        act(() => { graph.setState({rosettePoint: {x: 0, y: 0}}); });
+        act(() => { learnerSet(graph, {rosettePoint: {x: 0, y: 0}}); });
         expect(readout('distinct')).toBe('1');
         expect(statusText()).toBe(t('isometry_graph_status_rosette_centre'));
         noBadText();
@@ -260,12 +265,12 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
         act(() => { fireEvent.click(feature('glide')); fireEvent.click(feature('horizontal')); });
         expect(readout('type')).toBe('p2mm');
         expect(readout('copies')).toBe('4');
-        act(() => { graph.setState({friezeFeatures: {vertical: false, horizontal: true, halfTurn: false, glide: true}}); });
+        act(() => { learnerSet(graph, {friezeFeatures: {vertical: false, horizontal: true, halfTurn: false, glide: true}}); });
         expect(statusText()).toBe(t('isometry_graph_status_frieze_reduces'));
         expect(readout('type')).toBe(t('isometry_graph_none'));
         expect(curvePolygons(graph)).toEqual([8, 0, 1]); // only the translates are certain
         noBadText();
-        act(() => { enterNumber(field(t('isometry_graph_period_label')), '7'); });
+        act(() => { graph.parameters!.write('isometry-period', 7, 'learner'); }); // the period is a puck on the board (task 08)
         expect(graph.state.friezePeriod).toBe(7);
         expect(readout('period')).toBe('7');
     });
@@ -274,7 +279,7 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
 describe('degenerate states show a status and never NaN', () => {
     test('coincident mirror points: a status naming the mirror, no composite and no hidden NaN', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({mirrors: [DEFAULT_ISOMETRY_STATE.mirrors[0], {p: {x: 2, y: 2}, q: {x: 2, y: 2}}, DEFAULT_ISOMETRY_STATE.mirrors[2]]}); });
+        act(() => { learnerSet(graph, {mirrors: [DEFAULT_ISOMETRY_STATE.mirrors[0], {p: {x: 2, y: 2}, q: {x: 2, y: 2}}, DEFAULT_ISOMETRY_STATE.mirrors[2]]}); });
         expect(statusText()).toBe(t('isometry_graph_status_coincident', {value0: '2'}));
         expect(readout('composite')).toBe(t('isometry_graph_none'));
         expect(shown(graph, 'line')).toBe(1); // only the mirror that is defined
@@ -285,7 +290,7 @@ describe('degenerate states show a status and never NaN', () => {
         }
         noBadText();
         chooseMode('classify');
-        act(() => { graph.setState({motionLength: 3, mirrors: [DEFAULT_ISOMETRY_STATE.mirrors[0], DEFAULT_ISOMETRY_STATE.mirrors[1], {p: {x: 1, y: 1}, q: {x: 1, y: 1}}]}); });
+        act(() => { learnerSet(graph, {motionLength: 3, mirrors: [DEFAULT_ISOMETRY_STATE.mirrors[0], DEFAULT_ISOMETRY_STATE.mirrors[1], {p: {x: 1, y: 1}, q: {x: 1, y: 1}}]}); });
         expect(statusText()).toBe(t('isometry_graph_status_coincident', {value0: '3'}));
         noBadText();
     });
@@ -293,14 +298,14 @@ describe('degenerate states show a status and never NaN', () => {
     test('images off the view are counted in the status', () => {
         const {graph} = mountGraph();
         act(() => {
-            graph.setState({mirrors: [{p: {x: 16, y: 0}, q: {x: 16, y: 1}}, {p: {x: 0, y: 0}, q: {x: 0, y: 1}}, DEFAULT_ISOMETRY_STATE.mirrors[2]]});
+            learnerSet(graph, {mirrors: [{p: {x: 16, y: 0}, q: {x: 16, y: 1}}, {p: {x: 0, y: 0}, q: {x: 0, y: 1}}, DEFAULT_ISOMETRY_STATE.mirrors[2]]});
         });
         // the first image has x = 29, 27, 29 and the second -29, -27, -29: six vertices beyond 20
         expect(statusText()).toContain(t('isometry_graph_status_off_view', {value0: '6'}));
-        act(() => { graph.setState(withState({mode: 'rosette', rosettePoint: {x: 16, y: 16}, rosetteN: 4})); });
+        act(() => { learnerSet(graph, withState({mode: 'rosette', rosettePoint: {x: 16, y: 16}, rosetteN: 4})); });
         // the four rotations of (16,16) by 90 degrees stay at distance 16 on both axes: none is off view
         expect(statusText()).not.toContain(t('isometry_graph_status_off_view', {value0: '1'}));
-        act(() => { graph.setState({rosetteN: 8}); });
+        act(() => { learnerSet(graph, {rosetteN: 8}); });
         // the 45 degree rotation takes (16,16) to (0, 22.6): that and the 135, 225 and 315 degree images are beyond 20
         expect(statusText()).toContain(t('isometry_graph_status_off_view', {value0: '4'}));
         noBadText();
@@ -323,7 +328,7 @@ describe('numeric input per handle', () => {
         expect([position('m1p'), position('m1q'), position('m2p'), position('m2q')]).toEqual([[-3, 2], [4, -5], [6, 7], [-8, 9]]);
 
         chooseMode('classify');
-        act(() => { enterNumber(field(t('isometry_graph_length_label')), '3'); });
+        act(() => { graph.parameters!.write('isometry-length', 3, 'learner'); }); // a puck on the board (task 08)
         expect(graph.state.motionLength).toBe(3);
         act(() => { enterNumber(field(mirrorX(3, 'P')), '11'); enterNumber(field(mirrorY(3, 'Q')), '-12'); });
         expect(position('m3p')[0]).toBe(11);
@@ -331,18 +336,20 @@ describe('numeric input per handle', () => {
 
         chooseMode('similarity');
         act(() => {
-            enterNumber(field('C, x'), '-2'); enterNumber(field('C, y'), '3'); enterNumber(field(t('isometry_graph_k_label')), '-2,25');
+            enterNumber(field('C, x'), '-2'); enterNumber(field('C, y'), '3');
         });
+        act(() => { graph.parameters!.write('isometry-k', -2.25, 'learner'); }); // k is a puck on the board (task 08)
         expect(position('centre')).toEqual([-2, 3]);
         expect(position('k')).toEqual([-4.25, 3]);
 
         chooseMode('rosette');
         act(() => {
-            enterNumber(field('P, x'), '5'); enterNumber(field('P, y'), '-6'); enterNumber(field(t('isometry_graph_n_label')), '7');
+            enterNumber(field('P, x'), '5'); enterNumber(field('P, y'), '-6');
         });
+        act(() => { graph.parameters!.write('isometry-n', 7, 'learner'); }); // n and the mirror switch are pucks on the board (task 08)
         expect(position('point')).toEqual([5, -6]);
         expect(graph.state.rosetteN).toBe(7);
-        act(() => { fireEvent.click(field(t('isometry_graph_rosette_mirrors_label'))); });
+        act(() => { graph.performAction('rosette-mirrors'); });
         expect(graph.state.rosetteMirrors).toBe(true);
     });
 
@@ -366,7 +373,12 @@ describe('numeric input per handle', () => {
     });
 
     test('the ratio goes through the model snapping: 0 and values that round to 0 never occur, out-of-range clamps', () => {
-        const {graph} = mountGraph();
+        const {graph: observed} = mountGraph();
+        const graph = {
+            editRatio: (v: number) => runAs('learner', () => observed.editRatio(v)), stepRatio: (v: number) => runAs('learner', () => observed.stepRatio(v)),
+            editRosetteN: (v: number) => runAs('learner', () => observed.editRosetteN(v)), editPeriod: (v: number) => runAs('learner', () => observed.editPeriod(v)),
+            editMotionLength: (v: number) => runAs('learner', () => observed.editMotionLength(v)), get state() { return observed.state; },
+        };
         expect(graph.editRatio(9)).toBe(true);
         expect(graph.state.dilationK).toBe(4);
         expect(graph.editRatio(1.3)).toBe(true);
@@ -395,7 +407,7 @@ describe('numeric input per handle', () => {
         act(() => { fireEvent.change(field(t('isometry_graph_example_label')), {target: {value: 'glide'}}); });
         expect(graph.state).toMatchObject(CLASSIFY_EXAMPLES.glide);
         expect(field(t('isometry_graph_example_label')).value).toBe('glide');
-        act(() => { graph.setState({motionLength: 2}); });
+        act(() => { learnerSet(graph, {motionLength: 2}); });
         expect(field(t('isometry_graph_example_label')).value).toBe('own');
     });
 });
@@ -466,7 +478,7 @@ describe('ownership', () => {
         expect(graph.ownedListenerCount()).toBe(handlesFor('mirrors', 2).length); // one disposer per handle, covering drag, over and out
         expect(handlerCounts(graph.handles().get('m1p')!)).toEqual([1, 1, 1]);
         const sameHandle = graph.handles().get('m2q')!;
-        act(() => { graph.setState({mirrors: [{p: {x: 1, y: 1}, q: {x: 4, y: 2}}, DEFAULT_ISOMETRY_STATE.mirrors[1], DEFAULT_ISOMETRY_STATE.mirrors[2]]}); });
+        act(() => { learnerSet(graph, {mirrors: [{p: {x: 1, y: 1}, q: {x: 4, y: 2}}, DEFAULT_ISOMETRY_STATE.mirrors[1], DEFAULT_ISOMETRY_STATE.mirrors[2]]}); });
         expect(graph.ownedObjectCount()).toBe(owned);
         expect(board.objectsList.length).toBe(base + owned);
         expect(graph.handles().get('m2q')).toBe(sameHandle); // a state change does not rebuild
@@ -482,7 +494,7 @@ describe('ownership', () => {
         expect(graph.ownedObjectCount()).toBe(owned);
         expect(board.objectsList.length).toBe(base + owned);
         chooseMode('classify');
-        act(() => { graph.setState({motionLength: 3}); });
+        act(() => { learnerSet(graph, {motionLength: 3}); });
         expect([...graph.handles().keys()]).toEqual(handlesFor('classify', 3));
         expect(board.objectsList.length).toBe(base + graph.ownedObjectCount());
 
@@ -517,39 +529,37 @@ describe('ownership', () => {
 });
 
 describe('controls compliance repairs', () => {
-    test('a typed 0 or 0,1 for k is refused with the field hint and k keeps its value; the keyboard step through zero still crosses it', () => {
+    test('k as a puck: a value is clamped to the range, and a step through zero crosses it (the model never holds 0)', () => {
         const {graph} = mountGraph();
         chooseMode('similarity');
-        act(() => { graph.setState({dilationK: 1}); });
-        const k =field(t('isometry_graph_k_label'));
-        act(() => { enterNumber(k, '0,1'); });
-        expect(graph.state.dilationK).toBe(1);
-        expect(screen.getByText(t('isometry_graph_k_rejected', {value0: '0,25', value1: '4'}))).toBeInTheDocument();
-        act(() => { enterNumber(k, '0'); });
-        expect(graph.state.dilationK).toBe(1);
-        act(() => { enterNumber(k, '2,5'); });
+        act(() => { learnerSet(graph, {dilationK: 1}); });
+        const write = (value: number) => act(() => { graph.parameters!.write('isometry-k', value, 'learner'); });
+        write(9);
+        expect(graph.state.dilationK).toBe(4);
+        write(2.5);
         expect(graph.state.dilationK).toBe(2.5);
-        act(() => { graph.setState({dilationK: 0.25}); });
-        act(() => { fireEvent.keyDown(field(t('isometry_graph_k_label')), {key: 'ArrowDown'}); });
+        act(() => { learnerSet(graph, {dilationK: 0.25}); });
+        write(0);
         expect(graph.state.dilationK).toBe(-0.25);
+        expect(graph.parameters!.read('isometry-k')).toBe(-0.25);
     });
 
     test('every mode offers its numbers as the catalogue says: sliders, point rows and a count setter, no free number field', () => {
         mountGraph();
-        const slider = (label: string) => screen.getByRole('slider', {name: label});
         expect(screen.getByRole('group', {name: t('isometry_graph_mirrors_title')})).toBeInTheDocument();
         expect(screen.getAllByRole('spinbutton')).toHaveLength(8);
         expect(field('Q2, y')).toBeInTheDocument();
         chooseMode('classify');
-        expect(field(t('isometry_graph_length_label'))).toBeInTheDocument();
+        // the count of mirrors, k, n and the period are pucks on the board, not Orodja fields (task 08); the point rows stay
+        expect(screen.queryByRole('spinbutton', {name: t('isometry_graph_length_label')})).toBeNull();
         chooseMode('similarity');
-        expect(slider(t('isometry_graph_k_label'))).toBeInTheDocument();
+        expect(screen.queryByRole('slider', {name: t('isometry_graph_k_label')})).toBeNull();
         expect(field('C, x')).toBeInTheDocument();
         chooseMode('rosette');
-        expect(screen.getByRole('group', {name: t('isometry_graph_n_label')})).toBeInTheDocument();
-        expect(screen.queryByRole('slider', {name: t('isometry_graph_n_label')})).toBeNull();
+        expect(screen.queryByRole('group', {name: t('isometry_graph_n_label')})).toBeNull();
+        expect(field('P, x')).toBeInTheDocument();
         chooseMode('frieze');
-        expect(slider(t('isometry_graph_period_label'))).toBeInTheDocument();
+        expect(screen.queryByRole('slider', {name: t('isometry_graph_period_label')})).toBeNull();
     });
 
     test('a frieze with no feature checked is a valid state: the translations alone, p1, no bad text', () => {
@@ -574,7 +584,7 @@ describe('review repairs', () => {
         chooseMode('frieze');
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['lik', 'perioda 4']));
         chooseMode('classify');
-        act(() => { graph.setState({...CLASSIFY_EXAMPLES.glide}); });
+        act(() => { learnerSet(graph, {...CLASSIFY_EXAMPLES.glide}); });
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['zrcalo 3', 'slika 3', 'os']));
         act(() => { setLanguage('en'); });
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['mirror 3', 'image 3', 'axis', 'figure']));
@@ -585,31 +595,35 @@ describe('review repairs', () => {
         const {graph} = mountGraph();
         const first = graph.view();
         expect(graph.view()).toBe(first);
-        act(() => { graph.setState({mirrors: [{p: {x: 1, y: 1}, q: {x: 4, y: 2}}, DEFAULT_ISOMETRY_STATE.mirrors[1], DEFAULT_ISOMETRY_STATE.mirrors[2]]}); });
+        act(() => { learnerSet(graph, {mirrors: [{p: {x: 1, y: 1}, q: {x: 4, y: 2}}, DEFAULT_ISOMETRY_STATE.mirrors[1], DEFAULT_ISOMETRY_STATE.mirrors[2]]}); });
         expect(graph.view()).not.toBe(first);
         chooseMode('rosette');
-        act(() => { graph.setState({rosetteMirrors: true, rosettePoint: {x: 3, y: 1}}); });
+        act(() => { learnerSet(graph, {rosetteMirrors: true, rosettePoint: {x: 3, y: 1}}); });
         const split = (graph as unknown as {rosetteImages(): {direct: unknown[]; reflected: unknown[]; all: unknown[]}}).rosetteImages();
         expect((graph as unknown as {rosetteImages(): unknown}).rosetteImages()).toBe(split);
         expect([split.direct.length, split.reflected.length, split.all.length]).toEqual([5, 5, 10]);
         expect(shown(graph, 'point')).toBeGreaterThanOrEqual(10);
     });
 
-    test('the frieze features form a labelled group', () => {
-        mountGraph();
+    test('the frieze features are switch pucks on the board: the labelled group is left out of Orodja', async () => {
+        const {graph} = mountGraph();
         chooseMode('frieze');
-        const group = screen.getByRole('group', {name: t('isometry_graph_features_group')});
-        expect(group.querySelectorAll('input[type="checkbox"]').length).toBe(4);
+        await waitForPucks('feature-vertical');
+        expect(screen.queryByRole('group', {name: t('isometry_graph_features_group')})).toBeNull();
+        for (const name of ['vertical', 'horizontal', 'halfTurn', 'glide']) expect(puckControl(`feature-${name}`)).not.toBeNull();
+        const before = graph.state.friezeFeatures.halfTurn;
+        act(() => { fireEvent.click(puckControl('feature-halfTurn')); });
+        expect(graph.state.friezeFeatures.halfTurn).toBe(!before);
     });
 
     test('the glide vector is an arrow on the axis, captioned like its readout; the frieze type is captioned on the board', () => {
         const {graph} = mountGraph();
         chooseMode('classify');
-        act(() => { graph.setState({...CLASSIFY_EXAMPLES.glide}); });
+        act(() => { learnerSet(graph, {...CLASSIFY_EXAMPLES.glide}); });
         expect(shown(graph, 'arrow')).toBe(1);
         expect(shownCaptions(graph)).toContain('vektor premika');
         expect(document.querySelector('[data-readout="vector"] dt')!.textContent).toBe('Vektor premika');
-        act(() => { graph.setState({...CLASSIFY_EXAMPLES.reflection}); });
+        act(() => { learnerSet(graph, {...CLASSIFY_EXAMPLES.reflection}); });
         expect(shown(graph, 'arrow')).toBe(0);
         expect(shownCaptions(graph)).not.toContain('vektor premika');
         chooseMode('frieze');

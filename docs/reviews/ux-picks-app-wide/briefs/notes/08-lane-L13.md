@@ -1,0 +1,36 @@
+# Lane L13 (isometries), round 6: PARTIAL handoff (budget signal at 136k input)
+
+Nothing below has been compiled or run except the parity recording. Run `npx tsc --noEmit --pretty false` first.
+
+## Done (observed unless noted)
+- Parity recorded BEFORE conversion: marker `data-readout-note` added to the status `<p data-isometry-status>` in `workspaceEdit` (text unchanged); `SAMPLES` entry `isometries` plus `isometriesAccepted` (extra note: the readout help) and the `CLASSIFY_EXAMPLES` import in `src/graphs/base/declare/parity.test.tsx`; recorded `src/graphs/isometry/__parity__/isometries.json` (17 states, all five modes; recording unit passed). Never re-record.
+- Fragment `src/localization/fragments/isometries.ts` registered in `fragments/index.ts` (keys: k/n bare names, count_rejected, rosette mirrors short, line_equation and status_with_off_view templates, legend direct/reflected/mirrors/translates/symmetric, seven frieze type names). Not yet type-checked.
+- `src/graphs/isometry/IsometryGraph.tsx` (edited, NOT compiled): imports; `IsometryRowId`, `IsometryIds` (params isometry-k/n/length/period, note status, legend ids, actions rosette-mirrors and feature-*); text helpers now return `Message` (`statusMessage`, `declaredRows`, `lineMessage`, `friezeTypeMessage`; `statusText()` and `readoutRows()` derive from them, `lineText` removed); `drawn` map plus `track(...)` calls in `buildScene` and cleared in `disposeScene`; new "Declaration" section (`parameterBindings`, `declaredParameters`, `declaredActions`, `legendEntries`, memoized `viewMarks`, `declaration()`, `drawnObject`, `performAction`).
+
+## Not done
+1. Compile: fix tsc errors (possible: `FriezeType` import line added by sed after `isometry2` import, `FormattedValue` import use, `LegendEntry["kind"]`, `ReadoutNote` import, `Line` import still used, `<E,>` generic in .tsx, `message(FEATURE_KEYS[name])` typing, `ViewMark` filter narrowing).
+2. Controls (`getGraphCommands`, ~line 1362): wrap with `PuckOwned` (key `PuckOwned key=... param=...`): Slider `k` -> `isometry-k`, CountSetter `length` -> `isometry-length`, CountSetter `n` -> `isometry-n`, BooleanField `mirrors` -> `rosette-mirrors`, period Slider -> `isometry-period`; the frieze `CheckboxGroup` in `PuckOwnedGroup params=[feature-vertical, feature-horizontal, feature-halfTurn, feature-glide]`. Mode select, example, turn, point lists stay in Orodja.
+3. `workspaceEdit`: wrap the whole readout `inspector-group` in `data-declared-panel` (like NotablePointsGraph.tsx:405) so Orodja shows no duplicate; keep `renderLegend` nothing (graph has none). The status paragraph and approx note must keep rendering (tests read them).
+4. `src/graphs/isometry/IsometryGraph.declaration.test.tsx` (copy BSplineNurbsGraph.declaration.test.tsx; file name must start with `isometries`-prefix match: use `IsometriesGraph.declaration.test.tsx` since graph-check finds by id prefix `isometries`, or check the rule in converting-a-graph.md section 6): >= 5 states over all five modes; checkDeclaration clean; every param key bound; legend entries resolve and are visible; declared rows equal `readoutRows()`. Break once (e.g. a row value or `pressed`), quote the failure, revert.
+5. Lesson frames: add optional `declare` to the legacy `step(...)` content in `isometriesGuidedLessons.ts`, `isometriesFriezeGuidedLessons.ts`, `isometriesRosetteGuidedLessons.ts` (frames built as `frame(id, kind)`); use `frameDeclarer<IsometryIds>()`; highlight rows the text reads (frieze: type, copies; rosette: group, order, distinct; mirrors: composite, centre/angle), uses of pucks where the text asks for them (no `open: ['tools']` for puck-owned).
+6. Update own tests broken by moved controls: `IsometryGraph.test.tsx`, `IsometryLabels.test.tsx`, `IsometryLessonActions.host.test.tsx`, `isometryPresetCollection.test.tsx` (write through `graph.parameters.write(key, v, 'learner')` for pucks; see L11 note), and the isometries case in `*FirstTask.test.tsx` if any.
+7. Checks: `just graph-check isometries --route isometries`; `BEZEG_PARITY_GOLDEN_CHECK=1 BEZEG_PARITY_GOLDEN_ID=isometries just unit src/graphs/base/declare/parityGolden.test.tsx` (report differences: status/notes marker now present on the old panel, rows moving to cards; never re-record); `just unit src/graphs/isometry src/learning/content/isometriesFriezeGuidedLessons.test.ts src/learning/content/isometriesGuidedLessons.test.ts src/learning/content/isometriesRosetteGuidedLessons.test.ts src/learning/content/declarationContract src/localization src/graphs/base/declare`; tsc; `just lint <changed files>`; `just build`; `just smoke-lesson <lesson ids from the three lesson files> --port 4391 --workers=1` (update tests/guided-lessons.smoke.spec.cjs only for these rows if a control moved). Logs to `.command-logs/l13-*.log`.
+8. Watch for UntaggedWriteError in shared tests calling setters outside a write source (isometry-k/n/length/period); if so leave that parameter undeclared and report test:line and setter.
+
+## Placement judgements (decided, one line each)
+- k (similarity), n (rosette), number of mirrors (classify), period (frieze): bound count/range on the board (changed repeatedly with the figure in view).
+- Rosette mirrors switch and the four frieze features: switch pucks (flipped to compare the group / frieze type; each is on/off).
+- Mode (5 options), example, turn (6 options), point lists: Orodja (setup, over 4 options, points are also dragged).
+- Legend: one entry per drawn figure/image/mirror/centre/axis/vector, default place unchanged (bottom right).
+
+## Scratch
+`.command-logs/l13-record.log`, `.command-logs/l13-sample.txt` (already removed). Delete any `.command-logs/l13-*` left.
+
+## Round 6b (second worker): handoff at 135k, all but smoke done
+Done and observed: tsc clean (before last test-only edits); PuckOwned/PuckOwnedGroup wrapping and `data-declared-panel` on the readout group; `IsometryGraph.declaration.test.tsx` (renamed: graph-check wants the class name; 8 tests pass); frames with `declare` in the three lesson files (observation frames); own tests moved to `graph.parameters.write` / `performAction` / `learnerSet`; drag handler now `runAs('learner')` (IsometryGraph.tsx wireDrag); lint pass; unit (isometry, content, localization, declare) pass; graph-check: contract, parity, declaration pass, golden FAIL (expected: only `notes` of 12 states, golden [] vs now the status sentence; rows identical); build pass.
+Red check: `pressed: !rosetteMirrors` -> "a switch puck runs as the learner and shows pressed: expected false to be true"; reverted.
+Not done: `just smoke-lesson isometries --port 4391 --workers=1` (lesson id `isometries`); final `npx tsc --noEmit --pretty false` after the last test edits.
+Pucks per mode: mirrors 0, classify 1 (length), similarity 1 (k), rosette 2 (n, mirrors), frieze 5 (period + 4 features; more than 4: I would move the period back to Orodja, it is setup-like and the four features are the compared switches).
+Behaviour change: k puck uses stepRatio, so a typed 0 crosses to the nearer side instead of showing the field hint; counts/period clamp, no refusal for numbers.
+Lesson texts still say "polje" for n/k/period, now pucks (text not edited).
+Scratch: delete `.command-logs/l13-*`.

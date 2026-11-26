@@ -1,0 +1,853 @@
+{
+  "graph": "isometries",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (two mirrors, a rotation)",
+      "rows": [
+        {
+          "key": "Sestavljeno gibanje#0",
+          "label": "Sestavljeno gibanje",
+          "value": "vrtež"
+        },
+        {
+          "key": "Središče vrteža#0",
+          "label": "Središče vrteža",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Kot vrtenja (izračunano)#0",
+          "label": "Kot vrtenja (izračunano)",
+          "value": "53,13°"
+        },
+        {
+          "key": "Kot med zrcaloma (izračunano)#0",
+          "label": "Kot med zrcaloma (izračunano)",
+          "value": "26,57°"
+        },
+        {
+          "key": "Negibne točke#0",
+          "label": "Negibne točke",
+          "value": "ena"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "ohranjena"
+        },
+        {
+          "key": "Prvo oglišče po prvem zrcalu#0",
+          "label": "Prvo oglišče po prvem zrcalu",
+          "value": "(3; -1)"
+        },
+        {
+          "key": "Prvo oglišče na koncu#0",
+          "label": "Prvo oglišče na koncu",
+          "value": "(1; 3)"
+        }
+      ],
+      "notes": [
+        "Sestavljeno gibanje je vrtež; orientacija slike je ohranjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "slika 1",
+        "slika 2",
+        "središče",
+        "zrcalo 1",
+        "zrcalo 2"
+      ]
+    },
+    {
+      "name": "parallel mirrors (a translation)",
+      "rows": [
+        {
+          "key": "Sestavljeno gibanje#0",
+          "label": "Sestavljeno gibanje",
+          "value": "vzporedni premik"
+        },
+        {
+          "key": "Vektor premika#0",
+          "label": "Vektor premika",
+          "value": "(6; 0)"
+        },
+        {
+          "key": "Negibne točke#0",
+          "label": "Negibne točke",
+          "value": "nobene"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "ohranjena"
+        },
+        {
+          "key": "Prvo oglišče po prvem zrcalu#0",
+          "label": "Prvo oglišče po prvem zrcalu",
+          "value": "(-3; 1)"
+        },
+        {
+          "key": "Prvo oglišče na koncu#0",
+          "label": "Prvo oglišče na koncu",
+          "value": "(9; 1)"
+        }
+      ],
+      "notes": [
+        "Sestavljeno gibanje je vzporedni premik; orientacija slike je ohranjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "slika 1",
+        "slika 2",
+        "zrcalo 1",
+        "zrcalo 2"
+      ]
+    },
+    {
+      "name": "the same mirror twice (coincident)",
+      "rows": [
+        {
+          "key": "Sestavljeno gibanje#0",
+          "label": "Sestavljeno gibanje",
+          "value": "identiteta"
+        },
+        {
+          "key": "Negibne točke#0",
+          "label": "Negibne točke",
+          "value": "vse točke"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "ohranjena"
+        },
+        {
+          "key": "Prvo oglišče po prvem zrcalu#0",
+          "label": "Prvo oglišče po prvem zrcalu",
+          "value": "(3; -1)"
+        },
+        {
+          "key": "Prvo oglišče na koncu#0",
+          "label": "Prvo oglišče na koncu",
+          "value": "(3; 1)"
+        }
+      ],
+      "notes": [
+        "Sestavljeno gibanje je identiteta; orientacija slike je ohranjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "slika 1",
+        "slika 2",
+        "zrcalo 1",
+        "zrcalo 2"
+      ]
+    },
+    {
+      "name": "classify, rotation example",
+      "rows": [
+        {
+          "key": "Sestavljeno gibanje#0",
+          "label": "Sestavljeno gibanje",
+          "value": "vrtež"
+        },
+        {
+          "key": "Središče vrteža#0",
+          "label": "Središče vrteža",
+          "value": "(1; 2)"
+        },
+        {
+          "key": "Kot vrtenja (izračunano)#0",
+          "label": "Kot vrtenja (izračunano)",
+          "value": "90°"
+        },
+        {
+          "key": "Negibne točke#0",
+          "label": "Negibne točke",
+          "value": "ena"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "ohranjena"
+        },
+        {
+          "key": "Prvo oglišče po prvem zrcalu#0",
+          "label": "Prvo oglišče po prvem zrcalu",
+          "value": "(3; 3)"
+        },
+        {
+          "key": "Prvo oglišče na koncu#0",
+          "label": "Prvo oglišče na koncu",
+          "value": "(2; 4)"
+        }
+      ],
+      "notes": [
+        "Sestavljeno gibanje je vrtež; orientacija slike je ohranjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "slika 1",
+        "slika 2",
+        "središče",
+        "zrcalo 1",
+        "zrcalo 2"
+      ]
+    },
+    {
+      "name": "classify, glide example",
+      "rows": [
+        {
+          "key": "Sestavljeno gibanje#0",
+          "label": "Sestavljeno gibanje",
+          "value": "zrcalni zdrs (zrcaljenje in premik vzdolž osi)"
+        },
+        {
+          "key": "Os#0",
+          "label": "Os",
+          "value": "x - y = 0"
+        },
+        {
+          "key": "Vektor premika#0",
+          "label": "Vektor premika",
+          "value": "(2; 2)"
+        },
+        {
+          "key": "Negibne točke#0",
+          "label": "Negibne točke",
+          "value": "nobene"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "obrnjena"
+        },
+        {
+          "key": "Prvo oglišče po prvem zrcalu#0",
+          "label": "Prvo oglišče po prvem zrcalu",
+          "value": "(-1; -3)"
+        },
+        {
+          "key": "Prvo oglišče na koncu#0",
+          "label": "Prvo oglišče na koncu",
+          "value": "(3; 5)"
+        }
+      ],
+      "notes": [
+        "Sestavljeno gibanje je zrcalni zdrs (zrcaljenje in premik vzdolž osi); orientacija slike je obrnjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "os",
+        "slika 1",
+        "slika 2",
+        "slika 3",
+        "vektor premika",
+        "zrcalo 1",
+        "zrcalo 2",
+        "zrcalo 3"
+      ]
+    },
+    {
+      "name": "classify, reflection example",
+      "rows": [
+        {
+          "key": "Sestavljeno gibanje#0",
+          "label": "Sestavljeno gibanje",
+          "value": "zrcaljenje"
+        },
+        {
+          "key": "Os#0",
+          "label": "Os",
+          "value": "x - y = 1"
+        },
+        {
+          "key": "Negibne točke#0",
+          "label": "Negibne točke",
+          "value": "vse točke na eni premici"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "obrnjena"
+        },
+        {
+          "key": "Prvo oglišče po prvem zrcalu#0",
+          "label": "Prvo oglišče po prvem zrcalu",
+          "value": "(2; 2)"
+        },
+        {
+          "key": "Prvo oglišče na koncu#0",
+          "label": "Prvo oglišče na koncu",
+          "value": "(2; 2)"
+        }
+      ],
+      "notes": [
+        "Sestavljeno gibanje je zrcaljenje; orientacija slike je obrnjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "os",
+        "slika 1",
+        "zrcalo 1"
+      ]
+    },
+    {
+      "name": "similarity, default",
+      "rows": [
+        {
+          "key": "Razmerje dolžin#0",
+          "label": "Razmerje dolžin",
+          "value": "3/2 ≈ 1,5"
+        },
+        {
+          "key": "Razmerje ploščin#0",
+          "label": "Razmerje ploščin",
+          "value": "9/4 ≈ 2,25"
+        },
+        {
+          "key": "Ploščina lika in slike#0",
+          "label": "Ploščina lika in slike",
+          "value": "6 → 27/2 ≈ 13,5"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "ohranjena"
+        },
+        {
+          "key": "Negibna točka#0",
+          "label": "Negibna točka",
+          "value": "(1; 1)"
+        },
+        {
+          "key": "Izometrija#0",
+          "label": "Izometrija",
+          "value": "ne"
+        },
+        {
+          "key": "Slika oglišča 1#0",
+          "label": "Slika oglišča 1",
+          "value": "(-1/2 ≈ -0,5; -1/2 ≈ -0,5)"
+        }
+      ],
+      "notes": [
+        "Središčni razteg s središčem (1; 1) in razmerjem 1,5: dolžine se pomnožijo z 3/2 ≈ 1,5, ploščine z 9/4 ≈ 2,25."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$k$$",
+        "lik",
+        "slika 1",
+        "središče"
+      ]
+    },
+    {
+      "name": "similarity, k = 1 with a quarter turn (an isometry)",
+      "rows": [
+        {
+          "key": "Razmerje dolžin#0",
+          "label": "Razmerje dolžin",
+          "value": "1"
+        },
+        {
+          "key": "Razmerje ploščin#0",
+          "label": "Razmerje ploščin",
+          "value": "1"
+        },
+        {
+          "key": "Ploščina lika in slike#0",
+          "label": "Ploščina lika in slike",
+          "value": "6 → 6"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "ohranjena"
+        },
+        {
+          "key": "Negibna točka#0",
+          "label": "Negibna točka",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Izometrija#0",
+          "label": "Izometrija",
+          "value": "da"
+        },
+        {
+          "key": "Slika oglišča 1#0",
+          "label": "Slika oglišča 1",
+          "value": "(0; 0)"
+        }
+      ],
+      "notes": [
+        "Središčni razteg s središčem (0; 0) in razmerjem 1: dolžine se pomnožijo z 1, ploščine z 1. Dolžine ostanejo enake, zato je to izometrija: vrtež."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$k$$",
+        "lik",
+        "slika 1",
+        "središče"
+      ]
+    },
+    {
+      "name": "similarity, k = -2, Pythagorean turn",
+      "rows": [
+        {
+          "key": "Razmerje dolžin#0",
+          "label": "Razmerje dolžin",
+          "value": "2"
+        },
+        {
+          "key": "Razmerje ploščin#0",
+          "label": "Razmerje ploščin",
+          "value": "4"
+        },
+        {
+          "key": "Ploščina lika in slike#0",
+          "label": "Ploščina lika in slike",
+          "value": "6 → 24"
+        },
+        {
+          "key": "Orientacija slike#0",
+          "label": "Orientacija slike",
+          "value": "ohranjena"
+        },
+        {
+          "key": "Negibna točka#0",
+          "label": "Negibna točka",
+          "value": "(2; -1)"
+        },
+        {
+          "key": "Izometrija#0",
+          "label": "Izometrija",
+          "value": "ne"
+        },
+        {
+          "key": "Slika oglišča 1#0",
+          "label": "Slika oglišča 1",
+          "value": "(6; 1)"
+        }
+      ],
+      "notes": [
+        "Središčni razteg s središčem (2; -1) in razmerjem -2: dolžine se pomnožijo z 2, ploščine z 4."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$k$$",
+        "lik",
+        "slika 1",
+        "središče"
+      ]
+    },
+    {
+      "name": "rosette, default (C5)",
+      "rows": [
+        {
+          "key": "Grupa#0",
+          "label": "Grupa",
+          "value": "ciklična grupa C5"
+        },
+        {
+          "key": "Red grupe (število gibanj)#0",
+          "label": "Red grupe (število gibanj)",
+          "value": "5"
+        },
+        {
+          "key": "Število različnih slik točke (izračunano)#0",
+          "label": "Število različnih slik točke (izračunano)",
+          "value": "5"
+        },
+        {
+          "key": "Točka lika#0",
+          "label": "Točka lika",
+          "value": "(4; 1)"
+        },
+        {
+          "key": "Slika 1 (izračunano)#0",
+          "label": "Slika 1 (izračunano)",
+          "value": "(4; 1)"
+        },
+        {
+          "key": "Slika 2 (izračunano)#0",
+          "label": "Slika 2 (izračunano)",
+          "value": "(0,285; 4,1132)"
+        }
+      ],
+      "notes": [
+        "Rozeta: število gibanj je 5, število različnih slik točke je 5."
+      ],
+      "outputs": [],
+      "captions": [
+        "slika 1",
+        "slika 2",
+        "slika 3",
+        "slika 4",
+        "slika 5",
+        "središče",
+        "točka lika"
+      ]
+    },
+    {
+      "name": "rosette, D6 with another point",
+      "rows": [
+        {
+          "key": "Grupa#0",
+          "label": "Grupa",
+          "value": "diedrska grupa D6"
+        },
+        {
+          "key": "Red grupe (število gibanj)#0",
+          "label": "Red grupe (število gibanj)",
+          "value": "12"
+        },
+        {
+          "key": "Število različnih slik točke (izračunano)#0",
+          "label": "Število različnih slik točke (izračunano)",
+          "value": "12"
+        },
+        {
+          "key": "Točka lika#0",
+          "label": "Točka lika",
+          "value": "(2; 3)"
+        },
+        {
+          "key": "Slika 1 (izračunano)#0",
+          "label": "Slika 1 (izračunano)",
+          "value": "(2; 3)"
+        },
+        {
+          "key": "Slika 2 (izračunano)#0",
+          "label": "Slika 2 (izračunano)",
+          "value": "(2; -3)"
+        }
+      ],
+      "notes": [
+        "Rozeta: število gibanj je 12, število različnih slik točke je 12."
+      ],
+      "outputs": [],
+      "captions": [
+        "slika 1",
+        "slika 10",
+        "slika 11",
+        "slika 12",
+        "slika 2",
+        "slika 3",
+        "slika 4",
+        "slika 5",
+        "slika 6",
+        "slika 7",
+        "slika 8",
+        "slika 9",
+        "središče",
+        "točka lika"
+      ]
+    },
+    {
+      "name": "rosette, point on a mirror",
+      "rows": [
+        {
+          "key": "Grupa#0",
+          "label": "Grupa",
+          "value": "diedrska grupa D4"
+        },
+        {
+          "key": "Red grupe (število gibanj)#0",
+          "label": "Red grupe (število gibanj)",
+          "value": "8"
+        },
+        {
+          "key": "Število različnih slik točke (izračunano)#0",
+          "label": "Število različnih slik točke (izračunano)",
+          "value": "4"
+        },
+        {
+          "key": "Točka lika#0",
+          "label": "Točka lika",
+          "value": "(3; 0)"
+        },
+        {
+          "key": "Slika 1 (izračunano)#0",
+          "label": "Slika 1 (izračunano)",
+          "value": "(3; 0)"
+        },
+        {
+          "key": "Slika 2 (izračunano)#0",
+          "label": "Slika 2 (izračunano)",
+          "value": "(3; 0)"
+        }
+      ],
+      "notes": [
+        "Točka leži na zrcalu: število različnih slik je 4, število gibanj pa 8."
+      ],
+      "outputs": [],
+      "captions": [
+        "slika 1",
+        "slika 2",
+        "slika 3",
+        "slika 4",
+        "slika 5",
+        "slika 6",
+        "slika 7",
+        "slika 8",
+        "središče",
+        "točka lika"
+      ]
+    },
+    {
+      "name": "rosette, point at the centre",
+      "rows": [
+        {
+          "key": "Grupa#0",
+          "label": "Grupa",
+          "value": "diedrska grupa D4"
+        },
+        {
+          "key": "Red grupe (število gibanj)#0",
+          "label": "Red grupe (število gibanj)",
+          "value": "8"
+        },
+        {
+          "key": "Število različnih slik točke (izračunano)#0",
+          "label": "Število različnih slik točke (izračunano)",
+          "value": "1"
+        },
+        {
+          "key": "Točka lika#0",
+          "label": "Točka lika",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Slika 1 (izračunano)#0",
+          "label": "Slika 1 (izračunano)",
+          "value": "(0; 0)"
+        },
+        {
+          "key": "Slika 2 (izračunano)#0",
+          "label": "Slika 2 (izračunano)",
+          "value": "(0; 0)"
+        }
+      ],
+      "notes": [
+        "Točka je središče rozete: vsa gibanja jo ohranijo, zato je slika ena sama."
+      ],
+      "outputs": [],
+      "captions": [
+        "slika 1",
+        "slika 2",
+        "slika 3",
+        "slika 4",
+        "slika 5",
+        "slika 6",
+        "slika 7",
+        "slika 8",
+        "središče",
+        "točka lika"
+      ]
+    },
+    {
+      "name": "frieze, default",
+      "rows": [
+        {
+          "key": "Tip friza#0",
+          "label": "Tip friza",
+          "value": "p2"
+        },
+        {
+          "key": "Slik lika v periodi#0",
+          "label": "Slik lika v periodi",
+          "value": "2"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "4"
+        },
+        {
+          "key": "Navpično zrcalo#0",
+          "label": "Navpično zrcalo",
+          "value": "ne"
+        },
+        {
+          "key": "Vodoravno zrcalo#0",
+          "label": "Vodoravno zrcalo",
+          "value": "ne"
+        },
+        {
+          "key": "Vrtež za 180°#0",
+          "label": "Vrtež za 180°",
+          "value": "da"
+        },
+        {
+          "key": "Zrcalni zdrs#0",
+          "label": "Zrcalni zdrs",
+          "value": "ne"
+        }
+      ],
+      "notes": [
+        "Vzorec je tipa p2; število slik lika v eni periodi: 2."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "perioda 4",
+        "tip friza p2"
+      ]
+    },
+    {
+      "name": "frieze, both mirrors, period 6",
+      "rows": [
+        {
+          "key": "Tip friza#0",
+          "label": "Tip friza",
+          "value": "p2mm"
+        },
+        {
+          "key": "Slik lika v periodi#0",
+          "label": "Slik lika v periodi",
+          "value": "4"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "6"
+        },
+        {
+          "key": "Navpično zrcalo#0",
+          "label": "Navpično zrcalo",
+          "value": "da"
+        },
+        {
+          "key": "Vodoravno zrcalo#0",
+          "label": "Vodoravno zrcalo",
+          "value": "da"
+        },
+        {
+          "key": "Vrtež za 180°#0",
+          "label": "Vrtež za 180°",
+          "value": "da"
+        },
+        {
+          "key": "Zrcalni zdrs#0",
+          "label": "Zrcalni zdrs",
+          "value": "ne"
+        }
+      ],
+      "notes": [
+        "Vzorec je tipa p2mm; število slik lika v eni periodi: 4."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "perioda 6",
+        "tip friza p2mm"
+      ]
+    },
+    {
+      "name": "frieze, glide only",
+      "rows": [
+        {
+          "key": "Tip friza#0",
+          "label": "Tip friza",
+          "value": "p11g"
+        },
+        {
+          "key": "Slik lika v periodi#0",
+          "label": "Slik lika v periodi",
+          "value": "2"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "6"
+        },
+        {
+          "key": "Navpično zrcalo#0",
+          "label": "Navpično zrcalo",
+          "value": "ne"
+        },
+        {
+          "key": "Vodoravno zrcalo#0",
+          "label": "Vodoravno zrcalo",
+          "value": "ne"
+        },
+        {
+          "key": "Vrtež za 180°#0",
+          "label": "Vrtež za 180°",
+          "value": "ne"
+        },
+        {
+          "key": "Zrcalni zdrs#0",
+          "label": "Zrcalni zdrs",
+          "value": "da"
+        }
+      ],
+      "notes": [
+        "Vzorec je tipa p11g; število slik lika v eni periodi: 2."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "perioda 6",
+        "tip friza p11g"
+      ]
+    },
+    {
+      "name": "frieze, nothing chosen",
+      "rows": [
+        {
+          "key": "Tip friza#0",
+          "label": "Tip friza",
+          "value": "p1"
+        },
+        {
+          "key": "Slik lika v periodi#0",
+          "label": "Slik lika v periodi",
+          "value": "1"
+        },
+        {
+          "key": "Perioda#0",
+          "label": "Perioda",
+          "value": "6"
+        },
+        {
+          "key": "Navpično zrcalo#0",
+          "label": "Navpično zrcalo",
+          "value": "ne"
+        },
+        {
+          "key": "Vodoravno zrcalo#0",
+          "label": "Vodoravno zrcalo",
+          "value": "ne"
+        },
+        {
+          "key": "Vrtež za 180°#0",
+          "label": "Vrtež za 180°",
+          "value": "ne"
+        },
+        {
+          "key": "Zrcalni zdrs#0",
+          "label": "Zrcalni zdrs",
+          "value": "ne"
+        }
+      ],
+      "notes": [
+        "Vzorec je tipa p1; število slik lika v eni periodi: 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "lik",
+        "perioda 6",
+        "tip friza p1"
+      ]
+    }
+  ]
+}

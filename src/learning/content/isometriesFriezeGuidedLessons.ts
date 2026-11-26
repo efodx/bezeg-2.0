@@ -7,9 +7,12 @@
  */
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {IsometryIds} from '../../graphs/isometry/IsometryGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<IsometryIds>();
 
 interface StepContent {
     readonly id: string;
@@ -21,11 +24,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and asks the learner to use (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation', declare)],
 });
 
 /** What a scene sets: which of the four features are ticked and the period (an integer 4 to 8). */
@@ -101,6 +106,7 @@ const formulas: readonly FormulaBlock[] = [
 const steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l5-half-turn', order: 1,
+        declare: f({highlight: ['type', 'copies'], uses: ['feature-halfTurn']}),
         title: text('Vrtež za 180° v frizu', 'A half-turn in a frieze'),
         purpose: text('Napovedati število slik lika v periodi in lego središč vrtežev, ko ima vzorec le vrtež za 180°.', 'Predicting the number of images of the figure per period and the positions of the half-turn centres when the pattern has only a half-turn.'),
         explanation: text(
@@ -124,6 +130,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-glide-mirror', order: 2,
+        declare: f({highlight: ['type', 'copies', 'has-vertical'], uses: ['feature-vertical']}),
         title: text('Zrcalni zdrs in navpično zrcalo', 'Glide reflection and vertical mirror'),
         purpose: text('Napovedati, kaj nastane, če zrcalnemu zdrsu dodamo navpično zrcalo.', 'Predicting what appears when a vertical mirror is added to a glide reflection.'),
         explanation: text(
@@ -147,6 +154,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-two-mirrors', order: 3,
+        declare: f({highlight: ['type', 'copies', 'has-halfTurn'], uses: ['feature-horizontal']}),
         title: text('Navpično in vodoravno zrcalo', 'Vertical and horizontal mirror'),
         purpose: text('Napovedati, kaj nastane iz dveh zrcal, ki sta pravokotni drugo na drugo.', 'Predicting what two mutually perpendicular mirrors produce.'),
         explanation: text(
@@ -170,6 +178,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-shorter-period', order: 4,
+        declare: f({highlight: ['type', 'period'], uses: ['feature-glide']}),
         title: text('Zrcalni zdrs in vodoravno zrcalo', 'Glide reflection and horizontal mirror'),
         purpose: text('Napovedati, kaj se zgodi, ko zrcalu v črti vzorca dodamo zrcalni zdrs.', 'Predicting what happens when a glide reflection is added to a mirror in the line of the pattern.'),
         explanation: text(
@@ -193,6 +202,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-seven-types', order: 5,
+        declare: f({highlight: ['type'], uses: ['feature-vertical', 'feature-horizontal', 'feature-halfTurn']}),
         title: text('Sedem tipov frizov', 'The seven frieze types'),
         purpose: text('Napovedati, katere kljukice dajo dva imenovana tipa, in spoznati, da so tipi frizov natanko sedem.', 'Predicting which ticks give two named types and meeting the fact that there are exactly seven frieze types.'),
         explanation: text(
@@ -216,6 +226,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-free', order: 6,
+        declare: f({highlight: ['type', 'period']}),
         title: text('Prosto raziskovanje', 'Try for yourself'),
         purpose: text('Sami preizkusiti kombinacije kljukic in periodo ter prebrati tip friza.', 'Trying the combinations of ticks and the period yourself and reading the frieze type.'),
         explanation: text(

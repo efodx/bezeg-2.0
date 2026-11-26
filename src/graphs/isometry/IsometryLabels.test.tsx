@@ -1,4 +1,5 @@
 import React from 'react';
+import {runAs} from '../base/writes/writeSource';
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
@@ -8,6 +9,10 @@ import {sampleLine, type PxBox} from '../legend/boardLabelPlacement';
 import {CLASSIFY_EXAMPLES, DEFAULT_ISOMETRY_STATE, type IsometryState} from '../../isometry/isometryModel';
 import {AxisSelect} from '../base/DisplaySettings';
 import {IsometryGraph} from './IsometryGraph';
+
+/** A test stands in for the learner when it writes the scene directly (a bound parameter must have a write source). */
+const learnerSet = (graph: {setState(update: Partial<IsometryState>): void}, update: Partial<IsometryState>) => runAs('learner', () => graph.setState(update));
+
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -40,7 +45,7 @@ const overlaps = (a: PxBox, b: PxBox) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.
 function mountScene(scene: Partial<IsometryState>) {
     const graph = new Probe();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-    act(() => { graph.setState(scene); });
+    act(() => { learnerSet(graph, scene); });
     act(() => { graph.liveBoard().update(); });
     act(() => { graph.liveBoard().update(); });
     return graph;
@@ -146,7 +151,7 @@ describe('IsometryGraph name ownership and the coordinate infobox', () => {
         const worst: string[] = [];
         const graph = mountScene({mode: 'similarity'});
         for (const x of [-6, -2, 0, 3, 7]) for (const y of [-5, 0, 2, 6]) for (const k of [2, -0.5, 1]) {
-            act(() => { graph.setState({dilationCentre: {x, y}, dilationK: k}); });
+            act(() => { learnerSet(graph, {dilationCentre: {x, y}, dilationK: k}); });
             act(() => { graph.liveBoard().update(); });
             const r = centreGap({}, graph);
             if (r.gap > 38 || !r.owned) worst.push(`centre (${x}, ${y}) k ${k}: ${Math.round(r.gap)} px, owned ${r.owned}`);
@@ -164,7 +169,7 @@ describe('IsometryGraph name ownership and the coordinate infobox', () => {
         const graph = new Probe();
         render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
         act(() => { graph.setAxisSelect(AxisSelect.NONE); });
-        act(() => { graph.setState(SCENES.twoMirrors); });
+        act(() => { learnerSet(graph, SCENES.twoMirrors); });
         act(() => { graph.liveBoard().update(); });
         act(() => { graph.liveBoard().update(); });
         const r = centreGap({}, graph);

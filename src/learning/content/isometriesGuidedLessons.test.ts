@@ -449,8 +449,8 @@ describe('L3 (batch B)', () => {
         }
     });
 
-    test('the edge case k=0 says the field does not accept it, and the summary no longer carries the negative-ratio half-turn', () => {
-        expect(lesson.edgeCases.some(t => t.sl.includes('k=0') && t.sl.includes('polje ga ne sprejme') && t.en.includes('the field does not accept it'))).toBe(true);
+    test('the edge case k=0 says it cannot be chosen, and the summary no longer carries the negative-ratio half-turn', () => {
+        expect(lesson.edgeCases.some(t => t.sl.includes('k=0') && t.sl.includes('ni mogoče izbrati') && t.en.includes('cannot be chosen'))).toBe(true);
         expect({sl: /polobrat/.test(lesson.summary.sl), en: /half-turn/.test(lesson.summary.en)}).toEqual({sl: false, en: false});
     });
 

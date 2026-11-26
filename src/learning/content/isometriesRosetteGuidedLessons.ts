@@ -6,9 +6,12 @@
  */
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {IsometryIds} from '../../graphs/isometry/IsometryGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<IsometryIds>();
 
 interface StepContent {
     readonly id: string;
@@ -20,11 +23,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and asks the learner to use (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation', declare)],
 });
 
 /** What a scene sets: the number of rotations n, whether the mirrors are on, and the point of the figure (grid coordinates). */
@@ -99,6 +104,7 @@ const formulas: readonly FormulaBlock[] = [
 const steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l4-rotations', order: 1,
+        declare: f({highlight: ['group', 'order', 'distinct'], uses: ['isometry-n']}),
         title: text('Vrtenje okoli središča', 'Rotating about the centre'),
         purpose: text('Napovedati število gibanj in slik pri rozeti brez zrcal, preden ga odčitamo.', 'Predicting the numbers of motions and images of a rosette without mirrors before reading them.'),
         explanation: text(
@@ -107,8 +113,8 @@ const steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['rosette-rotation'],
         observationPrompt: text(
-            'Zapiši napoved z razlogom. Nato v polju Število vrtežev n nastavi 5 in primerjaj z besedilom v odčitkih ter z vrsticami Grupa, Red grupe (število gibanj) in Število različnih slik točke (izračunano).',
-            'Write down your prediction with the reason. Then set the field Number of rotations n to 5 and compare with the text in the readouts and with the rows Group, Order of the group (number of motions) and Distinct images of the point (computed).',
+            'Zapiši napoved z razlogom. Nato nastavi Število vrtežev n na 5 in primerjaj z besedilom v odčitkih ter z vrsticami Grupa, Red grupe (število gibanj) in Število različnih slik točke (izračunano).',
+            'Write down your prediction with the reason. Then set Number of rotations n to 5 and compare with the text in the readouts and with the rows Group, Order of the group (number of motions) and Distinct images of the point (computed).',
         ),
         expectedObservations: [
             text(
@@ -122,6 +128,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-mirrors', order: 2,
+        declare: f({highlight: ['group', 'order'], uses: ['rosette-mirrors']}),
         title: text('Rozeta z zrcali', 'A rosette with mirrors'),
         purpose: text('Napovedati število gibanj in navadnih ter zrcaljenih slik, ko rozeta dobi zrcala.', 'Predicting the number of motions and of direct and mirrored images when the rosette gets mirrors.'),
         explanation: text(
@@ -145,6 +152,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-on-mirror', order: 3,
+        declare: f({highlight: ['distinct']}),
         title: text('Točka na zrcalu in središče', 'A point on a mirror and the centre'),
         purpose: text('Napovedati, koliko različnih slik ima točka na zrcalu in točka v središču, in v središču.', 'Predicting how many distinct images a point on a mirror and the point at the centre have.'),
         explanation: text(
@@ -168,6 +176,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-free', order: 4,
+        declare: f({highlight: ['order', 'distinct'], uses: ['isometry-n', 'rosette-mirrors']}),
         title: text('Prosto raziskovanje', 'Try for yourself'),
         purpose: text('Sami primerjati red grupe s številom različnih slik pri različnih \\(n\\) in legah točke.', 'Comparing the order of the group with the number of distinct images for different values of \\(n\\) and positions of the point.'),
         explanation: text(

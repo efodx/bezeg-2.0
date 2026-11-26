@@ -7,9 +7,12 @@
  */
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {IsometryIds} from '../../graphs/isometry/IsometryGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<IsometryIds>();
 
 interface StepContent {
     readonly id: string;
@@ -22,14 +25,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and asks the learner to use (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -119,6 +124,7 @@ const l1Examples: readonly WorkedExample[] = [
 const l1Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l1-first-image', order: 1,
+        declare: f({highlight: ['first-image']}),
         title: text('Napoved prve slike', 'Predicting the first image'),
         purpose: text('Napovedati sliko oglišča v prvem zrcalu, preden jo odčitamo.', 'Predicting the image of a vertex in the first mirror before reading it.'),
         explanation: text(
@@ -134,6 +140,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-second-image', order: 2,
+        declare: f({highlight: ['composite', 'centre', 'angle']}),
         title: text('Druga slika in sestavljeno gibanje', 'The second image and the composite motion'),
         purpose: text('Videti, da dve zrcaljenji skupaj dasta vrtež.', 'Seeing that two reflections together make a rotation.'),
         explanation: text(
@@ -150,6 +157,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-turn-mirror', order: 3,
+        declare: f({highlight: ['angle', 'last-image']}),
         title: text('Zasuk drugega zrcala', 'Turning the second mirror'),
         purpose: text('Napovedati, kam se sestavljeno gibanje premakne, ko drugo zrcalo zavrtimo.', 'Predicting how the composite motion changes when the second mirror is turned.'),
         explanation: text(
@@ -165,6 +173,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-parallel', order: 4,
+        declare: f({highlight: ['composite', 'vector']}),
         title: text('Vzporedni zrcali', 'Parallel mirrors'),
         purpose: text('Videti, da vzporedni zrcali dasta vzporedni premik.', 'Seeing that parallel mirrors make a translation.'),
         explanation: text(
@@ -180,6 +189,7 @@ const l1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l1-free', order: 5,
+        declare: f({highlight: ['composite', 'angle']}),
         title: text('Vrstni red zrcal', 'The order of the mirrors'),
         purpose: text('Videti, da zamenjava zrcal obrne smer vrteža, in preizkusiti lastna zrcala.', 'Seeing that swapping the mirrors reverses the direction of the rotation, and trying mirrors of your own.'),
         explanation: text(
@@ -250,6 +260,7 @@ const l2Examples: readonly WorkedExample[] = [
 const l2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l2-reflection', order: 1,
+        declare: f({highlight: ['orientation', 'fixed']}),
         title: text('Napoved orientacije pri enem zrcalu', 'Predicting the orientation after one mirror'),
         purpose: text('Napovedati, ali zrcaljenje ohrani zaporedje oglišč v nasprotni smeri urnega kazalca.', 'Predicting whether a reflection keeps the vertices in counterclockwise order.'),
         explanation: text(
@@ -265,6 +276,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-two-mirrors', order: 2,
+        declare: f({highlight: ['centre', 'angle', 'fixed']}),
         title: text('Dve zrcali sta vrtež', 'Two mirrors make a rotation'),
         purpose: text('Videti, da dve zrcali, ki se sekata, ohranita orientacijo in imata eno negibno točko.', 'Seeing that two mirrors that meet keep the orientation and have one fixed point.'),
         explanation: text(
@@ -281,6 +293,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-three-mirrors', order: 3,
+        declare: f({highlight: ['composite', 'axis', 'vector']}),
         title: text('Tri zrcala dajo zrcalni zdrs', 'Three mirrors make a glide reflection'),
         purpose: text('Videti, da tri zrcala lahko dajo zrcaljenje s premikom vzdolž osi.', 'Seeing that three mirrors can make a reflection with a translation along the axis.'),
         explanation: text(
@@ -297,6 +310,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-fixed-points', order: 4,
+        declare: f({highlight: ['orientation', 'fixed']}),
         title: text('Negibne točke razkrijejo razred', 'Fixed points reveal the class'),
         purpose: text('Razločiti štiri razrede po orientaciji in negibnih točkah.', 'Telling the four classes apart by orientation and fixed points.'),
         explanation: text(
@@ -312,6 +326,7 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l2-free', order: 5,
+        declare: f({highlight: ['composite']}),
         title: text('Tri zrcala skozi isto točko', 'Three mirrors through one point'),
         purpose: text('Preizkusiti lastna zrcala in videti, da tri zrcala niso vedno zrcalni zdrs.', 'Trying mirrors of your own and seeing that three mirrors are not always a glide reflection.'),
         explanation: text(
@@ -389,6 +404,7 @@ const l3Examples: readonly WorkedExample[] = [
 const l3Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l3-image', order: 1,
+        declare: f({highlight: ['image-1']}),
         title: text('Napoved slike oglišča', 'Predicting the image of a vertex'),
         purpose: text('Napovedati sliko oglišča pri raztegu, preden jo odčitamo.', 'Predicting the image of a vertex under a dilation before reading it.'),
         explanation: text(
@@ -404,6 +420,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-ratio', order: 2,
+        declare: f({highlight: ['side-ratio', 'area-ratio', 'area']}),
         title: text('Razmerje \\(k\\) in ploščine', 'The ratio \\(k\\) and the areas'),
         purpose: text('Videti, kako razteg spremeni dolžine in ploščine.', 'Seeing how a dilation changes lengths and areas.'),
         explanation: text(
@@ -419,6 +436,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-negative', order: 3,
+        declare: f({highlight: ['image-1', 'side-ratio', 'orientation']}),
         title: text('Negativno razmerje', 'A negative ratio'),
         purpose: text('Videti, kam gre slika pri negativnem \\(k\\) in kaj se zgodi z orientacijo.', 'Seeing where the image goes for a negative \\(k\\) and what happens to the orientation.'),
         explanation: text(
@@ -434,6 +452,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-similarity', order: 4,
+        declare: f({highlight: ['fixed', 'side-ratio', 'image-1']}),
         title: text('Razteg in vrtež sta podobnost', 'A dilation and a rotation make a similarity'),
         purpose: text('Videti, kaj se zgodi z negibno točko, ko raztegu dodamo vrtež okoli središča.', 'Seeing what happens to the fixed point when a rotation about the centre is added to the dilation.'),
         explanation: text(
@@ -450,6 +469,7 @@ const l3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l3-free', order: 5,
+        declare: f({highlight: ['isometry', 'fixed'], uses: ['isometry-k']}),
         title: text('Kdaj je razteg izometrija?', 'When is a dilation an isometry?'),
         purpose: text('Sami poiskati razmerja, pri katerih razteg ohrani dolžine.', 'Finding for yourself the ratios at which a dilation keeps lengths.'),
         explanation: text(
@@ -557,7 +577,7 @@ const l3: GuidedLesson = {
     edgeCases: [
         text('Pri \\(k=1\\) je razteg identiteta: negibne so vse točke ravnine.', 'For \\(k=1\\) the dilation is the identity: every point of the plane is fixed.'),
         text('Pri \\(k=-1\\) je razteg polobrat okoli središča: izometrija z eno negibno točko.', 'For \\(k=-1\\) the dilation is a half-turn about the centre: an isometry with one fixed point.'),
-        text('Razmerje \\(k=0\\) ni razteg; polje ga ne sprejme. Razmerje je večkratnik števila \\(1/4\\) z \\(|k|\\le4\\).', 'The ratio \\(k=0\\) is not a dilation; the field does not accept it. The ratio is a multiple of \\(1/4\\) with \\(|k|\\le4\\).'),
+        text('Razmerje \\(k=0\\) ni razteg, zato ga ni mogoče izbrati. Razmerje je večkratnik števila \\(1/4\\) z \\(|k|\\le4\\).', 'The ratio \\(k=0\\) is not a dilation, so it cannot be chosen. The ratio is a multiple of \\(1/4\\) with \\(|k|\\le4\\).'),
         text('Slike lahko ležijo zunaj prikazanega dela ravnine; graf to sporoči in lahko oddaljiš pogled.', 'Images can lie outside the visible part of the plane; the graph says so and you can zoom out.'),
     ],
     unresolvedQuestions: [],

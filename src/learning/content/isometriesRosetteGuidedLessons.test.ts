@@ -5,7 +5,7 @@
  * Part B (below): the numbers are recomputed with plain trigonometry, independent of src/isometry.
  */
 import React from 'react';
-import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
+import {act, cleanup, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
@@ -115,7 +115,6 @@ const view = () => ({status: status(), group: readout('group'), order: readout('
 const type = (label: string, value: string) => act(() => {
     enterNumber(screen.getByRole('spinbutton', {name: name => name.replace(/, (vrednost|value)$/, '') === label}) as HTMLInputElement, value);
 });
-const toggle = (label: string) => act(() => { fireEvent.click(screen.getByLabelText(label)); });
 
 // ---- Part A ----------------------------------------------------------------------------------------------------------------------------
 
@@ -160,8 +159,9 @@ describe('L4 rosettes, part A: scenes, labels, learner actions and predictions',
             }
         }
         // The count field, the mirrors switch and the point fields carry the names the prompts use.
-        expect(screen.getByRole('spinbutton', {name: name => name.startsWith(catalog.isometry_graph_n_label)})).toBeTruthy();
-        expect(screen.getByLabelText(catalog.isometry_graph_rosette_mirrors_label)).toBeTruthy();
+        // n and the mirrors switch are declared pucks (their Orodja controls are left out); the declaration carries the names.
+        expect(m.graph.getDeclaration()!.parameters!.map(entry => entry.key)).toContain('isometry-n');
+        expect(m.graph.getDeclaration()!.actions!.map(action => action.id)).toContain('rosette-mirrors');
         expect(screen.getByRole('spinbutton', {name: name => name.startsWith('P, x')})).toBeTruthy();
         expect(document.body.textContent).toContain(catalog.isometry_graph_point_title);
     });
@@ -181,18 +181,16 @@ describe('L4 rosettes, part A: scenes, labels, learner actions and predictions',
     });
 
     test.each(LANGUAGES)('[%s] the learner actions the text asks for give the quoted statuses and rows', language => {
-        const nLabel = (language === 'sl' ? sl : en).isometry_graph_n_label;
-        const mirrorsLabel = (language === 'sl' ? sl : en).isometry_graph_rosette_mirrors_label;
         const m = mount(language);
         // Step 1: n -> 5, C5 with 5 motions and 5 images, image 2 about (0.285, 4.1132).
         runScene(m, 'l4-rotations');
-        type(nLabel, '5');
+        act(() => { m.graph.parameters!.write('isometry-n', 5, 'learner'); }); // n is a puck on the board (task 08); its Orodja field is gone
         expect(view()).toEqual(expectedView(language, 5, false, [4, 1]));
         expect(readout('group')).toBe(language === 'sl' ? 'ciklična grupa C5' : 'cyclic group C5');
         expect(readout('image-2')).toBe(language === 'sl' ? '(0,285; 4,1132)' : '(0.285, 4.1132)');
         // Step 2: mirrors on, D5 with 10 motions and 10 images.
         runScene(m, 'l4-mirrors');
-        toggle(mirrorsLabel);
+        act(() => m.graph.performAction('rosette-mirrors')); // the mirrors switch is a puck too
         expect(view()).toEqual(expectedView(language, 5, true, [4, 1]));
         expect(readout('group')).toBe(language === 'sl' ? 'diedrska grupa D5' : 'dihedral group D5');
         expect([readout('order'), readout('distinct')]).toEqual(['10', '10']);

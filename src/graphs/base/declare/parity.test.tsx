@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import type {DemonstrationId} from '../../../demonstrations';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../realGraphTestHarness';
+import {CLASSIFY_EXAMPLES} from '../../../isometry/isometryModel';
 import {createGraph} from '../createTestGraph';
 import {runAs} from '../writes/writeSource';
 import {message, messageNumber, renderMessage} from '../../../localization';
@@ -52,6 +53,10 @@ const phaseAccepted: readonly AcceptedDifference[] = [
 
 const extractionAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its readouts (it carries no readout marker, so the recording holds none)'},
+];
+
+const isometriesAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the readout help carries the approximation line the old panel showed under its rows (it carries no readout marker, so the recording holds none)'},
 ];
 
 const nurbsAccepted: readonly AcceptedDifference[] = [
@@ -557,6 +562,32 @@ const SAMPLES: readonly Sample[] = [
             {name: 'decay default', apply: scene({...base, view: 'decay'})},
             {name: 'decay N 3, other examples', apply: scene({...base, view: 'decay', n: 3, selections: ['sawtooth', 'jump', 'abs']})},
             {name: 'decay N 40 log', apply: scene({...base, view: 'decay', n: 40, scale: 'log'})},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'isometry/__parity__/isometries.json', demonstration: 'isometries', accepted: isometriesAccepted, states: (() => {
+        type Iso = {setState(state: Record<string, unknown>): void};
+        const at = (x: number, y: number) => ({x, y});
+        const line = (px: number, py: number, qx: number, qy: number) => ({p: at(px, py), q: at(qx, qy)});
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Iso).setState(state)); };
+        const classify = (id: 'rotation' | 'glide' | 'reflection') => ({mode: 'classify', ...CLASSIFY_EXAMPLES[id]});
+        return [
+            {name: 'default (two mirrors, a rotation)', apply: () => undefined},
+            {name: 'parallel mirrors (a translation)', apply: run({mode: 'mirrors', mirrors: [line(0, 0, 0, 1), line(3, 0, 3, 1), line(0, 0, 1, 1)]})},
+            {name: 'the same mirror twice (coincident)', apply: run({mode: 'mirrors', mirrors: [line(0, 0, 1, 0), line(0, 0, 1, 0), line(0, 0, 1, 1)]})},
+            {name: 'classify, rotation example', apply: run(classify('rotation'))},
+            {name: 'classify, glide example', apply: run(classify('glide'))},
+            {name: 'classify, reflection example', apply: run(classify('reflection'))},
+            {name: 'similarity, default', apply: run({mode: 'similarity'})},
+            {name: 'similarity, k = 1 with a quarter turn (an isometry)', apply: run({mode: 'similarity', dilationK: 1, dilationTurn: 'r90', dilationCentre: at(0, 0)})},
+            {name: 'similarity, k = -2, Pythagorean turn', apply: run({mode: 'similarity', dilationK: -2, dilationTurn: 'pythagorean', dilationCentre: at(2, -1)})},
+            {name: 'rosette, default (C5)', apply: run({mode: 'rosette'})},
+            {name: 'rosette, D6 with another point', apply: run({mode: 'rosette', rosetteN: 6, rosetteMirrors: true, rosettePoint: at(2, 3)})},
+            {name: 'rosette, point on a mirror', apply: run({mode: 'rosette', rosetteN: 4, rosetteMirrors: true, rosettePoint: at(3, 0)})},
+            {name: 'rosette, point at the centre', apply: run({mode: 'rosette', rosettePoint: at(0, 0)})},
+            {name: 'frieze, default', apply: run({mode: 'frieze'})},
+            {name: 'frieze, both mirrors, period 6', apply: run({mode: 'frieze', friezePeriod: 6, friezeFeatures: {vertical: true, horizontal: true, halfTurn: false, glide: false}})},
+            {name: 'frieze, glide only', apply: run({mode: 'frieze', friezeFeatures: {vertical: false, horizontal: false, halfTurn: false, glide: true}})},
+            {name: 'frieze, nothing chosen', apply: run({mode: 'frieze', friezeFeatures: {vertical: false, horizontal: false, halfTurn: false, glide: false}})},
         ] satisfies ParityState[];
     })()},
     {file: 'dynamics/__parity__/phase-portrait.json', demonstration: 'phase-portrait', accepted: phaseAccepted, states: [
