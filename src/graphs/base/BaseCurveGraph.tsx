@@ -239,7 +239,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     private structuredPointControls(curve: EditableCurve): React.ReactNode {
         return <CurvePointControls key={`points-${this.jxgCurves.indexOf(curve)}-${this.replacementRevision}`}
             points={() => curve.getCurve().getPoints()} curveNumber={this.listedCurveNumber(curve)} boards={() => [this.board]}
-            onEdit={(_, to) => this.afterTypedPointEdit(to)}
+            onEdit={(_, to) => this.afterTypedPointEdit(to)} parityRetained={this.declaresCurveWorkspace()}
             collection={{label: t("control_points"), onAdd: at => this.addTypedPoint(curve, at), onRemove: () => this.removePointAt(curve, -1),
                 onRemoveAt: index => this.removePointAt(curve, index)}}/>;
     }
@@ -310,7 +310,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
                 {this.workspaceCurveSelection()}
                 {this.workspaceAfterCurveSelection()}
                 {typed && <CurvePointControls key={`points-${this.jxgCurves.indexOf(typed)}-${this.replacementRevision}`}
-                    points={() => this.typedPointsOf(typed)} curveNumber={this.listedCurveNumber(typed)} boards={() => [this.board]} onEdit={(_, to) => this.afterTypedPointEdit(to)}/>}
+                    points={() => this.typedPointsOf(typed)} curveNumber={this.listedCurveNumber(typed)} boards={() => [this.board]} onEdit={(_, to) => this.afterTypedPointEdit(to)} parityRetained={this.declaresCurveWorkspace()}/>}
                 {this.workspaceCommandsAfterConstruction()}</>;
         }
         const selected = this.getSelectedCurve();

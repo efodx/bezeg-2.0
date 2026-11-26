@@ -43,6 +43,8 @@ export interface CurvePointControlsProps {
     onEdit: (index: number, to: readonly [number, number]) => void;
     /** Present when the number of points can change; the PH hodograph has none. */
     collection?: CurvePointCollectionActions & {label: string};
+    /** The graph declares the curve workspace: this editor stays in Orodja and its read-offs (the count) are not parity material. */
+    parityRetained?: boolean;
 }
 
 /**
@@ -61,7 +63,7 @@ export function CurvePointControls(props: CurvePointControlsProps) {
     }, [boards]);
     const points = props.points().map(point => [point.X(), point.Y()] as const);
     const {collection} = props;
-    return <div className="inspector-group curve-point-controls">
+    return <div className="inspector-group curve-point-controls" data-parity-retained={props.parityRetained ? '' : undefined}>
         {collection && <PointCollection label={collection.label} count={points.length} min={CURVE_POINTS_MIN} max={CURVE_POINTS_MAX}
                                         onAdd={collection.onAdd} removal={{kind: "last", onRemove: collection.onRemove}}
                                         typedEntry={{axisLabels: ["x", "y"], min: -CURVE_COORDINATE_LIMIT, max: CURVE_COORDINATE_LIMIT}}/>}

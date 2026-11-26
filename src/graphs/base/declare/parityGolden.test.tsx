@@ -29,7 +29,7 @@ const only = process.env.BEZEG_PARITY_GOLDEN_ID?.split(' ').filter(Boolean);
 
 const srcRoot = path.resolve(__dirname, '../../..');
 const partition = JSON.parse(fs.readFileSync(path.resolve(srcRoot, '../docs/reviews/ux-picks-app-wide/inventory/08-partition.json'), 'utf8')) as
-    {lanes: {demonstrations: string[]; graphFiles: string[]}[]; done?: {demonstrations: string[]}[]};
+    {declared?: string[]; lanes: {demonstrations: string[]; graphFiles: string[]}[]; done?: {demonstrations: string[]}[]};
 
 /** The directory (under src) a demonstration's golden file goes to: that of the lane graph file named most like it. */
 function goldenDir(id: string, graphFiles: string[]): string {
@@ -86,7 +86,9 @@ function differences(golden: ParityRecording, now: ParityRecording): string {
 const ids = partition.lanes.flatMap(lane => lane.demonstrations.map(id => ({id: id as DemonstrationId, graphFiles: lane.graphFiles})))
     .filter(entry => !only || only.includes(entry.id));
 /** Lanes already carried out leave `lanes` for `done`: their golden files are still checked (there are no graph files to record from). */
-const doneIds = (partition.done ?? []).flatMap(lane => lane.demonstrations.map(id => ({id: id as DemonstrationId})))
+const doneIds = [...(partition.done ?? []).flatMap(lane => lane.demonstrations), ...(partition.declared ?? [])]
+    .filter((id, index, all) => all.indexOf(id) === index && !ids.some(entry => entry.id === id))
+    .map(id => ({id: id as DemonstrationId}))
     .filter(entry => !only || only.includes(entry.id));
 
 describe.skipIf(!recordMode)('golden record (BEZEG_PARITY_GOLDEN_RECORD=1)', () => {
