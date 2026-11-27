@@ -66,12 +66,7 @@
       ],
       "outputs": [],
       "captions": [
-        "N = 5",
-        "aₙ = 1/n",
-        "certifikat: skrit",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 1, v pasu: 0",
-        "ε = 0,1, L = 0, N = 5"
+        "N = 5"
       ]
     },
     {
@@ -138,12 +133,7 @@
       ],
       "outputs": [],
       "captions": [
-        "N = 5",
-        "aₙ = 1/n",
-        "certifikat: skrit",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 12, v pasu: 8",
-        "ε = 0,25, L = 0, N = 5"
+        "N = 5"
       ]
     },
     {
@@ -209,14 +199,7 @@
         "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
       ],
       "outputs": [],
-      "captions": [
-        "N = 11",
-        "aₙ = 1/n",
-        "certifikat: N deluje",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 12, v pasu: 2",
-        "ε = 0,1, L = 0, N = 11"
-      ]
+      "captions": []
     },
     {
       "name": "sequence-guided/sequence-small-epsilon-step",
@@ -282,12 +265,7 @@
       ],
       "outputs": [],
       "captions": [
-        "N = 5",
-        "aₙ = 1/n",
-        "certifikat: skrit",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 40, v pasu: 0",
-        "ε = 0,01, L = 0, N = 5"
+        "N = 5"
       ]
     },
     {
@@ -354,12 +332,7 @@
       ],
       "outputs": [],
       "captions": [
-        "N = 5",
-        "aₙ = (-1)ⁿ/n",
-        "certifikat: skrit",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 12, v pasu: 2",
-        "ε = 0,1, L = 0, N = 5"
+        "N = 5"
       ]
     },
     {
@@ -426,12 +399,7 @@
       ],
       "outputs": [],
       "captions": [
-        "N = 5",
-        "aₙ = (-1)ⁿ",
-        "certifikat: skrit",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 12, v pasu: 12",
-        "ε = 1,5, L = 0, N = 5"
+        "N = 5"
       ]
     },
     {
@@ -498,12 +466,7 @@
       ],
       "outputs": [],
       "captions": [
-        "N = 5",
-        "aₙ = n",
-        "certifikat: skrit",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 12, v pasu: 0",
-        "ε = 0,5, L = 0, N = 5"
+        "N = 5"
       ]
     },
     {
@@ -569,14 +532,7 @@
         "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
       ],
       "outputs": [],
-      "captions": [
-        "N = 11",
-        "aₙ = 1/n",
-        "certifikat: skrit",
-        "krogec: člen v pasu; križec: člen izven pasu",
-        "prikazani členi: 12, v pasu: 2",
-        "ε = 0,1, L = 0, N = 11"
-      ]
+      "captions": []
     }
   ]
 }

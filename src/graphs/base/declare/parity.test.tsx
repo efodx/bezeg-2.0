@@ -1092,6 +1092,34 @@ const SAMPLES: readonly Sample[] = [
             {name: 'reflection at 1/2', apply: act(parameter('fixed-point-x0', 0.5), bound(false), ...next(1))},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/sequence.json', demonstration: 'sequence', states: (() => {
+        // A next step after the last term is refused (a DomainError); the state keeps what was reached. Every state sets all it shows,
+        // because the example change loads its own model and the others accumulate.
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) {
+                try { (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action); } catch (error) { if (!(error instanceof DomainError)) throw error; }
+            }
+        };
+        const next = (count: number) => Array.from({length: count}, () => ({kind: 'animation', animationId: 'sequence', command: 'next-step'}));
+        const choice = (value: string) => ({kind: 'function-choice', name: 'sequence-example', value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        const certificate = (visible: boolean) => ({kind: 'function-visibility', target: 'sequence-certificate', visible});
+        const set = (example: string, epsilon: number, limit: number, threshold: number, terms: number, shown: boolean) =>
+            act(choice(example), parameter('sequence-epsilon', epsilon), parameter('sequence-limit', limit), parameter('sequence-threshold', threshold), ...next(terms - 1), certificate(shown));
+        return [
+            {name: 'default', apply: act()},
+            {name: 'reciprocal eps 0.25, 12 terms, hidden', apply: set('reciprocal', 0.25, 0, 5, 12, false)},
+            {name: 'reciprocal eps 0.1, N 11, certified', apply: set('reciprocal', 0.1, 0, 11, 12, true)},
+            {name: 'reciprocal eps 0.1, N 5, threshold fails', apply: set('reciprocal', 0.1, 0, 5, 12, true)},
+            {name: 'reciprocal eps 0.01, 40 terms', apply: set('reciprocal', 0.01, 0, 5, 40, false)},
+            {name: 'reciprocal N 30 beyond terms', apply: set('reciprocal', 0.05, 0, 30, 8, true)},
+            {name: 'reciprocal L 0.5, not the limit', apply: set('reciprocal', 0.1, 0.5, 5, 12, true)},
+            {name: 'alternating reciprocal, 12 terms', apply: set('alternating-reciprocal', 0.1, 0, 5, 12, false)},
+            {name: 'alternating sign eps 1.5, satisfied', apply: set('alternating-sign', 1.5, 0, 5, 12, true)},
+            {name: 'alternating sign eps 0.5, oscillating', apply: set('alternating-sign', 0.5, 0.3, 5, 12, true)},
+            {name: 'natural, divergent', apply: set('natural', 0.5, 0, 5, 12, true)},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/euler-method.json', demonstration: 'euler-method', accepted: eulerAccepted, states: (() => {
         const act = (...actions: unknown[]): ParityState['apply'] => graph => {
             for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);

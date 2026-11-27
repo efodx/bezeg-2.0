@@ -46,7 +46,8 @@ Rewritten by handler 1 at its soft budget (2026-11-27). Present state only.
 - Worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/lane-b`, branch `lane-b` (`node_modules` junction;
   unlink with PowerShell before ever removing). Merged `board-workspace-2` (incl. `ee7a33aa7`) at `156d36f7c`; stream A
   picks only lane commits after a merge. Merge again from `board-workspace-2` before a new lane if A has moved far.
-- Stream A = **"Board workspace handler 12"** (send every accepted commit id there; it cherry-picks between its lanes).
+- Stream A = **"Board workspace handler 13"** (from 2026-11-27; merge `board-workspace-2` at `879e0ed31` or later into
+  lane-b before the next lane, A asked: AnalysisFirstTask conflicted with L37) (send every accepted commit id there; it cherry-picks between its lanes).
 - Lane-b Vite dev server (handler 1's shell, dies with the session; restart with `npx vite --port 4484 --strictPort --host 127.0.0.1`
   as a background command): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395.
 

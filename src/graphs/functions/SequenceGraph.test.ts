@@ -2,9 +2,9 @@ import {SEQUENCE_STEP_INTERVAL_MS, SequenceGraph} from './SequenceGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
-import {SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS} from '../../analysis/sequence';
+import {SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS, sequenceTerm} from '../../analysis/sequence';
 import {SEQUENCE_EXAMPLE_MODELS, SequenceModel} from '../../analysis/sequenceModel';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, message, onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
@@ -14,7 +14,8 @@ import {buttonActions, playbackButton} from "./playbackElementTree";
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
 vi.mock('../base/export/PresetFigureBatch', () => ({downloadPresetFigures: vi.fn(() => Promise.resolve())}));
 
-const BOX = [-4.9, 1.5, 43, -1.5];
+/** The followed view of the default reciprocal example with one term (five terms counted: 1..1/5, band 0 +- 0.1, threshold 5). */
+const BOX = [-0.12 * 6.5, 1 + 0.25 * (1 - -0.1), 6.5, -0.1 - 0.25 * (1 - -0.1)];
 
 function fakeBoard() {
     const board: any = {
@@ -97,7 +98,7 @@ const resolve = (value: any) => typeof value === 'function' ? value() : value;
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 const caption = (graph: any): string[] => graph.captionPlainLines();
 const statusIds = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { id: string }) => status.id);
-const statusTexts = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text);
+const statusTexts = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: any }) => renderMessage(status.text));
 const model = (overrides: Partial<SequenceModel>): SequenceModel => ({...SEQUENCE_EXAMPLE_MODELS.reciprocal, ...overrides});
 
 // Creation order: the band curve, then the segments (two band edges, the line y = L, the threshold marker), then the pool of 40 points
@@ -133,19 +134,21 @@ const rows = (graph: any): Record<string, string> =>
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the band, its edges, the line y = L, the marker and a fixed pool of terms and one caption', () => {
+test('initialization draws the band, its edges, the line y = L, the marker and a fixed pool of terms and no caption', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({example: 'reciprocal', epsilon: 0.1, limit: 0, threshold: 5, terms: 1, certificateVisible: false});
     expect(graph.presets()).toBe('sequence');
     expect(ofType(graph, 'curve')).toHaveLength(1);
     expect(segments(graph)).toHaveLength(4);
     expect(ofType(graph, 'point')).toHaveLength(2 * SEQUENCE_MAX_TERMS);
-    expect(ofType(graph, 'text')).toHaveLength(2);
-    expect(boardObjectCount(graph)).toBe(87);
+    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(boardObjectCount(graph)).toBe(86);
     expect(graph.generatedObjectCount).toBe(boardObjectCount(graph));
     // the view is applied exactly: the index and the value axes have different scales, so equal units are not requested
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, false);
-    expect(caption(graph)).toEqual(['aₙ = 1/n', 'ε = 0,1, L = 0, N = 5', 'prikazani členi: 1, v pasu: 0', 'certifikat: skrit', 'krogec: člen v pasu; križec: člen izven pasu']);
+    // the formula, the numbers, the count and the verdict are in the Odčitki card, the key in the legend: the board has no caption
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)).toMatchObject({terms: '1', epsilon: '0,1', limit: '0', threshold: '5', 'in-band-count': '0 od 1', certificate: 'skrito'});
     // the band is the closed rectangle between L - epsilon and L + epsilon across the view, and the edges and the line sit at those heights
     band(graph).updateDataArray();
     expect(band(graph).dataX).toEqual([BOX[0], BOX[2], BOX[2], BOX[0], BOX[0]]);
@@ -184,21 +187,25 @@ test('terms inside and outside the band differ by shape: a filled circle inside,
     expect(shownIn(outsidePool(graph))).not.toContain(10);
 });
 
-test('the board fits every example: the view of each example holds all forty terms, and the caption corner stays clear of them', () => {
-    // the views the graph uses per example, read back through the example choice
-    const expected: Record<string, number[]> = {
-        'reciprocal': [-4.9, 1.5, 43, -1.5], 'alternating-reciprocal': [-4.9, 1.5, 43, -1.5], 'alternating-sign': [-4.9, 1.6, 43, -3.4], 'natural': [-4.9, 54, 43, -36],
-    };
-    for (const [id, box] of Object.entries(expected)) {
+/** The box of the last view the board was given. */
+const lastBox = (graph: ReturnType<typeof makeGraph>): number[] => graph.board.setBoundingBox.mock.calls.at(-1)![0];
+
+test('the board follows every example: its view holds the counted terms (five at a time), the band and the threshold, not all forty indices', () => {
+    for (const id of ['reciprocal', 'alternating-reciprocal', 'alternating-sign', 'natural']) {
         const graph = makeGraph();
         apply(graph, choice(id));
-        expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(box, false);
-        // x covers n = 1..40 with margin and y covers the extreme term
-        expect(box[0]).toBeLessThan(1);
-        expect(box[2]).toBeGreaterThan(SEQUENCE_MAX_TERMS);
-        const extreme = id === 'natural' ? SEQUENCE_MAX_TERMS : 1;
-        expect(box[1]).toBeGreaterThan(extreme);
-        expect(box[3]).toBeLessThan(id === 'natural' ? 0 : -1);
+        const box = lastBox(graph);
+        const model = SEQUENCE_EXAMPLE_MODELS[id as keyof typeof SEQUENCE_EXAMPLE_MODELS];
+        expect(box[0]).toBeLessThan(0);
+        expect(box[2]).toBeGreaterThanOrEqual(model.threshold);
+        expect(box[2]).toBeLessThan(SEQUENCE_MAX_TERMS / 2);
+        expect(box[1]).toBeGreaterThan(model.limit + model.epsilon);
+        expect(box[3]).toBeLessThan(model.limit - model.epsilon);
+        for (let n = 1; n <= 5; n++) {
+            const value = sequenceTerm(id as keyof typeof SEQUENCE_EXAMPLE_MODELS, n);
+            expect(value, `${id} term ${n}`).toBeLessThan(box[1]);
+            expect(value, `${id} term ${n}`).toBeGreaterThan(box[3]);
+        }
     }
 });
 
@@ -207,7 +214,7 @@ test('a multi-action scene applied in one synchronous tick reads the earlier act
     apply(graph, defaultScene);
     for (const action of [choice('alternating-sign'), parameter('sequence-epsilon', 1.5), command('next-step'), command('next-step'), command('next-step'), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'alternating-sign', epsilon: 1.5, limit: 0, threshold: 5, terms: 4, certificateVisible: true});
-    expect(caption(graph)[2]).toBe('prikazani členi: 4, v pasu: 4');
+    expect(rows(graph)).toMatchObject({terms: '4', 'in-band-count': '4 od 4'});
     expect(statusIds(graph)).toEqual(['epsilon-satisfied']);
     // a later action in the same tick sees the earlier one
     apply(graph, choice('natural'));
@@ -380,7 +387,6 @@ test('controls and lesson actions give equivalent models', () => {
     expect(viaControls.model).toEqual({example: 'alternating-sign', epsilon: 0.75, limit: -0.5, threshold: 20, terms: 7, certificateVisible: true});
     expect(rows(viaControls)).toEqual(rows(viaActions));
     expect(statusTexts(viaControls)).toEqual(statusTexts(viaActions));
-    expect(caption(viaControls)).toEqual(caption(viaActions));
     // Play from the control and the lesson command run the same transition
     controls(viaControls).play.props.onClick();
     apply(viaActions, command('play'));
@@ -435,8 +441,6 @@ test('the certificate readout for each kind of verdict, hidden until Show certif
     });
     expect(Object.keys(rows(graph))).toEqual(['terms', 'epsilon', 'limit', 'threshold', 'last-term', 'distance', 'in-band', 'in-band-count', 'certificate', 'n-min', 'bound']);
     expect(statusIds(graph)).toEqual(['hidden']);
-    // a hidden certificate is not a refusal: the caption line uses the neutral colour
-    expect(graph.captionColors()[3]).toBe(GraphPalette.label);
 
     // N = 5 does not work for 1/n at epsilon 0.1: the first failing index is 5, the least working N is 11
     apply(graph, reveal(true));
@@ -452,9 +456,6 @@ test('the certificate readout for each kind of verdict, hidden until Show certif
     expect(rows(graph)).toMatchObject({certificate: 'N deluje', 'n-min': '11', bound: '1/11 = 0,0909'});
     expect(statusIds(graph)).toEqual(['certified']);
     expect(statusTexts(graph)[0]).toContain('N · ε = 1,1 > 1');
-    // the board caption states the verdict in words and in the confirming colour
-    expect(caption(graph)[3]).toBe('certifikat: N deluje');
-    expect(graph.captionColors()[3]).toBe(GraphPalette.primaryCurve);
 
     // fewer shown terms than the least working N: the answer does not change, a status says that N_min lies beyond the shown terms
     apply(graph, command('reset'));
@@ -463,7 +464,7 @@ test('the certificate readout for each kind of verdict, hidden until Show certif
     expect(rows(graph)).toMatchObject({certificate: 'N deluje', 'n-min': '11', 'in-band-count': '0 od 8'});
     expect(statusIds(graph)).toEqual(['certified', 'beyond-terms', 'n-min-beyond-terms']);
     expect(statusTexts(graph)[1]).toContain('N = 11 je onkraj prikazanih členov (n ≤ 8)');
-    expect(caption(graph).some(line => line === 'N je onkraj prikazanih členov')).toBe(true);
+    expect(caption(graph)).toEqual([]);
     apply(graph, command('reset'));
     expect(rows(graph)).toMatchObject({certificate: 'N deluje', 'n-min': '11', 'in-band-count': '0 od 1'});
 
@@ -491,8 +492,6 @@ test('the certificate readout for each kind of verdict, hidden until Show certif
     expect(rows(graph)).toMatchObject({certificate: 'L ni limita', 'n-min': '—', bound: '—'});
     expect(statusIds(graph)).toEqual(['not-the-limit']);
     expect(statusTexts(graph)[0]).toContain('limita je 0');
-    expect(caption(graph)[3]).toBe('certifikat: L ni limita');
-    expect(graph.captionColors()[3]).toBe(GraphPalette.warningText);
 
     // (-1)^n: the band holds every shown term at epsilon 1.5, which is one epsilon and no certificate; at epsilon <= 1 + |L| no N works
     apply(graph, choice('alternating-sign'));
@@ -637,7 +636,7 @@ test('presets save the model with the terms and the reveal, reopen paused and ne
     expect(reopened.model).toEqual(exported.data);
     expect(reopened.playback.isPlaying).toBe(false);
     expect(reopened.frames.callbacks.size).toBe(0);
-    expect(caption(reopened)[2]).toBe('prikazani členi: 6, v pasu: 0');
+    expect(rows(reopened)).toMatchObject({terms: '6', 'in-band-count': '0 od 6'});
     // continuing from the loaded terms gives the same state as never having left them
     next(reopened);
     next(graph);
@@ -659,7 +658,9 @@ test('a preset of another example without a view shows that example view, like c
     const graph = makeGraph();
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'sequence', data: {...SEQUENCE_EXAMPLE_MODELS.natural}});
-    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-4.9, 54, 43, -36], false);
+    const box = lastBox(graph);
+    expect(box[2]).toBeLessThan(SEQUENCE_MAX_TERMS / 2);
+    expect(box[1]).toBeGreaterThan(5); // the five counted natural terms 1..5
 });
 
 test('malformed preset data is refused and the model on show stays', () => {
@@ -769,7 +770,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
 test('generated objects are disposed and not duplicated across repeated generation, examples and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(87);
+    expect(baseline).toBe(86);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -792,18 +793,20 @@ test('generated objects are disposed and not duplicated across repeated generati
     expect(boardObjectCount(graph)).toBe(baseline);
 });
 
-test('the caption follows the language and a language change notifies subscribers (the board text is re-evaluated on update)', () => {
+test('the readouts follow the language and a language change notifies subscribers (the board text is re-evaluated on update)', () => {
     const graph = makeGraph();
     next(graph, 11);
     apply(graph, reveal(true));
     apply(graph, parameter('sequence-threshold', 11));
-    expect(caption(graph)).toEqual(['aₙ = 1/n', 'ε = 0,1, L = 0, N = 11', 'prikazani členi: 12, v pasu: 2', 'certifikat: N deluje', 'krogec: člen v pasu; križec: člen izven pasu']);
+    expect(rows(graph)).toMatchObject({epsilon: '0,1', limit: '0', threshold: '11', 'in-band-count': '2 od 12', certificate: 'N deluje'});
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
     expect(currentLanguage()).toBe('en');
-    expect(caption(graph)).toEqual(['aₙ = 1/n', 'ε = 0.1, L = 0, N = 11', 'shown terms: 12, in the band: 2', 'certificate: N works', 'circle: term inside the band; cross: term outside the band']);
+    expect(rows(graph)).toMatchObject({epsilon: '0.1', limit: '0', threshold: '11', terms: '12'});
+    expect(graph.declaration().formula.label).toEqual(message('sequence_formula_label'));
+    expect(renderMessage(graph.declaration().formula.label)).toBe('Function');
     // the threshold label and the readouts follow as well
     expect(thresholdLabel(graph).parents[2]()).toContain('N = 11');
     expect(rows(graph)).toMatchObject({certificate: 'N works', 'in-band': 'inside the band', 'in-band-count': '2 of 12', 'n-min': '11'});
@@ -811,18 +814,18 @@ test('the caption follows the language and a language change notifies subscriber
     unsubscribe();
 });
 
-test('below 520 px the board uses compact labels: N alone for the marker and fewer caption lines, with no label placed on an axis', () => {
+test('below 520 px the board uses compact labels: N alone for the marker, with no label placed on an axis', () => {
     const graph = makeGraph();
     apply(graph, reveal(true));
     expect(thresholdLabel(graph).parents[2]()).toContain('N = 5');
-    // one term is shown and N = 5 lies beyond it, so the revealed certificate adds the line about that
-    expect(caption(graph)).toHaveLength(6);
+    // one term is shown and N = 5 lies beyond it, so the revealed certificate adds the status about that
+    expect(statusIds(graph)).toContain('beyond-terms');
     graph.board.canvasWidth = COMPACT_BOARD_WIDTH - 1;
     expect(thresholdLabel(graph).parents[2]()).toBe('<div>N</div>');
-    expect(caption(graph)).toEqual(['aₙ = 1/n', 'ε = 0,1, L = 0, N = 5', 'prikazani členi: 1, v pasu: 0', 'certifikat: N ne deluje']);
+    expect(caption(graph)).toEqual([]);
     graph.board.canvasWidth = COMPACT_BOARD_WIDTH;
-    expect(caption(graph)).toHaveLength(6);
-    // the threshold label sits at the top edge of the view, anchored below it, and the caption in the bottom-right corner: neither on an axis
+    expect(thresholdLabel(graph).parents[2]()).toContain('N = 5');
+    // the threshold label sits at the top edge of the view, anchored below it: not on an axis
     expect(thresholdLabel(graph).attributes.anchorY).toBe('top');
     expect(resolve(thresholdLabel(graph).parents[1])).toBeGreaterThan(BOX[1] - 0.06 * (BOX[1] - BOX[3]));
     expect(thresholdLabel(graph).attributes.fixed).toBe(true);
@@ -830,22 +833,24 @@ test('below 520 px the board uses compact labels: N alone for the marker and few
     apply(graph, parameter('sequence-threshold', 101));
     expect(resolve(thresholdLabel(graph).attributes.visible)).toBe(false);
     expect(resolve(segments(graph)[THRESHOLD_MARKER].attributes.visible)).toBe(false);
+    // the mocked board keeps the narrow followed view of one term; N = 40 lies on the board once the view reaches it
+    graph.board.getBoundingBox.mockReturnValue([-5, 1.3, 43, -0.4]);
     apply(graph, parameter('sequence-threshold', 40));
     expect(resolve(thresholdLabel(graph).attributes.visible)).toBe(true);
-    // the long board line about a threshold beyond the shown terms is dropped below 520 px, the status in the inspector keeps it
+    // the line about a threshold beyond the shown terms is a status of the Odčitki card, whatever the board width
     graph.board.canvasWidth = COMPACT_BOARD_WIDTH - 1;
-    expect(caption(graph).some(line => line.includes('onkraj'))).toBe(false);
     expect(statusIds(graph)).toContain('beyond-terms');
 });
 
-test('the legend names the shapes, the band, the line y = L and the marker in words, with the line patterns', () => {
+test('the declared legend names the shapes, the band, the line y = L and the marker in words, with the line patterns', () => {
     const graph = makeGraph();
-    const items = graph.renderLegend().props.items as { id: string; label: string; kind: string }[];
-    expect(items.map(item => [item.id, item.kind])).toEqual([['inside', 'dot'], ['outside', 'cross'], ['band', 'area'], ['limit', 'line'], ['threshold', 'dotted-line']]);
-    expect(items[0].label).toMatch(/poln krogec/);
-    expect(items[1].label).toMatch(/križec/);
+    const items = graph.declaration().legend as { id: string; label: any; kind: string }[];
+    expect(items.map(item => [item.id, item.kind])).toEqual([['inside', 'point'], ['outside', 'cross'], ['band', 'area'], ['limit', 'line'], ['threshold', 'dashed']]);
+    expect(renderMessage(items[0].label)).toMatch(/poln krogec/);
+    expect(renderMessage(items[1].label)).toMatch(/križec/);
+    expect(graph.renderLegend()).toBeNull();
     setLanguage('en');
-    expect(graph.renderLegend().props.items.map((item: any) => item.label)).toEqual([
+    expect(graph.declaration().legend.map((item: any) => renderMessage(item.label))).toEqual([
         'Term inside the band: filled circle', 'Term outside the band: cross', 'Band between L − ε and L + ε: shaded region with dashed edges',
         'Candidate limit L: horizontal solid line y = L', 'Threshold N: vertical line at n = N',
     ]);
@@ -878,8 +883,9 @@ test('Fit restores the example view instead of a canvas-aspect box, because the 
     const graph = makeGraph();
     graph.board.container = document.createElement('div');
     graph.board.applyZoom = vi.fn();
-    for (const [id, view] of [['reciprocal', [-4.9, 1.5, 43, -1.5]], ['alternating-sign', [-4.9, 1.6, 43, -3.4]], ['natural', [-4.9, 54, 43, -36]]] as const) {
+    for (const id of ['reciprocal', 'alternating-sign', 'natural'] as const) {
         apply(graph, choice(id));
+        const view = lastBox(graph);
         graph.board.setBoundingBox.mockClear();
         graph.navigateBoard('fit');
         expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);

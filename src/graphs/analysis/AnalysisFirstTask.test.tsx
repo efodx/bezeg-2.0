@@ -25,7 +25,7 @@ const routes: Record<string, Route> = {
     'euler-method': {lead: button(t('next_step')), later: [labelled(t('euler_ode_example_label'))]},
     'mean-value': {lead: labelled(t('mean_value_c_label')), later: [labelled(t('mean_value_example_label')), labelled(t('mean_value_a_label'))]},
     'darboux': {lead: button(t('darboux_refine')), later: [labelled(t('darboux_example_label'))]},
-    'sequence': {lead: labelled(t('sequence_epsilon_label')), later: [labelled(t('sequence_example_label'))]},
+    'sequence': {lead: labelled(t('sequence_example_label')), later: [button(t('next_step'))]},
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
     'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label'))]},
     'recursion-cobweb': {lead: button(t('next_step')), later: []},
@@ -176,6 +176,23 @@ describe('fixed-point pucks', () => {
         expect(within(root).queryAllByLabelText(t('fixed_point_x0_label'))).toEqual([]);
         expect(within(root).queryAllByRole('button', {name: t('show_error_bound')})).toEqual([]);
         expect(within(root).queryAllByRole('button', {name: t('hide_error_bound')})).toEqual([]);
+    });
+});
+
+describe('sequence pucks', () => {
+    // The band width, the candidate limit, the threshold and the certificate switch are pucks on the board (task 08): there once, and not in
+    // Orodja, which keeps the example and the playback buttons (the example select is found there first, so the container really holds the graph's controls).
+    test('epsilon, L, N and the certificate are pucks and Orodja holds no second copy', async () => {
+        mountGraph(graphFactories['sequence']());
+        await waitForPucks('show-certificate');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(within(root).getAllByLabelText(t('sequence_example_label'))).not.toEqual([]);
+        for (const key of ['sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'show-certificate']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('sequence_epsilon_label'), t('sequence_limit_label'), t('sequence_threshold_label')]) expect(within(root).queryAllByLabelText(label), label).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('sequence_show_certificate')})).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('sequence_hide_certificate')})).toEqual([]);
     });
 });
 

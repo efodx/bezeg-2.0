@@ -1101,8 +1101,8 @@ describe('the sequence lesson', () => {
         for (const id of predictionSteps) {
             expect(qStep(id).observationPrompt.en, id).toMatch(/Predict|Compute/);
             expect(qStep(id).observationPrompt.sl, id).toMatch(/Napovej|izračunaj/);
-            expect(qStep(id).observationPrompt.en, id).toMatch(/Show certificate/);
-            expect(qStep(id).observationPrompt.sl, id).toMatch(/Pokaži certifikat/);
+            expect(qStep(id).observationPrompt.en, id).toMatch(/turn on the Certificate control/);
+            expect(qStep(id).observationPrompt.sl, id).toMatch(/vklopi krmilnik Certifikat/);
             const actions = adaptedActions(id);
             expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
             expect(actions).toContainEqual(hide);

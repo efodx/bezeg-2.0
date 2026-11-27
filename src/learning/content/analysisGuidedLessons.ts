@@ -65,6 +65,7 @@ import type {ConvexityIds} from '../../graphs/functions/ConvexityGraph';
 import type {DarbouxIds} from '../../graphs/functions/DarbouxGraph';
 import type {ExtremaIds} from '../../graphs/functions/ExtremaGraph';
 import type {FixedPointIds} from '../../graphs/functions/FixedPointGraph';
+import type {SequenceIds} from '../../graphs/functions/SequenceGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -75,6 +76,7 @@ const convexityFrame = frameDeclarer<ConvexityIds>();
 const darbouxFrame = frameDeclarer<DarbouxIds>();
 const extremaFrame = frameDeclarer<ExtremaIds>();
 const fixedPointFrame = frameDeclarer<FixedPointIds>();
+const sequenceFrame = frameDeclarer<SequenceIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
@@ -2462,10 +2464,10 @@ const sequence: GuidedLesson = {
                 'The sequence \\(a_n=\\frac1n\\) has infinitely many terms: \\(1\\), \\(\\frac12\\), \\(\\frac13\\), … The candidate limit is \\(L=0\\). The definition says: for every \\(\\varepsilon>0\\) there is an \\(N\\) such that \\(|a_n-L|<\\varepsilon\\) for every \\(n\\ge N\\). First \\(\\varepsilon\\) is chosen, only then do we look for an \\(N\\) that depends on it, and the condition must hold for all \\(n\\ge N\\). The graph shows the band between \\(L-\\varepsilon\\) and \\(L+\\varepsilon\\) shaded, so for the chosen \\(\\varepsilon=\\frac14\\) between \\(-0.25\\) and \\(0.25\\); the band is open. A term inside the band is a filled circle, a term outside it a cross. The first twelve terms are shown. The term \\(a_4=0.25\\) lies exactly on the edge of the band, so it is not in it, and from \\(a_5=0.2\\) on the shown terms are in the band. The certificate is hidden. The shown terms alone do not prove convergence: that all the unshown terms from \\(n=5\\) on also lie in the band is stated only by the formula.',
             ),
             formulaIds: ['sequence-definition', 'sequence-definition-condition'],
-            frames: [frame('sequence-definition-explanation', 'explanation'), frame('sequence-definition-observation', 'observation')],
+            frames: [frame('sequence-definition-explanation', 'explanation', sequenceFrame({highlight: ['epsilon', 'limit']})), frame('sequence-definition-observation', 'observation', sequenceFrame({highlight: ['terms', 'in-band-count', 'certificate'], uses: ['sequence-threshold', 'show-certificate']}))],
             observationPrompt: text(
-                'Napovej, ali bo \\(N=5\\) deloval za \\(\\varepsilon=\\frac14\\), torej ali je \\(|a_n|<\\frac14\\) za vsak \\(n\\ge5\\), in ali bo deloval \\(N=4\\); poskusi tudi druge vrednosti z drsnikom Prag N in šele nato pritisni Pokaži certifikat.',
-                'Predict whether \\(N=5\\) works for \\(\\varepsilon=\\frac14\\), that is whether \\(|a_n|<\\frac14\\) for every \\(n\\ge5\\), and whether \\(N=4\\) will work; also try other values in the Threshold N field, and only then press Show certificate.',
+                'Napovej, ali bo \\(N=5\\) deloval za \\(\\varepsilon=\\frac14\\), torej ali je \\(|a_n|<\\frac14\\) za vsak \\(n\\ge5\\), in ali bo deloval \\(N=4\\); poskusi tudi druge vrednosti s krmilnikom Prag in šele nato vklopi krmilnik Certifikat.',
+                'Predict whether \\(N=5\\) works for \\(\\varepsilon=\\frac14\\), that is whether \\(|a_n|<\\frac14\\) for every \\(n\\ge5\\), and whether \\(N=4\\) will work; also try other values with the Threshold control, and only then turn on the Certificate control.',
             ),
             expectedObservations: [
                 text(
@@ -2495,10 +2497,10 @@ const sequence: GuidedLesson = {
                 'At \\(\\varepsilon=\\frac14\\), \\(N=5\\) worked. Now we narrow the band to \\(\\varepsilon=0.1\\): at \\(N=5\\) the term \\(a_5=0.2\\) is outside the band, so \\(N=5\\) does not work. Now \\(N=11\\) is chosen and the certificate is shown. For \\(n\\ge N\\) we have \\(\\left|\\frac1n-0\\right|\\le\\frac1N\\), and the inequality \\(\\frac1N<\\varepsilon\\) is equivalent to \\(N\\varepsilon>1\\). At \\(N=11\\), \\(N\\varepsilon=1.1>1\\), so \\(11\\) works. At \\(N=10\\), \\(N\\varepsilon=1\\), which is not more than \\(1\\): the term \\(a_{10}=0.1\\) lies exactly on the edge of the band, and the band is open, so \\(10\\) does not work. The least working \\(N\\) is therefore \\(\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=11\\). Of the twelve shown terms the last two are in the band; the certificate holds for every \\(n\\ge11\\), also for terms that are not shown.',
             ),
             formulaIds: ['sequence-definition', 'sequence-definition-condition', 'sequence-reciprocal-threshold'], workedExampleId: 'sequence-reciprocal-example',
-            frames: [frame('sequence-threshold-explanation', 'explanation'), frame('sequence-threshold-calculation', 'calculation'), frame('sequence-threshold-observation', 'observation')],
+            frames: [frame('sequence-threshold-explanation', 'explanation', sequenceFrame({highlight: ['threshold', 'epsilon']})), frame('sequence-threshold-calculation', 'calculation', sequenceFrame({highlight: ['n-min', 'bound']})), frame('sequence-threshold-observation', 'observation', sequenceFrame({highlight: ['n-min', 'bound', 'in-band-count'], uses: ['sequence-threshold']}))],
             observationPrompt: text(
-                'Preberi najmanjši delujoči \\(N\\) in oceno v odčitkih. Nato z drsnikom Prag N nastavi \\(N=10\\), preberi, zakaj ne deluje, in se vrni na \\(N=11\\).',
-                'Read the least working \\(N\\) and the bound in the readouts. Then enter \\(N=10\\) in the field, read why it does not work, and return to \\(N=11\\).',
+                'Preberi najmanjši delujoči \\(N\\) in oceno v kartici Odčitki. Nato s krmilnikom Prag nastavi \\(N=10\\), preberi, zakaj ne deluje, in se vrni na \\(N=11\\).',
+                'Read the least working \\(N\\) and the bound in the Readouts card. Then set \\(N=10\\) with the Threshold control, read why it does not work, and return to \\(N=11\\).',
             ),
             expectedObservations: [text(
                 'Pri \\(N=11\\) certifikat pove, da \\(N\\) deluje; najmanjši delujoči \\(N\\) je \\(11\\), ocena je \\(\\frac1{11}\\approx0{,}0909\\), v pasu sta \\(2\\) od \\(12\\) prikazanih členov. Pri \\(N=10\\) certifikat pove, da \\(N\\) ne deluje, ker je \\(|a_{10}|=0{,}1=\\varepsilon\\).',
@@ -2522,10 +2524,10 @@ const sequence: GuidedLesson = {
                 'At \\(\\varepsilon=0.1\\), \\(N=11\\) worked and was the least working one. Now \\(\\varepsilon=0.01\\) and the band is ten times narrower. All forty terms the app draws are shown and none is in the band: the smallest, \\(a_{40}=0.025\\), is still above \\(0.01\\). By the formula \\(N_{\\min}=\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1=101\\), far beyond the shown terms. Does that mean no certificate can be given? It can: it comes from the formula \\(a_n=\\frac1n\\), not from the shown terms, and it holds for every \\(n\\ge N\\), also for terms we cannot see. A finite window of terms that we draw, however, is never a proof.',
             ),
             formulaIds: ['sequence-reciprocal-threshold'],
-            frames: [frame('sequence-small-epsilon-explanation', 'explanation'), frame('sequence-small-epsilon-observation', 'observation')],
+            frames: [frame('sequence-small-epsilon-explanation', 'explanation', sequenceFrame({highlight: ['epsilon', 'in-band-count']})), frame('sequence-small-epsilon-observation', 'observation', sequenceFrame({highlight: ['n-min', 'terms'], uses: ['sequence-threshold', 'show-certificate']}))],
             observationPrompt: text(
-                'Po obrazcu izračunaj najmanjši delujoči \\(N\\) za \\(\\varepsilon=0{,}01\\), napovej, ali bo med prikazanimi členi, nastavi ga z drsnikom Prag N in šele nato pritisni Pokaži certifikat. Nato nastavi še \\(N=100\\).',
-                'Compute the least working \\(N\\) for \\(\\varepsilon=0.01\\) from the formula, predict whether it will be among the shown terms, enter it in the Threshold N field, and only then press Show certificate. Then also enter \\(N=100\\).',
+                'Po obrazcu izračunaj najmanjši delujoči \\(N\\) za \\(\\varepsilon=0{,}01\\), napovej, ali bo med prikazanimi členi, nastavi ga s krmilnikom Prag in šele nato vklopi krmilnik Certifikat. Nato nastavi še \\(N=100\\).',
+                'Compute the least working \\(N\\) for \\(\\varepsilon=0.01\\) from the formula, predict whether it will be among the shown terms, set it with the Threshold control, and only then turn on the Certificate control. Then also enter \\(N=100\\).',
             ),
             expectedObservations: [
                 text(
@@ -2555,10 +2557,10 @@ const sequence: GuidedLesson = {
                 'At \\(\\varepsilon=0.01\\), \\(N=101\\) worked although it is beyond the shown terms: the formula \\(\\left|\\frac1n-0\\right|\\le\\frac1N<\\varepsilon\\) holds for every \\(n\\ge101\\). Now the terms change sign: \\(a_n=\\frac{(-1)^n}{n}\\) is \\(-1\\), \\(\\frac12\\), \\(-\\frac13\\), … and lies now below, now above \\(L=0\\). The definition, however, measures the distance \\(|a_n-L|\\), which equals \\(\\frac1n\\) as before, so the least working \\(N=\\left\\lfloor\\frac1\\varepsilon\\right\\rfloor+1\\) is the same too. We look at \\(\\varepsilon=0.1\\); twelve terms are shown, the last two are in the band.',
             ),
             formulaIds: ['sequence-reciprocal-threshold'],
-            frames: [frame('sequence-alternating-explanation', 'explanation'), frame('sequence-alternating-observation', 'observation')],
+            frames: [frame('sequence-alternating-explanation', 'explanation', sequenceFrame({highlight: ['last-term', 'in-band']})), frame('sequence-alternating-observation', 'observation', sequenceFrame({highlight: ['n-min', 'in-band-count'], uses: ['sequence-threshold', 'show-certificate']}))],
             observationPrompt: text(
-                'Napovej, ali je najmanjši delujoči \\(N\\) pri \\(\\varepsilon=0{,}1\\) enak kot pri \\(\\frac1n\\); nastavi ga z drsnikom Prag N in šele nato pritisni Pokaži certifikat.',
-                'Predict whether the least working \\(N\\) at \\(\\varepsilon=0.1\\) is the same as for \\(\\frac1n\\); enter it in the Threshold N field, and only then press Show certificate.',
+                'Napovej, ali je najmanjši delujoči \\(N\\) pri \\(\\varepsilon=0{,}1\\) enak kot pri \\(\\frac1n\\); nastavi ga s krmilnikom Prag in šele nato vklopi krmilnik Certifikat.',
+                'Predict whether the least working \\(N\\) at \\(\\varepsilon=0.1\\) is the same as for \\(\\frac1n\\); set it with the Threshold control, and only then turn on the Certificate control.',
             ),
             expectedObservations: [
                 text(
@@ -2588,10 +2590,10 @@ const sequence: GuidedLesson = {
                 'For \\(\\frac{(-1)^n}{n}\\) the distance to \\(0\\) is the same as for \\(\\frac1n\\), so the threshold is the same. The sequence \\(a_n=(-1)^n\\), however, takes only the values \\(-1\\) and \\(1\\), and each recurs beyond every \\(N\\). At \\(L=0\\) and \\(\\varepsilon=1.5\\) both values are in the band, so all twelve shown terms are inside. The sequence still does not converge to \\(0\\): this \\(\\varepsilon\\) is satisfied, but the definition requires an \\(N\\) for every \\(\\varepsilon>0\\). For \\(\\varepsilon\\le1\\) neither value is in the band. In general, the one of the values \\(-1\\) and \\(1\\) that is farther from \\(L\\) is at distance \\(1+|L|\\), so no \\(N\\) works when \\(\\varepsilon\\le1+|L|\\). A band that contains a finite window of terms is therefore no proof.',
             ),
             formulaIds: ['sequence-oscillating', 'sequence-oscillating-distance'],
-            frames: [frame('sequence-oscillation-explanation', 'explanation'), frame('sequence-oscillation-observation', 'observation')],
+            frames: [frame('sequence-oscillation-explanation', 'explanation', sequenceFrame({highlight: ['epsilon', 'in-band-count']})), frame('sequence-oscillation-observation', 'observation', sequenceFrame({highlight: ['certificate', 'in-band-count'], uses: ['show-certificate', 'sequence-epsilon']}))],
             observationPrompt: text(
-                'Napovej, ali pas, ki zajame vseh dvanajst prikazanih členov, dokazuje konvergenco k \\(0\\); pritisni Pokaži certifikat, nato zmanjšaj \\(\\varepsilon\\) na \\(0{,}5\\) in preberi razliko v stanju.',
-                'Predict whether a band that contains all twelve shown terms proves convergence to \\(0\\); press Show certificate, then lower \\(\\varepsilon\\) to \\(0.5\\) and read the difference in the status.',
+                'Napovej, ali pas, ki zajame vseh dvanajst prikazanih členov, dokazuje konvergenco k \\(0\\); vklopi krmilnik Certifikat, nato s krmilnikom Širina pasu zmanjšaj \\(\\varepsilon\\) na \\(0{,}5\\) in preberi razliko v stanju.',
+                'Predict whether a band that contains all twelve shown terms proves convergence to \\(0\\); turn on the Certificate control, then lower \\(\\varepsilon\\) to \\(0.5\\) with the Band width control and read the difference in the status.',
             ),
             expectedObservations: [
                 text(
@@ -2599,8 +2601,8 @@ const sequence: GuidedLesson = {
                     'At \\(\\varepsilon=1.5\\) all \\(12\\) of the \\(12\\) shown terms are in the band; the certificate is hidden.',
                 ),
                 text(
-                    'Po pritisku na Pokaži certifikat stanje pove, da je izpolnjen le ta \\(\\varepsilon\\); pri \\(\\varepsilon=0{,}5\\) pove, da certifikata ni, ker sta vrednosti \\(-1\\) in \\(1\\) izven pasu (razdalja \\(1\\ge\\varepsilon\\)), in nobeden od dvanajstih členov ni v pasu.',
-                    'After Show certificate the status says that only this \\(\\varepsilon\\) is satisfied; at \\(\\varepsilon=0.5\\) it says there is no certificate, because the values \\(-1\\) and \\(1\\) are outside the band (distance \\(1\\ge\\varepsilon\\)), and none of the twelve terms is in the band.',
+                    'Ko vklopiš krmilnik Certifikat, stanje pove, da je izpolnjen le ta \\(\\varepsilon\\); pri \\(\\varepsilon=0{,}5\\) pove, da certifikata ni, ker sta vrednosti \\(-1\\) in \\(1\\) izven pasu (razdalja \\(1\\ge\\varepsilon\\)), in nobeden od dvanajstih členov ni v pasu.',
+                    'After you turn on the Certificate control the status says that only this \\(\\varepsilon\\) is satisfied; at \\(\\varepsilon=0.5\\) it says there is no certificate, because the values \\(-1\\) and \\(1\\) are outside the band (distance \\(1\\ge\\varepsilon\\)), and none of the twelve terms is in the band.',
                 ),
             ],
             scene: {
@@ -2621,10 +2623,10 @@ const sequence: GuidedLesson = {
                 'For \\((-1)^n\\) the values stay bounded but do not settle. The sequence \\(a_n=n\\) grows beyond all bounds. For any \\(L\\) and \\(\\varepsilon>0\\) we have \\(a_n=n>L+\\varepsilon\\) for every \\(n>L+\\varepsilon\\), so the terms leave the band for good and no \\(N\\) works. We look at \\(L=0\\) and \\(\\varepsilon=0.5\\): already the first term \\(a_1=1\\) is outside the band and none of the twelve shown terms is in it. No other candidate \\(L\\) changes that, since the term \\(n\\) sooner or later exceeds \\(L+\\varepsilon\\).',
             ),
             formulaIds: ['sequence-unbounded'],
-            frames: [frame('sequence-unbounded-explanation', 'explanation'), frame('sequence-unbounded-observation', 'observation')],
+            frames: [frame('sequence-unbounded-explanation', 'explanation', sequenceFrame({highlight: ['limit', 'in-band-count']})), frame('sequence-unbounded-observation', 'observation', sequenceFrame({highlight: ['certificate'], uses: ['show-certificate', 'sequence-limit']}))],
             observationPrompt: text(
-                'Napovej, ali kak \\(N\\) deluje, če kandidata \\(L\\) premakneš na \\(2\\); pritisni Pokaži certifikat in preberi, od katerega indeksa naprej členi trajno zapustijo pas.',
-                'Predict whether any \\(N\\) works if you move the candidate \\(L\\) to \\(2\\); press Show certificate and read from which index on the terms leave the band for good.',
+                'Napovej, ali kak \\(N\\) deluje, če kandidata \\(L\\) premakneš na \\(2\\); vklopi krmilnik Certifikat in preberi, od katerega indeksa naprej členi trajno zapustijo pas.',
+                'Predict whether any \\(N\\) works if you move the candidate \\(L\\) to \\(2\\); turn on the Certificate control and read from which index on the terms leave the band for good.',
             ),
             expectedObservations: [
                 text(
@@ -2654,10 +2656,10 @@ const sequence: GuidedLesson = {
                 'For \\(a_n=n\\) no \\(L\\) works. For a convergent sequence the candidate \\(L\\) matters: the certificate holds only for the true limit. For \\(\\frac1n\\) the limit is \\(0\\); if we choose \\(L=0.5\\), the band around \\(0.5\\) with a small enough \\(\\varepsilon\\) does not contain the terms from any \\(N\\) on, so the app says that \\(L\\) is not the limit. In summary: convergence is a statement about all terms from \\(N\\) on, for every \\(\\varepsilon\\); the formula of the sequence justifies it and the shown terms do not prove it. Now explore on your own: choose an example, change \\(\\varepsilon\\), \\(L\\) and \\(N\\), press Next step or Play, and predict before you show the certificate.',
             ),
             formulaIds: ['sequence-definition', 'sequence-definition-condition'],
-            frames: [frame('sequence-free-explanation', 'explanation'), frame('sequence-free-observation', 'observation')],
+            frames: [frame('sequence-free-explanation', 'explanation', sequenceFrame({highlight: ['limit', 'certificate']})), frame('sequence-free-observation', 'observation', sequenceFrame({highlight: ['certificate', 'n-min'], uses: ['sequence-limit', 'show-certificate']}))],
             observationPrompt: text(
-                'Napovej, ali je \\(L=0{,}5\\) limita zaporedja \\(\\frac1n\\); nastavi ga z drsnikom Kandidat za limito L in pritisni Pokaži certifikat. Nato skrij certifikat, izberi drug primer in napovej, preden ga spet pokažeš.',
-                'Predict whether \\(L=0.5\\) is the limit of the sequence \\(\\frac1n\\); enter it in the field and press Show certificate. Then hide the certificate, choose another example and predict before you show it again.',
+                'Napovej, ali je \\(L=0{,}5\\) limita zaporedja \\(\\frac1n\\); nastavi ga s krmilnikom Kandidat limite in vklopi krmilnik Certifikat. Nato skrij certifikat, izberi drug primer in napovej, preden ga spet pokažeš.',
+                'Predict whether \\(L=0.5\\) is the limit of the sequence \\(\\frac1n\\); set it with the Limit candidate control and turn on the Certificate control. Then hide the certificate, choose another example and predict before you show it again.',
             ),
             expectedObservations: [text(
                 'Pri \\(N=11\\), \\(\\varepsilon=0{,}1\\) in \\(L=0\\) certifikat pove, da \\(N\\) deluje; pri \\(L=0{,}5\\) pove, da \\(L\\) ni limita in da je limita \\(0\\).',
