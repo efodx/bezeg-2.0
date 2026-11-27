@@ -1,18 +1,19 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber} from "../../analysis/format";
-import {INTERPOLATION_ERROR_GRID, INTERPOLATION_FUNCTION_IDS, NodeRule} from "../../analysis/interpolation";
+import {message, messageNumber, t} from "../../localization";
+import {INTERPOLATION_ERROR_GRID, INTERPOLATION_FUNCTION_IDS, interpolationFunction, NodeRule} from "../../analysis/interpolation";
 import {
     changeRungeDegree, chebyshevAngle, chooseRungeFunction, chooseRungeNodeRule, DEFAULT_RUNGE_MODEL, RUNGE_DEGREE_MAX, RUNGE_DEGREE_MIN, RUNGE_NODE_RULES,
     RungeData, RungeEdit, RungeInterpolationModel, rungeData,
 } from "../../analysis/rungeInterpolationModel";
-import {rungeEditMessage, rungeFunctionName, rungeNumber} from "./rungeInterpolationMessages";
+import {rungeEditMessage, rungeFunctionMessage, rungeFunctionName, rungeNumber} from "./rungeInterpolationMessages";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {rungePresetCollection} from "../curves/interpolation/collections";
@@ -40,6 +41,13 @@ const ARC_POINTS = 121;
 /** Above this grid maximum the cross would sit far outside the default view, so it is hidden; the readout still gives the value. */
 const GRID_MAX_MARKER_LIMIT = DEFAULT_VIEW[1] * 4;
 
+/** The ids of the Runge declaration: the degree, the node rule and the function are pucks; the legend names the drawn objects. */
+export type RungeIds = {
+    param: "runge-degree" | "runge-rule" | "runge-function";
+    row: "function" | "degree" | "nodes" | "rule" | "grid-max" | "grid-max-at" | "grid"; note: "grid-note";
+    legend: "f" | "p" | "nodes" | "error" | "max" | "semicircle"; section: never; action: never;
+};
+
 /**
  * Runge's phenomenon (lesson I2): the interpolating polynomial p of f on [-1, 1] through n + 1 equispaced or Chebyshev nodes,
  * evaluated by the barycentric formula only, with the error |f - p| and its grid maximum. The model is
@@ -51,6 +59,8 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
     private sampled?: { functionId: string; degree: number; nodeRule: NodeRule; data: RungeData };
     /** How many times the error sample was computed (an observation point for tests). */
     protected sampleRuns = 0;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return rungePresetCollection;
@@ -180,9 +190,10 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         const data = () => this.dataOf(this.model);
         const strokeWidth = this.displayStrokeWidth;
         const thin = this.displayThinWidth(0.6);
-        const curve = (attributes: object, fill: (c: FillCurve) => void) => {
+        const curve = (attributes: object, fill: (c: FillCurve) => void, legendId?: string) => {
             const c = this.own(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes})) as unknown as FillCurve;
             c.updateDataArray = () => fill(c);
+            if (legendId) this.drawn.set(legendId, c as unknown as JXG.GeometryElement);
             return c;
         };
 
@@ -194,7 +205,7 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         curve({strokeColor: GraphPalette.label, strokeWidth: thin, dash: 1, visible: () => this.semicircleShown(model())}, c => {
             c.dataX = Array.from({length: ARC_POINTS}, (_, i) => Math.cos((Math.PI * i) / (ARC_POINTS - 1)));
             c.dataY = Array.from({length: ARC_POINTS}, (_, i) => arcY((Math.PI * i) / (ARC_POINTS - 1)));
-        });
+        }, "semicircle");
         curve({strokeColor: GraphPalette.label, strokeWidth: thin, dash: 2, visible: () => this.semicircleShown(model())}, c => {
             // vertical projections from the semicircle points to the axis, separated by NaN so that they are not joined
             const xs: number[] = [];
@@ -212,24 +223,28 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         curve({strokeColor: GraphPalette.comparisonCurve, strokeWidth, strokeOpacity: 0.45}, c => {
             c.dataX = [...data().xs];
             c.dataY = [...data().f];
-        });
+        }, "f");
         curve({strokeColor: GraphPalette.warningText, strokeWidth: thin, visible: () => model().showError}, c => {
             c.dataX = [...data().xs];
             c.dataY = [...data().error];
-        });
+        }, "error");
         curve({strokeColor: GraphPalette.primaryCurve, strokeWidth}, c => {
             c.dataX = [...data().xs];
             c.dataY = [...data().p];
-        });
+        }, "p");
 
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
-        const marker = (x: () => number, y: () => number, visible: () => boolean, attributes: object) => this.own(board.create("point", [x, y], {
-            ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: markerSize, visible, ...attributes,
-        }));
+        const marker = (x: () => number, y: () => number, visible: () => boolean, attributes: object, legendId?: string) => {
+            const point = this.own(board.create("point", [x, y], {
+                ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: markerSize, visible, ...attributes,
+            }));
+            if (legendId) this.drawn.set(legendId, point as JXG.GeometryElement);
+            return point;
+        };
         for (let j = 0; j < MAX_NODES; j++) {
             marker(() => data().nodes[j] ?? 0, () => data().values[j] ?? 0, () => j <= model().degree, {
                 fillColor: GraphPalette.primaryCurve, highlightFillColor: GraphPalette.primaryCurve, strokeColor: GraphPalette.primaryCurve,
-            });
+            }, j === 0 ? "nodes" : undefined);
             marker(() => Math.cos(chebyshevAngle(model().degree, j)), () => arcY(chebyshevAngle(model().degree, j)), () => j <= model().degree && this.semicircleShown(model()), {
                 fillColor: GraphPalette.label, highlightFillColor: GraphPalette.label, strokeColor: GraphPalette.label,
                 size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
@@ -238,18 +253,12 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         marker(() => data().gridMaxAt, () => data().gridMax, () => model().showError && data().gridMax <= GRID_MAX_MARKER_LIMIT, {
             name: "runge-grid-max", face: "x", strokeColor: GraphPalette.warningText, highlightStrokeColor: GraphPalette.warningText, size: () => Math.max(5, this.displaySettings.pointSize * 1.2),
             strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
-        });
-
-        this.caption("top-left", [
-            {text: () => t("interp_runge_board_title", {value0: model().degree, value1: this.ruleName(model().nodeRule)}), scale: 1.2},
-            {text: () => `f: ${rungeFunctionName(model().functionId)}`},
-            {text: () => t("interp_runge_board_max", {value0: rungeNumber(data().gridMax), value1: formatNumber(data().gridMaxAt, currentLanguage(), 4)}), color: GraphPalette.warningText},
-            {text: () => t("interp_runge_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
-        ]);
+        }, "max");
     }
 
     protected override onSceneRemoved(): void {
         this.sampled = undefined;
+        this.drawn.clear();
     }
 
     /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
@@ -263,24 +272,24 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         const state = this.model;
         const semicircleAvailable = state.nodeRule === "chebyshev";
         return <>
-            <div className="inspector-group">
-                <CountSetter label={t("interp_runge_degree_label")} n={state.degree} min={RUNGE_DEGREE_MIN} max={RUNGE_DEGREE_MAX}
+            <PuckOwnedGroup params={["runge-degree"]} className="inspector-group">
+                <PuckOwned param="runge-degree"><CountSetter label={t("interp_runge_degree_label")} n={state.degree} min={RUNGE_DEGREE_MIN} max={RUNGE_DEGREE_MAX}
                              help={t("interp_runge_degree_help", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
                              rejectedHint={t("interp_runge_degree_rejected", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
                              onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
                              onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
-                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/>
-            </div>
-            <div className="inspector-group">
-                <ChoiceSelect label={t("interp_runge_rule_label")} value={state.nodeRule} help={t("interp_runge_rule_help")}
+                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/></PuckOwned>
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["runge-rule"]} className="inspector-group">
+                <PuckOwned param="runge-rule"><ChoiceSelect label={t("interp_runge_rule_label")} value={state.nodeRule} help={t("interp_runge_rule_help")}
                               options={RUNGE_NODE_RULES.map(rule => ({value: rule, text: this.ruleName(rule)}))}
-                              onChange={next => this.guarded(() => this.setNodeRule(next))}/>
-            </div>
-            <div className="inspector-group">
-                <ChoiceSelect label={t("interp_runge_function_label")} value={state.functionId} help={t("interp_runge_function_help")}
+                              onChange={next => this.guarded(() => this.setNodeRule(next))}/></PuckOwned>
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["runge-function"]} className="inspector-group">
+                <PuckOwned param="runge-function"><ChoiceSelect label={t("interp_runge_function_label")} value={state.functionId} help={t("interp_runge_function_help")}
                               options={INTERPOLATION_FUNCTION_IDS.map(id => ({value: id, text: rungeFunctionName(id)}))}
-                              onChange={next => this.guarded(() => this.setFunction(next))}/>
-            </div>
+                              onChange={next => this.guarded(() => this.setFunction(next))}/></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.showError} label={t("interp_runge_show_error")} onChange={checked => this.setShowError(checked)}/>
                 <OnOffSwitch checked={state.showSemicircle} label={t("interp_runge_show_semicircle")}
@@ -291,30 +300,87 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         </>;
     }
 
+    /** The legend is declared: the graph's own legend panel renders nothing. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "f", color: GraphPalette.comparisonCurve, label: t("interp_runge_legend_f"), kind: "line"},
-            {id: "p", color: GraphPalette.primaryCurve, label: t("interp_runge_legend_p"), kind: "line"},
-            {id: "nodes", color: GraphPalette.primaryCurve, label: t("interp_runge_legend_nodes"), kind: "ring"},
-            {id: "error", color: GraphPalette.warningText, label: t("interp_runge_legend_error"), kind: "line"},
-            {id: "max", color: GraphPalette.warningText, label: t("interp_runge_legend_max"), kind: "cross"},
-            {id: "semicircle", color: GraphPalette.label, label: t("interp_runge_legend_semicircle"), kind: "dotted-line"},
-        ]}/>;
+        return null;
+    }
+
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the setters validate and refuse with a `DomainError`. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "runge-degree": {read: () => this.model.degree, apply: (value: unknown) => this.setDegree(value)},
+            "runge-rule": {read: () => this.model.nodeRule, apply: (value: unknown) => this.setNodeRule(value)},
+            "runge-function": {read: () => this.model.functionId, apply: (value: unknown) => this.setFunction(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, view marks) plus the degree (count), the node rule and the function (choice pucks) and the legend of
+     * the drawn objects. The two display switches stay in Orodja: the lesson scenes set them, no step asks the learner to flip them.
+     */
+    protected override declaration(): GraphDeclaration {
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "runge-degree", kind: "count", label: message("interp_runge_degree_label"), symbol: "n", placement: "board",
+                    help: message("interp_runge_degree_help", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX}), min: RUNGE_DEGREE_MIN, max: RUNGE_DEGREE_MAX},
+                {key: "runge-rule", kind: "choice", label: message("interp_runge_rule_name"), help: message("interp_runge_rule_help"), placement: "board", puck: true, options: [
+                    {value: "equispaced", label: message("interp_runge_rule_equispaced"), short: message("interp_runge_rule_equispaced_short")},
+                    {value: "chebyshev", label: message("interp_runge_rule_chebyshev"), short: message("interp_runge_rule_chebyshev_short")},
+                ]},
+                {key: "runge-function", kind: "choice", label: message("interp_runge_function_label"), help: message("interp_runge_function_help"), placement: "board", puck: true, options: [
+                    {value: "runge", label: message("interp_runge_function_runge"), short: message("interp_runge_function_runge_short")},
+                    {value: "abs", label: message("interp_runge_function_abs")},
+                    {value: "sine", label: message("interp_runge_function_sine")},
+                ]},
+            ],
+            legend: [
+                {id: "f", label: message("interp_runge_legend_f"), kind: "line", object: "f"},
+                {id: "p", label: message("interp_runge_legend_p"), kind: "line", object: "p"},
+                {id: "nodes", label: message("interp_runge_legend_nodes"), kind: "ring", object: "nodes"},
+                {id: "error", label: message("interp_runge_legend_error"), kind: "line", object: "error"},
+                {id: "max", label: message("interp_runge_legend_max"), kind: "cross", object: "max"},
+                {id: "semicircle", label: message("interp_runge_legend_semicircle"), kind: "dashed", object: "semicircle"},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** The readout rows and the grid-maximum note, as declared data; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
+        const model = this.model;
+        const data = this.dataOf(model);
+        const f = interpolationFunction(model.functionId);
+        return {
+            rows: [
+                {id: "function", name: message("interp_runge_readout_function"), value: rungeFunctionMessage(model.functionId)},
+                {id: "degree", name: message("interp_runge_readout_degree"), value: messageNumber(model.degree, 0)},
+                {id: "nodes", name: message("interp_runge_readout_nodes"), value: messageNumber(model.degree + 1, 0)},
+                {id: "rule", name: message("interp_runge_readout_rule"), value: message(model.nodeRule === "chebyshev" ? "interp_runge_rule_chebyshev" : "interp_runge_rule_equispaced")},
+                {id: "grid-max", name: message("interp_runge_readout_max"), value: {kind: "formatted", text: rungeNumber(data.gridMax)}},
+                {id: "grid-max-at", name: message("interp_runge_readout_max_at"), value: messageNumber(data.gridMaxAt, 4)},
+                {id: "grid", name: message("interp_runge_readout_grid"), value: messageNumber(INTERPOLATION_ERROR_GRID, 0)},
+            ],
+            notes: [{id: "grid-note", text: message("interp_runge_note")}],
+            // the function over the interval and its ends: the view keeps the interpolation interval and the unit height in sight
+            plotted: f,
+            // the cross of the grid maximum is a mark while it is drawn (error shown, inside the default view)
+            must: [{x: -1, y: f(-1)}, {x: 1, y: f(1)}, {x: 0, y: f(0)},
+                ...(model.showError && data.gridMax <= GRID_MAX_MARKER_LIMIT ? [{x: data.gridMaxAt, y: data.gridMax}] : [])],
+        };
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.model;
-        const data = this.dataOf(model);
-        const rows = [
-            {id: "function", label: t("interp_runge_readout_function"), value: rungeFunctionName(model.functionId)},
-            {id: "degree", label: t("interp_runge_readout_degree"), value: String(model.degree)},
-            {id: "nodes", label: t("interp_runge_readout_nodes"), value: String(model.degree + 1)},
-            {id: "rule", label: t("interp_runge_readout_rule"), value: this.ruleName(model.nodeRule)},
-            {id: "grid-max", label: t("interp_runge_readout_max"), value: rungeNumber(data.gridMax)},
-            {id: "grid-max-at", label: t("interp_runge_readout_max_at"), value: formatNumber(data.gridMaxAt, currentLanguage(), 4)},
-            {id: "grid", label: t("interp_runge_readout_grid"), value: String(INTERPOLATION_ERROR_GRID)},
-        ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("interp_runge_note")}/>;
+        return this.renderDeclaredReadout();
     }
 }
 

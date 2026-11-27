@@ -14,11 +14,13 @@ import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {InterpolationIds} from '../../graphs/curves/interpolation/InterpolationGraph';
 import type {HermiteIds} from '../../graphs/curves/hermite/HermiteGraph';
+import type {RungeIds} from '../../graphs/functions/RungeInterpolationGraph';
 import {leastSquaresLesson} from './interpolationLeastSquaresLesson';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const lagrangeFrame = frameDeclarer<InterpolationIds>();
 const hermiteFrame = frameDeclarer<HermiteIds>();
+const rungeFrame = frameDeclarer<RungeIds>();
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 /** A scene from the default four points: the parameter rule, the overlays, the shared position s, then optionally a fifth point. */
@@ -657,7 +659,7 @@ const rungeLesson: GuidedLesson = {
                 'The graph shows the function \\(f(x)=\\frac1{1+25x^2}\\) (the faint curve) and its interpolation polynomial \\(p\\) of degree \\(n=6\\) through \\(n+1=7\\) equally spaced nodes on \\([-1,1]\\). The error curve is hidden. Predict: as the degree is raised, that is as nodes are added, will the polynomial \\(p\\) fit \\(f\\) better and better on the whole interval, or will it be worse somewhere?',
             ),
             formulaIds: ['node-polynomial'],
-            frames: [frame('runge-predict-explanation', 'explanation'), frame('runge-predict-observation', 'observation')],
+            frames: [frame('runge-predict-explanation', 'explanation', rungeFrame({open: ['readouts']})), frame('runge-predict-observation', 'observation', rungeFrame({open: ['readouts']}))],
             observationPrompt: text('Pred razkritjem se odloči: ali napaka pada povsod, ali samo v sredini, ali narašča ob krajiščih?', 'Before the reveal decide: does the error fall everywhere, only in the middle, or grow near the ends?'),
             expectedObservations: [text('Pri \\(n=6\\) polinom že nekoliko niha okoli funkcije; kaj se zgodi pri večji stopnji, napoveš ti.', 'At \\(n=6\\) the polynomial already wobbles a little around the function; what happens at a higher degree is your prediction.')],
             scene: rungeScene('runge-predict-start', 6, 'equispaced', false, false,
@@ -669,11 +671,11 @@ const rungeLesson: GuidedLesson = {
             title: text('Višanje stopnje', 'Raising the degree'),
             purpose: text('Pred razkritjem napovedati, kje polinom zaniha, in stopnjo višati korak za korakom.', 'Predicting, before the reveal, where the polynomial swings, and raising the degree step by step.'),
             explanation: text(
-                'Prikazana je stopnja \\(n=10\\), \\(11\\) enakomerno razporejenih točk. Napovej: v sredini intervala ali ob krajiščih bo polinom \\(p\\) najbolj odstopal od \\(f\\)? Nato s tipko plus višaj stopnjo do \\(15\\) in \\(20\\) in opazuj krajišči \\(x=\\pm1\\). Zanihanja ob krajiščih rastejo, čeprav polinom vedno gre skozi vse točke.',
-                'Degree \\(n=10\\) is shown, \\(11\\) equally spaced nodes. Predict: will the polynomial \\(p\\) differ most from \\(f\\) in the middle of the interval or near the ends? Then raise the degree with the plus button to \\(15\\) and \\(20\\) and watch the ends \\(x=\\pm1\\). The swings near the ends grow, even though the polynomial always passes through every node.',
+                'Prikazana je stopnja \\(n=10\\), \\(11\\) enakomerno razporejenih točk. Napovej: v sredini intervala ali ob krajiščih bo polinom \\(p\\) najbolj odstopal od \\(f\\)? Nato s krmilnikom Stopnja n višaj stopnjo do \\(15\\) in \\(20\\) in opazuj krajišči \\(x=\\pm1\\). Zanihanja ob krajiščih rastejo, čeprav polinom vedno gre skozi vse točke.',
+                'Degree \\(n=10\\) is shown, \\(11\\) equally spaced nodes. Predict: will the polynomial \\(p\\) differ most from \\(f\\) in the middle of the interval or near the ends? Then raise the degree with the Degree n control to \\(15\\) and \\(20\\) and watch the ends \\(x=\\pm1\\). The swings near the ends grow, even though the polynomial always passes through every node.',
             ),
             formulaIds: ['node-polynomial'],
-            frames: [frame('runge-raise-degree-explanation', 'explanation'), frame('runge-raise-degree-observation', 'observation')],
+            frames: [frame('runge-raise-degree-explanation', 'explanation', rungeFrame({open: ['readouts'], uses: ['runge-degree']})), frame('runge-raise-degree-observation', 'observation', rungeFrame({open: ['readouts'], uses: ['runge-degree']}))],
             observationPrompt: text('Višaj stopnjo za nekaj korakov in opazuj, kako se spreminja polinom ob krajiščih.', 'Raise the degree a few steps and watch how the polynomial changes near the ends.'),
             expectedObservations: [text('V sredini se polinom z višanjem stopnje približuje funkciji, ob krajiščih pa zaniha vedno bolj.', 'In the middle the polynomial approaches the function as the degree rises, but near the ends it swings more and more.')],
             scene: rungeScene('runge-raise-degree-n10', 10, 'equispaced', false, false,
@@ -689,7 +691,7 @@ const rungeLesson: GuidedLesson = {
                 'The error curve \\(|f-p|\\) at \\(n=10\\) is shown, with a cross at its largest point. Predict: at which \\(x\\) will the error be largest? The readout is the grid maximum error \\(1.916\\) at \\(x=0.9402\\) (the error is an even function, so also at \\(x=-0.9402\\)), right next to an end. It is the largest value over the \\(20001\\) points of the grid, not the true supremum of the error. The polynomial is off by almost two units near the end, although \\(f\\) never exceeds \\(1\\). Whether the error really grows with the degree you compare in step 5; the number holds only for this function \\(f\\).',
             ),
             formulaIds: ['node-polynomial'],
-            frames: [frame('runge-error-curve-explanation', 'explanation'), frame('runge-error-curve-observation', 'observation')],
+            frames: [frame('runge-error-curve-explanation', 'explanation', rungeFrame({open: ['readouts'], highlight: ['grid-max', 'grid-max-at']})), frame('runge-error-curve-observation', 'observation', rungeFrame({open: ['readouts'], highlight: ['grid-max', 'grid-max-at']}))],
             observationPrompt: text('Preberi največjo napako na mreži in mesto, kjer nastopi, ter jo primerjaj z največjo vrednostjo \\(f\\).', 'Read the grid maximum error and the place where it occurs, and compare it with the largest value of \\(f\\).'),
             expectedObservations: [text('Največja napaka na mreži je \\(1{,}916\\) pri \\(x=0{,}9402\\), ob krajišču intervala.', 'The grid maximum error is \\(1.916\\) at \\(x=0.9402\\), near an end of the interval.')],
             scene: rungeScene('runge-error-curve-n10', 10, 'equispaced', true, false,
@@ -705,7 +707,7 @@ const rungeLesson: GuidedLesson = {
                 'The error is large near the ends, so predict which placement of nodes would help: denser in the middle or denser near the ends? The Chebyshev nodes of the first kind \\(x_j=\\cos\\frac{(2j+1)\\pi}{2(n+1)}\\) at \\(n=10\\) are shown: they are the projections onto the \\(x\\)-axis of equally spaced points on a semicircle, so they are denser near the ends. The grid maximum error is now \\(0.1092\\), no longer \\(1.916\\). Chebyshev nodes minimise the maximum of the node polynomial \\(\\prod(x-x_j)\\) on \\([-1,1]\\), not the error at every degree; for this function and this degree they do reduce the error.',
             ),
             formulaIds: ['node-polynomial'],
-            frames: [frame('runge-chebyshev-explanation', 'explanation'), frame('runge-chebyshev-observation', 'observation')],
+            frames: [frame('runge-chebyshev-explanation', 'explanation', rungeFrame({open: ['readouts'], highlight: ['rule', 'grid-max']})), frame('runge-chebyshev-observation', 'observation', rungeFrame({open: ['readouts'], highlight: ['rule', 'grid-max']}))],
             observationPrompt: text('Primerjaj polinom in krivuljo napake z enakomerno razporeditvijo in preberi novo največjo napako na mreži.', 'Compare the polynomial and the error curve with the equally spaced placement and read the new grid maximum error.'),
             expectedObservations: [text('Točke se ob krajiščih zgostijo, polinom ostane blizu \\(f\\) po vsem intervalu, največja napaka na mreži je \\(0{,}1092\\).', 'The nodes crowd together near the ends, the polynomial stays close to \\(f\\) on the whole interval and the grid maximum error is \\(0.1092\\).')],
             scene: rungeScene('runge-chebyshev-n10', 10, 'chebyshev', true, true,
@@ -721,7 +723,7 @@ const rungeLesson: GuidedLesson = {
                 'Degree \\(n=20\\) is shown with equally spaced nodes. Predict: will the grid maximum error at \\(n=20\\) be smaller or larger than at \\(n=10\\)? The readout is \\(59.82\\) and the error curve lies outside the view. With equally spaced nodes the maximum errors are \\(1.916\\), \\(2.108\\) and \\(59.82\\) at \\(n=10\\), \\(15\\) and \\(20\\). Switch to Chebyshev nodes and compare: \\(0.1092\\), \\(0.08311\\) and \\(0.01533\\). These are numbers for this function and these three degrees on the grid; they do not prove what happens as \\(n\\to\\infty\\), nor for every function. For Chebyshev nodes of the second kind the numbers differ, so the lesson always names the kind.',
             ),
             formulaIds: ['node-polynomial'],
-            frames: [frame('runge-compare-explanation', 'explanation'), frame('runge-compare-observation', 'observation')],
+            frames: [frame('runge-compare-explanation', 'explanation', rungeFrame({open: ['readouts'], highlight: ['grid-max'], uses: ['runge-rule', 'runge-degree']})), frame('runge-compare-observation', 'observation', rungeFrame({open: ['readouts'], highlight: ['grid-max'], uses: ['runge-rule', 'runge-degree']}))],
             observationPrompt: text('Preklopi med enakomernimi in Čebiševimi točkami ter pri stopnjah \\(10\\), \\(15\\) in \\(20\\) preberi največjo napako na mreži.', 'Switch between equally spaced and Chebyshev nodes and read the grid maximum error at degrees \\(10\\), \\(15\\) and \\(20\\).'),
             expectedObservations: [text('Enakomerne točke: \\(1{,}916\\), \\(2{,}108\\), \\(59{,}82\\); Čebiševe točke: \\(0{,}1092\\), \\(0{,}08311\\), \\(0{,}01533\\).', 'Equally spaced nodes: \\(1.916\\), \\(2.108\\), \\(59.82\\); Chebyshev nodes: \\(0.1092\\), \\(0.08311\\), \\(0.01533\\).')],
             scene: rungeScene('runge-compare-n20', 20, 'equispaced', true, false,
@@ -737,7 +739,7 @@ const rungeLesson: GuidedLesson = {
                 'The graph is back at the start: the Runge function, degree \\(10\\), equally spaced nodes. Change the function to \\(|x|\\) or \\(\\sin x\\), raise the degree up to \\(40\\) and choose the node rule. For \\(\\sin x\\) the polynomial is nearly equal to the function already at a low degree; this is a contrast that shows the Runge phenomenon is not a property of every function. The grid maximum error is always only the largest value on the grid.',
             ),
             formulaIds: ['node-polynomial'],
-            frames: [frame('runge-explore-explanation', 'explanation'), frame('runge-explore-observation', 'observation')],
+            frames: [frame('runge-explore-explanation', 'explanation', rungeFrame({open: ['readouts'], uses: ['runge-function', 'runge-degree', 'runge-rule']})), frame('runge-explore-observation', 'observation', rungeFrame({open: ['readouts'], highlight: ['grid-max'], uses: ['runge-function', 'runge-degree', 'runge-rule']}))],
             observationPrompt: text('Zamenjaj funkcijo s \\(\\sin x\\), nato z \\(|x|\\), in primerjaj, kako se največja napaka na mreži spreminja s stopnjo pri obeh razporeditvah.', 'Change the function to \\(\\sin x\\), then to \\(|x|\\), and compare how the grid maximum error changes with the degree for both placements.'),
             expectedObservations: [text('Pri \\(\\sin x\\) napaka z višanjem stopnje hitro pada pri obeh razporeditvah; Rungejev pojav je odvisen od funkcije.', 'For \\(\\sin x\\) the error falls quickly with the degree for both placements; the Runge phenomenon depends on the function.')],
             scene: rungeScene('runge-explore-default', 10, 'equispaced', true, false,

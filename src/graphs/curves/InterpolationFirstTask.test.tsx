@@ -18,14 +18,11 @@ beforeEach(() => { appStorage.clear(); setLanguage('sl'); });
 type Label = () => string;
 
 const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
-    runge: () => new RungeInterpolationGraph(),
     subdivision: () => new SubdivisionCurveGraph(),
 };
 
 /** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it. */
 const plan: Record<string, {first: Label; later: Label[]}> = {
-    // A CountSetter's first button is its own decrease button, so it stands for the degree control.
-    runge: {first: () => t('decrease_count'), later: [() => t('interp_runge_rule_label'), () => t('interp_runge_function_label')]},
     subdivision: {first: () => 'action:next', later: [() => t('subdiv_rule'), () => t('subdiv_closed'), () => t('interp_point_name', {value0: 1})]},
 };
 
@@ -62,6 +59,17 @@ describe('exact point entry follows the first-task group', () => {
         expect(document.querySelector('[data-puck-strip]'), 'puck strip').not.toBeNull();
         expect(at(names, t('interp_parameter_rule')), names.join(' | ')).toBe(-1);
         expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_show_basis')));
+    });
+
+    test('runge: the degree, node rule and function are pucks; the display switches are all that is left in Edit', () => {
+        mountGraph(new RungeInterpolationGraph());
+        const names = editControls();
+        expect(document.querySelector('[data-puck-strip]'), 'puck strip').not.toBeNull();
+        for (const label of [t('interp_runge_rule_label'), t('interp_runge_function_label'), t('decrease_count')]) {
+            expect(at(names, label), names.join(' | ')).toBe(-1);
+        }
+        expect(at(names, t('interp_runge_show_error')), names.join(' | ')).toBe(0);
+        expect(at(names, t('interp_runge_show_semicircle')), names.join(' | ')).toBe(1);
     });
 
     test('least squares: the points lead Edit; squares and manual line are declared pucks', () => {

@@ -33,5 +33,14 @@ export function rungeFunctionName(id: InterpolationFunctionId): string {
     }
 }
 
+/** The name of a function of the closed list as a declared message. */
+export function rungeFunctionMessage(id: InterpolationFunctionId): Message {
+    switch (id) {
+        case "runge": return message("interp_runge_function_runge");
+        case "abs": return message("interp_runge_function_abs");
+        case "sine": return message("interp_runge_function_sine");
+    }
+}
+
 /** A number with significant digits in the current language. */
 export const rungeNumber = (value: number, digits = 4) => formatSignificant(value, currentLanguage(), digits);

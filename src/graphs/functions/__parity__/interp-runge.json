@@ -1,0 +1,306 @@
+{
+  "graph": "interp-runge",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (Runge, n = 10, equispaced)",
+      "rows": [
+        {
+          "key": "Funkcija f#0",
+          "label": "Funkcija f",
+          "value": "Rungejeva funkcija 1/(1 + 25x²)"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "10"
+        },
+        {
+          "key": "Število interpolacijskih točk#0",
+          "label": "Število interpolacijskih točk",
+          "value": "11"
+        },
+        {
+          "key": "Razporeditev točk#0",
+          "label": "Razporeditev točk",
+          "value": "Enakomerno razporejene točke"
+        },
+        {
+          "key": "Največja napaka na mreži#0",
+          "label": "Največja napaka na mreži",
+          "value": "1,916"
+        },
+        {
+          "key": "Mesto največje napake na mreži#0",
+          "label": "Mesto največje napake na mreži",
+          "value": "0,9402"
+        },
+        {
+          "key": "Točk mreže#0",
+          "label": "Točk mreže",
+          "value": "20001"
+        }
+      ],
+      "notes": [
+        "Največja napaka na mreži je največja vrednost |f - p| v 20001 enakomerno razporejenih točkah intervala; prava največja napaka je lahko nekoliko večja. Pri Rungejevi funkciji in enakomerno razporejenih točkah napaka z višanjem stopnje raste. Čebiševe točke dajo najmanjšo možno največjo vrednost vozliščnega polinoma (x - x₀)(x - x₁)…(x - xₙ), ne pa najmanjše napake pri vsaki stopnji."
+      ],
+      "outputs": [],
+      "captions": [
+        "Interpolacija, stopnja n = 10, Enakomerno razporejene točke",
+        "Interpolacijske točke so označene s pikami na grafu f.",
+        "Največja napaka na mreži: 1,916 pri x = 0,9402",
+        "f: Rungejeva funkcija 1/(1 + 25x²)"
+      ]
+    },
+    {
+      "name": "n = 6, error hidden",
+      "rows": [
+        {
+          "key": "Funkcija f#0",
+          "label": "Funkcija f",
+          "value": "Rungejeva funkcija 1/(1 + 25x²)"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "6"
+        },
+        {
+          "key": "Število interpolacijskih točk#0",
+          "label": "Število interpolacijskih točk",
+          "value": "7"
+        },
+        {
+          "key": "Razporeditev točk#0",
+          "label": "Razporeditev točk",
+          "value": "Enakomerno razporejene točke"
+        },
+        {
+          "key": "Največja napaka na mreži#0",
+          "label": "Največja napaka na mreži",
+          "value": "0,6169"
+        },
+        {
+          "key": "Mesto največje napake na mreži#0",
+          "label": "Mesto največje napake na mreži",
+          "value": "0,883"
+        },
+        {
+          "key": "Točk mreže#0",
+          "label": "Točk mreže",
+          "value": "20001"
+        }
+      ],
+      "notes": [
+        "Največja napaka na mreži je največja vrednost |f - p| v 20001 enakomerno razporejenih točkah intervala; prava največja napaka je lahko nekoliko večja. Pri Rungejevi funkciji in enakomerno razporejenih točkah napaka z višanjem stopnje raste. Čebiševe točke dajo najmanjšo možno največjo vrednost vozliščnega polinoma (x - x₀)(x - x₁)…(x - xₙ), ne pa najmanjše napake pri vsaki stopnji."
+      ],
+      "outputs": [],
+      "captions": [
+        "Interpolacija, stopnja n = 6, Enakomerno razporejene točke",
+        "Interpolacijske točke so označene s pikami na grafu f.",
+        "Največja napaka na mreži: 0,6169 pri x = 0,883",
+        "f: Rungejeva funkcija 1/(1 + 25x²)"
+      ]
+    },
+    {
+      "name": "n = 20 (cross outside the view)",
+      "rows": [
+        {
+          "key": "Funkcija f#0",
+          "label": "Funkcija f",
+          "value": "Rungejeva funkcija 1/(1 + 25x²)"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "20"
+        },
+        {
+          "key": "Število interpolacijskih točk#0",
+          "label": "Število interpolacijskih točk",
+          "value": "21"
+        },
+        {
+          "key": "Razporeditev točk#0",
+          "label": "Razporeditev točk",
+          "value": "Enakomerno razporejene točke"
+        },
+        {
+          "key": "Največja napaka na mreži#0",
+          "label": "Največja napaka na mreži",
+          "value": "59,82"
+        },
+        {
+          "key": "Mesto največje napake na mreži#0",
+          "label": "Mesto največje napake na mreži",
+          "value": "0,975"
+        },
+        {
+          "key": "Točk mreže#0",
+          "label": "Točk mreže",
+          "value": "20001"
+        }
+      ],
+      "notes": [
+        "Največja napaka na mreži je največja vrednost |f - p| v 20001 enakomerno razporejenih točkah intervala; prava največja napaka je lahko nekoliko večja. Pri Rungejevi funkciji in enakomerno razporejenih točkah napaka z višanjem stopnje raste. Čebiševe točke dajo najmanjšo možno največjo vrednost vozliščnega polinoma (x - x₀)(x - x₁)…(x - xₙ), ne pa najmanjše napake pri vsaki stopnji."
+      ],
+      "outputs": [],
+      "captions": [
+        "Interpolacija, stopnja n = 20, Enakomerno razporejene točke",
+        "Interpolacijske točke so označene s pikami na grafu f.",
+        "Največja napaka na mreži: 59,82 pri x = 0,975",
+        "f: Rungejeva funkcija 1/(1 + 25x²)"
+      ]
+    },
+    {
+      "name": "n = 10 Chebyshev with semicircle",
+      "rows": [
+        {
+          "key": "Funkcija f#0",
+          "label": "Funkcija f",
+          "value": "Rungejeva funkcija 1/(1 + 25x²)"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "10"
+        },
+        {
+          "key": "Število interpolacijskih točk#0",
+          "label": "Število interpolacijskih točk",
+          "value": "11"
+        },
+        {
+          "key": "Razporeditev točk#0",
+          "label": "Razporeditev točk",
+          "value": "Čebiševe točke"
+        },
+        {
+          "key": "Največja napaka na mreži#0",
+          "label": "Največja napaka na mreži",
+          "value": "0,1092"
+        },
+        {
+          "key": "Mesto največje napake na mreži#0",
+          "label": "Mesto največje napake na mreži",
+          "value": "0,1552"
+        },
+        {
+          "key": "Točk mreže#0",
+          "label": "Točk mreže",
+          "value": "20001"
+        }
+      ],
+      "notes": [
+        "Največja napaka na mreži je največja vrednost |f - p| v 20001 enakomerno razporejenih točkah intervala; prava največja napaka je lahko nekoliko večja. Pri Rungejevi funkciji in enakomerno razporejenih točkah napaka z višanjem stopnje raste. Čebiševe točke dajo najmanjšo možno največjo vrednost vozliščnega polinoma (x - x₀)(x - x₁)…(x - xₙ), ne pa najmanjše napake pri vsaki stopnji."
+      ],
+      "outputs": [],
+      "captions": [
+        "Interpolacija, stopnja n = 10, Čebiševe točke",
+        "Interpolacijske točke so označene s pikami na grafu f.",
+        "Največja napaka na mreži: 0,1092 pri x = 0,1552",
+        "f: Rungejeva funkcija 1/(1 + 25x²)"
+      ]
+    },
+    {
+      "name": "sin x, n = 5",
+      "rows": [
+        {
+          "key": "Funkcija f#0",
+          "label": "Funkcija f",
+          "value": "sin x"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "5"
+        },
+        {
+          "key": "Število interpolacijskih točk#0",
+          "label": "Število interpolacijskih točk",
+          "value": "6"
+        },
+        {
+          "key": "Razporeditev točk#0",
+          "label": "Razporeditev točk",
+          "value": "Čebiševe točke"
+        },
+        {
+          "key": "Največja napaka na mreži#0",
+          "label": "Največja napaka na mreži",
+          "value": "5,988·10⁻⁶"
+        },
+        {
+          "key": "Mesto največje napake na mreži#0",
+          "label": "Mesto največje napake na mreži",
+          "value": "-1"
+        },
+        {
+          "key": "Točk mreže#0",
+          "label": "Točk mreže",
+          "value": "20001"
+        }
+      ],
+      "notes": [
+        "Največja napaka na mreži je največja vrednost |f - p| v 20001 enakomerno razporejenih točkah intervala; prava največja napaka je lahko nekoliko večja. Pri Rungejevi funkciji in enakomerno razporejenih točkah napaka z višanjem stopnje raste. Čebiševe točke dajo najmanjšo možno največjo vrednost vozliščnega polinoma (x - x₀)(x - x₁)…(x - xₙ), ne pa najmanjše napake pri vsaki stopnji."
+      ],
+      "outputs": [],
+      "captions": [
+        "Interpolacija, stopnja n = 5, Čebiševe točke",
+        "Interpolacijske točke so označene s pikami na grafu f.",
+        "Največja napaka na mreži: 5,988·10⁻⁶ pri x = -1",
+        "f: sin x"
+      ]
+    },
+    {
+      "name": "|x|, n = 30 equispaced",
+      "rows": [
+        {
+          "key": "Funkcija f#0",
+          "label": "Funkcija f",
+          "value": "|x|"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "30"
+        },
+        {
+          "key": "Število interpolacijskih točk#0",
+          "label": "Število interpolacijskih točk",
+          "value": "31"
+        },
+        {
+          "key": "Razporeditev točk#0",
+          "label": "Razporeditev točk",
+          "value": "Enakomerno razporejene točke"
+        },
+        {
+          "key": "Največja napaka na mreži#0",
+          "label": "Največja napaka na mreži",
+          "value": "31580"
+        },
+        {
+          "key": "Mesto največje napake na mreži#0",
+          "label": "Mesto največje napake na mreži",
+          "value": "0,9848"
+        },
+        {
+          "key": "Točk mreže#0",
+          "label": "Točk mreže",
+          "value": "20001"
+        }
+      ],
+      "notes": [
+        "Največja napaka na mreži je največja vrednost |f - p| v 20001 enakomerno razporejenih točkah intervala; prava največja napaka je lahko nekoliko večja. Pri Rungejevi funkciji in enakomerno razporejenih točkah napaka z višanjem stopnje raste. Čebiševe točke dajo najmanjšo možno največjo vrednost vozliščnega polinoma (x - x₀)(x - x₁)…(x - xₙ), ne pa najmanjše napake pri vsaki stopnji."
+      ],
+      "outputs": [],
+      "captions": [
+        "Interpolacija, stopnja n = 30, Enakomerno razporejene točke",
+        "Interpolacijske točke so označene s pikami na grafu f.",
+        "Največja napaka na mreži: 31580 pri x = 0,9848",
+        "f: |x|"
+      ]
+    }
+  ]
+}

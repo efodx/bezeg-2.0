@@ -964,6 +964,18 @@ const SAMPLES: readonly Sample[] = [
             {name: 'six points', apply: run(g => { g.addPoint(); g.addPoint(); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/interp-runge.json', demonstration: 'interp-runge', states: (() => {
+        type Runge = {setFunction(value: string): void; setDegree(value: number): void; setNodeRule(value: string): void; setShowError(value: boolean): void; setShowSemicircle(value: boolean): void};
+        const run = (edit: (graph: Runge) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Runge)); };
+        return [
+            {name: 'default (Runge, n = 10, equispaced)', apply: () => undefined},
+            {name: 'n = 6, error hidden', apply: run(g => { g.setDegree(6); g.setShowError(false); })},
+            {name: 'n = 20 (cross outside the view)', apply: run(g => { g.setShowError(true); g.setDegree(20); })},
+            {name: 'n = 10 Chebyshev with semicircle', apply: run(g => { g.setDegree(10); g.setNodeRule('chebyshev'); g.setShowSemicircle(true); })},
+            {name: 'sin x, n = 5', apply: run(g => { g.setFunction('sine'); g.setDegree(5); })},
+            {name: '|x|, n = 30 equispaced', apply: run(g => { g.setFunction('abs'); g.setDegree(30); g.setNodeRule('equispaced'); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/arc-length.json', demonstration: 'arc-length', states: (() => {
         type ArcSetters = {setBound(which: 'a' | 'b', value: number): void; setCount(value: number): void};
         const run = (edit: (graph: ArcSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as ArcSetters)); };
