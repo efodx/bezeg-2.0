@@ -1,11 +1,13 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {cleanNumber, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber, NumberLanguage} from "../../analysis/format";
+import {message, Message, MessageNumber, MessageParameter, messageNumber, renderMessage, t} from "../../localization";
 import {NonVerticalLine} from "../../analysis/derivative";
 import {
     isDifferentiableOn, MatchSet, matchingPoints, MEAN_VALUE_EXAMPLE_IDS, meanValueExample, MeanValueExample,
@@ -34,6 +36,24 @@ const MAX_MARKERS = 2;
 /** The formulas as they are written on the board and in the example selector. */
 const PRETTY_FORMULA: Readonly<Record<MeanValueExampleId, string>> = {square: "x²", cube: "x³", abs: "|x|"};
 const exampleTitle = (id: MeanValueExampleId): string => `f(x) = ${PRETTY_FORMULA[id]}`;
+const FORMULA_TEX: Readonly<Record<MeanValueExampleId, string>> = {square: "x^{2}", cube: "x^{3}", abs: "|x|"};
+
+/**
+ * The ids of the mean value declaration: a, b and c are board pucks and the matching points are a switch puck; the readout rows are the
+ * three points, the three function values, the slopes and the matching points; the drawn objects are the legend.
+ */
+export type MeanValueIds = {
+    param: "mvt-a" | "mvt-b" | "mvt-c";
+    row: "a" | "b" | "c" | "f-a" | "f-b" | "f-c" | "secant-slope" | "tangent-slope" | "difference" | "matches"; note: never;
+    legend: "function" | "secant" | "tangent" | "matches"; section: never; action: "show-matches";
+};
+
+/** The height in user units under the x-axis that the labels of a, b and c use (the board is about 7.5 units high by default). */
+const AXIS_LABEL_DEPTH = 0.6;
+
+/** Messages joined by a separator message, left to right ("a; b"); one part is itself. */
+const joinMessages = (parts: readonly MessageParameter[]): MessageParameter =>
+    parts.reduce((joined, part) => message("mean_value_join_semicolon", {value0: joined, value1: part}));
 
 type StatusKind = "differ" | "agree" | "corner" | "hypothesis" | "matches" | "matches-none" | "matches-interval";
 
@@ -72,6 +92,8 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
     private pointC?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections["mean-value"];
@@ -153,43 +175,36 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
 
     // ---- Board ---------------------------------------------------------------------------------------------------
 
-    /** The short status line of the board, or undefined when there is nothing to state. */
-    private boardStatus(model: MeanValueModel, view: View): string | undefined {
-        if (view.tangent === undefined) return t("mean_value_board_corner");
-        if (model.revealed && view.matches.kind === "points" && view.matches.points.length === 0) return t("mean_value_board_none");
-        if (this.agree(view)) return t("mean_value_board_agree");
-        return undefined;
-    }
-
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
         const thin = this.displayThinWidth(0.8);
         const thick = () => Math.max(3, this.displaySettings.strokeWidth * 2);
         const marker = (index: number) => this.markers(this.model, view())[index];
 
         // Layers, lowest first: the function, the secant, the tangents, the lines, then the points.
-        this.own(board.create("functiongraph", [(x: number) => view().example.value(x)], {
+        this.drawn.clear();
+        this.drawn.set("function", this.own(board.create("functiongraph", [(x: number) => view().example.value(x)], {
             strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth,
-        }));
-        this.own(board.create("functiongraph", [(x: number) => lineAt(view().secant, x)], {
+        })));
+        this.drawn.set("secant", this.own(board.create("functiongraph", [(x: number) => lineAt(view().secant, x)], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth: thin,
-        }));
-        this.own(board.create("functiongraph", [(x: number) => lineAt(view().tangent, x)], {
+        })));
+        this.drawn.set("tangent", this.own(board.create("functiongraph", [(x: number) => lineAt(view().tangent, x)], {
             strokeColor: GraphPalette.constructionAccent, highlight: false, fixed: true, strokeWidth, visible: () => view().tangent !== undefined,
-        }));
+        })));
 
         // The tangents at the revealed matching points are parallel to the secant (same slope).
         for (let index = 0; index < MAX_MARKERS; index++) {
-            this.own(board.create("functiongraph", [(x: number) => {
+            const parallel = this.own(board.create("functiongraph", [(x: number) => {
                 const m = marker(index);
                 return m === undefined ? NaN : view().example.value(m) + view().secantSlope * (x - m);
             }], {
                 strokeColor: GraphPalette.constructionAccent, dash: 2, highlight: false, fixed: true, strokeWidth: thin, visible: () => marker(index) !== undefined,
             }));
+            if (index === 0) this.drawn.set("matches", parallel);
         }
 
         // When every point of the interval matches (|x| on one side of its corner) the interval itself is marked on the axis.
@@ -197,10 +212,10 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
             const {matches} = view();
             return model().revealed && matches.kind === "interval" ? matches : undefined;
         };
-        this.own(board.create("segment", [[() => matchingInterval()?.from ?? 0, 0], [() => matchingInterval()?.to ?? 0, 0]], {
+        this.drawn.set("matches-interval", this.own(board.create("segment", [[() => matchingInterval()?.from ?? 0, 0], [() => matchingInterval()?.to ?? 0, 0]], {
             strokeColor: GraphPalette.constructionAccent, strokeWidth: thick, highlight: false, fixed: true, withLabel: false,
             visible: () => matchingInterval() !== undefined,
-        }));
+        })));
 
         // Drop lines from the axis to the graph at a, b and c, and the function values on the graph.
         const dropLine = (x: () => number) => this.own(board.create("segment", [[x, 0], [x, () => view().example.value(x())]], {
@@ -259,24 +274,8 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
             min: () => cleanNumber(model().a + MVT_X_STEP), max: () => cleanNumber(model().b - MVT_X_STEP), write: x => this.setC(x, {syncScene: false}),
         });
 
-        // The formula, both slopes and the status stay on the board, in the corner no default curve reaches.
-        this.caption("bottom-right", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {
-                text: () => {
-                    const current = view();
-                    const secant = formatNumber(current.secantSlope, language(), PRECISE);
-                    return current.tangentSlope === undefined
-                        ? t("mean_value_board_slopes_corner", {value0: secant})
-                        : t("mean_value_board_slopes", {value0: secant, value1: formatNumber(current.tangentSlope, language(), PRECISE)});
-                },
-            },
-            {
-                text: () => this.boardStatus(model(), view()) ?? "",
-                visible: () => this.boardStatus(model(), view()) !== undefined,
-                color: () => view().tangent === undefined ? GraphPalette.warningText : GraphPalette.primaryCurve,
-            },
-        ]);
+        // Nothing else stays on the board: the formula is a declared row, the slopes and the matching points are readout rows and the
+        // status lines are the status of the readouts (owner, 2026-11-27).
     }
 
     protected override syncSceneToModel(): void {
@@ -290,6 +289,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
         this.pointA = undefined;
         this.pointB = undefined;
         this.pointC = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -297,102 +297,181 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
     protected renderControls(): React.ReactNode {
         const {example, a, b, c} = this.model;
         return <>
-            <div className="inspector-group">
-                <Slider customText={t("mean_value_c_label")} value={c} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("mean_value_c_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/>
+            <PuckOwnedGroup params={["mvt-c"]} className="inspector-group">
+                <PuckOwned param="mvt-c"><Slider customText={t("mean_value_c_label")} value={c} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("mean_value_c_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/></PuckOwned>
                 <p className="inspector-help">{t("mean_value_order_help")}</p>
-            </div>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("mean_value_example_label")} value={example} help={t("mean_value_example_help")}
                               options={MEAN_VALUE_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("mean_value_a_label")} value={a} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("mean_value_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("mean_value_b_label")} value={b} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("mean_value_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
-            </div>
+            <PuckOwnedGroup params={["mvt-a", "mvt-b"]} className="inspector-group">
+                <PuckOwned param="mvt-a"><Slider customText={t("mean_value_a_label")} value={a} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("mean_value_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/></PuckOwned>
+                <PuckOwned param="mvt-b"><Slider customText={t("mean_value_b_label")} value={b} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("mean_value_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/></PuckOwned>
+            </PuckOwnedGroup>
         </>;
     }
 
     protected override renderReveals(): React.ReactNode {
         const {revealed} = this.model;
-        return <>
+        return <PuckOwnedGroup params={["show-matches"]}>
             <div className="mean-value-actions" role="group" aria-label={t("mean_value_actions_label")}>
                 <RevealButton action="toggle-matches" revealed={revealed} showLabel={t("mean_value_show_matches")} hideLabel={t("mean_value_hide_matches")}
                               onToggle={() => this.setRevealed(!this.model.revealed)}/>
             </div>
             <p className="inspector-help">{t("mean_value_matches_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
+    /** The legend is declared: the graph's own legend panel renders nothing. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.primaryCurve, label: t("mean_value_legend_function"), kind: "line"},
-            {id: "secant", color: GraphPalette.comparisonCurve, label: t("mean_value_legend_secant"), kind: "line"},
-            {id: "tangent", color: GraphPalette.constructionAccent, label: t("mean_value_legend_tangent"), kind: "line"},
-            {id: "matches", color: GraphPalette.constructionAccent, label: t("mean_value_legend_matches"), kind: "line"},
-        ]}/>;
+        return null;
     }
 
-    /** The matching points as text: each interior point, an interval, or the word for none (hidden until revealed). */
-    private matchesText(model: MeanValueModel, view: View, language: NumberLanguage): string {
-        if (!model.revealed) return t("mean_value_matches_hidden");
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "mvt-a": {read: () => this.model.a, apply: (value: number) => this.setA(value)},
+            "mvt-b": {read: () => this.model.b, apply: (value: number) => this.setB(value)},
+            "mvt-c": {read: () => this.model.c, apply: (value: number) => this.setC(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, status, view marks) plus a, b and c as board pucks, the matching points as a switch puck and the
+     * legend of the drawn objects. The tangent is listed while it exists (not at a corner), the matching points once they are drawn.
+     */
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const view = this.viewOf(model);
+        const point = (key: "mvt-a" | "mvt-b" | "mvt-c", label: "mean_value_a_name" | "mean_value_b_name" | "mean_value_c_name", symbol: string) => ({
+            key, kind: "range" as const, label: message(label), symbol, help: message("mean_value_order_help"), placement: "board" as const,
+            min: MVT_X_MIN, max: MVT_X_MAX, step: MVT_X_STEP, maxDecimals: PRECISE,
+        });
+        return {
+            ...this.commonDeclaration(),
+            formula: {label: message("mean_value_formula_label"), tex: `f(x)=${FORMULA_TEX[model.example]}`},
+            parameters: [point("mvt-a", "mean_value_a_name", "a"), point("mvt-b", "mean_value_b_name", "b"), point("mvt-c", "mean_value_c_name", "c")],
+            legend: [
+                {id: "function", label: message("mean_value_legend_function"), kind: "line", object: "function"},
+                {id: "secant", label: message("mean_value_legend_secant"), kind: "line", object: "secant"},
+                ...(view.tangent !== undefined ? [{id: "tangent" as const, label: message("mean_value_legend_tangent"), kind: "line" as const, object: "tangent"}] : []),
+                ...(this.matchesDrawn(model, view) ? [{id: "matches" as const, label: message("mean_value_legend_matches"), kind: "line" as const, object: "matches"}] : []),
+            ],
+            actions: [
+                {id: "show-matches", label: message("mean_value_actions_label"), help: message("mean_value_matches_help"), placement: "board", enabled: true,
+                    pressed: model.revealed, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "show-matches") runAs("learner", () => this.setRevealed(!this.model.revealed));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        // The matching points are drawn as parallel tangents and rings, or as one interval on the axis: the entry follows whichever is drawn.
+        const drawn = id === "matches" && this.viewOf(this.model).matches.kind === "interval" ? this.drawn.get("matches-interval") : this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** True when the revealed matching points are drawn: isolated points (rings and tangents) or an interval on the axis. */
+    private matchesDrawn(model: MeanValueModel, view: View): boolean {
+        return this.markers(model, view).length > 0 || (model.revealed && view.matches.kind === "interval");
+    }
+
+    /** The matching points as a message: each interior point, an interval, or the word for none (hidden until revealed). */
+    private matchesMessage(model: MeanValueModel, view: View): Message | MessageNumber {
+        if (!model.revealed) return message("mean_value_matches_hidden");
         const {matches} = view;
         if (matches.kind === "interval") {
-            return t("mean_value_matches_interval", {value0: formatNumber(matches.from, language, PRECISE), value1: formatNumber(matches.to, language, PRECISE)});
+            return message("mean_value_matches_interval", {value0: messageNumber(matches.from, PRECISE), value1: messageNumber(matches.to, PRECISE)});
         }
-        if (matches.points.length === 0) return t("mean_value_matches_none");
-        return matches.points.map(point => formatNumber(point, language, PRECISE)).join("; ");
+        if (matches.points.length === 0) return message("mean_value_matches_none");
+        const [first, ...rest] = matches.points;
+        return rest.reduce<Message | MessageNumber>((joined, point) => message("mean_value_join_semicolon", {value0: joined, value1: messageNumber(point, PRECISE)}), messageNumber(first, PRECISE));
     }
 
     /** The statuses to state in words, most important first; each has a stable id for tests and for assistive technology. */
-    private statuses(model: MeanValueModel, view: View, language: NumberLanguage): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
-        const number = (value: number) => formatNumber(value, language, PRECISE);
-        if (!view.differentiable) result.push({id: "hypothesis", text: t("mean_value_status_hypothesis")});
-        if (view.difference === undefined) result.push({id: "corner", text: t("mean_value_status_corner")});
-        else if (this.agree(view)) result.push({id: "agree", text: t("mean_value_status_agree", {value0: formatNumber(MATCH_TOLERANCE, language, 3)})});
-        else result.push({id: "differ", text: t("mean_value_status_differ")});
+    private statuses(model: MeanValueModel, view: View): { id: StatusKind; text: Message }[] {
+        const result: { id: StatusKind; text: Message }[] = [];
+        const number = (value: number) => messageNumber(value, PRECISE);
+        if (!view.differentiable) result.push({id: "hypothesis", text: message("mean_value_status_hypothesis")});
+        if (view.difference === undefined) result.push({id: "corner", text: message("mean_value_status_corner")});
+        else if (this.agree(view)) result.push({id: "agree", text: message("mean_value_status_agree", {value0: messageNumber(MATCH_TOLERANCE, 3)})});
+        else result.push({id: "differ", text: message("mean_value_status_differ")});
         if (model.revealed) {
             const {matches} = view;
             if (matches.kind === "interval") {
-                result.push({id: "matches-interval", text: t("mean_value_status_match_interval", {value0: number(matches.from), value1: number(matches.to)})});
+                result.push({id: "matches-interval", text: message("mean_value_status_match_interval", {value0: number(matches.from), value1: number(matches.to)})});
             } else if (matches.points.length === 0) {
-                result.push({id: "matches-none", text: t("mean_value_status_match_none")});
+                result.push({id: "matches-none", text: message("mean_value_status_match_none")});
             } else if (matches.points.length === 1) {
-                result.push({id: "matches", text: t("mean_value_status_match_one", {value0: number(matches.points[0])})});
+                result.push({id: "matches", text: message("mean_value_status_match_one", {value0: number(matches.points[0])})});
             } else if (matches.points.length === 2) {
-                result.push({id: "matches", text: t("mean_value_status_match_two", {value0: number(matches.points[0]), value1: number(matches.points[1])})});
+                result.push({id: "matches", text: message("mean_value_status_match_two", {value0: number(matches.points[0]), value1: number(matches.points[1])})});
             } else {
-                result.push({id: "matches", text: t("mean_value_status_match_many", {value0: matches.points.map(number).join("; ")})});
+                result.push({id: "matches", text: message("mean_value_status_match_many", {value0: joinMessages(matches.points.map(number))})});
             }
         }
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /**
+     * Declared by the base (task 08): the readout rows, the note, the statuses and the drawn curves; the readout panel is drawn from the
+     * same data. The marks keep the function, the secant, the tangents, the points a, b and c on the axis with their labels below it and
+     * the points on the graph in sight.
+     */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language = currentLanguage();
         const view = this.viewOf(model);
-        const number = (value: number) => formatNumber(value, language, PRECISE);
         const {example} = view;
-        const rows = [
-            {id: "a", label: t("mean_value_a_label"), value: number(model.a)},
-            {id: "b", label: t("mean_value_b_label"), value: number(model.b)},
-            {id: "c", label: t("mean_value_c_label"), value: number(model.c)},
-            {id: "f-a", label: "f(a)", value: number(example.value(model.a))},
-            {id: "f-b", label: "f(b)", value: number(example.value(model.b))},
-            {id: "f-c", label: "f(c)", value: number(example.value(model.c))},
-            {id: "secant-slope", label: t("mean_value_readout_secant"), value: number(view.secantSlope)},
-            {id: "tangent-slope", label: t("mean_value_readout_tangent"), value: view.tangentSlope === undefined ? t("mean_value_undefined") : number(view.tangentSlope)},
-            {id: "difference", label: t("mean_value_readout_difference"), value: view.difference === undefined ? t("mean_value_undefined") : number(view.difference)},
-            {id: "matches", label: t("mean_value_readout_matches"), value: this.matchesText(model, view, language)},
-        ];
+        const number = (value: number) => messageNumber(value, PRECISE);
+        const undefinedText = message("mean_value_undefined");
+        const markers = this.markers(model, view);
+        const onGraph = [model.a, model.b, model.c, ...markers].map(x => ({x, y: example.value(x)}));
+        return {
+            rows: [
+                {id: "a", name: message("mean_value_a_name"), symbol: "a", value: number(model.a)},
+                {id: "b", name: message("mean_value_b_name"), symbol: "b", value: number(model.b)},
+                {id: "c", name: message("mean_value_c_name"), symbol: "c", value: number(model.c)},
+                {id: "f-a", symbol: "f(a)", value: number(example.value(model.a))},
+                {id: "f-b", symbol: "f(b)", value: number(example.value(model.b))},
+                {id: "f-c", symbol: "f(c)", value: number(example.value(model.c))},
+                {id: "secant-slope", name: message("mean_value_readout_secant"), value: number(view.secantSlope)},
+                {id: "tangent-slope", name: message("mean_value_readout_tangent"), value: view.tangentSlope === undefined ? undefinedText : number(view.tangentSlope)},
+                {id: "difference", name: message("mean_value_readout_difference"), value: view.difference === undefined ? undefinedText : number(view.difference)},
+                {id: "matches", name: message("mean_value_readout_matches"), value: this.matchesMessage(model, view)},
+            ],
+            help: message("mean_value_note", {value0: messageNumber(MATCH_TOLERANCE, 3)}),
+            status: this.statuses(model, view),
+            plotted: [
+                (x: number) => example.value(x),
+                (x: number) => lineAt(view.secant, x),
+                (x: number) => lineAt(view.tangent, x),
+            ],
+            must: [
+                ...[model.a, model.b, model.c].flatMap(x => [{x, y: 0}, {x, y: -AXIS_LABEL_DEPTH}]),
+                ...onGraph,
+                ...(view.matches.kind === "interval" && model.revealed ? [{x: view.matches.from, y: 0}, {x: view.matches.to, y: 0}] : []),
+            ],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("mean_value_note", {value0: formatNumber(MATCH_TOLERANCE, language, 3)})}/>
-            <FunctionStatus className="mean-value-status" dataAttribute="mean-value-status" lines={this.statuses(model, view, language)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="mean-value-status" dataAttribute="mean-value-status" lines={(this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 }

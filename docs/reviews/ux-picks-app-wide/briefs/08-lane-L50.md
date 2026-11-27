@@ -57,6 +57,10 @@ more stops that demonstration and is reported with the exact change you want.
   unchanged (allowed). Any other change to a shared test: stop that parameter (leave it unbound) and report test:line.
 - Red check breaks a value, `pressed` or visibility, not an id. Do not re-record goldens; report differences verbatim.
 
+- Before declaring a graph, grep `src/workspace` and `src/graphs/base` tests (and other shared tests) for the graph used as
+  an "undeclared graph" fixture (fixed-point broke `BoardCards.test.tsx:405` and `LessonCard.test.tsx:137`, stream A
+  2026-11-27); report any hit instead of editing that test, and run `just unit src/workspace` once.
+
 ## Checks
 
 The shared brief's step 4 and 8, plus `just unit src/graphs/functions src/graphs/ExportPausesPlayback.test.tsx src/learning/content src/localization src/graphs/base/declare`,

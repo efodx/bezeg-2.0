@@ -3,8 +3,8 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {MEAN_VALUE_EXAMPLE_IDS, MEAN_VALUE_EXAMPLES, MVT_X_MAX, MVT_X_MIN} from '../../analysis/meanValue';
 import {MEAN_VALUE_EXAMPLE_MODELS} from '../../analysis/meanValueModel';
-import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
-import {GraphPalette} from '../styles/GraphPalette';
+import {currentLanguage, onLanguageChange, renderMessage, setLanguage, messageNumber} from '../../localization';
+import {formatNumber} from '../../analysis/format';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
 
@@ -91,15 +91,17 @@ const controls = (graph: any) => {
     if (!toggle) throw new Error('no toggle-matches reveal button');
     return {found, inputA, inputB, inputC, toggle};
 };
+/** The declared rows (the readout panel is drawn from the same data) as the text each shows. */
+const valueText = (value: any): string => 'kind' in value && value.kind === 'number' ? formatNumber(value.value, currentLanguage(), value.maxDecimals) : renderMessage(value);
 const rows = (graph: any): Record<string, string> =>
-    Object.fromEntries((graph.renderReadout().props.children[0].props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
-const statusIds = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model), currentLanguage()).map((status: { id: string }) => status.id);
+    Object.fromEntries((graph.functionPanel().rows as { id: string; value: unknown }[]).map(row => [row.id, valueText(row.value)]));
+const statusIds = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { id: string }) => status.id);
 /** The status sentences in a language (texts come from the active language, so it is switched for the call). */
 const statusTexts = (graph: any, language: 'sl' | 'en' = 'sl') => {
     const previous = currentLanguage();
     setLanguage(language);
     try {
-        return graph.statuses(graph.model, graph.viewOf(graph.model), language).map((status: { text: string }) => status.text);
+        return graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: any }) => renderMessage(status.text));
     } finally {
         setLanguage(previous);
     }
@@ -107,18 +109,21 @@ const statusTexts = (graph: any, language: 'sl' | 'en' = 'sl') => {
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the function, secant, tangent, parallels, drop lines, points and one caption text for x^2 on [0, 2] with c = 0.5', () => {
+test('initialization draws the function, secant, tangent, parallels, drop lines, points and no caption text for x^2 on [0, 2] with c = 0.5', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({example: 'square', a: 0, b: 2, c: 0.5, revealed: false});
     expect(graph.presets()).toBe('mean-value');
     expect(curves(graph)).toHaveLength(5);
     expect(ofType(graph, 'segment')).toHaveLength(4);
     expect(points(graph)).toHaveLength(8);
-    expect(ofType(graph, 'text')).toHaveLength(1);
-    expect(boardObjectCount(graph)).toBe(18);
+    expect(ofType(graph, 'text')).toHaveLength(0);
+    expect(boardObjectCount(graph)).toBe(17);
     expect(graph.generatedObjectCount).toBe(boardObjectCount(graph));
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
-    expect(caption(graph)).toEqual(['f(x) = x²', 'naklon sekante 2, tangente 1']);
+    // the formula and the slopes are a declared row and readout rows (owner, 2026-11-27): nothing is written on the board
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)['secant-slope']).toBe('2');
+    expect(rows(graph)['tangent-slope']).toBe('1');
     // the function, the secant through (0, 0) and (2, 4) and the tangent at c = 0.5 (slope 1, through (0.5, 0.25))
     expect(lineValues(curves(graph)[FUNCTION], [-1, 3])).toEqual([1, 9]);
     expect(secantValues(graph)).toEqual([-2, 0, 2, 4]);
@@ -143,7 +148,7 @@ test('the default readout gives both slopes and their difference, and hides the 
     expect(statusTexts(graph)[0]).not.toMatch(/\d/);
     expect(statusTexts(graph, 'en')[0]).not.toMatch(/\d/);
     apply(graph, parameter('mvt-c', 1.25));
-    expect(statusTexts(graph)).toEqual(['Naklona se razlikujeta. Premakni c, da ju ujameš, ali pokaži ujemajočo točko.']);
+    expect(statusTexts(graph)).toEqual(['Naklona se razlikujeta. Premakni c, da ju ujameš, ali vklopi krmilnik Ujemajoče točke.']);
 });
 
 test('Show matching point reveals c = 1 for x^2 on [0, 2]: a ring on the graph and a tangent parallel to the secant', () => {
@@ -234,7 +239,8 @@ test('|x| on [-1, 1] has no matching point and says so with its reason; the corn
     expect(resolve(tangent.attributes.visible)).toBe(false);
     expect(Number.isNaN(tangent.parents[0](1))).toBe(true);
     for (const ring of [points(graph)[RING_1], points(graph)[RING_2]]) expect(resolve(ring.attributes.visible)).toBe(false);
-    expect(caption(graph)).toEqual(['f(x) = |x|', 'naklon sekante 0, tangente v c ni', 'prelom v c: tangente ni']);
+    expect(caption(graph)).toEqual([]);
+    expect([rows(graph)['secant-slope'], rows(graph)['tangent-slope']]).toEqual(['0', 'ne obstaja']);
     // moving c off the corner draws the tangent again with slope +-1
     apply(graph, parameter('mvt-c', 0.5));
     expect(resolve(tangent.attributes.visible)).toBe(true);
@@ -242,7 +248,7 @@ test('|x| on [-1, 1] has no matching point and says so with its reason; the corn
     expect(rows(graph).difference).toBe('1');
     apply(graph, parameter('mvt-c', -0.5));
     expect(rows(graph)['tangent-slope']).toBe('−1');
-    expect(caption(graph)[1]).toBe('naklon sekante 0, tangente −1');
+    expect(rows(graph)['secant-slope']).toBe('0');
 });
 
 test('|x| on one side of the corner matches on the whole open interval, which is marked on the axis and described honestly', () => {
@@ -294,7 +300,6 @@ test('setting c through the number field and through the lesson action gives the
         expect(viaControl.model).toEqual(viaLesson.model);
         expect(viaControl.model).toMatchObject({a: 0, b: 2, c: value, revealed: false});
         expect(rows(viaControl)).toEqual(rows(viaLesson));
-        expect(caption(viaControl)).toEqual(caption(viaLesson));
         expect(secantValues(viaControl)).toEqual(secantValues(viaLesson));
         expect(axisPoints(viaControl).map((point: any) => point.x)).toEqual(axisPoints(viaLesson).map((point: any) => point.x));
     }
@@ -412,7 +417,7 @@ test('a multi-action scene applied in one synchronous tick reads the earlier act
     apply(graph, defaultScene);
     for (const action of [choice('cube'), parameter('mvt-c', 0.3), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1, c: 0.3, revealed: true});
-    expect(caption(graph)[1]).toBe('naklon sekante 1, tangente 0,27');
+    expect([rows(graph)['secant-slope'], rows(graph)['tangent-slope']]).toEqual(['1', '0,27']);
     // a later action in the same tick sees the earlier one, including an endpoint that depends on c
     apply(graph, choice('abs'));
     apply(graph, parameter('mvt-a', 0));
@@ -493,18 +498,18 @@ test('a slope difference within the tolerance is called agreement of numbers, ne
     apply(graph, parameter('mvt-c', 1));
     expect(statusIds(graph)).toEqual(['agree']);
     expect(statusTexts(graph, 'en')[0]).toMatch(/within the tolerance 0\.005.*numerical comparison, not a proof/);
-    expect(caption(graph)).toEqual(['f(x) = x²', 'naklon sekante 2, tangente 2', 'naklona se ujemata (številčno)']);
-    expect(graph.captionColors()[2]).toBe(GraphPalette.primaryCurve);
+    expect(caption(graph)).toEqual([]);
+    expect([rows(graph)['secant-slope'], rows(graph)['tangent-slope']]).toEqual(['2', '2']);
     // the difference is 2c - 2: 0.004 is inside the tolerance, 0.008 is outside
     apply(graph, parameter('mvt-c', 1.002));
     expect(statusIds(graph)).toEqual(['agree']);
     apply(graph, parameter('mvt-c', 1.004));
     expect(statusIds(graph)).toEqual(['differ']);
     expect(MATCH_TOLERANCE).toBe(0.005);
-    const note = graph.renderReadout().props.children[0].props.note as string;
+    const note = renderMessage(graph.functionPanel().help);
     expect(note).toMatch(/številčna primerjava.*ne dokaz/);
     setLanguage('en');
-    expect(graph.renderReadout().props.children[0].props.note).toMatch(/numerical comparison.*not a proof/);
+    expect(renderMessage(graph.functionPanel().help)).toMatch(/numerical comparison.*not a proof/);
 });
 
 test('dragging a, b and c on the axis projects onto the grid and the range the ordering allows, writing the model once', () => {
@@ -655,7 +660,7 @@ test('unmount leaves no generated object and a late edit changes nothing on the 
 test('generated objects are disposed and not duplicated across repeated generation, example changes and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(18);
+    expect(baseline).toBe(17);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -676,28 +681,31 @@ test('generated objects are disposed and not duplicated across repeated generati
     expect(axisPoints(graph).every((point: any) => graph.board.objectsList.includes(point))).toBe(true);
 });
 
-test('the caption follows the language and a language change notifies subscribers', () => {
+test('the rows follow the language and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    expect(caption(graph)).toEqual(['f(x) = x²', 'naklon sekante 2, tangente 1']);
+    expect(caption(graph)).toEqual([]);
+    expect(renderMessage(graph.functionPanel().rows[6].name)).toBe('Naklon sekante (f(b) − f(a))/(b − a)');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)).toEqual(['f(x) = x²', 'secant slope 2, tangent slope 1']);
+    expect(renderMessage(graph.functionPanel().rows[6].name)).toBe('Secant slope (f(b) − f(a))/(b − a)');
     unsubscribe();
 });
 
 test('the legend names the curves and the matching markers in words, not by colour alone', () => {
     const graph = makeGraph();
-    const items = graph.renderLegend().props.items as { id: string; label: string; color: string }[];
+    expect(graph.renderLegend()).toBeNull();
+    apply(graph, reveal(true));
+    const items = graph.declaration().legend as { id: string; label: any; object: string }[];
     expect(items.map(item => item.id)).toEqual(['function', 'secant', 'tangent', 'matches']);
-    expect(items.map(item => item.label)).toEqual([
+    expect(items.map(item => renderMessage(item.label))).toEqual([
         'Graf funkcije f', 'Sekanta skozi (a, f(a)) in (b, f(b))', 'Tangenta v točki c',
         'Ujemajoče točke (obroči) in njihove tangente',
     ]);
-    expect(new Set(items.slice(0, 3).map(item => item.color)).size).toBe(3);
+    expect(new Set([FUNCTION, SECANT, TANGENT].map(index => curves(graph)[index].attributes.strokeColor)).size).toBe(3);
     setLanguage('en');
-    expect(graph.renderLegend().props.items.map((item: any) => item.label)[2]).toBe('Tangent at the point c');
+    expect(renderMessage(graph.declaration().legend[2].label)).toBe('Tangent at the point c');
 });
 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {

@@ -6,18 +6,18 @@
       "name": "default",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
-          "key": "Točka dotika c#0",
-          "label": "Točka dotika c",
+          "key": "Točka dotika#0",
+          "label": "Točka dotika",
           "value": "0,5"
         },
         {
@@ -57,30 +57,27 @@
         }
       ],
       "notes": [
-        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; krmilnik jo izračuna po formuli."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²",
-        "naklon sekante 2, tangente 1"
-      ]
+      "captions": []
     },
     {
       "name": "mean-value-guided/mean-value-reveal-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
-          "key": "Točka dotika c#0",
-          "label": "Točka dotika c",
+          "key": "Točka dotika#0",
+          "label": "Točka dotika",
           "value": "1"
         },
         {
@@ -120,31 +117,27 @@
         }
       ],
       "notes": [
-        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; krmilnik jo izračuna po formuli."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²",
-        "naklon sekante 2, tangente 2",
-        "naklona se ujemata (številčno)"
-      ]
+      "captions": []
     },
     {
       "name": "mean-value-guided/mean-value-move-c-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
-          "key": "Točka dotika c#0",
-          "label": "Točka dotika c",
+          "key": "Točka dotika#0",
+          "label": "Točka dotika",
           "value": "1,5"
         },
         {
@@ -184,30 +177,27 @@
         }
       ],
       "notes": [
-        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; krmilnik jo izračuna po formuli."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²",
-        "naklon sekante 2, tangente 3"
-      ]
+      "captions": []
     },
     {
       "name": "mean-value-guided/mean-value-cube-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1"
         },
         {
-          "key": "Točka dotika c#0",
-          "label": "Točka dotika c",
+          "key": "Točka dotika#0",
+          "label": "Točka dotika",
           "value": "0"
         },
         {
@@ -247,30 +237,27 @@
         }
       ],
       "notes": [
-        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; krmilnik jo izračuna po formuli."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x³",
-        "naklon sekante 1, tangente 0"
-      ]
+      "captions": []
     },
     {
       "name": "mean-value-guided/mean-value-abs-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1"
         },
         {
-          "key": "Točka dotika c#0",
-          "label": "Točka dotika c",
+          "key": "Točka dotika#0",
+          "label": "Točka dotika",
           "value": "0"
         },
         {
@@ -310,31 +297,27 @@
         }
       ],
       "notes": [
-        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; krmilnik jo izračuna po formuli."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = |x|",
-        "naklon sekante 0, tangente v c ni",
-        "prelom v c: tangente ni"
-      ]
+      "captions": []
     },
     {
       "name": "mean-value-guided/mean-value-free-exploration",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1"
         },
         {
-          "key": "Točka dotika c#0",
-          "label": "Točka dotika c",
+          "key": "Točka dotika#0",
+          "label": "Točka dotika",
           "value": "0,5"
         },
         {
@@ -374,14 +357,10 @@
         }
       ],
       "notes": [
-        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; gumb jo izračuna po formuli."
+        "Ujemanje naklonov je tu številčna primerjava prikazanih števil (toleranca 0,005), ne dokaz. Izrek zagotavlja, da ujemajoča točka obstaja; krmilnik jo izračuna po formuli."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = |x|",
-        "naklon sekante 1, tangente 1",
-        "naklona se ujemata (številčno)"
-      ]
+      "captions": []
     }
   ]
 }

@@ -64,6 +64,7 @@ import type {AccumulationIds} from '../../graphs/functions/AccumulationGraph';
 import type {ConvexityIds} from '../../graphs/functions/ConvexityGraph';
 import type {DarbouxIds} from '../../graphs/functions/DarbouxGraph';
 import type {ExtremaIds} from '../../graphs/functions/ExtremaGraph';
+import type {MeanValueIds} from '../../graphs/functions/MeanValueGraph';
 import type {FixedPointIds} from '../../graphs/functions/FixedPointGraph';
 import type {SequenceIds} from '../../graphs/functions/SequenceGraph';
 
@@ -75,6 +76,7 @@ const accumulationFrame = frameDeclarer<AccumulationIds>();
 const convexityFrame = frameDeclarer<ConvexityIds>();
 const darbouxFrame = frameDeclarer<DarbouxIds>();
 const extremaFrame = frameDeclarer<ExtremaIds>();
+const meanValueFrame = frameDeclarer<MeanValueIds>();
 const fixedPointFrame = frameDeclarer<FixedPointIds>();
 const sequenceFrame = frameDeclarer<SequenceIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
@@ -471,10 +473,10 @@ const meanValue: GuidedLesson = {
                 'The function \\(f(x)=x^2\\) is continuous on \\([0,2]\\) and differentiable on \\((0,2)\\). The secant joins the points \\((0,f(0))\\) and \\((2,f(2))\\) and has slope \\(\\frac{f(2)-f(0)}{2-0}=\\frac{4-0}{2}=2\\). The tangent at a point \\(c\\in(0,2)\\) has slope \\(f^{\\prime}(c)=2c\\); at \\(c=0.5\\) this slope is \\(1\\), and the difference between the tangent slope and the secant slope is \\(-1\\). You move the endpoints \\(a\\) and \\(b\\) and the point \\(c\\) separately, and \\(a<c<b\\) always holds. The mean value theorem says that for a function that is continuous and differentiable on \\((a,b)\\) there is at least one point \\(c\\) at which the two slopes are equal.',
             ),
             formulaIds: ['mean-value-statement', 'mean-value-slopes'],
-            frames: [frame('mean-value-prerequisites-explanation', 'explanation'), frame('mean-value-prerequisites-observation', 'observation')],
+            frames: [frame('mean-value-prerequisites-explanation', 'explanation', meanValueFrame({highlight: ['secant-slope', 'tangent-slope', 'difference']})), frame('mean-value-prerequisites-observation', 'observation', meanValueFrame({highlight: ['tangent-slope', 'difference'], uses: ['mvt-c', 'show-matches']}))],
             observationPrompt: text(
-                'Preberi naklon sekante in naklon tangente. Napovej, pri kateri vrednosti \\(c\\) sta naklona enaka, in šele nato pritisni Pokaži ujemajočo točko.',
-                'Read the secant slope and the tangent slope. Predict at which value of \\(c\\) the slopes are equal, and only then press Show matching point.',
+                'Preberi naklon sekante in naklon tangente. Napovej, pri kateri vrednosti \\(c\\) sta naklona enaka, in šele nato vklopi krmilnik Ujemajoče točke.',
+                'Read the secant slope and the tangent slope. Predict at which value of \\(c\\) the slopes are equal, and only then turn on the Matching points control.',
             ),
             expectedObservations: [text(
                 'Pri \\(c=0{,}5\\) je naklon sekante \\(2\\), naklon tangente \\(1\\) in razlika \\(-1\\); ujemajoča točka še ni razkrita.',
@@ -498,7 +500,7 @@ const meanValue: GuidedLesson = {
                 'For \\(f(x)=x^2\\) we need \\(2c=2\\), so \\(c=1\\). When you show the matching point, a ring appears on the graph at \\((1,1)\\), and the dashed tangent through it is parallel to the secant. At \\(c=1\\) the tangent slope \\(2\\) equals the secant slope \\(2\\) and the difference is \\(0\\). The displayed agreement is a numerical comparison of the displayed numbers and not a proof: the theorem guarantees that a matching point exists, and the button computes it by formula.',
             ),
             formulaIds: ['mean-value-slopes', 'mean-value-power-matches'], workedExampleId: 'mean-value-x2-example',
-            frames: [frame('mean-value-reveal-explanation', 'explanation'), frame('mean-value-reveal-calculation', 'calculation'), frame('mean-value-reveal-observation', 'observation')],
+            frames: [frame('mean-value-reveal-explanation', 'explanation', meanValueFrame({highlight: ['secant-slope', 'tangent-slope']})), frame('mean-value-reveal-calculation', 'calculation', meanValueFrame({highlight: ['tangent-slope', 'difference']})), frame('mean-value-reveal-observation', 'observation', meanValueFrame({highlight: ['difference', 'matches'], uses: ['mvt-c']}))],
             observationPrompt: text(
                 'Primerjaj razkrito točko z napovedjo. Nato premakni \\(c\\) stran od \\(1\\) in opazuj, kako se razlika naklonov spremeni; krajišči \\(a\\) in \\(b\\) pri tem ostaneta.',
                 'Compare the revealed point with your prediction. Then move \\(c\\) away from \\(1\\) and watch how the slope difference changes; the endpoints \\(a\\) and \\(b\\) stay where they are.',
@@ -525,10 +527,10 @@ const meanValue: GuidedLesson = {
                 'Move \\(c\\) to \\(1.5\\): the tangent slope is \\(2c=3\\) and the difference \\(1\\) is positive. At \\(c=0.5\\) the difference was \\(-1\\); since \\(2c-2\\) is a continuous function, it must take the value \\(0\\) in between, and that happens at \\(c=1\\). The secant does not move when you move \\(c\\), because \\(c\\) does not affect the endpoints \\(a\\) and \\(b\\). When you change the endpoints, \\(c\\) stays in \\((a,b)\\): a value that would break the condition \\(a<c<b\\) is rejected by the app, so move \\(c\\) first.',
             ),
             formulaIds: ['mean-value-slopes'],
-            frames: [frame('mean-value-move-c-explanation', 'explanation'), frame('mean-value-move-c-observation', 'observation')],
+            frames: [frame('mean-value-move-c-explanation', 'explanation', meanValueFrame({highlight: ['tangent-slope', 'difference']})), frame('mean-value-move-c-observation', 'observation', meanValueFrame({highlight: ['tangent-slope', 'difference'], uses: ['mvt-c']}))],
             observationPrompt: text(
-                'Povleci točko \\(c\\) po osi \\(x\\) ali jo vnesi v polje. Opazuj, da se krajišči in sekanta ne premakneta, razlika naklonov pa menja predznak.',
-                'Drag the point \\(c\\) along the \\(x\\)-axis or type it into the field. Notice that the endpoints and the secant do not move while the slope difference changes sign.',
+                'Povleci točko \\(c\\) po osi \\(x\\) ali jo premakni s krmilnikom Točka dotika. Opazuj, da se krajišči in sekanta ne premakneta, razlika naklonov pa menja predznak.',
+                'Drag the point \\(c\\) along the \\(x\\)-axis or set it with the Tangent point control. Notice that the endpoints and the secant do not move while the slope difference changes sign.',
             ),
             expectedObservations: [text(
                 'Pri \\(c=1{,}5\\) je naklon tangente \\(3\\), razlika \\(1\\); naklon sekante \\(2\\) in krajišči \\(a=0\\), \\(b=2\\) so nespremenjeni.',
@@ -552,14 +554,14 @@ const meanValue: GuidedLesson = {
                 'For \\(f(x)=x^3\\) on \\([-1,1]\\) the secant slope is \\(\\frac{1-(-1)}{1-(-1)}=1\\). We need \\(3c^2=1\\), so \\(c=\\pm\\frac{1}{\\sqrt3}\\approx\\pm0.5774\\): there are two matching points, both in \\((-1,1)\\). The theorem guarantees at least one matching point, not that there is only one. At \\(c=0\\) the tangent slope is \\(0\\), the difference is \\(-1\\) and the tangent is horizontal, so the slopes do not agree there.',
             ),
             formulaIds: ['mean-value-power-matches'], workedExampleId: 'mean-value-x3-example',
-            frames: [frame('mean-value-cube-explanation', 'explanation'), frame('mean-value-cube-calculation', 'calculation'), frame('mean-value-cube-observation', 'observation')],
+            frames: [frame('mean-value-cube-explanation', 'explanation', meanValueFrame({highlight: ['secant-slope', 'matches']})), frame('mean-value-cube-calculation', 'calculation', meanValueFrame({highlight: ['matches']})), frame('mean-value-cube-observation', 'observation', meanValueFrame({highlight: ['matches'], uses: ['show-matches']}))],
             observationPrompt: text(
-                'Napovej, koliko ujemajočih točk ima \\(x^3\\) na tem intervalu, in nato pritisni Pokaži ujemajočo točko.',
-                'Predict how many matching points \\(x^3\\) has on this interval, and then press Show matching point.',
+                'Napovej, koliko ujemajočih točk ima \\(x^3\\) na tem intervalu, in nato vklopi krmilnik Ujemajoče točke.',
+                'Predict how many matching points \\(x^3\\) has on this interval, and then turn on the Matching points control.',
             ),
             expectedObservations: [text(
-                'Po pritisku sta razkrita dva obročka pri \\(c=-0{,}5774\\) in \\(c=0{,}5774\\); naklon sekante je \\(1\\) in naklon tangente \\(3c^2=1\\) pri obeh.',
-                'After the press two rings are revealed at \\(c=-0.5774\\) and \\(c=0.5774\\); the secant slope is \\(1\\) and the tangent slope \\(3c^2=1\\) at both.',
+                'Ko vklopiš krmilnik Ujemajoče točke, sta razkrita dva obročka pri \\(c=-0{,}5774\\) in \\(c=0{,}5774\\); naklon sekante je \\(1\\) in naklon tangente \\(3c^2=1\\) pri obeh.',
+                'After you turn on the Matching points control two rings are revealed at \\(c=-0.5774\\) and \\(c=0.5774\\); the secant slope is \\(1\\) and the tangent slope \\(3c^2=1\\) at both.',
             )],
             scene: {
                 id: 'mean-value-cube-scene', basedOn: 'demonstration-default',
@@ -579,14 +581,14 @@ const meanValue: GuidedLesson = {
                 'The function \\(f(x)=|x|\\) is continuous on \\([-1,1]\\) but not differentiable at the point \\(0\\): its graph has a corner. The secant slope is \\(\\frac{|1|-|-1|}{1-(-1)}=0\\), while the derivative is \\(-1\\) to the left of \\(0\\) and \\(1\\) to the right of \\(0\\), never \\(0\\). So no point at which the derivative exists achieves the secant slope. At the point \\(c=0\\) the derivative does not exist, so there is no tangent: the app draws none and shows no tangent slope, rather than inventing one or showing infinity. The theorem does not claim the opposite here, because its hypothesis of differentiability on \\((-1,1)\\) is not satisfied.',
             ),
             formulaIds: ['mean-value-statement'], workedExampleId: 'mean-value-abs-example',
-            frames: [frame('mean-value-abs-explanation', 'explanation'), frame('mean-value-abs-calculation', 'calculation'), frame('mean-value-abs-observation', 'observation')],
+            frames: [frame('mean-value-abs-explanation', 'explanation', meanValueFrame({highlight: ['secant-slope', 'tangent-slope']})), frame('mean-value-abs-calculation', 'calculation', meanValueFrame({highlight: ['difference']})), frame('mean-value-abs-observation', 'observation', meanValueFrame({highlight: ['matches'], uses: ['show-matches', 'mvt-c']}))],
             observationPrompt: text(
-                'Napovej, ali ima \\(|x|\\) na \\([-1,1]\\) ujemajočo točko, in nato pritisni Pokaži ujemajočo točko in preberi stanje. Nato premakni \\(c\\) s kota in opazuj naklon tangente.',
-                'Predict whether \\(|x|\\) has a matching point on \\([-1,1]\\), then press Show matching point and read the status. Then move \\(c\\) off the corner and watch the tangent slope.',
+                'Napovej, ali ima \\(|x|\\) na \\([-1,1]\\) ujemajočo točko, in nato vklopi krmilnik Ujemajoče točke in preberi stanje. Nato premakni \\(c\\) s kota in opazuj naklon tangente.',
+                'Predict whether \\(|x|\\) has a matching point on \\([-1,1]\\), then turn on the Matching points control and read the status. Then move \\(c\\) off the corner and watch the tangent slope.',
             ),
             expectedObservations: [text(
-                'Pri \\(c=0\\) tangente ni in naklon tangente ne obstaja; po pritisku stanje pove, da ujemajoče točke ni, ker predpostavka izreka ni izpolnjena; naklon sekante je \\(0\\).',
-                'At \\(c=0\\) there is no tangent and the tangent slope does not exist; after the press the status says that there is no matching point because the hypothesis of the theorem is not satisfied; the secant slope is \\(0\\).',
+                'Pri \\(c=0\\) tangente ni in naklon tangente ne obstaja; ko vklopiš krmilnik Ujemajoče točke, stanje pove, da ujemajoče točke ni, ker predpostavka izreka ni izpolnjena; naklon sekante je \\(0\\).',
+                'At \\(c=0\\) there is no tangent and the tangent slope does not exist; after you turn on the Matching points control the status says that there is no matching point because the hypothesis of the theorem is not satisfied; the secant slope is \\(0\\).',
             )],
             scene: {
                 id: 'mean-value-abs-scene', basedOn: 'demonstration-default',
@@ -606,14 +608,14 @@ const meanValue: GuidedLesson = {
                 'The function \\(|x|\\) on \\([0,1]\\) is differentiable on \\((0,1)\\), where the derivative is \\(1\\), and the secant slope is \\(\\frac{1-0}{1-0}=1\\): every point of the interval \\((0,1)\\) matches. The theorem guarantees at least one matching point, not exactly one; the app shows a matching interval as a thick line on the \\(x\\)-axis. Now explore on your own: change the example, move \\(a\\), \\(b\\) and \\(c\\), and check when there is no matching point, when there is one, when there are two and when the whole interval matches.',
             ),
             formulaIds: ['mean-value-statement'],
-            frames: [frame('mean-value-free-explanation', 'explanation'), frame('mean-value-free-observation', 'observation')],
+            frames: [frame('mean-value-free-explanation', 'explanation', meanValueFrame({highlight: ['matches']})), frame('mean-value-free-observation', 'observation', meanValueFrame({highlight: ['matches'], uses: ['show-matches']}))],
             observationPrompt: text(
-                'Napovej, katere točke ujemajo pri \\(|x|\\) na \\([0,1]\\), in nato pritisni Pokaži ujemajočo točko. Nato poskusi \\(x^2\\) in \\(x^3\\) na drugih intervalih.',
-                'Predict which points match for \\(|x|\\) on \\([0,1]\\), and then press Show matching point. Then try \\(x^2\\) and \\(x^3\\) on other intervals.',
+                'Napovej, katere točke ujemajo pri \\(|x|\\) na \\([0,1]\\), in nato vklopi krmilnik Ujemajoče točke. Nato poskusi \\(x^2\\) in \\(x^3\\) na drugih intervalih.',
+                'Predict which points match for \\(|x|\\) on \\([0,1]\\), and then turn on the Matching points control. Then try \\(x^2\\) and \\(x^3\\) on other intervals.',
             ),
             expectedObservations: [text(
-                'Pri \\(|x|\\) na \\([0,1]\\) sta naklona tangente in sekante enaka \\(1\\); po pritisku se ujema vsaka točka intervala \\((0,1)\\), ki je označen z debelo črto.',
-                'For \\(|x|\\) on \\([0,1]\\) the tangent and secant slopes are both \\(1\\); after the press every point of the interval \\((0,1)\\) matches, marked by a thick line.',
+                'Pri \\(|x|\\) na \\([0,1]\\) sta naklona tangente in sekante enaka \\(1\\); ko vklopiš krmilnik Ujemajoče točke, se ujema vsaka točka intervala \\((0,1)\\), ki je označen z debelo črto.',
+                'For \\(|x|\\) on \\([0,1]\\) the tangent and secant slopes are both \\(1\\); after you turn on the Matching points control every point of the interval \\((0,1)\\) matches, marked by a thick line.',
             )],
             scene: {
                 id: 'mean-value-free-scene', basedOn: 'demonstration-default',

@@ -4,15 +4,12 @@ import {MemoryRouter} from 'react-router-dom';
 import {MeanValueGraph} from './MeanValueGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {installBoardShims, openTools, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 
-// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
-beforeAll(() => {
-    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
-    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
-    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
-        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
-});
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
+beforeAll(installBoardShims);
 
 beforeEach(() => setLanguage('sl'));
 
@@ -34,9 +31,11 @@ class ObservedMeanValueGraph extends MeanValueGraph {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-mean-value-status]')].map(element => element.getAttribute('data-mean-value-status'));
 
-test('a real board shows the secant, the tangent and the slopes: the inputs move c without moving a or b, and the reveal button shows the match', () => {
+test('a real board shows the secant, the tangent and the slopes: a, b and c and the matching points are pucks, the example select stays in Orodja', async () => {
     const graph = new ObservedMeanValueGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('show-matches');
+    await openTools();
     expect(graph.state.initialized).toBe(true);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     expect(readout('secant-slope')).toBe('2');
@@ -44,28 +43,28 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     expect(readout('difference')).toBe('−1');
     expect(readout('matches')).toBe('skrite');
 
-    const showButton = () => screen.getByRole('button', {name: /ujemajočo točko/});
-    expect(showButton().textContent).toBe('Pokaži ujemajočo točko');
-    act(() => { fireEvent.click(showButton()); });
+    // the pucks own the three points and the reveal: no second copy in Orodja
+    for (const label of ['Točka dotika c, vrednost', 'Levo krajišče a, vrednost', 'Desno krajišče b, vrednost']) expect(screen.queryByLabelText(label)).toBeNull();
+    expect(screen.queryByRole('button', {name: /ujemajočo točko/})).toBeNull();
+
+    expect(puckControl('show-matches').getAttribute('aria-checked')).toBe('false');
+    act(() => { fireEvent.click(puckControl('show-matches')); });
+    expect(puckControl('show-matches').getAttribute('aria-checked')).toBe('true');
     expect(readout('matches')).toBe('1');
-    expect(showButton().textContent).toBe('Skrij ujemajočo točko');
     expect(statusIds()).toEqual(['differ', 'matches']);
 
-    // c through the real labelled field: the endpoints and the secant do not change
-    const inputC = screen.getByLabelText('Točka dotika c, vrednost') as HTMLInputElement;
-    act(() => { enterNumber(inputC, '1'); });
+    // c as the puck writes it: the endpoints and the secant do not change
+    act(() => { graph.parameters!.write('mvt-c', 1, 'learner'); });
     expect(graph.modelNow()).toEqual({example: 'square', a: 0, b: 2, c: 1, revealed: true});
     expect(readout('tangent-slope')).toBe('2');
     expect(readout('difference')).toBe('0');
     expect(readout('secant-slope')).toBe('2');
     expect(statusIds()).toEqual(['agree', 'matches']);
 
-    // an endpoint that would pass c is refused with a hint and leaves the model alone
-    const inputA = screen.getByLabelText('Levo krajišče a, vrednost') as HTMLInputElement;
-    act(() => { enterNumber(inputA, '1'); });
+    // an endpoint that would pass c is refused and leaves the model alone
+    act(() => { graph.parameters!.write('mvt-a', 1, 'learner'); });
     expect(graph.modelNow()).toMatchObject({a: 0, b: 2, c: 1});
-    expect(screen.getByText('Krajišče a mora ostati levo od c (a < c). Najprej premakni c.')).toBeInTheDocument();
-    act(() => { enterNumber(inputA, '0.5'); });
+    act(() => { graph.parameters!.write('mvt-a', 0.5, 'learner'); });
     expect(graph.modelNow()).toMatchObject({a: 0.5, b: 2, c: 1});
     expect(readout('secant-slope')).toBe('2,5');
 
@@ -73,19 +72,18 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     const select = screen.getByLabelText('Primer funkcije') as HTMLSelectElement;
     act(() => { fireEvent.change(select, {target: {value: 'abs'}}); });
     expect(graph.modelNow()).toEqual({example: 'abs', a: -1, b: 1, c: 0.5, revealed: false});
-    expect(showButton().textContent).toBe('Pokaži ujemajočo točko');
-    act(() => { enterNumber(screen.getByLabelText('Točka dotika c, vrednost'), '0'); });
+    expect(puckControl('show-matches').getAttribute('aria-checked')).toBe('false');
+    act(() => { graph.parameters!.write('mvt-c', 0, 'learner'); });
     expect(readout('tangent-slope')).toBe('ne obstaja');
     expect(readout('difference')).toBe('ne obstaja');
     expect(statusIds()).toEqual(['hypothesis', 'corner']);
-    act(() => { fireEvent.click(showButton()); });
+    act(() => { fireEvent.click(puckControl('show-matches')); });
     expect(readout('matches')).toBe('ni');
     expect(statusIds()).toEqual(['hypothesis', 'corner', 'matches-none']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 
     // the English labels follow a live language switch
     act(() => { setLanguage('en'); });
-    expect(screen.getByRole('button', {name: 'Hide matching point'})).toBeInTheDocument();
-    expect(screen.getByLabelText('Point of tangency c')).toBeInTheDocument();
+    expect(puckControl('show-matches').getAttribute('aria-checked')).toBe('true');
     expect(readout('tangent-slope')).toBe('does not exist');
 });

@@ -41,6 +41,10 @@ interface Sample {
 const continuityAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
 ];
+const meanValueAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'note', reason: 'the note named the reveal "gumb" (button); the reveal is a switch puck now, so the note says "krmilnik" (control)'},
+    {kind: 'extra', where: 'note', reason: 'the same note with "gumb" reworded to "krmilnik" (the reveal is a switch puck on the board)'},
+];
 const trigAccepted: readonly AcceptedDifference[] = [
     ['A', 'omega', 'phase-value', 'B'].map(key => ({
         kind: 'extra', where: `row ${key}`,
@@ -980,6 +984,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'sine [0, pi] n=1 hidden', apply: run(g => { g.setExample('sine'); g.setB(Math.PI); g.setCount(1); g.setLowerVisible(false); g.setUpperVisible(false); })},
             {name: 'sine [0, pi] n=1 shown', apply: run(g => { g.setLowerVisible(true); g.setUpperVisible(true); g.setExample('sine'); g.setB(Math.PI); g.setCount(1); })},
             {name: 'n at the limit (128)', apply: run(g => { g.setExample('square'); g.setCount(128); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/mean-value.json', demonstration: 'mean-value', accepted: meanValueAccepted, states: (() => {
+        type MeanValueSetters = {setA(value: number): void; setB(value: number): void; setC(value: number): void; setExample(value: string): void; setRevealed(value: boolean): void};
+        const run = (edit: (graph: MeanValueSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as MeanValueSetters)); };
+        return [
+            {name: 'default (hidden)', apply: () => undefined},
+            {name: 'square revealed', apply: run(g => g.setRevealed(true))},
+            {name: 'square c=1 revealed (agree)', apply: run(g => g.setC(1))},
+            {name: 'square a=-1, c=0.2, b=1.5', apply: run(g => { g.setC(0.2); g.setA(-1); g.setB(1.5); })},
+            {name: 'cube hidden', apply: run(g => { g.setExample('cube'); })},
+            {name: 'cube revealed (two matches)', apply: run(g => g.setRevealed(true))},
+            {name: 'abs revealed (corner, none)', apply: run(g => { g.setExample('abs'); g.setRevealed(true); })},
+            {name: 'abs a=0.5, c=1, b=3 revealed (interval)', apply: run(g => { g.setB(3); g.setC(1); g.setA(0.5); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/extrema.json', demonstration: 'extrema', states: (() => {

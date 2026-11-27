@@ -23,7 +23,7 @@ interface Route {lead: Find; later: Find[]}
 const routes: Record<string, Route> = {
     'bisection': {lead: button(t('next_step')), later: [labelled(t('bisection_example_label'))]},
     'euler-method': {lead: button(t('next_step')), later: [labelled(t('euler_ode_example_label'))]},
-    'mean-value': {lead: labelled(t('mean_value_c_label')), later: [labelled(t('mean_value_example_label')), labelled(t('mean_value_a_label'))]},
+    'mean-value': {lead: labelled(t('mean_value_example_label')), later: []},
     'darboux': {lead: button(t('darboux_refine')), later: [labelled(t('darboux_example_label'))]},
     'sequence': {lead: labelled(t('sequence_example_label')), later: [button(t('next_step'))]},
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
@@ -159,6 +159,21 @@ describe('extrema pucks', () => {
         for (const label of [t('extrema_a_label'), t('extrema_b_label')]) expect(within(root).queryAllByLabelText(new RegExp(`^${label}`))).toEqual([]);
         expect(within(root).queryAllByRole('button', {name: t('extrema_show_classification')})).toEqual([]);
         expect(within(root).getAllByLabelText(t('extrema_example_label'))).not.toEqual([]);
+    });
+});
+
+describe('mean-value pucks', () => {
+    // a, b and c and the matching-points switch are pucks on the board (task 08): there once, and not in Orodja, which keeps the example choice.
+    test('a, b, c and the matching points are pucks and Orodja holds no second copy', async () => {
+        mountGraph(graphFactories['mean-value']());
+        await waitForPucks('show-matches');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['mvt-a', 'mvt-b', 'mvt-c', 'show-matches']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('mean_value_a_label'), t('mean_value_b_label'), t('mean_value_c_label')]) expect(within(root).queryAllByLabelText(new RegExp(`^${label}`))).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('mean_value_show_matches')})).toEqual([]);
+        expect(within(root).getAllByLabelText(t('mean_value_example_label'))).not.toEqual([]);
     });
 });
 

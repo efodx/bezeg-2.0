@@ -185,12 +185,12 @@ describe('the mean value lesson', () => {
         expect(meanStep('mean-value-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
     });
 
-    test('asks for a prediction before the revealing Show matching point in every step that waits for the press', () => {
+    test('asks for a prediction before the revealing Matching points control in every step that waits for the press', () => {
         for (const id of ['mean-value-prerequisites-step', 'mean-value-cube-step', 'mean-value-abs-step', 'mean-value-free-exploration']) {
             expect(meanStep(id).observationPrompt.en).toMatch(/Predict/);
-            expect(meanStep(id).observationPrompt.en).toMatch(/Show matching point/);
+            expect(meanStep(id).observationPrompt.en).toMatch(/Matching points control/);
             expect(meanStep(id).observationPrompt.sl).toMatch(/Napovej/);
-            expect(meanStep(id).observationPrompt.sl).toMatch(/Pokaži ujemajočo točko/);
+            expect(meanStep(id).observationPrompt.sl).toMatch(/krmilnik Ujemajoče točke/);
             // the scene of a step that asks for the prediction never reveals the matching points itself
             const revealed = adaptedActions(id).some(action => action.kind === 'function-visibility' && action.visible);
             expect(revealed, id).toBe(false);
