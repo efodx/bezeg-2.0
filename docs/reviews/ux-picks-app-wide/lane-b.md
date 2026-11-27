@@ -39,53 +39,54 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 
 ## Status
 
-Rewritten by handler 1 at its soft budget (2026-11-27). Present state only.
+Rewritten by handler 2 (2026-11-27). Present state only.
 
 ### Where
 
 - Worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/lane-b`, branch `lane-b` (`node_modules` junction;
-  unlink with PowerShell before ever removing). Merged `board-workspace-2` (incl. `ee7a33aa7`) at `156d36f7c`; stream A
-  picks only lane commits after a merge. Merge again from `board-workspace-2` before a new lane if A has moved far.
-- Stream A = **"Board workspace handler 13"** (from 2026-11-27; merge `board-workspace-2` at `879e0ed31` or later into
-  lane-b before the next lane, A asked: AnalysisFirstTask conflicted with L37) (send every accepted commit id there; it cherry-picks between its lanes).
-- Lane-b Vite dev server (handler 1's shell, dies with the session; restart with `npx vite --port 4484 --strictPort --host 127.0.0.1`
-  as a background command): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395.
+  unlink with PowerShell before ever removing). Last merged `board-workspace-2` (incl. L39 waves `fd9072f80`) after
+  `17b84ef59`; merge again before a lane if A has moved far (conflicts so far: list unions in `fragments/index.ts`,
+  `parity.test.tsx`, `AnalysisFirstTask.test.tsx`, the L50 notes; keep both sides).
+- Stream A = **"Board workspace handler 13"**: send every accepted commit id there; it cherry-picks and publishes.
+- Lane-b Vite dev server on 4484 (`npx vite --port 4484 --strictPort --host 127.0.0.1`, background; check the port's
+  process before restarting): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395.
 
 ### Done
 
-- **L54 complete** (15 compgeo demos): `fa98874c4`, `644dca72b`, `7ff06edc9`, `48f4d392e`, `d0d2acb8c`, `a14152ab2`,
-  `dfb8498ad`, `028efbf9a` (all picked or queued by A).
-- **View-binding base fix** `cb59a901f` + tests `2420f7a87` (declared graphs with no parameter bindings now bind `view`, so
-  the view director runs on point-set/projective/curve graphs). It made master CI red once (Bezier batch export restored
-  the box by raw JXG; A fixed it in BaseGraph `applyFigurePreset`).
-- **L50 so far:** accumulation `43e4628db`, convexity `42d6cb877`, convexity sign marks clear of cards `706f45046`,
-  sharedControls row dropped `c26f785a3`, darboux + caption sweep `f7f55df5d`, extrema `b9d478a81` (handler 2; all sent
-  to A). Extrema pattern for board labels vs cards: measure room against `this.boardView.intent().box`, compact labels
-  by card-free width, keep labels inside top/bottom edges (notes Session 4c).
+- **L54 complete** (15 compgeo demos; all picked by A). View-binding base fix `cb59a901f` + `2420f7a87`.
+- **L50 complete** (8 demos): accumulation `43e4628db`, convexity `42d6cb877` + `706f45046`, `c26f785a3`, darboux
+  `f7f55df5d`, extrema `b9d478a81`, fixed-point `56c18c651`, sequence `e67860b95`, mean-value `17b84ef59`,
+  uniform-convergence `4e8a0b0aa` (all sent to A and picked).
+- **L49 so far:** curve-comb `44ca2f919`, curve-curvature `524e4ab08`, curve-envelope `62cb9d1e6` (sent; comb and curvature
+  picked). Last merge of `board-workspace-2`: `b7a2d4a93` (unit suite green there; parity flake fixed by A in `05f203d21`).
 
-### Rules learned this session (all in `briefs/08-lane-L50.md`; copy them into the L49/L44/L47 briefs)
+### Waiting on stream A
 
-- One function-graph demonstration per Sonnet worker (one fills the 175k budget); compgeo took two.
-- Checks per demo: graph-check, golden, FirstTask, `BEZEG_PRESET_ROUNDTRIP=all ... -t <id>`, family unit, tsc, lint,
-  `src/graphs/base/sharedControls.graphs.test.tsx` when a slider becomes a puck, every `tests/*.spec.cjs` that names the id
-  or route, build, smoke-lesson, browser caption check at 1440x900 and 1280x720 on the dev server.
-- Host tests of function graphs mock `../../mathjax/loadMathJax` (else pucks never settle in jsdom).
-- **Owner, 2026-11-27: remove board caption lines that repeat a legend entry or readout row** ("Yes, remove that. I
-  thought it was part of it since you can do it when you move to cards."). Pattern: Taylor `e0bfe3576`; the function
-  formula becomes a declared `formula` row ("Funkcija"); unused board keys go from `sl.ts`/`en.ts`. Recorded by A in
-  `e5e4374fb`. Board text a lesson step tells the learner to read must be clear of cards (`marks.must` or user-coordinate
-  anchors inside the followed frame, as `706f45046` / L37 `89e4245ee`).
-- Handler re-records goldens only for notes/rows/labels moving to cards or removed caption lines, after the browser check.
-- Prose: "vklopi krmilnik X" / "turn on the X control"; readouts are "v kartici Odčitki" / "the Readouts card".
-- Views are restored through `BoardView`, never raw `setBoundingBox`.
+- **Do not start L47 until A sends the L42 ids** (A's L42 may add opt-in hooks to `IterativeFunctionGraph.tsx`; merge
+  them first). L44 is free.
+- Nothing else blocking. A repoints stale clip/preview/perf script rows (controls that became pucks) in one pass; lane workers
+  list them in notes and B forwards them.
+
+### Rules learned (in `briefs/08-lane-L50.md` and `briefs/08-lane-L49.md`; copy into L44/L47 briefs)
+
+- One demonstration per Sonnet worker; most need a second (finish) worker for tests, checks and the browser check.
+- Before declaring a graph, grep shared tests for it as an "undeclared graph" fixture (fixed-point broke `BoardCards` /
+  `LessonCard` tests and a publish).
+- FirstTask "pucks" tests query `#board-card-tools` after `openTools()`, and show red.
+- Board labels vs cards: measure room against `this.boardView.intent().box` (extrema, L50 notes 4c); views that would put
+  watched objects under cards get a declared `followView` box (sequence `followBox`, notes 6c).
+- Owner, 2026-11-27: remove board caption lines that repeat a legend entry or readout row; formula becomes a `formula` row.
+- Handler checks the Slovenian rewording itself, looks at the 1280x720 step-5 capture, then re-records the golden
+  (`BEZEG_PARITY_GOLDEN_RECORD=1 BEZEG_PARITY_GOLDEN_ID=<id> just unit src/graphs/base/declare/parityGolden.test.tsx`)
+  only for captions/rows/labels moving to cards.
+- Prose: "vklopi krmilnik X" / "turn on the X control", "s krmilnikom X"; readouts "v kartici Odčitki".
 
 ### Next
 
-1. L50 remaining, one per worker (handler 2 dispatched fixed-point): fixed-point, sequence (both `IterativeFunctionGraph`, shared with L42/L47:
-   opt-in hook only, default off), mean-value, uniform-convergence. Dispatch template: the darboux dispatch in this
-   handler's history is the shape: "read `briefs/08-lane-L50.md`, the shared brief, the notes; finished examples
-   `43e4628db`, `42d6cb877`, the darboux commit; one demo; checks per the dispatch".
-2. Then L49 (curve geometry, 6 demos, conflicts L31/L33 on `CurveGeometryFirstTask.test.tsx` and L32 on
-   `PlaybackRoutes.test.tsx`), L44 (splines, 6), L47 (probability, 5; `IterativeFunctionGraph`, `BaseFunctionGraph.authority.test.tsx`
-   shared with L46). Write a dispatch per lane like `briefs/08-lane-L50.md`.
-3. Open: none for the owner from stream B.
+1. **L49** (curve geometry, dispatch `briefs/08-lane-L49.md`, notes `briefs/notes/08-lane-L49.md`), one per worker:
+   curve-evolute (dispatched by handler 2), curve-offset, curve-parametric.
+   A holds L31/L32/L33 until L49 is picked (shared `CurveGeometryFirstTask.test.tsx`, `PlaybackRoutes.test.tsx`).
+2. Then L44 (splines, 6; `BaseSplineCurveGraph.tsx` shared, `GraphSceneReload.test.tsx`), L47 (probability, 5;
+   `IterativeFunctionGraph` opt-in only, `BaseFunctionGraph.authority.test.tsx` shared with L46). Write a dispatch per lane
+   from `briefs/08-lane-L49.md`.
+3. Open for the owner from stream B: none.

@@ -1,7 +1,6 @@
 import {act} from '@testing-library/react';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import CurvatureBezierCurveGraph, {type CurvatureIds} from './CurvatureBezierCurveGraph';
-import CurveEvoluteGraph from './CurveEvoluteGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {checkDeclaration, type GraphDeclaration} from '../../base/declare/graphDeclaration';
 import {renderMessage, setLanguage, type Message} from '../../../localization';
@@ -136,15 +135,6 @@ describe('curve-curvature declaration', () => {
         const {graph, view} = setup();
         const texts = (graph as unknown as {overlay: {ownedElements(): {elType: string}[]}}).overlay.ownedElements().filter(element => element.elType === 'text');
         expect(texts.length).toBe(2); // the T and N tags
-        view.unmount();
-    });
-
-    test('the evolute keeps its board readout and declares nothing', () => {
-        const graph = new CurveEvoluteGraph();
-        const {view} = mountGraph(graph);
-        expect(graph.getDeclaration()).toBeUndefined();
-        const texts = (graph as unknown as {overlay: {ownedElements(): {elType: string}[]}}).overlay.ownedElements().filter(element => element.elType === 'text');
-        expect(texts.length).toBe(3);
         view.unmount();
     });
 

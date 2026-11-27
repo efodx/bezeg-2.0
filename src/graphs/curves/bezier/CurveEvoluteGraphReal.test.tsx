@@ -5,6 +5,7 @@ import CurveEvoluteGraph, {EVOLUTE_T_DEFAULT} from './CurveEvoluteGraph';
 import {evoluteCurvePresetCollection} from '../geometry/collections';
 import {setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
+import {runAs} from '../../base/writes/writeSource';
 import type {LessonAction} from '../../../learning/model';
 import type {Preset} from '../../base/presets/Presets';
 
@@ -46,8 +47,14 @@ class ObservedEvoluteGraph extends CurveEvoluteGraph {
         await this.selectPreset(preset.id);
     }
 
+    /** The readout lines the live region speaks (no board text repeats them; the Odčitki card shows the declared rows). */
     readout() {
-        return ((this.board.objectsList as unknown as Drawn[]).find(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'))?.plaintext ?? '').split('<br>');
+        return (this.overlay?.readoutText() ?? '').split('\n');
+    }
+
+    /** Board text of the readout; none remains (only the tags T, N and E). */
+    readoutBoardTexts() {
+        return (this.board.objectsList as unknown as Drawn[]).filter(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'));
     }
 }
 
@@ -88,7 +95,7 @@ test('L4(2): on the real board the normal line passes through the evolute point 
     try {
         let checked = 0;
         for (const t of [0, 0.1, 0.3, 0.5, 0.8, 1]) {
-            graph.setCurvatureT(t);
+            runAs('learner', () => graph.setCurvatureT(t));
             graph.liveBoard().update();
             const e = graph.evolutePointElement();
             const expected = parabolaEvolute(t);
@@ -119,7 +126,7 @@ test('L4(4): the owned element count returns to the baseline after Reset, Preset
     expect(curvature.length).toBeGreaterThan(8);
     expect(graph.onBoard(owned) + graph.onBoard(curvature)).toBe(owned.length + curvature.length);
 
-    graph.setCurvatureT(0.9);
+    runAs('learner', () => graph.setCurvatureT(0.9));
     graph.apply(trace('to-parameter'));
     await settle(() => graph.reset());
     await flush();
@@ -147,6 +154,7 @@ test('a newly mounted graph already draws the evolute and its readout, with no b
     try {
         // x = 0.5 on the parabola: E = (-4x^3, 3x^2 + 1/2).
         expect(graph.readout().at(-1)).toBe('Točka evolute E = (−0,5, 1,25)');
+        expect(graph.readoutBoardTexts()).toEqual([]);
         expect((graph.trace() as unknown as {visPropCalc: {visible: boolean}}).visPropCalc.visible).toBe(true);
     } finally {
         view.unmount();
@@ -221,10 +229,10 @@ test('Edit controls and board agree at the start, after lesson actions, Reset, P
 test('the readout shows E at the parameter, with the minus sign and decimal comma, and no negative zero', async () => {
     const {graph, view} = mount();
     try {
-        graph.setCurvatureT(1);
+        runAs('learner', () => graph.setCurvatureT(1));
         graph.liveBoard().update();
         expect(graph.readout().at(-1)).toBe('Točka evolute E = (−4, 3,5)');
-        graph.setCurvatureT(0.5);
+        runAs('learner', () => graph.setCurvatureT(0.5));
         graph.liveBoard().update();
         expect(graph.readout().at(-1)).not.toContain('−0');
         expect(graph.readout().at(-1)).toBe('Točka evolute E = (0, 0,5)');
@@ -350,7 +358,7 @@ describe('the polite live region follows the readout once it has settled', () =>
     const region = () => document.querySelector('[data-readout-live]')!;
     const spoken = (lines: string[]) => lines.map(line => /[.!?]$/.test(line) ? line : `${line}.`).join(' ');
     const advance = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
-    const tSlider = () => screen.getByRole('slider', {name: t('curvature_parameter_t')});
+    const writeT = (graph: ObservedEvoluteGraph, value: number) => act(() => { graph.parameters!.write('curvature-t', value, 'learner'); });
     beforeEach(() => { vi.useFakeTimers(); });
     afterEach(() => { vi.useRealTimers(); });
 
@@ -364,7 +372,7 @@ describe('the polite live region follows the readout once it has settled', () =>
             expect(initial).toContain('Točka evolute E = (');
             mutations.observe(region(), {childList: true, characterData: true, subtree: true});
             for (let i = 1; i <= 20; i++) {
-                fireEvent.change(tSlider(), {target: {value: String(0.2 + i * 0.04)}});
+                writeT(graph, Number(String(0.2 + i * 0.04)));
                 advance(50);
             }
             expect(graph.state.curvatureT).toBeCloseTo(1, 9);
@@ -397,7 +405,7 @@ describe('the polite live region follows the readout once it has settled', () =>
             expect(region().textContent).toBe(spoken(graph.readout()));
             await settle(() => graph.loadPreset({id: 'cusp', data: [['JSXBezierCurve', {points: [[0, 0], [0, 0], [1, 1]]}]]}));
             await flush();
-            act(() => graph.setCurvatureT(0));
+            act(() => runAs('learner', () => graph.setCurvatureT(0)));
             graph.liveBoard().update();
             advance(SETTLE);
             expect(region().textContent).toBe(spoken([t('curvature_status_singular'), t('evolute_status_undefined')]));
@@ -407,7 +415,7 @@ describe('the polite live region follows the readout once it has settled', () =>
             expect(region().textContent).toBe('Curvature is undefined here (the speed is 0). The evolute point is not defined.');
             await settle(() => graph.loadPreset({id: 'quadratic', data: [['JSXBezierCurve', {points: [[-1, 1], [0, -1], [1, 1]]}]]}));
             await flush();
-            act(() => graph.setCurvatureT(0.5));
+            act(() => runAs('learner', () => graph.setCurvatureT(0.5)));
             graph.liveBoard().update();
             advance(SETTLE);
             expect(region().textContent).toContain('Curvature κ = 2.');
@@ -426,7 +434,7 @@ describe('the polite live region follows the readout once it has settled', () =>
         const {graph, view} = mount();
         try {
             const opening = region().textContent;
-            fireEvent.change(tSlider(), {target: {value: '0.9'}});
+            writeT(graph, Number('0.9'));
             await settle(() => graph.loadPreset({id: 'other', data: [['JSXBezierCurve', {points: [[-2, 0], [0, 3], [2, 0]]}]]}));
             await flush();
             const scene = region().textContent;
@@ -445,7 +453,7 @@ describe('the polite live region follows the readout once it has settled', () =>
         const store = (graph as unknown as { liveReadout: { getSnapshot(): string } }).liveReadout;
         const before = store.getSnapshot();
         const timers = vi.getTimerCount();
-        fireEvent.change(tSlider(), {target: {value: '0.9'}});
+        writeT(graph, Number('0.9'));
         expect(vi.getTimerCount()).toBeGreaterThan(timers);
         view.unmount();
         expect(() => vi.advanceTimersByTime(5000)).not.toThrow();

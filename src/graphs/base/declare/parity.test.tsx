@@ -106,6 +106,15 @@ const curvatureAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the status lines "Ukrivljenost je 0: krivinska krožnica je premica .." and "Ukrivljenost tu ni določena .." were board text (captions in the recording); they are declared notes of the Odčitki card and the board text is removed (owner, 2026-11-27)'},
 ];
 
+const EVOLUTE_READOUT_REASON = 'the four-line board readout "Ukrivljenost κ = .. / Krivinski polmer R = .. / Smerni kot tangente φ = ..° / Točka evolute E = (.., ..)" was board text (the recording holds the lines as captions, with the T, N and E tags that stay); the lines only repeated the values, so they are removed and the values are the declared rows of the Odčitki card (owner, 2026-11-27)';
+const evoluteAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'row kappa', reason: EVOLUTE_READOUT_REASON},
+    {kind: 'extra', where: 'row radius', reason: EVOLUTE_READOUT_REASON},
+    {kind: 'extra', where: 'row angle', reason: EVOLUTE_READOUT_REASON},
+    {kind: 'extra', where: 'row point', reason: EVOLUTE_READOUT_REASON},
+    {kind: 'extra', where: 'note', reason: 'the status lines "Ukrivljenost je 0: krivinska krožnica je premica ..", "Ukrivljenost tu ni določena ..", "Točke evolute ni: .." and "Točka evolute ni določena" were board text (captions in the recording); they are declared notes of the Odčitki card and the board text is removed (owner, 2026-11-27)'},
+];
+
 const envelopeAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row lines', reason: 'the board caption lines "Število premic: N.", "t = .." and the collinear sentence were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)'},
     {kind: 'extra', where: 'row t', reason: 'the board caption lines "Število premic: N.", "t = .." and the collinear sentence were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)'},
@@ -872,6 +881,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 't = 1', apply: run(g => g.setCurvatureT(1))},
             {name: 'frame hidden', apply: run(g => g.setState({curvatureFrameShown: false}))},
             {name: 'the S cubic at t = 0,5 (an inflection)', apply: run(g => { g.setState({curvatureFrameShown: true}); replace(g, [[0, 0], [1, 2], [2, -2], [3, 0]]); g.setCurvatureT(0.5); })},
+            {name: 'a curve with a singular start', apply: run(g => { replace(g, [[0, 0], [0, 0], [1, 1], [2, 0]]); g.setCurvatureT(0); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/bezier/__parity__/curve-evolute.json', demonstration: 'curve-evolute', accepted: evoluteAccepted, states: (() => {
+        type Evo = {setCurvatureT(value: number): void; setEvoluteTrace(mode: string): void; setEvoluteNormalShown(shown: boolean): void; setState(update: Record<string, unknown>): void;
+            runLessonReplacement(spec: Record<string, unknown>): void; importPresetData(data: unknown): void; getInitialState(): object; lessonDefaultState(): object};
+        const run = (edit: (graph: Evo) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Evo)); };
+        const curveState = {showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false, showingDecasteljauScheme: false,
+            subdivisionT: 0.5, decasteljauT: 0.5, extrapolationT: 1.2};
+        const replace = (g: Evo, points: number[][]) => g.runLessonReplacement({importData: () => g.importPresetData([['JSXBezierCurve', {points, state: curveState}]]), afterImport: () => undefined, state: () => ({...g.getInitialState(), ...g.lessonDefaultState()}), transientState: undefined});
+        return [
+            {name: 'default (the parabola, t = 0,75, the whole evolute)', apply: () => undefined},
+            {name: 'the cusp at t = 0,5', apply: run(g => g.setCurvatureT(0.5))},
+            {name: 't = 0,25, the trace up to t, no normal', apply: run(g => { g.setCurvatureT(0.25); g.setEvoluteTrace('to-parameter'); g.setEvoluteNormalShown(false); })},
+            {name: 't = 0,9, the trace hidden', apply: run(g => { g.setCurvatureT(0.9); g.setEvoluteTrace('hidden'); })},
+            {name: 'the S cubic at t = 0,5 (an inflection)', apply: run(g => { replace(g, [[0, 0], [1, 2], [2, -2], [3, 0]]); g.setCurvatureT(0.5); })},
             {name: 'a curve with a singular start', apply: run(g => { replace(g, [[0, 0], [0, 0], [1, 1], [2, 0]]); g.setCurvatureT(0); })},
         ] satisfies ParityState[];
     })()},

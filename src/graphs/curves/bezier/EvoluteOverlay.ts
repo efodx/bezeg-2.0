@@ -95,6 +95,8 @@ type DataCurve = Curve & { updateDataArray: () => void; dataX: number[]; dataY: 
 export class EvoluteOverlay {
     private readonly board: Board;
     private elements: GeometryElement[] = [];
+    private trace?: GeometryElement;
+    private normal?: GeometryElement;
     private stopLanguageUpdates?: () => void;
     private disposed = false;
 
@@ -107,6 +109,10 @@ export class EvoluteOverlay {
     ownedElements(): readonly GeometryElement[] {
         return this.elements;
     }
+
+    /** The trace curve and the normal line, for the legend swatches of a declaring graph. */
+    traceElement(): GeometryElement | undefined { return this.trace; }
+    normalElement(): GeometryElement | undefined { return this.normal; }
 
     private frame() {
         const points = this.settings.controlPoints();
@@ -154,6 +160,7 @@ export class EvoluteOverlay {
             fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2,
             visible: () => this.settings.traceMode() !== 'hidden',
         });
+        this.trace = trace;
         trace.updateDataArray = () => {
             const data = this.traceData();
             trace.dataX = data.x;
@@ -169,7 +176,7 @@ export class EvoluteOverlay {
             () => { const f = this.frame(); return f && f.status !== 'singular' ? f.point[0] + f.scale * f.normal[0] : NaN; },
             () => { const f = this.frame(); return f && f.status !== 'singular' ? f.point[1] + f.scale * f.normal[1] : NaN; },
         ], auxiliary);
-        this.create<Line>('line', [anchor, along], {
+        this.normal = this.create<Line>('line', [anchor, along], {
             fixed: true, highlight: false, withLabel: false, straightFirst: true, straightLast: true,
             strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: 2, visible: normalShown,
         });

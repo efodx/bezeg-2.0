@@ -605,7 +605,7 @@ type EvoluteGraphView = {
     state: { curvatureT: number; evoluteTrace: string; evoluteNormalShown: boolean; curvatureFrameShown: boolean; curvatureCircleShown: boolean };
     board: { objectsList: unknown[]; update(): void; getBoundingBox(): number[] };
     evoluteElements(): readonly unknown[];
-    overlay: { ownedElements(): readonly unknown[]; frame(): { status: string; kappa?: number; radius?: number; centre?: number[] } | undefined };
+    overlay: { ownedElements(): readonly unknown[]; readoutText(): string; frame(): { status: string; kappa?: number; radius?: number; centre?: number[] } | undefined };
     getFirstCurve(): { getPoints(): Array<{ X(): number; Y(): number }> };
     reset(): Promise<void>;
 };
@@ -621,8 +621,8 @@ const evolutePointOnBoard = (graph: EvoluteGraphView): [number, number] => [evol
 const evolutePointShown = (graph: EvoluteGraphView) => evolutePointElement(graph).evalVisProp('visible');
 const circleOf = (graph: EvoluteGraphView) => (graph.overlay.ownedElements() as EvoluteDrawn[]).find(element => element.elType === 'circle')!;
 const frameArrows = (graph: EvoluteGraphView) => (graph.overlay.ownedElements() as EvoluteDrawn[]).filter(element => element.elType === 'segment');
-const evoluteReadout = (graph: EvoluteGraphView) =>
-    ((graph.board.objectsList as EvoluteDrawn[]).find(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'))?.plaintext ?? '').split('<br>');
+/** The readout lines (the live region and the Odčitki rows speak them; no board text repeats them). */
+const evoluteReadout = (graph: EvoluteGraphView) => graph.overlay.readoutText().split('\n');
 const finiteSamples = (curve: EvoluteDrawn) => (curve.dataX ?? []).map((x, i) => [x, curve.dataY![i]] as [number, number]).filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
 const near = (actual: readonly number[], expected: readonly number[], tolerance: number, label: string) => {
     expect(actual, label).toHaveLength(expected.length);

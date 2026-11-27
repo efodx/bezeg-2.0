@@ -9,6 +9,7 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {CurvatureOverlay, curvatureFrame, tangentAngleDegrees} from "./CurvatureOverlay";
 import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
 import type {BaseCurveIds} from "../../base/BaseCurveGraph";
+import type {GeometryElement} from "jsxgraph";
 import type {ParameterBinding} from "../../base/writes/parameterArbiter";
 import {DomainError} from "../../functions/BaseFunctionGraph";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
@@ -51,6 +52,99 @@ export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> exte
     protected overlayReadoutOnBoard(): boolean { return true; }
     /** The overlay's osculating circle, for a subclass that lists it in a legend. */
     protected osculatingCircleElement() { return this.overlay?.circleElement(); }
+
+    /** Parameter writes (ADR 0064): the key `curvature-t` reads and writes t through the validated setter. */
+    protected curvatureParameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'curvature-t': {
+                read: () => this.state.curvatureT,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) throw new DomainError(message('curvature_t_refused'));
+                    this.setCurvatureT(value);
+                },
+            },
+        };
+    }
+
+    /** The t puck of a declaring subclass. */
+    protected curvatureParameterDeclaration(): ParameterDeclaration<'curvature-t'> {
+        return {key: 'curvature-t', kind: 'range', label: message('curvature_t_name'), symbol: 't', placement: 'board', min: 0, max: 1, step: 0.01, maxDecimals: 2};
+    }
+
+    /** The frame at the state's parameter, computed from the curve's points (not through the overlay, whose draw would count as drawn). */
+    protected currentFrame() {
+        const points = this.getFirstCurve()?.getPoints().map(point => [point.X(), point.Y()]);
+        return points ? curvatureFrame(points, this.state.curvatureT) : undefined;
+    }
+
+    /** The three read-offs of a curvature graph: kappa, R (not on a line) and the direction angle of the tangent. */
+    protected curvatureReadoutRows(): ReadoutRow<CurvatureIds>[] {
+        const frame = this.currentFrame();
+        if (!frame || frame.status === 'singular') return [];
+        const rows: ReadoutRow<CurvatureIds>[] = [{id: 'kappa', name: message('curvature_row_kappa'), symbol: '\\kappa', value: messageNumber(frame.status === 'line' ? 0 : frame.kappa, 4)}];
+        if (frame.status === 'circle') rows.push({id: 'radius', name: message('curvature_row_radius'), symbol: 'R', value: messageNumber(frame.radius, 4)});
+        rows.push({id: 'angle', name: message('curvature_row_angle'), symbol: '\\varphi', value: messageNumber(tangentAngleDegrees(frame.tangent), 4), unit: message('curvature_unit_degrees')});
+        return rows;
+    }
+
+    protected curvatureReadoutNotes(): ReadoutNote<CurvatureIds>[] {
+        const frame = this.currentFrame();
+        if (frame?.status === 'singular') return [{id: 'singular', text: message('curvature_status_singular'), tone: 'warning'}];
+        if (frame?.status === 'line') return [{id: 'line', text: message('curvature_status_line'), tone: 'warning'}];
+        return [];
+    }
+
+    /**
+     * The box around what the learner watches: every point and polyline of the marks, grown by a fifth. Without it the view director
+     * frames the lesson scene's box, widened to the canvas aspect, inside the narrow card-free strip, and the curve shrinks to a speck.
+     */
+    protected watchedBox(marks: ViewMarks): [number, number, number, number] | undefined {
+        const points = [...marks.must, ...(marks.nice ?? [])].flatMap(mark => mark.kind === 'point' ? [[mark.x, mark.y]] : mark.kind === 'polyline' ? mark.points.map(p => [p[0], p[1]]) : []);
+        if (points.length === 0) return undefined;
+        const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+        const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.min(...ys), top = Math.max(...ys);
+        const pad = Math.max(0.2 * Math.max(right - left, top - bottom), 0.5);
+        return [left - pad, top + 2 * pad, right + pad, bottom - pad]; // the tags and labels stand above the points
+    }
+
+    private curvatureMarksCache: {key: string; base: ViewMarks; marks: ViewMarks} | undefined;
+
+    /** The control points and curve samples of the base, the point at t (must) and, while the circle is drawn, the circle's four extreme points (nice) when its radius is at most the control points' extent. Memoized. */
+    protected override curveViewMarks(): ViewMarks {
+        const base = super.curveViewMarks();
+        const frame = this.currentFrame();
+        if (!frame || frame.status === 'singular') return base;
+        const circle = frame.status === 'circle' && this.state.curvatureCircleShown ? frame : undefined;
+        const key = [frame.point.join(','), circle ? `${circle.centre.join(',')}/${circle.radius}` : ''].join('|');
+        const cached = this.curvatureMarksCache;
+        if (cached && cached.key === key && cached.base === base) return cached.marks;
+        const must: ViewMark[] = [...base.must, {kind: 'point', x: frame.point[0], y: frame.point[1]}];
+        const nice: ViewMark[] = [...(base.nice ?? [])];
+        // A circle much larger than the curve would shrink the curve to a speck: it may leave the view, the curve and the point stay.
+        const xs = base.must.flatMap(mark => mark.kind === 'point' ? [mark.x] : []), ys = base.must.flatMap(mark => mark.kind === 'point' ? [mark.y] : []);
+        const extent = xs.length ? Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) : 0;
+        if (circle && circle.radius <= extent) {
+            const [cx, cy] = circle.centre, r = circle.radius;
+            for (const [x, y] of [[cx - r, cy], [cx + r, cy], [cx, cy - r], [cx, cy + r]]) if (Number.isFinite(x) && Number.isFinite(y)) nice.push({kind: 'point', x, y});
+        }
+        const marks: ViewMarks = {...base, must, nice};
+        this.curvatureMarksCache = {key, base, marks};
+        return marks;
+    }
+
+    /** The osculating circle element stands for the circle entry; the base owns the curve and its control points. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== 'circle') return super.drawnObject(id);
+        return this.drawnStyle(this.osculatingCircleElement());
+    }
+
+    /** The colour and visibility a legend swatch reproduces from a board element. */
+    protected drawnStyle(element: GeometryElement | undefined): {color: string; visible: boolean} | undefined {
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp('strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
 
     /** Extra Edit controls, placed between the parameter slider and the structured editing. */
     protected workspaceCurvatureExtras(): React.ReactNode { return null; }
@@ -213,39 +307,8 @@ class CurvatureBezierCurveGraph extends CurvatureOverlayGraph<CurvatureGraphStat
     /** The readout is the declared rows and notes of the Odčitki card, so no board text repeats it. */
     protected override overlayReadoutOnBoard(): boolean { return false; }
 
-    /** Parameter writes (ADR 0064): the key `curvature-t` reads and writes t through the validated setter. */
     protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
-        return {
-            'curvature-t': {
-                read: () => this.state.curvatureT,
-                apply: (value: unknown) => {
-                    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) throw new DomainError(message('curvature_t_refused'));
-                    this.setCurvatureT(value);
-                },
-            },
-        };
-    }
-
-    /** The frame at the state's parameter, computed from the curve's points (not through the overlay, whose draw would count as drawn). */
-    private currentFrame() {
-        const points = this.getFirstCurve()?.getPoints().map(point => [point.X(), point.Y()]);
-        return points ? curvatureFrame(points, this.state.curvatureT) : undefined;
-    }
-
-    private readoutRows(): ReadoutRow<CurvatureIds>[] {
-        const frame = this.currentFrame();
-        if (!frame || frame.status === 'singular') return [];
-        const rows: ReadoutRow<CurvatureIds>[] = [{id: 'kappa', name: message('curvature_row_kappa'), symbol: '\\kappa', value: messageNumber(frame.status === 'line' ? 0 : frame.kappa, 4)}];
-        if (frame.status === 'circle') rows.push({id: 'radius', name: message('curvature_row_radius'), symbol: 'R', value: messageNumber(frame.radius, 4)});
-        rows.push({id: 'angle', name: message('curvature_row_angle'), symbol: '\\varphi', value: messageNumber(tangentAngleDegrees(frame.tangent), 4), unit: message('curvature_unit_degrees')});
-        return rows;
-    }
-
-    private readoutNotes(): ReadoutNote<CurvatureIds>[] {
-        const frame = this.currentFrame();
-        if (frame?.status === 'singular') return [{id: 'singular', text: message('curvature_status_singular'), tone: 'warning'}];
-        if (frame?.status === 'line') return [{id: 'line', text: message('curvature_status_line'), tone: 'warning'}];
-        return [];
+        return this.curvatureParameterBindings();
     }
 
     /**
@@ -254,70 +317,18 @@ class CurvatureBezierCurveGraph extends CurvatureOverlayGraph<CurvatureGraphStat
      */
     protected override declaration(): GraphDeclaration<CurvatureIds> {
         const common = this.commonCurveDeclaration();
-        const parameters: ParameterDeclaration<CurvatureIds['param']>[] = [
-            {key: 'curvature-t', kind: 'range', label: message('curvature_t_name'), symbol: 't', placement: 'board', min: 0, max: 1, step: 0.01, maxDecimals: 2},
-        ];
         const legend: LegendEntry<CurvatureIds>[] = [
             ...(common.legend ?? []),
             ...(this.state.curvatureCircleShown ? [{id: 'circle' as const, label: message('curvature_legend_circle'), kind: 'line' as const, object: 'circle'}] : []),
         ];
         const marks = this.curveViewMarks();
         return {
-            ...common, parameters, legend,
-            readouts: [{id: 'curvature', rows: this.readoutRows()}],
-            notes: this.readoutNotes(),
+            ...common, parameters: [this.curvatureParameterDeclaration()], legend,
+            readouts: [{id: 'curvature', rows: this.curvatureReadoutRows()}],
+            notes: this.curvatureReadoutNotes(),
             marks,
             followView: this.watchedBox(marks),
         };
-    }
-
-    /**
-     * The box around what the learner watches: the control points, the point at t and the circle's extreme points when they are
-     * marked, grown by a fifth. Without it the view director frames the lesson scene's box, widened to the canvas aspect, inside the
-     * narrow card-free strip, and the curve shrinks to a speck.
-     */
-    private watchedBox(marks: ViewMarks): [number, number, number, number] | undefined {
-        const points = [...marks.must, ...(marks.nice ?? [])].flatMap(mark => mark.kind === 'point' ? [[mark.x, mark.y]] : []);
-        if (points.length === 0) return undefined;
-        const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
-        const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.min(...ys), top = Math.max(...ys);
-        const pad = Math.max(0.2 * Math.max(right - left, top - bottom), 0.5);
-        return [left - pad, top + 2 * pad, right + pad, bottom - pad]; // the tags and labels stand above the points
-    }
-
-    private curvatureMarksCache: {key: string; base: ViewMarks; marks: ViewMarks} | undefined;
-
-    /** The control points and curve samples of the base, the point at t (must) and, while the circle is drawn, the circle's four extreme points (nice) when its radius is at most the control points' extent. Memoized. */
-    protected override curveViewMarks(): ViewMarks {
-        const base = super.curveViewMarks();
-        const frame = this.currentFrame();
-        if (!frame || frame.status === 'singular') return base;
-        const circle = frame.status === 'circle' && this.state.curvatureCircleShown ? frame : undefined;
-        const key = [frame.point.join(','), circle ? `${circle.centre.join(',')}/${circle.radius}` : ''].join('|');
-        const cached = this.curvatureMarksCache;
-        if (cached && cached.key === key && cached.base === base) return cached.marks;
-        const must: ViewMark[] = [...base.must, {kind: 'point', x: frame.point[0], y: frame.point[1]}];
-        const nice: ViewMark[] = [...(base.nice ?? [])];
-        // A circle much larger than the curve would shrink the curve to a speck: it may leave the view, the curve and the point stay.
-        const xs = base.must.flatMap(mark => mark.kind === 'point' ? [mark.x] : []), ys = base.must.flatMap(mark => mark.kind === 'point' ? [mark.y] : []);
-        const extent = xs.length ? Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) : 0;
-        if (circle && circle.radius <= extent) {
-            const [cx, cy] = circle.centre, r = circle.radius;
-            for (const [x, y] of [[cx - r, cy], [cx + r, cy], [cx, cy - r], [cx, cy + r]]) if (Number.isFinite(x) && Number.isFinite(y)) nice.push({kind: 'point', x, y});
-        }
-        const marks: ViewMarks = {...base, must, nice};
-        this.curvatureMarksCache = {key, base, marks};
-        return marks;
-    }
-
-    /** The osculating circle element stands for the circle entry; the base owns the curve and its control points. */
-    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
-        if (id !== 'circle') return super.drawnObject(id);
-        const element = this.osculatingCircleElement();
-        if (!element) return undefined;
-        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
-        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
-        return {color: String(drawn.evalVisProp('strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
     }
 }
 

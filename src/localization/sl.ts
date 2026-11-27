@@ -2379,7 +2379,7 @@ export const sl = {
     "prompt_curve_offset": "Spreminjaj razdaljo d in opazuj vzporednico. Pri kateri razdalji se pojavi prva ost? Kje leži?",
     "curve_envelope_title": "Ovojnica",
     "prompt_curve_envelope": "Nariši več premic med de Casteljaujevimi točkami. Kakšno krivuljo tvorijo? V katerem dotikališču se premica pri izbranem t dotika krivulje?",
-    "prompt_curve_evolute": "Premikaj parameter t in opazuj središče ukrivljenosti. Kakšno krivuljo opiše? Ali se je normala dotika?",
+    "prompt_curve_evolute": "Premikaj krmilnik Parameter in opazuj središče ukrivljenosti. Kakšno krivuljo opiše? Ali se je normala dotika?",
     "arc_length_description": "Hitrost PH krivulje je polinom, zato je dolžina loka natančna polinomska vrednost in ne numerični približek.",
     "show_elevated_points_on_control_polygon": "Pokaži nove točke na kontrolnem poligonu",
     "elevated_points_description": "Vsaka nova kontrolna točka je konveksna kombinacija sosednjih točk in leži na stranici prvotnega kontrolnega poligona.",

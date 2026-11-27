@@ -8,6 +8,7 @@ import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import CurveCombGraph from './comb/CurveCombGraph';
 import CurvatureBezierCurveGraph from './bezier/CurvatureBezierCurveGraph';
+import CurveEvoluteGraph from './bezier/CurveEvoluteGraph';
 import CurveOffsetGraph from './offset/CurveOffsetGraph';
 import CurveEnvelopeGraph from './envelope/CurveEnvelopeGraph';
 import KinematicsGraph from './kinematics/KinematicsGraph';
@@ -23,6 +24,7 @@ type Label = () => string;
 const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
     comb: () => new CurveCombGraph(),
     offset: () => new CurveOffsetGraph(),
+    evolute: () => new CurveEvoluteGraph(),
     envelope: () => new CurveEnvelopeGraph(),
     kinematics: () => new KinematicsGraph(),
     descent: () => new DescentGraph(),
@@ -33,6 +35,8 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     // The comb switch and the gain are pucks on the board (task 08): Orodja opens with the count of teeth.
     comb: {first: () => t('comb_count'), later: [() => t('parametric_curve_label')]},
     offset: {first: () => t('offset_distance'), later: [() => t('offset_shown'), () => t('parametric_curve_label')]},
+    // t is a puck on the board (task 08): Orodja opens with the trace choice.
+    evolute: {first: () => t('evolute_trace_label'), later: [() => t('evolute_normal_label')]},
     // The line count, the curve switch and t are pucks on the board (task 08): Orodja opens with the family switch.
     envelope: {first: () => t('envelope_lines_shown'), later: [() => t('envelope_touch_shown')]},
     kinematics: {first: () => 'action:play-pause', later: [() => t('kinematics_graph_time_label'), () => t('kinematics_graph_motion_label')]},
@@ -85,6 +89,20 @@ describe('curve-curvature pucks', () => {
         const strip = document.querySelector('.puck-strip') as HTMLElement;
         expect(strip.querySelector('[data-puck-key="curvature-t"]')).not.toBeNull();
         expect(within(root).queryAllByLabelText(new RegExp(`^${t('curvature_parameter_t')}`))).toEqual([]);
+    });
+});
+
+describe('curve-evolute pucks', () => {
+    // The parameter t is a puck on the board (task 08): there once, and not in Orodja, which keeps the trace choice and the normal switch.
+    test('the parameter t is a puck and Orodja holds no second copy', async () => {
+        mountGraph(new CurveEvoluteGraph());
+        await waitUntil(() => document.querySelector('.puck-strip [data-puck-key="curvature-t"]') !== null); // the strip stays hidden without a board layout in this jsdom
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(strip.querySelector('[data-puck-key="curvature-t"]')).not.toBeNull();
+        expect(within(root).queryAllByLabelText(new RegExp(`^${t('curvature_parameter_t')}`))).toEqual([]);
+        expect(within(root).getAllByLabelText(new RegExp(`^${t('evolute_trace_label')}`)).length).toBeGreaterThan(0);
     });
 });
 

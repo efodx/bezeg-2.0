@@ -11,6 +11,7 @@ import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/gr
 import type {CombIds} from '../../graphs/curves/comb/CurveCombGraph';
 import type {CurvatureIds} from '../../graphs/curves/bezier/CurvatureBezierCurveGraph';
 import type {EnvelopeIds} from '../../graphs/curves/envelope/CurveEnvelopeGraph';
+import type {EvoluteIds} from '../../graphs/curves/bezier/CurveEvoluteGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -19,6 +20,8 @@ const combFrame = frameDeclarer<CombIds>();
 /** Typed by the curvature graph's declaration ids. */
 const curvatureFrame = frameDeclarer<CurvatureIds>();
 const envelopeFrame = frameDeclarer<EnvelopeIds>();
+/** Typed by the evolute graph's declaration ids. */
+const evoluteFrame = frameDeclarer<EvoluteIds>();
 
 // ---- L1: parametric and polar curves --------------------------------------------------------------------------------------
 
@@ -743,8 +746,8 @@ const evoluteLesson: GuidedLesson = {
                 'The parabola \\(y=x^2\\) is parametrized by \\(x=2t-1\\). At \\(t=0.75\\) the centre of the osculating circle is the point \\(E=(-\\tfrac12,\\tfrac54)\\). The trace is hidden. Predict where \\(E\\) goes as \\(t\\) runs from \\(0\\) to \\(1\\): on which side of the parabola it is and how far it gets.',
             ),
             formulaIds: ['evolute-point'],
-            frames: [frame('evolute-predict-explanation', 'explanation'), frame('evolute-predict-observation', 'observation')],
-            observationPrompt: text('Premakni \\(t\\) od \\(0\\) do \\(1\\) in sledi točki \\(E\\).', 'Move \\(t\\) from \\(0\\) to \\(1\\) and follow the point \\(E\\).'),
+            frames: [frame('evolute-predict-explanation', 'explanation', evoluteFrame({open: ['readouts'], highlight: ['point']})), frame('evolute-predict-observation', 'observation', evoluteFrame({uses: ['curvature-t'], highlight: ['point']}))],
+            observationPrompt: text('S krmilnikom Parameter premakni \\(t\\) od \\(0\\) do \\(1\\) in sledi točki \\(E\\), ki jo kaže tudi kartica Odčitki.', 'With the Parameter control move \\(t\\) from \\(0\\) to \\(1\\) and follow the point \\(E\\), which the Readouts card also shows.'),
             expectedObservations: [text('Točka \\(E\\) gre v nasprotno smer kot točka na paraboli: pri \\(t=0\\) je \\(E=(4,\\tfrac72)\\), pri \\(t=0{,}5\\) je \\(E=(0,\\tfrac12)\\), pri \\(t=1\\) pa \\(E=(-4,\\tfrac72)\\).', 'The point \\(E\\) moves against the point on the parabola: at \\(t=0\\) we have \\(E=(4,\\tfrac72)\\), at \\(t=0.5\\) we have \\(E=(0,\\tfrac12)\\) and at \\(t=1\\) we have \\(E=(-4,\\tfrac72)\\).')],
             scene: evoluteScene('evolute-predict-hidden', undefined, 0.75, 'hidden', {normal: false},
                 'Parabola s krivinsko krožnico pri \\(t=0{,}75\\); sled evolute in normala sta skriti.',
@@ -759,8 +762,8 @@ const evoluteLesson: GuidedLesson = {
                 'The trace now draws all the points \\(E\\) from \\(t=0\\) to the current \\(t\\). The curve obtained in this way is the evolute. For the parabola \\(y=x^2\\) we have \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\), where \\(x=2t-1\\). The trace starts at the point \\((4,\\tfrac72)\\) and at \\(t=0.75\\) it has reached \\(E=(-\\tfrac12,\\tfrac54)\\).',
             ),
             formulaIds: ['evolute-point'],
-            frames: [frame('evolute-trace-explanation', 'explanation'), frame('evolute-trace-observation', 'observation')],
-            observationPrompt: text('Premakni \\(t\\) do \\(1\\) in opazuj, kako sled raste.', 'Move \\(t\\) to \\(1\\) and watch the trace grow.'),
+            frames: [frame('evolute-trace-explanation', 'explanation'), frame('evolute-trace-observation', 'observation', evoluteFrame({uses: ['curvature-t']}))],
+            observationPrompt: text('S krmilnikom Parameter premakni \\(t\\) do \\(1\\) in opazuj, kako sled raste.', 'With the Parameter control move \\(t\\) to \\(1\\) and watch the trace grow.'),
             expectedObservations: [text('Pri \\(t=1\\) sled doseže \\((-4,\\tfrac72)\\); evoluta je simetrična glede na os parabole.', 'At \\(t=1\\) the trace reaches \\((-4,\\tfrac72)\\); the evolute is symmetric about the axis of the parabola.')],
             scene: evoluteScene('evolute-trace-partial', undefined, 0.75, 'to-parameter', {normal: false},
                 'Parabola in sled evolute od \\(t=0\\) do \\(t=0{,}75\\).',
@@ -775,8 +778,8 @@ const evoluteLesson: GuidedLesson = {
                 'The whole evolute is drawn and the normal at the point at \\(t=0.75\\) is switched on. The point \\(E\\) lies on the normal because it is the centre of the circle. At \\(E\\) the normal is also a tangent of the evolute: the derivative of the evolute has the direction of the normal.',
             ),
             formulaIds: ['evolute-point', 'evolute-tangent'], workedExampleId: 'evolute-parabola-example',
-            frames: [frame('evolute-normals-explanation', 'explanation'), frame('evolute-normals-calculation', 'calculation'), frame('evolute-normals-observation', 'observation')],
-            observationPrompt: text('Premikaj \\(t\\) in opazuj, kako se normala dotika evolute.', 'Move \\(t\\) and watch how the normal touches the evolute.'),
+            frames: [frame('evolute-normals-explanation', 'explanation'), frame('evolute-normals-calculation', 'calculation'), frame('evolute-normals-observation', 'observation', evoluteFrame({uses: ['curvature-t'], highlight: ['point']}))],
+            observationPrompt: text('S krmilnikom Parameter premikaj \\(t\\) in opazuj, kako se normala dotika evolute.', 'With the Parameter control move \\(t\\) and watch how the normal touches the evolute.'),
             expectedObservations: [text('Pri vsakem \\(t\\) gre normala skozi \\(E\\) in se tam dotika evolute. Pri \\(t=0{,}25\\) je \\(E=(\\tfrac12,\\tfrac54)\\).', 'At every \\(t\\) the normal passes through \\(E\\) and touches the evolute there. At \\(t=0.25\\) we have \\(E=(\\tfrac12,\\tfrac54)\\).')],
             scene: evoluteScene('evolute-normals-tangent', undefined, 0.75, 'full', {normal: true},
                 'Parabola, cela evoluta in normala pri \\(t=0{,}75\\), ki gre skozi \\(E=(-\\tfrac12,\\tfrac54)\\).',
@@ -791,8 +794,8 @@ const evoluteLesson: GuidedLesson = {
                 'Now \\(t=0.5\\) and the point on the curve is the vertex \\((0,0)\\). The curvature is largest there: \\(\\kappa=2\\) and \\(R=\\tfrac12\\), so \\(E=(0,\\tfrac12)\\). Since \\(\\kappa^{\\prime}=0\\) there, the derivative of the evolute is \\(0\\) and the evolute has a cusp.',
             ),
             formulaIds: ['evolute-tangent'],
-            frames: [frame('evolute-cusp-explanation', 'explanation'), frame('evolute-cusp-observation', 'observation')],
-            observationPrompt: text('Premakni \\(t\\) malo levo in malo desno od \\(0{,}5\\).', 'Move \\(t\\) a little to the left and to the right of \\(0.5\\).'),
+            frames: [frame('evolute-cusp-explanation', 'explanation', evoluteFrame({open: ['readouts'], highlight: ['kappa', 'radius', 'point']})), frame('evolute-cusp-observation', 'observation', evoluteFrame({uses: ['curvature-t'], highlight: ['point']}))],
+            observationPrompt: text('S krmilnikom Parameter premakni \\(t\\) malo levo in malo desno od \\(0{,}5\\).', 'With the Parameter control move \\(t\\) a little to the left and to the right of \\(0.5\\).'),
             expectedObservations: [text('Točka \\(E\\) se na obeh straneh dvigne iz osti: pri \\(t=0{,}25\\) in \\(t=0{,}75\\) je \\(E=(\\pm\\tfrac12,\\tfrac54)\\), krivinska krožnica pa je večja.', 'The point \\(E\\) rises out of the cusp on both sides: at \\(t=0.25\\) and \\(t=0.75\\) we have \\(E=(\\pm\\tfrac12,\\tfrac54)\\) and the osculating circle is larger.')],
             scene: evoluteScene('evolute-cusp-vertex', undefined, 0.5, 'full', {normal: true},
                 'Teme parabole pri \\(t=0{,}5\\) in ost evolute \\(E=(0,\\tfrac12)\\).',
@@ -807,23 +810,23 @@ const evoluteLesson: GuidedLesson = {
                 'The cubic with the control points \\((0,0)\\), \\((1,2)\\), \\((2,-2)\\), \\((3,0)\\) is the same as in the lesson on curvature. It has vertices at \\(t\\approx0.1907\\) and \\(t\\approx0.8093\\), where \\(|\\kappa|\\approx2.395\\); the evolute has cusps there at \\((0.6332,\\ 0.1598)\\) and \\((2.3668,\\ -0.1598)\\). Now \\(t=0.19\\), right next to the first vertex, with \\(R=0.4175\\).',
             ),
             formulaIds: ['evolute-point', 'evolute-tangent'],
-            frames: [frame('evolute-cubic-explanation', 'explanation'), frame('evolute-cubic-observation', 'observation')],
-            observationPrompt: text('Nastavi \\(t=0{,}5\\) in preberi izpis, nato povleci kontrolno točko \\((1,2)\\).', 'Set \\(t=0.5\\) and read the readout, then drag the control point \\((1,2)\\).'),
-            expectedObservations: [text('Pri \\(t=0{,}5\\) je prevoj: \\(\\kappa=0\\), izpis pove, da točke evolute ni, sled pa je tam prekinjena, ker središče odide v neskončnost. Ko vlečeš kontrolno točko, se temeni in osti premikajo skupaj.', 'At \\(t=0.5\\) there is an inflection: \\(\\kappa=0\\), the readout says that there is no point of the evolute and the trace breaks there because the centre goes off to infinity. As you drag the control point, the vertices and the cusps move together.')],
+            frames: [frame('evolute-cubic-explanation', 'explanation', evoluteFrame({open: ['readouts'], highlight: ['radius', 'point']})), frame('evolute-cubic-observation', 'observation', evoluteFrame({uses: ['curvature-t']}))],
+            observationPrompt: text('S krmilnikom Parameter nastavi \\(t=0{,}5\\) in preberi odčitke v kartici Odčitki, nato povleci kontrolno točko \\((1,2)\\).', 'With the Parameter control set \\(t=0.5\\) and read the values in the Readouts card, then drag the control point \\((1,2)\\).'),
+            expectedObservations: [text('Pri \\(t=0{,}5\\) je prevoj: \\(\\kappa=0\\), kartica Odčitki pove, da točke evolute ni, sled pa je tam prekinjena, ker središče odide v neskončnost. Ko vlečeš kontrolno točko, se temeni in osti premikajo skupaj.', 'At \\(t=0.5\\) there is an inflection: \\(\\kappa=0\\), the Readouts card says that there is no point of the evolute and the trace breaks there because the centre goes off to infinity. As you drag the control point, the vertices and the cusps move together.')],
             scene: evoluteScene('evolute-cubic-vertex', CURVATURE_S_CUBIC, 0.19, 'full', {normal: true},
-                'Kubična krivulja s prevojem, cela evoluta in krivinska krožnica pri \\(t=0{,}19\\); izpis: \\(R=0{,}4175\\), \\(E=(0{,}6332;\\ 0{,}1598)\\).',
-                'The cubic with an inflection, the whole evolute and the osculating circle at \\(t=0.19\\); the readout: \\(R=0.4175\\), \\(E=(0.6332,\\ 0.1598)\\).'),
+                'Kubična krivulja s prevojem, cela evoluta in krivinska krožnica pri \\(t=0{,}19\\); odčitki: \\(R=0{,}4175\\), \\(E=(0{,}6332;\\ 0{,}1598)\\).',
+                'The cubic with an inflection, the whole evolute and the osculating circle at \\(t=0.19\\); the readouts: \\(R=0.4175\\), \\(E=(0.6332,\\ 0.1598)\\).'),
         },
         {
             id: 'evolute-explore', order: 6,
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno spreminjati krivuljo in opazovati evoluto.', 'Changing the curve on your own and watching the evolute.'),
             explanation: text(
-                'Spet je parabola pri \\(t=0{,}75\\), zdaj z okvirjem \\(T\\), \\(N\\), krožnico, normalo in celo evoluto. Premikaj kontrolne točke in \\(t\\), preklapljaj sled in normalo ter išči osti.',
-                'The parabola is back at \\(t=0.75\\), now with the frame \\(T\\), \\(N\\), the circle, the normal and the whole evolute. Move the control points and \\(t\\), switch the trace and the normal and look for cusps.',
+                'Spet je parabola pri \\(t=0{,}75\\), zdaj z okvirjem \\(T\\), \\(N\\), krožnico, normalo in celo evoluto. Premikaj kontrolne točke, s krmilnikom Parameter pa še \\(t\\). V kartici Orodja preklapljaj sled in normalo ter išči osti.',
+                'The parabola is back at \\(t=0.75\\), now with the frame \\(T\\), \\(N\\), the circle, the normal and the whole evolute. Move the control points and, with the Parameter control, \\(t\\). In the Tools card switch the trace and the normal and look for cusps.',
             ),
             formulaIds: ['evolute-point', 'evolute-tangent'],
-            frames: [frame('evolute-explore-explanation', 'explanation'), frame('evolute-explore-observation', 'observation')],
+            frames: [frame('evolute-explore-explanation', 'explanation', evoluteFrame({open: ['readouts', 'tools']})), frame('evolute-explore-observation', 'observation', evoluteFrame({uses: ['curvature-t']}))],
             observationPrompt: text('Povleci srednjo kontrolno točko vstran in poišči ost.', 'Drag the middle control point sideways and find the cusp.'),
             expectedObservations: [text('Kvadratna krivulja je še vedno parabola, zato ima evoluta eno ost, dokler je teme na narisanem loku; ost leži na normali v temenu.', 'A quadratic curve is still a parabola, so the evolute has one cusp while the vertex is on the drawn arc; the cusp lies on the normal at the vertex.')],
             scene: evoluteScene('evolute-explore-start', undefined, 0.75, 'full', {normal: true, frame: true},
@@ -839,7 +842,7 @@ const evoluteLesson: GuidedLesson = {
         },
     ],
     edgeCases: [
-        text('Pri \\(\\kappa=0\\) točke evolute ni: izpis to pove, sled pa se prekine in ne poveže točk na obeh straneh prevoja.', 'At \\(\\kappa=0\\) there is no point of the evolute: the readout says so and the trace breaks without joining the points on the two sides of the inflection.'),
+        text('Pri \\(\\kappa=0\\) točke evolute ni: kartica Odčitki to pove, sled pa se prekine in ne poveže točk na obeh straneh prevoja.', 'At \\(\\kappa=0\\) there is no point of the evolute: the Readouts card says so and the trace breaks without joining the points on the two sides of the inflection.'),
         text('Pri \\(r\\,^{\\prime}=0\\) ukrivljenost ni določena, zato točka evolute ni določena.', 'Where \\(r\\,^{\\prime}=0\\) the curvature is not defined, so the point of the evolute is not defined.'),
     ],
     unresolvedQuestions: [],

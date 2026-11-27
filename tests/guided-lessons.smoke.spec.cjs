@@ -2208,8 +2208,8 @@ const curvatureComb = {
     },
 };
 
-// Evolute: the board readout names the evolute point E of each step (steps 1..3 and 6 the parabola at t = 0.75, step 4 its cusp at t = 0.5, step 5 the first cusp of the S-cubic at t = 0.19).
-const EVOLUTE_READOUTS = [/E = \([-−]0[.,]5, 1[.,]25\)/, /E = \([-−]0[.,]5, 1[.,]25\)/, /E = \([-−]0[.,]5, 1[.,]25\)/, /E = \(0, 0[.,]5\)/, /E = \(0[.,]6332, 0[.,]1598\)/, /E = \([-−]0[.,]5, 1[.,]25\)/];
+// Evolute: the Odčitki card names the evolute point E of each step (steps 1..3 and 6 the parabola at t = 0.75, step 4 its cusp at t = 0.5, step 5 the first cusp of the S-cubic at t = 0.19).
+const EVOLUTE_READOUTS = [/\([-−]0[.,]5; 1[.,]25\)/, /\([-−]0[.,]5; 1[.,]25\)/, /\([-−]0[.,]5; 1[.,]25\)/, /\(0; 0[.,]5\)/, /\(0[.,]6332; 0[.,]1598\)/, /\([-−]0[.,]5; 1[.,]25\)/];
 const curveEvolute = {
     id: 'curve-evolute',
     path: `${BASE}/curve-geometry/evolute`,
@@ -2217,7 +2217,7 @@ const curveEvolute = {
     steps: 6,
     minFrames: 13, // 2 frames per step, 3 on step 3 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, EVOLUTE_READOUTS[step - 1]).first(), `evolute readout at ${label}`).toBeVisible();
+        await expect(page.locator('#board-card-readouts').filter({hasText: EVOLUTE_READOUTS[step - 1]}).first(), `evolute readout at ${label}`).toBeVisible();
     },
 };
 

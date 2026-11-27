@@ -2380,7 +2380,7 @@ export const en: Record<keyof typeof sl, string> = {
     "prompt_curve_offset": "Change the distance d and watch the offset. At what distance does the first cusp appear? Where does it lie?",
     "curve_envelope_title": "Envelope",
     "prompt_curve_envelope": "Draw several lines between the de Casteljau points. What curve do they form? At which touching point does the line for the chosen t meet the curve?",
-    "prompt_curve_evolute": "Move the parameter t and watch the centre of curvature. What curve does it trace? Does the normal touch that curve?",
+    "prompt_curve_evolute": "Move the Parameter control and watch the centre of curvature. What curve does it trace? Does the normal touch that curve?",
     "arc_length_description": "The speed of a PH curve is a polynomial, so the arc length is an exact polynomial value rather than a numerical approximation.",
     "show_elevated_points_on_control_polygon": "Show new points on the control polygon",
     "elevated_points_description": "Each new control point is a convex combination of neighbouring points and lies on an edge of the original control polygon.",

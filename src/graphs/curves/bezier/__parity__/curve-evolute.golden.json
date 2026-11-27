@@ -9,12 +9,8 @@
       "outputs": [],
       "captions": [
         "E",
-        "Krivinski polmer R = 1,4142",
         "N",
-        "Smerni kot tangente φ = 45°",
-        "T",
-        "Točka evolute E = (-0,5, 1,25)",
-        "Ukrivljenost κ = 0,7071"
+        "T"
       ]
     },
     {
@@ -23,37 +19,7 @@
       "notes": [],
       "outputs": [],
       "captions": [
-        "E",
-        "Krivinski polmer R = 1,4142",
-        "Smerni kot tangente φ = 45°",
-        "Točka evolute E = (-0,5, 1,25)",
-        "Ukrivljenost κ = 0,7071"
-      ]
-    },
-    {
-      "name": "curve-evolute-guided/evolute-cusp",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "E",
-        "Krivinski polmer R = 0,5",
-        "Smerni kot tangente φ = 0°",
-        "Točka evolute E = (0, 0,5)",
-        "Ukrivljenost κ = 2"
-      ]
-    },
-    {
-      "name": "curve-evolute-guided/evolute-cubic",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "E",
-        "Krivinski polmer R = 0,4175",
-        "Smerni kot tangente φ = 8,71°",
-        "Točka evolute E = (0,6332, 0,1598)",
-        "Ukrivljenost κ = -2,3952"
+        "E"
       ]
     }
   ]
