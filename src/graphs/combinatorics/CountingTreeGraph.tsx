@@ -69,6 +69,10 @@ export const LETTERS = ["M", "I", "S", "P"] as const;
 const LETTER_COLORS = [GraphPalette.primaryCurve, GraphPalette.comparisonCurve, GraphPalette.constructionAccent, GraphPalette.controlPoint];
 const ROW_POOL = ROW_N_RANGE.max + 1;
 
+/** Leaf labels: the most rows they stagger over, and the air between two labels of a row (px). */
+const LEAF_ROWS_MAX = 3;
+const LEAF_GAP_PX = 3;
+
 /** Tree layout: the leaves share the width, the levels share the height. */
 export const TREE_TOP = 21;
 export const TREE_BOTTOM = 8;
@@ -152,7 +156,6 @@ const numberText = (value: number): string => formatNumber(value, currentLanguag
 interface TreeData {
     readonly leaves: readonly number[][];
     readonly edges: Poly;
-    readonly rows: number;
 }
 
 interface TableRow {
@@ -274,7 +277,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         if (!slot.tree) {
             const {n, k, repetition} = this.state;
             const leaves = this.counting().treeShown ? treeLeaves(n, k, repetition) : [];
-            slot.tree = {leaves, edges: this.treeEdges(leaves, k), rows: leaves.length > 32 ? 3 : leaves.length > 16 ? 2 : 1};
+            slot.tree = {leaves, edges: this.treeEdges(leaves, k)};
         }
         return slot.tree;
     }
@@ -408,9 +411,11 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         this.scene.own(this.board.create("point", [TREE_LEFT + TREE_WIDTH / 2, TREE_TOP], {
             fixed: true, highlight: false, withLabel: false, name: "", face: "o", size: 5, fillColor: GraphPalette.label, strokeColor: GraphPalette.pointOutline,
         }));
+        // The leaf labels never overlap: they stagger over up to three rows and, where even that is too narrow for the board's pixels, only every m-th leaf is named
+        // (every leaf is still an edge of the tree and counted in the row "leaves").
         for (let i = 0; i < TREE_LEAF_LIMIT; i++) {
-            this.caption(() => this.leafText(i), () => treeLeafX(i, this.tree().leaves.length), () => TREE_BOTTOM - 0.5 - 1.1 * (i % this.tree().rows),
-                GraphPalette.label, () => i < this.tree().leaves.length, {anchorX: "middle", anchorY: "top", fontSize: this.tree().leaves.length > 32 ? 11 : 14});
+            this.caption(() => this.leafText(i), () => treeLeafX(i, this.tree().leaves.length), () => TREE_BOTTOM - 0.5 - this.leafRowGap() * (Math.floor(i / this.leafLayout().step) % this.leafLayout().rows),
+                GraphPalette.label, () => i < this.tree().leaves.length && i % this.leafLayout().step === 0, {anchorX: "middle", anchorY: "top", fontSize: () => this.leafLayout().font});
         }
         // The two caption rows stand in pixels from the top edge, above the root dot, when the board has room there (the first caption row, the title one caption row
         // (15 px text and at least 4 px between the rows) under it); on a short board the root dot is too near the top and the rows stand under the leaf numbers instead.
@@ -428,6 +433,27 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     private captionsAtTop(): boolean {
         const unit = this.board.unitY > 0 ? this.board.unitY : 1;
         return (this.board.getBoundingBox()[1] - TREE_TOP) * unit >= CAPTION_MARGIN_PX + CAPTION_ROW_PX + CAPTION_FONT_PX * 1.25 + ROOT_DOT_PX;
+    }
+
+    /**
+     * How the leaf labels share the width: the font, the rows they stagger over and the step between named leaves. A label is about 0.6 font sizes per character wide and
+     * needs LEAF_GAP_PX of air; the leaves are `pitch` px apart on the board, so `rows` rows hold a label when rows x pitch is wide enough, else every `step`-th leaf is named.
+     */
+    private leafLayout(): {font: number; rows: number; step: number} {
+        const leaves = this.tree().leaves;
+        const font = leaves.length > 32 ? 11 : 14;
+        const unit = this.board.unitX > 0 ? this.board.unitX : 1;
+        const pitch = (TREE_WIDTH * unit) / Math.max(1, leaves.length);
+        const width = (leaves[0] ? this.leafText(0).length : 1) * font * 0.6 + LEAF_GAP_PX;
+        const needed = Math.max(1, Math.ceil(width / pitch));
+        const rows = Math.min(LEAF_ROWS_MAX, needed);
+        return {font, rows, step: Math.max(1, Math.ceil(needed / rows))};
+    }
+
+    /** The distance between two staggered label rows in user units: the font's height and 3 px of air, whatever the board's vertical scale. */
+    private leafRowGap(): number {
+        const unit = this.board.unitY > 0 ? this.board.unitY : 1;
+        return (this.leafLayout().font + 3) / unit;
     }
 
     private leafText(index: number): string {

@@ -40,7 +40,7 @@ export type LogisticMapIds = {
     param: "logistic-r" | "logistic-x0";
     row: "r" | "x0" | "steps" | "iterate" | "kind" | "fixed" | "fixed-multiplier" | "cycle" | "cycle-multiplier" | "period" | "column" | "note";
     note: "status";
-    legend: "map" | "diagonal" | "cobweb" | "fixed" | "cycle" | "iterate" | "diagram";
+    legend: "map" | "diagonal" | "cobweb" | "fixed" | "cycle" | "iterate" | "diagram" | "second" | "onset";
     section: never;
     action: "next-step" | "play-pause" | "reset-run";
 };
@@ -70,9 +70,6 @@ const ROW_PX = 18;
 /** The caption rows under the x axis start below the row of its tick numbers. */
 const TICK_ROW_PX = 26;
 
-const CAPTION_CHAR_PX = 7.5;
-/** The lines a caption takes on a board `width` px wide (10 px margin each side): the browser wraps it at the edge of the board. */
-const captionLines = (text: string, width: number): number => Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / Math.max(width - 20, 100)));
 
 /** Room left of the y axis for its numbers ("0,8" at 14 px) plus a gap: a narrow board widens the window to the left until the axis stands this far from the edge. */
 const AXIS_NUMBER_PAD_PX = 34;
@@ -393,26 +390,13 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         return point;
     }
 
-    /** The captions of the column under the x axis, in order: the map, the diagonal, the cobweb, the diagram, the second split, the onset of chaos. */
-    private columnTexts(): Array<() => string> {
-        const derived = () => this.derived();
-        return [
-            () => t("phase_graph_logistic_cap_map", {value0: dec(derived().r, 2)}),
-            () => t("phase_graph_logistic_cap_diagonal"),
-            () => t("phase_graph_logistic_cap_cobweb"),
-            () => t("phase_graph_logistic_cap_diagram", {value0: dec(BIFURCATION_R_MIN, 1), value1: dec(BIFURCATION_R_MAX, 0)}),
-            () => t("phase_graph_logistic_cap_mark_second", {value0: dec(SECOND_SPLIT)}),
-            () => t("phase_graph_logistic_cap_onset", {value0: dec(CHAOS_ONSET, 5)}),
-        ];
-    }
-
-    /** The opening window for this board: `VIEW_BOX`, lowered and raised where the caption column and the cursor caption need more pixels than the box leaves. */
+    /** The opening window for this board: `VIEW_BOX`, lowered where the row of the r marks under the x axis needs more pixels than the box leaves. */
     private openingWindow(): [number, number, number, number] {
         const [boxLeft, top, right, bottom] = VIEW_BOX;
         const height = this.board.canvasHeight;
         const width = this.board.canvasWidth;
         const left = width > AXIS_NUMBER_PAD_PX * 2 ? Math.min(boxLeft, -(AXIS_NUMBER_PAD_PX * right) / (width - AXIS_NUMBER_PAD_PX)) : boxLeft;
-        const needed = TICK_ROW_PX + ROW_PX * (1 + this.columnTexts().reduce((sum, text) => sum + captionLines(text(), width), 0)) + ROW_PX / 2;
+        const needed = TICK_ROW_PX + ROW_PX * 1.5;
         if (!(height > needed)) return [left, top, right, bottom];
         // A span of `px` pixels is px / unit board units, with unit = height / (top + depth): solved by iteration (it settles in a few steps).
         let depth = -bottom;
@@ -444,7 +428,9 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             return {x, y};
         }, GraphPalette.tick, 1, 0, true);
         this.curve(diagramPolyline, GraphPalette.primaryCurve, 1, 0, true, "diagram");
-        this.curve(() => {
+        // The marks of r in the diagram: the first split at r = 3 (a caption under the axis), the second split and the onset of chaos; one dashed curve, named
+        // by both legend entries (their lines share the style).
+        const marks = this.curve(() => {
             const x: number[] = [];
             const y: number[] = [];
             for (const r of [3, SECOND_SPLIT, CHAOS_ONSET]) {
@@ -453,7 +439,8 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
                 y.push(0, 1);
             }
             return {x, y};
-        }, GraphPalette.referenceCurve, 1, 3, true);
+        }, GraphPalette.referenceCurve, 1, 3, true, "second");
+        this.drawn.set("onset", marks);
         this.curve(() => {
             const at = diagramX(this.cursor().r);
             return {x: [at, at], y: [0, 1]};
@@ -490,15 +477,9 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         this.handle = handle;
         this.wireDrag(handle);
 
-        // Captions for what no legend entry or readout row says: the map's and the diagonal's rule, the cobweb and diagram notes and the marks of r (the start, the fixed
-        // point, the 2-cycle, the iterate and the cursor are legend entries and readout rows).
-        // Under the x axis: the row of the r marks, then the long captions in one column, each as tall as its wrapped lines (the browser wraps a
-        // caption at the edge of the board, so on a narrow board a row takes several lines and the next row starts below them).
+        // The rules, the notes and the marks of r are legend entries; the board keeps the row of r values under the diagram (the scale of its axis).
+        // The row sits under the tick numbers of the x axis.
         const below = (row: number) => -(TICK_ROW_PX + row * ROW_PX);
-        const column = this.columnTexts();
-        const columnRow = (index: number) => () => -(TICK_ROW_PX + ROW_PX * (1 + column.slice(0, index).reduce((sum, text) => sum + captionLines(text(), this.board.canvasWidth), 0)));
-        const columnColors = [GraphPalette.comparisonCurve, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label];
-        column.forEach((text, index) => this.caption(() => this.scaleOf().left, () => 0, 4, columnRow(index), text, columnColors[index], {anchorY: "top"}));
         const base = () => diagramX(BIFURCATION_R_MIN);
         this.caption(base, () => 0, 0, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(BIFURCATION_R_MIN, 1)}), GraphPalette.label, {anchorY: "top"});
         this.caption(() => diagramX(BIFURCATION_R_MAX), () => 0, 0, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(BIFURCATION_R_MAX, 0)}),
@@ -824,13 +805,15 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
                 step: 1 / X_SCALE, bigStep: 0.1, maxDecimals: 2, help: message("phase_graph_logistic_x_help")},
         ];
         const legend: LegendEntry<LogisticMapIds>[] = [
-            {id: "map", label: message("logistic_legend_map"), kind: "line", object: "map"},
+            {id: "map", label: message("logistic_legend_map", {value0: dec(this.derived().r, 2)}), kind: "line", object: "map"},
             {id: "diagonal", label: message("logistic_legend_diagonal"), kind: "dashed", object: "diagonal"},
             {id: "cobweb", label: message("logistic_legend_cobweb"), kind: "line", object: "cobweb"},
             {id: "fixed", label: message("logistic_legend_fixed"), kind: "point", object: "fixed"},
             ...(R > 300 ? [{id: "cycle" as const, label: message("logistic_legend_cycle"), kind: "point" as const, object: "cycle"}] : []),
             ...(step > 0 ? [{id: "iterate" as const, label: message("logistic_legend_iterate"), kind: "point" as const, object: "iterate"}] : []),
-            {id: "diagram", label: message("logistic_legend_diagram"), kind: "line", object: "diagram"},
+            {id: "diagram", label: message("logistic_legend_diagram", {value0: dec(BIFURCATION_R_MIN, 1), value1: dec(BIFURCATION_R_MAX, 0)}), kind: "line", object: "diagram"},
+            {id: "second", label: message("logistic_legend_second", {value0: dec(SECOND_SPLIT)}), kind: "dashed", object: "second"},
+            {id: "onset", label: message("logistic_legend_onset", {value0: dec(CHAOS_ONSET, 5)}), kind: "dashed", object: "onset"},
         ];
         const playback = {placement: "tools" as const, tab: "edit" as const};
         const actions: ActionDeclaration<LogisticMapIds>[] = [

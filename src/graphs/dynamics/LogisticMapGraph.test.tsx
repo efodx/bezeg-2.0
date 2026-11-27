@@ -566,10 +566,8 @@ describe('captions', () => {
         set(graph, {step: 2, R: 310});
         const texts = captionTexts(graph);
         const has = (text: string) => expect(texts, text).toContain(text);
-        has(t('phase_graph_logistic_cap_map', {value0: '3,1'}));
-        has(t('phase_graph_logistic_cap_diagonal'));
-        has(t('phase_graph_logistic_cap_cobweb'));
-        has(t('phase_graph_logistic_cap_diagram', {value0: '2,5', value1: '4'}));
+        // The rules and notes are legend entries now (the declaration test reads them); the board draws none of them.
+        expect(texts.filter(text => /^(preslikava|diagonala|pajkova|bifurkacijski)/.test(text))).toEqual([]);
         expect(readout('x0')).toBe('0,2');
         expect(readout('fixed')).toBe('0,677419');
         expect(readout('cycle')).toBe(t('phase_graph_logistic_cycle_value', {value0: '0,558014', value1: '0,764567'}));
@@ -579,9 +577,8 @@ describe('captions', () => {
         has(t('phase_graph_logistic_cap_r', {value0: '2,5'}));
         has(t('phase_graph_logistic_cap_r', {value0: '4'}));
         has(t('phase_graph_logistic_cap_r', {value0: '3'}));
-        has(t('phase_graph_logistic_cap_mark_second', {value0: '3,44949'}));
         expect(SECOND_SPLIT).toBeCloseTo(3.449490, 6);
-        has(t('phase_graph_logistic_cap_onset', {value0: '3,56995'}));
+        expect(texts.filter(text => /^r (=|≈) /.test(text) && !/^r = (2,5|3|4)$/.test(text))).toEqual([]);
         expect(readout('iterate')).not.toBe('');
         expect(texts.some(text => /^x[₀-₉]+ = /.test(text))).toBe(false);
         expect(texts.every(text => !/NaN|undefined/.test(text))).toBe(true);
@@ -591,7 +588,7 @@ describe('captions', () => {
         const {graph} = mountGraph();
         const board = graph.liveBoard();
         const below = (probes(graph) as unknown as Array<Probe & {Y(): number}>).filter(o => o.elType === 'text' && o.evalVisProp('anchory') === 'top' && o.Y() < 0);
-        expect(below.length).toBeGreaterThanOrEqual(8);
+        expect(below.length).toBe(3);
         const boardBottomPx = -board.getBoundingBox()[3] * board.unitY;
         for (const text of below) {
             const topPx = -text.Y() * board.unitY;
@@ -618,7 +615,7 @@ describe('ownership, rebuild and StrictMode', () => {
         const {graph, view} = mountGraph();
         const count = () => probes(graph).filter(o => o.elType !== 'label').length;
         const owned = graph.ownedObjectCount();
-        expect(owned).toBeGreaterThan(20);
+        expect(owned).toBeGreaterThan(12);
         const base = count() - owned;
         const ids = new Set(probes(graph).map(o => o.id));
         for (const R of [310, 380, 400, 250, 290]) {
@@ -718,11 +715,12 @@ describe('language and the catalog', () => {
         expect(labelOf('period')).toBe(en.phase_graph_logistic_r_period);
         expect(readout('r')).toBe('3.1');
         expect(readout('cycle')).toBe(t('phase_graph_logistic_cycle_value', {value0: '0.558014', value1: '0.764567'}));
-        expect(captionTexts(graph)).toContain(t('phase_graph_logistic_cap_map', {value0: '3.1'}));
+        expect(captionTexts(graph)).toContain(t('phase_graph_logistic_cap_r', {value0: '2.5'}));
+        expect(en.logistic_legend_map).toBe('Map y = {value0}·x·(1 − x)');
         expect(status()).toContain('3.1');
         act(() => setLanguage('sl'));
         expect(document.querySelector(`[aria-label="${sl.logistic_board_label}"]`)).not.toBeNull();
-        expect(captionTexts(graph)).toContain(t('phase_graph_logistic_cap_map', {value0: '3,1'}));
+        expect(captionTexts(graph)).toContain(t('phase_graph_logistic_cap_r', {value0: '2,5'}));
     });
 
     test('numbers use the decimal comma and the true minus in Slovenian', () => {
@@ -736,7 +734,7 @@ describe('language and the catalog', () => {
     test('every phase_graph_logistic key exists in both languages with the same placeholder names, and the source uses exactly these keys', () => {
         const names = (text: string) => Array.from(text.matchAll(/\{(\w+)\}/g), m => m[1]).sort();
         const keys = Object.keys(sl).filter(key => key.startsWith('phase_graph_logistic_'));
-        expect(keys.length).toBeGreaterThanOrEqual(44);
+        expect(keys.length).toBeGreaterThanOrEqual(38);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];
@@ -758,7 +756,7 @@ describe('language and the catalog', () => {
     });
 });
 
-describe('the captions on a narrow board (390 x 480 px)', () => {
+describe('the r marks on a narrow board (390 x 480 px)', () => {
     const sizes = {clientWidth: 390, offsetWidth: 390, clientHeight: 480, offsetHeight: 480} as const;
     const restore = [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const;
     beforeEach(() => {
@@ -772,25 +770,19 @@ describe('the captions on a narrow board (390 x 480 px)', () => {
     });
 
     for (const language of ['sl', 'en'] as const) {
-        test(`the wrapped caption rows do not run into each other or off the board (${language})`, () => {
+        test(`the r marks under the diagram stay on the board (${language})`, () => {
             setLanguage(language);
             const {graph} = mountGraph();
             const board = graph.liveBoard();
             type Text = Probe & {X(): number; Y(): number};
-            const rows = (ofType(graph, 'text') as unknown as Text[])
-                .filter(o => visible(o) && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() < 0 && o.X() < 0)
-                .sort((a, b) => b.Y() - a.Y());
-            expect(rows).toHaveLength(6);
-            const lines = (text: Text) => Math.max(1, Math.ceil((String(text.plaintext).length * 7.5) / Math.max(390 - 20, 100)));
-            expect(rows.some(row => lines(row) > 1)).toBe(true);
-            for (let i = 0; i + 1 < rows.length; i++) {
-                const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
-                expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(lines(rows[i]) * 18 - 0.5);
+            // The rules are legend entries now: the only texts under the x axis are the three r marks, and they fit between the tick numbers and the bottom edge.
+            const rows = (ofType(graph, 'text') as unknown as Text[]).filter(o => visible(o) && o.evalVisProp('anchory') === 'top' && o.Y() < 0);
+            expect(rows).toHaveLength(3);
+            for (const row of rows) {
+                const topPx = -row.Y() * board.unitY;
+                expect(topPx, String(row.plaintext)).toBeGreaterThanOrEqual(22);
+                expect(topPx + 18, String(row.plaintext)).toBeLessThanOrEqual(-board.getBoundingBox()[3] * board.unitY);
             }
-            expect((ofType(graph, 'text') as unknown as Text[]).filter(o => visible(o) && o.evalVisProp('anchorx') === 'right' && o.Y() > 0.9 && o.Y() < 1.5)).toEqual([]); // no cursor caption
-            const last = rows[rows.length - 1];
-            const roomPx = (last.Y() - board.getBoundingBox()[3]) * board.unitY;
-            expect(roomPx).toBeGreaterThanOrEqual(lines(last) * 18 - 0.5);
         });
     }
 });

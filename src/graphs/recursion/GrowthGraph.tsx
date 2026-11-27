@@ -5,7 +5,7 @@ import {currentLanguage, message, onLanguageChange, renderMessage, t, type Messa
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {PuckOwned} from "../base/controls/PuckOwnership";
 import {DomainError} from "../functions/BaseFunctionGraph";
-import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutGroup, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
+import type {FormattedValue, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutGroup, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber, formatScientific} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -76,7 +76,8 @@ const PARTS_NAMES: Readonly<Record<number, () => string>> = {
 /**
  * Ids of the declaration (task 08 lane L19). Bound: the panel (a choice puck), per panel the terms n and the difference d or ratio q (sequence), the time t
  * and the rate p (interest), the model, the growth factor q and the steps n (logarithm). Setup (first term, kind, capital, periods per year, start value)
- * stays in Orodja. Declared: the readout rows, the status sentence and the explanatory sentence as notes. The board texts stay board-drawn.
+ * stays in Orodja. Declared: the readout rows, the status sentence and the explanatory sentence as notes, and the legend of the curves of the panel (the bars and the limit,
+ * the four interest curves with their values at the last year, the points and the line through the first and the last). The board keeps the axis titles.
  */
 export type GrowthIds = {
     param: "growth-panel" | "growth-n" | "growth-d" | "growth-q" | "growth-rate" | "growth-years" | "growth-model" | "growth-logq";
@@ -84,7 +85,7 @@ export type GrowthIds = {
         | "capital" | "rate" | "years" | "parts" | "simple" | "compound" | "relative" | "continuous" | "conformal" | "conformal-value" | "doubling" | "rule72" | `e-${number}` | "e"
         | "model" | "start" | "factor" | "last-y" | "last-ln" | "slope" | "slope-first" | "slope-last" | "ln-q" | "q-from-slope" | "line";
     note: "status" | "help";
-    legend: never;
+    legend: "bars" | "limit" | "simple" | "compound" | "relative" | "continuous" | "points" | "chord";
     section: never;
     action: never;
 };
@@ -99,13 +100,10 @@ const INTEREST_STYLES: readonly Style[] = [
     {color: GraphPalette.constructionAccent, width: 2, dash: 0},
     {color: GraphPalette.comparisonCurve, width: 2, dash: 3},
 ];
-/** Fractions of the window: the axis caption at the top, caption rows below it, text starting right of the vertical axis. */
+/** Fraction of the window: the axis caption at the top, text starting right of the vertical axis. */
 const ROW_Y = 0.97;
-const ROW_STEP = 0.06;
-const rowY = (row: number): number => ROW_Y - ROW_STEP * (row + 1);
-/** Pixels: the gap of every text right of the vertical axis; the length of a legend sample; the room under the horizontal axis for the tick numbers (22) and the axis title (18) and their gaps. */
+/** Pixels: the gap of every text right of the vertical axis; the room under the horizontal axis for the tick numbers (22) and the axis title (18) and their gaps. */
 const AXIS_GAP_PX = 16;
-const SAMPLE_PX = 36;
 const BAND_PX = 48;
 /** Pixels between the axis title and the bottom edge of the board. */
 const TITLE_GAP_PX = 5;
@@ -312,7 +310,10 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         this.boardView.following(() => this.boardView.setIntent(box, {keepAspectRatio: false}));
     }
 
-    private curve(data: () => Polyline, style: Style, visible: () => boolean): JXG.Curve {
+    /** The curves the legend names, by the `object` id of their entry (`drawnObject`); rebuilt with the scene. */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
+
+    private curve(data: () => Polyline, style: Style, visible: () => boolean, legendId?: GrowthIds["legend"]): JXG.Curve {
         const curve = this.scene.own(this.board.create("curve", [[], []], {
             highlight: false, fixed: true, withLabel: false, strokeColor: style.color, strokeWidth: style.width, dash: style.dash, visible,
         }));
@@ -321,6 +322,7 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
             curve.dataX = x;
             curve.dataY = y;
         };
+        if (legendId) this.drawn.set(legendId, curve);
         return curve;
     }
 
@@ -373,25 +375,17 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         const derived = () => this.derived();
         const box = () => this.view();
         const on = (panel: GrowthPanel) => () => this.state.panel === panel;
-        const textAt = (fy: number, offsetPx = 0) => () => ({x: this.textLeft() + this.pixels(offsetPx), y: at(box(), 0, fy).y});
 
         // Sequence panel: the bars of the terms, the limit line, the n-th term marked.
-        this.curve(() => barsPath(derived().sequence.terms.map(Number)), {color: GraphPalette.primaryCurve, width: 2, dash: 0}, on("sequence"));
+        this.curve(() => barsPath(derived().sequence.terms.map(Number)), {color: GraphPalette.primaryCurve, width: 2, dash: 0}, on("sequence"), "bars");
         this.curve(() => {
             const limit = derived().sequence.limit ?? 0;
             return {x: [box()[0], box()[2]], y: [limit, limit]};
-        }, {color: GraphPalette.comparisonCurve, width: 2, dash: 2}, () => state().panel === "sequence" && derived().sequence.limit !== null);
+        }, {color: GraphPalette.comparisonCurve, width: 2, dash: 2}, () => state().panel === "sequence" && derived().sequence.limit !== null, "limit");
         this.marker(() => state().n, () => Number(derived().sequence.nth), on("sequence"), "diamond", GraphPalette.constructionAccent);
-        this.caption(() => t("recursion_graph_growth_cap_bars", {value0: state().n}), textAt(rowY(0)), on("sequence"));
-        // The n-th term is the row "Term aₙ"; the limit line has no legend entry, so its caption stays (the line's only name).
-        this.caption(() => t("recursion_graph_growth_cap_limit", {value0: num(derived().sequence.limit ?? NaN)}), textAt(rowY(1)),
-            () => state().panel === "sequence" && derived().sequence.limit !== null);
+        // The bars and the limit line are legend entries; the n-th term is the row "Term aₙ".
 
-        // Interest panel: four curves in the window of the years, each with a legend line of the same style and a caption.
-        const values = (): number[] => {
-            const d = derived().interest;
-            return [d.simple, d.compound, d.relative, d.continuous];
-        };
+        // Interest panel: four curves in the window of the years (legend entries, with their values at the last year).
         const capital = () => state().capital;
         const p = () => derived().interest.p;
         const parts = () => state().parts;
@@ -401,34 +395,18 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
             time => capital() * Math.pow(1 + p() / parts(), parts() * time),
             time => capital() * Math.exp(p() * time),
         ];
-        const captions: Array<() => string> = [
-            () => t("recursion_graph_growth_cap_simple", {value0: money(values()[0])}),
-            () => t("recursion_graph_growth_cap_compound", {value0: money(values()[1])}),
-            () => t("recursion_graph_growth_cap_relative", {value0: parts(), value1: money(values()[2])}),
-            () => t("recursion_graph_growth_cap_continuous", {value0: money(values()[3])}),
-        ];
+        const INTEREST_IDS = ["simple", "compound", "relative", "continuous"] as const;
         models.forEach((model, index) => {
-            this.curve(() => sampleCurve(model, 0, state().years), INTEREST_STYLES[index], on("interest"));
-        });
-        INTEREST_STYLES.forEach((style, index) => {
-            this.curve(() => {
-                const from = textAt(rowY(index))();
-                return {x: [from.x, from.x + this.pixels(SAMPLE_PX)], y: [from.y, from.y]};
-            }, style, on("interest"));
-            this.caption(captions[index], textAt(rowY(index), SAMPLE_PX + 8), on("interest"));
+            this.curve(() => sampleCurve(model, 0, state().years), INTEREST_STYLES[index], on("interest"), INTEREST_IDS[index]);
         });
 
         // Logarithm panel: the points (n, ln y), the chord through the first and the last point, one marker per point.
-        this.curve(() => ({x: [...derived().log.ns], y: [...derived().log.lnY]}), {color: GraphPalette.primaryCurve, width: 2, dash: 0}, on("log"));
-        this.curve(() => chord(derived().log.ns, derived().log.lnY), {color: GraphPalette.constructionAccent, width: 2, dash: 2}, on("log"));
+        this.curve(() => ({x: [...derived().log.ns], y: [...derived().log.lnY]}), {color: GraphPalette.primaryCurve, width: 2, dash: 0}, on("log"), "points");
+        this.curve(() => chord(derived().log.ns, derived().log.lnY), {color: GraphPalette.constructionAccent, width: 2, dash: 2}, on("log"), "chord");
         for (let index = 0; index < LOG_POINTS; index++) {
             this.marker(() => derived().log.ns[index] ?? 0, () => derived().log.lnY[index] ?? 0,
                 () => state().panel === "log" && index < derived().log.ns.length, "circle", GraphPalette.primaryCurve);
         }
-        this.caption(() => t(state().logModel === "exponential" ? "recursion_graph_growth_cap_points_exponential" : "recursion_graph_growth_cap_points_power"),
-            textAt(rowY(0)), on("log"));
-        this.caption(() => t("recursion_graph_growth_cap_chord", {value0: num(derived().log.slope)}), textAt(rowY(1)), on("log"));
-
         // Axis captions of every panel: what the horizontal and the vertical axis show, and the unit.
         this.caption(() => t(state().panel === "sequence" ? "recursion_graph_growth_cap_x_sequence" : state().panel === "interest"
             ? "recursion_graph_growth_cap_x_interest" : "recursion_graph_growth_cap_x_log"), () => ({x: box()[2] - this.pixels(6), y: box()[3] + TITLE_GAP_PX / (this.board.unitY > 0 ? this.board.unitY : 1)}), () => true, "right", "bottom");
@@ -438,6 +416,7 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
 
     private disposeScene(): void {
         this.scene.dispose(this.hasBoard ? this.board : undefined);
+        this.drawn.clear();
         this.built = false;
     }
 
@@ -740,8 +719,43 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         return {
             parameters, readouts: groups,
             notes: [{id: "status", text: this.statusMessage()}, {id: "help", text: message(this.noteKey())}],
+            legend: this.legendEntries(),
             marks: this.viewMarks(),
         };
+    }
+
+    /** The legend of the panel: its curves, named by what they show (the values at the last year included). */
+    private legendEntries(): LegendEntry<GrowthIds>[] {
+        const state = this.state;
+        const d = this.derived();
+        if (state.panel === "sequence") {
+            return [
+                {id: "bars", label: message("recursion_graph_growth_cap_bars", {value0: state.n}), kind: "line", object: "bars"},
+                ...(d.sequence.limit !== null
+                    ? [{id: "limit" as const, label: message("recursion_graph_growth_cap_limit", {value0: num(d.sequence.limit)}), kind: "dashed" as const, object: "limit"}] : []),
+            ];
+        }
+        if (state.panel === "interest") {
+            return [
+                {id: "simple", label: message("recursion_graph_growth_cap_simple", {value0: money(d.interest.simple)}), kind: "dashed", object: "simple"},
+                {id: "compound", label: message("recursion_graph_growth_cap_compound", {value0: money(d.interest.compound)}), kind: "line", object: "compound"},
+                {id: "relative", label: message("recursion_graph_growth_cap_relative", {value0: state.parts, value1: money(d.interest.relative)}), kind: "line", object: "relative"},
+                {id: "continuous", label: message("recursion_graph_growth_cap_continuous", {value0: money(d.interest.continuous)}), kind: "dashed", object: "continuous"},
+            ];
+        }
+        return [
+            {id: "points", label: message(state.logModel === "exponential" ? "recursion_graph_growth_cap_points_exponential" : "recursion_graph_growth_cap_points_power"), kind: "line", object: "points"},
+            {id: "chord", label: message("recursion_graph_growth_cap_chord", {value0: num(d.log.slope)}), kind: "dashed", object: "chord"},
+        ];
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.drawn.get(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp("strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
     }
 
     /** The panel's text of the declared rows of one group. */

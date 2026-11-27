@@ -27,7 +27,7 @@ import {
     C_RANGE, C_SCALE, CobwebDerived, COBWEB_MAPS, CobwebMap, CobwebState, DEFAULT_COBWEB_STATE, deriveCobweb, M_RANGE, M_SCALE, R_RANGE, R_SCALE,
     parseCobwebState, serializeCobwebState, snapDragInteger, startOf, startRange, typedInteger, withMap, X_SCALE,
 } from "../../recursion/recursionModel";
-import {clearOfYAxis, focusFrame, legendInFrame, openingFrame} from "./cobwebFocus";
+import {focusFrame, openingFrame} from "./cobwebFocus";
 import {affineEquation, captionPlace, CaptionScale, cobwebPath, inView, mapSamples, Polyline, subscript, VIEW_BOXES} from "./cobwebScene";
 import {SceneObjects} from "./SceneObjects";
 import type {LessonAction} from "../../learning/model";
@@ -68,13 +68,13 @@ const MAP_SHORT_KEYS = {
 /**
  * Ids of the declaration (task 08 lane L37). Bound: the map (a choice puck: lesson RG2 asks for the cosine), the slope `m` and the intercept `c` of the line,
  * the parameter `r` of the logistic map and the start `x0` (RG2 and RG4 ask the learner to set them and watch the cobweb). Declared: the readout rows and the
- * status and help sentences as notes. The playback (Next step, Play, Reset, the speed) has no arbiter key and stays in Orodja; the board texts stay board-drawn.
+ * status and help sentences as notes, and the legend (the map with its rule, the diagonal and the cobweb with its note). The playback (Next step, Play, Reset, the speed) has no arbiter key and stays in Orodja; the board keeps only the words that a marker lies outside the view.
  */
 export type CobwebIds = {
     param: "cobweb-map" | "cobweb-m" | "cobweb-c" | "cobweb-r" | "cobweb-x";
     row: "map" | "slope" | "intercept" | "rate" | "start" | "fixed" | "decisive" | "shape" | "steps" | "iterate";
     note: "status" | "help";
-    legend: never;
+    legend: "map" | "diagonal" | "cobweb";
     section: never;
     action: never;
 };
@@ -268,7 +268,10 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         if (this.handle && (this.handle.X() !== x0 || this.handle.Y() !== x0)) this.handle.setPosition(JXG.COORDS_BY_USER, [x0, x0]);
     }
 
-    private curve(data: () => Polyline, color: string, width: number, dash: number): JXG.Curve {
+    /** The curves the legend names, by the `object` id of their entry (`drawnObject`); rebuilt with the scene. */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
+
+    private curve(data: () => Polyline, color: string, width: number, dash: number, legendId?: CobwebIds["legend"]): JXG.Curve {
         const curve = this.scene.own(this.board.create("curve", [[], []], {
             highlight: false, fixed: true, withLabel: false, strokeColor: color, strokeWidth: width, dash,
         }));
@@ -277,6 +280,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
             curve.dataX = x;
             curve.dataY = y;
         };
+        if (legendId) this.drawn.set(legendId, curve);
         return curve;
     }
 
@@ -319,12 +323,12 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         const iterate = () => this.derived().iteration.points[this.state.step];
         const fixed = () => this.derived().fixedPoint;
         // The map, the diagonal (both from the window of the map) and the steps: three curves, each told apart by width and dash as well as colour.
-        this.curve(() => mapSamples(this.derived().map, box()[0], box()[2]), GraphPalette.primaryCurve, 3, 0);
-        this.curve(() => ({x: [box()[0], box()[2]], y: [box()[0], box()[2]]}), GraphPalette.referenceCurve, 2, 2);
+        this.curve(() => mapSamples(this.derived().map, box()[0], box()[2]), GraphPalette.primaryCurve, 3, 0, "map");
+        this.curve(() => ({x: [box()[0], box()[2]], y: [box()[0], box()[2]]}), GraphPalette.referenceCurve, 2, 2, "diagonal");
         this.curve(() => {
             const derived = this.derived();
             return cobwebPath(derived.x0, derived.iteration.steps);
-        }, GraphPalette.constructionAccent, 2, 0);
+        }, GraphPalette.constructionAccent, 2, 0, "cobweb");
         this.marker(() => fixed() ?? 0, () => fixed() !== null && inView(this.state.map, fixed() ?? NaN), "square", GraphPalette.comparisonCurve);
         this.marker(() => iterate() ?? 0, () => this.state.step > 0 && inView(this.state.map, iterate() ?? NaN), "diamond", GraphPalette.label);
         const handle = this.scene.own(board.create("point", [startOf(this.state.X), startOf(this.state.X)], {
@@ -333,11 +337,8 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         }));
         this.handle = handle;
         this.wireDrag(handle);
-        // Captions for what the readout rows do not say: the rule of the map and of the diagonal and the cobweb note (no legend is declared).
+        // The rule of the map and of the diagonal and the cobweb note are legend entries; the captions here are the words that a marker lies outside the view.
         const map = () => this.state.map;
-        this.caption(() => this.mapCaption(), chars => clearOfYAxis(captionPlace(map(), "map", 0, 0, this.captionScale(), undefined, undefined, this.captionFrame()), chars, this.captionFrame(), this.captionScale()));
-        this.caption(() => t("recursion_graph_cap_diagonal"), chars => clearOfYAxis(captionPlace(map(), "diagonal", 0, 0, this.captionScale(), undefined, undefined, this.captionFrame()), chars, this.captionFrame(), this.captionScale()));
-        this.caption(() => t("fixed_point_legend_cobweb"), chars => legendInFrame(this.captionFrame(), chars, this.captionScale(), this.focus().frame));
         // The start, the fixed point and the iterate are readout rows (the markers and the handle need no value beside them); only the words that a marker lies
         // outside the view stay, because the row cannot say what the board shows.
         this.caption(() => {
@@ -350,15 +351,26 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
             () => this.state.step > 0 && !inView(map(), iterate() ?? NaN));
     }
 
-    private mapCaption(): string {
+    /** The legend's name of the map: its rule. */
+    private mapLegend(): Message {
         const state = this.state;
-        if (state.map === "affine") return t("recursion_graph_cap_map_affine", {value0: affineEquation(state.M / M_SCALE, state.C / C_SCALE, num)});
-        if (state.map === "cosine") return t("recursion_graph_cap_map_cosine");
-        return t("recursion_graph_cap_map_logistic", {value0: num(state.R / R_SCALE)});
+        if (state.map === "affine") return message("recursion_graph_cap_map_affine", {value0: affineEquation(state.M / M_SCALE, state.C / C_SCALE, num)});
+        if (state.map === "cosine") return message("recursion_graph_cap_map_cosine");
+        return message("recursion_graph_cap_map_logistic", {value0: num(state.R / R_SCALE)});
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.drawn.get(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp("strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
     }
 
     private disposeScene(): void {
         this.scene.dispose(this.hasBoard ? this.board : undefined);
+        this.drawn.clear();
         this.handle = undefined;
         this.built = false;
     }
@@ -733,6 +745,11 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
             notes: [
                 {id: "status", text: this.statusMessage()},
                 ...(state.map !== "cosine" ? [{id: "help" as const, text: message("recursion_graph_note_exact")}] : []),
+            ],
+            legend: [
+                {id: "map", label: this.mapLegend(), kind: "line", object: "map"},
+                {id: "diagonal", label: message("recursion_graph_cap_diagonal"), kind: "dashed", object: "diagonal"},
+                {id: "cobweb", label: message("fixed_point_legend_cobweb"), kind: "line", object: "cobweb"},
             ],
             marks: this.focus().marks,
             followView: this.focus().frame,

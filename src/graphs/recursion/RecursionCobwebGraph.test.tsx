@@ -56,8 +56,8 @@ const probes = (graph: ObservedGraph) => graph.liveBoard().objectsList as unknow
 const curves = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'curve');
 const texts = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'text' && o.plaintext !== '0,0');
 const shown = (graph: ObservedGraph) => texts(graph).filter(o => o.evalVisProp('visible')).map(o => o.plaintext ?? '');
-/** What the scene owns: the three curves, five captions (map, diagonal, cobweb note, fixed point and iterate off the view), and three points (fixed point, iterate, start handle). */
-const SCENE_OBJECTS = 3 + 5 + 3;
+/** What the scene owns: the three curves, two captions (fixed point and iterate off the view; the rest is the legend), and three points (fixed point, iterate, start handle). */
+const SCENE_OBJECTS = 3 + 2 + 3;
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-recursion-status]')!.textContent!;
@@ -92,7 +92,7 @@ describe('mount and the drawing', () => {
         noBadText();
     });
 
-    test('three curves (map, diagonal, steps) hold the scene data; the captions name every element a readout names', () => {
+    test('three curves (map, diagonal, steps) hold the scene data; no caption stands on the board while every marker is in view', () => {
         const {graph} = mountGraph();
         act(() => { runAs('learner', () => { graph.setState({step: 3}); }); });
         const [map, diagonal, steps] = curves(graph);
@@ -103,9 +103,7 @@ describe('mount and the drawing', () => {
         const path = cobwebPath(0, derived.iteration.steps);
         expect([steps.dataX, steps.dataY]).toEqual([path.x, path.y]);
         expect(path.x).toEqual([0, 0, 1, 1, 1.5, 1.5, 1.75]);
-        expect(shown(graph)).toEqual([
-            t('recursion_graph_cap_map_affine', {value0: 'y = 0,5·x + 1'}), t('recursion_graph_cap_diagonal'), t('fixed_point_legend_cobweb'),
-        ]);
+        expect(shown(graph)).toEqual([]); // the rule, the diagonal and the cobweb note are legend entries (the declaration test reads them)
         expect(readout('start')).toBe('0');
         expect(readout('fixed')).toBe('2');
         expect(readout('iterate')).toBe('1,75');
@@ -114,7 +112,7 @@ describe('mount and the drawing', () => {
 
     test('the iterate has no caption at step 0; its readout row names the step in its label', () => {
         const {graph} = mountGraph();
-        expect(shown(graph)).toHaveLength(3); // the map, the diagonal and the cobweb note: no iterate caption
+        expect(shown(graph)).toHaveLength(0); // the map, the diagonal and the cobweb note are legend entries; no iterate caption
         expect(document.querySelector('[data-readout="iterate"] dt')!.textContent).toBe(t('recursion_graph_r_iterate', {value0: '₀'}));
         act(() => { runAs('learner', () => { graph.setState({step: 12}); }); });
         expect(document.querySelector('[data-readout="iterate"] dt')!.textContent).toBe(t('recursion_graph_r_iterate', {value0: '₁₂'}));
@@ -193,7 +191,7 @@ describe('the kind of the fixed point is said in words', () => {
         expect(readout('fixed')).toBe(t('recursion_graph_r_fixed_fraction', {value0: '3/5', value1: '0,6'}));
         expect(readout('decisive')).toBe('−0,5');
         expect(readout('shape')).toBe(t('recursion_graph_shape_spiral'));
-        expect(shown(graph)).toContain(t('recursion_graph_cap_map_logistic', {value0: '2,5'}));
+        expect(renderMessage(graph.getDeclaration()!.legend![0].label)).toBe(t('recursion_graph_cap_map_logistic', {value0: '2,5'}));
     });
 
     test('cosine: the fixed point and the slope are computed numbers and the readout says so', async () => {
@@ -685,7 +683,7 @@ describe('language', () => {
         await waitForPucks('cobweb-m');
         expect(puckControl('cobweb-m').getAttribute('aria-label')).toContain(t('cobweb_m_name'));
         expect(readout('start')).toBe('0');
-        expect(shown(graph)).toContain(t('recursion_graph_cap_map_affine', {value0: 'y = 0.5·x + 1'}));
+        expect(renderMessage(graph.getDeclaration()!.legend![0].label)).toBe(t('recursion_graph_cap_map_affine', {value0: 'y = 0.5·x + 1'}));
         expect(status()).toContain(t('recursion_graph_status_attracting', {value0: '2'}));
         expect(document.body.textContent).not.toMatch(/recursion_graph_/);
         noBadText();
@@ -725,7 +723,7 @@ describe('the captions on a narrow board (about 390 px wide)', () => {
                 await chooseMap(map);
                 press(t('next_step'));
                 const all = boxes(graph);
-                expect(all.length).toBeGreaterThanOrEqual(3);
+                expect(all.filter(box => /^(Preslikava|Map|Diagonal|Pajkova|Cobweb)/.test(box.text))).toEqual([]); // the legend card names them
                 for (const box of all) expect(box.right, box.text).toBeLessThanOrEqual(WIDTH);
                 for (let i = 0; i < all.length; i++) {
                     for (let j = i + 1; j < all.length; j++) {
@@ -737,10 +735,6 @@ describe('the captions on a narrow board (about 390 px wide)', () => {
                         expect(overlap, `${a.text} / ${b.text}`).toBe(false);
                     }
                 }
-                const [xmin, , xmax] = graph.getDeclaration()!.followView!;
-                const axis = (0 - xmin) * (WIDTH / (xmax - xmin));
-                const mapCaption = all.find(box => box.text.startsWith(language === 'sl' ? 'preslikava' : 'map'))!;
-                expect(mapCaption.left < axis && axis < mapCaption.right, mapCaption.text).toBe(false);
             });
 
             test(`no caption stands over the numbers of the x axis (${map}, ${language})`, async () => {

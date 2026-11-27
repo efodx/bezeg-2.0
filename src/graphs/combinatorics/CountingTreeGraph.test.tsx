@@ -149,6 +149,25 @@ describe('choices: the table above the tree limit', () => {
 });
 
 describe('choices: the tree', () => {
+    test('the leaf labels never overlap on a narrow tree (the lesson board is about 130 px for the tree): they stagger, then every m-th leaf is named', () => {
+        const {graph} = mountGraph();
+        for (const [state, unitX] of [[{n: 4, k: 3, repetition: true}, 5.6], [{n: 4, k: 3, repetition: false}, 5.6], [{n: 4, k: 3, repetition: true}, 14], [{n: 3, k: 3, repetition: true}, 4]] as const) {
+            set(graph, state);
+            const board = graph.liveBoard() as unknown as {unitX: number; update(): void};
+            board.unitX = unitX;
+            act(() => { board.update(); });
+            const labels = probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible') && /^[1-4]{3}$/.test((o as unknown as {plaintext: string}).plaintext))
+                .map(o => ({x: o.X!() * unitX, y: o.Y!(), width: 3 * Number(o.evalVisProp('fontsize')) * 0.6}));
+            expect(labels.length, JSON.stringify(state)).toBeGreaterThan(5);
+            const byRow = new Map<number, typeof labels>();
+            for (const label of labels) byRow.set(label.y, [...(byRow.get(label.y) ?? []), label]);
+            for (const row of byRow.values()) {
+                row.sort((a, b) => a.x - b.x);
+                for (let i = 0; i + 1 < row.length; i++) expect(row[i + 1].x - row[i].x, `${JSON.stringify(state)} at ${unitX} px/unit`).toBeGreaterThanOrEqual(row[i].width);
+            }
+        }
+    });
+
     test('4^3: 64 leaves, 4 + 16 + 64 = 84 edges from the root, the leaf strings 111 .. 444', () => {
         const {graph} = mountGraph();
         set(graph, {n: 4, k: 3, repetition: true});
@@ -163,9 +182,9 @@ describe('choices: the tree', () => {
         expect(edges.y[0]).toBe(TREE_TOP);
         expect(edges.y[1]).toBeCloseTo(TREE_TOP - (TREE_TOP - TREE_BOTTOM) / 3, 9);
         const leafTexts = shownCaptions(graph).filter(text => /^[1-4]{3}$/.test(text));
-        expect(leafTexts.length).toBe(64);
+        expect(leafTexts.length).toBeGreaterThanOrEqual(16); // the labels are thinned where the board is too narrow for 64 (the test board is)
         expect(leafTexts[0]).toBe('111');
-        expect(leafTexts[63]).toBe('444');
+        expect(new Set(leafTexts).size).toBe(leafTexts.length);
         expect(digits(readout('leaves'))).toBe('64');
         expect(shownCaptions(graph)).toContain(t('combinatorics_counting_cap_tree'));
     });

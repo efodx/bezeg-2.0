@@ -2,7 +2,7 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {chooseOnPuckNow, installBoardShims, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, openTools, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
@@ -48,7 +48,10 @@ const PUCK_OF = () => ({[t('recursion_graph_m_label')]: 'cobweb-m', [t('recursio
 /** A learner's typed entry on the puck of the control; the strip appears once the board has laid out. */
 const type = async (label: string, value: string) => { const key = PUCK_OF()[label]; await waitForPucks(key); typePuck(key, value); };
 const chooseMap = async (map: string) => { await waitForPucks('cobweb-map'); chooseOnPuckNow('cobweb-map', map); };
-const nextStep = (times: number) => { for (let i = 0; i < times; i++) act(() => { fireEvent.click(screen.getByRole('button', {name: t('next_step')})); }); };
+const nextStep = async (times: number) => {
+    await openTools(); // the playback buttons sit in the Orodja card (a declared legend card shares the column, so it opens folded)
+    for (let i = 0; i < times; i++) act(() => { fireEvent.click(screen.getByRole('button', {name: t('next_step')})); });
+};
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-recursion-status]')?.textContent;
 const counter = () => document.querySelector('[data-step-counter]')?.textContent;
@@ -126,7 +129,7 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
         await type(t('recursion_graph_x_label'), '4,6');
         await chooseMap('cosine');
         await type(t('recursion_graph_x_label'), '0');
-        nextStep(8);
+        await nextStep(8);
     })).toEqual(here);
 });
 

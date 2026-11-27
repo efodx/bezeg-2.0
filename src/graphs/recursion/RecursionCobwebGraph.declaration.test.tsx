@@ -14,6 +14,7 @@ beforeEach(() => setLanguage('sl'));
 class ObservedGraph extends RecursionCobwebGraph {
     rows() { return this.readoutRows(); }
     statusLine() { return this.statusText(); }
+    boardTexts() { return (this.board.objectsList as unknown as {elType: string; plaintext?: string; evalVisProp(name: string): unknown}[]).filter(o => o.elType === 'text' && o.evalVisProp('visible')).map(o => o.plaintext ?? ''); }
 }
 
 const shown = (value: unknown): string => (value as {text?: string}).text ?? '';
@@ -53,6 +54,10 @@ describe('Cobweb declaration', () => {
                 if (entry.kind === 'choice') expect(entry.options.length).toBeLessThanOrEqual(4);
             }
             expect(current.actions ?? []).toEqual([]);
+            // The rule of the map, the diagonal and the cobweb note are legend entries (not board captions), each resolving to a visible curve.
+            expect((current.legend ?? []).map(entry => entry.id)).toEqual(['map', 'diagonal', 'cobweb']);
+            for (const entry of current.legend ?? []) expect(graph.drawnObject(entry.id)?.visible, entry.id).toBe(true);
+            expect(graph.boardTexts().filter(text => /^(Preslikava|Diagonala|Pajkova)/.test(text))).toEqual([]);
 
             const rows = current.readouts![0].rows;
             expect(rows.map(entry => entry.id)).toEqual(graph.rows().map(entry => entry.id));
@@ -75,6 +80,19 @@ describe('Cobweb declaration', () => {
             view.unmount();
         });
     }
+
+    test('the legend names the map by its rule, the diagonal and the cobweb', () => {
+        const labels = (state: Record<string, unknown>) => {
+            const {declaration, view} = setup(state);
+            const out = (declaration().legend ?? []).map(entry => renderMessage(entry.label));
+            view.unmount();
+            return out;
+        };
+        const cobweb = 'Pajkova mreža: navpično do krivulje, vodoravno do diagonale';
+        expect(labels({})).toEqual(['Preslikava y = 0,5·x + 1', 'Diagonala y = x', cobweb]);
+        expect(labels({map: 'cosine'})).toEqual(['Preslikava y = cos x', 'Diagonala y = x', cobweb]);
+        expect(labels({map: 'logistic', R: 25})).toEqual(['Preslikava y = 2,5·x·(1 − x)', 'Diagonala y = x', cobweb]);
+    });
 
     test('the bindings write, read back and refuse a value outside the range or an unknown option', () => {
         const {graph, view} = setup({});

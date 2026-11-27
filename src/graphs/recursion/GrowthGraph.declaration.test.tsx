@@ -35,6 +35,11 @@ const states: {name: string; state: Record<string, unknown>; pucks: string[]; ro
     {name: 'log, power', state: {panel: 'log', logModel: 'power'}, pucks: ['growth-model', 'growth-n', 'growth-panel'], row: '', value: '', status: /./},
 ];
 
+const expected: Record<string, string[]> = {
+    'arithmetic': ['bars'], 'geometric': ['bars'], 'geometric with a limit': ['bars', 'limit'], 'interest': ['simple', 'compound', 'relative', 'continuous'],
+    'log, exponential': ['points', 'chord'], 'log, power': ['points', 'chord'],
+};
+
 describe('Growth declaration', () => {
     for (const {name, state, pucks, row, value, status} of states) {
         test(`${name}: consistent, the pucks of the panel, the rows, the status as a note`, () => {
@@ -50,6 +55,10 @@ describe('Growth declaration', () => {
                 if (entry.kind === 'choice') expect(entry.options.length).toBeLessThanOrEqual(4);
             }
             expect(current.actions ?? []).toEqual([]);
+            // The curves of the panel are legend entries (no board captions), each resolving to a visible curve; the limit only where the sequence has one.
+            const legend = (current.legend ?? []).map(entry => entry.id);
+            expect(legend, name).toEqual(expected[name]);
+            for (const id of legend) expect(graph.drawnObject(id)?.visible, id).toBe(true);
 
             const rows = current.readouts![0].rows;
             expect(rows.map(entry => entry.id)).toEqual(graph.rows().map(entry => entry.id));

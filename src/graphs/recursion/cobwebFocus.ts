@@ -1,36 +1,5 @@
 import type {CobwebMap} from '../../recursion/recursionModel';
-import {CAPTION_CHAR_PX, CAPTION_ROW_PX, VIEW_BOXES} from './cobwebScene';
-import type {CaptionPlace, CaptionScale} from './cobwebScene';
-
-type Frame = readonly [number, number, number, number];
-
-/**
- * The legend caption (one line, which cannot wrap) stands in the bottom row of the frame, centred on it: the director centres the frame in the card-free area, so a line
- * no wider than that area stands clear of the cards. Without a board size it keeps the corner it had.
- */
-export function legendInFrame(frame: Frame, chars: number, scale?: CaptionScale, outer: Frame = frame): CaptionPlace {
-    const [xmin, , xmax, ymin] = frame;
-    if (!scale || chars <= 0) return {x: xmin + 0.02 * (xmax - xmin), y: ymin + 0.05 * (frame[1] - ymin)};
-    const widthUser = (chars * CAPTION_CHAR_PX) / scale.unitX;
-    const edge = LEGEND_EDGE_PX / scale.unitX;
-    // centred, but never past the edges of the outer frame (a board no wider than the line: the line starts at its left edge)
-    const x = Math.max(outer[0] + edge, Math.min((xmin + xmax) / 2 - widthUser / 2, outer[2] - widthUser - edge));
-    return {x, y: ymin + (CAPTION_ROW_PX / 2 + LEGEND_EDGE_PX) / scale.unitY};
-}
-const LEGEND_EDGE_PX = 6;
-
-/**
- * A caption anchored at `place` (left end) that would cross the y axis (x = 0) or the numbers left of it moves to the right of the axis, when it still ends inside the
- * frame; otherwise it stays.
- */
-export function clearOfYAxis(place: CaptionPlace, chars: number, frame: Frame, scale?: CaptionScale): CaptionPlace {
-    if (!scale || !Number.isFinite(place.x)) return place;
-    const widthUser = (chars * CAPTION_CHAR_PX) / scale.unitX;
-    const numbers = 34 / scale.unitX;
-    if (!(place.x < 2 / scale.unitX && place.x + widthUser > -numbers)) return place;
-    const moved = 8 / scale.unitX;
-    return moved + widthUser <= frame[2] ? {x: moved, y: place.y} : place;
-}
+import {VIEW_BOXES} from './cobwebScene';
 
 /** The least width (and height) of the focus frame per map: the cobweb of a map near its fixed point is shown at about this scale. */
 const FOCUS_MIN_SPAN: Readonly<Record<CobwebMap, number>> = {affine: 10, cosine: 2.4, logistic: 0.75};

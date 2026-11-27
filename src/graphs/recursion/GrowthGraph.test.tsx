@@ -3,7 +3,7 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
 import {chooseOnPuck, installBoardShims, openTools, settle, typePuck, puckControl, waitForPucks} from '../base/realGraphTestHarness';
-import {setLanguage, t} from '../../localization';
+import {renderMessage, setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {DEFAULT_GROWTH_STATE, deriveGrowth, GrowthPanel} from '../../recursion/recursionModel';
 import {barsPath, chord, sampleCurve} from './growthScene';
@@ -38,11 +38,13 @@ const texts = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === '
 const ownIds = (graph: ObservedGraph) => probes(graph).filter(o => !o.id.includes('_ticks_')).map(o => o.id);
 const visible = (list: Probe[]) => list.filter(o => o.evalVisProp('visible'));
 const shown = (graph: ObservedGraph) => visible(texts(graph)).map(o => o.plaintext ?? '');
-/** The owned objects: 12 curves (2 sequence, 4 interest + 4 legend, 2 logarithm), 32 points (n-th term, 31 logarithm points), 10 captions. */
-const CURVES = 12;
-const SCENE_OBJECTS = CURVES + (1 + LOG_POINTS) + 10;
+/** The owned objects: 8 curves (2 sequence, 4 interest, 2 logarithm), 32 points (n-th term, 31 logarithm points), 2 axis captions (the rest is the legend). */
+const CURVES = 8;
+const SCENE_OBJECTS = CURVES + (1 + LOG_POINTS) + 2;
 /** Curve indices in creation order. */
-const BARS = 0, LIMIT = 1, SIMPLE = 2, COMPOUND = 3, RELATIVE = 4, CONTINUOUS = 5, LEGEND = 6, LOG_LINE = 10, CHORD = 11;
+const BARS = 0, LIMIT = 1, SIMPLE = 2, COMPOUND = 3, RELATIVE = 4, CONTINUOUS = 5, LOG_LINE = 6, CHORD = 7;
+/** The legend entries of the declaration as text: the rules and the values the board no longer draws as captions. */
+const legendTexts = (graph: {getDeclaration(): {legend?: readonly {label: Parameters<typeof renderMessage>[0]}[]} | undefined}) => (graph.getDeclaration()?.legend ?? []).map(entry => renderMessage(entry.label));
 
 /** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
 const find = (label: string) => screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] as HTMLInputElement | undefined;
@@ -91,10 +93,8 @@ describe('mount and the sequence panel', () => {
         expect(visible(curves(graph))).toHaveLength(1); // no limit line for an arithmetic sequence
         expect(visible(markers(graph))).toHaveLength(1);
         expect(readout('nth')).toBe('21'); // the n-th term is a row, no board caption repeats it
-        expect(shown(graph)).toEqual([
-            t('recursion_graph_growth_cap_bars', {value0: 10}),
-            t('recursion_graph_growth_cap_x_sequence'), t('recursion_graph_growth_cap_y_sequence'),
-        ]);
+        expect(shown(graph)).toEqual([t('recursion_graph_growth_cap_x_sequence'), t('recursion_graph_growth_cap_y_sequence')]);
+        expect(legendTexts(graph)).toEqual([t('recursion_graph_growth_cap_bars', {value0: 10})]);
     });
 
     test('geometric with q = 2: a10 = 1536, S10 = 3069 exact, no limit line', () => {
@@ -107,7 +107,7 @@ describe('mount and the sequence panel', () => {
         expect(readout('limit')).toBe(t('recursion_graph_growth_limit_none'));
         expect(visible(curves(graph))).toHaveLength(1);
         expect(status()).toBe(t('recursion_graph_growth_status_geometric_exact', {value0: '₁₀', value1: '1536', value2: '3069'}));
-        expect(shown(graph)).toHaveLength(3); // the bars, the two axis names: no n-th term caption
+        expect(shown(graph)).toHaveLength(2); // the two axis names: the bars are a legend entry, no n-th term caption
         expect(find(t('recursion_graph_growth_d_label'))).toBeUndefined();
     });
 
@@ -121,7 +121,7 @@ describe('mount and the sequence panel', () => {
         const line = curves(graph)[LIMIT];
         expect(line.evalVisProp('visible')).toBe(true);
         expect(line.dataY).toEqual([6, 6]);
-        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_limit', {value0: '6'}));
+        expect(legendTexts(graph)).toContain(t('recursion_graph_growth_cap_limit', {value0: '6'}));
         expect(status()).toContain(t('recursion_graph_growth_status_limit', {value0: '6'}));
         act(() => { runAs('learner', () => { graph.setState({q: 10}); }); }); // |q| = 1: no limit
         expect(readout('limit')).toBe(t('recursion_graph_growth_limit_none'));
@@ -206,17 +206,17 @@ describe('the interest panel', () => {
         }
         const reference = sampleCurve(time => 1000 * (1 + 0.05 * time), 0, 10);
         expect([list[SIMPLE].dataX, list[SIMPLE].dataY]).toEqual([reference.x, reference.y]);
-        expect(visible(list)).toHaveLength(8);
-        const styles = list.slice(SIMPLE, LEGEND + 4).filter(o => o.evalVisProp('visible'));
+        expect(visible(list)).toHaveLength(4);
+        const styles = list.slice(SIMPLE, SIMPLE + 4).filter(o => o.evalVisProp('visible'));
         const key = (o: Probe) => [o.evalVisProp('strokeColor'), o.evalVisProp('strokeWidth'), o.evalVisProp('dash')].join('|');
         const first = styles.slice(0, 4).map(key);
         expect(new Set(first).size).toBe(4);
-        expect(styles.slice(4).map(key)).toEqual(first); // the legend draws a sample of each curve in its style
-        expect(shown(graph)).toEqual([
+        expect(shown(graph)).toEqual([t('recursion_graph_growth_cap_x_interest'), t('recursion_graph_growth_cap_y_interest')]);
+        expect(legendTexts(graph)).toEqual([
             t('recursion_graph_growth_cap_simple', {value0: '1500'}), t('recursion_graph_growth_cap_compound', {value0: '1628,89'}),
             t('recursion_graph_growth_cap_relative', {value0: 12, value1: '1647,01'}), t('recursion_graph_growth_cap_continuous', {value0: '1648,72'}),
-            t('recursion_graph_growth_cap_x_interest'), t('recursion_graph_growth_cap_y_interest'),
         ]);
+        for (const id of ['simple', 'compound', 'relative', 'continuous']) expect(graph.drawnObject(id)?.visible, id).toBe(true);
         expect(visible(markers(graph))).toHaveLength(0);
     });
 
@@ -229,7 +229,7 @@ describe('the interest panel', () => {
         expect(readout('conformal')).toBe('5 %');
         choose(t('recursion_graph_growth_parts_label'), '365');
         expect(readout('relative')).toBe('1648,66');
-        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_relative', {value0: 365, value1: '1648,66'}));
+        expect(legendTexts(graph)).toContain(t('recursion_graph_growth_cap_relative', {value0: 365, value1: '1648,66'}));
     });
 
     test('the table of (1 + 1/n)^n and e', () => {
@@ -289,10 +289,8 @@ describe('the logarithm panel (n, ln y) on an ordinary axis', () => {
         expect(shown(graph)).toContain(caption);
         expect(caption).toMatch(/^ln y/);
         expect(shown(graph)).not.toContain('y');
-        expect(shown(graph)).toEqual([
-            t('recursion_graph_growth_cap_points_exponential'), t('recursion_graph_growth_cap_chord', {value0: '0,04879'}),
-            t('recursion_graph_growth_cap_x_log'), caption,
-        ]);
+        expect(shown(graph)).toEqual([t('recursion_graph_growth_cap_x_log'), caption]);
+        expect(legendTexts(graph)).toEqual([t('recursion_graph_growth_cap_points_exponential'), t('recursion_graph_growth_cap_chord', {value0: '0,04879'})]);
         expect(t('recursion_graph_growth_board_log')).toMatch(/ln y/);
     });
 
@@ -310,7 +308,7 @@ describe('the logarithm panel (n, ln y) on an ordinary axis', () => {
         expect(readout('factor')).toBeUndefined();
         expect(find(t('recursion_graph_growth_logq_label'))).toBeUndefined();
         expect(status()).toBe(t('recursion_graph_growth_status_log_curve', {value0: '1,386294', value1: '0,19062'}));
-        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_points_power'));
+        expect(legendTexts(graph)).toContain(t('recursion_graph_growth_cap_points_power'));
         expect(visible(markers(graph))).toHaveLength(11);
     });
 
@@ -339,7 +337,7 @@ describe('panels', () => {
             expect(board(graph)).toBe(t(`recursion_graph_growth_board_${name}`));
             expect(document.querySelector('[data-recursion-note]')!.textContent).toBe(t(`recursion_graph_growth_note_${name}`));
         }
-        expect(counts).toEqual({sequence: 1, interest: 8, log: 2});
+        expect(counts).toEqual({sequence: 1, interest: 4, log: 2});
     });
 
     test('the control set follows the panel: the setup controls in Orodja, the lesson controls on pucks', async () => {
@@ -584,11 +582,11 @@ describe('language', () => {
         act(() => { setLanguage('en'); });
         expect(board(graph)).toBe(t('recursion_graph_growth_board_sequence'));
         expect(rangeOf(t('recursion_graph_growth_a1_label'))).toBeTruthy();
-        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_bars', {value0: 10}));
+        expect(legendTexts(graph)).toContain(t('recursion_graph_growth_cap_bars', {value0: 10}));
         expect(readout('nth')).toBe('21');
         expect(status()).toBe(t('recursion_graph_growth_status_arithmetic', {value0: '₁₀', value1: '21', value2: '120'}));
         panel('interest');
-        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_compound', {value0: '1628.89'}));
+        expect(legendTexts(graph)).toContain(t('recursion_graph_growth_cap_compound', {value0: '1628.89'}));
         expect(status()).toContain('1647.01');
         panel('log');
         expect(shown(graph)).toContain(t('recursion_graph_growth_cap_y_log'));
@@ -704,15 +702,6 @@ describe.each([[600, 400], [340, 300], [840, 520]])('board texts clear of the ax
             }));
         });
     }
-
-    test('the interest legend samples start clear of the vertical axis', () => {
-        const {graph} = mountGraph();
-        panel('interest');
-        const {axisX, left, board} = pixelBoxes(graph);
-        for (const curve of curves(graph).slice(LEGEND, LEGEND + 4)) {
-            expect((curve.dataX![0] - left) * board.unitX - axisX, 'legend sample start').toBeGreaterThanOrEqual(10);
-        }
-    });
 
     test('no x tick number is written for a negative x (the quantities start at 0 and 1), so none is cut at the left edge', () => {
         const {graph} = mountGraph();

@@ -8,7 +8,7 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
-import {chooseOnPuck, installBoardShims, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, openTools, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import {RecursionCobwebGraph} from '../../graphs/recursion/RecursionCobwebGraph';
 import {setLanguage, t} from '../../localization';
 import {sceneActions} from '../runtime/lessonCatalog';
@@ -125,7 +125,7 @@ const typeInto = async (key: 'm' | 'c' | 'r' | 'x', value: string) => {
 };
 async function perform(graph: RecursionCobwebGraph, action: Action, language: Language) {
     if ('type' in action) await typeInto(action.type, loc(action.value, language));
-    else if ('next' in action) for (let i = 0; i < action.next; i++) act(() => { fireEvent.click(screen.getByRole('button', {name: t('next_step')})); });
+    else if ('next' in action) { await openTools(); for (let i = 0; i < action.next; i++) act(() => { fireEvent.click(screen.getByRole('button', {name: t('next_step')})); }); }
     else if ('step' in action) act(() => { graph.getLessonCapabilities().apply({kind: 'recursion', operation: 'set-step', step: action.step}); });
     else await chooseOnPuck('cobweb-map', action.map);
 }

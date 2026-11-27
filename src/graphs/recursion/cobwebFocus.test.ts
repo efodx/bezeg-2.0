@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {clearOfYAxis, focusFrame, legendInFrame, openingFrame} from './cobwebFocus';
+import {focusFrame, openingFrame} from './cobwebFocus';
 import {VIEW_BOXES} from './cobwebScene';
 
 const MAPS = ['affine', 'cosine', 'logistic'] as const;
@@ -29,17 +29,5 @@ describe('the focus frame of the cobweb board', () => {
             expect(t - b).toBeLessThan((wt - wb) * 0.8);
             expect(openingFrame(map)).toEqual([l, t, r, b]);
         }
-    });
-
-    test('the legend stands centred in the bottom row of the frame; a caption over the y axis moves right of it', () => {
-        const scale = {unitX: 50, unitY: 25, width: 500};
-        const frame = [-4, 6, 6, -4] as const;
-        const legend = legendInFrame(frame, 40, scale);
-        expect(legend.x + (40 * 6.5) / 2 / 50).toBeCloseTo(1, 12);
-        expect(legend.y).toBeGreaterThan(-4);
-        expect(legend.y).toBeLessThan(-3);
-        expect(clearOfYAxis({x: -1, y: 5}, 20, frame, scale).x).toBeCloseTo(8 / 50, 12);
-        expect(clearOfYAxis({x: 1, y: 5}, 20, frame, scale).x).toBe(1);
-        expect(clearOfYAxis({x: -3.9, y: 5}, 10, frame, scale).x).toBe(-3.9);
     });
 });

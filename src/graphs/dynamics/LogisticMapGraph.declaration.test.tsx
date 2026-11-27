@@ -12,6 +12,7 @@ beforeEach(() => setLanguage('sl'));
 
 class ObservedGraph extends LogisticMapGraph {
     rows() { return this.readoutRows(); }
+    boardTexts() { return (this.board.objectsList as unknown as {elType: string; plaintext?: string; evalVisProp(name: string): unknown}[]).filter(o => o.elType === 'text' && o.evalVisProp('visible')).map(o => o.plaintext ?? ''); }
     statusLine() { return document.querySelector('[data-logistic-status]')?.textContent ?? ''; }
 }
 
@@ -25,7 +26,7 @@ function setup(state: Record<string, unknown>) {
     return {graph, view, declaration: () => graph.getDeclaration() as GraphDeclaration<LogisticMapIds>};
 }
 
-const ALWAYS = ['map', 'diagonal', 'cobweb', 'fixed', 'diagram'];
+const ALWAYS = ['map', 'diagonal', 'cobweb', 'fixed', 'diagram', 'second', 'onset'];
 const states: {name: string; state: Record<string, unknown>; legend: string[]; rows: number; row: string; value: string}[] = [
     {name: 'default', state: {}, legend: ALWAYS, rows: 10, row: 'r', value: '2,9'},
     {name: 'ten steps', state: {R: 250, step: 10}, legend: [...ALWAYS, 'iterate'].sort(), rows: 10, row: 'steps', value: '10 od 60'},
@@ -67,6 +68,20 @@ describe('Logistic map declaration', () => {
         expect(declaration().legend!.map(entry => entry.id)).not.toContain('cycle');
         expect(declaration().legend!.map(entry => entry.id)).not.toContain('iterate');
         expect(graph.drawnObject('no-such-entry')).toBeUndefined();
+        view.unmount();
+    });
+
+    test('the legend names the rules and the marks of r, and no caption column is drawn on the board (the Legenda card carries them)', () => {
+        const {graph, declaration, view} = setup({R: 310, step: 2});
+        const labels = Object.fromEntries((declaration().legend ?? []).map(entry => [entry.id, renderMessage(entry.label)]));
+        expect(labels.map).toBe('Preslikava y = 3,1·x·(1 − x)');
+        expect(labels.diagonal).toBe('Diagonala y = x');
+        expect(labels.cobweb).toContain('koraki x₀, x₁');
+        expect(labels.diagram).toContain('od 2,5 do 4');
+        expect(labels.second).toBe('r = 1 + √6 ≈ 3,44949');
+        expect(labels.onset).toBe('r ≈ 3,56995: začetek kaosa (navedeno, ni izračunano)');
+        for (const id of ['second', 'onset']) expect(graph.drawnObject(id)?.visible).toBe(true);
+        expect(graph.boardTexts().filter(text => /^(preslikava|diagonala|pajkova|bifurkacijski|r ≈|r = 1)/.test(text))).toEqual([]);
         view.unmount();
     });
 
