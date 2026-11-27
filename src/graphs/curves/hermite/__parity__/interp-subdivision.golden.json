@@ -5,68 +5,62 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 0 od 6",
+        "Število oglišč prikazane stopnje: 4"
+      ],
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Chaikinovo pravilo, korak 0 od 6, 4 oglišč"
-      ]
+      "captions": []
     },
     {
       "name": "interp-subdivision-guided/subdivision-chaikin-rounds",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 1 od 6",
+        "Število oglišč prikazane stopnje: 8"
+      ],
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Chaikinovo pravilo, korak 1 od 6, 8 oglišč"
-      ]
+      "captions": []
     },
     {
       "name": "interp-subdivision-guided/subdivision-limit",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 2 od 6",
+        "Število oglišč prikazane stopnje: 16"
+      ],
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Chaikinovo pravilo, korak 2 od 6, 16 oglišč"
-      ]
-    },
-    {
-      "name": "interp-subdivision-guided/subdivision-four-point",
-      "rows": [],
-      "notes": [],
-      "outputs": [
-        "4"
-      ],
-      "captions": [
-        "Štiritočkovno pravilo, korak 0 od 6, 4 oglišč"
-      ]
+      "captions": []
     },
     {
       "name": "interp-subdivision-guided/subdivision-compare",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 2 od 6",
+        "Število oglišč prikazane stopnje: 13"
+      ],
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Štiritočkovno pravilo, korak 2 od 6, 13 oglišč"
-      ]
+      "captions": []
     },
     {
       "name": "interp-subdivision-guided/subdivision-explore",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Korak 3 od 6",
+        "Število oglišč prikazane stopnje: 32"
+      ],
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Chaikinovo pravilo, korak 3 od 6, 32 oglišč"
-      ]
+      "captions": []
     }
   ]
 }

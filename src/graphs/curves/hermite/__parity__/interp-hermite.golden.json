@@ -9,20 +9,7 @@
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Catmull-Romov zlepek, napetost 1"
-      ]
-    },
-    {
-      "name": "interp-hermite-guided/hermite-predict-segment",
-      "rows": [],
-      "notes": [],
-      "outputs": [
-        "4"
-      ],
-      "captions": [
-        "Hermiteova krivulja z izbranimi tangentami"
-      ]
+      "captions": []
     },
     {
       "name": "interp-hermite-guided/hermite-locality",
@@ -31,9 +18,7 @@
       "outputs": [
         "6"
       ],
-      "captions": [
-        "Catmull-Romov zlepek, napetost 1"
-      ]
+      "captions": []
     }
   ]
 }

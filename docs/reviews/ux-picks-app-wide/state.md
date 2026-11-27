@@ -32,7 +32,7 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 
 ## Open items
 
-- Clip/preview capture recipes (`scripts/demonstration-preview-recipes.cjs`) name old control labels for ~25 converted graphs (now pucks); CI reads only `controlPointCount`. Repoint all rows in one slice before the next clip capture (also `demonstration-clip-rows/curve-geometry.cjs:34`, `comb-gate-perf.cjs:121` for B's curve-comb).
+- Clip/preview capture recipes (`scripts/demonstration-preview-recipes.cjs`) name old control labels for ~25 converted graphs (now pucks); CI reads only `controlPointCount`. Repoint all rows in one slice before the next clip capture (also B's `curve-geometry.cjs:22,34,40,49`, recipes `:45`, `comb-gate-perf.cjs:121`, `envelope-gate-perf.cjs:93`).
 - No "Reset layout" button (`resetAll` unused). De Casteljau marks read board points. `phase-a` has no `help`, so its fan help card is empty (graph change).
 
 ## Next slice's brief inputs
