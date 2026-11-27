@@ -29,7 +29,6 @@ const routes: Record<string, Route> = {
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
     'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label')), labelled(t('fixed_point_x0_label'))]},
     'recursion-cobweb': {lead: button(t('next_step')), later: [labelled(t('recursion_graph_map_label')), labelled(t('recursion_graph_x_label'))]},
-    'contour-map': {lead: labelled(t('levelsets_graph_level')), later: [labelled(t('levelsets_graph_mode')), labelled(t('levelsets_graph_fn'))]},
     'linear-program': {lead: labelled(t('levelsets_graph_lp_objective_p')), later: [labelled(t('levelsets_graph_lp_count'))]},
 };
 
@@ -95,6 +94,22 @@ describe('euler step and end', () => {
         expect(root.querySelector('[data-puck-key="euler-step"], [data-puck-key="euler-end"]')).toBeNull();
         expect(within(root).queryAllByLabelText(t('euler_ode_end_label'))).toEqual([]);
         expect(within(root).queryAllByLabelText(t('euler_ode_step_label'))).toEqual([]);
+    });
+});
+
+describe('contour-map level and mode', () => {
+    // The level c and the mode are pucks on the board (task 08 lane L29): there once, and not in Edit, which keeps the function.
+    test('the level and the mode are pucks, Edit holds no second copy and keeps the function', async () => {
+        mountGraph(graphFactories['contour-map']());
+        await waitForPucks('contour-level');
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(strip.querySelector('[data-puck-key="contour-level"]')).not.toBeNull();
+        expect(strip.querySelector('[data-puck-key="contour-mode"]')).not.toBeNull();
+        expect(root.querySelector('[data-puck-key="contour-level"], [data-puck-key="contour-mode"]')).toBeNull();
+        expect(within(root).queryAllByLabelText(t('levelsets_graph_level'))).toEqual([]);
+        expect(within(root).queryAllByLabelText(t('levelsets_graph_mode'))).toEqual([]);
+        expect(within(root).getAllByLabelText(t('levelsets_graph_fn')).length).toBeGreaterThan(0);
     });
 });
 
