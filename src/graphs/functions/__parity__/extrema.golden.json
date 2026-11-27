@@ -6,13 +6,13 @@
       "name": "default",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
@@ -58,30 +58,25 @@
       "captions": [
         "+",
         "-",
-        "a = -1, b = 2",
         "f(-1) = 1",
         "f(0) = 0",
         "f(2) = 4",
-        "f(x) = x²",
         "f′ = 0",
-        "klasifikacija: skrita",
         "krajišče",
-        "krajišče",
-        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
-        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+        "krajišče"
       ]
     },
     {
       "name": "extrema-guided/extrema-square-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
@@ -127,33 +122,25 @@
       "captions": [
         "+",
         "-",
-        "a = -1, b = 2",
         "f(-1) = 1",
         "f(0) = 0",
         "f(2) = 4",
-        "f(x) = x²",
         "f′ = 0",
-        "globalni min 0 pri x = 0; globalni maks 4 pri x = 2",
         "krajišče",
-        "krajišče",
-        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
-        "lokalni maksimum",
-        "lokalni maksimum, globalni maksimum",
-        "lokalni minimum, globalni minimum",
-        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+        "krajišče"
       ]
     },
     {
       "name": "extrema-guided/extrema-cube-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1"
         },
         {
@@ -199,30 +186,25 @@
       "captions": [
         "+",
         "+",
-        "a = -1, b = 1",
         "f(-1) = -1",
         "f(0) = 0",
         "f(1) = 1",
-        "f(x) = x³",
         "f′ = 0",
-        "klasifikacija: skrita",
         "krajišče",
-        "krajišče",
-        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
-        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+        "krajišče"
       ]
     },
     {
       "name": "extrema-guided/extrema-abs-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1"
         },
         {
@@ -268,30 +250,25 @@
       "captions": [
         "+",
         "-",
-        "a = -1, b = 1",
         "f(-1) = 1",
         "f(0) = 0",
         "f(1) = 1",
-        "f(x) = |x|",
         "f′ ne obstaja",
-        "klasifikacija: skrita",
         "krajišče",
-        "krajišče",
-        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
-        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+        "krajišče"
       ]
     },
     {
       "name": "extrema-guided/extrema-sine-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-4"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "4"
         },
         {
@@ -348,32 +325,27 @@
         "+",
         "-",
         "-",
-        "a = -4, b = 4",
         "f(-1,5708) = -1",
         "f(-4) = 0,7568",
         "f(1,5708) = 1",
         "f(4) = -0,7568",
-        "f(x) = sin x",
         "f′ = 0",
         "f′ = 0",
-        "klasifikacija: skrita",
         "krajišče",
-        "krajišče",
-        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
-        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+        "krajišče"
       ]
     },
     {
       "name": "extrema-guided/extrema-tie-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "3,1416"
         },
         {
@@ -419,30 +391,25 @@
       "captions": [
         "+",
         "-",
-        "a = 0, b = 3,1416",
         "f(0) = 0",
         "f(1,5708) = 1",
         "f(3,1416) = 0",
-        "f(x) = sin x",
         "f′ = 0",
-        "klasifikacija: skrita",
         "krajišče",
-        "krajišče",
-        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
-        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+        "krajišče"
       ]
     },
     {
       "name": "extrema-guided/extrema-free-exploration",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "3,1416"
         },
         {
@@ -488,20 +455,18 @@
       "captions": [
         "+",
         "-",
-        "a = 0, b = 3,1416",
         "f(0) = 0",
         "f(1,5708) = 1",
         "f(3,1416) = 0",
-        "f(x) = sin x",
         "f′ = 0",
-        "globalni min 0 pri x = 0; 3,1416; globalni maks 1 pri x = 1,5708",
+        "globalni maksimum",
+        "globalni minimum",
+        "globalni minimum",
         "krajišče",
         "krajišče",
-        "kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal",
-        "lokalni maksimum, globalni maksimum",
-        "lokalni minimum, globalni minimum",
-        "lokalni minimum, globalni minimum",
-        "zgoraj: predznak f′ na delu (+ narašča, - pada)"
+        "lokalni maksimum,",
+        "lokalni minimum,",
+        "lokalni minimum,"
       ]
     }
   ]

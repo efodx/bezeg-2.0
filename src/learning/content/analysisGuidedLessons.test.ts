@@ -608,9 +608,9 @@ describe('the extrema lesson', () => {
     test('asks for a prediction before every classification reveal, and the scene of a prediction step never reveals', () => {
         for (const id of predictionSteps) {
             expect(eStep(id).observationPrompt.en, id).toMatch(/Predict/);
-            expect(eStep(id).observationPrompt.en, id).toMatch(/Show classification/);
+            expect(eStep(id).observationPrompt.en, id).toMatch(/turn on the Classification control/);
             expect(eStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
-            expect(eStep(id).observationPrompt.sl, id).toMatch(/Pokaži klasifikacijo/);
+            expect(eStep(id).observationPrompt.sl, id).toMatch(/vklopi krmilnik Klasifikacija/);
             const actions = adaptedActions(id);
             expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
             expect(actions).toContainEqual({kind: 'function-visibility', target: 'extrema-classification', visible: false});

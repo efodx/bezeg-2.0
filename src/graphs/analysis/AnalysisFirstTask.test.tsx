@@ -4,7 +4,7 @@
  */
 import {act, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, openTools, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {t} from '../../localization';
 
@@ -147,12 +147,28 @@ describe('solids chooser', () => {
     });
 });
 
+describe('extrema pucks', () => {
+    // The endpoints and the classification switch are pucks on the board (task 08): there once, and not in Edit, which keeps the example choice.
+    test('a, b and the classification switch are pucks and Edit holds no second copy', async () => {
+        mountGraph(graphFactories['extrema']());
+        await waitForPucks('show-classification');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['extrema-a', 'extrema-b', 'show-classification']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('extrema_a_label'), t('extrema_b_label')]) expect(within(root).queryAllByLabelText(new RegExp(`^${label}`))).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('extrema_show_classification')})).toEqual([]);
+        expect(within(root).getAllByLabelText(t('extrema_example_label'))).not.toEqual([]);
+    });
+});
+
 describe('darboux pucks', () => {
     // The count, the endpoints and the two sum switches are pucks on the board (task 08): there once, and not in Edit, which leads with Refine.
     test('n, a, b and the sum switches are pucks and Edit holds no second copy', async () => {
         mountGraph(graphFactories['darboux']());
         await waitForPucks('show-upper-sum');
-        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
         const strip = document.querySelector('.puck-strip') as HTMLElement;
         for (const key of ['darboux-n', 'darboux-a', 'darboux-b', 'show-lower-sum', 'show-upper-sum']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
         for (const label of [t('darboux_n_label'), t('darboux_a_label'), t('darboux_b_label')]) expect(within(root).queryAllByLabelText(label)).toEqual([]);

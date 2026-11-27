@@ -21,7 +21,7 @@
  *
  * The extrema lesson uses the same generic actions (`set-function-parameter` extrema-a/extrema-b, `set-function-choice`
  * extrema-example and `show-function-element` extrema-classification). A prediction step hides the classification and the learner
- * presses the graph's own Show classification after predicting; the revealing steps show it.
+ * turns on the Classification puck after predicting; the revealing steps show it.
  *
  * The convexity lesson uses the same generic actions (`set-function-parameter` convexity-a/convexity-b/convexity-t,
  * `set-function-choice` convexity-example and `show-function-element` second-derivative). A prediction step hides the second
@@ -63,6 +63,7 @@ import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedTe
 import type {AccumulationIds} from '../../graphs/functions/AccumulationGraph';
 import type {ConvexityIds} from '../../graphs/functions/ConvexityGraph';
 import type {DarbouxIds} from '../../graphs/functions/DarbouxGraph';
+import type {ExtremaIds} from '../../graphs/functions/ExtremaGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -71,6 +72,7 @@ const taylorFrame = frameDeclarer<TaylorIds>();
 const accumulationFrame = frameDeclarer<AccumulationIds>();
 const convexityFrame = frameDeclarer<ConvexityIds>();
 const darbouxFrame = frameDeclarer<DarbouxIds>();
+const extremaFrame = frameDeclarer<ExtremaIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
@@ -1382,10 +1384,10 @@ const extrema: GuidedLesson = {
                 'We look at \\(f(x)=x^2\\) on the closed interval \\([-1,2]\\). The candidates are the endpoints \\(-1\\) and \\(2\\), the stationary point \\(0\\) where \\(f^{\\prime}(x)=2x=0\\), and the points where the derivative does not exist; there are none here. At the top of the graph is the sign of the derivative on each piece between the candidates: \\(-\\) on \\((-1,0)\\) and \\(+\\) on \\((0,2)\\). The convention: local extrema are relative to the selected interval, so at an endpoint the values are compared only on the side that lies in the interval. The classification is hidden now; the candidates are marked but not yet sorted.',
             ),
             formulaIds: ['extrema-candidates'],
-            frames: [frame('extrema-prerequisites-explanation', 'explanation'), frame('extrema-prerequisites-observation', 'observation')],
+            frames: [frame('extrema-prerequisites-explanation', 'explanation', extremaFrame({highlight: ['candidate-0', 'candidate-1', 'candidate-2']})), frame('extrema-prerequisites-observation', 'observation', extremaFrame({highlight: ['piece-0', 'piece-1'], uses: ['show-classification']}))],
             observationPrompt: text(
-                'Napovej, kateri kandidati so lokalni minimumi ali maksimumi glede na interval in v katerem kandidatu sta globalna najmanjša in največja vrednost; šele nato pritisni Pokaži klasifikacijo.',
-                'Predict which candidates are local minima or maxima relative to the interval and at which candidates the global least and greatest values lie; only then press Show classification.',
+                'Napovej, kateri kandidati so lokalni minimumi ali maksimumi glede na interval in v katerem kandidatu sta globalna najmanjša in največja vrednost; šele nato vklopi krmilnik Klasifikacija.',
+                'Predict which candidates are local minima or maxima relative to the interval and at which candidates the global least and greatest values lie; only then turn on the Classification control.',
             ),
             expectedObservations: [text(
                 'Označeni so trije kandidati, \\(-1\\), \\(0\\) in \\(2\\), zgoraj sta znaka \\(-\\) in \\(+\\), klasifikacija je skrita.',
@@ -1409,7 +1411,7 @@ const extrema: GuidedLesson = {
                 'The values at the candidates are \\(f(-1)=1\\), \\(f(0)=0\\) and \\(f(2)=4\\). The derivative is negative on \\((-1,0)\\) and positive on \\((0,2)\\), so \\(0\\) is a local minimum and also the global minimum with value \\(0\\). The right endpoint \\(2\\) has an increase to its left, so it is a local maximum, and since \\(4\\) is the greatest value among the candidates, also the global maximum. The left endpoint \\(-1\\) has a decrease to its right, so it is a local maximum relative to the interval with value \\(1\\), but not global because \\(1<4\\). On the whole real line \\(-1\\) would not be a local maximum, since \\(f(-1.1)=1.21>1\\); relative to the interval \\([-1,2]\\) it is.',
             ),
             formulaIds: ['extrema-candidates', 'extrema-classification'], workedExampleId: 'extrema-square-example',
-            frames: [frame('extrema-square-explanation', 'explanation'), frame('extrema-square-calculation', 'calculation'), frame('extrema-square-observation', 'observation')],
+            frames: [frame('extrema-square-explanation', 'explanation', extremaFrame({highlight: ['global-minimum', 'global-maximum']})), frame('extrema-square-calculation', 'calculation', extremaFrame({highlight: ['candidate-0', 'candidate-1', 'candidate-2']})), frame('extrema-square-observation', 'observation', extremaFrame({highlight: ['global-minimum', 'global-maximum']}))],
             observationPrompt: text(
                 'Primerjaj oznake z napovedjo. Preberi, kateri kandidati so globalni, in pojasni, zakaj je \\(-1\\) lokalni maksimum, čeprav ni največja vrednost.',
                 'Compare the labels with your prediction. Read which candidates are global and explain why \\(-1\\) is a local maximum although it is not the greatest value.',
@@ -1436,10 +1438,10 @@ const extrema: GuidedLesson = {
                 'We switch the example: \\(f(x)=x^3\\) on \\([-1,1]\\). The derivative \\(f^{\\prime}(x)=3x^2\\) is \\(0\\) at \\(x=0\\), so \\(0\\) is a stationary point. At the top of the graph read the sign of the derivative on both sides of the point \\(0\\) and compare the values \\(f(-1)\\), \\(f(0)\\) and \\(f(1)\\). The classification is hidden.',
             ),
             formulaIds: ['extrema-classification'],
-            frames: [frame('extrema-cube-explanation', 'explanation'), frame('extrema-cube-observation', 'observation')],
+            frames: [frame('extrema-cube-explanation', 'explanation', extremaFrame({highlight: ['candidate-1']})), frame('extrema-cube-observation', 'observation', extremaFrame({highlight: ['candidate-1', 'piece-0', 'piece-1'], uses: ['show-classification']}))],
             observationPrompt: text(
-                'Napovej, ali je stacionarna točka \\(0\\) lokalni ekstrem in v katerih kandidatih sta globalna najmanjša in največja vrednost; šele nato pritisni Pokaži klasifikacijo.',
-                'Predict whether the stationary point \\(0\\) is a local extremum and at which candidates the global least and greatest values lie; only then press Show classification.',
+                'Napovej, ali je stacionarna točka \\(0\\) lokalni ekstrem in v katerih kandidatih sta globalna najmanjša in največja vrednost; šele nato vklopi krmilnik Klasifikacija.',
+                'Predict whether the stationary point \\(0\\) is a local extremum and at which candidates the global least and greatest values lie; only then turn on the Classification control.',
             ),
             expectedObservations: [text(
                 'Po pritisku \\(0\\) ni lokalni ekstrem, ker je odvod na obeh straneh pozitiven; globalni minimum \\(-1\\) je v krajišču \\(-1\\), globalni maksimum \\(1\\) v krajišču \\(1\\).',
@@ -1463,10 +1465,10 @@ const extrema: GuidedLesson = {
                 'The previous example showed that a zero of the derivative does not mean an extremum: for \\(x^3\\) the derivative is positive on both sides of the point \\(0\\), so \\(0\\) is not a local extremum. Now \\(f(x)=|x|\\) on \\([-1,1]\\). At the point \\(0\\) there is a corner: the derivative \\(f^{\\prime}(0)\\) does not exist, to its left \\(f^{\\prime}=-1\\) and to its right \\(f^{\\prime}=1\\). The other candidates are the endpoints \\(-1\\) and \\(1\\). The classification is hidden.',
             ),
             formulaIds: ['extrema-candidates', 'extrema-classification'],
-            frames: [frame('extrema-abs-explanation', 'explanation'), frame('extrema-abs-observation', 'observation')],
+            frames: [frame('extrema-abs-explanation', 'explanation', extremaFrame({highlight: ['candidate-1']})), frame('extrema-abs-observation', 'observation', extremaFrame({highlight: ['candidate-1', 'piece-0', 'piece-1'], uses: ['show-classification']}))],
             observationPrompt: text(
-                'Napovej, ali je ostri vogal pri \\(0\\) ekstrem, čeprav odvod ne obstaja, in kateri kandidati so globalni (pazi na izenačenje); šele nato pritisni Pokaži klasifikacijo.',
-                'Predict whether the corner \\(0\\) is an extremum although the derivative does not exist, and which candidates are global (watch for a tie); only then press Show classification.',
+                'Napovej, ali je ostri vogal pri \\(0\\) ekstrem, čeprav odvod ne obstaja, in kateri kandidati so globalni (pazi na izenačenje); šele nato vklopi krmilnik Klasifikacija.',
+                'Predict whether the corner \\(0\\) is an extremum although the derivative does not exist, and which candidates are global (watch for a tie); only then turn on the Classification control.',
             ),
             expectedObservations: [text(
                 'Po pritisku je \\(0\\) lokalni in globalni minimum z vrednostjo \\(0\\); krajišči \\(-1\\) in \\(1\\) imata obe vrednost \\(1\\), sta lokalna maksimuma in obe globalna (izenačenje).',
@@ -1490,10 +1492,10 @@ const extrema: GuidedLesson = {
                 'For \\(|x|\\) the extremum is at a corner where the derivative does not exist, and the endpoints tied. Now \\(f(x)=\\sin x\\) on \\([-4,4]\\). The derivative \\(\\cos x\\) is \\(0\\) at \\(-\\frac{\\pi}{2}\\) and \\(\\frac{\\pi}{2}\\), and at the endpoints \\(f(-4)\\approx0.7568\\) and \\(f(4)\\approx-0.7568\\). For the global extrema the values at the endpoints must be compared too. The classification is hidden.',
             ),
             formulaIds: ['extrema-candidates', 'extrema-classification'],
-            frames: [frame('extrema-sine-explanation', 'explanation'), frame('extrema-sine-observation', 'observation')],
+            frames: [frame('extrema-sine-explanation', 'explanation', extremaFrame({highlight: ['piece-0', 'piece-1', 'piece-2']})), frame('extrema-sine-observation', 'observation', extremaFrame({highlight: ['candidate-0', 'candidate-3'], uses: ['show-classification']}))],
             observationPrompt: text(
-                'Napovej, kateri od štirih kandidatov so lokalni ekstremi glede na interval in ali je kakšno krajišče globalni ekstrem; šele nato pritisni Pokaži klasifikacijo.',
-                'Predict which of the four candidates are local extrema relative to the interval and whether an endpoint is a global extremum; only then press Show classification.',
+                'Napovej, kateri od štirih kandidatov so lokalni ekstremi glede na interval in ali je kakšno krajišče globalni ekstrem; šele nato vklopi krmilnik Klasifikacija.',
+                'Predict which of the four candidates are local extrema relative to the interval and whether an endpoint is a global extremum; only then turn on the Classification control.',
             ),
             expectedObservations: [text(
                 'Po pritisku je globalni maksimum \\(1\\) pri \\(\\frac{\\pi}{2}\\) in globalni minimum \\(-1\\) pri \\(-\\frac{\\pi}{2}\\); krajišče \\(-4\\) je lokalni maksimum, krajišče \\(4\\) pa lokalni minimum, nobeno ni globalno.',
@@ -1517,10 +1519,10 @@ const extrema: GuidedLesson = {
                 'On \\([-4,4]\\) no endpoint was a global extremum. We narrow the interval to \\([0,\\pi]\\), that is \\(a=0\\) and \\(b=\\pi\\). The derivative \\(\\cos x\\) is \\(0\\) here only at \\(\\frac{\\pi}{2}\\), and at the endpoints \\(f(0)=f(\\pi)=0\\). The classification is hidden.',
             ),
             formulaIds: ['extrema-classification'],
-            frames: [frame('extrema-tie-explanation', 'explanation'), frame('extrema-tie-observation', 'observation')],
+            frames: [frame('extrema-tie-explanation', 'explanation', extremaFrame({highlight: ['candidate-0', 'candidate-2']})), frame('extrema-tie-observation', 'observation', extremaFrame({highlight: ['global-minimum', 'global-maximum'], uses: ['show-classification']}))],
             observationPrompt: text(
-                'Napovej, ali je krajišče lahko lokalni minimum, kateri kandidati so globalni minimumi in kateri je globalni maksimum; šele nato pritisni Pokaži klasifikacijo.',
-                'Predict whether an endpoint can be a local minimum, which candidates are the global minima and which is the global maximum; only then press Show classification.',
+                'Napovej, ali je krajišče lahko lokalni minimum, kateri kandidati so globalni minimumi in kateri je globalni maksimum; šele nato vklopi krmilnik Klasifikacija.',
+                'Predict whether an endpoint can be a local minimum, which candidates are the global minima and which is the global maximum; only then turn on the Classification control.',
             ),
             expectedObservations: [text(
                 'Označeni so trije kandidati, \\(0\\), \\(\\frac{\\pi}{2}\\) in \\(\\pi\\), zgoraj sta znaka \\(+\\) in \\(-\\), klasifikacija je skrita.',
@@ -1544,10 +1546,10 @@ const extrema: GuidedLesson = {
                 'The values are \\(f(0)=f(\\pi)=0\\) and \\(f\\left(\\frac{\\pi}{2}\\right)=1\\). The derivative is positive on \\(\\left(0,\\frac{\\pi}{2}\\right)\\) and negative on \\(\\left(\\frac{\\pi}{2},\\pi\\right)\\). The left endpoint has an increase to its right and the right endpoint has a decrease to its left, so both endpoints are local minima relative to the interval. Both have the same least value \\(0\\), so both are global minima; the global maximum \\(1\\) is at the interior point \\(\\frac{\\pi}{2}\\). Now explore on your own: change the example, move \\(a\\) and \\(b\\), hide the classification and predict before you show it; find an interval where an endpoint is a global extremum and one where it is not.',
             ),
             formulaIds: ['extrema-candidates', 'extrema-classification'], workedExampleId: 'extrema-sine-tie-example',
-            frames: [frame('extrema-free-explanation', 'explanation'), frame('extrema-free-calculation', 'calculation'), frame('extrema-free-observation', 'observation')],
+            frames: [frame('extrema-free-explanation', 'explanation', extremaFrame({highlight: ['a', 'b']})), frame('extrema-free-calculation', 'calculation', extremaFrame({highlight: ['global-minimum', 'global-maximum']})), frame('extrema-free-observation', 'observation', extremaFrame({highlight: ['candidate-0', 'candidate-1', 'candidate-2'], uses: ['show-classification']}))],
             observationPrompt: text(
-                'Primerjaj oznake z napovedjo. Nato skrij klasifikacijo, izberi drug primer ali interval in napovej, preden jo spet pokažeš.',
-                'Compare the labels with your prediction. Then hide the classification, choose another example or interval, and predict before you show it again.',
+                'Primerjaj oznake z napovedjo. Nato izklopi krmilnik Klasifikacija, izberi drug primer ali interval in napovej, preden jo spet pokažeš.',
+                'Compare the labels with your prediction. Then turn off the Classification control, choose another example or interval, and predict before you show it again.',
             ),
             expectedObservations: [text(
                 'Krajišči \\(0\\) in \\(\\pi\\) sta lokalna in globalna minimuma z vrednostjo \\(0\\) (izenačenje), \\(\\frac{\\pi}{2}\\) je lokalni in globalni maksimum z vrednostjo \\(1\\).',

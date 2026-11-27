@@ -981,6 +981,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'n at the limit (128)', apply: run(g => { g.setExample('square'); g.setCount(128); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/extrema.json', demonstration: 'extrema', states: (() => {
+        type ExtremaSetters = {setA(value: number): void; setB(value: number): void; setExample(value: string): void; setRevealed(value: boolean): void};
+        const run = (edit: (graph: ExtremaSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as ExtremaSetters)); };
+        return [
+            {name: 'default (hidden)', apply: () => undefined},
+            {name: 'square revealed', apply: run(g => g.setRevealed(true))},
+            {name: 'cube hidden', apply: run(g => { g.setExample('cube'); g.setRevealed(false); })},
+            {name: 'cube revealed', apply: run(g => g.setRevealed(true))},
+            {name: 'abs revealed (corner)', apply: run(g => { g.setExample('abs'); g.setRevealed(true); })},
+            {name: 'sine [-4, 4] hidden', apply: run(g => { g.setExample('sine'); g.setRevealed(false); })},
+            {name: 'sine [0, pi] revealed (tie)', apply: run(g => { g.setA(0); g.setB(Math.PI); g.setRevealed(true); })},
+            {name: 'square a=-0.5, b=1.5 revealed', apply: run(g => { g.setExample('square'); g.setA(-0.5); g.setB(1.5); g.setRevealed(true); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/linear-function.json', demonstration: 'linear-function', states: (() => {
         type LinearSetters = {setPoint(index: 0 | 1, x: number, y: number): void; setLineParameter(change: {k?: number; n?: number}): void};
         const run = (edit: (graph: LinearSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as LinearSetters)); };

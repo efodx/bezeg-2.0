@@ -1,11 +1,14 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, FunctionPanel, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber, NumberLanguage} from "../../analysis/format";
+import {currentLanguage, message, Message, MessageParameter, messageNumber, renderMessage, t} from "../../localization";
+import {formatNumber} from "../../analysis/format";
 import {
     analyzeExtrema, CandidateKind, DerivativeSign, EXTREMA_X_MAX, EXTREMA_X_MIN, EXTREMA_X_STEP, extremaExample, ExtremaAnalysis,
     ExtremaCandidate, ExtremaExample, ExtremaExampleId, EXTREMA_EXAMPLE_IDS,
@@ -21,7 +24,18 @@ const PRECISE = 4;
 
 /** The formulas as they are written on the board and in the example selector. */
 const PRETTY_FORMULA: Readonly<Record<ExtremaExampleId, string>> = {square: "x²", cube: "x³", abs: "|x|", sine: "sin x"};
+const FORMULA_TEX: Readonly<Record<ExtremaExampleId, string>> = {square: "x^{2}", cube: "x^{3}", abs: "|x|", sine: "\\sin x"};
 const exampleTitle = (id: ExtremaExampleId): string => `f(x) = ${PRETTY_FORMULA[id]}`;
+
+/**
+ * The ids of the extrema declaration: a and b are board pucks, the classification is a switch puck; the readout rows are a, b, one
+ * row per candidate and per piece (as many as the example has) and the two global values; the drawn objects are the legend.
+ */
+export type ExtremaIds = {
+    param: "extrema-a" | "extrema-b";
+    row: "a" | "b" | "global-minimum" | "global-maximum" | `candidate-${number}` | `piece-${number}`; note: never;
+    legend: "function" | "endpoint" | "stationary" | "corner" | "global" | "pieces"; section: never; action: "show-classification";
+};
 
 
 /**
@@ -50,6 +64,7 @@ const OUTWARD_PROBE = 0.4;
 /** Rough size of a three-line point label, of its characters and its padding, and of the row of x-axis tick labels (pixels). */
 const LABEL_LINES_PX = 60;
 const LABEL_CHAR_WIDTH = 0.52;
+const LABEL_LINE_HEIGHT = 1.3;
 const LABEL_PADDING_PX = 12;
 const AXIS_LABEL_ROW_PX = 52;
 const COMPACT_ENDPOINT_GAP_PX = 20;
@@ -70,6 +85,10 @@ interface View {
     example: ExtremaExample;
     analysis: ExtremaAnalysis;
 }
+
+/** Messages joined by a separator message, left to right ("a, b, c"); one part is itself. */
+const joinMessages = (key: "extrema_join_comma" | "extrema_join_semicolon", parts: readonly MessageParameter[]): MessageParameter =>
+    parts.reduce((joined, part) => message(key, {value0: joined, value1: part}));
 
 /** The sign of f' on a piece as the character the board and the readout show. */
 const SIGN_CHARACTER: Readonly<Record<DerivativeSign, string>> = {[-1]: "−", 0: "0", 1: "+"};
@@ -94,6 +113,8 @@ const SIGN_CHARACTER: Readonly<Record<DerivativeSign, string>> = {[-1]: "−", 0
 export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections.extrema;
@@ -168,25 +189,17 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         return t(kind === "endpoint" ? "extrema_kind_endpoint" : kind === "stationary" ? "extrema_kind_stationary" : "extrema_kind_corner");
     }
 
-    private derivativeText(candidate: ExtremaCandidate): string {
-        return candidate.derivative === undefined ? t("extrema_derivative_none") : this.number(candidate.derivative);
-    }
-
-    /** "local minimum, global minimum" and the like: what the classification says about one candidate. */
-    private classificationText(candidate: ExtremaCandidate): string {
+    /** "local minimum," and "global minimum" and the like, one part per line: what the classification says about one candidate. A label of two short lines fits the free area between the cards. */
+    private classificationLines(candidate: ExtremaCandidate): string[] {
         const parts = [candidate.local === "localMinimum" ? t("extrema_local_minimum") : candidate.local === "localMaximum" ? t("extrema_local_maximum") : t("extrema_not_extremum")];
         if (candidate.isGlobalMinimum) parts.push(t("extrema_global_minimum"));
         if (candidate.isGlobalMaximum) parts.push(t("extrema_global_maximum"));
-        return parts.join(", ");
-    }
-
-    private pieceText(sign: DerivativeSign): string {
-        return t(sign > 0 ? "extrema_piece_increasing" : sign < 0 ? "extrema_piece_decreasing" : "extrema_piece_constant");
+        return parts.map((part, index) => index < parts.length - 1 ? `${part},` : part);
     }
 
     /** The lines of a candidate's board label: its value, what kind of point it is, and, once revealed, its classification. */
     private markerLines(model: ExtremaModel, candidate: ExtremaCandidate): string[] {
-        const compact = this.boardWidth() < COMPACT_BOARD_WIDTH;
+        const compact = this.isCompact();
         const lines = [`f(${this.number(candidate.x)}) = ${this.number(candidate.value)}`];
         if (candidate.kind === "endpoint") {
             const extra = candidate.derivative === undefined ? t("extrema_board_corner") : candidate.derivative === 0 ? t("extrema_board_stationary") : undefined;
@@ -195,16 +208,33 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
             lines.push(candidate.kind === "stationary" ? t("extrema_board_stationary") : t("extrema_board_corner"));
         }
         // On a narrow board the label is the value and the kind; the classification is in the readout.
-        if (model.revealed && !compact) lines.push(this.classificationText(candidate));
+        if (model.revealed && !compact) lines.push(...this.classificationLines(candidate));
         return lines;
-    }
-
-    private globalText(value: number, at: readonly number[]): string {
-        return t("extrema_readout_global_value", {value0: this.number(value), value1: at.map(x => this.number(x)).join("; ")});
     }
 
     private labelFontSize(): number {
         return Math.max(10, this.displaySettings.fontSize * 0.9);
+    }
+
+    /**
+     * The x range a label may use: the view intent (the box the director maps into the area the cards leave free), not the box on
+     * screen, which also reaches under the cards; the top is the board edge, where no card is. No intent yet: the box on screen.
+     */
+    private roomRange(): [number, number, number] {
+        const [shownLeft, shownTop, shownRight] = this.board.getBoundingBox();
+        const [left, , right] = this.boardView.intent().box;
+        return left < right ? [left, right, shownTop] : [shownLeft, shownRight, shownTop];
+    }
+
+    /** The width in px of the card-free area the labels share (the view intent's x range). */
+    private freeWidthPx(): number {
+        const [left, right] = this.roomRange();
+        return (right - left) * this.board.unitX;
+    }
+
+    /** A narrow free area gets short labels (the classification is in the readout). */
+    private isCompact(): boolean {
+        return this.freeWidthPx() < COMPACT_BOARD_WIDTH;
     }
 
     /**
@@ -217,7 +247,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         { anchorX: "left" | "middle" | "right"; anchorY: "top" | "bottom"; dx: number; dy: number } {
         if (candidate === undefined || !this.board) return {anchorX: "middle", anchorY: "bottom", dx: 0, dy: 0};
         const {unitX, unitY} = this.board;
-        const [left, , right] = this.board.getBoundingBox();
+        const [left, right, top] = this.roomRange();
         const heightUnits = LABEL_LINES_PX / unitY;
         let anchorX: "left" | "middle" | "right" = "middle";
         let anchorY: "top" | "bottom";
@@ -231,17 +261,26 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
             // with no room outward is moved inward by its width instead.
             anchorX = outwardSign < 0 ? "right" : "left";
             if (outward !== outwardSign) dx = -outwardSign * widthPx / unitX;
-            else if (this.boardWidth() < COMPACT_BOARD_WIDTH) dx = outwardSign * COMPACT_ENDPOINT_GAP_PX / unitX; // clear of the a / b label
+            else if (this.isCompact()) dx = outwardSign * COMPACT_ENDPOINT_GAP_PX / unitX; // clear of the a / b label
             const curveAhead = view.example.value(candidate.x + outward * OUTWARD_PROBE);
             const crossesAxis = (below: boolean) => below ? candidate.value > 0 && candidate.value - heightUnits < 0 : candidate.value < 0 && candidate.value + heightUnits > 0;
             const costBelow = (curveAhead < candidate.value ? 1 : 0) + (crossesAxis(true) ? 1.5 : 0);
-            const costAbove = (curveAhead > candidate.value ? 1 : 0) + (crossesAxis(false) ? 1.5 : 0);
+            // A label that would run past the top of the free area goes below its point instead of being cut.
+            const labelHeightPx = this.markerLines(model, candidate).length * this.labelFontSize() * LABEL_LINE_HEIGHT;
+            const costAbove = (curveAhead > candidate.value ? 1 : 0) + (crossesAxis(false) ? 1.5 : 0) + ((top - candidate.value) * unitY < labelHeightPx ? 2 : 0);
             anchorY = costBelow < costAbove ? "top" : costAbove < costBelow ? "bottom" : candidate.value > 0 ? "bottom" : "top";
         } else {
             anchorY = model.revealed && candidate.local === "localMinimum" ? "top" : "bottom";
         }
-        const row = this.boardWidth() < COMPACT_BOARD_WIDTH ? AXIS_LABEL_ROW_COMPACT_PX : AXIS_LABEL_ROW_PX;
+        const row = this.isCompact() ? AXIS_LABEL_ROW_COMPACT_PX : AXIS_LABEL_ROW_PX;
         const onAxis = Math.abs(candidate.value) * unitY < row;
+        // A label below its point (and below the axis tick row) that would run past the bottom edge goes above the point instead, when that fits.
+        if (anchorY === "top") {
+            const [, shownTop, , shownBottom] = this.board.getBoundingBox();
+            const heightPx = this.markerLines(model, candidate).length * this.labelFontSize() * LABEL_LINE_HEIGHT;
+            const belowRoomPx = (candidate.value - shownBottom) * unitY - (kind !== "endpoint" && onAxis ? row : 0);
+            if (belowRoomPx < heightPx && (shownTop - candidate.value) * unitY >= heightPx) anchorY = "bottom";
+        }
         return {anchorX, anchorY, dx, dy: anchorY === "top" && kind !== "endpoint" && onAxis ? -row / unitY : 0};
     }
 
@@ -260,21 +299,22 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         // Vertical dashed lines at the candidates separate the pieces; horizontal ones mark the global values once revealed.
         for (let index = 0; index < MAX_CANDIDATES; index++) {
             const x = () => view().analysis.candidates[index]?.x ?? 0;
-            this.own(board.create("line", [[x, 0], [x, 1]], {
+            const separator = this.own(board.create("line", [[x, 0], [x, 1]], {
                 straightFirst: true, straightLast: true, strokeColor: GraphPalette.referenceCurve, dash: 3, strokeWidth: thin, highlight: false, fixed: true,
                 withLabel: false, visible: () => view().analysis.candidates[index] !== undefined,
             }));
+            if (index === 0) this.drawn.set("pieces", separator);
         }
         const globalLine = (value: () => number) => this.own(board.create("line", [[0, value], [1, value]], {
             straightFirst: true, straightLast: true, strokeColor: GraphPalette.referenceCurve, dash: 2, strokeWidth: thin, highlight: false, fixed: true,
             withLabel: false, visible: () => model().revealed,
         }));
-        globalLine(() => view().analysis.globalMinimum);
+        this.drawn.set("global", globalLine(() => view().analysis.globalMinimum));
         globalLine(() => view().analysis.globalMaximum);
 
-        this.own(board.create("functiongraph", [(x: number) => view().example.value(x)], {
+        this.drawn.set("function", this.own(board.create("functiongraph", [(x: number) => view().example.value(x)], {
             strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth,
-        }));
+        })));
 
         // The derivative sign of every piece, in a row at the top of the view, centred on the piece.
         const stripY = () => {
@@ -293,11 +333,12 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         for (const kind of KINDS) {
             for (let slot = 0; slot < SLOTS[kind]; slot++) {
                 const current = () => candidate(kind, slot);
-                this.own(board.create("point", [() => current()?.x ?? 0, () => current()?.value ?? 0], {
+                const marker = this.own(board.create("point", [() => current()?.x ?? 0, () => current()?.value ?? 0], {
                     ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, face: FACES[kind], visible: () => current() !== undefined,
                     size: () => Math.max(4, this.displaySettings.pointSize), fillColor: colors[kind], highlightFillColor: colors[kind],
                     strokeColor: colors[kind], highlightStrokeColor: colors[kind],
                 }));
+                if (slot === 0) this.drawn.set(kind, marker as JXG.GeometryElement);
                 const html = () => {
                     const c = current();
                     return c ? this.markerLines(model(), c).map(line => `<div>${escapeHtml(line)}</div>`).join("") : "";
@@ -327,23 +368,8 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
             min: () => cleanNumber(model().a + EXTREMA_X_STEP), max: () => EXTREMA_X_MAX, write: x => this.setB(x, {syncScene: false}),
         });
 
-        // The formula, the interval, the global values (or the word hidden) and the two keys stay on the board (projection needs them).
-        this.caption("bottom-right", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {text: () => t("extrema_board_interval", {value0: this.number(model().a), value1: this.number(model().b)})},
-            {
-                text: () => {
-                    if (!model().revealed) return t("extrema_board_classification_hidden");
-                    const {analysis} = view();
-                    return t("extrema_board_global", {
-                        value0: this.number(analysis.globalMinimum), value1: analysis.globalMinimumAt.map(x => this.number(x)).join("; "),
-                        value2: this.number(analysis.globalMaximum), value3: analysis.globalMaximumAt.map(x => this.number(x)).join("; "),
-                    });
-                },
-            },
-            {text: () => t("extrema_board_key"), minBoardWidth: 520},
-            {text: () => t("extrema_board_signs_key"), minBoardWidth: 520},
-        ]);
+        // Nothing else stays on the board: the formula is a declared row, a, b, the global values and the pieces are readout rows, and the
+        // two keys (the shapes of the kinds, the signs row) are legend entries (owner, 2026-11-27).
     }
 
     protected override syncSceneToModel(): void {
@@ -355,6 +381,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -367,75 +394,155 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
                               options={EXTREMA_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("extrema_a_label")} value={a} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("extrema_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("extrema_b_label")} value={b} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("extrema_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
+            <PuckOwnedGroup params={["extrema-a", "extrema-b"]} className="inspector-group">
+                <PuckOwned param="extrema-a"><Slider customText={t("extrema_a_label")} value={a} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("extrema_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/></PuckOwned>
+                <PuckOwned param="extrema-b"><Slider customText={t("extrema_b_label")} value={b} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("extrema_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/></PuckOwned>
                 <p className="inspector-help">{t("extrema_order_help")}</p>
-            </div>
+            </PuckOwnedGroup>
         </>;
     }
 
     protected override renderReveals(): React.ReactNode {
         const {revealed} = this.model;
-        return <>
+        return <PuckOwnedGroup params={["show-classification"]}>
             <div className="extrema-actions" role="group" aria-label={t("extrema_actions_label")}>
                 <RevealButton action="toggle-classification" revealed={revealed} showLabel={t("extrema_show_classification")} hideLabel={t("extrema_hide_classification")}
                               onToggle={() => this.setRevealed(!this.model.revealed)}/>
             </div>
             <p className="inspector-help">{t("extrema_classification_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
-    protected override renderLegend(): React.ReactNode {
-        const colors = KIND_COLORS();
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.primaryCurve, label: t("extrema_legend_function"), kind: "line"},
-            {id: "endpoint", color: colors.endpoint, label: t("extrema_legend_endpoint"), kind: "area"},
-            {id: "stationary", color: colors.stationary, label: t("extrema_legend_stationary"), kind: "area"},
-            {id: "corner", color: colors.corner, label: t("extrema_legend_corner"), kind: "area"},
-            {id: "global", color: GraphPalette.referenceCurve, label: t("extrema_legend_global"), kind: "dotted-line"},
-            {id: "pieces", color: GraphPalette.referenceCurve, label: t("extrema_legend_pieces"), kind: "dashed-line"},
-        ]}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "extrema-a": {read: () => this.model.a, apply: (value: number) => this.setA(value)},
+            "extrema-b": {read: () => this.model.b, apply: (value: number) => this.setB(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, view marks) plus a and b as board pucks, the classification as a switch puck and the legend
+     * of the drawn objects. A legend entry is listed only while its object is drawn: a kind with no candidate in the interval has
+     * none, and the global values are listed once the classification is shown (a hidden classification is not given away).
+     */
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const {analysis} = this.viewOf(model);
+        const has = (kind: CandidateKind) => analysis.candidates.some(candidate => candidate.kind === kind);
+        const endpoint = (key: "extrema-a" | "extrema-b", label: "extrema_a_name" | "extrema_b_name", symbol: string) => ({
+            key, kind: "range" as const, label: message(label), symbol, help: message("extrema_order_help"), placement: "board" as const,
+            min: EXTREMA_X_MIN, max: EXTREMA_X_MAX, step: EXTREMA_X_STEP, maxDecimals: PRECISE,
+        });
+        return {
+            ...this.commonDeclaration(),
+            formula: {label: message("extrema_formula_label"), tex: `f(x)=${FORMULA_TEX[model.example]}`},
+            parameters: [endpoint("extrema-a", "extrema_a_name", "a"), endpoint("extrema-b", "extrema_b_name", "b")],
+            legend: [
+                {id: "function", label: message("extrema_legend_function"), kind: "line", object: "function"},
+                {id: "endpoint", label: message("extrema_legend_endpoint"), kind: "point", object: "endpoint"},
+                ...(has("stationary") ? [{id: "stationary" as const, label: message("extrema_legend_stationary"), kind: "point" as const, object: "stationary"}] : []),
+                ...(has("corner") ? [{id: "corner" as const, label: message("extrema_legend_corner"), kind: "point" as const, object: "corner"}] : []),
+                ...(model.revealed ? [{id: "global" as const, label: message("extrema_legend_global"), kind: "dashed" as const, object: "global"}] : []),
+                {id: "pieces", label: message("extrema_legend_pieces"), kind: "dashed", object: "pieces"},
+            ],
+            actions: [
+                {id: "show-classification", label: message("extrema_actions_label"), help: message("extrema_classification_help"), placement: "board", enabled: true,
+                    pressed: model.revealed, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "show-classification") runAs("learner", () => this.setRevealed(!this.model.revealed));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
     }
 
     /** The statuses to state in words (no changing numbers: they are announced on every drag step); each has a stable id. */
-    private statuses(model: ExtremaModel, view: View): { id: StatusKind; text: string }[] {
+    private statuses(model: ExtremaModel, view: View): { id: StatusKind; text: Message }[] {
         const {analysis} = view;
-        const result: { id: StatusKind; text: string }[] = [{id: model.revealed ? "revealed" : "hidden", text: t(model.revealed ? "extrema_status_revealed" : "extrema_status_hidden")}];
-        if (analysis.candidates.some(candidate => candidate.kind === "corner")) result.push({id: "corner", text: t("extrema_status_corner")});
-        if (model.revealed && (analysis.globalMinimumAt.length > 1 || analysis.globalMaximumAt.length > 1)) result.push({id: "tie", text: t("extrema_status_tie")});
+        const result: { id: StatusKind; text: Message }[] = [{id: model.revealed ? "revealed" : "hidden", text: message(model.revealed ? "extrema_status_revealed" : "extrema_status_hidden")}];
+        if (analysis.candidates.some(candidate => candidate.kind === "corner")) result.push({id: "corner", text: message("extrema_status_corner")});
+        if (model.revealed && (analysis.globalMinimumAt.length > 1 || analysis.globalMaximumAt.length > 1)) result.push({id: "tie", text: message("extrema_status_tie")});
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    private kindMessage(kind: CandidateKind): Message {
+        return message(kind === "endpoint" ? "extrema_kind_endpoint" : kind === "stationary" ? "extrema_kind_stationary" : "extrema_kind_corner");
+    }
+
+    private classificationMessage(candidate: ExtremaCandidate): MessageParameter {
+        const parts: Message[] = [message(candidate.local === "localMinimum" ? "extrema_local_minimum" : candidate.local === "localMaximum" ? "extrema_local_maximum" : "extrema_not_extremum")];
+        if (candidate.isGlobalMinimum) parts.push(message("extrema_global_minimum"));
+        if (candidate.isGlobalMaximum) parts.push(message("extrema_global_maximum"));
+        return joinMessages("extrema_join_comma", parts);
+    }
+
+    private globalMessage(value: number, at: readonly number[]): Message {
+        return message("extrema_readout_global_value", {value0: messageNumber(value, PRECISE), value1: joinMessages("extrema_join_semicolon", at.map(x => messageNumber(x, PRECISE)))});
+    }
+
+    /**
+     * Declared by the base (task 08): the readout rows, the note, the statuses and the drawn curve; the readout panel is drawn from
+     * the same data. The marks keep the labels of the candidates (above and below the point) and the row of signs in sight.
+     */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const {analysis} = view;
-        const number = (value: number) => formatNumber(value, language, PRECISE);
-        const hidden = t("extrema_hidden");
-        const rows = [
-            {id: "a", label: t("extrema_a_label"), value: number(model.a)},
-            {id: "b", label: t("extrema_b_label"), value: number(model.b)},
-            ...analysis.candidates.map((candidate, index) => ({
-                id: `candidate-${index}`,
-                label: t("extrema_readout_candidate", {value0: this.kindText(candidate.kind), value1: number(candidate.x)}),
-                value: [t("extrema_readout_candidate_value", {value0: number(candidate.value), value1: this.derivativeText(candidate)}),
-                    ...(model.revealed ? [this.classificationText(candidate)] : [])].join("; "),
-            })),
-            ...analysis.pieces.map((piece, index) => ({
-                id: `piece-${index}`,
-                label: t("extrema_readout_piece", {value0: number(piece.from), value1: number(piece.to)}),
-                value: this.pieceText(piece.sign),
-            })),
-            {id: "global-minimum", label: t("extrema_readout_global_minimum"), value: model.revealed ? this.globalText(analysis.globalMinimum, analysis.globalMinimumAt) : hidden},
-            {id: "global-maximum", label: t("extrema_readout_global_maximum"), value: model.revealed ? this.globalText(analysis.globalMaximum, analysis.globalMaximumAt) : hidden},
-        ];
+        const hidden = message("extrema_hidden");
+        const [, top, , bottom] = EXAMPLE_VIEWS[model.example];
+        const labelHeight = 0.14 * (top - bottom);
+        const signRow = top - 0.07 * (top - bottom);
+        return {
+            rows: [
+                {id: "a", name: message("extrema_a_name"), symbol: "a", value: messageNumber(model.a, PRECISE)},
+                {id: "b", name: message("extrema_b_name"), symbol: "b", value: messageNumber(model.b, PRECISE)},
+                ...analysis.candidates.map((candidate, index) => {
+                    const derivative = candidate.derivative === undefined ? message("extrema_derivative_none") : messageNumber(candidate.derivative, PRECISE);
+                    const base = message("extrema_readout_candidate_value", {value0: messageNumber(candidate.value, PRECISE), value1: derivative});
+                    return {
+                        id: `candidate-${index}` as const,
+                        name: message("extrema_readout_candidate", {value0: this.kindMessage(candidate.kind), value1: messageNumber(candidate.x, PRECISE)}),
+                        value: model.revealed ? message("extrema_join_semicolon", {value0: base, value1: this.classificationMessage(candidate)}) : base,
+                    };
+                }),
+                ...analysis.pieces.map((piece, index) => ({
+                    id: `piece-${index}` as const,
+                    name: message("extrema_readout_piece", {value0: messageNumber(piece.from, PRECISE), value1: messageNumber(piece.to, PRECISE)}),
+                    value: message(piece.sign > 0 ? "extrema_piece_increasing" : piece.sign < 0 ? "extrema_piece_decreasing" : "extrema_piece_constant"),
+                })),
+                {id: "global-minimum", name: message("extrema_readout_global_minimum"), value: model.revealed ? this.globalMessage(analysis.globalMinimum, analysis.globalMinimumAt) : hidden},
+                {id: "global-maximum", name: message("extrema_readout_global_maximum"), value: model.revealed ? this.globalMessage(analysis.globalMaximum, analysis.globalMaximumAt) : hidden},
+            ],
+            help: message("extrema_note"),
+            status: this.statuses(model, view),
+            plotted: [(x: number) => view.example.value(x)],
+            must: [
+                {x: model.a, y: 0}, {x: model.b, y: 0},
+                // The label of a candidate stands above or below its point (see `labelPlacement`), the signs in a row at the top of the view.
+                ...analysis.candidates.flatMap(candidate => [{x: candidate.x, y: candidate.value + labelHeight}, {x: candidate.x, y: candidate.value - labelHeight}]),
+                ...analysis.pieces.map(piece => ({x: (piece.from + piece.to) / 2, y: signRow})),
+            ],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("extrema_note")}/>
-            <FunctionStatus className="extrema-status" dataAttribute="extrema-status" lines={this.statuses(model, view)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="extrema-status" dataAttribute="extrema-status" lines={(this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 }

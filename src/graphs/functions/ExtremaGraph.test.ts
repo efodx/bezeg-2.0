@@ -3,8 +3,9 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {analyzeExtrema, EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, extremaExample} from '../../analysis/extrema';
 import {EXTREMA_EXAMPLE_MODELS} from '../../analysis/extremaModel';
-import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
+import {currentLanguage, onLanguageChange, renderMessage, setLanguage, messageNumber} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
+import type {LegendEntry} from '../base/declare/graphDeclaration';
 import {revealButton} from "./revealElementTree";
 
 const BOX = [-6, 4.6, 6, -5.6];
@@ -103,7 +104,7 @@ const statusTexts = (graph: any, language: 'sl' | 'en' = 'sl') => {
     const previous = currentLanguage();
     setLanguage(language);
     try {
-        return graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text);
+        return graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: never }) => renderMessage(status.text));
     } finally {
         setLanguage(previous);
     }
@@ -118,16 +119,15 @@ test('initialization draws x^2 on [-1, 2] with candidates, signs, a and b, and o
     expect(lines(graph)).toHaveLength(7);
     expect(ofType(graph, 'functiongraph')).toHaveLength(1);
     expect(ofType(graph, 'point')).toHaveLength(7);
-    expect(ofType(graph, 'text')).toHaveLength(10);
-    expect(boardObjectCount(graph)).toBe(25);
-    expect(graph.generatedObjectCount).toBe(25);
+    expect(ofType(graph, 'text')).toHaveLength(9);
+    expect(boardObjectCount(graph)).toBe(24);
+    expect(graph.generatedObjectCount).toBe(24);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect(ofType(graph, 'functiongraph')[0].parents[0](1.5)).toBe(2.25);
     expect(axisPoints(graph).map((point: any) => [point.x, point.y])).toEqual([[-1, 0], [2, 0]]);
-    expect(caption(graph)).toEqual([
-        'f(x) = x²', 'a = −1, b = 2', 'klasifikacija: skrita', 'kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogal',
-        "zgoraj: predznak f′ na delu (+ narašča, − pada)",
-    ]);
+    // nothing but the labels and the signs is drawn as text: the formula is a declared row, a, b and the global values are readout rows, the keys are legend entries
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)).toMatchObject({a: '−1', b: '2', 'global-minimum': 'skrito', 'global-maximum': 'skrito'});
 });
 
 test('the candidates are marked by kind-specific shapes at (x, f(x)); unused slots are hidden', () => {
@@ -153,19 +153,56 @@ test('before the reveal the labels give value and kind only; after it they add t
     expect(lines(graph).slice(5).map((line: any) => visible(line))).toEqual([false, false]);
     apply(graph, reveal(true));
     expect(labelLines(texts[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče', 'lokalni maksimum']);
-    expect(labelLines(texts[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0", 'lokalni minimum, globalni minimum']);
-    expect(labelLines(texts[ENDPOINT_1])).toEqual(['f(2) = 4', 'krajišče', 'lokalni maksimum, globalni maksimum']);
+    expect(labelLines(texts[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0", 'lokalni minimum,', 'globalni minimum']);
+    expect(labelLines(texts[ENDPOINT_1])).toEqual(['f(2) = 4', 'krajišče', 'lokalni maksimum,', 'globalni maksimum']);
     expect(lines(graph).slice(5).map((line: any) => visible(line))).toEqual([true, true]);
     expect([lines(graph)[GLOBAL_MINIMUM].parents[0][1](), lines(graph)[GLOBAL_MAXIMUM].parents[0][1]()]).toEqual([0, 4]);
-    expect(caption(graph)[2]).toBe('globalni min 0 pri x = 0; globalni maks 4 pri x = 2');
+    expect([rows(graph)['global-minimum'], rows(graph)['global-maximum']]).toEqual(['0 pri x = 0', '4 pri x = 2']);
     // a tie: both endpoints of |x| are global maxima
     apply(graph, choice('abs'));
     apply(graph, reveal(true));
-    expect(labelLines(markerTexts(graph)[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče', 'lokalni maksimum, globalni maksimum']);
-    expect(labelLines(markerTexts(graph)[ENDPOINT_1])).toEqual(['f(1) = 1', 'krajišče', 'lokalni maksimum, globalni maksimum']);
-    expect(labelLines(markerTexts(graph)[CORNER_0])).toEqual(['f(0) = 0', "f′ ne obstaja", 'lokalni minimum, globalni minimum']);
-    expect(caption(graph)[2]).toBe('globalni min 0 pri x = 0; globalni maks 1 pri x = −1; 1');
+    expect(labelLines(markerTexts(graph)[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče', 'lokalni maksimum,', 'globalni maksimum']);
+    expect(labelLines(markerTexts(graph)[ENDPOINT_1])).toEqual(['f(1) = 1', 'krajišče', 'lokalni maksimum,', 'globalni maksimum']);
+    expect(labelLines(markerTexts(graph)[CORNER_0])).toEqual(['f(0) = 0', "f′ ne obstaja", 'lokalni minimum,', 'globalni minimum']);
+    expect([rows(graph)['global-minimum'], rows(graph)['global-maximum']]).toEqual(['0 pri x = 0', '1 pri x = −1; 1']);
     expect(statusIds(graph)).toEqual(['revealed', 'corner', 'tie']);
+});
+
+test('an endpoint label measures its outward room against the view intent (the card-free area), not the box on screen', () => {
+    const graph = makeGraph();
+    apply(graph, reveal(true));
+    const label = markerTexts(graph)[ENDPOINT_1];
+    // the board shows x up to 6, but the intent (what the cards leave free) ends at 2.4: the long label cannot stand to the right of b = 2
+    const intent = vi.spyOn(graph.boardView, 'intent');
+    intent.mockReturnValue({box: [-6, 4.6, 6, -5.6]} as any);
+    expect(resolve(label.parents[0])).toBeGreaterThanOrEqual(2);
+    intent.mockReturnValue({box: [-6, 4.6, 2.4, -5.6]} as any);
+    expect(resolve(label.parents[0])).toBeLessThan(2);
+    // and a label that would run past the top edge of the board stands below its point
+    graph.board.getBoundingBox.mockReturnValue([-6, 9, 6, -5.6]);
+    expect(resolve(label.attributes.anchorY)).toBe('bottom');
+    graph.board.getBoundingBox.mockReturnValue([-6, 4.1, 6, -5.6]);
+    expect(resolve(label.attributes.anchorY)).toBe('top');
+});
+
+test('a narrow card-free area (view intent) gives compact labels on a wide board: no classification line', () => {
+    const graph = makeGraph();
+    apply(graph, reveal(true));
+    const label = markerTexts(graph)[ENDPOINT_1];
+    const intent = vi.spyOn(graph.boardView, 'intent');
+    intent.mockReturnValue({box: [-6, 4.6, 6, -5.6]} as any);
+    expect(labelLines(label)).toHaveLength(4);
+    intent.mockReturnValue({box: [-1, 4.6, 3, -5.6]} as any); // 400 px free at 100 px/unit, the board itself is 1200 px
+    expect(labelLines(label)).toEqual(['f(2) = 4', 'krajišče']);
+});
+
+test('a label below its point that would run past the bottom edge of the board goes above the point', () => {
+    const graph = makeGraph();
+    apply(graph, reveal(true));
+    const label = markerTexts(graph)[STATIONARY_0]; // f(0) = 0, a local minimum: below its point and the axis row
+    expect(resolve(label.attributes.anchorY)).toBe('top');
+    graph.board.getBoundingBox.mockReturnValue([-6, 4.6, 6, -0.5]); // 50 px under the point
+    expect(resolve(label.attributes.anchorY)).toBe('bottom');
 });
 
 test('the derivative sign of every piece is a + or − mark on the board, not colour only, and the dividers follow the candidates', () => {
@@ -295,7 +332,6 @@ test('setting a, b, the example and the classification through the controls and 
     expect(viaControl.model).toEqual(viaLesson.model);
     expect(viaControl.model).toEqual({example: 'sine', a: 0, b: 3, revealed: true});
     expect(rows(viaControl)).toEqual(rows(viaLesson));
-    expect(caption(viaControl)).toEqual(caption(viaLesson));
     expect(axisPoints(viaControl).map((point: any) => point.x)).toEqual(axisPoints(viaLesson).map((point: any) => point.x));
     controls(viaControl).toggle.props.onClick();
     apply(viaLesson, reveal(false));
@@ -542,7 +578,7 @@ test('unmount leaves no generated object and a late edit changes nothing on the 
 test('generated objects are disposed and not duplicated across repeated generation, example changes and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(25);
+    expect(baseline).toBe(24);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -561,33 +597,40 @@ test('generated objects are disposed and not duplicated across repeated generati
     expect(axisPoints(graph).every((point: any) => graph.board.objectsList.includes(point))).toBe(true);
 });
 
-test('the caption follows the language and a language change notifies subscribers', () => {
+test('the readout and the labels follow the language and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    expect(caption(graph)[1]).toBe('a = −1, b = 2');
+    expect(rows(graph)['global-minimum']).toBe('skrito');
     expect(labelLines(markerTexts(graph)[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)[2]).toBe('classification: hidden');
-    expect(caption(graph)[3]).toBe('square: endpoint; diamond: stationary point; triangle: corner');
+    expect(rows(graph)['global-minimum']).toBe('hidden');
     expect(labelLines(markerTexts(graph)[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0"]);
     unsubscribe();
 });
 
 test('the legend names every marker and line in words', () => {
     const graph = makeGraph();
-    const items = graph.renderLegend().props.items as { id: string; label: string; kind: string }[];
-    expect(items.map(item => item.id)).toEqual(['function', 'endpoint', 'stationary', 'corner', 'global', 'pieces']);
+    expect(graph.renderLegend()).toBeNull(); // the declared legend replaces the panel
+    const entries = (): { id: string; label: string; kind: string }[] => graph.getDeclaration()!.legend!.map((entry: LegendEntry) => ({id: entry.id, label: renderMessage(entry.label), kind: entry.kind}));
+    // an entry is listed only while its object is drawn: x^2 has no corner, and the global values wait for the classification
+    expect(entries().map(item => item.id)).toEqual(['function', 'endpoint', 'stationary', 'pieces']);
+    apply(graph, reveal(true));
+    const items = entries();
+    expect(items.map(item => item.id)).toEqual(['function', 'endpoint', 'stationary', 'global', 'pieces']);
     expect(items[1].label).toMatch(/kvadrat/);
     expect(items[2].label).toMatch(/romb/);
-    expect(items[3].label).toMatch(/trikot/);
-    // the global values (dotted) and the piece separators (dashed) are lines with distinct patterns, not boxes
-    expect(items[4].kind).toBe('dotted-line');
-    expect(items[5].kind).toBe('dashed-line');
+    // the global values and the piece separators are dashed lines, not boxes
+    expect(items[3].kind).toBe('dashed');
+    expect(items[4].kind).toBe('dashed');
+    apply(graph, choice('abs'));
+    expect(entries().map(item => item.id)).toEqual(['function', 'endpoint', 'corner', 'pieces']);
+    expect(entries()[2].label).toMatch(/trikot/);
+    apply(graph, choice('square'));
     setLanguage('en');
-    expect(graph.renderLegend().props.items.map((item: any) => item.label).slice(1, 4)).toEqual([
-        'Endpoint: square marker', "Stationary point (f′ = 0): diamond marker", "Corner (f′ does not exist): triangle marker",
+    expect(entries().slice(1, 3).map(item => item.label)).toEqual([
+        'Endpoint: square marker', "Stationary point (f′ = 0): diamond marker",
     ]);
 });
 
