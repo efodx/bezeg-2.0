@@ -1,4 +1,4 @@
-import {t as translate} from "../../localization";
+import {message, t as translate, type Message} from "../../localization";
 import {Hom} from "../../projective/homogeneous";
 import {exactEquation} from "./polePolarText";
 import {pointText} from "./polePolarModel";
@@ -58,6 +58,51 @@ export function describePascal(scene: PascalScene, t: Translate): PascalText {
         status: result.collinear ? t("projective_k2_status_exact") : t("projective_k2_status_not_collinear", {value0: minus(String(result.determinant))}),
         determinant: result.collinear ? t("projective_k2_determinant_zero") : t("projective_k2_determinant", {value0: minus(String(result.determinant))}),
         line: lineText(result.line, result.collinear, t),
+    };
+}
+
+/** The sentences of {@link describePascal} as catalog messages (same words), so a declaration holds data and the language renders it. */
+export interface PascalMessages {
+    readonly kind: PascalKind;
+    readonly status: Message;
+    readonly hexagon: Message;
+    readonly determinant?: Message;
+    readonly points: readonly Message[];
+    readonly line?: Message;
+}
+
+export function pascalMessages(scene: PascalScene): PascalMessages {
+    const vertex = (i: number): string => scene.names[scene.order[i % 6]];
+    const hexagon = message("projective_k2_hexagon", {value0: scene.order.map(handle => scene.names[handle]).join(" ")});
+    const result = scene.result;
+    if (result.status === "undefined-side") {
+        return {
+            kind: "undefined-side", hexagon, points: [],
+            status: message("projective_k2_status_undefined_side", {value0: vertex(result.side), value1: vertex(result.side + 1), value2: SIDE_NAMES[result.side]}),
+        };
+    }
+    if (result.status === "coincident-opposite-sides") {
+        return {
+            kind: "coincident-opposite-sides", hexagon, points: [],
+            status: message("projective_k2_status_coincident", {value0: SIDE_NAMES[result.pair], value1: SIDE_NAMES[result.pair + 3]}),
+        };
+    }
+    const points = scene.pascalPoints.map((entry, i) => {
+        const name = `${PASCAL_POINT_NAMES[i]} = ${PAIR_TEXT[i]}`;
+        if (entry.view.kind === "ideal") {
+            return message("projective_k2_point_ideal", {value0: name, value1: minus(String(entry.view.direction[0])), value2: minus(String(entry.view.direction[1]))});
+        }
+        const where = pointText(entry.point);
+        return entry.offBox ? message("projective_k2_point_off", {value0: name, value1: where}) : message("projective_k2_point", {value0: name, value1: where});
+    });
+    const line = result.collinear
+        ? (result.line === null ? message("projective_k2_line_none")
+            : isLineAtInfinity(result.line) ? message("projective_k2_line_infinity") : message("projective_k2_line", {value0: exactEquation(result.line)}))
+        : undefined;
+    return {
+        kind: result.collinear ? "collinear" : "not-collinear", hexagon, points, line,
+        status: result.collinear ? message("projective_k2_status_exact") : message("projective_k2_status_not_collinear", {value0: minus(String(result.determinant))}),
+        determinant: result.collinear ? message("projective_k2_determinant_zero") : message("projective_k2_determinant", {value0: minus(String(result.determinant))}),
     };
 }
 

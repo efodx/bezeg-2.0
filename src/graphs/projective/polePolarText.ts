@@ -1,4 +1,4 @@
-import {t as translate} from "../../localization";
+import {message, t as translate, type Message} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {Hom} from "../../projective/homogeneous";
 import {fractionText} from "./crossRatioModel";
@@ -86,5 +86,37 @@ export function describePolePolar(scene: PolePolarScene, t: Translate, language:
         tangents: scene.side === "outside" ? scene.tangents.filter(line => !(line.exact && isLineAtInfinity(line.line))).map((line, i) => t("projective_k3_tangent", {value0: TANGENT_NAMES[i], value1: tangentEquation(line, language)})) : [],
         tangency: scene.tangency.map((point, i) => t("projective_k3_tangency", {value0: TANGENCY_NAMES[i], value1: tangencyText(point, language)})),
         numerical: scene.numerical ? t("projective_k3_numerical", {value0: String(NUMERICAL_TOLERANCE).replace("1e-9", "10⁻⁹")}) : undefined,
+    };
+}
+
+/** The sentences of {@link describePolePolar} as catalog messages (same words), so a declaration holds data and the language renders it. */
+export interface PolePolarMessages {
+    readonly region: PolePolarRegion;
+    readonly status: Message;
+    readonly polar?: Message;
+    readonly tangents: readonly Message[];
+    readonly tangency: readonly Message[];
+    readonly numerical?: Message;
+    readonly centre: Message;
+}
+
+export function polePolarMessages(scene: PolePolarScene, language: NumberLanguage): PolePolarMessages {
+    const where = pointText(scene.p);
+    const region: PolePolarRegion = scene.side;
+    const base = region === "outside" ? message("projective_k3_status_outside", {value0: where}) : region === "on" ? message("projective_k3_status_on", {value0: where})
+        : region === "inside" ? message("projective_k3_status_inside", {value0: where}) : message("projective_k3_status_degenerate");
+    const flat = region === "on" && scene.polar !== undefined && isLineAtInfinity(scene.polar);
+    const withIdeal = scene.ideal ? message("projective_pole_polar_join", {value0: message("projective_k3_status_ideal", {value0: where}), value1: base}) : base;
+    const status = flat ? message("projective_pole_polar_join", {value0: withIdeal, value1: message("projective_k3_tangent_infinity")}) : withIdeal;
+    const centre = scene.centre === undefined ? message("projective_k3_centre_none")
+        : scene.centre.kind === "finite"
+            ? message("projective_k3_centre", {value0: `(${fractionText(scene.centre.x)}, ${fractionText(scene.centre.y)})`})
+            : message("projective_k3_centre_ideal", {value0: minus(String(scene.centre.direction[0])), value1: minus(String(scene.centre.direction[1]))});
+    return {
+        region, status, centre,
+        polar: scene.polar && (isLineAtInfinity(scene.polar) ? message("projective_k3_polar_infinity") : message("projective_k3_polar", {value0: exactEquation(scene.polar)})),
+        tangents: scene.side === "outside" ? scene.tangents.filter(line => !(line.exact && isLineAtInfinity(line.line))).map((line, i) => message("projective_k3_tangent", {value0: TANGENT_NAMES[i], value1: tangentEquation(line, language)})) : [],
+        tangency: scene.tangency.map((point, i) => message("projective_k3_tangency", {value0: TANGENCY_NAMES[i], value1: tangencyText(point, language)})),
+        numerical: scene.numerical ? message("projective_k3_numerical", {value0: String(NUMERICAL_TOLERANCE).replace("1e-9", "10⁻⁹")}) : undefined,
     };
 }

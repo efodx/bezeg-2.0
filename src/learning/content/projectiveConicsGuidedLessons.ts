@@ -8,6 +8,8 @@
 import type {LessonAction} from '../model';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {CrossRatioIds} from '../../graphs/projective/CrossRatioGraph';
+import type {PascalIds} from '../../graphs/projective/PascalGraph';
+import type {PolePolarIds} from '../../graphs/projective/PolePolarGraph';
 import {fivePointLesson} from './projectiveFivePointGuidedLesson';
 import {threeViewsLesson} from './projectiveThreeViewsGuidedLesson';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
@@ -17,6 +19,8 @@ const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclarati
 
 /** Typed by the cross-ratio graph's declaration ids: an unknown note fails the type check. */
 const crossRatioFrame = frameDeclarer<CrossRatioIds>();
+const pascalFrame = frameDeclarer<PascalIds>();
+const polePolarFrame = frameDeclarer<PolePolarIds>();
 
 interface StepContent {
     readonly id: string;
@@ -348,6 +352,7 @@ const pascalLesson: GuidedLesson = {
     steps: [
         step({
             id: 'pascal-predict', order: 1,
+            declare: {observation: pascalFrame({open: ['readouts'], highlight: ['hexagon']})},
             title: text('Šest točk na elipsi', 'Six points on an ellipse'),
             purpose: text('Napovedati, kaj lahko rečemo o presečiščih nasprotnih stranic, preden jih poiščemo.', 'Predicting what can be said about the intersections of opposite sides before finding them.'),
             explanation: text(
@@ -363,6 +368,11 @@ const pascalLesson: GuidedLesson = {
         }),
         step({
             id: 'pascal-points', order: 2,
+            declare: {
+                explanation: pascalFrame({open: ['readouts'], highlight: ['point-1', 'point-2', 'point-3']}),
+                calculation: pascalFrame({open: ['readouts'], highlight: ['point-1']}),
+                observation: pascalFrame({open: ['readouts'], highlight: ['point-1', 'determinant', 'status']}),
+            },
             title: text('Tri presečišča in premica', 'The three intersections and the line'),
             purpose: text('Izračunati presečišča nasprotnih stranic in videti, da so kolinearna.', 'Computing the intersections of opposite sides and seeing that they are collinear.'),
             explanation: text(
@@ -379,6 +389,7 @@ const pascalLesson: GuidedLesson = {
         }),
         step({
             id: 'pascal-drag', order: 3,
+            declare: {observation: pascalFrame({open: ['readouts'], highlight: ['point-1', 'point-2', 'determinant']})},
             title: text('Premik točke po stožnici', 'Moving a point along the conic'),
             purpose: text('Preizkusiti izrek na drugi postavitvi; premik je ilustracija, ne dokaz.', 'Trying the theorem on another set-up; moving is an illustration, not a proof.'),
             explanation: text(
@@ -394,6 +405,7 @@ const pascalLesson: GuidedLesson = {
         }),
         step({
             id: 'pascal-order', order: 4,
+            declare: {observation: pascalFrame({open: ['readouts'], highlight: ['hexagon', 'line'], uses: ['order-natural', 'order-pappus']})},
             title: text('Prekrižan šestkotnik', 'A self-crossing hexagon'),
             purpose: text('Videti, da izrek velja za vsak vrstni red oglišč, premica pa se spremeni.', 'Seeing that the theorem holds for every order of the vertices while the line changes.'),
             explanation: text(
@@ -409,6 +421,10 @@ const pascalLesson: GuidedLesson = {
         }),
         step({
             id: 'pascal-pappus', order: 5,
+            declare: {
+                calculation: pascalFrame({open: ['readouts'], highlight: ['point-1']}),
+                observation: pascalFrame({open: ['readouts'], highlight: ['determinant', 'status']}),
+            },
             title: text('Par premic: Pappusov izrek', 'A pair of lines: Pappus\'s theorem'),
             purpose: text('Prepoznati, da je Pappusov izrek Pascalov izrek za izrojeno stožnico.', 'Recognising Pappus\'s theorem as Pascal\'s theorem for a degenerate conic.'),
             explanation: text(
@@ -428,6 +444,7 @@ const pascalLesson: GuidedLesson = {
         }),
         step({
             id: 'pascal-infinity', order: 6,
+            declare: {observation: pascalFrame({open: ['readouts'], highlight: ['point-1', 'line']})},
             title: text('Vzporedni stranici: presečišče v neskončnosti', 'Parallel sides: an intersection at infinity'),
             purpose: text('Videti, da izrek velja tudi, ko je presečišče točka v neskončnosti.', 'Seeing that the theorem also holds when an intersection is a point at infinity.'),
             explanation: text(
@@ -443,6 +460,10 @@ const pascalLesson: GuidedLesson = {
         }),
         step({
             id: 'pascal-explore', order: 7,
+            declare: {
+                explanation: pascalFrame({uses: ['conic-ellipse', 'conic-parabola', 'conic-hyperbola', 'conic-line-pair', 'order-natural', 'order-pappus', 'order-star']}),
+                observation: pascalFrame({open: ['readouts'], highlight: ['status']}),
+            },
             title: text('Samostojno raziskovanje', 'Free exploration'),
             purpose: text('Preizkusiti izrek na drugih stožnicah in položajih.', 'Testing the theorem on other conics and positions.'),
             explanation: text(
@@ -559,6 +580,7 @@ const polePolarLesson: GuidedLesson = {
             formulaIds: ['pole-polar-region'],
             observationPrompt: text('Preberi stanje točke \\(P\\) in poišči dotikališči.', 'Read the status of the point \\(P\\) and find the points of tangency.'),
             expectedObservations: [text('Stanje pravi, da \\(P\\) leži zunaj stožnice.', 'The status says that \\(P\\) lies outside the conic.')],
+            declare: {observation: polePolarFrame({open: ['readouts'], highlight: ['status']})},
             scene: polePolarScene('pole-polar-predict-scene', 'default', [],
                 'Elipsa \\(9x^2+25y^2=225\\) in točka \\(P=(1,\\tfrac{21}5)\\), ki leži zunaj elipse (\\(\\tfrac1{25}+\\tfrac{441}{225}=2>1\\)).',
                 'The ellipse \\(9x^2+25y^2=225\\) and the point \\(P=(1,\\tfrac{21}5)\\), which lies outside the ellipse (\\(\\tfrac1{25}+\\tfrac{441}{225}=2>1\\)).'),
@@ -575,6 +597,7 @@ const polePolarLesson: GuidedLesson = {
             workedExampleId: 'k3-default-point',
             observationPrompt: text('Preberi enačbi tangent in koordinati dotikališč v seznamu.', 'Read the equations of the tangents and the coordinates of the points of tangency in the list.'),
             expectedObservations: [text('Seznam navede dotikališči \\(T_1\\) in \\(T_2\\) ter tangenti \\(t_1\\) in \\(t_2\\).', 'The list gives the points of tangency \\(T_1\\) and \\(T_2\\) and the tangents \\(t_1\\) and \\(t_2\\).')],
+            declare: {observation: polePolarFrame({open: ['readouts'], highlight: ['tangent-1', 'tangent-2', 'tangency-1']})},
             scene: polePolarScene('pole-polar-tangents-scene', 'default', [],
                 'Točka \\(P=(1,\\tfrac{21}5)\\), dotikališči \\(T_1=(-3,\\tfrac{12}5)\\), \\(T_2=(4,\\tfrac95)\\) in tangenti \\(9x-20y+75=0\\), \\(4x+5y-25=0\\).',
                 'The point \\(P=(1,\\tfrac{21}5)\\), the points of tangency \\(T_1=(-3,\\tfrac{12}5)\\), \\(T_2=(4,\\tfrac95)\\) and the tangents \\(9x-20y+75=0\\), \\(4x+5y-25=0\\).'),
@@ -590,6 +613,7 @@ const polePolarLesson: GuidedLesson = {
             formulaIds: ['pole-polar-polar'],
             observationPrompt: text('Preberi enačbo polare in preveri, da leži na njej vsaka od točk \\(T_1\\), \\(T_2\\).', 'Read the equation of the polar and check that each of the points \\(T_1\\), \\(T_2\\) lies on it.'),
             expectedObservations: [text('Polara \\(3x+35y-75=0\\) poteka skozi \\(T_1\\) in \\(T_2\\).', 'The polar \\(3x+35y-75=0\\) passes through \\(T_1\\) and \\(T_2\\).')],
+            declare: {observation: polePolarFrame({open: ['readouts'], highlight: ['polar', 'tangency-1', 'tangency-2']})},
             scene: polePolarScene('pole-polar-polar-scene', 'default', [],
                 'Točka \\(P=(1,\\tfrac{21}5)\\), polara \\(3x+35y-75=0\\) skozi dotikališči \\(T_1=(-3,\\tfrac{12}5)\\) in \\(T_2=(4,\\tfrac95)\\).',
                 'The point \\(P=(1,\\tfrac{21}5)\\), the polar \\(3x+35y-75=0\\) through the points of tangency \\(T_1=(-3,\\tfrac{12}5)\\) and \\(T_2=(4,\\tfrac95)\\).'),
@@ -605,6 +629,7 @@ const polePolarLesson: GuidedLesson = {
             formulaIds: ['pole-polar-polar', 'pole-polar-region'],
             observationPrompt: text('Primerjaj polaro in tangento v točki \\(P\\), nato preberi stanje za točko znotraj elipse.', 'Compare the polar and the tangent at the point \\(P\\), then read the status for the point inside the ellipse.'),
             expectedObservations: [text('Na elipsi je polara \\(4x+5y-25=0\\) tangenta v \\(P\\); znotraj elipse tangent ni.', 'On the ellipse the polar \\(4x+5y-25=0\\) is the tangent at \\(P\\); inside the ellipse there are no tangents.')],
+            declare: {observation: polePolarFrame({open: ['readouts'], highlight: ['polar', 'status']})},
             scene: polePolarScene('pole-polar-on-scene', 'on', [],
                 'Točka \\(P=(4,\\tfrac95)\\) na elipsi \\(9x^2+25y^2=225\\); polara \\(4x+5y-25=0\\) je tangenta v \\(P\\) in dotikališče je \\(P\\).',
                 'The point \\(P=(4,\\tfrac95)\\) on the ellipse \\(9x^2+25y^2=225\\); the polar \\(4x+5y-25=0\\) is the tangent at \\(P\\) and the point of tangency is \\(P\\).'),
@@ -620,6 +645,7 @@ const polePolarLesson: GuidedLesson = {
             formulaIds: ['pole-polar-polar'],
             observationPrompt: text('Preberi smer točke \\(P\\), polaro in središče elipse.', 'Read the direction of the point \\(P\\), the polar and the centre of the ellipse.'),
             expectedObservations: [text('Polara \\(x=0\\) poteka skozi središče \\((0,0)\\); tangenti sta vzporedni.', 'The polar \\(x=0\\) passes through the centre \\((0,0)\\); the tangents are parallel.')],
+            declare: {observation: polePolarFrame({open: ['readouts'], highlight: ['polar', 'centre']})},
             scene: polePolarScene('pole-polar-infinity-scene', 'infinity', [],
                 'Točka \\(P\\) v neskončnosti v smeri \\((1,0)\\); polara \\(x=0\\) poteka skozi središče \\((0,0)\\) elipse \\(9x^2+25y^2=225\\); tangenti \\(y=-3\\) in \\(y=3\\) se dotikata v \\(T_1=(0,-3)\\) in \\(T_2=(0,3)\\).',
                 'The point \\(P\\) at infinity in the direction \\((1,0)\\); the polar \\(x=0\\) passes through the centre \\((0,0)\\) of the ellipse \\(9x^2+25y^2=225\\); the tangents \\(y=-3\\) and \\(y=3\\) touch at \\(T_1=(0,-3)\\) and \\(T_2=(0,3)\\).'),
@@ -635,6 +661,7 @@ const polePolarLesson: GuidedLesson = {
             formulaIds: ['pole-polar-polar'],
             observationPrompt: text('Preberi polaro, obe tangenti in dotikališči.', 'Read the polar, both tangents and the points of tangency.'),
             expectedObservations: [text('Polara \\(x+7y-25=0\\) poteka skozi \\(T_1\\) in \\(T_2\\), tangenti se sekata v \\(P\\).', 'The polar \\(x+7y-25=0\\) passes through \\(T_1\\) and \\(T_2\\), and the tangents meet at \\(P\\).')],
+            declare: {observation: polePolarFrame({open: ['readouts'], highlight: ['polar', 'tangent-1', 'tangent-2']})},
             scene: polePolarScene('pole-polar-line-scene', 'default', [
                 {kind: 'projective', operation: 'pole-polar-set-conic', conic: 'circle'},
                 {kind: 'projective', operation: 'pole-polar-place', x: 5, y: 35},
@@ -653,6 +680,7 @@ const polePolarLesson: GuidedLesson = {
             formulaIds: ['pole-polar-polar', 'pole-polar-region'],
             observationPrompt: text('Preberi, kje je središče parabole.', 'Read where the centre of the parabola is.'),
             expectedObservations: [text('Središče je v neskončnosti v smeri \\((0,1)\\); končnega središča ni.', 'The centre is at infinity in the direction \\((0,1)\\); there is no finite centre.')],
+            declare: {observation: polePolarFrame({open: ['readouts'], highlight: ['centre']})},
             scene: polePolarScene('pole-polar-explore-scene', 'default', [
                 {kind: 'projective', operation: 'pole-polar-set-conic', conic: 'parabola'},
                 {kind: 'projective', operation: 'pole-polar-place', x: 10, y: 0},

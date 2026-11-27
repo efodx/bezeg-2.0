@@ -47,6 +47,10 @@ const trigAccepted: readonly AcceptedDifference[] = [
     }) as const),
 ].flat();
 const SHORT_VALUE ='the declaration shows a short value; the panel keeps the sentence, which the declaration carries as its readout help';
+const pascalAccepted: readonly AcceptedDifference[] = [1, 2, 3, 4, 5, 6].map(i => ({
+    kind: 'extra', where: `row handle-${i}`,
+    reason: 'the six points are rows of the declaration (their coordinates, the panel showed them only as slider read-offs); the points stay board-owned',
+}) as const);
 const phaseAccepted: readonly AcceptedDifference[] = [
     ...['Izračunano območje#0', 'Začetna točka 1#0', 'Začetna točka 2#0', 'Začetna točka 3#0', 'Energija začetne točke 1#0', 'Energija začetne točke 2#0',
         'Energija začetne točke 3#0', 'Obroč trajektorij (izračunan)#0', 'Linearizacija na obroču (izračunana)#0', 'Kaj določa linearizacija#0']
@@ -162,6 +166,35 @@ const SAMPLES: readonly Sample[] = [
             {name: 'point moved', apply: on(g => { g.loadExample('ellipse'); g.moveTo(3, 5, 2); })},
             {name: 'arc ends changed', apply: on(g => { g.loadExample('ellipse'); g.chooseEnd('a', 2); g.chooseEnd('b', 4); g.chooseThird(0); })},
             {name: 'ellipse made degenerate (stale conic)', apply: on(g => { g.loadExample('ellipse'); g.moveTo(3, 2, 0); })},
+        ];
+    })()},
+    {file: 'projective/__parity__/projective-pascal.json', demonstration: 'projective-pascal', accepted: pascalAccepted, states: (() => {
+        type Pascal = {loadExample(id: string): void; chooseConic(id: string): boolean; chooseOrder(id: string): boolean; setHandleIndex(handle: number, index: number): boolean; model: {indices: readonly number[]}};
+        const on = (apply: (g: Pascal) => void): ParityState['apply'] => graph => { runAs('learner', () => apply(graph as unknown as Pascal)); };
+        return [
+            {name: 'default ellipse', apply: () => {}},
+            {name: 'Pappus line pair', apply: on(g => g.loadExample('pappus'))},
+            {name: 'point at infinity', apply: on(g => g.loadExample('infinity'))},
+            {name: 'self-crossing order', apply: on(g => { g.loadExample('default'); g.chooseOrder('pappus'); })},
+            {name: 'star order', apply: on(g => { g.loadExample('default'); g.chooseOrder('star'); })},
+            {name: 'hyperbola', apply: on(g => { g.loadExample('default'); g.chooseConic('hyperbola'); })},
+            {name: 'parabola', apply: on(g => { g.loadExample('default'); g.chooseConic('parabola'); })},
+            {name: 'neighbouring points coincide', apply: on(g => { g.loadExample('default'); g.setHandleIndex(1, g.model.indices[0]); })},
+        ];
+    })()},
+    {file: 'projective/__parity__/projective-pole-polar.json', demonstration: 'projective-pole-polar', states: (() => {
+        type Polar = {loadExample(id: string): void; chooseConic(id: string): boolean; placeNumerators(x: number, y: number): boolean; chooseDirection(direction: {dx: number; dy: number} | undefined): boolean};
+        const on = (apply: (g: Polar) => void): ParityState['apply'] => graph => { runAs('learner', () => apply(graph as unknown as Polar)); };
+        return [
+            {name: 'default outside', apply: () => {}},
+            {name: 'on the conic', apply: on(g => g.loadExample('on'))},
+            {name: 'inside', apply: on(g => g.loadExample('inside'))},
+            {name: 'P at infinity', apply: on(g => g.loadExample('infinity'))},
+            {name: 'hyperbola', apply: on(g => g.chooseConic('hyperbola'))},
+            {name: 'parabola', apply: on(g => g.chooseConic('parabola'))},
+            {name: 'circle', apply: on(g => g.chooseConic('circle'))},
+            {name: 'irrational tangency', apply: on(g => g.placeNumerators(35, 20))},
+            {name: 'centre', apply: on(g => g.placeNumerators(0, 0))},
         ];
     })()},
     {file: 'projective/__parity__/projective-three-views.json', demonstration: 'projective-three-views', states: (() => {

@@ -4,12 +4,17 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {SelectablePointButton} from "../../inputs/PointListInput";
 import {useT} from "../../localization";
 import {LiveReadout} from "../base/controls/LiveReadout";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import Slider from "../../inputs/Slider";
 import {PASCAL_CONIC_IDS, PASCAL_EXAMPLE_IDS, PASCAL_ORDER_IDS, PascalConicId, PascalExampleId, PascalModel, PascalOrderId, PascalScene, handlePoint, orderIdOf, reachableIndices} from "./pascalModel";
 import {describePascal} from "./pascalText";
 import {SHIFT_STEP} from "./pascalEdit";
 import {pointText} from "./polePolarModel";
+
+/** The keys of the board's choice pucks for the conic and the hexagon order; their selects in Orodja render nothing while a puck owns them. */
+export const PASCAL_ORDER_PUCK = "pascal-order";
+export const PASCAL_CONIC_PUCK = "pascal-conic";
 
 export interface PascalControlActions {
     loadExample(id: PascalExampleId): void;
@@ -80,13 +85,15 @@ export function PascalControls(props: PascalControlsProps) {
     const exampleOptions = PASCAL_EXAMPLE_IDS.filter(id => id !== "custom" || model.example === "custom").map(id => ({value: id, text: t(EXAMPLE_LABELS[id])}));
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <div data-projective-status={text.kind}>
-                <p className="inspector-help" data-projective-line="status">{text.status}</p>
+            <div data-declared-panel="">
+                <div data-projective-status={text.kind}>
+                    <p data-readout-note className="inspector-help" data-projective-line="status">{text.status}</p>
+                </div>
+                <p data-readout-note className="inspector-help" data-projective-line="hexagon">{text.hexagon}</p>
+                {text.determinant && <p data-readout-note className="inspector-help" data-projective-line="determinant">{text.determinant}</p>}
+                {text.points.map((line, i) => <p key={i} data-readout-note className="inspector-help" data-projective-line={`point-${i + 1}`}>{line}</p>)}
+                {text.line && <p data-readout-note className="inspector-help" data-projective-line="line">{text.line}</p>}
             </div>
-            <p className="inspector-help" data-projective-line="hexagon">{text.hexagon}</p>
-            {text.determinant && <p className="inspector-help" data-projective-line="determinant">{text.determinant}</p>}
-            {text.points.map((line, i) => <p key={i} className="inspector-help" data-projective-line={`point-${i + 1}`}>{line}</p>)}
-            {text.line && <p className="inspector-help" data-projective-line="line">{text.line}</p>}
             <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">
@@ -102,12 +109,16 @@ export function PascalControls(props: PascalControlsProps) {
         <div className="inspector-group">
             <ChoiceSelect label={t("projective_k2_example_label")} value={model.example} options={exampleOptions}
                           onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
-            <ChoiceSelect label={t("projective_k2_conic_label")} value={model.conic}
-                          options={PASCAL_CONIC_IDS.map(id => ({value: id, text: t(CONIC_LABELS[id])}))}
-                          onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
-            <ChoiceSelect label={t("projective_k2_order_label")} value={currentOrder ?? ""}
-                          options={orderOptions}
-                          onChange={id => { if (isOrderId(id)) actions.setOrder(id); }}/>
+            <PuckOwned param={PASCAL_CONIC_PUCK}>
+                <ChoiceSelect label={t("projective_k2_conic_label")} value={model.conic}
+                              options={PASCAL_CONIC_IDS.map(id => ({value: id, text: t(CONIC_LABELS[id])}))}
+                              onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
+            </PuckOwned>
+            <PuckOwned param={PASCAL_ORDER_PUCK}>
+                <ChoiceSelect label={t("projective_k2_order_label")} value={currentOrder ?? ""}
+                              options={orderOptions}
+                              onChange={id => { if (isOrderId(id)) actions.setOrder(id); }}/>
+            </PuckOwned>
         </div>
     </div>;
 }

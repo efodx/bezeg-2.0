@@ -2,7 +2,7 @@
  * Cross-ratio, first task first (batch 2): the exact entry of the points one moves on the board leads the Edit panel,
  * ahead of the example choice (the live ratios are readouts above them).
  */
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import {allGraphFactories} from '../allGraphFactories';
@@ -44,7 +44,7 @@ describe.each(Object.keys(plan))('%s', key => {
  * before the example and the other choosers. Label fragments in the order they must appear.
  */
 const exactEntryOrder: Record<string, Label[]> = {
-    'projective-pascal': [() => 'Izberi: A', () => t('projective_k2_example_label'), () => t('projective_k2_conic_label')],
+    'projective-pascal': [() => 'Izberi: A', () => t('projective_k2_example_label')],
     'projective-pole-polar': [() => t('projective_k3_mode_label'), () => 'P, x', () => t('projective_k3_example_label'), () => t('projective_k3_conic_label')],
     'projective-five-point': [() => 'Točka A, x', () => t('projective_five_point_example_label'), () => t('projective_five_point_end_a')],
 };
@@ -56,5 +56,17 @@ describe.each(Object.keys(exactEntryOrder))('%s', key => {
         const positions = exactEntryOrder[key].map(label => names.findIndex(name => name.includes(label())));
         expect(positions, names.join(' | ')).not.toContain(-1);
         expect(positions, names.join(' | ')).toEqual([...positions].sort((a, b) => a - b));
+    });
+});
+
+describe('projective-pascal choice pucks', () => {
+    test('the conic and the hexagon order are on the puck strip and absent from Edit', async () => {
+        mountGraph(allGraphFactories['projective-pascal']());
+        await waitForPucks('pascal-conic');
+        const strip = document.querySelector('[data-puck-strip]');
+        expect(strip, 'puck strip').not.toBeNull();
+        for (const key of ['pascal-conic', 'pascal-order']) expect(strip!.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        const names = editControls();
+        for (const label of [t('projective_k2_conic_label'), t('projective_k2_order_label')]) expect(names.some(name => name.includes(label)), label).toBe(false);
     });
 });

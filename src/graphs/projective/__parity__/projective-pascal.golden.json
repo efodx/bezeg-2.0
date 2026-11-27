@@ -5,7 +5,15 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Presečišča so natančno kolinearna (natančen račun na natančnih točkah).",
+        "Šestkotnik: A B C D E F",
+        "Determinanta treh presečišč: 0",
+        "P₁ = s₁ ∩ s₄: (-15, 24) (izven prikazanega območja)",
+        "P₂ = s₂ ∩ s₅: (12, 3/5)",
+        "P₃ = s₃ ∩ s₆: (15/2, 9/2)",
+        "Pascalova premica p: 13x + 15y - 165 = 0"
+      ],
       "outputs": [
         "(5, 0)",
         "(3, 12/5)",
@@ -19,7 +27,15 @@
     {
       "name": "projective-pascal-guided/pascal-drag",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Presečišča so natančno kolinearna (natančen račun na natančnih točkah).",
+        "Šestkotnik: A B C D E F",
+        "Determinanta treh presečišč: 0",
+        "P₁ = s₁ ∩ s₄: (-3, 48/5)",
+        "P₂ = s₂ ∩ s₅: (12, 3/5)",
+        "P₃ = s₃ ∩ s₆: (7, 18/5)",
+        "Pascalova premica p: 3x + 5y - 39 = 0"
+      ],
       "outputs": [
         "(5, 0)",
         "(3, 12/5)",
@@ -31,9 +47,39 @@
       "captions": []
     },
     {
+      "name": "projective-pascal-guided/pascal-order",
+      "rows": [],
+      "notes": [
+        "Presečišča so natančno kolinearna (natančen račun na natančnih točkah).",
+        "Šestkotnik: A E C D B F",
+        "Determinanta treh presečišč: 0",
+        "P₁ = s₁ ∩ s₄: (9, 12/5)",
+        "P₂ = s₂ ∩ s₅: (0, 15) (izven prikazanega območja)",
+        "P₃ = s₃ ∩ s₆: (15/2, 9/2)",
+        "Pascalova premica p: 7x + 5y - 75 = 0"
+      ],
+      "outputs": [
+        "(5, 0)",
+        "(3, 12/5)",
+        "(0, 3)",
+        "(-3, 12/5)",
+        "(0, -3)",
+        "(4, -9/5)"
+      ],
+      "captions": []
+    },
+    {
       "name": "projective-pascal-guided/pascal-pappus",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Presečišča so natančno kolinearna (natančen račun na natančnih točkah).",
+        "Šestkotnik: A₁ B₂ A₃ B₁ A₂ B₃",
+        "Determinanta treh presečišč: 0",
+        "P₁ = s₁ ∩ s₄: (8/5, 6/5)",
+        "P₂ = s₂ ∩ s₅: (22/5, 9/5)",
+        "P₃ = s₃ ∩ s₆: (3, 3/2)",
+        "Pascalova premica p: 3x - 14y + 12 = 0"
+      ],
       "outputs": [
         "(0, 0)",
         "(2, 0)",
@@ -47,7 +93,15 @@
     {
       "name": "projective-pascal-guided/pascal-infinity",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Presečišča so natančno kolinearna (natančen račun na natančnih točkah).",
+        "Šestkotnik: A₁ B₂ A₃ B₁ A₂ B₃",
+        "Determinanta treh presečišč: 0",
+        "P₁ = s₁ ∩ s₄: v neskončnosti, smer (1, 1)",
+        "P₂ = s₂ ∩ s₅: (9/2, 3/2)",
+        "P₃ = s₃ ∩ s₆: (24/5, 9/5)",
+        "Pascalova premica p: x - y - 3 = 0"
+      ],
       "outputs": [
         "(0, 0)",
         "(1, 0)",
@@ -61,7 +115,15 @@
     {
       "name": "projective-pascal-guided/pascal-explore",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Presečišča so natančno kolinearna (natančen račun na natančnih točkah).",
+        "Šestkotnik: A B C D E F",
+        "Determinanta treh presečišč: 0",
+        "P₁ = s₁ ∩ s₄: (-5, -27/2) (izven prikazanega območja)",
+        "P₂ = s₂ ∩ s₅: (260/11, -324/11) (izven prikazanega območja)",
+        "P₃ = s₃ ∩ s₆: (-620/19, 36/19) (izven prikazanega območja)",
+        "Pascalova premica p: 39x + 70y + 1140 = 0"
+      ],
       "outputs": [
         "(20/3, 4)",
         "(4, 0)",

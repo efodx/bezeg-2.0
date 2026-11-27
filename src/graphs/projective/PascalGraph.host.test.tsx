@@ -10,7 +10,7 @@ import {toAffine} from '../../projective/homogeneous';
 import {GraphHost} from '../base/GraphHost';
 import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {projectiveInspectorBehaviour} from './projectiveInspectorBehaviour';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, openTools, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption} from './controlsTest';
 import {DIRECTION_TABLE_SIZE} from '../../projective/conicPencil';
@@ -196,7 +196,10 @@ const eval0 = (graph: Observed, handle: number) => {
 
 const selectValue = (label: string) => screen.getByLabelText<HTMLSelectElement>(label).value;
 
-test('the example, conic and order selects edit the model', () => {
+/** Whether the choice puck's segment for the action is the pressed one. */
+const puckPressed = (group: string, action: string) => document.querySelector(`.puck-strip [data-puck-key="${group}"] [role="radio"][data-value="${action}"]`)?.getAttribute('aria-checked') === 'true';
+
+test('the example select and the order and conic pucks edit the model', async () => {
     const graph = new Observed();
     mount(graph);
     act(() => { graph.select(3); });
@@ -204,13 +207,13 @@ test('the example, conic and order selects edit the model', () => {
     expect(graph.model).toEqual(PASCAL_EXAMPLES.pappus);
     expect(graph.selectedHandle).toBeUndefined();
     expect(selectValue('Primer')).toBe('pappus');
-    chooseOption('Vrstni red oglišč', 'Običajni (1 2 3 4 5 6)');
+    await chooseOnPuck('pascal-order', 'order-natural');
     expect(graph.model.order).toEqual(PASCAL_ORDERS.natural);
     expect(graph.model.example).toBe('custom');
-    expect(selectValue('Vrstni red oglišč')).toBe('natural');
-    chooseOption('Vrstni red oglišč', 'Zvezda (1 3 5 2 4 6)');
+    expect(puckPressed('pascal-order', 'order-natural')).toBe(true);
+    await chooseOnPuck('pascal-order', 'order-star');
     expect(graph.model.order).toEqual(PASCAL_ORDERS.star);
-    chooseOption('Stožnica', 'Hiperbola');
+    await chooseOnPuck('pascal-conic', 'conic-hyperbola');
     expect(graph.model.conic).toBe('hyperbola');
     expect(graph.model.indices).toEqual(PASCAL_DEFAULT_INDICES.hyperbola);
 });
@@ -218,10 +221,11 @@ test('the example, conic and order selects edit the model', () => {
 const pointSlider = (name: string) => screen.getByRole<HTMLInputElement>('slider', {name: `Točka ${name}`});
 const rowOf = (handle: number) => document.querySelector(`[data-pascal-handle="${handle}"]`)!;
 
-test('each point has a slider over its reachable positions that wraps like the arrow keys and shows coordinates', () => {
+test('each point has a slider over its reachable positions that wraps like the arrow keys and shows coordinates', async () => {
     const graph = new Observed();
     mount(graph);
-    chooseOption('Stožnica', 'Hiperbola');
+    await chooseOnPuck('pascal-conic', 'conic-hyperbola');
+    await openTools();
     const list = reachableIndices('hyperbola', 0);
     const slider = pointSlider('A');
     expect([slider.min, slider.max, slider.step]).toEqual(['0', String(list.length - 1), '1']);

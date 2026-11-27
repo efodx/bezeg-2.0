@@ -2,21 +2,24 @@ import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote, ReadoutRow} from "../base/declare/graphDeclaration";
+import {pointText} from "./polePolarModel";
+import {runAs} from "../base/writes/writeSource";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {sampleConic} from "../../projective/conicSampler";
 import {Hom, toAffine} from "../../projective/homogeneous";
 import {
     DEFAULT_PASCAL_MODEL, isLineAtInfinity, PASCAL_CONIC_IDS, PASCAL_CONICS, PASCAL_EXAMPLE_IDS, PASCAL_EXAMPLES, PASCAL_HANDLE_COUNT, PASCAL_ORDER_IDS, PASCAL_ORDERS, isReachable, PASCAL_VIEW_BOX, PascalConicId,
-    PascalExampleId, PascalModel, PascalOrderId, PascalScene, evaluatePascal, reachableIndices, serializePascalModel,
+    PascalExampleId, PascalModel, PascalOrderId, PascalScene, evaluatePascal, orderIdOf, reachableIndices, serializePascalModel,
 } from "./pascalModel";
 import {dragHandle, SHIFT_STEP, setConic, setIndex, setOrder, stepHandle} from "./pascalEdit";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {PascalControls} from "./PascalControls";
+import {PASCAL_CONIC_PUCK, PASCAL_ORDER_PUCK, PascalControls} from "./PascalControls";
 import {definingPoints} from "./definingPoints";
-import {PASCAL_POINT_NAMES, SIDE_NAMES} from "./pascalText";
+import {PASCAL_POINT_NAMES, pascalMessages, SIDE_NAMES} from "./pascalText";
 import {pointLabelMath} from "../styles/pointLabelMath";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {pascalPresetCollection} from "./projectivePresetCollection";
@@ -70,7 +73,25 @@ interface DrawnScene {
     readonly conic: PascalConicId;
     readonly handles: readonly JXG.Point[];
     readonly all: readonly JXG.GeometryElement[];
+    /** The elements a legend entry names (`PascalIds["legend"]`); an entry with several elements shows the first that is visible. */
+    readonly named: ReadonlyMap<string, readonly JXG.GeometryElement[]>;
 }
+
+/**
+ * The ids of the declaration. No parameters: the six points are board-owned and the conic, the example and the order are not bound in
+ * the arbiter, so the panel's sentences (notes), the legend and two choice pucks (actions) are declared.
+ */
+export type PascalIds = {
+    param: never;
+    row: "handle-1" | "handle-2" | "handle-3" | "handle-4" | "handle-5" | "handle-6";
+    note: "status" | "hexagon" | "determinant" | "point-1" | "point-2" | "point-3" | "line";
+    legend: "conic" | "sides" | "line" | "points" | "infinity" | "handles";
+    section: never;
+    action: "order-natural" | "order-pappus" | "order-star" | "conic-ellipse" | "conic-parabola" | "conic-hyperbola" | "conic-line-pair";
+};
+
+const ORDER_ACTIONS = {"order-natural": "natural", "order-pappus": "pappus", "order-star": "star"} as const satisfies Record<string, PascalOrderId>;
+const CONIC_ACTIONS = {"conic-ellipse": "ellipse", "conic-parabola": "parabola", "conic-hyperbola": "hyperbola", "conic-line-pair": "linePair"} as const satisfies Record<string, PascalConicId>;
 
 /** Line coefficients `[c, a, b]` for JSXGraph from a homogeneous line `ax + by + c = 0`; undefined for the line at infinity. */
 const lineCoefficients = (line: Hom | undefined): [number, number, number] | undefined =>
@@ -403,12 +424,14 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             element.label?.setText(pointLabelMath(name));
             return element;
         };
+        const named = new Map<string, JXG.GeometryElement[]>();
+        const legendOf = <E extends JXG.GeometryElement>(id: PascalIds["legend"], element: E): E => { named.set(id, [...(named.get(id) ?? []), element]); return element; };
         const lineOptions = {highlight: false, fixed: true, withLabel: true} as const;
 
         // The conic, drawn from the sampler; a hyperbola's branches and a line pair's lines are one polyline broken by NaN.
-        const curve = add(board.create("curve", [[], []], {
+        const curve = legendOf("conic", add(board.create("curve", [[], []], {
             strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth, highlight: false, fixed: true, layer: 4,
-        }) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
+        }) as unknown as JXG.GeometryElement)) as unknown as FillCurve & JXG.GeometryElement;
         curve.updateDataArray = () => {
             const data = this.polyline(conicId);
             curve.dataX = data.x;
@@ -418,11 +441,11 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         // The six sides of the hexagon: lines through two vertices, dashed by opposite pair. A side between coinciding vertices is hidden.
         for (let i = 0; i < 6; i++) {
             const coefficients = (): [number, number, number] => lineCoefficients(this.scene().sides[i]) ?? HIDDEN_LINE;
-            add(typeset(board.create("line", [() => coefficients()[0], () => coefficients()[1], () => coefficients()[2]], {
+            legendOf("sides", add(typeset(board.create("line", [() => coefficients()[0], () => coefficients()[1], () => coefficients()[2]], {
                 ...lineOptions, strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: DASHES[i % 3], layer: 3,
                 name: SIDE_NAMES[i], label: {...label, offset: sideLabelOffset(i)},
                 visible: () => lineCoefficients(this.scene().sides[i]) !== undefined,
-            }) as JXG.GeometryElement, SIDE_NAMES[i]));
+            }) as JXG.GeometryElement, SIDE_NAMES[i])));
         }
 
         // The Pascal line: absent unless the points are collinear, and never drawn when it is the line at infinity.
@@ -431,10 +454,10 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             return result.status === "ok" && result.line !== null ? result.line : undefined;
         };
         const lineAt = (): [number, number, number] => lineCoefficients(pascalLine()) ?? HIDDEN_LINE;
-        add(typeset(board.create("line", [() => lineAt()[0], () => lineAt()[1], () => lineAt()[2]], {
+        legendOf("line", add(typeset(board.create("line", [() => lineAt()[0], () => lineAt()[1], () => lineAt()[2]], {
             ...lineOptions, strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4,
             name: "p", label: {...label, offset: [-24, 10]}, visible: () => lineCoefficients(pascalLine()) !== undefined,
-        }) as JXG.GeometryElement, "p"));
+        }) as JXG.GeometryElement, "p")));
 
         // The three Pascal points: finite and inside the view they are markers, ideal ones are arrows below (named in the status, not on the board), others are text only.
         for (let i = 0; i < 3; i++) {
@@ -443,12 +466,12 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
                 const found = view();
                 return found?.kind === "finite" ? found.view[axis] : 0;
             };
-            add(typeset(board.create("point", [() => at("x"), () => at("y")], {
+            legendOf("points", add(typeset(board.create("point", [() => at("x"), () => at("y")], {
                 name: PASCAL_POINT_NAMES[i], withLabel: true, size: 5, face: FACES[i], fixed: true, showInfobox: false,
                 fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 6,
                 label: {...label, offset: [8, -12]},
                 visible: () => { const found = this.scene().pascalPoints[i]; return found !== undefined && found.view.kind === "finite" && !found.offBox; },
-            }) as JXG.Point, PASCAL_POINT_NAMES[i]));
+            }) as JXG.Point, PASCAL_POINT_NAMES[i])));
 
             // An ideal point has a direction only: an arrow from the origin along it, at its own distance, with its own name.
             const marker = () => {
@@ -462,22 +485,22 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             }) as JXG.Point);
             const from = hidden(() => marker()?.from[0] ?? 0, () => marker()?.from[1] ?? 0);
             const to = hidden(() => marker()?.to[0] ?? 0, () => marker()?.to[1] ?? 0);
-            add(board.create("segment", [from, to], {
+            legendOf("infinity", add(board.create("segment", [from, to], {
                 strokeColor: GraphPalette.warningText, strokeWidth: 3, lastArrow: {type: 2, size: 8}, highlight: false, fixed: true, layer: 8,
                 visible: () => marker() !== undefined,
-            }) as JXG.GeometryElement);
+            }) as JXG.GeometryElement));
         }
 
         // The six handles, labelled A to F (A₁ to B₃ on a line pair). Dragging snaps to the nearest table direction.
         const handles = names.map((name, handle) => {
             const start = toAffine(this.scene().handles[handle]);
-            const point = add(typeset(board.create("point", [start.kind === "finite" ? start.view.x : 0, start.kind === "finite" ? start.view.y : 0], {
+            const point = legendOf("handles", add(typeset(board.create("point", [start.kind === "finite" ? start.view.x : 0, start.kind === "finite" ? start.view.y : 0], {
                 name, withLabel: true, size: () => this.selected === handle ? 7 : 5, face: "o", showInfobox: false,
                 fillColor: () => this.selected === handle ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === handle ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === handle ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
                 label: {...label, offset: [8, 8]}, layer: 7,
-            }) as JXG.Point, name));
+            }) as JXG.Point, name)));
             point.on("down", () => {
                 this.selected = handle;
                 this.requestRender();
@@ -489,7 +512,7 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         });
 
         // The status, determinant and intersections are sentences and live only in the inspector (they would cross the conic here).
-        return {conic: conicId, handles, all};
+        return {conic: conicId, handles, all, named};
     }
 
     /** Removes this family's drawn objects; the next sync rebuilds them. */
@@ -500,6 +523,75 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
     override unmount(): void {
         this.removeDrawn();
         super.unmount();
+    }
+
+    // ---- Declaration (task 08 lane L36) ----------------------------------------------------------------------------
+
+    /**
+     * Pure data from the state: the panel's sentences as notes in its order (the state sentence first, a warning unless the intersections
+     * are exactly collinear), the legend of what the board draws, the six points and the intersections drawn as finite points as the
+     * view's must marks, and two choice pucks (the hexagon order, the conic). No parameters: the points are board-owned and the example,
+     * conic and order are not bound in the arbiter. A hexagon order that is none of the three named ones (an import) shows no order
+     * puck, so its Orodja select with the extra "custom" entry stays.
+     */
+    protected override declaration(): GraphDeclaration<PascalIds> {
+        const scene = this.scene();
+        const text = pascalMessages(scene);
+        const notes: ReadoutNote<PascalIds>[] = [{id: "status", text: text.status, ...(text.kind === "collinear" ? {} : {tone: "warning" as const})}, {id: "hexagon", text: text.hexagon}];
+        if (text.determinant) notes.push({id: "determinant", text: text.determinant});
+        text.points.forEach((point, i) => notes.push({id: `point-${i + 1}` as PascalIds["note"], text: point}));
+        if (text.line) notes.push({id: "line", text: text.line});
+        const legend: LegendEntry<PascalIds>[] = [
+            {id: "conic", label: message("projective_pascal_legend_conic"), kind: "line", object: "conic"},
+            {id: "sides", label: message("projective_pascal_legend_sides"), kind: "dashed", object: "sides"},
+            {id: "line", label: message("projective_pascal_legend_line"), kind: "line", object: "line"},
+            {id: "points", label: message("projective_pascal_legend_points"), kind: "point", object: "points"},
+            {id: "infinity", label: message("projective_pascal_legend_infinity"), kind: "line", object: "infinity"},
+            {id: "handles", label: message("projective_pascal_legend_handles"), kind: "point", object: "handles"},
+        ];
+        const must: {kind: "point"; x: number; y: number}[] = [];
+        for (const handle of scene.handles) {
+            const at = toAffine(handle);
+            if (at.kind === "finite") must.push({kind: "point", x: at.view.x, y: at.view.y});
+        }
+        for (const entry of scene.pascalPoints) if (entry.view.kind === "finite" && !entry.offBox) must.push({kind: "point", x: entry.view.view.x, y: entry.view.view.y});
+        const order = orderIdOf(this.model.order);
+        const choice = (id: PascalIds["action"], label: Message, pressed: boolean, group: {key: string; label: Message}, short: Message): ActionDeclaration<PascalIds> =>
+            ({id, label, placement: "board", enabled: true, pressed, puck: {group, short}});
+        const orderGroup = {key: PASCAL_ORDER_PUCK, label: message("projective_pascal_puck_order")};
+        const conicGroup = {key: PASCAL_CONIC_PUCK, label: message("projective_k2_conic_label")};
+        const actions: ActionDeclaration<PascalIds>[] = [
+            ...(order === undefined ? [] : [
+                choice("order-natural", message("projective_k2_order_natural"), order === "natural", orderGroup, message("projective_pascal_puck_order_natural")),
+                choice("order-pappus", message("projective_k2_order_pappus"), order === "pappus", orderGroup, message("projective_pascal_puck_order_pappus")),
+                choice("order-star", message("projective_k2_order_star"), order === "star", orderGroup, message("projective_pascal_puck_order_star")),
+            ]),
+            choice("conic-ellipse", message("projective_k2_conic_ellipse"), this.model.conic === "ellipse", conicGroup, message("projective_k2_conic_ellipse")),
+            choice("conic-parabola", message("projective_k2_conic_parabola"), this.model.conic === "parabola", conicGroup, message("projective_k2_conic_parabola")),
+            choice("conic-hyperbola", message("projective_k2_conic_hyperbola"), this.model.conic === "hyperbola", conicGroup, message("projective_k2_conic_hyperbola")),
+            choice("conic-line-pair", message("projective_k2_conic_line_pair"), this.model.conic === "linePair", conicGroup, message("projective_k2_conic_line_pair")),
+        ];
+        // The six points' coordinates: the panel's slider read-offs, so the point rows of the declaration (the points stay board-owned).
+        const rows: ReadoutRow<PascalIds>[] = scene.handles.map((handle, i) =>
+            ({id: `handle-${i + 1}` as PascalIds["row"], name: message("projective_point_named", {value0: scene.names[i]}), value: {kind: "formatted" as const, text: pointText(handle)}}));
+        return {notes, legend, actions, readouts: [{id: "points", rows}], marks: {must}};
+    }
+
+    /** The element a legend entry names, as the board holds it now (the first visible one when several: the six sides, the arrows, the handles). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.drawn?.named.get(id);
+        if (!elements?.length) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = (element: JXG.GeometryElement) => element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const found = elements.find(element => Boolean(drawn(element).evalVisProp("visible"))) ?? elements[0];
+        return {color: String(drawn(found).evalVisProp(id === "points" || id === "handles" ? "fillcolor" : "strokecolor")), visible: Boolean(drawn(found).evalVisProp("visible"))};
+    }
+
+    /** A puck segment runs the method the Orodja select calls, as the learner. */
+    override performAction(id: string): void {
+        if (Object.hasOwn(ORDER_ACTIONS, id)) { runAs("learner", () => { this.chooseOrder(ORDER_ACTIONS[id as keyof typeof ORDER_ACTIONS]); }); return; }
+        if (Object.hasOwn(CONIC_ACTIONS, id)) { runAs("learner", () => { this.chooseConic(CONIC_ACTIONS[id as keyof typeof CONIC_ACTIONS]); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

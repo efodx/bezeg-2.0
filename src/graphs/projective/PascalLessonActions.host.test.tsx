@@ -5,7 +5,7 @@ import {PascalGraph} from './PascalGraph';
 import {PASCAL_CONIC_IDS, PASCAL_DEFAULT_INDICES, PASCAL_EXAMPLE_IDS, PASCAL_ORDER_IDS, PASCAL_ORDERS, PascalModel, reachableIndices} from './pascalModel';
 import {CrossRatioGraph} from './CrossRatioGraph';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage} from '../../localization';
 import {chooseOption} from './controlsTest';
@@ -27,9 +27,9 @@ const apply = (graph: PascalGraph | CrossRatioGraph, action: LessonAction) => ac
 const shown = () => [...document.querySelectorAll('[data-projective-line]')].map(node => `${node.getAttribute('data-projective-line')}=${node.textContent}`);
 
 /** The model and the text after running `edit` on a fresh graph, with the graph unmounted again. */
-function after(edit: (graph: PascalGraph) => void): {model: PascalModel; text: string[]} {
+async function after(edit: (graph: PascalGraph) => void | Promise<void>): Promise<{model: PascalModel; text: string[]}> {
     const graph = mount();
-    edit(graph);
+    await edit(graph);
     const result = {model: graph.model, text: shown()};
     cleanup();
     return result;
@@ -38,47 +38,47 @@ function after(edit: (graph: PascalGraph) => void): {model: PascalModel; text: s
 const EXAMPLE_BUTTON: Record<typeof PASCAL_EXAMPLE_IDS[number], string> = {
     default: 'Elipsa', pappus: 'Pappusov izrek (par premic)', infinity: 'Vzporedni stranici', custom: 'Lastna postavitev',
 };
-const CONIC_BUTTON: Record<typeof PASCAL_CONIC_IDS[number], string> = {
-    ellipse: 'Elipsa', parabola: 'Parabola', hyperbola: 'Hiperbola', linePair: 'Par premic',
-};
+/** The conic and the hexagon order are choice pucks on the board (the example select stays in Orodja): the puck group and the action ids. */
+const conicAction = (conic: typeof PASCAL_CONIC_IDS[number]) => ({ellipse: 'conic-ellipse', parabola: 'conic-parabola', hyperbola: 'conic-hyperbola', linePair: 'conic-line-pair'})[conic];
+const chooseConic = (conic: typeof PASCAL_CONIC_IDS[number]) => chooseOnPuck('pascal-conic', conicAction(conic));
+const chooseOrder = (order: typeof PASCAL_ORDER_IDS[number]) => chooseOnPuck('pascal-order', `order-${order}`);
 
-test.each(PASCAL_EXAMPLE_IDS.filter(id => id !== 'custom'))('pascal-load-example %s reaches the state of the example button', example => {
+test.each(PASCAL_EXAMPLE_IDS.filter(id => id !== 'custom'))('pascal-load-example %s reaches the state of the example button', async example => {
     // Start from a moved scene so that the example really replaces it.
-    const prepare = () => chooseOption('Stožnica', 'Hiperbola');
-    const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pascal-load-example', exampleId: example}); });
-    const viaControl = after(() => { prepare(); chooseOption('Primer', EXAMPLE_BUTTON[example]); });
+    const prepare = () => chooseConic('hyperbola');
+    const viaAction = await after(async graph => { await prepare(); apply(graph, {kind: 'projective', operation: 'pascal-load-example', exampleId: example}); });
+    const viaControl = await after(async () => { await prepare(); chooseOption('Primer', EXAMPLE_BUTTON[example]); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
 });
 
-test.each(PASCAL_CONIC_IDS)('pascal-set-conic %s reaches the state of the conic button', conic => {
+test.each(PASCAL_CONIC_IDS)('pascal-set-conic %s reaches the state of the conic puck', async conic => {
     // Start from another conic so that the action really changes the model (the ellipse is the default).
-    const prepare = () => chooseOption('Stožnica', CONIC_BUTTON[conic === 'hyperbola' ? 'parabola' : 'hyperbola']);
-    const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pascal-set-conic', conic}); });
-    const viaControl = after(() => { prepare(); chooseOption('Stožnica', CONIC_BUTTON[conic]); });
+    const prepare = () => chooseConic(conic === 'hyperbola' ? 'parabola' : 'hyperbola');
+    const viaAction = await after(async graph => { await prepare(); apply(graph, {kind: 'projective', operation: 'pascal-set-conic', conic}); });
+    const viaControl = await after(async () => { await prepare(); await chooseConic(conic); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     if (conic !== 'ellipse') expect(viaAction.model.indices).toEqual(PASCAL_DEFAULT_INDICES[conic]);
 });
 
-test.each(PASCAL_ORDER_IDS)('pascal-set-order %s reaches the state of the order button', order => {
-    const orderText = {natural: 'Običajni (1 2 3 4 5 6)', pappus: 'Prekrižan (1 5 3 4 2 6)', star: 'Zvezda (1 3 5 2 4 6)'} as const;
+test.each(PASCAL_ORDER_IDS)('pascal-set-order %s reaches the state of the order puck', async order => {
     // Start from another order so that the action really changes the model (the natural order is the default).
-    const prepare = () => chooseOption('Vrstni red oglišč', orderText[order === 'star' ? 'pappus' : 'star']);
-    const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pascal-set-order', order}); });
-    const viaControl = after(() => { prepare(); chooseOption('Vrstni red oglišč', orderText[order]); });
+    const prepare = () => chooseOrder(order === 'star' ? 'pappus' : 'star');
+    const viaAction = await after(async graph => { await prepare(); apply(graph, {kind: 'projective', operation: 'pascal-set-order', order}); });
+    const viaControl = await after(async () => { await prepare(); await chooseOrder(order); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     expect(viaAction.model.order).toEqual(PASCAL_ORDERS[order]);
 });
 
-test.each([[0, 'A'], [3, 'D'], [5, 'F']] as const)('pascal-set-index on handle %s reaches the state of the next slider position', (handle, name) => {
+test.each([[0, 'A'], [3, 'D'], [5, 'F']] as const)('pascal-set-index on handle %s reaches the state of the next slider position', async (handle, name) => {
     const next = (() => {
         const list = reachableIndices('ellipse', handle);
         return list[(list.indexOf(PASCAL_DEFAULT_INDICES.ellipse[handle]) + 1) % list.length];
     })();
-    const viaAction = after(graph => apply(graph, {kind: 'projective', operation: 'pascal-set-index', handle, index: next}));
-    const viaControl = after(() => act(() => { fireEvent.keyDown(screen.getByRole('slider', {name: `Točka ${name}`}), {key: 'ArrowRight'}); }));
+    const viaAction = await after(graph => { apply(graph, {kind: 'projective', operation: 'pascal-set-index', handle, index: next}); });
+    const viaControl = await after(() => { act(() => { fireEvent.keyDown(screen.getByRole('slider', {name: `Točka ${name}`}), {key: 'ArrowRight'}); }); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     expect(viaAction.model.indices[handle]).toBe(next);

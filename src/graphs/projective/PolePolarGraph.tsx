@@ -2,7 +2,8 @@ import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t} from "../../localization";
+import type {GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {sampleConic} from "../../projective/conicSampler";
@@ -15,7 +16,7 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {moveP, nudgeP, setConic, setDirection, setNumerators} from "./polePolarEdit";
 import {PolePolarControls} from "./PolePolarControls";
 import {definingPoints} from "./definingPoints";
-import {TANGENCY_NAMES, TANGENT_NAMES} from "./polePolarText";
+import {polePolarMessages, TANGENCY_NAMES, TANGENT_NAMES} from "./polePolarText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {polePolarPresetCollection} from "./projectivePresetCollection";
 import {polePolarPersistence} from "./projectivePersistence";
@@ -69,7 +70,22 @@ interface FillCurve {
 interface DrawnScene {
     readonly p: JXG.Point;
     readonly all: readonly JXG.GeometryElement[];
+    /** The elements a legend entry names (`PolePolarIds["legend"]`); an entry with several elements shows the first that is visible. */
+    readonly named: ReadonlyMap<string, readonly JXG.GeometryElement[]>;
 }
+
+/**
+ * The ids of the declaration. No parameters and no actions: P is board-owned (a point), and the example, the conic and the kind of P
+ * are setup choices that no lesson step asks the learner to flip, so only the panel's sentences (notes) and the legend are declared.
+ */
+export type PolePolarIds = {
+    param: never;
+    row: never;
+    note: "status" | "polar" | "tangent-1" | "tangent-2" | "tangency-1" | "tangency-2" | "numerical" | "centre";
+    legend: "conic" | "polar" | "tangents" | "tangency" | "centre" | "point" | "infinity";
+    section: never;
+    action: never;
+};
 
 /** Line coefficients `[c, a, b]` for JSXGraph from exact or numerical coefficients of `ax + by + c = 0`. */
 const lineCoefficients = (a: number, b: number, c: number): [number, number, number] | undefined => a === 0 && b === 0 ? undefined : [c, a, b];
@@ -382,9 +398,11 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
         };
 
         // The conic, drawn from the sampler; the hyperbola's two branches are one polyline broken by NaN.
-        const curve = add(board.create("curve", [[], []], {
+        const named = new Map<string, JXG.GeometryElement[]>();
+        const legendOf = <E extends JXG.GeometryElement>(id: PolePolarIds["legend"], element: E): E => { named.set(id, [...(named.get(id) ?? []), element]); return element; };
+        const curve = legendOf("conic", add(board.create("curve", [[], []], {
             strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth, highlight: false, fixed: true, layer: 4,
-        }) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
+        }) as unknown as JXG.GeometryElement)) as unknown as FillCurve & JXG.GeometryElement;
         curve.updateDataArray = () => {
             const data = this.polyline(model().conic);
             curve.dataX = data.x;
@@ -396,10 +414,10 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
             const l = this.scene().polar;
             return (l && lineCoefficients(Number(l[0]), Number(l[1]), Number(l[2]))) ?? HIDDEN_LINE;
         };
-        add(typeset(board.create("line", [() => polarCoefficients()[0], () => polarCoefficients()[1], () => polarCoefficients()[2]], {
+        legendOf("polar", add(typeset(board.create("line", [() => polarCoefficients()[0], () => polarCoefficients()[1], () => polarCoefficients()[2]], {
             strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth, highlight: false, fixed: true, layer: 4,
             name: "p", withLabel: true, label: {...label, offset: [-24, 10]}, visible: () => { const l = this.scene().polar; return l !== undefined && !isLineAtInfinity(l); },
-        }) as JXG.GeometryElement, "p"));
+        }) as JXG.GeometryElement, "p")));
 
         const tangentCoefficients = (i: number): [number, number, number] => {
             const line = this.scene().tangents[i];
@@ -409,21 +427,21 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
                 : lineCoefficients(line.coefficients[0], line.coefficients[1], line.coefficients[2])) ?? HIDDEN_LINE;
         };
         for (let i = 0; i < 2; i++) {
-            add(typeset(board.create("line", [() => tangentCoefficients(i)[0], () => tangentCoefficients(i)[1], () => tangentCoefficients(i)[2]], {
+            legendOf("tangents", add(typeset(board.create("line", [() => tangentCoefficients(i)[0], () => tangentCoefficients(i)[1], () => tangentCoefficients(i)[2]], {
                 strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: 2, highlight: false, fixed: true, layer: 3,
                 name: TANGENT_NAMES[i], withLabel: true, label: {...label, offset: [10, -10]},
                 visible: () => {
                     const line = this.scene().tangents[i];
                     return this.scene().side === "outside" && line !== undefined && !(line.exact && isLineAtInfinity(line.line));
                 },
-            }) as JXG.GeometryElement, TANGENT_NAMES[i]));
+            }) as JXG.GeometryElement, TANGENT_NAMES[i])));
             const tangencyAt = (axis: 0 | 1): number => {
                 const found = this.scene().tangency[i];
                 if (found === undefined) return 0;
                 if (!found.exact) return found.approx.kind === "finite" ? (axis === 0 ? found.approx.x : found.approx.y) : 0;
                 return found.view.kind === "finite" ? (axis === 0 ? found.view.view.x : found.view.view.y) : 0;
             };
-            add(typeset(board.create("point", [() => tangencyAt(0), () => tangencyAt(1)], {
+            legendOf("tangency", add(typeset(board.create("point", [() => tangencyAt(0), () => tangencyAt(1)], {
                 name: TANGENCY_NAMES[i], withLabel: true, size: 4, face: "o", fixed: true, showInfobox: false,
                 fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 6,
                 label: {...label, offset: [8, -12]},
@@ -431,7 +449,7 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
                     const found = this.scene().tangency[i];
                     return found !== undefined && (found.exact ? found.view.kind === "finite" : found.approx.kind === "finite");
                 },
-            }) as JXG.Point, TANGENCY_NAMES[i]));
+            }) as JXG.Point, TANGENCY_NAMES[i])));
         }
 
         // The centre: the pole of the line at infinity; for a parabola it is ideal and nothing finite is drawn.
@@ -439,21 +457,21 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
             const centre = this.scene().centre;
             return centre?.kind === "finite" ? (axis === 0 ? centre.view.x : centre.view.y) : 0;
         };
-        add(typeset(board.create("point", [() => centreAt(0), () => centreAt(1)], {
+        legendOf("centre", add(typeset(board.create("point", [() => centreAt(0), () => centreAt(1)], {
             name: "S", withLabel: true, size: 3, face: "+", fixed: true, showInfobox: false,
             fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 5,
             label: {...label, offset: [8, 8]}, visible: () => this.scene().centre?.kind === "finite",
-        }) as JXG.Point, "S"));
+        }) as JXG.Point, "S")));
 
         // P: a draggable handle while it is finite.
         const at = model();
-        const p = add(typeset(board.create("point", [at.p.x / POLE_POLAR_DENOMINATOR, at.p.y / POLE_POLAR_DENOMINATOR], {
+        const p = legendOf("point", add(typeset(board.create("point", [at.p.x / POLE_POLAR_DENOMINATOR, at.p.y / POLE_POLAR_DENOMINATOR], {
             name: "P", withLabel: true, size: () => this.selected ? 7 : 5, face: "o", showInfobox: false,
             fillColor: () => this.selected ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
             strokeColor: () => this.selected ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
             strokeWidth: () => this.selected ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
             label: {...label, offset: [8, 8]}, layer: 7, visible: finiteP,
-        }) as JXG.Point, "P"));
+        }) as JXG.Point, "P")));
         p.on("down", () => {
             this.selected = true;
             this.requestRender();
@@ -474,16 +492,16 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
         }) as JXG.Point);
         const from = hidden(() => marker()?.from[0] ?? 0, () => marker()?.from[1] ?? 0);
         const to = hidden(() => marker()?.to[0] ?? 0, () => marker()?.to[1] ?? 0);
-        add(board.create("segment", [from, to], {
+        legendOf("infinity", add(board.create("segment", [from, to], {
             strokeColor: GraphPalette.warningText, strokeWidth: 3, lastArrow: {type: 2, size: 8}, highlight: false, fixed: true, layer: 8,
             visible: () => marker() !== undefined,
-        }) as JXG.GeometryElement);
+        }) as JXG.GeometryElement));
         add(board.create("text", [() => marker()?.to[0] ?? 0, () => (marker()?.to[1] ?? 0) + 0.4, pointLabelMath("P = ∞")], {
             useMathJax: true, parse: false, fontSize: () => this.displaySettings.fontSize, fixed: true, highlight: false, strokeColor: GraphPalette.warningText, layer: 8, visible: () => marker() !== undefined,
         }) as JXG.GeometryElement);
 
         // The polar, tangents and centre are sentences and live only in the inspector (they would cross the hyperbola here).
-        return {p, all};
+        return {p, all, named};
     }
 
     /** Removes this family's drawn objects; the next sync rebuilds them. */
@@ -494,6 +512,63 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
     override unmount(): void {
         this.removeDrawn();
         super.unmount();
+    }
+
+    // ---- Declaration (task 08 lane L36) ----------------------------------------------------------------------------
+
+    /**
+     * Pure data from the state: the panel's sentences as notes in its order (the region sentence first, a warning when the conic is
+     * degenerate), the legend of what the board draws, and the view's must marks: P (or the end of its arrow and the text beside it
+     * when P is at infinity), the points of tangency and the centre, whichever are drawn as finite points. No parameters: P is
+     * board-owned and the example, conic and kind of P are not bound in the arbiter.
+     */
+    protected override declaration(): GraphDeclaration<PolePolarIds> {
+        const scene = this.scene();
+        const text = polePolarMessages(scene, currentLanguage());
+        const notes: ReadoutNote<PolePolarIds>[] = [{id: "status", text: text.status, ...(text.region === "degenerate" ? {tone: "warning" as const} : {})}];
+        if (text.polar) notes.push({id: "polar", text: text.polar});
+        text.tangents.forEach((line, i) => notes.push({id: `tangent-${i + 1}` as PolePolarIds["note"], text: line}));
+        text.tangency.forEach((line, i) => notes.push({id: `tangency-${i + 1}` as PolePolarIds["note"], text: line}));
+        if (text.numerical) notes.push({id: "numerical", text: text.numerical});
+        notes.push({id: "centre", text: text.centre});
+        const legend: LegendEntry<PolePolarIds>[] = [
+            {id: "conic", label: message("projective_pole_polar_legend_conic"), kind: "line", object: "conic"},
+            {id: "polar", label: message("projective_pole_polar_legend_polar"), kind: "line", object: "polar"},
+            {id: "tangents", label: message("projective_pole_polar_legend_tangents"), kind: "dashed", object: "tangents"},
+            {id: "tangency", label: message("projective_pole_polar_legend_tangency"), kind: "point", object: "tangency"},
+            {id: "centre", label: message("projective_pole_polar_legend_centre"), kind: "point", object: "centre"},
+            {id: "point", label: message("projective_pole_polar_legend_point"), kind: "point", object: "point"},
+            {id: "infinity", label: message("projective_pole_polar_legend_infinity"), kind: "line", object: "infinity"},
+        ];
+        const must: {kind: "point"; x: number; y: number}[] = [];
+        const ideal = this.model.ideal;
+        if (ideal) {
+            const unit = orientedUnit([BigInt(ideal.dx), BigInt(ideal.dy)], [ideal.dx, ideal.dy]);
+            const end = unit ? idealMarker([0, 0], unit, 6, 1.6).to : undefined;
+            if (end) must.push({kind: "point", x: end[0], y: end[1]}, {kind: "point", x: end[0], y: end[1] + 0.4});
+        } else {
+            must.push({kind: "point", x: this.model.p.x / POLE_POLAR_DENOMINATOR, y: this.model.p.y / POLE_POLAR_DENOMINATOR});
+        }
+        for (const found of scene.tangency) {
+            if (found.exact) {
+                if (found.view.kind === "finite") must.push({kind: "point", x: found.view.view.x, y: found.view.view.y});
+            } else if (found.approx.kind === "finite") {
+                must.push({kind: "point", x: found.approx.x, y: found.approx.y});
+            }
+        }
+        if (scene.centre?.kind === "finite") must.push({kind: "point", x: scene.centre.view.x, y: scene.centre.view.y});
+        return {notes, legend, marks: {must}};
+    }
+
+    /** The element a legend entry names, as the board holds it now (the first visible one when several: the two tangents, the two points of tangency). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const elements = this.drawn?.named.get(id);
+        if (!elements?.length) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = (element: JXG.GeometryElement) => element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const found = elements.find(element => Boolean(drawn(element).evalVisProp("visible"))) ?? elements[0];
+        const fill = id === "tangency" || id === "centre" || id === "point";
+        return {color: String(drawn(found).evalVisProp(fill ? "fillcolor" : "strokecolor")), visible: Boolean(drawn(found).evalVisProp("visible"))};
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

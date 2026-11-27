@@ -1,0 +1,134 @@
+{
+  "graph": "projective-pole-polar",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default outside",
+      "rows": [],
+      "notes": [
+        "Točka P = (1, 21/5) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: 3x + 35y - 75 = 0",
+        "Tangenta t₁: 9x - 20y + 75 = 0",
+        "Tangenta t₂: 4x + 5y - 25 = 0",
+        "Dotikališče T₁ = (-3, 12/5)",
+        "Dotikališče T₂ = (4, 9/5)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "on the conic",
+      "rows": [],
+      "notes": [
+        "Točka P = (4, 9/5) leži na stožnici: polara je tangenta v P, dotikališče je ena sama točka.",
+        "Polara p: 4x + 5y - 25 = 0",
+        "Dotikališče T₁ = (4, 9/5)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "inside",
+      "rows": [],
+      "notes": [
+        "Točka P = (1, 1) leži znotraj stožnice: tangent ni, polara pa stožnice ne seka.",
+        "Polara p: 9x + 25y - 225 = 0",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "P at infinity",
+      "rows": [],
+      "notes": [
+        "Točka P je točka v neskončnosti s smerjo (1, 0). Točka P = (1, 0) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: x = 0",
+        "Tangenta t₁: y + 3 = 0",
+        "Tangenta t₂: y - 3 = 0",
+        "Dotikališče T₁ = (0, -3)",
+        "Dotikališče T₂ = (0, 3)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$P = \\infty$$"
+      ]
+    },
+    {
+      "name": "hyperbola",
+      "rows": [],
+      "notes": [
+        "Točka P je točka v neskončnosti s smerjo (1, 0). Točka P = (1, 0) leži znotraj stožnice: tangent ni, polara pa stožnice ne seka.",
+        "Polara p: x = 0",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$P = \\infty$$"
+      ]
+    },
+    {
+      "name": "parabola",
+      "rows": [],
+      "notes": [
+        "Točka P je točka v neskončnosti s smerjo (1, 0). Točka P = (1, 0) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: x = 0",
+        "Tangenta t₁: y = 0",
+        "Dotikališče T₁ = (0, 0)",
+        "Dotikališče T₂ = (0, 1)",
+        "Središče je v neskončnosti v smeri (0, 1), zato končnega središča ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$P = \\infty$$"
+      ]
+    },
+    {
+      "name": "circle",
+      "rows": [],
+      "notes": [
+        "Točka P je točka v neskončnosti s smerjo (1, 0). Točka P = (1, 0) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: x = 0",
+        "Tangenta t₁: y + 5 = 0",
+        "Tangenta t₂: y - 5 = 0",
+        "Dotikališče T₁ = (0, -5)",
+        "Dotikališče T₂ = (0, 5)",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": [
+        "$$P = \\infty$$"
+      ]
+    },
+    {
+      "name": "irrational tangency",
+      "rows": [],
+      "notes": [
+        "Točka P = (7, 4) leži zunaj stožnice: iz nje potekata dve tangenti, polara pa gre skozi obe dotikališči.",
+        "Polara p: 7x + 4y - 25 = 0",
+        "Tangenta t₁: x + 6,6248y - 33,499 = 0",
+        "Tangenta t₂: x - 0,4025y - 5,3899 = 0",
+        "Dotikališče T₁ = (0,7463, 4,944)",
+        "Dotikališče T₂ = (4,6383, -1,8671)",
+        "Dotikališča in tangente so številčne vrednosti (toleranca 10⁻⁹); lega točke glede na stožnico ostaja natančna.",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "centre",
+      "rows": [],
+      "notes": [
+        "Točka P = (0, 0) leži znotraj stožnice: tangent ni, polara pa stožnice ne seka.",
+        "Polara p je premica v neskončnosti.",
+        "Središče stožnice (pol premice v neskončnosti): (0, 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}
