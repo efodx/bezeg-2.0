@@ -2,6 +2,7 @@ import {act, cleanup, fireEvent} from '@testing-library/react';
 import {afterEach, beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {TaylorGraph, type TaylorIds} from '../../graphs/functions/TaylorGraph';
 import {FixedPointGraph} from '../../graphs/functions/FixedPointGraph';
+import {ComplexMultiplicationGraph} from '../../graphs/complex/ComplexMultiplicationGraph';
 import {CrossRatioGraph} from '../../graphs/projective/CrossRatioGraph';
 import {NotablePointsGraph} from '../../graphs/compgeo/NotablePointsGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from '../../graphs/base/realGraphTestHarness';
@@ -401,8 +402,9 @@ describe('a lesson frame that uses an Orodja control', () => {
 });
 
 describe('the presenter on an undeclared graph', () => {
+    // Fixture: ComplexMultiplicationGraph has no declaration() until lane L57 converts it; move to another undeclared graph then.
     test('Orodja is the only card, starts open and holds the panels', async () => {
-        mountGraph(new FixedPointGraph());
+        mountGraph(new ComplexMultiplicationGraph());
         await waitUntil(() => shown('tools') !== null);
         expect([...document.querySelectorAll('.board-cards-layer [data-card-id]')].map(el => (el as HTMLElement).dataset.cardId)).toEqual(['tools']);
         expect(live('[data-card-id="tools"] .board-card-body:not([hidden])')).not.toBeNull();

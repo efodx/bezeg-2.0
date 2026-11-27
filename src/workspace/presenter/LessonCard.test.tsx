@@ -5,7 +5,7 @@ import {afterEach, beforeAll, beforeEach, describe, expect, test, vi} from 'vite
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {TaylorGraph} from '../../graphs/functions/TaylorGraph';
-import {FixedPointGraph} from '../../graphs/functions/FixedPointGraph';
+import {ComplexMultiplicationGraph} from '../../graphs/complex/ComplexMultiplicationGraph';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from '../../graphs/base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {BOARD_LAYOUT_KEY} from '../layout/storedLayout';
@@ -134,7 +134,8 @@ describe('the frame reaches the card layer', () => {
     });
 
     test('an undeclared graph keeps Orodja open beside the lesson card at any width', async () => {
-        render(<MemoryRouter initialEntries={['/bezeg-2.0/analysis/fixed-point?learn=1']}><GraphHost create={() => new FixedPointGraph()}/></MemoryRouter>);
+        // Fixture: ComplexMultiplicationGraph has no declaration() until lane L57 converts it; move to another undeclared graph then.
+        render(<MemoryRouter initialEntries={['/bezeg-2.0/complex-multiplication?learn=1']}><GraphHost create={() => new ComplexMultiplicationGraph()}/></MemoryRouter>);
         await waitUntil(() => card('lesson') !== null && layer('.guided-lesson') !== null && card('tools') !== null);
         await waitUntil(() => bodyShown('tools'));
         expect(bodyShown('lesson')).toBe(true);

@@ -35,12 +35,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 6,57974; Parsevalova vsota 6,57967",
-        "Produkt f · cos x",
-        "a₁ = -1,27324",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "sine coefficient k 3",
@@ -75,12 +70,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 6,57974; Parsevalova vsota 6,57967",
-        "Produkt f · sin 3x",
-        "b₃ = 0",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "constant term a0",
@@ -94,6 +84,11 @@
           "key": "Konstantni člen a₀/2#0",
           "label": "Konstantni člen a₀/2",
           "value": "1,5708"
+        },
+        {
+          "key": "Koeficient a₀#0",
+          "label": "Koeficient a₀",
+          "value": "3,14159"
         },
         {
           "key": "Integral kvadrata (1/π)∫f²#0",
@@ -115,12 +110,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 6,57974; Parsevalova vsota 6,57967",
-        "Produkt f · cos 0x",
-        "a₀ = 3,14159",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "jump layout, K 8, b1",
@@ -155,12 +145,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 2; Parsevalova vsota 1,90885",
-        "Produkt f · sin x",
-        "b₁ = 0,98059",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "free layout, K 32",
@@ -195,12 +180,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 4; Parsevalova vsota 3,98755",
-        "Produkt f · cos 5x",
-        "a₅ = 0,00811",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "decay default",
@@ -232,10 +212,7 @@
         "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
       ],
       "outputs": [],
-      "captions": [
-        "Funkcije in delne vsote Sₙ za N = 11",
-        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
-      ]
+      "captions": []
     },
     {
       "name": "decay N 3, other examples",
@@ -267,10 +244,7 @@
         "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
       ],
       "outputs": [],
-      "captions": [
-        "Funkcije in delne vsote Sₙ za N = 3",
-        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
-      ]
+      "captions": []
     },
     {
       "name": "decay N 40 log",
@@ -302,10 +276,7 @@
         "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
       ],
       "outputs": [],
-      "captions": [
-        "Funkcije in delne vsote Sₙ za N = 40",
-        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
-      ]
+      "captions": []
     }
   ]
 }
