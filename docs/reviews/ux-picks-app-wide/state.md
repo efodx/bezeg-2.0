@@ -55,5 +55,3 @@ Present state only; rewritten in place at every handoff, about 8 KB at most. Pla
 5. **Owner decisions 2026-11-26** (a)-(d) done. Still for the owner: the strip covers phase portrait board text; a wrapped top-centre strip puts the help card over its lower rows; in lesson mode the free column between lesson card and Odčitki (~470 px at 1440) needs more zoom-out than the director 2.2 limit, so wide content sits under cards (L35 prob-simulation rs1/rs3/rs5/rs6, `1c799c6d0`): raise the limit, narrow Odčitki, or accept.
 
 - **Owner, 2026-11-27:** two parallel lane streams (A here, B per `lane-b.md`); standing permission to wrap untagged writes in any shared test in `runAs('learner', ...)` with values unchanged; worker HANDOFF 175k; Opus workers for recipe-less lanes L29, L53, L55, L58; tough choices may go to a Fable advisor (Agent `Plan`, model `fable`, effort `high`), for workers by relay (`QUESTION:`); owner-reserved decisions still go to him.
-- Tooling bug: session-cleanup kills backgrounded gate scripts as orphaned (`.command-logs/session-cleanup.log`).
-- Open: resizable cards (deferred); keyboard card moves step a pointer.
