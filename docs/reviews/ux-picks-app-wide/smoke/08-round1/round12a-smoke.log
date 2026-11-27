@@ -1,0 +1,44 @@
+build: passed in 9.1s; revision fab86d054252af93a6911504a8b81bc2ef4313c4; dirty; log .command-logs\2026-11-27T08-32-55-571Z-18116-a2d44619.log; warnings present (see log)
+Waiting for unit (pid 35364) to finish starting before reading free memory.
+Waiting for unit (pid 29912) to finish starting before reading free memory.
+Waiting for unit (pid 35404) to finish starting before reading free memory.
+Waiting for unit (pid 10100) to finish starting before reading free memory.
+Waiting for unit (pid 33372) to finish starting before reading free memory.
+Waiting for unit (pid 10640) to finish starting before reading free memory.
+Waiting for unit (pid 32612) to finish starting before reading free memory.
+Waiting for unit (pid 8616) to finish starting before reading free memory.
+Waiting for unit (pid 32780) to finish starting before reading free memory.
+Waiting for unit (pid 35728) to finish starting before reading free memory.
+Waiting for unit (pid 30864) to finish starting before reading free memory.
+Waiting for unit (pid 10784) to finish starting before reading free memory.
+Waiting for unit (pid 28712) to finish starting before reading free memory.
+Memory available for smoke-lesson after 215s.
+smoke-lesson: passed in 230.0s (test slot 1/2, 5 workers); revision fab86d054252af93a6911504a8b81bc2ef4313c4; dirty; reusing build from revision fab86d054252af93a6911504a8b81bc2ef4313c4 (dirty at build time); log .command-logs\2026-11-27T08-33-08-098Z-31380-3a6cd07e.log
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+Build inputs changed since the last runner build. Run `just build` before smoke-built or preview.
+error: recipe `smoke-lesson` failed on line 50 with exit code 1
+smoke build: passed in 13.3s; revision fab86d054252af93a6911504a8b81bc2ef4313c4; dirty; log .command-logs\2026-11-27T08-37-32-903Z-18052-fc63a564.log; warnings present (see log)
+Waiting for unit (pid 26204) to finish starting before reading free memory.
+Memory available for smoke after 10s.
+smoke: passed in 41.5s (test slot 1/2, 5 workers); revision fab86d054252af93a6911504a8b81bc2ef4313c4; dirty; reusing build from revision fab86d054252af93a6911504a8b81bc2ef4313c4 (dirty at build time); log .command-logs\2026-11-27T08-37-53-547Z-18052-fc46ee00.log
+smoke build: passed in 10.1s; revision fab86d054252af93a6911504a8b81bc2ef4313c4; dirty; log .command-logs\2026-11-27T08-38-37-250Z-6812-0209df6b.log; warnings present (see log)
+smoke: passed in 168.8s (test slot 1/2, 5 workers); revision fab86d054252af93a6911504a8b81bc2ef4313c4; dirty; reusing build from revision fab86d054252af93a6911504a8b81bc2ef4313c4 (dirty at build time); log .command-logs\2026-11-27T08-38-53-322Z-6812-aebc73dc.log
