@@ -1,4 +1,6 @@
 import type {LessonAction, LessonDefinition, LessonStep, LocalizedText} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ComplexReciprocalIds} from '../../graphs/complex/ComplexReciprocalGraph';
 
 // Complex maps chapter-owned guided activities (spec M1 and M2). Every number is recomputed in complexMapsChapter.test.ts from the kernel.
 // Scene actions run synchronously in one tick; each scene starts from the Demonstration default and then names its state.
@@ -11,13 +13,20 @@ const show = (target: Extract<LessonAction, {kind: 'function-visibility'}>['targ
 const recipExample = (value: string): LessonAction => ({kind: 'function-choice', name: 'complex-reciprocal-example', value});
 const rootsExample = (value: string): LessonAction => ({kind: 'function-choice', name: 'complex-roots-example', value});
 
-function step(prefix: string, id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[]): LessonStep {
-    return {id, title, body, prompt, scene: {actions: [defaultScene(`${prefix}-${id}`), ...actions]}};
+/** Frame declarations of the reciprocal steps, typed by the graph's ids. */
+const recipFrame = frameDeclarer<ComplexReciprocalIds>();
+
+/** A step with one frame (the id the synthesized frame had, so progress keeps its place) when `declare` names the rows and controls its text asks about. */
+function step(prefix: string, id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[], declare?: FrameDeclaration): LessonStep {
+    return {
+        id, title, body, prompt, scene: {actions: [defaultScene(`${prefix}-${id}`), ...actions]},
+        ...(declare ? {frames: [{id: `${id}-content`, kind: 'explanation' as const, title, body, prompt, declare}]} : {}),
+    };
 }
-const recipStep = (id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[]): LessonStep =>
-    step('complex-reciprocal', id, title, body, prompt, actions);
-const rootsStep = (id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[]): LessonStep =>
-    step('complex-roots', id, title, body, prompt, actions);
+const recipStep = (id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[], declare?: FrameDeclaration): LessonStep =>
+    step('complex-reciprocal', id, title, body, prompt, actions, declare);
+const rootsStep = (id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[], declare?: FrameDeclaration): LessonStep =>
+    step('complex-roots', id, title, body, prompt, actions, declare);
 
 export const complexReciprocalLesson: LessonDefinition = {
     id: 'complex-reciprocal-inversion',
@@ -32,37 +41,44 @@ export const complexReciprocalLesson: LessonDefinition = {
             words('Konjugirana vrednost in modul', 'The conjugate and the modulus'),
             words('Za \\(z=1+i\\) je konjugirana vrednost \\(\\bar z=1-i\\): točka, zrcaljena čez realno os. Modul je \\(|z|=\\sqrt2\\approx1{,}4142\\) in argument \\(45^\\circ\\); zrcaljenje modula ne spremeni, argument pa obrne v \\(-45^\\circ\\).', 'For \\(z=1+i\\) the conjugate is \\(\\bar z=1-i\\): the point reflected in the real axis. The modulus is \\(|z|=\\sqrt2\\approx1.4142\\) and the argument is \\(45^\\circ\\); the reflection keeps the modulus and reverses the argument to \\(-45^\\circ\\).'),
             words('Povleci \\(z\\) in napovej \\(\\bar z\\) ter \\(|z|\\), preden pogledaš odčitek. Kam gre \\(\\bar z\\), ko je \\(z\\) na realni osi?', 'Drag \\(z\\) and predict \\(\\bar z\\) and \\(|z|\\) before looking at the readout. Where does \\(\\bar z\\) go when \\(z\\) is on the real axis?'),
-            [recipExample('outside')]),
+            [recipExample('outside')],
+            recipFrame({highlight: ['z']})),
         recipStep('reciprocal',
             words('Recipročna vrednost \\(1/z\\)', 'The reciprocal \\(1/z\\)'),
             words('Zapišemo \\(1/z=\\bar z/|z|^2\\), ker je \\(z\\bar z=|z|^2\\). Za \\(z=1+i\\) je \\(|z|^2=2\\), zato je \\(1/z=\\tfrac12(1-i)=0{,}5-0{,}5i\\). Modul je \\(1/|z|\\approx0{,}7071\\) in argument \\(-\\arg z=-45^\\circ\\).', 'We write \\(1/z=\\bar z/|z|^2\\), because \\(z\\bar z=|z|^2\\). For \\(z=1+i\\) we have \\(|z|^2=2\\), so \\(1/z=\\tfrac12(1-i)=0.5-0.5i\\). The modulus is \\(1/|z|\\approx0.7071\\) and the argument is \\(-\\arg z=-45^\\circ\\).'),
             words('Pokaži \\(1/z\\) in povleci \\(z\\): kaj se zgodi z modulom \\(1/z\\), ko se \\(z\\) približuje izhodišču?', 'Show \\(1/z\\) and drag \\(z\\): what happens to the modulus of \\(1/z\\) as \\(z\\) approaches the origin?'),
-            [recipExample('outside'), show('complex-reciprocal')]),
+            [recipExample('outside'), show('complex-reciprocal')],
+            recipFrame({highlight: ['z-modulus', 'reciprocal-modulus'], uses: ['reciprocal']})),
         recipStep('inside-outside',
             words('Znotraj in zunaj enotske krožnice', 'Inside and outside the unit circle'),
             words('Točka \\(z=0{,}5+0{,}5i\\) je znotraj krožnice, saj je \\(|z|=\\tfrac{\\sqrt2}{2}\\approx0{,}7071<1\\). Njena recipročna vrednost je \\(1/z=1-i\\), z modulom \\(\\sqrt2\\approx1{,}4142>1\\): znotraj gre ven in obratno, ker je \\(|1/z|=1/|z|\\).', 'The point \\(z=0.5+0.5i\\) is inside the circle, since \\(|z|=\\tfrac{\\sqrt2}{2}\\approx0.7071<1\\). Its reciprocal is \\(1/z=1-i\\), with modulus \\(\\sqrt2\\approx1.4142>1\\): inside goes outside and conversely, because \\(|1/z|=1/|z|\\).'),
             words('Povleci \\(z\\) čez krožnico in opazuj, na kateri strani je \\(1/z\\). Pri katerem modulu se strani zamenjata?', 'Drag \\(z\\) across the circle and watch which side \\(1/z\\) is on. At which modulus do the sides swap?'),
-            [recipExample('inside'), show('complex-reciprocal')]),
+            [recipExample('inside'), show('complex-reciprocal')],
+            recipFrame({highlight: ['z-modulus', 'position'], uses: ['reciprocal']})),
         recipStep('on-circle',
             words('Na krožnici je \\(1/z=\\bar z\\)', 'On the circle \\(1/z=\\bar z\\)'),
             words('Za \\(z=0{,}6+0{,}8i\\) je \\(|z|^2=0{,}36+0{,}64=1\\), zato je \\(1/z=\\bar z=0{,}6-0{,}8i\\). Točka je na krožnici natanko tedaj, ko je \\(|z|=1\\); to graf presodi natančno na mreži, ne s toleranco.', 'For \\(z=0.6+0.8i\\) we have \\(|z|^2=0.36+0.64=1\\), so \\(1/z=\\bar z=0.6-0.8i\\). A point is on the circle exactly when \\(|z|=1\\); the graph decides this exactly on the grid, not with a tolerance.'),
             words('Poišči še eno mrežno točko na krožnici in preveri, da je tam \\(1/z\\) enak \\(\\bar z\\).', 'Find another grid point on the circle and check that \\(1/z\\) equals \\(\\bar z\\) there.'),
-            [recipExample('unit-circle'), show('complex-reciprocal')]),
+            [recipExample('unit-circle'), show('complex-reciprocal')],
+            recipFrame({highlight: ['conjugate', 'reciprocal'], uses: ['reciprocal']})),
         recipStep('division',
             words('Deljenje \\(w/z\\)', 'Division \\(w/z\\)'),
             words('Količnik je \\(w/z=w\\cdot\\tfrac1z\\). Za \\(w=2+i\\) in \\(z=1-i\\) je \\(1/z=\\tfrac12(1+i)\\), torej \\(w/z=\\tfrac12(2+i)(1+i)=\\tfrac12(1+3i)=0{,}5+1{,}5i\\). Moduli se delijo, argumenta odštejeta.', 'The quotient is \\(w/z=w\\cdot\\tfrac1z\\). For \\(w=2+i\\) and \\(z=1-i\\) we have \\(1/z=\\tfrac12(1+i)\\), so \\(w/z=\\tfrac12(2+i)(1+i)=\\tfrac12(1+3i)=0.5+1.5i\\). Moduli divide and arguments subtract.'),
             words('Povleci \\(w\\) in \\(z\\) in preveri, da je \\(|w/z|=|w|/|z|\\).', 'Drag \\(w\\) and \\(z\\) and check that \\(|w/z|=|w|/|z|\\).'),
-            [recipExample('division'), show('complex-reciprocal'), show('complex-quotient')]),
+            [recipExample('division'), show('complex-reciprocal'), show('complex-quotient')],
+            recipFrame({highlight: ['z-modulus', 'w-modulus', 'quotient-modulus'], uses: ['quotient']})),
         recipStep('inversion-circle',
             words('Inverzija v poljubni krožnici', 'Inversion in any circle'),
             words('Inverzija v krožnici s središčem \\(c\\) in polmerom \\(r\\) je \\(z\\mapsto c+r^2/\\overline{z-c}\\). V enotski krožnici s središčem \\(0\\) je \\(1+i\\mapsto0{,}5+0{,}5i\\), njena konjugirana vrednost pa je \\(1/z=0{,}5-0{,}5i\\). Za središče \\(0{,}5\\) in polmer \\(1\\) se \\(z=1{,}5+i\\) preslika v \\(1+0{,}5i\\). Izrek: dvakratna inverzija vrne točko (involucija) in inverzija obrne orientacijo: kot med smerema \\(1\\) in \\(i\\) pri \\(0{,}5+0{,}5i\\) postane \\(-90^\\circ\\). Na isto inverzijo se sklicujejo lekcije o geometriji trikotnika.', 'Inversion in the circle with centre \\(c\\) and radius \\(r\\) is \\(z\\mapsto c+r^2/\\overline{z-c}\\). In the unit circle with centre \\(0\\), \\(1+i\\mapsto0.5+0.5i\\), and its conjugate is \\(1/z=0.5-0.5i\\). For centre \\(0.5\\) and radius \\(1\\), \\(z=1.5+i\\) goes to \\(1+0.5i\\). Theorem: applying the inversion twice returns the point (an involution), and it reverses orientation: the angle between the directions \\(1\\) and \\(i\\) at \\(0.5+0.5i\\) becomes \\(-90^\\circ\\). The triangle geometry lessons reuse this same inversion.'),
             words('Povleci središče in polmer krožnice ter opazuj sliko \\(z\\). Katere točke ostanejo na mestu?', 'Drag the centre and the radius of the circle and watch the image of \\(z\\). Which points stay in place?'),
-            [recipExample('outside'), show('complex-circle'), param('complex-centre-re', 0.5), param('complex-centre-im', 0), param('complex-radius', 1), param('complex-z-re', 1.5), param('complex-z-im', 1)]),
+            [recipExample('outside'), show('complex-circle'), param('complex-centre-re', 0.5), param('complex-centre-im', 0), param('complex-radius', 1), param('complex-z-re', 1.5), param('complex-z-im', 1)],
+            recipFrame({highlight: ['circle-centre', 'circle-radius'], uses: ['circle', 'complex-radius']})),
         recipStep('explore',
             words('Prosto raziskovanje', 'Free exploration'),
             words('Pokazano je vse. Točka \\(z=0\\) je dovoljena: recipročna vrednost ni definirana in \\(1/z\\) neomejeno raste, ko gre \\(z\\to0\\); graf tega ne izpiše kot število. Slike so ponazoritev: da je \\(1/z=\\bar z/|z|^2\\), sledi iz \\(z\\bar z=|z|^2\\), ne iz risanja.', 'Everything is shown. The point \\(z=0\\) is allowed: the reciprocal is not defined and \\(1/z\\) grows without bound as \\(z\\to0\\); the graph does not print it as a number. The pictures illustrate: that \\(1/z=\\bar z/|z|^2\\) follows from \\(z\\bar z=|z|^2\\), not from the drawing.'),
             words('Postavi \\(z\\) na \\(0\\) in nato na \\(0{,}05\\). Kaj se zgodi z \\(1/z\\)?', 'Put \\(z\\) at \\(0\\) and then at \\(0.05\\). What happens to \\(1/z\\)?'),
-            [recipExample('outside'), show('complex-reciprocal'), show('complex-quotient'), show('complex-circle')]),
+            [recipExample('outside'), show('complex-reciprocal'), show('complex-quotient'), show('complex-circle')],
+            recipFrame({highlight: ['z']})),
     ],
 };
 

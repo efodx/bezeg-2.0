@@ -1,13 +1,17 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, FunctionPanel, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionStatus} from "../functions/FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber, NumberLanguage} from "../../analysis/format";
+import {currentLanguage, message, messageNumber, renderMessage, t, type Message, type MessageNumber} from "../../localization";
+import {NumberLanguage} from "../../analysis/format";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {argumentValue, complexValueMessage} from "./complexValueMessage";
 import {
     Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, complexArgument, complexModulus, isZero, snapComplexCoordinate,
 } from "../../analysis/complex";
@@ -19,7 +23,7 @@ import {
     ReciprocalVisibilityField, snapInversionRadius, setReciprocalRadius, setReciprocalVisibility,
 } from "../../analysis/complexReciprocalModel";
 import {complexReciprocalEditMessage} from "./complexMessages";
-import {formatArgument, formatComplex} from "../../analysis/complexFormat";
+import {formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexReciprocalPresetCollection} from "./complexReciprocalPresets";
 import {RevealButton} from "../../inputs/RevealButton";
@@ -40,6 +44,17 @@ const RECIPROCAL_COLORS = {
 
 type OperandName = "z" | "w";
 type StatusKind = "predict" | "z-zero" | "inside" | "outside" | "on-circle" | "centre-pole" | "off-view";
+
+/** The ids of the reciprocal declaration: the inversion radius is the one bound parameter; the three reveals are board switch pucks. */
+export type ComplexReciprocalIds = {
+    param: "complex-radius";
+    row: "z" | "z-modulus" | "z-argument" | "position" | "conjugate" | "reciprocal" | "reciprocal-modulus" | "reciprocal-argument"
+        | "w" | "w-modulus" | "w-argument" | "quotient" | "quotient-modulus" | "quotient-argument" | "circle-centre" | "circle-radius" | "inversion";
+    note: never;
+    legend: "z" | "w" | "unit-circle" | "conjugate" | "reciprocal" | "quotient" | "inversion";
+    section: never;
+    action: "reciprocal" | "quotient" | "circle";
+};
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -109,6 +124,8 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
     private handleAngle = 0;
     /** True only while the radius-handle drag writes its model, so that every other commit puts the handle back at angle 0. */
     private draggingRadius = false;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     protected override commitModel(next: ComplexReciprocalModel, options: { syncScene?: boolean } = {}): void {
         if (!this.draggingRadius) this.handleAngle = 0;
@@ -222,30 +239,19 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         return currentLanguage();
     }
 
-    private modulusText(value: number): string {
-        return formatNumber(value, this.language(), 4);
+    /** A result that exists only after its reveal: "hidden" before, "undefined" where the number does not exist. */
+    private shownNumber(visible: boolean, value: Complex | undefined) {
+        if (!visible) return message("complex_hidden");
+        return value === undefined ? message("complex_undefined") : complexValueMessage(value);
     }
 
-    private argumentText(value: number | undefined): string {
-        return formatArgument(value, this.language(), t("complex_undefined"));
+    private shownModulus(visible: boolean, value: Complex | undefined) {
+        if (!visible) return message("complex_hidden");
+        return value === undefined ? message("complex_undefined") : messageNumber(complexModulus(value), 4);
     }
 
-    private numberText(value: Complex | undefined): string {
-        return value === undefined ? t("complex_undefined") : formatComplex(value, this.language());
-    }
-
-    /** A result that exists only after its Show button: "hidden" before, "undefined" where the number does not exist. */
-    private shownNumber(visible: boolean, value: Complex | undefined): string {
-        return visible ? this.numberText(value) : t("complex_hidden");
-    }
-
-    private shownModulus(visible: boolean, value: Complex | undefined): string {
-        if (!visible) return t("complex_hidden");
-        return value === undefined ? t("complex_undefined") : this.modulusText(complexModulus(value));
-    }
-
-    private shownArgument(visible: boolean, argument: number | undefined): string {
-        return visible ? this.argumentText(argument) : t("complex_hidden");
+    private shownArgument(visible: boolean, argument: number | undefined) {
+        return visible ? argumentValue(argument) : message("complex_hidden");
     }
 
     /** A board line "name = value", "name: hidden" or "name: undefined". */
@@ -291,17 +297,17 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         const circle = (centreX: () => number, centreY: () => number, radius: () => number, color: string, dash: number, shown: () => boolean) =>
             this.own(board.create("curve", [
                 (angle: number) => centreX() + radius() * Math.cos(angle), (angle: number) => centreY() + radius() * Math.sin(angle), 0, 2 * Math.PI,
-            ], {strokeColor: color, strokeWidth: thin, dash, highlight: false, fixed: true, withLabel: false, visible: shown}));
-        circle(() => 0, () => 0, () => 1, GraphPalette.label, 0, () => true);
-        circle(() => model().centreRe, () => model().centreIm, () => model().radius, colors.inversion, INVERSION_DASH, () => model().circleVisible);
+            ], {strokeColor: color, strokeWidth: thin, dash, highlight: false, fixed: true, withLabel: false, visible: shown})) as JXG.GeometryElement;
+        this.drawn.set("unit-circle", circle(() => 0, () => 0, () => 1, GraphPalette.label, 0, () => true));
+        this.drawn.set("inversion", circle(() => model().centreRe, () => model().centreIm, () => model().radius, colors.inversion, INVERSION_DASH, () => model().circleVisible));
 
         const arrow = (re: () => number, im: () => number, color: string, dash: number, shown: () => boolean) =>
             this.own(board.create("curve", [(t: number) => t * re(), (t: number) => t * im(), 0, 1], {
                 strokeColor: color, strokeWidth, dash, lastArrow: {type: 2, size: 6}, doAdvancedPlot: false, numberPoints: 2,
                 highlight: false, fixed: true, withLabel: false, visible: shown,
-            }));
-        arrow(() => model().zRe, () => model().zIm, colors.z, 0, () => !isZero(view().z));
-        arrow(() => model().wRe, () => model().wIm, colors.w, W_DASH, () => !isZero(view().w));
+            })) as JXG.GeometryElement;
+        this.drawn.set("z", arrow(() => model().zRe, () => model().zIm, colors.z, 0, () => !isZero(view().z)));
+        this.drawn.set("w", arrow(() => model().wRe, () => model().wIm, colors.w, W_DASH, () => !isZero(view().w)));
 
         const markerSize = () => Math.max(5, this.displaySettings.pointSize * 1.1);
         // A derived marker is fixed; a result that does not exist (z = 0) sits at the origin, hidden, never at NaN or Infinity.
@@ -310,10 +316,10 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
                 ...this.styles.point.fixed, name, face, size: markerSize, fixed: true, visible: () => shown() && value() !== undefined,
                 label: this.complexPointLabel(() => this.labelPlacement(value() ?? origin, others()), () => shown() && value() !== undefined),
                 fillColor: color, highlightFillColor: color, strokeColor: color,
-            }));
-        marker("$$\\bar z$$", "+", colors.conjugate, () => view().conjugate, () => true, () => [view().z]);
-        marker("$$1/z$$", "<>", colors.reciprocal, () => view().reciprocal, () => model().reciprocalVisible, () => [view().z, view().conjugate]);
-        marker("$$w/z$$", "^", colors.quotient, () => view().quotient, () => model().quotientVisible, () => [view().z, view().w, view().conjugate, view().reciprocal ?? origin]);
+            })) as JXG.GeometryElement;
+        this.drawn.set("conjugate", marker("$$\\bar z$$", "+", colors.conjugate, () => view().conjugate, () => true, () => [view().z]));
+        this.drawn.set("reciprocal", marker("$$1/z$$", "<>", colors.reciprocal, () => view().reciprocal, () => model().reciprocalVisible, () => [view().z, view().conjugate]));
+        this.drawn.set("quotient", marker("$$w/z$$", "^", colors.quotient, () => view().quotient, () => model().quotientVisible, () => [view().z, view().w, view().conjugate, view().reciprocal ?? origin]));
         marker("$$z'$$", "x", colors.inversion, () => view().inversion, () => model().circleVisible, () => [view().z, view().conjugate]);
 
         // The handles and the operands are dragged on the grid inside the square; the model is written once per drag event.
@@ -336,12 +342,12 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
             return point;
         };
         const operandDrag = (which: OperandName) => (point: JXG.Point) => {
-            this.ignoreOutOfDomain(() => this.setOperand(which, snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false}));
+            runAs("learner", () => this.ignoreOutOfDomain(() => this.setOperand(which, snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false})));
             const current = which === "z" ? view().z : view().w;
             point.moveTo([current.re, current.im]);
         };
         this.pointCentre = draggable("$$c$$", "v", colors.inversion, {re: model().centreRe, im: model().centreIm}, true, () => model().circleVisible, point => {
-            this.ignoreOutOfDomain(() => this.setCentre(snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false}));
+            runAs("learner", () => this.ignoreOutOfDomain(() => this.setCentre(snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false})));
             point.moveTo([model().centreRe, model().centreIm]);
             this.syncRadiusHandle();
         });
@@ -352,7 +358,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
             const radius = Math.min(INVERSION_RADIUS_MAX, Math.max(INVERSION_RADIUS_MIN, snapInversionRadius(distance)));
             this.draggingRadius = true;
             try {
-                this.ignoreOutOfDomain(() => this.setRadius(radius, {syncScene: false}));
+                runAs("learner", () => this.ignoreOutOfDomain(() => this.setRadius(radius, {syncScene: false})));
             } finally {
                 this.draggingRadius = false;
             }
@@ -389,7 +395,6 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
                 text: () => t("complex_recip_board_off_view", {value0: this.resultsOutsideBoard().join(", ")}), color: GraphPalette.warningText,
                 visible: () => this.resultsOutsideBoard().length > 0,
             },
-            {text: () => t("complex_recip_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
         ]);
     }
 
@@ -416,6 +421,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         this.pointW = undefined;
         this.pointCentre = undefined;
         this.pointRadius = undefined;
+        this.drawn.clear();
         this.handleAngle = 0;
     }
 
@@ -443,10 +449,12 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
                                 min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
                                 onCommit={(_index, [re, im]) => this.ignoreOutOfDomain(() => this.setCentre(re, im))
                                     ? undefined : t("complex_coordinate_rejected_hint")}/>
-                <Slider customText={t("complex_recip_radius_label")} value={state.radius} min={INVERSION_RADIUS_MIN} max={INVERSION_RADIUS_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
-                        rejectedHint={t("complex_recip_radius_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setRadius(next))}
-                        describedBy={state.circleVisible ? undefined : CIRCLE_HIDDEN_HELP_ID}/>
-                {!state.circleVisible && <p className="inspector-help" id={CIRCLE_HIDDEN_HELP_ID}>{t("complex_recip_circle_hidden_help")}</p>}
+                <PuckOwned param="complex-radius">
+                    <Slider customText={t("complex_recip_radius_label")} value={state.radius} min={INVERSION_RADIUS_MIN} max={INVERSION_RADIUS_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
+                            rejectedHint={t("complex_recip_radius_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setRadius(next))}
+                            describedBy={state.circleVisible ? undefined : CIRCLE_HIDDEN_HELP_ID}/>
+                </PuckOwned>
+                {!state.circleVisible && <p className="inspector-help" id={CIRCLE_HIDDEN_HELP_ID}>{t("complex_recip_circle_hidden_puck_help")}</p>}
                 <p className="inspector-help">{t("complex_recip_circle_help")}</p>
             </div>
         </>;
@@ -454,76 +462,134 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
 
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
-        const toggle = (action: string, shown: boolean, show: string, hide: string, set: (visible: boolean) => void) => (
-            <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
+        const toggle = (action: string, param: string, shown: boolean, show: string, hide: string, set: (visible: boolean) => void) => (
+            <PuckOwned param={param}>
+                <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
+            </PuckOwned>
         );
-        return <>
+        return <PuckOwnedGroup params={["reciprocal", "quotient", "circle"]}>
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("complex_recip_actions_label")}>
-                {toggle("toggle-complex-reciprocal", state.reciprocalVisible, t("complex_recip_show_reciprocal"), t("complex_recip_hide_reciprocal"), v => this.setReciprocalVisible(v))}
-                {toggle("toggle-complex-quotient", state.quotientVisible, t("complex_recip_show_quotient"), t("complex_recip_hide_quotient"), v => this.setQuotientVisible(v))}
-                {toggle("toggle-complex-circle", state.circleVisible, t("complex_recip_show_circle"), t("complex_recip_hide_circle"), v => this.setCircleVisible(v))}
+                {toggle("toggle-complex-reciprocal", "reciprocal", state.reciprocalVisible, t("complex_recip_show_reciprocal"), t("complex_recip_hide_reciprocal"), v => this.setReciprocalVisible(v))}
+                {toggle("toggle-complex-quotient", "quotient", state.quotientVisible, t("complex_recip_show_quotient"), t("complex_recip_hide_quotient"), v => this.setQuotientVisible(v))}
+                {toggle("toggle-complex-circle", "circle", state.circleVisible, t("complex_recip_show_circle"), t("complex_recip_hide_circle"), v => this.setCircleVisible(v))}
             </div>
             <p className="inspector-help">{t("complex_recip_reveal_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
+    /** A declared legend replaces the graph's own legend panel. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "z", color: RECIPROCAL_COLORS.z, label: t("complex_legend_z"), kind: "line"},
-            {id: "w", color: RECIPROCAL_COLORS.w, label: t("complex_legend_w"), kind: "dashed-line"},
-            {id: "unit-circle", color: GraphPalette.label, label: t("complex_recip_legend_unit_circle"), kind: "line"},
-            {id: "conjugate", color: RECIPROCAL_COLORS.conjugate, label: t("complex_recip_legend_conjugate"), kind: "plus"},
-            {id: "reciprocal", color: RECIPROCAL_COLORS.reciprocal, label: t("complex_recip_legend_reciprocal"), kind: "diamond"},
-            {id: "quotient", color: RECIPROCAL_COLORS.quotient, label: t("complex_recip_legend_quotient"), kind: "triangle"},
-            {id: "inversion", color: RECIPROCAL_COLORS.inversion, label: t("complex_recip_legend_inversion"), kind: "dashed"},
-        ]}/>;
+        return null;
     }
+
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
 
     /** The statuses to state in words, most important first; each has a stable id for tests and for assistive technology. */
-    private statuses(model: ComplexReciprocalModel, view: View): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
-        if (!model.reciprocalVisible) result.push({id: "predict", text: t("complex_recip_status_predict")});
-        if (isZero(view.z)) result.push({id: "z-zero", text: t("complex_recip_status_z_zero")});
+    private statuses(model: ComplexReciprocalModel, view: View): { id: StatusKind; text: Message }[] {
+        const result: { id: StatusKind; text: Message }[] = [];
+        if (!model.reciprocalVisible) result.push({id: "predict", text: message("complex_recip_status_predict_puck")});
+        if (isZero(view.z)) result.push({id: "z-zero", text: message("complex_recip_status_z_zero")});
         else if (model.reciprocalVisible) {
-            if (view.position === "outside") result.push({id: "outside", text: t("complex_recip_status_outside")});
-            else if (view.position === "inside") result.push({id: "inside", text: t("complex_recip_status_inside")});
-            else if (view.position === "on") result.push({id: "on-circle", text: t("complex_recip_status_on_circle")});
+            if (view.position === "outside") result.push({id: "outside", text: message("complex_recip_status_outside")});
+            else if (view.position === "inside") result.push({id: "inside", text: message("complex_recip_status_inside")});
+            else if (view.position === "on") result.push({id: "on-circle", text: message("complex_recip_status_on_circle")});
         }
-        if (model.circleVisible && view.inversion === undefined) result.push({id: "centre-pole", text: t("complex_recip_status_centre_pole")});
-        if (view.outsideDefaultView.length > 0) result.push({id: "off-view", text: t("complex_recip_status_off_view", {value0: view.outsideDefaultView.join(", ")})});
+        if (model.circleVisible && view.inversion === undefined) result.push({id: "centre-pole", text: message("complex_recip_status_centre_pole")});
+        if (view.outsideDefaultView.length > 0) result.push({id: "off-view", text: message("complex_recip_status_off_view", {value0: view.outsideDefaultView.join(", ")})});
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language = this.language();
         const view = this.viewOf(model);
         const {reciprocalVisible: recip, quotientVisible: quot, circleVisible: circle} = model;
-        const position = view.position === undefined ? t("complex_undefined")
-            : !recip ? t("complex_hidden")
-                : view.position === "inside" ? t("complex_recip_position_inside") : view.position === "outside" ? t("complex_recip_position_outside") : t("complex_recip_position_on");
-        const rows = [
-            {id: "z", label: t("complex_readout_z"), value: formatComplex(view.z, language)},
-            {id: "z-modulus", label: t("complex_readout_z_modulus"), value: this.modulusText(view.zModulus)},
-            {id: "z-argument", label: t("complex_readout_z_argument"), value: this.argumentText(view.zArgument)},
-            {id: "position", label: t("complex_recip_readout_position"), value: position},
-            {id: "conjugate", label: t("complex_recip_readout_conjugate"), value: formatComplex(view.conjugate, language)},
-            {id: "reciprocal", label: t("complex_recip_readout_reciprocal"), value: this.shownNumber(recip, view.reciprocal)},
-            {id: "reciprocal-modulus", label: t("complex_recip_readout_reciprocal_modulus"), value: this.shownModulus(recip, view.reciprocal)},
-            {id: "reciprocal-argument", label: t("complex_recip_readout_reciprocal_argument"), value: this.shownArgument(recip, view.reciprocalArgument)},
-            {id: "w", label: t("complex_readout_w"), value: formatComplex(view.w, language)},
-            {id: "w-modulus", label: t("complex_readout_w_modulus"), value: this.modulusText(view.wModulus)},
-            {id: "w-argument", label: t("complex_readout_w_argument"), value: this.argumentText(view.wArgument)},
-            {id: "quotient", label: t("complex_recip_readout_quotient"), value: this.shownNumber(quot, view.quotient)},
-            {id: "quotient-modulus", label: t("complex_recip_readout_quotient_modulus"), value: this.shownModulus(quot, view.quotient)},
-            {id: "quotient-argument", label: t("complex_recip_readout_quotient_argument"), value: this.shownArgument(quot, view.quotientArgument)},
-            {id: "circle-centre", label: t("complex_recip_readout_circle_centre"), value: circle ? formatComplex(view.centre, language) : t("complex_hidden")},
-            {id: "circle-radius", label: t("complex_recip_readout_circle_radius"), value: circle ? formatNumber(model.radius, language, 2) : t("complex_hidden")},
-            {id: "inversion", label: t("complex_recip_readout_inversion"), value: this.shownNumber(circle, view.inversion)},
-        ];
+        const position = view.position === undefined ? message("complex_undefined")
+            : !recip ? message("complex_hidden")
+                : message(view.position === "inside" ? "complex_recip_position_inside" : view.position === "outside" ? "complex_recip_position_outside" : "complex_recip_position_on");
+        const row = <Id extends ComplexReciprocalIds["row"]>(id: Id, name: Message, value: Message | MessageNumber | FormattedValue) => ({id, name, value});
+        return {
+            rows: [
+                row("z", message("complex_readout_z"), complexValueMessage(view.z)),
+                row("z-modulus", message("complex_readout_z_modulus"), messageNumber(view.zModulus, 4)),
+                row("z-argument", message("complex_readout_z_argument"), argumentValue(view.zArgument)),
+                row("position", message("complex_recip_readout_position"), position),
+                row("conjugate", message("complex_recip_readout_conjugate"), complexValueMessage(view.conjugate)),
+                row("reciprocal", message("complex_recip_readout_reciprocal"), this.shownNumber(recip, view.reciprocal)),
+                row("reciprocal-modulus", message("complex_recip_readout_reciprocal_modulus"), this.shownModulus(recip, view.reciprocal)),
+                row("reciprocal-argument", message("complex_recip_readout_reciprocal_argument"), this.shownArgument(recip, view.reciprocalArgument)),
+                row("w", message("complex_readout_w"), complexValueMessage(view.w)),
+                row("w-modulus", message("complex_readout_w_modulus"), messageNumber(view.wModulus, 4)),
+                row("w-argument", message("complex_readout_w_argument"), argumentValue(view.wArgument)),
+                row("quotient", message("complex_recip_readout_quotient"), this.shownNumber(quot, view.quotient)),
+                row("quotient-modulus", message("complex_recip_readout_quotient_modulus"), this.shownModulus(quot, view.quotient)),
+                row("quotient-argument", message("complex_recip_readout_quotient_argument"), this.shownArgument(quot, view.quotientArgument)),
+                row("circle-centre", message("complex_recip_readout_circle_centre"), circle ? complexValueMessage(view.centre) : message("complex_hidden")),
+                row("circle-radius", message("complex_recip_readout_circle_radius"), circle ? messageNumber(model.radius, 2) : message("complex_hidden")),
+                row("inversion", message("complex_recip_readout_inversion"), this.shownNumber(circle, view.inversion)),
+            ],
+            help: message("complex_recip_note"),
+            status: this.statuses(model, view),
+            // z, w and z-bar always lie in the default square; the shown results may not (the off-view status says so), so they are not marks.
+            must: [view.z, view.w, view.conjugate].map(({re, im}) => ({x: re, y: im})),
+        };
+    }
+
+    /** Parameter writes (ADR 0064): the lesson name is the key. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {"complex-radius": {read: () => this.model.radius, apply: (value: number) => this.setRadius(value)}};
+    }
+
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const parameters: ParameterDeclaration[] = model.circleVisible ? [
+            {key: "complex-radius", kind: "range", label: message("complex_recip_radius_name"), symbol: "r", placement: "board",
+                min: INVERSION_RADIUS_MIN, max: INVERSION_RADIUS_MAX, step: COMPLEX_COORDINATE_STEP, maxDecimals: 2},
+        ] : [];
+        const view = this.viewOf(model);
+        const entry = <Id extends ComplexReciprocalIds["legend"]>(id: Id, label: Message, kind: "line" | "dashed" | "point" | "cross") =>
+            ({id, label, kind, object: id});
+        return {
+            ...this.commonDeclaration(),
+            parameters,
+            legend: [
+                ...(isZero(view.z) ? [] : [entry("z", message("complex_recip_key_z"), "line")]),
+                ...(isZero(view.w) ? [] : [entry("w", message("complex_recip_key_w"), "dashed")]),
+                entry("unit-circle", message("complex_recip_key_unit_circle"), "line"),
+                entry("conjugate", message("complex_recip_key_conjugate"), "cross"),
+                ...(model.reciprocalVisible && view.reciprocal ? [entry("reciprocal", message("complex_recip_key_reciprocal"), "point")] : []),
+                ...(model.quotientVisible && view.quotient ? [entry("quotient", message("complex_recip_key_quotient"), "point")] : []),
+                ...(model.circleVisible ? [entry("inversion", message("complex_recip_key_inversion"), "dashed")] : []),
+            ],
+            actions: [
+                {id: "reciprocal", label: message("complex_recip_puck_reciprocal"), placement: "board", enabled: true, pressed: model.reciprocalVisible, puck: true},
+                {id: "quotient", label: message("complex_recip_puck_quotient"), placement: "board", enabled: true, pressed: model.quotientVisible, puck: true},
+                {id: "circle", label: message("complex_recip_puck_circle"), placement: "board", enabled: true, pressed: model.circleVisible, puck: true},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "conjugate" || id === "reciprocal" || id === "quotient" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        const model = this.model;
+        if (id === "reciprocal") runAs("learner", () => this.setReciprocalVisible(!model.reciprocalVisible));
+        else if (id === "quotient") runAs("learner", () => this.setQuotientVisible(!model.quotientVisible));
+        else if (id === "circle") runAs("learner", () => this.setCircleVisible(!model.circleVisible));
+        else throw new Error("Unknown action");
+    }
+
+    protected renderReadout(): React.ReactNode {
+        const panel = this.functionPanel();
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("complex_recip_note")}/>
-            <FunctionStatus className="demo-status" dataAttribute="complex-status" lines={this.statuses(model, view)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="demo-status" dataAttribute="complex-status" lines={(panel.status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 }

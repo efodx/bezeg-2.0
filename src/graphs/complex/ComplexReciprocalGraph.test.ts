@@ -122,7 +122,7 @@ test('initialization draws z = 1 + i with 1/z hidden, the unit circle and the co
     expect(graph.board.objectsList).toHaveLength(OBJECT_COUNT);
     expect(graph.generatedObjectCount).toBe(OBJECT_COUNT);
     expect(caption(graph)).toEqual([
-        'z = 1 + i, w = 2 + i', `${ZBAR} = 1 − i`, '1/z: skrit', 'krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z\'',
+        'z = 1 + i, w = 2 + i', `${ZBAR} = 1 − i`, '1/z: skrit',
     ]);
     expect(at(points(graph)[Z_POINT])).toEqual([1, 1]);
     expect(at(points(graph)[W_POINT])).toEqual([2, 1]);
@@ -193,7 +193,7 @@ test('z = 0 is reachable on the grid, gives the not-defined status, and no text 
         expect(graph.model).toMatchObject({zRe: 0, zIm: 0});
         expect(Object.is(graph.model.zRe, -0)).toBe(false);
         expect(statusIds(graph)).toEqual(['z-zero']);
-        const status = graph.statuses(graph.model, graph.viewOf(graph.model))[0].text as string;
+        const status = renderMessage(graph.statuses(graph.model, graph.viewOf(graph.model))[0].text);
         expect(status).toMatch(language === 'sl' ? /nista definirana/ : /not defined/);
         expect(rows(graph)).toMatchObject({
             reciprocal: language === 'sl' ? 'ni definiran' : 'undefined', 'reciprocal-modulus': language === 'sl' ? 'ni definiran' : 'undefined',
@@ -390,7 +390,7 @@ test('results outside the default view are announced on the board and in the ins
     // 1/z = 20, w/z = (2 + i) * 20 = 40 + 20i
     expect(rows(graph)).toMatchObject({reciprocal: '20', quotient: '40 + 20i'});
     expect(statusIds(graph)).toContain('off-view');
-    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).find((s: any) => s.id === 'off-view').text).toContain('1/z, w/z');
+    expect(renderMessage(graph.statuses(graph.model, graph.viewOf(graph.model)).find((s: any) => s.id === 'off-view').text)).toContain('1/z, w/z');
     expect(caption(graph).some((line: string) => line.startsWith('zunaj pogleda: 1/z, w/z'))).toBe(true);
     // zooming out so that both fit removes the board warning but not the default-view status
     graph.board.box = [-100, 100, 100, -100];
@@ -415,7 +415,7 @@ const hiddenHelp = (graph: any) => (collect(graph.renderControls()).p ?? []).fin
 test('while the inversion circle is hidden one line under the c row and the radius names the button that shows it, and typed values still commit', () => {
     const graph = makeGraph();
     const line = hiddenHelp(graph);
-    expect(line.props.children).toBe('Krožnica inverzije je zdaj skrita; pokaže jo gumb Pokaži krožnico inverzije.');
+    expect(line.props.children).toBe('Krožnica inverzije je zdaj skrita; pokaže jo krmilnik Inverzija.');
     const c = controls(graph);
     expect(c.showCircle.props.children).toBe('Pokaži krožnico inverzije');
     expect(c.found.PointListInput[1].props.describedBy).toBe(line.props.id);
@@ -427,7 +427,7 @@ test('while the inversion circle is hidden one line under the c row and the radi
     c.radius.props.onChange(1.5);
     expect(graph.model).toMatchObject({centreRe: 1, radius: 1.5});
     setLanguage('en');
-    expect(hiddenHelp(graph).props.children).toBe('The inversion circle is hidden now; Show inversion circle reveals it.');
+    expect(hiddenHelp(graph).props.children).toBe('The inversion circle is hidden now; the control Inversion shows it.');
     set(graph, {circleVisible: true});
     expect(hiddenHelp(graph)).toBeUndefined();
     expect(controls(graph).radius.props.describedBy).toBeUndefined();
@@ -511,14 +511,12 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     const unsubscribe = onLanguageChange(listener);
     expect(caption(graph)).toEqual([
         'z = 1 − i, w = 2 + i', `${ZBAR} = 1 + i`, '1/z = 0,5 + 0,5i', 'w/z = 0,5 + 1,5i', 'z\' = 0,9 − 0,8i',
-        'krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z\'',
     ]);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
     expect(caption(graph)[2]).toBe('1/z = 0.5 + 0.5i');
-    expect(caption(graph)[5]).toBe('circle: z; square: w; plus: z̄; diamond: 1/z; triangle: w/z; cross: z\'');
     expect(rows(graph)).toMatchObject({reciprocal: '0.5 + 0.5i', quotient: '0.5 + 1.5i', position: 'outside (|z| > 1)'});
-    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: any) => status.text)).toEqual([
+    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: any) => renderMessage(status.text))).toEqual([
         '|z| > 1: z is outside the unit circle, so 1/z is inside it (|1/z| = 1/|z| < 1).',
     ]);
     set(graph, {reciprocalVisible: false});
@@ -531,11 +529,11 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     expect(caption(graph)[2]).toBe('1/z: skrit');
     expect(controls(graph).showReciprocal.props.children).toBe('Pokaži 1/z');
     expect(controls(graph).radius.props.customText).toBe('Polmer r');
-    // below 520 px the labels stay short: the circle line and the key are left out
+    // below 520 px the labels stay short: the circle line is left out
     graph.board.canvasWidth = 390;
     expect(caption(graph)).toHaveLength(4);
     graph.board.canvasWidth = 700;
-    expect(caption(graph)).toHaveLength(6);
+    expect(caption(graph)).toHaveLength(5);
     unsubscribe();
 });
 

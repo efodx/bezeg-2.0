@@ -99,7 +99,6 @@
         "1/z: skrit",
         "Im",
         "Re",
-        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
         "z = 1 + i, w = 2 + i",
         "z̄ = 1 - i"
       ]
@@ -201,7 +200,6 @@
         "1/z = 0,5 - 0,5i",
         "Im",
         "Re",
-        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
         "z = 1 + i, w = 2 + i",
         "z̄ = 1 - i"
       ]
@@ -303,7 +301,6 @@
         "1/z = 1 - i",
         "Im",
         "Re",
-        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
         "z = 0,5 + 0,5i, w = 2 + i",
         "z̄ = 0,5 - 0,5i"
       ]
@@ -405,7 +402,6 @@
         "1/z = 0,6 - 0,8i",
         "Im",
         "Re",
-        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
         "z = 0,6 + 0,8i, w = 2 + i",
         "z̄ = 0,6 - 0,8i"
       ]
@@ -507,7 +503,6 @@
         "1/z = 0,5 + 0,5i",
         "Im",
         "Re",
-        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
         "w/z = 0,5 + 1,5i",
         "z = 1 - i, w = 2 + i",
         "z̄ = 1 + i"
@@ -610,7 +605,6 @@
         "1/z: skrit",
         "Im",
         "Re",
-        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
         "z = 1,5 + i, w = 2 + i",
         "z' = 1 + 0,5i",
         "z̄ = 1,5 - i"
@@ -713,7 +707,6 @@
         "1/z = 0,5 - 0,5i",
         "Im",
         "Re",
-        "krog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'",
         "w/z = 1,5 - 0,5i",
         "z = 1 + i, w = 2 + i",
         "z' = 0,9 + 0,8i",

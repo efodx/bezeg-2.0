@@ -837,9 +837,26 @@ const SAMPLES: readonly Sample[] = [
             {name: 'full turn, N 30', apply: run({degrees: 360, degree: 30, omega: 1})},
         ] satisfies ParityState[];
     })()},
+    {file: 'complex/__parity__/complex-reciprocal.json', demonstration: 'complex-reciprocal', states: (() => {
+        type Recip = {setExample(id: string): void; setOperand(which: 'z' | 'w', re: number, im: number): void; setCentre(re: number, im: number): void;
+            setRadius(value: number): void; setReciprocalVisible(v: boolean): void; setQuotientVisible(v: boolean): void; setCircleVisible(v: boolean): void};
+        // every state starts from an example (which hides every reveal), so a state does not inherit the previous one
+        const run = (example: string, change: (g: Recip) => void = () => undefined): ParityState['apply'] =>
+            graph => { runAs('learner', () => { const g = graph as unknown as Recip; g.setExample(example); change(g); }); };
+        return [
+            {name: 'default, reciprocal hidden', apply: run('outside')},
+            {name: 'reciprocal shown, outside', apply: run('outside', g => g.setReciprocalVisible(true))},
+            {name: 'inside the circle', apply: run('inside', g => g.setReciprocalVisible(true))},
+            {name: 'on the circle', apply: run('unit-circle', g => g.setReciprocalVisible(true))},
+            {name: 'division', apply: run('division', g => { g.setReciprocalVisible(true); g.setQuotientVisible(true); })},
+            {name: 'inversion circle, moved', apply: run('outside', g => { g.setCircleVisible(true); g.setCentre(0.5, 0); g.setRadius(1); g.setOperand('z', 1.5, 1); })},
+            {name: 'z at the origin, everything shown', apply: run('zero', g => { g.setReciprocalVisible(true); g.setQuotientVisible(true); g.setCircleVisible(true); })},
+            {name: 'z at the centre of the circle', apply: run('outside', g => { g.setCircleVisible(true); g.setCentre(1, 1); g.setRadius(0.5); })},
+        ] satisfies ParityState[];
+    })()},
 ];
 
-const root = path.resolve(__dirname, '../..');
+const root =path.resolve(__dirname, '../..');
 const record = async (sample: Sample) => recordParityWithDeclarations(path.basename(sample.file, '.json'), createGraph(sample.demonstration), sample.states);
 const text = (recording: ParityRecording) => `${JSON.stringify(recording, null, 2)}\n`;
 
