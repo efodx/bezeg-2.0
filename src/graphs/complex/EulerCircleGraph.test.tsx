@@ -594,7 +594,7 @@ describe('captions and the legend', () => {
         expect(readout('sum')).toBeTruthy();
         expect(readout('velocity')).toBeTruthy();
         expect(readout('acceleration')).toBeTruthy();
-        const legend = (graph.getDeclaration().legend ?? []).map((entry: {id: string}) => entry.id);
+        const legend = (graph.getDeclaration()?.legend ?? []).map((entry: {id: string}) => entry.id);
         expect(legend).toEqual(expect.arrayContaining(['point', 'velocity', 'acceleration', 'sum', 'second', 'product']));
     });
 
