@@ -1,4 +1,4 @@
-import {Message, message, t} from "../../../localization";
+import {Message, message, renderMessage} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import type {Language} from "../../../localization";
 import {
@@ -80,22 +80,37 @@ export function readoutAt(points: readonly Point2[], rule: ParameterRule, s: num
     return {lagrange: {parameter: tL, ...lagrange}, bezier: {parameter: s, ...bezier}};
 }
 
-/** Lines of the weights readout (board text and the side panel's status). */
-export function readoutLines(points: readonly Point2[], rule: ParameterRule, s: number, showBezier: boolean, language: Language): string[] {
+/** One sentence of the weights readout: `lagrange` and, when the Bezier curve is shown, `bezier`. */
+export interface ReadoutSentence {
+    readonly id: 'lagrange' | 'bezier';
+    readonly text: Message;
+}
+
+/** The sentences of the weights readout as catalog messages (the panel's notes); empty while the data cannot be interpolated. */
+export function readoutSentences(points: readonly Point2[], rule: ParameterRule, s: number, showBezier: boolean, language: Language): ReadoutSentence[] {
     if (interpolationRejection(points, rule)) return [];
     const num = (value: number) => formatNumber(value, language, 4);
     const list = (values: readonly number[]) => values.map(num).join("; ");
     const {lagrange, bezier} = readoutAt(points, rule, s);
     const parameters = parametersOf(points, rule);
-    const lines = [
-        t("interp_readout_lagrange", {value0: num(lagrange.parameter), value1: num(parameters[parameters.length - 1]),
+    const sentences: ReadoutSentence[] = [{
+        id: 'lagrange',
+        text: message("interp_readout_lagrange", {value0: num(lagrange.parameter), value1: num(parameters[parameters.length - 1]),
             value2: list(lagrange.weights), value3: num(lagrange.point[0]), value4: num(lagrange.point[1])}),
-    ];
+    }];
     if (showBezier) {
-        lines.push(t("interp_readout_bezier", {value0: num(bezier.parameter), value1: list(bezier.weights),
-            value2: num(bezier.point[0]), value3: num(bezier.point[1])}));
+        sentences.push({
+            id: 'bezier',
+            text: message("interp_readout_bezier", {value0: num(bezier.parameter), value1: list(bezier.weights),
+                value2: num(bezier.point[0]), value3: num(bezier.point[1])}),
+        });
     }
-    return lines;
+    return sentences;
+}
+
+/** Lines of the weights readout as text. */
+export function readoutLines(points: readonly Point2[], rule: ParameterRule, s: number, showBezier: boolean, language: Language): string[] {
+    return readoutSentences(points, rule, s, showBezier, language).map(sentence => renderMessage(sentence.text));
 }
 
 /** Convex hull vertices (monotone chain, counter-clockwise, collinear points dropped); fewer than 3 distinct points give them back. */

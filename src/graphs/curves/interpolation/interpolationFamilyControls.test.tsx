@@ -6,6 +6,7 @@ import {createGraph} from '../../base/createTestGraph';
 import type {DemonstrationId} from '../../../demonstrations';
 import {enterNumber} from '../../../inputs/testEntry';
 import {curveAccess} from '../../base/curveGraphTestAccess';
+import {runAs} from '../../base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -23,11 +24,11 @@ async function mount(id: DemonstrationId) {
 
 test('Lagrange interpolation: a refused move shows its reason alone in the refusal channel, the next accepted edit clears it; one live region', async () => {
     const graph = await mount('interp-lagrange');
-    act(() => graph.setParameterRule('chord'));
-    act(() => { graph.movePoint(1, graph.state.points[0][0], graph.state.points[0][1]); });
+    act(() => runAs('learner', () => graph.setParameterRule('chord')));
+    act(() => { runAs('learner', () => graph.movePoint(1, graph.state.points[0][0], graph.state.points[0][1])); });
     expect(notice()).not.toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
-    act(() => graph.setPosition(0.4));
+    act(() => runAs('learner', () => graph.setPosition(0.4)));
     expect(notice()).toBeNull();
     expect(liveRegions()).toBe(1);
 });
@@ -35,7 +36,7 @@ test('Lagrange interpolation: a refused move shows its reason alone in the refus
 test('Hermite: a refused move goes to the refusal channel and the next accepted edit clears it', async () => {
     const graph = await mount('interp-hermite');
     act(() => graph.setParameterRule('chord'));
-    act(() => { graph.movePoint(1, graph.state.points[0][0], graph.state.points[0][1]); });
+    act(() => { runAs('learner', () => graph.movePoint(1, graph.state.points[0][0], graph.state.points[0][1])); });
     expect(notice()).not.toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
     act(() => graph.setShowBezier(!graph.state.showBezier));

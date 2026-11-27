@@ -1,8 +1,7 @@
-import type {Board, GeometryElement, Point, Text} from "jsxgraph";
-import {currentLanguage, onLanguageChange} from "../../../localization";
+import type {Board, GeometryElement, Point} from "jsxgraph";
 import {barycentricWeights, bezierCurvePoint, lagrangeBasis, ParameterRule, Point2} from "../../../analysis/interpolation";
 import {GraphPalette} from "../../styles/GraphPalette";
-import {convexHullOf, interpolationRejection, parametersOf, readoutAt, readoutLines} from "./interpolationModel";
+import {convexHullOf, interpolationRejection, parametersOf, readoutAt} from "./interpolationModel";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 import {stylesForBoard} from "../../styles/GraphStyles";
 import {pointLabelMath} from "../../styles/pointLabelMath";
@@ -22,16 +21,17 @@ interface SceneSettings {
 
 /**
  * The owned elements of the Lagrange versus Bezier scene: the draggable data points, the Lagrange curve, the Bezier curve,
- * the hull outline, the two markers at the shared position and the weights readout. A scene is built for one point count;
+ * the hull outline and the two markers at the shared position. A scene is built for one point count;
  * adding or removing a point (or importing a Preset) builds a new one. {@link dispose} removes every element (the drag
- * listeners go with their points) and releases the language subscription.
+ * listeners go with their points).
  */
 export class InterpolationScene {
     private readonly board: Board;
     private readonly count: number;
     private elements: GeometryElement[] = [];
     private dataPoints: Point[] = [];
-    private stopLanguageUpdates?: () => void;
+    /** The elements a legend entry names, by id (`drawnElement`). */
+    private readonly named = new Map<string, GeometryElement>();
     private disposed = false;
     private cacheKey?: {points: readonly Point2[]; rule: ParameterRule};
     private cacheValue?: {parameters: number[]; weights: number[]};
@@ -49,6 +49,11 @@ export class InterpolationScene {
 
     ownedElements(): readonly GeometryElement[] {
         return this.elements;
+    }
+
+    /** The drawn element a legend entry names: `points` (the first data point), `lagrange`, `bezier` or `hull`. */
+    drawnElement(id: string): GeometryElement | undefined {
+        return id === 'points' ? this.dataPoints[0] : this.named.get(id);
     }
 
     pointElements(): readonly Point[] {
@@ -104,7 +109,7 @@ export class InterpolationScene {
         const quiet = {fixed: true, highlight: false, withLabel: false};
         const points = this.settings.points();
 
-        // Layers, lowest first: hull, Bezier, Lagrange, markers, data points, readout.
+        // Layers, lowest first: hull, Bezier, Lagrange, markers, data points.
         // The hull is a closed polyline of the hull vertices: a data curve whose arrays are rebuilt on every update.
         const hull = this.create<GeometryElement & {dataX: number[]; dataY: number[]; updateDataArray: () => void}>('curve', [[], []],
             {...quiet, strokeColor: GraphPalette.controlPolygon, strokeWidth: 2, dash: 2, visible: () => this.settings.showHull()});
@@ -115,11 +120,12 @@ export class InterpolationScene {
             hull.dataY = closed.map(v => v[1]);
         };
 
-        this.create('curve', [(u: number) => this.bezierAt(u)[0], (u: number) => this.bezierAt(u)[1], 0, 1],
-            {...quiet, strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2.5, dash: 3, visible: () => this.settings.showBezier()});
+        this.named.set('hull', hull);
+        this.named.set('bezier', this.create('curve', [(u: number) => this.bezierAt(u)[0], (u: number) => this.bezierAt(u)[1], 0, 1],
+            {...quiet, strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2.5, dash: 3, visible: () => this.settings.showBezier()}));
 
-        this.create('curve', [(u: number) => this.lagrangeAt(u)[0], (u: number) => this.lagrangeAt(u)[1], 0, () => this.lastParameter()],
-            {...quiet, strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5});
+        this.named.set('lagrange', this.create('curve', [(u: number) => this.lagrangeAt(u)[0], (u: number) => this.lagrangeAt(u)[1], 0, () => this.lastParameter()],
+            {...quiet, strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5}));
 
         const valid = () => !interpolationRejection(this.settings.points(), this.settings.rule());
         const marker = (color: string, face: string, which: 'lagrange' | 'bezier', visible: () => boolean) => {
@@ -147,20 +153,6 @@ export class InterpolationScene {
             });
             this.dataPoints.push(point);
         });
-
-        const box = () => this.board.getBoundingBox();
-        // A phone board has no room for these lines: they would cover the top of the curve. The inspector shows the same readout.
-        this.create<Text>('text', [
-            () => box()[0] + 0.02 * (box()[2] - box()[0]),
-            () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => readoutLines(this.settings.points(), this.settings.rule(), this.settings.position(), this.settings.showBezier(), currentLanguage()).join("\n"),
-        ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
-            strokeColor: GraphPalette.label, visible: () => this.board.canvasWidth >= 480});
-
-        // Board text is recomputed only on board update, which a language change does not trigger.
-        this.stopLanguageUpdates = onLanguageChange(() => {
-            if (!this.disposed && this.board.renderer) this.board.update();
-        });
     }
 
     /** Moves each data point to the state (after an edit, a rejected drag or a Preset change that kept the count). */
@@ -172,14 +164,13 @@ export class InterpolationScene {
         });
     }
 
-    /** Removes every owned element (later ones first) and releases the language subscription. Idempotent. */
+    /** Removes every owned element (later ones first). Idempotent. */
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
         // A removed point never fires "out": do not leave the board showing its hover cursor.
         if (this.board.containerObj?.style.cursor === 'pointer') this.board.containerObj.style.cursor = 'default';
-        this.stopLanguageUpdates?.();
-        this.stopLanguageUpdates = undefined;
+        this.named.clear();
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();
         this.elements = [];
         this.dataPoints = [];

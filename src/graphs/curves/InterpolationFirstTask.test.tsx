@@ -54,12 +54,13 @@ describe('exact point entry follows the first-task group', () => {
     const at = (names: string[], label: string) => names.findIndex(name => name.startsWith(label));
     const point = () => t('interp_point_name', {value0: 1});
 
-    test('lagrange: comparison toggles, then the points, then convention and count', () => {
+    test('lagrange: comparison toggles, then the points; the parameter rule and position are pucks, not Edit controls', () => {
         mountGraph(new InterpolationGraph());
         const names = editControls();
         expect(at(names, point()), names.join(' | ')).toBeGreaterThanOrEqual(0);
         expect(at(names, t('interp_show_bezier')), names.join(' | ')).toBeLessThan(at(names, point()));
-        expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_parameter_rule')));
+        expect(document.querySelector('[data-puck-strip]'), 'puck strip').not.toBeNull();
+        expect(at(names, t('interp_parameter_rule')), names.join(' | ')).toBe(-1);
         expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_show_basis')));
     });
 

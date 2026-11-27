@@ -2,10 +2,11 @@ import React from 'react';
 import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import InterpolationGraph from './InterpolationGraph';
-import {setLanguage} from '../../../localization';
+import {renderMessage, setLanguage} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
 import {insideHull} from './interpolationModel';
 import {interpolationPresetCollection} from './interpolationPresetCollection';
+import {runAs} from '../../base/writes/writeSource';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -38,7 +39,7 @@ const mount = () => {
 /** JSXGraph types omit the event trigger the board itself uses for a drag. */
 const drag = (point: unknown) => (point as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers(['drag'], []);
 
-// The scene creates, in order: hull curve, Bezier curve, Lagrange curve, two markers, the data points, the readout text.
+// The scene creates, in order: hull curve, Bezier curve, Lagrange curve, two markers, the data points.
 const curves = (graph: ObservedInterpolationGraph) => {
     const [hull, bezier, lagrange] = graph.ownedElements() as any[];
     return {hull, bezier, lagrange};
@@ -57,7 +58,7 @@ describe('InterpolationGraph on a real board', () => {
     test('the drawn Lagrange curve passes through every data point, for uniform and chord parameters', () => {
         const {graph, view} = mount();
         for (const rule of ['uniform', 'chord'] as const) {
-            graph.setParameterRule(rule);
+            runAs('learner', () => graph.setParameterRule(rule));
             const {lagrange} = curves(graph);
             const points = graph.state.points;
             const parameters = [0];
@@ -85,14 +86,14 @@ describe('InterpolationGraph on a real board', () => {
     test('the drawn curve reproduces a cubic polynomial curve through four points and a quartic through five', () => {
         const {graph, view} = mount();
         const poly = (t: number) => [t ** 3 - 2 * t, 0.5 * t ** 2 + 1] as [number, number];
-        graph.importPresetData({points: [0, 1, 2, 3].map(poly), parameterRule: 'uniform', showHull: false, showBezier: true, showBasis: false, t: 0.5});
+        runAs('learner', () => graph.importPresetData({points: [0, 1, 2, 3].map(poly), parameterRule: 'uniform', showHull: false, showBezier: true, showBasis: false, t: 0.5}));
         let {lagrange} = curves(graph);
         for (const u of [0.3, 1.7, 2.9]) {
             expect(Math.abs(lagrange.X(u) - poly(u)[0])).toBeLessThanOrEqual(1e-12);
             expect(Math.abs(lagrange.Y(u) - poly(u)[1])).toBeLessThanOrEqual(1e-12);
         }
         const quartic = (t: number) => [t ** 4 - t, 2 * t ** 3 - t ** 2] as [number, number];
-        graph.importPresetData({points: [0, 1, 2, 3, 4].map(quartic), parameterRule: 'uniform', showHull: false, showBezier: true, showBasis: false, t: 0.5});
+        runAs('learner', () => graph.importPresetData({points: [0, 1, 2, 3, 4].map(quartic), parameterRule: 'uniform', showHull: false, showBezier: true, showBasis: false, t: 0.5}));
         ({lagrange} = curves(graph));
         for (const u of [0.4, 2.2, 3.7]) expect(Math.abs(lagrange.X(u) - quartic(u)[0])).toBeLessThanOrEqual(1e-9);
         view.unmount();
@@ -116,11 +117,11 @@ describe('InterpolationGraph on a real board', () => {
         const {graph, view} = mount();
         const [p0, p1] = graph.sceneOf().pointElements();
         p1.moveTo([1, 2.5]);
-        drag(p1);
+        runAs('learner', () => drag(p1));
         expect(graph.state.points[1]).toEqual([1, 2.5]);
-        graph.setParameterRule('chord');
+        runAs('learner', () => graph.setParameterRule('chord'));
         p1.moveTo([p0.X(), p0.Y()]);
-        drag(p1);
+        runAs('learner', () => drag(p1));
         expect(graph.state.points[1]).toEqual([1, 2.5]);
         expect(graph.state.notice).toBe('coincident');
         expect([p1.X(), p1.Y()]).toEqual([1, 2.5]);
@@ -134,15 +135,15 @@ describe('InterpolationGraph on a real board', () => {
         expect(graph.ownedOnBoard()).toBe(owned);
         const first = graph.ownedElements();
         // The state commit reaches the scene on the next flush; an import of the same point count keeps the scene.
-        for (let i = 0; i < 3; i++) { graph.importPresetData(graph.exportPresetData()); act(() => graph.flushStateChanges()); }
+        for (let i = 0; i < 3; i++) { runAs('learner', () => graph.importPresetData(graph.exportPresetData())); act(() => graph.flushStateChanges()); }
         expect(graph.ownedElements()).toEqual(first);
         expect(board.objectsList.length).toBe(base);
-        graph.addPoint();
+        runAs('learner', () => graph.addPoint());
         act(() => graph.flushStateChanges());
         expect(graph.state.points.length).toBe(5);
         expect(first.some(element => board.objectsList.includes(element))).toBe(false);
         expect(board.objectsList.length).toBe(base + 2); // the new point and its label
-        graph.removePoint();
+        runAs('learner', () => graph.removePoint());
         act(() => graph.flushStateChanges());
         expect(board.objectsList.length).toBe(base);
         const last = graph.ownedElements();
@@ -152,14 +153,14 @@ describe('InterpolationGraph on a real board', () => {
 
     test('a Preset round trip through the collection restores the same data', () => {
         const {graph, view} = mount();
-        graph.setParameterRule('chord');
-        graph.setShowHull(true);
-        graph.setPosition(0.25);
+        runAs('learner', () => graph.setParameterRule('chord'));
+        runAs('learner', () => graph.setShowHull(true));
+        runAs('learner', () => graph.setPosition(0.25));
         const exported = graph.exportPresetData();
         const checked = interpolationPresetCollection.check(JSON.parse(JSON.stringify(exported)));
         expect('data' in checked && checked.data).toEqual(exported);
-        graph.importPresetData({points: [[0, 0], [1, 1]], parameterRule: 'uniform', showHull: false, showBezier: false, showBasis: false, t: 0});
-        graph.importPresetData((checked as {data: typeof exported}).data);
+        runAs('learner', () => graph.importPresetData({points: [[0, 0], [1, 1]], parameterRule: 'uniform', showHull: false, showBezier: false, showBasis: false, t: 0}));
+        runAs('learner', () => graph.importPresetData((checked as {data: typeof exported}).data));
         expect(graph.exportPresetData()).toEqual(exported);
         view.unmount();
     });
@@ -168,7 +169,7 @@ describe('InterpolationGraph on a real board', () => {
         const {graph, view, board} = mount();
         const capabilities = graph.getLessonCapabilities();
         const checkpoint = capabilities.captureState();
-        graph.addPoint();
+        runAs('learner', () => graph.addPoint());
         act(() => graph.flushStateChanges());
         expect(graph.sceneOf().pointElements().length).toBe(5);
         act(() => capabilities.restoreState(checkpoint));
@@ -201,7 +202,7 @@ describe('InterpolationGraph on a real board', () => {
         expect([p1.X(), p1.Y()]).toEqual([1, 2.5]);
         expect(curves(graph).lagrange.Y(1)).toBeCloseTo(2.5, 12);
         expect(curves(graph).bezier.Y(1 / 3)).not.toBeCloseTo(1.875, 3);
-        act(() => graph.setParameterRule('chord'));
+        act(() => runAs('learner', () => graph.setParameterRule('chord')));
         act(() => typeAndEnter(field(2, 'x'), '0'));
         expect(graph.state.points[1]).toEqual([0, 2.5]);
         act(() => typeAndEnter(field(2, 'y'), '0'));
@@ -221,19 +222,19 @@ describe('InterpolationGraph on a real board', () => {
         const [, p1] = graph.sceneOf().pointElements();
         expect(shown()).toEqual(listed(graph.state.points));
         p1.moveTo([1.5, 2.25]);
-        act(() => drag(p1));
+        act(() => runAs('learner', () => drag(p1)));
         expect(shown()).toEqual(listed(graph.state.points));
         expect(field(2, 'x').value).toBe('1,5');
         const capabilities = graph.getLessonCapabilities();
         const checkpoint = capabilities.captureState();
-        act(() => graph.addPoint());
+        act(() => runAs('learner', () => graph.addPoint()));
         expect(shown()).toEqual(listed(graph.state.points));
         expect(shown().length).toBe(10);
         act(() => capabilities.restoreState(checkpoint));
         expect(shown()).toEqual(listed(graph.state.points));
         expect(shown().length).toBe(8);
         expect(field(2, 'x').value).toBe('1,5');
-        act(() => graph.removePoint());
+        act(() => runAs('learner', () => graph.removePoint()));
         expect(shown()).toEqual(listed(graph.state.points));
         act(() => graph.importPresetData(preset([[0, 0], [2, 5], [7, -1], [9, 4], [11, 2]])));
         expect(shown()).toEqual(listed(graph.state.points));
@@ -251,13 +252,13 @@ describe('InterpolationGraph on a real board', () => {
     test('the basis plot is off by default, appears with the toggle and follows the slider position', () => {
         const {graph, view} = mount();
         expect(screen.queryByTestId('basis-plot')).toBeNull();
-        act(() => graph.setShowBasis(true));
+        act(() => runAs('learner', () => graph.setShowBasis(true)));
         expect(screen.getByTestId('basis-plot')).toBeInTheDocument();
         const line = () => screen.getByTestId('basis-bernstein-marker-line').getAttribute('x1');
         const before = line();
-        act(() => graph.setPosition(0.9));
+        act(() => runAs('learner', () => graph.setPosition(0.9)));
         expect(line()).not.toBe(before);
-        act(() => graph.setShowBasis(false));
+        act(() => runAs('learner', () => graph.setShowBasis(false)));
         expect(screen.queryByTestId('basis-plot')).toBeNull();
         view.unmount();
     });
@@ -265,7 +266,7 @@ describe('InterpolationGraph on a real board', () => {
     test('the hull is a closed polyline of the hull vertices', () => {
         const {graph, view} = mount();
         const hull = curves(graph).hull;
-        graph.setShowHull(true);
+        runAs('learner', () => graph.setShowHull(true));
         hull.updateDataArray();
         expect(hull.dataX).toEqual([0, 4, 3, 0, 0].slice(0, 0).concat(hull.dataX));
         expect(hull.dataX.length).toBe(5);
@@ -273,20 +274,19 @@ describe('InterpolationGraph on a real board', () => {
         expect(new Set(hull.dataX.map((x: number, i: number) => `${x},${hull.dataY[i]}`)).size).toBe(4);
         view.unmount();
     });
-    test('the board readout text follows the language, with the language decimal separator', () => {
+    test('the weight sentences are declared notes that follow the language, with the language decimal separator', () => {
         const {graph, view} = mount();
         try {
-            graph.importPresetData({points: [[0, 0], [1.5, 2], [3, 3.25], [4, 0]], parameterRule: 'chord', showHull: false, showBezier: true, showBasis: false, t: 0.37});
-            const readout = () => {
-                graph.liveBoard().update();
-                const texts = graph.ownedElements().filter((e: any) => e.elType === 'text') as any[];
-                expect(texts.length).toBe(1);
-                return texts[0].plaintext as string;
+            runAs('learner', () => graph.importPresetData({points: [[0, 0], [1.5, 2], [3, 3.25], [4, 0]], parameterRule: 'chord', showHull: false, showBezier: true, showBasis: false, t: 0.37}));
+            const notes = () => {
+                const declared = graph.getDeclaration()!.notes ?? [];
+                expect(declared.map(note => note.id)).toEqual(['lagrange-weights', 'bezier-weights']);
+                return declared.map(note => renderMessage(note.text)).join(' ');
             };
             act(() => setLanguage('sl'));
-            const sl = readout();
+            const sl = notes();
             act(() => setLanguage('en'));
-            const en = readout();
+            const en = notes();
             expect(sl.length).toBeGreaterThan(0);
             expect(en.length).toBeGreaterThan(0);
             expect(en).not.toBe(sl);
@@ -295,28 +295,22 @@ describe('InterpolationGraph on a real board', () => {
             expect(en).toMatch(/\d\.\d/);
             expect(en).not.toMatch(/\d,\d{2}/);
             act(() => setLanguage('sl'));
-            expect(readout()).toBe(sl);
+            expect(notes()).toBe(sl);
         } finally { view.unmount(); }
     });
 
-    test('the board readout gives way on a phone board, where it would cover the curve', () => {
+    test('the board draws no readout text: the sentences are declared notes, so a phone board keeps its curve uncovered', () => {
         const {graph, view} = mount();
         try {
-            const board = graph.liveBoard() as any;
-            const text = graph.ownedElements().find((e: any) => e.elType === 'text') as any;
-            board.canvasWidth = 390;
-            board.update();
-            expect(text.evalVisProp('visible')).toBe(false);
-            board.canvasWidth = 900;
-            board.update();
-            expect(text.evalVisProp('visible')).toBe(true);
+            expect(graph.ownedElements().filter((e: any) => e.elType === 'text')).toEqual([]);
+            expect((graph.getDeclaration()!.notes ?? []).length).toBeGreaterThan(0);
         } finally { view.unmount(); }
     });
 
     test('twelve uniform nodes: the drawn Lagrange curve keeps node values and the line x = t, which a monomial solve would lose', () => {
         const {graph, view} = mount();
         const ys = [3, -2, 5, 0.5, -4, 2, 6, -1, 4, -3, 1, 7];
-        graph.importPresetData({points: ys.map((y, i) => [i, y] as [number, number]), parameterRule: 'uniform', showHull: false, showBezier: false, showBasis: false, t: 0.5});
+        runAs('learner', () => graph.importPresetData({points: ys.map((y, i) => [i, y] as [number, number]), parameterRule: 'uniform', showHull: false, showBezier: false, showBasis: false, t: 0.5}));
         const {lagrange} = curves(graph);
         ys.forEach((y, i) => {
             expect(Math.abs(lagrange.X(i) - i)).toBeLessThanOrEqual(1e-12);

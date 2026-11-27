@@ -79,6 +79,10 @@ const deBoorAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the only read-off is the point count of the "Število kontrolnih točk" count setter, a setup control that stays in Orodja and shows its own value; the sentences of the levels are board captions'},
 ];
 
+const interpLagrangeAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the only read-off is the point count of the "Število točk" count setter, a setup control that stays in Orodja and shows its own value; the two weight sentences are declared notes and the board no longer repeats them'},
+];
+
 const arcAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its details (it carries no readout marker, so the recording holds none), and the mover line "t = .., s(t) = .." is declared as a note while the old panel drew it only as a board caption, which the recording holds as a caption'},
 ];
@@ -889,6 +893,21 @@ const SAMPLES: readonly Sample[] = [
             {name: 'degree 4 through five points', apply: run(g => g.setDegree(4))},
             {name: 'three points, quadratic', apply: run(g => { g.removePoint(); g.removePoint(); g.setDegree(2); })},
             {name: 'vertical data', apply: run(g => { g.setDegree(1); g.setPoint(0, [2, 0]); g.setPoint(1, [2, 1]); g.setPoint(2, [2, 3]); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/interpolation/__parity__/interp-lagrange.json', demonstration: 'interp-lagrange', accepted: interpLagrangeAccepted, states: (() => {
+        type Lagrange = {setPosition(value: number): void; setShowBezier(show: boolean): void; setParameterRule(rule: string): void;
+            addPoint(): void; removePoint(): void; movePoint(index: number, x: number, y: number): boolean};
+        const run = (edit: (graph: Lagrange) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Lagrange)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 's 0.25', apply: run(g => g.setPosition(0.25))},
+            {name: 'Bezier shown, s 5/6', apply: run(g => { g.setShowBezier(true); g.setPosition(5 / 6); })},
+            {name: 'chord length parameters', apply: run(g => g.setParameterRule('chord'))},
+            {name: 'P2 moved', apply: run(g => g.movePoint(2, 3, 5))},
+            {name: 'fifth point', apply: run(g => g.addPoint())},
+            {name: 'three points, uniform', apply: run(g => { g.removePoint(); g.removePoint(); g.setParameterRule('uniform'); })},
+            {name: 'Bezier hidden, s 1', apply: run(g => { g.setShowBezier(false); g.setPosition(1); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/arc-length.json', demonstration: 'arc-length', states: (() => {

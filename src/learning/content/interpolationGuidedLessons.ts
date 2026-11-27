@@ -11,10 +11,13 @@
  */
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {InterpolationIds} from '../../graphs/curves/interpolation/InterpolationGraph';
 import {leastSquaresLesson} from './interpolationLeastSquaresLesson';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const lagrangeFrame = frameDeclarer<InterpolationIds>();
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 /** A scene from the default four points: the parameter rule, the overlays, the shared position s, then optionally a fifth point. */
 const interpolationScene = (
@@ -96,7 +99,7 @@ const lagrangeLesson: GuidedLesson = {
                 'The graph shows the points \\(P_0=(0,0)\\), \\(P_1=(1,2)\\), \\(P_2=(3,3)\\), \\(P_3=(4,0)\\) and the Lagrange curve through them with the parameters \\(t=0,1,2,3\\). The convex hull is still hidden. Predict: does a curve through all four points stay inside their convex hull?',
             ),
             formulaIds: ['lagrange-basis'],
-            frames: [frame('interp-predict-hull-explanation', 'explanation'), frame('interp-predict-hull-observation', 'observation')],
+            frames: [frame('interp-predict-hull-explanation', 'explanation', lagrangeFrame({open: ['readouts']})), frame('interp-predict-hull-observation', 'observation', lagrangeFrame({open: ['readouts']}))],
             observationPrompt: text('Zapiši si napoved o ovojnici, preden jo prikaže naslednji korak.', 'Commit to your prediction about the hull before the next step shows it.'),
             expectedObservations: [text('Krivulja gre skozi vse štiri točke; ali pri tem ostane v ovojnici, še ne vidiš.', 'The curve passes through all four points; whether it stays in the hull you cannot see yet.')],
             scene: interpolationScene('interp-predict-hull-start', {hull: false, bezier: false, basis: false}, 0.5,
@@ -112,8 +115,8 @@ const lagrangeLesson: GuidedLesson = {
                 'The hull is now drawn. At \\(s=5/6\\), that is \\(t=5/2\\), the weights are \\(0.0625;\\ -0.3125;\\ 0.9375;\\ 0.3125\\) and the point is \\((3.75;\\ 2.1875)\\). One weight is negative, so it is not a convex combination, and the point lies to the right of the edge between \\(P_2\\) and \\(P_3\\), outside the hull. Predict in which direction to drag \\(P_2\\) so that the curve leaves further out, then drag it.',
             ),
             formulaIds: ['lagrange-basis'],
-            frames: [frame('interp-hull-reveal-explanation', 'explanation'), frame('interp-hull-reveal-observation', 'observation')],
-            observationPrompt: text('Premakni drsnik \\(s\\) in poišči del krivulje zunaj ovojnice; nato povleci točko, da krivulja izstopi še bolj.', 'Move the \\(s\\) slider and find the part of the curve outside the hull; then drag a point to push the curve out further.'),
+            frames: [frame('interp-hull-reveal-explanation', 'explanation', lagrangeFrame({open: ['readouts'], highlight: ['lagrange-weights'], uses: ['interp-s']})), frame('interp-hull-reveal-observation', 'observation', lagrangeFrame({open: ['readouts'], uses: ['interp-s']}))],
+            observationPrompt: text('Premakni krmilnik Položaj \\(s\\) in poišči del krivulje zunaj ovojnice; nato povleci točko, da krivulja izstopi še bolj.', 'Move the Position \\(s\\) control and find the part of the curve outside the hull; then drag a point to push the curve out further.'),
             expectedObservations: [text('Krivulja gre skozi vse točke, vendar izstopi iz ovojnice ob robu med \\(P_2\\) in \\(P_3\\).', 'The curve passes through every point but leaves the hull near the edge between \\(P_2\\) and \\(P_3\\).')],
             scene: interpolationScene('interp-hull-reveal-outside', {hull: true, bezier: false, basis: false}, 5 / 6,
                 'Ovojnica je prikazana; pri \\(s=5/6\\) je Lagrangeeva točka \\((3{,}75;\\ 2{,}1875)\\), zunaj ovojnice.',
@@ -128,7 +131,7 @@ const lagrangeLesson: GuidedLesson = {
                 'The dashed curve is the Bézier curve with \\(P_0,\\dots,P_3\\) as control points. At \\(s=1/2\\) it has the Bernstein weights \\(\\tfrac18,\\tfrac38,\\tfrac38,\\tfrac18\\) and the point \\((2;\\ 1.875)\\), while the Lagrange point is \\((2;\\ 2.8125)\\). Predict which curve passes through \\(P_1\\), then check on the graph.',
             ),
             formulaIds: ['bernstein-weights'], workedExampleId: 'lagrange-midpoint-example',
-            frames: [frame('interp-bezier-explanation', 'explanation'), frame('interp-bezier-calculation', 'calculation'), frame('interp-bezier-observation', 'observation')],
+            frames: [frame('interp-bezier-explanation', 'explanation', lagrangeFrame({open: ['readouts'], highlight: ['lagrange-weights', 'bezier-weights']})), frame('interp-bezier-calculation', 'calculation', lagrangeFrame({open: ['readouts'], highlight: ['lagrange-weights', 'bezier-weights']})), frame('interp-bezier-observation', 'observation', lagrangeFrame({open: ['readouts'], highlight: ['bezier-weights'], uses: ['interp-s']}))],
             observationPrompt: text('Premakni \\(s\\) od \\(0\\) do \\(1\\) in preveri, da Bézierova točka ves čas ostane v ovojnici.', 'Move \\(s\\) from \\(0\\) to \\(1\\) and check that the Bézier point stays inside the hull the whole time.'),
             expectedObservations: [text('Lagrangeeva krivulja gre skozi vse štiri točke, Bézierova samo skozi \\(P_0\\) in \\(P_3\\); Bézierova ostane v ovojnici.', 'The Lagrange curve passes through all four points, the Bézier curve only through \\(P_0\\) and \\(P_3\\); the Bézier curve stays in the hull.')],
             scene: interpolationScene('interp-bezier-middle', {hull: true, bezier: true, basis: false}, 0.5,
@@ -144,7 +147,7 @@ const lagrangeLesson: GuidedLesson = {
                 'The graphs of the basis polynomials are shown. Each Lagrange polynomial has the value \\(1\\) at its own parameter and \\(0\\) at the others, but dips below \\(0\\) in between; the Bernstein polynomials are non-negative everywhere. At \\(s=1/6\\), that is \\(t=1/2\\), the Lagrange weights are \\(0.3125;\\ 0.9375;\\ -0.3125;\\ 0.0625\\). Predict which weight is negative and find it on the graph.',
             ),
             formulaIds: ['lagrange-basis', 'bernstein-weights'],
-            frames: [frame('interp-basis-explanation', 'explanation'), frame('interp-basis-observation', 'observation')],
+            frames: [frame('interp-basis-explanation', 'explanation', lagrangeFrame({open: ['readouts'], highlight: ['lagrange-weights']})), frame('interp-basis-observation', 'observation', lagrangeFrame({open: ['readouts'], uses: ['interp-s']}))],
             observationPrompt: text('Premakni \\(s\\) in opazuj, kdaj ima kateri Lagrangeev polinom negativno vrednost.', 'Move \\(s\\) and watch when each Lagrange polynomial takes a negative value.'),
             expectedObservations: [text('Pri \\(t=1/2\\) je tretja utež \\(-0{,}3125\\); uteži se še vedno seštejejo v \\(1\\).', 'At \\(t=1/2\\) the third weight is \\(-0.3125\\); the weights still add up to \\(1\\).')],
             scene: interpolationScene('interp-basis-sixth', {hull: true, bezier: true, basis: true}, 1 / 6,
@@ -160,7 +163,7 @@ const lagrangeLesson: GuidedLesson = {
                 'Both curves are polynomials of the full degree, so no weight is identically \\(0\\). Predict: if you drag \\(P_0\\), will the end near \\(P_3\\) change on the Lagrange curve and on the Bézier curve? Then drag \\(P_0\\) and compare.',
             ),
             formulaIds: ['lagrange-basis', 'bernstein-weights'],
-            frames: [frame('interp-global-explanation', 'explanation'), frame('interp-global-observation', 'observation')],
+            frames: [frame('interp-global-explanation', 'explanation', lagrangeFrame({open: ['readouts']})), frame('interp-global-observation', 'observation', lagrangeFrame({open: ['readouts']}))],
             observationPrompt: text('Povleci \\(P_0\\) in opazuj oba konca obeh krivulj.', 'Drag \\(P_0\\) and watch both ends of both curves.'),
             expectedObservations: [text('Obe krivulji se spremenita po vsej dolžini, tudi blizu \\(P_3\\); krajišči \\(P_0\\) in \\(P_3\\) ostaneta na krivuljah.', 'Both curves change along their whole length, also near \\(P_3\\); the end points \\(P_0\\) and \\(P_3\\) stay on the curves.')],
             scene: interpolationScene('interp-global-start', {hull: true, bezier: true, basis: false}, 0.5,
@@ -176,7 +179,7 @@ const lagrangeLesson: GuidedLesson = {
                 'The point \\(P_4=(5,0)\\) has been added. The Lagrange polynomial now has degree \\(4\\) and the parameters \\(t=0,\\dots,4\\), and the Bézier curve has degree \\(4\\) too. Predict whether the Lagrange curve still passes through the first four points, then check.',
             ),
             formulaIds: ['lagrange-basis'],
-            frames: [frame('interp-fifth-point-explanation', 'explanation'), frame('interp-fifth-point-observation', 'observation')],
+            frames: [frame('interp-fifth-point-explanation', 'explanation', lagrangeFrame({open: ['readouts']})), frame('interp-fifth-point-observation', 'observation', lagrangeFrame({open: ['readouts']}))],
             observationPrompt: text('Povleci novo točko in primerjaj, kako se spremenita obe krivulji.', 'Drag the new point and compare how both curves change.'),
             expectedObservations: [text('Lagrangeeva krivulja gre skozi vseh pet točk, a se celotna oblika spremeni; Bézierova krivulja ostane v ovojnici novih točk.', 'The Lagrange curve passes through all five points, but its whole shape changes; the Bézier curve stays in the hull of the new points.')],
             scene: interpolationScene('interp-fifth-point-added', {hull: true, bezier: true, basis: false}, 0.5,
@@ -192,7 +195,7 @@ const lagrangeLesson: GuidedLesson = {
                 'The four points are back at their starting place. Move them, add or remove points, switch the parameters between uniform and chord length, and watch when the Lagrange curve leaves the hull and when the Bézier curve does not.',
             ),
             formulaIds: ['lagrange-basis', 'bernstein-weights'],
-            frames: [frame('interp-explore-explanation', 'explanation'), frame('interp-explore-observation', 'observation')],
+            frames: [frame('interp-explore-explanation', 'explanation', lagrangeFrame({open: ['readouts'], uses: ['interp-rule']})), frame('interp-explore-observation', 'observation', lagrangeFrame({open: ['readouts'], uses: ['interp-rule']}))],
             observationPrompt: text('Poišči razporeditev točk, pri kateri Lagrangeeva krivulja najmočneje izstopi iz ovojnice.', 'Find an arrangement of the points where the Lagrange curve leaves the hull the most.'),
             expectedObservations: [text('Bézierova krivulja nikoli ne zapusti ovojnice; Lagrangeeva jo pogosto, zlasti ob krajiščih.', 'The Bézier curve never leaves the hull; the Lagrange curve often does, especially near the ends.')],
             scene: interpolationScene('interp-explore-start', {hull: false, bezier: true, basis: false}, 0.5,

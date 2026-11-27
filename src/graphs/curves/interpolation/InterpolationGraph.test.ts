@@ -214,10 +214,10 @@ describe('InterpolationGraph state and Presets', () => {
         const before = liveSubscriptions.count;
         const graph = makeGraph();
         const total = graph.board.objectsList.length;
-        expect(liveSubscriptions.count).toBe(before + 1);
+        expect(liveSubscriptions.count).toBe(before);
         for (let i = 0; i < 5; i++) graph.importPresetData(graph.exportPresetData());
         expect(graph.board.objectsList.length).toBe(total);
-        expect(liveSubscriptions.count).toBe(before + 1);
+        expect(liveSubscriptions.count).toBe(before);
         graph.sceneSlot.release();
         expect(graph.board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);

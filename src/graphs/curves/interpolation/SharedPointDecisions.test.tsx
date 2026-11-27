@@ -9,6 +9,7 @@ import {readoutAt} from './interpolationModel';
 import {DomainError} from '../../functions/BaseFunctionGraph';
 import {message} from '../../../localization';
 import {INTERPOLATION_POINTS_MAX} from '../../../analysis/interpolation';
+import {runAs} from '../../base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -44,39 +45,39 @@ describe.each([
 ] as const)('shared point decisions on %s', (_name, make) => {
     test('decision 1: a default add goes one unit right of the last point; explicit coordinates win exactly', () => {
         const {graph, view} = mount(make());
-        act(() => { graph.addPoint(); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
         expect(graph.state.points[4]).toEqual([5, 0]);
-        act(() => { graph.addPoint([6.25, -1.125]); });
+        act(() => { runAs('learner', () => graph.addPoint([6.25, -1.125])); });
         expect(graph.state.points[5]).toEqual([6.25, -1.125]);
         view.unmount();
     });
 
     test('decision 6: an add inside the view never moves it; an add outside refits it', () => {
         const {graph, view} = mount(make());
-        act(() => graph.setBox(WIDE));
-        act(() => { graph.addPoint(); });
+        act(() => { runAs('learner', () => graph.setBox(WIDE)); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
         expect(graph.box()).toEqual(WIDE);
-        act(() => { graph.addPoint([900, 900]); });
+        act(() => { runAs('learner', () => graph.addPoint([900, 900])); });
         expect(graph.box()).not.toEqual(WIDE);
         view.unmount();
     });
 
     test('decision 6: a typed edit inside the view keeps it; one outside refits it', () => {
         const {graph, view} = mount(make());
-        act(() => graph.setBox(WIDE));
-        act(() => { graph.editPoint(1, [2, 3]); });
+        act(() => { runAs('learner', () => graph.setBox(WIDE)); });
+        act(() => { runAs('learner', () => graph.editPoint(1, [2, 3])); });
         expect(graph.box()).toEqual(WIDE);
-        act(() => { graph.editPoint(1, [800, 3]); });
+        act(() => { runAs('learner', () => graph.editPoint(1, [800, 3])); });
         expect(graph.box()).not.toEqual(WIDE);
         view.unmount();
     });
 
     test('a refused explicit add keeps the points and gives the refusal; a lesson action throws a DomainError', () => {
         const {graph, view} = mount(make());
-        act(() => graph.setParameterRule('chord'));
+        act(() => runAs('learner', () => graph.setParameterRule('chord')));
         const before = graph.state.points;
         let refusal: unknown;
-        act(() => { refusal = graph.addPoint([4, 0]); });
+        act(() => { refusal = runAs('learner', () => graph.addPoint([4, 0])); });
         expect(refusal).toBeTruthy();
         expect(graph.state.points).toBe(before);
         expect(graph.state.notice).toBe('coincident');
@@ -89,9 +90,9 @@ describe.each([
 
     test('decision 31: a default add at the coordinate limit never repeats an existing point', () => {
         const {graph, view} = mount(make());
-        act(() => { graph.editPoint(2, [999, 0]); });
-        act(() => { graph.editPoint(3, [1000, 0]); });
-        act(() => { graph.addPoint(); });
+        act(() => { runAs('learner', () => graph.editPoint(2, [999, 0])); });
+        act(() => { runAs('learner', () => graph.editPoint(3, [1000, 0])); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
         expect(graph.state.points.at(-1)).toEqual([998, 0]);
         view.unmount();
     });
@@ -121,9 +122,9 @@ describe.each([
 describe('Interpolation drag decisions', () => {
     test('decision 3 and "a drag never refits": a drag past the coordinate limit clamps silently, with no notice and no refit', () => {
         const {graph, view} = mount(new ObservedInterpolation());
-        act(() => graph.setBox(WIDE));
+        act(() => { runAs('learner', () => graph.setBox(WIDE)); });
         const p1 = graph.pointElements()[1];
-        act(() => { p1.moveTo([5000, -7]); drag(p1); });
+        act(() => { p1.moveTo([5000, -7]); runAs('learner', () => drag(p1)); });
         expect(graph.state.points[1]).toEqual([1000, -7]);
         expect(graph.state.notice).toBe('');
         expect(graph.box()).toEqual(WIDE);
@@ -133,8 +134,8 @@ describe('Interpolation drag decisions', () => {
     test('decision 7: a drag that repeats a parameter is refused with its notice and the point returns', () => {
         const {graph, view} = mount(new ObservedInterpolation());
         const [p0, p1] = graph.pointElements();
-        act(() => graph.setParameterRule('chord'));
-        act(() => { p1.moveTo([p0.X(), p0.Y()]); drag(p1); });
+        act(() => runAs('learner', () => graph.setParameterRule('chord')));
+        act(() => { p1.moveTo([p0.X(), p0.Y()]); runAs('learner', () => drag(p1)); });
         expect(graph.state.points[1]).toEqual([1, 2]);
         expect(graph.state.notice).toBe('coincident');
         view.unmount();
@@ -143,8 +144,8 @@ describe('Interpolation drag decisions', () => {
     test('a coordinate-given add yields the same polynomial as the typed edit of that point', () => {
         const added = mount(new ObservedInterpolation());
         const edited = mount(new ObservedInterpolation());
-        act(() => { added.graph.addPoint([2.5, -1.25]); });
-        act(() => { edited.graph.addPoint(); edited.graph.editPoint(4, [2.5, -1.25]); });
+        act(() => { runAs('learner', () => added.graph.addPoint([2.5, -1.25])); });
+        act(() => { runAs('learner', () => edited.graph.addPoint()); runAs('learner', () => edited.graph.editPoint(4, [2.5, -1.25])); });
         expect(added.graph.state.points).toEqual(edited.graph.state.points);
         for (const s of [0, 0.3, 0.77, 1]) {
             expect(readoutAt(added.graph.state.points, 'uniform', s)).toEqual(readoutAt(edited.graph.state.points, 'uniform', s));
@@ -157,13 +158,13 @@ describe('Interpolation drag decisions', () => {
 describe('Hermite view: the tangent tip is framed', () => {
     test('a typed edit whose tangent tip leaves the view refits; one whose tip stays inside does not', () => {
         const {graph, view} = mount(new ObservedHermite());
-        act(() => { graph.addPoint(); });
-        act(() => { graph.addPoint(); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
         const tight: [number, number, number, number] = [-1.95, 5.45, 6.95, -4.95];
         act(() => graph.setBox(tight));
-        act(() => { graph.editPoint(1, [1.2, 2]); });
+        act(() => { runAs('learner', () => graph.editPoint(1, [1.2, 2])); });
         expect(graph.box()[2]).toBeCloseTo(tight[2], 6);
-        act(() => { graph.editPoint(5, [6.5, 0]); });
+        act(() => { runAs('learner', () => graph.editPoint(5, [6.5, 0])); });
         expect(graph.box()[2]).toBeGreaterThan(7);
         view.unmount();
     });
@@ -173,9 +174,9 @@ describe('Hermite view: the tangent tip is framed', () => {
         const {graph, view} = mount(new ObservedHermite());
         // Tight box around the default points; the added point (6, 0) sits inside it but its tip (7, 0) does not.
         const tight: [number, number, number, number] = [-1.95, 5.45, 6.95, -4.95];
-        act(() => { graph.addPoint(); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
         act(() => graph.setBox(tight));
-        act(() => { graph.addPoint(); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
         expect(graph.state.points[5]).toEqual([6, 0]);
         // The refit frames the tip (7, 0) with a margin; an unmoved view would end at 6.95.
         expect(graph.box()[2]).toBeGreaterThan(7);

@@ -2260,7 +2260,7 @@ const intervalSweep = {
     },
 };
 
-// Interpolation I1: the weights readout of the board per lesson step 1..7 (Lagrange point at t=3/2, the point outside the hull at s=5/6, Bezier (2, 1.875), weights at t=1/2, t=3/2, five points, t=3/2).
+// Interpolation I1: the weight sentences (declared notes of the Odčitki card since task 08 lane L43) per lesson step 1..7 (Lagrange point at t=3/2, the point outside the hull at s=5/6, Bezier (2, 1.875), weights at t=1/2, t=3/2, five points, t=3/2).
 const INTERPOLATION_READOUTS = [/Lagrange.*\(2, 2[.,]8125\)/s, /\(3[.,]75, 2[.,]1875\)/, /Bézier.*\(2, 1[.,]875\)/s, /0[.,]3125; 0[.,]9375; [-−]0[.,]3125; 0[.,]0625/, /[-−]0[.,]0625; 0[.,]5625; 0[.,]5625; [-−]0[.,]0625/, /\[0, 4\]/, /\(2, 2[.,]8125\)/];
 const interpolationLagrange = {
     id: 'interp-lagrange',
@@ -2269,7 +2269,7 @@ const interpolationLagrange = {
     steps: 7,
     minFrames: 15, // 2 frames per step, 3 on step 3 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, INTERPOLATION_READOUTS[step - 1]).first(), `interpolation readout at ${label}`).toBeVisible();
+        await expect(page.locator('[data-note]:visible').filter({hasText: INTERPOLATION_READOUTS[step - 1]}).first(), `interpolation readout note at ${label}`).toBeVisible();
     },
 };
 

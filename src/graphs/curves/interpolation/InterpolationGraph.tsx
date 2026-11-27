@@ -10,6 +10,10 @@ import {PointCollection} from "../../../inputs/PointCollection";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PointListInput} from "../../../inputs/PointListInput";
 import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
 import {LiveReadout} from "../../base/controls/LiveReadout";
 import {useStatusReadout} from "../../base/controls/useStatusReadout";
 import {BasisPlot} from "./BasisPlot";
@@ -20,7 +24,7 @@ import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     DEFAULT_INTERPOLATION_PRESET, INTERPOLATION_COORDINATE_LIMIT, interpolationRejection, InterpolationPresetData,
-    isParameterRule, ParameterRule, readoutLines,
+    isParameterRule, ParameterRule, readoutAt, readoutLines, readoutSentences,
 } from "./interpolationModel";
 import {interpolationPresetCollection} from "./interpolationPresetCollection";
 import {InterpolationScene} from "./InterpolationScene";
@@ -40,11 +44,27 @@ export interface InterpolationGraphState extends BaseGraphState {
 /** The visible readout lines (no live role) and the graph's one live region; a slider drag publishes after the quiet period. */
 function InterpolationReadout({lines}: {lines: readonly string[]}) {
     const readout = useStatusReadout(lines.join("\n"), true);
-    return <>
-        <div className="inspector-help">{lines.map((line, i) => <p key={i}>{line}</p>)}</div>
+    return <div data-declared-panel="">
+        <div className="inspector-help">{lines.map((line, i) => <p key={i} data-readout-note="">{line}</p>)}</div>
         <LiveReadout readout={readout}/>
-    </>;
+    </div>;
 }
+
+/**
+ * The ids this graph declares: the shared position s and the parameter rule as board pucks (lessons move s while the weights are read and
+ * ask for a switch between uniform and chord-length parameters), the two weight sentences as notes, a legend of what the board draws and the
+ * three display switches (hull, Bezier curve, basis plots), which stay in Orodja. The points are the editor's (Orodja) and the board's.
+ */
+export type InterpolationIds = {
+    param: 'interp-s' | 'interp-rule';
+    row: never;
+    note: 'lagrange-weights' | 'bezier-weights';
+    legend: 'points' | 'lagrange' | 'bezier' | 'hull';
+    section: never;
+    action: 'hull' | 'bezier' | 'basis';
+};
+
+const VIEW_MARK_SAMPLES = 25;
 
 /** The view that shows the points with a margin, so the interpolant's overshoot is mostly visible. */
 export const interpolationViewBox = (points: readonly Point2[]): [number, number, number, number] => {
@@ -136,7 +156,8 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
                 showBezier: () => this.state.showBezier,
                 position: () => this.state.t,
                 fontSize: () => this.displaySettings.fontSize,
-                onMove: (index, x, y) => this.movePoint(index, x, y),
+                // A JSXGraph drag handler is outside the DOM input tagging, so the write names its source.
+                onMove: (index, x, y) => runAs('learner', () => this.movePoint(index, x, y)),
             })),
             sync: scene => {
                 if (scene.pointCount !== this.state.points.length) return false;
@@ -295,6 +316,106 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         });
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the shared position s and the parameter rule, through the setters the panel controls call. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'interp-s': {
+                read: () => this.state.t,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value)) throw new DomainError(message('interp_lagrange_position_invalid'));
+                    this.setPosition(value);
+                },
+            },
+            'interp-rule': {
+                read: () => this.state.parameterRule,
+                apply: (value: unknown) => {
+                    if (!isParameterRule(value)) throw new DomainError(message('interp_rule_invalid'));
+                    this.setParameterRule(value);
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state: the position and the rule on the board, the weight sentences as notes, the legend of the curves, the hull
+     * and the points that are drawn now, the display switches (Orodja, tab Prikaz) and the marks the view keeps visible.
+     */
+    protected override declaration(): GraphDeclaration<InterpolationIds> {
+        const {points, parameterRule, showHull, showBezier, showBasis, t: position} = this.state;
+        const parameters: ParameterDeclaration<InterpolationIds['param']>[] = [
+            {key: 'interp-s', kind: 'range', label: message('interp_lagrange_position_name'), symbol: 's', help: message('interp_slider_help'), placement: 'board',
+                min: 0, max: 1, step: 0.01, maxDecimals: 2},
+            {key: 'interp-rule', kind: 'choice', label: message('interp_parameter_rule'), placement: 'board', puck: true, options: [
+                {value: 'uniform', label: message('interp_rule_uniform'), short: message('interp_rule_uniform_short')},
+                {value: 'chord', label: message('interp_rule_chord'), short: message('interp_rule_chord_short')},
+            ]},
+        ];
+        const legend: LegendEntry<InterpolationIds>[] = [
+            {id: 'points', label: message('interp_legend_points'), kind: 'point', object: 'points'},
+            {id: 'lagrange', label: message('interp_lagrange_legend_lagrange'), kind: 'line', object: 'lagrange'},
+            ...(showBezier ? [{id: 'bezier' as const, label: message('interp_lagrange_legend_bezier'), kind: 'dashed' as const, object: 'bezier'}] : []),
+            ...(showHull ? [{id: 'hull' as const, label: message('convex_hull'), kind: 'dashed' as const, object: 'hull'}] : []),
+        ];
+        const display = {placement: 'tools' as const, tab: 'display' as const, enabled: true};
+        const actions: ActionDeclaration<InterpolationIds>[] = [
+            {id: 'hull', label: message('interp_show_hull'), pressed: showHull, ...display},
+            {id: 'bezier', label: message('interp_show_bezier'), pressed: showBezier, ...display},
+            {id: 'basis', label: message('interp_show_basis'), pressed: showBasis, ...display},
+        ];
+        const notes = readoutSentences(points, parameterRule, position, showBezier, currentLanguage())
+            .map(sentence => ({id: sentence.id === 'lagrange' ? 'lagrange-weights' as const : 'bezier-weights' as const, text: sentence.text}));
+        return {parameters, notes, legend, actions, marks: this.viewMarks()};
+    }
+
+    private viewMarksCache: {key: string; marks: ViewMarks} | undefined;
+
+    /**
+     * What the view director keeps visible: the data points and the markers at the shared position (must), samples of the Lagrange curve
+     * and, when shown, of the Bezier curve (nice). Computed from the state alone and memoized on its inputs.
+     */
+    private viewMarks(): ViewMarks {
+        const {points, parameterRule, showBezier, t: position} = this.state;
+        const key = `${points.map(p => p.join(',')).join(';')}|${parameterRule}|${showBezier}|${position}`;
+        if (this.viewMarksCache?.key === key) return this.viewMarksCache.marks;
+        const finite = (p: readonly number[]) => Number.isFinite(p[0]) && Number.isFinite(p[1]);
+        const must: ViewMark[] = points.filter(finite).map(([x, y]): ViewMark => ({kind: 'point', x, y}));
+        const nice: ViewMark[] = [];
+        if (!interpolationRejection(points, parameterRule)) {
+            const at = readoutAt(points, parameterRule, position);
+            for (const p of showBezier ? [at.lagrange.point, at.bezier.point] : [at.lagrange.point]) if (finite(p)) must.push({kind: 'point', x: p[0], y: p[1]});
+            const lagrangeSamples: (readonly [number, number])[] = [];
+            const bezierSamples: (readonly [number, number])[] = [];
+            for (let i = 0; i < VIEW_MARK_SAMPLES; i++) {
+                const sample = readoutAt(points, parameterRule, i / (VIEW_MARK_SAMPLES - 1));
+                if (finite(sample.lagrange.point)) lagrangeSamples.push([sample.lagrange.point[0], sample.lagrange.point[1]]);
+                if (showBezier && finite(sample.bezier.point)) bezierSamples.push([sample.bezier.point[0], sample.bezier.point[1]]);
+            }
+            if (lagrangeSamples.length > 1) nice.push({kind: 'polyline', points: lagrangeSamples});
+            if (bezierSamples.length > 1) nice.push({kind: 'polyline', points: bezierSamples});
+        }
+        const marks: ViewMarks = {must, nice};
+        this.viewMarksCache = {key, marks};
+        return marks;
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.scene?.drawnElement(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(id === 'points' ? 'fillcolor' : 'strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
+    override performAction(id: string): void {
+        if (id === 'hull') runAs('learner', () => this.setShowHull(!this.state.showHull));
+        else if (id === 'bezier') runAs('learner', () => this.setShowBezier(!this.state.showBezier));
+        else if (id === 'basis') runAs('learner', () => this.setShowBasis(!this.state.showBasis));
+        else throw new Error('Unknown action');
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
@@ -307,16 +428,16 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
             <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
                                               min={-INTERPOLATION_COORDINATE_LIMIT} max={INTERPOLATION_COORDINATE_LIMIT}
                                               onCommit={(index, value) => this.editPoint(index, value)}/></div>,
-            <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
+            <PuckOwned key="rule" param="interp-rule"><div><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
-                                          onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
+                                          onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div></PuckOwned>,
             <div key="count"><PointCollection label={t("interp_point_count")} count={points.length} min={INTERPOLATION_POINTS_MIN}
                                                  max={INTERPOLATION_POINTS_MAX} onAdd={() => { const refusal = this.addPoint(); return refusal && renderMessage(refusal); }}
                                                  removal={{kind: 'last', onRemove: () => this.removePoint()}}/></div>,
             <div key="basis"><OnOffSwitch checked={showBasis} label={t("interp_show_basis")} onChange={checked => this.setShowBasis(checked)}/></div>,
             ...(showBasis ? [<div key="basis-plot"><BasisPlot data={basisPlotData(points, parameterRule, position)} fontSize={this.displaySettings.fontSize}/></div>] : []),
-            <div key="position"><Slider min={0} max={1} step={0.01} value={position} customText={t("interp_slider_position")}
-                                        help={t("interp_slider_help")} onChange={value => this.setPosition(value)}/></div>,
+            <PuckOwned key="position" param="interp-s"><div><Slider min={0} max={1} step={0.01} value={position} customText={t("interp_slider_position")}
+                                        help={t("interp_slider_help")} onChange={value => this.setPosition(value)}/></div></PuckOwned>,
             <InterpolationReadout key="readout" lines={lines}/>,
             <RefusalNotice key="notice" channel={this.refusals}/>,
         );
