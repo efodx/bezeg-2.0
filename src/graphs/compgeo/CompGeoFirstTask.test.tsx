@@ -6,6 +6,7 @@ import {act, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
+import {runAs} from '../base/writes/writeSource';
 import {t} from '../../localization';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -76,11 +77,11 @@ describe('hull-robustness view chooser', () => {
         let seen = lead();
         expect(seen.controls[0]).toBe(seen.first);
         expect(seen.rest[0]).toBe(button(t('next_step'))(root));
-        act(() => graph.setRobustnessMode('kettner'));
+        act(() => runAs('learner', () => graph.setRobustnessMode('kettner')));
         seen = lead();
         expect(seen.controls[0]).toBe(seen.first);
         expect(within(root).queryByRole('button', {name: t('next_step')})).toBeNull();
-        act(() => graph.setRobustnessMode('chain'));
+        act(() => runAs('learner', () => graph.setRobustnessMode('chain')));
         seen = lead();
         expect(seen.controls[0]).toBe(seen.first);
         expect(seen.rest[0]).toBe(button(t('next_step'))(root));

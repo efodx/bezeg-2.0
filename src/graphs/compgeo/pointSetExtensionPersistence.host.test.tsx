@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -48,7 +49,7 @@ class Robust extends HullRobustnessGraph {
     lessonDefault(data: PointSetModel) { return this.lessonDefaultState(data); }
     resetToDefaultScene() { this.prepareLessonDefaultScene(); }
     extension(): PointSetExtension | undefined { return this.persistenceExtension(); }
-    put(s: Scene) {
+    put(s: Scene) { runAs('learner', () => {
         this.setRobustnessMode('chain');
         this.loadModel(s.model);
         for (const [id, shown] of Object.entries(s.overlays)) this.setOverlay(id as never, shown);
@@ -58,6 +59,7 @@ class Robust extends HullRobustnessGraph {
         this.selectKettnerCell(Number(s.fields.cellI), Number(s.fields.cellJ));
         this.setState({step: Number(s.fields.step)});
         this.setRobustnessMode(s.fields.mode as never);
+        });
     }
 }
 class BHulls extends BezierHullsGraph {

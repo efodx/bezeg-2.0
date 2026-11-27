@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {writeFileSync} from 'node:fs';
 import {act, fireEvent, render, screen} from '@testing-library/react';
@@ -34,7 +35,7 @@ beforeEach(() => {
 class Observed extends NotablePointsGraph {
     liveBoard() { return this.board; }
     /** The host Fit button. */
-    fit() { this.fitToVisiblePoints(); }
+    fit() { runAs('learner', () => this.fitToVisiblePoints()); }
 }
 
 type Shown = {elType: string; name?: string; plaintext?: string; X?: () => number; Y?: () => number; coords?: {usrCoords: number[]}; Radius?: () => number};

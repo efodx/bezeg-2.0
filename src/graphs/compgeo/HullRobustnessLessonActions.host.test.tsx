@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, cleanup, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -159,9 +160,9 @@ test('set-duplicates changes the rule and the control shows it', () => {
 test('Play and Next are refused in Kettner mode, and the view follows the mode exactly as the mode control does', () => {
     const viaControl = setup();
     const chainWidth = viaControl.graph.boardWidth();
-    act(() => { viaControl.graph.setRobustnessMode('kettner'); });
+    act(() => { runAs('learner', () => viaControl.graph.setRobustnessMode('kettner')); });
     const kettnerWidth = viaControl.graph.boardWidth();
-    act(() => { viaControl.graph.setRobustnessMode('chain'); });
+    act(() => { runAs('learner', () => viaControl.graph.setRobustnessMode('chain')); });
     const returnedWidth = viaControl.graph.boardWidth();
 
     const {graph, frames} = setup();

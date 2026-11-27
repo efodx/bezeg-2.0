@@ -30,7 +30,7 @@ describe('cross-ratio declaration', () => {
         mountGraph(graph);
         const declaration = graph.getDeclaration() as GraphDeclaration<CrossRatioIds>;
         expect(declaration.parameters).toBeUndefined();
-        expect(graph.parameters?.keys() ?? []).toEqual([]);
+        expect((graph.parameters?.keys() ?? []).filter(key => key !== 'view')).toEqual([]);
     });
 
     test.each(STATES)('$name: consistent, drawn and equal to the panel', ({apply, drawn, notes}) => {

@@ -35,7 +35,7 @@ describe('polygon area declaration', () => {
         expect(checkDeclaration(declaration)).toEqual([]);
         // points are board-owned: no parameter is declared, nothing is bound
         expect(declaration.parameters).toBeUndefined();
-        expect(graph.parameters?.keys() ?? []).toEqual([]);
+        expect((graph.parameters?.keys() ?? []).filter(key => key !== 'view')).toEqual([]);
 
         // the marks are exactly the model's points, plus the outline of a closed polygon
         expect(declaration.marks!.must).toEqual(graph.model.points.map(p => ({kind: 'point', x: p.x, y: p.y})));

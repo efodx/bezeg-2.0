@@ -30,7 +30,7 @@ describe('five-point declaration', () => {
         mountGraph(graph);
         const declaration = graph.getDeclaration() as GraphDeclaration<FivePointIds>;
         expect(declaration.parameters).toBeUndefined();
-        expect(graph.parameters?.keys() ?? []).toEqual([]);
+        expect((graph.parameters?.keys() ?? []).filter(key => key !== 'view')).toEqual([]);
     });
 
     test.each(STATES)('$name: consistent, drawn and equal to the panel', ({apply, conic, arc, linePair, continuation, notes}) => {

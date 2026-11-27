@@ -34,7 +34,7 @@ describe('triangle centres declaration', () => {
         expect(checkDeclaration(declaration)).toEqual([]);
         // nothing is bound in the arbiter, so nothing is declared as a parameter
         expect(declaration.parameters).toBeUndefined();
-        expect(graph.parameters?.keys() ?? []).toEqual([]);
+        expect((graph.parameters?.keys() ?? []).filter(key => key !== 'view')).toEqual([]);
 
         // the legend resolves to what the board drew; a missing triangle draws nothing, a degenerate one only its sides and the centroid
         expect(declaration.legend!.map(entry => entry.id)).toEqual([...OVERLAYS]);

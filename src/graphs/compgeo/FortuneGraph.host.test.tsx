@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -270,7 +271,8 @@ test('ownership: scene replacement, an example, Reset and 20 step changes with a
     const graph = new Observed();
     mount(graph);
     act(() => graph.goTo(3));
-    const count = () => everything(graph).length;
+    // Axis tick labels depend on the shown box (a view director fits it), not on what the scene owns.
+    const count = () => everything(graph).filter(o => o.elType !== 'label').length;
     const before = count();
     const ours = () => everything(graph).filter(o => /^(fortune|voronoi)-/.test(o.name ?? '')).length;
     const oursBefore = ours();
@@ -305,9 +307,10 @@ test('the host Fit returns to the run box after a zoom; choosing an example rest
     mount(graph);
     const board = graph.liveBoard();
     const runBox = graph.box()!;
-    act(() => { board.setBoundingBox([-40, 50, 60, -50], false); });
+    act(() => { runAs('learner', () => { board.setBoundingBox([-40, 50, 60, -50], false); }); });
     expect(graph.box()).not.toBe(runBox);
-    act(() => graph.fit());
+    graph.setViewDirector(undefined); // the workspace's view director owns Fit once the graph is bound (it needs layout geometry, absent in jsdom); this checks the graph's own fit
+    act(() => runAs('learner', () => graph.fit()));
     const restored = graph.box()!;
     for (const key of ['minX', 'maxX', 'minY', 'maxY'] as const) expect(restored[key].equals(runBox[key])).toBe(true);
     // The board view itself returns: it contains the run box again and is no longer the zoomed-out view.
@@ -332,7 +335,7 @@ test('the view is followed: the sweep line spans the visible box and, at the end
     const sweepLine = () => named(graph, 'fortune-sweep-line')[0];
     act(() => graph.goTo(3));
     for (const view of [[-40, 50, 60, -50], [-3, 8, 12, -2], [1.3, 6.2, 9.7, 0.4]] as [number, number, number, number][]) {
-        act(() => { board.setBoundingBox(view, false); });
+        act(() => { runAs('learner', () => { board.setBoundingBox(view, false); }); });
         const [left, top, right, bottom] = board.getBoundingBox();
         const box = graph.box()!;
         const [minX, maxX, minY, maxY] = [box.minX, box.maxX, box.minY, box.maxY].map(v => v.toNumber());

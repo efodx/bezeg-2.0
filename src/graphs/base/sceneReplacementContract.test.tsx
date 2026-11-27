@@ -431,9 +431,10 @@ describe('figure path view for a Preset without boardState', () => {
     type ViewPath = {
         graphSession: {signal: AbortSignal};
         applyFigurePreset(session: unknown, preset: unknown, signal: AbortSignal): Promise<void>;
-        board: JXG.Board;
+        boardView: {intent(): {box: readonly number[]}};
     };
-    const box = (graph: GraphLike) => (graph as unknown as ViewPath).board.getBoundingBox().map(value => Math.round(value * 1e6) / 1e6);
+    // The view the figure asks for is the intent: a graph with declared marks also shows a director-fitted box on top of it.
+    const box = (graph: GraphLike) => (graph as unknown as ViewPath).boardView.intent().box.map(value => Math.round(value * 1e6) / 1e6);
 
     it.each([['hermite', 'interp-hermite'], ['bezier', 'bezier']] as const)('%s', async (_name, id) => {
         const rig = open(() => graphFactories[id]());

@@ -29,7 +29,7 @@ describe('three-views declaration', () => {
         mountGraph(graph);
         const declaration = graph.getDeclaration() as GraphDeclaration<ThreeViewsIds>;
         expect(declaration.parameters).toBeUndefined();
-        expect(graph.parameters?.keys() ?? []).toEqual([]);
+        expect((graph.parameters?.keys() ?? []).filter(key => key !== 'view')).toEqual([]);
     });
 
     test.each(STATES)('$name: consistent, drawn and equal to the panel', ({apply, directions, points, notes}) => {

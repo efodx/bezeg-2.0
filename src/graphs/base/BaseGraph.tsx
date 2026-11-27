@@ -325,7 +325,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         this.releaseParameterArbiter?.();
         this.releaseParameterArbiter = undefined;
         const bindings = Object.entries(this.parameterBindings());
-        if (bindings.length === 0) return;
+        // A graph that declares the workspace needs the arbiter for `view` (the view director) even with no parameters.
+        if (bindings.length === 0 && this.declaration() === undefined) return;
         if (typeof window !== "undefined") installLearnerInputTagging(window);
         const arbiter = new ParameterArbiter({
             isDomainError: error => error instanceof Error && error.name === "DomainError",

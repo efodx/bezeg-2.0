@@ -1,3 +1,4 @@
+import {runAs} from '../base/writes/writeSource';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {enterNumber} from '../../inputs/testEntry';
@@ -89,7 +90,7 @@ test('the other two pentagon queries: (1,3) inside with winding 1, (3,3) in the 
 test('the pentagram: centre has winding 2 and the rules differ (self-intersecting label); a tip has winding 1', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { graph.loadFigure('pentagram'); });
+    act(() => { runAs('learner', () => graph.loadFigure('pentagram')); });
     expect(graph.model).toEqual(PENTAGRAM_MODEL);
     expect(graph.query).toEqual({x: 0, y: 0});
     expect(live()).toBe('Točka q je znotraj ali zunaj, odvisno od pravila.');
@@ -102,7 +103,7 @@ test('the pentagram: centre has winding 2 and the rules differ (self-intersectin
     expect(live()).toBe('Točka q je znotraj večkotnika.');
     expect(counts()).toEqual(['1', '1']);
     expect(text()).toContain('Večkotnik seka samega sebe');
-    act(() => { graph.loadFigure('notched'); });
+    act(() => { runAs('learner', () => graph.loadFigure('notched')); });
     expect(graph.query).toEqual(NOTCHED_QUERY);
     expect(text()).not.toContain('seka samega sebe');
 });
@@ -306,7 +307,7 @@ test('the readout and the q label follow a language switch and a scene change', 
     expect(text()).toContain('Crossings of the ray with the boundary: 1');
     expect(text()).toContain('Even–odd rule: inside (odd number of crossings)');
     expect(label()).toBe('Query point q');
-    act(() => { graph.loadFigure('pentagram'); });
+    act(() => { runAs('learner', () => graph.loadFigure('pentagram')); });
     expect(live()).toBe('Point q is inside or outside, depending on the rule.');
     expect(text()).toContain('Winding number: 2');
     expect(text()).toContain('The polygon intersects itself');

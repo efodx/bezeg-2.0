@@ -39,7 +39,7 @@ describe('bezier clipping declaration', () => {
         expect(checkDeclaration(declaration)).toEqual([]);
         // the points are board-owned and the tolerance has no arbiter key: no parameter is declared
         expect(declaration.parameters).toBeUndefined();
-        expect(graph.parameters?.keys() ?? []).toEqual([]);
+        expect((graph.parameters?.keys() ?? []).filter(key => key !== 'view')).toEqual([]);
 
         // the marks are exactly the model's points (6, a curve pair never has an outline)
         const unit = 2 ** graph.model.gridStepExponent;
