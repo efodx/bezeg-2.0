@@ -5,8 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {runAs} from '../base/writes/writeSource';
 import {setLanguage} from '../../localization';
-import {legendLines} from '../legend/legendLines';
-import {ComplexPowerGraph, VIEW_BOX as POWER_BOX} from './ComplexPowerGraph';
+import {ComplexPowerGraph} from './ComplexPowerGraph';
 import {EulerCircleGraph} from './EulerCircleGraph';
 
 beforeAll(installBoardShims);
@@ -14,8 +13,6 @@ afterEach(() => setLanguage('sl'));
 
 class PowerGraph extends ComplexPowerGraph { liveBoard() { return this.board; } resetView() { this.showInitialView(); } }
 class EulerGraph extends EulerCircleGraph { liveBoard() { return this.board; } resetView() { runAs('learner', () => this.showInitialView()); } }
-
-type Text = {elType: string; plaintext?: string; X(): number; Y(): number; evalVisProp(name: string): unknown};
 
 /** Boards of the given size from their creation on (the shims give every element 600 x 400 px). */
 function withSize(width: number, height: number, run: () => void) {
@@ -28,28 +25,7 @@ function withSize(width: number, height: number, run: () => void) {
     }
 }
 
-function legendRows(board: JXG.Board): Text[] {
-    const [left] = board.getBoundingBox();
-    const edge = left + 10 / board.unitX;
-    return (board.objectsList as unknown as Text[])
-        .filter(o => o.elType === 'text' && o.evalVisProp('visible') && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left'
-            && Math.abs(o.X() - edge) < 1e-6)
-        .sort((a, b) => b.Y() - a.Y());
-}
-
-function expectStacked(board: JXG.Board, minRows: number, width: number, dataBottom: number) {
-    const rows = legendRows(board);
-    expect(rows.length).toBeGreaterThanOrEqual(minRows);
-    expect(rows[0].Y()).toBeLessThan(dataBottom);
-    for (let i = 0; i + 1 < rows.length; i++) {
-        const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
-        expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual((legendLines(String(rows[i].plaintext), width) === 1 ? 14 : legendLines(String(rows[i].plaintext), width) * 20) - 0.5);
-    }
-    return rows;
-}
-
 function mountWith<G extends PowerGraph | EulerGraph>(graph: G) { render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>); return graph; }
-const mountPower = () => mountWith(new PowerGraph()).liveBoard();
 
 describe('the first view of a 390 px board is the view Reset shows', () => {
     for (const [name, make] of [['complex power', () => new PowerGraph()], ['Euler circle', () => new EulerGraph()]] as const) {
@@ -63,30 +39,6 @@ describe('the first view of a 390 px board is the view Reset shows', () => {
             });
         });
     }
-});
-
-describe('the legend of the complex power graph sits at the live board edge below the data and stacks by wrapped lines', () => {
-    test('on a wide board the rows start at its left edge, not at the user x of the first view', () => {
-        withSize(1000, 400, () => {
-            const board = mountPower();
-            expect(board.getBoundingBox()[0]).toBeLessThan(POWER_BOX[0]);
-            expectStacked(board, 4, 1000, -2.6);
-        });
-    });
-    for (const language of ['sl', 'en'] as const) {
-        test(`on a 390 px board the rows start at the left edge below the data (${language})`, () => {
-            setLanguage(language);
-            withSize(390, 480, () => {
-                expectStacked(mountPower(), 4, 390, -2.6);
-            });
-        });
-    }
-    test('a row that wraps on a 160 px board leaves room for its lines', () => {
-        withSize(160, 480, () => {
-            const rows = expectStacked(mountPower(), 4, 160, -2.6);
-            expect(rows.some(row => legendLines(String(row.plaintext), 160) > 1)).toBe(true);
-        });
-    });
 });
 
 describe('the opening view follows the board size while it is unmoved', () => {
@@ -131,35 +83,6 @@ describe('the opening view follows the board size while it is unmoved', () => {
                 settle();
                 const kept = board.getBoundingBox();
                 expect(kept[0]).toBeCloseTo(moved[0], 6);
-            });
-        });
-    }
-});
-
-describe('a vertical pan or a zoom keeps the legend rows in the band at the bottom edge of the board', () => {
-    for (const [name, mount] of [['complex power', mountPower]] as const) {
-        test(name, () => {
-            withSize(600, 480, () => {
-                const board = mount();
-                const [left, top, right, bottom] = board.getBoundingBox();
-                const heightPx = board.canvasHeight;
-                const views: Array<[number, number, number, number]> = [
-                    [left, top + 4, right, bottom + 4], [left, top - 3, right, bottom - 3],
-                    [left / 2, top / 2, right / 2, bottom / 2], [left * 2, top * 2, right * 2, bottom * 2],
-                ];
-                for (const view of views) {
-                    board.setBoundingBox(view, false);
-                    board.update();
-                    const rows = legendRows(board);
-                    expect(rows.length).toBeGreaterThanOrEqual(3);
-                    const live = board.getBoundingBox();
-                    for (const row of rows) {
-                        const above = (row.Y() - live[3]) * board.unitY;
-                        expect(above, String(row.plaintext)).toBeGreaterThan(0);
-                        expect(above, String(row.plaintext)).toBeLessThan(heightPx * 0.45);
-                    }
-                    for (let i = 0; i + 1 < rows.length; i++) expect((rows[i].Y() - rows[i + 1].Y()) * board.unitY).toBeGreaterThanOrEqual(13.5);
-                }
             });
         });
     }

@@ -8,10 +8,10 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, openTools, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import {ComplexPowerGraph} from '../../graphs/complex/ComplexPowerGraph';
 import {enterNumber} from '../../inputs/testEntry';
-import {setLanguage, t} from '../../localization';
+import {currentLanguage, setLanguage, t} from '../../localization';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {complexPowerLesson} from './complexPowerGuidedLessons';
 
@@ -82,7 +82,7 @@ function expectReadouts(label: string, graph: ComplexPowerGraph, s: S, language:
 
 // ---- the graph -------------------------------------------------------------------------------------------------------------------------
 
-function mountPower() {
+async function mountPower() {
     const graph = new ComplexPowerGraph();
     render(React.createElement(MemoryRouter, null, React.createElement(GraphHost, {create: () => graph})));
     const capabilities = graph.getLessonCapabilities();
@@ -96,6 +96,8 @@ function mountPower() {
     /** The scene run twice inside one act. */
     const sceneTwice = (id: string) => act(() => { run(id); run(id); });
     const restore = () => act(() => { capabilities.restoreState(checkpoint); });
+    await waitForPucks('power-n');
+    await openTools();
     return {graph, scene, sceneTwice, restore, free};
 }
 
@@ -103,8 +105,10 @@ function mountPower() {
 
 const loc = (value: string, language: Language) => (language === 'sl' ? value : value.replace(',', '.'));
 const typeInto = (name: string, value: string, language: Language) => act(() => { enterNumber(screen.getByRole('spinbutton', {name}) as HTMLInputElement, loc(value, language)); });
-const typeN = (value: number) => (language: Language) => typeInto(t('complex_power_graph_n_label'), String(value), language);
-const stepUp = () => act(() => { fireEvent.click(screen.getByRole('button', {name: t('increase_count')})); });
+/** The exponent is a puck on the board now: a double click opens its entry, Enter commits it. */
+const typeN = (value: number) => (_language: Language) => typePuck('power-n', String(value));
+const plusButton = () => [...document.querySelectorAll<HTMLButtonElement>('.puck-strip [data-puck-key="power-n"] button')].find(button => button.textContent === '+')!;
+const stepUp = () => act(() => { fireEvent.click(plusButton()); });
 const typeRe = (value: string) => (language: Language) => typeInto('z, Re', value, language);
 const typeIm = (value: string) => (language: Language) => typeInto('z, Im', value, language);
 
@@ -121,10 +125,10 @@ interface Ask {
 interface Plan { readonly id: string; readonly opening: S; readonly asks: readonly Ask[] }
 const PLANS: readonly Plan[] = [
     {id: 'm6-third-power', opening: state(20, 20, 2), asks: [
-        {label: 'n = 3 (field or Increase count)', acts: [typeN(3), stepUp], after: state(20, 20, 3), predicted: [-2, 2 * Math.SQRT2, 135]},
+        {label: 'n = 3 (puck entry or its + button)', acts: [typeN(3), stepUp], after: state(20, 20, 3), predicted: [-2, 2 * Math.SQRT2, 135]},
     ]},
     {id: 'm6-rule', opening: state(20, 20, 3), asks: [
-        {label: 'n = 4 (Increase count or field)', acts: [stepUp, typeN(4)], after: state(20, 20, 4), predicted: [-4, 4, 180]},
+        {label: 'n = 4 (its + button or puck entry)', acts: [stepUp, typeN(4)], after: state(20, 20, 4), predicted: [-4, 4, 180]},
     ]},
     {id: 'm6-unit-modulus', opening: state(16, 12, 1), asks: [
         {label: 'n = 3', acts: [typeN(3)], after: state(16, 12, 3), predicted: [110.6097]},
@@ -153,9 +157,9 @@ describe.each(LANGUAGES)('M6 scenes in %s', language => {
     // out of order: reversed, then every third step, then the in-order pass, so that no scene depends on the one before it
     const order = [...PLANS].reverse().concat(PLANS.filter((_, i) => i % 3 === 0), PLANS);
 
-    test('every scene opens in the stated state and readouts, out of order and twice in one act', () => {
+    test('every scene opens in the stated state and readouts, out of order and twice in one act', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         expectReadouts('free state', m.graph, DEFAULT_STATE, language);
         for (const plan of order) {
             m.scene(plan.id);
@@ -165,17 +169,17 @@ describe.each(LANGUAGES)('M6 scenes in %s', language => {
         }
     });
 
-    test('the last step opens on the Demonstration default, the board counter reads 5 of 8', () => {
+    test('the last step opens on the Demonstration default, the board counter reads 5 of 8', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         m.scene('m6-explore');
         expect(JSON.stringify(m.graph.state)).toEqual(m.free);
         expect({counter: nums(counter(), language)}).toEqual({counter: [5, 8]});
     });
 
-    test('restoring the checkpoint on exit returns the free state', () => {
+    test('restoring the checkpoint on exit returns the free state', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         for (const plan of PLANS) {
             m.scene(plan.id);
             m.restore();
@@ -184,9 +188,9 @@ describe.each(LANGUAGES)('M6 scenes in %s', language => {
         expectReadouts('restored', m.graph, DEFAULT_STATE, language);
     });
 
-    test('no opening is already the state the prompt asks for, and no row just before an action shows a value it asks to predict', () => {
+    test('no opening is already the state the prompt asks for, and no row just before an action shows a value it asks to predict', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         for (const plan of PLANS) {
             m.scene(plan.id);
             const last = plan.asks[plan.asks.length - 1];
@@ -206,9 +210,9 @@ describe.each(LANGUAGES)('M6 scenes in %s', language => {
         }
     });
 
-    test('the learner actions the text asks for, by the field or the stepper, give the state and readouts it quotes', () => {
+    test('the learner actions the text asks for, by the field or the stepper, give the state and readouts it quotes', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         for (const plan of PLANS) {
             const variants = Math.max(1, ...plan.asks.map(ask => ask.acts.length));
             for (let variant = 0; variant < variants; variant++) {
@@ -221,17 +225,17 @@ describe.each(LANGUAGES)('M6 scenes in %s', language => {
         }
     });
 
-    test('step 2 raises n to 4: the status sentence names z^4 and its modulus 4 (outside the view)', () => {
+    test('step 2 raises n to 4: the status sentence names z^4 and its modulus 4 (outside the view)', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         m.scene('m6-rule');
         stepUp();
         expect({status: status().includes('⁴'), four: nums(status(), language).includes(4)}).toEqual({status: true, four: true});
     });
 
-    test('step 4 keeps Im at 0,5 when Re 1,5 is typed, and lists the powers from z^3 on outside the view', () => {
+    test('step 4 keeps Im at 0,5 when Re 1,5 is typed, and lists the powers from z^3 on outside the view', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         m.scene('m6-inside-outside');
         typeN(8)(language);
         typeRe('1,5')(language);
@@ -239,9 +243,9 @@ describe.each(LANGUAGES)('M6 scenes in %s', language => {
         for (const sup of ['³', '⁴', '⁵', '⁶', '⁷', '⁸']) expect({sup, listed: status().includes(sup)}).toEqual({sup, listed: true});
     });
 
-    test('step 7: z = i returns after four powers, 0,6 + 0,8i has every power on the circle, 1 + i has a real eighth power', () => {
+    test('step 7: z = i returns after four powers, 0,6 + 0,8i has every power on the circle, 1 + i has a real eighth power', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         m.scene('m6-explore');
         typeRe('0')(language);
         typeIm('1')(language);
@@ -273,7 +277,7 @@ describe.each(LANGUAGES)('M6 scenes in %s', language => {
 
 type Label = () => string;
 const L = {
-    n: () => t('complex_power_graph_n_label'), up: () => t('increase_count'), reset: () => t('reset'),
+    n: () => t('complex_power_graph_n_label'), up: () => (currentLanguage() === 'sl' ? 'gumb +' : '+ button'), reset: () => t('reset'),
     modulus: (power: string): Label => () => t('complex_power_graph_r_modulus', {value0: power}),
     angle: (n: string): Label => () => t('complex_power_graph_r_angle', {value0: n}),
     principal: (power: string): Label => () => t('complex_power_graph_r_principal', {value0: power}),
@@ -308,14 +312,15 @@ describe.each(LANGUAGES)('M6 prompt labels in %s', language => {
         for (const label of NAMED[id]) expect({id, label: label(), named: forms(label()).some(form => prompt.includes(form))}).toEqual({id, label: label(), named: true});
     });
 
-    test('the labels exist in the mounted graph: control labels and readout labels', () => {
+    test('the labels exist in the mounted graph: control labels and readout labels', async () => {
         setLanguage(language);
-        const m = mountPower();
+        const m = await mountPower();
         m.scene('m6-third-power');
         const dts = [...document.querySelectorAll('[data-readout] dt')].map(node => node.textContent ?? '');
         for (const label of [L.re('²'), L.im('²'), L.modulus('²'), L.angle('2'), L.principal('²'), L.unit('²')]) expect({label: label(), shown: dts.includes(label())}).toEqual({label: label(), shown: true});
         expect(screen.queryByRole('spinbutton', {name: L.n()})).not.toBeNull();
-        expect(screen.queryByRole('button', {name: L.up()})).not.toBeNull();
+        expect(plusButton()).toBeDefined();
+        expect(document.querySelector('.puck-strip [data-puck-key="power-n"]')).not.toBeNull();
         expect(screen.queryByRole('button', {name: L.reset()})).not.toBeNull();
         expect(screen.queryByRole('spinbutton', {name: 'z, Re'})).not.toBeNull();
         expect(screen.queryByRole('spinbutton', {name: 'z, Im'})).not.toBeNull();

@@ -56,14 +56,12 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "z = 1 + i, n = 5: z⁵ = -4 - 4i. Zunaj pogleda, narisano kot puščice: z⁴ z modulom 4, z⁵ z modulom 5,66."
+      ],
       "outputs": [],
       "captions": [
-        "Enotska krožnica (črtkano)",
-        "Pot z, z², …, z⁵ (polna črta)",
-        "Potence števila z (rombi)",
         "z = 1 + i",
-        "z, premakljiv (poln krog)",
         "z²",
         "z³",
         "z⁴, modul 4",
@@ -124,14 +122,12 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "z = 1 + i, n = 2: z² = 2i."
+      ],
       "outputs": [],
       "captions": [
-        "Enotska krožnica (črtkano)",
-        "Pot z, z², …, z² (polna črta)",
-        "Potence števila z (rombi)",
         "z = 1 + i",
-        "z, premakljiv (poln krog)",
         "z²"
       ]
     },
@@ -189,14 +185,12 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "z = 1 + i, n = 3: z³ = -2 + 2i."
+      ],
       "outputs": [],
       "captions": [
-        "Enotska krožnica (črtkano)",
-        "Pot z, z², …, z³ (polna črta)",
-        "Potence števila z (rombi)",
         "z = 1 + i",
-        "z, premakljiv (poln krog)",
         "z²",
         "z³"
       ]
@@ -255,14 +249,12 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "z = 0,8 + 0,6i, n = 1: z¹ ≈ 0,8 + 0,6i."
+      ],
       "outputs": [],
       "captions": [
-        "Enotska krožnica (črtkano)",
-        "Pot z, z², …, z¹ (polna črta)",
-        "Potence števila z (rombi)",
-        "z = 0,8 + 0,6i",
-        "z, premakljiv (poln krog)"
+        "z = 0,8 + 0,6i"
       ]
     },
     {
@@ -319,14 +311,12 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "z = 0,5 + 0,5i, n = 1: z¹ ≈ 0,5 + 0,5i."
+      ],
       "outputs": [],
       "captions": [
-        "Enotska krožnica (črtkano)",
-        "Pot z, z², …, z¹ (polna črta)",
-        "Potence števila z (rombi)",
-        "z = 0,5 + 0,5i",
-        "z, premakljiv (poln krog)"
+        "z = 0,5 + 0,5i"
       ]
     },
     {
@@ -383,14 +373,12 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "z = 1 + i, n = 4: z⁴ = -4. Zunaj pogleda, narisano kot puščice: z⁴ z modulom 4."
+      ],
       "outputs": [],
       "captions": [
-        "Enotska krožnica (črtkano)",
-        "Pot z, z², …, z⁴ (polna črta)",
-        "Potence števila z (rombi)",
         "z = 1 + i",
-        "z, premakljiv (poln krog)",
         "z²",
         "z³",
         "z⁴, modul 4"
@@ -450,14 +438,12 @@
           "value": "ne"
         }
       ],
-      "notes": [],
+      "notes": [
+        "z = 0,6 + 0,8i, n = 2: z² ≈ -0,28 + 0,96i."
+      ],
       "outputs": [],
       "captions": [
-        "Enotska krožnica (črtkano)",
-        "Pot z, z², …, z² (polna črta)",
-        "Potence števila z (rombi)",
         "z = 0,6 + 0,8i",
-        "z, premakljiv (poln krog)",
         "z²"
       ]
     }

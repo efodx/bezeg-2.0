@@ -10,7 +10,10 @@ import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {DEFAULT_COMPLEX_POWER_STATE} from '../../complex/complexPowerModel';
-import {ComplexPowerGraph, ROW_PX, STEP_INTERVAL_MS} from './ComplexPowerGraph';
+import {openTools, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
+import type {GraphDeclaration} from '../base/declare/graphDeclaration';
+import {ComplexPowerGraph, STEP_INTERVAL_MS, type ComplexPowerIds} from './ComplexPowerGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -71,10 +74,11 @@ const enter = (name: string, value: string) => act(() => { enterNumber(field(nam
 const status = () => document.querySelector('[data-complex-power-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
-const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_COMPLEX_POWER_STATE>) => act(() => { graph.setState(patch); });
+const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_COMPLEX_POWER_STATE>) => act(() => { runAs('learner', () => graph.setState(patch)); });
 const reLabel = () => 'z, Re';
 const imLabel = () => 'z, Im';
-const nLabel = () => t('complex_power_graph_n_label');
+const learn = (graph: ObservedGraph, action: Parameters<ObservedGraph['act']>[0]) => runAs('learner', () => graph.act(action));
+const enterN = (value: string) => typePuck('power-n', value);
 const zAct = (re: number, im: number) => ({kind: 'complex-power', operation: 'set-z', re, im}) as const;
 const nAct = (n: number) => ({kind: 'complex-power', operation: 'set-n', n}) as const;
 const stepAct = (count?: number) => ({kind: 'complex-power', operation: 'step', ...(count === undefined ? {} : {count})}) as const;
@@ -165,15 +169,17 @@ describe('mount and the numbers', () => {
 });
 
 describe('typed values, scene actions and the drag', () => {
-    test('a typed coordinate or exponent that is off the grid or out of range is refused with the range in its help', () => {
+    test('a typed coordinate or exponent that is off the grid or out of range is refused with the range in its help', async () => {
         const {graph} = mountGraph();
+        await waitForPucks('power-n');
+        await openTools();
         const before = graph.state;
         for (const bad of ['0,33', '2,05', 'abc']) {
             enter(reLabel(), bad);
             expect(graph.state, bad).toBe(before);
         }
         for (const bad of ['0', '9', '2,5']) {
-            enter(nLabel(), bad);
+            enterN(bad);
             expect(graph.state, bad).toBe(before);
         }
         expect(graph.editPoint(0.33, 0)).toBe(false);
@@ -190,27 +196,27 @@ describe('typed values, scene actions and the drag', () => {
         expect(graph.state.A).toBe(7);
         enter(imLabel(), '−1,25');
         expect(graph.state.B).toBe(-25);
-        enter(nLabel(), '8');
+        enterN('8');
         expect(graph.state.n).toBe(8);
-        expect(graph.editPoint(-2, -1.25)).toBe(true);
+        expect(runAs('learner', () => graph.editPoint(-2, -1.25))).toBe(true);
         expect(graph.state.A).toBe(-40);
     });
 
     test('set-z, set-n and step in one synchronous tick each read the state the previous one wrote', () => {
         const {graph} = mountGraph();
         act(() => {
-            graph.act(zAct(0.5, 0.5));
-            graph.act(nAct(2));
-            graph.act(stepAct());
+            learn(graph, zAct(0.5, 0.5));
+            learn(graph, nAct(2));
+            learn(graph, stepAct());
             expect(graph.state).toMatchObject({A: 10, B: 10, n: 3});
-            graph.act(stepAct(3));
+            learn(graph, stepAct(3));
         });
         expect(graph.state).toMatchObject({A: 10, B: 10, n: 6});
         expect(readout('n')).toBe('6');
-        act(() => { graph.act(stepAct(2)); });
+        act(() => { learn(graph, stepAct(2)); });
         expect(graph.state.n).toBe(8);
-        expect(() => graph.act(zAct(0.51, 0))).toThrow(/re: off-grid/);
-        expect(() => graph.act(nAct(9))).toThrow(/n: out-of-range/);
+        expect(() => learn(graph, zAct(0.51, 0))).toThrow(/re: off-grid/);
+        expect(() => learn(graph, nAct(9))).toThrow(/n: out-of-range/);
         expect(graph.state.n).toBe(8);
     });
 
@@ -231,7 +237,7 @@ describe('typed values, scene actions and the drag', () => {
     test('a program-changed z is announced in the live status', () => {
         vi.useFakeTimers();
         const {graph} = mountGraph();
-        act(() => { graph.act(zAct(0.5, 0)); });
+        act(() => { learn(graph, zAct(0.5, 0)); });
         act(() => { vi.advanceTimersByTime(600); });
         expect(live()).toContain('z = 0,5');
     });
@@ -307,17 +313,19 @@ describe('every stored-field change pauses a playing run', () => {
         return mounted.graph;
     };
 
-    test('a typed Re z', () => {
+    test('a typed Re z', async () => {
         const graph = playing();
+        await openTools();
         enter(reLabel(), '0,5');
         expect(graph.state.A).toBe(10);
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
     });
 
-    test('a typed exponent', () => {
+    test('a typed exponent', async () => {
         const graph = playing();
-        enter(nLabel(), '6');
+        await waitForPucks('power-n');
+        enterN('6');
         expect(graph.state.n).toBe(6);
         expect(graph.isPlaying()).toBe(false);
     });
@@ -331,7 +339,7 @@ describe('every stored-field change pauses a playing run', () => {
 
     test('a scene action', () => {
         const graph = playing();
-        act(() => { graph.act(stepAct()); });
+        act(() => { learn(graph, stepAct()); });
         expect(graph.isPlaying()).toBe(false);
     });
 
@@ -346,49 +354,41 @@ describe('every stored-field change pauses a playing run', () => {
 
     test('a write that changes no stored field leaves the run alone', () => {
         const graph = playing();
-        act(() => { graph.setState({initialized: true}); });
-        act(() => { graph.setState({n: 2}); });
+        act(() => { runAs('learner', () => graph.setState({initialized: true})); });
+        act(() => { runAs('learner', () => graph.setState({n: 2})); });
         expect(graph.isPlaying()).toBe(true);
         graph.clock.tick(2 * STEP_INTERVAL_MS);
         expect(graph.state.n).toBe(3);
     });
 });
 
-describe('captions and the legend', () => {
-    test('a caption names z, every drawn power and the styles the legend states', () => {
+describe('captions and the declared legend', () => {
+    const legendOf = (graph: ObservedGraph) => (graph.getDeclaration() as GraphDeclaration<ComplexPowerIds>).legend ?? [];
+    const shownLegend = (graph: ObservedGraph) => legendOf(graph).filter(entry => graph.drawnObject(entry.id)?.visible).map(entry => entry.id);
+
+    test('a caption names z and every drawn power; the legend no longer draws its own caption lines', () => {
         const {graph} = mountGraph();
         const texts = captionTexts(graph);
         expect(texts).toContain('z = 1 + i');
         for (const k of ['²', '³']) expect(texts).toContain(`z${k}`);
-        expect(texts).toContain(t('complex_power_graph_cap_unit', {value0: t('complex_power_graph_style_dashed')}));
-        expect(texts).toContain(t('complex_power_graph_cap_path', {value0: '⁵', value1: t('complex_power_graph_style_solid')}));
-        expect(texts).toContain(t('complex_power_graph_cap_points', {value0: t('complex_power_graph_style_diamonds')}));
-        expect(texts).toContain(t('complex_power_graph_cap_handle', {value0: t('complex_power_graph_style_circle')}));
+        expect(texts.filter(text => /Enotska krožnica|Potence števila|premakljiv|Pot z,/.test(text))).toEqual([]);
     });
 
-    test('the four legend rows stack at an even pitch and end inside the board', () => {
+    test('the declared legend lists the unit circle, the path, the powers and z, and the powers entry follows n', () => {
         const {graph} = mountGraph();
-        const board = graph.liveBoard();
-        type Placed = Probe & {X(): number; Y(): number};
-        const rows = (ofType(graph, 'text') as Placed[]).filter(o => visible(o) && o.X() < -2.4).sort((a, b) => b.Y() - a.Y());
-        expect(rows).toHaveLength(4);
-        const ys = rows.map(o => o.Y());
-        const pitches = ys.slice(1).map((y, i) => (ys[i] - y) * board.unitY);
-        for (const pitch of pitches) expect(pitch).toBeCloseTo(ROW_PX, 6);
-        expect((ys[3] - board.getBoundingBox()[3]) * board.unitY).toBeGreaterThanOrEqual(14);
+        expect(legendOf(graph).map(entry => entry.id)).toEqual(['unit', 'path', 'powers', 'z']);
+        expect(shownLegend(graph)).toEqual(['unit', 'path', 'powers', 'z']);
+        set(graph, {n: 1});
+        expect(shownLegend(graph)).toEqual(['unit', 'path', 'z']);
+        set(graph, {n: 2});
+        expect(shownLegend(graph)).toEqual(['unit', 'path', 'powers', 'z']);
     });
 
-    test('each legend entry states the style of the element it names', () => {
+    test('each legend entry is drawn in the style it declares: dashed circle, solid path, diamond powers, filled circle z', () => {
         const {graph} = mountGraph();
-        // dashed unit circle, solid path
-        expect(sl.complex_power_graph_style_dashed).toBe('črtkano');
         expect(Number(curves(graph)[UNIT_CIRCLE].evalVisProp('dash'))).toBeGreaterThan(0);
-        expect(sl.complex_power_graph_style_solid).toBe('polna črta');
         expect(Number(curves(graph)[PATH].evalVisProp('dash'))).toBe(0);
-        // diamonds for the powers, a filled circle for the handle
-        expect(sl.complex_power_graph_style_diamonds).toBe('rombi');
         expect(diamonds(graph)).toHaveLength(7);
-        expect(sl.complex_power_graph_style_circle).toBe('poln krog');
         const handle = probes(graph).find(o => o.id === graph.dragHandle()!.id)!;
         expect(String(handle.evalVisProp('face'))).toBe('circle');
         expect(Number(handle.evalVisProp('fillopacity'))).toBeGreaterThan(0);
@@ -479,7 +479,7 @@ describe('ownership, rebuild and StrictMode', () => {
         // number: no frame, interval or settle timer of this graph (the status settle is cancelled by the unmount).
         const before = vi.getTimerCount();
         const reference = mountGraph();
-        act(() => { reference.graph.setState({n: 2}); });
+        act(() => { runAs('learner', () => reference.graph.setState({n: 2})); });
         reference.view.unmount();
         const plainDelta = vi.getTimerCount() - before;
         const afterPlain = vi.getTimerCount();
@@ -503,7 +503,7 @@ describe('ownership, rebuild and StrictMode', () => {
         const count = graph.derivationCount();
         act(() => setLanguage('en'));
         act(() => setLanguage('sl'));
-        act(() => { graph.setState({initialized: true}); });
+        act(() => { runAs('learner', () => graph.setState({initialized: true})); });
         expect(graph.derivationCount()).toBe(count);
         set(graph, {n: 6});
         expect(graph.derivationCount()).toBe(count + 1);
@@ -520,12 +520,10 @@ describe('language and the catalog', () => {
         expect(document.querySelector(`[aria-label="${en.complex_power_graph_board_label}"]`)).not.toBeNull();
         expect(labelOf('re')).toBe('Re z³, exact');
         expect(readout('re')).toBe('1/8 ≈ 0.125');
-        expect(captionTexts(graph)).toContain(t('complex_power_graph_cap_path', {value0: '³', value1: en.complex_power_graph_style_solid}));
         expect(status()).toContain('z = 0.5, n = 3');
         act(() => setLanguage('sl'));
         expect(document.querySelector(`[aria-label="${sl.complex_power_graph_board_label}"]`)).not.toBeNull();
         expect(readout('re')).toBe('1/8 ≈ 0,125');
-        expect(captionTexts(graph)).toContain(t('complex_power_graph_cap_path', {value0: '³', value1: sl.complex_power_graph_style_solid}));
     });
 
     test('numbers use the decimal comma and the true minus in Slovenian', () => {
@@ -540,7 +538,7 @@ describe('language and the catalog', () => {
     test('every complex_power_graph key exists in both languages with the same placeholder names, and the sources use exactly these keys', () => {
         const names = (text: string) => Array.from(text.matchAll(/\{(\w+)\}/g), m => m[1]).sort();
         const keys = Object.keys(sl).filter(key => key.startsWith('complex_power_graph_'));
-        expect(keys.length).toBeGreaterThanOrEqual(56);
+        expect(keys.length).toBeGreaterThanOrEqual(48);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];

@@ -2,10 +2,11 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, openTools, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
 import {enterNumber} from '../../inputs/testEntry';
 import {ComplexPowerGraph, STEP_INTERVAL_MS} from './ComplexPowerGraph';
 
@@ -42,6 +43,9 @@ const apply = (graph: {getLessonCapabilities(): {apply(action: LessonAction): vo
 const setZ = (A: number, B: number): LessonAction => ({kind: 'complex-power', operation: 'set-z', A, B});
 const setN = (n: number): LessonAction => ({kind: 'complex-power', operation: 'set-n', n});
 const field = (name: string) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
+/** The exponent is a puck on the board: a learner's typed entry, or a click on its + or - button. */
+const typeN = (value: string) => typePuck('power-n', value);
+const stepPuck = (sign: '+' | '−') => act(() => { fireEvent.click([...document.querySelectorAll<HTMLButtonElement>('.puck-strip [data-puck-key="power-n"] button')].find(button => button.textContent === sign)!); });
 const type = (name: string, value: string) => act(() => { enterNumber(field(name), value); });
 const press = (name: string) => act(() => { fireEvent.click(screen.getByRole('button', {name})); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
@@ -50,22 +54,30 @@ const counter = () => document.querySelector('[data-step-counter]')?.textContent
 const stateOf = (graph: ComplexPowerGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
 const snapshot = (graph: ComplexPowerGraph) => ({state: stateOf(graph), readouts: readouts(), status: status(), counter: counter()});
 
-/** The state, the readouts, the status and the counter after running `edit` on a fresh graph and then unmounting it. */
-function after(edit: (graph: ObservedGraph) => void) {
+/** A mounted graph whose puck strip and Orodja card are laid out. */
+async function ready(): Promise<ObservedGraph> {
     const graph = mount();
-    edit(graph);
+    await waitForPucks('power-n');
+    await openTools();
+    return graph;
+}
+
+/** The state, the readouts, the status and the counter after running `edit` on a fresh graph and then unmounting it. */
+async function after(edit: (graph: ObservedGraph) => void | Promise<void>) {
+    const graph = await ready();
+    await edit(graph);
     const result = snapshot(graph);
     cleanup();
     return result;
 }
 
-test('set-z equals typing z and dragging the handle', () => {
-    const typed = after(graph => apply(graph, setZ(16, 12)));
-    expect(typed).toEqual(after(() => { type('z, Re', '0,8'); type('z, Im', '0,6'); }));
+test('set-z equals typing z and dragging the handle', async () => {
+    const typed = await after(graph => apply(graph, setZ(16, 12)));
+    expect(typed).toEqual(await after(() => { type('z, Re', '0,8'); type('z, Im', '0,6'); }));
     expect(typed.state).toEqual(expect.objectContaining({A: 16, B: 12, n: 5}));
 
-    const dragged = after(graph => apply(graph, setZ(10, -30)));
-    expect(dragged).toEqual(after(graph => {
+    const dragged = await after(graph => apply(graph, setZ(10, -30)));
+    expect(dragged).toEqual(await after(graph => {
         const handle = graph.dragHandle() as EventedPoint;
         handle.setPosition(JXG.COORDS_BY_USER, [0.5, -1.5]);
         act(() => { handle.triggerEventHandlers(['drag'], []); });
@@ -73,27 +85,27 @@ test('set-z equals typing z and dragging the handle', () => {
     expect(dragged.state).toEqual(expect.objectContaining({A: 10, B: -30}));
 });
 
-test('set-n equals the n field and the steppers', () => {
-    const typed = after(graph => apply(graph, setN(8)));
-    expect(typed).toEqual(after(() => type(t('complex_power_graph_n_label'), '8')));
+test('set-n equals the n puck entry and its + and − buttons', async () => {
+    const typed = await after(graph => apply(graph, setN(8)));
+    expect(typed).toEqual(await after(() => typeN('8')));
     expect(typed.state).toEqual(expect.objectContaining({n: 8}));
 
-    const up = after(graph => apply(graph, setN(6)));
-    expect(up).toEqual(after(() => press(t('increase_count'))));
-    const down = after(graph => apply(graph, setN(4)));
-    expect(down).toEqual(after(() => press(t('decrease_count'))));
-    expect(after(graph => apply(graph, setN(5))).state).toEqual(after(() => undefined).state);
+    const up = await after(graph => apply(graph, setN(6)));
+    expect(up).toEqual(await after(() => stepPuck('+')));
+    const down = await after(graph => apply(graph, setN(4)));
+    expect(down).toEqual(await after(() => stepPuck('−')));
+    expect((await after(graph => apply(graph, setN(5)))).state).toEqual((await after(() => undefined)).state);
 });
 
-test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', () => {
-    const graph = mount();
+test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', async () => {
+    const graph = await ready();
     const free = stateOf(graph);
     act(() => {
         const capabilities = graph.getLessonCapabilities();
         capabilities.apply(setZ(16, 12));
         capabilities.apply(setN(1));
         capabilities.apply(setN(3));
-        graph.stepOnce();
+        runAs('learner', () => graph.stepOnce());
         expect(graph.state).toEqual(expect.objectContaining({A: 16, B: 12, n: 4}));
         capabilities.apply(setZ(10, 10));
     });
@@ -101,10 +113,10 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     expect(stateOf(graph)).not.toEqual(free);
     const here = snapshot(graph);
     cleanup();
-    expect(after(() => {
+    expect(await after(() => {
         type('z, Re', '0,8'); type('z, Im', '0,6');
-        type(t('complex_power_graph_n_label'), '1');
-        type(t('complex_power_graph_n_label'), '3');
+        typeN('1');
+        typeN('3');
         press(t('next_step'));
         type('z, Re', '0,5'); type('z, Im', '0,5');
     })).toEqual(here);

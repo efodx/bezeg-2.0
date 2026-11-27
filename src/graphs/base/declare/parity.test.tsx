@@ -1025,6 +1025,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 'r = 4, last step', apply: run({R: 400, X: 99, step: 60})},
         ] satisfies ParityState[];
     })()},
+    {file: 'complex/__parity__/complex-power.json', demonstration: 'complex-power', states: (() => {
+        type Power = {setState(state: Record<string, unknown>): void};
+        const fresh = {A: 20, B: 20, n: 5};
+        // every state starts from the default state (z = 1 + i, n = 5), so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Power).setState({...fresh, ...state})); };
+        return [
+            {name: 'default, z = 1 + i, n = 5', apply: run({})},
+            {name: 'z = 1 + i, n = 2', apply: run({n: 2})},
+            {name: 'unit circle, z = 0,8 + 0,6i, n = 3', apply: run({A: 16, B: 12, n: 3})},
+            {name: 'inside, z = 0,5 + 0,5i, n = 8', apply: run({A: 10, B: 10, n: 8})},
+            {name: 'outside, z = 1,5 + 0,5i, n = 8', apply: run({A: 30, B: 10, n: 8})},
+            {name: 'z = 0', apply: run({A: 0, B: 0, n: 4})},
+            {name: 'tiny z, approximate', apply: run({A: 1, B: 1, n: 8})},
+            {name: 'z = i, real power', apply: run({A: 0, B: 20, n: 4})},
+        ] satisfies ParityState[];
+    })()},
     {file: 'complex/__parity__/complex-euler.json', demonstration: 'complex-euler', states: (() => {
         type Euler = {setState(state: Record<string, unknown>): void};
         const fresh = {degrees: 30, omega: 2, degree: 5, velocity: true, acceleration: false, mode: 'motion', b: 45};

@@ -1,0 +1,26 @@
+# Lane L27 (complex-power): PARTIAL handoff at the 175k budget signal. Start 03:26.
+
+## Done (observed)
+- Parity BEFORE converting: `data-readout-note` on `<p data-complex-power-status>`; SAMPLES entry `complex-power` (8 states) in `parity.test.tsx`; `src/graphs/complex/__parity__/complex-power.json` recorded; baseline copy `.command-logs/l27-parity-baseline.json`. Parity check passes (`BEZEG_PARITY_CHECK=1 BEZEG_PARITY_ID=complex-power`).
+- `ComplexPowerGraph.tsx` converted, tsc clean except the own test's `ROW_PX` import: `ComplexPowerIds` (param `power-n`; rows z,n,re,im,modulus,angle,principal,real,unit,one; note status; legend unit,path,powers,z; actions next-step/play-pause/reset-run), `parameterBindings` (`power-n`, DomainError with `complex_power_graph_n_rejected`), `declaration()`, `drawnObject` (`elements` map + `powerPoints`), `performAction`, Message-based `rowSpecs`/`statusMessage`, drag and opening view tagged `runAs('learner')`, playback `useLease` on `power-n`, board legend captions and `legend` caption option removed, VIEW_BOX now [-2.6,2.6,2.6,-2.6], `ROW_PX` gone, `PuckOwned` around the CountSetter, `data-declared-panel` around the readouts, Orodja keeps z `PointListInput` (point: no declared parameter, as L28) and the playback group.
+- Fragment `src/localization/fragments/complex-power.ts` registered in `fragments/index.ts` (keys `power_n_name`, `power_legend_*`, `power_status_join`).
+- `ComplexPowerGraph.declaration.test.tsx` (9 states + binding + playback): green. Red: unit row value flipped (`yesNo(!d.onUnitCircle)`) -> `AssertionError: expected 'ne' to be 'da'`; restored.
+- Lessons `complexPowerGuidedLessons.ts`: `declare` frames on all 7 steps (uses `power-n`; highlights: step 1 modulus+angle, step 3 angle, step 5 angle+principal); wording "polje Eksponent n" -> "krmilnik Eksponent \\(n\\)" / en "the field Exponent n" -> "the control Exponent \\(n\\)"; "pritisni Povečaj število" -> "pritisni njegov gumb +" (step 1) / "pritisni gumb + krmilnika Eksponent \\(n\\)" (step 2); header comment updated.
+- Contract: `just unit src/learning/content/declarationContract.test.tsx -t complex-power` passed.
+
+## Failing / not done
+1. `ComplexPowerGraph.test.tsx`: import of `ROW_PX` (remove); `set`/`graph.setState`/`graph.act`/`graph.editExponent` writes must be `runAs('learner', ...)` (UntaggedWriteError in "a scene action" and "unmount while playing"); the n field is now a puck (`typePuck('power-n', ...)`, `waitForPucks('power-n')`), z fields stay in Orodja (`openTools()`); captions/legend tests (lines ~357-410: legend captions, four-row stack, each-entry-style) to be replaced by declaration checks or removed; catalog test "unused" now flags `complex_power_graph_cap_unit/path/points/handle` and `style_dashed/solid/diamonds/circle` -> delete these 8 keys from sl.ts/en.ts in lockstep (grep first; used only in this test and the old graph).
+2. `complexPowerGuidedLessons.test.ts`: 42 failures, all from the old names (`typeInto` finds spinbutton "Eksponent n" in Orodja; NAMED labels "Eksponent n" now need the puck; "Povečaj število"). Migrate like L26 (typePuck/puckControl, pin the new wording in a test).
+3. `ComplexPowerLessonActions.host.test.tsx` (uses `increase_count`), shared tests `ExportPausesPlayback`, `batchDPresetFile` (runAs only), `legendBand.test.tsx` (power cases: remove only the power legend cases, say so), `PresetRoundTrip.contract` complex-power case: not run.
+4. Not run: tsc after tests, lint, graph-check (`--route` from `src/graphs/complex/batchD/runtime.ts`, likely `analysis/complex-power`), golden check (expect captions lose the four legend lines, notes gain the status), full unit set, `just build`, `just smoke-lesson complex-power --port 4391 --workers=1`.
+5. Scratch to delete by name: `.command-logs/l27-*`.
+
+## Placement judgements
+Pucks: only `n` (count), asked by every step (set/raise n while watching the powers). z stays a board point + Orodja point fields (points are board rows/legend only; steps 4 and 7 type Re/Im there). Playback stays in Edit (moment, not setting). Legend: 4 entries replace the board legend band; board is square now. Marks: unit circle box +-1.2 and z.
+
+## Session 2
+- Own test: ROW_PX gone; writes `runAs('learner')`; n via `typePuck('power-n')` (waitForPucks, then openTools); legend-caption tests replaced by declared-legend checks (entries, visibility by n, drawn styles); key-count floor 56 -> 48. Deleted 8 keys (cap_unit/path/points/handle, style_dashed/solid/diamonds/circle) in sl/en.
+- Lesson test: async mountPower (pucks + Orodja), typeN = puck entry, stepUp = puck + button, "Povecaj stevilo" label replaced by pinning prose "gumb +" / "+ button"; all 50 pass. Fixed lesson prose: 7 sl "Eksponent \(n\)" had a single backslash (now doubled).
+- Host test: set-n compared to puck entry and +/- buttons; stepOnce under runAs. legendBand.test.tsx: removed only the power legend-stacking and pan/zoom cases (plus their dead helpers); power first-view and resize cases kept.
+- Removed unused `formatted` helper and import (lint).
+- Checks: tsc 0, lint passed, unit set passed, FirstTask passed, preset round trip passed, graph-check: golden FAIL only (expected diff), build passed, smoke-lesson passed.

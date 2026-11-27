@@ -8,7 +8,12 @@ import type {SceneStateUpdate} from "../base/SceneStore";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import {DomainError} from "../functions/BaseFunctionGraph";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, isMessageNumber, message, messageNumber, onLanguageChange, renderMessage, t, type Message, type MessageNumber} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
+import {complexValueMessage} from "./complexValueMessage";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {formatComplex} from "../../analysis/complexFormat";
 import {COMPLEX_POWER_MAX} from "../../analysis/complexPower";
@@ -20,7 +25,6 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
-import {legendStackOffsetPx} from "../legend/legendStack";
 import {keepOpeningView} from "./openingView";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
@@ -37,14 +41,23 @@ export interface ComplexPowerGraphState extends BaseGraphState, ComplexPowerStat
 /** Time between two playback steps. A playback setting, not stored: a reopened Preset is paused. */
 export const STEP_INTERVAL_MS = 700;
 export const HANDLE_SIZE = 6;
-/** The board: the powers are drawn in [-VIEW_LIMIT, VIEW_LIMIT]; the rows below hold the legend. */
-export const VIEW_BOX: readonly [number, number, number, number] = [-2.6, 2.6, 2.6, -3.9];
-/** The four legend rows are always shown (no gaps); 8 + 3 * 16 + 14 px fit below the powers' frame on a board 400 px high. */
-export const ROW_PX = 16;
+/** The board: the powers are drawn in [-VIEW_LIMIT, VIEW_LIMIT]; the legend is a declared card, not drawn on the board. */
+export const VIEW_BOX: readonly [number, number, number, number] = [-2.6, 2.6, 2.6, -2.6];
 const UNIT_CIRCLE_DASH = 3;
 const UNIT_CIRCLE_SAMPLES = 128;
 
 const dec = (value: number, digits = 6): string => formatNumber(value, currentLanguage(), digits);
+
+/** The ids the declaration, the frames and the actions use. `section` is never used: the controls are pucks and the playback sits in Edit. */
+export type ComplexPowerIds = {
+    param: "power-n";
+    row: "z" | "n" | "re" | "im" | "modulus" | "angle" | "principal" | "real" | "unit" | "one";
+    note: "status";
+    legend: "unit" | "path" | "powers" | "z";
+    section: never;
+    action: "next-step" | "play-pause" | "reset-run";
+};
+type PowerRow = ReadoutRow<ComplexPowerIds>;
 
 const sameContent = (a: ComplexPowerState, b: ComplexPowerState): boolean => a.A === b.A && a.B === b.B && a.n === b.n;
 /** The same fields except the exponent: what a playing run may not have changed under it. */
@@ -70,6 +83,9 @@ interface Poly {
 export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, ComplexPowerPresetData> {
     private readonly scene = new SceneObjects();
     private handle?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their entry (`drawnObject`); rebuilt with the scene. */
+    private readonly elements = new Map<string, JXG.GeometryElement>();
+    private powerPoints: JXG.Point[] = [];
     private built = false;
     private cache?: {state: ComplexPowerGraphState; value: ComplexPowerDerived};
     private controller?: IterationController;
@@ -160,7 +176,7 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         // The still unit circle is skipped by regular updates and has no data yet on the first build: one full update draws it.
         this.board.fullUpdate();
         const session = this.graphSession;
-        if (this.hasBoard) keepOpeningView(this.board, session, () => this.showInitialView());
+        if (this.hasBoard) keepOpeningView(this.board, session, () => runAs("learner", () => this.showInitialView())); // the view is a declared mark: framing it again is tagged like Reset
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => { this.disposeController(); this.status.cancel(); });
@@ -244,15 +260,12 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
     /** A caption at a board point plus a pixel offset (up is positive); `dy` below the point is negative. */
     private caption(x: () => number, y: () => number, dx: number | (() => number), dy: number | (() => number), text: () => string, color: string, options: {
         visible?: () => boolean; anchorX?: "left" | "right"; anchorY?: "top" | "bottom";
-        /** A legend row: it gets the board's own background, so the axis and its tick labels do not run through its text. */
-        legend?: boolean;
     } = {}): void {
         this.scene.own(this.board.create("text", [
             () => x() + (typeof dx === "number" ? dx : dx()) / this.scaleOf().ux,
             () => y() + (typeof dy === "number" ? dy : dy()) / this.scaleOf().uy, text,
         ], {
             strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "bottom", fixed: true, highlight: false, withLabel: false,
-            ...(options.legend ? {cssStyle: "background: rgba(255, 253, 245, 0.88); padding: 0 2px; border-radius: 2px;"} : {}),
             visible: options.visible ?? (() => true),
         }));
     }
@@ -274,7 +287,7 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         const ks = Array.from({length: COMPLEX_POWER_MAX - 1}, (_unused, i) => i + 2);
 
         // The unit circle (dashed), the path through the powers (solid; it breaks where a power is beyond the view), the arrows to the powers beyond the view, then the powers.
-        this.curve(() => {
+        this.elements.set("unit", this.curve(() => {
             const x: number[] = [];
             const y: number[] = [];
             for (let i = 0; i <= UNIT_CIRCLE_SAMPLES; i++) {
@@ -283,8 +296,8 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                 y.push(Math.sin(angle));
             }
             return {x, y};
-        }, GraphPalette.referenceCurve, 2, UNIT_CIRCLE_DASH, {still: true});
-        this.curve(() => {
+        }, GraphPalette.referenceCurve, 2, UNIT_CIRCLE_DASH, {still: true}));
+        this.elements.set("path", this.curve(() => {
             const x: number[] = [];
             const y: number[] = [];
             const {powers} = this.derived();
@@ -294,7 +307,7 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                 if (insideView(p)) { x.push(p.re); y.push(p.im); }
             });
             return {x, y};
-        }, GraphPalette.comparisonCurve, 2, 0);
+        }, GraphPalette.comparisonCurve, 2, 0));
         for (const k of ks) {
             // An arrow from the origin side toward the power beyond the view; the ends follow the derived power.
             const arrow = this.scene.own(board.create("arrow", [
@@ -308,10 +321,10 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
             this.scene.own(arrow.point2);
         }
         for (const k of ks) {
-            this.scene.own(board.create("point", [() => this.power(k).re, () => this.power(k).im], {
+            this.powerPoints.push(this.scene.own(board.create("point", [() => this.power(k).re, () => this.power(k).im], {
                 fixed: true, highlight: false, withLabel: false, name: "", face: "diamond", size: 5, fillColor: GraphPalette.additionalCurves[1],
                 strokeColor: GraphPalette.pointOutline, showInfobox: false, visible: () => this.drawnInside(k),
-            }));
+            })));
         }
         const z = zOf(this.state);
         const handle = this.scene.own(board.create("point", [z.re, z.im], {
@@ -319,9 +332,10 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
             highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false,
         }));
         this.handle = handle;
+        this.elements.set("z", handle);
         this.wireDrag(handle);
 
-        // A caption for every element a readout names: z, each power, the powers beyond the view, z = 0, and the legend of the styles.
+        // A caption for every element a readout names: z, each power, the powers beyond the view, z = 0.
         this.caption(() => zOf(this.state).re, () => zOf(this.state).im, 8, 8, () => t("complex_power_graph_cap_z", {value0: formatComplex(zOf(this.state), currentLanguage())}),
             GraphPalette.constructionAccent);
         for (const k of ks) {
@@ -332,25 +346,12 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                 GraphPalette.additionalCurves[1], {visible: () => this.drawnOutside(k)});
         }
         this.caption(() => 0, () => 0, 8, 8, () => t("complex_power_graph_cap_zero"), GraphPalette.label, {visible: () => this.derived().zero});
-        // The legend: anchored at the live bottom-left corner of the board (pixel offsets, so a pan or zoom keeps it there); the rows stack by wrapped line count.
-        const legend: readonly {text: () => string; color: string}[] = [
-            {text: () => t("complex_power_graph_cap_unit", {value0: t("complex_power_graph_style_dashed")}), color: GraphPalette.referenceCurve},
-            {text: () => t("complex_power_graph_cap_path", {value0: superscript(this.state.n), value1: t("complex_power_graph_style_solid")}), color: GraphPalette.comparisonCurve},
-            {text: () => t("complex_power_graph_cap_points", {value0: t("complex_power_graph_style_diamonds")}), color: GraphPalette.additionalCurves[1]},
-            {text: () => t("complex_power_graph_cap_handle", {value0: t("complex_power_graph_style_circle")}), color: GraphPalette.constructionAccent},
-        ];
-        legend.forEach((row, index) => {
-            // Pixels above the live bottom edge: the rows below this one stack under it, so a pan or zoom keeps the legend at the edge.
-            const offset = () => {
-                const rows = legend.map(r => ({text: r.text(), visible: true}));
-                return 8 + legendStackOffsetPx(rows, rows.length, board.canvasWidth, ROW_PX) - legendStackOffsetPx(rows, index, board.canvasWidth, ROW_PX);
-            };
-            this.caption(() => board.getBoundingBox()[0], () => board.getBoundingBox()[3], 10, offset, row.text, row.color, {anchorY: "top", legend: true});
-        });
     }
 
     private disposeScene(): void {
         this.scene.dispose(this.hasBoard ? this.board : undefined);
+        this.elements.clear();
+        this.powerPoints = [];
         this.handle = undefined;
         this.built = false;
     }
@@ -358,7 +359,8 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
     // ---- Dragging: z snaps to the 0.05 grid in [-2, 2] -------------------------------------------------------------------------
 
     private wireDrag(point: JXG.Point): void {
-        const onDrag = () => this.dragTo(point);
+        // A drag is a learner's write; JSXGraph's handler runs outside the DOM input tagging.
+        const onDrag = () => runAs("learner", () => this.dragTo(point));
         const board = this.board;
         const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
@@ -407,6 +409,12 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
             maxIterations: N_RANGE.max - N_RANGE.min,
             onComplete: () => this.requestRender(),
             scheduler: this.animationScheduler(),
+        // The frame is an `animation` write of the exponent under the playback's lease (ADR 0064). A learner or lesson write of n, or a
+        // lesson frame change, ends the lease and pauses.
+        }).useLease({
+            arbiter: () => this.parameters,
+            keys: ["power-n"],
+            onInterrupted: () => { if (this.graphSession?.isAlive) this.requestRender(); },
         });
         if (this.controller.iteration !== this.state.n - N_RANGE.min) this.controller.reset(this.state.n - N_RANGE.min);
         return this.controller;
@@ -530,86 +538,188 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------
+    // Every value is a catalog message (nested messages for the exact values and the complex numbers); the panel and the declaration render the same messages.
 
-    private join(items: string[]): string {
-        return items.reduce((all, item) => t("complex_power_graph_join", {value0: all, value1: item}));
+    private render(value: Message | MessageNumber): string {
+        return isMessageNumber(value) ? dec(value.value, value.maxDecimals) : renderMessage(value);
+    }
+
+    private join(items: Message[]): Message {
+        return items.reduce((all, item) => message("complex_power_graph_join", {value0: all, value1: item}));
     }
 
     /** An exact value with its decimal beside it in significant digits (a tiny power never reads "≈ 0"); a whole number stands alone. */
-    private exactWithDecimal(exact: string, whole: boolean, decimal: number): string {
-        return whole ? exact : t("complex_power_graph_value_with_decimal", {value0: exact, value1: formatSignificant(decimal, currentLanguage(), 7)});
+    private exactWithDecimal(exact: Message | MessageNumber, whole: boolean, decimal: number): Message | MessageNumber {
+        return whole ? exact : message("complex_power_graph_value_with_decimal", {value0: exact, value1: formatSignificant(decimal, currentLanguage(), 7)});
     }
 
-    /** z^n as "a + bi" in significant digits, for the status sentence of a power that is not a pair of whole numbers. */
-    private significantComplex(z: {re: number; im: number}): string {
+    /** z^n in significant digits as "a + bi", for the status sentence of a power that is not a pair of whole numbers. */
+    private significantComplex(z: {re: number; im: number}): Message | string {
         const lang = currentLanguage();
         const re = formatSignificant(z.re, lang, 4);
         const im = formatSignificant(z.im, lang, 4);
         if (im === "0") return re;
-        const magnitude = im.startsWith("−") ? im.slice(1) : im;
-        const part = `${magnitude === "1" ? "" : magnitude}i`;
-        if (re === "0") return im.startsWith("−") ? `−${part}` : part;
-        return `${re} ${im.startsWith("−") ? "−" : "+"} ${part}`;
+        const negative = im.startsWith("−");
+        const magnitude = negative ? im.slice(1) : im;
+        const part = magnitude === "1" ? message("complex_value_i") : message("complex_value_imag", {value0: magnitude});
+        if (re === "0") return negative ? message("complex_value_negative", {value0: part}) : part;
+        return negative ? message("complex_value_minus", {value0: re, value1: part}) : message("complex_value_plus", {value0: re, value1: part});
     }
 
-    private fractionText(fraction: ExactFraction): string {
-        const exact = fraction.denominator === 1 ? dec(fraction.numerator, 0)
-            : t("complex_power_graph_value_fraction", {value0: dec(fraction.numerator, 0), value1: dec(fraction.denominator, 0)});
+    private fractionMessage(fraction: ExactFraction): Message | MessageNumber {
+        const exact = fraction.denominator === 1 ? messageNumber(fraction.numerator, 0)
+            : message("complex_power_graph_value_fraction", {value0: messageNumber(fraction.numerator, 0), value1: messageNumber(fraction.denominator, 0)});
         return this.exactWithDecimal(exact, fraction.denominator === 1, fraction.numerator / fraction.denominator);
     }
 
-    private radicalText(radical: ExactRadical, decimal: number): string {
-        const top = radical.radicand === 1 ? dec(radical.coefficient, 0)
-            : radical.coefficient === 1 ? t("complex_power_graph_value_root", {value0: dec(radical.radicand, 0)})
-                : t("complex_power_graph_value_radical", {value0: dec(radical.coefficient, 0), value1: dec(radical.radicand, 0)});
-        const exact = radical.denominator === 1 ? top : t("complex_power_graph_value_fraction", {value0: top, value1: dec(radical.denominator, 0)});
+    private radicalMessage(radical: ExactRadical, decimal: number): Message | MessageNumber {
+        const top = radical.radicand === 1 ? messageNumber(radical.coefficient, 0)
+            : radical.coefficient === 1 ? message("complex_power_graph_value_root", {value0: messageNumber(radical.radicand, 0)})
+                : message("complex_power_graph_value_radical", {value0: messageNumber(radical.coefficient, 0), value1: messageNumber(radical.radicand, 0)});
+        const exact = radical.denominator === 1 ? top : message("complex_power_graph_value_fraction", {value0: top, value1: messageNumber(radical.denominator, 0)});
         return this.exactWithDecimal(exact, radical.radicand === 1 && radical.denominator === 1, decimal);
     }
 
-    private degrees(value: number | undefined): string {
-        return value === undefined ? t("complex_power_graph_value_none") : t("complex_power_graph_value_degrees", {value0: dec(value, 4)});
+    private degrees(value: number | undefined): Message {
+        return value === undefined ? message("complex_power_graph_value_none") : message("complex_power_graph_value_degrees", {value0: messageNumber(value, 4)});
     }
 
-    private yesNo(value: boolean): string {
-        return t(value ? "complex_power_graph_value_yes" : "complex_power_graph_value_no");
+    private yesNo(value: boolean): Message {
+        return message(value ? "complex_power_graph_value_yes" : "complex_power_graph_value_no");
     }
 
     /** The out-of-view powers as one list: each with its modulus. */
-    private outOfView(): string[] {
+    private outOfView(): Message[] {
         const {powers} = this.derived();
-        return powers.flatMap((p, i) => insideView(p) ? [] : [t("complex_power_graph_out_item", {value0: superscript(i + 1), value1: dec(Math.hypot(p.re, p.im), 2)})]);
+        return powers.flatMap((p, i) => insideView(p) ? [] : [message("complex_power_graph_out_item", {value0: superscript(i + 1), value1: messageNumber(Math.hypot(p.re, p.im), 2)})]);
     }
 
-    /** The status sentence: where z and n are, the last power, and the notes for z = 0 and for powers beyond the view. */
-    statusText(): string {
+    /** The status sentence as a message: where z and n are, the last power, and the notes for z = 0 and for powers beyond the view. */
+    statusMessage(): Message {
         const d = this.derived();
         const {n} = this.state;
         const out = this.outOfView();
         // z^n is written with "=" only when both parts are whole numbers (exact); otherwise "≈" with significant digits, so z = 0,05 + 0,05i, n = 8 does not read "= 0".
         const whole = d.exactRe.denominator === 1 && d.exactIm.denominator === 1;
-        const args = {value0: formatComplex(d.z, currentLanguage()), value1: String(n), value2: superscript(n),
-            value3: whole ? formatComplex(d.powers[n - 1], currentLanguage()) : this.significantComplex(d.powers[n - 1])};
-        return [t(whole ? "complex_power_graph_status" : "complex_power_graph_status_approx", args),
-            d.zero ? t("complex_power_graph_status_zero") : "",
-            out.length > 0 ? t("complex_power_graph_status_out", {value0: this.join(out)}) : ""].filter(Boolean).join(" ");
+        const args = {value0: complexValueMessage(d.z), value1: messageNumber(n, 0), value2: superscript(n),
+            value3: whole ? complexValueMessage(d.powers[n - 1]) : this.significantComplex(d.powers[n - 1])};
+        const sentences: Message[] = [message(whole ? "complex_power_graph_status" : "complex_power_graph_status_approx", args)];
+        if (d.zero) sentences.push(message("complex_power_graph_status_zero"));
+        if (out.length > 0) sentences.push(message("complex_power_graph_status_out", {value0: this.join(out)}));
+        return sentences.reduce((joined, sentence) => message("power_status_join", {value0: joined, value1: sentence}));
     }
 
-    readoutRows(): ReadoutListRow[] {
+    /** The status sentence as text in the current language. */
+    statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    /** The rows of the readout as messages: the declaration's rows and what the panel lists. */
+    private rowSpecs(): PowerRow[] {
         const d = this.derived();
         const {n} = this.state;
         const sup = superscript(n);
         return [
-            {id: "z", label: t("complex_power_graph_r_z"), value: formatComplex(d.z, currentLanguage())},
-            {id: "n", label: t("complex_power_graph_r_n"), value: String(n)},
-            {id: "re", label: t("complex_power_graph_r_re", {value0: sup}), value: this.fractionText(d.exactRe)},
-            {id: "im", label: t("complex_power_graph_r_im", {value0: sup}), value: this.fractionText(d.exactIm)},
-            {id: "modulus", label: t("complex_power_graph_r_modulus", {value0: sup}), value: this.radicalText(d.exactModulus, d.modulus)},
-            {id: "angle", label: t("complex_power_graph_r_angle", {value0: String(n)}), value: this.degrees(d.unwrappedDegrees)},
-            {id: "principal", label: t("complex_power_graph_r_principal", {value0: sup}), value: this.degrees(d.principalDegrees)},
-            {id: "real", label: t("complex_power_graph_r_real", {value0: sup}), value: this.yesNo(d.isReal)},
-            {id: "unit", label: t("complex_power_graph_r_unit", {value0: sup}), value: this.yesNo(d.onUnitCircle)},
-            {id: "one", label: t("complex_power_graph_r_one", {value0: sup}), value: this.yesNo(d.isOne)},
+            {id: "z", name: message("complex_power_graph_r_z"), value: complexValueMessage(d.z)},
+            {id: "n", name: message("complex_power_graph_r_n"), value: messageNumber(n, 0)},
+            {id: "re", name: message("complex_power_graph_r_re", {value0: sup}), value: this.fractionMessage(d.exactRe)},
+            {id: "im", name: message("complex_power_graph_r_im", {value0: sup}), value: this.fractionMessage(d.exactIm)},
+            {id: "modulus", name: message("complex_power_graph_r_modulus", {value0: sup}), value: this.radicalMessage(d.exactModulus, d.modulus)},
+            {id: "angle", name: message("complex_power_graph_r_angle", {value0: messageNumber(n, 0)}), value: this.degrees(d.unwrappedDegrees)},
+            {id: "principal", name: message("complex_power_graph_r_principal", {value0: sup}), value: this.degrees(d.principalDegrees)},
+            {id: "real", name: message("complex_power_graph_r_real", {value0: sup}), value: this.yesNo(d.isReal)},
+            {id: "unit", name: message("complex_power_graph_r_unit", {value0: sup}), value: this.yesNo(d.onUnitCircle)},
+            {id: "one", name: message("complex_power_graph_r_one", {value0: sup}), value: this.yesNo(d.isOne)},
         ];
+    }
+
+    /** The panel's text of the rows. */
+    readoutRows(): ReadoutListRow[] {
+        return this.rowSpecs().map(({id, name, value}): ReadoutListRow => ({
+            id, label: name ? renderMessage(name) : id, value: "kind" in value && value.kind === "formatted" ? value.text : this.render(value),
+        }));
+    }
+
+    // ---- Declaration ----------------------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064). Key `power-n`: the typed exponent setter the count control calls, so a value that is not a whole number from 1 to 8 is
+     * refused with the control's own message, never rounded or clamped. z has no key: it is a point (board drag and the point fields in Orodja).
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "power-n": {
+                read: () => this.state.n,
+                apply: (value: unknown) => {
+                    if (typeof value !== "number" || !this.editExponent(value)) {
+                        throw new DomainError(message("complex_power_graph_n_rejected", {value0: messageNumber(N_RANGE.min, 0), value1: messageNumber(N_RANGE.max, 0)}));
+                    }
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state: the exponent n is a count puck (the lessons ask the learner to raise it step by step while watching the powers appear), z stays a
+     * board point with its fields in Orodja (a point is no declared parameter), the playback actions stay in the playback group of Edit, and the legend names what
+     * the board draws. The status sentence is the note, the rows are the readouts.
+     */
+    protected override declaration(): GraphDeclaration<ComplexPowerIds> {
+        const {n} = this.state;
+        const playing = this.isPlaying();
+        const blocks = playbackBlocks({atStart: n === N_RANGE.min, atEnd: n >= N_RANGE.max, playing});
+        const parameters: ParameterDeclaration<ComplexPowerIds["param"]>[] = [
+            {key: "power-n", kind: "count", label: message("power_n_name"), symbol: "n", placement: "board", min: N_RANGE.min, max: N_RANGE.max, help: message("complex_power_graph_n_help")},
+        ];
+        const legend: LegendEntry<ComplexPowerIds>[] = [
+            {id: "unit", label: message("power_legend_unit"), kind: "dashed", object: "unit"},
+            {id: "path", label: message("power_legend_path", {value0: superscript(n)}), kind: "line", object: "path"},
+            {id: "powers", label: message("power_legend_powers"), kind: "point", object: "powers"},
+            {id: "z", label: message("power_legend_z"), kind: "point", object: "z"},
+        ];
+        const playback = {placement: "tools" as const, tab: "edit" as const};
+        const actions: ActionDeclaration<ComplexPowerIds>[] = [
+            {id: "next-step", label: message("next_step"), enabled: blocks.nextBlock === undefined, ...playback},
+            {id: "play-pause", label: message("play"), enabled: playing || (blocks.playBlock === undefined && !this.reducedMotion()), pressed: playing, ...playback},
+            {id: "reset-run", label: message("reset"), enabled: blocks.resetBlock === undefined, ...playback},
+        ];
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("complex_power_graph_readout_title"), rows: this.rowSpecs()}],
+            notes: [{id: "status", text: this.statusMessage()}],
+            legend,
+            actions,
+            marks: this.viewMarks(),
+        };
+    }
+
+    /** What the view director keeps visible: the unit circle and the movable z (the powers beyond the view are arrows with text, the opening view holds them). */
+    private viewMarks(): ViewMarks {
+        const z = zOf(this.state);
+        return {must: [{kind: "box", left: -1.2, top: 1.2, right: 1.2, bottom: -1.2}, {kind: "point", x: z.re, y: z.im}]};
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now (the powers: the first drawn diamond). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = id === "powers" ? (this.powerPoints.find(point => Boolean(this.visibleOf(point))) ?? this.powerPoints[0]) : this.elements.get(id);
+        if (!element) return undefined;
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const filled = id === "powers" || id === "z";
+        return {color: String(drawn.evalVisProp(filled ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    /** JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it. */
+    private visibleOf(element: JXG.GeometryElement): unknown {
+        return (element as JXG.GeometryElement & {evalVisProp(name: string): unknown}).evalVisProp("visible");
+    }
+
+    override performAction(id: string): void {
+        switch (id) {
+            case "next-step": runAs("learner", () => this.stepOnce()); return;
+            case "play-pause": runAs("learner", () => { if (this.isPlaying()) this.pausePlayback(); else this.play(); }); return;
+            case "reset-run": runAs("learner", () => this.resetRun()); return;
+            default: throw new Error("Unknown action");
+        }
     }
 
     // ---- Controls -------------------------------------------------------------------------------------------------------------
@@ -621,10 +731,10 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
             <PointListInput key="z" title={t("complex_power_graph_z_title")} points={[[coordinateOf(this.state.A), coordinateOf(this.state.B)]]}
                             pointLabel={() => "z"} axisLabels={["Re", "Im"]} min={Z_RANGE.min / Z_SCALE} max={Z_RANGE.max / Z_SCALE} step={1 / Z_SCALE} bigStep={0.5} decimals={2}
                             onCommit={(_index, [re, im]) => this.editPoint(re, im) ? undefined : t("complex_power_graph_z_rejected", zArgs)}/>,
-            <CountSetter key="n" label={t("complex_power_graph_n_label")} n={this.state.n} min={N_RANGE.min} max={N_RANGE.max} help={t("complex_power_graph_n_help")}
+            <PuckOwned key="n" param="power-n"><CountSetter label={t("complex_power_graph_n_label")} n={this.state.n} min={N_RANGE.min} max={N_RANGE.max} help={t("complex_power_graph_n_help")}
                          rejectedHint={t("complex_power_graph_n_rejected", nArgs)}
                          onPlus={() => this.editExponent(this.state.n + 1)} onMinus={() => this.editExponent(this.state.n - 1)}
-                         onSet={value => this.editExponent(value)}/>,
+                         onSet={value => this.editExponent(value)}/></PuckOwned>,
         ];
     }
 
@@ -642,8 +752,10 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                                      reducedMotionReason={t("playback_block_reduced_motion_next_step")}/>}
                 </ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: n, value1: N_RANGE.max})}</p>
+            </div>
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("complex_power_graph_readout_title")}</ReadoutHeading>
-                <p data-complex-power-status="">{this.statusText()}</p>
+                <p data-complex-power-status="" data-readout-note="">{this.statusText()}</p>
                 <ReadoutList label={t("complex_power_graph_readout_title")} rows={this.readoutRows()}/>
                 <LiveReadout readout={this.status} muted={playing}/>
             </div>
