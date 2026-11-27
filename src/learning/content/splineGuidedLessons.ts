@@ -678,9 +678,9 @@ const splineG1: GuidedLesson = {
                 'Condition (4.6) gives \\(p^{(2)}_1=p^{(2)}_0+b\\bigl(p^{(1)}_n-p^{(1)}_{n-1}\\bigr)\\) with \\(b=\\tfrac{1}{\\alpha_1}\\). At the joint \\(p_2\\) we have \\(p_2-p_1=(2,\\ -2)\\), so the second point of the second piece is \\(q_1=p_2+b\\,(2,\\ -2)\\): \\((0.5,\\ -0.5)\\) at \\(b=\\tfrac14\\), \\((2,\\ -2)\\) at \\(b=1\\) and \\((5,\\ -5)\\) at \\(b=\\tfrac52\\).',
             ),
             formulaIds: ['g1-construction'],
-            frames: [frame('g1-condition-step-explanation', 'explanation'), frame('g1-condition-step-calculation', 'calculation'), frame('g1-condition-step-observation', 'observation')],
+            frames: [frame('g1-condition-step-explanation', 'explanation'), frame('g1-condition-step-calculation', 'calculation'), frame('g1-condition-step-observation', 'observation', splineFrame({uses: ['control-polygon-0']}))],
             workedExampleId: 'g1-three-values',
-            observationPrompt: text('Ob kontrolnem poligonu preveri, da \\(p_1\\), \\(p_2\\) in izpeljana točka ležijo na isti premici.', 'With the control polygon shown, check that \\(p_1\\), \\(p_2\\) and the derived point lie on one line.'),
+            observationPrompt: text('S krmilnikom Kontrolni poligon prikaži poligon in preveri, da \\(p_1\\), \\(p_2\\) in izpeljana točka ležijo na isti premici.', 'With the Control polygon control show the polygon and check that \\(p_1\\), \\(p_2\\) and the derived point lie on one line.'),
             expectedObservations: [text('Kontrolni poligon gre skozi stik \\(p_2\\) naravnost; pri \\(b=1\\) je izpeljana točka \\((2;\\ -2)\\).', 'The control polygon passes straight through the joint \\(p_2\\); at \\(b=1\\) the derived point is \\((2,\\ -2)\\).')],
             scene: {
                 id: 'g1-condition-polygon', basedOn: 'lesson-fixture',

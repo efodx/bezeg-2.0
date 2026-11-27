@@ -46,3 +46,19 @@
 - Captions (`.command-logs/l44-cn-cap/`, clicks 2, 4, 6, 8, last; 1280 all 5 viewed; 1440 c2, c6, last viewed): curve not squeezed, clear of all cards. Step 5 (existing, intentional): free points cluster at the origin with overlapping labels and the farthest derived point (61, -34.5) sits just under the Orodja card at 1280 (clear of it, above Legenda); no clipping.
 - Not verified: `just shot` crop at 310 px; 1440 c4 and c8 images.
 - Stale script rows (stream A): `scripts/demonstration-preview-recipes.cjs` spline-cn row if it drives `polygon` as a checkbox (now a puck; not checked).
+
+## spline-g1 (worker, 2026-11-28)
+
+### Done (observed)
+- Fixture grep (`src/workspace`, `src/graphs/base`, `src/graphs/curves`): only `C1SplineGraph.declaration.test.tsx:133` (lane's own) used spline-g1 as the undeclared fixture; removed (the test and the unused `G1SplineGraph` import; no undeclared spline remains there, g1-symmetric and parameterization are not covered by it). `typedPointPaths.test.tsx:40,60` (spline-g1 lists no computed junction; typed free point moves junction) pass unchanged; `lessonFixtureScene.test`, `PersistedCurveReplacement`, `SplineConstructionFirst` (b sliders in the Construction card) pass unchanged.
+- Parity: old golden `spline-g1.golden.json` empty (no rows, notes, captions); graph-check `parity n/a (no shown values)`, golden passes. No recording, no `Accepted`. No board captions in the graph, none removed.
+- Conversion: `G1SplineGraph` overrides `declaresSplineWorkspace()` to true (base hook; computed junctions (`getNonFreePoints`) are `must` marks, `followView` box). The Parameter b sliders stay in the Construction card (construction-first, unchanged, as the cn counters); polygon and hull are board pucks; Orodja keeps labels, Hide fixed points, control points, typed list. No playback writes a puck, no lease.
+- Lesson (`splineGuidedLessons.ts`), step 2 prompt (`g1-condition-step-observation`, frame `uses: ['control-polygon-0']`):
+  - sl "Ob kontrolnem poligonu preveri, da \(p_1\), \(p_2\) in izpeljana točka ležijo na isti premici." -> "S krmilnikom Kontrolni poligon prikaži poligon in preveri, da \(p_1\), \(p_2\) in izpeljana točka ležijo na isti premici."
+  - en "With the control polygon shown, check that ..." -> "With the Control polygon control show the polygon and check that ...".
+  - Step 5 "Z drsnikom prvega stika spreminjaj b_1" and the notation "na drsniku ... Parameter b": the b sliders did not move, unchanged.
+- Tests: new `G1SplineGraph.declaration.test.tsx` (6: both point counts, a lesson `spline-beta` moves the junction and its mark, followView, pucks flip `pressed`, Orodja has no second copy). Red observed before the hook: 5 of 5 failed (declaration undefined); green after (6 passed).
+- Checks observed: tsc 0 lines; `just lint` passed; `just unit` brief list + FirstTask passed (596 s); round trip `-t spline-g1` passed; `just graph-check spline-g1 --route /spline/g1spline` PASS (contract, parity n/a, golden, declaration 6, shared 8); `just build` passed; `just smoke-lesson spline-g1 --port 4395 --workers=1` passed (polygon probe via the c1 puck fallback).
+- Captions (`.command-logs/l44-g1-cap/`, 1280x720 only, clicks 2, 5, 8, 11, last; all 5 viewed): curve about 350 px wide, not squeezed, clear of the Lekcija, Orodja, Legenda cards and the puck strip; no board text under a card. Existing: at the last step the label p2(1)=p0(2) and p1(2) overlap; the b=2.5 step's derived point sits low but visible; no clipping.
+- Not verified: 1440x900 images; `just shot` crop at 310 px.
+- Stale script rows (stream A): `scripts/demonstration-preview-recipes.cjs:35` spline-g1 row uses `polygon` (now a puck; its `field('Parameter b 1', ...)` still a slider/number field in the Construction card). `scripts/demonstration-preview-motion.cjs:909` spline-g1 sweep drives b (unchanged control).
