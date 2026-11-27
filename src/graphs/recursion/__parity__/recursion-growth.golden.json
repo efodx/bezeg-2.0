@@ -47,10 +47,8 @@
       ],
       "outputs": [],
       "captions": [
-        "a₁₀ = 21",
         "aₖ (člen zaporedja)",
-        "k (številka člena)",
-        "stolpci: členi aₖ za k = 1 … 10"
+        "k (številka člena)"
       ]
     },
     {
@@ -98,10 +96,8 @@
       ],
       "outputs": [],
       "captions": [
-        "a₆ = 13",
         "aₖ (člen zaporedja)",
-        "k (številka člena)",
-        "stolpci: členi aₖ za k = 1 … 6"
+        "k (številka člena)"
       ]
     },
     {
@@ -154,10 +150,8 @@
       ],
       "outputs": [],
       "captions": [
-        "a₃ = 12",
         "aₖ (člen zaporedja)",
-        "k (številka člena)",
-        "stolpci: členi aₖ za k = 1 … 3"
+        "k (številka člena)"
       ]
     },
     {
@@ -210,10 +204,8 @@
       ],
       "outputs": [],
       "captions": [
-        "a₁₀ = 1536",
         "aₖ (člen zaporedja)",
-        "k (številka člena)",
-        "stolpci: členi aₖ za k = 1 … 10"
+        "k (številka člena)"
       ]
     },
     {
@@ -266,11 +258,8 @@
       ],
       "outputs": [],
       "captions": [
-        "a₁₀ = 0,005859",
         "aₖ (člen zaporedja)",
-        "k (številka člena)",
-        "limita vsote a₁/(1 - q) = 6 (zaprta oblika)",
-        "stolpci: členi aₖ za k = 1 … 10"
+        "k (številka člena)"
       ]
     },
     {
@@ -323,10 +312,8 @@
       ],
       "outputs": [],
       "captions": [
-        "a₁₂ = 172,995117",
         "aₖ (člen zaporedja)",
-        "k (številka člena)",
-        "stolpci: členi aₖ za k = 1 … 12"
+        "k (številka člena)"
       ]
     },
     {
@@ -429,12 +416,8 @@
       ],
       "outputs": [],
       "captions": [
-        "navadno obrestovanje: 1500",
-        "obrestno obrestovanje: 1628,89",
-        "relativno, m = 1: 1628,89",
         "t (leta)",
-        "vrednost",
-        "zvezno (P·exp(p·t)): 1648,72"
+        "vrednost"
       ]
     },
     {
@@ -537,12 +520,8 @@
       ],
       "outputs": [],
       "captions": [
-        "navadno obrestovanje: 1500",
-        "obrestno obrestovanje: 1628,89",
-        "relativno, m = 12: 1647,01",
         "t (leta)",
-        "vrednost",
-        "zvezno (P·exp(p·t)): 1648,72"
+        "vrednost"
       ]
     },
     {
@@ -645,12 +624,8 @@
       ],
       "outputs": [],
       "captions": [
-        "navadno obrestovanje: 1500",
-        "obrestno obrestovanje: 1628,89",
-        "relativno, m = 365: 1648,66",
         "t (leta)",
-        "vrednost",
-        "zvezno (P·exp(p·t)): 1648,72"
+        "vrednost"
       ]
     },
     {
@@ -753,12 +728,8 @@
       ],
       "outputs": [],
       "captions": [
-        "navadno obrestovanje: 1700",
-        "obrestno obrestovanje: 1979,93",
-        "relativno, m = 1: 1979,93",
         "t (leta)",
-        "vrednost",
-        "zvezno (P·exp(p·t)): 2013,75"
+        "vrednost"
       ]
     },
     {
@@ -861,12 +832,8 @@
       ],
       "outputs": [],
       "captions": [
-        "navadno obrestovanje: 3200",
-        "obrestno obrestovanje: 3612,22",
-        "relativno, m = 4: 3636,09",
         "t (leta)",
-        "vrednost",
-        "zvezno (P·exp(p·t)): 3644,24"
+        "vrednost"
       ]
     },
     {
@@ -935,9 +902,7 @@
       "outputs": [],
       "captions": [
         "ln y (logaritem y, brez enote)",
-        "n (korak)",
-        "premica skozi prvo in zadnjo točko, naklon 0,04879",
-        "točke (n, ln y) za y = y₀·qⁿ"
+        "n (korak)"
       ]
     }
   ]

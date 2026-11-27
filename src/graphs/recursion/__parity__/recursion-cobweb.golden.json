@@ -56,13 +56,7 @@
         "Iterati so izračunana števila. Oznaka negibne točke sledi iz celoštevilskih parametrov, ne iz iteratov."
       ],
       "outputs": [],
-      "captions": [
-        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
-        "diagonala y = x",
-        "negibna točka x* = 2",
-        "preslikava y = 0,5·x + 1",
-        "začetek x₀ = 0"
-      ]
+      "captions": []
     },
     {
       "name": "recursion-cobweb/rg2-repelling",
@@ -118,13 +112,7 @@
         "Iterati so izračunana števila. Oznaka negibne točke sledi iz celoštevilskih parametrov, ne iz iteratov."
       ],
       "outputs": [],
-      "captions": [
-        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
-        "diagonala y = x",
-        "negibna točka x* = 5",
-        "preslikava y = -0,8·x + 9",
-        "začetek x₀ = 1"
-      ]
+      "captions": []
     },
     {
       "name": "recursion-cobweb/rg2-borderline",
@@ -180,13 +168,7 @@
         "Iterati so izračunana števila. Oznaka negibne točke sledi iz celoštevilskih parametrov, ne iz iteratov."
       ],
       "outputs": [],
-      "captions": [
-        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
-        "diagonala y = x",
-        "negibna točka x* = 4,545455",
-        "preslikava y = -1,2·x + 10",
-        "začetek x₀ = 4,6"
-      ]
+      "captions": []
     },
     {
       "name": "recursion-logistic/rg4-rule",
@@ -237,13 +219,7 @@
         "Iterati so izračunana števila. Oznaka negibne točke sledi iz celoštevilskih parametrov, ne iz iteratov."
       ],
       "outputs": [],
-      "captions": [
-        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
-        "diagonala y = x",
-        "negibna točka x* = 0,166667",
-        "preslikava y = 1,2·x·(1 - x)",
-        "začetek x₀ = 0,1"
-      ]
+      "captions": []
     },
     {
       "name": "recursion-logistic/rg4-staircase",
@@ -294,13 +270,7 @@
         "Iterati so izračunana števila. Oznaka negibne točke sledi iz celoštevilskih parametrov, ne iz iteratov."
       ],
       "outputs": [],
-      "captions": [
-        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
-        "diagonala y = x",
-        "negibna točka x* = 0,333333",
-        "preslikava y = 1,5·x·(1 - x)",
-        "začetek x₀ = 0,1"
-      ]
+      "captions": []
     },
     {
       "name": "recursion-logistic/rg4-slow-spiral",
@@ -351,13 +321,7 @@
         "Iterati so izračunana števila. Oznaka negibne točke sledi iz celoštevilskih parametrov, ne iz iteratov."
       ],
       "outputs": [],
-      "captions": [
-        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
-        "diagonala y = x",
-        "negibna točka x* = 0,6",
-        "preslikava y = 2,5·x·(1 - x)",
-        "začetek x₀ = 0,1"
-      ]
+      "captions": []
     },
     {
       "name": "recursion-logistic/rg4-extinction",
@@ -408,13 +372,7 @@
         "Iterati so izračunana števila. Oznaka negibne točke sledi iz celoštevilskih parametrov, ne iz iteratov."
       ],
       "outputs": [],
-      "captions": [
-        "Pajkova mreža: navpično do krivulje, vodoravno do diagonale",
-        "diagonala y = x",
-        "negibna točka x* = 0,655172",
-        "preslikava y = 2,9·x·(1 - x)",
-        "začetek x₀ = 0,1"
-      ]
+      "captions": []
     }
   ]
 }
