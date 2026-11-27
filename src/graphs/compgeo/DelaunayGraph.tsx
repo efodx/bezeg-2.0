@@ -1,5 +1,9 @@
 import React from "react";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, ReadoutNote, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {GraphPalette} from "../styles/GraphPalette";
+import {delaunayNotes, type DelaunayNoteId} from "./delaunayNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {gridToBoard, PointSetModel, PointSetOptions} from "../../compgeo/pointSetModel";
 import {createTriangulation, type Triangulation, type TriangulationEdge} from "../../compgeo/triangulation";
@@ -10,7 +14,7 @@ import {CompgeoRegionPalette} from "./CompgeoRegionPalette";
 import {DelaunayControlActions, DelaunayControls, DelaunaySelection, DelaunayStatus} from "./DelaunayControls";
 import {DELAUNAY_EXAMPLES, delaunayCollection} from "./delaunayPresetCollection";
 import {drawCircumcircle, drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
-import {angleSummary, DelaunayRun, edgeQuad, runDelaunay, triangleNeighbours} from "./delaunayRun";
+import {angleSummary, circumcircle, DelaunayRun, edgeQuad, runDelaunay, triangleNeighbours} from "./delaunayRun";
 import {parseHullStep} from "./hullTraceRun";
 import {PointSetGraphState} from "./PointSetGraph";
 import {finiteNumberField, type PointSetDataFields, type PointSetExtension, type PointSetExtras} from "./pointSetPersistence";
@@ -27,6 +31,14 @@ const EXAMPLE_INDEX = {quad: 0, seven: 1, square: 2} as const;
 
 /** Time between two playback steps (one step per interval, never more). */
 export const DELAUNAY_STEP_INTERVAL_MS = 600;
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches and the playback. */
+export type DelaunayIds = {
+    param: never; row: never; note: DelaunayNoteId;
+    legend: "points" | "triangulation" | "angles";
+    section: "display" | "playback";
+    action: "grid" | "triangulation" | "edges" | "angles" | "next-step" | "play" | "reset";
+};
+
 /** The saved configuration beyond the triangulation: the trace step. Playback status is never state. */
 export interface DelaunayGraphState extends PointSetGraphState {
     step: number;
@@ -375,6 +387,91 @@ export class DelaunayGraph extends TriangulationGraph {
     /** The circumcircle of the triangle `corners` (exact centre and radius, doubles for drawing only). */
     protected drawCircle(tri: Triangulation, corners: readonly [number, number, number], model: PointSetModel, name: string, dash = 0): JXG.GeometryElement | undefined {
         return drawCircumcircle(this.board, tri, corners, model, name, dash);
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+    // `TriangulationGraph` stays undeclared (point-set-triangulation converts in a later session); only this subclass opts in.
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "triangulation" | "edges" | "angles" | "grid"): Message {
+        switch (id) {
+            case "triangulation": return message("tri_overlay_triangulation");
+            case "edges": return message("tri_overlay_edges");
+            case "angles": return message("tri_overlay_angles");
+            default: return super.overlayMessage(id);
+        }
+    }
+
+    /** The smallest angle is what the lesson flips while flipping edges, so it is a puck; the triangulation and the edge numbers are display settings. */
+    protected override overlayIsPuck(id: "triangulation" | "edges" | "angles" | "grid"): boolean {
+        return id === "angles";
+    }
+
+    protected override overlaySwatch(id: "triangulation" | "edges" | "angles" | "grid") {
+        if (id === "triangulation") return {kind: "line" as const, color: GraphPalette.referenceCurve};
+        if (id === "angles") return {kind: "line" as const, color: GraphPalette.constructionAccent};
+        return undefined;
+    }
+
+    /** The sentences of the readout (trace, angles, selected triangle, counts), in the order the panel shows them. */
+    protected override pointSetNotes(): readonly ReadoutNote<DelaunayIds>[] {
+        return delaunayNotes({status: this.status(), event: this.event, readout: this.readout(), triangulationShown: this.overlayShown("triangulation")});
+    }
+
+    /** The bounding boxes of the circumcircles drawn now (the tested triangle's and the selected triangle's), converted to board units. */
+    private circleBoxes(): ViewMark[] {
+        const tri = this.triangulation();
+        if (!tri) return [];
+        const quad = (() => {
+            const edge = this.run().state(this.step).testing?.edge;
+            return edge ? edgeQuad(tri, edge[0], edge[1]) : undefined;
+        })();
+        const chosen = this.selectedTriangle();
+        const triples = [...(quad ? [[quad.a, quad.b, quad.c]] : []), ...(chosen === undefined ? [] : [tri.triangles[chosen]])];
+        const scale = 2 ** this.model.gridStepExponent;
+        return triples.flatMap(corners => {
+            const circle = circumcircle(tri.points[corners[0]], tri.points[corners[1]], tri.points[corners[2]]);
+            if (!circle) return [];
+            const x = circle.x * scale, y = circle.y * scale, r = circle.r * scale;
+            return [{kind: "box" as const, left: x - r, top: y + r, right: x + r, bottom: y - r}];
+        });
+    }
+
+    private marksMemo?: {base: ViewMarks; key: string; marks: ViewMarks};
+
+    /** The points must stay in view; a circumcircle that is drawn is kept in view when there is room. Memoized so an unchanged scene returns the same object. */
+    protected override pointSetViewMarks(): ViewMarks {
+        const base = super.pointSetViewMarks();
+        const boxes = this.circleBoxes();
+        if (boxes.length === 0) return base;
+        const key = boxes.map(box => box.kind === "box" ? `${box.left},${box.top},${box.right},${box.bottom}` : "").join(";");
+        if (this.marksMemo?.base === base && this.marksMemo.key === key) return this.marksMemo.marks;
+        const marks: ViewMarks = {must: base.must, nice: [...(base.nice ?? []), ...boxes]};
+        this.marksMemo = {base, key, marks};
+        return marks;
+    }
+
+    protected override declaration(): GraphDeclaration<DelaunayIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<DelaunayIds> | undefined;
+        if (!common) return undefined;
+        const traced = this.run().length > 0;
+        const atEnd = !traced || this.step >= this.run().length - 1;
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<DelaunayIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("next_step"), enabled: traced && !atEnd && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: traced, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: this.step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, actions};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

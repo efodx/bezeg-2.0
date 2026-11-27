@@ -91,14 +91,14 @@ export function EarClippingControls(props: EarClippingControlsProps) {
             <p className="inspector-help">{t("earclip_playback_note")}</p>
         </div>
         <div className="inspector-group" data-ear-clipping-status="">
+            <div data-declared-panel="">
             {refusal && <p data-readout-note className="inspector-help" role="alert" data-ear-clipping="refusal">{refusalText(t, refusal)}</p>}
-            {reversedText && <ReadoutHelp hooks={{"data-ear-clipping": "reversed"}}>{reversedText}</ReadoutHelp>}
+            {reversedText && <ReadoutHelp hooks={{"data-ear-clipping": "reversed", "data-readout-note": ""}}>{reversedText}</ReadoutHelp>}
             {traced && <StepCounter step={step} length={length} hooks={{"data-ear-clipping": "step", "data-readout-note": ""}}/>}
             {noteSentence && <p data-readout-note className="inspector-help" data-ear-clipping="note">{noteSentence}</p>}
             {detail && <p data-readout-note className="inspector-help" data-ear-clipping="detail">{detail}</p>}
             {trianglesText && <p data-readout-note className="inspector-help" data-ear-clipping="triangles">{trianglesText}</p>}
             {countText && <p data-readout-note className="inspector-help" data-ear-clipping="count">{countText}</p>}
-            <LiveReadout readout={liveReadout} muted={playing} dataAttribute="ear-clipping-live"/>
             {summary && <>
                 <ReadoutHeading>{t("earclip_result_title")}</ReadoutHeading>
                 <ul data-ear-clipping="result">
@@ -110,6 +110,8 @@ export function EarClippingControls(props: EarClippingControlsProps) {
                         value0: summary.guardCount, value1: summary.guardVertices.map(v => `P${v + 1}`).join(", ")})}</li>
                 </ul>
             </>}
+            </div>
+            <LiveReadout readout={liveReadout} muted={playing} dataAttribute="ear-clipping-live"/>
         </div>
         <div className="inspector-group">
             <ExampleSelect label={t("earclip_example_group")} current={exampleId} onChoose={actions.loadExample}

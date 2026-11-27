@@ -32,6 +32,8 @@ export interface TriangulationControlsProps {
     triangulationShown: boolean;
     /** False when a host panel (Delaunay) announces the event in its own readout, so the inspector keeps one live region (decision 18). The event paragraph stays visible. Default true. */
     announce?: boolean;
+    /** True when the graph declares its readout as notes (task 08): the event sentence and the counts are then shown by the board's readout card, so the panel hides them. Default false. */
+    declared?: boolean;
     actions: TriangulationControlActions;
 }
 
@@ -76,7 +78,8 @@ export function eventText(t: Translate, event: TriangulationEvent): string {
 export function TriangulationControls(props: TriangulationControlsProps) {
     const t = useT();
     const {language} = useLanguage();
-    const {readout, refusal, event, edges, selected, triangulationShown, actions, announce = true} = props;
+    const {readout, refusal, event, edges, selected, triangulationShown, actions, announce = true, declared = false} = props;
+    const declaredPanel: Record<`data-${string}`, string> = declared ? {"data-declared-panel": ""} : {};
     const key = (a: number, b: number) => `${a}-${b}`;
     const eventSentence = event ? eventText(t, event) : "";
     const flipUnavailable = selected === undefined;
@@ -111,8 +114,8 @@ export function TriangulationControls(props: TriangulationControlsProps) {
         </div>}
         <div className="inspector-group" data-triangulation="status">
             <div data-triangulation="refusal-slot"><RefusalNotice channel={channel}/></div>
-            {eventSentence && refusalSentence !== eventSentence && <p data-readout-note className="inspector-help" data-triangulation="event">{eventSentence}</p>}
-            {readout && <ReadoutList label={t("tri_readout_label")} hooks={{"data-triangulation": "readout"}} rows={[
+            {eventSentence && refusalSentence !== eventSentence && <p data-readout-note className="inspector-help" data-triangulation="event" {...declaredPanel}>{eventSentence}</p>}
+            {readout && <ReadoutList label={t("tri_readout_label")} hooks={{"data-triangulation": "readout", ...declaredPanel}} rows={[
                 {id: "n", value: t("tri_readout_points", {value0: readout.n})},
                 {id: "k", value: t("tri_readout_boundary", {value0: readout.boundary.k})},
                 ...(readout.boundary.collinear > 0 ? [{id: "collinear", value: t("tri_readout_collinear", {value0: readout.boundary.collinear})}] : []),

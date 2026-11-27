@@ -11,12 +11,16 @@ import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/gr
 import type {PolygonAreaIds} from '../../graphs/compgeo/PolygonAreaGraph';
 import type {BezierHullsIds} from '../../graphs/compgeo/BezierHullsGraph';
 import type {HullTraceIds} from '../../graphs/compgeo/HullTraceGraph';
+import type {DelaunayIds} from '../../graphs/compgeo/DelaunayGraph';
+import type {EarClippingIds} from '../../graphs/compgeo/EarClippingGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 const areaFrame = frameDeclarer<PolygonAreaIds>();
 const bhFrame = frameDeclarer<BezierHullsIds>();
 const chFrame = frameDeclarer<HullTraceIds>();
+const delFrame = frameDeclarer<DelaunayIds>();
+const earFrame = frameDeclarer<EarClippingIds>();
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -715,7 +719,7 @@ const earClipping: GuidedLesson = {
                 'The polygon has the vertices \\((0,0)\\), \\((6,0)\\), \\((6,4)\\), \\((3,2)\\), \\((0,4)\\) and area \\(18\\). The vertex \\((3,2)\\) is reflex: there the boundary turns right and the interior angle is larger than \\(180^\\circ\\). It is marked with a diamond; the other four vertices are convex. An ear is a convex vertex such that no other vertex lies in the triangle of it and its two neighbours. Ear clipping cuts the polygon into triangles by always clipping off one ear.',
             ),
             formulaIds: ['ear-test-rule'],
-            frames: [frame('earclip-polygon-explanation', 'explanation'), frame('earclip-polygon-observation', 'observation')],
+            frames: [frame('earclip-polygon-explanation', 'explanation'), frame('earclip-polygon-observation', 'observation', earFrame({highlight: ['step', 'triangles']}))],
             observationPrompt: text('Poišči vbočeno oglišče in ugotovi, kateri vogali večkotnika so izbočeni.', 'Find the reflex vertex and say which corners of the polygon are convex.'),
             expectedObservations: [text('Označeno je natanko eno vbočeno oglišče, \\((3,2)\\); sled je na koraku \\(1\\) od \\(12\\) in še nič ni odrezano.', 'Exactly one reflex vertex, \\((3,2)\\), is marked; the trace is at step \\(1\\) of \\(12\\) and nothing is clipped yet.')],
             scene: earScene('earclip-polygon', AREA_NOTCHED_PENTAGON, ['trace', 'reflex'], [],
@@ -747,7 +751,7 @@ const earClipping: GuidedLesson = {
                 'The rule: we test the vertices in order from the lowest number onwards, counter-clockwise, and clip the first ear. Three presses of Next step are already done. The vertices \\(P_1=(0,0)\\) and \\(P_2=(6,0)\\) are not ears, because \\(P_4=(3,2)\\) lies in their triangle. The readout shows “Step 4 of 12”, the tested vertex \\(P_3\\) with the triangle \\(P_2\\,P_3\\,P_4\\) and the message that it is an ear: the triangle \\((6,0)\\), \\((6,4)\\), \\((3,2)\\). Press Next step twice more and the ear is clipped; the counter of clipped triangles shows \\(1\\).',
             ),
             formulaIds: ['ear-test-rule'], workedExampleId: 'ear-first-ear-example',
-            frames: [frame('earclip-first-ear-explanation', 'explanation'), frame('earclip-first-ear-calculation', 'calculation'), frame('earclip-first-ear-observation', 'observation')],
+            frames: [frame('earclip-first-ear-explanation', 'explanation', earFrame({uses: ['next-step'], open: ['tools']})), frame('earclip-first-ear-calculation', 'calculation'), frame('earclip-first-ear-observation', 'observation', earFrame({highlight: ['note', 'detail', 'count']}))],
             observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem preizkusu povej, ali je oglišče uho in zakaj ne.', 'Press Next step and, at each test, say whether the vertex is an ear and why not.'),
             expectedObservations: [text('Prvi dve oglišči zavrne vbočeno oglišče \\(P_4\\) v trikotniku; prvo uho je \\(P_3=(6,4)\\) in po dveh pritiskih je odrezan prvi trikotnik.', 'The first two vertices are rejected because the reflex vertex \\(P_4\\) lies in the triangle; the first ear is \\(P_3=(6,4)\\) and after two presses the first triangle is clipped.')],
             scene: earScene('earclip-first-ear', AREA_NOTCHED_PENTAGON, ['trace', 'reflex'], nextSteps(EAR_TRACE_STEPS.firstEarTest),
@@ -763,7 +767,7 @@ const earClipping: GuidedLesson = {
                 'The trace has run to the end (step \\(12\\) of \\(12\\)). The ear \\((0,0)\\), \\((6,0)\\), \\((3,2)\\) is the second clipped triangle and the triangle \\((0,0)\\), \\((3,2)\\), \\((0,4)\\) remains. With \\(n=5\\) vertices there are \\(n-2=3\\) triangles and \\(n-3=2\\) diagonals; the result under the graph shows these two numbers. Both diagonals start at the reflex vertex \\((3,2)\\).',
             ),
             formulaIds: ['ear-gallery-counts'], workedExampleId: 'ear-count-example',
-            frames: [frame('earclip-triangulation-explanation', 'explanation'), frame('earclip-triangulation-calculation', 'calculation'), frame('earclip-triangulation-observation', 'observation')],
+            frames: [frame('earclip-triangulation-explanation', 'explanation'), frame('earclip-triangulation-calculation', 'calculation'), frame('earclip-triangulation-observation', 'observation', earFrame({highlight: ['result-triangles', 'result-diagonals']}))],
             observationPrompt: text('Preštej trikotnike in diagonale na grafu in primerjaj s formulama.', 'Count the triangles and diagonals on the graph and compare them with the formulas.'),
             expectedObservations: [text('Izpis pokaže \\(3\\) trikotnike in \\(2\\) diagonali, kar je \\(n-2\\) in \\(n-3\\) za \\(n=5\\).', 'The result shows \\(3\\) triangles and \\(2\\) diagonals, which is \\(n-2\\) and \\(n-3\\) for \\(n=5\\).')],
             scene: earScene('earclip-triangulation', AREA_NOTCHED_PENTAGON, ['trace', 'reflex', 'triangulation'], [setTraceStep('end')],
@@ -779,7 +783,7 @@ const earClipping: GuidedLesson = {
                 'Start at one triangle and give it the colours \\(A\\), \\(B\\), \\(C\\); from there walk from triangle to triangle across the diagonals. Neighbouring triangles share two vertices, and the third gets the only remaining colour. The graph shows the classes: \\(A=\\{(0,0),(6,4)\\}\\), \\(B=\\{(3,2)\\}\\), \\(C=\\{(6,0),(0,4)\\}\\). The result gives the sizes \\(2\\), \\(1\\), \\(2\\). The letters at the vertices do not need colour vision.',
             ),
             formulaIds: ['ear-gallery-counts'],
-            frames: [frame('earclip-colouring-explanation', 'explanation'), frame('earclip-colouring-observation', 'observation')],
+            frames: [frame('earclip-colouring-explanation', 'explanation'), frame('earclip-colouring-observation', 'observation', earFrame({highlight: ['result-classes']}))],
             observationPrompt: text('Preveri, da ima vsak od treh trikotnikov oglišča \\(A\\), \\(B\\) in \\(C\\).', 'Check that each of the three triangles has a vertex \\(A\\), a vertex \\(B\\) and a vertex \\(C\\).'),
             expectedObservations: [text('Barvni razredi so velikosti \\(2\\), \\(1\\), \\(2\\); najmanjši je \\(B=\\{(3,2)\\}\\).', 'The colour classes have sizes \\(2\\), \\(1\\), \\(2\\); the smallest is \\(B=\\{(3,2)\\}\\).')],
             scene: earScene('earclip-colouring', AREA_NOTCHED_PENTAGON, ['trace', 'reflex', 'triangulation', 'colouring'], [setTraceStep('end')],
@@ -795,7 +799,7 @@ const earClipping: GuidedLesson = {
                 'Every triangle contains a vertex of every class, so a guard at a vertex of the smallest class sees all the triangles that contain that vertex, that is, all the triangles. The smallest class is \\(B=\\{(3,2)\\}\\) with \\(1=\\lfloor5/3\\rfloor\\) vertex. The guard stands at \\((3,2)\\), a ring marks it, and the shaded view covers all three triangles: one guard sees the whole polygon. This is the art gallery theorem: for \\(n\\) vertices, \\(\\lfloor n/3\\rfloor\\) guards suffice.',
             ),
             formulaIds: ['ear-gallery-counts'], workedExampleId: 'ear-count-example',
-            frames: [frame('earclip-guards-explanation', 'explanation'), frame('earclip-guards-calculation', 'calculation'), frame('earclip-guards-observation', 'observation')],
+            frames: [frame('earclip-guards-explanation', 'explanation'), frame('earclip-guards-calculation', 'calculation'), frame('earclip-guards-observation', 'observation', earFrame({highlight: ['result-guards']}))],
             observationPrompt: text('Preveri, da osenčen pogled pokriva ves večkotnik.', 'Check that the shaded view covers the whole polygon.'),
             expectedObservations: [text('Izpis pokaže enega stražarja v oglišču \\(P_4=(3,2)\\) in njegov pogled pokriva vse tri trikotnike.', 'The result shows one guard at the vertex \\(P_4=(3,2)\\) and its view covers all three triangles.')],
             scene: earScene('earclip-guards', AREA_NOTCHED_PENTAGON, ['trace', 'reflex', 'triangulation', 'colouring', 'guards'], [setTraceStep('end')],
@@ -811,7 +815,7 @@ const earClipping: GuidedLesson = {
                 'The comb has \\(n=11\\) vertices. The result shows \\(9\\) triangles, \\(8\\) diagonals, colour classes of sizes \\(4\\), \\(4\\), \\(3\\) and three guards: \\(3=\\lfloor11/3\\rfloor\\). For this polygon three guards are also necessary: the three tips \\((3,6)\\), \\((9,6)\\), \\((15,6)\\) lie in separate wedges, so no point sees more than one of them. This holds for this comb; Fisk\'s theorem gives only a sufficient number and does not tell the minimum number of guards for other polygons. Now add, remove and move vertices. Every edit returns the trace to step \\(1\\) and stops playback; a clockwise polygon is reversed for the clipping, while the stored polygon stays unchanged.',
             ),
             formulaIds: ['ear-gallery-counts'], workedExampleId: 'ear-comb-example',
-            frames: [frame('earclip-comb-explanation', 'explanation'), frame('earclip-comb-calculation', 'calculation'), frame('earclip-comb-observation', 'observation')],
+            frames: [frame('earclip-comb-explanation', 'explanation'), frame('earclip-comb-calculation', 'calculation'), frame('earclip-comb-observation', 'observation', earFrame({highlight: ['result-classes', 'result-guards']}))],
             observationPrompt: text('Premakni oglišče konice glavnika in preveri, ali število stražarjev ostane isto.', 'Move a tip vertex of the comb and check whether the number of guards stays the same.'),
             expectedObservations: [text('Pri glavniku so razredi velikosti \\(4\\), \\(4\\), \\(3\\) in stražarji trije; vsaka sprememba večkotnika ponastavi sled na korak \\(1\\).', 'For the comb the classes have sizes \\(4\\), \\(4\\), \\(3\\) and there are three guards; every edit of the polygon returns the trace to step \\(1\\).')],
             scene: earScene('earclip-comb', EAR_COMB, ['trace', 'reflex', 'triangulation', 'colouring', 'guards'], [setTraceStep('end')],
@@ -1162,7 +1166,7 @@ const delaunay: GuidedLesson = {
                 'The graph tests the edge \\(ac\\) and draws the circumcircle of the triangle \\(abc\\). We compute it: the centre \\(S\\) has \\(x=2\\), because it is equally far from \\(a\\) and \\(b\\); from \\(|c-S|^2=|a-S|^2\\) we get \\(S=(2,\\tfrac{7}{3})\\) and \\(r^2=\\tfrac{85}{9}\\). The graph does not print the centre or the radius. For the point \\(d\\), \\(|d-S|^2=\\tfrac{37}{9}<\\tfrac{85}{9}\\), so it is inside the circle. The determinant is \\(D=+64\\), which the readout shows as the circle test value \\(+64\\), so the edge \\(ac\\) is illegal.',
             ),
             formulaIds: ['del-incircle-formula'], workedExampleId: 'del-circle-example',
-            frames: [frame('del-circle-explanation', 'explanation'), frame('del-circle-calculation', 'calculation'), frame('del-circle-observation', 'observation')],
+            frames: [frame('del-circle-explanation', 'explanation'), frame('del-circle-calculation', 'calculation'), frame('del-circle-observation', 'observation', delFrame({highlight: ['detail', 'incircle', 'illegal']}))],
             observationPrompt: text('Primerjaj napoved z grafom: je \\(d\\) znotraj narisane krožnice?', 'Compare your prediction with the graph: is \\(d\\) inside the drawn circle?'),
             expectedObservations: [text('Točka \\(d\\) je znotraj krožnice, izpis pokaže vrednost \\(+64\\) in \\(1\\) neustrezen rob.', 'The point \\(d\\) is inside the circle, the readout shows the value \\(+64\\) and \\(1\\) illegal edge.')],
             scene: delScene('del-circle', DELAUNAY_QUAD, DELAUNAY_QUAD_START, ['triangulation'], DELAUNAY_QUAD_VIEW, [setTraceStep(DELAUNAY_TRACE_STEPS.testAc)],
@@ -1178,7 +1182,7 @@ const delaunay: GuidedLesson = {
                 'We replace the illegal edge \\(ac\\) with the other diagonal \\(bd=P_2P_4\\). The graph now tests \\(bd\\): the value is \\(-64\\), the point is outside the circle. Select both triangles in the list: the test across the edge \\(P_2P_4\\) gives \\(-64\\) both times, so the edge is legal. The smallest angle grew from \\(19.65^\\circ\\) to \\(26.57^\\circ\\); the two angle lists, before and now, are under the graph and differ upward at the first angle.',
             ),
             formulaIds: ['del-incircle-formula'],
-            frames: [frame('del-flip-explanation', 'explanation'), frame('del-flip-observation', 'observation')],
+            frames: [frame('del-flip-explanation', 'explanation'), frame('del-flip-observation', 'observation', delFrame({highlight: ['incircle', 'min-now', 'min-start']}))],
             observationPrompt: text('Preberi najmanjša kota in oba seznama kotov; izberi še drugi trikotnik in preberi njegov preizkus.', 'Read the two smallest angles and both angle lists; select the other triangle too and read its test.'),
             expectedObservations: [text('Najmanjši kot je \\(26{,}57^\\circ\\) (na začetku \\(19{,}65^\\circ\\)), vrednost preizkusa roba \\(P_2P_4\\) je \\(-64\\) iz obeh strani.', 'The smallest angle is \\(26.57^\\circ\\) (at the start \\(19.65^\\circ\\)), and the test value of the edge \\(P_2P_4\\) is \\(-64\\) from both sides.')],
             scene: delScene('del-flip', DELAUNAY_QUAD, DELAUNAY_QUAD_START, ['triangulation', 'angles'], DELAUNAY_QUAD_VIEW, [setTraceStep(DELAUNAY_TRACE_STEPS.testBd), selectTriangle(0)],
@@ -1194,7 +1198,7 @@ const delaunay: GuidedLesson = {
                 'The seven points \\(P_1,\\dots,P_7\\) of the lesson on triangulating a set of points, with the triangulation T0. The graph marks the illegal edges with a dashed line: \\(P_2P_5\\), \\(P_3P_5\\) and \\(P_5P_7\\); the readout shows that there are \\(3\\) of them, and the smallest angle in T0 is \\(1.91^\\circ\\). All other interior edges are legal.',
             ),
             formulaIds: ['del-incircle-formula'],
-            frames: [frame('del-seven-explanation', 'explanation'), frame('del-seven-observation', 'observation')],
+            frames: [frame('del-seven-explanation', 'explanation'), frame('del-seven-observation', 'observation', delFrame({highlight: ['illegal', 'min-now']}))],
             observationPrompt: text('Poišči tri črtkane robe na grafu in preberi njihovo število v izpisu.', 'Find the three dashed edges on the graph and read their number in the readout.'),
             expectedObservations: [text('Izpis pokaže \\(3\\) neustrezne robe in najmanjši kot \\(1{,}91^\\circ\\).', 'The readout shows \\(3\\) illegal edges and a smallest angle of \\(1.91^\\circ\\).')],
             scene: delScene('del-seven', TRI_EXAMPLE_POINTS, TRI_T0, ['triangulation', 'angles'], earView(TRI_EXAMPLE_POINTS), [],
@@ -1210,7 +1214,7 @@ const delaunay: GuidedLesson = {
                 'Press Next step. The algorithm tests the interior edges in order and flips the first illegal one, then starts again. After three flips (readout: Flips so far: 3) no illegal edge is left, and the smallest angle is \\(25.35^\\circ\\) instead of \\(1.91^\\circ\\). A flip never fails: the quadrilateral of an illegal edge is always convex (de Berg, Cheong, van Kreveld and Overmars, Computational Geometry, chapter 9). The result is the Delaunay triangulation; since no four points lie on one circle, it is unique.',
             ),
             formulaIds: ['del-incircle-formula'],
-            frames: [frame('del-flips-explanation', 'explanation'), frame('del-flips-observation', 'observation')],
+            frames: [frame('del-flips-explanation', 'explanation'), frame('del-flips-observation', 'observation', delFrame({highlight: ['flips', 'illegal', 'min-now']}))],
             observationPrompt: text('Pritisni Naslednji korak, dokler se algoritem ne konča, in preberi število zamenjav ter najmanjši kot.', 'Press Next step until the algorithm finishes and read the number of flips and the smallest angle.'),
             expectedObservations: [text('Izpis pokaže \\(3\\) zamenjave, \\(0\\) neustreznih robov in najmanjši kot \\(25{,}35^\\circ\\) (na začetku \\(1{,}91^\\circ\\)).', 'The readout shows \\(3\\) flips, \\(0\\) illegal edges and a smallest angle of \\(25.35^\\circ\\) (at the start \\(1.91^\\circ\\)).')],
             scene: delScene('del-flips', TRI_EXAMPLE_POINTS, TRI_T0, ['triangulation', 'angles'], earView(TRI_EXAMPLE_POINTS), [setTraceStep(DELAUNAY_TRACE_STEPS.sevenFirstTest)],
@@ -1226,7 +1230,7 @@ const delaunay: GuidedLesson = {
                 'The unit square \\((0,0),(1,0),(1,1),(0,1)\\) has all four points on one circle. The test of the edge \\(P_1P_3\\) gives \\(D=0\\): the point is on the circle, the edge is legal and is not flipped. The other diagonal \\(P_2P_4\\) is legal too, so both triangulations are Delaunay: the triangulation is not unique, and the graph says so at the end. Now explore on your own: drag the points or load an example; the trace is recomputed after every change, and a flipped edge may become illegal again. The lesson on the Voronoi diagram shows how the Delaunay triangulation determines it.',
             ),
             formulaIds: ['del-incircle-formula'], workedExampleId: 'del-square-example',
-            frames: [frame('del-square-explanation', 'explanation'), frame('del-square-calculation', 'calculation'), frame('del-square-observation', 'observation')],
+            frames: [frame('del-square-explanation', 'explanation'), frame('del-square-calculation', 'calculation'), frame('del-square-observation', 'observation', delFrame({highlight: ['incircle', 'flips']}))],
             observationPrompt: text('Pritisni Naslednji korak do konca in preberi, ali je triangulacija enolična; premakni eno točko kvadrata s krožnice in poglej, kaj se zgodi.', 'Press Next step to the end and read whether the triangulation is unique; move one point of the square off the circle and see what happens.'),
             expectedObservations: [text('Vrednost preizkusa je \\(0\\), zamenjav ni, na koncu izpis pravi, da triangulacija ni enolična.', 'The test value is \\(0\\), there are no flips, and at the end the readout says the triangulation is not unique.')],
             scene: delScene('del-square', DELAUNAY_SQUARE, DELAUNAY_QUAD_START, ['triangulation'], earView(DELAUNAY_SQUARE), [setTraceStep(DELAUNAY_TRACE_STEPS.testAc)],

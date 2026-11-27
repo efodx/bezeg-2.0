@@ -1,5 +1,8 @@
 import React from "react";
-import {t} from "../../localization";
+import {message, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {earClippingNotes, type EarClippingNoteId} from "./earClippingNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {EAR_CLIPPING_MAX_VERTICES, guardView} from "../../compgeo/earClipping";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
@@ -23,6 +26,14 @@ import {parseHullStep} from "./hullTraceRun";
 /** Time between two playback steps (one step per interval, never more). */
 export const EAR_CLIPPING_STEP_INTERVAL_MS = 600;
 export type EarClippingOverlayId = "trace" | "reflex" | "triangulation" | "colouring" | "guards";
+
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches and the playback. */
+export type EarClippingIds = {
+    param: never; row: never; note: EarClippingNoteId;
+    legend: "points" | "trace" | "reflex" | "triangulation" | "guards";
+    section: "display" | "playback";
+    action: "grid" | EarClippingOverlayId | "next-step" | "play" | "reset";
+};
 
 /** The saved configuration beyond the polygon: the step index. Playback status is never state. */
 export interface EarClippingGraphState extends PointSetGraphState {
@@ -351,6 +362,64 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
                 return [...view, ...stars];
             }
         }
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: EarClippingOverlayId | "grid"): Message {
+        switch (id) {
+            case "trace": return message("earclip_overlay_trace");
+            case "reflex": return message("earclip_overlay_reflex");
+            case "triangulation": return message("earclip_overlay_triangulation");
+            case "colouring": return message("earclip_overlay_colouring");
+            case "guards": return message("earclip_overlay_guards");
+            default: return super.overlayMessage(id);
+        }
+    }
+
+    // No overlay is a puck: their names ("Preizkus ušesa in odrezani trikotniki", ...) are longer than a puck label and the lessons set them with scene actions.
+    protected override overlaySwatch(id: EarClippingOverlayId | "grid") {
+        switch (id) {
+            case "trace": return {kind: "area" as const, color: EAR_REGION_COLORS.clippedBoundary};
+            case "reflex": return {kind: "point" as const, color: GraphPalette.warningText};
+            case "triangulation": return {kind: "area" as const, color: EAR_REGION_COLORS.triangulationBoundary};
+            case "guards": return {kind: "ring" as const, color: GraphPalette.comparisonCurve};
+            default: return undefined;
+        }
+    }
+
+    /** The sentences of the readout (refusal, step, event, counts, result), in the order the panel shows them. */
+    protected override pointSetNotes(): readonly ReadoutNote<EarClippingIds>[] {
+        const run = this.run();
+        const step = this.step;
+        return earClippingNotes({
+            refusal: run.refusal, reversed: run.reversed, step, length: run.length, event: run.event(step),
+            trianglesSoFar: run.state(step).triangles.length, summary: run.state(step).done ? run.summary : undefined,
+        });
+    }
+
+    protected override declaration(): GraphDeclaration<EarClippingIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<EarClippingIds> | undefined;
+        if (!common) return undefined;
+        const length = this.run().length;
+        const traced = this.run().refusal === undefined && length > 0;
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<EarClippingIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("next_step"), enabled: traced && this.step < length - 1 && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: traced, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: this.step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, actions};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

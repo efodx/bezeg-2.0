@@ -510,6 +510,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
                                    edges={tri ? edges(tri).map(e => ({a: e.a, b: e.b, interior: e.interior})) : []}
                                    selected={selected ? [selected.a, selected.b] : undefined}
                                    triangulationShown={this.overlayShown("triangulation")} announce={this.announcesEvents()}
+                                   declared={this.declaresPointSetWorkspace()}
                                    actions={{selectEdge: (a, b) => this.selectEdge(a, b), flip: () => { this.flipSelected(); }}}/>
             {super.workspaceEdit()}
         </>;

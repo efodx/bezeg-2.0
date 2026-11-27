@@ -142,6 +142,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             <p className="inspector-help">{t("del_playback_note")}</p>
         </div>
         {status && <div className="inspector-group" data-delaunay-status="">
+            <div data-declared-panel="">
             <StepCounter step={status.step} length={status.length} hooks={{"data-delaunay": "step", "data-readout-note": ""}}/>
             <p data-readout-note className="inspector-help" data-delaunay="note">{noteSentence}</p>
             {detail && <p data-readout-note className="inspector-help" data-delaunay="detail">{detail}</p>}
@@ -154,6 +155,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
                 {id: "angles-now", value: angleLine(t, language, status.anglesNow, "del_angles_now")},
                 {id: "angles-start", value: angleLine(t, language, status.anglesStart, "del_angles_start")},
             ]}/>
+            </div>
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("del_tri_list_label")} data-delaunay="triangles">
                 {status.triangles.map((corners, index) => (
                     <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedIndex === index}
@@ -163,12 +165,14 @@ export function DelaunayControls(props: DelaunayControlsProps) {
                 <button type="button" data-action="clear-triangle" aria-disabled={selection === undefined}
                         onClick={() => { if (selection) actions.selectTriangle(undefined); }}>{t("del_tri_clear")}</button>
             </div>
+            <div data-declared-panel="">
             {selectedText && <p data-readout-note className="inspector-help" data-delaunay="selected-triangle">{selectedText}</p>}
             {neighbourTexts.length > 0 && <ul aria-label={t("del_tri_neighbours_label")} data-delaunay="neighbours">
                 {neighbourTexts.map((text, index) => <li data-readout-note key={index} data-neighbour={index}>{text}</li>)}
             </ul>}            {hullText && <p data-readout-note className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}
             {doneText && <p data-readout-note className="inspector-help" data-delaunay="done">{doneText}</p>}
             {cocircularText && <p data-readout-note className="inspector-help" data-delaunay="cocircular">{cocircularText}</p>}
+            </div>
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="delaunay-live"/>
         </div>}
         <div className="inspector-group">

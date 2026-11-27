@@ -255,6 +255,32 @@ const SAMPLES: readonly Sample[] = [
             step('quad, hull edge flip refused', on(g => { g.loadExample(0); g.selectEdge(0, 1); g.flipSelected(); })),
         ];
     })()},
+    {file: 'compgeo/__parity__/ear-clipping.json', demonstration: 'ear-clipping', states: (() => {
+        type Ear = {nextStep(): void; loadModel(model: unknown): void; run(): {length: number}};
+        const polygon = (points: [number, number][]) => ({mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        const comb: [number, number][] = [[0, 0], [18, 0], [16, 2], [15, 6], [14, 2], [10, 2], [9, 6], [8, 2], [4, 2], [3, 6], [2, 2]];
+        const clockwise: [number, number][] = [[0, 0], [0, 4], [3, 2], [6, 4], [6, 0]];
+        const bowtie: [number, number][] = [[0, 0], [4, 4], [4, 0], [0, 4]];
+        const run = (steps: number | 'end', points?: [number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Ear;
+                if (points) g.loadModel(polygon(points));
+                const count = steps === 'end' ? g.run().length - 1 : steps;
+                for (let i = 0; i < count; i++) g.nextStep();
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('example 1, step 2', run(2)),
+            step('example 1, step 5', run(5)),
+            step('example 1, end', run('end')),
+            step('comb, end', run('end', comb)),
+            step('clockwise polygon, step 2', run(2, clockwise)),
+            step('self-crossing polygon', run(0, bowtie)),
+            step('two points', run(0, [[0, 0], [3, 1]])),
+        ];
+    })()},
     {file: 'compgeo/__parity__/bezier-clipping.json', demonstration: 'bezier-clipping', states: (() => {
         type Pair = [number, number][];
         type Clipping = {applyPointSetAction(action: unknown): void; setClipTolerance(exponent: number): boolean};

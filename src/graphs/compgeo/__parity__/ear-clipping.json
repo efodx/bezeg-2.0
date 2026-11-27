@@ -1,0 +1,108 @@
+{
+  "graph": "ear-clipping",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 12",
+        "Oglišča si sledijo v nasprotni smeri urinega kazalca. Oglišča preizkušamo po vrsti, od najnižje številke naprej.",
+        "Odrezani trikotniki doslej: 0",
+        "Orientacijskih preizkusov doslej: 0"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 2",
+      "rows": [],
+      "notes": [
+        "Korak 3 od 12",
+        "Oglišče je izbočeno, a v trikotniku s sosedama leži drugo oglišče: ni ušesa.",
+        "Preizkušeno oglišče P2, trikotnik P1 P2 P3 V trikotniku leži oglišče P4.",
+        "Odrezani trikotniki doslej: 0",
+        "Orientacijskih preizkusov doslej: 11"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 5",
+      "rows": [],
+      "notes": [
+        "Korak 8 od 12",
+        "Oglišče je izbočeno in v trikotniku ni drugih oglišč: to je uho.",
+        "Preizkušeno oglišče P2, trikotnik P1 P2 P4",
+        "Odrezani trikotniki doslej: 1",
+        "Orientacijskih preizkusov doslej: 25"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, end",
+      "rows": [],
+      "notes": [
+        "Korak 12 od 12",
+        "Konec: večkotnik je razrezan na trikotnike.",
+        "Odrezani trikotniki doslej: 3",
+        "Orientacijskih preizkusov doslej: 25",
+        "Trikotnikov: 3 (n - 2, kjer je n = 5 število oglišč)",
+        "Diagonal: 2 (n - 3)",
+        "Barvni razredi (A, B, C): 2, 1, 2",
+        "Stražarjev: 1 (⌊n/3⌋); najmanjši barvni razred jih postavi v oglišča P4."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "comb, end",
+      "rows": [],
+      "notes": [
+        "Korak 35 od 35",
+        "Konec: večkotnik je razrezan na trikotnike.",
+        "Odrezani trikotniki doslej: 9",
+        "Orientacijskih preizkusov doslej: 121",
+        "Trikotnikov: 9 (n - 2, kjer je n = 11 število oglišč)",
+        "Diagonal: 8 (n - 3)",
+        "Barvni razredi (A, B, C): 4, 4, 3",
+        "Stražarjev: 3 (⌊n/3⌋); najmanjši barvni razred jih postavi v oglišča P5, P8, P11."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "clockwise polygon, step 2",
+      "rows": [],
+      "notes": [
+        "Večkotnik je v smeri urinega kazalca; za rezanje ušes ga obrnemo v nasprotno smer. Shranjeni večkotnik se ne spremeni.",
+        "Korak 3 od 12",
+        "Oglišče je izbočeno, a v trikotniku s sosedama leži drugo oglišče: ni ušesa.",
+        "Preizkušeno oglišče P5, trikotnik P1 P5 P4 V trikotniku leži oglišče P3.",
+        "Odrezani trikotniki doslej: 0",
+        "Orientacijskih preizkusov doslej: 11"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "self-crossing polygon",
+      "rows": [],
+      "notes": [
+        "Stranice večkotnika se sekajo ali dotikajo. Premaknite oglišča, da bo večkotnik enostaven; rezanje ušes zahteva enostaven večkotnik."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Večkotnik potrebuje vsaj tri oglišča. Dodajte še oglišča."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}
