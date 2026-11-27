@@ -8,10 +8,37 @@
  * after an action the text asks for, or a value of arithmetic shown in the same step; the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-waves-c.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {WavesIds} from '../../graphs/functions/WavesGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const wavesFrame = frameDeclarer<WavesIds>();
+type Declared = Partial<Record<GuidedLessonFrame['kind'], FrameDeclaration>>;
+/** The rows a step's text names and the controls it asks the learner to use, per frame (the calculation frame only highlights). */
+const frameDeclarations = (highlight: readonly WavesIds['row'][], uses: readonly (WavesIds['param'] | WavesIds['action'])[] = []): Declared => ({
+    explanation: wavesFrame({highlight, ...(uses.length ? {uses} : {})}),
+    calculation: wavesFrame({highlight}),
+    observation: wavesFrame({highlight, ...(uses.length ? {uses} : {})}),
+});
+
+const DECLARED: Record<string, Declared> = {
+    'wv4-slow': frameDeclarations(['frame']),
+    'wv4-fast': frameDeclarations(['alias'], ['waves-f1']),
+    'wv4-crawl': frameDeclarations(['alias', 'alias-frequency'], ['waves-f1']),
+    'wv4-instants': frameDeclarations(['frame']),
+    'wv4-alias-wave': frameDeclarations([], ['show-alias']),
+    'wv4-change-fs': frameDeclarations(['alias', 'alias-frequency'], ['waves-fs', 'waves-f1']),
+    'wv4-explore': frameDeclarations(['alias-frequency'], ['waves-fs', 'waves-f1']),
+    'wv5-dots': frameDeclarations(['samples-per-period', 'alias-frequency'], ['waves-f1']),
+    'wv5-join': frameDeclarations([], ['show-join', 'show-sinc']),
+    'wv5-rate': frameDeclarations(['nyquist', 'alias', 'alias-frequency'], ['waves-fs']),
+    'wv5-edge': frameDeclarations(['ambiguous-samples'], ['waves-p1']),
+    'wv5-alias': frameDeclarations(['alias-frequency'], ['waves-f1', 'show-alias']),
+    'wv5-explore': frameDeclarations(['nyquist', 'join-error', 'sinc-error'], ['waves-fs', 'waves-extra']),
+};
+
 
 interface StepContent {
     readonly id: string;
@@ -29,9 +56,9 @@ interface StepContent {
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-explanation`, 'explanation', DECLARED[content.id]?.explanation),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', DECLARED[content.id]?.calculation)] : []),
+        frame(`${content.id}-observation`, 'observation', DECLARED[content.id]?.observation),
     ],
 });
 
@@ -135,8 +162,8 @@ const wv4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in razlog. Nato v polju Frekvenca tona v Hz nastavi \\(23\\) in preberi odčitek Navidezno gibanje. Nastavi še Čas t na \\(0{,}05\\) in primerjaj polno puščico z lego ob \\(t=0\\).',
-            'Write down your prediction and the reason. Then set the field Frequency of the tone in Hz to \\(23\\) and read the readout Apparent motion. Also set Time t to \\(0.05\\) and compare the solid arrow with its position at \\(t=0\\).',
+            'Zapiši napoved in razlog. Nato s krmilnikom Frekvenca tona nastavi \\(23\\) in preberi odčitek Navidezno gibanje. Nastavi še Čas t na \\(0{,}05\\) in primerjaj polno puščico z lego ob \\(t=0\\).',
+            'Write down your prediction and the reason. Then set the control Tone frequency to \\(23\\) and read the readout Apparent motion. Also set Time t to \\(0.05\\) and compare the solid arrow with its position at \\(t=0\\).',
         ),
         expectedObservations: [text(
             'Navidezno gibanje: kolo se navidezno vrti nazaj s frekvenco \\(1\\ \\mathrm{Hz}\\); Navidezna frekvenca \\(-1\\) obr/s. Razlog: med dvema posnetkoma se kolo zavrti za \\(\\tfrac{23}{24}\\) obrata, kar je v posnetku enako kakor \\(\\tfrac{1}{24}\\) obrata nazaj, to je \\(15^\\circ\\). Ob \\(t=0{,}05\\) je zadnji vzorec \\(n=1\\) in polna puščica se je od lege ob \\(t=0\\) zavrtela za \\(15^\\circ\\) nazaj, črtkana pa se je zavrtela za \\(23\\cdot0{,}05=1{,}15\\) obrata naprej.',
@@ -156,8 +183,8 @@ const wv4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in razlog. Nato v polju Frekvenca tona v Hz nastavi \\(25\\) in preberi Navidezno gibanje in Navidezno frekvenco. Nastavi še Čas t na \\(0{,}05\\) in primerjaj polno puščico z lego ob \\(t=0\\).',
-            'Write down your prediction and the reason. Then set the field Frequency of the tone in Hz to \\(25\\) and read Apparent motion and Apparent frequency. Also set Time t to \\(0.05\\) and compare the solid arrow with its position at \\(t=0\\).',
+            'Zapiši napoved in razlog. Nato s krmilnikom Frekvenca tona nastavi \\(25\\) in preberi Navidezno gibanje in Navidezno frekvenco. Nastavi še Čas t na \\(0{,}05\\) in primerjaj polno puščico z lego ob \\(t=0\\).',
+            'Write down your prediction and the reason. Then set the control Tone frequency to \\(25\\) and read Apparent motion and Apparent frequency. Also set Time t to \\(0.05\\) and compare the solid arrow with its position at \\(t=0\\).',
         ),
         expectedObservations: [text(
             'Kolo se navidezno vrti naprej s frekvenco \\(1\\ \\mathrm{Hz}\\); Navidezna frekvenca \\(1\\) obr/s. Med dvema posnetkoma se kolo zavrti za \\(\\tfrac{25}{24}\\) obrata, to je cel obrat in še \\(\\tfrac{1}{24}\\), torej \\(15^\\circ\\) naprej; ob \\(t=0{,}05\\) je polna puščica za \\(15^\\circ\\) naprej od lege ob \\(t=0\\). Pri \\(23\\ \\mathrm{Hz}\\) se kolo plazi nazaj, pri \\(25\\ \\mathrm{Hz}\\) naprej, vsakič z \\(1\\ \\mathrm{Hz}\\), čeprav se v resnici vrti skoraj tako hitro, kot kamera snema.',
@@ -219,8 +246,8 @@ const wv4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši tri napovedi. Nato nastavi (a) Frekvenca vzorčenja v Hz na \\(12\\); (b) Frekvenca tona v Hz na \\(6\\); (c) Frekvenca tona v Hz na \\(13\\) in Frekvenca vzorčenja v Hz na \\(24\\). Vsakič preberi Navidezno gibanje in Navidezno frekvenco.',
-            'Write down three predictions. Then set (a) Sampling rate in Hz to \\(12\\); (b) Frequency of the tone in Hz to \\(6\\); (c) Frequency of the tone in Hz to \\(13\\) and Sampling rate in Hz to \\(24\\). Each time read Apparent motion and Apparent frequency.',
+            'Zapiši tri napovedi. Nato nastavi (a) krmilnik Frekv. vzorčenja na \\(12\\); (b) krmilnik Frekvenca tona na \\(6\\); (c) krmilnik Frekvenca tona na \\(13\\) in krmilnik Frekv. vzorčenja na \\(24\\). Vsakič preberi Navidezno gibanje in Navidezno frekvenco.',
+            'Write down three predictions. Then set (a) the control Sampling rate to \\(12\\); (b) the control Tone frequency to \\(6\\); (c) the control Tone frequency to \\(13\\) and the control Sampling rate to \\(24\\). Each time read Apparent motion and Apparent frequency.',
         ),
         expectedObservations: [text(
             '(a) Kolo se navidezno vrti nazaj s frekvenco \\(3\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-3\\) obr/s (\\(9-12=-3\\)). (b) Navidezna frekvenca ni določena, stanje piše, da pri \\(2f=f_s\\) smeri vrtenja ni mogoče določiti; val z navidezno frekvenco ni narisan, odčitek Vzorca pri 2f = fs pa piše \\(1\\) in \\(-1\\). (c) Kolo se navidezno vrti nazaj s frekvenco \\(11\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-11\\) obr/s (\\(13-24=-11\\)). V vseh treh primerih Nyquistova frekvenca piše, da je frekvenca vzorčenja pod \\(2f\\) ali enaka njej; obrazec v naslednjem koraku daje enake vrednosti.',
@@ -299,8 +326,8 @@ const wv5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in razlog. Nato v polju Frekvenca tona v Hz nastavi \\(5\\) in preberi Vzorcev na periodo ter Navidezna frekvenca; primerjaj pike s tanko krivuljo.',
-            'Write down your prediction and the reason. Then set the field Frequency of the tone in Hz to \\(5\\) and read Samples per period and Apparent frequency; compare the dots with the thin curve.',
+            'Zapiši napoved in razlog. Nato s krmilnikom Frekvenca tona nastavi \\(5\\) in preberi Vzorcev na periodo ter Navidezna frekvenca; primerjaj pike s tanko krivuljo.',
+            'Write down your prediction and the reason. Then set the control Tone frequency to \\(5\\) and read Samples per period and Apparent frequency; compare the dots with the thin curve.',
         ),
         expectedObservations: [text(
             'Vzorcev na periodo je \\(\\tfrac{12}{5}=2{,}4\\): v vsaki periodi sta dve ali tri pike, krivulja pa se med njimi že precej ukrivi. Navidezna frekvenca \\(5\\) obr/s: pike ustrezajo tonu \\(5\\ \\mathrm{Hz}\\). Kako dobro pike določajo ton in kaj naredijo daljice med njimi, raziščejo naslednji koraki.',
@@ -320,8 +347,8 @@ const wv5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in razlog. Nato vključi Daljice med vzorci in preberi Približna največja napaka daljic. Nato vključi Rekonstrukcija s funkcijo sinc, preberi Približna največja napaka rekonstrukcije in v polju Dodatni vzorci za rekonstrukcijo nastavi \\(48\\) in nato \\(192\\).',
-            'Write down your prediction and the reason. Then switch on Segments between samples and read Approximate largest error of the segments. Then switch on Sinc reconstruction, read Approximate largest error of the reconstruction, and set the field Extra samples for the reconstruction to \\(48\\) and then to \\(192\\).',
+            'Zapiši napoved in razlog. Nato vključi Daljice med vzorci in preberi Približna največja napaka daljic. Nato vključi Rekonstrukcija s funkcijo sinc, preberi Približna največja napaka rekonstrukcije in s krmilnikom Dodatni vzorci nastavi \\(48\\) in nato \\(192\\).',
+            'Write down your prediction and the reason. Then switch on Segments between samples and read Approximate largest error of the segments. Then switch on Sinc reconstruction, read Approximate largest error of the reconstruction, and set the control Extra samples to \\(48\\) and then to \\(192\\).',
         ),
         expectedObservations: [text(
             'Daljice: napaka približno \\(0{,}731\\) amplitude (na \\(0\\) do \\(1\\ \\mathrm{s}\\), izmerjeno na narisani mreži), torej skoraj tri četrtine: daljice med redkimi pikami ne dohitijo vrhov. Sinc: pri \\(12\\) dodatnih vzorcih približno \\(0{,}0274\\), pri \\(48\\) približno \\(0{,}0093\\), pri \\(192\\) približno \\(0{,}0025\\) (na \\(0{,}4\\) do \\(0{,}6\\ \\mathrm{s}\\)). Sinc je veliko boljši od daljic, napaka pa zaradi okrnitve pada počasi: še dodatni vzorci jo manjšajo, a je ne odpravijo. Vrednosti so ponazoritev za ta ton, ne dokaz.',
@@ -341,8 +368,8 @@ const wv5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in razlog za vse tri vrednosti. Nato v polju Frekvenca vzorčenja v Hz nastavi \\(11\\), \\(10\\) in \\(9\\); vsakič preberi Nyquistova frekvenca, Navidezno gibanje in Navidezna frekvenca ter opazuj črtkano krivuljo.',
-            'Write down your prediction and the reason for all three values. Then set the field Sampling rate in Hz to \\(11\\), \\(10\\) and \\(9\\); each time read Nyquist rate, Apparent motion and Apparent frequency and watch the dashed curve.',
+            'Zapiši napoved in razlog za vse tri vrednosti. Nato s krmilnikom Frekv. vzorčenja nastavi \\(11\\), \\(10\\) in \\(9\\); vsakič preberi Nyquistova frekvenca, Navidezno gibanje in Navidezna frekvenca ter opazuj črtkano krivuljo.',
+            'Write down your prediction and the reason for all three values. Then set the control Sampling rate to \\(11\\), \\(10\\) and \\(9\\); each time read Nyquist rate, Apparent motion and Apparent frequency and watch the dashed curve.',
         ),
         expectedObservations: [text(
             '\\(f_s=11\\): \\(11>10\\), odčitek piše, da je \\(f_s\\) nad \\(2f=10\\ \\mathrm{Hz}\\); kolo se še navidezno vrti naprej s \\(5\\ \\mathrm{Hz}\\). \\(f_s=10\\): \\(f_s=2f\\), odčitek piše, da je enaka; Navidezna frekvenca ni določena, vala z navidezno frekvenco ne nariše. \\(f_s=9\\): \\(9<10\\), odčitek piše, da je pod (pojav lažne frekvence); vrtenje se kaže nazaj s \\(4\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-4\\) obr/s, ker je \\(5-9=-4\\). Meja je \\(f_s=2f\\), ne \\(f_s=12\\ \\mathrm{Hz}\\), s katere smo začeli.',
@@ -362,8 +389,8 @@ const wv5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in razlog. Nato v polju Faza tona v stopinjah nastavi \\(25\\) in nato \\(90\\); vsakič preberi Vzorca pri 2f = fs in primerjaj pike s tanko krivuljo.',
-            'Write down your prediction and the reason. Then set the field Phase of the tone in degrees to \\(25\\) and then to \\(90\\); each time read Samples at 2f = fs and compare the dots with the thin curve.',
+            'Zapiši napoved in razlog. Nato s krmilnikom Faza tona nastavi \\(25\\) in nato \\(90\\); vsakič preberi Vzorca pri 2f = fs in primerjaj pike s tanko krivuljo.',
+            'Write down your prediction and the reason. Then set the control Tone phase to \\(25\\) and then to \\(90\\); each time read Samples at 2f = fs and compare the dots with the thin curve.',
         ),
         expectedObservations: [text(
             'Pri \\(f_s=2f\\) je \\(x_n=A\\cos\\varphi\\cdot(-1)^n\\): pike si izmenično sledijo med \\(A\\cos\\varphi\\) in \\(-A\\cos\\varphi\\). Pri \\(0^\\circ\\) je vrednost \\(1\\) in \\(-1\\), pri \\(25^\\circ\\) je \\(\\cos25^\\circ\\approx0{,}9063\\) (odčitek \\(0{,}9063\\) in \\(-0{,}9063\\), navidezna amplituda \\(0{,}9063\\)), pri \\(90^\\circ\\) je \\(\\cos90^\\circ=0\\): vse pike so na osi, odčitek piše \\(0\\) in \\(0\\), ton pa je vseeno prisoten. Pri \\(f_s=2f\\) pike ne določajo ne faze ne amplitude tona: frekvenca vzorčenja \\(2f\\) ni dovolj.',
@@ -383,12 +410,12 @@ const wv5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in utemeljitev. Nato v polju Frekvenca tona v Hz nastavi \\(8\\), preberi Navidezna frekvenca, vključi Pojav lažne frekvence (aliasing) in preveri, ali črtkana krivulja gre skozi vse pike.',
-            'Write down your prediction and the justification. Then set the field Frequency of the tone in Hz to \\(8\\), read Apparent frequency, switch on Aliasing and check whether the dashed curve passes through all the dots.',
+            'Zapiši napoved in utemeljitev. Nato s krmilnikom Frekvenca tona nastavi \\(8\\), preberi Navidezna frekvenca, vključi Pojav lažne frekvence (aliasing) in preveri, ali črtkana krivulja gre skozi vse pike.',
+            'Write down your prediction and the justification. Then set the control Tone frequency to \\(8\\), read Apparent frequency, switch on Aliasing and check whether the dashed curve passes through all the dots.',
         ),
         expectedObservations: [text(
-            'Navidezna frekvenca \\(-4\\) obr/s, kolo se navidezno vrti nazaj s \\(4\\ \\mathrm{Hz}\\); črtkana krivulja gre skozi vse pike, tanka krivulja \\(8\\ \\mathrm{Hz}\\) pa le skozi pike, med njimi se obe razlikujeta. Utemeljitev (argument): \\(8=-4+12\\), zato se argumenta vzorcev \\(2\\pi\\cdot8\\cdot\\tfrac{n}{12}+\\varphi\\) in \\(2\\pi\\cdot(-4)\\cdot\\tfrac{n}{12}+\\varphi\\) razlikujeta za \\(2\\pi n\\), kosinus pa ima periodo \\(2\\pi\\). To velja za vsak \\(n\\); slika to le ponazarja. Pri \\(f=5\\ \\mathrm{Hz}\\) je črtkana krivulja ton sam (napis Črtkano: ton skozi pike, natančna rekonstrukcija), ker pod \\(\\tfrac{f_s}{2}\\) drugega tona z istimi pikami ni.',
-            'Apparent frequency \\(-4\\) rev/s, the wheel seems to turn backwards at \\(4\\ \\mathrm{Hz}\\); the dashed curve passes through all the dots, while the thin curve of \\(8\\ \\mathrm{Hz}\\) passes only through the dots, and between them the two differ. The justification (an argument): \\(8=-4+12\\), so the arguments of the samples \\(2\\pi\\cdot8\\cdot\\tfrac{n}{12}+\\varphi\\) and \\(2\\pi\\cdot(-4)\\cdot\\tfrac{n}{12}+\\varphi\\) differ by \\(2\\pi n\\), and the cosine has the period \\(2\\pi\\). This holds for every \\(n\\); the picture only illustrates it. At \\(f=5\\ \\mathrm{Hz}\\) the dashed curve is the tone itself (the caption Dashed: the tone through the dots, exact reconstruction), because below \\(\\tfrac{f_s}{2}\\) there is no other tone with the same dots.',
+            'Navidezna frekvenca \\(-4\\) obr/s, kolo se navidezno vrti nazaj s \\(4\\ \\mathrm{Hz}\\); črtkana krivulja gre skozi vse pike, tanka krivulja \\(8\\ \\mathrm{Hz}\\) pa le skozi pike, med njimi se obe razlikujeta. Utemeljitev (argument): \\(8=-4+12\\), zato se argumenta vzorcev \\(2\\pi\\cdot8\\cdot\\tfrac{n}{12}+\\varphi\\) in \\(2\\pi\\cdot(-4)\\cdot\\tfrac{n}{12}+\\varphi\\) razlikujeta za \\(2\\pi n\\), kosinus pa ima periodo \\(2\\pi\\). To velja za vsak \\(n\\); slika to le ponazarja. Pri \\(f=5\\ \\mathrm{Hz}\\) je črtkana krivulja ton sam (v legendi Ton skozi pike), ker pod \\(\\tfrac{f_s}{2}\\) drugega tona z istimi pikami ni.',
+            'Apparent frequency \\(-4\\) rev/s, the wheel seems to turn backwards at \\(4\\ \\mathrm{Hz}\\); the dashed curve passes through all the dots, while the thin curve of \\(8\\ \\mathrm{Hz}\\) passes only through the dots, and between them the two differ. The justification (an argument): \\(8=-4+12\\), so the arguments of the samples \\(2\\pi\\cdot8\\cdot\\tfrac{n}{12}+\\varphi\\) and \\(2\\pi\\cdot(-4)\\cdot\\tfrac{n}{12}+\\varphi\\) differ by \\(2\\pi n\\), and the cosine has the period \\(2\\pi\\). This holds for every \\(n\\); the picture only illustrates it. At \\(f=5\\ \\mathrm{Hz}\\) the dashed curve is the tone itself (in the legend Tone through the dots), because below \\(\\tfrac{f_s}{2}\\) there is no other tone with the same dots.',
         )],
         scene: samplingScene('wv5-alias-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, showAlias: false, t: 0},
             'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), val z navidezno frekvenco skrit: izhodišče, v katerem se frekvenca tona poveča na \\(8\\ \\mathrm{Hz}\\).',

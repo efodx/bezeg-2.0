@@ -5,7 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {runAs} from '../base/writes/writeSource';
 import type {WavesMode} from '../../waves/wavesModel';
 import {WavesGraph} from './WavesGraph';
 
@@ -17,8 +17,9 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+let current: WavesGraph;
 const mount = (): WavesGraph => {
-    const graph = new WavesGraph();
+    const graph = current = new WavesGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return graph;
 };
@@ -30,9 +31,16 @@ const setTime = (value: number): LessonAction => ({kind: 'waves', operation: 'se
 const setComponents = (fields: Omit<ComponentsAction, 'kind' | 'operation'>): LessonAction => ({kind: 'waves', operation: 'set-components', ...fields});
 const setSampling = (fields: Omit<SamplingAction, 'kind' | 'operation'>): LessonAction => ({kind: 'waves', operation: 'set-sampling', ...fields});
 const field = (label: string) => (screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-const toggle = (key: 'waves_graph_show_phasors' | 'waves_graph_show_envelope' | 'waves_graph_show_alias' | 'waves_graph_show_join' | 'waves_graph_show_sinc') =>
-    act(() => { fireEvent.click(field(t(key))); });
+/** The learner's entry on the puck that the old field's label named: a write of its parameter, and a click on its switch. */
+const PARAMETER_OF: Record<string, string> = {
+    waves_graph_a1_sum_label: 'waves-a1', waves_graph_a2_label: 'waves-a2', waves_graph_p1_label: 'waves-p1', waves_graph_p2_label: 'waves-p2',
+    waves_graph_f_both_label: 'waves-f1', waves_graph_f1_beats_label: 'waves-f1', waves_graph_f2_beats_label: 'waves-f2', waves_graph_fs_label: 'waves-fs', waves_graph_extra_label: 'waves-extra',
+};
+const ACTION_OF = {
+    waves_graph_show_phasors: 'show-phasors', waves_graph_show_envelope: 'show-envelope', waves_graph_show_alias: 'show-alias', waves_graph_show_join: 'show-join', waves_graph_show_sinc: 'show-sinc',
+} as const;
+const type = (labelKey: keyof typeof PARAMETER_OF, value: string) => act(() => { current.parameters!.write(PARAMETER_OF[labelKey], Number(value.replace(',', '.')), 'learner'); });
+const toggle = (key: keyof typeof ACTION_OF) => act(() => { runAs('learner', () => current.performAction(ACTION_OF[key])); });
 const choose = (mode: WavesMode) => act(() => { fireEvent.change(field(t('waves_graph_mode_label')), {target: {value: mode}}); });
 const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider', {name: 'Čas t'}), {target: {value: String(value)}}); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
@@ -70,11 +78,11 @@ test('set-time reaches the state, readouts and status of moving the time slider'
 test('set-components reaches the state, readouts and status of typing into the fields and the switches', () => {
     const sum = after(graph => apply(graph, setComponents({a1: 3, a2: 2, p1: 0, p2: 90, f1: 5, showPhasors: false})));
     const sumControl = after(() => {
-        type(t('waves_graph_a1_sum_label'), '3');
-        type(t('waves_graph_a2_label'), '2');
-        type(t('waves_graph_p1_label'), '0');
-        type(t('waves_graph_p2_label'), '90');
-        type(t('waves_graph_f_both_label'), '5');
+        type('waves_graph_a1_sum_label', '3');
+        type('waves_graph_a2_label', '2');
+        type('waves_graph_p1_label', '0');
+        type('waves_graph_p2_label', '90');
+        type('waves_graph_f_both_label', '5');
         toggle('waves_graph_show_phasors');
     });
     expect(sum).toEqual(sumControl);
@@ -83,8 +91,8 @@ test('set-components reaches the state, readouts and status of typing into the f
     const beats = after(graph => { apply(graph, setMode('beats')); apply(graph, setComponents({f1: 10, f2: 11, showEnvelope: false})); });
     const beatsControl = after(() => {
         choose('beats');
-        type(t('waves_graph_f1_beats_label'), '10');
-        type(t('waves_graph_f2_beats_label'), '11');
+        type('waves_graph_f1_beats_label', '10');
+        type('waves_graph_f2_beats_label', '11');
         toggle('waves_graph_show_envelope');
     });
     expect(beats).toEqual(beatsControl);
@@ -95,10 +103,10 @@ test('set-sampling reaches the state, readouts and status of typing into the fie
     const viaAction = after(graph => { apply(graph, setMode('sampling')); apply(graph, setSampling({fs: 24, extra: 12, showJoin: true, showSinc: true, showAlias: false})); });
     const viaControl = after(() => {
         choose('sampling');
-        type(t('waves_graph_fs_label'), '24');
+        type('waves_graph_fs_label', '24');
         toggle('waves_graph_show_join');
         toggle('waves_graph_show_sinc');
-        type(t('waves_graph_extra_label'), '12');
+        type('waves_graph_extra_label', '12');
         toggle('waves_graph_show_alias');
     });
     expect(viaAction).toEqual(viaControl);
@@ -123,10 +131,10 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     cleanup();
     const viaControl = after(() => {
         choose('beats');
-        type(t('waves_graph_f1_beats_label'), '10');
-        type(t('waves_graph_f2_beats_label'), '12');
+        type('waves_graph_f1_beats_label', '10');
+        type('waves_graph_f2_beats_label', '12');
         slide(1.9);
-        type(t('waves_graph_f2_beats_label'), '11');
+        type('waves_graph_f2_beats_label', '11');
         toggle('waves_graph_show_envelope');
         slide(0.5);
     });

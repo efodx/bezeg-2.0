@@ -1564,6 +1564,38 @@ const SAMPLES: readonly Sample[] = [
             {name: 'interval, sample 16, 10000 intervals', apply: run('interval', {sampleSize: 16, n: 10000, shown: 10000})},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/waves.json', demonstration: 'waves', states: (() => {
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);
+        };
+        const mode = (value: string) => ({kind: 'waves', operation: 'set-mode', mode: value});
+        const parts = (fields: Record<string, unknown>) => ({kind: 'waves', operation: 'set-components', ...fields});
+        const sampling = (fields: Record<string, unknown>) => ({kind: 'waves', operation: 'set-sampling', ...fields});
+        const time = (t: number) => ({kind: 'waves', operation: 'set-time', t});
+        // States accumulate on one graph, so each one sets the mode and every field it shows.
+        const sum = (fields: Record<string, unknown>, t: number) => act(mode('sum'), parts({a1: 1, p1: 0, a2: 1, p2: 120, f1: 3, showPhasors: true, ...fields}), time(t));
+        const beats = (fields: Record<string, unknown>, t: number) => act(mode('beats'), parts({a1: 1, f1: 10, f2: 12, showEnvelope: true, ...fields}), time(t));
+        const standing = (fields: Record<string, unknown>, t: number) => act(mode('standing'), parts({a1: 1, halfWaves: 2, ...fields}), time(t));
+        const tone = (components: Record<string, unknown>, fields: Record<string, unknown>, t: number) =>
+            act(mode('sampling'), parts({a1: 1, p1: 25, f1: 3, ...components}), sampling({fs: 12, extra: 48, showAlias: false, showJoin: false, showSinc: false, ...fields}), time(t));
+        return [
+            {name: 'sum, default at 0,25 s', apply: sum({}, 0.25)},
+            {name: 'sum, opposite waves', apply: sum({p2: 180}, 0.1)},
+            {name: 'sum, amplitudes 3 and 2, 90 deg, phasors hidden', apply: sum({a1: 3, a2: 2, p2: 90, f1: 5, showPhasors: false}, 0.5)},
+            {name: 'sum, second wave absent', apply: sum({a2: 0, p2: 0}, 0)},
+            {name: 'beats, 10 and 12 Hz', apply: beats({}, 0.25)},
+            {name: 'beats, 10 and 14 Hz, envelope hidden', apply: beats({f2: 14, showEnvelope: false}, 1)},
+            {name: 'beats, equal frequencies', apply: beats({f1: 10, f2: 10, a1: 2}, 0.5)},
+            {name: 'standing, two half waves', apply: standing({}, 0.1)},
+            {name: 'standing, three half waves, amplitude 1,5', apply: standing({halfWaves: 3, a1: 1.5}, 0.25)},
+            {name: 'sampling, 3 Hz at 12 Hz', apply: tone({}, {}, 0.05)},
+            {name: 'sampling, 23 Hz at 12 Hz, alias wave', apply: tone({f1: 23}, {showAlias: true}, 0.25)},
+            {name: 'sampling, 6 Hz at 12 Hz (2f = fs)', apply: tone({f1: 6}, {showAlias: true}, 0.1)},
+            {name: 'sampling, 11 Hz at 12 Hz, join', apply: tone({f1: 11}, {showJoin: true}, 0.52)},
+            {name: 'sampling, 5 Hz at 12 Hz, sinc', apply: tone({f1: 5}, {showJoin: true, showSinc: true, extra: 192}, 0.3)},
+            {name: 'sampling, 12 Hz at 12 Hz (at rest)', apply: tone({f1: 12}, {showAlias: true}, 0.2)},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root =path.resolve(__dirname, '../..');

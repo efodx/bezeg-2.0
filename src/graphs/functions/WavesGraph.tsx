@@ -2,7 +2,12 @@ import React, {useSyncExternalStore} from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import type {TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
+import {currentLanguage, message, messageNumber, onLanguageChange, renderMessage, t, useT, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
+import {DomainError} from "./BaseFunctionGraph";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {BooleanField} from "../../inputs/BooleanField";
@@ -29,6 +34,21 @@ import {
 import {
     deriveWaves, derivedKey, frameAt, instantOf, SINC_ERROR_FROM, SINC_ERROR_TO, standingCurves, type BeatFacts, type SamplingFacts, type StandingFacts, type SumFacts, type WavesDerived,
 } from "./waves/wavesDerived";
+
+/** The declared vocabulary of the waves graph. Parameter ids are arbiter keys. */
+export type WavesIds = {
+    param: "waves-a1" | "waves-p1" | "waves-a2" | "waves-p2" | "waves-f1" | "waves-f2" | "waves-fs" | "waves-half-waves" | "waves-extra";
+    row: "time" | "frequency" | "phase-difference" | "sum-amplitude" | "sum-phase" | "amplitude-range" | "wave1" | "wave2" | "sum" | "f1" | "f2" | "beat-frequency"
+        | "mean-frequency" | "beat-period" | "envelope" | "half-waves" | "wavelength" | "period" | "nodes" | "antinodes" | "antinode-amplitude" | "rate" | "samples-per-period"
+        | "nyquist" | "alias" | "alias-frequency" | "frame" | "ambiguous-samples" | "join-error" | "sinc-error" | "resolution";
+    note: "status" | "computed";
+    legend: "wave1" | "wave2" | "sum" | "phasors" | "envelope" | "right" | "left" | "standing" | "nodes" | "antinodes" | "tone" | "dots" | "strip" | "true" | "film" | "alias" | "join" | "sinc";
+    section: never;
+    action: "show-phasors" | "show-envelope" | "show-alias" | "show-join" | "show-sinc";
+};
+
+/** The cards follow a playing wave this often (ms): refreshing them every frame would re-render the workspace sixty times a second. */
+export const CARD_REFRESH_MS = 100;
 
 /** The scene state: the stored fields of `WavesState`, nothing derived. The time and the playing flag are host state, never stored. */
 export interface WavesGraphState extends BaseGraphState, WavesState {}
@@ -71,34 +91,25 @@ interface DrawnCurve {
 
 type Box = [number, number, number, number];
 
-/** The board rectangle [left, top, right, bottom] for the derived data: the plot, the panel on the left where a mode has one, room above for the captions. */
-export function frameFor(derived: WavesDerived, captions?: {readonly roomPx: number; readonly heightPx: number}): Box {
+/** The board rectangle [left, top, right, bottom] for the derived data: the plot, the panel on the left where a mode has one, room above for the "y" title. */
+export function frameFor(derived: WavesDerived, board?: {readonly heightPx: number}): Box {
     const span = derived.xs[derived.xs.length - 1];
     const peak = 1.1 * derived.yPeak;
     const hasPanel = derived.mode === "sum" || derived.mode === "sampling";
     let bottom = derived.mode === "sampling" ? -2 * peak : -1.25 * peak;
-    let top = 2.3 * peak;
-    // On a narrow board the captions wrap and take more rows than the fixed room holds: keep `roomPx` clear above the plot
-    // (with the "y" title above its top end) and give the rest of the board's height to the plot.
-    if (captions && Number.isFinite(captions.heightPx)) {
-        const need = Math.min(captions.roomPx + Y_TITLE_PX, captions.heightPx - MIN_PLOT_PX);
+    let top = 1.3 * peak;
+    // Keep the "y" title clear above the plot and the tick row clear under it, whatever the board's height.
+    if (board && Number.isFinite(board.heightPx)) {
+        const need = Math.min(Y_TITLE_PX, board.heightPx - MIN_PLOT_PX);
         // The tick numbers and the axis title stand in a row under the plot (under the strip in sampling mode): keep that row inside the board.
-        const plotPx = captions.heightPx - Math.max(need, 0);
+        const plotPx = board.heightPx - Math.max(need, 0);
         if (derived.mode === "sampling") bottom = Math.min(bottom, stripLevel(derived) - (2.55 * peak * SAMPLING_BELOW_PX) / (plotPx - SAMPLING_BELOW_PX));
         else bottom = Math.min(bottom, peak - (2 * peak) / (1 - TICK_ROW_PX / plotPx));
-        if (need > 0) top = Math.max(top, peak + (need * (peak - bottom)) / (captions.heightPx - need));
+        if (need > 0) top = Math.max(top, peak + (need * (peak - bottom)) / (board.heightPx - need));
     }
     return [hasPanel ? -0.66 * span : -0.1 * span, top, 1.06 * span, bottom];
 }
 
-const CAPTION_ROW_PX = 20;
-const CAPTION_CHAR_PX = 7.5;
-
-/** The lines a caption takes on a board `width` px wide (10 px margin each side): the browser wraps the text at the edge of the board (as in the kinematics graph). */
-export function captionLines(text: string, width: number): number {
-    const room = Math.max(width - 20, 100);
-    return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / room));
-}
 /** The height of the "y" axis title and the gap above it, in pixels. */
 const Y_TITLE_PX = 44;
 /** The row of x tick numbers and the axis title under the plot (modes without the strip): gap under the plot edge and the height it needs, in pixels. */
@@ -140,9 +151,12 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     private standingCache?: {derived: WavesDerived; t: number; value: ReturnType<typeof standingCurves>};
     private drawnFrame = "";
     private builtMode?: WavesMode;
-    private captionSources: (() => string)[] = [];
+    /** The drawn objects the legend names, by the id `drawnObject` resolves. */
+    private named = new Map<string, JXG.GeometryElement>();
+    /** Milliseconds of playback since the declared cards were last refreshed (the cards follow a playing wave about ten times a second). */
+    private sinceCards = 0;
     private derivations = 0;
-    private notice?: {readonly state: WavesGraphState; readonly text: () => string};
+    private notice?: {readonly state: WavesGraphState; readonly text: () => Message};
     private reconciledFor?: WavesGraphState;
     private driver?: AnimationDriver;
     /** The one announcement region of the graph. */
@@ -222,7 +236,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
 
     private reframeOnBuild = false;
 
-    /** The bare frame; every use of the initial view (a new board, Reset, a Preset without a view) is framed again with the room of the captions once the scene stands. */
+    /** The bare frame; every use of the initial view (a new board, Reset, a Preset without a view) is framed again for the board's height once the scene stands. */
     protected override initialView(): Box {
         this.reframeOnBuild = true;
         return frameFor(deriveWaves(DEFAULT_WAVES_STATE));
@@ -289,7 +303,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         super.createMainView(session, container);
         const previous = container.getAttribute("aria-label");
-        const label = () => container.setAttribute("aria-label", t("waves_graph_board_label"));
+        const label = () => container.setAttribute("aria-label", t("waves_board_label"));
         label();
         session.registerCleanup(onLanguageChange(label));
         session.registerCleanup(() => {
@@ -350,7 +364,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     }
 
     protected override disposeFigureScene(): void {
-        this.halt();
+        this.halt(false);
         this.disposeScene();
     }
 
@@ -367,20 +381,18 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         return this.frame().map(value => value.toFixed(4)).join(",");
     }
 
-    /** The frame of the derived data with the room the captions of this board width take (all of the mode's captions, so a switch never reframes). */
+    /** The frame of the derived data with the room the title and the tick row of this board height take. */
     private frame(derived: WavesDerived = this.derived()): Box {
-        const width = this.board.canvasWidth;
         const height = this.board.canvasHeight;
-        if (!(width > 0) || !(height > 0) || this.captionSources.length === 0) return frameFor(derived);
-        const rows = this.captionSources.reduce((sum, source) => sum + captionLines(source(), width), 0);
-        return frameFor(derived, {roomPx: 10 + rows * CAPTION_ROW_PX, heightPx: height});
+        if (!(this.board.canvasWidth > 0) || !(height > 0)) return frameFor(derived);
+        return frameFor(derived, {heightPx: height});
     }
 
     private applyFrame(): void {
         const frame = this.frame();
         const key = this.frameKey();
         if (this.reframeOnBuild) {
-            // The board was just set to the bare initial view: show the framing with the caption room, whatever was drawn before.
+            // The board was just set to the bare initial view: show the framing for the board's height, whatever was drawn before.
             this.reframeOnBuild = false;
             this.drawnFrame = key;
             this.showFrame(frame);
@@ -494,7 +506,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             return [xs, ys];
         }, {strokeColor: GraphPalette.axis, strokeWidth: 1});
         // Tick numbers and the axis title stand in one row under the plot (the curves never reach it); in sampling mode under the strip, so no dot or stem crosses them.
-        const rowY = () => (mode === "sampling" ? stripLevel(d()) - (STRIP_SQUARE_PX + TICK_GAP_PX) / this.scaleOf().uy : -peak() - TICK_GAP_PX / this.scaleOf().uy);
+        const rowY = () => (mode === "sampling" ? stripLevel(d()) - Math.max(STRIP_SQUARE_PX / this.scaleOf().uy, 0.1 * peak()) - TICK_GAP_PX / this.scaleOf().uy : -peak() - TICK_GAP_PX / this.scaleOf().uy);
         const tickText = (k: number) => dec((span() * k) / 4, 2);
         const titleText = () => t(mode === "standing" ? "waves_graph_axis_x" : "waves_graph_axis_t");
         // The title takes the middle between the last two numbers; the number before it is left out when the board is too narrow to hold both.
@@ -514,15 +526,15 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         const wave = (identity: () => unknown, y: () => readonly number[], attributes: Partial<JXG.CurveAttributes>) =>
             curve(identity, () => [d().xs, y()], attributes);
 
-        const captions: {text: () => string; visible: () => boolean; color: string}[] = [];
-        const caption = (content: () => string, color: string = GraphPalette.label, visible: () => boolean = () => true) => captions.push({text: content, visible, color});
+        /** Records the element the legend entry `id` names. */
+        const as = <E extends JXG.GeometryElement>(id: string, element: E): E => { this.named.set(id, element); return element; };
 
         if (mode === "sum") {
             timeCursor();
             const sumLine = () => this.sumFacts();
-            wave(d, () => d().first, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2});
-            wave(d, () => d().second, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3});
-            wave(d, () => d().total, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4});
+            as("wave1", wave(d, () => d().first, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2}));
+            as("wave2", wave(d, () => d().second, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3}));
+            as("sum", wave(d, () => d().total, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4}));
             const at = (index: 0 | 1 | 2) => (): number => {
                 const f = sumLine();
                 if (!f) return 0;
@@ -533,7 +545,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             });
             // The phasor picture: wave 2's arrow starts at the tip of wave 1's; the thick arrow is their vector sum.
             const shown = showing("showPhasors");
-            curve(ALWAYS, () => this.circlePoints(), {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1, visible: shown});
+            as("phasors", curve(ALWAYS, () => this.circlePoints(), {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1, visible: shown}));
             const origin = dot(() => this.panelOrigin()[0], () => this.panelOrigin()[1], () => false);
             const angle = (index: 0 | 1) => (): number => {
                 const f = sumLine();
@@ -564,62 +576,48 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             text(nameAt("1", 0, () => tip1()[0] - 12 / this.scaleOf().ux), nameAt("1", 1, () => tip1()[1]), () => t("waves_graph_tip_1"), nameAttributes(GraphPalette.comparisonCurve));
             text(nameAt("2", 0, () => (tip1()[0] + tip2()[0]) / 2), nameAt("2", 1, () => (tip1()[1] + tip2()[1]) / 2), () => t("waves_graph_tip_2"), nameAttributes(GraphPalette.constructionAccent));
             text(nameAt("sum", 0, () => tip2()[0] + 12 / this.scaleOf().ux), nameAt("sum", 1, () => tip2()[1]), () => t("waves_graph_tip_sum"), nameAttributes(GraphPalette.primaryCurve));
-            caption(() => t("waves_graph_cap_axes_time"));
-            caption(() => t("waves_graph_cap_wave1"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_wave2"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_sum"), GraphPalette.primaryCurve);
-            caption(() => t("waves_graph_cap_phasors"), GraphPalette.label, shown);
         } else if (mode === "beats") {
             timeCursor();
             const f = () => this.beatFacts();
-            wave(d, () => d().first, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, dash: 2});
-            wave(d, () => d().second, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1, dash: 3});
-            wave(d, () => d().total, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3});
+            as("wave1", wave(d, () => d().first, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, dash: 2}));
+            as("wave2", wave(d, () => d().second, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 1, dash: 3}));
+            as("sum", wave(d, () => d().total, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3}));
             const upper = () => d().envelope ?? [];
-            wave(d, upper, {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2, dash: 4, visible: showing("showEnvelope")});
+            as("envelope", wave(d, upper, {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2, dash: 4, visible: showing("showEnvelope")}));
             curve(d, () => [d().xs, upper().map(value => -value)], {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2, dash: 4, visible: showing("showEnvelope")});
             dot(playhead, () => { const b = f(); return b ? valueAt({amplitude: b.amplitude, frequency: b.f1, phase: 0}, playhead()) + valueAt({amplitude: b.amplitude, frequency: b.f2, phase: 0}, playhead()) : 0; },
                 () => true, {size: 5, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
-            caption(() => t("waves_graph_cap_axes_time"));
-            caption(() => t("waves_graph_cap_wave1"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_wave2"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_sum"), GraphPalette.primaryCurve);
-            caption(() => t("waves_graph_cap_envelope"), GraphPalette.additionalCurves[3], showing("showEnvelope"));
         } else if (mode === "standing") {
-            curve(() => this.standing(), () => [d().xs, this.standing().right], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2});
-            curve(() => this.standing(), () => [d().xs, this.standing().left], {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3});
-            curve(() => this.standing(), () => [d().xs, this.standing().total], {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4});
+            as("right", curve(() => this.standing(), () => [d().xs, this.standing().right], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2}));
+            as("left", curve(() => this.standing(), () => [d().xs, this.standing().left], {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3}));
+            as("standing", curve(() => this.standing(), () => [d().xs, this.standing().total], {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4}));
             const f = () => this.standingFacts();
             for (let n = 0; n < MAX_NODES; n++) {
-                dot(() => f()?.nodes[n] ?? 0, () => 0, () => n < (f()?.nodes.length ?? 0), {size: 5, face: "[]", strokeColor: GraphPalette.constructionAccent, fillColor: GraphPalette.boardSurface});
+                const node = dot(() => f()?.nodes[n] ?? 0, () => 0, () => n < (f()?.nodes.length ?? 0), {size: 5, face: "[]", strokeColor: GraphPalette.constructionAccent, fillColor: GraphPalette.boardSurface});
+                if (n === 0) as("nodes", node);
             }
             for (let n = 0; n < MAX_ANTINODES; n++) {
                 const x = () => f()?.antinodes[n] ?? 0;
                 const y = () => { const facts = f(); return facts ? facts.amplitude * (travelling(facts.k, facts.omega, 1, x(), this.clock()) + travelling(facts.k, facts.omega, -1, x(), this.clock())) : 0; };
-                dot(x, y, () => n < (f()?.antinodes.length ?? 0), {size: 5, face: "diamond", strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
+                const antinode = dot(x, y, () => n < (f()?.antinodes.length ?? 0), {size: 5, face: "diamond", strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
+                if (n === 0) as("antinodes", antinode);
             }
-            caption(() => t("waves_graph_cap_axes_space"));
-            caption(() => t("waves_graph_cap_right"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_left"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_standing"), GraphPalette.primaryCurve);
-            caption(() => t("waves_graph_cap_nodes"), GraphPalette.constructionAccent);
-            caption(() => t("waves_graph_cap_antinodes"), GraphPalette.primaryCurve);
         } else {
             timeCursor();
             const f = () => this.samplingFacts();
             const level = () => stripLevel(d());
-            wave(d, () => d().first, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2});
-            wave(d, () => f()?.aliasWave ?? [], {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3, visible: () => state().showAlias && f()?.aliasWave != null});
-            curve(d, () => { const facts = f(); return [facts?.instants ?? [], facts?.samples ?? []]; }, {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2, dash: 4, visible: showing("showJoin")});
-            wave(d, () => f()?.sinc?.values ?? [], {strokeColor: GraphPalette.additionalCurves[2], strokeWidth: 2, dash: 1, visible: () => state().showSinc && f()?.sinc != null});
+            as("tone", wave(d, () => d().first, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2}));
+            as("alias", wave(d, () => f()?.aliasWave ?? [], {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3, visible: () => state().showAlias && f()?.aliasWave != null}));
+            as("join", curve(d, () => { const facts = f(); return [facts?.instants ?? [], facts?.samples ?? []]; }, {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2, dash: 4, visible: showing("showJoin")}));
+            as("sinc", wave(d, () => f()?.sinc?.values ?? [], {strokeColor: GraphPalette.additionalCurves[2], strokeWidth: 2, dash: 1, visible: () => state().showSinc && f()?.sinc != null}));
             // The strip of instants n / fs, with a dotted stem from each instant to its dot.
-            curve(d, () => {
+            as("strip", curve(d, () => {
                 const facts = f();
                 const xs: number[] = [0, 1, NaN];
                 const ys: number[] = [level(), level(), NaN];
                 facts?.instants.forEach(instant => { xs.push(instant, instant, NaN); ys.push(level() - 0.1 * peak(), level() + 0.1 * peak(), NaN); });
                 return [xs, ys];
-            }, {strokeColor: GraphPalette.label, strokeWidth: 1});
+            }, {strokeColor: GraphPalette.label, strokeWidth: 1}));
             curve(d, () => {
                 const facts = f();
                 const xs: number[] = [];
@@ -628,7 +626,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                 return [xs, ys];
             }, {strokeColor: GraphPalette.tick, strokeWidth: 1, dash: 1});
             for (let n = 0; n < MAX_DOTS; n++) {
-                dot(() => f()?.instants[n] ?? 0, () => f()?.samples[n] ?? 0, () => n < (f()?.instants.length ?? 0), {size: 4, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
+                const sample = dot(() => f()?.instants[n] ?? 0, () => f()?.samples[n] ?? 0, () => n < (f()?.instants.length ?? 0), {size: 4, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
+                if (n === 0) as("dots", sample);
             }
             const frame = () => frameAt(playhead(), state().fs);
             dot(() => instantOf(frame(), state().fs), level, () => true, {size: 6, face: "[]", strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.boardSurface});
@@ -644,42 +643,20 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             const filmEnd = turn(() => instantOf(frame(), state().fs));
             const trueTip = dot(() => trueEnd()[0], () => trueEnd()[1], () => false);
             const filmTip = dot(() => filmEnd()[0], () => filmEnd()[1], () => false);
-            this.own(board.create("arrow", [origin, trueTip], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2, fixed: true, highlight: false, withLabel: false}));
-            this.own(board.create("arrow", [origin, filmTip], {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4, fixed: true, highlight: false, withLabel: false}));
+            as("true", this.own(board.create("arrow", [origin, trueTip], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2, fixed: true, highlight: false, withLabel: false})));
+            as("film", this.own(board.create("arrow", [origin, filmTip], {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4, fixed: true, highlight: false, withLabel: false})));
             // The two arrows often coincide, so their names stand in two fixed rows under the circle (never on a tip or shaft).
             const nameRow = (row: number) => () => -(this.panel().k * this.derived().yPeak + (NAME_GAP_PX + NAME_ROW_PX * row)) / this.scaleOf().uy;
             text(() => this.panelOrigin()[0], nameRow(0), () => t("waves_graph_tip_true"), {strokeColor: GraphPalette.comparisonCurve, anchorX: "middle", anchorY: "top"});
             text(() => this.panelOrigin()[0], nameRow(1), () => t("waves_graph_tip_film"), {strokeColor: GraphPalette.primaryCurve, anchorX: "middle", anchorY: "top"});
-            caption(() => t("waves_graph_cap_axes_time"));
-            caption(() => t("waves_graph_cap_wave"), GraphPalette.comparisonCurve);
-            caption(() => t("waves_graph_cap_dots"), GraphPalette.primaryCurve);
-            caption(() => t("waves_graph_cap_strip"), GraphPalette.label);
-            caption(() => t("waves_graph_cap_wheel"), GraphPalette.label);
-            caption(() => { const facts = f(); const alias = facts?.alias; return facts?.relation === "above" ? t("waves_graph_cap_alias_exact") : t("waves_graph_cap_alias", {value0: dec(alias && !alias.ambiguous ? alias.signed : 0, 0)}); }, GraphPalette.constructionAccent,
-                () => state().showAlias && f()?.aliasWave != null);
-            caption(() => t("waves_graph_cap_join"), GraphPalette.additionalCurves[3], showing("showJoin"));
-            caption(() => t("waves_graph_cap_sinc"), GraphPalette.additionalCurves[2], showing("showSinc"));
         }
-        caption(() => t(mode === "standing" ? "waves_graph_cap_resolution_space" : "waves_graph_cap_resolution", {value0: POINTS_PER_SECOND}));
-
-        // The captions: stacked from the top left of the screen, only the visible ones take a row. They name every element a readout names.
-        this.captionSources = captions.map(entry => entry.text);
-        captions.forEach((entry, index) => {
-            // A caption wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
-            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), board.canvasWidth), 0);
-            this.own(board.create("text", [
-                () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * CAPTION_ROW_PX) / uy; },
-                () => entry.text(),
-            ], {strokeColor: entry.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: entry.visible}));
-        });
     }
 
     private nameCache?: {key: string; boxes: Record<string, PxBox>};
 
     /**
      * The pixel boxes of the three phasor names, from the shared placer. Cache key: the board's scale and size, the panel (centre, radius), the two tips quantised to
-     * 6 px (so a name follows a turning arrow in steps, one placer run per 6 px of tip travel, a lookup in between), the caption rows and the names themselves (language).
+     * 6 px (so a name follows a turning arrow in steps, one placer run per 6 px of tip travel, a lookup in between), the names themselves (language).
      */
     private phasorNameBoxes(tip1: readonly [number, number], tip2: readonly [number, number]): Record<string, PxBox> {
         const board = this.board;
@@ -690,10 +667,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         const origin = this.panelOrigin();
         const [ox, oy] = toPx(origin[0], origin[1]), [ax, ay] = toPx(tip1[0], tip1[1]), [bx, by] = toPx(tip2[0], tip2[1]);
         const names = [t("waves_graph_tip_1"), t("waves_graph_tip_2"), t("waves_graph_tip_sum")];
-        const captionTexts = this.captionSources.map(source => source());
-        const rows = captionTexts.reduce((sum, text) => sum + captionLines(text, width), 0);
         const Q = 6;
-        const key = [ux, uy, left, top, width, height, this.panel().k, Math.round(ox / Q), Math.round(oy / Q), Math.round(ax / Q), Math.round(ay / Q), Math.round(bx / Q), Math.round(by / Q), rows, names.join("|"), captionTexts.length].join(",");
+        const key = [ux, uy, left, top, width, height, this.panel().k, Math.round(ox / Q), Math.round(oy / Q), Math.round(ax / Q), Math.round(ay / Q), Math.round(bx / Q), Math.round(by / Q), names.join("|")].join(",");
         if (this.nameCache?.key === key) return this.nameCache.boxes;
         const size = (text: string) => ({w: text.length * 14 * 0.55 + 8, h: 14 + 6});
         // The sum name goes first (it has the pick of the spots above the head); the others take the sides.
@@ -712,9 +687,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             ...chain([tip1[0], tip2[0]], [tip1[1], tip2[1]]),
             ...chain([origin[0], tip2[0]], [origin[1], tip2[1]]),
         ];
-        const widest = captionTexts.reduce((most, text) => Math.max(most, Math.min(text.length * CAPTION_CHAR_PX, width - 20)), 0);
-        const blocks: PxBox[] = [{x0: 0, y0: 0, x1: 10 + widest + 6, y1: 10 + rows * CAPTION_ROW_PX}];
-        const boxes = placeLpLabels(items, {width, height, markers, samples: [], strips: [], blocks});
+        const boxes = placeLpLabels(items, {width, height, markers, samples: [], strips: [], blocks: []});
         this.nameCache = {key, boxes};
         return boxes;
     }
@@ -743,7 +716,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         }
         this.objects = [];
         this.builtMode = undefined;
-        this.captionSources = [];
+        this.named.clear();
     }
 
     // ---- Playback and the time -------------------------------------------------------------------------------------------
@@ -762,11 +735,21 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     }
 
     /** Stops the frame loop; the time stays where it is. */
-    private halt(): void {
+    private halt(refresh = true): void {
         this.stopDriver();
         if (!this.playingValue) return;
         this.playingValue = false;
         this.notifyHost();
+        if (refresh) this.refreshCards();
+    }
+
+    /**
+     * The declared cards read the time (rows, status), which is host state, so they are refreshed through the scene store: at once for every stop, step and reset, and
+     * while a wave plays about ten times a second (CARD_REFRESH_MS), not every frame.
+     */
+    private refreshCards(): void {
+        this.sinceCards = 0;
+        this.store.notify();
     }
 
     override pausePlayback(): void {
@@ -784,6 +767,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         this.driver.play();
         this.boardUpdate();
         this.notifyHost();
+        this.refreshCards();
     }
 
     /** One frame: the time moves by the frame's duration (at most MAX_FRAME_MS). The sampler instants do not depend on it. */
@@ -797,6 +781,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         // While playing only a change of the wording is announced; the moment the run stops the full sentence is.
         this.status.report(finished ? this.statusText() : this.sentence());
         this.notifyHost();
+        this.sinceCards += Math.min(Math.max(delta, 0), MAX_FRAME_MS);
+        if (!finished && this.sinceCards >= CARD_REFRESH_MS) this.refreshCards();
     }
 
     /** The time slider and the lesson actions: a time inside the window; anything else is refused. Setting it pauses the playback. */
@@ -808,6 +794,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         this.boardUpdate();
         this.status.report(this.statusText());
         this.notifyHost();
+        this.refreshCards();
         this.requestRender();
         return true;
     }
@@ -818,6 +805,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         this.boardUpdate();
         this.status.report(this.statusText());
         this.notifyHost();
+        this.refreshCards();
         this.requestRender();
     }
 
@@ -829,7 +817,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         if (previous.mode !== state.mode) {
             this.halt();
             this.timeValue = 0;
-            this.notice = {state, text: () => t("waves_graph_notice_reset")};
+            this.notice = {state, text: () => message("waves_graph_notice_reset")};
+            this.refreshCards();
         }
         this.notifyHost();
     }
@@ -849,8 +838,9 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         // A saved time that does not fit the window is refused, not clamped (shared rule: restored values are never changed); the time is 0 and the status says so.
         this.timeValue = valid ? time : 0;
         this.reconciledFor = this.state;
-        if (time !== undefined && !valid) this.notice = {state: this.state, text: () => t("waves_graph_notice_time_refused")};
+        if (time !== undefined && !valid) this.notice = {state: this.state, text: () => message("waves_graph_notice_time_refused")};
         this.notifyHost();
+        this.refreshCards();
     }
 
     protected override stopLessonAnimations(): void { this.halt(); }
@@ -860,7 +850,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     // ---- Editing --------------------------------------------------------------------------------------------------------
 
     /** Every edit pauses the playback first, then writes the patch; `notice` is said in the status text of the new state. */
-    private edit(patch: Partial<WavesState>, notice?: () => string): void {
+    private edit(patch: Partial<WavesState>, notice?: () => Message): void {
         this.halt();
         const before = this.state;
         this.setState(patch);
@@ -882,7 +872,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         if (!checked.ok) return false;
         if (checked.value !== this.state[field]) {
             const stored = checked.value;
-            this.edit({[field]: stored}, Math.abs(stored - value) > 1e-9 ? () => t("waves_graph_notice_rounded", {value0: dec(stored, 2)}) : undefined);
+            this.edit({[field]: stored}, Math.abs(stored - value) > 1e-9 ? () => message("waves_graph_notice_rounded", {value0: messageNumber(stored, 2)}) : undefined);
         }
         return true;
     }
@@ -945,53 +935,63 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
 
     // ---- Text -----------------------------------------------------------------------------------------------------------
 
-    private quantity(value: number, unit: "s" | "hz" | "deg" | "rev", digits = 3): string {
-        return `${dec(value, digits)}${unit === "deg" ? "" : " "}${t(`waves_graph_unit_${unit}`)}`;
+    /** A quantity with its unit: "0,25 s", "3 Hz", "120°" (the degree sign takes no space). */
+    private quantity(value: number, unit: "s" | "hz" | "deg" | "rev", digits = 3): Message {
+        return message(`waves_q_${unit}`, {value0: messageNumber(value, digits)});
     }
 
     /** The apparent motion of the wheel in words, from the exact integer alias. */
-    private aliasSentence(facts: SamplingFacts): string {
+    private aliasMessage(facts: SamplingFacts): Message {
         const alias = facts.alias;
-        if (alias.ambiguous) return t("waves_graph_alias_ambiguous");
-        if (alias.magnitude === 0) return t("waves_graph_alias_rest");
-        return t(alias.signed < 0 ? "waves_graph_alias_backward" : "waves_graph_alias_forward", {value0: dec(alias.magnitude, 0)});
+        if (alias.ambiguous) return message("waves_graph_alias_ambiguous");
+        if (alias.magnitude === 0) return message("waves_graph_alias_rest");
+        return message(alias.signed < 0 ? "waves_graph_alias_backward" : "waves_graph_alias_forward", {value0: messageNumber(alias.magnitude, 0)});
     }
 
     /** The wording of the mode's result, with the notice; no time in it. */
-    sentence(): string {
-        const parts: string[] = [];
+    private sentenceMessage(): Message {
         const sum = this.sumFacts();
         const beats = this.beatFacts();
         const standing = this.standingFacts();
         const sampling = this.samplingFacts();
+        let base: Message;
         if (sum) {
-            parts.push(sum.opposite ? t("waves_graph_status_sum_cancel")
-                : t("waves_graph_status_sum", {value0: dec(sum.c1.frequency, 0), value1: dec(sum.phasor.amplitude, 3)}));
+            base = sum.opposite ? message("waves_graph_status_sum_cancel")
+                : message("waves_graph_status_sum", {value0: messageNumber(sum.c1.frequency, 0), value1: messageNumber(sum.phasor.amplitude, 3)});
         } else if (beats) {
-            parts.push(beats.beatPeriod === null ? t("waves_graph_status_no_beats", {value0: dec(2 * beats.amplitude, 2)})
-                : t("waves_graph_status_beats", {value0: dec(beats.f1, 0), value1: dec(beats.f2, 0), value2: dec(beats.beatFrequency, 0), value3: dec(beats.beatPeriod, 3)}));
+            base = beats.beatPeriod === null ? message("waves_graph_status_no_beats", {value0: messageNumber(2 * beats.amplitude, 2)})
+                : message("waves_graph_status_beats", {value0: messageNumber(beats.f1, 0), value1: messageNumber(beats.f2, 0), value2: messageNumber(beats.beatFrequency, 0), value3: messageNumber(beats.beatPeriod, 3)});
         } else if (standing) {
-            parts.push(t("waves_graph_status_standing", {value0: dec(standing.halfWaves, 0), value1: dec(standing.nodes.length, 0), value2: dec(2 * standing.amplitude, 2)}));
-        } else if (sampling) {
-            parts.push(t("waves_graph_status_sampling", {value0: dec(this.state.f1, 0), value1: dec(this.state.fs, 0), value2: this.aliasSentence(sampling)}));
+            base = message("waves_graph_status_standing", {value0: messageNumber(standing.halfWaves, 0), value1: messageNumber(standing.nodes.length, 0), value2: messageNumber(2 * standing.amplitude, 2)});
+        } else {
+            base = message("waves_graph_status_sampling", {value0: messageNumber(this.state.f1, 0), value1: messageNumber(this.state.fs, 0), value2: sampling ? this.aliasMessage(sampling) : ""});
         }
-        if (this.notice && this.notice.state === this.state) parts.push(this.notice.text());
-        return parts.join(" ");
+        return this.notice && this.notice.state === this.state ? message("waves_status_join", {value0: base, value1: this.notice.text()}) : base;
+    }
+
+    sentence(): string {
+        return renderMessage(this.sentenceMessage());
     }
 
     /** The status sentence: the time, the wording, and that the window has ended. */
-    statusText(): string {
+    private statusMessage(): Message {
         const time = this.clock();
         const ended = time >= windowOf(this.state) && !this.playingValue;
-        return [t("waves_graph_status_time", {value0: dec(time, 2)}), this.sentence(), ended ? t("waves_graph_status_ended", {value0: dec(time, 2)}) : ""]
-            .filter(Boolean).join(" ");
+        const head = message("waves_status_join", {value0: message("waves_graph_status_time", {value0: messageNumber(time, 2)}), value1: this.sentenceMessage()});
+        return ended ? message("waves_status_join", {value0: head, value1: message("waves_graph_status_ended", {value0: messageNumber(time, 2)})}) : head;
     }
 
-    readoutRows(): ReadoutListRow[] {
+    statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    /** The readout rows of the state as declared values: the declaration's rows and what the panel lists. */
+    private declaredRows(): ReadoutRow<WavesIds>[] {
         const state = this.state;
         const time = this.clock();
-        const none = t("waves_graph_not_defined");
-        const rows: ReadoutListRow[] = [{id: "time", label: t("waves_graph_r_time"), value: this.quantity(time, "s", 2)}];
+        const number = (value: number, digits: number): {readonly kind: "formatted"; readonly text: string} => ({kind: "formatted", text: dec(value, digits)});
+        const none = message("waves_graph_not_defined");
+        const rows: ReadoutRow<WavesIds>[] = [{id: "time", name: message("waves_graph_r_time"), value: this.quantity(time, "s", 2)}];
         const sum = this.sumFacts();
         const beats = this.beatFacts();
         const standing = this.standingFacts();
@@ -1001,64 +1001,219 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             const second = valueAt(sum.c2, time);
             const noWave = state.a1 === 0 && state.a2 === 0;
             rows.push(
-                {id: "frequency", label: t("waves_graph_r_frequency_both"), value: this.quantity(sum.c1.frequency, "hz", 0)},
-                {id: "phase-difference", label: t("waves_graph_r_phase_difference"), value: this.quantity(sum.phaseDifference, "deg", 0)},
-                {id: "sum-amplitude", label: t("waves_graph_r_sum_amplitude"), value: sum.opposite ? t("waves_graph_cancel") : dec(sum.phasor.amplitude, 3)},
-                {id: "sum-phase", label: t("waves_graph_r_sum_phase"), value: sum.opposite || noWave ? none : this.quantity(wrapDegrees((sum.phasor.phase * 180) / Math.PI), "deg", 2)},
-                {id: "amplitude-range", label: t("waves_graph_r_amplitude_range"), value: t("waves_graph_range_value", {value0: dec(Math.abs(state.a1 - state.a2), 2), value1: dec(state.a1 + state.a2, 2)})},
-                {id: "wave1", label: t("waves_graph_r_wave1"), value: dec(first, 3)},
-                {id: "wave2", label: t("waves_graph_r_wave2"), value: dec(second, 3)},
-                {id: "sum", label: t("waves_graph_r_sum"), value: dec(first + second, 3)},
+                {id: "frequency", name: message("waves_graph_r_frequency_both"), value: this.quantity(sum.c1.frequency, "hz", 0)},
+                {id: "phase-difference", name: message("waves_graph_r_phase_difference"), value: this.quantity(sum.phaseDifference, "deg", 0)},
+                {id: "sum-amplitude", name: message("waves_graph_r_sum_amplitude"), value: sum.opposite ? message("waves_graph_cancel") : number(sum.phasor.amplitude, 3)},
+                {id: "sum-phase", name: message("waves_graph_r_sum_phase"), value: sum.opposite || noWave ? none : this.quantity(wrapDegrees((sum.phasor.phase * 180) / Math.PI), "deg", 2)},
+                {id: "amplitude-range", name: message("waves_graph_r_amplitude_range"), value: message("waves_graph_range_value", {value0: messageNumber(Math.abs(state.a1 - state.a2), 2), value1: messageNumber(state.a1 + state.a2, 2)})},
+                {id: "wave1", name: message("waves_graph_r_wave1"), value: number(first, 3), legend: "wave1"},
+                {id: "wave2", name: message("waves_graph_r_wave2"), value: number(second, 3), legend: "wave2"},
+                {id: "sum", name: message("waves_graph_r_sum"), value: number(first + second, 3), legend: "sum"},
             );
         } else if (beats) {
             const first = valueAt({amplitude: beats.amplitude, frequency: beats.f1, phase: 0}, time);
             const second = valueAt({amplitude: beats.amplitude, frequency: beats.f2, phase: 0}, time);
             rows.push(
-                {id: "f1", label: t("waves_graph_r_f1"), value: this.quantity(beats.f1, "hz", 0)},
-                {id: "f2", label: t("waves_graph_r_f2"), value: this.quantity(beats.f2, "hz", 0)},
-                {id: "beat-frequency", label: t("waves_graph_r_beat_frequency"), value: this.quantity(beats.beatFrequency, "hz", 0)},
-                {id: "mean-frequency", label: t("waves_graph_r_mean_frequency"), value: this.quantity(beats.meanFrequency, "hz", 1)},
-                {id: "beat-period", label: t("waves_graph_r_beat_period"), value: beats.beatPeriod === null ? t("waves_graph_no_beats") : this.quantity(beats.beatPeriod, "s", 3)},
-                {id: "envelope", label: t("waves_graph_r_envelope"), value: dec(envelope(beats.amplitude, beats.f1, beats.f2, time), 3)},
-                {id: "sum", label: t("waves_graph_r_sum"), value: dec(first + second, 3)},
+                {id: "f1", name: message("waves_graph_r_f1"), value: this.quantity(beats.f1, "hz", 0)},
+                {id: "f2", name: message("waves_graph_r_f2"), value: this.quantity(beats.f2, "hz", 0)},
+                {id: "beat-frequency", name: message("waves_graph_r_beat_frequency"), value: this.quantity(beats.beatFrequency, "hz", 0)},
+                {id: "mean-frequency", name: message("waves_graph_r_mean_frequency"), value: this.quantity(beats.meanFrequency, "hz", 1)},
+                {id: "beat-period", name: message("waves_graph_r_beat_period"), value: beats.beatPeriod === null ? message("waves_graph_no_beats") : this.quantity(beats.beatPeriod, "s", 3)},
+                {id: "envelope", name: message("waves_graph_r_envelope"), value: number(envelope(beats.amplitude, beats.f1, beats.f2, time), 3), legend: "envelope"},
+                {id: "sum", name: message("waves_graph_r_sum"), value: number(first + second, 3), legend: "sum"},
             );
         } else if (standing) {
-            const join = (values: readonly number[]) => values.map(value => dec(value, 3)).join("; ");
+            const join = (values: readonly number[]) => ({kind: "formatted" as const, text: values.map(value => dec(value, 3)).join("; ")});
             rows.push(
-                {id: "half-waves", label: t("waves_graph_r_half_waves"), value: dec(standing.halfWaves, 0)},
-                {id: "wavelength", label: t("waves_graph_r_wavelength"), value: dec(standing.wavelength, 3)},
-                {id: "period", label: t("waves_graph_r_period"), value: this.quantity(1, "s", 0)},
-                {id: "nodes", label: t("waves_graph_r_nodes"), value: join(standing.nodes)},
-                {id: "antinodes", label: t("waves_graph_r_antinodes"), value: join(standing.antinodes)},
-                {id: "antinode-amplitude", label: t("waves_graph_r_antinode_amplitude"), value: dec(2 * standing.amplitude, 3)},
+                {id: "half-waves", name: message("waves_graph_r_half_waves"), value: number(standing.halfWaves, 0)},
+                {id: "wavelength", name: message("waves_graph_r_wavelength"), value: number(standing.wavelength, 3)},
+                {id: "period", name: message("waves_graph_r_period"), value: this.quantity(1, "s", 0)},
+                {id: "nodes", name: message("waves_graph_r_nodes"), value: join(standing.nodes), legend: "nodes"},
+                {id: "antinodes", name: message("waves_graph_r_antinodes"), value: join(standing.antinodes), legend: "antinodes"},
+                {id: "antinode-amplitude", name: message("waves_graph_r_antinode_amplitude"), value: number(2 * standing.amplitude, 3)},
             );
         } else if (sampling) {
             const frame = frameAt(time, state.fs);
             rows.push(
-                {id: "frequency", label: t("waves_graph_r_frequency_tone"), value: this.quantity(state.f1, "hz", 0)},
-                {id: "rate", label: t("waves_graph_r_rate"), value: this.quantity(state.fs, "hz", 0)},
-                {id: "samples-per-period", label: t("waves_graph_r_samples_per_period"), value: dec(sampling.samplesPerPeriod, 2)},
-                {id: "nyquist", label: t("waves_graph_r_nyquist"), value: t(`waves_graph_nyquist_${sampling.relation}`, {value0: dec(state.fs, 0), value1: dec(2 * state.f1, 0)})},
-                {id: "alias", label: t("waves_graph_r_alias"), value: this.aliasSentence(sampling)},
-                {id: "alias-frequency", label: t("waves_graph_r_alias_frequency"), value: sampling.alias.ambiguous ? none : this.quantity(sampling.alias.signed, "rev", 0)},
-                {id: "frame", label: t("waves_graph_r_frame"), value: t("waves_graph_frame_value", {value0: dec(frame, 0), value1: dec(state.fs, 0), value2: dec(instantOf(frame, state.fs), 4)})},
+                {id: "frequency", name: message("waves_graph_r_frequency_tone"), value: this.quantity(state.f1, "hz", 0)},
+                {id: "rate", name: message("waves_graph_r_rate"), value: this.quantity(state.fs, "hz", 0)},
+                {id: "samples-per-period", name: message("waves_graph_r_samples_per_period"), value: number(sampling.samplesPerPeriod, 2)},
+                {id: "nyquist", name: message("waves_graph_r_nyquist"), value: message(`waves_graph_nyquist_${sampling.relation}`, {value0: messageNumber(state.fs, 0), value1: messageNumber(2 * state.f1, 0)})},
+                {id: "alias", name: message("waves_graph_r_alias"), value: this.aliasMessage(sampling)},
+                {id: "alias-frequency", name: message("waves_graph_r_alias_frequency"), value: sampling.alias.ambiguous ? none : this.quantity(sampling.alias.signed, "rev", 0)},
+                {id: "frame", name: message("waves_graph_r_frame"), value: message("waves_graph_frame_value", {value0: messageNumber(frame, 0), value1: messageNumber(state.fs, 0), value2: messageNumber(instantOf(frame, state.fs), 4)})},
             );
             if (sampling.alias.ambiguous) {
                 const first = roundedFour(state.a1 * Math.cos(state.p1 * Math.PI / 180));
-                rows.push({id: "ambiguous-samples", label: t("waves_graph_r_ambiguous_samples"), value: t("waves_graph_ambiguous_samples_value", {value0: dec(first, 4), value1: dec(roundedFour(-first), 4), value2: dec(Math.abs(first), 4)})});
+                rows.push({id: "ambiguous-samples", name: message("waves_graph_r_ambiguous_samples"), value: message("waves_graph_ambiguous_samples_value", {value0: messageNumber(first, 4), value1: messageNumber(roundedFour(-first), 4), value2: messageNumber(Math.abs(first), 4)})});
             }
-            if (state.showJoin) rows.push({id: "join-error", label: t("waves_graph_r_join_error"), value: t("waves_graph_join_error_value", {value0: dec(sampling.joinError, 4), value1: dec(windowOf(state), 0)})});
-            if (sampling.sinc) rows.push({id: "sinc-error", label: t("waves_graph_r_sinc_error"), value: t("waves_graph_sinc_error_value", {value0: dec(sampling.sinc.error, 4), value1: dec(SINC_ERROR_FROM, 1), value2: dec(SINC_ERROR_TO, 1)})});
+            if (state.showJoin) rows.push({id: "join-error", name: message("waves_graph_r_join_error"), value: message("waves_graph_join_error_value", {value0: messageNumber(sampling.joinError, 4), value1: messageNumber(windowOf(state), 0)})});
+            if (sampling.sinc) rows.push({id: "sinc-error", name: message("waves_graph_r_sinc_error"), value: message("waves_graph_sinc_error_value", {value0: messageNumber(sampling.sinc.error, 4), value1: messageNumber(SINC_ERROR_FROM, 1), value2: messageNumber(SINC_ERROR_TO, 1)})});
         }
-        rows.push({id: "resolution", label: t("waves_graph_r_resolution"), value: t(state.mode === "standing" ? "waves_graph_resolution_space" : "waves_graph_resolution_time", {value0: POINTS_PER_SECOND})});
+        rows.push({id: "resolution", name: message("waves_graph_r_resolution"), value: message(state.mode === "standing" ? "waves_graph_resolution_space" : "waves_graph_resolution_time", {value0: messageNumber(POINTS_PER_SECOND)})});
         return rows;
+    }
+
+    /** The panel's text of the rows, from the declared ones (one source). */
+    readoutRows(): ReadoutListRow[] {
+        return this.declaredRows().map(({id, name, value}): ReadoutListRow => ({
+            id, label: name ? renderMessage(name) : id, value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration ----------------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064). Keys `waves-a1`, `waves-p1`, `waves-a2`, `waves-p2`, `waves-f1`, `waves-f2`, `waves-fs`, `waves-half-waves` and `waves-extra`:
+     * the validated number setter (`editNumber`), which rounds to the field's grid and refuses a value outside its range. The mode, the playback and the time have no key:
+     * they stay in Orodja.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const bind = (field: WavesNumericField): ParameterBinding => ({
+            read: () => this.state[field],
+            apply: (value: unknown) => {
+                if (typeof value !== "number" || !this.editNumber(field, value)) {
+                    const range = WAVES_FIELD_RANGES[field];
+                    throw new DomainError(message("waves_value_rejected", {value0: messageNumber(range.min, 2), value1: messageNumber(range.max, 2)}));
+                }
+            },
+        });
+        return {
+            "waves-a1": bind("a1"), "waves-p1": bind("p1"), "waves-a2": bind("a2"), "waves-p2": bind("p2"), "waves-f1": bind("f1"), "waves-f2": bind("f2"),
+            "waves-fs": bind("fs"), "waves-half-waves": bind("halfWaves"), "waves-extra": bind("extra"),
+        };
+    }
+
+    private marksCache?: {derived: WavesDerived; marks: ViewMarks};
+
+    /** The whole frame of the mode (plot, title and tick row, the panel on the left where the mode has one) must stay clear of the cards. */
+    private viewMarks(): ViewMarks {
+        const derived = this.derived();
+        if (this.marksCache?.derived === derived) return this.marksCache.marks;
+        const [left, top, right, bottom] = frameFor(derived);
+        const marks: ViewMarks = {must: [{kind: "box", left, top, right, bottom}]};
+        this.marksCache = {derived, marks};
+        return marks;
+    }
+
+    /**
+     * Pure data from the state and the time. Pucks, by what a lesson step asks the learner to set or flip (wavesGuidedLessons, wavesSamplingGuidedLessons): sum mode the
+     * two amplitudes, the two phases and the frequency (wv1-phase, wv1-amplitudes, wv1-explore) and the phasors switch (wv1-explore); beats the amplitude, both frequencies
+     * and the envelope switch (wv2-difference, wv2-envelope, wv2-explore); standing the amplitude and the number of half waves (wv3-half-waves, wv3-explore); sampling the
+     * phase and frequency of the tone, the rate, the extra samples while the sinc curve is drawn, and the three switches (wv4-alias-wave, wv5-join, wv5-alias, wv5-explore).
+     * The mode, the playback and the time slider are setup and stay in Orodja (no arbiter key). The status sentence and the computed note are the notes; the rows are the readouts.
+     */
+    protected override declaration(): GraphDeclaration<WavesIds> {
+        const {mode} = this.state;
+        const R = WAVES_FIELD_RANGES;
+        type Param = ParameterDeclaration<WavesIds["param"]>;
+        const range = (key: WavesIds["param"], field: WavesNumericField, label: Message, extra: {unit?: Message; bigStep: number; maxDecimals: number}): Param =>
+            ({key, kind: "range", label, placement: "board", min: R[field].min, max: R[field].max, step: R[field].step, ...extra});
+        const hz = message("waves_graph_unit_hz");
+        const degrees = message("waves_graph_unit_deg");
+        const parameters: Param[] = [];
+        const actions: ActionDeclaration<WavesIds>[] = [];
+        const toggle = (id: WavesIds["action"], field: WavesToggleField, label: Message, help: Message) =>
+            actions.push({id, label, help, placement: "board", enabled: true, pressed: this.state[field], puck: true});
+        const legend: LegendEntry<WavesIds>[] = [];
+        if (mode === "sum") {
+            parameters.push(
+                range("waves-a1", "a1", message("waves_a1_sum_name"), {bigStep: 1, maxDecimals: 2}),
+                range("waves-p1", "p1", message("waves_p1_name"), {unit: degrees, bigStep: 15, maxDecimals: 0}),
+                range("waves-a2", "a2", message("waves_a2_name"), {bigStep: 1, maxDecimals: 2}),
+                range("waves-p2", "p2", message("waves_p2_name"), {unit: degrees, bigStep: 15, maxDecimals: 0}),
+                range("waves-f1", "f1", message("waves_f_both_name"), {unit: hz, bigStep: 5, maxDecimals: 0}),
+            );
+            toggle("show-phasors", "showPhasors", message("waves_graph_show_phasors"), message("waves_graph_show_phasors_help"));
+            legend.push(
+                {id: "wave1", label: message("waves_graph_r_wave1"), kind: "dashed", object: "wave1"},
+                {id: "wave2", label: message("waves_graph_r_wave2"), kind: "dashed", object: "wave2"},
+                {id: "sum", label: message("waves_graph_r_sum"), kind: "line", object: "sum"},
+                {id: "phasors", label: message("waves_legend_phasors"), kind: "line", object: "phasors"},
+            );
+        } else if (mode === "beats") {
+            parameters.push(
+                range("waves-a1", "a1", message("waves_a_each_name"), {bigStep: 1, maxDecimals: 2}),
+                range("waves-f1", "f1", message("waves_f1_name"), {unit: hz, bigStep: 5, maxDecimals: 0}),
+                range("waves-f2", "f2", message("waves_f2_name"), {unit: hz, bigStep: 5, maxDecimals: 0}),
+            );
+            toggle("show-envelope", "showEnvelope", message("waves_graph_show_envelope"), message("waves_graph_show_envelope_help"));
+            legend.push(
+                {id: "wave1", label: message("waves_graph_r_wave1"), kind: "dashed", object: "wave1"},
+                {id: "wave2", label: message("waves_graph_r_wave2"), kind: "dashed", object: "wave2"},
+                {id: "sum", label: message("waves_graph_r_sum"), kind: "line", object: "sum"},
+                {id: "envelope", label: message("waves_graph_r_envelope"), kind: "dashed", object: "envelope"},
+            );
+        } else if (mode === "standing") {
+            parameters.push(
+                range("waves-a1", "a1", message("waves_a_each_name"), {bigStep: 1, maxDecimals: 2}),
+                {key: "waves-half-waves", kind: "count", label: message("waves_half_waves_name"), placement: "board", min: R.halfWaves.min, max: R.halfWaves.max, help: message("waves_graph_half_waves_help")},
+            );
+            legend.push(
+                {id: "right", label: message("waves_legend_right"), kind: "dashed", object: "right"},
+                {id: "left", label: message("waves_legend_left"), kind: "dashed", object: "left"},
+                {id: "standing", label: message("waves_graph_mode_standing"), kind: "line", object: "standing"},
+                {id: "nodes", label: message("waves_legend_nodes"), kind: "ring", object: "nodes"},
+                {id: "antinodes", label: message("waves_legend_antinodes"), kind: "point", object: "antinodes"},
+            );
+        } else {
+            parameters.push(
+                range("waves-p1", "p1", message("waves_p_tone_name"), {unit: degrees, bigStep: 15, maxDecimals: 0}),
+                range("waves-f1", "f1", message("waves_f_tone_name"), {unit: hz, bigStep: 5, maxDecimals: 0}),
+                range("waves-fs", "fs", message("waves_fs_name"), {unit: hz, bigStep: 6, maxDecimals: 0}),
+            );
+            if (this.state.showSinc) parameters.push(range("waves-extra", "extra", message("waves_extra_name"), {bigStep: 48, maxDecimals: 0}));
+            toggle("show-alias", "showAlias", message("waves_alias_name"), message("waves_graph_show_alias_help"));
+            toggle("show-join", "showJoin", message("waves_join_name"), message("waves_graph_show_join_help"));
+            toggle("show-sinc", "showSinc", message("waves_sinc_name"), message("waves_graph_show_sinc_help"));
+            const facts = this.samplingFacts();
+            legend.push(
+                {id: "tone", label: message("waves_legend_tone"), kind: "line", object: "tone"},
+                {id: "dots", label: message("waves_legend_dots"), kind: "point", object: "dots"},
+                {id: "strip", label: message("waves_legend_strip"), kind: "line", object: "strip"},
+                {id: "true", label: message("waves_legend_true"), kind: "dashed", object: "true"},
+                {id: "film", label: message("waves_legend_film"), kind: "line", object: "film"},
+                {id: "alias", kind: "dashed", object: "alias",
+                 label: facts?.relation === "above" ? message("waves_legend_alias_exact")
+                     : message("waves_legend_alias", {value0: messageNumber(facts && !facts.alias.ambiguous ? facts.alias.signed : 0, 0)})},
+                {id: "join", label: message("waves_graph_show_join"), kind: "dashed", object: "join"},
+                {id: "sinc", label: message("waves_legend_sinc"), kind: "dashed", object: "sinc"},
+            );
+        }
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("waves_graph_readout_title"), rows: this.declaredRows()}],
+            notes: [{id: "status", text: this.statusMessage()}, {id: "computed", text: message("waves_graph_computed_note"), tone: "muted"}],
+            legend,
+            actions,
+            marks: this.viewMarks(),
+        };
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.named.get(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const filled = element.elType === "point" && id !== "nodes";
+        return {color: String(drawn.evalVisProp(filled ? "fillcolor" : "strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        const toggles: Readonly<Record<WavesIds["action"], WavesToggleField>> = {
+            "show-phasors": "showPhasors", "show-envelope": "showEnvelope", "show-alias": "showAlias", "show-join": "showJoin", "show-sinc": "showSinc",
+        };
+        const field = (toggles as Readonly<Record<string, WavesToggleField | undefined>>)[id];
+        if (!field) throw new Error("Unknown action");
+        runAs("learner", () => this.editToggle(field, !this.state[field]));
     }
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
-    private toggle(field: WavesToggleField, labelKey: "waves_graph_show_phasors" | "waves_graph_show_envelope" | "waves_graph_show_alias" | "waves_graph_show_join" | "waves_graph_show_sinc",
+    private toggle(field: WavesToggleField, action: WavesIds["action"], labelKey: "waves_graph_show_phasors" | "waves_graph_show_envelope" | "waves_graph_show_alias" | "waves_graph_show_join" | "waves_graph_show_sinc",
                    helpKey: "waves_graph_show_phasors_help" | "waves_graph_show_envelope_help" | "waves_graph_show_alias_help" | "waves_graph_show_join_help" | "waves_graph_show_sinc_help"): JSX.Element {
-        return <BooleanField key={field} variant="switch" label={t(labelKey)} help={t(helpKey)} checked={this.state[field]} onChange={on => this.editToggle(field, on)}/>;
+        return <PuckOwned key={field} param={action}><BooleanField variant="switch" label={t(labelKey)} help={t(helpKey)} checked={this.state[field]} onChange={on => this.editToggle(field, on)}/></PuckOwned>;
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -1070,44 +1225,44 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                           onChange={value => { const mode = WAVES_MODES.find(candidate => candidate === value); if (mode) this.editMode(mode); }}/>,
         ];
         if (state.mode === "sum") {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_sum_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
-                    onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="p1" customText={t("waves_graph_p1_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
-                    onChange={value => this.editNumber("p1", value)}/>,
-                <Slider key="a2" customText={t("waves_graph_a2_label")} value={state.a2} min={R.a2.min} max={R.a2.max} step={R.a2.step} grid={R.a2.step} bigStep={1}
-                    onChange={value => this.editNumber("a2", value)}/>,
-                <Slider key="p2" customText={t("waves_graph_p2_label")} value={state.p2} min={R.p2.min} max={R.p2.max} step={R.p2.step} grid={R.p2.step} bigStep={15}
-                    onChange={value => this.editNumber("p2", value)}/>,
-                <Slider key="f1" customText={t("waves_graph_f_both_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
-                    onChange={value => this.editNumber("f1", value)}/>,
-                this.toggle("showPhasors", "waves_graph_show_phasors", "waves_graph_show_phasors_help"));
+            commands.push(<PuckOwned key="a1" param="waves-a1"><Slider customText={t("waves_graph_a1_sum_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/></PuckOwned>,
+                <PuckOwned key="p1" param="waves-p1"><Slider customText={t("waves_graph_p1_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
+                    onChange={value => this.editNumber("p1", value)}/></PuckOwned>,
+                <PuckOwned key="a2" param="waves-a2"><Slider customText={t("waves_graph_a2_label")} value={state.a2} min={R.a2.min} max={R.a2.max} step={R.a2.step} grid={R.a2.step} bigStep={1}
+                    onChange={value => this.editNumber("a2", value)}/></PuckOwned>,
+                <PuckOwned key="p2" param="waves-p2"><Slider customText={t("waves_graph_p2_label")} value={state.p2} min={R.p2.min} max={R.p2.max} step={R.p2.step} grid={R.p2.step} bigStep={15}
+                    onChange={value => this.editNumber("p2", value)}/></PuckOwned>,
+                <PuckOwned key="f1" param="waves-f1"><Slider customText={t("waves_graph_f_both_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
+                    onChange={value => this.editNumber("f1", value)}/></PuckOwned>,
+                this.toggle("showPhasors", "show-phasors", "waves_graph_show_phasors", "waves_graph_show_phasors_help"));
         } else if (state.mode === "beats") {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
-                    onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="f1" customText={t("waves_graph_f1_beats_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5} help={t("waves_graph_f_beats_help")}
-                    onChange={value => this.editNumber("f1", value)}/>,
-                <Slider key="f2" customText={t("waves_graph_f2_beats_label")} value={state.f2} min={R.f2.min} max={R.f2.max} step={R.f2.step} grid={R.f2.step} bigStep={5} help={t("waves_graph_f_beats_help")}
-                    onChange={value => this.editNumber("f2", value)}/>,
-                this.toggle("showEnvelope", "waves_graph_show_envelope", "waves_graph_show_envelope_help"));
+            commands.push(<PuckOwned key="a1" param="waves-a1"><Slider customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/></PuckOwned>,
+                <PuckOwned key="f1" param="waves-f1"><Slider customText={t("waves_graph_f1_beats_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5} help={t("waves_graph_f_beats_help")}
+                    onChange={value => this.editNumber("f1", value)}/></PuckOwned>,
+                <PuckOwned key="f2" param="waves-f2"><Slider customText={t("waves_graph_f2_beats_label")} value={state.f2} min={R.f2.min} max={R.f2.max} step={R.f2.step} grid={R.f2.step} bigStep={5} help={t("waves_graph_f_beats_help")}
+                    onChange={value => this.editNumber("f2", value)}/></PuckOwned>,
+                this.toggle("showEnvelope", "show-envelope", "waves_graph_show_envelope", "waves_graph_show_envelope_help"));
         } else if (state.mode === "standing") {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
-                    onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="halfWaves" customText={t("waves_graph_half_waves_label")} value={state.halfWaves} min={R.halfWaves.min} max={R.halfWaves.max} step={R.halfWaves.step} grid={R.halfWaves.step} bigStep={1} help={t("waves_graph_half_waves_help")}
-                    onChange={value => this.editNumber("halfWaves", value)}/>);
+            commands.push(<PuckOwned key="a1" param="waves-a1"><Slider customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/></PuckOwned>,
+                <PuckOwned key="halfWaves" param="waves-half-waves"><Slider customText={t("waves_graph_half_waves_label")} value={state.halfWaves} min={R.halfWaves.min} max={R.halfWaves.max} step={R.halfWaves.step} grid={R.halfWaves.step} bigStep={1} help={t("waves_graph_half_waves_help")}
+                    onChange={value => this.editNumber("halfWaves", value)}/></PuckOwned>);
         } else {
-            commands.push(<Slider key="a1" customText={t("waves_graph_a1_tone_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
-                    onChange={value => this.editNumber("a1", value)}/>,
-                <Slider key="p1" customText={t("waves_graph_p1_tone_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
-                    onChange={value => this.editNumber("p1", value)}/>,
-                <Slider key="f1" customText={t("waves_graph_f_tone_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
-                    onChange={value => this.editNumber("f1", value)}/>,
-                <Slider key="fs" customText={t("waves_graph_fs_label")} value={state.fs} min={R.fs.min} max={R.fs.max} step={R.fs.step} grid={R.fs.step} bigStep={6} help={t("waves_graph_fs_help")}
-                    onChange={value => this.editNumber("fs", value)}/>,
-                this.toggle("showAlias", "waves_graph_show_alias", "waves_graph_show_alias_help"),
-                this.toggle("showJoin", "waves_graph_show_join", "waves_graph_show_join_help"),
-                this.toggle("showSinc", "waves_graph_show_sinc", "waves_graph_show_sinc_help"));
-            if (state.showSinc) commands.push(<Slider key="extra" customText={t("waves_graph_extra_label")} value={state.extra} min={R.extra.min} max={R.extra.max} step={R.extra.step} grid={R.extra.step} bigStep={48}
-                    onChange={value => this.editNumber("extra", value)}/>);
+            commands.push(<PuckOwned key="a1" param="waves-a1"><Slider customText={t("waves_graph_a1_tone_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/></PuckOwned>,
+                <PuckOwned key="p1" param="waves-p1"><Slider customText={t("waves_graph_p1_tone_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
+                    onChange={value => this.editNumber("p1", value)}/></PuckOwned>,
+                <PuckOwned key="f1" param="waves-f1"><Slider customText={t("waves_graph_f_tone_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
+                    onChange={value => this.editNumber("f1", value)}/></PuckOwned>,
+                <PuckOwned key="fs" param="waves-fs"><Slider customText={t("waves_graph_fs_label")} value={state.fs} min={R.fs.min} max={R.fs.max} step={R.fs.step} grid={R.fs.step} bigStep={6} help={t("waves_graph_fs_help")}
+                    onChange={value => this.editNumber("fs", value)}/></PuckOwned>,
+                this.toggle("showAlias", "show-alias", "waves_graph_show_alias", "waves_graph_show_alias_help"),
+                this.toggle("showJoin", "show-join", "waves_graph_show_join", "waves_graph_show_join_help"),
+                this.toggle("showSinc", "show-sinc", "waves_graph_show_sinc", "waves_graph_show_sinc_help"));
+            if (state.showSinc) commands.push(<PuckOwned key="extra" param="waves-extra"><Slider customText={t("waves_graph_extra_label")} value={state.extra} min={R.extra.min} max={R.extra.max} step={R.extra.step} grid={R.extra.step} bigStep={48}
+                    onChange={value => this.editNumber("extra", value)}/></PuckOwned>);
         }
         return commands;
     }
@@ -1153,11 +1308,11 @@ function WavesReadout(props: {graph: WavesGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <div className="inspector-group" data-declared-panel="">
         <ReadoutHeading>{text("waves_graph_readout_title")}</ReadoutHeading>
-        <p data-waves-status="">{graph.statusText()}</p>
+        <p data-waves-status="" data-readout-note="">{graph.statusText()}</p>
         <ReadoutList label={text("waves_graph_readout_title")} rows={graph.readoutRows()}/>
-        <p data-waves-note="">{text("waves_graph_computed_note")}</p>
+        <p data-waves-note="" data-readout-note="">{text("waves_graph_computed_note")}</p>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
     </div>;
 }

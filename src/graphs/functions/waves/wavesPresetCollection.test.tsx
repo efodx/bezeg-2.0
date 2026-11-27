@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../base/GraphHost';
 import type {PresetDataCheck} from '../../base/presets/PresetCollection';
 import {installBoardShims} from '../../base/realGraphTestHarness';
+import {runAs} from '../../base/writes/writeSource';
 import {renderMessage, setLanguage} from '../../../localization';
 import {DEFAULT_WAVES_STATE, serializeWavesState, type WavesState} from '../../../waves/wavesModel';
 import {WavesGraph} from '../WavesGraph';
@@ -25,7 +26,7 @@ const sampling: WavesState = {...DEFAULT_WAVES_STATE, mode: 'sampling', a1: 2.5,
 describe('waves Preset collection', () => {
     test.each([['the default', DEFAULT_WAVES_STATE], ['a sampling view with the options switched', sampling]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new WavesGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => source.setState(state)); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('waves');
         expect(preset.data).toEqual(serializeWavesState(state));
@@ -59,7 +60,7 @@ describe('a Preset file with a stored view keeps that view', () => {
     test('the sampling view is imported with the stored boardState, not refitted to the frame of the mode', () => {
         const view: [number, number, number, number] = [-3.5, 4.25, 6.5, -2.75];
         const source = mountGraph(new ViewedWaves());
-        act(() => { source.setState(sampling); });
+        act(() => { runAs('learner', () => source.setState(sampling)); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedWaves());
         act(() => { fresh.importPreset(preset); });
