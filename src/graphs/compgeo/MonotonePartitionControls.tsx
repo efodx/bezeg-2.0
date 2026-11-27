@@ -1,8 +1,8 @@
 import React from "react";
-import {useT} from "../../localization";
-import {SWEEP_COORD_LIMIT, SWEEP_MAX_POLYGON_VERTICES} from "../../compgeo/sweep/limits";
+import {renderMessage, useT} from "../../localization";
 import type {VertexType} from "../../compgeo/sweep/monotonePartition";
 import {edgeName, type PartitionEventInfo, type PartitionRun, vertexName} from "./monotonePartitionRun";
+import {monotonePartitionNotes, partitionEventMessage, partitionRefusalMessage, type MonotonePartitionNoteId} from "./monotonePartitionNotes";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
@@ -55,36 +55,14 @@ export function reasonText(t: Translate, type: VertexType): string {
     }
 }
 
-export function refusalText(t: Translate, run: PartitionRun): string | undefined {
-    const refusal = run.refusal;
-    if (!refusal) return undefined;
-    const vertex = refusal.index === undefined ? "" : vertexName(refusal.index);
-    switch (refusal.reason) {
-        case "fewer-than-three": return t("monotonepartition_refused_fewer_than_three");
-        case "too-many": return t("monotonepartition_refused_too_many", {value0: SWEEP_MAX_POLYGON_VERTICES});
-        case "not-grid":
-        case "not-a-point": return t("monotonepartition_refused_not_grid", {value0: vertex});
-        case "out-of-range": return t("monotonepartition_refused_out_of_range", {value0: vertex, value1: SWEEP_COORD_LIMIT});
-        case "not-simple": {
-            const [a, b] = refusal.edges ?? [0, 0];
-            return t("monotonepartition_refused_not_simple", {value0: edgeName(a), value1: edgeName(b)});
-        }
-        case "collinear-vertices": return t("monotonepartition_refused_collinear", {value0: vertex});
-    }
+/** The refusal of the polygon as text; `t` is kept for the signature the triangulation panel calls (the text is the catalog message). */
+export function refusalText(_t: Translate, run: PartitionRun): string | undefined {
+    const refusal = partitionRefusalMessage(run);
+    return refusal ? renderMessage(refusal) : undefined;
 }
 
-export function noteText(t: Translate, event: PartitionEventInfo, run: PartitionRun, type: VertexType | null): string {
-    switch (event.note) {
-        case "phase": return t("monotonepartition_note_phase");
-        case "pop": return t("monotonepartition_note_pop", {value0: vertexName(event.vertex ?? 0), value1: type ? vertexTypeText(t, type) : ""});
-        case "insert": return t("monotonepartition_note_insert", {value0: edgeName(event.edge ?? 0), value1: event.statusSize ?? 0});
-        case "remove": return t("monotonepartition_note_remove", {value0: edgeName(event.edge ?? 0), value1: event.statusSize ?? 0});
-        case "diagonal": {
-            const [a, b] = event.diagonal ?? [0, 0];
-            return t("monotonepartition_note_diagonal", {value0: vertexName(a), value1: vertexName(b)});
-        }
-        case "done": return t("monotonepartition_note_done", {value0: run.pieces.length});
-    }
+export function noteText(_t: Translate, event: PartitionEventInfo, run: PartitionRun, type: VertexType | null): string {
+    return renderMessage(partitionEventMessage(event, run, type));
 }
 
 /**
@@ -96,23 +74,17 @@ export function noteText(t: Translate, event: PartitionEventInfo, run: Partition
 export function MonotonePartitionControls(props: MonotonePartitionControlsProps) {
     const t = useT();
     const {run, step, playing, exampleId, actions, children} = props;
-    const refusal = refusalText(t, run);
+    const notes = monotonePartitionNotes(run, step);
+    const text = (id: MonotonePartitionNoteId) => {
+        const note = notes.find(candidate => candidate.id === id);
+        return note ? renderMessage(note.text) : undefined;
+    };
+    const refusal = text("refusal");
     const traced = refusal === undefined && run.length > 0;
     const atEnd = step >= run.length - 1;
-    const view = run.view(step);
-    const event = run.event(step);
     const stepText = stepCounterText(t, step, run.length);
-    const noteLine = event ? noteText(t, event, run, view.type) : undefined;
-    const diagonalNames = view.diagonals.map(([a, b]) => `${vertexName(a)}–${vertexName(b)}`).join(", ");
-    const counts = run.typeCounts;
-    const summary = view.done ? t("monotonepartition_summary", {value0: run.pieces.length, value1: run.diagonals.length}) : undefined;
-    const typeCounts = view.done ? t("monotonepartition_type_counts", {
-        value0: counts.start, value1: counts.end, value2: counts.split, value3: counts.merge, value4: counts.regular,
-    }) : undefined;
-    const balance = view.done ? t("monotonepartition_balance", {
-        value0: counts.start, value1: counts.split, value2: counts.start + counts.split,
-        value3: counts.end, value4: counts.merge, value5: counts.end + counts.merge,
-    }) : undefined;
+    const noteLine = text("note");
+    const summary = text("summary");
     // Silent while Play runs (the region's mute); announces once on Pause or at the end.
     const liveReadout = useStatusReadout(traced ? [stepText, noteLine, summary].filter(Boolean).join(". ") : "", true);
     return <>
@@ -128,23 +100,23 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
                            options={[{id: "example-1", text: t("monotonepartition_example_1")}, {id: "example-2", text: t("monotonepartition_example_2")}]}/>
         </div>
         <div className="inspector-group" data-monotone-partition-status="">
+            <div data-declared-panel="">
             {refusal && <p data-readout-note className="inspector-help" role="alert" data-monotone-partition="refusal">{refusal}</p>}
             {traced && <>
-                {run.reversed && <p data-readout-note className="inspector-help" data-monotone-partition="reversed">{t("monotonepartition_reversed_note")}</p>}
+                {run.reversed && <p data-readout-note className="inspector-help" data-monotone-partition="reversed">{text("reversed")}</p>}
                 <StepCounter step={step} length={run.length} hooks={{"data-monotone-partition": "step", "data-readout-note": ""}}/>
                 {noteLine && <p data-readout-note className="inspector-help" data-monotone-partition="note">{noteLine}</p>}
-                {view.vertex !== null && view.type !== null && <>
-                    <p data-readout-note className="inspector-help" data-monotone-partition="vertex">
-                        {t("monotonepartition_vertex", {value0: vertexName(view.vertex), value1: vertexTypeText(t, view.type)})}</p>
-                    <p data-readout-note className="inspector-help" data-monotone-partition="reason">{reasonText(t, view.type)}</p>
+                {text("vertex") && <>
+                    <p data-readout-note className="inspector-help" data-monotone-partition="vertex">{text("vertex")}</p>
+                    <p data-readout-note className="inspector-help" data-monotone-partition="reason">{text("reason")}</p>
                 </>}
-                <p data-readout-note className="inspector-help" data-monotone-partition="diagonals">
-                    {view.diagonals.length > 0
-                        ? t("monotonepartition_diagonals", {value0: view.diagonals.length, value1: diagonalNames})
-                        : t("monotonepartition_diagonals_none")}</p>
+                <p data-readout-note className="inspector-help" data-monotone-partition="diagonals">{text("diagonals")}</p>
                 {summary && <p data-readout-note className="inspector-help" data-monotone-partition="summary">{summary}</p>}
-                {typeCounts && <p data-readout-note className="inspector-help" data-monotone-partition="type-counts">{typeCounts}</p>}
-                {balance && <p data-readout-note className="inspector-help" data-monotone-partition="balance">{balance}</p>}
+                {text("type-counts") && <p data-readout-note className="inspector-help" data-monotone-partition="type-counts">{text("type-counts")}</p>}
+                {text("balance") && <p data-readout-note className="inspector-help" data-monotone-partition="balance">{text("balance")}</p>}
+            </>}
+            </div>
+            {traced && <>
                 <LiveReadout readout={liveReadout} muted={playing} dataAttribute="monotone-partition-live"/>
                 {children && <div data-monotone-partition-lists="">{children}</div>}
             </>}

@@ -1,11 +1,10 @@
 import React from "react";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
-import {useLanguage, useT} from "../../localization";
+import {renderMessage, useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {intervalLetter} from "../../compgeo/pointSetModel";
-import {SWEEP_COORD_LIMIT, SWEEP_MAX_INTERVALS} from "../../compgeo/sweep/limits";
-import type {IntervalPair} from "../../compgeo/sweep/intervalSweep";
-import type {IntervalEventInfo, IntervalRun, IntervalView} from "./intervalSweepRun";
+import type {IntervalRun} from "./intervalSweepRun";
+import {intervalSweepNotes, type IntervalSweepNoteId} from "./intervalSweepNotes";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
@@ -31,39 +30,6 @@ export interface IntervalSweepControlsProps {
     children?: React.ReactNode;
 }
 
-type Translate = ReturnType<typeof useT>;
-
-const pairText = (pair: IntervalPair) => intervalLetter(pair[0]) + intervalLetter(pair[1]);
-
-function refusalText(t: Translate, run: IntervalRun): string | undefined {
-    const refusal = run.refusal;
-    if (!refusal) return undefined;
-    const letter = intervalLetter(refusal.index ?? 0);
-    switch (refusal.reason) {
-        case "too-many": return t("intervalsweep_refused_too_many", {value0: SWEEP_MAX_INTERVALS});
-        case "inverted": return t("intervalsweep_refused_inverted", {value0: letter});
-        case "not-grid":
-        case "not-a-point": return t("intervalsweep_refused_not_grid", {value0: letter});
-        case "out-of-range": return t("intervalsweep_refused_out_of_range", {value0: letter, value1: SWEEP_COORD_LIMIT});
-    }
-}
-
-function noteText(t: Translate, event: IntervalEventInfo, view: IntervalView, num: (value: number) => string): string {
-    const letter = event.interval === undefined ? "" : intervalLetter(event.interval);
-    switch (event.note) {
-        case "pop": return event.entering
-            ? t("intervalsweep_note_pop_enter", {value0: num(event.x ?? 0), value1: letter})
-            : t("intervalsweep_note_pop_leave", {value0: num(event.x ?? 0), value1: letter});
-        case "enter": return t("intervalsweep_note_enter", {value0: letter, value1: view.open.length});
-        case "leave": return t("intervalsweep_note_leave", {value0: letter, value1: view.open.length});
-        case "report": {
-            const pair = event.pair ? pairText(event.pair) : "";
-            return event.touching ? t("intervalsweep_note_report_touch", {value0: pair}) : t("intervalsweep_note_report_overlap", {value0: pair});
-        }
-        case "done": return t("intervalsweep_note_done");
-    }
-}
-
 /**
  * Next step / Play / Pause / Reset and the readouts of the interval sweep: step, note, open count, open counts so far, maximum
  * (with its range once done), reported pairs, the comparison with testing all pairs (once done) and the tie rule. A refused
@@ -71,23 +37,18 @@ function noteText(t: Translate, event: IntervalEventInfo, view: IntervalView, nu
  */
 export function IntervalSweepControls(props: IntervalSweepControlsProps) {
     const t = useT();
-    const {language} = useLanguage();
     const {run, step, playing, scale, actions, children} = props;
-    const refusal = refusalText(t, run);
     const atEnd = step >= run.length - 1;
-    const num = (value: number) => formatNumber(value * scale, language, 4);
-    const event = run.event(step);
-    const view = run.view(step);
+    const notes = intervalSweepNotes(run, step, scale);
+    const text = (id: IntervalSweepNoteId) => {
+        const note = notes.find(candidate => candidate.id === id);
+        return note ? renderMessage(note.text) : undefined;
+    };
+    const refusal = text("refusal");
     const n = run.intervals.length;
     const stepText = stepCounterText(t, step, run.length);
-    const noteLine = event ? noteText(t, event, view, num) : undefined;
-    const maxText = view.done
-        ? t("intervalsweep_max_final", {value0: run.maxOpen, value1: run.maxStart === null ? "?" : num(run.maxStart), value2: run.maxEnd === null ? "?" : num(run.maxEnd)})
-        : t("intervalsweep_max_so_far", {value0: view.maxSoFar});
-    const pairsText = view.pairs.length
-        ? t("intervalsweep_pairs", {value0: view.pairs.length, value1: view.pairs.map(pairText).join(", ")})
-        : t("intervalsweep_pairs_none");
-    const comparison = view.done ? t("intervalsweep_comparison", {value0: view.pairs.length, value1: (n * (n - 1)) / 2}) : undefined;
+    const noteLine = text("note");
+    const comparison = text("comparison");
     const announcement = refusal || n === 0 ? "" : [stepText, noteLine, comparison].filter(Boolean).join(". ");
     const liveReadout = useStatusReadout(announcement, true);
     return <>
@@ -99,18 +60,20 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
             <p className="inspector-help" data-interval-sweep="tie-rule">{t("intervalsweep_tie_rule")}</p>
         </div>
         <div className="inspector-group" data-interval-sweep-status="">
+            <div data-declared-panel="">
             {refusal && <p data-readout-note className="inspector-help" role="alert" data-interval-sweep="refusal">{refusal}</p>}
-            {!refusal && n === 0 && <p className="inspector-help" data-interval-sweep="empty">{t("intervalsweep_no_intervals")}</p>}
+            {!refusal && n === 0 && <p data-readout-note className="inspector-help" data-interval-sweep="empty">{text("empty")}</p>}
             {!refusal && n > 0 && <>
                 <StepCounter step={step} length={run.length} hooks={{"data-interval-sweep": "step", "data-readout-note": ""}}/>
                 {noteLine && <p data-readout-note className="inspector-help" data-interval-sweep="note">{noteLine}</p>}
-                <p data-readout-note className="inspector-help" data-interval-sweep="open">{t("intervalsweep_open_count", {value0: view.open.length})}</p>
-                <p data-readout-note className="inspector-help" data-interval-sweep="counts">{t("intervalsweep_counts", {value0: view.counts.join(", ")})}</p>
-                <p data-readout-note className="inspector-help" data-interval-sweep="max">{maxText}</p>
-                <p data-readout-note className="inspector-help" data-interval-sweep="pairs">{pairsText}</p>
+                <p data-readout-note className="inspector-help" data-interval-sweep="open">{text("open")}</p>
+                <p data-readout-note className="inspector-help" data-interval-sweep="counts">{text("counts")}</p>
+                <p data-readout-note className="inspector-help" data-interval-sweep="max">{text("max")}</p>
+                <p data-readout-note className="inspector-help" data-interval-sweep="pairs">{text("pairs")}</p>
                 {comparison && <p data-readout-note className="inspector-help" data-interval-sweep="comparison">{comparison}</p>}
-                {children && <div data-interval-sweep-lists="">{children}</div>}
             </>}
+            </div>
+            {!refusal && n > 0 && children && <div data-interval-sweep-lists="">{children}</div>}
         </div>
         {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces once on Pause or at the end. */}
         <LiveReadout readout={liveReadout} muted={playing} dataAttribute="interval-sweep-live"/>

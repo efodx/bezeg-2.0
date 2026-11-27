@@ -85,3 +85,26 @@ Scratch scripts in `.command-logs/` (ed3.py, ed4.py) are mine; delete or ignore.
   - Left: the expected-observation "Pri „obdrži vse kopije“" (names the state, not a control).
 - Slovenian of the puck labels vs the lesson: Izpusti/Obdrži match "izpustimo/obdržimo" of the rule texts, Združi/Vse kopije match "združi v eno/obdrži vse kopije", Nenatančno/Natančno match "Nenatančno (double)/Natančno" and the lesson's "nenatančen/natančen". No mismatch after the rewording above (the old "druži" was the only error).
 - Observed green: `graph-check hull-robustness --route compgeo/hull-robustness` all pass (contract, parity, golden, declaration, shared 74); fortune parity; the family unit command; tsc empty; lint of all changed files; `just build`; `just smoke-lesson fortune hull-robustness --port 4395 --workers=1`. Not verified: inspector-width screenshots, browser probe/fuzz.
+
+
+## Session 3a: interval-sweep and monotone-partition (green; build and smoke recorded below)
+
+### interval-sweep
+- Parity: `data-readout-note` added to the `empty` sentence ("Ni intervalov. ...", text unchanged; every other sentence was marked); SAMPLES entry + `__parity__/interval-sweep.json` (8 states) recorded before converting. No golden difference (graph-check golden passes).
+- New pure `intervalSweepNotes.ts` (ids refusal/empty/step/note/open/counts/max/pairs/comparison; x values as `messageNumber(.., 4)`, same rendering as `formatNumber(.., 4)`); `IntervalSweepControls` renders the panel from it and wraps the status sentences in `data-declared-panel` (the event queue/status lists stay in Orodja, below it; `SweepSideLists.tsx` untouched). Fragment `fragments/interval-sweep.ts` (legend open/pair).
+- Placement: the sweep-line switch stays in Orodja display (its name "Pometalna premica" is 17 characters, over the puck limit, and the lessons set it by scene); playback in Orodja section `playback` (no board UI for non-puck actions); legend: points, sweep (line), open intervals (line), reported pair (dashed). Marks: the points only (the sweep line moves inside the data).
+- Frames `isFrame`: observation highlights on intervals (step/open/pairs), events (open/counts), pairs (pairs/max), compare (max/pairs/comparison); events explanation `uses next-step`, `open tools`; predict not highlighted. No prose names a moved control ("Naslednji korak" is still the action label), no rewording.
+- Test `IntervalSweepGraph.declaration.test.tsx` (11 tests). Red check: `play` action `pressed: !this.isPlaying` -> "AssertionError: expected false to be true", restored.
+
+### monotone-partition
+- Parity: all sentences were already marked; SAMPLES entry + `__parity__/monotone-partition.json` (10 states) recorded before converting. Golden passes.
+- New pure `monotonePartitionNotes.ts` (ids refusal/reversed/step/note/vertex/reason/diagonals/summary/type-counts/balance). `MonotonePartitionControls` renders from it; the exported `refusalText`/`noteText` that the triangulation panel calls keep their signature (first parameter now `_t`, unused) and render the same catalog messages; `vertexTypeText`/`reasonText` unchanged. Fragment `fragments/monotone-partition.ts` (legend status/diagonal/pieces/types).
+- Sibling: `MonotonePartitionGraph.declaresPartitionWorkspace()` (default true) feeds `declaresPointSetWorkspace()`; one-line `false` override in `MonotoneTriangulationGraph.tsx` (outside my owned list, as the hull-robustness precedent in session 1; session 3b removes it). Declaration test asserts the triangulation graph has no declaration; its host and lesson tests stayed green.
+- Placement: sweep switch ("Pometalna premica in vrste oglišč", 34 characters) display in Orodja; playback in Orodja; example select and the status/queue lists in Orodja. Legend: points, sweep, status edges, diagonal (dashed), pieces (area, at the end), vertex types (point).
+- Frames `mpFrame`: polygon (step/diagonals), classify explanation `uses next-step` + observation (vertex/reason), helper (note), diagonal (note/diagonals), pieces (summary), merge-only (summary/type-counts).
+- Test `MonotonePartitionGraph.declaration.test.tsx` (14 tests). Red check: same `pressed` break -> "AssertionError: expected false to be true", restored.
+- Lesson prose: nothing reworded in either lesson ("pod grafom" untouched).
+
+### Observed
+- `just graph-check interval-sweep --route compgeo/interval-sweep` and `... monotone-partition --route compgeo/monotone-partition`: contract, parity, golden, declaration, shared 74 pass (browser skipped). tsc empty; lint of changed files passed.
+- `just unit src/graphs/compgeo src/graphs/base/PlaybackRoutes.test.tsx src/learning/content src/localization src/graphs/base/declare` passed; `just build` passed (warnings present, not inspected); `just smoke-lesson interval-sweep monotone-partition --port 4395 --workers=1` passed. Not verified: inspector-width screenshots, browser probe/fuzz.

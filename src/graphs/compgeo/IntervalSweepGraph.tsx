@@ -1,5 +1,8 @@
 import React from "react";
-import {t} from "../../localization";
+import {message, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {intervalSweepNotes, type IntervalSweepNoteId} from "./intervalSweepNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {gridToBoard, intervalRow, intervalsOf, PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_INTERVALS} from "../../compgeo/sweep/limits";
@@ -23,6 +26,14 @@ import {parseHullStep} from "./hullTraceRun";
 export const INTERVAL_SWEEP_STEP_INTERVAL_MS = 400;
 
 export type IntervalSweepOverlayId = "sweep";
+
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches and the playback. */
+export type IntervalSweepIds = {
+    param: never; row: never; note: IntervalSweepNoteId;
+    legend: "points" | "sweep" | "open" | "pair";
+    section: "display" | "playback";
+    action: "grid" | IntervalSweepOverlayId | "next-step" | "play" | "reset";
+};
 
 /** The saved configuration beyond the intervals: the step index. Playback status is never state. */
 export interface IntervalSweepGraphState extends PointSetGraphState {
@@ -301,6 +312,64 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
             }
         }
         return objects;
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: IntervalSweepOverlayId | "grid"): Message {
+        return id === "sweep" ? message("intervalsweep_overlay_sweep") : super.overlayMessage(id);
+    }
+
+    // The sweep line is the only overlay and a display switch in Orodja (the lessons set it by scene action); its name is longer than a puck label.
+    protected override overlaySwatch(id: IntervalSweepOverlayId | "grid") {
+        return id === "sweep" ? {kind: "line" as const, color: GraphPalette.constructionAccent} : undefined;
+    }
+
+    protected override pointSetNotes(): readonly ReadoutNote<IntervalSweepIds>[] {
+        return intervalSweepNotes(this.run(), this.step, 2 ** this.model.gridStepExponent);
+    }
+
+    /** What the sweep draws at this step beyond the overlay switch: the open intervals and the reported pair. */
+    private sweepDrawn(): {open: boolean; pair: boolean} {
+        const run = this.run();
+        if (!this.hasBoard || run.refusal || run.length === 0) return {open: false, pair: false};
+        const view = run.view(this.step);
+        return {open: view.open.length > 0 || view.current !== undefined, pair: view.pair !== undefined};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id === "open") return {color: ACTIVE_CONSTRUCTION_COLOR, visible: this.sweepDrawn().open};
+        if (id === "pair") return {color: GraphPalette.comparisonCurve, visible: this.sweepDrawn().pair};
+        return super.drawnObject(id);
+    }
+
+    protected override declaration(): GraphDeclaration<IntervalSweepIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<IntervalSweepIds> | undefined;
+        if (!common) return undefined;
+        const run = this.run();
+        const traced = run.refusal === undefined && run.length > 0;
+        const legend: LegendEntry<IntervalSweepIds>[] = [
+            ...(common.legend ?? []),
+            {id: "open", label: message("intervalsweep_legend_open"), kind: "line", object: "open"},
+            {id: "pair", label: message("intervalsweep_legend_pair"), kind: "dashed", object: "pair"},
+        ];
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<IntervalSweepIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("next_step"), enabled: traced && this.step < run.length - 1 && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: traced, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: this.step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, legend, actions};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

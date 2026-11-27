@@ -1,0 +1,171 @@
+{
+  "graph": "monotone-partition",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 15",
+        "Večkotnik in pometalna premica nad njim. Oglišča bomo obdelali od zgoraj navzdol.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 2",
+      "rows": [],
+      "notes": [
+        "Korak 3 od 15",
+        "Rob e6 vstopi v stanje (robov v stanju: 1).",
+        "Oglišče v6 je začetno.",
+        "Obe sosednji oglišči sta pod njim in notranji kot je manjši od π.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "example 1, step 5",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 15",
+        "Obdelamo oglišče v5 (zlivno).",
+        "Oglišče v5 je zlivno.",
+        "Obe sosednji oglišči sta nad njim in notranji kot je večji od π.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "example 1, step 8",
+      "rows": [],
+      "notes": [
+        "Korak 9 od 15",
+        "Dodana je diagonala v2-v5.",
+        "Oglišče v2 je razcepno.",
+        "Obe sosednji oglišči sta pod njim in notranji kot je večji od π.",
+        "Diagonale doslej (1): v2-v5"
+      ],
+      "outputs": [],
+      "captions": [
+        "v2 razcepno",
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "example 1, end",
+      "rows": [],
+      "notes": [
+        "Korak 15 od 15",
+        "Končano: večkotnik je razdeljen na monotone večkotnike (glede na os y), njihovo število je 2.",
+        "Oglišče v3 je končno.",
+        "Obe sosednji oglišči sta nad njim in notranji kot je manjši od π.",
+        "Diagonale doslej (1): v2-v5",
+        "Kosov je 2 = število diagonal (1) + 1.",
+        "Oglišča po vrstah: začetnih 2, končnih 2, razcepnih 1, zlivnih 1, navadnih 0.",
+        "Začetna + razcepna = 2 + 1 = 3; končna + zlivna = 2 + 1 = 3."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "v1 končno",
+        "v2 razcepno",
+        "v3 končno",
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "example 2, step 4",
+      "rows": [],
+      "notes": [
+        "Korak 5 od 21",
+        "Rob e8 vstopi v stanje (robov v stanju: 2).",
+        "Oglišče v8 je začetno.",
+        "Obe sosednji oglišči sta pod njim in notranji kot je manjši od π.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "v6 začetno",
+        "v8 začetno"
+      ]
+    },
+    {
+      "name": "example 2, end",
+      "rows": [],
+      "notes": [
+        "Korak 21 od 21",
+        "Končano: večkotnik je razdeljen na monotone večkotnike (glede na os y), njihovo število je 3.",
+        "Oglišče v1 je končno.",
+        "Obe sosednji oglišči sta nad njim in notranji kot je manjši od π.",
+        "Diagonale doslej (2): v5-v7, v3-v5",
+        "Kosov je 3 = število diagonal (2) + 1.",
+        "Oglišča po vrstah: začetnih 3, končnih 1, razcepnih 0, zlivnih 2, navadnih 3.",
+        "Začetna + razcepna = 3 + 0 = 3; končna + zlivna = 1 + 2 = 3."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "v1 končno",
+        "v2 navadno",
+        "v3 navadno",
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno",
+        "v7 zlivno",
+        "v8 začetno",
+        "v9 navadno"
+      ]
+    },
+    {
+      "name": "clockwise polygon, step 2",
+      "rows": [],
+      "notes": [
+        "Večkotnik teče v smeri urnega kazalca; za razdelitev ga obrnemo. Shranjeni večkotnik se ne spremeni.",
+        "Korak 3 od 14",
+        "Rob e2 vstopi v stanje (robov v stanju: 1).",
+        "Oglišče v2 je začetno.",
+        "Obe sosednji oglišči sta pod njim in notranji kot je manjši od π.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "v2 začetno"
+      ]
+    },
+    {
+      "name": "self-crossing polygon",
+      "rows": [],
+      "notes": [
+        "Razdelitev je zavrnjena: roba e1 in e3 se sekata ali dotikata. Premakni oglišče, da bo večkotnik enostaven."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Razdelitev je zavrnjena: večkotnik potrebuje vsaj tri oglišča. Dodaj oglišča."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

@@ -362,6 +362,57 @@ const SAMPLES: readonly Sample[] = [
             step('one site', run(0, undefined, [[0, 0]])),
         ];
     })()},
+    {file: 'compgeo/__parity__/interval-sweep.json', demonstration: 'interval-sweep', states: (() => {
+        type Sweep = {applyPointSetAction(action: unknown): void; loadModel(model: unknown): void};
+        const intervals = (pairs: [number, number][]) => ({mode: 'intervals', closed: false, gridStepExponent: 0,
+            points: pairs.flatMap(([a, b], k) => [{x: a, y: k + 1}, {x: b, y: k + 1}])});
+        const ties: [number, number][] = [[0, 3], [3, 6], [3, 3], [5, 8]];
+        const run = (steps: number | 'end', pairs?: [number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Sweep;
+                if (pairs) g.loadModel(intervals(pairs));
+                g.applyPointSetAction({kind: 'point-set', operation: 'set-trace-step', step: steps});
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('example 1, step 1', run(1)),
+            step('example 1, step 4 (pair reported)', run(4)),
+            step('example 1, step 6', run(6)),
+            step('example 1, end', run('end')),
+            step('ties, step 3', run(3, ties)),
+            step('ties, end', run('end', ties)),
+            step('no intervals', run(0, [])),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/monotone-partition.json', demonstration: 'monotone-partition', states: (() => {
+        type Partition = {applyPointSetAction(action: unknown): void; loadModel(model: unknown): void};
+        const polygon = (points: [number, number][]) => ({mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        const example2: [number, number][] = [[4, 0], [10, 2], [8, 5], [12, 9], [7, 7], [5, 12], [3, 7], [0, 9], [2, 4]];
+        const clockwise: [number, number][] = [[0, 0], [0, 4], [3, 2], [6, 4], [6, 0]];
+        const bowtie: [number, number][] = [[0, 0], [4, 4], [4, 0], [0, 4]];
+        const run = (steps: number | 'end', points?: [number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Partition;
+                if (points) g.loadModel(polygon(points));
+                g.applyPointSetAction({kind: 'point-set', operation: 'set-trace-step', step: steps});
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('example 1, step 2', run(2)),
+            step('example 1, step 5', run(5)),
+            step('example 1, step 8', run(8)),
+            step('example 1, end', run('end')),
+            step('example 2, step 4', run(4, example2)),
+            step('example 2, end', run('end', example2)),
+            step('clockwise polygon, step 2', run(2, clockwise)),
+            step('self-crossing polygon', run(0, bowtie)),
+            step('two points', run(0, [[0, 0], [3, 1]])),
+        ];
+    })()},
     {file: 'compgeo/__parity__/bezier-clipping.json', demonstration: 'bezier-clipping', states: (() => {
         type Pair = [number, number][];
         type Clipping = {applyPointSetAction(action: unknown): void; setClipTolerance(exponent: number): boolean};

@@ -15,6 +15,8 @@ import type {DelaunayIds} from '../../graphs/compgeo/DelaunayGraph';
 import type {EarClippingIds} from '../../graphs/compgeo/EarClippingGraph';
 import type {FortuneIds} from '../../graphs/compgeo/FortuneGraph';
 import type {HullRobustnessIds} from '../../graphs/compgeo/HullRobustnessGraph';
+import type {IntervalSweepIds} from '../../graphs/compgeo/IntervalSweepGraph';
+import type {MonotonePartitionIds} from '../../graphs/compgeo/MonotonePartitionGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -25,6 +27,8 @@ const delFrame = frameDeclarer<DelaunayIds>();
 const earFrame = frameDeclarer<EarClippingIds>();
 const fortFrame = frameDeclarer<FortuneIds>();
 const robFrame = frameDeclarer<HullRobustnessIds>();
+const isFrame = frameDeclarer<IntervalSweepIds>();
+const mpFrame = frameDeclarer<MonotonePartitionIds>();
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -1748,7 +1752,7 @@ const intervalSweep: GuidedLesson = {
                 'On the \\(x\\)-axis there are five intervals \\(a=[0,4]\\), \\(b=[2,7]\\), \\(c=[3,5]\\), \\(d=[6,9]\\), \\(e=[8,10]\\); each is in its own row so that they do not overlap in the picture. We ask which pairs share a point and how many intervals share a point at most. The sweep line is a vertical line that moves from left to right. It stands at \\(x=0\\), the readout shows "Step 1 of 26" and there are \\(0\\) open intervals; playback is stopped.',
             ),
             formulaIds: ['interval-open-count'],
-            frames: [frame('intervalsweep-intervals-explanation', 'explanation'), frame('intervalsweep-intervals-observation', 'observation')],
+            frames: [frame('intervalsweep-intervals-explanation', 'explanation'), frame('intervalsweep-intervals-observation', 'observation', isFrame({highlight: ['step', 'open', 'pairs']}))],
             observationPrompt: text('Poglej intervale in z očmi poišči pare, ki se prekrivajo.', 'Look at the intervals and find, by eye, the pairs that overlap.'),
             expectedObservations: [text('Sledi je na koraku \\(1\\) od \\(26\\), odprtih intervalov je \\(0\\) in noben par še ni najden.', 'The trace is at step \\(1\\) of \\(26\\), there are \\(0\\) open intervals and no pair is found yet.')],
             scene: sweepScene('intervalsweep-intervals', INTERVAL_EXAMPLE, [],
@@ -1780,7 +1784,7 @@ const intervalSweep: GuidedLesson = {
                 'The events are the endpoints of the intervals; the event queue keeps them in order: \\(0^+,2^+,3^+,4^-,5^-,6^+,7^-,8^+,9^-,10^-\\), where \\(x^+\\) means entering and \\(x^-\\) leaving. The sweep line jumps to the first event in the queue and handles it; the status is the set of intervals the line currently cuts. The rule at equal coordinates: an entering event is handled before a leaving event, because the intervals are closed. Six presses of Next step are already done: the line stands at \\(x=3\\), the status holds \\(a\\), \\(b\\), \\(c\\), there are \\(3\\) open intervals, and the readout "Open after each event" shows \\(1, 2, 3\\) (step \\(7\\) of \\(26\\)).',
             ),
             formulaIds: ['interval-open-count'], workedExampleId: 'interval-depth-example',
-            frames: [frame('intervalsweep-events-explanation', 'explanation'), frame('intervalsweep-events-calculation', 'calculation'), frame('intervalsweep-events-observation', 'observation')],
+            frames: [frame('intervalsweep-events-explanation', 'explanation', isFrame({uses: ['next-step'], open: ['tools']})), frame('intervalsweep-events-calculation', 'calculation'), frame('intervalsweep-events-observation', 'observation', isFrame({highlight: ['open', 'counts']}))],
             observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem dogodku povej, ali stanje naraste ali se skrči.', 'Press Next step and, at each event, say whether the status grows or shrinks.'),
             expectedObservations: [text('Po treh vstopih je premica pri \\(x=3\\) in odprta so \\(3\\) intervali; izstop \\(4^-\\) bo število zmanjšal na \\(2\\).', 'After three entering events the line is at \\(x=3\\) and \\(3\\) intervals are open; the leaving event \\(4^-\\) will lower the number to \\(2\\).')],
             scene: sweepScene('intervalsweep-events', INTERVAL_EXAMPLE, nextSteps(INTERVAL_TRACE_STEPS.thirdEnter),
@@ -1796,7 +1800,7 @@ const intervalSweep: GuidedLesson = {
                 'A pair is reported when an interval enters while another is open: when \\(b\\) enters, \\(a\\) is open and the pair \\(ab\\) appears; when \\(c\\) enters, \\(a\\) and \\(b\\) are open, so \\(ac\\) and \\(bc\\) appear. Twenty presses of Next step are already done: the line is at \\(x=8\\), \\(e\\) has just entered and the pair \\(de\\) is reported. The readout shows "Step 21 of 26", the overlapping pairs so far are \\(5\\): \\(ab, ac, bc, bd, de\\); the open counts after the events are \\(1, 2, 3, 2, 1, 2, 1, 2\\) and the largest open count so far is \\(3\\).',
             ),
             formulaIds: ['interval-open-count'], workedExampleId: 'interval-depth-example',
-            frames: [frame('intervalsweep-pairs-explanation', 'explanation'), frame('intervalsweep-pairs-calculation', 'calculation'), frame('intervalsweep-pairs-observation', 'observation')],
+            frames: [frame('intervalsweep-pairs-explanation', 'explanation'), frame('intervalsweep-pairs-calculation', 'calculation'), frame('intervalsweep-pairs-observation', 'observation', isFrame({highlight: ['pairs', 'max']}))],
             observationPrompt: text('Preveri, da vsak par na seznamu res ima skupno točko, in poišči par, ki ga na seznamu ni.', 'Check that every pair on the list really shares a point, and find a pair that is not on the list.'),
             expectedObservations: [text('Pet parov \\(ab, ac, bc, bd, de\\) ima skupno točko; največ odprtih doslej je \\(3\\), na koraku \\(21\\) od \\(26\\).', 'The five pairs \\(ab, ac, bc, bd, de\\) share a point; the largest open count so far is \\(3\\), at step \\(21\\) of \\(26\\).')],
             scene: sweepScene('intervalsweep-pairs', INTERVAL_EXAMPLE, nextSteps(INTERVAL_TRACE_STEPS.pairsFound),
@@ -1812,7 +1816,7 @@ const intervalSweep: GuidedLesson = {
                 'The trace has run to the end (step \\(26\\) of \\(26\\)). The open counts after all the events are \\(1, 2, 3, 2, 1, 2, 1, 2, 1, 0\\); the largest is \\(3\\), on \\([3, 4]\\), where \\(a\\), \\(b\\), \\(c\\) overlap. \\(5\\) pairs are found, whereas without sweeping all \\(\\binom{5}{2}=10\\) pairs would be tested. The readout says "Pairs found: 5; testing all pairs would take 10 tests". With five intervals the difference is small; with hundreds of intervals it would be large.',
             ),
             formulaIds: ['interval-pair-count'], workedExampleId: 'interval-pairs-example',
-            frames: [frame('intervalsweep-compare-explanation', 'explanation'), frame('intervalsweep-compare-calculation', 'calculation'), frame('intervalsweep-compare-observation', 'observation')],
+            frames: [frame('intervalsweep-compare-explanation', 'explanation'), frame('intervalsweep-compare-calculation', 'calculation'), frame('intervalsweep-compare-observation', 'observation', isFrame({highlight: ['max', 'pairs', 'comparison']}))],
             observationPrompt: text('Primerjaj najdene pare s številom vseh parov in preveri svojo napoved največjega števila.', 'Compare the pairs found with the number of all pairs, and check your prediction of the maximum.'),
             expectedObservations: [text('Največ odprtih je \\(3\\) na \\([3, 4]\\); najdenih je \\(5\\) parov od \\(10\\).', 'The most open is \\(3\\) on \\([3, 4]\\); \\(5\\) pairs are found out of \\(10\\).')],
             scene: sweepScene('intervalsweep-compare', INTERVAL_EXAMPLE, [setTraceStep('end')],
@@ -2173,7 +2177,7 @@ const monotonePartition: GuidedLesson = {
                 'The polygon has the vertices \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\) and \\((4,8)\\) and area \\(40\\). It is monotone with respect to the \\(y\\)-axis if every horizontal line meets it in a single segment. This polygon is not monotone: the horizontal line at \\(y=2\\) meets it in two separate segments, because the vertex \\((4,3)\\) is a dent from below. The sweep line is at the top and the trace is at step \\(1\\) of \\(15\\).',
             ),
             formulaIds: ['monotone-piece-count'],
-            frames: [frame('monpart-polygon-explanation', 'explanation'), frame('monpart-polygon-observation', 'observation')],
+            frames: [frame('monpart-polygon-explanation', 'explanation'), frame('monpart-polygon-observation', 'observation', mpFrame({highlight: ['step', 'diagonals']}))],
             observationPrompt: text('Poglej večkotnik in poišči mesta, kjer bi vodoravna premica presekala večkotnik v več kot eni daljici.', 'Look at the polygon and find the places where a horizontal line would meet it in more than one segment.'),
             expectedObservations: [text('Sled je na koraku \\(1\\) od \\(15\\), diagonal še ni in vrste oglišč še niso razkrite.', 'The trace is at step \\(1\\) of \\(15\\), there are no diagonals yet and the vertex types are not revealed.')],
             scene: monotoneScene('monpart-polygon', MONOTONE_EXAMPLE_1, [],
@@ -2205,7 +2209,7 @@ const monotonePartition: GuidedLesson = {
                 'The vertices are handled from top to bottom, at equal height the one with the smaller \\(x\\) first. So the first two are \\((4,8)\\) and \\((12,8)\\), both start vertices: both neighbours are below them and the interior angle is smaller than \\(\\pi\\). The third is \\((8,5)\\): both neighbours are above it and the interior angle is greater than \\(\\pi\\), so it is a merge vertex. The trace is at step \\(6\\) of \\(15\\); the status holds the edges \\(e_6\\) from \\((4,8)\\) and \\(e_4\\) from \\((12,8)\\), which bound the interior on the left. Three consecutive collinear vertices are refused, because their type is not defined.',
             ),
             formulaIds: ['monotone-type-balance'],
-            frames: [frame('monpart-classify-explanation', 'explanation'), frame('monpart-classify-observation', 'observation')],
+            frames: [frame('monpart-classify-explanation', 'explanation', mpFrame({uses: ['next-step'], open: ['tools']})), frame('monpart-classify-observation', 'observation', mpFrame({highlight: ['vertex', 'reason']}))],
             observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem obdelanem oglišču preberi vrsto in razlog v izpisu.', 'Press Next step and, at each vertex handled, read its type and the reason in the readout.'),
             expectedObservations: [text('Po treh obdelanih ogliščih je zadnje, \\(v_5=(8,5)\\), zlivno; stanje ima dva roba, \\(e_6\\) in \\(e_4\\), in diagonal še ni.', 'After three vertices handled, the last one, \\(v_5=(8,5)\\), is a merge vertex; the status has two edges, \\(e_6\\) and \\(e_4\\), and there are no diagonals yet.')],
             scene: monotoneScene('monpart-classify', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRACE_STEPS.classified)],
@@ -2221,7 +2225,7 @@ const monotonePartition: GuidedLesson = {
                 'The status holds the edges on the left of the interior, each with a helper: the lowest vertex handled so far that can be joined to the edge without crossing the polygon. When the merge vertex \\((8,5)\\) is handled, the edge \\(e_4\\) leaves the status and the left edge \\(e_6\\) gets \\((8,5)\\) as its helper. The trace is at step \\(7\\) of \\(15\\); the status has one edge, \\(e_6\\), with the helper \\(v_5\\).',
             ),
             formulaIds: ['monotone-type-balance'],
-            frames: [frame('monpart-helper-explanation', 'explanation'), frame('monpart-helper-observation', 'observation')],
+            frames: [frame('monpart-helper-explanation', 'explanation'), frame('monpart-helper-observation', 'observation', mpFrame({highlight: ['note']}))],
             observationPrompt: text('V seznamu stanja poišči rob \\(e_6\\) in njegovega pomočnika.', 'In the status list find the edge \\(e_6\\) and its helper.'),
             expectedObservations: [text('Stanje je \\(e_6\\) s pomočnikom \\(v_5=(8,5)\\); diagonal še ni.', 'The status is \\(e_6\\) with the helper \\(v_5=(8,5)\\); there are no diagonals yet.')],
             scene: monotoneScene('monpart-helper', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRACE_STEPS.helper)],
@@ -2237,7 +2241,7 @@ const monotonePartition: GuidedLesson = {
                 'Next comes the vertex \\((4,3)\\): both neighbours are below it and the interior angle is greater than \\(\\pi\\), so it is a split vertex. The line splits there, so we join it to the helper of the edge on its left, the merge vertex \\((8,5)\\). The diagonal \\((4,3)(8,5)\\) is added. The trace is at step \\(9\\) of \\(15\\) and the readout lists one diagonal \\(v_2\\)–\\(v_5\\).',
             ),
             formulaIds: ['monotone-piece-count'],
-            frames: [frame('monpart-diagonal-explanation', 'explanation'), frame('monpart-diagonal-observation', 'observation')],
+            frames: [frame('monpart-diagonal-explanation', 'explanation'), frame('monpart-diagonal-observation', 'observation', mpFrame({highlight: ['note', 'diagonals']}))],
             observationPrompt: text('Poglej, katero oglišče je pomočnik in kam leži diagonala glede na obe oglišči.', 'Look at which vertex is the helper and where the diagonal lies relative to both vertices.'),
             expectedObservations: [text('Diagonal je \\(1\\): \\(v_2\\)–\\(v_5\\), torej \\((4,3)(8,5)\\); stanje je \\(e_6\\) s pomočnikom \\(v_2\\).', 'There is \\(1\\) diagonal: \\(v_2\\)–\\(v_5\\), that is \\((4,3)(8,5)\\); the status is \\(e_6\\) with the helper \\(v_2\\).')],
             scene: monotoneScene('monpart-diagonal', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRACE_STEPS.diagonal)],
@@ -2253,7 +2257,7 @@ const monotonePartition: GuidedLesson = {
                 'The trace has run to the end (step \\(15\\) of \\(15\\)). The polygon is cut into the pieces \\((0,0),(4,3),(8,5),(4,8)\\) and \\((4,3),(8,0),(12,8),(8,5)\\), each of area \\(20\\), together \\(40\\). Each piece is monotone with respect to the \\(y\\)-axis: a horizontal line meets it in one segment. There are \\(2=1+1\\) pieces. There are \\(2+1=3\\) start and split vertices and also \\(2+1=3\\) end and merge vertices.',
             ),
             formulaIds: ['monotone-piece-count', 'monotone-type-balance'], workedExampleId: 'monotone-piece-area-example',
-            frames: [frame('monpart-pieces-explanation', 'explanation'), frame('monpart-pieces-calculation', 'calculation'), frame('monpart-pieces-observation', 'observation')],
+            frames: [frame('monpart-pieces-explanation', 'explanation'), frame('monpart-pieces-calculation', 'calculation'), frame('monpart-pieces-observation', 'observation', mpFrame({highlight: ['summary']}))],
             observationPrompt: text('Preveri, da se ploščini kosov seštejeta v ploščino večkotnika, in primerjaj izpis z napovedjo.', 'Check that the areas of the pieces add up to the area of the polygon, and compare the readout with your prediction.'),
             expectedObservations: [text('Kosov je \\(2\\) = število diagonal (\\(1\\)) + \\(1\\); oglišč je začetnih \\(2\\), končnih \\(2\\), razcepnih \\(1\\), zlivnih \\(1\\), navadnih \\(0\\).', 'There are \\(2\\) pieces = number of diagonals (\\(1\\)) + \\(1\\); the vertices are \\(2\\) start, \\(2\\) end, \\(1\\) split, \\(1\\) merge and \\(0\\) regular.')],
             scene: monotoneScene('monpart-pieces', MONOTONE_EXAMPLE_1, [setTraceStep('end')],
@@ -2269,7 +2273,7 @@ const monotonePartition: GuidedLesson = {
                 'The second polygon has nine vertices: three start, one end, three regular and two merge vertices, and no split vertex. It is still not monotone, and the merge vertices \\((3,7)\\) and \\((7,7)\\) need diagonals: \\((7,7)\\) is joined to \\((3,7)\\), the helper of the left edge, and then the vertex \\((8,5)\\) is joined to \\((7,7)\\). The vertices \\((3,7)\\) and \\((7,7)\\) are at equal height, so the tie rule applies: smaller \\(x\\) first. The trace is at step \\(21\\) of \\(21\\): \\(2\\) diagonals, \\(3\\) pieces of areas \\(10\\), \\(42\\) and \\(6\\), together \\(58\\).',
             ),
             formulaIds: ['monotone-piece-count', 'monotone-type-balance'],
-            frames: [frame('monpart-merge-only-explanation', 'explanation'), frame('monpart-merge-only-observation', 'observation')],
+            frames: [frame('monpart-merge-only-explanation', 'explanation'), frame('monpart-merge-only-observation', 'observation', mpFrame({highlight: ['summary', 'type-counts']}))],
             observationPrompt: text('Preštej zlivna oglišča in diagonale in preveri, da je kosov za ena več kot diagonal.', 'Count the merge vertices and the diagonals and check that the number of pieces is one more than the number of diagonals.'),
             expectedObservations: [text('Začetnih je \\(3\\), končnih \\(1\\), razcepnih \\(0\\), zlivnih \\(2\\), navadnih \\(3\\); diagonali sta \\(v_5\\)–\\(v_7\\) in \\(v_3\\)–\\(v_5\\), kosov je \\(3=2+1\\).', 'There are \\(3\\) start, \\(1\\) end, \\(0\\) split, \\(2\\) merge and \\(3\\) regular vertices; the diagonals are \\(v_5\\)–\\(v_7\\) and \\(v_3\\)–\\(v_5\\), and there are \\(3=2+1\\) pieces.')],
             scene: monotoneScene('monpart-merge-only', MONOTONE_EXAMPLE_2, [setTraceStep(MONOTONE_TRACE_STEPS.secondDone)],

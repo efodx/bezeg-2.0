@@ -1,5 +1,8 @@
 import React from "react";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {monotonePartitionNotes, type MonotonePartitionNoteId} from "./monotonePartitionNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -28,6 +31,14 @@ import {parseHullStep} from "./hullTraceRun";
 /** Time between two playback steps (one step per trace event, never more). */
 export const MONOTONE_PARTITION_STEP_INTERVAL_MS = 500;
 export type MonotonePartitionOverlayId = "sweep";
+
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches and the playback. */
+export type MonotonePartitionIds = {
+    param: never; row: never; note: MonotonePartitionNoteId;
+    legend: "points" | "sweep" | "status" | "diagonal" | "pieces" | "types";
+    section: "display" | "playback";
+    action: "grid" | MonotonePartitionOverlayId | "next-step" | "play" | "reset";
+};
 
 /** The saved configuration beyond the polygon: the step index. Playback status is never state. */
 export interface MonotonePartitionGraphState extends PointSetGraphState {
@@ -345,6 +356,74 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
             }));
         }
         return objects;
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+
+    /** Whether this class declares its workspace; the triangulation graph (a later session) inherits the class and says no until it is converted. */
+    protected declaresPartitionWorkspace(): boolean { return true; }
+
+    protected override declaresPointSetWorkspace() { return this.declaresPartitionWorkspace(); }
+
+    protected override overlayMessage(id: MonotonePartitionOverlayId | "grid"): Message {
+        return id === "sweep" ? message("monotonepartition_overlay_sweep") : super.overlayMessage(id);
+    }
+
+    // The sweep line is the only overlay and a display switch in Orodja (the lessons set it by scene action); its name is longer than a puck label.
+    protected override overlaySwatch(id: MonotonePartitionOverlayId | "grid") {
+        return id === "sweep" ? {kind: "line" as const, color: GraphPalette.constructionAccent} : undefined;
+    }
+
+    protected override pointSetNotes(): readonly ReadoutNote<MonotonePartitionIds>[] {
+        return monotonePartitionNotes(this.run(), this.step);
+    }
+
+    /** What the sweep draws at this step beyond the overlay switch: status edges, diagonals, the finished pieces and the type markers. */
+    private partitionDrawn(): {status: boolean; diagonals: boolean; pieces: boolean; types: boolean} {
+        const run = this.run();
+        if (!this.hasBoard || run.refusal !== undefined || run.length === 0) return {status: false, diagonals: false, pieces: false, types: false};
+        const view = run.view(this.step);
+        return {status: view.status.length > 0, diagonals: view.diagonals.length > 0, pieces: view.done, types: view.processed.length > 0};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.partitionDrawn();
+        switch (id) {
+            case "status": return {color: GraphPalette.primaryCurve, visible: drawn.status};
+            case "diagonal": return {color: GraphPalette.warningText, visible: drawn.diagonals};
+            case "pieces": return {color: PIECE_FILLS[0], visible: drawn.pieces};
+            case "types": return {color: TYPE_COLOURS.split, visible: drawn.types};
+            default: return super.drawnObject(id);
+        }
+    }
+
+    protected override declaration(): GraphDeclaration<MonotonePartitionIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<MonotonePartitionIds> | undefined;
+        if (!common) return undefined;
+        const run = this.run();
+        const traced = run.refusal === undefined && run.length > 0;
+        const legend: LegendEntry<MonotonePartitionIds>[] = [
+            ...(common.legend ?? []),
+            {id: "status", label: message("monotonepartition_legend_status"), kind: "line", object: "status"},
+            {id: "diagonal", label: message("monotonepartition_legend_diagonal"), kind: "dashed", object: "diagonal"},
+            {id: "pieces", label: message("monotonepartition_legend_pieces"), kind: "area", object: "pieces"},
+            {id: "types", label: message("monotonepartition_legend_types"), kind: "point", object: "types"},
+        ];
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<MonotonePartitionIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("next_step"), enabled: traced && this.step < run.length - 1 && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: traced, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: this.step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, legend, actions};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

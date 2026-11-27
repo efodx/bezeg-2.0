@@ -281,6 +281,9 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
             id === "example-1" ? MONOTONE_TRIANGULATION_EXAMPLE_1 : id === "example-2" ? MONOTONE_TRIANGULATION_EXAMPLE_2 : MONOTONE_TRIANGULATION_EXAMPLE_3),
     };
 
+    /** Not declared until its own conversion (task 08, a later session); the partition declaration describes the partition readout only. */
+    protected override declaresPartitionWorkspace(): boolean { return false; }
+
     protected override sideLists(): React.ReactNode {
         return <MonotoneTriangulationLists run={this.run()} step={this.step}/>;
     }
