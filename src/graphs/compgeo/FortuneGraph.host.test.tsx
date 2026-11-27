@@ -39,7 +39,7 @@ class Observed extends FortuneGraph {
     owned() { return {sweep: this['sweep'], final: this['final']}; }
 }
 
-type Shown = {elType: string; name?: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number};
+type Shown = {elType: string; name?: string; id?: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number};
 const everything = (graph: Observed) => graph.liveBoard().objectsList as Shown[];
 const named = (graph: Observed, ...names: string[]) => everything(graph).filter(o => names.includes(o.name ?? ''));
 const beachSamples = (graph: Observed) => (named(graph, 'fortune-beach')[0]?.dataX ?? []).length;
@@ -271,8 +271,8 @@ test('ownership: scene replacement, an example, Reset and 20 step changes with a
     const graph = new Observed();
     mount(graph);
     act(() => graph.goTo(3));
-    // Axis tick labels depend on the shown box (a view director fits it), not on what the scene owns.
-    const count = () => everything(graph).filter(o => o.elType !== 'label').length;
+    // Axis tick labels depend on the shown box (a view director fits it), not on what the scene owns; scene labels still count.
+    const count = () => everything(graph).filter(o => !(o.elType === 'label' && (o.id ?? '').includes('_ticks_'))).length;
     const before = count();
     const ours = () => everything(graph).filter(o => /^(fortune|voronoi)-/.test(o.name ?? '')).length;
     const oursBefore = ours();

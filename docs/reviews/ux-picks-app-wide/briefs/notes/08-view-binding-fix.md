@@ -12,3 +12,8 @@ Consequences fixed in tests (all were untagged programmatic view writes, or assu
 - FortuneGraph ownership count ignores axis tick labels (their number follows the shown box).
 
 Browser: screenshots in `.command-logs/view-fix/`. Morph: not exercised; the sampled steps of monotone-partition do not change the view scale.
+
+## Follow-up: test tightening
+- Bezier is a declared graph (BaseCurveGraph common declaration, marks) but binds no parameters; before cb59a901f `bindParameters` returned early, so `view` was never bound and no director existed. Reverting the line gives "expected undefined to be defined" on `viewDirector`.
+- CurveWorkspacePoints decision 6 now asserts the director exists, that declared `marks.must` follow a typed add/edit (700,-700; p0 y 800) and that the typed entry does not move the box. Broken (marks cache never invalidated) it fails: "expected false to be true" at line 67.
+- FortuneGraph ownership test filters only `_ticks_` labels, so scene labels count.

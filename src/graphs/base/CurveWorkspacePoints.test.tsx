@@ -56,13 +56,20 @@ describe('curve workspace point decisions on Bezier', () => {
         const drag = (point: unknown) => (point as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers(['drag'], []);
         act(() => { const jxg = curve().getJxgPoints()[1]; jxg.moveTo([900, 900]); drag(jxg); });
         expect(box(graph)).toEqual(WIDE);
-        // A graph with a view director is refitted to its declared marks by the director (needs layout geometry, absent here), never by the typed-entry fit.
-        const directed = (graph as unknown as {viewDirector?: unknown}).viewDirector !== undefined;
-        addAt('900', '900');
-        if (!directed) expect(box(graph)).not.toEqual(WIDE);
+        // Bezier declares marks and the workspace binds `view` (even with no parameters), so it has a view director: the typed-entry fit
+        // yields to it (`fitToVisiblePoints` returns), and the director refits to the declared marks, which must follow the typed point.
+        // The director needs layout geometry (absent in jsdom), so the box stays put here; the marks are what it would fit.
+        const internals = graph as unknown as {viewDirector?: unknown; declaration(): {marks?: {must: readonly {x: number; y: number}[]}} | undefined};
+        expect(internals.viewDirector).toBeDefined();
+        const mustHas = (x: number, y: number) => internals.declaration()!.marks!.must.some(mark => mark.x === x && mark.y === y);
+        expect(mustHas(700, -700)).toBe(false);
+        addAt('700', '-700');
+        expect(mustHas(700, -700)).toBe(true);
+        expect(box(graph)).toEqual(WIDE);
         setBox(graph, WIDE);
         enterNumber(field('p₀, y'), '800');
-        if (!directed) expect(box(graph)).not.toEqual(WIDE);
+        expect(mustHas(points()[0].X(), 800)).toBe(true);
+        expect(box(graph)).toEqual(WIDE);
         expect(points()[0].Y()).toBe(800);
     });
 
