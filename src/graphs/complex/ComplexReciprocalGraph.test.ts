@@ -7,7 +7,6 @@ import {DomainError} from '../functions/BaseFunctionGraph';
 import {revealButton} from "../functions/revealElementTree";
 
 const BOX = [-4.5, 4.5, 4.5, -4.5];
-const ZBAR = 'z̄';
 
 function fakeBoard() {
     const board: any = {
