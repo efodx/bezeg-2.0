@@ -85,7 +85,8 @@ test('rational: a typed point keeps every weight', async () => {
 });
 
 describe('a typed point refits the view only when it lies outside it (decision 6)', () => {
-    test.each(['decasteljau', 'spline-c1'] as DemonstrationId[])('%s', async id => {
+    // rational-elevation is the undeclared case: it is in task 08 lane L57 (round 22), so when that lane declares it, move it into the declared set.
+    test.each(['decasteljau', 'spline-c1', 'rational-elevation'] as DemonstrationId[])('%s', async id => {
         const graph = await mountReady(id);
         const board = curveAccess(graph).board();
         const view = () => board.getBoundingBox().join(',');
@@ -97,7 +98,7 @@ describe('a typed point refits the view only when it lies outside it (decision 6
         expect(view()).toBe(viewBefore);
         const far = Math.round(top + 10 * (top - bottom));
         enterNumber(field, String(far));
-        if (id === 'decasteljau') {
+        if (graph.getDeclaration() !== undefined) {
             // A declared graph: the old fit is skipped and the view director refits on its mark-change trigger (it needs a measured canvas, which jsdom lacks; the refit is covered by "a typed value that moves a must mark far outside the view" in src/workspace/view/viewDirector.test.ts).
             expect(view()).toBe(viewBefore);
             const marks = graph.getDeclaration()?.marks as {must: {y: number}[]} | undefined;

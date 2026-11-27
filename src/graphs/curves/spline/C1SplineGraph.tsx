@@ -18,6 +18,9 @@ class C1SplineGraph extends BaseSplineCurveGraph<BaseGraphStates> {
         return c1SplineDefaultPreset();
     }
 
+    /** Task 08: the first converted spline graph (legend, control polygon and hull pucks, view marks). */
+    protected override declaresSplineWorkspace(): boolean { return true; }
+
     override presetCollection() {
         return c1SplinePresetCollection;
     }

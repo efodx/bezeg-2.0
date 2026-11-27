@@ -1,5 +1,7 @@
 import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 import type {LessonCurveFixture, LessonViewBox} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SplineIds} from '../../graphs/curves/spline/BaseSplineCurveGraph';
 
 /**
  * Cohort E, spline routes: spline-cn, spline-c1, spline-c2, spline-g1, spline-g1-symmetric, spline-parameterization.
@@ -14,7 +16,9 @@ import type {LessonCurveFixture, LessonViewBox} from '../model';
  */
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the declared spline graphs' ids: an unknown control fails the type check. */
+const splineFrame = frameDeclarer<SplineIds>();
 
 const thesisSource = (id: string, where: string, implementationCorrespondence?: string): ContentSource => ({
     id,
@@ -315,9 +319,9 @@ const splineC1: GuidedLesson = {
                 'The joint \\(J_l\\) lies on the edge \\(p_lp_{l+1}\\) of the control polygon and divides it in the ratio \\(\\Delta u_{l-1}:\\Delta u_l\\). The spline has uniform spacing (each piece takes \\(\\tfrac12\\) of the parameter), so \\(J_l\\) is the midpoint: \\(J_1=(0,\\ 2)\\), the middle of the edge between \\(p_1=(-2,\\ 2)\\) and \\(p_2=(2,\\ 2)\\).',
             ),
             formulaIds: ['c1-junction'],
-            frames: [frame('c1-midpoint-explanation', 'explanation'), frame('c1-midpoint-calculation', 'calculation'), frame('c1-midpoint-observation', 'observation')],
+            frames: [frame('c1-midpoint-explanation', 'explanation'), frame('c1-midpoint-calculation', 'calculation'), frame('c1-midpoint-observation', 'observation', splineFrame({uses: ['control-polygon-0']}))],
             workedExampleId: 'c1-first-junction',
-            observationPrompt: text('Preveri s kontrolnim poligonom, da stična točka leži na sredini stranice \\(p_1p_2\\).', 'Use the control polygon to check that the joint lies at the middle of the edge \\(p_1p_2\\).'),
+            observationPrompt: text('S krmilnikom Kontrolni poligon prikaži poligon in preveri, da stična točka leži na sredini stranice \\(p_1p_2\\).', 'With the Control polygon control show the polygon and check that the joint lies at the middle of the edge \\(p_1p_2\\).'),
             expectedObservations: [text('Stična točka \\((0;\\ 2)\\) je na sredini stranice \\(p_1p_2\\); stranici \\(p_0p_1\\) in \\(p_2p_3\\) nimata stične točke.', 'The joint \\((0,\\ 2)\\) is at the middle of the edge \\(p_1p_2\\); the edges \\(p_0p_1\\) and \\(p_2p_3\\) have no joint.')],
             scene: {
                 id: 'c1-midpoint-polygon', basedOn: 'lesson-fixture',
@@ -336,8 +340,8 @@ const splineC1: GuidedLesson = {
                 'The pieces before and after a joint have their tangent along the edge \\(p_lp_{l+1}\\) there: the segments \\(p_lJ_l\\) and \\(J_lp_{l+1}\\) are parts of the same edge and the ratio of their lengths equals the ratio of the parameter intervals. So the derivatives agree (condition (4.3)) and the curve touches the control polygon at the joint. Here the derivative at the joint is nonzero and horizontal, parallel to the edge \\(p_1p_2\\).',
             ),
             formulaIds: ['c1-tangent'],
-            frames: [frame('c1-tangent-step-explanation', 'explanation'), frame('c1-tangent-step-observation', 'observation')],
-            observationPrompt: text('Sledi krivulji skozi stično točko in preveri, da se tam ne zlomi ter da se dotika poligona.', 'Follow the curve through the joint and check that it does not break there and that it touches the polygon.'),
+            frames: [frame('c1-tangent-step-explanation', 'explanation'), frame('c1-tangent-step-observation', 'observation', splineFrame({uses: ['control-polygon-0']}))],
+            observationPrompt: text('S krmilnikom Kontrolni poligon prikaži poligon, sledi krivulji skozi stično točko in preveri, da se tam ne zlomi ter da se dotika poligona.', 'With the Control polygon control show the polygon, follow the curve through the joint and check that it does not break there and that it touches the polygon.'),
             expectedObservations: [text('V stični točki je krivulja gladka in se dotika vodoravne stranice poligona \\(p_1p_2\\).', 'At the joint the curve is smooth and touches the horizontal edge \\(p_1p_2\\) of the polygon.')],
             scene: {
                 id: 'c1-tangent-polygon', basedOn: 'lesson-fixture',

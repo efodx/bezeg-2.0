@@ -39,54 +39,77 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 
 ## Status
 
-Rewritten by handler 2 (2026-11-27). Present state only.
+Rewritten by handler 2 at its soft budget (2026-11-27). Present state only.
 
 ### Where
 
 - Worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/lane-b`, branch `lane-b` (`node_modules` junction;
-  unlink with PowerShell before ever removing). Last merged `board-workspace-2` (incl. L39 waves `fd9072f80`) after
-  `17b84ef59`; merge again before a lane if A has moved far (conflicts so far: list unions in `fragments/index.ts`,
-  `parity.test.tsx`, `AnalysisFirstTask.test.tsx`, the L50 notes; keep both sides).
+  unlink with PowerShell before ever removing). Last merge of `board-workspace-2`: `f95cfcbb7` (before A's L42 tip
+  `85c4efe8a`). Merge again before each lane; conflicts are list unions in `fragments/index.ts`, `parity.test.tsx`,
+  `*FirstTask.test.tsx`, lesson files and the lane notes: keep both sides (a Sonnet worker resolves them; check for
+  leftover markers with Grep `^(<<<<<<<|>>>>>>>)` before committing the merge).
 - Stream A = **"Board workspace handler 13"**: send every accepted commit id there; it cherry-picks and publishes.
 - Lane-b Vite dev server on 4484 (`npx vite --port 4484 --strictPort --host 127.0.0.1`, background; check the port's
-  process before restarting): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395.
+  owner before restarting, it may already be running): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395.
 
-### Done
+### Done (all sent to A and picked)
 
-- **L54 complete** (15 compgeo demos; all picked by A). View-binding base fix `cb59a901f` + `2420f7a87`.
-- **L50 complete** (8 demos): accumulation `43e4628db`, convexity `42d6cb877` + `706f45046`, `c26f785a3`, darboux
-  `f7f55df5d`, extrema `b9d478a81`, fixed-point `56c18c651`, sequence `e67860b95`, mean-value `17b84ef59`,
-  uniform-convergence `4e8a0b0aa` (all sent to A and picked).
-- **L49 so far:** curve-comb `44ca2f919`, curve-curvature `524e4ab08`, curve-envelope `62cb9d1e6` (sent; comb and curvature
-  picked). Last merge of `board-workspace-2`: `b7a2d4a93` (unit suite green there; parity flake fixed by A in `05f203d21`).
+- **L54** (15 compgeo demos) and the view-binding base fix `cb59a901f` + `2420f7a87`.
+- **L50** (8 analysis demos): accumulation `43e4628db`, convexity `42d6cb877`/`706f45046`/`c26f785a3`, darboux `f7f55df5d`,
+  extrema `b9d478a81`, fixed-point `56c18c651`, sequence `e67860b95`, mean-value `17b84ef59`, uniform-convergence `4e8a0b0aa`.
+- **L49** (6 curve-geometry demos): curve-comb `44ca2f919`, curve-curvature `524e4ab08`, curve-envelope `62cb9d1e6`,
+  curve-evolute `5c130f94a`, curve-offset `34039cc2c`, curve-parametric `3ff7fc670`.
+
+### In progress
+
+- **L44 spline-c1: converted and verified, UNCOMMITTED in the lane-b tree** (notes `briefs/notes/08-lane-L44.md`,
+  "spline-c1"). Hook: `BaseSplineCurveGraph.declaresSplineWorkspace()` (default false; joins in marks, `followView` around
+  free points and joins); the next spline graph only overrides it. Checks pass (tsc, lint, build, FirstTask, round trip,
+  graph-check, smoke-lesson; parity n/a, golden unchanged; 8 captions clear). **One blocker:** shared
+  `src/graphs/curves/typedPointPaths.test.tsx:88-110` uses spline-c1 as its *undeclared* fixture and now fails
+  (`expected 5 to be greater than 55`, :108). Ask stream A whether to switch that fixture to an undeclared spline
+  (spline-c2) or move spline-c1 into the declared branch; apply it, rerun that test, then review the Slovenian
+  (two reworded observation prompts in `splineGuidedLessons.ts`) and commit. Stale rows for A:
+  `demonstration-preview-recipes.cjs:33`, `demonstration-preview-curve-motion.cjs:382`.
 
 ### Waiting on stream A
 
-- **Do not start L47 until A sends the L42 ids** (A's L42 may add opt-in hooks to `IterativeFunctionGraph.tsx`; merge
-  them first). L44 is free.
-- Nothing else blocking. A repoints stale clip/preview/perf script rows (controls that became pucks) in one pass; lane workers
-  list them in notes and B forwards them.
+- Nothing blocking. A repoints stale clip/preview/perf script rows (controls that became pucks) in one pass; lane workers
+  list them in notes and B forwards them. Stale rows from L44 so far: `demonstration-preview-recipes.cjs:33`,
+  `demonstration-preview-curve-motion.cjs:382` (spline-c1).
+- Shared `typedPointPaths.test.tsx` refit test: stream A (handler 13) decided spline-c1 moves to the declared branch;
+  the undeclared case uses a graph outside L44 with a comment naming its lane.
 
-### Rules learned (in `briefs/08-lane-L50.md` and `briefs/08-lane-L49.md`; copy into L44/L47 briefs)
+### How a demonstration goes (pattern that worked in L49)
 
-- One demonstration per Sonnet worker; most need a second (finish) worker for tests, checks and the browser check.
-- Before declaring a graph, grep shared tests for it as an "undeclared graph" fixture (fixed-point broke `BoardCards` /
-  `LessonCard` tests and a publish).
-- FirstTask "pucks" tests query `#board-card-tools` after `openTools()`, and show red.
-- Board labels vs cards: measure room against `this.boardView.intent().box` (extrema, L50 notes 4c); views that would put
-  watched objects under cards get a declared `followView` box (sequence `followBox`, notes 6c).
-- Owner, 2026-11-27: remove board caption lines that repeat a legend entry or readout row; formula becomes a `formula` row.
-- Handler checks the Slovenian rewording itself, looks at the 1280x720 step-5 capture, then re-records the golden
-  (`BEZEG_PARITY_GOLDEN_RECORD=1 BEZEG_PARITY_GOLDEN_ID=<id> just unit src/graphs/base/declare/parityGolden.test.tsx`)
-  only for captions/rows/labels moving to cards.
-- Prose: "vklopi krmilnik X" / "turn on the X control", "s krmilnikom X"; readouts "v kartici Odčitki".
+1. Dispatch one Sonnet `bezeg-worker` with a short prompt: "read `briefs/08-lane-<L>.md` whole; finished examples <ids>;
+   settled rules; order (a) fixture grep + parity, (b) conversion, (c) tests red first, (d) checks, (e) browser captions,
+   view every image; ≤300 words; notes section <id>". It usually hands off partway at 175k.
+2. Dispatch a finish worker from its notes section: the failing tests, smoke probes (`#board-card-readouts`, open the
+   card in that step, no mangled escapes), checks, captions.
+3. Accept: read the reworded Slovenian yourself (imperatives "povečaj/premakni/vklopi"; pucks "s krmilnikom X", bare
+   names; Orodja controls "V kartici Orodja izberi …"; readouts "v kartici Odčitki"); open the 1280x720 step-5 capture;
+   if the curve is squeezed, require a declared `followView` box with a red-first test. Then re-record the golden
+   (`BEZEG_PARITY_GOLDEN_RECORD=1 BEZEG_PARITY_GOLDEN_ID=<id> just unit src/graphs/base/declare/parityGolden.test.tsx`)
+   when only captions/rows moved, commit with explicit paths (skip `*.report.txt`), send the id to A.
+
+### Rules learned (in the L49/L44 briefs; copy into the L47 brief)
+
+- Before declaring a graph, grep shared tests for it as an "undeclared graph" fixture.
+- `parity.test.tsx` counts declared notes and rows as shown; a caption moved into a row or note gets an `<id>Accepted` entry.
+- FirstTask "pucks" tests query `#board-card-tools` after `openTools()`, shown red.
+- Playback that writes a puck's parameter uses an animation lease (`useLease`, ADR 0064, curve-parametric).
+- Owner, 2026-11-27: remove board caption lines that repeat a legend entry or readout row.
 
 ### Next
 
-1. **L49** (curve geometry, dispatch `briefs/08-lane-L49.md`, notes `briefs/notes/08-lane-L49.md`), one per worker:
-   curve-evolute (dispatched by handler 2), curve-offset, curve-parametric.
-   A holds L31/L32/L33 until L49 is picked (shared `CurveGeometryFirstTask.test.tsx`, `PlaybackRoutes.test.tsx`).
-2. Then L44 (splines, 6; `BaseSplineCurveGraph.tsx` shared, `GraphSceneReload.test.tsx`), L47 (probability, 5;
-   `IterativeFunctionGraph` opt-in only, `BaseFunctionGraph.authority.test.tsx` shared with L46). Write a dispatch per lane
-   from `briefs/08-lane-L49.md`.
+1. Finish and commit L44 spline-c1, then spline-c2, spline-cn, spline-g1, spline-g1-symmetric, spline-parameterization
+   (one per worker; reuse the spline-c1 hook).
+2. L47 (probability, 5 demos: prob-binomial-normal, prob-clt, prob-correlation, prob-density, prob-summary;
+   `probabilityGuidedLessons.ts`, `ProbabilityFirstTask.test.tsx`; shared `BaseFunctionGraph.authority.test.tsx` with L46,
+   `IterativeFunctionGraph.tsx` opt-in only). A's L42 is done (`85c4efe8a`, `IterativeFunctionGraph.tsx` unchanged), so
+   L47 is free after a merge. Write `briefs/08-lane-L47.md` from `briefs/08-lane-L44.md` plus the function-graph rules of
+   `briefs/08-lane-L50.md` and A's note: a lesson morph that writes a parameter as `animation` must not set the view
+   intent in that write (`GeometricSeriesGraph.tsx:~193` skips the refit when `currentWrite()?.source === 'animation'`);
+   `src/inputs/sharedControlBehaviour.tsx:166` now blurs as the learner.
 3. Open for the owner from stream B: none.

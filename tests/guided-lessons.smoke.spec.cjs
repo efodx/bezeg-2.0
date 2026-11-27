@@ -313,8 +313,11 @@ const SWITCH_NAMES = {farin: ['Farin points', 'Farinove točke'], weights: ['Wei
 const switchByName = (page, key) => ({
     isChecked: () => page.evaluate(names => {
         const input = [...document.querySelectorAll('input[type="checkbox"]')].find(candidate => names.includes(candidate.labels?.[0]?.textContent?.trim()));
-        if (!input) throw new Error(`switch not found: ${names}`);
-        return input.checked;
+        if (input) return input.checked;
+        // A switch that became a board puck is a role="switch" in the puck strip.
+        const puck = [...document.querySelectorAll('.puck-strip [role="switch"]')].find(candidate => names.includes(candidate.getAttribute('aria-label')?.trim()));
+        if (!puck) throw new Error(`switch not found: ${names}`);
+        return puck.getAttribute('aria-checked') === 'true';
     }, SWITCH_NAMES[key]),
     locator: () => page.getByLabel(new RegExp(`^(${SWITCH_NAMES[key].join('|')})$`)).first(),
 });
