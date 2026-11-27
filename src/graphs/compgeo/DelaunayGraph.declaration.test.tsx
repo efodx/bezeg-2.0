@@ -94,9 +94,12 @@ describe('delaunay declaration', () => {
         expect(() => graph.performAction('nothing')).toThrow();
     });
 
-    test('the plain triangulation graph stays undeclared', () => {
+    test('the plain triangulation graph is declared too, without the trace (no playback, no trace sentences)', () => {
         const graph = new TriangulationGraph();
         mountGraph(graph);
-        expect(graph.getDeclaration()).toBeUndefined();
+        const declaration = graph.getDeclaration()!;
+        expect(checkDeclaration(declaration)).toEqual([]);
+        expect(declaration.actions!.map(candidate => candidate.id)).not.toContain('next-step');
+        expect(declaration.notes!.map(note => note.id)).not.toContain('step');
     });
 });

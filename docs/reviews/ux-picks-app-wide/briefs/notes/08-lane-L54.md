@@ -132,3 +132,22 @@ Scratch scripts in `.command-logs/` (ed3.py, ed4.py) are mine; delete or ignore.
 - `graph-check orientation --route compgeo/orientation`: all rows pass (browser skipped).
 - Not verified: inspector-width screenshots, browser probe/fuzz.
 - Observed green: tsc empty; `just unit src/graphs/compgeo src/graphs/base/PlaybackRoutes.test.tsx src/learning/content src/localization src/graphs/base/declare` passed; lint of changed files passed; `just build` passed; `just smoke-lesson monotone-triangulation orientation --port 4395 --workers=1` passed.
+
+## Session 4: orientation (done in 3b), point-in-polygon, point-set-triangulation
+
+### point-in-polygon
+- Parity: all readout sentences were already marked; SAMPLES entry + `__parity__/point-in-polygon.json` (10 states) recorded first. Golden passes.
+- New pure `pointInPolygonNotes.ts` (ids hidden/open/too-few/location/boundary-note/crossings/even-odd/winding/nonzero/not-simple); `PointInPolygonStatus` renders from it (`data-declared-panel`). Fragment `fragments/point-in-polygon.ts` (puck short "Ovojno število"/"Winding number", the full overlay name is 25 characters).
+- Placement: `ray` and `winding` are board pucks (the lesson flips them while moving q); `values` (verdict switch), the grid, the q coordinate row, the example select and the pentagram note stay in Orodja (setup / points rows). Legend: points, query q (square point), ray (dashed), winding (line). Marks: the polygon's points and outline plus q (override of `pointSetViewMarks`, memoized).
+- Frames `pipFrame`: observation highlights (location; location+crossings; crossings; crossings+winding; even-odd+nonzero), explore explanation `uses ray, winding, values`, `open tools`; predict not highlighted. No prose reworded ("pod grafom" untouched).
+- Test `PointInPolygonGraph.declaration.test.tsx` (12 cases). Red check: `overlayIsPuck` returned only `ray`: "AssertionError: expected { Object (id, label, ...) } to match object { Object (placement, puck, ...) }", restored.
+
+### point-set-triangulation (`TriangulationGraph`)
+- Parity: sentences already marked; SAMPLES entry + `__parity__/point-set-triangulation.json` (9 states) recorded first (refusal alerts are not recorded text, so the refused-flip state is one state only). Golden passes.
+- `TriangulationGraph` now returns `declaresPointSetWorkspace() === true` and owns the overlay messages, the `angles` puck ("Najmanjši kot"), swatches and `pointSetNotes` (new pure `triangulationNotes.ts`: event, n, k, collinear, triangles, edges, angle, angle-before; `delaunayNotes` now appends the same function, text unchanged). The three duplicate overrides in `DelaunayGraph` were removed (same behaviour, `GraphPalette`/`Message` imports dropped); its `pointSetNotes` stays. Edge select + Flip, the refusal alert, triangulation and edge-number switches stay in Orodja (selection needs the list; the lesson sets overlays by scene).
+- Frames `triFrame`: highlights on k (points step), triangles/edges (T0 calculation), triangles/edges/angle (T0 observation), triangles/edges (flip), n/triangles (add), triangles/angle (Delaunay), k/collinear/triangles (nine). Max 3 per frame (contract). No prose reworded.
+- Tests: new `TriangulationGraph.declaration.test.tsx` (8 cases); `DelaunayGraph.declaration.test.tsx` case "stays undeclared" now asserts the declaration (consistent, no `next-step`, no trace note); `TriangulationGraph.host.test.tsx` switch-label case reads the angles label from the declared action (it is a puck, so no `<label>` in Orodja); other asserted values unchanged. Red check: triangles count + 1 in `triangulationNotes`: "AssertionError: expected [ ...(6) ] to deeply equal [ ...(6) ]", restored.
+
+### Observed
+- tsc empty; lint of changed files passed; `graph-check point-in-polygon`, `point-set-triangulation`, `delaunay`: all rows pass (browser skipped); `just unit src/graphs/compgeo ... src/graphs/base/declare` (after the host-test edit only `TriangulationGraph.host.test.tsx` was re-run, green); `just unit FirstTask` passed; `BEZEG_PRESET_ROUNDTRIP=all ... -t <id>` passed (1 test each) for the 12 ids; `just build` passed; `just smoke-lesson point-in-polygon point-set-triangulation --port 4395 --workers=1` passed.
+- Not verified: inspector-width screenshots, browser probe/fuzz, a complete family unit run after the TriangulationGraph.host edit and the lint-only Delaunay import fix.

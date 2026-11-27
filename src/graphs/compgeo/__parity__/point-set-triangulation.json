@@ -1,0 +1,374 @@
+{
+  "graph": "point-set-triangulation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "seven points, hidden",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "T0, angles",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "α"
+      ]
+    },
+    {
+      "name": "T0 flipped",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 10,62°"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: 1,91°"
+        }
+      ],
+      "notes": [
+        "Rob P2-P5 je zamenjan z robom P1-P6. Števila trikotnikov in robov so ostala enaka."
+      ],
+      "outputs": [],
+      "captions": [
+        "0-1",
+        "0-4",
+        "0-5",
+        "1-2",
+        "1-5",
+        "1-6",
+        "2-3",
+        "2-4",
+        "2-6",
+        "3-4",
+        "4-5",
+        "4-6",
+        "5-6",
+        "α"
+      ]
+    },
+    {
+      "name": "hull edge flip refused",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "0-1",
+        "0-4",
+        "1-2",
+        "1-4",
+        "1-5",
+        "1-6",
+        "2-3",
+        "2-4",
+        "2-6",
+        "3-4",
+        "4-5",
+        "4-6",
+        "5-6"
+      ]
+    },
+    {
+      "name": "Delaunay",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 25,35°"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "α"
+      ]
+    },
+    {
+      "name": "point added inside",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 8"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Trikotnikov: 9 = 2n - 2 - k = 2 · 8 - 2 - 5"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Robov: 16 = 3n - 3 - k = 3 · 8 - 3 - 5; notranjih 11, na ovojnici 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 11,31°"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Točka P8 leži znotraj trikotnika, ki se razdeli na tri; dodana sta 2 trikotnika."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "point added outside",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 8"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 6"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Trikotnikov: 8 = 2n - 2 - k = 2 · 8 - 2 - 6"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Robov: 15 = 3n - 3 - k = 3 · 8 - 3 - 6; notranjih 9, na ovojnici 6"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 4,76°"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Točka P8 leži zunaj ovojnice in se poveže z vsemi robovi ovojnice, ki jih vidi. Dodanih trikotnikov: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "nine points (collinear)",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Točk: n = 9"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 6"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Točke na stranicah ovojnice, ki niso oglišča: 1; štejejo tudi v k."
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Trikotnikov: 10 = 2n - 2 - k = 2 · 9 - 2 - 6"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Robov: 18 = 3n - 3 - k = 3 · 9 - 3 - 6; notranjih 12, na ovojnici 6"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 7,77°"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "α"
+      ]
+    }
+  ]
+}

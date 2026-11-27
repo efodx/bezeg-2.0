@@ -49,6 +49,8 @@ session's demonstration is (or subclasses) that graph; a subclass change must ke
 ## Checks
 
 The shared brief's step 4 and 8, plus `just unit src/graphs/compgeo src/graphs/base/PlaybackRoutes.test.tsx src/learning/content src/localization src/graphs/base/declare`,
+`just unit FirstTask` (multi-graph first-task cases; check-changed does not select them), and per demonstration
+`BEZEG_PRESET_ROUNDTRIP=all just unit src/graphs/PresetRoundTrip.contract.test.tsx -t <id>` (stream A, 2026-11-27),
 then once per session `just build` and `just smoke-lesson <each converted demonstration's lesson id> --port 4395 --workers=1`.
 Foreground, long timeouts, one heavy command at a time.
 

@@ -8,7 +8,9 @@ import type {PointSetExtension} from "./pointSetPersistence";
 import {LessonAction} from "../../learning/model";
 import {GraphSession} from "../base/GraphSession";
 import {TransientState} from "../base/BaseGraph";
-import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, useLanguage, useT, type Message} from "../../localization";
+import type {GraphDeclaration, ViewMarks} from "../base/declare/graphDeclaration";
+import {pointInPolygonNotes, type PointInPolygonNoteId} from "./pointInPolygonNotes";
 import {GridPoint, isGridPoint} from "../../compgeo/grid";
 import {gridToBoard, PointSetModel, snapToGrid} from "../../compgeo/pointSetModel";
 import {NOTCHED_PENTAGON, PENTAGRAM_VERTICES} from "../../compgeo/pointInPolygon";
@@ -94,41 +96,28 @@ function viewFor(points: readonly GridPoint[], query: GridPoint, exponent: numbe
     return [minX - margin, maxY + margin, maxX + margin, minY - margin];
 }
 
-const windingText = (winding: number): string => (winding < 0 ? `−${-winding}` : String(winding));
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the overlay switches. */
+export type PointInPolygonIds = {
+    param: never; row: never; note: PointInPolygonNoteId; legend: "points" | "query" | "ray" | "winding"; section: never; action: "grid" | PointInPolygonOverlayId;
+};
 
 function PointInPolygonStatus({model, query, valuesShown}: {model: PointSetModel; query: GridPoint; valuesShown: boolean}) {
-    const translate = useT();
+    useLanguage();
+    // One concise line is live (where q is, or why that is unknown); the other rows are plain text, read on demand.
+    const [first, ...rest] = pointInPolygonNotes(model, query, valuesShown);
+    const live = renderMessage(first.text);
     if (!valuesShown) {
-        return <><div className="inspector-help pointset-status" data-pip-readout="" data-pip-location="" data-pip-crossings="" data-pip-winding="">
-            <p data-readout-note className="mb-1" data-pip-live="">{translate("pointinpolygon_values_hidden")}</p>
-        </div><StatusLive text={translate("pointinpolygon_values_hidden")}/></>;
+        return <><div className="inspector-help pointset-status" data-declared-panel="" data-pip-readout="" data-pip-location="" data-pip-crossings="" data-pip-winding="">
+            <p data-readout-note className="mb-1" data-pip-live="">{live}</p>
+        </div><StatusLive text={live}/></>;
     }
     const readout: PointInPolygonReadout = pointInPolygonReadout(model, query);
-    // One concise line is live (where q is, or why that is unknown); the other rows are plain text, read on demand.
-    let live: string;
-    let lines: string[] = [];
-    if (readout.kind === "message") {
-        live = readout.reason === "open" ? translate("pointinpolygon_open") : translate("pointinpolygon_too_few", {value0: readout.missing});
-    } else if (readout.kind === "boundary") {
-        live = translate("pointinpolygon_location_boundary");
-        lines = [translate("pointinpolygon_boundary_note")];
-    } else {
-        live = readout.location === "inside" ? translate("pointinpolygon_location_inside")
-            : readout.location === "outside" ? translate("pointinpolygon_location_outside") : translate("pointinpolygon_location_rules_differ");
-        lines = [
-            translate("pointinpolygon_crossings", {value0: readout.crossings}),
-            readout.evenOdd === "inside" ? translate("pointinpolygon_even_odd_inside") : translate("pointinpolygon_even_odd_outside"),
-            translate("pointinpolygon_winding", {value0: windingText(readout.winding)}),
-            readout.nonzero === "inside" ? translate("pointinpolygon_nonzero_inside") : translate("pointinpolygon_nonzero_outside"),
-            ...(readout.simple ? [] : [translate("pointinpolygon_not_simple")]),
-        ];
-    }
-    return <><div className="inspector-help pointset-status" data-pip-readout={readout.kind}
+    return <><div className="inspector-help pointset-status" data-declared-panel="" data-pip-readout={readout.kind}
                 data-pip-location={readout.kind === "located" ? readout.location : readout.kind === "boundary" ? "boundary" : ""}
                 data-pip-crossings={readout.kind === "located" ? String(readout.crossings) : ""}
                 data-pip-winding={readout.kind === "located" ? String(readout.winding) : ""}>
         <p data-readout-note className="mb-1" data-pip-live="">{live}</p>
-        {lines.map((line, i) => <p data-readout-note key={i} className="mb-1">{line}</p>)}
+        {rest.map(note => <p data-readout-note key={note.id} className="mb-1">{renderMessage(note.text)}</p>)}
     </div><StatusLive text={live}/></>;
 }
 
@@ -319,6 +308,52 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     /** The ray and the winding labels follow q, which is not part of the model or of the shown set. */
     protected override overlayInputs(): unknown {
         return "query" in this.state ? this.state.query : undefined;
+    }
+
+    // ---- Declaration (task 08): the base's legend and switches, plus q, the readout as notes and the ray and winding pucks ----
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "grid" | PointInPolygonOverlayId): Message {
+        if (id === "ray") return message("pointinpolygon_overlay_ray");
+        if (id === "winding") return message("pointinpolygon_puck_winding");
+        if (id === "values") return message("pointinpolygon_overlay_values");
+        return super.overlayMessage(id);
+    }
+
+    /** The ray and the winding labels are what a student flips while moving q: board pucks. The verdict switch and the grid stay in Orodja. */
+    protected override overlayIsPuck(id: "grid" | PointInPolygonOverlayId): boolean { return id === "ray" || id === "winding"; }
+
+    protected override overlaySwatch(id: "grid" | PointInPolygonOverlayId) {
+        if (id === "ray") return {kind: "dashed" as const, color: GraphPalette.comparisonCurve};
+        return id === "winding" ? {kind: "line" as const, color: GraphPalette.primaryCurve} : undefined;
+    }
+
+    protected override pointSetNotes() { return pointInPolygonNotes(this.model, this.query, this.overlayShown("values")); }
+
+    private queryMarksCache: {base: ViewMarks; key: string; marks: ViewMarks} | undefined;
+
+    /** The polygon's points and outline, and q: all must stay in view (q is not part of the model). */
+    protected override pointSetViewMarks(): ViewMarks {
+        const base = super.pointSetViewMarks();
+        const at = gridToBoard(this.query, this.model.gridStepExponent);
+        const key = `${at.x},${at.y}`;
+        if (this.queryMarksCache?.base === base && this.queryMarksCache.key === key) return this.queryMarksCache.marks;
+        const marks: ViewMarks = {...base, must: [...base.must, {kind: "point", x: at.x, y: at.y}]};
+        this.queryMarksCache = {base, key, marks};
+        return marks;
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        const base = super.declaration();
+        if (!base?.legend) return base;
+        const [points, ...overlays] = base.legend;
+        return {...base, legend: [points, {id: "query", label: message("pointinpolygon_query_group"), kind: "point", object: "query"}, ...overlays]};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== "query") return super.drawnObject(id);
+        return {color: GraphPalette.derivedPoint, visible: this.hasBoard && this.queryPoint !== undefined};
     }
 
     protected override drawOverlay(id: "grid" | PointInPolygonOverlayId, model: PointSetModel): JXG.GeometryElement[] {

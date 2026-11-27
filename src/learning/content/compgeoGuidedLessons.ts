@@ -18,6 +18,8 @@ import type {HullRobustnessIds} from '../../graphs/compgeo/HullRobustnessGraph';
 import type {IntervalSweepIds} from '../../graphs/compgeo/IntervalSweepGraph';
 import type {MonotonePartitionIds} from '../../graphs/compgeo/MonotonePartitionGraph';
 import type {OrientationIds} from '../../graphs/compgeo/OrientationGraph';
+import type {PointInPolygonIds} from '../../graphs/compgeo/PointInPolygonGraph';
+import type {TriangulationIds} from '../../graphs/compgeo/TriangulationGraph';
 import type {MonotoneTriangulationIds} from '../../graphs/compgeo/MonotoneTriangulationGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -33,6 +35,8 @@ const isFrame = frameDeclarer<IntervalSweepIds>();
 const mpFrame = frameDeclarer<MonotonePartitionIds>();
 const orFrame = frameDeclarer<OrientationIds>();
 const mtFrame = frameDeclarer<MonotoneTriangulationIds>();
+const pipFrame = frameDeclarer<PointInPolygonIds>();
+const triFrame = frameDeclarer<TriangulationIds>();
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -943,7 +947,7 @@ const pointSetTriangulation: GuidedLesson = {
                 'We have \\(n=7\\) points \\(P_1,\\dots,P_7\\) with integer coordinates; no three are collinear. A triangulation joins them by segments that do not cross, cutting the set into triangles that cover the convex hull. For now the triangulation is hidden.',
             ),
             formulaIds: ['tri-count-formula'],
-            frames: [frame('tri-points-explanation', 'explanation'), frame('tri-points-observation', 'observation')],
+            frames: [frame('tri-points-explanation', 'explanation'), frame('tri-points-observation', 'observation', triFrame({highlight: ['k']}))],
             observationPrompt: text('Določi, katere točke ležijo na robu konveksne ovojnice.', 'Say which points lie on the boundary of the convex hull.'),
             expectedObservations: [text('Na robu ovojnice je pet točk, \\(P_5,P_1,P_2,P_3,P_4\\); točki \\(P_6\\) in \\(P_7\\) sta v notranjosti.', 'Five points lie on the hull boundary, \\(P_5,P_1,P_2,P_3,P_4\\); the points \\(P_6\\) and \\(P_7\\) are inside.')],
             scene: triScene('tri-points', TRI_EXAMPLE_POINTS, [], [],
@@ -975,7 +979,7 @@ const pointSetTriangulation: GuidedLesson = {
                 'The graph shows the triangulation T0. There are \\(k=5\\) points on the hull boundary, so the number of triangles is \\(2n-2-k=2\\cdot7-2-5=7\\). There are \\(3n-3-k=13\\) edges, \\(8\\) interior and \\(5\\) on the hull. The smallest angle in T0 is \\(1.91^\\circ\\); we compare this number in step 6.',
             ),
             formulaIds: ['tri-count-formula'], workedExampleId: 'tri-count-example',
-            frames: [frame('tri-t0-explanation', 'explanation'), frame('tri-t0-calculation', 'calculation'), frame('tri-t0-observation', 'observation')],
+            frames: [frame('tri-t0-explanation', 'explanation'), frame('tri-t0-calculation', 'calculation', triFrame({highlight: ['triangles', 'edges']})), frame('tri-t0-observation', 'observation', triFrame({highlight: ['triangles', 'edges', 'angle']}))],
             observationPrompt: text('Preštej trikotnike na grafu in primerjaj s svojo napovedjo.', 'Count the triangles on the graph and compare them with your prediction.'),
             expectedObservations: [text('Izpis pokaže \\(7\\) trikotnikov, \\(13\\) robov (\\(8\\) notranjih) in \\(k=5\\); najmanjši kot je \\(1{,}91^\\circ\\).', 'The readout shows \\(7\\) triangles, \\(13\\) edges (\\(8\\) interior) and \\(k=5\\); the smallest angle is \\(1.91^\\circ\\).')],
             scene: triScene('tri-t0', TRI_EXAMPLE_POINTS, ['triangulation', 'angles'], [setTriangulation(TRI_T0)],
@@ -991,7 +995,7 @@ const pointSetTriangulation: GuidedLesson = {
                 'The edge \\(P_2P_5\\) is a diagonal of a convex quadrilateral, so we replace it with the other diagonal \\(P_1P_6\\). The triangles differ but the counts stay: still \\(7\\) triangles and \\(13\\) edges, \\(8\\) of them interior. A flip is possible only when the quadrilateral is convex. The edge \\(P_2P_7\\) is now selected: press Flip edge and the readout explains that the two triangles beside it do not form a convex quadrilateral, so nothing changes.',
             ),
             formulaIds: ['tri-count-formula'],
-            frames: [frame('tri-flip-explanation', 'explanation'), frame('tri-flip-observation', 'observation')],
+            frames: [frame('tri-flip-explanation', 'explanation'), frame('tri-flip-observation', 'observation', triFrame({highlight: ['triangles', 'edges']}))],
             observationPrompt: text('Pritisni Zamenjaj rob in preberi, zakaj zamenjava ni mogoča; nato izberi drug rob in ga zamenjaj.', 'Press Flip edge and read why the flip is not possible; then select another edge and flip it.'),
             expectedObservations: [text('Po zamenjavi so števila ista: \\(7\\) trikotnikov, \\(13\\) robov, \\(8\\) notranjih; rob \\(P_2P_7\\) zavrnejo, ker štirikotnik ni izbočen.', 'After the flip the counts are the same: \\(7\\) triangles, \\(13\\) edges, \\(8\\) interior; the edge \\(P_2P_7\\) is refused because the quadrilateral is not convex.')],
             scene: triScene('tri-flip', TRI_EXAMPLE_POINTS, ['triangulation', 'edges', 'angles'], [setTriangulation(TRI_T0), flipEdge(TRI_FLIP_EDGE), selectEdge(TRI_REFUSED_EDGE)],
@@ -1007,7 +1011,7 @@ const pointSetTriangulation: GuidedLesson = {
                 'We add the point \\(P_8=(6,2)\\) inside a triangle: it splits it into three, so the number of triangles is \\(7+2=9\\). Then we add the point \\(P_9=(10,1)\\) outside the hull. One hull side is visible, so one triangle is added and \\(k\\) grows to \\(6\\). The readout shows \\(n=9\\), \\(k=6\\) and \\(2\\cdot9-2-6=10\\) triangles.',
             ),
             formulaIds: ['tri-count-formula'],
-            frames: [frame('tri-add-explanation', 'explanation'), frame('tri-add-observation', 'observation')],
+            frames: [frame('tri-add-explanation', 'explanation'), frame('tri-add-observation', 'observation', triFrame({highlight: ['n', 'triangles']}))],
             observationPrompt: text('Povleci ali dodaj točko in preveri, da število trikotnikov ostane enako \\(2n-2-k\\).', 'Drag or add a point and check that the number of triangles stays equal to \\(2n-2-k\\).'),
             expectedObservations: [text('Točka znotraj doda \\(2\\) trikotnika, točka zunaj en trikotnik; skupaj \\(10\\) trikotnikov pri \\(n=9\\) in \\(k=6\\).', 'A point inside adds \\(2\\) triangles, a point outside one triangle; together \\(10\\) triangles with \\(n=9\\) and \\(k=6\\).')],
             scene: triScene('tri-add', [...TRI_EXAMPLE_POINTS, TRI_INSIDE_POINT, TRI_OUTSIDE_POINT], ['triangulation'], [],
@@ -1023,7 +1027,7 @@ const pointSetTriangulation: GuidedLesson = {
                 'Earlier we triangulated the same seven points with T0, whose smallest angle is \\(1.91^\\circ\\). The graph now shows the Delaunay triangulation: it too has \\(7\\) triangles and \\(13\\) edges, but its smallest angle is \\(25.35^\\circ\\). The counts agree, the quality of the triangles does not. The lesson on the Delaunay triangulation shows how to reach such a triangulation.',
             ),
             formulaIds: ['tri-count-formula'],
-            frames: [frame('tri-delaunay-explanation', 'explanation'), frame('tri-delaunay-observation', 'observation')],
+            frames: [frame('tri-delaunay-explanation', 'explanation'), frame('tri-delaunay-observation', 'observation', triFrame({highlight: ['triangles', 'angle']}))],
             observationPrompt: text('Primerjaj najmanjši kot v izpisu s tistim iz tretjega koraka.', 'Compare the smallest angle in the readout with the one from step 3.'),
             expectedObservations: [text('Izpis pokaže \\(7\\) trikotnikov, \\(13\\) robov in najmanjši kot \\(25{,}35^\\circ\\), v T0 pa je bil \\(1{,}91^\\circ\\).', 'The readout shows \\(7\\) triangles, \\(13\\) edges and a smallest angle of \\(25.35^\\circ\\), whereas in T0 it was \\(1.91^\\circ\\).')],
             scene: triScene('tri-delaunay', TRI_EXAMPLE_POINTS, ['triangulation', 'angles'], [setTriangulation(TRI_DELAUNAY)],
@@ -1039,7 +1043,7 @@ const pointSetTriangulation: GuidedLesson = {
                 'The nine points of the convex hull lesson have \\(k=6\\) points on the hull boundary: five corners and one collinear point on a side. The collinear point counts in \\(k\\), so there are \\(2\\cdot9-2-6=10\\) triangles and \\(3\\cdot9-3-6=18\\) edges. Now you can move and add points and flip edges.',
             ),
             formulaIds: ['tri-count-formula'], workedExampleId: 'tri-nine-example',
-            frames: [frame('tri-nine-explanation', 'explanation'), frame('tri-nine-calculation', 'calculation'), frame('tri-nine-observation', 'observation')],
+            frames: [frame('tri-nine-explanation', 'explanation'), frame('tri-nine-calculation', 'calculation', triFrame({highlight: ['k', 'collinear', 'triangles']})), frame('tri-nine-observation', 'observation', triFrame({highlight: ['k', 'collinear', 'triangles']}))],
             observationPrompt: text('Premakni kolinearno točko s stranice ovojnice v notranjost in preveri, kaj se zgodi s \\(k\\) in številom trikotnikov.', 'Move the collinear point from the hull side into the interior and check what happens to \\(k\\) and the number of triangles.'),
             expectedObservations: [text('Izpis pokaže \\(k=6\\), \\(10\\) trikotnikov in \\(18\\) robov, od tega \\(12\\) notranjih.', 'The readout shows \\(k=6\\), \\(10\\) triangles and \\(18\\) edges, \\(12\\) of them interior.')],
             scene: triScene('tri-nine', TRI_NINE_POINTS, ['triangulation', 'angles'], [],
@@ -2815,7 +2819,7 @@ const pointInPolygon: GuidedLesson = {
                 'The notched pentagon has the vertices \\((0,0)\\), \\((6,0)\\), \\((6,4)\\), \\((3,2)\\) and \\((0,4)\\). Drag the point \\(q\\), now at \\((3,1)\\), with the mouse or the arrow keys and read the readout under the graph: it says whether \\(q\\) is inside or outside. You do not see the ray yet.',
             ),
             formulaIds: [],
-            frames: [frame('pip-drag-explanation', 'explanation'), frame('pip-drag-observation', 'observation')],
+            frames: [frame('pip-drag-explanation', 'explanation'), frame('pip-drag-observation', 'observation', pipFrame({highlight: ['location']}))],
             observationPrompt: text('Premakni \\(q\\) v zarezo pri vrhu in opazuj, kdaj se izpis spremeni.', 'Move \\(q\\) into the notch at the top and watch when the readout changes.'),
             expectedObservations: [text('V \\((3,1)\\) je \\(q\\) znotraj; v zarezi, na primer v \\((3,3)\\), je zunaj.', 'At \\((3,1)\\) the point \\(q\\) is inside; in the notch, for example at \\((3,3)\\), it is outside.')],
             scene: pipScene('pip-drag', 'notched', PIP_QUERY.drag, ['values'],
@@ -2847,7 +2851,7 @@ const pointInPolygon: GuidedLesson = {
                 'The ray from \\(q=(1,3)\\) to the right crosses the boundary in \\(3\\) points, numbered outwards from \\(q\\). The number is odd, so \\(q\\) is inside: the ray enters the notch, leaves it and finally leaves the polygon. The readout says the same.',
             ),
             formulaIds: ['pip-ray-rule'],
-            frames: [frame('pip-ray-reveal-explanation', 'explanation'), frame('pip-ray-reveal-observation', 'observation')],
+            frames: [frame('pip-ray-reveal-explanation', 'explanation'), frame('pip-ray-reveal-observation', 'observation', pipFrame({highlight: ['location', 'crossings']}))],
             observationPrompt: text('Primerjaj napoved s številom presečišč in premakni \\(q\\) navzgor v zarezo.', 'Compare your prediction with the number of crossings and move \\(q\\) up into the notch.'),
             expectedObservations: [text('Tri presečišča (liho) pomenijo znotraj; ko je \\(q\\) v zarezi, jih je sodo mnogo in točka je zunaj.', 'Three crossings (odd) mean inside; when \\(q\\) is in the notch the count is even and the point is outside.')],
             scene: pipScene('pip-ray-reveal', 'notched', PIP_QUERY.predict, ['ray', 'values'],
@@ -2863,7 +2867,7 @@ const pointInPolygon: GuidedLesson = {
                 'We move the point to \\((1,2)\\): the ray now passes through the vertex \\((3,2)\\). The half-open rule treats a vertex on the ray as lying just below it: an edge counts if exactly one of its endpoints is strictly above the ray. Both edges at \\((3,2)\\) have their other endpoint above the ray, so both count and the readout shows \\(3\\) crossings; the answer stays inside, as for a nearby ray. A horizontal edge on the ray never counts. If you drag \\(q\\) onto an edge, for example to \\((3,0)\\), the readout says the point is on the boundary: that is neither inside nor outside, and there is no crossing count or winding number.',
             ),
             formulaIds: ['pip-ray-rule'],
-            frames: [frame('pip-boundary-explanation', 'explanation'), frame('pip-boundary-observation', 'observation')],
+            frames: [frame('pip-boundary-explanation', 'explanation'), frame('pip-boundary-observation', 'observation', pipFrame({highlight: ['crossings']}))],
             observationPrompt: text('Povleci \\(q\\) na spodnji rob in nazaj ter opazuj, kaj se zgodi z izpisom.', 'Drag \\(q\\) onto the bottom edge and back and watch what happens to the readout.'),
             expectedObservations: [text('Na robu izpis pove "na robu" in ne pokaže števila presečišč; tik ob robu je točka spet znotraj ali zunaj.', 'On an edge the readout says "on the boundary" and shows no crossing count; right next to the edge the point is inside or outside again.')],
             scene: pipScene('pip-boundary', 'notched', PIP_QUERY.vertexRay, ['ray', 'values'],
@@ -2879,7 +2883,7 @@ const pointInPolygon: GuidedLesson = {
                 'The winding number counts how many times the boundary goes around \\(q\\) counter-clockwise. Each crossing counts \\(+1\\) if the edge crosses the ray upwards and \\(-1\\) if downwards. For \\(q=(3,3)\\) in the notch there are two crossings, one up and one down, so the winding number is \\(0\\) and the point is outside. At \\((1,3)\\) the winding number is \\(1\\).',
             ),
             formulaIds: ['pip-winding-rule'], workedExampleId: 'pip-notch-example',
-            frames: [frame('pip-winding-explanation', 'explanation'), frame('pip-winding-calculation', 'calculation'), frame('pip-winding-observation', 'observation')],
+            frames: [frame('pip-winding-explanation', 'explanation'), frame('pip-winding-calculation', 'calculation'), frame('pip-winding-observation', 'observation', pipFrame({highlight: ['crossings', 'winding']}))],
             observationPrompt: text('Primerjaj število presečišč in ovojno število na več točkah.', 'Compare the crossing count and the winding number at several points.'),
             expectedObservations: [text('Število presečišč in ovojno število sta vedno iste parnosti; v zarezi je ovojno število \\(0\\), v petkotniku \\(1\\).', 'The crossing count and the winding number always have the same parity; in the notch the winding number is \\(0\\), in the pentagon \\(1\\).')],
             scene: pipScene('pip-winding', 'notched', PIP_QUERY.notch, ['ray', 'winding', 'values'],
@@ -2895,7 +2899,7 @@ const pointInPolygon: GuidedLesson = {
                 'The pentagram crosses itself. At the centre \\((0,0)\\) the ray crosses two edges in the same direction, so \\(c=2\\) and \\(w=2\\): the even–odd rule says outside, the nonzero rule says inside. In a tip, for example at \\((0,12)\\), we have \\(c=1\\) and \\(w=1\\) and the rules agree. The figure is a lattice approximation of the regular pentagram, because its vertices are not lattice points: the vertices \\((0,16)\\), \\((-9,-13)\\), \\((15,5)\\), \\((-15,5)\\) and \\((9,-13)\\) are integers, and the winding numbers are checked by an exact test.',
             ),
             formulaIds: ['pip-winding-rule'], workedExampleId: 'pip-pentagram-example',
-            frames: [frame('pip-pentagram-explanation', 'explanation'), frame('pip-pentagram-calculation', 'calculation'), frame('pip-pentagram-observation', 'observation')],
+            frames: [frame('pip-pentagram-explanation', 'explanation'), frame('pip-pentagram-calculation', 'calculation'), frame('pip-pentagram-observation', 'observation', pipFrame({highlight: ['even-odd', 'nonzero']}))],
             observationPrompt: text('Povleci \\(q\\) iz središča v konico in opazuj, kdaj se pravili ujemata.', 'Drag \\(q\\) from the centre into a tip and watch when the rules agree.'),
             expectedObservations: [text('V središču je ovojno število \\(2\\) in pravili se razlikujeta; v konici je \\(1\\) in se ujemata.', 'At the centre the winding number is \\(2\\) and the rules differ; in a tip it is \\(1\\) and they agree.')],
             scene: pipScene('pip-pentagram', 'pentagram', PIP_QUERY.pentagramCentre, ['ray', 'winding', 'values'],
@@ -2911,7 +2915,7 @@ const pointInPolygon: GuidedLesson = {
                 'Move \\(q\\) around the notched pentagon and the pentagram (the Examples buttons) and switch the ray, the winding number and the readout on and off. Try to find a point where the crossing count is odd but the winding number is not \\(1\\), and a point on the boundary.',
             ),
             formulaIds: ['pip-ray-rule', 'pip-winding-rule'],
-            frames: [frame('pip-explore-explanation', 'explanation'), frame('pip-explore-observation', 'observation')],
+            frames: [frame('pip-explore-explanation', 'explanation', pipFrame({uses: ['ray', 'winding', 'values'], open: ['tools']})), frame('pip-explore-observation', 'observation')],
             observationPrompt: text('Poišči točko, kjer se sodo-liho in neničelno pravilo razlikujeta.', 'Find a point where the even–odd and the nonzero rule differ.'),
             expectedObservations: [text('Pravili se razlikujeta le na pentagramu, v njegovem središčnem petkotniku, kjer je ovojno število \\(2\\).', 'The rules differ only on the pentagram, in its central pentagon, where the winding number is \\(2\\).')],
             scene: pipScene('pip-explore', 'notched', PIP_QUERY.drag, ['ray', 'winding', 'values'],

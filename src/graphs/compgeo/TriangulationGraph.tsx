@@ -7,7 +7,9 @@ import {
     createTriangulation, edges, flip, type FlipRefusal, triangulationCounts, type TriangulationCounts,
     type TriangulationEdge, type Triangulation,
 } from "../../compgeo/triangulation";
-import {t} from "../../localization";
+import {message, t, type Message} from "../../localization";
+import type {ReadoutNote} from "../base/declare/graphDeclaration";
+import {triangulationNotes, type TriangulationNoteId} from "./triangulationNotes";
 import {LessonAction} from "../../learning/model";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -25,6 +27,11 @@ export {
     TRIANGULATION_EXAMPLE_POINTS, TRIANGULATION_MAX_POINTS, TRIANGULATION_OVERLAY_IDS, TRIANGULATION_T0, type TriangulationPresetData,
 };
 export type TriangulationOverlayId = "triangulation" | "edges" | "angles";
+
+/** The ids of this graph's declaration (frames name them): the event and count sentences, the legend, the overlay switches. */
+export type TriangulationIds = {
+    param: never; row: never; note: TriangulationNoteId; legend: "points" | "triangulation" | "angles"; section: never; action: "grid" | TriangulationOverlayId | "closed";
+};
 
 /** The saved configuration beyond the points: the triangle list and the list before the last flip. */
 export interface TriangulationGraphState extends PointSetGraphState {
@@ -385,6 +392,35 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             case "angles": return t("tri_overlay_angles");
             default: return super.overlayLabel(id);
         }
+    }
+
+    // ---- Declaration (task 08): legend, switches and the readout sentences as notes; the subclasses (Delaunay) build on it -------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: TriangulationOverlayId | "grid"): Message {
+        switch (id) {
+            case "triangulation": return message("tri_overlay_triangulation");
+            case "edges": return message("tri_overlay_edges");
+            case "angles": return message("tri_overlay_angles");
+            default: return super.overlayMessage(id);
+        }
+    }
+
+    /** The smallest angle is what the lesson flips while flipping edges, so it is a puck; the triangulation and the edge numbers are display settings. */
+    protected override overlayIsPuck(id: TriangulationOverlayId | "grid"): boolean {
+        return id === "angles";
+    }
+
+    protected override overlaySwatch(id: TriangulationOverlayId | "grid") {
+        if (id === "triangulation") return {kind: "line" as const, color: GraphPalette.referenceCurve};
+        if (id === "angles") return {kind: "line" as const, color: GraphPalette.constructionAccent};
+        return undefined;
+    }
+
+    /** The last event and the counts; a subclass with its own readout widens the ids. */
+    protected override pointSetNotes(): readonly ReadoutNote[] {
+        return triangulationNotes(this.eventValue, this.readout(), this.overlayShown("triangulation"));
     }
 
     /** The drawing follows the triangle list and the selected edge; neither is part of the model. */

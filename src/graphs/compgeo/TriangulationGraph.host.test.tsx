@@ -371,9 +371,13 @@ test('the board text is language-neutral, the overlay switches are labelled in b
     act(() => { setLanguage('en'); });
     expect(texts()).toEqual(before);
     const labels = () => Array.from(document.querySelectorAll('label')).map(l => (l.textContent ?? '').trim());
-    expect(labels()).toEqual(expect.arrayContaining(['Edge numbers', 'Smallest angle']));
+    // The smallest-angle switch is a board puck now: its label is the declared action's.
+    const anglesLabel = () => renderMessage(graph.getDeclaration()!.actions!.find(a => a.id === 'angles')!.label);
+    expect(labels()).toEqual(expect.arrayContaining(['Edge numbers']));
+    expect(anglesLabel()).toBe('Smallest angle');
     act(() => { setLanguage('sl'); });
-    expect(labels()).toEqual(expect.arrayContaining(['Številke robov', 'Najmanjši kot']));
+    expect(labels()).toEqual(expect.arrayContaining(['Številke robov']));
+    expect(anglesLabel()).toBe('Najmanjši kot');
     const e = legalEdge();
     choose(e.a, e.b);
     flipIt();

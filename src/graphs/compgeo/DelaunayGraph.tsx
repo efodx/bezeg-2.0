@@ -1,8 +1,7 @@
 import React from "react";
-import {currentLanguage, message, onLanguageChange, t, type Message} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t} from "../../localization";
 import type {ActionDeclaration, GraphDeclaration, ReadoutNote, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {runAs} from "../base/writes/writeSource";
-import {GraphPalette} from "../styles/GraphPalette";
 import {delaunayNotes, type DelaunayNoteId} from "./delaunayNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {gridToBoard, PointSetModel, PointSetOptions} from "../../compgeo/pointSetModel";
@@ -390,29 +389,7 @@ export class DelaunayGraph extends TriangulationGraph {
     }
 
     // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
-    // `TriangulationGraph` stays undeclared (point-set-triangulation converts in a later session); only this subclass opts in.
-
-    protected override declaresPointSetWorkspace() { return true; }
-
-    protected override overlayMessage(id: "triangulation" | "edges" | "angles" | "grid"): Message {
-        switch (id) {
-            case "triangulation": return message("tri_overlay_triangulation");
-            case "edges": return message("tri_overlay_edges");
-            case "angles": return message("tri_overlay_angles");
-            default: return super.overlayMessage(id);
-        }
-    }
-
-    /** The smallest angle is what the lesson flips while flipping edges, so it is a puck; the triangulation and the edge numbers are display settings. */
-    protected override overlayIsPuck(id: "triangulation" | "edges" | "angles" | "grid"): boolean {
-        return id === "angles";
-    }
-
-    protected override overlaySwatch(id: "triangulation" | "edges" | "angles" | "grid") {
-        if (id === "triangulation") return {kind: "line" as const, color: GraphPalette.referenceCurve};
-        if (id === "angles") return {kind: "line" as const, color: GraphPalette.constructionAccent};
-        return undefined;
-    }
+    // The opt-in, overlay messages, the angles puck and the swatches are `TriangulationGraph`'s (point-set-triangulation declares itself).
 
     /** The sentences of the readout (trace, angles, selected triangle, counts), in the order the panel shows them. */
     protected override pointSetNotes(): readonly ReadoutNote<DelaunayIds>[] {

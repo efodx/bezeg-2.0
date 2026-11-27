@@ -41,13 +41,16 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 
 - Handler 1 (2026-11-27): worktree `.claude/worktrees/lane-b` (branch `lane-b` from `board-workspace-2` at `4b5fcd5fa`,
   `node_modules` junction). Dispatch `briefs/08-lane-L54.md` (lesson smoke port 4395). Notes `briefs/notes/08-lane-L54.md`.
+- Stream A, 2026-11-27: every lane also runs `just unit FirstTask` and per id
+  `BEZEG_PRESET_ROUNDTRIP=all just unit src/graphs/PresetRoundTrip.contract.test.tsx -t <id>`; never background
+  `bash <script>` for long runs (the cleanup tick kills it); foreground checks under 10 minutes each.
 - Three demonstrations exhaust a Sonnet worker's 175k budget; dispatch two per worker.
 - Accepted: `fa98874c4` bezier-hulls, convex-hull (+ delaunay parity/markers); sent to stream A.
 - Accepted: `644dca72b` delaunay, ear-clipping (delaunay golden re-recorded, notes only); sent to stream A.
 - Accepted: `7ff06edc9` fortune, hull-robustness; sent to stream A.
 - Accepted: `48f4d392e` interval-sweep, monotone-partition; sent to stream A.
-- In progress: monotone-triangulation + orientation. Then point-in-polygon + point-set-triangulation,
-  segment-intersections + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
+- Accepted: `d0d2acb8c` monotone-triangulation, orientation (golden re-recorded, notes only); sent to stream A.
+- In progress: point-in-polygon + point-set-triangulation. Then segment-intersections + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
 - L54 closeout (handler): compgeo lesson prose says "pod grafom" / "under the graph" for readouts that are now cards
   (`compgeoGuidedLessons.ts` ~lines 572, 766, 1133, 1181, 1322, 2802); reword once all L54 demos are in. Take
   inspector-width screenshots of a few converted panels before the final L54 commit.

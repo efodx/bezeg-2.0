@@ -214,6 +214,31 @@ const SAMPLES: readonly Sample[] = [
             step('coarser grid', three([3, 2], 1)),
         ];
     })()},
+    {file: 'compgeo/__parity__/point-in-polygon.json', demonstration: 'point-in-polygon', states: (() => {
+        type Pip = {loadFigure(figure: string): void; setQuery(point: {x: number; y: number}): boolean; setOverlay(id: string, shown: boolean): void; loadModel(model: unknown): void};
+        const at = (figure: string, x: number, y: number, values = true): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Pip;
+                g.loadFigure(figure);
+                g.setQuery({x, y});
+                g.setOverlay('values', values);
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        const model = (closed: boolean, points: [number, number][]) => ({mode: 'polygon', closed, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        return [
+            step('default (inside)', () => {}),
+            step('predict point', at('notched', 1, 3)),
+            step('outside right', at('notched', 8, 1)),
+            step('notch (outside)', at('notched', 3, 3)),
+            step('on an edge', at('notched', 3, 0)),
+            step('values hidden', at('notched', 1, 3, false)),
+            step('pentagram centre', at('pentagram', 0, 0)),
+            step('pentagram tip', at('pentagram', 0, 12)),
+            step('open polygon', graph => { runAs('learner', () => { (graph as unknown as Pip).loadModel(model(false, [[0, 0], [4, 0], [4, 4]])); }); }),
+            step('two vertices', graph => { runAs('learner', () => { (graph as unknown as Pip).loadModel(model(true, [[0, 0], [4, 0]])); }); }),
+        ];
+    })()},
     {file: 'compgeo/__parity__/bezier-hulls.json', demonstration: 'bezier-hulls', states: (() => {
         type Pair = [number, number][];
         type Hulls = {applyPointSetAction(action: unknown): void; setOverlay(id: string, shown: boolean): void};
@@ -305,6 +330,31 @@ const SAMPLES: readonly Sample[] = [
             step('Kettner exact, default cell', kettner('exact', 41, 48)),
             step('Kettner exact, cell 10,20', kettner('exact', 10, 20)),
             step('Kettner inexact, cell 10,20', kettner('inexact', 10, 20)),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/point-set-triangulation.json', demonstration: 'point-set-triangulation', states: (() => {
+        type Triangulation = {applyPointSetAction(action: unknown): void; selectEdge(a: number, b?: number): void; flipSelected(): boolean; addPointAt(point: {x: number; y: number}): boolean};
+        const point = (operation: string, rest: Record<string, unknown>) => ({kind: 'point-set', operation, ...rest});
+        const seven: [number, number][] = [[0, 0], [8, 0], [9, 6], [4, 8], [-1, 5], [3, 3], [6, 3]];
+        const nine: [number, number][] = [[2, 2], [4, 0], [0, 0], [5, 3], [2, 5], [-1, 3], [3, 1], [2, 0], [1, 1]];
+        const t0 = [[1, 2, 6], [1, 5, 4], [1, 6, 5], [2, 3, 4], [4, 0, 1], [4, 5, 6], [6, 2, 4]];
+        const delaunay = [[4, 0, 5], [5, 3, 4], [0, 1, 5], [5, 6, 3], [1, 6, 5], [1, 2, 6], [2, 3, 6]];
+        const on = (act: (g: Triangulation) => void): ParityState['apply'] => graph => { runAs('learner', () => act(graph as unknown as Triangulation)); };
+        const load = (g: Triangulation, list: [number, number][], shown: string[]) => {
+            g.applyPointSetAction(point('set-points', {mode: 'points', points: list}));
+            for (const name of ['triangulation', 'edges', 'angles']) g.applyPointSetAction(point('set-overlay', {overlay: name, visible: shown.includes(name)}));
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('seven points, hidden', on(g => load(g, seven, []))),
+            step('T0, angles', on(g => { load(g, seven, ['triangulation', 'angles']); g.applyPointSetAction(point('set-triangulation', {triangles: t0})); })),
+            step('T0 flipped', on(g => { load(g, seven, ['triangulation', 'edges', 'angles']); g.applyPointSetAction(point('set-triangulation', {triangles: t0})); g.applyPointSetAction(point('flip-edge', {edge: [1, 4]})); })),
+            step('hull edge flip refused', on(g => { load(g, seven, ['triangulation', 'edges']); g.applyPointSetAction(point('set-triangulation', {triangles: t0})); g.selectEdge(0, 1); g.flipSelected(); })),
+            step('Delaunay', on(g => { load(g, seven, ['triangulation', 'angles']); g.applyPointSetAction(point('set-triangulation', {triangles: delaunay})); })),
+            step('point added inside', on(g => { load(g, seven, ['triangulation']); g.addPointAt({x: 6, y: 2}); })),
+            step('point added outside', on(g => { load(g, seven, ['triangulation']); g.addPointAt({x: 10, y: 1}); })),
+            step('nine points (collinear)', on(g => load(g, nine, ['triangulation', 'angles']))),
         ];
     })()},
     {file: 'compgeo/__parity__/delaunay.json', demonstration: 'delaunay', states: (() => {

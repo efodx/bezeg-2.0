@@ -1,0 +1,141 @@
+{
+  "graph": "point-in-polygon",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (inside)",
+      "rows": [],
+      "notes": [
+        "Točka q je znotraj večkotnika.",
+        "Število presečišč poltraka z robom: 1",
+        "Sodo-liho pravilo: znotraj (liho število presečišč)",
+        "Ovojno število: 1",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)"
+      ],
+      "outputs": [],
+      "captions": [
+        "1"
+      ]
+    },
+    {
+      "name": "predict point",
+      "rows": [],
+      "notes": [
+        "Točka q je znotraj večkotnika.",
+        "Število presečišč poltraka z robom: 3",
+        "Sodo-liho pravilo: znotraj (liho število presečišč)",
+        "Ovojno število: 1",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)"
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "outside right",
+      "rows": [],
+      "notes": [
+        "Točka q je zunaj večkotnika.",
+        "Število presečišč poltraka z robom: 0",
+        "Sodo-liho pravilo: zunaj (sodo število presečišč)",
+        "Ovojno število: 0",
+        "Neničelno pravilo: zunaj (ovojno število je 0)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "notch (outside)",
+      "rows": [],
+      "notes": [
+        "Točka q je zunaj večkotnika.",
+        "Število presečišč poltraka z robom: 2",
+        "Sodo-liho pravilo: zunaj (sodo število presečišč)",
+        "Ovojno število: 0",
+        "Neničelno pravilo: zunaj (ovojno število je 0)"
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "on an edge",
+      "rows": [],
+      "notes": [
+        "Točka q je na robu večkotnika.",
+        "Na robu število presečišč in ovojno število nista določena."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "values hidden",
+      "rows": [],
+      "notes": [
+        "Rezultat je skrit; prikaz se vklopi v stikalu prekrivanj."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "pentagram centre",
+      "rows": [],
+      "notes": [
+        "Točka q je znotraj ali zunaj, odvisno od pravila.",
+        "Število presečišč poltraka z robom: 2",
+        "Sodo-liho pravilo: zunaj (sodo število presečišč)",
+        "Ovojno število: 2",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)",
+        "Večkotnik seka samega sebe, zato pravili lahko dasta različen odgovor."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "pentagram tip",
+      "rows": [],
+      "notes": [
+        "Točka q je znotraj večkotnika.",
+        "Število presečišč poltraka z robom: 1",
+        "Sodo-liho pravilo: znotraj (liho število presečišč)",
+        "Ovojno število: 1",
+        "Neničelno pravilo: znotraj (ovojno število ni 0)",
+        "Večkotnik seka samega sebe, zato pravili lahko dasta različen odgovor."
+      ],
+      "outputs": [],
+      "captions": [
+        "1"
+      ]
+    },
+    {
+      "name": "open polygon",
+      "rows": [],
+      "notes": [
+        "Večkotnik ni sklenjen, zato točke ni mogoče umestiti."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two vertices",
+      "rows": [],
+      "notes": [
+        "Za umestitev točke so potrebna vsaj 3 oglišča; manjka jih: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}
