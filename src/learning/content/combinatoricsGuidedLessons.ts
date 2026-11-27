@@ -8,10 +8,13 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-comb-a.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {CountingTreeIds} from '../../graphs/combinatorics/CountingTreeGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<CountingTreeIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +27,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and the controls it asks the learner to use (counting-tree steps only). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -313,6 +318,7 @@ const cb2Steps: readonly GuidedLessonStep[] = [
         formulaIds: [],
         observationPrompt: text('Preštej liste drevesa in preberi število listov v odčitku.', 'Count the leaves of the tree and read the number of leaves in the readout.'),
         expectedObservations: [text('Drevo ima \\(6\\) listov, odčitek pokaže \\(3\\cdot2=6\\).', 'The tree has \\(6\\) leaves and the readout shows \\(3\\cdot2=6\\).')],
+        declare: f({highlight: ['leaves']}),
         scene: countingScene('cb2-tree-scene', {view: 'choices', n: 3, k: 2, ordered: true, repetition: false},
             'Drevo variacij \\(2\\) od \\(3\\) brez ponavljanja z \\(6\\) listi.',
             'The tree of variations of \\(2\\) out of \\(3\\) without repetition, with \\(6\\) leaves.'),
@@ -328,6 +334,7 @@ const cb2Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['product-rule'],
         observationPrompt: text('Preberi produkt in število listov v odčitku.', 'Read the product and the number of leaves in the readout.'),
         expectedObservations: [text('Produkt je \\(4\\cdot3\\cdot2=24\\) in drevo ima \\(24\\) listov.', 'The product is \\(4\\cdot3\\cdot2=24\\) and the tree has \\(24\\) leaves.')],
+        declare: f({highlight: ['product', 'leaves']}),
         scene: countingScene('cb2-product-scene', {view: 'choices', n: 4, k: 3, ordered: true, repetition: false},
             'Drevo variacij \\(3\\) od \\(4\\) brez ponavljanja z \\(24\\) listi; produkt \\(4\\cdot3\\cdot2=24\\).',
             'The tree of variations of \\(3\\) out of \\(4\\) without repetition, with \\(24\\) leaves; the product \\(4\\cdot3\\cdot2=24\\).'),
@@ -343,6 +350,7 @@ const cb2Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['choice-counts'],
         observationPrompt: text('Preberi število listov pri \\(n=k=4\\), nato število izbir pri \\(n=k=5\\).', 'Read the number of leaves for \\(n=k=4\\), then the number of choices for \\(n=k=5\\).'),
         expectedObservations: [text('Za štiri predmete je \\(24\\) razporeditev, za pet knjig \\(120\\).', 'Four items have \\(24\\) arrangements, five books have \\(120\\).')],
+        declare: f({uses: ['counting-n', 'counting-k'], highlight: ['leaves', 'count']}),
         scene: countingScene('cb2-permutations-scene', {view: 'choices', n: 4, k: 4, ordered: true, repetition: false},
             'Drevo vseh razporeditev štirih predmetov, \\(24\\) listov, produkt \\(4\\cdot3\\cdot2\\cdot1=24\\).',
             'The tree of all arrangements of four items, \\(24\\) leaves, the product \\(4\\cdot3\\cdot2\\cdot1=24\\).'),
@@ -352,12 +360,13 @@ const cb2Steps: readonly GuidedLessonStep[] = [
         title: text('Izberemo \\(k\\) od \\(n\\): variacije', 'Choosing \\(k\\) of \\(n\\): variations'),
         purpose: text('Primerjati variacije brez ponavljanja in s ponavljanjem.', 'Comparing variations without and with repetition.'),
         explanation: text(
-            'Izberemo tri od šestih predmetov, vrstni red šteje. Brez ponavljanja je izbir po osnovnem izreku \\(6\\cdot5\\cdot4=120=V_6^3\\); drevo bi imelo več kot \\(64\\) listov, zato je prikazana tabela. Napovej, kaj se zgodi s številom, če se predmeti smejo ponavljati, nato vklopi stikalo »Predmeti se lahko ponavljajo«: pri vsaki izbiri je spet vseh šest možnosti, zato je \\(6\\cdot6\\cdot6=216=6^3\\). Drevo narišemo samo do \\(64\\) listov: za štiri predmete in tri izbire s ponavljanjem je to ravno \\(4\\cdot4\\cdot4=64\\). Tabela je ponazoritev števil, ki jih daje osnovni izrek.',
-            'We choose three out of six items and order matters. Without repetition the product rule gives \\(6\\cdot5\\cdot4=120=V_6^3\\) choices; the tree would have more than \\(64\\) leaves, so a table is shown. Predict what happens to the number if the items may repeat, then switch on "Items may repeat": at every choice all six options are available again, so \\(6\\cdot6\\cdot6=216=6^3\\). The tree is drawn only up to \\(64\\) leaves: for four items and three choices with repetition that is exactly \\(4\\cdot4\\cdot4=64\\). The table is an illustration of the numbers the product rule gives.',
+            'Izberemo tri od šestih predmetov, vrstni red šteje. Brez ponavljanja je izbir po osnovnem izreku \\(6\\cdot5\\cdot4=120=V_6^3\\); drevo bi imelo več kot \\(64\\) listov, zato je prikazana tabela. Napovej, kaj se zgodi s številom, če se predmeti smejo ponavljati, nato vklopi krmilnik »Ponavljanje«: pri vsaki izbiri je spet vseh šest možnosti, zato je \\(6\\cdot6\\cdot6=216=6^3\\). Drevo narišemo samo do \\(64\\) listov: za štiri predmete in tri izbire s ponavljanjem je to ravno \\(4\\cdot4\\cdot4=64\\). Tabela je ponazoritev števil, ki jih daje osnovni izrek.',
+            'We choose three out of six items and order matters. Without repetition the product rule gives \\(6\\cdot5\\cdot4=120=V_6^3\\) choices; the tree would have more than \\(64\\) leaves, so a table is shown. Predict what happens to the number if the items may repeat, then switch on the control "Repetition": at every choice all six options are available again, so \\(6\\cdot6\\cdot6=216=6^3\\). The tree is drawn only up to \\(64\\) leaves: for four items and three choices with repetition that is exactly \\(4\\cdot4\\cdot4=64\\). The table is an illustration of the numbers the product rule gives.',
         ),
         formulaIds: ['choice-counts'],
         observationPrompt: text('Preberi število izbir brez ponavljanja in s ponavljanjem ter produkt v odčitku.', 'Read the number of choices without and with repetition and the product in the readout.'),
         expectedObservations: [text('Brez ponavljanja je \\(120\\), s ponavljanjem \\(216\\); pri \\(n=4\\), \\(k=3\\) s ponavljanjem je \\(64\\) listov.', 'Without repetition there are \\(120\\), with repetition \\(216\\); for \\(n=4\\), \\(k=3\\) with repetition there are \\(64\\) leaves.')],
+        declare: f({uses: ['repetition'], highlight: ['count', 'product']}),
         scene: countingScene('cb2-variations-scene', {view: 'choices', n: 6, k: 3, ordered: true, repetition: false},
             'Variacije \\(3\\) od \\(6\\) brez ponavljanja: \\(120\\) izbir; tabela pokaže tudi \\(216\\) s ponavljanjem.',
             'Variations of \\(3\\) out of \\(6\\) without repetition: \\(120\\) choices; the table also shows \\(216\\) with repetition.'),
@@ -374,6 +383,7 @@ const cb2Steps: readonly GuidedLessonStep[] = [
         workedExampleId: 'cb2-combination',
         observationPrompt: text('Preberi vrstne rede ene kombinacije in količnik v odčitku ter preštej vrstne rede v prvi skupini na sliki.', 'Read the orderings of one combination and the quotient in the readout, and count the orderings in the first group in the picture.'),
         expectedObservations: [text('Vsaka skupina ima \\(6\\) vrstnih redov, količnik je \\(120/6=20\\).', 'Each group has \\(6\\) orderings, and the quotient is \\(120/6=20\\).')],
+        declare: f({highlight: ['orderings', 'division']}),
         scene: countingScene('cb2-combinations-scene', {view: 'choices', n: 6, k: 3, ordered: false, repetition: false},
             'Kombinacije \\(3\\) od \\(6\\): \\(20\\) izbir, \\(3!=6\\) vrstnih redov ene kombinacije, tri skupine na sliki.',
             'Combinations of \\(3\\) out of \\(6\\): \\(20\\) choices, \\(3!=6\\) orderings of one combination, three groups in the picture.'),
@@ -390,6 +400,7 @@ const cb2Steps: readonly GuidedLessonStep[] = [
         workedExampleId: 'cb2-mississippi',
         observationPrompt: text('Preberi število vseh črk, razporeditve in razporeditve, če bi bile vse črke različne.', 'Read the number of all letters, the arrangements, and the arrangements if all letters were different.'),
         expectedObservations: [text('Črk je \\(11\\), razporeditev \\(34\\,650\\), če bi bile vse različne pa \\(39\\,916\\,800\\).', 'There are \\(11\\) letters, \\(34\\,650\\) arrangements, and \\(39\\,916\\,800\\) if all were different.')],
+        declare: f({highlight: ['letters', 'arrangements', 'all-different']}),
         scene: countingScene('cb2-repetition-scene', {view: 'multiset', counts: MISSISSIPPI},
             'Črke besede MISSISSIPPI (M 1, I 4, S 4, P 2): \\(11\\) črk, \\(34\\,650\\) razporeditev.',
             'The letters of the word MISSISSIPPI (M 1, I 4, S 4, P 2): \\(11\\) letters, \\(34\\,650\\) arrangements.'),
@@ -397,14 +408,15 @@ const cb2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'cb2-explore', order: 7,
         title: text('Prosto raziskovanje: ali vrstni red šteje?', 'Free exploration: does order matter?'),
-        purpose: text('Sam izbrati pravo vrsto izbire s stikaloma za vrstni red in ponavljanje.', 'Choosing the right kind of choice yourself with the switches for order and repetition.'),
+        purpose: text('Sam izbrati pravo vrsto izbire s krmilnikoma za vrstni red in ponavljanje.', 'Choosing the right kind of choice yourself with the controls for order and repetition.'),
         explanation: text(
-            'Spreminjaj \\(n\\) in \\(k\\) ter stikali »Vrstni red šteje« in »Predmeti se lahko ponavljajo«. Majhna tabela odločitev: vrstni red šteje in ponavljanja ni, so variacije (pri \\(k=n\\) permutacije); vrstni red šteje in ponavljanje je, so variacije s ponavljanjem; vrstni red ne šteje in ponavljanja ni, so kombinacije. Četrto vrsto, kombinacije s ponavljanjem, tabela v grafu tudi pokaže, a je ta lekcija ne izpelje. Primerjaj števila: drevesa so ponazoritve majhnih primerov, splošne obrazce dajeta osnovni izrek in delitev s \\(k!\\). Brez ponavljanja \\(k\\) ne sme presegati \\(n\\).',
-            'Change \\(n\\) and \\(k\\) and the switches "Order matters" and "Items may repeat". The small decision table: order matters and no repetition, variations (permutations when \\(k=n\\)); order matters and repetition, variations with repetition; order does not matter and no repetition, combinations. The graph\'s table also shows a fourth kind, combinations with repetition, but this lesson does not derive it. Compare the numbers: the trees are illustrations of small cases, the general formulas come from the product rule and the division by \\(k!\\). Without repetition \\(k\\) must not exceed \\(n\\).',
+            'Spreminjaj \\(n\\) in \\(k\\) ter krmilnika »Vrstni red šteje« in »Ponavljanje«. Majhna tabela odločitev: vrstni red šteje in ponavljanja ni, so variacije (pri \\(k=n\\) permutacije); vrstni red šteje in ponavljanje je, so variacije s ponavljanjem; vrstni red ne šteje in ponavljanja ni, so kombinacije. Četrto vrsto, kombinacije s ponavljanjem, tabela v grafu tudi pokaže, a je ta lekcija ne izpelje. Primerjaj števila: drevesa so ponazoritve majhnih primerov, splošne obrazce dajeta osnovni izrek in delitev s \\(k!\\). Brez ponavljanja \\(k\\) ne sme presegati \\(n\\).',
+            'Change \\(n\\) and \\(k\\) and the controls "Order matters" and "Repetition". The small decision table: order matters and no repetition, variations (permutations when \\(k=n\\)); order matters and repetition, variations with repetition; order does not matter and no repetition, combinations. The graph\'s table also shows a fourth kind, combinations with repetition, but this lesson does not derive it. Compare the numbers: the trees are illustrations of small cases, the general formulas come from the product rule and the division by \\(k!\\). Without repetition \\(k\\) must not exceed \\(n\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Poišči \\(n\\) in \\(k\\), pri katerih so kombinacije in variacije enake, in pri katerih se najbolj razlikujejo.', 'Find \\(n\\) and \\(k\\) for which combinations and variations are equal, and for which they differ most.'),
         expectedObservations: [text('Pri \\(k=1\\) (ali \\(k=0\\)) je število kombinacij enako številu variacij, sicer je variacij \\(k!\\)-krat več.', 'For \\(k=1\\) (or \\(k=0\\)) the number of combinations equals the number of variations; otherwise there are \\(k!\\) times more variations.')],
+        declare: f({uses: ['counting-n', 'counting-k', 'ordered', 'repetition'], highlight: ['kind', 'count']}),
         scene: countingScene('cb2-explore-scene', {view: 'choices', n: 6, k: 3, ordered: true, repetition: false},
             'Začetni primer: variacije \\(3\\) od \\(6\\) brez ponavljanja, \\(120\\) izbir.',
             'The starting case: variations of \\(3\\) out of \\(6\\) without repetition, \\(120\\) choices.'),
@@ -763,7 +775,7 @@ const cb2: GuidedLesson = {
     steps: cb2Steps,
     sources,
     edgeCases: [
-        text('Brez ponavljanja \\(k\\) ne sme presegati \\(n\\); graf zavrne tak vnos, \\(k\\) pa zniža, kadar se zmanjša \\(n\\) ali se stikalo spremeni, in to pove v stanju.', 'Without repetition \\(k\\) must not exceed \\(n\\); the graph refuses such an entry, and lowers \\(k\\) when \\(n\\) decreases or a switch changes, saying so in the status.'),
+        text('Brez ponavljanja \\(k\\) ne sme presegati \\(n\\); graf zavrne tak vnos, \\(k\\) pa zniža, kadar se zmanjša \\(n\\) ali se krmilnik preklopi, in to pove v stanju.', 'Without repetition \\(k\\) must not exceed \\(n\\); the graph refuses such an entry, and lowers \\(k\\) when \\(n\\) decreases or a control is flipped, saying so in the status.'),
         text('Drevo je narisano samo do \\(64\\) listov, večji primeri imajo tabelo; števila ostanejo natančna. Skupine vrstnih redov kombinacij so narisane za \\(k\\) od \\(2\\) do \\(4\\).', 'The tree is drawn only up to \\(64\\) leaves, larger cases get a table; the numbers stay exact. Groups of orderings of combinations are drawn for \\(k\\) from \\(2\\) to \\(4\\).'),
         text('\\(0!=1\\), zato je ena razporeditev nič predmetov.', '\\(0!=1\\), so there is one arrangement of zero items.'),
     ],

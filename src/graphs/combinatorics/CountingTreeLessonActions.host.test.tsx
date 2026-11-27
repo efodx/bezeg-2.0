@@ -2,7 +2,7 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
@@ -29,50 +29,49 @@ const multiset = (counts: readonly [number, number, number, number]): LessonActi
 const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
-const click = (label: string) => act(() => { fireEvent.click(field(label)); });
+const flip = (key: 'ordered' | 'repetition') => act(() => { fireEvent.click(puckControl(key)); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-combinatorics-status]')?.textContent;
 const stateOf = (graph: CountingTreeGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
-const nLabel = () => t('combinatorics_counting_n_label');
-const kLabel = () => t('combinatorics_counting_k_label');
 
 /** The state, the readouts, the status line and the drawn figure after running `edit` on a fresh graph and then unmounting it. */
-function after(edit: (graph: CountingTreeGraph) => void) {
+async function after(edit: (graph: CountingTreeGraph) => void | Promise<void>) {
     const graph = mount();
-    edit(graph);
+    await waitForPucks('counting-n');
+    await edit(graph);
     const result = {state: stateOf(graph), readouts: readouts(), status: status(), drawn: graph.drawnKey(), table: graph.table().map(row => String(row.count))};
     cleanup();
     return result;
 }
 
-test('set-counting-mode (choices) reaches the state, readouts and figure of the n and k fields and the two switches', () => {
+test('set-counting-mode (choices) reaches the state, readouts and figure of the n and k fields and the two switches', async () => {
     // The controls are used in an order that never makes k exceed n on the way (a smaller n would lower k).
     const cases: [number, number, boolean, boolean, () => void][] = [
-        [3, 2, true, false, () => { type(nLabel(), '3'); type(kLabel(), '2'); }],
-        [5, 5, true, false, () => { type(nLabel(), '5'); type(kLabel(), '5'); }],
-        [6, 3, true, true, () => { click(t('combinatorics_counting_repetition')); }],
-        [4, 3, true, true, () => { click(t('combinatorics_counting_repetition')); type(nLabel(), '4'); }],
-        [6, 3, false, false, () => { click(t('combinatorics_counting_ordered')); }],
+        [3, 2, true, false, async () => { typePuck('counting-n', '3'); typePuck('counting-k', '2'); }],
+        [5, 5, true, false, async () => { typePuck('counting-n', '5'); typePuck('counting-k', '5'); }],
+        [6, 3, true, true, async () => { flip('repetition'); }],
+        [4, 3, true, true, async () => { flip('repetition'); typePuck('counting-n', '4'); }],
+        [6, 3, false, false, async () => { flip('ordered'); }],
     ];
     for (const [n, k, ordered, repetition, control] of cases) {
-        const viaAction = after(graph => apply(graph, choices(n, k, ordered, repetition)));
-        const viaControl = after(control);
+        const viaAction = await after(graph => apply(graph, choices(n, k, ordered, repetition)));
+        const viaControl = await after(control);
         expect({n, k, ordered, repetition, ...viaAction}).toEqual({n, k, ordered, repetition, ...viaControl});
         expect(viaAction.state).toEqual(expect.objectContaining({view: 'choices', n, k, ordered, repetition}));
     }
 });
 
-test('set-counting-mode (multiset) reaches the state and readouts of the Vsebina select and the four letter counts', () => {
-    const viaAction = after(graph => apply(graph, multiset([2, 3, 1, 4])));
-    const viaControl = after(() => {
+test('set-counting-mode (multiset) reaches the state and readouts of the Vsebina select and the four letter counts', async () => {
+    const viaAction = await after(graph => apply(graph, multiset([2, 3, 1, 4])));
+    const viaControl = await after(() => {
         choose(t('combinatorics_view_label'), 'multiset');
         ['M', 'I', 'S', 'P'].forEach((letter, kind) => type(t('combinatorics_counting_letter_count', {value0: letter}), String([2, 3, 1, 4][kind])));
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state).toEqual(expect.objectContaining({view: 'multiset', counts: [2, 3, 1, 4]}));
     // The multiset view keeps the choices values it left, as the select does; going back is a choices action.
-    const back = after(graph => { apply(graph, multiset([1, 4, 4, 2])); apply(graph, choices(6, 3, true, false)); });
-    expect(back).toEqual(after(() => undefined));
+    const back = await after(graph => { apply(graph, multiset([1, 4, 4, 2])); apply(graph, choices(6, 3, true, false)); });
+    expect(back).toEqual(await after(() => undefined));
 });
 
 test('a scene runs its actions in one synchronous sequence: each action reads the state the earlier one wrote', () => {
@@ -131,33 +130,30 @@ test('the graph supports the action; invalid scene data and the lattice graph\'s
 });
 
 const setRow = (n: number, k?: number, t?: number): LessonAction => ({kind: 'combinatorics', operation: 'set-row', n, ...(k === undefined ? {} : {k}), ...(t === undefined ? {} : {t})});
-const rowK = () => t('combinatorics_counting_row_k_label');
-const rowN = () => t('combinatorics_counting_row_n_label');
-const weight = () => t('combinatorics_counting_t_label');
 
-test('set-row reaches the state, readouts and figure of the view select, the n and k fields and the t slider', () => {
+test('set-row reaches the state, readouts and figure of the view select, the n and k fields and the t slider', async () => {
     // The controls run in an order that never makes k exceed n on the way (a smaller n lowers k, as the n field does).
     const rowView = () => choose(t('combinatorics_view_label'), 'row');
     const cases: [LessonAction, () => void][] = [
-        [setRow(6), () => { rowView(); }], // the free state: k = 3 stays, t = 0,5 stays
-        [setRow(10, 5), () => { rowView(); type(rowN(), '10'); type(rowK(), '5'); }],
-        [setRow(7, 3), () => { rowView(); type(rowN(), '7'); type(rowK(), '3'); }],
-        [setRow(5, 2, 0.5), () => { rowView(); type(rowN(), '5'); type(rowK(), '2'); }],
-        [setRow(20, 10, 0.5), () => { rowView(); type(rowN(), '20'); type(rowK(), '10'); }],
-        [setRow(5, 2, 0.25), () => { rowView(); type(rowN(), '5'); type(rowK(), '2'); type(weight(), '0.25'); }],
-        [setRow(0), () => { rowView(); type(rowN(), '0'); }], // n lowers k to 0
-        [setRow(2), () => { rowView(); type(rowN(), '2'); }], // k = 3 lowered to 2
-        [setRow(1, undefined, 1), () => { rowView(); type(rowN(), '1'); type(weight(), '1'); }],
+        [setRow(6), async () => { rowView(); }], // the free state: k = 3 stays, t = 0,5 stays
+        [setRow(10, 5), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '10'); typePuck('counting-k', '5'); }],
+        [setRow(7, 3), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '7'); typePuck('counting-k', '3'); }],
+        [setRow(5, 2, 0.5), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '5'); typePuck('counting-k', '2'); }],
+        [setRow(20, 10, 0.5), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '20'); typePuck('counting-k', '10'); }],
+        [setRow(5, 2, 0.25), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '5'); typePuck('counting-k', '2'); typePuck('counting-t', '0,25'); }],
+        [setRow(0), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '0'); }], // n lowers k to 0
+        [setRow(2), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '2'); }], // k = 3 lowered to 2
+        [setRow(1, undefined, 1), async () => { rowView(); await waitForPucks('counting-t'); typePuck('counting-n', '1'); typePuck('counting-t', '1'); }],
     ];
     for (const [action, control] of cases) {
-        const viaAction = after(graph => apply(graph, action));
-        const control_ = after(control);
+        const viaAction = await after(graph => apply(graph, action));
+        const control_ = await after(control);
         // The controls announce a lowered k in the status line; the action sets the row silently, so only that notice is dropped from the comparison.
         const viaControl = {...control_, status: control_.status?.replace(/ k je znižan na \d+\.$/, '')};
         expect({action, ...viaAction}).toEqual({action, ...viaControl});
         expect(viaAction.state).toEqual(expect.objectContaining({view: 'row', n: (action as {n: number}).n}));
     }
-    expect(after(graph => apply(graph, setRow(5, 2, 0.07))).state).toEqual(expect.objectContaining({t: 7}));
+    expect((await after(graph => apply(graph, setRow(5, 2, 0.07)))).state).toEqual(expect.objectContaining({t: 7}));
 });
 
 test('a scene with set-counting-mode then set-row runs synchronously; the checkpoint restore returns the free state', () => {

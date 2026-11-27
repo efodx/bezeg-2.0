@@ -1,8 +1,9 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, openTools, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
@@ -43,9 +44,16 @@ const readout = (id: string) => document.querySelector(`[data-readout="${id}"] d
 const status = () => document.querySelector('[data-combinatorics-status]')!.textContent!;
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
 const chooseView = (view: 'choices' | 'multiset' | 'row') => choose(t('combinatorics_view_label'), view);
-const set = (graph: ObservedGraph, patch: Parameters<ObservedGraph['setState']>[0]) => act(() => { graph.setState(patch); });
+const set = (graph: ObservedGraph, patch: Parameters<ObservedGraph['setState']>[0]) => act(() => runAs('learner', () => { graph.setState(patch); }));
 const pressKey = (label: string, key: string) => act(() => { fireEvent.keyDown(field(label), {key}); });
-const click = (label: string) => act(() => { fireEvent.click(field(label)); });
+/** The parameter pucks of the graph (n, k and the weight t) and its two switch pucks: the learner's typed entry, key and click. */
+const typeN = (text: string) => typePuck('counting-n', text);
+const typeK = (text: string) => typePuck('counting-k', text);
+const typeT = (text: string) => typePuck('counting-t', text);
+const pressPuck = (key: string, press: string) => act(() => { fireEvent.keyDown(puckControl(key), {key: press}); });
+const flip = (key: 'ordered' | 'repetition') => act(() => { fireEvent.click(puckControl(key)); });
+const tools = () => document.querySelector<HTMLElement>('#board-card-tools')!;
+const pucksOf = async (...keys: string[]) => { for (const key of keys) await waitForPucks(key); };
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 const nLabel = () => t('combinatorics_counting_n_label');
 const kLabel = () => t('combinatorics_counting_k_label');
@@ -282,13 +290,14 @@ describe('row view', () => {
         expect(digits(readout('hockey'))).toContain('(2nad2)+(3nad2)+…+(12nad2)=286=(13nad3)');
     });
 
-    test('weights: n = 5, k = 2, t = 1/2 gives 10/32 = 0,3125; t = 1/4 gives 270/1024; they sum to 1', () => {
+    test('weights: n = 5, k = 2, t = 1/2 gives 10/32 = 0,3125; t = 1/4 gives 270/1024; they sum to 1', async () => {
         const {graph} = mountGraph();
         set(graph, {view: 'row', n: 5, k: 2, t: 50});
+        await pucksOf('counting-t');
         expect(10 / 32).toBe(0.3125);
         expect(readout('weight')).toBe('0,3125 (izračunano)');
         expect(readout('weight-sum')).toBe('1 (izračunano)');
-        enterNumber(field(tLabel()), '0,25');
+        typeT('0,25');
         expect(graph.state.t).toBe(25);
         expect(270 / 1024).toBeCloseTo(0.263671875, 12);
         expect(readout('weight')).toBe('0,263672 (izračunano)');
@@ -296,7 +305,7 @@ describe('row view', () => {
         withElementSize(1000, 432, () => {
             const wrapped = mountGraph().graph;
             set(wrapped, {view: 'row', n: 5, k: 2, t: 25});
-            act(() => { wrapped.liveBoard().setBoundingBox([...VIEW_BOX], false); });
+            act(() => { runAs('learner', () => { wrapped.liveBoard().setBoundingBox([...VIEW_BOX], false); }); });
             // the caption wraps at spaces into lines of the board width
             expect(shownCaptions(wrapped).filter(text => text !== '').join(' ')).toContain(t('combinatorics_counting_cap_weights', {value0: '0,25'}));
         });
@@ -325,11 +334,12 @@ describe('row view', () => {
         noBadText();
     });
 
-    test('a place past the end of the row is shown as the last place and the sums stay exact for n <= 20', () => {
+    test('a place past the end of the row is shown as the last place and the sums stay exact for n <= 20', async () => {
         const {graph} = mountGraph();
         set(graph, {view: 'row', n: 3, k: 9});
+        await pucksOf('counting-k');
         expect(graph.rowPlace()).toBe(3);
-        expect(field(rowKLabel()).value).toBe('3');
+        expect(puckControl('counting-k').getAttribute('aria-valuenow')).toBe('3');
         for (let n = 0; n <= 20; n++) {
             set(graph, {n, k: 0});
             expect(graph.row().sum).toBe(2n ** BigInt(n));
@@ -364,7 +374,7 @@ describe('rebuild and state change', () => {
     test('every drawn curve lies inside the view box in every view and size', () => {
         const {graph} = mountGraph();
         const [left, top, right, bottom] = VIEW_BOX;
-        act(() => { graph.liveBoard().setBoundingBox([...VIEW_BOX], false); }); // a board wider than VIEW_BOX spreads the row view over its visible range
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([...VIEW_BOX], false); }); }); // a board wider than VIEW_BOX spreads the row view over its visible range
         const states: Parameters<ObservedGraph['setState']>[0][] = [
             {view: 'choices', n: 4, k: 3, repetition: true}, {view: 'choices', n: 5, k: 3, repetition: false}, {view: 'choices', n: 1, k: 20, repetition: true},
             {view: 'multiset', counts: [12, 12, 12, 12]}, {view: 'multiset', counts: [1, 4, 4, 2]}, {view: 'row', n: 20, k: 10, t: 50},
@@ -405,37 +415,38 @@ describe('rebuild and state change', () => {
 });
 
 describe('numeric input and keyboard', () => {
-    test('n and k snap, are refused outside their range or when not whole, and k never exceeds n without repetition', () => {
+    test('n and k (count pucks) are refused outside their range or when not whole, and k never exceeds n without repetition', async () => {
         const {graph} = mountGraph();
-        enterNumber(field(nLabel()), '8');
+        await pucksOf('counting-n', 'counting-k');
+        typeN('8');
         expect(graph.state.n).toBe(8);
-        enterNumber(field(kLabel()), '9');
-        expect(graph.state.k).toBe(3); // k > n without repetition is refused
-        enterNumber(field(kLabel()), '8');
+        typeK('9');
+        expect(graph.state.k).toBe(3); // k > n without repetition is refused by the puck, the state is unchanged
+        typeK('8');
         expect(graph.state.k).toBe(8);
-        enterNumber(field(nLabel()), '5');
+        typeN('5');
         expect([graph.state.n, graph.state.k]).toEqual([5, 5]); // n below k pulls k down
-        enterNumber(field(nLabel()), 'tri');
+        typeN('tri');
         expect(graph.state.n).toBe(5);
-        click(t('combinatorics_counting_repetition'));
+        flip('repetition');
         expect(graph.state.repetition).toBe(true);
-        enterNumber(field(kLabel()), '20');
+        typeK('20');
         expect(graph.state.k).toBe(20); // with repetition k may exceed n
-        click(t('combinatorics_counting_repetition'));
+        flip('repetition');
         expect([graph.state.repetition, graph.state.k]).toEqual([false, 5]);
-        click(t('combinatorics_counting_ordered'));
+        flip('ordered');
         expect(graph.state.ordered).toBe(false);
-        // Refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's. Here n is 5 and k is 5 without repetition.
+        // Refused by the puck, not clamped; the ranges are this graph's. Here n is 5 and k is 5 without repetition.
         const edits = graph as unknown as {editN(value: number): boolean; editK(value: number): boolean};
-        expectTypedRefusals((label, text) => enterNumber(field(label), text), [
-            {field: nLabel(), read: () => graph.state.n, min: 0, max: 20, whole: true, edit: value => edits.editN(value)},
-            {field: kLabel(), read: () => graph.state.k, min: 0, max: 5, whole: true, edit: value => edits.editK(value)},
+        expectTypedRefusals((key, text) => typePuck(key, text), [
+            {field: 'counting-n', read: () => graph.state.n, min: 0, max: 20, whole: true, edit: value => runAs('learner', () => edits.editN(value))},
+            {field: 'counting-k', read: () => graph.state.k, min: 0, max: 5, whole: true, edit: value => runAs('learner', () => edits.editK(value))},
         ]);
         expect([graph.state.n, graph.state.k]).toEqual([5, 5]);
-        expect([edits.editN(8), edits.editK(2)]).toEqual([true, true]);
+        expect([runAs('learner', () => edits.editN(8)), runAs('learner', () => edits.editK(2))]).toEqual([true, true]);
     });
 
-    test('letter counts, the row n and k and t snap and are refused outside their range', () => {
+    test('letter counts (in Orodja), the row n and k and t (pucks) are refused outside their range; t snaps to 0,01', async () => {
         const {graph} = mountGraph();
         chooseView('multiset');
         enterNumber(field(letterLabel('S')), '7');
@@ -445,65 +456,82 @@ describe('numeric input and keyboard', () => {
             {field: letterLabel('M'), read: () => graph.state.counts, min: 0, max: 12, whole: true},
         ]);
         chooseView('row');
-        enterNumber(field(rowNLabel()), '14');
-        enterNumber(field(rowKLabel()), '15');
-        expect([graph.state.n, graph.state.k]).toEqual([14, 3]);
-        enterNumber(field(rowKLabel()), '14');
-        enterNumber(field(rowNLabel()), '9');
+        await pucksOf('counting-n', 'counting-k', 'counting-t');
+        typeN('14');
+        typeK('15');
+        expect([graph.state.n, graph.state.k]).toEqual([14, 3]); // k = 15 > n is refused, the state is unchanged
+        typeK('14');
+        typeN('9');
         expect([graph.state.n, graph.state.k]).toEqual([9, 9]);
-        expectTypedRefusals((label, text) => enterNumber(field(label), text), [{field: rowNLabel(), read: () => graph.state.n, min: 0, max: 20, whole: true}]);
-        enterNumber(field(tLabel()), '1,5');
-        expect(graph.state.t).toBe(50);
-        enterNumber(field(tLabel()), '0,07');
+        expectTypedRefusals((key, text) => typePuck(key, text), [{field: 'counting-n', read: () => graph.state.n, min: 0, max: 20, whole: true}]);
+        typeT('1,5');
+        expect(graph.state.t).toBe(50); // 1,5 is outside 0..1: refused, unchanged
+        typeT('0,07');
         expect(graph.state.t).toBe(7);
-        enterNumber(field(tLabel()), '0,333');
-        expect(graph.state.t).toBe(33);
+        typeT('0,333');
+        expect(graph.state.t).toBe(33); // the puck snaps the weight to 0,01
     });
 
-    test('arrow keys step by 1 (t by 0,01) and Page keys by 5 (letter counts by 3, t by 0,05)', () => {
+    test('arrow keys step the count pucks by 1 and the weight puck by 0,01; its Page keys step by 0,05; letter counts keep their Page step of 3', async () => {
         const {graph} = mountGraph();
-        pressKey(nLabel(), 'ArrowUp');
+        await pucksOf('counting-n', 'counting-k');
+        pressPuck('counting-n', 'ArrowUp');
         expect(graph.state.n).toBe(7);
-        pressKey(kLabel(), 'ArrowDown');
+        pressPuck('counting-k', 'ArrowDown');
         expect(graph.state.k).toBe(2);
-        pressKey(nLabel(), 'PageUp');
+        // The count puck has no Page step (CountSetter's big step is not a puck property): five arrow steps replace the old PageUp.
+        for (let i = 0; i < 5; i++) pressPuck('counting-n', 'ArrowUp');
         expect(graph.state.n).toBe(12);
+        await openTools();
         chooseView('multiset');
         pressKey(letterLabel('I'), 'PageUp');
         expect(graph.state.counts).toEqual([1, 7, 4, 2]);
         pressKey(letterLabel('P'), 'ArrowDown');
         expect(graph.state.counts).toEqual([1, 7, 4, 1]);
         chooseView('row');
-        pressKey(tLabel(), 'ArrowUp');
+        await pucksOf('counting-t');
+        pressPuck('counting-t', 'ArrowUp');
         expect(graph.state.t).toBe(51);
-        pressKey(tLabel(), 'PageUp');
+        pressPuck('counting-t', 'PageUp');
         expect(graph.state.t).toBe(56);
-        pressKey(rowKLabel(), 'PageUp');
+        for (let i = 0; i < 5; i++) pressPuck('counting-k', 'ArrowUp');
         expect(graph.state.k).toBe(7); // 2 + 5 within the row of 12
     });
 });
 
 describe('controls', () => {
-    test('n, k and the letter counts are counters and t is a slider: the control shows the range, no shared help repeats it', () => {
+    test('n, k and t are pucks (absent from Orodja), the letter counts are counters there: the control shows the range, no shared help repeats it', async () => {
         mountGraph();
+        await pucksOf('counting-n', 'counting-k');
         expect(document.getElementById('combinatorics-counting-input-help')).toBeNull();
-        for (const label of [nLabel(), kLabel()]) expect(screen.getByRole('group', {name: label})).toBeTruthy();
+        const range = (key: string) => [puckControl(key).getAttribute('aria-valuemin'), puckControl(key).getAttribute('aria-valuemax')];
+        expect(range('counting-n')).toEqual(['0', '20']);
+        expect(range('counting-k')).toEqual(['0', '6']);
+        expect(puckControl('ordered').getAttribute('role')).toBe('switch');
+        expect(puckControl('repetition').getAttribute('role')).toBe('switch');
+        for (const label of [nLabel(), kLabel()]) expect(within(tools()).queryByRole('group', {name: label})).toBeNull();
+        await openTools();
         chooseView('multiset');
         for (const letter of ['M', 'I', 'S', 'P']) expect(screen.getByRole('group', {name: letterLabel(letter)})).toBeTruthy();
         chooseView('row');
-        for (const label of [rowNLabel(), rowKLabel()]) expect(screen.getByRole('group', {name: label})).toBeTruthy();
-        const range = screen.getByRole('slider', {name: tLabel()}) as HTMLInputElement;
-        expect([range.min, range.max, range.step]).toEqual(['0', '1', '0.01']);
+        await pucksOf('counting-t');
+        for (const label of [rowNLabel(), rowKLabel()]) expect(within(tools()).queryByRole('group', {name: label})).toBeNull();
+        expect(range('counting-n')).toEqual(['0', '20']);
+        expect(within(tools()).queryByRole('slider', {name: tLabel()})).toBeNull();
+        // The step of 0,01 is asserted by the arrow-key test above; the puck's slider reports its range.
+        const weight = puckControl('counting-t');
+        expect([weight.getAttribute('aria-valuemin'), weight.getAttribute('aria-valuemax')]).toEqual(['0', '1']);
     });
 
-    test('examples are a select that lists only the examples of the view and shows custom while none matches', () => {
+    test('examples are a select that lists only the examples of the view and shows custom while none matches', async () => {
         const {graph} = mountGraph();
+        await pucksOf('counting-k');
         expect(field(exampleLabel()).value).toBe('variations');
         expect([...field(exampleLabel()).querySelectorAll('option')].map(o => o.value)).toEqual(['books', 'variations', 'variations_repetition', 'combinations']);
         choose(exampleLabel(), 'variations_repetition');
         expect([graph.state.ordered, graph.state.repetition, graph.state.n, graph.state.k]).toEqual([true, true, 6, 3]);
         expect(digits(readout('count'))).toBe('216');
-        enterNumber(field(kLabel()), '4');
+        typeK('4');
         expect(field(exampleLabel()).value).toBe('custom');
         expect([...field(exampleLabel()).querySelectorAll('option')][0].value).toBe('custom');
         chooseView('row');
@@ -634,17 +662,18 @@ describe('review repairs', () => {
         expect(shownCaptions(graph)).not.toContain(rangeNote);
     });
 
-    test('lowering n below k, or turning repetition off, says that k was lowered', () => {
+    test('lowering n below k, or turning repetition off, says that k was lowered', async () => {
         const {graph} = mountGraph();
-        enterNumber(field(nLabel()), '2');
+        await pucksOf('counting-n', 'counting-k');
+        typeN('2');
         expect(graph.state.k).toBe(2);
         expect(status()).toContain('k je znižan na 2.');
-        enterNumber(field(nLabel()), '4');
+        typeN('4');
         expect(status()).not.toContain('znižan');
-        click(t('combinatorics_counting_repetition'));
-        enterNumber(field(kLabel()), '9');
+        flip('repetition');
+        typeK('9');
         expect(graph.state.k).toBe(9);
-        click(t('combinatorics_counting_repetition'));
+        flip('repetition');
         expect(graph.state.k).toBe(4);
         expect(graph.statusText()).toContain('k je znižan na 4.');
         expect(status()).toContain('k je znižan na 4.');
@@ -652,7 +681,7 @@ describe('review repairs', () => {
         expect(status()).toContain('k was lowered to 4.');
     });
 
-    test('the row view keeps k in 0..n in the state and says so when n drops or the view is entered', () => {
+    test('the row view keeps k in 0..n in the state and says so when n drops or the view is entered', async () => {
         const {graph} = mountGraph();
         set(graph, {n: 9, k: 8});
         chooseView('row');
@@ -662,7 +691,8 @@ describe('review repairs', () => {
         chooseView('row');
         expect(graph.state.k).toBe(5);
         expect(status()).toContain('k je znižan na 5.');
-        enterNumber(field(rowNLabel()), '3');
+        await pucksOf('counting-n');
+        typeN('3');
         expect([graph.state.n, graph.state.k]).toEqual([3, 3]);
         expect(status()).toContain('k je znižan na 3.');
     });
@@ -692,7 +722,7 @@ describe('review repairs', () => {
         const {graph} = mountGraph();
         chooseView('row');
         choose(exampleLabel(), 'row10');
-        act(() => { graph.liveBoard().setBoundingBox([...VIEW_BOX], false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([...VIEW_BOX], false); }); });
         const marks = shown(graph).filter(o => textOf(o) === 'k = 5');
         expect(marks.length).toBe(1);
         expect(marks[0].X!()).toBeCloseTo(0.9 + (22.6 / 10) * 5, 9);
@@ -760,7 +790,7 @@ describe('tree captions', () => {
         'the two caption rows keep at least 4 px between them (view box right %d, %s)', (right) => {
             const {graph} = mountGraph();
             set(graph, {view: 'choices', n: 3, k: 2, repetition: false});
-            act(() => { graph.liveBoard().setBoundingBox([-0.5, 24.5, right, -2.5], true); });
+            act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-0.5, 24.5, right, -2.5], true); }); });
             const board = graph.liveBoard();
             const rows = shown(graph).filter(o => {
                 const text = (o as unknown as {plaintext: string}).plaintext;
@@ -790,7 +820,7 @@ describe('tree caption placement', () => {
         const {graph} = mountGraph();
         set(graph, {view: 'choices', n: 3, k: 2, repetition: false});
         act(() => {
-            graph.liveBoard().setBoundingBox([-0.5, 24.5, 24.5, -2.5], false);
+            runAs('learner', () => { graph.liveBoard().setBoundingBox([-0.5, 24.5, 24.5, -2.5], false); });
         });
         const board = graph.liveBoard();
         const [left, top] = board.getBoundingBox();
@@ -850,7 +880,7 @@ describe('row view layout', () => {
     const mountRow = (n: number, k: number) => {
         const {graph} = mountGraph();
         set(graph, {view: 'row', n, k, t: 0.5});
-        act(() => { graph.liveBoard().setBoundingBox([...VIEW_BOX], false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([...VIEW_BOX], false); }); });
         return graph;
     };
 

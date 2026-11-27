@@ -8,10 +8,13 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-comb-c.md (slice 2).
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {CountingTreeIds} from '../../graphs/combinatorics/CountingTreeGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<CountingTreeIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +27,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and the controls it asks the learner to use (counting-tree steps only). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -156,8 +161,8 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Vsota vrstice', 'The sum of a row'),
         purpose: text('Napovedati vsoto vrstice \\(7\\) s štetjem podmnožic in jo utemeljiti z binomskim izrekom.', 'Predicting the sum of row \\(7\\) by counting subsets and arguing it with the binomial theorem.'),
         explanation: text(
-            'V vrstici \\(n\\) Pascalovega trikotnika so števila \\(\\binom n0,\\binom n1,\\ldots,\\binom nn\\), pri čemer je \\(\\binom nk\\) število podmnožic velikosti \\(k\\) množice z \\(n\\) elementi. Premisli: če za vsak element množice odločiš, ali je v podmnožici ali ne, koliko je vseh podmnožic? Napovej vsoto števil v vrstici \\(7\\) in zapiši razlog. Nato v polje »Vrstica n« vpiši \\(7\\) in napoved primerjaj z odčitkom »Vsota vrstice«.',
-            'Row \\(n\\) of the Pascal triangle holds the numbers \\(\\binom n0,\\binom n1,\\ldots,\\binom nn\\), where \\(\\binom nk\\) is the number of subsets of size \\(k\\) of a set of \\(n\\) elements. Think: if for each element of the set you decide whether it is in the subset or not, how many subsets are there in all? Predict the sum of the numbers in row \\(7\\) and write down the reason. Then enter \\(7\\) in the field "Row n" and compare your prediction with the readout "Row sum".',
+            'V vrstici \\(n\\) Pascalovega trikotnika so števila \\(\\binom n0,\\binom n1,\\ldots,\\binom nn\\), pri čemer je \\(\\binom nk\\) število podmnožic velikosti \\(k\\) množice z \\(n\\) elementi. Premisli: če za vsak element množice odločiš, ali je v podmnožici ali ne, koliko je vseh podmnožic? Napovej vsoto števil v vrstici \\(7\\) in zapiši razlog. Nato v krmilnik »Vrstica« vpiši \\(7\\) in napoved primerjaj z odčitkom »Vsota vrstice«.',
+            'Row \\(n\\) of the Pascal triangle holds the numbers \\(\\binom n0,\\binom n1,\\ldots,\\binom nn\\), where \\(\\binom nk\\) is the number of subsets of size \\(k\\) of a set of \\(n\\) elements. Think: if for each element of the set you decide whether it is in the subset or not, how many subsets are there in all? Predict the sum of the numbers in row \\(7\\) and write down the reason. Then enter \\(7\\) in the control "Row" and compare your prediction with the readout "Row sum".',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -170,6 +175,7 @@ const steps: readonly GuidedLessonStep[] = [
                 'The sum of row \\(7\\) is \\(128=2^7\\) and the sum of row \\(10\\) is \\(1024=2^{10}\\). The argument: each of the \\(n\\) elements is in the subset or not, so there are \\(2^n\\) subsets; by size \\(k\\) there are \\(\\binom nk\\) of them, so \\(\\sum_{k=0}^{n}\\binom nk=2^n\\). The same follows from the binomial theorem: expand \\((1+1)^n\\) with \\(a=b=1\\). The readout for two rows is an illustration, the argument holds for every \\(n\\).',
             ),
         ],
+        declare: f({uses: ['counting-n'], highlight: ['row-sum']}),
         scene: rowScene(CB5_SCENES.sum.id, CB5_SCENES.sum.spec,
             'Vrstica Pascalovega trikotnika, \\(n=4\\), \\(k=2\\), \\(t=0{,}5\\): vsota vrstice \\(16\\), izmenična vsota \\(0\\).',
             'Row of the Pascal triangle, \\(n=4\\), \\(k=2\\), \\(t=0.5\\): row sum \\(16\\), alternating sum \\(0\\).'),
@@ -179,8 +185,8 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Izmenična vsota', 'The alternating sum'),
         purpose: text('Utemeljiti, zakaj je izmenična vsota \\(0\\), in napovedati izjemo \\(n=0\\).', 'Arguing why the alternating sum is \\(0\\) and predicting the exception \\(n=0\\).'),
         explanation: text(
-            'Izmenična vsota vrstice je \\(\\binom n0-\\binom n1+\\binom n2-\\cdots\\), predznaki si izmenjujejo. V odprti vrstici in v vseh vrsticah, ki so bile do zdaj odprte, jo odčitek »Izmenična vsota« kaže kot \\(0\\); zdaj iščemo razlog. Vstavi \\(a=1\\) in \\(b=-1\\) v binomski izrek: leva stran je \\((1-1)^n\\), desna pa izmenična vsota. Kaj je leva stran, če ima produkt \\(n\\ge1\\) faktorjev? Pri lihem \\(n\\) pomisli še na pare mest \\(k\\) in \\(n-k\\). Nato napovej izmenično vsoto vrstice \\(0\\), v kateri je en sam člen, in razloži napoved s potenco \\((1-1)^n\\). Nazadnje v polje »Vrstica n« vpiši \\(0\\).',
-            'The alternating sum of a row is \\(\\binom n0-\\binom n1+\\binom n2-\\cdots\\), with the signs in turn. In the open row and in every row you have looked at so far the readout "Alternating sum" shows \\(0\\); now we look for the reason. Substitute \\(a=1\\) and \\(b=-1\\) into the binomial theorem: the left side is \\((1-1)^n\\) and the right side is the alternating sum. What is the left side if the product has \\(n\\ge1\\) factors? For odd \\(n\\) also think of the pairs of places \\(k\\) and \\(n-k\\). Then predict the alternating sum of row \\(0\\), which has a single term, and explain the prediction with the power \\((1-1)^n\\). Finally enter \\(0\\) in the field "Row n".',
+            'Izmenična vsota vrstice je \\(\\binom n0-\\binom n1+\\binom n2-\\cdots\\), predznaki si izmenjujejo. V odprti vrstici in v vseh vrsticah, ki so bile do zdaj odprte, jo odčitek »Izmenična vsota« kaže kot \\(0\\); zdaj iščemo razlog. Vstavi \\(a=1\\) in \\(b=-1\\) v binomski izrek: leva stran je \\((1-1)^n\\), desna pa izmenična vsota. Kaj je leva stran, če ima produkt \\(n\\ge1\\) faktorjev? Pri lihem \\(n\\) pomisli še na pare mest \\(k\\) in \\(n-k\\). Nato napovej izmenično vsoto vrstice \\(0\\), v kateri je en sam člen, in razloži napoved s potenco \\((1-1)^n\\). Nazadnje v krmilnik »Vrstica« vpiši \\(0\\).',
+            'The alternating sum of a row is \\(\\binom n0-\\binom n1+\\binom n2-\\cdots\\), with the signs in turn. In the open row and in every row you have looked at so far the readout "Alternating sum" shows \\(0\\); now we look for the reason. Substitute \\(a=1\\) and \\(b=-1\\) into the binomial theorem: the left side is \\((1-1)^n\\) and the right side is the alternating sum. What is the left side if the product has \\(n\\ge1\\) factors? For odd \\(n\\) also think of the pairs of places \\(k\\) and \\(n-k\\). Then predict the alternating sum of row \\(0\\), which has a single term, and explain the prediction with the power \\((1-1)^n\\). Finally enter \\(0\\) in the control "Row".',
         ),
         formulaIds: ['binomial-theorem'],
         observationPrompt: text(
@@ -189,10 +195,11 @@ const steps: readonly GuidedLessonStep[] = [
         ),
         expectedObservations: [
             text(
-                'Izmenična vsota je \\(1\\) in vsota vrstice je tudi \\(1\\) (vrstica \\(0\\) je samo \\(\\binom00=1\\)); polje »Mesto k v vrstici« se zniža na \\(0\\), kar pove stanje. Za \\(n\\ge1\\) velja \\(\\sum(-1)^k\\binom nk=(1-1)^n=0\\), ker je produkt \\(n\\) ničel \\(0\\); pri \\(n=0\\) je \\((1-1)^0=1\\), ker je vsaka potenca z eksponentom \\(0\\) enaka \\(1\\), zato trditev o ničli zahteva \\(n\\ge1\\). Pri lihem \\(n\\) se členi \\(k\\) in \\(n-k\\) odštejejo v paru. Odčitek je ponazoritev, argument je binomski izrek.',
-                'The alternating sum is \\(1\\) and the row sum is also \\(1\\) (row \\(0\\) is only \\(\\binom00=1\\)); the field "Place k in the row" is lowered to \\(0\\), which the status says. For \\(n\\ge1\\) we have \\(\\sum(-1)^k\\binom nk=(1-1)^n=0\\), because a product of \\(n\\) zeros is \\(0\\); at \\(n=0\\) we get \\((1-1)^0=1\\), since every power with exponent \\(0\\) equals \\(1\\), so the statement about zero needs \\(n\\ge1\\). For odd \\(n\\) the terms \\(k\\) and \\(n-k\\) cancel in pairs. The readout is an illustration, the argument is the binomial theorem.',
+                'Izmenična vsota je \\(1\\) in vsota vrstice je tudi \\(1\\) (vrstica \\(0\\) je samo \\(\\binom00=1\\)); krmilnik »Mesto v vrstici« se zniža na \\(0\\), kar pove stanje. Za \\(n\\ge1\\) velja \\(\\sum(-1)^k\\binom nk=(1-1)^n=0\\), ker je produkt \\(n\\) ničel \\(0\\); pri \\(n=0\\) je \\((1-1)^0=1\\), ker je vsaka potenca z eksponentom \\(0\\) enaka \\(1\\), zato trditev o ničli zahteva \\(n\\ge1\\). Pri lihem \\(n\\) se členi \\(k\\) in \\(n-k\\) odštejejo v paru. Odčitek je ponazoritev, argument je binomski izrek.',
+                'The alternating sum is \\(1\\) and the row sum is also \\(1\\) (row \\(0\\) is only \\(\\binom00=1\\)); the control "Place in row" is lowered to \\(0\\), which the status says. For \\(n\\ge1\\) we have \\(\\sum(-1)^k\\binom nk=(1-1)^n=0\\), because a product of \\(n\\) zeros is \\(0\\); at \\(n=0\\) we get \\((1-1)^0=1\\), since every power with exponent \\(0\\) equals \\(1\\), so the statement about zero needs \\(n\\ge1\\). For odd \\(n\\) the terms \\(k\\) and \\(n-k\\) cancel in pairs. The readout is an illustration, the argument is the binomial theorem.',
             ),
         ],
+        declare: f({uses: ['counting-n'], highlight: ['alternating', 'row-sum', 'status']}),
         scene: rowScene(CB5_SCENES.alternating.id, CB5_SCENES.alternating.spec,
             'Vrstica \\(n=6\\), \\(k=2\\), \\(t=0{,}5\\): vsota vrstice \\(64\\), izmenična vsota \\(0\\).',
             'Row \\(n=6\\), \\(k=2\\), \\(t=0.5\\): row sum \\(64\\), alternating sum \\(0\\).'),
@@ -202,8 +209,8 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Vsota po diagonali (hokejska palica)', 'The sum along a diagonal (hockey stick)'),
         purpose: text('Napovedati vsoto po diagonali za \\(n=7\\), \\(k=3\\) po vzorcu in z vsoto členov ter jo utemeljiti s Pascalovo identiteto.', 'Predicting the diagonal sum for \\(n=7\\), \\(k=3\\) by the pattern and by adding the terms, and arguing it with the Pascal identity.'),
         explanation: text(
-            'Odčitek »Vsota po diagonali« sešteje števila \\(\\binom kk,\\binom{k+1}k,\\ldots,\\binom nk\\) po eni diagonali trikotnika, to je za izbrano mesto \\(k\\) in vrstice do \\(n\\), in vsoto zapiše tudi kot en binomski simbol. Preberi ga v odprtem primeru in poišči vzorec med seštevanci in tem simbolom. Napovej vsoto po diagonali za \\(n=7\\), \\(k=3\\): enkrat tako, da seštevaš člene, in enkrat po vzorcu. Nato v polje »Mesto k v vrstici« vpiši \\(3\\) in v polje »Vrstica n« vpiši \\(7\\), v poljubnem vrstnem redu. Po prvem vnosu odčitek kaže vsoto druge diagonale; napoved velja šele za končno stanje.',
-            'The readout "Sum along the diagonal" adds the numbers \\(\\binom kk,\\binom{k+1}k,\\ldots,\\binom nk\\) along one diagonal of the triangle, that is for the chosen place \\(k\\) and the rows up to \\(n\\), and also writes the sum as a single binomial coefficient. Read it in the open case and find the pattern between the terms and that coefficient. Predict the diagonal sum for \\(n=7\\), \\(k=3\\): once by adding the terms and once by the pattern. Then enter \\(3\\) in the field "Place k in the row" and \\(7\\) in the field "Row n", in either order. After the first entry the readout shows the sum of another diagonal; your prediction applies only to the final state.',
+            'Odčitek »Vsota po diagonali« sešteje števila \\(\\binom kk,\\binom{k+1}k,\\ldots,\\binom nk\\) po eni diagonali trikotnika, to je za izbrano mesto \\(k\\) in vrstice do \\(n\\), in vsoto zapiše tudi kot en binomski simbol. Preberi ga v odprtem primeru in poišči vzorec med seštevanci in tem simbolom. Napovej vsoto po diagonali za \\(n=7\\), \\(k=3\\): enkrat tako, da seštevaš člene, in enkrat po vzorcu. Nato v krmilnik »Mesto v vrstici« vpiši \\(3\\) in v krmilnik »Vrstica« vpiši \\(7\\), v poljubnem vrstnem redu. Po prvem vnosu odčitek kaže vsoto druge diagonale; napoved velja šele za končno stanje.',
+            'The readout "Sum along the diagonal" adds the numbers \\(\\binom kk,\\binom{k+1}k,\\ldots,\\binom nk\\) along one diagonal of the triangle, that is for the chosen place \\(k\\) and the rows up to \\(n\\), and also writes the sum as a single binomial coefficient. Read it in the open case and find the pattern between the terms and that coefficient. Predict the diagonal sum for \\(n=7\\), \\(k=3\\): once by adding the terms and once by the pattern. Then enter \\(3\\) in the control "Place in row" and \\(7\\) in the control "Row", in either order. After the first entry the readout shows the sum of another diagonal; your prediction applies only to the final state.',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -216,6 +223,7 @@ const steps: readonly GuidedLessonStep[] = [
                 'The diagonal sum is \\(1+4+10+20+35=70=\\binom84\\). In the open case \\(1+2+3+4=10=\\binom52\\); after entering \\(k=3\\) at \\(n=4\\) the intermediate sum is \\(\\binom33+\\binom43=5=\\binom54\\), and after entering \\(n=7\\) at \\(k=1\\) it is \\(28=\\binom82\\). The argument: Pascal identity \\(\\binom{n+1}{k+1}=\\binom nk+\\binom n{k+1}\\), applied again and again to the last term, unrolls the sum \\(\\sum_{j=k}^{n}\\binom jk=\\binom{n+1}{k+1}\\), for example \\(\\binom84=\\binom73+\\binom74\\), \\(\\binom74=\\binom63+\\binom64\\), \\(\\ldots\\), \\(\\binom54=\\binom43+\\binom44\\) and \\(\\binom44=1=\\binom33\\). The readout for one case is an illustration.',
             ),
         ],
+        declare: f({uses: ['counting-n', 'counting-k'], highlight: ['hockey']}),
         scene: rowScene(CB5_SCENES.hockey.id, CB5_SCENES.hockey.spec,
             'Vrstica \\(n=4\\), \\(k=1\\), \\(t=0{,}5\\): vsota po diagonali \\(1+2+3+4=10=\\binom52\\).',
             'Row \\(n=4\\), \\(k=1\\), \\(t=0.5\\): diagonal sum \\(1+2+3+4=10=\\binom52\\).'),
@@ -225,14 +233,14 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Uteži mest v vrstici', 'The weights of the places in a row'),
         purpose: text('Izračunati utež \\(\\binom nk t^k(1-t)^{n-k}\\) pri \\(t=\\tfrac12\\) kot ulomek in jo primerjati z izračunanim odčitkom.', 'Computing the weight \\(\\binom nk t^k(1-t)^{n-k}\\) at \\(t=\\tfrac12\\) as a fraction and comparing it with the computed readout.'),
         explanation: text(
-            'Vsako število \\(\\binom nk\\) v vrstici pomnožimo s \\(t^k(1-t)^{n-k}\\) in dobimo utež mesta \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). Višina stolpca nad mestom \\(k\\) je ta utež. Odčitek »Utež pri izbranem k (na 6 decimalk)« je izračunan z decimalnimi števili in zaokrožen na \\(6\\) decimalk, binomski simbol pa je natančen. Račun za odprti primer je spodaj. Napovej utež istega mesta pri \\(t=\\tfrac12\\), najprej kot ulomek in nato kot decimalko. Nato drsnik »Utež t« premakni na \\(0{,}5\\) (puščični tipki ali vlečenje, korak je \\(0{,}01\\)) in primerjaj.',
-            'We multiply each number \\(\\binom nk\\) in the row by \\(t^k(1-t)^{n-k}\\) to get the weight of place \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). The height of the bar above place \\(k\\) is this weight. The readout "Weight at the chosen k (rounded to 6 decimals)" is computed in doubles and rounded to \\(6\\) decimals, while the binomial coefficient is exact. The calculation for the open case is below. Predict the weight of the same place at \\(t=\\tfrac12\\), first as a fraction and then as a decimal. Then move the slider "Weight t" to \\(0.5\\) (arrow keys or dragging, the step is \\(0.01\\)) and compare.',
+            'Vsako število \\(\\binom nk\\) v vrstici pomnožimo s \\(t^k(1-t)^{n-k}\\) in dobimo utež mesta \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). Višina stolpca nad mestom \\(k\\) je ta utež. Odčitek »Utež pri izbranem k (na 6 decimalk)« je izračunan z decimalnimi števili in zaokrožen na \\(6\\) decimalk, binomski simbol pa je natančen. Račun za odprti primer je spodaj. Napovej utež istega mesta pri \\(t=\\tfrac12\\), najprej kot ulomek in nato kot decimalko. Nato krmilnik »Utež« premakni na \\(0{,}5\\) (puščični tipki ali vlečenje, korak je \\(0{,}01\\)) in primerjaj.',
+            'We multiply each number \\(\\binom nk\\) in the row by \\(t^k(1-t)^{n-k}\\) to get the weight of place \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). The height of the bar above place \\(k\\) is this weight. The readout "Weight at the chosen k (rounded to 6 decimals)" is computed in doubles and rounded to \\(6\\) decimals, while the binomial coefficient is exact. The calculation for the open case is below. Predict the weight of the same place at \\(t=\\tfrac12\\), first as a fraction and then as a decimal. Then move the control "Weight" to \\(0.5\\) (arrow keys or dragging, the step is \\(0.01\\)) and compare.',
         ),
         formulaIds: [],
         workedExampleId: 'cb5-weight',
         observationPrompt: text(
-            'Premakni drsnik »Utež t« na \\(0{,}5\\) in preberi utež pri izbranem \\(k\\).',
-            'Move the slider "Weight t" to \\(0.5\\) and read the weight at the chosen \\(k\\).',
+            'Premakni krmilnik »Utež« na \\(0{,}5\\) in preberi utež pri izbranem \\(k\\).',
+            'Move the control "Weight" to \\(0.5\\) and read the weight at the chosen \\(k\\).',
         ),
         expectedObservations: [
             text(
@@ -240,6 +248,7 @@ const steps: readonly GuidedLessonStep[] = [
                 'At \\(t=\\tfrac12\\) we get \\(w_2=\\binom52\\cdot\\tfrac{1}{2^5}=\\tfrac{10}{32}=0.3125\\); the readout shows \\(0.3125\\) (computed). The fraction is exact, the readout is computed in doubles and rounded to \\(6\\) decimals.',
             ),
         ],
+        declare: f({uses: ['counting-t'], highlight: ['weight']}),
         scene: rowScene(CB5_SCENES.weights.id, CB5_SCENES.weights.spec,
             'Vrstica \\(n=5\\), \\(k=2\\), \\(t=0{,}3\\): utež pri izbranem \\(k\\) je \\(0{,}3087\\) (izračunano), vsota uteži \\(1\\).',
             'Row \\(n=5\\), \\(k=2\\), \\(t=0.3\\): the weight at the chosen \\(k\\) is \\(0.3087\\) (computed), the sum of the weights \\(1\\).'),
@@ -249,13 +258,13 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Most do Bernsteina in binomske porazdelitve', 'The bridge to Bernstein and the binomial distribution'),
         purpose: text('Povezati uteži z Bernsteinovimi baznimi funkcijami in binomsko porazdelitvijo ter vsoto uteži utemeljiti z binomskim izrekom.', 'Connecting the weights with the Bernstein basis functions and the binomial distribution, and arguing the sum of the weights with the binomial theorem.'),
         explanation: text(
-            'Uteži \\(w_0(t),\\ldots,w_n(t)\\) vrstice \\(n\\) so iste številke, ki jih srečaš na dveh drugih mestih: v lekciji »Bernsteinove bazne funkcije« so to bazne funkcije stopnje \\(n\\), v lekciji »Od binomske k normalni porazdelitvi« pa so to verjetnosti, da je od \\(n\\) neodvisnih poskusov z verjetnostjo uspeha \\(p=t\\) natanko \\(k\\) uspešnih. Tu ne dodajamo nove vsebine, to sta obstoječi lekciji. Odčitek »Vsota uteži v vrstici (na 6 decimalk)« je v odprtem stanju že izpisan, napoved pa zadeva stanje po tvoji spremembi. Napovej z binomskim izrekom, kjer je \\(a=t\\) in \\(b=1-t\\), kakšna je vsota uteži pri \\(t=0{,}9\\), in ali se utež izbranega mesta \\(k\\) pri tem \\(t\\) poveča ali zmanjša; pri presoji pomisli, da je povprečno število uspehov v \\(n\\) poskusih \\(nt\\). Nato drsnik »Utež t« premakni na \\(0{,}9\\).',
-            'The weights \\(w_0(t),\\ldots,w_n(t)\\) of row \\(n\\) are the same numbers that you meet in two other places: in the lesson "Bernstein basis functions" they are the basis functions of degree \\(n\\), and in the lesson "From binomial to normal" they are the probabilities that exactly \\(k\\) of \\(n\\) independent trials with success probability \\(p=t\\) succeed. We add no new content here, these are existing lessons. The readout "Sum of the weights in the row (rounded to 6 decimals)" is already printed in the open state, and the prediction concerns the state after your change. Using the binomial theorem with \\(a=t\\) and \\(b=1-t\\), predict the sum of the weights at \\(t=0.9\\), and whether the weight of the chosen place \\(k\\) grows or shrinks at this \\(t\\); for the judgement recall that the mean number of successes in \\(n\\) trials is \\(nt\\). Then move the slider "Weight t" to \\(0.9\\).',
+            'Uteži \\(w_0(t),\\ldots,w_n(t)\\) vrstice \\(n\\) so iste številke, ki jih srečaš na dveh drugih mestih: v lekciji »Bernsteinove bazne funkcije« so to bazne funkcije stopnje \\(n\\), v lekciji »Od binomske k normalni porazdelitvi« pa so to verjetnosti, da je od \\(n\\) neodvisnih poskusov z verjetnostjo uspeha \\(p=t\\) natanko \\(k\\) uspešnih. Tu ne dodajamo nove vsebine, to sta obstoječi lekciji. Odčitek »Vsota uteži v vrstici (na 6 decimalk)« je v odprtem stanju že izpisan, napoved pa zadeva stanje po tvoji spremembi. Napovej z binomskim izrekom, kjer je \\(a=t\\) in \\(b=1-t\\), kakšna je vsota uteži pri \\(t=0{,}9\\), in ali se utež izbranega mesta \\(k\\) pri tem \\(t\\) poveča ali zmanjša; pri presoji pomisli, da je povprečno število uspehov v \\(n\\) poskusih \\(nt\\). Nato krmilnik »Utež« premakni na \\(0{,}9\\).',
+            'The weights \\(w_0(t),\\ldots,w_n(t)\\) of row \\(n\\) are the same numbers that you meet in two other places: in the lesson "Bernstein basis functions" they are the basis functions of degree \\(n\\), and in the lesson "From binomial to normal" they are the probabilities that exactly \\(k\\) of \\(n\\) independent trials with success probability \\(p=t\\) succeed. We add no new content here, these are existing lessons. The readout "Sum of the weights in the row (rounded to 6 decimals)" is already printed in the open state, and the prediction concerns the state after your change. Using the binomial theorem with \\(a=t\\) and \\(b=1-t\\), predict the sum of the weights at \\(t=0.9\\), and whether the weight of the chosen place \\(k\\) grows or shrinks at this \\(t\\); for the judgement recall that the mean number of successes in \\(n\\) trials is \\(nt\\). Then move the control "Weight" to \\(0.9\\).',
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Premakni drsnik »Utež t« na \\(0{,}9\\) in preberi utež pri izbranem \\(k\\) ter vsoto uteži v vrstici.',
-            'Move the slider "Weight t" to \\(0.9\\) and read the weight at the chosen \\(k\\) and the sum of the weights in the row.',
+            'Premakni krmilnik »Utež« na \\(0{,}9\\) in preberi utež pri izbranem \\(k\\) ter vsoto uteži v vrstici.',
+            'Move the control "Weight" to \\(0.9\\) and read the weight at the chosen \\(k\\) and the sum of the weights in the row.',
         ),
         expectedObservations: [
             text(
@@ -263,6 +272,7 @@ const steps: readonly GuidedLessonStep[] = [
                 'The sum of the weights stays \\(1\\) (computed) at every \\(t\\): \\(\\sum_{k=0}^{n}\\binom nk t^k(1-t)^{n-k}=(t+(1-t))^n=1^n=1\\). This is the argument from the binomial theorem, the readout is an illustration. The weight of place \\(6\\) in row \\(8\\) grows from about \\(0.003845\\) to about \\(0.148803\\) (computed): the mean at \\(t=0.9\\) is \\(8\\cdot0.9=7.2\\) and at \\(t=0.25\\) it is \\(2\\), so place \\(6\\) is closer to the mean at the larger \\(t\\). The same numbers are the Bernstein basis functions and the binomial probabilities.',
             ),
         ],
+        declare: f({uses: ['counting-t'], highlight: ['weight', 'weight-sum']}),
         scene: rowScene(CB5_SCENES.bridge.id, CB5_SCENES.bridge.spec,
             'Vrstica \\(n=8\\), \\(k=6\\), \\(t=0{,}25\\): utež pri izbranem \\(k\\) je približno \\(0{,}003845\\) (izračunano), vsota uteži \\(1\\).',
             'Row \\(n=8\\), \\(k=6\\), \\(t=0.25\\): the weight at the chosen \\(k\\) is about \\(0.003845\\) (computed), the sum of the weights \\(1\\).'),
@@ -326,7 +336,7 @@ export const rowSumsLesson: GuidedLesson = {
     sources,
     edgeCases: [
         text('Pri \\(n=0\\) je izmenična vsota \\(1\\); trditev, da je \\(0\\), velja samo za \\(n\\ge1\\).', 'At \\(n=0\\) the alternating sum is \\(1\\); the statement that it is \\(0\\) holds only for \\(n\\ge1\\).'),
-        text('Vrstica \\(n\\) je omejena na \\(0\\) do \\(20\\), mesto \\(k\\) na \\(0\\) do \\(n\\) (zmanjšanje \\(n\\) zniža \\(k\\)), drsnik \\(t\\) pa ima korak \\(0{,}01\\) od \\(0\\) do \\(1\\).', 'The row \\(n\\) is limited to \\(0\\) to \\(20\\), the place \\(k\\) to \\(0\\) to \\(n\\) (lowering \\(n\\) lowers \\(k\\)), and the slider \\(t\\) has the step \\(0.01\\) from \\(0\\) to \\(1\\).'),
+        text('Vrstica \\(n\\) je omejena na \\(0\\) do \\(20\\), mesto \\(k\\) na \\(0\\) do \\(n\\) (zmanjšanje \\(n\\) zniža \\(k\\)), krmilnik »Utež« (\\(t\\)) pa ima korak \\(0{,}01\\) od \\(0\\) do \\(1\\).', 'The row \\(n\\) is limited to \\(0\\) to \\(20\\), the place \\(k\\) to \\(0\\) to \\(n\\) (lowering \\(n\\) lowers \\(k\\)), and the control "Weight" (\\(t\\)) has the step \\(0.01\\) from \\(0\\) to \\(1\\).'),
         text('Števila v vrstici so natančna cela števila; samo uteži so decimalna števila, zaokrožena na \\(6\\) decimalk.', 'The numbers in the row are exact integers; only the weights are doubles rounded to \\(6\\) decimals.'),
     ],
     unresolvedQuestions: [],

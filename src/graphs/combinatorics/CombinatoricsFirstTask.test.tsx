@@ -2,7 +2,7 @@
  * Combinatorics routes, first task first (graph-control first use, batch 2): the view chooser stays first, the route's own
  * inputs follow it directly and the example chooser is last.
  */
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import {LatticePathGraph} from './LatticePathGraph';
@@ -44,11 +44,25 @@ const checkOrder = (graph: BaseGraph<BaseGraphState>, first: Label, later: Label
 const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label; later: Label[]}> = {
     'lattice-paths': {make: () => new LatticePathGraph(), first: () => t('combinatorics_view_label'),
         later: [() => 'T, a', () => 'T, b', () => t('combinatorics_lattice_route_label'), () => t('combinatorics_lattice_page_label'), () => t('combinatorics_example_label')]},
-    // The view chooser leads in every view; n is a CountSetter, so its own decrease button follows it.
+    // The view chooser leads in every view; n, k and the two switches of the counting tree are pucks on the strip, so only the example follows it.
     counting: {make: () => new CountingTreeGraph(), first: () => t('combinatorics_view_label'),
-        later: [() => t('decrease_count'), () => t('combinatorics_counting_n_label'), () => t('combinatorics_counting_k_label'), () => t('combinatorics_counting_ordered'),
-            () => t('combinatorics_counting_repetition'), () => t('combinatorics_example_label')]},
+        later: [() => t('combinatorics_example_label')]},
 };
+
+describe('counting: the lesson controls are pucks, not Edit controls', () => {
+    test('n, k and the two switches sit on the puck strip and are absent from the Edit panel', async () => {
+        mountGraph(new CountingTreeGraph());
+        await waitForPucks('counting-n');
+        for (const key of ['counting-n', 'counting-k', 'ordered', 'repetition']) {
+            expect(document.querySelector(`.puck-strip [data-puck-key="${key}"]`), key).not.toBeNull();
+            expect(document.querySelector(`#inspector-edit [data-puck-key="${key}"]`), key).toBeNull();
+        }
+        const edit = editControls();
+        for (const label of ['combinatorics_counting_n_label', 'combinatorics_counting_k_label', 'combinatorics_counting_ordered', 'combinatorics_counting_repetition'] as const) {
+            expect(edit.filter(name => name.startsWith(t(label))), label).toEqual([]);
+        }
+    });
+});
 
 describe.each(Object.keys(plan))('%s', key => {
     test('the first task leads the Edit panel', () => {

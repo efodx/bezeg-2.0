@@ -26,7 +26,9 @@
           "value": "6 · 5 · 4 = 120"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Variacije pri n = 6, k = 3: 120."
+      ],
       "outputs": [],
       "captions": [
         "(n + k - 1)! / (k! (n - 1)!) = 56",
@@ -68,7 +70,9 @@
           "value": "3 · 2 = 6"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Variacije pri n = 3, k = 2: 6."
+      ],
       "outputs": [],
       "captions": [
         "12",
@@ -105,7 +109,9 @@
           "value": "4 · 3 · 2 = 24"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Variacije pri n = 4, k = 3: 24."
+      ],
       "outputs": [],
       "captions": [
         "123",
@@ -160,7 +166,9 @@
           "value": "4 · 3 · 2 · 1 = 24"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Variacije pri n = 4, k = 4: 24."
+      ],
       "outputs": [],
       "captions": [
         "1234",
@@ -230,7 +238,9 @@
           "value": "123, 132, 213, 231, 312, 321"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Kombinacije pri n = 6, k = 3: 20."
+      ],
       "outputs": [],
       "captions": [
         "(n + k - 1)! / (k! (n - 1)!) = 56",
@@ -289,7 +299,9 @@
           "value": "11! = 39 916 800"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Razporeditve 11 črk, med katerimi se nekatere ponavljajo: 34 650."
+      ],
       "outputs": [],
       "captions": [
         "11! / (1! · 4! · 4! · 2!) = 34 650",
@@ -337,10 +349,11 @@
           "value": "1 (izračunano)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vrstica 4: vsota 16, izmenična vsota 0."
+      ],
       "outputs": [],
       "captions": [
-        "(merilo: največja utež)",
         "0",
         "1",
         "1",
@@ -351,7 +364,6 @@
         "4",
         "4",
         "6",
-        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
         "Vrstica 4 Pascalovega trikotnika",
         "izbran k = 2: (4 nad 2) = 6",
         "k = 2"
@@ -386,10 +398,11 @@
           "value": "1 (izračunano)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vrstica 6: vsota 64, izmenična vsota 0."
+      ],
       "outputs": [],
       "captions": [
-        "(merilo: največja utež)",
         "0",
         "1",
         "1",
@@ -404,7 +417,6 @@
         "6",
         "6",
         "6",
-        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
         "Vrstica 6 Pascalovega trikotnika",
         "izbran k = 2: (6 nad 2) = 15",
         "k = 2"
@@ -439,10 +451,11 @@
           "value": "1 (izračunano)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vrstica 4: vsota 16, izmenična vsota 0."
+      ],
       "outputs": [],
       "captions": [
-        "(merilo: največja utež)",
         "0",
         "1",
         "1",
@@ -453,7 +466,6 @@
         "4",
         "4",
         "6",
-        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
         "Vrstica 4 Pascalovega trikotnika",
         "izbran k = 1: (4 nad 1) = 4",
         "k = 1"
@@ -488,10 +500,11 @@
           "value": "1 (izračunano)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vrstica 5: vsota 32, izmenična vsota 0."
+      ],
       "outputs": [],
       "captions": [
-        "(merilo: največja utež)",
         "0",
         "1",
         "1",
@@ -504,7 +517,6 @@
         "5",
         "5",
         "5",
-        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,3",
         "Vrstica 5 Pascalovega trikotnika",
         "izbran k = 2: (5 nad 2) = 10",
         "k = 2"
@@ -539,10 +551,11 @@
           "value": "1 (izračunano)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vrstica 8: vsota 256, izmenična vsota 0."
+      ],
       "outputs": [],
       "captions": [
-        "(merilo: največja utež)",
         "0",
         "1",
         "1",
@@ -561,7 +574,6 @@
         "8",
         "8",
         "8",
-        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,25",
         "Vrstica 8 Pascalovega trikotnika",
         "izbran k = 6: (8 nad 6) = 28",
         "k = 6"
@@ -596,10 +608,11 @@
           "value": "1 (izračunano)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vrstica 6: vsota 64, izmenična vsota 0."
+      ],
       "outputs": [],
       "captions": [
-        "(merilo: največja utež)",
         "0",
         "1",
         "1",
@@ -614,7 +627,6 @@
         "6",
         "6",
         "6",
-        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
         "Vrstica 6 Pascalovega trikotnika",
         "izbran k = 3: (6 nad 3) = 20",
         "k = 3"

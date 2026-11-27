@@ -1142,6 +1142,23 @@ const SAMPLES: readonly Sample[] = [
             {name: 'w at the origin', apply: run('zero', g => { g.setRootsVisible(true); g.setPolygonVisible(true); g.setTestVisible(true); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'combinatorics/__parity__/counting-tree.json', demonstration: 'counting-tree', states: (() => {
+        type Counting = {setState(state: Record<string, unknown>): void};
+        const fresh = {view: 'choices', n: 6, k: 3, ordered: true, repetition: false, counts: [1, 4, 4, 2], t: 50};
+        // every state starts from the default state, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Counting).setState({...fresh, ...state})); };
+        return [
+            {name: 'default, variations 3 of 6', apply: run({})},
+            {name: 'variations with repetition', apply: run({repetition: true})},
+            {name: 'combinations 3 of 6', apply: run({ordered: false})},
+            {name: 'combinations with repetition, 2 of 4', apply: run({n: 4, k: 2, ordered: false, repetition: true})},
+            {name: 'permutations of 5', apply: run({n: 5, k: 5})},
+            {name: 'letters of MISSISSIPPI', apply: run({view: 'multiset'})},
+            {name: 'letters 2, 0, 3, 1', apply: run({view: 'multiset', counts: [2, 0, 3, 1]})},
+            {name: 'row 7, k 3', apply: run({view: 'row', n: 7, k: 3})},
+            {name: 'row 10, k 5, weight 0,25', apply: run({view: 'row', n: 10, k: 5, t: 25})},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root =path.resolve(__dirname, '../..');

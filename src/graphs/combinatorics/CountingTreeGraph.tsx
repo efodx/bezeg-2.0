@@ -1,6 +1,11 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, messageNumber, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration, ReadoutRow} from "../base/declare/graphDeclaration";
+import {DomainError} from "../functions/BaseFunctionGraph";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
@@ -23,6 +28,22 @@ import {Preset} from "../base/presets/Presets";
 import {countingTreePresetCollection} from "./combinatoricsPresetCollection";
 import {addPolyline, binomText, countText, emptyPoly, Poly, SceneObjects, smallText, superscript} from "./combinatoricsText";
 
+/**
+ * The ids the declaration, the frames and the actions use. `n`, `k` and the weight `t` are pucks (the lessons ask the learner to set them), the two switches of the
+ * choices are switch pucks; the view, the example and the letter counts stay in Orodja without a key. `legend` and `section` are never used: the board captions
+ * name what is drawn.
+ */
+export type CountingTreeIds = {
+    param: "counting-n" | "counting-k" | "counting-t";
+    row: "kind" | "count" | "leaves" | "product" | "orderings" | "division" | "orderings-list" | "letters" | "arrangements" | "all-different"
+        | "row-sum" | "alternating" | "hockey" | "weight" | "weight-sum";
+    note: "status";
+    legend: never;
+    section: never;
+    action: "ordered" | "repetition";
+};
+type CountingRow = ReadoutRow<CountingTreeIds>;
+
 /** The scene state: the stored counting fields. */
 export interface CountingTreeGraphState extends BaseGraphState, CountingState {}
 
@@ -33,6 +54,8 @@ const CAPTION_FONT_PX = 15;
 const CAPTION_MARGIN_PX = 6;
 const ROOT_DOT_PX = 6;
 export const VIEW_BOX: [number, number, number, number] = [-0.5, 24.5, 24.5, -2.5];
+/** Row view: the indices sit at 4.6; the frame ends just under them. */
+export const ROW_VIEW_BOTTOM = 3.5;
 export const STEP = 1;
 export const BIG_STEP = 5;
 export const COUNT_BIG_STEP = 3;
@@ -150,7 +173,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     };
     private readonly status = new SettledReadout();
     /** A clause for the status text, valid only for the state it was made for: a later state change makes it stale by itself. */
-    private notice?: {readonly state: CountingTreeGraphState; readonly text: () => string};
+    private notice?: {readonly state: CountingTreeGraphState; readonly text: Message};
 
     constructor() {
         super();
@@ -594,7 +617,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         let result: RowLayout | undefined;
         for (let v = 0; v < variants.length; v++) {
             const {font, weights} = variants[v];
-            const maxChars = Math.max(10, Math.floor(((Math.max(right, span.right + 1) - span.edge - 0.2) * unitX - 8) / (font * 0.55)));
+            const maxChars = Math.max(10, Math.floor(((Math.min(Math.max(right, span.right + 1), VIEW_BOX[2]) - span.edge - 0.2) * unitX - 8) / (font * 0.55)));
             const texts = [
                 t("combinatorics_counting_cap_row", {value0: smallText(n)}),
                 weights === "none" ? "" : weights === "short" ? t("combinatorics_counting_cap_weights_short", {value0: tNow}) : t("combinatorics_counting_cap_weights", {value0: tNow}),
@@ -651,7 +674,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     /** Tells that k was lowered, in the status text and so in the live region. Called after the state was written. */
     private announceLoweredK(before: number): void {
         const k = this.state.k;
-        if (k < before) this.notice = {state: this.state, text: () => t("combinatorics_counting_notice_k", {value0: smallText(k)})};
+        if (k < before) this.notice = {state: this.state, text: message("combinatorics_counting_notice_k", {value0: smallText(k)})};
     }
 
     private editN(value: number): boolean {
@@ -795,35 +818,49 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         }
     }
 
-    /** The status, with the clause of the last edit that changed a value by itself (k lowered) while that state is current. */
+    /** The status as a message, with the clause of the last edit that changed a value by itself (k lowered) while that state is current. */
+    statusMessage(): Message {
+        const base = this.baseStatusMessage();
+        return this.notice && this.notice.state === this.state ? message("counting_status_join", {value0: base, value1: this.notice.text}) : base;
+    }
+
+    /** The status as text in the current language. */
     statusText(): string {
-        const base = this.baseStatusText();
-        return this.notice && this.notice.state === this.state ? `${base} ${this.notice.text()}` : base;
+        return renderMessage(this.statusMessage());
     }
 
     /** A weight rounded to 6 decimals; a nonzero weight that rounds to 0 is shown as "< 0,000001" instead of a false 0. */
-    private weightText(value: number): string {
+    private weightMessage(value: number): Message {
         const language = currentLanguage();
         const tiny = value > 0 && Number(value.toFixed(6)) === 0;
-        return t("combinatorics_computed", {
-            value0: tiny ? t("combinatorics_counting_weight_tiny", {value0: formatNumber(0.000001, language, 6)}) : formatNumber(value, language, 6),
+        return message("combinatorics_computed", {
+            value0: tiny ? message("combinatorics_counting_weight_tiny", {value0: formatNumber(0.000001, language, 6)}) : formatNumber(value, language, 6),
         });
     }
 
-    private baseStatusText(): string {
+    private kindMessage(kind: CountingKind): Message {
+        switch (kind) {
+            case "variations": return message("combinatorics_counting_kind_variations");
+            case "variationsRepetition": return message("combinatorics_counting_kind_variations_repetition");
+            case "combinations": return message("combinatorics_counting_kind_combinations");
+            case "combinationsRepetition": return message("combinatorics_counting_kind_combinations_repetition");
+        }
+    }
+
+    private baseStatusMessage(): Message {
         const {n, k} = this.state;
         switch (this.state.view) {
             case "choices": {
                 const d = this.counting();
-                return t("combinatorics_counting_status", {value0: this.kindName(d.kind), value1: smallText(n), value2: smallText(k), value3: countText(d.count)});
+                return message("combinatorics_counting_status", {value0: this.kindMessage(d.kind), value1: smallText(n), value2: smallText(k), value3: countText(d.count)});
             }
             case "multiset": {
                 const d = this.multiset();
-                return t("combinatorics_counting_status_multiset", {value0: smallText(d.total), value1: countText(d.count)});
+                return message("combinatorics_counting_status_multiset", {value0: smallText(d.total), value1: countText(d.count)});
             }
             case "row": {
                 const d = this.row();
-                return t("combinatorics_counting_status_row", {value0: smallText(n), value1: countText(d.sum), value2: countText(d.alternatingSum)});
+                return message("combinatorics_counting_status_row", {value0: smallText(n), value1: countText(d.sum), value2: countText(d.alternatingSum)});
             }
         }
     }
@@ -834,37 +871,49 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         return `${factors.length ? factors.join(" · ") : "1"} = ${countText(d.ordered)}`;
     }
 
-    private hockeyText(): string {
-        const n = this.state.n;
-        const k = this.rowPlace();
-        const terms = Array.from({length: n - k + 1}, (_, i) => binomText(k + i, k));
-        const shown = terms.length <= 5 ? terms.join(" + ") : `${terms[0]} + ${terms[1]} + … + ${terms[terms.length - 1]}`;
-        return `${shown} = ${countText(this.row().hockeyStick)} = ${binomText(n + 1, k + 1)}`;
+    private binomMessage(n: number, k: number): Message {
+        return message("combinatorics_binom_format", {value0: smallText(n), value1: smallText(k)});
     }
 
-    private readoutRows(): ReadoutListRow[] {
+    /** The diagonal sum "(k nad k) + ... = total = (n + 1 nad k + 1)" as a message (the binomial symbols carry words). */
+    private hockeyMessage(): Message {
+        const n = this.state.n;
+        const k = this.rowPlace();
+        const terms = Array.from({length: n - k + 1}, (_, i) => this.binomMessage(k + i, k));
+        const shown = terms.length <= 5
+            ? terms.reduce((all, term) => message("counting_sum_join", {value0: all, value1: term}))
+            : message("counting_sum_gap", {value0: terms[0], value1: terms[1], value2: terms[terms.length - 1]});
+        return message("counting_hockey_value", {value0: shown, value1: countText(this.row().hockeyStick), value2: this.binomMessage(n + 1, k + 1)});
+    }
+
+    private formatted(text: string): {readonly kind: "formatted"; readonly text: string} {
+        return {kind: "formatted", text};
+    }
+
+    /** The rows of the readout as declared values: the declaration's rows and what the panel lists. */
+    private rowSpecs(): CountingRow[] {
         const {n} = this.state;
         switch (this.state.view) {
             case "choices": {
                 const d = this.counting();
-                const rows: ReadoutListRow[] = [
-                    {id: "kind", label: t("combinatorics_counting_readout_kind"), value: this.kindName(d.kind)},
-                    {id: "count", label: t("combinatorics_counting_readout_count"), value: countText(d.count)},
-                    {id: "leaves", label: t("combinatorics_counting_readout_leaves"), value: countText(d.ordered)},
+                const rows: CountingRow[] = [
+                    {id: "kind", name: message("combinatorics_counting_readout_kind"), value: this.kindMessage(d.kind)},
+                    {id: "count", name: message("combinatorics_counting_readout_count"), value: this.formatted(countText(d.count))},
+                    {id: "leaves", name: message("combinatorics_counting_readout_leaves"), value: this.formatted(countText(d.ordered))},
                 ];
                 if (d.kind !== "combinationsRepetition") {
-                    rows.push({id: "product", label: t("combinatorics_counting_readout_product"), value: this.productText(d)});
+                    rows.push({id: "product", name: message("combinatorics_counting_readout_product"), value: this.formatted(this.productText(d))});
                 }
                 if (d.kind === "combinations") {
                     const k = this.state.k;
                     rows.push(
-                        {id: "orderings", label: t("combinatorics_counting_readout_orderings"), value: `${smallText(k)}! = ${countText(d.orderings)}`},
-                        {id: "division", label: t("combinatorics_counting_readout_division"),
-                         value: `${countText(d.ordered)} / ${countText(d.orderings)} = ${countText(d.count)}`},
+                        {id: "orderings", name: message("combinatorics_counting_readout_orderings"), value: this.formatted(`${smallText(k)}! = ${countText(d.orderings)}`)},
+                        {id: "division", name: message("combinatorics_counting_readout_division"),
+                         value: this.formatted(`${countText(d.ordered)} / ${countText(d.orderings)} = ${countText(d.count)}`)},
                     );
                     if (k >= 1 && k <= ORDERINGS_LIST_MAX_K) {
-                        rows.push({id: "orderings-list", label: t("combinatorics_counting_readout_orderings_list"),
-                                   value: treeLeaves(k, k, false).map(order => order.join("")).join(", ")});
+                        rows.push({id: "orderings-list", name: message("combinatorics_counting_readout_orderings_list"),
+                                   value: this.formatted(treeLeaves(k, k, false).map(order => order.join("")).join(", "))});
                     }
                 }
                 return rows;
@@ -872,23 +921,113 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
             case "multiset": {
                 const d = this.multiset();
                 return [
-                    {id: "letters", label: t("combinatorics_counting_readout_letters"), value: smallText(d.total)},
-                    {id: "arrangements", label: t("combinatorics_counting_readout_arrangements"), value: this.multisetFormula()},
-                    {id: "all-different", label: t("combinatorics_counting_readout_all_different"), value: `${smallText(d.total)}! = ${countText(d.allDifferent)}`},
+                    {id: "letters", name: message("combinatorics_counting_readout_letters"), value: this.formatted(smallText(d.total))},
+                    {id: "arrangements", name: message("combinatorics_counting_readout_arrangements"), value: this.formatted(this.multisetFormula())},
+                    {id: "all-different", name: message("combinatorics_counting_readout_all_different"), value: this.formatted(`${smallText(d.total)}! = ${countText(d.allDifferent)}`)},
                 ];
             }
             case "row": {
                 const d = this.row();
                 const k = this.rowPlace();
                 return [
-                    {id: "row-sum", label: t("combinatorics_counting_readout_row_sum"), value: `${countText(d.sum)} = 2${superscript(n)}`},
-                    {id: "alternating", label: t("combinatorics_counting_readout_alternating"), value: countText(d.alternatingSum)},
-                    {id: "hockey", label: t("combinatorics_counting_readout_hockey"), value: this.hockeyText()},
-                    {id: "weight", label: t("combinatorics_counting_readout_weight"),
-                     value: this.weightText(d.weights[k])},
-                    {id: "weight-sum", label: t("combinatorics_counting_readout_weight_sum"), value: this.weightText(d.weightSum)},
+                    {id: "row-sum", name: message("combinatorics_counting_readout_row_sum"), value: this.formatted(`${countText(d.sum)} = 2${superscript(n)}`)},
+                    {id: "alternating", name: message("combinatorics_counting_readout_alternating"), value: this.formatted(countText(d.alternatingSum))},
+                    {id: "hockey", name: message("combinatorics_counting_readout_hockey"), value: this.hockeyMessage()},
+                    {id: "weight", name: message("combinatorics_counting_readout_weight"), value: this.weightMessage(d.weights[k])},
+                    {id: "weight-sum", name: message("combinatorics_counting_readout_weight_sum"), value: this.weightMessage(d.weightSum)},
                 ];
             }
+        }
+    }
+
+    /** The panel's text of the rows. */
+    private readoutRows(): ReadoutListRow[] {
+        return this.rowSpecs().map(({id, name, value}): ReadoutListRow => ({
+            id, label: name ? renderMessage(name) : id, value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration ----------------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064). Keys `counting-n` and `counting-k` (the typed setters of the two counts, in the choices and in the row view; a value that is not
+     * whole or outside the range is refused with the control's own message, never rounded) and `counting-t` (the weight, 0 to 1 in steps of 0,01; a typed weight is
+     * snapped to the grid, as the slider does). The view, the example and the letter counts have no key: they stay in Orodja.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const refuseCount = (range: {min: number; max: number}): never => {
+            throw new DomainError(message("counting_value_rejected", {value0: messageNumber(range.min, 0), value1: messageNumber(range.max, 0)}));
+        };
+        return {
+            "counting-n": {
+                read: () => this.state.n,
+                apply: (value: unknown) => {
+                    const range = this.state.view === "row" ? ROW_N_RANGE : COUNT_N_RANGE;
+                    if (typeof value !== "number" || !this.editN(value)) refuseCount(range);
+                },
+            },
+            "counting-k": {
+                read: () => this.state.view === "row" ? this.rowPlace() : this.state.k,
+                apply: (value: unknown) => {
+                    if (typeof value !== "number" || !this.editK(value)) refuseCount(this.kRange());
+                },
+            },
+            "counting-t": {
+                read: () => this.state.t / T_DENOMINATOR,
+                apply: (value: unknown) => {
+                    if (typeof value !== "number" || !this.editT(value)) {
+                        throw new DomainError(message("counting_weight_rejected", {value0: messageNumber(T_RANGE.min / T_DENOMINATOR, 0), value1: messageNumber(T_RANGE.max / T_DENOMINATOR, 0)}));
+                    }
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state. Pucks (lessons CB2 and CB5 ask the learner to set them while watching the count): n and k in the choices and in the row view, the two
+     * switches of the choices (order and repetition, flipped to compare), the weight t of the row view. The view and the example are setup and the letter counts of
+     * the multiset are never asked for: they stay in Orodja. The status sentence is the note, the rows are the readouts; the board captions stay on the board.
+     */
+    protected override declaration(): GraphDeclaration<CountingTreeIds> {
+        const {view, ordered, repetition} = this.state;
+        const parameters: ParameterDeclaration<CountingTreeIds["param"]>[] = [];
+        const actions: ActionDeclaration<CountingTreeIds>[] = [];
+        if (view !== "multiset") {
+            const nRange = view === "row" ? ROW_N_RANGE : COUNT_N_RANGE;
+            const kRange = this.kRange();
+            parameters.push(
+                {key: "counting-n", kind: "count", label: message(view === "row" ? "counting_row_n_name" : "counting_n_name"), symbol: "n", placement: "board", min: nRange.min, max: nRange.max,
+                 help: message(view === "row" ? "counting_row_n_help" : "counting_n_help")},
+                {key: "counting-k", kind: "count", label: message(view === "row" ? "counting_row_k_name" : "counting_k_name"), symbol: "k", placement: "board", min: kRange.min, max: kRange.max,
+                 help: message(view === "row" ? "counting_row_k_help" : "counting_k_help")},
+            );
+        }
+        if (view === "row") {
+            parameters.push({key: "counting-t", kind: "range", label: message("counting_t_name"), symbol: "t", placement: "board", min: T_RANGE.min / T_DENOMINATOR, max: T_RANGE.max / T_DENOMINATOR,
+                             step: T_STEP, bigStep: T_BIG_STEP, maxDecimals: 2, help: message("counting_t_help")});
+        }
+        if (view === "choices") {
+            actions.push(
+                {id: "ordered", label: message("combinatorics_counting_ordered"), placement: "board", enabled: true, pressed: ordered, puck: true},
+                {id: "repetition", label: message("counting_repetition_name"), placement: "board", enabled: true, pressed: repetition, puck: true},
+            );
+        }
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("combinatorics_readout_title"), rows: this.rowSpecs()}],
+            notes: [{id: "status", text: this.statusMessage()}],
+            actions,
+            // The row view reads the bars with their numbers and indices and the captions above them (wrapped inside the width of VIEW_BOX): the frame is that part of VIEW_BOX, not the empty space under the indices.
+            marks: {must: [{kind: "box", left: VIEW_BOX[0], top: VIEW_BOX[1], right: VIEW_BOX[2], bottom: view === "row" ? ROW_VIEW_BOTTOM : VIEW_BOX[3]}]},
+            ...(view === "row" ? {followView: [VIEW_BOX[0], VIEW_BOX[1], VIEW_BOX[2], ROW_VIEW_BOTTOM] as [number, number, number, number]} : {}),
+        };
+    }
+
+    override performAction(id: string): void {
+        switch (id) {
+            case "ordered": runAs("learner", () => this.setFlag({ordered: !this.state.ordered})); return;
+            case "repetition": runAs("learner", () => this.setFlag({repetition: !this.state.repetition})); return;
+            default: throw new Error("Unknown action");
         }
     }
 
@@ -917,7 +1056,8 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         const view = state.view;
         const current = this.exampleValue();
         const exampleOptions = EXAMPLES.filter(example => example.view === view).map(example => ({value: example.id, text: this.exampleName(example.id)}));
-        // The view chooser stays first in every view so it never moves; the counting inputs follow it, the example chooser last.
+        // The view chooser stays first in every view so it never moves; the letter counts follow it, the example chooser last. The counts n and k, the two
+        // switches and the weight are pucks on the board; their controls here render only while no puck owns them.
         const selectors: JSX.Element[] = [
             <ChoiceSelect key="view" label={t("combinatorics_view_label")} value={view}
                           options={COUNTING_VIEWS.map(name => ({value: name, text: this.viewName(name)}))}
@@ -941,27 +1081,37 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
             const nRange = view === "row" ? ROW_N_RANGE : COUNT_N_RANGE;
             const k = view === "row" ? this.rowPlace() : state.k;
             commands.push(
-                <CountSetter key="n" label={t(view === "row" ? "combinatorics_counting_row_n_label" : "combinatorics_counting_n_label")} n={state.n}
-                             min={nRange.min} max={nRange.max} bigStep={BIG_STEP}
-                             onPlus={() => this.editN(state.n + 1)} onMinus={() => this.editN(state.n - 1)} onSet={value => this.editN(value)}/>,
-                <CountSetter key="k" label={t(view === "row" ? "combinatorics_counting_row_k_label" : "combinatorics_counting_k_label")} n={k}
-                             min={() => this.kRange().min} max={() => this.kRange().max} bigStep={BIG_STEP}
-                             onPlus={() => this.editK(k + 1)} onMinus={() => this.editK(k - 1)} onSet={value => this.editK(value)}/>,
+                <PuckOwned key="n" param="counting-n">
+                    <CountSetter label={t(view === "row" ? "combinatorics_counting_row_n_label" : "combinatorics_counting_n_label")} n={state.n}
+                                 min={nRange.min} max={nRange.max} bigStep={BIG_STEP}
+                                 onPlus={() => this.editN(state.n + 1)} onMinus={() => this.editN(state.n - 1)} onSet={value => this.editN(value)}/>
+                </PuckOwned>,
+                <PuckOwned key="k" param="counting-k">
+                    <CountSetter label={t(view === "row" ? "combinatorics_counting_row_k_label" : "combinatorics_counting_k_label")} n={k}
+                                 min={() => this.kRange().min} max={() => this.kRange().max} bigStep={BIG_STEP}
+                                 onPlus={() => this.editK(k + 1)} onMinus={() => this.editK(k - 1)} onSet={value => this.editK(value)}/>
+                </PuckOwned>,
             );
         }
         if (view === "choices") {
             commands.push(
-                <BooleanField key="ordered" variant="switch" label={t("combinatorics_counting_ordered")} checked={state.ordered}
-                              onChange={checked => this.setFlag({ordered: checked})}/>,
-                <BooleanField key="repetition" variant="switch" label={t("combinatorics_counting_repetition")} checked={state.repetition}
-                              onChange={checked => this.setFlag({repetition: checked})}/>,
+                <PuckOwned key="ordered" param="ordered">
+                    <BooleanField variant="switch" label={t("combinatorics_counting_ordered")} checked={state.ordered}
+                                  onChange={checked => this.setFlag({ordered: checked})}/>
+                </PuckOwned>,
+                <PuckOwned key="repetition" param="repetition">
+                    <BooleanField variant="switch" label={t("combinatorics_counting_repetition")} checked={state.repetition}
+                                  onChange={checked => this.setFlag({repetition: checked})}/>
+                </PuckOwned>,
             );
         }
         if (view === "row") {
             commands.push(
-                <Slider key="t" customText={t("combinatorics_counting_t_label")} value={state.t / T_DENOMINATOR} step={T_STEP} bigStep={T_BIG_STEP}
-                        min={T_RANGE.min / T_DENOMINATOR} max={T_RANGE.max / T_DENOMINATOR} grid={T_STEP} decimals={2}
-                        onChange={value => this.editT(value)}/>,
+                <PuckOwned key="t" param="counting-t">
+                    <Slider customText={t("combinatorics_counting_t_label")} value={state.t / T_DENOMINATOR} step={T_STEP} bigStep={T_BIG_STEP}
+                            min={T_RANGE.min / T_DENOMINATOR} max={T_RANGE.max / T_DENOMINATOR} grid={T_STEP} decimals={2}
+                            onChange={value => this.editT(value)}/>
+                </PuckOwned>,
             );
         }
         return [selectors[0], ...commands, selectors[1]];
@@ -970,9 +1120,9 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("combinatorics_readout_title")}</ReadoutHeading>
-                <p data-combinatorics-status="">{this.statusText()}</p>
+                <p data-combinatorics-status="" data-readout-note="">{this.statusText()}</p>
                 <ReadoutList label={t("combinatorics_readout_title")} rows={this.readoutRows()}/>
                 <LiveReadout readout={this.status}/>
             </div>

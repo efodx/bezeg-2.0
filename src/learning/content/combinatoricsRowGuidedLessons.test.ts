@@ -3,14 +3,13 @@
  * text states (both languages, out of order and twice, one synchronous sequence from a restored checkpoint), the learner actions the text asks for give the
  * readouts the text quotes, and no step shows the answer of its own prediction. Counts are recomputed here with BigInt (Pascal's rule), not with the kernel.
  */
-import {act, screen} from '@testing-library/react';
+import {act} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {CB5_CHANGES, CB5_SCENES, ROW_SUMS_LESSON_ID, rowSceneActions, rowSumsLesson} from './combinatoricsRowGuidedLessons';
 import type {RowSceneSpec} from './combinatoricsRowGuidedLessons';
 import type {GuidedLesson} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import {CountingTreeGraph} from '../../graphs/combinatorics/CountingTreeGraph';
-import {enterNumber} from '../../inputs/testEntry';
 import {setLanguage, t} from '../../localization';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -53,7 +52,7 @@ function pick(state: object, keys: string[]): Record<string, unknown> {
 }
 
 /** The graph in `language`, a restored-checkpoint scene runner and the learner's field entries (a label, typed and confirmed). */
-function mountRow(language: Language) {
+async function mountRow(language: Language) {
     setLanguage(language);
     const graph = new CountingTreeGraph();
     const mounted = mountGraph(graph);
@@ -63,15 +62,15 @@ function mountRow(language: Language) {
         capabilities.restoreState(checkpoint);
         for (const action of sceneActions(rowSumsLesson.steps.find(step => step.id === stepId)!.scene!)) capabilities.apply(action);
     });
-    /** A slider's exact field is named "<label>, vrednost"; a count's field is named by its label. */
-    const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-    const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-    const nLabel = t('combinatorics_counting_row_n_label');
-    const kLabel = t('combinatorics_counting_row_k_label');
-    const tLabel = t('combinatorics_counting_t_label');
-    return {graph, mounted, capabilities, checkpoint, scene, type, nLabel, kLabel, tLabel, field, language};
+    /** The learner's typed entry on a puck (a double click, then Enter), by the puck's key. */
+    const type = (key: string, value: string) => typePuck(key, value);
+    const nLabel = 'counting-n';
+    const kLabel = 'counting-k';
+    const tLabel = 'counting-t';
+    await waitForPucks('counting-n');
+    return {graph, mounted, capabilities, checkpoint, scene, type, nLabel, kLabel, tLabel, language};
 }
-type Row = ReturnType<typeof mountRow>;
+type Row = Awaited<ReturnType<typeof mountRow>>;
 const done = (m: Row) => m.mounted.view.unmount();
 
 const STEP_OF: Record<string, keyof typeof CB5_SCENES> = {
@@ -117,8 +116,8 @@ describe('CB5 structure', () => {
     });
 });
 
-test.each(LANGUAGES)('every scene lands in the stated state, status and readouts on the real graph (%s), out of order and twice', language => {
-    const m = mountRow(language);
+test.each(LANGUAGES)('every scene lands in the stated state, status and readouts on the real graph (%s), out of order and twice', async language => {
+    const m = await mountRow(language);
     try {
         const ids = rowSumsLesson.steps.map(step => step.id);
         for (const id of [...ids, ...ids.slice().reverse(), ...ids]) {
@@ -131,13 +130,14 @@ test.each(LANGUAGES)('every scene lands in the stated state, status and readouts
     }
 });
 
-test.each(LANGUAGES)('restoring the checkpoint on leaving returns the free state and its readouts (%s)', language => {
-    const m = mountRow(language);
+test.each(LANGUAGES)('restoring the checkpoint on leaving returns the free state and its readouts (%s)', async language => {
+    const m = await mountRow(language);
     try {
         const free = JSON.stringify(m.graph.state);
         const freeReadouts = allReadouts();
         const freeStatus = status();
         for (const step of rowSumsLesson.steps) m.scene(step.id);
+        await waitForPucks('counting-t');
         m.type(m.nLabel, '9');
         expect(JSON.stringify(m.graph.state)).not.toEqual(free);
         act(() => { m.capabilities.restoreState(m.checkpoint); });
@@ -165,7 +165,7 @@ function textsOf(lesson: GuidedLesson, language: Language): string[] {
 test.each(LANGUAGES)('every control and readout name a prompt quotes exists in the graph strings (%s)', language => {
     setLanguage(language);
     const names = [
-        t('combinatorics_counting_row_n_label'), t('combinatorics_counting_row_k_label'), t('combinatorics_counting_t_label'),
+        t('counting_row_n_name'), t('counting_row_k_name'), t('counting_t_name'),
         t('combinatorics_counting_readout_row_sum'), t('combinatorics_counting_readout_alternating'), t('combinatorics_counting_readout_hockey'),
         t('combinatorics_counting_readout_weight'), t('combinatorics_counting_readout_weight_sum'),
     ];
@@ -205,10 +205,11 @@ test('no predicting step opens on the state its prompt asks the learner to produ
 // ---- Part A: the learner's actions give the quoted readouts ------------------------------------------------------------------------------
 
 describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', language => {
-    const run = (stepId: string, body: (m: Row) => void) => {
-        const m = mountRow(language);
+    const run = async (stepId: string, body: (m: Row) => void) => {
+        const m = await mountRow(language);
         try {
             m.scene(stepId);
+            await waitForPucks('counting-t');
             body(m);
         } finally {
             done(m);
@@ -216,8 +217,8 @@ describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', langua
     };
     const rowShows = (m: Row, id: string, spec: RowSceneSpec) => expectRow(m, id, spec);
 
-    test('step 1: n = 7 shows 128 = 2^7, then n = 10 shows 1024 = 2^10; k stays 2', () => {
-        run('cb5-sum', m => {
+    test('step 1: n = 7 shows 128 = 2^7, then n = 10 shows 1024 = 2^10; k stays 2', async () => {
+        await run('cb5-sum', m => {
             m.type(m.nLabel, '7');
             expect(tokens(readout('row-sum')).slice(0, 2)).toEqual(['128', '2']);
             rowShows(m, 'sum n7', CB5_CHANGES.sum[0]);
@@ -227,8 +228,8 @@ describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', langua
         });
     });
 
-    test('step 2: n = 0 shows sum 1, alternating sum 1 and lowers k to 0 (the status says so)', () => {
-        run('cb5-alternating', m => {
+    test('step 2: n = 0 shows sum 1, alternating sum 1 and lowers k to 0 (the status says so)', async () => {
+        await run('cb5-alternating', m => {
             expect(tokens(readout('alternating'))).toEqual(['0']);
             m.type(m.nLabel, '0');
             rowShows(m, 'alternating n0', CB5_CHANGES.alternating[0]);
@@ -239,8 +240,8 @@ describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', langua
         });
     });
 
-    test('step 3: n and k in either order; the intermediate readouts are the other diagonals, the end is 70 = C(8, 4)', () => {
-        run('cb5-hockey', m => {
+    test('step 3: n and k in either order; the intermediate readouts are the other diagonals, the end is 70 = C(8, 4)', async () => {
+        await run('cb5-hockey', m => {
             expect(tokens(readout('hockey'))).toEqual(['1', '1', '2', '1', '3', '1', '4', '1', '10', '5', '2']);
             m.type(m.kLabel, '3');
             expect({n: m.graph.state.n, k: m.graph.state.k}).toEqual({n: 4, k: 3});
@@ -249,7 +250,7 @@ describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', langua
             rowShows(m, 'hockey k then n', CB5_CHANGES.hockey[0]);
             expect(tokens(readout('hockey')).slice(-3)).toEqual(['70', '8', '4']);
         });
-        run('cb5-hockey', m => {
+        await run('cb5-hockey', m => {
             m.type(m.nLabel, '7');
             expect({n: m.graph.state.n, k: m.graph.state.k}).toEqual({n: 7, k: 1});
             expect(tokens(readout('hockey')).slice(-3)).toEqual(['28', '8', '2']);
@@ -259,8 +260,8 @@ describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', langua
         });
     });
 
-    test('step 4: the weight is 0.3087 at the opening and 10/32 = 0.3125 after the slider is moved to 0.5; the sum stays 1', () => {
-        run('cb5-weights', m => {
+    test('step 4: the weight is 0.3087 at the opening and 10/32 = 0.3125 after the slider is moved to 0.5; the sum stays 1', async () => {
+        await run('cb5-weights', m => {
             expect(decimal(readout('weight'))).toBe(0.3087);
             expect(readout('weight')).toContain(decimalText(0.3087, language));
             m.type(m.tLabel, decimalText(0.5, language));
@@ -270,8 +271,8 @@ describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', langua
         });
     });
 
-    test('step 5: the weight of place 6 in row 8 grows from 0.003845 to 0.148803 as t goes 0.25 -> 0.9; the sum stays 1', () => {
-        run('cb5-bridge', m => {
+    test('step 5: the weight of place 6 in row 8 grows from 0.003845 to 0.148803 as t goes 0.25 -> 0.9; the sum stays 1', async () => {
+        await run('cb5-bridge', m => {
             expect(readout('weight')).toContain(decimalText(0.003845, language));
             m.type(m.tLabel, decimalText(0.9, language));
             rowShows(m, 'bridge t.9', CB5_CHANGES.bridge[0]);
@@ -280,8 +281,8 @@ describe.each(LANGUAGES)('learner actions give the quoted readouts (%s)', langua
         });
     });
 
-    test('step 6: n = 20, k = 10, t = 0.5 gives 0.176197 and 2^20 = 1048576', () => {
-        run('cb5-explore', m => {
+    test('step 6: n = 20, k = 10, t = 0.5 gives 0.176197 and 2^20 = 1048576', async () => {
+        await run('cb5-explore', m => {
             m.type(m.nLabel, '20');
             m.type(m.kLabel, '10');
             rowShows(m, 'explore n20 k10', {n: 20, k: 10, t: 0.5});
@@ -402,8 +403,8 @@ test.each(LANGUAGES)('every number the text quotes is recomputed (%s)', language
     has(`${choose(20, 10)}/${2n ** 20n}`);
 });
 
-test.each(LANGUAGES)('the weights at the scenes\' t are C(n, k) t^k (1 - t)^(n - k) and each row sums to 1 (%s)', language => {
-    const m = mountRow(language);
+test.each(LANGUAGES)('the weights at the scenes\' t are C(n, k) t^k (1 - t)^(n - k) and each row sums to 1 (%s)', async language => {
+    const m = await mountRow(language);
     try {
         const ids = rowSumsLesson.steps.map(step => step.id);
         const specs = [...ids.map(id => CB5_SCENES[STEP_OF[id]].spec), ...Object.values(CB5_CHANGES).flat(), {n: 20, k: 10, t: 0.5}];

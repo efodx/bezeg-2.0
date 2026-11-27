@@ -1,0 +1,453 @@
+{
+  "graph": "counting-tree",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default, variations 3 of 6",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Variacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "120"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "120"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "6 · 5 · 4 = 120"
+        }
+      ],
+      "notes": [
+        "Variacije pri n = 6, k = 3: 120."
+      ],
+      "outputs": [],
+      "captions": [
+        "(n + k - 1)! / (k! (n - 1)!) = 56",
+        "Drevo bi imelo več kot 64 listov, zato",
+        "Kombinacije",
+        "Kombinacije s ponavljanjem",
+        "Variacije",
+        "Variacije s ponavljanjem",
+        "Variacije: n = 6, k = 3",
+        "je namesto njega tabela.",
+        "n! / (k! (n - k)!) = 20",
+        "n! / (n - k)! = 120",
+        "nᵏ = 216",
+        "▶",
+        "▶ = trenutna izbira"
+      ]
+    },
+    {
+      "name": "variations with repetition",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Variacije s ponavljanjem"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "216"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "216"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "6 · 6 · 6 = 216"
+        }
+      ],
+      "notes": [
+        "Variacije s ponavljanjem pri n = 6, k = 3: 216."
+      ],
+      "outputs": [],
+      "captions": [
+        "(n + k - 1)! / (k! (n - 1)!) = 56",
+        "= 3",
+        "Drevo bi imelo več kot 64 listov, zato",
+        "Kombinacije",
+        "Kombinacije s ponavljanjem",
+        "Variacije",
+        "Variacije s ponavljanjem",
+        "Variacije s ponavljanjem: n = 6, k",
+        "je namesto njega tabela.",
+        "n! / (k! (n - k)!) = 20",
+        "n! / (n - k)! = 120",
+        "nᵏ = 216",
+        "▶",
+        "▶ = trenutna izbira"
+      ]
+    },
+    {
+      "name": "combinations 3 of 6",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Kombinacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "20"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "120"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "6 · 5 · 4 = 120"
+        },
+        {
+          "key": "Vrstni redi ene kombinacije (k!)#0",
+          "label": "Vrstni redi ene kombinacije (k!)",
+          "value": "3! = 6"
+        },
+        {
+          "key": "Izbire z vrstnim redom, deljene s k!#0",
+          "label": "Izbire z vrstnim redom, deljene s k!",
+          "value": "120 / 6 = 20"
+        },
+        {
+          "key": "Vrstni redi izbire 1 … k#0",
+          "label": "Vrstni redi izbire 1 … k",
+          "value": "123, 132, 213, 231, 312, 321"
+        }
+      ],
+      "notes": [
+        "Kombinacije pri n = 6, k = 3: 20."
+      ],
+      "outputs": [],
+      "captions": [
+        "(n + k - 1)! / (k! (n - 1)!) = 56",
+        "123",
+        "124",
+        "125",
+        "132",
+        "142",
+        "152",
+        "213",
+        "214",
+        "215",
+        "231",
+        "241",
+        "251",
+        "312",
+        "321",
+        "412",
+        "421",
+        "512",
+        "521",
+        "Drevo bi imelo več kot 64 listov, zato",
+        "Kombinacija 123",
+        "Kombinacija 124",
+        "Kombinacija 125",
+        "Kombinacije",
+        "Kombinacije s ponavljanjem",
+        "Kombinacije: n = 6, k = 3",
+        "Variacije",
+        "Variacije s ponavljanjem",
+        "je namesto njega tabela.",
+        "n! / (k! (n - k)!) = 20",
+        "n! / (n - k)! = 120",
+        "nᵏ = 216",
+        "× 20 skupin = 120 / 6",
+        "▶",
+        "▶ = trenutna izbira"
+      ]
+    },
+    {
+      "name": "combinations with repetition, 2 of 4",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Kombinacije s ponavljanjem"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "10"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "16"
+        }
+      ],
+      "notes": [
+        "Kombinacije s ponavljanjem pri n = 4, k = 2: 10."
+      ],
+      "outputs": [],
+      "captions": [
+        "(n + k - 1)! / (k! (n - 1)!) = 10",
+        "Kombinacije",
+        "Kombinacije s ponavljanjem",
+        "Kombinacije s ponavljanjem: n = 4,",
+        "Variacije",
+        "Variacije s ponavljanjem",
+        "k = 2",
+        "n! / (k! (n - k)!) = 6",
+        "n! / (n - k)! = 12",
+        "nᵏ = 16",
+        "▶",
+        "▶ = trenutna izbira"
+      ]
+    },
+    {
+      "name": "permutations of 5",
+      "rows": [
+        {
+          "key": "Vrsta izbire#0",
+          "label": "Vrsta izbire",
+          "value": "Variacije"
+        },
+        {
+          "key": "Število izbir#0",
+          "label": "Število izbir",
+          "value": "120"
+        },
+        {
+          "key": "Listi drevesa (izbire z vrstnim redom)#0",
+          "label": "Listi drevesa (izbire z vrstnim redom)",
+          "value": "120"
+        },
+        {
+          "key": "Produkt (osnovni izrek kombinatorike)#0",
+          "label": "Produkt (osnovni izrek kombinatorike)",
+          "value": "5 · 4 · 3 · 2 · 1 = 120"
+        }
+      ],
+      "notes": [
+        "Variacije pri n = 5, k = 5: 120."
+      ],
+      "outputs": [],
+      "captions": [
+        "(n + k - 1)! / (k! (n - 1)!) = 126",
+        "Drevo bi imelo več kot 64 listov, zato",
+        "Kombinacije",
+        "Kombinacije s ponavljanjem",
+        "Variacije",
+        "Variacije s ponavljanjem",
+        "Variacije: n = 5, k = 5",
+        "je namesto njega tabela.",
+        "n! / (k! (n - k)!) = 1",
+        "n! / (n - k)! = 120",
+        "nᵏ = 3 125",
+        "▶",
+        "▶ = trenutna izbira"
+      ]
+    },
+    {
+      "name": "letters of MISSISSIPPI",
+      "rows": [
+        {
+          "key": "Število vseh črk#0",
+          "label": "Število vseh črk",
+          "value": "11"
+        },
+        {
+          "key": "Razporeditve črk#0",
+          "label": "Razporeditve črk",
+          "value": "11! / (1! · 4! · 4! · 2!) = 34 650"
+        },
+        {
+          "key": "Razporeditve, če bi bile vse črke različne#0",
+          "label": "Razporeditve, če bi bile vse črke različne",
+          "value": "11! = 39 916 800"
+        }
+      ],
+      "notes": [
+        "Razporeditve 11 črk, med katerimi se nekatere ponavljajo: 34 650."
+      ],
+      "outputs": [],
+      "captions": [
+        "11! / (1! · 4! · 4! · 2!) = 34 650",
+        "11! = 39 916 800",
+        "I",
+        "I",
+        "I",
+        "I",
+        "M",
+        "P",
+        "P",
+        "S",
+        "S",
+        "S",
+        "S",
+        "Črke, ki se ponavljajo, so enake med seboj."
+      ]
+    },
+    {
+      "name": "letters 2, 0, 3, 1",
+      "rows": [
+        {
+          "key": "Število vseh črk#0",
+          "label": "Število vseh črk",
+          "value": "6"
+        },
+        {
+          "key": "Razporeditve črk#0",
+          "label": "Razporeditve črk",
+          "value": "6! / (2! · 0! · 3! · 1!) = 60"
+        },
+        {
+          "key": "Razporeditve, če bi bile vse črke različne#0",
+          "label": "Razporeditve, če bi bile vse črke različne",
+          "value": "6! = 720"
+        }
+      ],
+      "notes": [
+        "Razporeditve 6 črk, med katerimi se nekatere ponavljajo: 60."
+      ],
+      "outputs": [],
+      "captions": [
+        "6! / (2! · 0! · 3! · 1!) = 60",
+        "6! = 720",
+        "M",
+        "M",
+        "P",
+        "S",
+        "S",
+        "S",
+        "Črke, ki se ponavljajo, so enake med seboj."
+      ]
+    },
+    {
+      "name": "row 7, k 3",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "128 = 2⁷"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(3 nad 3) + (4 nad 3) + (5 nad 3) + (6 nad 3) + (7 nad 3) = 70 = (8 nad 4)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,273438 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [
+        "Vrstica 7: vsota 128, izmenična vsota 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "2",
+        "21",
+        "21",
+        "3",
+        "35",
+        "35",
+        "4",
+        "5",
+        "6",
+        "7",
+        "7",
+        "7",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,5",
+        "Vrstica 7 Pascalovega trikotnika",
+        "izbran k = 3: (7 nad 3) = 35",
+        "k = 3"
+      ]
+    },
+    {
+      "name": "row 10, k 5, weight 0,25",
+      "rows": [
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "1 024 = 2¹⁰"
+        },
+        {
+          "key": "Izmenična vsota#0",
+          "label": "Izmenična vsota",
+          "value": "0"
+        },
+        {
+          "key": "Vsota po diagonali#0",
+          "label": "Vsota po diagonali",
+          "value": "(5 nad 5) + (6 nad 5) + … + (10 nad 5) = 462 = (11 nad 6)"
+        },
+        {
+          "key": "Utež pri izbranem k (na 6 decimalk)#0",
+          "label": "Utež pri izbranem k (na 6 decimalk)",
+          "value": "0,058399 (izračunano)"
+        },
+        {
+          "key": "Vsota uteži v vrstici (na 6 decimalk)#0",
+          "label": "Vsota uteži v vrstici (na 6 decimalk)",
+          "value": "1 (izračunano)"
+        }
+      ],
+      "notes": [
+        "Vrstica 10: vsota 1 024, izmenična vsota 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "(merilo: največja utež)",
+        "0",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "120",
+        "120",
+        "2",
+        "210",
+        "210",
+        "252",
+        "3",
+        "4",
+        "45",
+        "45",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "Višina stolpca: utež (n nad k) · tᵏ · (1 - t)ⁿ⁻ᵏ pri t = 0,25",
+        "Vrstica 10 Pascalovega trikotnika",
+        "izbran k = 5: (10 nad 5) = 252",
+        "k = 5"
+      ]
+    }
+  ]
+}

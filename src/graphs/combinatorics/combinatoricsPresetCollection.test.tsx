@@ -5,6 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import type {PresetDataCheck} from '../base/presets/PresetCollection';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {renderMessage, setLanguage} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
 import {
     CountingState, DEFAULT_COUNTING_STATE, DEFAULT_LATTICE_STATE, LatticeState, serializeCountingState, serializeLatticeState,
 } from '../../combinatorics/combinatoricsModel';
@@ -31,7 +32,7 @@ const UNORDERED_STATE: CountingState = {...DEFAULT_COUNTING_STATE, n: 7, k: 2, o
 describe('lattice-paths Preset collection', () => {
     test.each([['the default', DEFAULT_LATTICE_STATE], ['the triangle view', TRIANGLE_STATE]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new LatticePathGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => { source.setState(state); }); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('lattice-paths');
         expect(preset.data).toEqual(serializeLatticeState(state));
@@ -60,7 +61,7 @@ describe('lattice-paths Preset collection', () => {
 describe('counting-tree Preset collection', () => {
     test.each([['the default', DEFAULT_COUNTING_STATE], ['the repeated-letters view', MULTISET_STATE], ['unordered with repetition', UNORDERED_STATE]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new CountingTreeGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => { source.setState(state); }); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('counting-tree');
         expect(preset.data).toEqual(serializeCountingState(state));
