@@ -1,6 +1,9 @@
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
-import {t} from "../../localization";
+import {message, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote, ViewMarks} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {voronoiNotes, type VoronoiNoteId} from "./voronoiNotes";
 import type {GridPoint} from "../../compgeo/grid";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import {Rational, RationalPoint} from "../../compgeo/rational";
@@ -32,6 +35,14 @@ import {
     VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection, voronoiPersistenceExtension,
     type VoronoiMode, type VoronoiQuery,
 } from "./voronoiPresetCollection";
+
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches and the construction playback. */
+export type VoronoiIds = {
+    param: never; row: never; note: VoronoiNoteId;
+    legend: "points" | "query" | "diagram" | "delaunay" | "bisector";
+    section: "display" | "playback";
+    action: "grid" | "diagram" | "delaunay" | "next-step" | "play" | "reset";
+};
 
 /** The scene: the points and overlays (`PointSetGraphState`), the chosen site, how many bisectors are shown and the query point. */
 export interface VoronoiGraphState extends PointSetGraphState {
@@ -864,6 +875,77 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
                 ? {corners: sortedTriple(corners), x: centre.point.x.format(), y: centre.point.y.format(), sites: vertex.sites}
                 : undefined,
         };
+    }
+
+    // ---- Declaration (task 08): marks, legend, switches (pucks) from the point-set base, the readout sentences as notes ---------
+
+    /** Whether this graph declares its workspace; the degenerate-sites graph does not yet (its own session converts it). */
+    protected declaresVoronoiWorkspace(): boolean { return true; }
+
+    protected override declaresPointSetWorkspace() { return this.declaresVoronoiWorkspace(); }
+
+    protected override overlayMessage(id: "delaunay" | "diagram" | "grid"): Message {
+        return id === "diagram" ? message("vor_puck_diagram") : id === "delaunay" ? message("vor_puck_duality") : super.overlayMessage(id);
+    }
+
+    /** The diagram and the duality are what a student flips while watching the cells: board pucks (two choices of the board). */
+    protected override overlayIsPuck(id: "delaunay" | "diagram" | "grid"): boolean { return id === "diagram" || id === "delaunay"; }
+
+    protected override overlaySwatch(id: "delaunay" | "diagram" | "grid") {
+        if (id === "diagram") return {kind: "line" as const, color: GraphPalette.primaryCurve};
+        return id === "delaunay" ? {kind: "dashed" as const, color: GraphPalette.constructionAccent} : undefined;
+    }
+
+    protected override pointSetNotes(): readonly ReadoutNote<VoronoiIds>[] { return voronoiNotes(this.status()); }
+
+    private queryMarksCache: {base: ViewMarks; key: string; marks: ViewMarks} | undefined;
+
+    /** The sites, and the query point: both must stay in view (the query point is not part of the model). */
+    protected override pointSetViewMarks(): ViewMarks {
+        const base = super.pointSetViewMarks();
+        const scale = 2 ** this.model.gridStepExponent;
+        const x = this.query.x.toNumber() * scale;
+        const y = this.query.y.toNumber() * scale;
+        const key = `${x},${y}`;
+        if (this.queryMarksCache?.base === base && this.queryMarksCache.key === key) return this.queryMarksCache.marks;
+        const marks: ViewMarks = {...base, must: [...base.must, {kind: "point", x, y}]};
+        this.queryMarksCache = {base, key, marks};
+        return marks;
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        // The diagram is drawn by its own handle, so the base's overlay-objects check would call it hidden.
+        if (id === "diagram") return {color: GraphPalette.primaryCurve, visible: this.hasBoard && this.overlayShown("diagram") && this.diagram() !== undefined};
+        if (id === "query") return {color: GraphPalette.derivedPoint, visible: this.hasBoard && this.queryPoint !== undefined};
+        if (id === "bisector") return {color: GraphPalette.warningText, visible: this.hasBoard && this.diagram() !== undefined && this.cellSite !== null && this.construction > 0};
+        return super.drawnObject(id);
+    }
+
+    protected override declaration(): GraphDeclaration<VoronoiIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<VoronoiIds> | undefined;
+        if (!common) return undefined;
+        const [points, ...overlays] = common.legend ?? [];
+        const legend: LegendEntry<VoronoiIds>[] = [
+            points, {id: "query", label: message("vor_query_group"), kind: "point", object: "query"}, ...overlays,
+            {id: "bisector", label: message("vor_legend_bisector"), kind: "dashed", object: "bisector"},
+        ];
+        const length = this.constructionLength();
+        const ready = this.cellSite !== null && length > 1;
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<VoronoiIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("vor_construct_next"), enabled: ready && this.construction < length - 1 && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: ready, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("vor_construct_reset"), enabled: this.construction > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, legend, actions};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.constructNext(); }); return; }
+        if (id === "play") { runAs("learner", () => { this.playPauseConstruction(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.constructReset(); }); return; }
+        super.performAction(id);
     }
 
     protected override workspaceEdit(): React.ReactNode {

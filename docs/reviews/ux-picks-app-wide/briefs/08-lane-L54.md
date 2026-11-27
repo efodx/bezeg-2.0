@@ -44,6 +44,10 @@ session's demonstration is (or subclasses) that graph; a subclass change must ke
 - Shared preset tests applying states with an untagged `setState` may be wrapped in `runAs('learner', ...)` with asserted values
   unchanged (allowed). Any other change to a shared test: stop that parameter (leave it unbound) and report test:line.
 - Red check breaks a value, `pressed` or visibility, not an id.
+- Board-drawn captions (JSXGraph texts) are not marks: a card can cover them (L30). Marks (and `followView`) cover every
+  caption the learner reads, caption wrap stays within the view box, and a `just shot` at 1440x900 and 1280x720 of the
+  lesson's main steps on the lane-b dev server `http://127.0.0.1:4484/bezeg-2.0/` confirms nothing read is under a card.
+  The jsdom golden can drop a caption the browser fits: report it, the handler re-records after the browser check.
 - Do not re-record goldens; report golden differences verbatim.
 
 ## Checks

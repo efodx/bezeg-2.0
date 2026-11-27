@@ -41,6 +41,7 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 
 - Handler 1 (2026-11-27): worktree `.claude/worktrees/lane-b` (branch `lane-b` from `board-workspace-2` at `4b5fcd5fa`,
   `node_modules` junction). Dispatch `briefs/08-lane-L54.md` (lesson smoke port 4395). Notes `briefs/notes/08-lane-L54.md`.
+- Stream A is now "Board workspace handler 12" (send commit ids there; a14152ab2 still pending pick).
 - Stream A, 2026-11-27: every lane also runs `just unit FirstTask` and per id
   `BEZEG_PRESET_ROUNDTRIP=all just unit src/graphs/PresetRoundTrip.contract.test.tsx -t <id>`; never background
   `bash <script>` for long runs (the cleanup tick kills it); foreground checks under 10 minutes each.
@@ -50,7 +51,19 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 - Accepted: `7ff06edc9` fortune, hull-robustness; sent to stream A.
 - Accepted: `48f4d392e` interval-sweep, monotone-partition; sent to stream A.
 - Accepted: `d0d2acb8c` monotone-triangulation, orientation (golden re-recorded, notes only); sent to stream A.
-- In progress: point-in-polygon + point-set-triangulation. Then segment-intersections + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
+- Accepted: `a14152ab2` point-in-polygon, point-set-triangulation; sent to stream A. FirstTask and round-trip green for all 12.
+- Lane-b Vite dev server (this handler's shell): `http://127.0.0.1:4484/bezeg-2.0/` (`npx vite --port 4484 --strictPort --host 127.0.0.1`).
+- Caption check (stream A, 2026-11-27, L30 miss): 8 of 12 ok; monotone-partition, monotone-triangulation, interval-sweep,
+  delaunay covered. Cause (shared base): `BaseGraph.tsx:328` returns before binding `view` when a graph has no parameter
+  bindings, so point-set graphs get no view director. Stream A: B fixes it on lane-b as its own commit, before further
+  conversions (bind `view` for declared graphs only; all-graph suites whole; browser recheck of the 4 steps + polygon-area,
+  projective-three-views, projective-five-point; morph no jump). Committed `cb59a901f` (notes `briefs/notes/08-view-binding-fix.md`),
+  picked by A as 71b3b08ab (a14152ab2 as fbeb69755). Morph glide and dev-console sweep clean, sent to A. Follow-up
+  `2420f7a87` (Fortune `_ticks_` filter, Bezier decision 6 asserts marks) sent to A.
+- Uncommitted in the tree: segment-intersections (converted, graph-check green) and voronoi (converted; golden is a
+  notes-only diff to re-record after the fix; VoronoiGraph.host.test Fit case ~536 and hull-robustness "untagged view" writes
+  fail, probably from the view fix in progress, which the fix worker now owns). After the fix commit: one worker reruns
+  family unit, tsc, lint, build, smoke-lesson for both, then commit them. Then + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
 - L54 closeout (handler): compgeo lesson prose says "pod grafom" / "under the graph" for readouts that are now cards
   (`compgeoGuidedLessons.ts` ~lines 572, 766, 1133, 1181, 1322, 2802); reword once all L54 demos are in. Take
   inspector-width screenshots of a few converted panels before the final L54 commit.

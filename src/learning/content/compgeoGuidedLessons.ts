@@ -16,6 +16,8 @@ import type {EarClippingIds} from '../../graphs/compgeo/EarClippingGraph';
 import type {FortuneIds} from '../../graphs/compgeo/FortuneGraph';
 import type {HullRobustnessIds} from '../../graphs/compgeo/HullRobustnessGraph';
 import type {IntervalSweepIds} from '../../graphs/compgeo/IntervalSweepGraph';
+import type {BentleyOttmannIds} from '../../graphs/compgeo/BentleyOttmannGraph';
+import type {VoronoiIds} from '../../graphs/compgeo/VoronoiGraph';
 import type {MonotonePartitionIds} from '../../graphs/compgeo/MonotonePartitionGraph';
 import type {OrientationIds} from '../../graphs/compgeo/OrientationGraph';
 import type {PointInPolygonIds} from '../../graphs/compgeo/PointInPolygonGraph';
@@ -32,6 +34,8 @@ const earFrame = frameDeclarer<EarClippingIds>();
 const fortFrame = frameDeclarer<FortuneIds>();
 const robFrame = frameDeclarer<HullRobustnessIds>();
 const isFrame = frameDeclarer<IntervalSweepIds>();
+const boFrame = frameDeclarer<BentleyOttmannIds>();
+const vorFrame = frameDeclarer<VoronoiIds>();
 const mpFrame = frameDeclarer<MonotonePartitionIds>();
 const orFrame = frameDeclarer<OrientationIds>();
 const mtFrame = frameDeclarer<MonotoneTriangulationIds>();
@@ -1381,7 +1385,7 @@ const voronoi: GuidedLesson = {
                 'The site \\(P_6\\) is selected. Press Show bisector: each perpendicular bisector of the segment between \\(P_6\\) and another site splits the plane into the half-plane nearer to \\(P_6\\) and the half-plane nearer to the other site. The graph keeps the half-plane of \\(P_6\\) and shows what remains. When all bisectors are applied, what remains is the cell of \\(P_6\\). Compare it with your prediction; the diagram of the other cells is still hidden.',
             ),
             formulaIds: ['vor-cell-formula'],
-            frames: [frame('vor-cell-explanation', 'explanation'), frame('vor-cell-observation', 'observation')],
+            frames: [frame('vor-cell-explanation', 'explanation', vorFrame({uses: ['next-step'], open: ['tools']})), frame('vor-cell-observation', 'observation', vorFrame({highlight: ['construction']}))],
             observationPrompt: text('Pritisni Pokaži simetralo, dokler izpis ne pove, da so uporabljene vse simetrale, in primerjaj ostanek z napovedjo.', 'Press Show bisector until the readout says all bisectors are applied and compare what remains with your prediction.'),
             expectedObservations: [text('Po zadnji simetrali ostane omejen večkotnik, celica mesta \\(P_6\\); izpis pove, da je presek polravnin celica.', 'After the last bisector a bounded polygon remains, the cell of \\(P_6\\); the readout says the intersection of the half-planes is the cell.')],
             scene: voronoiScene('vor-cell', [], VORONOI_QUERY_AWAY, [selectSite(VORONOI_CELL_SITE), setConstruction(0)],
@@ -1397,7 +1401,7 @@ const voronoi: GuidedLesson = {
                 'The graph now shows the whole diagram. The readout counts \\(7\\) Voronoi vertices, \\(8\\) finite edges and \\(5\\) rays. The cells of the five sites on the edge of the set, \\(P_1\\), \\(P_2\\), \\(P_3\\), \\(P_4\\) and \\(P_5\\), are unbounded: rays continue their borders to infinity. The cells of \\(P_6\\) and \\(P_7\\), which lie inside, are bounded (readout: bounded cells \\(2\\), unbounded cells \\(5\\)).',
             ),
             formulaIds: ['vor-cell-formula'],
-            frames: [frame('vor-diagram-explanation', 'explanation'), frame('vor-diagram-observation', 'observation')],
+            frames: [frame('vor-diagram-explanation', 'explanation'), frame('vor-diagram-observation', 'observation', vorFrame({highlight: ['vertices', 'edges', 'rays']}))],
             observationPrompt: text('Preberi števila v izpisu in poišči na grafu poltrake, ki kažejo, da celica sega v neskončnost.', 'Read the numbers in the readout and find on the graph the rays that show a cell reaching infinity.'),
             expectedObservations: [text('Izpis pokaže \\(7\\) oglišč, \\(8\\) končnih robov, \\(5\\) poltrakov, \\(2\\) omejeni in \\(5\\) neomejenih celic; celica mesta \\(P_6\\) je enaka tisti iz prejšnjega koraka.', 'The readout shows \\(7\\) vertices, \\(8\\) finite edges, \\(5\\) rays, \\(2\\) bounded and \\(5\\) unbounded cells; the cell of \\(P_6\\) equals the one from the previous step.')],
             scene: voronoiScene('vor-diagram', ['diagram'], VORONOI_QUERY_AWAY, [],
@@ -1413,7 +1417,7 @@ const voronoi: GuidedLesson = {
                 'The Delaunay triangulation of the same sites is switched on. The triangle \\(P_1P_2P_6\\) is selected: the centre of its circumcircle is \\((4,-1)\\), and the graph marks it as a Voronoi vertex. By calculation: the squared distance from \\((4,-1)\\) to each of \\(P_1\\), \\(P_2\\) and \\(P_6\\) is \\(17\\). The interior edges of the triangulation (\\(8\\)) match the finite edges of the diagram, the hull edges (\\(5\\)) match the rays. This is duality. A picture of a few sites illustrates duality and does not prove it; the proof rests on the empty-circle property of the Delaunay triangulation.',
             ),
             formulaIds: ['vor-cell-formula'], workedExampleId: 'vor-vertex-example',
-            frames: [frame('vor-dual-explanation', 'explanation'), frame('vor-dual-calculation', 'calculation'), frame('vor-dual-observation', 'observation')],
+            frames: [frame('vor-dual-explanation', 'explanation'), frame('vor-dual-calculation', 'calculation'), frame('vor-dual-observation', 'observation', vorFrame({highlight: ['selected-vertex']}))],
             observationPrompt: text('Izberi še en trikotnik na seznamu in preveri, da je njegovo središče očrtane krožnice oglišče diagrama.', 'Select another triangle in the list and check that the centre of its circumcircle is a vertex of the diagram.'),
             expectedObservations: [text('Izpis pri trikotniku \\(P_1P_2P_6\\) pokaže središče \\((4,-1)\\) kot Voronojevo oglišče, enako oddaljeno od mest \\(P_1\\), \\(P_2\\) in \\(P_6\\).', 'For the triangle \\(P_1P_2P_6\\) the readout shows the centre \\((4,-1)\\) as a Voronoi vertex equally far from the sites \\(P_1\\), \\(P_2\\) and \\(P_6\\).')],
             scene: voronoiScene('vor-dual', ['diagram', 'delaunay'], VORONOI_QUERY_AWAY, [{kind: 'point-set', operation: 'select-triangle', triangle: VORONOI_TRIANGLE_INDEX}],
@@ -1445,7 +1449,7 @@ const voronoi: GuidedLesson = {
                 'The query point is now in the cell of \\(P_6\\). Drag it, type its coordinates or use the arrow buttons: the readout names the nearest site and highlights its cell. On the border of two cells two sites are nearest, at a Voronoi vertex at least three. Move the sites too and look for when a cell is bounded and when not.',
             ),
             formulaIds: ['vor-cell-formula'],
-            frames: [frame('vor-explore-explanation', 'explanation'), frame('vor-explore-observation', 'observation')],
+            frames: [frame('vor-explore-explanation', 'explanation'), frame('vor-explore-observation', 'observation', vorFrame({highlight: ['query-nearest']}))],
             observationPrompt: text('Postavi točko poizvedbe na mejo dveh celic in preberi, katera mesta izpis imenuje.', 'Put the query point on the border of two cells and read which sites the readout names.'),
             expectedObservations: [text('Na meji izpis imenuje dve enako oddaljeni mesti; v celici mesta \\(P_6\\) imenuje \\(P_6\\).', 'On a border the readout names two equally near sites; inside the cell of \\(P_6\\) it names \\(P_6\\).')],
             scene: voronoiScene('vor-explore', ['diagram', 'delaunay'], VORONOI_QUERY_FREE, [],
@@ -1979,7 +1983,7 @@ const segmentIntersections: GuidedLesson = {
                 'The picture shows four segments: \\(s_1\\) from \\((0,0)\\) to \\((6,4)\\), \\(s_2\\) from \\((0,4)\\) to \\((6,0)\\), \\(s_3\\) from \\((1,-1)\\) to \\((2,5)\\) and \\(s_4\\) from \\((4,5)\\) to \\((5,-1)\\). We look for all the crossings. Testing all pairs would take \\(\\binom{4}{2}=6\\) tests; the sweep line instead goes from top to bottom and tests only the segments that are neighbours in the status. The readout shows "Step 1 of 47", there are \\(0\\) tests so far and no crossings yet.',
             ),
             formulaIds: ['segment-pair-count'],
-            frames: [frame('segint-segments-explanation', 'explanation'), frame('segint-segments-observation', 'observation')],
+            frames: [frame('segint-segments-explanation', 'explanation'), frame('segint-segments-observation', 'observation', boFrame({highlight: ['step', 'tests', 'crossings']}))],
             observationPrompt: text('Poglej daljice in z očmi poišči pare, ki se sekajo.', 'Look at the segments and find, by eye, the pairs that cross.'),
             expectedObservations: [text('Sled je na koraku \\(1\\) od \\(47\\), preizkusov je \\(0\\) od \\(6\\) možnih parov in presečišč še ni.', 'The trace is at step \\(1\\) of \\(47\\), there are \\(0\\) tests against \\(6\\) possible pairs and no crossings yet.')],
             scene: segmentScene('segint-segments', SEGMENT_EXAMPLE, [],
@@ -2011,7 +2015,7 @@ const segmentIntersections: GuidedLesson = {
                 'The event queue keeps the endpoints from top to bottom, from left to right at equal height. The sweep line jumps to the first event and handles it: an upper endpoint inserts the segment into the status at the place given by the order along the line. The upper endpoints are \\((2,5)\\) for \\(s_3\\), \\((4,5)\\) for \\(s_4\\), \\((0,4)\\) for \\(s_2\\) and \\((6,4)\\) for \\(s_1\\). Eleven steps are already done: the line is at \\(y=4\\), the readout shows "Step 12 of 47" and the status from left to right is \\(s_2, s_3, s_4, s_1\\). There have been \\(2\\) neighbour tests so far.',
             ),
             formulaIds: ['segment-sweep-bound'],
-            frames: [frame('segint-insert-explanation', 'explanation'), frame('segint-insert-observation', 'observation')],
+            frames: [frame('segint-insert-explanation', 'explanation', boFrame({uses: ['next-step'], open: ['tools']})), frame('segint-insert-observation', 'observation', boFrame({highlight: ['status-count', 'tests']}))],
             observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem vstavljanju povej, kje v stanju je nova daljica.', 'Press Next step and, at each insertion, say where in the status the new segment goes.'),
             expectedObservations: [text('Po štirih vstopih je stanje \\(s_2, s_3, s_4, s_1\\) in preizkusov sosednjih daljic je \\(2\\).', 'After four insertions the status is \\(s_2, s_3, s_4, s_1\\) and there have been \\(2\\) neighbour tests.')],
             scene: segmentScene('segint-insert', SEGMENT_EXAMPLE, [setTraceStep(SEGMENT_TRACE_STEPS.allInserted)],
@@ -2027,7 +2031,7 @@ const segmentIntersections: GuidedLesson = {
                 'On an insertion or a removal only the new neighbouring pairs are tested, not all pairs. When \\(s_2\\) entered to the left of \\(s_3\\), the segments \\(s_2\\) and \\(s_3\\) became neighbours; the test showed that they meet below the sweep line, so their crossing \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)=(1.65,\\,2.9)\\) was queued as an event, and only once. The readout shows "Step 10 of 47" and there have been \\(2\\) tests. The crossing follows from \\(4-\\tfrac23x=6x-7\\).',
             ),
             formulaIds: ['segment-sweep-bound'], workedExampleId: 'segment-crossing-example',
-            frames: [frame('segint-neighbours-explanation', 'explanation'), frame('segint-neighbours-calculation', 'calculation'), frame('segint-neighbours-observation', 'observation')],
+            frames: [frame('segint-neighbours-explanation', 'explanation'), frame('segint-neighbours-calculation', 'calculation'), frame('segint-neighbours-observation', 'observation', boFrame({highlight: ['note', 'tests']}))],
             observationPrompt: text('Poišči v stanju sosednji daljici, ki ju je zadnji preizkus obravnaval, in preveri, da sta v vrsti dogodkov presečišče in naslednji dogodek.', 'Find in the status the neighbouring segments the last test looked at, and check that the crossing is now in the event queue.'),
             expectedObservations: [text('Po drugem preizkusu je presečišče \\(s_2\\) in \\(s_3\\) v vrsti dogodkov, preizkusov je \\(2\\) in nobeno presečišče še ni sporočeno.', 'After the second test the crossing of \\(s_2\\) and \\(s_3\\) is in the event queue, there have been \\(2\\) tests and no crossing is reported yet.')],
             scene: segmentScene('segint-neighbours', SEGMENT_EXAMPLE, [setTraceStep(SEGMENT_TRACE_STEPS.queued)],
@@ -2043,7 +2047,7 @@ const segmentIntersections: GuidedLesson = {
                 'At a crossing the order of the segments along the line reverses. The crossing event \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\) reports the pair \\(s_2, s_3\\) and swaps them: the status was \\(s_2, s_3, s_4, s_1\\) and is now \\(s_3, s_2, s_4, s_1\\). The readout shows "Step 17 of 47", \\(1\\) crossing so far and \\(3\\) tests. After the swap \\(s_2\\) has a new neighbour, \\(s_4\\), so a test of that pair follows.',
             ),
             formulaIds: ['segment-sweep-bound'],
-            frames: [frame('segint-swap-explanation', 'explanation'), frame('segint-swap-observation', 'observation')],
+            frames: [frame('segint-swap-explanation', 'explanation'), frame('segint-swap-observation', 'observation', boFrame({highlight: ['note', 'crossings', 'tests']}))],
             observationPrompt: text('Primerjaj vrstni red daljic v stanju pred zamenjavo in po njej.', 'Compare the order of the segments in the status before and after the swap.'),
             expectedObservations: [text('Po zamenjavi je stanje \\(s_3, s_2, s_4, s_1\\), najdeno je \\(1\\) presečišče in preizkusov je \\(3\\).', 'After the swap the status is \\(s_3, s_2, s_4, s_1\\), \\(1\\) crossing is found and there have been \\(3\\) tests.')],
             scene: segmentScene('segint-swap', SEGMENT_EXAMPLE, [setTraceStep(SEGMENT_TRACE_STEPS.firstSwap)],
@@ -2059,7 +2063,7 @@ const segmentIntersections: GuidedLesson = {
                 'The trace has run to the end (step \\(47\\) of \\(47\\)). \\(13\\) events were handled (\\(8\\) endpoints and \\(5\\) crossings) and \\(5\\) crossings were found: \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\), \\(\\bigl(\\tfrac{87}{20},\\tfrac{29}{10}\\bigr)\\), \\((3,2)\\), \\(\\bigl(\\tfrac{21}{16},\\tfrac78\\bigr)\\) and \\(\\bigl(\\tfrac{75}{16},\\tfrac78\\bigr)\\). There were \\(9\\) neighbour tests, whereas testing all pairs would take \\(\\binom{4}{2}=6\\): on this small example the sweep costs more, not less. The saving appears when \\(n\\) is large and \\(k\\) small: the time is \\(O((n+k)\\log n)\\), where \\(k\\) is the number of crossings, whereas all pairs number \\(\\binom{n}{2}\\).',
             ),
             formulaIds: ['segment-sweep-bound', 'segment-pair-count'], workedExampleId: 'segment-tests-example',
-            frames: [frame('segint-summary-explanation', 'explanation'), frame('segint-summary-calculation', 'calculation'), frame('segint-summary-observation', 'observation')],
+            frames: [frame('segint-summary-explanation', 'explanation'), frame('segint-summary-calculation', 'calculation'), frame('segint-summary-observation', 'observation', boFrame({highlight: ['summary', 'tests', 'crossings']}))],
             observationPrompt: text('Primerjaj število preizkusov s številom vseh parov in preveri svojo napoved presečišč.', 'Compare the number of tests with the number of all pairs, and check your prediction of the crossings.'),
             expectedObservations: [text('Obdelanih je \\(13\\) dogodkov, najdenih \\(5\\) presečišč, preizkusov sosednjih daljic \\(9\\) proti \\(6\\) parom.', '\\(13\\) events are handled, \\(5\\) crossings found, \\(9\\) neighbour tests against \\(6\\) pairs.')],
             scene: segmentScene('segint-summary', SEGMENT_EXAMPLE, [setTraceStep('end')],
@@ -2075,7 +2079,7 @@ const segmentIntersections: GuidedLesson = {
                 'The scene has a degenerate example: \\(s_1\\) from \\((0,0)\\) to \\((4,4)\\), \\(s_2\\) from \\((0,4)\\) to \\((4,0)\\), \\(s_3\\) from \\((0,2)\\) to \\((4,2)\\) and the vertical \\(s_4\\) from \\((2,0)\\) to \\((2,4)\\) all pass through \\((2,2)\\). The sweep reports one crossing with all four segments and reverses their order in the status in one step: the status \\(s_3, s_2, s_4, s_1\\) becomes \\(s_1, s_4, s_2, s_3\\). The readout shows "Step 16 of 25", \\(1\\) crossing and \\(3\\) tests. Now move the endpoints or add segments and watch the status.',
             ),
             formulaIds: ['segment-sweep-bound', 'segment-pair-count'],
-            frames: [frame('segint-explore-explanation', 'explanation'), frame('segint-explore-observation', 'observation')],
+            frames: [frame('segint-explore-explanation', 'explanation'), frame('segint-explore-observation', 'observation', boFrame({highlight: ['crossings', 'status-count']}))],
             observationPrompt: text('Premakni krajišče daljice \\(s_3\\), da ne gre več skozi \\((2,2)\\), in preveri, koliko presečišč je zdaj.', 'Move an endpoint of the segment \\(s_3\\) so that it no longer passes through \\((2,2)\\), and check how many crossings there are now.'),
             expectedObservations: [text('Pri izrojenem primeru je sled na koraku \\(16\\) od \\(25\\): eno presečišče z vsemi štirimi daljicami, stanje \\(s_1, s_4, s_2, s_3\\), preizkusov \\(3\\).', 'In the degenerate example the trace is at step \\(16\\) of \\(25\\): one crossing with all four segments, status \\(s_1, s_4, s_2, s_3\\), \\(3\\) tests.')],
             scene: segmentScene('segint-explore', SEGMENT_DEGENERATE, [setTraceStep(SEGMENT_TRACE_STEPS.degenerateSwap)],

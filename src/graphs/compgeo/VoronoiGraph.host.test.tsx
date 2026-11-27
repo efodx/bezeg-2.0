@@ -13,7 +13,8 @@ import {gridToBoard, serializePointSetModel} from '../../compgeo/pointSetModel';
 import {Rational, RationalPoint} from '../../compgeo/rational';
 import {edges as triangulationEdges} from '../../compgeo/triangulation';
 import {clipCell, nearestSites, voronoiFromDelaunay} from '../../compgeo/voronoi';
-import {setLanguage, t} from '../../localization';
+import {renderMessage, setLanguage, t} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
 /** The readouts of a point-set trace graph publish after a quiet period; wait it out. */
 const settled = () => act(async () => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 100); });
 
@@ -71,14 +72,16 @@ class Observed extends VoronoiGraph {
 type Shown = {elType: string; center?: {X(): number; Y(): number}; Radius?(): number; name?: string; plaintext?: string; X?: () => number; Y?: () => number; dataX?: number[]; dataY?: number[]; visProp?: Record<string, unknown>};
 const objects = (graph: Observed) => graph.liveBoard().objectsList as unknown as Shown[];
 const named = (graph: Observed, name: string) => objects(graph).filter(o => o.name === name);
-const mount = (graph: Observed) => render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+const mount = (graph: Observed) => { hosted = graph; return render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>); };
 const readout = (name: string) => document.querySelector(`[data-readout="${name}"]`)?.textContent;
 const part = (name: string) => document.querySelector(`[data-voronoi="${name}"]`)?.textContent;
 const button = (action: string) => document.querySelector(`button[data-action="${action}"]`) as HTMLButtonElement;
 const click = (action: string) => act(() => { fireEvent.click(button(action)); });
 const siteButton = (site: number) => document.querySelector(`button[data-site="${site}"]`) as HTMLButtonElement;
 const triangleButton = (index: number) => document.querySelector(`button[data-triangle="${index}"]`) as HTMLButtonElement;
-const overlaySwitch = () => document.getElementById([...document.querySelectorAll<HTMLLabelElement>('label.bool-field-label')].find(l => /Dualnost|Duality/.test(l.textContent ?? ''))!.htmlFor) as HTMLInputElement;
+// The duality switch is a board puck now (declared action `delaunay`), not a control of the panel: drive it as the puck does.
+let hosted: Observed | undefined;
+const toggleDuality = () => runAs('learner', () => hosted!.performAction('delaunay'));
 const live = () => document.querySelector('[data-voronoi-live]')?.textContent ?? '';
 const queryField = (axis: 'x' | 'y') => screen.getByRole('spinbutton', {name: `q, ${axis}`});
 const sitePoints = (graph: Observed) => objects(graph).filter(o => o.elType === 'point' && /^P\d+$/.test(o.name ?? ''));
@@ -125,10 +128,10 @@ test('the overlay is off after load, toggles on and off, and hull and interior e
     const graph = new Observed();
     mount(graph);
     expect(graph.overlayShown('delaunay')).toBe(false);
-    expect(overlaySwitch().checked).toBe(false);
+    expect(graph.overlayShown('delaunay')).toBe(false);
     expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
     expect(document.querySelector('[data-voronoi="triangles"]')).toBeNull();
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     expect(graph.overlayShown('delaunay')).toBe(true);
     const all = triangulationEdges(graph.delaunay()!);
     const hull = named(graph, 'voronoi-delaunay-hull');
@@ -141,7 +144,7 @@ test('the overlay is off after load, toggles on and off, and hull and interior e
     expect(hull[0].visProp?.dash).not.toBe(interior[0].visProp?.dash);
     await settled();
     expect(live()).toContain('Dualnost je vklopljena');
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     expect(graph.overlayShown('delaunay')).toBe(false);
     expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
     expect(named(graph, 'voronoi-delaunay-interior')).toHaveLength(0);
@@ -152,7 +155,7 @@ test('the overlay is off after load, toggles on and off, and hull and interior e
 test('triangle (0,1,5) shows the vertex (4,-1); every triangle shows its own vertex from the spec list', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     const tri = graph.delaunay()!;
     expect(tri.triangles).toHaveLength(7);
     const seen = new Set<string>();
@@ -253,7 +256,7 @@ test('a query point on a bisector lists every tied site; invalid and out-of-rang
 test('a site drag changes diagram and overlay together in one write; an edit clears selection and construction', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     act(() => { fireEvent.click(siteButton(2)); });
     click('next-step');
     click('next-step');
@@ -362,7 +365,7 @@ test('keyboard only: select a site, select a triangle, move the query point, tog
     const sitesGroup = siteButton(0).closest('.inspector-group')!;
     expect(sitesGroup.firstElementChild?.tagName).toBe('H3');
     expect(sitesGroup.firstElementChild?.textContent).toBe(t('vor_construct_group'));
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     act(() => { fireEvent.click(siteButton(5)); });
     expect(graph.cellSite).toBe(5);
     expect(siteButton(5).getAttribute('aria-pressed')).toBe('true');
@@ -385,7 +388,7 @@ test('keyboard only: select a site, select a triangle, move the query point, tog
     const queryList = screen.getByRole('group', {name: t('vor_query_group')});
     expect(queryList.querySelectorAll('.point-list-row')).toHaveLength(1);
     expect(queryList.querySelector('.point-list-remove')).toBeNull();
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     expect(graph.overlayShown('delaunay')).toBe(false);
     expect(graph.selectedTriangle()).toBeUndefined();
 });
@@ -434,13 +437,13 @@ test('a rescale to the fine grid keeps the followed drawing box while the view s
     mount(graph);
     const site = sitePoints(graph)[0] as unknown as JXG.Point;
     const box = () => (graph as unknown as {followBox?: {minX: Rational}}).followBox?.minX;
-    act(() => { graph.liveBoard().setBoundingBox([-5.3, 12.3, 13.3, -3.3], false); });
+    act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-5.3, 12.3, 13.3, -3.3], false); }); });
     const before = box();
     expect(before).toBeDefined();
     (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent = -2;
     try {
         act(() => { site.moveTo([site.X() + 0.25, site.Y()], 0); trigger(site, 'drag'); });
-        act(() => { graph.liveBoard().setBoundingBox([-5.3, 12.3, 13.3, -3.3], false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-5.3, 12.3, 13.3, -3.3], false); }); });
         expect(box()?.format()).toBe(before!.mul(Rational.fromInt(4)).format());
     } finally { delete (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent; }
 });
@@ -448,7 +451,7 @@ test('a rescale to the fine grid keeps the followed drawing box while the view s
 test('Reset restores the example, switches the overlay off and clears selection, construction and the query point', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     act(() => { fireEvent.click(triangleButton(2)); });
     act(() => { fireEvent.click(siteButton(1)); });
     click('next-step');
@@ -462,7 +465,7 @@ test('Reset restores the example, switches the overlay off and clears selection,
     expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
     expect(named(graph, 'voronoi-selected-circle')).toHaveLength(0);
     expect(named(graph, 'voronoi-bisector-latest')).toHaveLength(0);
-    expect(overlaySwitch().checked).toBe(false);
+    expect(graph.overlayShown('delaunay')).toBe(false);
 });
 
 test('Reset example is available once any overlay differs from the example, including the diagram alone', () => {
@@ -516,7 +519,7 @@ test('the view follows the board: after a zoom out the rays reach the new box ed
         expect(touching.length).toBeGreaterThanOrEqual(5);
     };
     onBox(frameBox);
-    act(() => { board.setBoundingBox([-40, 50, 60, -50], false); });
+    act(() => { runAs('learner', () => { board.setBoundingBox([-40, 50, 60, -50], false); }); });
     const zoomed = graph.box()!;
     expect(zoomed).not.toBe(frameBox);
     // rounded inward and inset: inside the view, near its edges
@@ -530,7 +533,9 @@ test('the view follows the board: after a zoom out the rays reach the new box ed
     act(() => { fireEvent.click(siteButton(0)); });
     for (let k = 0; k < 6; k++) click('next-step');
     expect(sameCyclicPolygon(graph.constructionPolygon(), clipCell(graph.diagram()!, graph.model.points, 0, zoomed).polygon)).toBe(true);
-    act(() => { graph['fitToVisiblePoints'](); });
+    // The workspace's view director owns Fit once the graph is bound (it needs layout geometry, absent in jsdom); this checks the graph's own fit.
+    graph.setViewDirector(undefined);
+    act(() => { runAs('learner', () => { graph['navigateBoard']('fit'); }); });
     const restored = graph.box()!;
     // Fit shows the frame at the canvas aspect, so the followed box contains the frame and the drawing reaches its edges
     expect(restored.minX.compare(frameBox.minX)).toBeLessThanOrEqual(0);
@@ -547,7 +552,7 @@ test('the follow box lies inside the view: after a zoom out, a zoom in and a les
     const board = graph.liveBoard();
     const insetPx = 16;
     const check = (view: [number, number, number, number]) => {
-        act(() => { board.setBoundingBox(view, false); });
+        act(() => { runAs('learner', () => { board.setBoundingBox(view, false); }); });
         const [left, top, right, bottom] = board.getBoundingBox();
         const box = graph.box()!;
         const [minX, maxX, minY, maxY] = [box.minX, box.maxX, box.minY, box.maxY].map(v => v.toNumber());
@@ -598,7 +603,7 @@ test('a Preset stored before the diagram overlay existed (no diagram key) still 
 test('the Preset round trip keeps points, overlay, site, count and query; stale values are clamped; the collection validates', async () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     act(() => { fireEvent.click(siteButton(3)); });
     click('next-step');
     click('next-step');
@@ -660,7 +665,7 @@ test('a live language switch re-renders the panel and the query text', () => {
     expect(readout('sites')).toBe('Sites: 7');
     expect(part('query-nearest')).toContain('P6');
     expect(part('query-nearest')).not.toContain('Najbližje');
-    expect(document.querySelector(`label[for="${overlaySwitch().id}"]`)?.textContent).toContain('Duality');
+    expect(renderMessage(graph.getDeclaration()!.actions!.find(a => a.id === 'delaunay')!.label)).toBe('Duality');
 });
 
 test('unmount and a scene change leave no objects or listeners (nothing is left scheduled)', async () => {
@@ -669,7 +674,7 @@ test('unmount and a scene change leave no objects or listeners (nothing is left 
     const board = graph.liveBoard();
     const box = board.containerObj as HTMLElement;
     const remove = vi.spyOn(box, 'removeEventListener');
-    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { toggleDuality(); });
     act(() => { fireEvent.click(triangleButton(0)); });
     act(() => { fireEvent.click(siteButton(0)); });
     click('next-step');
@@ -750,9 +755,7 @@ describe('review fixes', () => {
     test('the triangle list follows the overlay switch in the DOM; the selected vertex differs from the degree-4 diamond', () => {
         const graph = new Observed();
         mount(graph);
-        act(() => { fireEvent.click(overlaySwitch()); });
-        const list = document.querySelector('[data-voronoi="triangles"]')!;
-        expect(overlaySwitch().compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        act(() => { toggleDuality(); });
         act(() => { fireEvent.click(triangleButton(0)); });
         const face = (name: string) => named(graph, name)[0]?.visProp?.face;
         expect(face('voronoi-selected-vertex')).not.toBe('diamond');
@@ -768,8 +771,8 @@ test('a reset after a grid step change draws the exact frame again, as a newly m
     const frameOf = (box: {minX: Rational; maxX: Rational; minY: Rational; maxY: Rational}) => [box.minX, box.maxX, box.minY, box.maxY].map(v => v.toNumber());
     // The sites move to a coarser grid, and the board is told of a view that is the starting one in board coordinates.
     act(() => { graph.importPresetData({...serializePointSetModel(VORONOI_EXAMPLE), gridStepExponent: 1}); });
-    act(() => { board.setBoundingBox([-40, 50, 60, -50], false); });
-    act(() => { board.setBoundingBox(start, true); });
+    act(() => { runAs('learner', () => { board.setBoundingBox([-40, 50, 60, -50], false); }); });
+    act(() => { runAs('learner', () => { board.setBoundingBox(start, true); }); });
     act(() => { graph.importPresetData(serializePointSetModel(VORONOI_EXAMPLE)); });
     expect(frameOf(graph.box()!)).toEqual(frameOf(fresh));
 });

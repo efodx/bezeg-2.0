@@ -1,0 +1,508 @@
+{
+  "graph": "voronoi",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (1/3, 8/3); enako oddaljeno od mest P1, P5, P6",
+        "V2 = (21/11, 64/11); enako oddaljeno od mest P4, P5, P6",
+        "V3 = (4, -1); enako oddaljeno od mest P1, P2, P6",
+        "V4 = (9/2, 53/10); enako oddaljeno od mest P4, P6, P7",
+        "V5 = (9/2, -1/6); enako oddaljeno od mest P2, P6, P7",
+        "V6 = (91/10, 29/10); enako oddaljeno od mest P2, P3, P7",
+        "V7 = (85/14, 83/14); enako oddaljeno od mest P3, P4, P7",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P6; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "diagram hidden",
+      "rows": [],
+      "notes": [
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P6; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "cell construction started",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Celica mesta P6: začetek, še brez simetral (0 od 6).",
+        "V1 = (1/3, 8/3); enako oddaljeno od mest P1, P5, P6",
+        "V2 = (21/11, 64/11); enako oddaljeno od mest P4, P5, P6",
+        "V3 = (4, -1); enako oddaljeno od mest P1, P2, P6",
+        "V4 = (9/2, 53/10); enako oddaljeno od mest P4, P6, P7",
+        "V5 = (9/2, -1/6); enako oddaljeno od mest P2, P6, P7",
+        "V6 = (91/10, 29/10); enako oddaljeno od mest P2, P3, P7",
+        "V7 = (85/14, 83/14); enako oddaljeno od mest P3, P4, P7",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P6; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "cell construction, bisector 3",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Simetrala 3 od 6: polravnina, ki je bližje mestu P6 kot mestu P5.",
+        "V1 = (1/3, 8/3); enako oddaljeno od mest P1, P5, P6",
+        "V2 = (21/11, 64/11); enako oddaljeno od mest P4, P5, P6",
+        "V3 = (4, -1); enako oddaljeno od mest P1, P2, P6",
+        "V4 = (9/2, 53/10); enako oddaljeno od mest P4, P6, P7",
+        "V5 = (9/2, -1/6); enako oddaljeno od mest P2, P6, P7",
+        "V6 = (91/10, 29/10); enako oddaljeno od mest P2, P3, P7",
+        "V7 = (85/14, 83/14); enako oddaljeno od mest P3, P4, P7",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P6; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "cell construction done",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Vse simetrale (6) so uporabljene: presek polravnin je celica mesta P6.",
+        "V1 = (1/3, 8/3); enako oddaljeno od mest P1, P5, P6",
+        "V2 = (21/11, 64/11); enako oddaljeno od mest P4, P5, P6",
+        "V3 = (4, -1); enako oddaljeno od mest P1, P2, P6",
+        "V4 = (9/2, 53/10); enako oddaljeno od mest P4, P6, P7",
+        "V5 = (9/2, -1/6); enako oddaljeno od mest P2, P6, P7",
+        "V6 = (91/10, 29/10); enako oddaljeno od mest P2, P3, P7",
+        "V7 = (85/14, 83/14); enako oddaljeno od mest P3, P4, P7",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P6; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "diagram and duality, triangle 1",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (1/3, 8/3); enako oddaljeno od mest P1, P5, P6",
+        "V2 = (21/11, 64/11); enako oddaljeno od mest P4, P5, P6",
+        "V3 = (4, -1); enako oddaljeno od mest P1, P2, P6",
+        "V4 = (9/2, 53/10); enako oddaljeno od mest P4, P6, P7",
+        "V5 = (9/2, -1/6); enako oddaljeno od mest P2, P6, P7",
+        "V6 = (91/10, 29/10); enako oddaljeno od mest P2, P3, P7",
+        "V7 = (85/14, 83/14); enako oddaljeno od mest P3, P4, P7",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P6; njegova celica je poudarjena.",
+        "Trikotnik P4, P5, P6: središče očrtane krožnice (21/11, 64/11) je Voronojevo oglišče, enako oddaljeno od mest P4, P5, P6."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "query in a cell",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (1/3, 8/3); enako oddaljeno od mest P1, P5, P6",
+        "V2 = (21/11, 64/11); enako oddaljeno od mest P4, P5, P6",
+        "V3 = (4, -1); enako oddaljeno od mest P1, P2, P6",
+        "V4 = (9/2, 53/10); enako oddaljeno od mest P4, P6, P7",
+        "V5 = (9/2, -1/6); enako oddaljeno od mest P2, P6, P7",
+        "V6 = (91/10, 29/10); enako oddaljeno od mest P2, P3, P7",
+        "V7 = (85/14, 83/14); enako oddaljeno od mest P3, P4, P7",
+        "Točka poizvedbe: (1, 5).",
+        "Najbližje mesto: P5; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "query on a border",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 7"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 7"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 8"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 5"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (1/3, 8/3); enako oddaljeno od mest P1, P5, P6",
+        "V2 = (21/11, 64/11); enako oddaljeno od mest P4, P5, P6",
+        "V3 = (4, -1); enako oddaljeno od mest P1, P2, P6",
+        "V4 = (9/2, 53/10); enako oddaljeno od mest P4, P6, P7",
+        "V5 = (9/2, -1/6); enako oddaljeno od mest P2, P6, P7",
+        "V6 = (91/10, 29/10); enako oddaljeno od mest P2, P3, P7",
+        "V7 = (85/14, 83/14); enako oddaljeno od mest P3, P4, P7",
+        "Točka poizvedbe: (4, 0).",
+        "Najbližje mesto: P6; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "collinear sites",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 3"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 0"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Premic: 2"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Neomejenih celic: 3"
+        }
+      ],
+      "notes": [
+        "Vsa mesta ležijo na isti premici, zato so celice pasovi med vzporednimi simetralami; triangulacije ni.",
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P3; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "↓",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "one site (refused)",
+      "rows": [],
+      "notes": [
+        "Za Voronojev diagram sta potrebni vsaj dve mesti.",
+        "Točka poizvedbe: (4, 2)."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "duplicate sites (refused)",
+      "rows": [],
+      "notes": [
+        "Mesti P1 in P2 sta enaki; premakni eno od njiju.",
+        "Točka poizvedbe: (4, 2)."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

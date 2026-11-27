@@ -1,6 +1,6 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import {useT} from "../../localization";
+import {renderMessage, useT} from "../../localization";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {ResetExampleButton} from "../../inputs/ResetExampleButton";
 import {PointListInput} from "../../inputs/PointListInput";
@@ -12,6 +12,7 @@ import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import type {FourPointReadout} from "./degenerateSites";
 import type {VoronoiMode} from "./voronoiPresetCollection";
+import {voronoiConstructionMessage, voronoiNotes, voronoiVertexMessage, type VoronoiNoteId} from "./voronoiNotes";
 
 /** The named examples of the degenerate-sites graph. */
 export type VoronoiExampleId = "square" | "trapezoid" | "near" | "collinear";
@@ -78,16 +79,15 @@ export interface VoronoiControlsProps {
 }
 
 const sorted = (corners: readonly number[]) => [...corners].sort((a, b) => a - b);
-/** "P1, P3 and P6" as a plain list: "P1, P3, P6". */
-const siteList = (sites: readonly number[]) => sites.map(s => `P${s + 1}`).join(", ");
 const triple = (corners: readonly number[]) => {
     const [a, b, c] = sorted(corners);
     return {value0: a + 1, value1: b + 1, value2: c + 1};
 };
 
-const vertexTextOf = (t: ReturnType<typeof useT>, vertex: VoronoiStatus["selectedVertex"]) => vertex
-    ? t("vor_tri_vertex", {...triple(vertex.corners), value3: vertex.x, value4: vertex.y, value5: siteList(vertex.sites)})
-    : undefined;
+const vertexTextOf = (vertex: VoronoiStatus["selectedVertex"]) => {
+    const text = voronoiVertexMessage(vertex);
+    return text ? renderMessage(text) : undefined;
+};
 
 /** The sentences of the four-point readout; undefined while there is nothing to read (not four distinct sites). */
 function fourPointText(t: ReturnType<typeof useT>, status: VoronoiStatus) {
@@ -126,7 +126,7 @@ function DegenerateModes(props: VoronoiControlsProps) {
         {status.modeSwitch && <>
             <ChoiceSelect label={t("deg_mode_group")} value={status.mode} onChange={mode => actions.setMode(mode === "four-point" ? "four-point" : "sites")}
                           options={[{value: "sites", text: t("deg_mode_sites")}, {value: "four-point", text: t("deg_mode_four")}]}/>
-            {status.modeRefused && <p className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
+            {status.modeRefused && <p data-readout-note className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
         </>}
     </div>;
 }
@@ -136,7 +136,7 @@ export function VoronoiTriangles(props: VoronoiControlsProps) {
     const t = useT();
     const {status, actions} = props;
     const selectedVertex = status.selectedVertex;
-    const vertexText = vertexTextOf(t, selectedVertex);
+    const vertexText = vertexTextOf(selectedVertex);
     if (!status.overlayShown || status.triangles.length === 0) return null;
     return <div className="inspector-group">
         <div className={CONTROL_ROW_FILL} role="group" aria-label={t("vor_triangles_label")} data-voronoi="triangles">
@@ -148,7 +148,7 @@ export function VoronoiTriangles(props: VoronoiControlsProps) {
             <button type="button" data-action="clear-triangle" aria-disabled={selectedVertex === undefined}
                     onClick={() => { if (selectedVertex) actions.selectTriangle(undefined); }}>{t("del_tri_clear")}</button>
         </div>
-        {vertexText && <p className="inspector-help" data-voronoi="selected-vertex">{vertexText}</p>}
+        {vertexText && <div data-declared-panel=""><p data-readout-note className="inspector-help" data-voronoi="selected-vertex">{vertexText}</p></div>}
     </div>;
 }
 
@@ -158,20 +158,17 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const {status, actions} = props;
     const {counts, construction} = status;
     const refusal = status.refusal;
-    const refusalText = refusal
-        ? refusal.kind === "few" ? t("vor_refused_few") : t("vor_refused_duplicate", {value0: refusal.sites[0] + 1, value1: refusal.sites[1] + 1})
-        : undefined;
-    const nearest = status.query.nearest;
-    const queryText = refusal ? undefined : nearest.length === 1
-        ? t("vor_query_nearest", {value0: nearest[0] + 1})
-        : t("vor_query_tie", {value0: siteList(nearest)});
+    const notes = voronoiNotes(status);
+    const text = (id: VoronoiNoteId) => {
+        const note = notes.find(candidate => candidate.id === id);
+        return note ? renderMessage(note.text) : undefined;
+    };
+    const refusalText = text("refusal");
+    const queryText = text("query-nearest");
     const selectedVertex = status.selectedVertex;
-    const vertexText = vertexTextOf(t, selectedVertex);
-    const queryAnswer = refusal ? undefined : `${t("vor_query_at", {value0: status.query.x, value1: status.query.y})} ${queryText}`;
-    const stepText = !construction || status.cellSite === null ? t("vor_construct_none")
-        : construction.count === 0 ? t("vor_construct_start", {value0: status.cellSite + 1, value1: construction.total})
-        : construction.done ? t("vor_construct_done", {value0: status.cellSite + 1, value1: construction.count})
-        : t("vor_construct_step", {value0: construction.count, value1: construction.total, value2: status.cellSite + 1, value3: (construction.other ?? 0) + 1});
+    const vertexText = vertexTextOf(selectedVertex);
+    const queryAnswer = refusal ? undefined : `${text("query-at")} ${queryText}`;
+    const stepText = renderMessage(voronoiConstructionMessage(status));
     const four = fourPointText(t, status);
     // Short on purpose: the live text changes only when the sign, the verdict or the vertex degrees change, not on every determinant value.
     const fourSign = status.fourPoint?.sign;
@@ -184,18 +181,18 @@ export function VoronoiControls(props: VoronoiControlsProps) {
         ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" "), true);
     return <>
         <DegenerateModes status={status} actions={actions}/>
-        <div className="inspector-group" data-voronoi-status="">
-            {refusalText && <p className="inspector-help" role="alert" data-voronoi="refusal">{refusalText}</p>}
-            {status.collinear && !refusal && <p className="inspector-help" data-voronoi="collinear">{t("vor_collinear_note")}</p>}
-            {status.mode === "four-point" && <p className="inspector-help" data-voronoi="four-fixed">{t("deg_four_fixed")}</p>}
-            {status.mode === "four-point" && status.counts.sites !== 4 && <p className="inspector-help" role="alert" data-voronoi="wrong-count">{t("deg_wrong_count", {value0: status.counts.sites})}</p>}
+        <div className="inspector-group" data-voronoi-status="" data-declared-panel="">
+            {refusalText && <p data-readout-note className="inspector-help" role="alert" data-voronoi="refusal">{refusalText}</p>}
+            {status.collinear && !refusal && <p data-readout-note className="inspector-help" data-voronoi="collinear">{text("collinear")}</p>}
+            {status.mode === "four-point" && <p data-readout-note className="inspector-help" data-voronoi="four-fixed">{t("deg_four_fixed")}</p>}
+            {status.mode === "four-point" && status.counts.sites !== 4 && <p data-readout-note className="inspector-help" role="alert" data-voronoi="wrong-count">{t("deg_wrong_count", {value0: status.counts.sites})}</p>}
             {four && <div data-voronoi="four-point" role="group" aria-label={t("deg_readout_label")}>
-                <p className="inspector-help" data-fourpoint="incircle">{four.incircle}</p>
-                <p className="inspector-help" data-fourpoint="vertices">{four.vertices}</p>
+                <p data-readout-note className="inspector-help" data-fourpoint="incircle">{four.incircle}</p>
+                <p data-readout-note className="inspector-help" data-fourpoint="vertices">{four.vertices}</p>
                 {four.diagonals.length > 0 && <ul aria-label={t("deg_diagonals_label")} data-fourpoint="diagonals">
-                    {four.diagonals.map(d => <li key={d.key}>{d.text}</li>)}
+                    {four.diagonals.map(d => <li data-readout-note key={d.key}>{d.text}</li>)}
                 </ul>}
-                {four.verdict && <p className="inspector-help" data-fourpoint="verdict">{four.verdict}</p>}
+                {four.verdict && <p data-readout-note className="inspector-help" data-fourpoint="verdict">{four.verdict}</p>}
             </div>}
         </div>
         {!refusal && <div className="inspector-group">
@@ -214,22 +211,16 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 <UnavailableButton data-action="construct-back" reason={backUnavailable ? t("playback_block_at_start") : undefined}
                                    onPress={() => actions.constructBack()}>{t("back")}</UnavailableButton>
             </PlaybackButtons>
-            <p className="inspector-help" data-voronoi="construction">{stepText}</p>
+            <div data-declared-panel=""><p data-readout-note className="inspector-help" data-voronoi="construction">{stepText}</p></div>
         </div>}
         {/* The diagram's counts and vertices follow the cell construction, so the site choice that starts the first task leads the panel. */}
-        {!refusal && status.diagramShown && <div className="inspector-group" data-voronoi-diagram="">
-            <ReadoutList label={t("vor_readout_label")} hooks={{"data-voronoi": "readout"}} rows={[
-                {id: "sites", value: t("vor_count_sites", {value0: counts.sites})},
-                {id: "vertices", value: t("vor_count_vertices", {value0: counts.vertices})},
-                {id: "edges", value: t("vor_count_edges", {value0: counts.finite})},
-                {id: "rays", value: t("vor_count_rays", {value0: counts.rays})},
-                ...(counts.lines > 0 ? [{id: "lines", value: t("vor_count_lines", {value0: counts.lines})}] : []),
-                {id: "bounded", value: t("vor_count_bounded", {value0: counts.bounded})},
-                {id: "unbounded", value: t("vor_count_unbounded", {value0: counts.unbounded})},
-            ]}/>
+        {!refusal && status.diagramShown && <div className="inspector-group" data-voronoi-diagram="" data-declared-panel="">
+            <ReadoutList label={t("vor_readout_label")} hooks={{"data-voronoi": "readout"}}
+                         rows={(["sites", "vertices", "edges", "rays", "lines", "bounded", "unbounded"] as const)
+                             .filter(id => text(id) !== undefined).map(id => ({id, value: text(id)}))}/>
             {status.vertices.length > 0 && <ul aria-label={t("vor_vertices_label")} data-voronoi="vertices">
                 {status.vertices.map((vertex, index) => (
-                    <li key={index} data-vertex={index}>{t("vor_vertex_item", {value0: index + 1, value1: vertex.x, value2: vertex.y, value3: siteList(vertex.sites)})}</li>
+                    <li data-readout-note key={index} data-vertex={index}>{text(`vertex-${index}`)}</li>
                 ))}
             </ul>}
         </div>}
@@ -244,8 +235,10 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 <button type="button" data-action="query-up" onClick={() => actions.moveQuery(0, 1)}>{t("vor_query_up")}</button>
                 <button type="button" data-action="query-down" onClick={() => actions.moveQuery(0, -1)}>{t("vor_query_down")}</button>
             </div>
-            <p className="inspector-help" data-voronoi="query-at">{t("vor_query_at", {value0: status.query.x, value1: status.query.y})}</p>
-            {queryText && <p className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
+            <div data-declared-panel="">
+                <p data-readout-note className="inspector-help" data-voronoi="query-at">{text("query-at")}</p>
+                {queryText && <p data-readout-note className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
+            </div>
         </div>
         <div className="inspector-group">
             <ResetExampleButton atExample={status.atExample} onReset={actions.resetExample}/>

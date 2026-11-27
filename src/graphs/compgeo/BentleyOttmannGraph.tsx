@@ -1,5 +1,8 @@
 import React from "react";
-import {t} from "../../localization";
+import {currentLanguage, message, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {bentleyOttmannNotes, type BentleyOttmannNoteId} from "./bentleyOttmannNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -25,6 +28,14 @@ import {parseHullStep} from "./hullTraceRun";
 /** Time between two playback steps (one step per trace event, never more). */
 export const BENTLEY_OTTMANN_STEP_INTERVAL_MS = 400;
 export type BentleyOttmannOverlayId = "sweep";
+
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches and the playback. */
+export type BentleyOttmannIds = {
+    param: never; row: never; note: BentleyOttmannNoteId;
+    legend: "points" | "sweep" | "status" | "current" | "test" | "crossing";
+    section: "display" | "playback";
+    action: "grid" | BentleyOttmannOverlayId | "next-step" | "play" | "reset";
+};
 /** A JSXGraph text, for the attributes its typings leave out. */
 
 /** The saved configuration beyond the segments: the step index. Playback status is never state. */
@@ -402,6 +413,71 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
         const dy = s.b.y - s.a.y;
         if (dy === 0) return Math.min(Math.max(x0.toNumber(), Math.min(s.a.x, s.b.x)), Math.max(s.a.x, s.b.x));
         return Rational.fromInt(s.a.x).add(y.sub(Rational.fromInt(s.a.y)).mul(Rational.of(s.b.x - s.a.x, dy))).toNumber();
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: BentleyOttmannOverlayId | "grid"): Message {
+        return id === "sweep" ? message("bentleyottmann_overlay_sweep") : super.overlayMessage(id);
+    }
+
+    // The sweep line is the only overlay and a display switch in Orodja (the lessons set it by scene action); its name is longer than a puck label.
+    protected override overlaySwatch(id: BentleyOttmannOverlayId | "grid") {
+        return id === "sweep" ? {kind: "line" as const, color: GraphPalette.constructionAccent} : undefined;
+    }
+
+    protected override pointSetNotes(): readonly ReadoutNote<BentleyOttmannIds>[] {
+        return bentleyOttmannNotes(this.run(), this.step, this.model.gridStepExponent, currentLanguage());
+    }
+
+    /** What the sweep draws at this step beyond the overlay switch. */
+    private sweepDrawn(): {status: boolean; current: boolean; test: boolean; crossing: boolean} {
+        const run = this.run();
+        const none = {status: false, current: false, test: false, crossing: false};
+        if (!this.hasBoard || !this.overlayShown("sweep") || run.refusal || run.length === 0) return none;
+        const view = run.view(this.step);
+        if (view.position === null) return none;
+        const current = new Set([...view.current.starts, ...view.current.ends, ...view.current.passes]);
+        return {status: view.status.some(k => !current.has(k)), current: current.size > 0, test: view.test !== undefined, crossing: view.reports.length > 0};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id === "status") return {color: GraphPalette.primaryCurve, visible: this.sweepDrawn().status};
+        if (id === "current") return {color: ACTIVE_CONSTRUCTION_COLOR, visible: this.sweepDrawn().current};
+        if (id === "test") return {color: GraphPalette.comparisonCurve, visible: this.sweepDrawn().test};
+        if (id === "crossing") return {color: GraphPalette.selectedControlPointOutline, visible: this.sweepDrawn().crossing};
+        return super.drawnObject(id);
+    }
+
+    protected override declaration(): GraphDeclaration<BentleyOttmannIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<BentleyOttmannIds> | undefined;
+        if (!common) return undefined;
+        const run = this.run();
+        const traced = run.refusal === undefined && run.length > 0;
+        const legend: LegendEntry<BentleyOttmannIds>[] = [
+            ...(common.legend ?? []),
+            {id: "status", label: message("bentleyottmann_legend_status"), kind: "line", object: "status"},
+            {id: "current", label: message("bentleyottmann_legend_current"), kind: "line", object: "current"},
+            {id: "test", label: message("bentleyottmann_legend_test"), kind: "dashed", object: "test"},
+            {id: "crossing", label: message("bentleyottmann_legend_crossing"), kind: "cross", object: "crossing"},
+        ];
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<BentleyOttmannIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("next_step"), enabled: traced && this.step < run.length - 1 && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: traced, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: this.step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, legend, actions};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

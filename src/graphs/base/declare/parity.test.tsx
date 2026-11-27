@@ -457,6 +457,59 @@ const SAMPLES: readonly Sample[] = [
             step('no intervals', run(0, [])),
         ];
     })()},
+    {file: 'compgeo/__parity__/segment-intersections.json', demonstration: 'segment-intersections', states: (() => {
+        type Sweep = {applyPointSetAction(action: unknown): void; loadModel(model: unknown): void};
+        const segments = (list: [number, number, number, number][]) => ({mode: 'segments', closed: false, gridStepExponent: 0,
+            points: list.flatMap(([ax, ay, bx, by]) => [{x: ax, y: ay}, {x: bx, y: by}])});
+        const degenerate: [number, number, number, number][] = [[0, 0, 4, 4], [0, 4, 4, 0], [0, 2, 4, 2], [2, 0, 2, 4]];
+        const overlap: [number, number, number, number][] = [[0, 0, 4, 0], [2, 0, 6, 0]];
+        const run = (steps: number | 'end', list?: [number, number, number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Sweep;
+                if (list) g.loadModel(segments(list));
+                g.applyPointSetAction({kind: 'point-set', operation: 'set-trace-step', step: steps});
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('example 1, step 9 (crossing queued)', run(9)),
+            step('example 1, step 11 (all inserted)', run(11)),
+            step('example 1, step 16 (first swap)', run(16)),
+            step('example 1, end', run('end')),
+            step('degenerate, step 15', run(15, degenerate)),
+            step('degenerate, end', run('end', degenerate)),
+            step('no segments', run(0, [])),
+            step('overlap (refused)', run(0, overlap)),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/voronoi.json', demonstration: 'voronoi', states: (() => {
+        type Vor = {applyPointSetAction(action: unknown): void; loadModel(model: unknown): void};
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            runAs('learner', () => { for (const action of actions) (graph as unknown as Vor).applyPointSetAction(action); });
+        };
+        const overlay = (name: string, visible: boolean) => ({kind: 'point-set', operation: 'set-overlay', overlay: name, visible});
+        const site = (index: number | null) => ({kind: 'point-set', operation: 'select-site', site: index});
+        const construction = (count: number | 'end') => ({kind: 'point-set', operation: 'set-construction', count});
+        const query = (point: [number, number] | null) => ({kind: 'point-set', operation: 'set-query-point', point});
+        const triangle = (index: number | null) => ({kind: 'point-set', operation: 'select-triangle', triangle: index});
+        const sites = (list: [number, number][]) => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        const fresh = [overlay('diagram', true), overlay('delaunay', false), triangle(null), site(null), query(null)];
+        return [
+            step('default', () => {}),
+            step('diagram hidden', act(...fresh, overlay('diagram', false))),
+            step('cell construction started', act(...fresh, site(5), construction(0))),
+            step('cell construction, bisector 3', act(...fresh, site(5), construction(3))),
+            step('cell construction done', act(...fresh, site(5), construction('end'))),
+            step('diagram and duality, triangle 1', act(...fresh, overlay('delaunay', true), triangle(1))),
+            step('query in a cell', act(...fresh, query([1, 5]))),
+            step('query on a border', act(...fresh, query([4, 0]))),
+            step('collinear sites', act(...fresh, sites([[0, 0], [2, 0], [5, 0]]))),
+            step('one site (refused)', act(...fresh, sites([[0, 0]]))),
+            step('duplicate sites (refused)', act(...fresh, sites([[0, 0], [0, 0], [3, 3]]))),
+        ];
+    })()},
     {file: 'compgeo/__parity__/monotone-partition.json', demonstration: 'monotone-partition', states: (() => {
         type Partition = {applyPointSetAction(action: unknown): void; loadModel(model: unknown): void};
         const polygon = (points: [number, number][]) => ({mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
