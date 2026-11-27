@@ -10,6 +10,7 @@ import CurveCombGraph from './comb/CurveCombGraph';
 import CurvatureBezierCurveGraph from './bezier/CurvatureBezierCurveGraph';
 import CurveEvoluteGraph from './bezier/CurveEvoluteGraph';
 import CurveOffsetGraph from './offset/CurveOffsetGraph';
+import ParametricCurveGraph from './parametric/ParametricCurveGraph';
 import CurveEnvelopeGraph from './envelope/CurveEnvelopeGraph';
 import KinematicsGraph from './kinematics/KinematicsGraph';
 import DescentGraph from '../mechanics/DescentGraph';
@@ -134,5 +135,19 @@ describe('curve-offset pucks', () => {
         for (const key of ['offset-d', 'offset-shown']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
         for (const label of ['offset_distance', 'offset_shown'] as const) expect(within(root).queryAllByLabelText(new RegExp(`^${t(label)}`)), label).toEqual([]);
         expect(within(root).getAllByLabelText(new RegExp(`^${t('offset_samples')}`)).length).toBeGreaterThan(0);
+    });
+});
+
+describe('curve-parametric pucks', () => {
+    // The parameter t and the cycloid radius are pucks on the board (task 08): there once, and not in Orodja, which keeps the curve choice and the roll.
+    test('the parameter and the radius are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new ParametricCurveGraph());
+        await waitUntil(() => document.querySelector('.puck-strip [data-puck-key="parametric-t"]') !== null); // the strip stays hidden without a board layout in this jsdom
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['parametric-t', 'parametric-radius']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of ['parametric_slider_t', 'parametric_radius_label'] as const) expect(within(root).queryAllByLabelText(new RegExp(`^${t(label)}`)), label).toEqual([]);
+        expect(within(root).getAllByLabelText(new RegExp(`^${t('parametric_curve_label')}`)).length).toBeGreaterThan(0);
     });
 });

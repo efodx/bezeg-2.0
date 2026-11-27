@@ -13,6 +13,7 @@ import type {CurvatureIds} from '../../graphs/curves/bezier/CurvatureBezierCurve
 import type {EnvelopeIds} from '../../graphs/curves/envelope/CurveEnvelopeGraph';
 import type {EvoluteIds} from '../../graphs/curves/bezier/CurveEvoluteGraph';
 import type {OffsetIds} from '../../graphs/curves/offset/CurveOffsetGraph';
+import type {ParametricIds} from '../../graphs/curves/parametric/ParametricCurveGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -25,6 +26,8 @@ const envelopeFrame = frameDeclarer<EnvelopeIds>();
 const evoluteFrame = frameDeclarer<EvoluteIds>();
 /** Typed by the offset graph's declaration ids. */
 const offsetFrame = frameDeclarer<OffsetIds>();
+/** Typed by the parametric graph's declaration ids. */
+const parametricFrame = frameDeclarer<ParametricIds>();
 
 // ---- L1: parametric and polar curves --------------------------------------------------------------------------------------
 
@@ -104,8 +107,8 @@ const parametricLesson: GuidedLesson = {
             calculationLatex: 'L=8R=8,\\qquad A=3\\pi R^2=3\\pi',
             resultLatex: 'L=8,\\; A\\approx 9{,}4248',
             check: text(
-                'Izpis pod grafom pokaže dolžino loka \\(8\\) in ploščino \\(9{,}4248\\), kar je \\(3\\pi\\).',
-                'The readout on the graph shows the arc length \\(8\\) and the area \\(9.4248\\), which is \\(3\\pi\\).',
+                'Kartica Odčitki pokaže dolžino loka \\(8\\) in ploščino \\(9{,}4248\\), kar je \\(3\\pi\\).',
+                'The Readouts card shows the arc length \\(8\\) and the area \\(9.4248\\), which is \\(3\\pi\\).',
             ),
         },
     ],
@@ -115,13 +118,13 @@ const parametricLesson: GuidedLesson = {
             title: text('Kotaleči se krog', 'The rolling circle'),
             purpose: text('Pred razkritjem napovedati pot označene točke.', 'Predicting the path of the marked point before the reveal.'),
             explanation: text(
-                'Krog s polmerom \\(1\\) se kotali po osi \\(x\\), na njegovem robu pa je označena točka, ki je zdaj pri \\(t=0\\). Preden pritisneš Predvajaj, napovej: kakšno pot opiše označena točka, ko se krog zavrti enkrat okoli svojega središča?',
-                'A circle of radius \\(1\\) rolls along the \\(x\\) axis and a point is marked on its rim; it is now at \\(t=0\\). Before you press Play, predict: what path does the marked point trace while the circle turns once around its centre?',
+                'Krog s polmerom \\(1\\) se kotali po osi \\(x\\), na njegovem robu pa je označena točka, ki je zdaj pri \\(t=0\\). Preden v kartici Orodja pritisneš Predvajaj, napovej: kakšno pot opiše označena točka, ko se krog zavrti enkrat okoli svojega središča?',
+                'A circle of radius \\(1\\) rolls along the \\(x\\) axis and a point is marked on its rim; it is now at \\(t=0\\). Before you press Play in the Tools card, predict: what path does the marked point trace while the circle turns once around its centre?',
             ),
             formulaIds: ['cycloid-parametrization'],
-            frames: [frame('parametric-roll-explanation', 'explanation'), frame('parametric-roll-observation', 'observation')],
+            frames: [frame('parametric-roll-explanation', 'explanation', parametricFrame({open: ['tools']})), frame('parametric-roll-observation', 'observation', parametricFrame({open: ['tools', 'legend']}))],
             animation: {animationId: 'parametric-roll'},
-            observationPrompt: text('Predvajaj kotaljenje in primerjaj pot z napovedjo.', 'Play the rolling and compare the path with your prediction.'),
+            observationPrompt: text('V kartici Orodja predvajaj kotaljenje in primerjaj pot z napovedjo.', 'In the Tools card play the rolling and compare the path with your prediction.'),
             expectedObservations: [text('Označena točka opiše lok cikloide: dvigne se do višine \\(2\\) in se vrne na os \\(x\\) v točki \\((2\\pi,0)\\).', 'The marked point traces an arch of the cycloid: it rises to the height \\(2\\) and returns to the \\(x\\) axis at the point \\((2\\pi,0)\\).')],
             scene: parametricScene('parametric-roll-start', 'cycloid', 0,
                 'Kotaleči se krog s polmerom \\(1\\) je pri \\(t=0\\); označena točka je v izhodišču, kjer je hitrost enaka \\(0\\).',
@@ -130,14 +133,14 @@ const parametricLesson: GuidedLesson = {
         {
             id: 'parametric-velocity', order: 2,
             title: text('Parameter in hitrost', 'Parameter and velocity'),
-            purpose: text('Z drsnikom \\(t\\) premikati točko in brati vektor hitrosti.', 'Moving the point with the \\(t\\) slider and reading the velocity vector.'),
+            purpose: text('S krmilnikom Parameter premikati točko in brati vektor hitrosti.', 'Moving the point with the Parameter control and reading the velocity vector.'),
             explanation: text(
-                'Pri \\(t=\\pi/2\\) je krog zavrten za četrt obrata. Označena točka je v \\((\\pi/2-1,\\,1)\\), vektor hitrosti pa je \\(r\'(t)=(1,1)\\) z velikostjo \\(\\sqrt2\\approx1{,}4142\\). Napovej, kako se bo vektor spremenil na vrhu loka, in potem premakni drsnik.',
-                'At \\(t=\\pi/2\\) the circle has turned a quarter of a turn. The marked point is at \\((\\pi/2-1,\\,1)\\) and the velocity vector is \\(r\'(t)=(1,1)\\) with the length \\(\\sqrt2\\approx1.4142\\). Predict how the vector changes at the top of the arch, then move the slider.',
+                'Pri \\(t=\\pi/2\\) je krog zavrten za četrt obrata. Označena točka je v \\((\\pi/2-1,\\,1)\\), vektor hitrosti pa je \\(r\'(t)=(1,1)\\) z velikostjo \\(\\sqrt2\\approx1{,}4142\\). Napovej, kako se bo vektor spremenil na vrhu loka, in potem premakni krmilnik Parameter.',
+                'At \\(t=\\pi/2\\) the circle has turned a quarter of a turn. The marked point is at \\((\\pi/2-1,\\,1)\\) and the velocity vector is \\(r\'(t)=(1,1)\\) with the length \\(\\sqrt2\\approx1.4142\\). Predict how the vector changes at the top of the arch, then move the Parameter control.',
             ),
             formulaIds: ['cycloid-parametrization'],
-            frames: [frame('parametric-velocity-explanation', 'explanation'), frame('parametric-velocity-observation', 'observation')],
-            observationPrompt: text('Premakni \\(t\\) k \\(\\pi\\) in preberi vektor hitrosti.', 'Move \\(t\\) to \\(\\pi\\) and read the velocity vector.'),
+            frames: [frame('parametric-velocity-explanation', 'explanation', parametricFrame({open: ['readouts'], highlight: ['velocity', 'speed']})), frame('parametric-velocity-observation', 'observation', parametricFrame({uses: ['parametric-t'], open: ['readouts']}))],
+            observationPrompt: text('S krmilnikom Parameter premakni \\(t\\) k \\(\\pi\\) in preberi vektor hitrosti v kartici Odčitki.', 'With the Parameter control move \\(t\\) to \\(\\pi\\) and read the velocity vector in the Readouts card.'),
             expectedObservations: [text('Na vrhu loka je vektor hitrosti \\((2,0)\\): vodoraven in najdaljši, z velikostjo \\(2\\).', 'At the top of the arch the velocity vector is \\((2,0)\\): horizontal and longest, with the length \\(2\\).')],
             scene: parametricScene('parametric-velocity-quarter', 'cycloid', PI / 2,
                 'Pri \\(t=\\pi/2\\) je hitrost \\((1,\\,1)\\), velikost \\(1{,}4142\\).',
@@ -148,12 +151,12 @@ const parametricLesson: GuidedLesson = {
             title: text('Dolžina loka in ploščina', 'Arc length and area'),
             purpose: text('Brati dolžino loka in ploščino pod lokom.', 'Reading the arc length and the area under the arch.'),
             explanation: text(
-                'Izpis kaže dolžino celotnega loka in ploščino pod njim. Napovej: kolikokrat je lok daljši od premera \\(2\\) kroga in kolikokrat je ploščina večja od ploščine kroga \\(\\pi\\)? Pri \\(R=1\\) je dolžina \\(8\\), ploščina pa \\(3\\pi\\approx9{,}4248\\). Točka je zdaj na vrhu loka, pri \\(t=\\pi\\).',
-                'The readout shows the length of the whole arch and the area under it. Predict: how many times is the arch longer than the diameter \\(2\\) of the circle, and how many times larger is the area than the area \\(\\pi\\) of the circle? For \\(R=1\\) the length is \\(8\\) and the area is \\(3\\pi\\approx9.4248\\). The point is now at the top of the arch, at \\(t=\\pi\\).',
+                'Kartica Odčitki kaže dolžino celotnega loka in ploščino pod njim. Napovej: kolikokrat je lok daljši od premera \\(2\\) kroga in kolikokrat je ploščina večja od ploščine kroga \\(\\pi\\)? Pri \\(R=1\\) je dolžina \\(8\\), ploščina pa \\(3\\pi\\approx9{,}4248\\). Točka je zdaj na vrhu loka, pri \\(t=\\pi\\).',
+                'The Readouts card shows the length of the whole arch and the area under it. Predict: how many times is the arch longer than the diameter \\(2\\) of the circle, and how many times larger is the area than the area \\(\\pi\\) of the circle? For \\(R=1\\) the length is \\(8\\) and the area is \\(3\\pi\\approx9.4248\\). The point is now at the top of the arch, at \\(t=\\pi\\).',
             ),
             formulaIds: ['cycloid-measures'], workedExampleId: 'cycloid-arch-example',
-            frames: [frame('parametric-measures-explanation', 'explanation'), frame('parametric-measures-calculation', 'calculation'), frame('parametric-measures-observation', 'observation')],
-            observationPrompt: text('Nastavi polmer na \\(2\\) in preveri, kako se spremenita dolžina in ploščina.', 'Set the radius to \\(2\\) and check how the length and the area change.'),
+            frames: [frame('parametric-measures-explanation', 'explanation', parametricFrame({open: ['readouts']})), frame('parametric-measures-calculation', 'calculation', parametricFrame({open: ['readouts'], highlight: ['length', 'area']})), frame('parametric-measures-observation', 'observation', parametricFrame({uses: ['parametric-radius'], open: ['readouts']}))],
+            observationPrompt: text('S krmilnikom Polmer kroga nastavi polmer na \\(2\\) in preveri, kako se spremenita dolžina in ploščina.', 'With the Circle radius control set the radius to \\(2\\) and check how the length and the area change.'),
             expectedObservations: [text('Pri polmeru \\(2\\) je dolžina \\(16\\) in ploščina \\(12\\pi\\approx37{,}6991\\): dolžina raste z \\(R\\), ploščina z \\(R^2\\).', 'With the radius \\(2\\) the length is \\(16\\) and the area is \\(12\\pi\\approx37.6991\\): the length grows with \\(R\\) and the area with \\(R^2\\).')],
             scene: parametricScene('parametric-measures-top', 'cycloid', PI,
                 'Točka je na vrhu loka (\\(t=\\pi\\)); dolžina loka je \\(8\\), ploščina \\(9{,}4248\\).',
@@ -164,12 +167,12 @@ const parametricLesson: GuidedLesson = {
             title: text('Polarna krivulja in poltrak', 'A polar curve and its ray'),
             purpose: text('Preiti na polarno krivuljo, pri kateri parameter pomeni kot poltraka.', 'Switching to a polar curve whose parameter is the angle of a ray.'),
             explanation: text(
-                'Pri polarni krivulji \\(\\rho=f(\\theta)\\) drsnik meri kot \\(\\theta\\), poltrak iz izhodišča pa ima dolžino \\(\\rho(\\theta)\\). Pri Arhimedovi spirali je \\(\\rho(\\theta)=\\theta\\). Napovej dolžino poltraka pri \\(\\theta=\\pi\\) in jo primerjaj z izpisom \\(\\rho=\\pi\\approx3{,}1416\\).',
-                'For a polar curve \\(\\rho=f(\\theta)\\) the slider measures the angle \\(\\theta\\), and the ray from the origin has the length \\(\\rho(\\theta)\\). For the spiral of Archimedes \\(\\rho(\\theta)=\\theta\\). Predict the length of the ray at \\(\\theta=\\pi\\) and compare it with the readout \\(\\rho=\\pi\\approx3.1416\\).',
+                'Pri polarni krivulji \\(\\rho=f(\\theta)\\) krmilnik Kot meri kot \\(\\theta\\), poltrak iz izhodišča pa ima dolžino \\(\\rho(\\theta)\\). Pri Arhimedovi spirali je \\(\\rho(\\theta)=\\theta\\). Napovej dolžino poltraka pri \\(\\theta=\\pi\\) in jo primerjaj z odčitkom \\(\\rho=\\pi\\approx3{,}1416\\) v kartici Odčitki.',
+                'For a polar curve \\(\\rho=f(\\theta)\\) the Angle control measures the angle \\(\\theta\\), and the ray from the origin has the length \\(\\rho(\\theta)\\). For the spiral of Archimedes \\(\\rho(\\theta)=\\theta\\). Predict the length of the ray at \\(\\theta=\\pi\\) and compare it with the reading \\(\\rho=\\pi\\approx3.1416\\) in the Readouts card.',
             ),
             formulaIds: ['polar-ray'],
-            frames: [frame('parametric-polar-explanation', 'explanation'), frame('parametric-polar-observation', 'observation')],
-            observationPrompt: text('Premikaj \\(\\theta\\) in opazuj, kako se poltrak podaljšuje.', 'Move \\(\\theta\\) and watch the ray grow.'),
+            frames: [frame('parametric-polar-explanation', 'explanation', parametricFrame({open: ['readouts']})), frame('parametric-polar-observation', 'observation', parametricFrame({uses: ['parametric-t'], open: ['readouts'], highlight: ['ray']}))],
+            observationPrompt: text('S krmilnikom Kot premikaj \\(\\theta\\) in opazuj, kako se poltrak podaljšuje.', 'Move \\(\\theta\\) with the Angle control and watch the ray grow.'),
             expectedObservations: [text('Dolžina poltraka je vedno enaka kotu: pri \\(\\theta=\\pi\\) je \\(3{,}1416\\).', 'The length of the ray always equals the angle: at \\(\\theta=\\pi\\) it is \\(3.1416\\).')],
             scene: parametricScene('parametric-polar-spiral', 'spiral', PI,
                 'Arhimedova spirala pri \\(\\theta=\\pi\\): polmer \\(\\rho=3{,}1416\\).',
@@ -180,12 +183,12 @@ const parametricLesson: GuidedLesson = {
             title: text('Kardioida iz vrednosti \\(\\rho\\)', 'The cardioid from the values of \\(\\rho\\)'),
             purpose: text('Pred sledenjem napovedati kardioido iz vrednosti \\(\\rho(\\theta)\\).', 'Predicting the cardioid from the values of \\(\\rho(\\theta)\\) before tracing it.'),
             explanation: text(
-                'Kardioida ima \\(\\rho(\\theta)=1+\\cos\\theta\\): \\(\\rho(0)=2\\), \\(\\rho(\\pi/2)=1\\) in \\(\\rho(\\pi)=0\\). Iz teh treh vrednosti napovej, kako se poltrak krči, ko \\(\\theta\\) raste do \\(\\pi\\). Točka je zdaj pri \\(\\theta=\\pi/2\\) z izpisom \\(\\rho=1\\) in hitrostjo \\((-1,\\,-1)\\).',
-                'The cardioid has \\(\\rho(\\theta)=1+\\cos\\theta\\): \\(\\rho(0)=2\\), \\(\\rho(\\pi/2)=1\\) and \\(\\rho(\\pi)=0\\). From these three values predict how the ray shrinks as \\(\\theta\\) grows to \\(\\pi\\). The point is now at \\(\\theta=\\pi/2\\) with the readout \\(\\rho=1\\) and the velocity \\((-1,\\,-1)\\).',
+                'Kardioida ima \\(\\rho(\\theta)=1+\\cos\\theta\\): \\(\\rho(0)=2\\), \\(\\rho(\\pi/2)=1\\) in \\(\\rho(\\pi)=0\\). Iz teh treh vrednosti napovej, kako se poltrak krči, ko \\(\\theta\\) raste do \\(\\pi\\). Točka je zdaj pri \\(\\theta=\\pi/2\\) z odčitkom \\(\\rho=1\\) in hitrostjo \\((-1,\\,-1)\\).',
+                'The cardioid has \\(\\rho(\\theta)=1+\\cos\\theta\\): \\(\\rho(0)=2\\), \\(\\rho(\\pi/2)=1\\) and \\(\\rho(\\pi)=0\\). From these three values predict how the ray shrinks as \\(\\theta\\) grows to \\(\\pi\\). The point is now at \\(\\theta=\\pi/2\\) with the reading \\(\\rho=1\\) and the velocity \\((-1,\\,-1)\\).',
             ),
             formulaIds: ['polar-ray'],
-            frames: [frame('parametric-cardioid-explanation', 'explanation'), frame('parametric-cardioid-observation', 'observation')],
-            observationPrompt: text('Premakni \\(\\theta\\) od \\(0\\) do \\(\\pi\\) in preveri napoved.', 'Move \\(\\theta\\) from \\(0\\) to \\(\\pi\\) and check your prediction.'),
+            frames: [frame('parametric-cardioid-explanation', 'explanation', parametricFrame({open: ['readouts'], highlight: ['ray', 'velocity']})), frame('parametric-cardioid-observation', 'observation', parametricFrame({uses: ['parametric-t'], open: ['readouts']}))],
+            observationPrompt: text('S krmilnikom Kot premakni \\(\\theta\\) od \\(0\\) do \\(\\pi\\) in preveri napoved.', 'With the Angle control move \\(\\theta\\) from \\(0\\) to \\(\\pi\\) and check your prediction.'),
             expectedObservations: [text('Poltrak se krči od \\(2\\) do \\(0\\); pri \\(\\theta=\\pi\\) je kardioida v izhodišču, kjer ima ost in hitrost \\(0\\).', 'The ray shrinks from \\(2\\) to \\(0\\); at \\(\\theta=\\pi\\) the cardioid is at the origin, where it has a cusp and the velocity is \\(0\\).')],
             scene: parametricScene('parametric-cardioid-quarter', 'cardioid', PI / 2,
                 'Kardioida pri \\(\\theta=\\pi/2\\): \\(\\rho=1\\), hitrost \\((-1,\\,-1)\\).',
@@ -196,27 +199,27 @@ const parametricLesson: GuidedLesson = {
             title: text('Ost cikloide', 'The cusp of the cycloid'),
             purpose: text('Videti, da je v osti hitrost enaka \\(0\\) in tangenta ni narisana.', 'Seeing that the velocity is \\(0\\) at the cusp and no tangent is drawn.'),
             explanation: text(
-                'Na koncu loka (\\(t=2\\pi\\)) se krog dotakne osi \\(x\\) in označena točka za trenutek miruje: \\(r\'(2\\pi)=(0,0)\\). Napovej, kaj bo graf narisal namesto vektorja hitrosti. Ker smer gibanja tam ni določena, graf izpiše, da je hitrost \\(0\\), in tangente ne nariše.',
-                'At the end of the arch (\\(t=2\\pi\\)) the circle touches the \\(x\\) axis and the marked point is momentarily at rest: \\(r\'(2\\pi)=(0,0)\\). Predict what the graph draws instead of the velocity vector. Since the direction of motion is not defined there, the graph states that the velocity is \\(0\\) and draws no tangent.',
+                'Na koncu loka (\\(t=2\\pi\\)) se krog dotakne osi \\(x\\) in označena točka za trenutek miruje: \\(r\'(2\\pi)=(0,0)\\). Napovej, kaj bo graf narisal namesto vektorja hitrosti. Ker smer gibanja tam ni določena, kartica Odčitki izpiše, da je hitrost \\(0\\), graf pa tangente ne nariše.',
+                'At the end of the arch (\\(t=2\\pi\\)) the circle touches the \\(x\\) axis and the marked point is momentarily at rest: \\(r\'(2\\pi)=(0,0)\\). Predict what the graph draws instead of the velocity vector. Since the direction of motion is not defined there, the Readouts card states that the velocity is \\(0\\) and the graph draws no tangent.',
             ),
             formulaIds: ['cycloid-parametrization'],
-            frames: [frame('parametric-cusp-explanation', 'explanation'), frame('parametric-cusp-observation', 'observation')],
-            observationPrompt: text('Premakni \\(t\\) tik pred \\(2\\pi\\) in opazuj vektor hitrosti.', 'Move \\(t\\) just before \\(2\\pi\\) and watch the velocity vector.'),
-            expectedObservations: [text('Tik pred ostjo je vektor hitrosti zelo kratek; v osti graf izpiše, da je hitrost \\(0\\), in ne nariše ničesar.', 'Just before the cusp the velocity vector is very short; at the cusp the graph states that the velocity is \\(0\\) and draws nothing.')],
+            frames: [frame('parametric-cusp-explanation', 'explanation', parametricFrame({open: ['readouts'], highlight: ['stopped']})), frame('parametric-cusp-observation', 'observation', parametricFrame({uses: ['parametric-t'], open: ['readouts']}))],
+            observationPrompt: text('S krmilnikom Parameter premakni \\(t\\) tik pred \\(2\\pi\\) in opazuj vektor hitrosti.', 'With the Parameter control move \\(t\\) just before \\(2\\pi\\) and watch the velocity vector.'),
+            expectedObservations: [text('Tik pred ostjo je vektor hitrosti zelo kratek; v osti kartica Odčitki izpiše, da je hitrost \\(0\\), graf pa ne nariše ničesar.', 'Just before the cusp the velocity vector is very short; at the cusp the Readouts card states that the velocity is \\(0\\) and the graph draws nothing.')],
             scene: parametricScene('parametric-cusp-end', 'cycloid', 2 * PI,
-                'Pri \\(t=2\\pi\\) graf izpiše, da je hitrost \\(0\\); vektor hitrosti ni narisan.',
-                'At \\(t=2\\pi\\) the graph states that the velocity is \\(0\\); no velocity vector is drawn.', 1),
+                'Pri \\(t=2\\pi\\) kartica Odčitki izpiše, da je hitrost \\(0\\); vektor hitrosti ni narisan.',
+                'At \\(t=2\\pi\\) the Readouts card states that the velocity is \\(0\\); no velocity vector is drawn.', 1),
         },
         {
             id: 'parametric-explore', order: 7,
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno spreminjati polmer kroga in izbirati polarne krivulje.', 'Changing the circle radius and choosing polar curves on your own.'),
             explanation: text(
-                'Spreminjaj polmer kotalečega se kroga, izberi kardioido, rožo ali spiralo in premikaj parameter. Opazuj, kje je hitrost enaka \\(0\\) in kako se spreminjata dolžina loka in ploščina.',
-                'Change the radius of the rolling circle, choose the cardioid, the rose or the spiral and move the parameter. Watch where the velocity is \\(0\\) and how the arc length and the area change.',
+                'S krmilnikom Polmer kroga spreminjaj polmer kotalečega se kroga, v kartici Orodja izberi kardioido, rožo ali spiralo in premikaj krmilnik Parameter (pri polarnih krivuljah Kot). Opazuj, kje je hitrost enaka \\(0\\) in kako se spreminjata dolžina loka in ploščina.',
+                'With the Circle radius control change the radius of the rolling circle, in the Tools card choose the cardioid, the rose or the spiral and move the Parameter control (the Angle control for polar curves). Watch where the velocity is \\(0\\) and how the arc length and the area change.',
             ),
             formulaIds: ['cycloid-measures', 'polar-ray'],
-            frames: [frame('parametric-explore-explanation', 'explanation'), frame('parametric-explore-observation', 'observation')],
+            frames: [frame('parametric-explore-explanation', 'explanation', parametricFrame({uses: ['parametric-t', 'parametric-radius'], open: ['readouts', 'tools']})), frame('parametric-explore-observation', 'observation', parametricFrame({open: ['readouts']}))],
             observationPrompt: text('Poišči polarno krivuljo, ki ima ost, in preveri, kje je hitrost \\(0\\).', 'Find a polar curve with a cusp and check where the velocity is \\(0\\).'),
             expectedObservations: [text('Kardioida ima ost v izhodišču pri \\(\\theta=\\pi\\), kjer je hitrost \\(0\\).', 'The cardioid has a cusp at the origin at \\(\\theta=\\pi\\), where the velocity is \\(0\\).')],
             scene: parametricScene('parametric-explore-start', 'cycloid', PI / 2,
@@ -233,7 +236,7 @@ const parametricLesson: GuidedLesson = {
         },
     ],
     edgeCases: [
-        text('Pri \\(r\'(t)=0\\) (ost) smer gibanja ni določena: graf izpiše hitrost \\(0\\) in ne nariše tangente.', 'Where \\(r\'(t)=0\\) (a cusp) the direction of motion is not defined: the graph states the velocity \\(0\\) and draws no tangent.'),
+        text('Pri \\(r\'(t)=0\\) (ost) smer gibanja ni določena: kartica Odčitki izpiše hitrost \\(0\\), graf pa ne nariše tangente.', 'Where \\(r\'(t)=0\\) (a cusp) the direction of motion is not defined: the Readouts card states the velocity \\(0\\) and the graph draws no tangent.'),
     ],
     unresolvedQuestions: [],
 };

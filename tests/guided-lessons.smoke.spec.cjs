@@ -2167,7 +2167,7 @@ const voronoiDegenerate = {
 
 // Curve geometry L1/L2: a text of the board (the readout) that must show per lesson step 1..7; the patterns accept the Slovenian comma and the English point.
 const boardText = (page, pattern) => page.locator('.JXGtext').filter({hasText: pattern});
-const PARAMETRIC_READOUTS = [/\(ost\)|\(cusp\)/, /\(1, 1\).*1[.,]4142/s, /9[.,]4248/, /3[.,]1416/, /\([-−]1, [-−]1\)/, /\(ost\)|\(cusp\)/, /8\b.*9[.,]4248/s];
+const PARAMETRIC_READOUTS = [null, /\(1; 1\).*1[.,]4142/s, /9[.,]4248/, /3[.,]1416/, /\([-\u2212]1; [-\u2212]1\)/, /\(ost\)|\(cusp\)/, /(?<![\d.,])8(?![.,]?\d).*9[.,]4248/s];
 const parametricGeometry = {
     id: 'curve-parametric',
     path: `${BASE}/curve-geometry/parametric`,
@@ -2175,7 +2175,9 @@ const parametricGeometry = {
     steps: 7,
     minFrames: 15, // 2 frames per step, 3 on step 3 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, PARAMETRIC_READOUTS[step - 1]).first(), `parametric readout at ${label}`).toBeVisible();
+        // Step 1 keeps the Orodja card open for Play (no readouts card); the other steps open Odčitki (declared rows and the cusp note; the board text is gone).
+        const readout = PARAMETRIC_READOUTS[step - 1];
+        if (readout) await expect(page.locator('#board-card-readouts').filter({hasText: readout}).first(), `parametric readout at ${label}`).toBeVisible();
         // Step 1 asks for a prediction: no trace is drawn before Play; every later step shows the whole curve.
         await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `parametric trace at ${label}`}).toBe(step === 1 ? 0 : 1);
     },

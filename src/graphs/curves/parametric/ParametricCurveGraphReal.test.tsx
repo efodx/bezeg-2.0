@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import ParametricCurveGraph from './ParametricCurveGraph';
 import {GraphHost} from '../../base/GraphHost';
 import {installBoardShims} from '../../base/realGraphTestHarness';
+import {runAs} from '../../base/writes/writeSource';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -38,7 +39,7 @@ test('on a real board the scene exists after initialize, is recreated once by an
     const first = graph.ownedElements();
     const total = board.objectsList.length;
 
-    graph.importPresetData({curve: 'cardioid', radius: 1, parameter: 1});
+    runAs('learner', () => graph.importPresetData({curve: 'cardioid', radius: 1, parameter: 1}));
     act(() => graph.flushStateChanges());
     expect(first.some(element => board.objectsList.includes(element))).toBe(false);
     const second = graph.ownedElements();
@@ -54,14 +55,14 @@ test('on a real board the partial trace ends at the marked point while rolling a
     const graph = new ObservedParametricGraph();
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     const board = graph.liveBoard();
-    graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 0});
+    runAs('learner', () => graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 0}));
     act(() => graph.flushStateChanges());
     board.update();
     graph.apply(false);
     board.update();
     expect(graph.traceCurve().evalVisProp('visible')).toBe(false);
     for (const t of [1.3, 4]) {
-        graph.setParameter(t);
+        runAs('learner', () => graph.setParameter(t));
         board.update();
         const trace = graph.traceCurve();
         expect(trace.evalVisProp('visible')).toBe(true);
@@ -77,7 +78,7 @@ test('on a real board the partial trace ends at the marked point while rolling a
 
     board.update();
     graph.apply(false);
-    graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 1});
+    runAs('learner', () => graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 1}));
     act(() => graph.flushStateChanges());
     board.update();
     const again = graph.traceCurve().points;
@@ -92,7 +93,7 @@ test('repeated scene imports leave no arrowhead markers or paths behind (JSXGrap
     const count = (selector: string) => container.querySelectorAll(selector).length;
     const scenes = [{curve: 'cardioid' as const, radius: 1, parameter: 1}, {curve: 'cycloid' as const, radius: 1, parameter: 1}];
     const sweep = () => scenes.forEach(scene => {
-        graph.importPresetData(scene);
+        runAs('learner', () => graph.importPresetData(scene));
         act(() => graph.flushStateChanges());
     });
     sweep();

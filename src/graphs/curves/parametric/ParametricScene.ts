@@ -1,9 +1,7 @@
-import type {Board, GeometryElement, Point, Text} from "jsxgraph";
-import {currentLanguage, onLanguageChange, t} from "../../../localization";
-import {formatNumber} from "../../../analysis/format";
+import type {Board, GeometryElement, Point} from "jsxgraph";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {
-    arcLength, CatalogueSelection, enclosedArea, PARAMETRIC_CATALOGUE, ParametricCurveId, polarRadius, sourceOf, velocityAt,
+    arcLength, CatalogueSelection, enclosedArea, PARAMETRIC_CATALOGUE, ParametricCurveId, polarRadius, sourceOf, Velocity, velocityAt,
 } from "./parametricCatalogue";
 
 interface SceneSettings {
@@ -14,20 +12,19 @@ interface SceneSettings {
     parameter: () => number;
     /** False draws the trace only from the domain start to the parameter (a lesson prediction step). */
     traceFull: () => boolean;
-    fontSize: () => number;
 }
 
 /**
  * The owned elements of one catalogue curve: the trace, the moving point, the velocity vector, the radius ray (polar
- * curves), the rolling circle (cycloid) and a text readout. Every element is created here and removed by {@link dispose};
- * the one subscription (language change, for board text) is released there too.
+ * curves) and the rolling circle (cycloid). Every element is created here and removed by {@link dispose}. The numbers
+ * (velocity, ray, arc length, area) are {@link values}; the graph shows them as Odčitki rows, not as board text.
  */
 export class ParametricScene {
     private readonly board: Board;
     /** The catalogue curve this scene was built for; another curve needs a new scene. */
     readonly curve: ParametricCurveId;
     private elements: GeometryElement[] = [];
-    private stopLanguageUpdates?: () => void;
+    private readonly named: Partial<Record<'curve' | 'velocity' | 'ray' | 'circle', GeometryElement>> = {};
     private disposed = false;
     private measureKey = '';
     private measures = {length: 0, area: 0};
@@ -78,7 +75,7 @@ export class ParametricScene {
         const current = () => velocityAt(this.selection(), this.settings.parameter());
         const moving = () => current().status === 'moving';
 
-        this.create('curve', [
+        this.named.curve = this.create('curve', [
             (u: number) => sourceOf(this.selection()).at(u).point[0],
             (u: number) => sourceOf(this.selection()).at(u).point[1],
             t0, () => this.settings.traceFull() ? t1 : this.settings.parameter(),
@@ -94,20 +91,20 @@ export class ParametricScene {
             () => { const v = current(); return v.status === 'moving' ? v.point[1] + v.vector[1] : NaN; },
         ], auxiliary);
         // The velocity arrow is dashed, so it is told apart from the radius ray without colour.
-        this.create('segment', [marker, tip], {
+        this.named.velocity = this.create('segment', [marker, tip], {
             fixed: true, highlight: false, withLabel: false, lastArrow: {type: 2, size: 6}, strokeWidth: 2.5,
             strokeColor: GraphPalette.comparisonCurve, dash: 2, visible: moving,
         });
 
         if (polar) {
-            this.create('segment', [origin, marker], {
+            this.named.ray = this.create('segment', [origin, marker], {
                 fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3,
             });
         }
         if (cycloid) {
             const centre = this.create<Point>('point', [() => this.selection().radius * this.settings.parameter(), () => this.selection().radius],
                 {...auxiliary, visible: true, size: 2, strokeColor: GraphPalette.constructionAccent, fillColor: GraphPalette.constructionAccent});
-            this.create('circle', [centre, () => this.selection().radius], {
+            this.named.circle = this.create('circle', [centre, () => this.selection().radius], {
                 fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.constructionAccent, strokeWidth: 2,
                 dash: 3, fillColor: 'none', fillOpacity: 0,
             });
@@ -116,47 +113,29 @@ export class ParametricScene {
             });
         }
 
-        const box = () => this.board.getBoundingBox();
-        this.create<Text>('text', [
-            () => box()[0] + 0.02 * (box()[2] - box()[0]),
-            () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => this.readoutText(),
-        ], {
-            anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
-            fontSize: () => this.settings.fontSize(), strokeColor: () => moving() ? GraphPalette.label : GraphPalette.warningText,
-        });
-
-        // Board text is recomputed only on board update, which a language change does not trigger.
-        this.stopLanguageUpdates = onLanguageChange(() => {
-            if (!this.disposed && this.board.renderer) this.board.update();
-        });
     }
 
-    /** The readout lines: velocity (or the cusp status), the ray radius of polar curves, the whole arc length and the area. */
-    readoutText(): string {
-        const num = (value: number) => formatNumber(value, currentLanguage(), 4);
+    /**
+     * The numbers the Odčitki card shows (they were the board caption lines): the velocity (or the stopped state), the ray radius of polar
+     * curves (rho, signed), the arc length of the whole trace and the area.
+     */
+    values(): {velocity: Velocity; ray: number | undefined; length: number; area: number} {
         const selection = this.selection();
         const parameter = this.settings.parameter();
-        const velocity = velocityAt(selection, parameter);
-        const lines: string[] = [];
-        if (velocity.status === 'stopped') {
-            lines.push(t("parametric_status_stopped"));
-        } else {
-            lines.push(t("parametric_velocity_value", {value0: num(velocity.vector[0]), value1: num(velocity.vector[1]), value2: num(velocity.speed)}));
-        }
-        if (PARAMETRIC_CATALOGUE[this.curve].kind === 'polar') lines.push(t("parametric_ray_value", {value0: num(polarRadius(selection, parameter))}));
+        const polar = PARAMETRIC_CATALOGUE[this.curve].kind === 'polar';
         const {length, area} = this.wholeMeasures();
-        lines.push(t("arc_length_value", {value0: num(length)}));
-        lines.push(t("parametric_area_value", {value0: num(area)}));
-        return lines.join("\n");
+        return {velocity: velocityAt(selection, parameter), ray: polar ? polarRadius(selection, parameter) : undefined, length, area};
     }
 
-    /** Removes every owned element (later ones first) and releases the language subscription. Idempotent. */
+    /** A drawn element by the graph's legend id; the pieces are created in `build`. */
+    element(id: 'curve' | 'velocity' | 'ray' | 'circle'): GeometryElement | undefined {
+        return this.named[id];
+    }
+
+    /** Removes every owned element (later ones first). Idempotent. */
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
-        this.stopLanguageUpdates?.();
-        this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();
         this.elements = [];
         // JSXGraph's SVG renderer keeps an arrow's <marker> in <defs> after removeObject; the scene is rebuilt on every import.

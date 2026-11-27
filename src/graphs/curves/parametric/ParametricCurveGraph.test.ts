@@ -5,7 +5,6 @@ import {ParametricScene} from './ParametricScene';
 import {SceneSlot} from '../../base/OwnedScene';
 import {DEFAULT_PARAMETRIC_PRESET, parametricPresetCollection} from './parametricPresetCollection';
 import {curveViewBox, PARAMETRIC_ROLL_ANIMATION_ID} from './parametricCatalogue';
-import {setLanguage} from '../../../localization';
 import {FigureExportScope} from '../../base/export/FigureExportOperation';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the scene also guards its callback. */
@@ -107,7 +106,7 @@ describe('lesson scenes', () => {
 });
 
 describe('scene construction failure', () => {
-    test('a scene whose build throws removes what it created and releases its language subscription', () => {
+    test('a scene whose build throws removes what it created', () => {
         const board = fakeBoard();
         const create = board.create.getMockImplementation();
         let calls = 0;
@@ -116,7 +115,7 @@ describe('scene construction failure', () => {
             return create(...args);
         });
         const before = liveSubscriptions.count;
-        expect(() => new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => 0, traceFull: () => true, fontSize: () => 16}))
+        expect(() => new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => 0, traceFull: () => true}))
             .toThrow('board failure');
         expect(board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);
@@ -182,7 +181,7 @@ describe('owned scene', () => {
         expect(graph.board.objectsList).toEqual([]);
     });
 
-    test('unmount disposes the scene before the board goes and releases the language subscription', () => {
+    test('unmount disposes the scene before the board goes', () => {
         const before = liveSubscriptions.count;
         const graph = makeGraph();
         const board = graph.board;
@@ -195,7 +194,7 @@ describe('owned scene', () => {
         graph.sceneSlot = new SceneSlot(graph.graphSession, board, graph.sceneDeclaration());
         graph.sceneSlot.rebuild();
         graph.importPresetData(graph.defaultPreset());
-        expect(liveSubscriptions.count).toBe(before + 1);
+        expect(liveSubscriptions.count).toBe(before);
         const remove = board.removeObject;
         board.removeObject = vi.fn((o: any) => { order.push('removed'); return remove(o); });
         graph.pendingCallbacks = [];
@@ -207,52 +206,47 @@ describe('owned scene', () => {
 
     test('scene dispose is idempotent', () => {
         const board = fakeBoard();
-        const scene = new ParametricScene({board, curve: 'rose', radius: () => 1, parameter: () => 0.3, traceFull: () => true, fontSize: () => 14});
+        const scene = new ParametricScene({board, curve: 'rose', radius: () => 1, parameter: () => 0.3, traceFull: () => true});
         scene.dispose();
         scene.dispose();
         expect(board.removeObject).toHaveBeenCalledTimes(1);
         expect(board.objectsList).toEqual([]);
     });
 
-    test('a language change redraws while alive, not after dispose, and the readout follows the language', () => {
+    test('the scene draws no board text (the numbers are Odčitki rows) and holds no language subscription', () => {
         const board = fakeBoard();
-        const scene = new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => Math.PI / 2, traceFull: () => true, fontSize: () => 14});
-        setLanguage('sl');
-        const sl = scene.readoutText();
-        board.update.mockClear();
-        setLanguage('en');
-        expect(board.update).toHaveBeenCalledTimes(1);
-        expect(scene.readoutText()).not.toBe(sl);
+        const before = liveSubscriptions.count;
+        const scene = new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => Math.PI / 2, traceFull: () => true});
+        expect(scene.ownedElements().filter(element => (element as any).elType === 'text')).toEqual([]);
+        expect(board.create.mock.calls.some((call: unknown[]) => call[0] === 'text')).toBe(false);
+        expect(liveSubscriptions.count).toBe(before);
         scene.dispose();
-        setLanguage('sl');
-        expect(board.update).toHaveBeenCalledTimes(1);
     });
 });
 
-describe('readouts', () => {
-    const readout = (curve: any, radius: number, parameter: number) => {
-        const scene = new ParametricScene({board: fakeBoard(), curve, radius: () => radius, parameter: () => parameter, traceFull: () => true, fontSize: () => 14});
-        setLanguage('en');
-        const text = scene.readoutText();
+describe('values (the numbers of the Odčitki rows)', () => {
+    const values = (curve: any, radius: number, parameter: number) => {
+        const scene = new ParametricScene({board: fakeBoard(), curve, radius: () => radius, parameter: () => parameter, traceFull: () => true});
+        const result = scene.values();
         scene.dispose();
-        setLanguage('sl');
-        return text;
+        return result;
     };
 
-    test('cycloid r = 1 shows length 8 and area 9.4248 (3 pi)', () => {
-        const text = readout('cycloid', 1, 1);
-        expect(text).toContain('Arc length: 8');
-        expect(text).toContain('9.4248');
+    test('cycloid r = 1 has length 8 and area 9.4248 (3 pi)', () => {
+        const {length, area} = values('cycloid', 1, 1);
+        expect(length).toBeCloseTo(8, 6);
+        expect(area).toBeCloseTo(3 * Math.PI, 6);
     });
 
-    test('the cusp states the zero speed instead of a vector', () => {
-        const text = readout('cycloid', 1, 0);
-        expect(text).toContain('speed is 0');
-        expect(text).not.toContain('Velocity');
+    test('the cusp is stopped: no vector', () => {
+        const {velocity} = values('cycloid', 1, 0);
+        expect(velocity.status).toBe('stopped');
+        expect(velocity.speed).toBe(0);
     });
 
-    test('polar curves report the ray radius', () => {
-        expect(readout('cardioid', 1, 0)).toContain('Radius ρ = 2');
+    test('polar curves report the ray radius, the cycloid has none', () => {
+        expect(values('cardioid', 1, 0).ray).toBeCloseTo(2, 9);
+        expect(values('cycloid', 1, 1).ray).toBeUndefined();
     });
 });
 

@@ -1,8 +1,13 @@
 import React from "react";
-import {t} from "../../../localization";
+import {message, messageNumber, t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow} from "../../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {runAs} from "../../base/writes/writeSource";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import {prefersReducedMotion, ReducedMotion} from "../../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {SceneDeclaration} from "../../base/OwnedScene";
@@ -39,6 +44,20 @@ export function widenToCanvas(box: [number, number, number, number], width: numb
     return [cx - halfW, cy + halfH, cx + halfW, cy - halfH];
 }
 
+/**
+ * The ids this graph declares: the parameter t (or the angle theta) and the cycloid radius as board pucks bound in the arbiter, the
+ * velocity, its length, the ray radius, the arc length and the area as rows, the cusp sentence as a note, and a legend of the trace,
+ * the velocity vector, the ray and the rolling circle. The curve choice and the roll playback stay in Orodja.
+ */
+export type ParametricIds = {
+    param: 'parametric-t' | 'parametric-radius';
+    row: 'velocity' | 'speed' | 'ray' | 'length' | 'area';
+    note: 'stopped';
+    section: never;
+    legend: 'curve' | 'velocity' | 'ray' | 'circle';
+    action: never;
+};
+
 /** The roll animation commands a lesson can send (there is no iteration, so `next-step` is rejected). */
 const ROLL_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ['play', 'pause', 'replay', 'stop', 'reset'];
 
@@ -71,6 +90,14 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
             // The roll's own step: a user edit goes through setParameter, which pauses the roll.
             this.setState({parameter: clampParameter(this.state, next)});
             if (next >= to) this.rollDriver.stop();
+        }).useLease({
+            // The frames write `parametric-t` as `animation` under a lease (ADR 0064); a learner or lesson write ends the roll.
+            arbiter: () => this.parameters,
+            keys: ['parametric-t'],
+            // A lesson step or frame change ends every lease first (BaseGraph.stopAnimations, as `lesson`): the roll returns to the start.
+            onInterrupted: reason => {
+                if (reason === 'frame') this.setParameter(PARAMETRIC_CATALOGUE[this.state.curve].domain[0]);
+            },
         });
     }
 
@@ -140,7 +167,6 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
                 radius: () => this.state.radius,
                 parameter: () => clampParameter(this.state, this.state.parameter),
                 traceFull: () => this.state.traceFull,
-                fontSize: () => this.displaySettings.fontSize,
             }),
             sync: scene => scene.curve === this.state.curve,
             dispose: scene => scene.dispose(),
@@ -218,7 +244,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         const wasRolling = this.rolling;
         this.stopRoll();
         if (wasRolling) {
-            this.setParameter(PARAMETRIC_CATALOGUE[this.state.curve].domain[0]);
+            runAs('lesson', () => this.setParameter(PARAMETRIC_CATALOGUE[this.state.curve].domain[0]));
         }
     }
 
@@ -284,6 +310,106 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         this.stopRoll();
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): t and the radius go through the validated setters, which also pause the roll. A value out of range is refused, never clamped. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'parametric-t': {
+                read: () => clampParameter(this.state, this.state.parameter),
+                apply: (value: unknown) => {
+                    const [t0, t1] = PARAMETRIC_CATALOGUE[this.state.curve].domain;
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < t0 || value > t1) {
+                        throw new DomainError(message('parametric_t_refused', {value0: messageNumber(t0, 4), value1: messageNumber(t1, 4)}));
+                    }
+                    this.setParameter(value);
+                },
+            },
+            'parametric-radius': {
+                read: () => this.state.radius,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < CYCLOID_RADIUS_MIN || value > CYCLOID_RADIUS_MAX) {
+                        throw new DomainError(message('parametric_radius_refused', {value0: messageNumber(CYCLOID_RADIUS_MIN, 2), value1: messageNumber(CYCLOID_RADIUS_MAX, 2)}));
+                    }
+                    this.setRadius(value);
+                },
+            },
+        };
+    }
+
+    private readoutRows(): ReadoutRow<ParametricIds>[] {
+        const scene = this.scene;
+        if (!scene) return [];
+        const {velocity, ray, length, area} = scene.values();
+        const rows: ReadoutRow<ParametricIds>[] = [];
+        if (velocity.status === 'moving') {
+            rows.push(
+                {id: 'velocity', name: message('parametric_velocity_name'), symbol: "r'", value: message('parametric_vector_pair', {value0: messageNumber(velocity.vector[0], 4), value1: messageNumber(velocity.vector[1], 4)})},
+                {id: 'speed', name: message('parametric_speed_name'), symbol: "|r'|", value: messageNumber(velocity.speed, 4)},
+            );
+        }
+        if (ray !== undefined) rows.push({id: 'ray', name: message('parametric_ray_name'), symbol: '\\rho', value: messageNumber(ray, 4)});
+        rows.push(
+            {id: 'length', name: message('parametric_length_name'), value: messageNumber(length, 4)},
+            {id: 'area', name: message('parametric_area_name'), value: messageNumber(area, 4)},
+        );
+        return rows;
+    }
+
+    /** The board caption sentence of a cusp is a note: no direction of motion, so no vector and no tangent. */
+    private readoutNotes(): ReadoutNote<ParametricIds>[] {
+        const values = this.scene?.values();
+        return values?.velocity.status === 'stopped' ? [{id: 'stopped', text: message('parametric_status_stopped'), tone: 'warning'}] : [];
+    }
+
+    /** What the learner watches: the whole trace with the room the velocity arrow and the rolling circle need (the old fit box). */
+    private watchedBox(): [number, number, number, number] {
+        return curveViewBox(this.state);
+    }
+
+    /**
+     * The common declaration: the parameter (a board puck; the angle of a polar curve), the cycloid radius, the rows and the note that were the board caption, the
+     * legend of what is drawn now (the velocity arrow only while the point moves, the trace once it has a length) and the view box. The curve choice and the roll
+     * stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<ParametricIds> {
+        const {curve, parameter, traceFull} = this.state;
+        const entry = PARAMETRIC_CATALOGUE[curve];
+        const [t0, t1] = entry.domain;
+        const polar = entry.kind === 'polar';
+        const parameters: ParameterDeclaration<ParametricIds['param']>[] = [
+            {key: 'parametric-t', kind: 'range', label: message(polar ? 'parametric_theta_name' : 'parametric_t_name'), symbol: polar ? '\\theta' : 't', placement: 'board',
+                min: t0, max: t1, step: 0.01, maxDecimals: 2},
+            ...(curve === 'cycloid' ? [{key: 'parametric-radius' as const, kind: 'range' as const, label: message('parametric_radius_name'), symbol: 'R', placement: 'board' as const,
+                min: CYCLOID_RADIUS_MIN, max: CYCLOID_RADIUS_MAX, step: 0.05, maxDecimals: 2}] : []),
+        ];
+        const moving = this.scene?.values().velocity.status === 'moving';
+        const legend: LegendEntry<ParametricIds>[] = [
+            ...(traceFull || clampParameter(this.state, parameter) > t0 ? [{id: 'curve' as const, label: message('parametric_curve_label'), kind: 'line' as const, object: 'curve'}] : []),
+            ...(moving ? [{id: 'velocity' as const, label: message('parametric_legend_velocity'), kind: 'dashed' as const, object: 'velocity'}] : []),
+            ...(polar ? [{id: 'ray' as const, label: message('parametric_legend_ray'), kind: 'dashed' as const, object: 'ray'}] : []),
+            ...(curve === 'cycloid' ? [{id: 'circle' as const, label: message('parametric_legend_circle'), kind: 'dashed' as const, object: 'circle'}] : []),
+        ];
+        const box = this.watchedBox();
+        return {
+            parameters, legend,
+            readouts: [{id: 'values', rows: this.readoutRows()}],
+            notes: this.readoutNotes(),
+            marks: {must: [{kind: 'box', left: box[0], top: box[1], right: box[2], bottom: box[3]}]},
+            followView: box,
+        };
+    }
+
+    /** The legend ids are the scene's element names; colour and visibility come from the drawn element. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== 'curve' && id !== 'velocity' && id !== 'ray' && id !== 'circle') return undefined;
+        const element = this.scene?.element(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp('strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
@@ -295,12 +421,12 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
             <div key="curve"><ChoiceSelect label={t("parametric_curve_label")} value={curve}
                                            options={PARAMETRIC_CURVE_IDS.map(id => ({value: id, text: curveLabel(id)}))}
                                            onChange={value => { if (isParametricCurveId(value)) this.setCurve(value); }}/></div>,
-            <div key="parameter"><Slider min={t0} max={t1} step={0.01} value={clampParameter(this.state, parameter)}
+            <PuckOwned key="parameter" param="parametric-t"><div><Slider min={t0} max={t1} step={0.01} value={clampParameter(this.state, parameter)}
                                          customText={polar ? t("parametric_slider_theta") : t("parametric_slider_t")}
-                                         onChange={value => this.setParameter(value)}/></div>,
-            ...(curve === 'cycloid' ? [<div key="radius"><Slider min={CYCLOID_RADIUS_MIN} max={CYCLOID_RADIUS_MAX} step={0.05} value={radius}
+                                         onChange={value => this.setParameter(value)}/></div></PuckOwned>,
+            ...(curve === 'cycloid' ? [<PuckOwned key="radius" param="parametric-radius"><div><Slider min={CYCLOID_RADIUS_MIN} max={CYCLOID_RADIUS_MAX} step={0.05} value={radius}
                                                                  customText={t("parametric_radius_label")}
-                                                                 onChange={value => this.setRadius(value)}/></div>] : []),
+                                                                 onChange={value => this.setRadius(value)}/></div></PuckOwned>] : []),
             <div key="roll"><ReducedMotion>{() =>
                 <PlaybackButtons placement="graph" groupLabel={t("parametric_roll_group")} playing={this.rolling}
                                  playBlock={this.reducedMotion() ? 'reduced-motion' : undefined}

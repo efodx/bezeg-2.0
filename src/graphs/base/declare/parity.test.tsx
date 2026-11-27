@@ -128,6 +128,16 @@ const offsetAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: OFFSET_CAPTION_REASON},
 ];
 
+const PARAMETRIC_CAPTION_REASON = 'the board caption lines "Hitrost r′ = (x, y), velikost s", "Hitrost je 0 (ost): ...", "Polmer ρ = ..", "Dolžina loka: ..", "Ploščina: .." were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)';
+const parametricAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'row velocity', reason: PARAMETRIC_CAPTION_REASON},
+    {kind: 'extra', where: 'row speed', reason: PARAMETRIC_CAPTION_REASON},
+    {kind: 'extra', where: 'row ray', reason: PARAMETRIC_CAPTION_REASON},
+    {kind: 'extra', where: 'row length', reason: PARAMETRIC_CAPTION_REASON},
+    {kind: 'extra', where: 'row area', reason: PARAMETRIC_CAPTION_REASON},
+    {kind: 'extra', where: 'note', reason: PARAMETRIC_CAPTION_REASON},
+];
+
 const quadratureAccepted:readonly AcceptedDifference[] = [];
 
 const eulerAccepted:readonly AcceptedDifference[] = [
@@ -934,6 +944,18 @@ const SAMPLES: readonly Sample[] = [
             {name: 'the PH curve at d = -0,5', apply: run(g => { g.setCurveKind('ph'); g.setOffsetDistance(-0.5); })},
             {name: 'offset hidden', apply: run(g => g.setOffsetShown(false))},
             {name: 'd = 0,75, 64 samples', apply: run(g => { g.setOffsetDistance(0.75); g.setOffsetSamples(64); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/parametric/__parity__/curve-parametric.json', demonstration: 'curve-parametric', accepted: parametricAccepted, states: (() => {
+        type Par = {setCurve(curve: 'cycloid' | 'cardioid' | 'rose' | 'spiral'): void; setRadius(value: number): void; setParameter(value: number): void};
+        const run = (edit: (graph: Par) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Par)); };
+        return [
+            {name: 'default (cycloid, t = pi/2)', apply: () => undefined},
+            {name: 'cycloid cusp t = 2 pi', apply: run(g => g.setParameter(2 * Math.PI))},
+            {name: 'cycloid R = 2, t = pi', apply: run(g => { g.setRadius(2); g.setParameter(Math.PI); })},
+            {name: 'spiral theta = pi', apply: run(g => { g.setCurve('spiral'); g.setParameter(Math.PI); })},
+            {name: 'cardioid cusp theta = pi', apply: run(g => { g.setCurve('cardioid'); g.setParameter(Math.PI); })},
+            {name: 'rose theta = pi/3', apply: run(g => { g.setCurve('rose'); g.setParameter(Math.PI / 3); })},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {

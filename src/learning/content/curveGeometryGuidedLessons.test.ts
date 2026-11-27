@@ -11,7 +11,8 @@ import type CurvatureBezierCurveGraph from '../../graphs/curves/bezier/Curvature
 import {CURVATURE_T_DEFAULT} from '../../graphs/curves/bezier/CurvatureBezierCurveGraph';
 import {DEFAULT_PARAMETRIC_PRESET} from '../../graphs/curves/parametric/parametricPresetCollection';
 import {checkSceneState} from '../../graphs/base/presets/PresetCollection';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage, type Message, type MessageNumber} from '../../localization';
+import {formatNumber} from '../../analysis/format';
 import {fitBoundingBox} from '../../graphs/base/fitBoundingBox';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -49,7 +50,16 @@ function mount<G>(id: LessonId) {
 }
 
 const parametric = () => mount<ParametricCurveGraph>('curve-parametric');
-const readoutOf = (graph: ParametricCurveGraph) => (graph as unknown as { scene: { readoutText(): string } }).scene.readoutText();
+/** The declared Odčitki rows ("name: value", one per line) and notes, as the card and the live region speak them. */
+const readoutOf = (graph: ParametricCurveGraph) => {
+    const declared = graph.getDeclaration()!;
+    const text = (value: unknown) => typeof value === 'string' ? value
+        : (value as {kind?: string}).kind === 'number' ? formatNumber((value as MessageNumber).value, 'sl', (value as MessageNumber).maxDecimals)
+            : renderMessage(value as Message);
+    const rows = (declared.readouts ?? []).flatMap(group => group.rows).map(row => `${text(row.name)}: ${text(row.value)}`);
+    const notes = (declared.notes ?? []).map(note => renderMessage(note.text as Message));
+    return [...rows, ...notes].join('\n');
+};
 const curvature = () => mount<CurvatureBezierCurveGraph>('curve-curvature');
 type Overlay = { readoutText(): string; frame(): { status: string; kappa?: number; radius?: number; centre?: number[] } | undefined };
 const overlayOf = (graph: CurvatureBezierCurveGraph) => (graph as unknown as { overlay: Overlay }).overlay;
@@ -57,10 +67,10 @@ const overlayOf = (graph: CurvatureBezierCurveGraph) => (graph as unknown as { o
 /** [step id, lines the Slovenian readout shows, numbers the prose quotes]. */
 const PARAMETRIC_CASES: ReadonlyArray<readonly [string, readonly string[], readonly string[]]> = [
     ['parametric-roll', ['Hitrost je 0 (ost)', 'Dolžina loka: 8', 'Ploščina: 9,4248'], []],
-    ['parametric-velocity', ['r′ = (1, 1), velikost 1,4142'], ['1,4142']],
+    ['parametric-velocity', ['Hitrost: (1; 1)', 'Velikost hitrosti: 1,4142'], ['1,4142']],
     ['parametric-measures', ['Dolžina loka: 8', 'Ploščina: 9,4248'], ['9,4248']],
-    ['parametric-polar', ['Polmer ρ = 3,1416'], ['3,1416']],
-    ['parametric-cardioid', ['r′ = (−1, −1)', 'Polmer ρ = 1'], []],
+    ['parametric-polar', ['Polmer: 3,1416'], ['3,1416']],
+    ['parametric-cardioid', ['Hitrost: (−1; −1)', 'Polmer: 1'], []],
     ['parametric-cusp', ['Hitrost je 0 (ost): vektor hitrosti in tangenta nista narisana'], []],
 ];
 
@@ -78,7 +88,7 @@ test('every parametric scene shows the readout its text quotes', () => {
         }
         // The cusp scene is at the end of the arch: the status line stands in for the velocity vector.
         h.scene(stepOf('curve-parametric', 'parametric-cusp'));
-        expect(readoutOf(h.graph)).not.toContain('r′ =');
+        expect(readoutOf(h.graph)).not.toContain('Hitrost:');
         expect(h.graph.state.parameter).toBeCloseTo(2 * PI, 12);
     } finally {
         h.mounted.view.unmount();
@@ -91,7 +101,7 @@ test('the top of the arch, the cardioid cusp and the doubled cycloid radius matc
         const velocity = stepOf('curve-parametric', 'parametric-velocity');
         h.scene(velocity);
         h.apply({kind: 'parameter', name: 't', value: PI});
-        expect(readoutOf(h.graph)).toContain('r′ = (2, 0), velikost 2');
+        expect(readoutOf(h.graph)).toContain('Hitrost: (2; 0)\nVelikost hitrosti: 2');
         expect(velocity.expectedObservations[0].sl).toContain('(2,0)');
 
         h.scene(stepOf('curve-parametric', 'parametric-cardioid'));

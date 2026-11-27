@@ -7,57 +7,7 @@
       "rows": [],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "Dolžina loka: 8",
-        "Hitrost r′ = (1, 1), velikost 1,4142",
-        "Ploščina: 9,4248"
-      ]
-    },
-    {
-      "name": "curve-parametric-guided/parametric-roll",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Dolžina loka: 8",
-        "Hitrost je 0 (ost): vektor hitrosti in tangenta nista narisana",
-        "Ploščina: 9,4248"
-      ]
-    },
-    {
-      "name": "curve-parametric-guided/parametric-measures",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Dolžina loka: 8",
-        "Hitrost r′ = (2, 0), velikost 2",
-        "Ploščina: 9,4248"
-      ]
-    },
-    {
-      "name": "curve-parametric-guided/parametric-polar",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Dolžina loka: 21,2563",
-        "Hitrost r′ = (-1, -3,1416), velikost 3,2969",
-        "Ploščina: 41,3417",
-        "Polmer ρ = 3,1416"
-      ]
-    },
-    {
-      "name": "curve-parametric-guided/parametric-cardioid",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Dolžina loka: 8",
-        "Hitrost r′ = (-1, -1), velikost 1,4142",
-        "Ploščina: 4,7124",
-        "Polmer ρ = 1"
-      ]
+      "captions": []
     }
   ]
 }
