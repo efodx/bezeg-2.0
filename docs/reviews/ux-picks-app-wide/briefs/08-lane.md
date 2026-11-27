@@ -80,6 +80,13 @@ Notes: `docs/reviews/ux-picks-app-wide/briefs/notes/08-lane-<lane id>.md`.
   once the legend is declared, or Orodja shows a second legend (L06).
 - Marks cover everything the learner watches: every main curve (both curves of a pair, e.g. f and f⁻¹), not only the first
   `plotted` function, or the view director lets cards cover it (L06).
+- Board-drawn captions (JSXGraph texts) are not marks: a card can cover them (counting-tree's row caption ran under Odčitki,
+  L30). Marks (and `followView`) cover every caption the learner reads, caption wrap stays within the view box, and a
+  browser shot at 1440x900 and 1280x720 of the lesson's main steps on the dev server (`http://127.0.0.1:4483/bezeg-2.0/`,
+  `just shot`) confirms nothing read is under a card. The jsdom golden can drop a caption that fits in the browser (fixed
+  300 px fake cards): report it; the handler re-records after the browser check.
+- `just unit FirstTask` and `BEZEG_PRESET_ROUNDTRIP=all just unit src/graphs/PresetRoundTrip.contract.test.tsx -t <id>` run for
+  every lane (check-changed does not select them; round 10 broke master CI on a FirstTask case).
 - The multi-graph `*FirstTask.test.tsx` files (Functions, Bspline, Patch, ...) assert a graph's first control leads Edit; a lane whose
   control becomes a puck updates its case there as in 688294ccf (puck on `[data-puck-strip]`, absent from Edit). Lanes may edit
   their own demonstration's case only.
