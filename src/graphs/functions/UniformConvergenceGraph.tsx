@@ -1,14 +1,17 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
+import {formatNumber, formatSignificant} from "../../analysis/format";
 import {
     UNIFORM_EPSILON_MAX, UNIFORM_EPSILON_MIN, UNIFORM_EPSILON_STEP, UNIFORM_EXAMPLE_IDS, UNIFORM_MAX_N,
     UNIFORM_N_MIN, UNIFORM_R_MAX, UNIFORM_R_MIN, UNIFORM_R_STEP, UNIFORM_X_STEP, uniformExample, UniformExample, UniformExampleId, uniformLimit, uniformLimitHasJump,
@@ -42,7 +45,22 @@ const SUPREMUM_DASH = 1;
 /** The formulas as they are written on the board and in the example selector. */
 const exampleFormula = (id: UniformExampleId): string => id === "power" ? "fₙ(x) = xⁿ" : "fₙ(x) = x/n";
 
-type SegmentPiece = Extract<UniformLimitPiece, { kind: "segment" }>;
+const FORMULA_TEX: Readonly<Record<UniformExampleId, string>> = {power: "f_n(x)=x^{n}", scaled: "f_n(x)=\\frac{x}{n}"};
+
+/**
+ * The ids of the uniform convergence declaration: r, x and epsilon are board pucks and the supremum is a switch puck; the readout rows are
+ * the four parameters, the values at x, the pointwise threshold and the supremum rows; the drawn objects are the legend.
+ */
+export type UniformConvergenceIds = {
+    param: "uniform-r" | "uniform-x" | "uniform-epsilon";
+    row: "r" | "n" | "x" | "epsilon" | "term" | "limit" | "pointwise-error" | "pointwise-n" | "supremum" | "supremum-attained" | "shared-n"; note: never;
+    legend: "function" | "limit" | "limit-open" | "band" | "error" | "supremum" | "attained" | "not-attained"; section: never; action: "show-supremum";
+};
+
+/** The depth in user units under the x-axis that the labels of r and x use (the board is 1.8 units high by default). */
+const AXIS_LABEL_DEPTH = 0.12;
+
+type SegmentPiece =Extract<UniformLimitPiece, { kind: "segment" }>;
 type PointPiece = Extract<UniformLimitPiece, { kind: "point" }>;
 
 type StatusKind = "hidden" | "attained" | "not-attained" | "shared-n" | "shared-n-boundary" | "no-shared-n" | "shared-n-beyond" | "covered" | "covered-boundary" | "not-covered" | "jump" | "pointwise-beyond";
@@ -81,6 +99,8 @@ interface View {
  */
 export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenceModel> {
     private pointX?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections["uniform-convergence"];
@@ -169,10 +189,10 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         };
     }
 
-    // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
+    // ---- Texts (the readout rows and the statuses) --------------------------------------------------------------------
 
-    private number(value: number): string {
-        return formatNumber(value, currentLanguage(), 4);
+    private number(value: number) {
+        return messageNumber(value, 4);
     }
 
     /** An error or a supremum with significant digits; floating-point noise shows as 0. */
@@ -180,35 +200,21 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         return formatSignificant(value, currentLanguage(), SIGNIFICANT_DIGITS);
     }
 
-    /** N(x, epsilon) as the plain number (the board); beyond the cap says how far the search went. */
-    private pointwiseNumber(view: View): string {
-        return view.pointwise.kind === "threshold" ? String(view.pointwise.n) : t("uniform_beyond_cap", {value0: view.pointwise.cap});
+    /** N(x, epsilon): a value beyond the selectable index n is reported, not truncated; beyond the cap says how far the search went. */
+    private pointwiseMessage(view: View): Message | {kind: "formatted"; text: string} {
+        if (view.pointwise.kind !== "threshold") return message("uniform_beyond_cap", {value0: view.pointwise.cap});
+        return view.pointwise.n > UNIFORM_MAX_N
+            ? message("uniform_n_beyond", {value0: view.pointwise.n, value1: UNIFORM_MAX_N}) : {kind: "formatted", text: String(view.pointwise.n)};
     }
 
-    /** N(x, epsilon) for the inspector: a value beyond the selectable index n is reported, not truncated. */
-    private pointwiseText(view: View): string {
-        if (view.pointwise.kind !== "threshold") return this.pointwiseNumber(view);
-        return view.pointwise.n > UNIFORM_MAX_N ? t("uniform_n_beyond", {value0: view.pointwise.n, value1: UNIFORM_MAX_N}) : String(view.pointwise.n);
+    private sharedMessage(view: View): Message | {kind: "formatted"; text: string} {
+        if (view.threshold.kind === "none") return message("uniform_no_shared_n");
+        return view.threshold.n > UNIFORM_MAX_N
+            ? message("uniform_n_beyond", {value0: view.threshold.n, value1: UNIFORM_MAX_N}) : {kind: "formatted", text: String(view.threshold.n)};
     }
 
-    private sharedText(view: View): string {
-        if (view.threshold.kind === "none") return t("uniform_no_shared_n");
-        return view.threshold.n > UNIFORM_MAX_N ? t("uniform_n_beyond", {value0: view.threshold.n, value1: UNIFORM_MAX_N}) : String(view.threshold.n);
-    }
-
-    private attainedText(view: View): string {
-        return t(view.supremum.attained ? "uniform_attained_at" : "uniform_not_attained", {value0: this.number(view.supremum.at)});
-    }
-
-    private boardSupremum(model: UniformConvergenceModel, view: View): string {
-        if (!model.supremumVisible) return t("uniform_board_supremum_hidden");
-        return view.supremum.attained
-            ? t("uniform_board_supremum_attained", {value0: this.small(view.supremum.value), value1: this.number(view.supremum.at)})
-            : t("uniform_board_supremum_not_attained", {value0: this.small(view.supremum.value)});
-    }
-
-    private boardShared(view: View): string {
-        return view.threshold.kind === "none" ? t("uniform_board_no_shared_n") : t("uniform_board_shared_n", {value0: view.threshold.n});
+    private attainedMessage(view: View): Message {
+        return message(view.supremum.attained ? "uniform_attained_at" : "uniform_not_attained", {value0: this.number(view.supremum.at)});
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -219,7 +225,6 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         const view = () => this.viewOf(this.model);
         const strokeWidth = this.displayStrokeWidth;
         const thin = this.displayThinWidth(0.6);
-        const left = () => board.getBoundingBox()[0];
         const segment = () => view().segment;
         const segmentVisible = () => segment() !== undefined;
         const lowEdge = () => (segment()?.y ?? 0) - model().epsilon;
@@ -230,9 +235,12 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
 
         // Layers, lowest first: the band and its edges, the limit, f_n, the pointwise error, the supremum, the markers, the points.
-        const band = this.own(board.create("curve", [[], []], {
+        this.drawn.clear();
+        const bandCurve = this.own(board.create("curve", [[], []], {
             fillColor: GraphPalette.additionalCurves[0], fillOpacity: 0.22, strokeOpacity: 0, strokeWidth: 0, highlight: false, fixed: true, visible: segmentVisible,
-        })) as unknown as FillCurve;
+        }));
+        this.drawn.set("band", bandCurve);
+        const band = bandCurve as unknown as FillCurve;
         band.updateDataArray = () => {
             const piece = segment();
             const to = piece?.to ?? 0;
@@ -253,28 +261,32 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         }));
 
         // The limit: a (half-open) segment and, for a jump, a separate isolated point; the two pieces are never joined.
-        this.own(board.create("segment", [[0, () => segment()?.y ?? 0], [() => segment()?.to ?? 0, () => segment()?.y ?? 0]], {
+        this.drawn.set("limit", this.own(board.create("segment", [[0, () => segment()?.y ?? 0], [() => segment()?.to ?? 0, () => segment()?.y ?? 0]], {
             strokeColor: GraphPalette.comparisonCurve, dash: LIMIT_DASH, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: segmentVisible,
-        }));
-        this.own(board.create("functiongraph", [f, 0, () => model().r], {
+        })));
+        this.drawn.set("function", this.own(board.create("functiongraph", [f, 0, () => model().r], {
             strokeColor: GraphPalette.primaryCurve, dash: 0, highlight: false, fixed: true, strokeWidth,
-        }));
-        this.own(board.create("segment", [[() => model().x, () => view().limit], [() => model().x, () => view().term]], {
+        })));
+        this.drawn.set("error", this.own(board.create("segment", [[() => model().x, () => view().limit], [() => model().x, () => view().term]], {
             strokeColor: GraphPalette.warningText, strokeWidth: () => Math.max(2.5, this.displaySettings.strokeWidth * 1.4), highlight: false, fixed: true,
             withLabel: false, visible: () => view().pointwiseError > 0,
-        }));
-        this.own(board.create("segment", [[0, () => view().supremum.value], [() => model().r, () => view().supremum.value]], {
+        })));
+        this.drawn.set("supremum", this.own(board.create("segment", [[0, () => view().supremum.value], [() => model().r, () => view().supremum.value]], {
             strokeColor: GraphPalette.warningText, dash: SUPREMUM_DASH, strokeWidth: thin, highlight: false, fixed: true, withLabel: false, visible: supremumShown,
-        }));
+        })));
 
         // The open end of the limit's segment and the isolated value.
-        const marker = (x: () => number, y: () => number, attributes: object) => this.own(board.create("point", [x, y], {
-            ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: markerSize, ...attributes,
-        }));
+        const marker = (x: () => number, y: () => number, attributes: object, legendId?: string) => {
+            const point = this.own(board.create("point", [x, y], {
+                ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: markerSize, ...attributes,
+            })) as JXG.Point;
+            if (legendId) this.drawn.set(legendId, point);
+            return point;
+        };
         marker(() => segment()?.to ?? 0, () => segment()?.y ?? 0, {
             face: "o", fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface, strokeColor: GraphPalette.comparisonCurve,
             strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9), visible: () => segment() !== undefined && segment()!.closedTo === false,
-        });
+        }, "limit-open");
         marker(() => view().isolated?.x ?? 0, () => view().isolated?.y ?? 0, {
             face: "o", fillColor: GraphPalette.comparisonCurve, highlightFillColor: GraphPalette.comparisonCurve, strokeColor: GraphPalette.comparisonCurve,
             visible: () => view().isolated !== undefined,
@@ -283,12 +295,12 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         marker(() => view().supremum.at, () => view().supremum.value, {
             face: "x", strokeColor: GraphPalette.warningText, highlightStrokeColor: GraphPalette.warningText, size: () => Math.max(5, this.displaySettings.pointSize * 1.2),
             strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9), visible: () => supremumShown() && view().supremum.attained,
-        });
+        }, "attained");
         marker(() => view().supremum.at, () => view().supremum.value, {
             face: "o", fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface, strokeColor: GraphPalette.warningText,
             size: () => Math.max(6, this.displaySettings.pointSize * 1.5), strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
             visible: () => supremumShown() && !view().supremum.attained,
-        });
+        }, "not-attained");
         // The values of f_n and f at the chosen x.
         marker(() => model().x, () => view().term, {
             fillColor: GraphPalette.primaryCurve, highlightFillColor: GraphPalette.primaryCurve, strokeColor: GraphPalette.primaryCurve,
@@ -309,18 +321,8 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
             write: value => this.setX(value, {syncScene: false}),
         });
 
-        // The formula and domain, the numbers, the pointwise error, the supremum (or the word hidden) and the key stay on the board.
-        this.caption("top-left", [
-            {text: () => t("uniform_board_title", {value0: exampleFormula(model().example), value1: this.number(model().r)}), scale: 1.2, math: true},
-            {text: () => t("uniform_board_parameters", {value0: model().n, value1: this.number(model().x), value2: this.number(model().epsilon)})},
-            {text: () => t("uniform_board_pointwise", {value0: this.small(view().pointwiseError), value1: this.pointwiseNumber(view())}), color: GraphPalette.warningText},
-            {text: () => this.boardSupremum(model(), view())},
-            {
-                text: () => this.boardShared(view()),
-                visible: supremumShown,
-            },
-            {text: () => t("uniform_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
-        ], () => 0.01); // just right of the y-axis: the tick labels, which sit left of it, stay uncovered
+        // Nothing else stays on the board: the formula is a declared row, the numbers, the pointwise error and the supremum are readout rows
+        // and the key is the legend (owner, 2026-11-27).
     }
 
     protected override syncSceneToModel(): void {
@@ -329,6 +331,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
 
     protected override onSceneRemoved(): void {
         this.pointX = undefined;
+        this.drawn.clear();
     }
 
     /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
@@ -342,27 +345,27 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         const state = this.model;
         const language = currentLanguage();
         return <>
-            <div className="inspector-group">
-                <Slider customText={t("uniform_x_label")} value={state.x} min={0} max={UNIFORM_R_MAX} step={UNIFORM_X_STEP}
+            <PuckOwnedGroup params={["uniform-x", "uniform-epsilon"]} className="inspector-group">
+                <PuckOwned param="uniform-x"><Slider customText={t("uniform_x_label")} value={state.x} min={0} max={UNIFORM_R_MAX} step={UNIFORM_X_STEP}
                         rejectedHint={t("uniform_x_rejected_hint", {value0: formatNumber(state.r, language)})}
-                        onChange={next => guardField(this.refusals, () => this.setX(next))}/>
-                <Slider customText={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP}
+                        onChange={next => guardField(this.refusals, () => this.setX(next))}/></PuckOwned>
+                <PuckOwned param="uniform-epsilon"><Slider customText={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP}
                         rejectedHint={t("uniform_epsilon_rejected_hint", {value0: formatNumber(UNIFORM_EPSILON_MIN, language, 2), value1: formatNumber(UNIFORM_EPSILON_MAX, language, 2)})}
-                        onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
-            </div>
+                        onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("uniform_example_label")} value={state.example} help={t("uniform_example_help")}
                               options={UNIFORM_EXAMPLE_IDS.map(id => ({value: id, text: exampleFormula(id)}))}
                               onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("uniform_r_label")} value={state.r} min={UNIFORM_R_MIN} max={UNIFORM_R_MAX} step={UNIFORM_R_STEP}
+            <PuckOwnedGroup params={["uniform-r"]} className="inspector-group">
+                <PuckOwned param="uniform-r"><Slider customText={t("uniform_r_label")} value={state.r} min={UNIFORM_R_MIN} max={UNIFORM_R_MAX} step={UNIFORM_R_STEP}
                         rejectedHint={t("uniform_r_rejected_hint", {
                             value0: formatNumber(UNIFORM_R_MIN, language), value1: formatNumber(UNIFORM_R_MAX, language), value2: formatNumber(state.x, language),
                         })}
-                        onChange={next => guardField(this.refusals, () => this.setR(next))}/>
+                        onChange={next => guardField(this.refusals, () => this.setR(next))}/></PuckOwned>
                 <p className="inspector-help">{t("uniform_fields_help")}</p>
-            </div>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <CountSetter label={t("uniform_n_label")} n={state.n} min={UNIFORM_N_MIN} max={UNIFORM_MAX_N} help={t("uniform_n_help")}
                              rejectedHint={t("uniform_n_rejected_hint", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N})}
@@ -375,87 +378,168 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
 
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
-        return <>
+        return <PuckOwnedGroup params={["show-supremum"]}>
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("uniform_actions_label")}>
                 <RevealButton action="toggle-uniform-supremum" revealed={state.supremumVisible} showLabel={t("uniform_show_supremum")} hideLabel={t("uniform_hide_supremum")}
                               onToggle={() => this.setSupremumVisible(!this.model.supremumVisible)}/>
             </div>
             <p className="inspector-help">{t("uniform_supremum_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
+    /** The legend is declared: the graph's own legend panel renders nothing. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.primaryCurve, label: t("uniform_legend_function"), kind: "line"},
-            {id: "limit", color: GraphPalette.comparisonCurve, label: t("uniform_legend_limit"), kind: "dashed-line"},
-            {id: "limit-open", color: GraphPalette.comparisonCurve, label: t("uniform_legend_limit_open"), kind: "ring"},
-            {id: "band", color: GraphPalette.additionalCurves[0], label: t("uniform_legend_band"), kind: "area"},
-            {id: "error", color: GraphPalette.warningText, label: t("uniform_legend_error"), kind: "line"},
-            {id: "supremum", color: GraphPalette.warningText, label: t("uniform_legend_supremum"), kind: "dotted-line"},
-            {id: "attained", color: GraphPalette.warningText, label: t("uniform_legend_attained"), kind: "cross"},
-            {id: "not-attained", color: GraphPalette.warningText, label: t("uniform_legend_not_attained"), kind: "ring"},
-        ]}/>;
+        return null;
+    }
+
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys; n stays a count in Orodja. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "uniform-r": {read: () => this.model.r, apply: (value: number) => this.setR(value)},
+            "uniform-x": {read: () => this.model.x, apply: (value: number) => this.setX(value)},
+            "uniform-epsilon": {read: () => this.model.epsilon, apply: (value: number) => this.setEpsilon(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, status, view marks) plus r, x and epsilon as board pucks, the supremum as a switch puck and the
+     * legend of the drawn objects. The domain end r cannot go below the chosen point x (the puck's minimum follows x) and x stays inside [0, r].
+     */
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const rMin = Math.max(UNIFORM_R_MIN, cleanNumber(Math.ceil(model.x / UNIFORM_R_STEP - 1e-9) * UNIFORM_R_STEP));
+        return {
+            ...this.commonDeclaration(),
+            formula: {label: message("uniform_formula_label"), tex: FORMULA_TEX[model.example]},
+            parameters: [
+                {key: "uniform-x", kind: "range", label: message("uniform_x_name"), symbol: "x", placement: "board",
+                    min: 0, max: model.r, step: UNIFORM_X_STEP, maxDecimals: 2, morph: false},
+                {key: "uniform-epsilon", kind: "range", label: message("uniform_epsilon_name"), symbol: "ε", placement: "board",
+                    min: UNIFORM_EPSILON_MIN, max: UNIFORM_EPSILON_MAX, step: UNIFORM_EPSILON_STEP, maxDecimals: 2},
+                // x = 1 pins r to 1 (the end cannot go below x): the puck is then locked rather than a range with min = max
+                {key: "uniform-r", kind: "range", label: message("uniform_r_name"), symbol: "r", help: message("uniform_fields_help"), placement: "board",
+                    min: rMin, max: UNIFORM_R_MAX, step: UNIFORM_R_STEP, maxDecimals: 2, morph: false, locked: rMin >= UNIFORM_R_MAX},
+            ],
+            legend: [
+                {id: "function", label: message("uniform_legend_function"), kind: "line", object: "function"},
+                {id: "limit", label: message("uniform_legend_limit"), kind: "dashed", object: "limit"},
+                {id: "limit-open", label: message("uniform_legend_limit_open"), kind: "ring", object: "limit-open"},
+                {id: "band", label: message("uniform_legend_band"), kind: "area", object: "band"},
+                {id: "error", label: message("uniform_legend_error"), kind: "line", object: "error"},
+                {id: "supremum", label: message("uniform_legend_supremum"), kind: "dashed", object: "supremum"},
+                {id: "attained", label: message("uniform_legend_attained"), kind: "cross", object: "attained"},
+                {id: "not-attained", label: message("uniform_legend_not_attained"), kind: "ring", object: "not-attained"},
+            ],
+            actions: [
+                {id: "show-supremum", label: message("uniform_actions_label"), help: message("uniform_supremum_help"), placement: "board", enabled: true,
+                    pressed: model.supremumVisible, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "show-supremum") runAs("learner", () => this.setSupremumVisible(!this.model.supremumVisible));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(id === "band" ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
     }
 
     /** The statuses to state in words, most important first; each has a stable id for tests and for assistive technology. */
-    private statuses(model: UniformConvergenceModel, view: View): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
+    private statuses(model: UniformConvergenceModel, view: View): { id: StatusKind; text: Message }[] {
+        const result: { id: StatusKind; text: Message }[] = [];
         if (!model.supremumVisible) {
-            result.push({id: "hidden", text: t("uniform_status_hidden")});
+            result.push({id: "hidden", text: message("uniform_status_hidden")});
         } else {
             const {value, attained, at} = view.supremum;
             result.push(attained
-                ? {id: "attained", text: t("uniform_status_attained", {value0: this.small(value), value1: this.number(at)})}
-                : {id: "not-attained", text: t("uniform_status_not_attained", {value0: this.small(value), value1: this.number(at)})});
-            const epsilon = formatNumber(model.epsilon, currentLanguage(), 2);
+                ? {id: "attained", text: message("uniform_status_attained", {value0: this.small(value), value1: this.number(at)})}
+                : {id: "not-attained", text: message("uniform_status_not_attained", {value0: this.small(value), value1: this.number(at)})});
+            const epsilon = messageNumber(model.epsilon, 2);
             const boundary = view.threshold.kind === "threshold" && !view.supremum.attained && view.supremum.value >= model.epsilon;
             if (view.threshold.kind === "none") {
-                result.push({id: "no-shared-n", text: t("uniform_status_no_shared_n", {value0: this.small(value), value1: epsilon})});
+                result.push({id: "no-shared-n", text: message("uniform_status_no_shared_n", {value0: this.small(value), value1: epsilon})});
             } else {
                 // A shared N with the supremum equal to epsilon: the supremum is not attained, so every single error is still below epsilon.
                 result.push(boundary
-                    ? {id: "shared-n-boundary", text: t("uniform_status_shared_n_boundary", {value0: view.threshold.n, value1: epsilon})}
-                    : {id: "shared-n", text: t("uniform_status_shared_n", {value0: view.threshold.n, value1: epsilon})});
+                    ? {id: "shared-n-boundary", text: message("uniform_status_shared_n_boundary", {value0: view.threshold.n, value1: epsilon})}
+                    : {id: "shared-n", text: message("uniform_status_shared_n", {value0: view.threshold.n, value1: epsilon})});
                 if (view.threshold.n > UNIFORM_MAX_N) {
-                    result.push({id: "shared-n-beyond", text: t("uniform_status_shared_n_beyond", {value0: view.threshold.n, value1: UNIFORM_MAX_N})});
+                    result.push({id: "shared-n-beyond", text: message("uniform_status_shared_n_beyond", {value0: view.threshold.n, value1: UNIFORM_MAX_N})});
                 }
             }
             const covered = view.threshold.kind === "threshold" && model.n >= view.threshold.n;
             result.push(covered
                 ? (boundary
-                    ? {id: "covered-boundary", text: t("uniform_status_covered_boundary", {value0: model.n})}
-                    : {id: "covered", text: t("uniform_status_covered", {value0: model.n})})
-                : {id: "not-covered", text: t("uniform_status_not_covered", {value0: model.n})});
+                    ? {id: "covered-boundary", text: message("uniform_status_covered_boundary", {value0: model.n})}
+                    : {id: "covered", text: message("uniform_status_covered", {value0: model.n})})
+                : {id: "not-covered", text: message("uniform_status_not_covered", {value0: model.n})});
         }
-        if (view.hasJump) result.push({id: "jump", text: t("uniform_status_jump")});
+        if (view.hasJump) result.push({id: "jump", text: message("uniform_status_jump")});
         if (view.pointwise.kind === "threshold" && view.pointwise.n > UNIFORM_MAX_N) {
-            result.push({id: "pointwise-beyond", text: t("uniform_status_pointwise_beyond", {value0: view.pointwise.n, value1: UNIFORM_MAX_N})});
+            result.push({id: "pointwise-beyond", text: message("uniform_status_pointwise_beyond", {value0: view.pointwise.n, value1: UNIFORM_MAX_N})});
         }
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /**
+     * Declared by the base (task 08): the readout rows, the note, the statuses and the drawn curves. The marks keep f_n, the limit, the band
+     * edges, the supremum line and its point, the points at x, the points r and x on the axis with their labels below it and the isolated
+     * value of a jump in sight.
+     */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const shown = model.supremumVisible;
-        const hidden = t("uniform_hidden");
-        const rows = [
-            {id: "r", label: t("uniform_r_label"), value: this.number(model.r)},
-            {id: "n", label: t("uniform_n_label"), value: String(model.n)},
-            {id: "x", label: t("uniform_x_label"), value: this.number(model.x)},
-            {id: "epsilon", label: t("uniform_epsilon_label"), value: formatNumber(model.epsilon, language, 2)},
-            {id: "term", label: t("uniform_readout_term"), value: this.small(view.term)},
-            {id: "limit", label: t("uniform_readout_limit"), value: this.small(view.limit)},
-            {id: "pointwise-error", label: t("uniform_readout_pointwise_error"), value: this.small(view.pointwiseError)},
-            {id: "pointwise-n", label: t("uniform_readout_pointwise_n"), value: this.pointwiseText(view)},
-            {id: "supremum", label: t("uniform_readout_supremum"), value: shown ? this.small(view.supremum.value) : hidden},
-            {id: "supremum-attained", label: t("uniform_readout_attained"), value: shown ? this.attainedText(view) : hidden},
-            {id: "shared-n", label: t("uniform_readout_shared_n"), value: shown ? this.sharedText(view) : hidden},
-        ];
+        const hidden = message("uniform_hidden");
+        const text = (value: number) => ({kind: "formatted", text: this.small(value)} as const);
+        const {segment, isolated} = view;
+        const onDomain = (value: (x: number) => number) => (x: number) => x >= 0 && x <= model.r ? value(x) : Number.NaN;
+        const onSegment = (y: number) => (x: number) => segment !== undefined && x >= 0 && x <= segment.to ? y : Number.NaN;
+        return {
+            rows: [
+                {id: "r", name: message("uniform_r_label"), value: this.number(model.r)},
+                {id: "n", name: message("uniform_n_label"), value: messageNumber(model.n, 0)},
+                {id: "x", name: message("uniform_x_label"), value: this.number(model.x)},
+                {id: "epsilon", name: message("uniform_epsilon_label"), value: messageNumber(model.epsilon, 2)},
+                {id: "term", name: message("uniform_readout_term"), value: text(view.term)},
+                {id: "limit", name: message("uniform_readout_limit"), value: text(view.limit)},
+                {id: "pointwise-error", name: message("uniform_readout_pointwise_error"), value: text(view.pointwiseError)},
+                {id: "pointwise-n", name: message("uniform_readout_pointwise_n"), value: this.pointwiseMessage(view)},
+                {id: "supremum", name: message("uniform_readout_supremum"), value: shown ? text(view.supremum.value) : hidden},
+                {id: "supremum-attained", name: message("uniform_readout_attained"), value: shown ? this.attainedMessage(view) : hidden},
+                {id: "shared-n", name: message("uniform_readout_shared_n"), value: shown ? this.sharedMessage(view) : hidden},
+            ],
+            help: message("uniform_note"),
+            status: this.statuses(model, view),
+            plotted: [
+                onDomain(x => view.example.term(model.n, x)),
+                ...(segment === undefined ? [] : [onSegment(segment.y), onSegment(segment.y - model.epsilon), onSegment(segment.y + model.epsilon)]),
+            ],
+            must: [
+                ...[model.r, model.x].flatMap(x => [{x, y: 0}, {x, y: -AXIS_LABEL_DEPTH}]),
+                {x: model.x, y: view.term}, {x: model.x, y: view.limit},
+                ...(segment === undefined ? [] : [
+                    {x: 0, y: segment.y - model.epsilon}, {x: segment.to, y: segment.y - model.epsilon},
+                    {x: 0, y: segment.y + model.epsilon}, {x: segment.to, y: segment.y + model.epsilon},
+                ]),
+                ...(isolated === undefined ? [] : [{x: isolated.x, y: isolated.y - model.epsilon}, {x: isolated.x, y: isolated.y + model.epsilon}]),
+                ...(shown ? [{x: 0, y: view.supremum.value}, {x: model.r, y: view.supremum.value}, {x: view.supremum.at, y: view.supremum.value}] : []),
+            ],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("uniform_note")}/>
-            <FunctionStatus className="demo-status" lines={this.statuses(model, view)} dataAttribute="uniform-status"/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="demo-status" lines={(this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))} dataAttribute="uniform-status"/>
         </>;
     }
 }

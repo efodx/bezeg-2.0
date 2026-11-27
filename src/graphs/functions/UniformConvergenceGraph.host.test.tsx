@@ -5,14 +5,12 @@ import {UniformConvergenceGraph} from './UniformConvergenceGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {installBoardShims, openTools, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 
-// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
-beforeAll(() => {
-    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
-    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
-    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
-        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
-});
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
+beforeAll(installBoardShims);
 
 beforeEach(() => setLanguage('sl'));
 
@@ -36,9 +34,11 @@ const statusIds = () => [...document.querySelectorAll('[data-uniform-status]')].
 const boardObjects = (graph: ObservedUniformGraph) => graph.liveBoard().objectsList.length;
 const field = (name: RegExp) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
 
-test('a real board shows f_n and its limit: the fields, the n buttons, the example and the Show supremum button change the model and the readout', () => {
+test('a real board shows f_n and its limit: x, epsilon, r and the supremum are pucks, the n buttons and the example stay in Orodja', async () => {
     const graph = new ObservedUniformGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('show-supremum');
+    await openTools();
     expect(graph.state.initialized).toBe(true);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     expect(readout('term')).toBe('0,03125');
@@ -47,6 +47,11 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     expect(readout('shared-n')).toBe('skrito');
     expect(statusIds()).toEqual(['hidden']);
     const baseline = boardObjects(graph);
+
+    // the pucks own x, epsilon, r and the reveal: no second copy in Orodja
+    for (const label of ['Točka x, vrednost', 'Toleranca ε, vrednost']) expect(screen.queryByLabelText(label), label).toBeNull();
+    expect(screen.queryByRole('spinbutton', {name: /^Konec območja r/})).toBeNull();
+    expect(screen.queryByRole('button', {name: /supremum/})).toBeNull();
 
     // n through the buttons and through the labelled field
     const increase = () => screen.getByRole('button', {name: 'Povečaj število'}) as HTMLButtonElement;
@@ -60,58 +65,53 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     act(() => { enterNumber(inputN, '50'); });
     act(() => { enterNumber(inputN, '11'); });
 
-    // Show supremum names its state and reveals the supremum, whether it is attained and the shared N
-    const toggle = () => screen.getByRole('button', {name: /supremum/}) as HTMLButtonElement;
-    expect(toggle().textContent).toBe('Pokaži supremum');
-    act(() => { fireEvent.click(toggle()); });
+    // the supremum switch puck names its state and reveals the supremum, whether it is attained and the shared N
+    expect(puckControl('show-supremum').getAttribute('aria-checked')).toBe('false');
+    act(() => { fireEvent.click(puckControl('show-supremum')); });
     expect(graph.modelNow()).toMatchObject({supremumVisible: true});
-    expect(toggle().textContent).toBe('Skrij supremum');
+    expect(puckControl('show-supremum').getAttribute('aria-checked')).toBe('true');
     expect(readout('supremum')).toBe('0,085899');
     expect(readout('supremum-attained')).toBe('da, pri x = 0,8');
     expect(readout('shared-n')).toBe('11');
     expect(statusIds()).toEqual(['attained', 'shared-n', 'covered']);
     expect(boardObjects(graph)).toBe(baseline);
 
-    // r below the chosen point is refused, with the reason in the hint; moving x first then allows it
-    const inputR = field(/^Konec območja r/);
-    act(() => { enterNumber(inputR, '0.4'); });
+    // r below the chosen point is refused and leaves the model alone; moving x first then allows it
+    act(() => { graph.parameters!.write('uniform-r', 0.4, 'learner'); });
     expect(graph.modelNow()).toMatchObject({r: 0.8, x: 0.5});
-    // one place (decision 14): the field's hint carries the reason, the shared refusal channel stays empty
-    expect([...document.querySelectorAll('.number-input-hint')].map(hint => hint.textContent)).toEqual([expect.stringMatching(/Najprej premakni točko x/)]);
-    expect(document.querySelector('[data-refusal-notice]')?.textContent ?? '').toBe('');
-    act(() => { enterNumber(field(/^Točka x, vrednost$/), '0.3'); });
-    act(() => { enterNumber(inputR, '0.45'); });
+    act(() => { graph.parameters!.write('uniform-x', 0.3, 'learner'); });
+    act(() => { graph.parameters!.write('uniform-r', 0.45, 'learner'); });
     expect(graph.modelNow()).toMatchObject({r: 0.45, x: 0.3, supremumVisible: true});
     // a real off-grid value is refused, a grid value accepted; the board does not gain objects
-    act(() => { enterNumber(field(/^Točka x, vrednost$/), '0.305'); });
+    act(() => { graph.parameters!.write('uniform-x', 0.305, 'learner'); });
     expect(graph.modelNow()).toMatchObject({x: 0.3});
-    act(() => { enterNumber(field(/^Toleranca ε, vrednost$/), '0.05'); });
+    act(() => { graph.parameters!.write('uniform-epsilon', 0.05, 'learner'); });
     expect(graph.modelNow()).toMatchObject({epsilon: 0.05});
 
     // choosing the other example loads its model and hides the supremum
     const select = screen.getByLabelText('Primer zaporedja funkcij') as HTMLSelectElement;
     act(() => { fireEvent.change(select, {target: {value: 'scaled'}}); });
     expect(graph.modelNow()).toEqual({example: 'scaled', r: 1, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false});
-    act(() => { fireEvent.click(toggle()); });
+    act(() => { fireEvent.click(puckControl('show-supremum')); });
     expect(readout('supremum')).toBe('0,2');
     expect(readout('shared-n')).toBe('11');
     act(() => { fireEvent.change(select, {target: {value: 'power'}}); });
-    act(() => { enterNumber(inputR, '1'); });
-    act(() => { fireEvent.click(toggle()); });
+    act(() => { graph.parameters!.write('uniform-r', 1, 'learner'); });
+    act(() => { fireEvent.click(puckControl('show-supremum')); });
     expect(readout('supremum-attained')).toMatch(/^ne;/);
     expect(readout('shared-n')).toBe('ne obstaja');
     expect(statusIds()).toEqual(['not-attained', 'no-shared-n', 'not-covered', 'jump']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     expect(boardObjects(graph)).toBe(baseline);
 
+    // the board keeps no caption text: the formula, the numbers and the key are cards and readout rows
+    expect(graph.captionPlainLines()).toEqual([]);
+
     // the English labels follow a live language switch, and the board is asked to redraw its texts
     const update = vi.spyOn(graph as unknown as { boardUpdate: () => void }, 'boardUpdate');
     act(() => { setLanguage('en'); });
     expect(update).toHaveBeenCalled();
-    expect(screen.getByRole('button', {name: 'Hide supremum'})).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', {name: 'Index n'})).toBeInTheDocument();
     expect(readout('shared-n')).toBe('does not exist');
-    expect(graph.captionPlainLines()[3]).toBe('sup |fₙ − f| = 1, not attained');
     act(() => { setLanguage('sl'); });
-    expect(graph.captionPlainLines()[3]).toBe('sup |fₙ − f| = 1, ni dosežen');
 });

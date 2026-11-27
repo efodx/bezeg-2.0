@@ -251,11 +251,6 @@
       "count": 2
     }
   },
-  "src/graphs/functions/UniformConvergenceGraph.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/graphs/styles/AxisStyles.ts": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 1

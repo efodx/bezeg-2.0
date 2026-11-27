@@ -1431,8 +1431,8 @@ describe('the uniform convergence lesson', () => {
             expect(uStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
         }
         for (const id of ['uniform-scaled-step', 'uniform-supremum-step', 'uniform-supremum-one-step', 'uniform-domain-change-step', 'uniform-free-exploration']) {
-            expect(uStep(id).observationPrompt.en, id).toMatch(/Show supremum/);
-            expect(uStep(id).observationPrompt.sl, id).toMatch(/Pokaži supremum/);
+            expect(uStep(id).observationPrompt.en, id).toMatch(/Supremum control/);
+            expect(uStep(id).observationPrompt.sl, id).toMatch(/krmilnik Supremum/);
         }
         expect(adaptedActions('uniform-shared-n-step')).toContainEqual(show);
         expect(uStep('uniform-shared-n-step').frames.map(frame => frame.kind)).toEqual(['explanation', 'calculation', 'observation']);

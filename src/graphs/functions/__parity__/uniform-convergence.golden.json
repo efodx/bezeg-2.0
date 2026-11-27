@@ -65,13 +65,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = xⁿ na [0; 0,8]",
-        "n = 5, x = 0,5, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0,03125, N(x) = 4",
-        "supremum: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "uniform-convergence-guided/uniform-scaled-step",
@@ -136,13 +130,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = x/n na [0; 1]",
-        "n = 4, x = 0,5, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0,125, N(x) = 6",
-        "supremum: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "uniform-convergence-guided/uniform-whole-interval-step",
@@ -207,13 +195,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = xⁿ na [0; 1]",
-        "n = 5, x = 0,9, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0,59049, N(x) = 22",
-        "supremum: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "uniform-convergence-guided/uniform-supremum-one-step",
@@ -278,13 +260,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = xⁿ na [0; 1]",
-        "n = 10, x = 0,9, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0,34868, N(x) = 22",
-        "supremum: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "uniform-convergence-guided/uniform-pointwise-step",
@@ -349,13 +325,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = xⁿ na [0; 0,8]",
-        "n = 2, x = 0,5, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0,25, N(x) = 4",
-        "supremum: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "uniform-convergence-guided/uniform-shared-n-step",
@@ -420,14 +390,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = xⁿ na [0; 0,8]",
-        "n = 11, x = 0,5, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0,00048828, N(x) = 4",
-        "skupni N = 11",
-        "sup |fₙ - f| = 0,085899, dosežen pri x = 0,8"
-      ]
+      "captions": []
     },
     {
       "name": "uniform-convergence-guided/uniform-domain-change-step",
@@ -492,13 +455,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = xⁿ na [0; 0,95]",
-        "n = 44, x = 0,5, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0, N(x) = 4",
-        "supremum: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "uniform-convergence-guided/uniform-free-exploration",
@@ -563,13 +520,7 @@
         "Točkovni N(x, ε) je odvisen od izbrane točke x. Skupni N(ε) mora delovati za vse točke območja hkrati, zato ga določa supremum napake, izračunan po obrazcu in ne iz vzorčenih vrednosti. N je lahko večji od največjega indeksa n, ki ga lahko izbereš; odčitek to pove, ne skrajša ga. Sprememba konca območja r je nova primerjava, ne nadaljevanje stare."
       ],
       "outputs": [],
-      "captions": [
-        "fₙ(x) = x/n na [0; 1]",
-        "n = 5, x = 0,5, ε = 0,1",
-        "polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x",
-        "pri x: napaka 0,1, N(x) = 6",
-        "supremum: skrit"
-      ]
+      "captions": []
     }
   ]
 }

@@ -3,7 +3,7 @@ import {gridValue} from './BaseFunctionGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {UNIFORM_EXAMPLE_MODELS} from '../../analysis/uniformConvergenceModel';
-import {setLanguage, onLanguageChange} from '../../localization';
+import {setLanguage, onLanguageChange, renderMessage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
 
@@ -72,7 +72,7 @@ const functionGraphs = (graph: any) => ofType(graph, 'functiongraph');
 const caption = (graph: any) => graph.captionPlainLines();
 const at = (point: any) => [point.X(), point.Y()];
 const coords = (segment: any) => [segment.parents[0][0], segment.parents[0][1], segment.parents[1][0], segment.parents[1][1]].map(resolve);
-const OBJECT_COUNT = 17;
+const OBJECT_COUNT = 16;
 
 /** Collects the React elements of a rendered tree by component name or host tag. */
 function collect(node: any, found: Record<string, any[]> = {}) {
@@ -118,10 +118,10 @@ test('initialization draws x^n on [0, 0.8] with the supremum hidden, from a fixe
     expect(graph.board.objectsList).toHaveLength(OBJECT_COUNT);
     expect(graph.generatedObjectCount).toBe(OBJECT_COUNT);
     expect(functionGraphs(graph)).toHaveLength(1);
-    expect(caption(graph)).toEqual([
-        'fₙ(x) = xⁿ na [0; 0,8]', 'n = 5, x = 0,5, ε = 0,1', 'pri x: napaka 0,03125, N(x) = 4', 'supremum: skrit',
-        'polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x',
-    ]);
+    // the formula, the values, the key and the supremum are a declared row, readout rows and the legend (owner, 2026-11-27): nothing is written on the board
+    expect(caption(graph)).toEqual([]);
+    expect(ofType(graph, 'text')).toHaveLength(0);
+    expect(rows(graph)).toMatchObject({n: '5', x: '0,5', epsilon: '0,1', 'pointwise-error': '0,03125', 'pointwise-n': '4', supremum: 'skrito'});
     // f_n is drawn on [0, r] only (functiongraph bounds) and equals x^n there
     const [f, from, to] = functionGraphs(graph)[0].parents;
     expect(f(0.5)).toBe(0.5 ** 5);
@@ -155,11 +155,12 @@ test('f_n is solid, the limit dashed, the band edges medium-dashed, the supremum
     expect(points(graph)[OPEN_END].attributes.face).toBe('o');
     const error = segments(graph)[ERROR];
     expect(coords(error)).toEqual([0.5, 0, 0.5, 0.5 ** 5]);
-    const items = graph.renderLegend().props.items as { id: string; label: string; kind: string }[];
+    expect(graph.renderLegend()).toBeNull();
+    const items = graph.declaration().legend as { id: string; label: any; kind: string }[];
     expect(items.map(item => item.id)).toEqual(['function', 'limit', 'limit-open', 'band', 'error', 'supremum', 'attained', 'not-attained']);
-    expect(items.map(item => item.kind)).toEqual(['line', 'dashed-line', 'ring', 'area', 'line', 'dotted-line', 'cross', 'ring']);
-    expect(items[0].label).toMatch(/polna/);
-    expect(items[1].label).toMatch(/črtkana/);
+    expect(items.map(item => item.kind)).toEqual(['line', 'dashed', 'ring', 'area', 'line', 'dashed', 'cross', 'ring']);
+    expect(renderMessage(items[0].label)).toMatch(/polna/);
+    expect(renderMessage(items[1].label)).toMatch(/črtkana/);
 });
 
 test('the limit is drawn as separate pieces: on [0, 1] a half-open segment with an open circle at (1, 0) and the isolated filled point (1, 1), never joined', () => {
@@ -214,7 +215,7 @@ test('readouts and statuses are hidden before Show supremum, then give the supre
     expect(visible(segments(graph)[SUPREMUM_LINE])).toBe(false);
     expect(visible(points(graph)[ATTAINED])).toBe(false);
     expect(visible(points(graph)[UNATTAINED])).toBe(false);
-    expect(caption(graph)[3]).toBe('supremum: skrit');
+    expect(caption(graph)).toEqual([]);
     // power on [0, 0.8]: sup = 0.8^5 = 0.32768 attained at x = 0.8, shared N = 11 (independent integer arithmetic)
     apply(graph, reveal(true));
     expect(0.8 ** 5).toBeCloseTo(0.32768, 14);
@@ -225,10 +226,7 @@ test('readouts and statuses are hidden before Show supremum, then give the supre
     expect(visible(points(graph)[ATTAINED])).toBe(true);
     expect(visible(points(graph)[UNATTAINED])).toBe(false);
     expect(at(points(graph)[ATTAINED])).toEqual([0.8, 0.8 ** 5]);
-    expect(caption(graph)).toEqual([
-        'fₙ(x) = xⁿ na [0; 0,8]', 'n = 5, x = 0,5, ε = 0,1', 'pri x: napaka 0,03125, N(x) = 4', 'sup |fₙ − f| = 0,32768, dosežen pri x = 0,8', 'skupni N = 11',
-        'polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x',
-    ]);
+    expect(caption(graph)).toEqual([]);
     // at n = 11 the supremum is below epsilon, at n = 10 it is not
     apply(graph, parameter('uniform-n', 11));
     expect(statusIds(graph)).toEqual(['attained', 'shared-n', 'covered']);
@@ -252,8 +250,7 @@ test('power on [0, 1]: the supremum is 1 for every n, not attained, and there is
         expect(at(points(graph)[UNATTAINED])).toEqual([1, 1]);
         expect(segments(graph)[SUPREMUM_LINE].parents[0][1]()).toBe(1);
     }
-    expect(caption(graph)[3]).toBe('sup |fₙ − f| = 1, ni dosežen');
-    expect(caption(graph)[4]).toBe('skupnega N ni');
+    expect(caption(graph)).toEqual([]);
     // the pointwise values: at x < 1 the error is x^n < 1, at x = 1 it is 0
     apply(graph, parameter('uniform-x', 0.99));
     expect(Number(rows(graph)['pointwise-error'].replace(',', '.'))).toBeLessThan(1);
@@ -263,8 +260,7 @@ test('power on [0, 1]: the supremum is 1 for every n, not attained, and there is
     apply(graph, parameter('uniform-epsilon', 1));
     expect(rows(graph)['shared-n']).toBe('1');
     expect(statusIds(graph)).toEqual(['not-attained', 'shared-n-boundary', 'covered-boundary', 'jump']);
-    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text).join(' ')).not.toMatch(/supremum je manjši/);
-    expect(caption(graph)[4]).toBe('skupni N = 1');
+    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: any }) => renderMessage(status.text)).join(' ')).not.toMatch(/supremum je manjši/);
     apply(graph, parameter('uniform-epsilon', 0.99));
     expect(rows(graph)['shared-n']).toBe('ne obstaja');
     expect(statusIds(graph)).toContain('no-shared-n');
@@ -278,7 +274,6 @@ test('a pointwise or shared N beyond the selectable n is reported with its true 
     expect(leastBelow(99, 100, 10)).toBe(230);
     expect(rows(graph)['pointwise-n']).toBe('230 (nad največjim izbirnim n = 50)');
     expect(statusIds(graph)).toContain('pointwise-beyond');
-    expect(caption(graph)[2]).toMatch(/N\(x\) = 230$/);
     setLanguage('en');
     expect(rows(graph)['pointwise-n']).toBe('230 (beyond the largest selectable n = 50)');
     setLanguage('sl');
@@ -298,7 +293,6 @@ test('a pointwise or shared N beyond the selectable n is reported with its true 
     apply(graph, reveal(true));
     expect(Math.floor(1 / 0.01 + 1e-9) + 1).toBe(101);
     expect(rows(graph)['shared-n']).toBe('101 (nad največjim izbirnim n = 50)');
-    expect(caption(graph)[4]).toBe('skupni N = 101');
 });
 
 test('x/n: the supremum is r/n attained at x = r and the shared N is floor(r / epsilon) + 1', () => {
@@ -306,7 +300,7 @@ test('x/n: the supremum is r/n attained at x = r and the shared N is floor(r / e
     apply(graph, choice('scaled'));
     expect(graph.model).toEqual({example: 'scaled', r: 1, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false});
     expect(rows(graph)).toMatchObject({term: '0,1', limit: '0', 'pointwise-error': '0,1', 'pointwise-n': '6', supremum: 'skrito'});
-    expect(caption(graph)[0]).toBe('fₙ(x) = x/n na [0; 1]');
+    expect(renderMessage(graph.declaration().formula.label)).toBe('Funkcija');
     apply(graph, reveal(true));
     // 1 / 0.1 = 10 exactly, so the threshold is 11 (n = 10 gives the error 0.1, which is not below epsilon)
     expect(rows(graph)).toMatchObject({supremum: '0,2', 'supremum-attained': 'da, pri x = 1', 'shared-n': '11'});
@@ -392,7 +386,6 @@ test('controls and lesson actions give equivalent models', () => {
     expect(viaControls.model).toEqual(viaLesson.model);
     expect(viaControls.model).toEqual({example: 'power', r: 1, n: 10, x: 0.9, epsilon: 0.05, supremumVisible: true});
     expect(rows(viaControls)).toEqual(rows(viaLesson));
-    expect(caption(viaControls)).toEqual(caption(viaLesson));
     expect(statusIds(viaControls)).toEqual(statusIds(viaLesson));
     // the stepper covers 1 to 50; a press past an end is refused through the graph's notice, never wrapped
     expect(controls(viaControls).setter.props).toMatchObject({min: 1, max: 50});
@@ -543,27 +536,23 @@ test('presets round-trip, an invalid preset loads the default, and capture and r
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, false);
 });
 
-test('the board caption follows the language, a language change notifies subscribers, and compact boards drop the key line', () => {
+test('the rows follow the language, a language change notifies subscribers, and no board text is left', () => {
     const graph = makeGraph();
     apply(graph, reveal(true));
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)).toEqual([
-        'fₙ(x) = xⁿ on [0, 0.8]', 'n = 5, x = 0.5, ε = 0.1', 'at x: error 0.03125, N(x) = 4', 'sup |fₙ − f| = 0.32768, attained at x = 0.8', 'shared N = 11',
-        'solid line: fₙ; dashed line: f; vertical line: error at x',
-    ]);
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)).toMatchObject({epsilon: '0.1', 'pointwise-error': '0.03125', 'pointwise-n': '4', supremum: '0.32768', 'supremum-attained': 'yes, at x = 0.8', 'shared-n': '11'});
     apply(graph, parameter('uniform-r', 1));
-    expect(caption(graph).slice(3, 5)).toEqual(['sup |fₙ − f| = 1, not attained', 'no shared N']);
+    expect(caption(graph)).toEqual([]);
     expect(rows(graph)['supremum-attained']).toBe('no; the error approaches it near x = 1');
     expect(rows(graph)['shared-n']).toBe('does not exist');
-    // below 520 px the key is left out; no caption line mentions anything that lives on an axis
+    // the key is the declared legend, whatever the board width
+    expect(renderMessage(graph.declaration().legend[0].label)).toMatch(/solid/);
     graph.board.canvasWidth = 390;
-    expect(caption(graph)).toHaveLength(5);
-    expect(caption(graph).join('|')).not.toMatch(/polna|solid/);
-    graph.board.canvasWidth = 700;
-    expect(caption(graph)).toHaveLength(6);
+    expect(caption(graph)).toEqual([]);
     unsubscribe();
 });
 
@@ -585,7 +574,7 @@ test('no readout, caption or status ever shows NaN, Infinity, -0, 1e-17 noise or
                             for (const visibleNow of [false, true]) {
                                 apply(graph, reveal(visibleNow));
                                 const text = [...caption(graph), ...Object.values(rows(graph)),
-                                    ...graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text)].join(' | ');
+                                    ...graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: any }) => renderMessage(status.text))].join(' | ');
                                 expect(text).not.toMatch(/NaN|Infinity|undefined|−0(?![.,\d])|[0-9]e-\d/);
                             }
                         }

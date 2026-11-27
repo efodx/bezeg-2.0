@@ -43,7 +43,7 @@
  *
  * The uniform convergence lesson uses the generic actions (`set-function-parameter` uniform-r/uniform-n/uniform-x/uniform-epsilon,
  * `set-function-choice` uniform-example and `show-function-element` uniform-supremum); the index n is a plain parameter, so there is no
- * playback command. A prediction step hides the supremum and the learner presses the graph's own Show supremum after predicting;
+ * playback command. A prediction step hides the supremum and the learner turns on the Supremum control after predicting;
  * only the step that explains the shared N on the smaller domain shows it. Every domain change (uniform-r) starts a new comparison.
  */
 import type {FunctionParameterName, LessonAction, LessonViewBox} from '../model';
@@ -65,6 +65,7 @@ import type {ConvexityIds} from '../../graphs/functions/ConvexityGraph';
 import type {DarbouxIds} from '../../graphs/functions/DarbouxGraph';
 import type {ExtremaIds} from '../../graphs/functions/ExtremaGraph';
 import type {MeanValueIds} from '../../graphs/functions/MeanValueGraph';
+import type {UniformConvergenceIds} from '../../graphs/functions/UniformConvergenceGraph';
 import type {FixedPointIds} from '../../graphs/functions/FixedPointGraph';
 import type {SequenceIds} from '../../graphs/functions/SequenceGraph';
 
@@ -77,6 +78,7 @@ const convexityFrame = frameDeclarer<ConvexityIds>();
 const darbouxFrame = frameDeclarer<DarbouxIds>();
 const extremaFrame = frameDeclarer<ExtremaIds>();
 const meanValueFrame = frameDeclarer<MeanValueIds>();
+const uniformFrame = frameDeclarer<UniformConvergenceIds>();
 const fixedPointFrame = frameDeclarer<FixedPointIds>();
 const sequenceFrame = frameDeclarer<SequenceIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
@@ -3237,10 +3239,10 @@ const uniformConvergence: GuidedLesson = {
                 'We start with the sequence of functions \\(f_n(x)=\\frac xn\\) on the domain \\([0,1]\\). For every \\(x\\), \\(\\frac xn\\) tends to \\(0\\), so the limit is \\(f(x)=0\\) everywhere, without a jump. Around the limit there is a band of \\(\\varepsilon=0.1\\) on each side. The chosen point \\(x=0.5\\) has at \\(n=4\\) the error \\(|f_4(0.5)-0|=0.125\\), which is outside the band. The pointwise threshold \\(N(x)\\) is the least \\(n\\) from which on the error at this point is below \\(\\varepsilon\\). Uniform convergence asks for more: a single \\(N\\) that works for all \\(x\\) in \\([0,1]\\) at once, so the largest error over all points, the supremum \\(\\sup|f_n-f|\\), has to be below \\(\\varepsilon\\). The questions are: where on the domain the error at \\(n=4\\) is largest and how large it is, and what the least \\(n\\) is that makes all errors below \\(\\varepsilon\\). The supremum is hidden and is computed from the formula, not from sampled points.',
             ),
             formulaIds: ['uniform-definition', 'uniform-definition-uniform'],
-            frames: [frame('uniform-scaled-explanation', 'explanation'), frame('uniform-scaled-observation', 'observation')],
+            frames: [frame('uniform-scaled-explanation', 'explanation', uniformFrame({highlight: ['supremum', 'shared-n']})), frame('uniform-scaled-observation', 'observation', uniformFrame({highlight: ['supremum', 'shared-n'], uses: ['show-supremum']}))],
             observationPrompt: text(
-                'Napovej, kje je pri \\(n=4\\) napaka največja in koliko je, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\); preveri z gumboma − in + ali s poljem Indeks n in šele nato pritisni Pokaži supremum.',
-                'Predict where the error at \\(n=4\\) is largest and how large it is, and the least \\(n\\) that makes all errors below \\(\\varepsilon=0.1\\); check with the − and + buttons or the Index n field, and only then press Show supremum.',
+                'Napovej, kje je pri \\(n=4\\) napaka največja in koliko je, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\); preveri z gumboma − in + ali s poljem Indeks n in šele nato vklopi krmilnik Supremum.',
+                'Predict where the error at \\(n=4\\) is largest and how large it is, and the least \\(n\\) that makes all errors below \\(\\varepsilon=0.1\\); check with the − and + buttons or the Index n field, and only then turn on the Supremum control.',
             ),
             expectedObservations: [
                 text(
@@ -3270,10 +3272,10 @@ const uniformConvergence: GuidedLesson = {
                 'For \\(\\frac xn\\) on \\([0,1]\\) one \\(N=11\\) worked for all points. Now on the same domain \\([0,1]\\) we take the functions \\(x^n\\). The limit is \\(f(x)=0\\) for \\(x<1\\) and \\(f(1)=1\\), and at each \\(x\\) the convergence is still pointwise. The threshold \\(N(x)\\), however, depends on the point: at \\(x=0.5\\) it is \\(4\\), closer to \\(1\\) it is larger. The condition \\(x^n<\\varepsilon\\) is equivalent to \\(n>\\frac{\\ln\\varepsilon}{\\ln x}\\), and the denominator tends to \\(0\\) as \\(x\\to1\\). The chosen point is \\(x=0.9\\) with \\(n=5\\), where the error \\(0.9^5=0.59049\\) is far outside the band. The supremum is hidden again.',
             ),
             formulaIds: ['uniform-power-threshold'],
-            frames: [frame('uniform-whole-interval-explanation', 'explanation'), frame('uniform-whole-interval-observation', 'observation')],
+            frames: [frame('uniform-whole-interval-explanation', 'explanation', uniformFrame({highlight: ['pointwise-n']})), frame('uniform-whole-interval-observation', 'observation', uniformFrame({highlight: ['pointwise-n', 'supremum'], uses: ['uniform-r', 'uniform-x']}))],
             observationPrompt: text(
-                'Napovej točkovni prag \\(N(0{,}9)\\) in \\(N(0{,}99)\\) pri \\(\\varepsilon=0{,}1\\); preveri pri \\(x=0{,}9\\) in nato z drsnikom Točka x nastavi \\(x=0{,}99\\).',
-                'Predict the pointwise thresholds \\(N(0.9)\\) and \\(N(0.99)\\) at \\(\\varepsilon=0.1\\); check at \\(x=0.9\\) and then enter \\(x=0.99\\) in the Point x field.',
+                'Napovej točkovni prag \\(N(0{,}9)\\) in \\(N(0{,}99)\\) pri \\(\\varepsilon=0{,}1\\); preveri pri \\(x=0{,}9\\) in nato s krmilnikom Točka nastavi \\(x=0{,}99\\).',
+                'Predict the pointwise thresholds \\(N(0.9)\\) and \\(N(0.99)\\) at \\(\\varepsilon=0.1\\); check at \\(x=0.9\\) and then set \\(x=0.99\\) with the Point control.',
             ),
             expectedObservations: [
                 text(
@@ -3303,10 +3305,10 @@ const uniformConvergence: GuidedLesson = {
                 'The functions \\(x^n\\) are continuous, but the limit has a jump at \\(x=1\\). On the graph the limit is drawn in two pieces: the dashed line \\(y=0\\) on \\([0,1)\\) with an open circle at \\((1,0)\\), a value the limit does not take, and a filled circle at \\((1,1)\\) as an isolated value; the jump is not joined. The chosen values are \\(n=10\\) and the point \\(x=0.9\\), where the error \\(0.9^{10}\\approx0.35\\) and closer to \\(1\\) it is larger. The question is no longer the threshold at one point, but whether the supremum can be below \\(\\varepsilon\\) and therefore one \\(N\\) for all points, also for larger \\(n\\).',
             ),
             formulaIds: ['uniform-power-supremum'],
-            frames: [frame('uniform-supremum-one-explanation', 'explanation'), frame('uniform-supremum-one-observation', 'observation')],
+            frames: [frame('uniform-supremum-one-explanation', 'explanation', uniformFrame({highlight: ['supremum', 'shared-n']})), frame('uniform-supremum-one-observation', 'observation', uniformFrame({highlight: ['supremum', 'shared-n'], uses: ['show-supremum']}))],
             observationPrompt: text(
-                'Napovej supremum napake pri \\(n=10\\), ali je dosežen in ali obstaja skupni \\(N\\); povečaj \\(n\\) in preveri, ali se napoved spremeni; šele nato pritisni Pokaži supremum.',
-                'Predict the supremum error at \\(n=10\\), whether it is attained and whether a shared \\(N\\) exists; increase \\(n\\) and check whether the prediction changes; only then press Show supremum.',
+                'Napovej supremum napake pri \\(n=10\\), ali je dosežen in ali obstaja skupni \\(N\\); povečaj \\(n\\) in preveri, ali se napoved spremeni; šele nato vklopi krmilnik Supremum.',
+                'Predict the supremum error at \\(n=10\\), whether it is attained and whether a shared \\(N\\) exists; increase \\(n\\) and check whether the prediction changes; only then turn on the Supremum control.',
             ),
             expectedObservations: [
                 text(
@@ -3336,10 +3338,10 @@ const uniformConvergence: GuidedLesson = {
                 'We narrow the domain to \\([0,\\,0.8]\\): this is a new comparison, not a continuation of the previous one. We look at the functions \\(f_n(x)=x^n\\) on the domain \\([0,\\,0.8]\\). For every \\(x\\) in the domain \\(x^n\\) tends to \\(0\\), so the limit is \\(f(x)=0\\). Around the limit there is a band of width \\(\\varepsilon=0.1\\) on each side. The chosen point \\(x=0.5\\) has the error \\(|f_n(x)-f(x)|\\); at \\(n=2\\) it is \\(0.25\\), which is outside the band. The pointwise threshold \\(N(x)\\) is the least \\(n\\) for which the error at this point is below \\(\\varepsilon\\), and for larger \\(n\\) it stays below. The threshold depends on the point: with a different \\(x\\) we may get a different \\(N(x)\\). The supremum is hidden, since here we look at one point at a time.',
             ),
             formulaIds: ['uniform-definition', 'uniform-definition-uniform'],
-            frames: [frame('uniform-pointwise-explanation', 'explanation'), frame('uniform-pointwise-observation', 'observation')],
+            frames: [frame('uniform-pointwise-explanation', 'explanation', uniformFrame({highlight: ['pointwise-error', 'pointwise-n']})), frame('uniform-pointwise-observation', 'observation', uniformFrame({highlight: ['pointwise-error', 'pointwise-n'], uses: ['uniform-x']}))],
             observationPrompt: text(
-                'Napovej, pri katerem najmanjšem \\(n\\) je napaka v točki \\(x=0{,}5\\) manjša od \\(\\varepsilon=0{,}1\\), in preveri z gumboma − in + ali s poljem Indeks n. Nato z drsnikom Točka x nastavi \\(x=0{,}8\\) in primerjaj prag \\(N(x)\\).',
-                'Predict the least \\(n\\) for which the error at \\(x=0.5\\) is below \\(\\varepsilon=0.1\\), and check with the − and + buttons or the Index n field. Then enter \\(x=0.8\\) in the Point x field and compare the threshold \\(N(x)\\).',
+                'Napovej, pri katerem najmanjšem \\(n\\) je napaka v točki \\(x=0{,}5\\) manjša od \\(\\varepsilon=0{,}1\\), in preveri z gumboma − in + ali s poljem Indeks n. Nato s krmilnikom Točka nastavi \\(x=0{,}8\\) in primerjaj prag \\(N(x)\\).',
+                'Predict the least \\(n\\) for which the error at \\(x=0.5\\) is below \\(\\varepsilon=0.1\\), and check with the − and + buttons or the Index n field. Then set \\(x=0.8\\) with the Point control and compare the threshold \\(N(x)\\).',
             ),
             expectedObservations: [
                 text(
@@ -3369,10 +3371,10 @@ const uniformConvergence: GuidedLesson = {
                 'The pointwise threshold depended on the point: \\(N(0.5)=4\\), \\(N(0.8)=11\\). Uniform convergence asks for more: a single \\(N\\) that works for all \\(x\\) in \\([0,\\,0.8]\\) at once, that is \\(|f_n(x)-f(x)|<\\varepsilon\\) for every \\(n\\ge N\\) and every \\(x\\). So we are no longer interested in one point but in the largest error over the whole domain, the supremum \\(\\sup|f_n-f|\\). The chosen index is \\(n=5\\). The questions are: which point of the domain has the largest error and how large it is, and what the least \\(n\\) is that makes all errors below \\(\\varepsilon=0.1\\). The supremum is computed from the formula, not from sampled points.',
             ),
             formulaIds: ['uniform-definition', 'uniform-definition-uniform'],
-            frames: [frame('uniform-supremum-explanation', 'explanation'), frame('uniform-supremum-observation', 'observation')],
+            frames: [frame('uniform-supremum-explanation', 'explanation', uniformFrame({highlight: ['supremum', 'supremum-attained']})), frame('uniform-supremum-observation', 'observation', uniformFrame({highlight: ['supremum', 'supremum-attained', 'shared-n'], uses: ['show-supremum']}))],
             observationPrompt: text(
-                'Napovej, katera točka ima pri \\(n=5\\) največjo napako in koliko je ta, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\); šele nato pritisni Pokaži supremum.',
-                'Predict which point has the largest error at \\(n=5\\) and how large it is, and the least \\(n\\) that makes all errors below \\(\\varepsilon=0.1\\); only then press Show supremum.',
+                'Napovej, katera točka ima pri \\(n=5\\) največjo napako in koliko je ta, ter najmanj kolikšen \\(n\\) naredi vse napake manjše od \\(\\varepsilon=0{,}1\\); šele nato vklopi krmilnik Supremum.',
+                'Predict which point has the largest error at \\(n=5\\) and how large it is, and the least \\(n\\) that makes all errors below \\(\\varepsilon=0.1\\); only then turn on the Supremum control.',
             ),
             expectedObservations: [
                 text(
@@ -3402,10 +3404,10 @@ const uniformConvergence: GuidedLesson = {
                 'From the prediction: at \\(n=5\\) the supremum is \\(0.32768\\) at the endpoint \\(x=0.8\\) and the shared \\(N=11\\). Now \\(n=11\\) is chosen and the supremum is shown. Since \\(x^n\\) is increasing, on \\([0,\\,r]\\) with \\(r<1\\) the error is largest at the endpoint: \\(\\sup=r^n\\), attained at \\(x=r\\). The condition \\(r^n<\\varepsilon\\) is equivalent to \\(n>\\frac{\\ln\\varepsilon}{\\ln r}\\), and the least such \\(n\\) is in the Formulas frame; for \\(r=0.8\\) and \\(\\varepsilon=0.1\\) it is \\(11\\). At \\(n=11\\) the supremum is below \\(\\varepsilon\\), so the whole graph of \\(f_n\\) lies in the band, and this holds for every \\(n\\ge11\\). The threshold does not depend on the point \\(x\\): this is uniform convergence on \\([0,\\,0.8]\\).',
             ),
             formulaIds: ['uniform-power-supremum', 'uniform-power-threshold'], workedExampleId: 'uniform-shared-n-example',
-            frames: [frame('uniform-shared-n-explanation', 'explanation'), frame('uniform-shared-n-calculation', 'calculation'), frame('uniform-shared-n-observation', 'observation')],
+            frames: [frame('uniform-shared-n-explanation', 'explanation', uniformFrame({highlight: ['supremum', 'shared-n']})), frame('uniform-shared-n-calculation', 'calculation', uniformFrame({highlight: ['shared-n']})), frame('uniform-shared-n-observation', 'observation', uniformFrame({highlight: ['supremum', 'shared-n']}))],
             observationPrompt: text(
-                'Preberi supremum, skupni \\(N\\) in stanje v odčitkih. Nato zmanjšaj \\(n\\) na \\(10\\) in preberi, zakaj ta \\(n\\) še ne deluje za vse točke hkrati.',
-                'Read the supremum, the shared \\(N\\) and the status in the readouts. Then lower \\(n\\) to \\(10\\) and read why this \\(n\\) does not yet work for all points at once.',
+                'Preberi supremum, skupni \\(N\\) in stanje v kartici Odčitki. Nato zmanjšaj \\(n\\) na \\(10\\) in preberi, zakaj ta \\(n\\) še ne deluje za vse točke hkrati.',
+                'Read the supremum, the shared \\(N\\) and the status in the Readouts card. Then lower \\(n\\) to \\(10\\) and read why this \\(n\\) does not yet work for all points at once.',
             ),
             expectedObservations: [text(
                 'Pri \\(n=11\\) je supremum \\(0{,}8^{11}\\approx0{,}0859\\), dosežen pri \\(x=0{,}8\\), skupni \\(N=11\\) in ves graf \\(f_n\\) leži znotraj pasu. Pri \\(n=10\\) je supremum \\(\\approx0{,}1074\\) in ni manjši od \\(\\varepsilon\\).',
@@ -3429,10 +3431,10 @@ const uniformConvergence: GuidedLesson = {
                 'On \\([0,1]\\) there is no shared \\(N\\), while on \\([0,\\,0.8]\\) it was \\(N=11\\). Now the domain is \\([0,\\,0.95]\\). This is a new comparison: a different domain, a different supremum \\(0.95^n\\) and a different shared \\(N\\); it is not a continuation of convergence on the original domain. As \\(r\\) grows towards \\(1\\), the shared \\(N\\) grows without bound. Uniform convergence on every \\([0,\\,r]\\) with \\(r<1\\) therefore does not mean uniform convergence on \\([0,1]\\). The chosen values are \\(r=0.95\\) and \\(n=44\\), and the supremum is hidden. \\(r\\) can be changed only if the point \\(x\\) stays in \\([0,\\,r]\\); otherwise the app rejects the change and asks you to move \\(x\\) first.',
             ),
             formulaIds: ['uniform-power-threshold'],
-            frames: [frame('uniform-domain-change-explanation', 'explanation'), frame('uniform-domain-change-observation', 'observation')],
+            frames: [frame('uniform-domain-change-explanation', 'explanation', uniformFrame({highlight: ['supremum', 'shared-n']})), frame('uniform-domain-change-observation', 'observation', uniformFrame({highlight: ['supremum', 'shared-n'], uses: ['uniform-r', 'show-supremum']}))],
             observationPrompt: text(
-                'Napovej skupni \\(N\\) za \\(r=0{,}95\\) in \\(\\varepsilon=0{,}1\\); pritisni Pokaži supremum, nato povečaj \\(n\\) na \\(45\\) in preberi stanje. Nazadnje z drsnikom Konec območja r nastavi \\(1\\) in primerjaj.',
-                'Predict the shared \\(N\\) for \\(r=0.95\\) and \\(\\varepsilon=0.1\\); press Show supremum, then increase \\(n\\) to \\(45\\) and read the status. Finally enter \\(1\\) in the Domain end r field and compare.',
+                'Napovej skupni \\(N\\) za \\(r=0{,}95\\) in \\(\\varepsilon=0{,}1\\); vklopi krmilnik Supremum, nato povečaj \\(n\\) na \\(45\\) in preberi stanje. Nazadnje s krmilnikom Konec območja nastavi \\(1\\) in primerjaj.',
+                'Predict the shared \\(N\\) for \\(r=0.95\\) and \\(\\varepsilon=0.1\\); turn on the Supremum control, then increase \\(n\\) to \\(45\\) and read the status. Finally set \\(1\\) with the Domain end control and compare.',
             ),
             expectedObservations: [
                 text(
@@ -3462,10 +3464,10 @@ const uniformConvergence: GuidedLesson = {
                 'The functions \\(x^n\\) on \\([0,1]\\) converged pointwise but not uniformly, and on \\([0,\\,0.8]\\) uniformly. Now the example \\(f_n(x)=\\frac xn\\) on \\([0,1]\\) is shown again, with the limit \\(f(x)=0\\) everywhere, without a jump. At \\(n=5\\), \\(x=0.5\\) and \\(\\varepsilon=0.1\\) the pointwise error is \\(0.1\\). Think about where on \\([0,1]\\) the error is largest and whether its size depends only on \\(n\\). In summary: uniform convergence requires one \\(N\\) for all points of the domain at once; the supremum error from the formula decides it, not sampled values; a change of domain is a new comparison. Now explore on your own: choose an example, change \\(r\\), \\(n\\), \\(x\\) and \\(\\varepsilon\\), and predict before you show the supremum.',
             ),
             formulaIds: ['uniform-scaled', 'uniform-scaled-threshold'],
-            frames: [frame('uniform-free-explanation', 'explanation'), frame('uniform-free-observation', 'observation')],
+            frames: [frame('uniform-free-explanation', 'explanation', uniformFrame({highlight: ['supremum', 'shared-n']})), frame('uniform-free-observation', 'observation', uniformFrame({highlight: ['shared-n'], uses: ['show-supremum', 'uniform-x', 'uniform-epsilon']}))],
             observationPrompt: text(
-                'Napovej supremum napake in skupni \\(N\\) za \\(\\frac xn\\) pri \\(n=5\\) in \\(\\varepsilon=0{,}1\\); pritisni Pokaži supremum. Nato skrij supremum, izberi drug primer in napovej, preden ga spet pokažeš.',
-                'Predict the supremum error and the shared \\(N\\) for \\(\\frac xn\\) at \\(n=5\\) and \\(\\varepsilon=0.1\\); press Show supremum. Then hide the supremum, choose another example and predict before you show it again.',
+                'Napovej supremum napake in skupni \\(N\\) za \\(\\frac xn\\) pri \\(n=5\\) in \\(\\varepsilon=0{,}1\\); vklopi krmilnik Supremum. Nato ga izklopi, izberi drug primer in napovej, preden ga spet vklopiš.',
+                'Predict the supremum error and the shared \\(N\\) for \\(\\frac xn\\) at \\(n=5\\) and \\(\\varepsilon=0.1\\); turn on the Supremum control. Then turn it off, choose another example and predict before you turn it on again.',
             ),
             expectedObservations: [
                 text(

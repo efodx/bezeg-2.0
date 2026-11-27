@@ -26,7 +26,7 @@ const routes: Record<string, Route> = {
     'mean-value': {lead: labelled(t('mean_value_example_label')), later: []},
     'darboux': {lead: button(t('darboux_refine')), later: [labelled(t('darboux_example_label'))]},
     'sequence': {lead: labelled(t('sequence_example_label')), later: [button(t('next_step'))]},
-    'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
+    'uniform-convergence': {lead: labelled(t('uniform_example_label')), later: [labelled(t('uniform_n_label'))]},
     'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label'))]},
     'recursion-cobweb': {lead: button(t('next_step')), later: []},
     'linear-program': {lead: labelled(t('levelsets_graph_lp_objective_p')), later: [labelled(t('levelsets_graph_lp_count'))]},
@@ -208,6 +208,24 @@ describe('sequence pucks', () => {
         for (const label of [t('sequence_epsilon_label'), t('sequence_limit_label'), t('sequence_threshold_label')]) expect(within(root).queryAllByLabelText(label), label).toEqual([]);
         expect(within(root).queryAllByRole('button', {name: t('sequence_show_certificate')})).toEqual([]);
         expect(within(root).queryAllByRole('button', {name: t('sequence_hide_certificate')})).toEqual([]);
+    });
+});
+
+describe('uniform-convergence pucks', () => {
+    // The point x, the tolerance, the domain end and the supremum switch are pucks on the board (task 08): there once, and not in Orodja,
+    // which keeps the example and the index n (the example select is found there first, so the container really holds the graph's controls).
+    test('x, epsilon, r and the supremum are pucks and Orodja holds no second copy', async () => {
+        mountGraph(graphFactories['uniform-convergence']());
+        await waitForPucks('show-supremum');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(within(root).getAllByLabelText(t('uniform_example_label'))).not.toEqual([]);
+        expect(within(root).getAllByLabelText(t('uniform_n_label'))).not.toEqual([]);
+        for (const key of ['uniform-x', 'uniform-epsilon', 'uniform-r', 'show-supremum']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('uniform_x_label'), t('uniform_epsilon_label'), t('uniform_r_label')]) expect(within(root).queryAllByLabelText(new RegExp(`^${label.replace(/[[\]()]/g, '\\$&')}`)), label).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('uniform_show_supremum')})).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('uniform_hide_supremum')})).toEqual([]);
     });
 });
 

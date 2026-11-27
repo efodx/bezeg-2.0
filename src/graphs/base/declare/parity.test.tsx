@@ -986,6 +986,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'n at the limit (128)', apply: run(g => { g.setExample('square'); g.setCount(128); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/uniform-convergence.json', demonstration: 'uniform-convergence', states: (() => {
+        type UniformSetters = {setR(value: number): void; setN(value: number): void; setX(value: number): void; setEpsilon(value: number): void; setExample(value: string): void; setSupremumVisible(value: boolean): void};
+        const run = (edit: (graph: UniformSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as UniformSetters)); };
+        return [
+            {name: 'default (power, supremum hidden)', apply: () => undefined},
+            {name: 'power supremum shown', apply: run(g => g.setSupremumVisible(true))},
+            {name: 'power n=1', apply: run(g => g.setN(1))},
+            {name: 'power r=1 (jump), eps=0.3', apply: run(g => { g.setR(1); g.setEpsilon(0.3); })},
+            {name: 'power n=50, x=0.9, eps=0.01', apply: run(g => { g.setN(50); g.setX(0.9); g.setEpsilon(0.01); })},
+            {name: 'scaled hidden', apply: run(g => { g.setSupremumVisible(false); g.setExample('scaled'); })},
+            {name: 'scaled supremum shown', apply: run(g => g.setSupremumVisible(true))},
+            {name: 'scaled n=20, x=0.25, eps=0.05', apply: run(g => { g.setN(20); g.setX(0.25); g.setEpsilon(0.05); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/mean-value.json', demonstration: 'mean-value', accepted: meanValueAccepted, states: (() => {
         type MeanValueSetters = {setA(value: number): void; setB(value: number): void; setC(value: number): void; setExample(value: string): void; setRevealed(value: boolean): void};
         const run = (edit: (graph: MeanValueSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as MeanValueSetters)); };
