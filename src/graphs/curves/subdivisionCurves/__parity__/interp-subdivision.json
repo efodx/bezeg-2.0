@@ -1,0 +1,119 @@
+{
+  "graph": "interp-subdivision",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (Chaikin, step 0)",
+      "rows": [],
+      "notes": [
+        "Korak 0 od 6",
+        "Število oglišč prikazane stopnje: 4"
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 0 od 6, 4 oglišč"
+      ]
+    },
+    {
+      "name": "step 1",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 6",
+        "Število oglišč prikazane stopnje: 8"
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 1 od 6, 8 oglišč"
+      ]
+    },
+    {
+      "name": "step 4, limit shown",
+      "rows": [],
+      "notes": [
+        "Korak 4 od 6",
+        "Število oglišč prikazane stopnje: 64"
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 4 od 6, 64 oglišč"
+      ]
+    },
+    {
+      "name": "four-point, step 2",
+      "rows": [],
+      "notes": [
+        "Korak 2 od 6",
+        "Število oglišč prikazane stopnje: 13"
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Štiritočkovno pravilo, korak 2 od 6, 13 oglišč"
+      ]
+    },
+    {
+      "name": "closed, Chaikin, step 3 (reset by rule)",
+      "rows": [],
+      "notes": [
+        "Korak 3 od 6",
+        "Število oglišč prikazane stopnje: 32"
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 3 od 6, 32 oglišč"
+      ]
+    },
+    {
+      "name": "all six steps (complete)",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 6",
+        "Število oglišč prikazane stopnje: 256",
+        "Prikazanih je vseh 6 korakov; Naslednji korak in Predvajaj sta končana. Ponastavi poligon vrne prvotni poligon."
+      ],
+      "outputs": [
+        "4"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 6 od 6, 256 oglišč"
+      ]
+    },
+    {
+      "name": "reset, fifth point, step 1",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 6",
+        "Število oglišč prikazane stopnje: 10"
+      ],
+      "outputs": [
+        "5"
+      ],
+      "captions": [
+        "Chaikinovo pravilo, korak 1 od 6, 10 oglišč"
+      ]
+    },
+    {
+      "name": "sixth point, step 2 (four-point)",
+      "rows": [],
+      "notes": [
+        "Korak 2 od 6",
+        "Število oglišč prikazane stopnje: 21"
+      ],
+      "outputs": [
+        "6"
+      ],
+      "captions": [
+        "Štiritočkovno pravilo, korak 2 od 6, 21 oglišč"
+      ]
+    }
+  ]
+}

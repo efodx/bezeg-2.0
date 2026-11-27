@@ -23,7 +23,7 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 
 /** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it. */
 const plan: Record<string, {first: Label; later: Label[]}> = {
-    subdivision: {first: () => 'action:next', later: [() => t('subdiv_rule'), () => t('subdiv_closed'), () => t('interp_point_name', {value0: 1})]},
+    subdivision: {first: () => 'action:next', later: [() => t('interp_point_name', {value0: 1})]},
 };
 
 /** The Edit panel's controls in document order, by accessible name. */
@@ -59,6 +59,13 @@ describe('exact point entry follows the first-task group', () => {
         expect(document.querySelector('[data-puck-strip]'), 'puck strip').not.toBeNull();
         expect(at(names, t('interp_parameter_rule')), names.join(' | ')).toBe(-1);
         expect(at(names, point()), names.join(' | ')).toBeLessThan(at(names, t('interp_show_basis')));
+    });
+
+    test('subdivision: the rule and the open or closed polygon are pucks, not Edit controls', () => {
+        mountGraph(new SubdivisionCurveGraph());
+        const names = editControls();
+        expect(document.querySelector('[data-puck-strip]'), 'puck strip').not.toBeNull();
+        for (const label of [t('subdiv_rule'), t('subdiv_closed')]) expect(at(names, label), names.join(' | ')).toBe(-1);
     });
 
     test('runge: the degree, node rule and function are pucks; the display switches are all that is left in Edit', () => {

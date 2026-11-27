@@ -5191,8 +5191,6 @@ export const en: Record<keyof typeof sl, string> = {
     "subdiv_vertex_count": "Vertices of the shown stage: {value0}",
     "subdiv_playback_note": "Next step and Play reveal one subdivision step at a time, up to {value0} in all. Playback stops when the points, the closed setting or the rule change, before a figure is exported and when a preset is opened.",
     "subdiv_complete": "All {value0} steps are shown; Next step and Play are finished. Reset polygon returns the original polygon.",
-    "subdiv_board_chaikin": "Chaikin rule, step {value0} of {value1}, {value2} vertices",
-    "subdiv_board_four_point": "Four-point rule, step {value0} of {value1}, {value2} vertices",
     "interpolation_and_approximation": "Interpolation and approximation",
     "interp_lagrange_title": "Through the points or near them",
     "interp_hermite_title": "Hermite and Catmull-Rom curves",

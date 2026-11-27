@@ -15,12 +15,14 @@ import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/gr
 import type {InterpolationIds} from '../../graphs/curves/interpolation/InterpolationGraph';
 import type {HermiteIds} from '../../graphs/curves/hermite/HermiteGraph';
 import type {RungeIds} from '../../graphs/functions/RungeInterpolationGraph';
+import type {SubdivisionIds} from '../../graphs/curves/subdivisionCurves/SubdivisionCurveGraph';
 import {leastSquaresLesson} from './interpolationLeastSquaresLesson';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const lagrangeFrame = frameDeclarer<InterpolationIds>();
 const hermiteFrame = frameDeclarer<HermiteIds>();
 const rungeFrame = frameDeclarer<RungeIds>();
+const subdivisionFrame = frameDeclarer<SubdivisionIds>();
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 /** A scene from the default four points: the parameter rule, the overlays, the shared position s, then optionally a fifth point. */
@@ -491,7 +493,7 @@ const subdivisionLesson: GuidedLesson = {
                 'The graph shows the open polygon \\((0,0)\\), \\((1,2)\\), \\((3,3)\\), \\((4,0)\\) and the Chaikin rule; the starting polygon is shown and no subdivision step has been taken yet. The rule replaces every edge by two points at one quarter and three quarters of the edge and keeps the first and last point. Predict: what shape will it have after very many steps? Will it have corners, will it pass through all four points?',
             ),
             formulaIds: ['chaikin-rule'],
-            frames: [frame('subdivision-predict-explanation', 'explanation'), frame('subdivision-predict-observation', 'observation')],
+            frames: [frame('subdivision-predict-explanation', 'explanation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']})), frame('subdivision-predict-observation', 'observation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']}))],
             observationPrompt: text('Pred razkritjem si zamisli, kam se premakne vogal pri \\(P_1\\), ko ga režemo znova in znova.', 'Before the reveal imagine where the corner at \\(P_1\\) goes when it is cut again and again.'),
             expectedObservations: [text('Poligon ima štiri oglišča in tri stranice; vogali v \\(P_1\\) in \\(P_2\\) bodo odrezani.', 'The polygon has four vertices and three edges; the corners at \\(P_1\\) and \\(P_2\\) will be cut off.')],
             scene: subdivisionScene('subdivision-predict-start', 'chaikin', false, false, 0,
@@ -507,7 +509,7 @@ const subdivisionLesson: GuidedLesson = {
                 'The first step is shown. Predict: where are the two new points on the edge \\(P_1P_2\\) from \\((1,2)\\) to \\((3,3)\\)? Check: \\(\\tfrac34P_1+\\tfrac14P_2=(1.5;\\ 2.25)\\) and \\(\\tfrac14P_1+\\tfrac34P_2=(2.5;\\ 2.75)\\). The number of vertices doubles: \\(4\\), \\(8\\), \\(16\\), \\(32\\). Press Next step or Play; there are at most \\(6\\) steps, after which both buttons are finished.',
             ),
             formulaIds: ['chaikin-rule'],
-            frames: [frame('subdivision-chaikin-rounds-explanation', 'explanation'), frame('subdivision-chaikin-rounds-observation', 'observation')],
+            frames: [frame('subdivision-chaikin-rounds-explanation', 'explanation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']})), frame('subdivision-chaikin-rounds-observation', 'observation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']}))],
             animation: {animationId: 'interp-subdivision-rounds'},
             observationPrompt: text('Pritisni Naslednji korak in pri vsakem koraku preberi število oglišč; nato poskusi Predvajaj.', 'Press Next step and read the number of vertices at each step; then try Play.'),
             expectedObservations: [text('Število oglišč se pri vsakem koraku podvoji, poligon pa postaja vse bolj gladek in ne gre več skozi \\(P_1\\) in \\(P_2\\).', 'The number of vertices doubles at each step and the polygon gets smoother; it no longer passes through \\(P_1\\) and \\(P_2\\).')],
@@ -524,7 +526,7 @@ const subdivisionLesson: GuidedLesson = {
                 'The limit curve is shown. Predict: do the points of the step lie on it or outside it? The Chaikin points \\(\\tfrac14P_0+\\tfrac34P_1=(0.75;\\ 1.5)\\) and \\(\\tfrac34P_1+\\tfrac14P_2=(1.5;\\ 2.25)\\) have the midpoint \\((1.125;\\ 1.875)\\), which equals \\(\\tfrac18P_0+\\tfrac34P_1+\\tfrac18P_2\\), the point of the uniform quadratic B-spline at the parameter \\(\\tfrac12\\). The limit of the Chaikin rule is therefore this B-spline and is of class \\(C^1\\). For an open polygon it also has straight pieces from \\(P_0\\) to the midpoint of the edge \\(P_0P_1\\) and from the midpoint of the last edge to the last point.',
             ),
             formulaIds: ['chaikin-rule'], workedExampleId: 'chaikin-b-spline-example',
-            frames: [frame('subdivision-limit-explanation', 'explanation'), frame('subdivision-limit-calculation', 'calculation'), frame('subdivision-limit-observation', 'observation')],
+            frames: [frame('subdivision-limit-explanation', 'explanation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']})), frame('subdivision-limit-calculation', 'calculation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']})), frame('subdivision-limit-observation', 'observation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']}))],
             observationPrompt: text('Pritisni Naslednji korak in opazuj, kako se oglišča približujejo prikazani limitni krivulji.', 'Press Next step and watch the vertices approach the limit curve shown.'),
             expectedObservations: [text('Oglišča vsakega koraka ležijo vse bližje limitni krivulji; krivulja nima vogalov.', 'The vertices of each step lie closer and closer to the limit curve; the curve has no corners.')],
             scene: subdivisionScene('subdivision-limit-overlay', 'chaikin', false, true, 2,
@@ -540,7 +542,7 @@ const subdivisionLesson: GuidedLesson = {
                 'The four-point rule is now selected on the same polygon, step \\(0\\). Predict: will the old vertices move after a step, as with the Chaikin rule? Check on the edge \\(P_1P_2\\): the inserted point is \\(\\tfrac{1}{16}(-P_0+9P_1+9P_2-P_3)=(2;\\ 2.8125)\\). On the first and last edge the rule lacks a neighbour on one side, so the graph inserts the midpoints \\((0.5;\\ 1)\\) and \\((3.5;\\ 1.5)\\). After the first step there are \\(7\\) vertices and all four old ones are among them.',
             ),
             formulaIds: ['four-point-rule'],
-            frames: [frame('subdivision-four-point-explanation', 'explanation'), frame('subdivision-four-point-observation', 'observation')],
+            frames: [frame('subdivision-four-point-explanation', 'explanation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']})), frame('subdivision-four-point-observation', 'observation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices']}))],
             animation: {animationId: 'interp-subdivision-rounds'},
             observationPrompt: text('Pritisni Naslednji korak in preveri, da so \\(P_0,\\dots,P_3\\) še vedno med oglišči.', 'Press Next step and check that \\(P_0,\\dots,P_3\\) are still among the vertices.'),
             expectedObservations: [text('Stara oglišča se ne premaknejo; vstavljena točka med \\(P_1\\) in \\(P_2\\) je \\((2;\\ 2{,}8125)\\), krivulja pa je v limiti skozi vse začetne točke.', 'The old vertices do not move; the point inserted between \\(P_1\\) and \\(P_2\\) is \\((2;\\ 2.8125)\\) and the limit curve passes through all the starting points.')],
@@ -557,7 +559,7 @@ const subdivisionLesson: GuidedLesson = {
                 'The second step of the four-point rule is shown, \\(13\\) vertices. Predict: which of the two rules can insert a point outside the convex hull of the starting points? Every Chaikin point is a convex combination of two neighbouring vertices, so it never leaves the hull. In the four-point rule the weights \\(-\\tfrac1{16}\\) are negative, so overshoot can happen: if \\(P_0,P_1,P_2\\) are on a line and \\(P_3\\) is above it, the point inserted between \\(P_1\\) and \\(P_2\\) falls below that line. The limit of the Chaikin rule is of class \\(C^1\\). For the four-point rule with \\(w=\\tfrac1{16}\\), the limit is of class \\(C^1\\) (Dyn, Gregory and Levin, CAGD 4, 1987); we claim no more than \\(C^1\\) here.',
             ),
             formulaIds: ['four-point-rule', 'chaikin-rule'],
-            frames: [frame('subdivision-compare-explanation', 'explanation'), frame('subdivision-compare-observation', 'observation')],
+            frames: [frame('subdivision-compare-explanation', 'explanation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices'], uses: ['subdiv-rule']})), frame('subdivision-compare-observation', 'observation', subdivisionFrame({open: ['readouts'], highlight: ['step', 'vertices'], uses: ['subdiv-rule']}))],
             observationPrompt: text('Povleci \\(P_3\\) nad premico skozi \\(P_0,P_1,P_2\\) in primerjaj obe pravili.', 'Drag \\(P_3\\) above the line through \\(P_0,P_1,P_2\\) and compare the two rules.'),
             expectedObservations: [text('Chaikinova krivulja ostane znotraj ovojnice točk in jih zgladi; štiritočkovna gre skozi vse točke, a lahko zaniha čez ovojnico.', 'The Chaikin curve stays inside the hull of the points and smooths them; the four-point curve passes through all the points but can swing outside the hull.')],
             scene: subdivisionScene('subdivision-compare-four-point', 'four-point', false, false, 2,
@@ -573,7 +575,7 @@ const subdivisionLesson: GuidedLesson = {
                 'The polygon is now closed, the Chaikin rule, step \\(3\\) of \\(6\\). A closed polygon with \\(n=4\\) vertices has \\(2^k n\\) vertices after \\(k\\) steps, now \\(32\\), for both rules. Move the points, add and remove them (a closed polygon needs at least \\(3\\)), switch the rule, the open or closed polygon and the limit curve, and play up to \\(6\\) steps. Reset polygon returns the original points and step \\(0\\).',
             ),
             formulaIds: ['chaikin-rule', 'four-point-rule'],
-            frames: [frame('subdivision-explore-explanation', 'explanation'), frame('subdivision-explore-observation', 'observation')],
+            frames: [frame('subdivision-explore-explanation', 'explanation', subdivisionFrame({open: ['readouts', 'tools'], highlight: ['step', 'vertices'], uses: ['subdiv-rule', 'closed', 'limit']})), frame('subdivision-explore-observation', 'observation', subdivisionFrame({open: ['readouts', 'tools'], highlight: ['step', 'vertices'], uses: ['subdiv-rule', 'closed', 'limit']}))],
             animation: {animationId: 'interp-subdivision-rounds'},
             observationPrompt: text('Poišči poligon, pri katerem štiritočkovno pravilo očitno zaniha čez ovojnico, Chaikinovo pa ne.', 'Find a polygon where the four-point rule visibly swings outside the hull and the Chaikin rule does not.'),
             expectedObservations: [text('Pri sklenjenem poligonu ni krajišč, zato obe pravili povsod uporabita isto pravilo in imata \\(2^k n\\) oglišč.', 'A closed polygon has no ends, so both rules apply the same formula everywhere and have \\(2^k n\\) vertices.')],

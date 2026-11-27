@@ -10,12 +10,12 @@ import type {GuidedLessonStep} from './guidedLessons';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import type {SubdivisionCurveGraph} from '../../graphs/curves/subdivisionCurves/SubdivisionCurveGraph';
-import {statusLine} from '../../graphs/curves/subdivisionCurves/SubdivisionScene';
 import {DEFAULT_SUBDIVISION_PRESET, MAX_SUBDIVISION_ROUNDS, stageOf} from '../../graphs/curves/subdivisionCurves/subdivisionModel';
 import {fourPointStep, subdivisionRounds} from '../../analysis/subdivision';
 import {chaikinStep, uniformQuadraticSegment} from '../../bezeg/impl/curve/bspline';
 import {formatNumber} from '../../analysis/format';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage} from '../../localization';
+import {runAs} from '../../graphs/base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -166,8 +166,8 @@ test('each scene sets the rule, closed flag, limit overlay and round its text de
             expect(state.points, stepId).toEqual(DEFAULT_SUBDIVISION_PRESET.points);
             expect(stageOf(state), stepId).toHaveLength(vertices);
             expect(m.graph.isPlaying(), stepId).toBe(false);
-            // The board readout is the smoke probe; it differs on every step.
-            const probe = statusLine(rule, round, vertices);
+            // The Odčitki notes (step, vertex count) with the rule are the smoke probe; together they differ on every step.
+            const probe = `${rule}: ${(m.graph.getDeclaration()!.notes ?? []).map(note => renderMessage(note.text)).join(' ')}`;
             expect(probes.has(probe), `${stepId} probe ${probe}`).toBe(false);
             probes.add(probe);
             expect(stepOf(stepId).scene!.expectedState.sl).toContain(`\\(${vertices}\\)`);
@@ -198,16 +198,16 @@ test('each scene sets the rule, closed flag, limit overlay and round its text de
         expect(stage[3]).toEqual([2, 2.8125]);
         // Reset after a modified step returns to the default polygon and round 0, without a restore.
         m.run(stepOf('subdivision-explore'));
-        act(() => { m.graph.movePoint(1, 2, 5); m.graph.addPoint(); });
+        act(() => { runAs('learner', () => { m.graph.movePoint(1, 2, 5); m.graph.addPoint(); }); });
         expect(m.graph.state.points).toHaveLength(5);
         act(() => m.capabilities.apply({kind: 'animation', animationId: 'interp-subdivision-rounds', command: 'reset'}));
         expect([m.graph.state.points, m.graph.state.round, m.graph.state.closed]).toEqual([DEFAULT_SUBDIVISION_PRESET.points, 0, false]);
-        act(() => { m.graph.movePoint(1, 2, 5); });
+        act(() => { runAs('learner', () => m.graph.movePoint(1, 2, 5)); });
         act(() => m.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
         expect([m.graph.state.points, m.graph.state.round, m.graph.state.rule]).toEqual([DEFAULT_SUBDIVISION_PRESET.points, 0, 'chaikin']);
         // A lesson checkpoint taken in a modified state keeps it.
         m.run(stepOf('subdivision-explore'));
-        act(() => { m.graph.movePoint(2, 3, 4.5); });
+        act(() => { runAs('learner', () => m.graph.movePoint(2, 3, 4.5)); });
         const checkpoint = m.capabilities.captureState();
         act(() => m.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
         expect(m.graph.state.closed).toBe(false);
@@ -223,7 +223,7 @@ test('Chaikin never leaves the hull while the four-point rule can: P0, P1, P2 on
     const m = mount();
     try {
         m.scene(stepOf('subdivision-compare'));
-        act(() => { m.graph.movePoint(0, 0, 0); m.graph.movePoint(1, 1, 0); m.graph.movePoint(2, 2, 0); m.graph.movePoint(3, 3, 1); });
+        act(() => { runAs('learner', () => { m.graph.movePoint(0, 0, 0); m.graph.movePoint(1, 1, 0); m.graph.movePoint(2, 2, 0); m.graph.movePoint(3, 3, 1); }); });
         const input = {points: m.graph.state.points, closed: false};
         const four = stageOf({...input, rule: 'four-point', round: 1});
         expect(four[3][1]).toBeLessThan(0);

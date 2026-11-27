@@ -1,7 +1,6 @@
-import type {Board, GeometryElement, Point, Text} from "jsxgraph";
-import {onLanguageChange, t} from "../../../localization";
+import type {Board, GeometryElement, Point} from "jsxgraph";
 import {GraphPalette} from "../../styles/GraphPalette";
-import {chaikinLimitPolyline, MAX_SUBDIVISION_ROUNDS, Row, StageInput, stageOf, SubdivisionRule} from "./subdivisionModel";
+import {chaikinLimitPolyline, Row, StageInput, stageOf} from "./subdivisionModel";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 import {stylesForBoard} from "../../styles/GraphStyles";
 import {pointLabelMath} from "../../styles/pointLabelMath";
@@ -14,15 +13,8 @@ interface SceneSettings {
     board: Board;
     /** Read lazily on every draw: the scene state is the only copy of the data. */
     input: () => SceneInput;
-    fontSize: () => number;
     /** A drag of polygon point i to (x, y). The scene redraws from the state either way. */
     onMove: (index: number, x: number, y: number) => void;
-}
-
-/** The status line of the board: the rule, the revealed round and the vertex count of the shown stage. */
-export function statusLine(rule: SubdivisionRule, round: number, vertices: number): string {
-    return t(rule === 'chaikin' ? "subdiv_board_chaikin" : "subdiv_board_four_point",
-        {value0: round, value1: MAX_SUBDIVISION_ROUNDS, value2: vertices});
 }
 
 /** One below JSXGraph's point layer (9), above lines and curves. */
@@ -33,9 +25,9 @@ type DataCurve =GeometryElement & {dataX: number[]; dataY: number[]; updateDataA
 /**
  * The owned elements of the subdivision scene: the dashed original polygon (with its draggable points), the solid current
  * stage with small fixed vertices (a pool that grows to the largest stage seen; surplus points are hidden), the optional
- * Chaikin limit overlay and the status text. A scene is built for one polygon size; adding or removing a point (or importing
- * a Preset) builds a new one. {@link dispose} removes every element (the drag listeners go with their points) and releases the
- * language subscription.
+ * Chaikin limit overlay. A scene is built for one polygon size; adding or removing a point (or importing
+ * a Preset) builds a new one. {@link dispose} removes every element (the drag listeners go with their points). The step, the rule and the
+ * vertex count are not drawn on the board: the panel notes and the rule puck show them.
  */
 export class SubdivisionScene {
     private readonly board: Board;
@@ -43,7 +35,7 @@ export class SubdivisionScene {
     private elements: GeometryElement[] = [];
     private dataPoints: Point[] = [];
     private vertexPool: Point[] = [];
-    private stopLanguageUpdates?: () => void;
+    private named: Record<string, GeometryElement> = {};
     private disposed = false;
 
     constructor(private readonly settings: SceneSettings) {
@@ -59,6 +51,11 @@ export class SubdivisionScene {
 
     ownedElements(): readonly GeometryElement[] {
         return this.elements;
+    }
+
+    /** The element a legend entry names: `points` (the first draggable point), `polygon`, `stage` or `limit`. */
+    drawnElement(id: string): GeometryElement | undefined {
+        return this.named[id];
     }
 
     /** The draggable polygon points. */
@@ -124,15 +121,15 @@ export class SubdivisionScene {
     private build() {
         const input = this.settings.input();
 
-        // Layers, lowest first: limit overlay, original polygon, current stage, stage vertices, draggable points, status text.
-        this.lineCurve(() => {
+        // Layers, lowest first: limit overlay, original polygon, current stage, stage vertices, draggable points.
+        this.named.limit = this.lineCurve(() => {
             const now = this.settings.input();
             return now.showLimit && now.rule === 'chaikin' ? chaikinLimitPolyline(now.points, now.closed) : [];
         }, {strokeColor: GraphPalette.additionalCurves[2], strokeWidth: 2, visible: () => this.settings.input().showLimit && this.settings.input().rule === 'chaikin'});
 
-        this.lineCurve(() => this.outline(this.settings.input().points), {strokeColor: GraphPalette.controlPolygon, strokeWidth: 2, dash: 2});
+        this.named.polygon = this.lineCurve(() => this.outline(this.settings.input().points), {strokeColor: GraphPalette.controlPolygon, strokeWidth: 2, dash: 2});
 
-        this.lineCurve(() => this.outline(this.stage()), {strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5});
+        this.named.stage = this.lineCurve(() => this.outline(this.stage()), {strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5});
 
         // Enough pooled vertices for the stage shown at build time; sync() grows the pool when a larger stage appears.
         this.ensureVertexPool(this.stage().length);
@@ -155,22 +152,7 @@ export class SubdivisionScene {
             });
             this.dataPoints.push(point);
         });
-
-        const box = () => this.board.getBoundingBox();
-        this.create<Text>('text', [
-            () => box()[0] + 0.02 * (box()[2] - box()[0]),
-            () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => {
-                const now = this.settings.input();
-                return statusLine(now.rule, now.round, this.stage().length);
-            },
-        ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
-            strokeColor: GraphPalette.label});
-
-        // Board text is recomputed only on board update, which a language change does not trigger.
-        this.stopLanguageUpdates = onLanguageChange(() => {
-            if (!this.disposed && this.board.renderer) this.board.update();
-        });
+        this.named.points = this.dataPoints[0];
     }
 
     /** Moves each handle to the state (after an edit, a refused drag, a reset or a Preset change that kept the count) and grows the vertex pool. */
@@ -185,18 +167,17 @@ export class SubdivisionScene {
         this.ensureVertexPool(this.stage().length);
     }
 
-    /** Removes every owned element (later ones first) and releases the language subscription. Idempotent. */
+    /** Removes every owned element (later ones first). Idempotent. */
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
         // A removed point never fires "out": do not leave the board showing its hover cursor.
         if (this.board.containerObj?.style.cursor === 'pointer') this.board.containerObj.style.cursor = 'default';
-        this.stopLanguageUpdates?.();
-        this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();
         this.elements = [];
         this.dataPoints = [];
         this.vertexPool = [];
+        this.named = {};
         if (present.length) this.board.removeObject(present);
     }
 }

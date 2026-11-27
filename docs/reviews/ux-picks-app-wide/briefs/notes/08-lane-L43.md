@@ -75,3 +75,16 @@ Started 15:52 (wall clock). Stopped on the budget signal before running any chec
 - Smoke: first `smoke-lesson interp-runge` failed at en 390x844 (the grid-max cross (0.94, 1.92) outside the view on steps 3 and 6); the cross is now a `must` mark while drawn; rebuilt, `smoke-lesson interp-runge` passed.
 - Observed: tsc (`just typecheck`) pass; eslint on changed files clean; `just unit src/graphs/curves src/graphs/functions src/learning/content src/localization src/graphs/base` passed (962 s) before the last mark edit; Runge host + declaration + FirstTask passed. Shot at 1440x900 (`.command-logs/l43r-shot2/`): board framed, three pucks in the strip, Odcitki card shows the seven rows and the grid note, nothing named is under a card.
 - Not verified: per-step lesson shots, 1280x720, PresetRoundTrip contract, other smoke specs naming the route, unit dirs rerun after the last mark edit (declaration + host were not rerun either).
+
+# Session 5 (subdivision)
+
+## Done
+- `SubdivisionCurveGraph.tsx`: `SubdivisionIds`; binding and choice puck `subdiv-rule`; `closed` is a board switch puck (action), `limit` an Orodja Prikaz action (enabled only for Chaikin); notes `step`, `vertices`, `complete` (same messages as the panel lines, which sit in `data-declared-panel`); legend points/polygon/stage/limit; marks (points must, stage polyline nice); `drawnObject`, `performAction`; drag tagged learner; Orodja rule and closed wrapped in `PuckOwned`.
+- `SubdivisionScene.ts`: board status caption, `statusLine` and the language subscription removed (repeated the rule puck and the notes; keys `subdiv_board_*` deleted); `drawnElement`.
+- Fragment `fragments/interp-subdivision.ts` (registered). Frames: `subdivisionFrame` in `interpolationGuidedLessons.ts`, all open readouts and highlight step and vertices; compare uses the rule puck; explore opens tools and uses rule, closed, limit.
+- Tests: new `SubdivisionCurveGraph.declaration.test.tsx`; Real test writes under `runAs('learner')` via ObservedGraph overrides, caption test replaced; lesson test probe reads the notes; FirstTask subdivision case; `pointCountSceneLifecycle`, `interpolationFamilyControls` writes tagged; smoke spec I5 probe reads notes and the rule puck.
+- Parity: SAMPLES `interp-subdivision` (8 states) recorded before the change (`curves/subdivisionCurves/__parity__/interp-subdivision.json`); accepted: point count setter only.
+
+## Observed
+- tsc 0 errors; lint clean on changed files; `just unit src/graphs/curves src/learning/content src/graphs/base src/localization`: one failure (interpolationFamilyControls untagged writes), fixed, then interpolation/subdivision/lesson/FirstTask/pointCount/sharedControls rerun green. graph-check: contract, parity, declaration, shared pass; golden differs only by captions becoming notes (not re-recorded). `just build`, `smoke-lesson interp-subdivision` passed. Per-step shots 1440x900 and 1280x720 (`.command-logs/l43s-sub-*`): no named mark under a card.
+- Not verified: the full unit dirs after the last test-only edit (the targeted dirs were rerun); other smoke specs; PresetRoundTrip contract.

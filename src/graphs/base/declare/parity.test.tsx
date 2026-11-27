@@ -87,6 +87,10 @@ const interpHermiteAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the only read-off is the point count of the "Število točk" count setter, a setup control that stays in Orodja and shows its own value; the board status line (curve type, tension) is dropped because the mode and tension pucks show the same values'},
 ];
 
+const interpSubdivisionAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the only read-off is the point count of the "Število točk poligona" count setter, a setup control that stays in Orodja and shows its own value; the step and vertex sentences are declared notes and the board caption that repeated them with the rule is dropped (the rule is a puck)'},
+];
+
 const arcAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its details (it carries no readout marker, so the recording holds none), and the mover line "t = .., s(t) = .." is declared as a note while the old panel drew it only as a board caption, which the recording holds as a caption'},
 ];
@@ -984,6 +988,21 @@ const SAMPLES: readonly Sample[] = [
             {name: 'fifth point', apply: run(g => g.addPoint())},
             {name: 'three points', apply: run(g => { g.removePoint(); g.removePoint(); })},
             {name: 'six points', apply: run(g => { g.addPoint(); g.addPoint(); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/subdivisionCurves/__parity__/interp-subdivision.json', demonstration: 'interp-subdivision', accepted: interpSubdivisionAccepted, states: (() => {
+        type Subdivision = {nextStep(): boolean; resetRounds(): void; setRule(rule: string): void; setClosed(closed: boolean): void; setShowLimit(show: boolean): void;
+            addPoint(): void; removePoint(): void; movePoint(index: number, x: number, y: number): boolean};
+        const run = (edit: (graph: Subdivision) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Subdivision)); };
+        return [
+            {name: 'default (Chaikin, step 0)', apply: () => undefined},
+            {name: 'step 1', apply: run(g => { g.nextStep(); })},
+            {name: 'step 4, limit shown', apply: run(g => { g.nextStep(); g.nextStep(); g.nextStep(); g.setShowLimit(true); })},
+            {name: 'four-point, step 2', apply: run(g => { g.setRule('four-point'); g.nextStep(); g.nextStep(); })},
+            {name: 'closed, Chaikin, step 3 (reset by rule)', apply: run(g => { g.setRule('chaikin'); g.setClosed(true); g.nextStep(); g.nextStep(); g.nextStep(); })},
+            {name: 'all six steps (complete)', apply: run(g => { for (let i = 0; i < 6; i++) g.nextStep(); })},
+            {name: 'reset, fifth point, step 1', apply: run(g => { g.resetRounds(); g.setClosed(false); g.addPoint(); g.nextStep(); })},
+            {name: 'sixth point, step 2 (four-point)', apply: run(g => { g.addPoint(); g.setRule('four-point'); g.nextStep(); g.nextStep(); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/interp-runge.json', demonstration: 'interp-runge', states: (() => {

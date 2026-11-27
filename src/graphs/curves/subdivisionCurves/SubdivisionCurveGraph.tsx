@@ -1,5 +1,7 @@
 import React from "react";
 import {LocalizedError, message, renderMessage, t} from "../../../localization";
+import type {Message} from "../../../localization";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -7,6 +9,10 @@ import {PointListInput} from "../../../inputs/PointListInput";
 import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import type {LessonAnimationCommand} from "../../../learning/model";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
 import {TracePlayback} from "../../base/tracePlayback";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
@@ -33,15 +39,30 @@ export interface SubdivisionGraphState extends BaseGraphState {
     notice: '' | 'closed-needs-three';
 }
 
+/**
+ * The ids this graph declares: the rule and the open or closed polygon as board pucks (the lesson steps ask to switch them), the step and
+ * vertex count as notes of the Odčitki card (they were a board caption), a legend of what is drawn and the limit-curve switch in Orodja.
+ */
+export type SubdivisionIds = {
+    param: 'subdiv-rule';
+    row: never;
+    note: 'step' | 'vertices' | 'complete';
+    legend: 'points' | 'polygon' | 'stage' | 'limit';
+    section: never;
+    action: 'closed' | 'limit';
+};
+
+const VIEW_MARK_SAMPLE_LIMIT = 300;
+
 /** The visible status lines (no live role) and the graph's one live region, muted while the rounds play. */
 function SubdivisionStatus({lines, muted}: {lines: readonly {id: string; text: string}[]; muted: boolean}) {
     const readout = useStatusReadout(lines.map(line => line.text).join(" "), true);
-    return <>
+    return <div data-declared-panel="">
         <div className="inspector-group">
-            {lines.map(line => <p key={line.id} className="inspector-help" data-subdivision-status={line.id}>{line.text}</p>)}
+            {lines.map(line => <p key={line.id} className="inspector-help" data-subdivision-status={line.id} data-readout-note="">{line.text}</p>)}
         </div>
         <LiveReadout readout={readout} muted={muted}/>
-    </>;
+    </div>;
 }
 
 const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ['play', 'pause', 'replay', 'next-step', 'reset'];
@@ -142,8 +163,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
             create: board => constructOrSweep(board, () => new SubdivisionScene({
                 board,
                 input: () => this.state,
-                fontSize: () => this.displaySettings.fontSize,
-                onMove: (index, x, y) => this.movePoint(index, x, y),
+                onMove: (index, x, y) => runAs('learner', () => this.movePoint(index, x, y)),
             })),
             sync: scene => {
                 if (scene.pointCount !== this.state.points.length || scene.hasSurplusVertices) return false;
@@ -344,6 +364,90 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         }
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the rule, through the setter the panel control calls. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'subdiv-rule': {
+                read: () => this.state.rule,
+                apply: (value: unknown) => {
+                    if (!isSubdivisionRule(value)) throw new DomainError(message('subdiv_rule_invalid'));
+                    this.setRule(value);
+                },
+            },
+        };
+    }
+
+    /** The step, the vertex count and (at the cap) the completion sentence: the panel lines and the declared notes are the same messages. */
+    private statusMessages(): readonly {id: SubdivisionIds['note']; text: Message}[] {
+        const {round} = this.state;
+        return [
+            {id: 'step', text: message('step_counter', {value0: round, value1: MAX_SUBDIVISION_ROUNDS})},
+            {id: 'vertices', text: message('subdiv_vertex_count', {value0: stageOf(this.state).length})},
+            ...(this.isComplete() ? [{id: 'complete' as const, text: message('subdiv_complete', {value0: MAX_SUBDIVISION_ROUNDS})}] : []),
+        ];
+    }
+
+    /** Pure data from the state: the rule and open or closed polygon on the board, the notes, the legend and the limit switch (Orodja, tab Prikaz). */
+    protected override declaration(): GraphDeclaration<SubdivisionIds> {
+        const {rule, closed, showLimit} = this.state;
+        const parameters: ParameterDeclaration<SubdivisionIds['param']>[] = [
+            {key: 'subdiv-rule', kind: 'choice', label: message('subdiv_rule'), placement: 'board', puck: true, options: [
+                {value: 'chaikin', label: message('subdiv_rule_chaikin'), short: message('subdiv_rule_chaikin_short')},
+                {value: 'four-point', label: message('subdiv_rule_four_point'), short: message('subdiv_rule_four_point_short')},
+            ]},
+        ];
+        const limitShown = showLimit && rule === 'chaikin';
+        const legend: LegendEntry<SubdivisionIds>[] = [
+            {id: 'points', label: message('interp_legend_points'), kind: 'point', object: 'points'},
+            {id: 'polygon', label: message('subdiv_legend_polygon'), kind: 'line', object: 'polygon'},
+            {id: 'stage', label: message('subdiv_legend_stage'), kind: 'line', object: 'stage'},
+            ...(limitShown ? [{id: 'limit' as const, label: message('subdiv_legend_limit'), kind: 'line' as const, object: 'limit'}] : []),
+        ];
+        const actions: ActionDeclaration<SubdivisionIds>[] = [
+            {id: 'closed', label: message('subdiv_closed'), placement: 'board', enabled: true, pressed: closed, puck: true},
+            {id: 'limit', label: message('subdiv_show_limit'), placement: 'tools', tab: 'display', enabled: rule === 'chaikin', pressed: showLimit},
+        ];
+        return {parameters, notes: this.statusMessages(), legend, actions, marks: this.viewMarks()};
+    }
+
+    private viewMarksCache: {inputs: readonly unknown[]; marks: ViewMarks} | undefined;
+
+    /** What the view director keeps visible: the polygon points (must) and the vertices of the shown stage (nice), memoized on their inputs. */
+    private viewMarks(): ViewMarks {
+        const {points, closed, rule, round} = this.state;
+        const inputs = [points, closed, rule, round];
+        if (this.viewMarksCache && inputs.every((value, i) => value === this.viewMarksCache!.inputs[i])) return this.viewMarksCache.marks;
+        const finite = (p: readonly number[]) => Number.isFinite(p[0]) && Number.isFinite(p[1]);
+        const must: ViewMark[] = points.filter(finite).map(([x, y]): ViewMark => ({kind: 'point', x, y}));
+        const nice: ViewMark[] = [];
+        const stage = stageOf(this.state).filter(finite);
+        if (stage.length > 1) {
+            const step = Math.max(1, Math.ceil(stage.length / VIEW_MARK_SAMPLE_LIMIT));
+            const line = stage.filter((_, i) => i % step === 0).map(p => [p[0], p[1]] as const);
+            nice.push({kind: 'polyline', points: closed ? [...line, line[0]] : line});
+        }
+        const marks: ViewMarks = {must, nice};
+        this.viewMarksCache = {inputs, marks};
+        return marks;
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.scene?.drawnElement(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp(id === 'points' ? 'fillcolor' : 'strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
+    override performAction(id: string): void {
+        if (id === 'closed') runAs('learner', () => this.setClosed(!this.state.closed));
+        else if (id === 'limit') runAs('learner', () => this.setShowLimit(!this.state.showLimit));
+        else throw new Error('Unknown action');
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
@@ -359,15 +463,11 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
                                  {...playbackBlocks({atStart: round === 0 && this.isStartPolygon(), atEnd: complete, playing})}/>
                 <p className="inspector-help">{t("subdiv_playback_note", {value0: MAX_SUBDIVISION_ROUNDS})}</p>
             </div>,
-            <SubdivisionStatus key="status" muted={playing} lines={[
-                {id: "step", text: t("step_counter", {value0: round, value1: MAX_SUBDIVISION_ROUNDS})},
-                {id: "vertices", text: t("subdiv_vertex_count", {value0: stageOf(this.state).length})},
-                ...(complete ? [{id: "complete", text: t("subdiv_complete", {value0: MAX_SUBDIVISION_ROUNDS})}] : []),
-            ]}/>,
-            <div key="rule"><ChoiceSelect label={t("subdiv_rule")} value={rule}
+            <SubdivisionStatus key="status" muted={playing} lines={this.statusMessages().map(line => ({id: line.id, text: renderMessage(line.text)}))}/>,
+            <PuckOwned key="rule" param="subdiv-rule"><div><ChoiceSelect label={t("subdiv_rule")} value={rule}
                                           options={[{value: 'chaikin', text: t("subdiv_rule_chaikin")}, {value: 'four-point', text: t("subdiv_rule_four_point")}]}
-                                          onChange={value => { if (isSubdivisionRule(value)) this.setRule(value); }}/></div>,
-            <div key="closed"><OnOffSwitch checked={closed} label={t("subdiv_closed")} onChange={checked => this.setClosed(checked)}/></div>,
+                                          onChange={value => { if (isSubdivisionRule(value)) this.setRule(value); }}/></div></PuckOwned>,
+            <PuckOwned key="closed" param="closed"><div><OnOffSwitch checked={closed} label={t("subdiv_closed")} onChange={checked => this.setClosed(checked)}/></div></PuckOwned>,
             <div key="count"><CountSetter label={t("subdiv_point_count")} n={points.length} min={SUBDIVISION_POINTS_MIN}
                                           max={SUBDIVISION_POINTS_MAX} onPlus={() => this.addPoint()} onMinus={() => this.removePoint()}/></div>,
             <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}

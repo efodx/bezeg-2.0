@@ -2360,11 +2360,9 @@ const monotoneTriangulation = {
     },
 };
 
-// Interpolation I5: the board status line names the rule, the step and the vertex count, which differ on every step (rule, step, vertices): Chaikin 0/4, Chaikin 1/8, Chaikin 2/16, four-point 0/4, four-point 2/13, Chaikin 3/32.
+// Interpolation I5: the step and vertex-count notes of the Odčitki card differ on every step (step, vertices): 0/4, 1/8, 2/16, 0/4, 2/13, 3/32; the rule puck names the rule.
 const SUBDIVISION_READOUTS = [
-    /(Chaikinovo pravilo|Chaikin rule), (korak|step) 0 (od|of) 6, 4 (oglišč|vertices)/, /(Chaikinovo pravilo|Chaikin rule), (korak|step) 1 (od|of) 6, 8 (oglišč|vertices)/,
-    /(Chaikinovo pravilo|Chaikin rule), (korak|step) 2 (od|of) 6, 16 (oglišč|vertices)/, /(Štiritočkovno pravilo|Four-point rule), (korak|step) 0 (od|of) 6, 4 (oglišč|vertices)/,
-    /(Štiritočkovno pravilo|Four-point rule), (korak|step) 2 (od|of) 6, 13 (oglišč|vertices)/, /(Chaikinovo pravilo|Chaikin rule), (korak|step) 3 (od|of) 6, 32 (oglišč|vertices)/,
+    [0, 4, 'chaikin'], [1, 8, 'chaikin'], [2, 16, 'chaikin'], [0, 4, 'four-point'], [2, 13, 'four-point'], [3, 32, 'chaikin'],
 ];
 const interpolationSubdivision = {
     id: 'interp-subdivision',
@@ -2373,7 +2371,10 @@ const interpolationSubdivision = {
     steps: 6,
     minFrames: 13, // 2 frames per step, 3 on step 3 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, SUBDIVISION_READOUTS[step - 1]).first(), `subdivision status at ${label}`).toBeVisible();
+        const [round, vertices, rule] = SUBDIVISION_READOUTS[step - 1];
+        await expect(page.locator('[data-note]:visible').filter({hasText: new RegExp(`(Korak|Step) ${round} (od|of) 6`)}).first(), `subdivision step note at ${label}`).toBeVisible();
+        await expect(page.locator('[data-note]:visible').filter({hasText: new RegExp(`: ${vertices}$`)}).first(), `subdivision vertex note at ${label}`).toBeVisible();
+        await expect(page.locator(`.puck-strip [data-puck-key="subdiv-rule"] [role="radio"][data-value="${rule}"][aria-checked="true"]`), `subdivision rule puck at ${label}`).toHaveCount(1);
     },
 };
 

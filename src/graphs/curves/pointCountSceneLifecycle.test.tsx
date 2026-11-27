@@ -324,7 +324,7 @@ describe('Subdivision playback and a replaced scene', () => {
         ['an unmount', () => mounted.view.unmount()],
     ])('late frames after %s change nothing and touch no released scene', (_name, replace) => {
         checkpoint = graph.getLessonCapabilities().captureState();
-        act(() => { graph.addPoint(); });
+        act(() => { runAs('learner', () => graph.addPoint()); });
         act(() => graph.play());
         expect(scheduler.tick(1)).toBe(true);
         const old = [...sceneNow()!.pointElements()];

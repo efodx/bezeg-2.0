@@ -5,12 +5,13 @@ import SubdivisionCurveGraph from './SubdivisionCurveGraph';
 import {GraphHost} from '../../base/GraphHost';
 import {
     chaikinLimitPolyline, DEFAULT_SUBDIVISION_PRESET, MAX_SUBDIVISION_ROUNDS, SUBDIVISION_ANIMATION_ID, SubdivisionPresetData,
-    subdivisionRejection,
+    Row, subdivisionRejection, SubdivisionRule,
 } from './subdivisionModel';
 import {subdivisionPresetCollection} from './subdivisionPresetCollection';
 import {subdivisionRounds} from '../../../analysis/subdivision';
 import {uniformQuadraticSegment} from '../../../bezeg/impl/curve/bspline';
-import {LocalizedError, setLanguage} from '../../../localization';
+import {LocalizedError, renderMessage, setLanguage} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
 import type {AnimationScheduler} from '../../../learning/runtime/animation';
 import type {Preset} from '../../base/presets/Presets';
 
@@ -39,7 +40,17 @@ class ManualScheduler implements AnimationScheduler {
     }
 }
 
+/** Every edit the tests make is a learner's: the rule is a declared parameter and the view a written one, which need a write source. */
 class ObservedGraph extends SubdivisionCurveGraph {
+    override setRule(rule: SubdivisionRule) { runAs('learner', () => super.setRule(rule)); }
+    override setClosed(closed: boolean) { runAs('learner', () => super.setClosed(closed)); }
+    override addPoint() { runAs('learner', () => super.addPoint()); }
+    override removePoint() { runAs('learner', () => super.removePoint()); }
+    override resetRounds() { runAs('learner', () => super.resetRounds()); }
+    override importPresetData(data: SubdivisionPresetData) { runAs('learner', () => super.importPresetData(data)); }
+    override editPoint(index: number, value: Row) { return runAs('learner', () => super.editPoint(index, value)); }
+    override movePoint(index: number, x: number, y: number) { return runAs('learner', () => super.movePoint(index, x, y)); }
+
     liveBoard() { return this.board; }
 
     sceneOf() { return this['scene']!; }
@@ -70,7 +81,7 @@ const PERIOD = 800;
 /** The scene creates, in order: limit overlay, original polygon, stage polyline, vertex pool, draggable points, status text. */
 const curves = (graph: ObservedGraph) => {
     const owned = graph.sceneOf().ownedElements() as any[];
-    return {limit: owned[0] as Curve, original: owned[1] as Curve, stage: owned[2] as Curve, text: owned[owned.length - 1] as any};
+    return {limit: owned[0] as Curve, original: owned[1] as Curve, stage: owned[2] as Curve};
 };
 const rows = (curve: Curve): number[][] => {
     curve.updateDataArray();
@@ -488,16 +499,17 @@ describe('SubdivisionCurveGraph on a real board', () => {
         view.unmount();
     });
 
-    test('the board text follows a live language switch', () => {
+    test('the step and vertex count are notes that follow the language, and the board draws no text', () => {
         const {graph, view} = mount();
-        const text = curves(graph).text;
-        expect(text.plaintext).toBe('Chaikinovo pravilo, korak 0 od 6, 4 oglišč');
+        const notes = () => (graph.getDeclaration()!.notes ?? []).map(note => renderMessage(note.text));
+        expect(notes()).toEqual(['Korak 0 od 6', 'Število oglišč prikazane stopnje: 4']);
         act(() => setLanguage('en'));
-        expect(text.plaintext).toBe('Chaikin rule, step 0 of 6, 4 vertices');
+        expect(notes()).toEqual(['Step 0 of 6', 'Vertices of the shown stage: 4']);
         act(() => { graph.setRule('four-point'); graph.nextStep(); });
-        expect(text.plaintext).toBe('Four-point rule, step 1 of 6, 7 vertices');
+        expect(notes()).toEqual(['Step 1 of 6', 'Vertices of the shown stage: 7']);
         act(() => setLanguage('sl'));
-        expect(text.plaintext).toBe('Štiritočkovno pravilo, korak 1 od 6, 7 oglišč');
+        expect(notes()).toEqual(['Korak 1 od 6', 'Število oglišč prikazane stopnje: 7']);
+        expect(graph.sceneOf().ownedElements().filter(element => element.elType === 'text')).toEqual([]);
         view.unmount();
     });
 

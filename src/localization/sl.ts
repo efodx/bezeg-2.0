@@ -5190,8 +5190,6 @@ export const sl = {
     "subdiv_vertex_count": "Število oglišč prikazane stopnje: {value0}",
     "subdiv_playback_note": "Naslednji korak in Predvajaj razkrijeta po en korak subdivizije, skupaj največ {value0}. Predvajanje se ustavi ob spremembi točk, odprtosti poligona ali pravila, pred izvozom slike in ob odpiranju prednastavitve.",
     "subdiv_complete": "Prikazanih je vseh {value0} korakov; Naslednji korak in Predvajaj sta končana. Ponastavi poligon vrne prvotni poligon.",
-    "subdiv_board_chaikin": "Chaikinovo pravilo, korak {value0} od {value1}, {value2} oglišč",
-    "subdiv_board_four_point": "Štiritočkovno pravilo, korak {value0} od {value1}, {value2} oglišč",
     "interpolation_and_approximation": "Interpolacija in aproksimacija",
     "interp_lagrange_title": "Skozi točke ali blizu njih",
     "interp_hermite_title": "Hermiteova krivulja in Catmull-Rom",

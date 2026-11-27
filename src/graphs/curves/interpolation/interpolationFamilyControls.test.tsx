@@ -45,15 +45,15 @@ test('Hermite: a refused move goes to the refusal channel and the next accepted 
 
 test('Subdivision curves: closing refusal goes to the refusal channel; the status lines carry no live role and the graph has one live region', async () => {
     const graph = await mount('interp-subdivision');
-    act(() => graph.importPresetData({...graph.exportPresetData(), points: [[0, 0], [4, 0]], closed: false, round: 0}));
-    act(() => graph.setClosed(true));
+    act(() => runAs('learner', () => graph.importPresetData({...graph.exportPresetData(), points: [[0, 0], [4, 0]], closed: false, round: 0})));
+    act(() => runAs('learner', () => graph.setClosed(true)));
     expect(notice()).not.toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
     const lines = document.querySelectorAll('p[data-subdivision-status]');
     expect(lines.length).toBeGreaterThan(0);
     expect(document.querySelector('[data-subdivision-status]')!.closest('[role="status"], [aria-live]')).toBeNull();
     expect(liveRegions()).toBe(1);
-    act(() => graph.addPoint());
+    act(() => runAs('learner', () => graph.addPoint()));
     expect(notice()).toBeNull();
 });
 
