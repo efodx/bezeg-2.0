@@ -8,11 +8,21 @@
  * opening shows a different state from the one the prompt asks the learner to produce.
  */
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SimulationIds} from '../../graphs/random/SimulationGraph';
 import {randomnessSceneActions} from './randomnessGuidedLessons';
 import type {RandomnessSceneSpec} from './randomnessGuidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the simulation's declaration ids: an unknown control fails the type check. */
+const simulationFrame = frameDeclarer<SimulationIds>();
+/** The controls (pucks) each step's observation asks the learner to set. */
+const USES: Readonly<Record<string, readonly SimulationIds['param'][]>> = {
+    'rs3-se': ['random-n'],
+    'rs3-replay-seeds': ['random-seed'],
+    'rs3-whole-circle': ['random-shape'],
+};
 
 interface StepContent {
     readonly id: string;
@@ -32,7 +42,7 @@ const step = (content: StepContent): GuidedLessonStep => ({
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', USES[content.id] ? simulationFrame({uses: USES[content.id]}) : undefined),
     ],
 });
 
@@ -120,8 +130,8 @@ const rs3Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['mc-share', 'mc-se'],
         workedExampleId: 'rs3-se',
         observationPrompt: text(
-            'Iz formule napovej, kolikšno bo Običajno odstopanje ocene pri \\(10000\\) točkah, in zato, za približno koliko se bo ocena števila \\(\\pi\\) še zmotila; zapiši napoved in razlog. Nato v polju Število točk vpiši \\(10000\\) in primerjaj z odčitki Ocena števila \\(\\pi\\), Napaka ocene in Običajno odstopanje ocene.',
-            'From the formula predict what the Typical deviation of the estimate will be with \\(10000\\) points, and so roughly by how much the estimate of \\(\\pi\\) will still be off; write down the prediction and the reason. Then type \\(10000\\) in the field Number of points and compare with the readouts Estimate of \\(\\pi\\), Error of the estimate and Typical deviation of the estimate.',
+            'Iz formule napovej, kolikšno bo Običajno odstopanje ocene pri \\(10000\\) točkah, in zato, za približno koliko se bo ocena števila \\(\\pi\\) še zmotila; zapiši napoved in razlog. Nato v krmilniku Število točk vpiši \\(10000\\) in primerjaj z odčitki Ocena števila \\(\\pi\\), Napaka ocene in Običajno odstopanje ocene.',
+            'From the formula predict what the Typical deviation of the estimate will be with \\(10000\\) points, and so roughly by how much the estimate of \\(\\pi\\) will still be off; write down the prediction and the reason. Then type \\(10000\\) in the control Number of points and compare with the readouts Estimate of \\(\\pi\\), Error of the estimate and Typical deviation of the estimate.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(10000\\) točk: \\(7833\\) v krogu, delež \\(0{,}7833\\), ocena \\(3{,}1332\\), napaka \\(-0{,}0084\\), običajno odstopanje \\(\\pm\\,0{,}0164\\); narisanih je prvih \\(300\\) točk.',
@@ -141,8 +151,8 @@ const rs3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['mc-se'],
         observationPrompt: text(
-            'Napovej, kolikšno bo Običajno odstopanje ocene pri \\(1000\\) točkah: kolikokrat manjše kot pri \\(100\\) in kolikokrat večje kot pri \\(10000\\) točkah; zapiši razlog. Nato v polju Število točk vpiši \\(1000\\) in primerjaj z odčitkom.',
-            'Predict what the Typical deviation of the estimate will be with \\(1000\\) points: how many times smaller than with \\(100\\) and how many times larger than with \\(10000\\) points; write down the reason. Then type \\(1000\\) in the field Number of points and compare with the readout.',
+            'Napovej, kolikšno bo Običajno odstopanje ocene pri \\(1000\\) točkah: kolikokrat manjše kot pri \\(100\\) in kolikokrat večje kot pri \\(10000\\) točkah; zapiši razlog. Nato v krmilniku Število točk vpiši \\(1000\\) in primerjaj z odčitkom.',
+            'Predict what the Typical deviation of the estimate will be with \\(1000\\) points: how many times smaller than with \\(100\\) and how many times larger than with \\(10000\\) points; write down the reason. Then type \\(1000\\) in the control Number of points and compare with the readout.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(n=1000\\): \\(779\\) v krogu, ocena \\(3{,}116\\), običajno odstopanje \\(\\pm\\,0{,}0519\\), približno \\(\\sqrt{10}\\approx3{,}16\\)-krat manj kot pri \\(100\\) in toliko več kot pri \\(10000\\) točkah.',
@@ -162,8 +172,8 @@ const rs3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Napovej, ali bodo po ponovitvi z istim semenom odčitki enaki: pritisni Ponovi, nato Predvajaj in počakaj, da Prikazano pokaže \\(10000\\) od \\(10000\\). Nato napovej, za koliko se bo ocena z drugim semenom razlikovala od \\(\\pi\\) (primerjaj z odstopanjem \\(\\pm\\,0{,}0164\\)), v polju Seme generatorja vpiši \\(7\\) in primerjaj. Če želiš, poskusi še seme \\(43\\): ta zagon je izbran kot redek primer.',
-            'Predict whether the readouts will be the same after a replay with the same seed: press Replay, then Play, and wait until Shown reads \\(10000\\) of \\(10000\\). Then predict how far the estimate with another seed will be from \\(\\pi\\) (compare with the deviation \\(\\pm\\,0.0164\\)), type \\(7\\) in the field Generator seed and compare. If you like, also try seed \\(43\\): that run is chosen as a rare case.',
+            'Napovej, ali bodo po ponovitvi z istim semenom odčitki enaki: pritisni Ponovi, nato Predvajaj in počakaj, da Prikazano pokaže \\(10000\\) od \\(10000\\). Nato napovej, za koliko se bo ocena z drugim semenom razlikovala od \\(\\pi\\) (primerjaj z odstopanjem \\(\\pm\\,0{,}0164\\)), v krmilniku Seme generatorja vpiši \\(7\\) in primerjaj. Če želiš, poskusi še seme \\(43\\): ta zagon je izbran kot redek primer.',
+            'Predict whether the readouts will be the same after a replay with the same seed: press Replay, then Play, and wait until Shown reads \\(10000\\) of \\(10000\\). Then predict how far the estimate with another seed will be from \\(\\pi\\) (compare with the deviation \\(\\pm\\,0.0164\\)), type \\(7\\) in the control Generator seed and compare. If you like, also try seed \\(43\\): that run is chosen as a rare case.',
         ),
         expectedObservations: [text(
             'Po ponovitvi s semenom \\(42\\) isti odčitki (\\(7833\\), \\(3{,}1332\\)). Seme \\(7\\): \\(7858\\) v krogu, ocena \\(3{,}1432\\), napaka \\(+0{,}0016\\). Seme \\(43\\): \\(7741\\), ocena \\(3{,}0964\\), napaka \\(-0{,}0452\\), približno \\(2{,}8\\)-kratnik običajnega odstopanja.',

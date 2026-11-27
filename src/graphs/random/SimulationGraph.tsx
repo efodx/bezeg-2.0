@@ -1,7 +1,11 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutRow as DeclaredRow} from "../base/declare/graphDeclaration";
 import {formatNumber, withDecimalSeparator} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -33,7 +37,23 @@ import {AREA_LAYOUT, Caption, CaptionKey, EMPTY_LAYER, Layer, LAW_LEFT, POINTS_D
 /** The scene state: the stored simulation fields (`RandomState`), nothing derived. */
 export interface RandomGraphState extends BaseGraphState, RandomState {}
 
-const HELP_ID = "random-graph-input-help";
+/**
+ * What the graph declares (task 08): the run controls the lessons ask the learner to set are pucks (the count of trials, the seeds, the mode's own parameter),
+ * the readout rows and the state sentences are the cards'. Mode, the second-run switch and the playback have no lesson step that sets them (a scene does) or no
+ * arbiter key, so they stay in Orodja.
+ */
+export type SimulationIds = {
+    param: "random-n" | "random-seed" | "random-seed2" | "random-rows" | "random-p" | "random-steps" | "random-a" | "random-b" | "random-start" | "random-sample" | "random-shape";
+    row: "shown" | "seed" | "counts" | "expected" | "largest" | "middle" | "heads" | "frequency" | "band" | "typical" | "inside" | "share" | "estimate" | "error" | "rms"
+        | "mean-abs" | "zeros" | "stationary" | "lambda" | "exact-a" | "misses" | "miss-share" | "exact-miss" | "exact-coverage" | "half-width" | "seed2";
+    note: "status" | "identity" | "period" | "seed2-same";
+    legend: never;
+    section: never;
+    action: never;
+};
+type SimulationRow = DeclaredRow<SimulationIds>;
+const formatted = (text: string): FormattedValue => ({kind: "formatted", text});
+
 /** Playback moves to the next stop (1, 2, 5, 10, ... n) this often by default; the speed control changes `stopMs` of the state. */
 export const PLAYBACK_STEP_MS = STOP_MS_DEFAULT;
 
@@ -182,16 +202,8 @@ export function framedScene(scene: SceneData, height: number, width = 0, plan?: 
 }
 
 const SEEDS_ID = "random-graph-seeds";
-
-/** The next value of the 1-2-5 ladder (..., 100, 200, 500, 1000, ...) above (`direction` 1) or below (-1) `n`, clamped to `min` and `max`. A value off the ladder goes to its nearest ladder neighbour in that direction. */
-export function ladderStep(n: number, direction: 1 | -1, min: number, max: number): number {
-    const ladder = (exponent: number) => [1, 2, 5].map(m => m * 10 ** exponent);
-    const start = Math.floor(Math.log10(Math.max(n, 1))) - 1;
-    const values: number[] = [];
-    for (let e = start; e <= start + 3; e++) values.push(...ladder(e));
-    const next = direction === 1 ? values.find(value => value > n) : [...values].reverse().find(value => value < n);
-    return Math.min(max, Math.max(min, next ?? n));
-}
+/** A Galton bin lighter than this is left out of the view the director keeps clear of the cards. */
+const GALTON_TAIL_MASS = 0.005;
 
 function trialsLabel(mode: RandomMode): string {
     switch (mode) {
@@ -593,6 +605,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         const [, top, , bottom] = this.board.getBoundingBox();
         const planned = this.plan()?.offsets.get(index);
         if (planned) return planned.from === "top" ? top - planned.px / this.board.unitY : bottom + planned.px / this.board.unitY;
+        // The Galton path caption stands on the bottom of the scene's data frame, which the view director keeps clear of the cards and the pucks strip (the board's own bottom edge lies under them).
+        if (caption.top === undefined && this.state.mode === "galton") return this.view().scene.frame[3] + (CAPTION_ROW_PX * (row + 1)) / this.board.unitY;
         const offset = (EDGE_PX + CAPTION_ROW_PX * row) / this.board.unitY;
         return caption.top !== undefined ? top - offset : bottom + offset;
     }
@@ -859,209 +873,333 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
 
     // ---- Text -----------------------------------------------------------------------------------------------------------
 
-    private statusText(): string {
+    /** The state sentence: the tallies of the run shown so far. */
+    statusMessage(): Message {
         const state = this.state;
         const {sim, exact} = this.view();
         const shown = state.shown;
         const of = {value0: shown, value1: state.n};
         switch (sim.kind) {
             case "galton":
-                if (exact.kind !== "galton") return "";
-                return t("random_graph_status_galton", {...of, value2: dec(largestBarDifference(sim.counts, exact.masses, sim.trials), 4)});
+                if (exact.kind !== "galton") return message("random_graph_status_galton", {...of, value2: ""});
+                return message("random_graph_status_galton", {...of, value2: dec(largestBarDifference(sim.counts, exact.masses, sim.trials), 4)});
             case "frequency":
-                return t("random_graph_status_frequency", {...of, value2: sim.heads, value3: dec(shown > 0 ? sim.heads / shown : 0, 4), value4: dec(sim.heads - shown / 2, 1)});
+                return message("random_graph_status_frequency", {...of, value2: sim.heads, value3: dec(shown > 0 ? sim.heads / shown : 0, 4), value4: dec(sim.heads - shown / 2, 1)});
             case "area":
-                if (shown <= 0) return t("random_graph_status_area_none", of);
-                return t("random_graph_status_area", {...of, value2: sim.inside, value3: dec(shown > 0 ? (4 * sim.inside) / shown : 0, 4)});
+                if (shown <= 0) return message("random_graph_status_area_none", of);
+                return message("random_graph_status_area", {...of, value2: sim.inside, value3: dec(shown > 0 ? (4 * sim.inside) / shown : 0, 4)});
             case "walk":
-                return t("random_graph_status_walk", {...of, value2: sim.zeros});
+                return message("random_graph_status_walk", {...of, value2: sim.zeros});
             case "markov":
-                return t("random_graph_status_markov", {...of, value2: sim.inA, value3: dec(shown > 0 ? sim.inA / shown : 0, 4)});
+                return message("random_graph_status_markov", {...of, value2: sim.inA, value3: dec(shown > 0 ? sim.inA / shown : 0, 4)});
             case "interval":
-                return t("random_graph_status_interval", {...of, value2: sim.misses});
+                return message("random_graph_status_interval", {...of, value2: sim.misses});
         }
     }
 
-    private readoutRows(): ReadoutListRow[] {
+    private statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    /** The rows of the readout as declared; the panel shows their text. */
+    private readoutRows(): SimulationRow[] {
         const state = this.state;
         const {sim, exact} = this.view();
         const shown = state.shown;
-        const rows: ReadoutListRow[] = [
-            {id: "shown", label: t("random_graph_r_shown"), value: t("random_graph_r_shown_value", {value0: shown, value1: state.n})},
-            {id: "seed", label: t("random_graph_r_seed"), value: String(state.seed)},
+        const rows: SimulationRow[] = [
+            {id: "shown", name: message("random_graph_r_shown"), value: message("random_graph_r_shown_value", {value0: shown, value1: state.n})},
+            {id: "seed", name: message("random_graph_r_seed"), value: formatted(String(state.seed))},
         ];
         if (sim.kind === "galton" && exact.kind === "galton") {
             const middle = exact.masses.indexOf(Math.max(...exact.masses));
             const frequency = shown > 0 ? sim.counts[middle] / shown : 0;
             const sd = frequencySd(exact.masses[middle], Math.max(shown, 1));
             rows.push(
-                {id: "counts", label: t("random_graph_r_counts"), value: sim.counts.join("; ")},
-                {id: "expected", label: t("random_graph_r_expected"), value: exact.masses.map(m => dec(m * shown, 1)).join("; ")},
-                {id: "largest", label: t("random_graph_r_largest"), value: dec(largestBarDifference(sim.counts, exact.masses, shown), 4)},
-                {id: "middle", label: t("random_graph_r_middle", {value0: middle}), value: t("random_graph_r_middle_value", {
+                {id: "counts", name: message("random_graph_r_counts"), value: formatted(sim.counts.join("; "))},
+                {id: "expected", name: message("random_graph_r_expected"), value: formatted(exact.masses.map(m => dec(m * shown, 1)).join("; "))},
+                {id: "largest", name: message("random_graph_r_largest"), value: formatted(dec(largestBarDifference(sim.counts, exact.masses, shown), 4))},
+                {id: "middle", name: message("random_graph_r_middle", {value0: middle}), value: message("random_graph_r_middle_value", {
                     value0: dec(frequency, 4), value1: dec(exact.masses[middle], 4), value2: dec(sd, 4)})},
             );
         } else if (sim.kind === "frequency") {
             const width = shown > 0 ? fairCoinBandHalfWidth(shown) : 0;
             rows.push(
-                {id: "heads", label: t("random_graph_r_heads"), value: t("random_graph_r_heads_value", {value0: sim.heads, value1: shown})},
-                {id: "frequency", label: t("random_graph_r_frequency"), value: dec(shown > 0 ? sim.heads / shown : 0, 4)},
-                {id: "band", label: t("random_graph_r_band"), value: t("random_graph_r_band_value", {
+                {id: "heads", name: message("random_graph_r_heads"), value: message("random_graph_r_heads_value", {value0: sim.heads, value1: shown})},
+                {id: "frequency", name: message("random_graph_r_frequency"), value: formatted(dec(shown > 0 ? sim.heads / shown : 0, 4))},
+                {id: "band", name: message("random_graph_r_band"), value: message("random_graph_r_band_value", {
                     value0: dec(shown / 2 - width, 1), value1: dec(shown / 2 + width, 1), value2: dec(width, 1)})},
-                {id: "typical", label: t("random_graph_r_typical"), value: `± ${dec(shown > 0 ? frequencySd(0.5, shown) : 0, 4)}`},
+                {id: "typical", name: message("random_graph_r_typical"), value: formatted(`± ${dec(shown > 0 ? frequencySd(0.5, shown) : 0, 4)}`)},
             );
         } else if (sim.kind === "area") {
             const estimate = (4 * sim.inside) / Math.max(shown, 1);
-            const none = t("random_graph_r_unavailable");
+            const none = message("random_graph_r_unavailable");
             rows.push(
-                {id: "inside", label: t("random_graph_r_inside"), value: t("random_graph_r_inside_value", {value0: sim.inside, value1: shown})},
-                {id: "share", label: t("random_graph_r_share_inside"), value: shown > 0 ? dec(sim.inside / shown, 4) : none},
-                {id: "estimate", label: t("random_graph_r_pi_estimate"), value: shown > 0 ? dec(estimate, 4) : none},
-                {id: "error", label: t("random_graph_r_pi_error"), value: shown > 0 ? dec(estimate - Math.PI, 4) : none},
-                {id: "typical", label: t("random_graph_r_se"), value: shown > 0 ? `± ${dec(piStandardError(shown), 4)}` : none},
+                {id: "inside", name: message("random_graph_r_inside"), value: message("random_graph_r_inside_value", {value0: sim.inside, value1: shown})},
+                {id: "share", name: message("random_graph_r_share_inside"), value: shown > 0 ? formatted(dec(sim.inside / shown, 4)) : none},
+                {id: "estimate", name: message("random_graph_r_pi_estimate"), value: shown > 0 ? formatted(dec(estimate, 4)) : none},
+                {id: "error", name: message("random_graph_r_pi_error"), value: shown > 0 ? formatted(dec(estimate - Math.PI, 4)) : none},
+                {id: "typical", name: message("random_graph_r_se"), value: shown > 0 ? formatted(`± ${dec(piStandardError(shown), 4)}`) : none},
             );
         } else if (sim.kind === "walk" && exact.kind === "walk") {
             rows.push(
-                {id: "rms", label: t("random_graph_r_rms"), value: t("random_graph_r_rms_value", {
+                {id: "rms", name: message("random_graph_r_rms"), value: message("random_graph_r_rms_value", {
                     value0: dec(shown > 0 ? Math.sqrt(sim.sumSquares / shown) : 0, 2), value1: dec(Math.sqrt(state.walkSteps), 2)})},
-                {id: "mean-abs", label: t("random_graph_r_mean_abs"), value: t("random_graph_r_mean_abs_value", {
+                {id: "mean-abs", name: message("random_graph_r_mean_abs"), value: message("random_graph_r_mean_abs_value", {
                     value0: dec(shown > 0 ? sim.sumAbs / shown : 0, 3), value1: dec(exact.meanAbs, 4)})},
-                {id: "zeros", label: t("random_graph_r_zeros"), value: state.walkSteps % 2 === 1 ? t("random_graph_r_zeros_odd", {value0: sim.zeros})
-                    : t("random_graph_r_zeros_value", {value0: sim.zeros, value1: dec(exact.zeroMass * shown, 1)})},
+                {id: "zeros", name: message("random_graph_r_zeros"), value: state.walkSteps % 2 === 1 ? message("random_graph_r_zeros_odd", {value0: sim.zeros})
+                    : message("random_graph_r_zeros_value", {value0: sim.zeros, value1: dec(exact.zeroMass * shown, 1)})},
             );
         } else if (sim.kind === "markov" && exact.kind === "markov") {
             const sd = markovShareSd(exact, Math.max(shown, 1));
             rows.push(
-                {id: "share", label: t("random_graph_r_share"), value: dec(shown > 0 ? sim.inA / shown : 0, 4)},
-                {id: "stationary", label: t("random_graph_r_stationary"), value: exact.stationary
-                    ? `${dec(exact.stationary[0], 4)}; ${dec(exact.stationary[1], 4)}` : t("random_graph_r_stationary_none")},
-                {id: "lambda", label: t("random_graph_r_lambda"), value: dec(exact.lambda, 4)},
-                {id: "typical", label: t("random_graph_r_share_sd"), value: sd === null ? "—" : `± ${dec(sd, 4)}`},
-                {id: "exact-a", label: t("random_graph_r_exact_a", {value0: shown}), value: shown > 0 ? dec(markovProbabilityA(state, shown), 5) : "—"},
+                {id: "share", name: message("random_graph_r_share"), value: formatted(dec(shown > 0 ? sim.inA / shown : 0, 4))},
+                {id: "stationary", name: message("random_graph_r_stationary"), value: exact.stationary
+                    ? formatted(`${dec(exact.stationary[0], 4)}; ${dec(exact.stationary[1], 4)}`) : message("random_graph_r_stationary_none")},
+                {id: "lambda", name: message("random_graph_r_lambda"), value: formatted(dec(exact.lambda, 4))},
+                {id: "typical", name: message("random_graph_r_share_sd"), value: formatted(sd === null ? "—" : `± ${dec(sd, 4)}`)},
+                {id: "exact-a", name: message("random_graph_r_exact_a", {value0: shown}), value: formatted(shown > 0 ? dec(markovProbabilityA(state, shown), 5) : "—")},
             );
         } else if (sim.kind === "interval" && exact.kind === "interval") {
             const expected = exact.miss * shown;
             rows.push(
-                {id: "misses", label: t("random_graph_r_misses"), value: t("random_graph_r_misses_value", {value0: sim.misses, value1: shown})},
-                {id: "miss-share", label: t("random_graph_r_miss_share"), value: percentText(shown > 0 ? sim.misses / shown : 0)},
-                {id: "exact-miss", label: t("random_graph_r_exact_miss"), value: percentText(exact.miss)},
-                {id: "exact-coverage", label: t("random_graph_r_exact_coverage"), value: withDecimalSeparator(exact.coverage.toFixed(5), currentLanguage())},
-                {id: "expected", label: t("random_graph_r_expected_misses"), value: t("random_graph_r_expected_misses_value", {
+                {id: "misses", name: message("random_graph_r_misses"), value: message("random_graph_r_misses_value", {value0: sim.misses, value1: shown})},
+                {id: "miss-share", name: message("random_graph_r_miss_share"), value: formatted(percentText(shown > 0 ? sim.misses / shown : 0))},
+                {id: "exact-miss", name: message("random_graph_r_exact_miss"), value: formatted(percentText(exact.miss))},
+                {id: "exact-coverage", name: message("random_graph_r_exact_coverage"), value: formatted(withDecimalSeparator(exact.coverage.toFixed(5), currentLanguage()))},
+                {id: "expected", name: message("random_graph_r_expected_misses"), value: message("random_graph_r_expected_misses_value", {
                     value0: dec(expected, 1), value1: dec(Math.sqrt(shown * exact.miss * (1 - exact.miss)), 1)})},
-                {id: "half-width", label: t("random_graph_r_half_width"), value: dec(intervalHalfWidth(state.sampleSize), 4)},
+                {id: "half-width", name: message("random_graph_r_half_width"), value: formatted(dec(intervalHalfWidth(state.sampleSize), 4))},
             );
         }
         const second = this.view().sim2;
-        if (second) rows.push(this.secondRow(second, exact));
+        const secondRow = second ? this.secondRow(second, exact) : undefined;
+        if (secondRow) rows.push(secondRow);
         return rows;
     }
 
+    /** The text of the declared rows, as the panel lists them. */
+    private listRows(): ReadoutListRow[] {
+        return this.readoutRows().map(({id, name, value}): ReadoutListRow => ({
+            id, label: name ? renderMessage(name) : "", value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
     /** Sentences under the readout list (not rows, so the labelled rows stay a definition list): why the Markov chain is special, and equal seeds. */
-    private readoutNotes(): string[] {
+    private readoutNotes(): {id: SimulationIds["note"]; text: Message}[] {
         const state = this.state;
         const {exact, sim2} = this.view();
-        const notes: string[] = [];
+        const notes: {id: SimulationIds["note"]; text: Message}[] = [];
         if (exact.kind === "markov") {
-            if (exact.stationary === null) notes.push(t("random_graph_r_note_identity"));
-            else if (exact.lambda === -1) notes.push(t("random_graph_r_note_period"));
+            if (exact.stationary === null) notes.push({id: "identity", text: message("random_graph_r_note_identity")});
+            else if (exact.lambda === -1) notes.push({id: "period", text: message("random_graph_r_note_period")});
         }
-        if (sim2 && state.seed2 === state.seed) notes.push(t("random_graph_seed2_same"));
+        if (sim2 && state.seed2 === state.seed) notes.push({id: "seed2-same", text: message("random_graph_seed2_same")});
         return notes;
     }
 
-    /** One headline number of the second run, the same one the first run shows in its own row. */
-    private secondRow(second: RandomSim, exact: RandomExact): ReadoutListRow {
+    /** One headline number of the second run, the same one the first run shows in its own row (the area and the interval mode have no second run). */
+    private secondRow(second: RandomSim, exact: RandomExact): SimulationRow | undefined {
         const shown = this.state.shown;
         const seed = {value0: dec(this.state.seed2, 0)};
         switch (second.kind) {
-            case "galton": return {id: "seed2", label: t("random_graph_r_seed2_galton", seed),
-                value: exact.kind === "galton" ? dec(largestBarDifference(second.counts, exact.masses, second.trials), 4) : ""};
-            case "frequency": return {id: "seed2", label: t("random_graph_r_seed2_frequency", seed), value: t("random_graph_r_heads_value", {value0: second.heads, value1: shown})};
-            case "walk": return {id: "seed2", label: t("random_graph_r_seed2_walk", seed), value: String(second.zeros)};
-            case "markov": return {id: "seed2", label: t("random_graph_r_seed2_markov", seed), value: dec(shown > 0 ? second.inA / shown : 0, 4)};
-            default: return {id: "seed2", value: ""};
+            case "galton": return {id: "seed2", name: message("random_graph_r_seed2_galton", seed),
+                value: formatted(exact.kind === "galton" ? dec(largestBarDifference(second.counts, exact.masses, second.trials), 4) : "")};
+            case "frequency": return {id: "seed2", name: message("random_graph_r_seed2_frequency", seed), value: message("random_graph_r_heads_value", {value0: second.heads, value1: shown})};
+            case "walk": return {id: "seed2", name: message("random_graph_r_seed2_walk", seed), value: formatted(String(second.zeros))};
+            case "markov": return {id: "seed2", name: message("random_graph_r_seed2_markov", seed), value: formatted(dec(shown > 0 ? second.inA / shown : 0, 4))};
+            default: return undefined;
         }
     }
 
-    // ---- Controls -------------------------------------------------------------------------------------------------------
+    // ---- Declaration ----------------------------------------------------------------------------------------------------
 
-    private inputHelp(): string {
-        const state = this.state;
-        const common = {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0), value2: dec(N_MIN, 0), value3: dec(N_MAX[state.mode], 0)};
-        switch (state.mode) {
-            case "galton": return t("random_graph_input_help_galton", common);
-            case "frequency": return t("random_graph_input_help_frequency", common);
-            case "area": return t("random_graph_input_help_area", common);
-            case "walk": return t("random_graph_input_help_walk", common);
-            case "markov": return t("random_graph_input_help_markov", common);
-            case "interval": return t("random_graph_input_help_interval", common);
+    private refusal(min: number, max: number): DomainError {
+        return new DomainError(message("random_value_rejected", {value0: dec(min, 0), value1: dec(max, 0)}));
+    }
+
+    private seedRefusal(): DomainError {
+        return new DomainError(message("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)}));
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const number = (value: unknown): number => (typeof value === "number" ? value : NaN);
+        const bound = (read: () => number, edit: (value: number) => boolean, refused: () => DomainError): ParameterBinding => ({
+            read, apply: (value: unknown) => { if (!edit(number(value))) throw refused(); },
+        });
+        return {
+            "random-n": bound(() => this.state.n, value => this.editTrials(value), () => this.refusal(N_MIN, N_MAX[this.state.mode])),
+            "random-seed": bound(() => this.state.seed, value => this.editSeed(value), () => this.seedRefusal()),
+            "random-seed2": bound(() => this.state.seed2, value => this.editSeed2(value), () => this.seedRefusal()),
+            "random-rows": bound(() => this.state.rows, value => this.editRows(value), () => this.refusal(ROWS_MIN, ROWS_MAX)),
+            "random-p": bound(() => this.state.pPercent, value => this.editPercent(value), () => this.refusal(P_MIN, P_MAX)),
+            "random-steps": bound(() => this.state.walkSteps, value => this.editWalkSteps(value), () => this.refusal(WALK_STEPS_MIN, WALK_STEPS_MAX)),
+            "random-a": bound(() => this.state.markovA, value => this.editChain("markovA", value), () => this.refusal(CHAIN_MIN, CHAIN_MAX)),
+            "random-b": bound(() => this.state.markovB, value => this.editChain("markovB", value), () => this.refusal(CHAIN_MIN, CHAIN_MAX)),
+            "random-sample": bound(() => this.state.sampleSize, value => this.editSampleSize(value), () => this.refusal(SAMPLE_SIZE_MIN, SAMPLE_SIZE_MAX)),
+            "random-start": {
+                read: () => String(this.state.markovStart),
+                apply: (value: unknown) => {
+                    if (value !== "0" && value !== "1") throw new DomainError(message("random_choice_unknown", {value0: String(value)}));
+                    this.editStart(value === "1" ? 1 : 0);
+                },
+            },
+            "random-shape": {
+                read: () => this.state.areaShape,
+                apply: (value: unknown) => {
+                    const shape = AREA_SHAPES.find(candidate => candidate === value);
+                    if (!shape) throw new DomainError(message("random_choice_unknown", {value0: String(value)}));
+                    this.editShape(shape);
+                },
+            },
+        };
+    }
+
+    private trialsName(mode: RandomMode): Message {
+        switch (mode) {
+            case "galton": return message("random_graph_n_galton");
+            case "frequency": return message("random_graph_n_frequency");
+            case "area": return message("random_graph_n_area");
+            case "walk": return message("random_name_walks");
+            case "markov": return message("random_name_chain_steps");
+            case "interval": return message("random_name_intervals");
         }
     }
 
-    override getGraphCommands(): JSX.Element[] {
+    /** Whether the second seed is in use: the mode has a second run and it is switched on. */
+    private secondRun(): boolean {
+        return OVERLAY_MODES.includes(this.state.mode) && this.state.overlay === 1;
+    }
+
+    /**
+     * Pucks: the lessons ask the learner to type the number of trials (all six modes, e.g. rs1-thousand, rs2-thousand, rs3-se, rs4-ten-walks, rs5-longer, rs6-long) and the
+     * seed (rs1-seed, rs2-count, rs3-replay-seeds), to set the mode's own parameter (rows and p in rs1-p and rs1-explore, steps per walk in rs4-parity and rs4-doubling, a and b in
+     * rs5-rates and rs5-edges, the starting state in rs5-start-b, the sample size in rs6-sample-size, the shape in rs3-whole-circle), and to try other second seeds (rs2-seeds).
+     * The mode, the second-run switch and the playback stay in Orodja: a scene sets them, and the playback has no arbiter key.
+     */
+    protected override declaration(): GraphDeclaration<SimulationIds> {
         const state = this.state;
-        const whole = {decimals: 0, integer: true, describedBy: HELP_ID};
-        const commands: JSX.Element[] = [
-            <ChoiceSelect key="mode" label={t("random_graph_mode_label")} value={state.mode}
-                          options={RANDOM_MODES.map(value => ({value, text: modeName(value)}))}
-                          onChange={value => { const mode = RANDOM_MODES.find(candidate => candidate === value); if (mode) this.editMode(mode); }}/>,
-            <CountSetter key="n" label={trialsLabel(state.mode)} n={state.n} min={N_MIN} max={N_MAX[state.mode]}
-                         minusLabel={t("random_graph_n_previous")} plusLabel={t("random_graph_n_next")} describedBy={HELP_ID}
-                         onPlus={() => this.editTrials(ladderStep(state.n, 1, N_MIN, N_MAX[state.mode]))}
-                         onMinus={() => this.editTrials(ladderStep(state.n, -1, N_MIN, N_MAX[state.mode]))}
-                         onSet={value => this.editTrials(value)}/>,
-        ];
+        type Param = ParameterDeclaration<SimulationIds["param"]>;
+        const count = (key: SimulationIds["param"], label: Message, min: number, max: number, help?: Message): Param =>
+            ({key, kind: "count", label, placement: "board", min, max, ...(help ? {help} : {})});
+        const percent = (key: SimulationIds["param"], label: Message, symbol: string, min: number, max: number): Param =>
+            ({key, kind: "range", label, symbol, placement: "board", min, max, step: PERCENT_STEP, bigStep: 20, maxDecimals: 0, unit: message("random_unit_percent")});
+        const parameters: Param[] = [count("random-n", this.trialsName(state.mode), N_MIN, N_MAX[state.mode])];
         switch (state.mode) {
             case "galton":
-                commands.push(
-                    <CountSetter key="rows" label={t("random_graph_rows_label")} n={state.rows} min={ROWS_MIN} max={ROWS_MAX} bigStep={2}
-                                 onPlus={() => this.editRows(state.rows + 1)} onMinus={() => this.editRows(state.rows - 1)} onSet={value => this.editRows(value)} describedBy={HELP_ID}/>,
-                    <Slider key="p" customText={t("random_graph_p_label")} value={state.pPercent} step={PERCENT_STEP} bigStep={20} min={P_MIN} max={P_MAX}
-                            grid={PERCENT_STEP} onChange={value => this.editPercent(value)}/>,
-                );
+                parameters.push(count("random-rows", message("random_name_rows"), ROWS_MIN, ROWS_MAX), percent("random-p", message("random_name_p"), "p", P_MIN, P_MAX));
                 break;
             case "area":
-                commands.push(<ChoiceSelect key="shape" label={t("random_graph_shape_label")} value={state.areaShape}
-                                            options={AREA_SHAPES.map(value => ({value, text: t(value === "disc" ? "random_graph_shape_disc" : "random_graph_shape_quarter")}))}
-                                            onChange={value => { const shape = AREA_SHAPES.find(candidate => candidate === value); if (shape) this.editShape(shape); }}/>);
+                parameters.push({
+                    key: "random-shape", kind: "choice", label: message("random_graph_shape_label"), placement: "board", puck: true,
+                    options: AREA_SHAPES.map(value => ({value, label: message(value === "disc" ? "random_graph_shape_disc" : "random_graph_shape_quarter"),
+                        short: message(value === "disc" ? "random_shape_disc_short" : "random_shape_quarter_short")})),
+                });
                 break;
             case "walk":
-                commands.push(<Slider key="steps" customText={t("random_graph_steps_label")} value={state.walkSteps} step={1} bigStep={10}
-                                  min={WALK_STEPS_MIN} max={WALK_STEPS_MAX} onChange={value => this.editWalkSteps(value)}/>);
+                parameters.push({key: "random-steps", kind: "range", label: message("random_name_walk_steps"), placement: "board", min: WALK_STEPS_MIN, max: WALK_STEPS_MAX, step: 1, bigStep: 10, maxDecimals: 0});
                 break;
             case "markov":
-                commands.push(
-                    <Slider key="a" customText={t("random_graph_a_label")} value={state.markovA} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
-                            grid={PERCENT_STEP} onChange={value => this.editChain("markovA", value)}/>,
-                    <Slider key="b" customText={t("random_graph_b_label")} value={state.markovB} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
-                            grid={PERCENT_STEP} onChange={value => this.editChain("markovB", value)}/>,
-                    <ChoiceSelect key="start" label={t("random_graph_start_label")} value={String(state.markovStart)}
-                                  options={[{value: "0", text: t("random_graph_start_a")}, {value: "1", text: t("random_graph_start_b")}]}
-                                  onChange={value => this.editStart(value === "1" ? 1 : 0)}/>,
+                parameters.push(
+                    percent("random-a", message("random_name_a"), "a", CHAIN_MIN, CHAIN_MAX),
+                    percent("random-b", message("random_name_b"), "b", CHAIN_MIN, CHAIN_MAX),
+                    {
+                        key: "random-start", kind: "choice", label: message("random_graph_start_label"), placement: "board", puck: true,
+                        options: [{value: "0", label: message("random_graph_start_a"), short: message("random_graph_start_a")},
+                            {value: "1", label: message("random_graph_start_b"), short: message("random_graph_start_b")}],
+                    },
                 );
                 break;
             case "interval":
-                commands.push(<Slider key="sample" customText={t("random_graph_sample_label")} value={state.sampleSize} step={1} bigStep={10}
-                                  min={SAMPLE_SIZE_MIN} max={SAMPLE_SIZE_MAX} onChange={value => this.editSampleSize(value)}/>);
+                parameters.push({key: "random-sample", kind: "range", label: message("random_graph_sample_label"), placement: "board", min: SAMPLE_SIZE_MIN, max: SAMPLE_SIZE_MAX, step: 1, bigStep: 10, maxDecimals: 0});
                 break;
             default:
                 break;
         }
-        const second = OVERLAY_MODES.includes(state.mode) && state.overlay === 1;
-        commands.push(
-            <div key="seeds" className="inspector-group" role="group" aria-labelledby={SEEDS_ID}>
-                <h3 id={SEEDS_ID}>{t("random_graph_seeds_group")}</h3>
-                <NumberInput label={t("random_graph_seed_label")} value={state.seed} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
-                             help={t("random_graph_seed_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
-                             {...whole} onChange={value => this.editSeed(value)}/>
-                {OVERLAY_MODES.includes(state.mode) && <BooleanField variant="switch" label={t("random_graph_overlay_label")} checked={state.overlay === 1}
-                                                                       describedBy={HELP_ID} onChange={on => this.editOverlay(on)}/>}
-                {second && <NumberInput label={t("random_graph_seed2_label")} value={state.seed2} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
-                                        help={t("random_graph_seed2_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
-                                        {...whole} onChange={value => this.editSeed2(value)}/>}
-            </div>,
-        );
-        commands.push(<p key="help" id={HELP_ID} className="form-text">{this.inputHelp()}</p>);
+        parameters.push(count("random-seed", message("random_graph_seed_label"), SEED_MIN, SEED_MAX, message("random_graph_seed_help")));
+        if (this.secondRun()) parameters.push(count("random-seed2", message("random_graph_seed2_label"), SEED_MIN, SEED_MAX, message("random_graph_seed2_help")));
+        // What the mode shows (the bars or bins, the walk or chain paths, the area shape): the data frame of the scene, never the canvas-sized fit.
+        const [frameLeft, top, frameRight, bottom] = this.view().scene.frame;
+        let left = frameLeft;
+        let right = frameRight;
+        const {exact} = this.view();
+        if (exact.kind === "galton") {
+            // The outermost bins hold under half a percent each: the bars the learner reads are the others, so the view keeps those clear of the cards and may cut the sparse tails.
+            const heavy = exact.masses.flatMap((mass, slot) => (mass >= GALTON_TAIL_MASS ? [slot] : []));
+            if (heavy.length > 0) { left = Math.max(frameLeft, heavy[0] - 0.7); right = Math.min(frameRight, heavy[heavy.length - 1] + 0.7); }
+        }
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("random_graph_readout_title"), rows: this.readoutRows()}],
+            notes: [{id: "status", text: this.statusMessage()}, ...this.readoutNotes()],
+            marks: {must: [{kind: "box", left, top, right, bottom}]},
+            followView: [left, top, right, bottom],
+        };
+    }
+
+    // ---- Controls -------------------------------------------------------------------------------------------------------
+
+    override getGraphCommands(): JSX.Element[] {
+        const state = this.state;
+        const whole = {decimals: 0, integer: true};
+        const commands: JSX.Element[] = [
+            <ChoiceSelect key="mode" label={t("random_graph_mode_label")} value={state.mode}
+                          options={RANDOM_MODES.map(value => ({value, text: modeName(value)}))}
+                          onChange={value => { const mode = RANDOM_MODES.find(candidate => candidate === value); if (mode) this.editMode(mode); }}/>,
+            <PuckOwned key="n" param="random-n"><CountSetter label={trialsLabel(state.mode)} n={state.n} min={N_MIN} max={N_MAX[state.mode]}
+                         onPlus={() => this.editTrials(state.n + 1)} onMinus={() => this.editTrials(state.n - 1)}
+                         onSet={value => this.editTrials(value)}/></PuckOwned>,
+        ];
+        switch (state.mode) {
+            case "galton":
+                commands.push(
+                    <PuckOwned key="rows" param="random-rows"><CountSetter label={t("random_graph_rows_label")} n={state.rows} min={ROWS_MIN} max={ROWS_MAX} bigStep={2}
+                                 onPlus={() => this.editRows(state.rows + 1)} onMinus={() => this.editRows(state.rows - 1)} onSet={value => this.editRows(value)}/></PuckOwned>,
+                    <PuckOwned key="p" param="random-p"><Slider customText={t("random_graph_p_label")} value={state.pPercent} step={PERCENT_STEP} bigStep={20} min={P_MIN} max={P_MAX}
+                            grid={PERCENT_STEP} onChange={value => this.editPercent(value)}/></PuckOwned>,
+                );
+                break;
+            case "area":
+                commands.push(<PuckOwned key="shape" param="random-shape"><ChoiceSelect label={t("random_graph_shape_label")} value={state.areaShape}
+                                            options={AREA_SHAPES.map(value => ({value, text: t(value === "disc" ? "random_graph_shape_disc" : "random_graph_shape_quarter")}))}
+                                            onChange={value => { const shape = AREA_SHAPES.find(candidate => candidate === value); if (shape) this.editShape(shape); }}/></PuckOwned>);
+                break;
+            case "walk":
+                commands.push(<PuckOwned key="steps" param="random-steps"><Slider customText={t("random_graph_steps_label")} value={state.walkSteps} step={1} bigStep={10}
+                                  min={WALK_STEPS_MIN} max={WALK_STEPS_MAX} onChange={value => this.editWalkSteps(value)}/></PuckOwned>);
+                break;
+            case "markov":
+                commands.push(
+                    <PuckOwned key="a" param="random-a"><Slider customText={t("random_graph_a_label")} value={state.markovA} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
+                            grid={PERCENT_STEP} onChange={value => this.editChain("markovA", value)}/></PuckOwned>,
+                    <PuckOwned key="b" param="random-b"><Slider customText={t("random_graph_b_label")} value={state.markovB} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
+                            grid={PERCENT_STEP} onChange={value => this.editChain("markovB", value)}/></PuckOwned>,
+                    <PuckOwned key="start" param="random-start"><ChoiceSelect label={t("random_graph_start_label")} value={String(state.markovStart)}
+                                  options={[{value: "0", text: t("random_graph_start_a")}, {value: "1", text: t("random_graph_start_b")}]}
+                                  onChange={value => this.editStart(value === "1" ? 1 : 0)}/></PuckOwned>,
+                );
+                break;
+            case "interval":
+                commands.push(<PuckOwned key="sample" param="random-sample"><Slider customText={t("random_graph_sample_label")} value={state.sampleSize} step={1} bigStep={10}
+                                  min={SAMPLE_SIZE_MIN} max={SAMPLE_SIZE_MAX} onChange={value => this.editSampleSize(value)}/></PuckOwned>);
+                break;
+            default:
+                break;
+        }
+        const second = this.secondRun();
+        const seedControls = <>
+            <PuckOwned param="random-seed"><NumberInput label={t("random_graph_seed_label")} value={state.seed} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
+                         help={t("random_graph_seed_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
+                         {...whole} onChange={value => this.editSeed(value)}/></PuckOwned>
+            {OVERLAY_MODES.includes(state.mode) && <BooleanField variant="switch" label={t("random_graph_overlay_label")} checked={state.overlay === 1}
+                                                                   onChange={on => this.editOverlay(on)}/>}
+            {second && <PuckOwned param="random-seed2"><NumberInput label={t("random_graph_seed2_label")} value={state.seed2} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
+                                    help={t("random_graph_seed2_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
+                                    {...whole} onChange={value => this.editSeed2(value)}/></PuckOwned>}
+        </>;
+        // The group keeps the second-run switch in the modes that have one; without it the seed alone is a puck and the group goes.
+        commands.push(OVERLAY_MODES.includes(state.mode)
+            ? <div key="seeds" className="inspector-group" role="group" aria-labelledby={SEEDS_ID}><h3 id={SEEDS_ID}>{t("random_graph_seeds_group")}</h3>{seedControls}</div>
+            : <PuckOwnedGroup key="seeds" params={["random-seed"]} className="inspector-group" role="group" aria-labelledby={SEEDS_ID}><h3 id={SEEDS_ID}>{t("random_graph_seeds_group")}</h3>{seedControls}</PuckOwnedGroup>);
         return commands;
     }
 
@@ -1082,10 +1220,12 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
                             onChange={value => this.editStopMs(value)}/>
                 </>}</ReducedMotion>
                 <StepCounter step={index} length={length}/>
+            </div>
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("random_graph_readout_title")}</ReadoutHeading>
-                <p data-random-status="">{this.statusText()}</p>
-                <ReadoutList label={t("random_graph_readout_title")} rows={this.readoutRows()}/>
-                {this.readoutNotes().map(note => <ReadoutHelp key={note}><span data-random-note="">{note}</span></ReadoutHelp>)}
+                <p data-random-status="" data-readout-note="">{this.statusText()}</p>
+                <ReadoutList label={t("random_graph_readout_title")} rows={this.listRows()}/>
+                {this.readoutNotes().map(note => <ReadoutHelp key={note.id} hooks={{"data-readout-note": ""}}><span data-random-note="">{renderMessage(note.text)}</span></ReadoutHelp>)}
                 <LiveReadout readout={this.status} muted={this.playing}/>
             </div>
         </>;

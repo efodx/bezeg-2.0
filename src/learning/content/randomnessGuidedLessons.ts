@@ -8,10 +8,24 @@
  * exact band are the arguments, the heap and the running frequency are illustrations. The graph overlays one second seed, so RS2 step 5 compares two runs.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SimulationIds} from '../../graphs/random/SimulationGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the simulation's declaration ids: an unknown control fails the type check. */
+const simulationFrame = frameDeclarer<SimulationIds>();
+/** The controls (pucks) each step's observation asks the learner to set. */
+const USES: Readonly<Record<string, readonly SimulationIds['param'][]>> = {
+    'rs1-thousand': ['random-n'],
+    'rs1-seed': ['random-seed'],
+    'rs1-p': ['random-p'],
+    'rs1-explore': ['random-rows', 'random-p', 'random-n'],
+    'rs2-thousand': ['random-n'],
+    'rs2-count': ['random-seed'],
+    'rs2-seeds': ['random-seed2'],
+};
 
 interface StepContent {
     readonly id: string;
@@ -31,7 +45,7 @@ const step = (content: StepContent): GuidedLessonStep => ({
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', USES[content.id] ? simulationFrame({uses: USES[content.id]}) : undefined),
     ],
 });
 
@@ -195,7 +209,7 @@ const rs1Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['galton-gap'],
         workedExampleId: 'rs1-gap',
-        observationPrompt: text('Preberi odčitek Predal 5. Nato v polje Število kroglic vpiši \\(100\\), \\(10000\\) in \\(100000\\) ter si zapiši Največji razmik med deležem in zakonom; na koncu vpiši spet \\(1000\\).', 'Read the readout Slot 5. Then type \\(100\\), \\(10000\\) and \\(100000\\) into the field Number of balls and write down the Largest gap between share and law; finally type \\(1000\\) again.'),
+        observationPrompt: text('Preberi odčitek Predal 5. Nato v krmilnik Število kroglic vpiši \\(100\\), \\(10000\\) in \\(100000\\) ter si zapiši Največji razmik med deležem in zakonom; na koncu vpiši spet \\(1000\\).', 'Read the readout Slot 5. Then type \\(100\\), \\(10000\\) and \\(100000\\) into the control Number of balls and write down the Largest gap between share and law; finally type \\(1000\\) again.'),
         expectedObservations: [text('Po predalih \\(0;\\ 12;\\ 38;\\ 118;\\ 218;\\ 229;\\ 207;\\ 125;\\ 42;\\ 11;\\ 0\\); največji razmik \\(0{,}0171\\). Pri \\(100\\), \\(10000\\), \\(100000\\) kroglicah je največji razmik z istim semenom \\(0{,}0649\\), \\(0{,}0079\\), \\(0{,}0011\\); po vrnitvi na \\(1000\\) je kopica spet enaka.', 'Per slot \\(0;\\ 12;\\ 38;\\ 118;\\ 218;\\ 229;\\ 207;\\ 125;\\ 42;\\ 11;\\ 0\\); largest gap \\(0.0171\\). With \\(100\\), \\(10000\\), \\(100000\\) balls and the same seed the largest gap is \\(0.0649\\), \\(0.0079\\), \\(0.0011\\); after returning to \\(1000\\) the heap is the same again.')],
         scene: randomScene('rs1-thousand-scene', RS1_THOUSAND_BALLS,
             'Galtonova deska, seme \\(42\\): \\(1000\\) kroglic; po predalih \\(0;\\ 12;\\ 38;\\ 118;\\ 218;\\ 229;\\ 207;\\ 125;\\ 42;\\ 11;\\ 0\\), predal \\(5\\): delež \\(0{,}229\\), po zakonu \\(0{,}2461\\), običajno odstopanje \\(0{,}0136\\); največji razmik \\(0{,}0171\\).',
@@ -206,8 +220,8 @@ const rs1Steps: readonly GuidedLessonStep[] = [
         title: text('Isto seme, drugo seme', 'The same seed, another seed'),
         purpose: text('Ločiti ponovitev iste kopice od nove kopice in videti, da se stolpci zakona ne spremenijo.', 'Telling a replay of the same heap from a new heap and seeing that the bars of the law do not change.'),
         explanation: text(
-            'Seme določa celotno zaporedje naključnih odločitev. Pritisni Ponovi in Predvajaj: z istim semenom dobiš natančno isto kopico, saj naključje stroja ni naključje v pravem pomenu, ampak zaporedje, ki ga določa seme. Zdaj je nastavljeno seme \\(43\\): po predalih \\(1;\\ 12;\\ 49;\\ 126;\\ 220;\\ 241;\\ 211;\\ 97;\\ 33;\\ 10;\\ 0\\) kroglic, delež srednjega predala \\(0{,}241\\), največji razmik \\(0{,}0202\\). Kopica je drugačna, stolpci zakona pa so enaki: kopica je ponazoritev tega zagona, stolpci so argument. Če v polje Seme generatorja spet vpišeš \\(42\\), se vrne kopica iz četrtega koraka.',
-            'The seed fixes the whole sequence of random decisions. Press Replay and Play: with the same seed you get exactly the same heap, because the machine\'s chance is a sequence fixed by the seed. The seed is now \\(43\\): the slots hold \\(1;\\ 12;\\ 49;\\ 126;\\ 220;\\ 241;\\ 211;\\ 97;\\ 33;\\ 10;\\ 0\\) balls, the share of the middle slot is \\(0.241\\), the largest gap \\(0.0202\\). The heap is different, but the bars of the law are the same: the heap is the illustration of this run, the bars are the argument. If you type \\(42\\) into the field Generator seed again, the heap of step 4 returns.',
+            'Seme določa celotno zaporedje naključnih odločitev. Pritisni Ponovi in Predvajaj: z istim semenom dobiš natančno isto kopico, saj naključje stroja ni naključje v pravem pomenu, ampak zaporedje, ki ga določa seme. Zdaj je nastavljeno seme \\(43\\): po predalih \\(1;\\ 12;\\ 49;\\ 126;\\ 220;\\ 241;\\ 211;\\ 97;\\ 33;\\ 10;\\ 0\\) kroglic, delež srednjega predala \\(0{,}241\\), največji razmik \\(0{,}0202\\). Kopica je drugačna, stolpci zakona pa so enaki: kopica je ponazoritev tega zagona, stolpci so argument. Če v krmilnik Seme generatorja spet vpišeš \\(42\\), se vrne kopica iz četrtega koraka.',
+            'The seed fixes the whole sequence of random decisions. Press Replay and Play: with the same seed you get exactly the same heap, because the machine\'s chance is a sequence fixed by the seed. The seed is now \\(43\\): the slots hold \\(1;\\ 12;\\ 49;\\ 126;\\ 220;\\ 241;\\ 211;\\ 97;\\ 33;\\ 10;\\ 0\\) balls, the share of the middle slot is \\(0.241\\), the largest gap \\(0.0202\\). The heap is different, but the bars of the law are the same: the heap is the illustration of this run, the bars are the argument. If you type \\(42\\) into the control Generator seed again, the heap of step 4 returns.',
         ),
         formulaIds: [],
         observationPrompt: text('Pritisni Ponovi in Predvajaj in preveri, da je končna kopica ista; nato vpiši seme \\(42\\) in primerjaj s četrtim korakom.', 'Press Replay and Play and check that the final heap is the same; then type seed \\(42\\) and compare with step 4.'),
@@ -225,7 +239,7 @@ const rs1Steps: readonly GuidedLessonStep[] = [
             'If the ball bounces right with chance \\(p=0.3\\), paths to the left are more likely. Write down where you expect the tallest bar. Argument: \\(P_k=\\binom{10}{k}\\,0.3^{k}\\,0.7^{10-k}\\) is largest at \\(k=3\\), where \\(P_3\\approx0.2668\\). With the starting seed \\(42\\) the heap follows the bars: per slot \\(31;\\ 121;\\ 223;\\ 273;\\ 206;\\ 104;\\ 28;\\ 14;\\ 0;\\ 0;\\ 0\\), while the law expects about \\(28.2;\\ 121.1;\\ 233.5;\\ 266.8;\\ 200.1;\\ 102.9;\\ 36.8;\\ 9;\\ 1.4;\\ 0.1;\\ 0\\). Slot \\(7\\) holds \\(14\\) balls instead of about \\(9\\): differences in single slots are usual.',
         ),
         formulaIds: ['galton-law'],
-        observationPrompt: text('Z drsnikom Verjetnost desno (%) spreminjaj vrednost po \\(5\\,\\%\\) (npr. \\(35\\) in \\(70\\)) in opazuj, kam se premakneta stolpec in kopica.', 'With the slider Probability of going right (%) change the value in steps of \\(5\\,\\%\\) (for example \\(35\\) and \\(70\\)) and watch where the bar and the heap move.'),
+        observationPrompt: text('Z drsnikom Verjetnost desno spreminjaj vrednost po \\(5\\,\\%\\) (npr. \\(35\\) in \\(70\\)) in opazuj, kam se premakneta stolpec in kopica.', 'With the control Right chance change the value in steps of \\(5\\,\\%\\) (for example \\(35\\) and \\(70\\)) and watch where the bar and the heap move.'),
         expectedObservations: [text('Pri \\(30\\,\\%\\) je najvišji stolpec v predalu \\(3\\): delež \\(0{,}273\\), po zakonu \\(0{,}2668\\); največji razmik \\(0{,}0105\\). Pri \\(35\\,\\%\\) je v predalu \\(3\\) delež \\(0{,}258\\), po zakonu \\(0{,}2522\\); pri \\(70\\,\\%\\) je v predalu \\(7\\) delež \\(0{,}266\\), po zakonu \\(0{,}2668\\).', 'At \\(30\\,\\%\\) the tallest bar is in slot \\(3\\): share \\(0.273\\), by the law \\(0.2668\\); largest gap \\(0.0105\\). At \\(35\\,\\%\\) slot \\(3\\) has share \\(0.258\\), by the law \\(0.2522\\); at \\(70\\,\\%\\) slot \\(7\\) has share \\(0.266\\), by the law \\(0.2668\\).')],
         scene: randomScene('rs1-p-scene', RS1_SKEWED,
             'Galtonova deska, \\(p=0{,}3\\), seme \\(42\\), \\(1000\\) kroglic: po predalih \\(31;\\ 121;\\ 223;\\ 273;\\ 206;\\ 104;\\ 28;\\ 14;\\ 0;\\ 0;\\ 0\\), predal \\(3\\): delež \\(0{,}273\\), po zakonu \\(0{,}2668\\); največji razmik \\(0{,}0105\\).',
@@ -330,7 +344,7 @@ const rs2Steps: readonly GuidedLessonStep[] = [
             'Argument: the \\(95\\,\\%\\) band is computed from the exact terms of the binomial law, not by a normal formula. After \\(1000\\) tosses it is from \\(469\\) to \\(531\\) heads, so \\(\\tfrac12\\pm0.031\\) in shares; with \\(100\\) tosses it was \\(\\tfrac12\\pm0.1\\), with \\(10\\) tosses \\(\\tfrac12\\pm0.3\\). The frequency line with seed \\(42\\) is an illustration: \\(h=493\\) and \\(f=0.493\\). The chance that \\(f\\) is \\(0.1\\) or more away from \\(\\tfrac12\\), that is, that \\(h\\) is at least \\(100\\) away from \\(500\\), is about \\(2.7\\cdot10^{-10}\\); that is almost never, but not impossible.',
         ),
         formulaIds: ['exact-band'],
-        observationPrompt: text('V polju Število metov izmenično vpisuj \\(10\\), \\(100\\) in \\(1000\\) ter opazuj, kako se oži pas \\(95\\,\\%\\) in kje je črta frekvence.', 'In the field Number of tosses alternately type \\(10\\), \\(100\\) and \\(1000\\) and watch how the \\(95\\,\\%\\) band narrows and where the frequency line is.'),
+        observationPrompt: text('V polju Število metov izmenično vpisuj \\(10\\), \\(100\\) in \\(1000\\) ter opazuj, kako se oži pas \\(95\\,\\%\\) in kje je črta frekvence.', 'In the control Number of tosses alternately type \\(10\\), \\(100\\) and \\(1000\\) and watch how the \\(95\\,\\%\\) band narrows and where the frequency line is.'),
         expectedObservations: [text('Po \\(1000\\) metih \\(493\\) grbov, \\(f=0{,}493\\); pas od \\(469\\) do \\(531\\) (\\(\\pm31\\)), običajno odstopanje deleža \\(0{,}0158\\).', 'After \\(1000\\) tosses \\(493\\) heads, \\(f=0.493\\); the band from \\(469\\) to \\(531\\) (\\(\\pm31\\)), typical deviation of the share \\(0.0158\\).')],
         scene: randomScene('rs2-thousand-scene', RS2_THOUSAND_TOSSES,
             'Kovanec, seme \\(42\\), \\(1000\\) metov: \\(493\\) grbov, \\(f=0{,}493\\), grbov več kot pol metov \\(-7\\); pas \\(95\\,\\%\\) od \\(469\\) do \\(531\\), običajno odstopanje deleža \\(0{,}0158\\).',
@@ -346,7 +360,7 @@ const rs2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['frequency'],
         workedExampleId: 'rs2-sizes',
-        observationPrompt: text('V polju Seme generatorja poskusi \\(7\\) in \\(43\\) ter pri vsakem preberi \\(f\\) in število grbov nad polovico.', 'In the field Generator seed try \\(7\\) and \\(43\\) and read \\(f\\) and the number of heads above half for each.'),
+        observationPrompt: text('V polju Seme generatorja poskusi \\(7\\) in \\(43\\) ter pri vsakem preberi \\(f\\) in število grbov nad polovico.', 'In the control Generator seed try \\(7\\) and \\(43\\) and read \\(f\\) and the number of heads above half for each.'),
         expectedObservations: [text('Seme \\(42\\): \\(5011\\) grbov, \\(f=0{,}5011\\), \\(d=11\\). Seme \\(7\\): \\(5037\\), \\(f=0{,}5037\\), \\(d=37\\). Seme \\(43\\): \\(4872\\), \\(f=0{,}4872\\), \\(d=-128\\), zunaj pasu \\(\\pm98\\), čeprav je \\(f\\) blizu \\(\\tfrac12\\).', 'Seed \\(42\\): \\(5011\\) heads, \\(f=0.5011\\), \\(d=11\\). Seed \\(7\\): \\(5037\\), \\(f=0.5037\\), \\(d=37\\). Seed \\(43\\): \\(4872\\), \\(f=0.4872\\), \\(d=-128\\), outside the band \\(\\pm98\\), although \\(f\\) is close to \\(\\tfrac12\\).')],
         scene: randomScene('rs2-count-scene', RS2_TEN_THOUSAND_TOSSES,
             'Kovanec, seme \\(42\\), \\(10000\\) metov: \\(5011\\) grbov, \\(f=0{,}5011\\), grbov več kot pol metov \\(11\\); pas \\(95\\,\\%\\) od \\(4902\\) do \\(5098\\), običajno odstopanje deleža \\(0{,}005\\).',
@@ -357,11 +371,11 @@ const rs2Steps: readonly GuidedLessonStep[] = [
         title: text('Dva zagona hkrati', 'Two runs at once'),
         purpose: text('Primerjati dva zagona z različnima semenoma in videti, da oba padeta v isti lijak.', 'Comparing two runs with different seeds and seeing that both fall into the same funnel.'),
         explanation: text(
-            'Vklopljeno je primerjanje s semenom \\(43\\), narisano s pikčasto črto; seme \\(42\\) ostane polna črta. Zagona sta si pri majhnih \\(n\\) zelo različna (pri \\(10\\) metih \\(1\\) in \\(3\\) grbi), pri \\(10000\\) metih sta obe frekvenci blizu \\(\\tfrac12\\): \\(0{,}5011\\) in \\(0{,}4872\\). Pas \\(95\\,\\%\\) je isti za oba. Seme \\(43\\) ima \\(4872\\) grbov, to je \\(128\\) pod polovico in zunaj pasu \\(\\pm98\\); tako se konča zunaj pasu največ približno \\(1\\) od \\(20\\) zagonov, kar je pričakovano, ne napaka. Dva zagona nista dokaz, le ponazoritev; drugi zagon lahko spremeniš v polju Drugo seme (z izbiro drugega semena se prejšnje nadomesti).',
-            'Comparison with seed \\(43\\) is switched on and drawn with a dotted line; seed \\(42\\) stays a solid line. The runs differ a lot for small \\(n\\) (with \\(10\\) tosses \\(1\\) and \\(3\\) heads), with \\(10000\\) tosses both frequencies are close to \\(\\tfrac12\\): \\(0.5011\\) and \\(0.4872\\). The \\(95\\,\\%\\) band is the same for both. Seed \\(43\\) has \\(4872\\) heads, that is \\(128\\) below half and outside the band \\(\\pm98\\); at most about \\(1\\) run in \\(20\\) ends outside the band, which is expected, not an error. Two runs are no proof, only an illustration; you can change the second run in the field Second seed (choosing another seed replaces the previous one).',
+            'Vklopljeno je primerjanje s semenom \\(43\\), narisano s pikčasto črto; seme \\(42\\) ostane polna črta. Zagona sta si pri majhnih \\(n\\) zelo različna (pri \\(10\\) metih \\(1\\) in \\(3\\) grbi), pri \\(10000\\) metih sta obe frekvenci blizu \\(\\tfrac12\\): \\(0{,}5011\\) in \\(0{,}4872\\). Pas \\(95\\,\\%\\) je isti za oba. Seme \\(43\\) ima \\(4872\\) grbov, to je \\(128\\) pod polovico in zunaj pasu \\(\\pm98\\); tako se konča zunaj pasu največ približno \\(1\\) od \\(20\\) zagonov, kar je pričakovano, ne napaka. Dva zagona nista dokaz, le ponazoritev; drugi zagon lahko spremeniš v krmilniku Drugo seme (z izbiro drugega semena se prejšnje nadomesti).',
+            'Comparison with seed \\(43\\) is switched on and drawn with a dotted line; seed \\(42\\) stays a solid line. The runs differ a lot for small \\(n\\) (with \\(10\\) tosses \\(1\\) and \\(3\\) heads), with \\(10000\\) tosses both frequencies are close to \\(\\tfrac12\\): \\(0.5011\\) and \\(0.4872\\). The \\(95\\,\\%\\) band is the same for both. Seed \\(43\\) has \\(4872\\) heads, that is \\(128\\) below half and outside the band \\(\\pm98\\); at most about \\(1\\) run in \\(20\\) ends outside the band, which is expected, not an error. Two runs are no proof, only an illustration; you can change the second run in the control Second seed (choosing another seed replaces the previous one).',
         ),
         formulaIds: ['exact-band'],
-        observationPrompt: text('Preberi vrstico Seme \\(43\\), nato v polju Drugo seme poskusi še druga semena in preštej, kolikokrat padeta zagona zunaj pasu.', 'Read the row Seed \\(43\\), then try other seeds in the field Second seed and count how often a run falls outside the band.'),
+        observationPrompt: text('Preberi vrstico Seme \\(43\\), nato v krmilniku Drugo seme poskusi še druga semena in preštej, kolikokrat padeta zagona zunaj pasu.', 'Read the row Seed \\(43\\), then try other seeds in the control Second seed and count how often a run falls outside the band.'),
         expectedObservations: [text('Seme \\(43\\), \\(10000\\) metov: \\(4872\\) grbov; seme \\(42\\): \\(5011\\) grbov; pas \\(95\\,\\%\\) od \\(4902\\) do \\(5098\\).', 'Seed \\(43\\), \\(10000\\) tosses: \\(4872\\) heads; seed \\(42\\): \\(5011\\) heads; the \\(95\\,\\%\\) band from \\(4902\\) to \\(5098\\).')],
         scene: randomScene('rs2-seeds-scene', RS2_TWO_SEEDS,
             'Kovanec, \\(10000\\) metov, seme \\(42\\) (polna črta) in seme \\(43\\) (pikčasta): \\(5011\\) in \\(4872\\) grbov; pas \\(95\\,\\%\\) od \\(4902\\) do \\(5098\\).',

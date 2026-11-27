@@ -9,10 +9,11 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {rs3Lesson} from './randomnessAreaGuidedLessons';
 import type {GuidedLesson} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, puckControl, puckOption, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {SimulationGraph} from '../../graphs/random/SimulationGraph';
 import type {AnimationScheduler} from '../runtime/animation';
 import {enterNumber} from '../../inputs/testEntry';
+import {chooseControl, puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
 import {setLanguage, t} from '../../localization';
 import {runArea} from '../../random/runners';
 import {nextStop, playbackStops} from '../../random/randomModel';
@@ -121,8 +122,8 @@ function mountSimulation() {
         for (let i = 0; i < times; i += 1) for (const action of actionsOf(lesson, stepId)) capabilities.apply(action);
     });
     const restore = () => act(() => { capabilities.restoreState(checkpoint); });
-    const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-    const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
+    const type = (label: string, value: string) => typeControl(label, value, (name, text) => act(() => { enterNumber(field(name), text); }));
+    const choose = (label: string, value: string) => chooseControl(label, value, (name, text) => act(() => { fireEvent.change(field(name), {target: {value: text}}); }));
     const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
     /** Presses Play and fires frames until the playback ends; returns the positions it stopped at. */
     const playToEnd = (): number[] => {
@@ -188,9 +189,8 @@ describe.each(LANGUAGES)('RS3 scenes (%s)', language => {
             for (const label of [t('random_graph_r_shown'), t('random_graph_r_inside'), t('random_graph_r_pi_estimate'), t('random_graph_r_pi_error'), t('random_graph_r_se')]) {
                 expect({label, present: labels.includes(label)}).toEqual({label, present: true});
             }
-            for (const label of [t('random_graph_n_area'), t('random_graph_seed_label'), t('random_graph_shape_label')]) expect(field(label)).toBeTruthy();
-            const options = [...field(t('random_graph_shape_label')).querySelectorAll('option')].map(option => option.textContent);
-            expect(options).toContain(t('random_graph_shape_disc'));
+            for (const label of [t('random_graph_n_area'), t('random_graph_seed_label'), t('random_graph_shape_label')]) expect(puckControl(puckKeyOf(label)!)).toBeTruthy();
+            expect(puckOption('random-shape', t('random_graph_shape_disc'))).toBeTruthy();
             for (const label of [t('play'), t('replay'), t('next_step')]) expect(screen.getByRole('button', {name: label})).toBeTruthy();
         });
         // the labels of the drawn line and of the caption exist in the catalogue of this language

@@ -2,7 +2,7 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, REAL_GRAPH_TEST_TIMEOUT, typePuck} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
@@ -44,7 +44,28 @@ const setOverlay = (fields: Omit<OverlayAction, 'kind' | 'operation'>): LessonAc
 const setPosition = (shown: number): LessonAction => ({kind: 'random', operation: 'set-position', shown});
 /** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
 const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+/** The parameter key of a control by its old Orodja label: the control is a puck on the board while its parameter is declared there. */
+const puckKeyOf = (label: string): string | undefined => ([
+    [t('random_graph_n_galton'), 'random-n'],
+    [t('random_graph_n_frequency'), 'random-n'],
+    [t('random_graph_n_area'), 'random-n'],
+    [t('random_graph_n_walk'), 'random-n'],
+    [t('random_graph_n_markov'), 'random-n'],
+    [t('random_graph_n_interval'), 'random-n'],
+    [t('random_graph_seed_label'), 'random-seed'],
+    [t('random_graph_seed2_label'), 'random-seed2'],
+    [t('random_graph_rows_label'), 'random-rows'],
+    [t('random_graph_p_label'), 'random-p'],
+    [t('random_graph_steps_label'), 'random-steps'],
+    [t('random_graph_a_label'), 'random-a'],
+    [t('random_graph_b_label'), 'random-b'],
+    [t('random_graph_sample_label'), 'random-sample'],
+] as [string, string][]).find(([text]) => text === label)?.[1];
+const type = (label: string, value: string) => {
+    const key = puckKeyOf(label);
+    if (key && document.querySelector(`.puck-strip [data-puck-key="${key}"]`)) typePuck(key, value);
+    else act(() => { enterNumber(field(label), value); });
+};
 const chooseMode = (mode: RandomMode) => act(() => { fireEvent.change(field(t('random_graph_mode_label')), {target: {value: mode}}); });
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const toggleOverlay = () => act(() => { fireEvent.click(screen.getByLabelText(t('random_graph_overlay_label'))); });
@@ -91,7 +112,11 @@ test('set-run reaches the state, readouts and drawing of typing into the fields'
     expect(frequency).toEqual(frequencyControl);
 });
 
-const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
+const choose = (label: string, value: string) => {
+    const key = label === t('random_graph_shape_label') ? 'random-shape' : label === t('random_graph_start_label') ? 'random-start' : undefined;
+    if (key) chooseOnPuckNow(key, value);
+    else act(() => { fireEvent.change(field(label), {target: {value}}); });
+};
 
 test('set-run reaches the state, readouts, status and drawing of the area, walk, Markov and interval controls', () => {
     const area = after(graph => { apply(graph, setMode('area')); apply(graph, setRun({seed: 43, n: 100, areaShape: 'disc'})); });

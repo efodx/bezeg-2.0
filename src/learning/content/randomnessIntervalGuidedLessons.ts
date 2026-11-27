@@ -9,11 +9,20 @@
  * state from the one the prompt asks the learner to produce, and the result of a step is stated in the explanation of the next one.
  */
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SimulationIds} from '../../graphs/random/SimulationGraph';
 import {randomnessSceneActions} from './randomnessGuidedLessons';
 import type {RandomnessSceneSpec} from './randomnessGuidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the simulation's declaration ids: an unknown control fails the type check. */
+const simulationFrame = frameDeclarer<SimulationIds>();
+/** The controls (pucks) each step's observation asks the learner to set. */
+const USES: Readonly<Record<string, readonly SimulationIds['param'][]>> = {
+    'rs6-long': ['random-n'],
+    'rs6-sample-size': ['random-sample'],
+};
 
 interface StepContent {
     readonly id: string;
@@ -33,7 +42,7 @@ const step = (content: StepContent): GuidedLessonStep => ({
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', USES[content.id] ? simulationFrame({uses: USES[content.id]}) : undefined),
     ],
 });
 
@@ -175,8 +184,8 @@ const rs6Steps: readonly GuidedLessonStep[] = [
         formulaIds: ['miss-law'],
         workedExampleId: 'rs6-two-misses',
         observationPrompt: text(
-            'Napovej, kolikšen bo Delež zgrešenih intervalov pri \\(10\\,000\\) intervalih (v odstotkih na dve decimalki) in v katerem razponu okoli računane vrednosti; zapiši razlog (pomisli, kaj se z \\(m\\) zgodi z odstopanjem \\(\\sqrt{mq(1-q)}\\)). Nato v polje Število intervalov vpiši \\(10000\\) in primerjaj z odčitki Delež zgrešenih intervalov, Delež zgrešenih po zakonu in Pričakovano zgrešenih. Opazi, da graf nariše le prvih \\(100\\) intervalov, odčitki pa štejejo vse.',
-            'Predict Share of intervals that miss with \\(10\\,000\\) intervals (in percent to two decimals) and in what range around the computed value; write down the reason (think what happens to the deviation \\(\\sqrt{mq(1-q)}\\) as \\(m\\) grows). Then type \\(10000\\) in the field Number of intervals and compare with the readouts Share of intervals that miss, Share that miss by the law and Expected misses. Notice that the graph draws only the first \\(100\\) intervals while the readouts count all of them.',
+            'Napovej, kolikšen bo Delež zgrešenih intervalov pri \\(10\\,000\\) intervalih (v odstotkih na dve decimalki) in v katerem razponu okoli računane vrednosti; zapiši razlog (pomisli, kaj se z \\(m\\) zgodi z odstopanjem \\(\\sqrt{mq(1-q)}\\)). Nato v krmilnik Intervali vpiši \\(10000\\) in primerjaj z odčitki Delež zgrešenih intervalov, Delež zgrešenih po zakonu in Pričakovano zgrešenih. Opazi, da graf nariše le prvih \\(100\\) intervalov, odčitki pa štejejo vse.',
+            'Predict Share of intervals that miss with \\(10\\,000\\) intervals (in percent to two decimals) and in what range around the computed value; write down the reason (think what happens to the deviation \\(\\sqrt{mq(1-q)}\\) as \\(m\\) grows). Then type \\(10000\\) in the control Intervals and compare with the readouts Share of intervals that miss, Share that miss by the law and Expected misses. Notice that the graph draws only the first \\(100\\) intervals while the readouts count all of them.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(10\\,000\\) intervalov: Intervalov, ki zgrešijo \\(524\\) od \\(10\\,000\\); Delež zgrešenih intervalov \\(5{,}24\\,\\%\\); Delež zgrešenih po zakonu \\(4{,}97\\,\\%\\); Verjetnost, da interval pokrije pravo sredino (točno) \\(0{,}95030\\); Pričakovano zgrešenih \\(497 \\pm 21{,}7\\) (\\(524\\) je približno \\(1{,}2\\) odstopanja nad \\(497\\)); podnapis Narisani prvi intervali: \\(100\\).',
@@ -196,8 +205,8 @@ const rs6Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['interval-half-width', 'interval-exact'],
         observationPrompt: text(
-            'Napovej, kaj se z vzorcem \\(16\\) in nato \\(100\\) zgodi s Polovična širina intervala (izračunaj iz \\(\\tfrac{1}{\\sqrt n}\\) glede na vzorec \\(36\\)) in kaj z deležem zgrešenih; zapiši številki in razlog. Nato v polje Velikost vzorca vpiši \\(16\\), nato \\(100\\) in pri vsakem primerjaj z odčitki Polovična širina intervala, Verjetnost, da interval pokrije pravo sredino (točno), Delež zgrešenih po zakonu in Delež zgrešenih intervalov.',
-            'Predict what happens with the sample \\(16\\) and then \\(100\\) to Half-width of an interval (compute it from \\(\\tfrac{1}{\\sqrt n}\\) relative to the sample \\(36\\)) and to the share of misses; write down both numbers and the reason. Then type \\(16\\) and then \\(100\\) in the field Sample size and compare with the readouts Half-width of an interval, Probability that an interval covers the true mean (exact), Share that miss by the law and Share of intervals that miss each time.',
+            'Napovej, kaj se z vzorcem \\(16\\) in nato \\(100\\) zgodi s Polovična širina intervala (izračunaj iz \\(\\tfrac{1}{\\sqrt n}\\) glede na vzorec \\(36\\)) in kaj z deležem zgrešenih; zapiši številki in razlog. Nato v krmilnik Velikost vzorca vpiši \\(16\\), nato \\(100\\) in pri vsakem primerjaj z odčitki Polovična širina intervala, Verjetnost, da interval pokrije pravo sredino (točno), Delež zgrešenih po zakonu in Delež zgrešenih intervalov.',
+            'Predict what happens with the sample \\(16\\) and then \\(100\\) to Half-width of an interval (compute it from \\(\\tfrac{1}{\\sqrt n}\\) relative to the sample \\(36\\)) and to the share of misses; write down both numbers and the reason. Then type \\(16\\) and then \\(100\\) in the control Sample size and compare with the readouts Half-width of an interval, Probability that an interval covers the true mean (exact), Share that miss by the law and Share of intervals that miss each time.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(10\\,000\\) intervalov: vzorec \\(16\\): Polovična širina intervala \\(14{,}1444\\), pokritost \\(0{,}95083\\), Delež zgrešenih po zakonu \\(4{,}92\\,\\%\\), Delež zgrešenih intervalov \\(5{,}44\\,\\%\\) (\\(544\\)). Vzorec \\(100\\): \\(5{,}6577\\), pokritost \\(0{,}94999\\), po zakonu \\(5\\,\\%\\), \\(5{,}29\\,\\%\\) (\\(529\\)).',
@@ -217,8 +226,8 @@ const rs6Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['interval-half-width', 'interval-exact', 'miss-law'],
         observationPrompt: text(
-            'Preizkušaj sam. Nastavljeni so seme \\(7\\), vzorec \\(25\\) in \\(100\\) intervalov: Intervalov, ki zgrešijo \\(6\\) od \\(100\\), Polovična širina intervala \\(11{,}3155\\) in Delež zgrešenih po zakonu \\(4{,}95\\,\\%\\). Spreminjaj Seme generatorja, Velikost vzorca in Število intervalov; za vsako nastavitev najprej napovej širino iz \\(\\tfrac{1}{\\sqrt n}\\) in število zgrešenih iz zakona, nato preveri. Opazuj, da je en zagon blizu zakona, a od njega odstopa, in da zakon ni dokaz o tem, kateri interval zgreši.',
-            'Explore on your own. The seed \\(7\\), the sample \\(25\\) and \\(100\\) intervals are set: Intervals that miss \\(6\\) of \\(100\\), Half-width of an interval \\(11.3155\\) and Share that miss by the law \\(4.95\\,\\%\\). Change Generator seed, Sample size and Number of intervals; for each setting first predict the width from \\(\\tfrac{1}{\\sqrt n}\\) and the number of misses from the law, then check. Watch that one run is near the law but differs from it, and that the law does not say which interval misses.',
+            'Preizkušaj sam. Nastavljeni so seme \\(7\\), vzorec \\(25\\) in \\(100\\) intervalov: Intervalov, ki zgrešijo \\(6\\) od \\(100\\), Polovična širina intervala \\(11{,}3155\\) in Delež zgrešenih po zakonu \\(4{,}95\\,\\%\\). Spreminjaj Seme generatorja, Velikost vzorca in Intervali; za vsako nastavitev najprej napovej širino iz \\(\\tfrac{1}{\\sqrt n}\\) in število zgrešenih iz zakona, nato preveri. Opazuj, da je en zagon blizu zakona, a od njega odstopa, in da zakon ni dokaz o tem, kateri interval zgreši.',
+            'Explore on your own. The seed \\(7\\), the sample \\(25\\) and \\(100\\) intervals are set: Intervals that miss \\(6\\) of \\(100\\), Half-width of an interval \\(11.3155\\) and Share that miss by the law \\(4.95\\,\\%\\). Change Generator seed, Sample size and Intervals; for each setting first predict the width from \\(\\tfrac{1}{\\sqrt n}\\) and the number of misses from the law, then check. Watch that one run is near the law but differs from it, and that the law does not say which interval misses.',
         ),
         expectedObservations: [text(
             'Seme \\(7\\), vzorec \\(25\\), \\(100\\) intervalov: Intervalov, ki zgrešijo \\(6\\) od \\(100\\); Delež zgrešenih intervalov \\(6\\,\\%\\); Delež zgrešenih po zakonu \\(4{,}95\\,\\%\\); Verjetnost, da interval pokrije pravo sredino (točno) \\(0{,}95049\\); Pričakovano zgrešenih \\(5 \\pm 2{,}2\\); Polovična širina intervala \\(11{,}3155\\).',

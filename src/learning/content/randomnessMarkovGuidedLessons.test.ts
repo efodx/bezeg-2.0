@@ -9,12 +9,13 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {rs5Lesson} from './randomnessMarkovGuidedLessons';
 import type {GuidedLesson, GuidedLessonStep} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import {SimulationGraph} from '../../graphs/random/SimulationGraph';
 import {setLanguage, t} from '../../localization';
 import {formatNumber} from '../../analysis/format';
 import {enterNumber} from '../../inputs/testEntry';
+import {chooseControl, puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
 import {markovDistribution, markovStationary} from '../../random/exact';
 import {runMarkov} from '../../random/runners';
 
@@ -94,9 +95,9 @@ function mountSimulation() {
 
 /** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
 const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+const type = (label: string, value: string) => typeControl(label, value, (name, text) => act(() => { enterNumber(field(name), text); }));
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
-const chooseStart = (start: 0 | 1) => act(() => { fireEvent.change(field(t('random_graph_start_label')), {target: {value: String(start)}}); });
+const chooseStart = (start: 0 | 1) => chooseOnPuckNow('random-start', String(start));
 const typeA = (value: number) => type(t('random_graph_a_label'), String(value));
 const typeB = (value: number) => type(t('random_graph_b_label'), String(value));
 const typeN = (value: number) => type(t('random_graph_n_markov'), String(value));
@@ -151,13 +152,13 @@ test('RS5: every opening lands in the stated state, readouts, note and status in
 
 /** The label keys each prompt must name, and the buttons it presses. */
 const PROMPT_LABELS: Record<string, readonly string[]> = {
-    'rs5-two-states': ['random_graph_a_label', 'random_graph_b_label', 'random_graph_r_share', 'random_graph_r_stationary'],
-    'rs5-longer': ['random_graph_n_markov', 'random_graph_r_share', 'random_graph_r_share_sd'],
+    'rs5-two-states': ['random_name_a', 'random_name_b', 'random_graph_r_share', 'random_graph_r_stationary'],
+    'rs5-longer': ['random_name_chain_steps', 'random_graph_r_share', 'random_graph_r_share_sd'],
     'rs5-exact': ['random_graph_r_exact_a', 'random_graph_r_share', 'next_step'],
     'rs5-start-b': ['random_graph_start_label', 'random_graph_r_share', 'random_graph_r_exact_a', 'replay', 'next_step'],
-    'rs5-rates': ['random_graph_a_label', 'random_graph_b_label', 'random_graph_n_markov', 'random_graph_r_share', 'random_graph_r_exact_a', 'replay', 'next_step'],
+    'rs5-rates': ['random_name_a', 'random_name_b', 'random_name_chain_steps', 'random_graph_r_share', 'random_graph_r_exact_a', 'replay', 'next_step'],
     'rs5-edges': ['random_graph_r_share', 'random_graph_r_stationary', 'random_graph_r_lambda', 'random_graph_r_exact_a', 'replay', 'next_step'],
-    'rs5-explore': ['random_graph_a_label', 'random_graph_b_label', 'random_graph_start_label', 'random_graph_seed_label', 'random_graph_n_markov', 'random_graph_r_share', 'random_graph_r_stationary', 'random_graph_r_lambda'],
+    'rs5-explore': ['random_name_a', 'random_name_b', 'random_graph_start_label', 'random_graph_seed_label', 'random_name_chain_steps', 'random_graph_r_share', 'random_graph_r_stationary', 'random_graph_r_lambda'],
 };
 /** The catalog text of a label; the exact row's label is quoted without its "k = value" tail. */
 const labelText = (key: string) => (key === 'random_graph_r_exact_a' ? t(key, {value0: 0}).split(':')[0] : t(key as 'next_step'));
@@ -176,7 +177,7 @@ test('RS5: every control, button and readout label a prompt names is a string of
                 }
             }
             for (const key of ['random_graph_a_label', 'random_graph_b_label', 'random_graph_n_markov', 'random_graph_seed_label', 'random_graph_start_label'] as const) {
-                expect({language, key, present: screen.queryAllByLabelText(new RegExp(`^${t(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)).length > 0}).toEqual({language, key, present: true});
+                expect({language, key, present: puckControl(puckKeyOf(t(key))!) !== null}).toEqual({language, key, present: true});
             }
             for (const key of ['replay', 'next_step'] as const) expect(screen.getByRole('button', {name: t(key)})).toBeTruthy();
             for (const id of ['share', 'stationary', 'lambda', 'typical', 'exact-a']) expect({language, id, label: readoutLabel(id) !== null}).toEqual({language, id, label: true});

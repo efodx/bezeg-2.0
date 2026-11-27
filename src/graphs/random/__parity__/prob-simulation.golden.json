@@ -36,7 +36,9 @@
           "value": "delež 0,229, po zakonu 0,2461, običajno odstopanje ± 0,0136"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Kroglic 1000 od 1000. Največji razmik med deležem in zakonom: 0,0171."
+      ],
       "outputs": [],
       "captions": [
         "Kopica predalov: vsi poskusi",
@@ -78,7 +80,9 @@
           "value": "delež 0,25, po zakonu 0,2461, običajno odstopanje ± 0,0431"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Kroglic 100 od 1000. Največji razmik med deležem in zakonom: 0,0649."
+      ],
       "outputs": [],
       "captions": [
         "Kopica predalov: vsi poskusi",
@@ -120,7 +124,9 @@
           "value": "delež 0,2455, po zakonu 0,2461, običajno odstopanje ± 0,0014"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Kroglic 100000 od 100000. Največji razmik med deležem in zakonom: 0,0011."
+      ],
       "outputs": [],
       "captions": [
         "Kopica predalov: vsi poskusi",
@@ -162,7 +168,9 @@
           "value": "± 0,0158"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Metov 1000 od 1000, grbov 493, relativna frekvenca 0,493, grbov več kot pol metov -7."
+      ],
       "outputs": [],
       "captions": [
         "Grbov več kot pol metov",
@@ -208,7 +216,9 @@
           "value": "± 0,005"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Metov 10000 od 10000, grbov 5037, relativna frekvenca 0,5037, grbov več kot pol metov 37."
+      ],
       "outputs": [],
       "captions": [
         "Grbov več kot pol metov",
@@ -259,7 +269,9 @@
           "value": "± 0,0164"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Točk 10000 od 10000, v krogu 7833, ocena števila π 3,1332."
+      ],
       "outputs": [],
       "captions": [
         "Delež točk v krogu (ocena števila π/4)",
@@ -300,7 +312,9 @@
           "value": "0, pričakovano 0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Sprehodov 0 od 1, končanih v izhodišču 0."
+      ],
       "outputs": [],
       "captions": [
         "Kje se sprehodi končajo",
@@ -338,7 +352,9 @@
           "value": "68, pričakovano 79,6"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Sprehodov 1000 od 1000, končanih v izhodišču 68."
+      ],
       "outputs": [],
       "captions": [
         "Kje se sprehodi končajo",
@@ -386,7 +402,9 @@
           "value": "0,66667"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Korakov 100 od 100, v stanju A 71, delež 0,71."
+      ],
       "outputs": [],
       "captions": [
         "(začetek)",
@@ -441,7 +459,9 @@
           "value": "0,66667"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Korakov 10000 od 10000, v stanju A 6765, delež 0,6765."
+      ],
       "outputs": [],
       "captions": [
         "(začetek)",
@@ -501,7 +521,9 @@
           "value": "9,4296"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Intervalov 0 od 100, zgrešenih 0."
+      ],
       "outputs": [],
       "captions": [
         "Narisani prvi intervali: 0",
@@ -553,7 +575,9 @@
           "value": "11,3155"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Intervalov 100 od 100, zgrešenih 6."
+      ],
       "outputs": [],
       "captions": [
         "Narisani prvi intervali: 100",

@@ -6,6 +6,7 @@ import type {PresetDataCheck} from '../base/presets/PresetCollection';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {renderMessage, setLanguage} from '../../localization';
 import {DEFAULT_RANDOM_STATE, serializeRandomState, withMode, type RandomState} from '../../random/randomModel';
+import {runAs} from '../base/writes/writeSource';
 import {SimulationGraph} from './SimulationGraph';
 import {randomPresetCollection} from './randomPresetCollection';
 
@@ -25,7 +26,7 @@ const walk: RandomState = {...withMode(DEFAULT_RANDOM_STATE, 'walk'), seed: 7, s
 describe('prob-simulation Preset collection', () => {
     test.each([['the default', DEFAULT_RANDOM_STATE], ['a random walk with an overlay', walk]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new SimulationGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => source.setState(state)); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('prob-simulation');
         expect(preset.data).toEqual(serializeRandomState(state));
@@ -33,7 +34,7 @@ describe('prob-simulation Preset collection', () => {
         expect(randomPresetCollection().check(preset.data)).toEqual({data: serializeRandomState(state)});
 
         const fresh = mountGraph(new SimulationGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(serializeRandomState(fresh.state)).toEqual(serializeRandomState(state));
         expect(fresh.isPlaying()).toBe(false);
     });
@@ -58,10 +59,10 @@ describe('a Preset file with a stored view keeps that view', () => {
 
     test('the stored boardState is kept with data that frames another view', () => {
         const source = mountGraph(new ViewedGraph());
-        act(() => { source.setState(walk); });
+        act(() => { runAs('learner', () => source.setState(walk)); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => fresh.importPreset(preset)); });
         expect(fresh.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(view);
     });
 });

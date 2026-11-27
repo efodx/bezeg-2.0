@@ -157,7 +157,7 @@ function galtonScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
     const latest = drawn > 0 ? polyline(drawn - 1) : {x: [], y: []};
     const heap2 = sim2?.kind === 'galton' ? verticalBars(slots, freq2, 0.5) : EMPTY_LAYER;
     return {
-        frame: [-1, height * 1.12, rows + 1, -height * 1.08],
+        frame: [-1, height * 1.12, rows + 1, -height * 1.4],
         layers: {
             heap: verticalBars(slots, freq, 0.5),
             heap2,

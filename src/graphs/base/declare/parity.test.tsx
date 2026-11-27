@@ -10,6 +10,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../realGraphTestHarnes
 import {CLASSIFY_EXAMPLES} from '../../../isometry/isometryModel';
 import {createGraph} from '../createTestGraph';
 import {runAs} from '../writes/writeSource';
+import {DEFAULT_RANDOM_STATE, type RandomMode, withMode} from '../../../random/randomModel';
 import {message, messageNumber, renderMessage} from '../../../localization';
 import type {GraphDeclaration} from './graphDeclaration';
 import {type AcceptedDifference, checkParity, describeDifferences, normalise, plainSymbol,type ParityRecording, type ParityState, recordParityWithDeclarations} from './parity';
@@ -1419,6 +1420,35 @@ const SAMPLES: readonly Sample[] = [
             {name: 'triangle, row beyond the drawn rows', apply: run({view: 'triangle', a: 10, b: 10})},
             {name: 'expansion (x + 2)^5', apply: run({view: 'expansion'})},
             {name: 'expansion (x - 3)^7, strings off', apply: run({view: 'expansion', n: 7, c: -3})},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'random/__parity__/prob-simulation.json', demonstration: 'prob-simulation', states: (() => {
+        type Simulation = {setState(state: Record<string, unknown>): void};
+        // every state starts from the default state of its mode, so a state does not inherit the previous one
+        const run = (mode: RandomMode, state: Record<string, unknown> = {}): ParityState['apply'] => graph => {
+            const start = withMode(DEFAULT_RANDOM_STATE, mode);
+            runAs('learner', () => (graph as unknown as Simulation).setState({...start, ...state}));
+        };
+        return [
+            {name: 'galton, default', apply: run('galton')},
+            {name: 'galton, 100 balls, 10 shown, 8 rows, p 30, seed 43', apply: run('galton', {n: 100, shown: 10, rows: 8, pPercent: 30, seed: 43})},
+            {name: 'galton, second seed 43', apply: run('galton', {overlay: 1, seed2: 43})},
+            {name: 'galton, equal seeds', apply: run('galton', {overlay: 1, seed2: 42})},
+            {name: 'frequency, default', apply: run('frequency')},
+            {name: 'frequency, 100 tosses, second seed', apply: run('frequency', {n: 100, shown: 100, overlay: 1})},
+            {name: 'area, quarter, 100 points', apply: run('area', {n: 100, shown: 100})},
+            {name: 'area, nothing shown', apply: run('area', {shown: 0})},
+            {name: 'area, disc, 10000 points', apply: run('area', {areaShape: 'disc', n: 10000, shown: 10000, seed: 7})},
+            {name: 'walk, default', apply: run('walk')},
+            {name: 'walk, 99 steps, 1000 walks', apply: run('walk', {walkSteps: 99, n: 1000, shown: 1000})},
+            {name: 'walk, 200 steps, second seed', apply: run('walk', {walkSteps: 200, overlay: 1})},
+            {name: 'markov, default', apply: run('markov')},
+            {name: 'markov, start in B, 10000 steps', apply: run('markov', {markovStart: 1, n: 10000, shown: 10000})},
+            {name: 'markov, a = b = 0 (identity)', apply: run('markov', {markovA: 0, markovB: 0})},
+            {name: 'markov, a = b = 100 (period)', apply: run('markov', {markovA: 100, markovB: 100, shown: 5})},
+            {name: 'markov, second seed', apply: run('markov', {markovA: 10, markovB: 10, overlay: 1})},
+            {name: 'interval, default', apply: run('interval')},
+            {name: 'interval, sample 16, 10000 intervals', apply: run('interval', {sampleSize: 16, n: 10000, shown: 10000})},
         ] satisfies ParityState[];
     })()},
 ];

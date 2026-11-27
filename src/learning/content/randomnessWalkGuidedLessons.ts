@@ -9,11 +9,21 @@
  * learner to produce, and the result of a step is stated in the explanation of the next one.
  */
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SimulationIds} from '../../graphs/random/SimulationGraph';
 import {randomnessSceneActions} from './randomnessGuidedLessons';
 import type {RandomnessSceneSpec} from './randomnessGuidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the simulation's declaration ids: an unknown control fails the type check. */
+const simulationFrame = frameDeclarer<SimulationIds>();
+/** The controls (pucks) each step's observation asks the learner to set. */
+const USES: Readonly<Record<string, readonly SimulationIds['param'][]>> = {
+    'rs4-ten-walks': ['random-n'],
+    'rs4-parity': ['random-steps'],
+    'rs4-doubling': ['random-steps'],
+};
 
 interface StepContent {
     readonly id: string;
@@ -33,7 +43,7 @@ const step = (content: StepContent): GuidedLessonStep => ({
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', USES[content.id] ? simulationFrame({uses: USES[content.id]}) : undefined),
     ],
 });
 
@@ -120,8 +130,8 @@ const rs4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Napovej, kje bo končalo deset sprehodov s \\(100\\) koraki: ali bodo vsi blizu istega položaja, ali bodo razpršeni po vsej širini od \\(-100\\) do \\(100\\) ali kako drugače. Zapiši približen razpon končnih položajev in razlog. Nato v polju Število sprehodov vpiši \\(10\\) in primerjaj z narisanimi sprehodi, s prekinjenima črtama (Običajna širina sprehodov) in z odčitkoma Koren povprečja kvadratov položaja ter Sprehodov, ki se končajo v izhodišču.',
-            'Predict where ten walks of \\(100\\) steps will end: will they all be near the same position, spread over the whole width from \\(-100\\) to \\(100\\), or some other way. Write down an approximate range of end positions and the reason. Then type \\(10\\) in the field Number of walks and compare with the drawn walks, with the dashed lines (Typical width of the walks) and with the readouts Root mean square position and Walks ending at the origin.',
+            'Napovej, kje bo končalo deset sprehodov s \\(100\\) koraki: ali bodo vsi blizu istega položaja, ali bodo razpršeni po vsej širini od \\(-100\\) do \\(100\\) ali kako drugače. Zapiši približen razpon končnih položajev in razlog. Nato v krmilniku Sprehodi vpiši \\(10\\) in primerjaj z narisanimi sprehodi, s prekinjenima črtama (Običajna širina sprehodov) in z odčitkoma Koren povprečja kvadratov položaja ter Sprehodov, ki se končajo v izhodišču.',
+            'Predict where ten walks of \\(100\\) steps will end: will they all be near the same position, spread over the whole width from \\(-100\\) to \\(100\\), or some other way. Write down an approximate range of end positions and the reason. Then type \\(10\\) in the control Walks and compare with the drawn walks, with the dashed lines (Typical width of the walks) and with the readouts Root mean square position and Walks ending at the origin.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(10\\) sprehodov: Koren povprečja kvadratov položaja \\(10{,}68\\), po zakonu \\(10\\); Povprečje razdalje od izhodišča \\(9{,}4\\), po zakonu \\(7{,}9589\\); Sprehodov, ki se končajo v izhodišču \\(0\\), pričakovano \\(0{,}8\\).',
@@ -141,8 +151,8 @@ const rs4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['walk-sqrt', 'walk-law'],
         observationPrompt: text(
-            'Iz zakona konca napovej, koliko od \\(1000\\) sprehodov se bo približno končalo pri \\(0\\), in ali bo Koren povprečja kvadratov položaja natanko \\(10\\) ali le blizu \\(10\\); zapiši napoved in razlog. Nato v polju Število sprehodov vpiši \\(1000\\) in primerjaj z odčitki Koren povprečja kvadratov položaja, Povprečje razdalje od izhodišča in Sprehodov, ki se končajo v izhodišču ter s histogramom proti prekinjenemu zakonu.',
-            'From the law of the end predict about how many of \\(1000\\) walks will end at \\(0\\), and whether the Root mean square position will be exactly \\(10\\) or only near \\(10\\); write down the prediction and the reason. Then type \\(1000\\) in the field Number of walks and compare with the readouts Root mean square position, Mean distance from the origin and Walks ending at the origin, and the histogram with the dashed law.',
+            'Iz zakona konca napovej, koliko od \\(1000\\) sprehodov se bo približno končalo pri \\(0\\), in ali bo Koren povprečja kvadratov položaja natanko \\(10\\) ali le blizu \\(10\\); zapiši napoved in razlog. Nato v krmilniku Sprehodi vpiši \\(1000\\) in primerjaj z odčitki Koren povprečja kvadratov položaja, Povprečje razdalje od izhodišča in Sprehodov, ki se končajo v izhodišču ter s histogramom proti prekinjenemu zakonu.',
+            'From the law of the end predict about how many of \\(1000\\) walks will end at \\(0\\), and whether the Root mean square position will be exactly \\(10\\) or only near \\(10\\); write down the prediction and the reason. Then type \\(1000\\) in the control Walks and compare with the readouts Root mean square position, Mean distance from the origin and Walks ending at the origin, and the histogram with the dashed law.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(1000\\) sprehodov po \\(100\\) korakov: Koren povprečja kvadratov položaja \\(10{,}31\\), po zakonu \\(10\\); Povprečje razdalje od izhodišča \\(8{,}218\\), po zakonu \\(7{,}9589\\); Sprehodov, ki se končajo v izhodišču \\(68\\), pričakovano \\(79{,}6\\).',
@@ -163,8 +173,8 @@ const rs4Steps: readonly GuidedLessonStep[] = [
         formulaIds: [],
         workedExampleId: 'rs4-zero',
         observationPrompt: text(
-            'Napovej, koliko od \\(1000\\) sprehodov bo končalo pri \\(0\\), če ima vsak sprehod \\(99\\) korakov namesto \\(100\\), in zakaj. Nato v polju Korakov na sprehod vpiši \\(99\\) in primerjaj z odčitkom Sprehodov, ki se končajo v izhodišču in s položaji stolpcev histograma.',
-            'Predict how many of the \\(1000\\) walks will end at \\(0\\) if each walk has \\(99\\) steps instead of \\(100\\), and why. Then type \\(99\\) in the field Steps per walk and compare with the readout Walks ending at the origin and with the positions of the bars of the histogram.',
+            'Napovej, koliko od \\(1000\\) sprehodov bo končalo pri \\(0\\), če ima vsak sprehod \\(99\\) korakov namesto \\(100\\), in zakaj. Nato v krmilniku Koraki sprehoda vpiši \\(99\\) in primerjaj z odčitkom Sprehodov, ki se končajo v izhodišču in s položaji stolpcev histograma.',
+            'Predict how many of the \\(1000\\) walks will end at \\(0\\) if each walk has \\(99\\) steps instead of \\(100\\), and why. Then type \\(99\\) in the control Steps per walk and compare with the readout Walks ending at the origin and with the positions of the bars of the histogram.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(1000\\) sprehodov po \\(99\\) korakov: Koren povprečja kvadratov položaja \\(10{,}15\\), po zakonu \\(9{,}95\\); Povprečje razdalje od izhodišča \\(8{,}19\\), po zakonu \\(7{,}9589\\); Sprehodov, ki se končajo v izhodišču \\(0\\), s pojasnilom, da se pri lihem številu korakov ne morejo končati v izhodišču.',
@@ -184,8 +194,8 @@ const rs4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['walk-sqrt'],
         observationPrompt: text(
-            'Napovej Koren povprečja kvadratov položaja po \\(200\\) korakih namesto \\(100\\): ali bo približno dvakrat večji kot zdaj ali večji za kak drug faktor? Zapiši število in račun. Nato v polju Korakov na sprehod vpiši \\(200\\) in primerjaj z odčitkoma Koren povprečja kvadratov položaja in Povprečje razdalje od izhodišča, vsakim z vrednostjo po zakonu.',
-            'Predict the Root mean square position after \\(200\\) steps instead of \\(100\\): will it be about twice as large as now or larger by some other factor? Write down the number and the calculation. Then type \\(200\\) in the field Steps per walk and compare with the readouts Root mean square position and Mean distance from the origin, each with its value by the law.',
+            'Napovej Koren povprečja kvadratov položaja po \\(200\\) korakih namesto \\(100\\): ali bo približno dvakrat večji kot zdaj ali večji za kak drug faktor? Zapiši število in račun. Nato v krmilniku Koraki sprehoda vpiši \\(200\\) in primerjaj z odčitkoma Koren povprečja kvadratov položaja in Povprečje razdalje od izhodišča, vsakim z vrednostjo po zakonu.',
+            'Predict the Root mean square position after \\(200\\) steps instead of \\(100\\): will it be about twice as large as now or larger by some other factor? Write down the number and the calculation. Then type \\(200\\) in the control Steps per walk and compare with the readouts Root mean square position and Mean distance from the origin, each with its value by the law.',
         ),
         expectedObservations: [text(
             'Seme \\(42\\), \\(1000\\) sprehodov po \\(200\\) korakov: Koren povprečja kvadratov položaja \\(13{,}78\\), po zakonu \\(14{,}14\\); Povprečje razdalje od izhodišča \\(11{,}086\\), po zakonu \\(11{,}2697\\); Sprehodov, ki se končajo v izhodišču \\(56\\), pričakovano \\(56{,}3\\).',
@@ -205,8 +215,8 @@ const rs4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['walk-sqrt', 'walk-law'],
         observationPrompt: text(
-            'Preizkušaj sam. Nastavljeno je seme \\(7\\), \\(400\\) korakov in \\(1000\\) sprehodov; odčitek Koren povprečja kvadratov položaja je \\(18{,}99\\) ob zakonu \\(20=\\sqrt{400}\\). Spreminjaj Seme generatorja, Korakov na sprehod in Število sprehodov; za vsako nastavitev najprej napovej odčitek iz \\(\\sqrt n\\), nato ga preveri. Opazuj, da je odčitek v enem zagonu blizu zakona, a se od njega razlikuje, in da konci sprehodov sledijo prekinjenemu zakonu.',
-            'Explore on your own. The seed \\(7\\), \\(400\\) steps and \\(1000\\) walks are set; the readout Root mean square position is \\(18.99\\) beside the law \\(20=\\sqrt{400}\\). Change Generator seed, Steps per walk and Number of walks; for each setting first predict the readout from \\(\\sqrt n\\), then check it. Watch that in one run the readout is near the law yet differs from it, and that the ends of the walks follow the dashed law.',
+            'Preizkušaj sam. Nastavljeno je seme \\(7\\), \\(400\\) korakov in \\(1000\\) sprehodov; odčitek Koren povprečja kvadratov položaja je \\(18{,}99\\) ob zakonu \\(20=\\sqrt{400}\\). Spreminjaj Seme generatorja, Koraki sprehoda in Sprehodi; za vsako nastavitev najprej napovej odčitek iz \\(\\sqrt n\\), nato ga preveri. Opazuj, da je odčitek v enem zagonu blizu zakona, a se od njega razlikuje, in da konci sprehodov sledijo prekinjenemu zakonu.',
+            'Explore on your own. The seed \\(7\\), \\(400\\) steps and \\(1000\\) walks are set; the readout Root mean square position is \\(18.99\\) beside the law \\(20=\\sqrt{400}\\). Change Generator seed, Steps per walk and Walks; for each setting first predict the readout from \\(\\sqrt n\\), then check it. Watch that in one run the readout is near the law yet differs from it, and that the ends of the walks follow the dashed law.',
         ),
         expectedObservations: [text(
             'Seme \\(7\\), \\(1000\\) sprehodov po \\(400\\) korakov: Koren povprečja kvadratov položaja \\(18{,}99\\), po zakonu \\(20\\); Povprečje razdalje od izhodišča \\(15{,}174\\), po zakonu \\(15{,}9477\\); Sprehodov, ki se končajo v izhodišču \\(45\\), pričakovano \\(39{,}9\\).',

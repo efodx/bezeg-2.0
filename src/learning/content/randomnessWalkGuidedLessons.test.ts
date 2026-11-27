@@ -9,10 +9,11 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {rs4Lesson} from './randomnessWalkGuidedLessons';
 import type {GuidedLesson} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {SimulationGraph} from '../../graphs/random/SimulationGraph';
 import type {AnimationScheduler} from '../runtime/animation';
 import {enterNumber} from '../../inputs/testEntry';
+import {chooseControl, puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
 import {setLanguage, t} from '../../localization';
 import {runWalks} from '../../random/runners';
 import {walkLaw} from '../../random/exact';
@@ -121,7 +122,7 @@ function mountSimulation() {
         for (let i = 0; i < times; i += 1) for (const action of actionsOf(lesson, stepId)) capabilities.apply(action);
     });
     const restore = () => act(() => { capabilities.restoreState(checkpoint); });
-    const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+    const type = (label: string, value: string) => typeControl(label, value, (name, text) => act(() => { enterNumber(field(name), text); }));
     const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
     /** Presses Play and fires frames until the playback ends; returns the positions it stopped at. */
     const playToEnd = (): number[] => {
@@ -171,11 +172,11 @@ describe.each(LANGUAGES)('RS4 scenes (%s)', language => {
         const caption = t('random_graph_cap_walks', {value0: '@'}).split('@')[0].replace(/:\s*$/, '');
         const named: Record<string, string[]> = {
             'rs4-one-walk': [t('random_graph_r_mean_abs'), t('play'), t('next_step')],
-            'rs4-ten-walks': [t('random_graph_r_mean_abs'), caption, t('random_graph_cap_funnel'), t('random_graph_n_walk'), t('random_graph_r_rms'), t('random_graph_r_zeros')],
-            'rs4-law': [t('random_graph_r_rms'), t('random_graph_r_mean_abs'), t('random_graph_r_zeros'), t('random_graph_n_walk'), t('random_graph_cap_funnel'), t('random_graph_cap_walk_exact'), t('random_graph_cap_walk_heap')],
-            'rs4-parity': [t('random_graph_r_rms'), t('random_graph_r_mean_abs'), t('random_graph_r_zeros'), t('random_graph_steps_label')],
-            'rs4-doubling': [t('random_graph_r_rms'), t('random_graph_r_mean_abs'), t('random_graph_steps_label')],
-            'rs4-explore': [t('random_graph_r_rms'), t('random_graph_seed_label'), t('random_graph_steps_label'), t('random_graph_n_walk')],
+            'rs4-ten-walks': [t('random_graph_r_mean_abs'), caption, t('random_graph_cap_funnel'), t('random_name_walks'), t('random_graph_r_rms'), t('random_graph_r_zeros')],
+            'rs4-law': [t('random_graph_r_rms'), t('random_graph_r_mean_abs'), t('random_graph_r_zeros'), t('random_name_walks'), t('random_graph_cap_funnel'), t('random_graph_cap_walk_exact'), t('random_graph_cap_walk_heap')],
+            'rs4-parity': [t('random_graph_r_rms'), t('random_graph_r_mean_abs'), t('random_graph_r_zeros'), t('random_name_walk_steps')],
+            'rs4-doubling': [t('random_graph_r_rms'), t('random_graph_r_mean_abs'), t('random_name_walk_steps')],
+            'rs4-explore': [t('random_graph_r_rms'), t('random_graph_seed_label'), t('random_name_walk_steps'), t('random_name_walks')],
         };
         expect(Object.keys(named)).toEqual(rs4Lesson.steps.map(step => step.id));
         for (const step of rs4Lesson.steps) {
@@ -191,7 +192,7 @@ describe.each(LANGUAGES)('RS4 scenes (%s)', language => {
             for (const label of [t('random_graph_r_shown'), t('random_graph_r_rms'), t('random_graph_r_mean_abs'), t('random_graph_r_zeros')]) {
                 expect({label, present: labels.includes(label)}).toEqual({label, present: true});
             }
-            for (const label of [t('random_graph_n_walk'), t('random_graph_seed_label'), t('random_graph_steps_label')]) expect(field(label)).toBeTruthy();
+            for (const label of [t('random_graph_n_walk'), t('random_graph_seed_label'), t('random_graph_steps_label')]) expect(puckControl(puckKeyOf(label)!)).toBeTruthy();
             for (const label of [t('play'), t('replay'), t('next_step')]) expect(screen.getByRole('button', {name: label})).toBeTruthy();
         });
         for (const key of ['random_graph_cap_funnel', 'random_graph_cap_walk_exact', 'random_graph_cap_walk_heap'] as const) expect(t(key).length).toBeGreaterThan(0);

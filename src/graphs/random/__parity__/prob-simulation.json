@@ -1,0 +1,992 @@
+{
+  "graph": "prob-simulation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "galton, default",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "1000 od 1000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Število kroglic po predalih#0",
+          "label": "Število kroglic po predalih",
+          "value": "0; 12; 38; 118; 218; 229; 207; 125; 42; 11; 0"
+        },
+        {
+          "key": "Pričakovano po predalih#0",
+          "label": "Pričakovano po predalih",
+          "value": "1; 9,8; 43,9; 117,2; 205,1; 246,1; 205,1; 117,2; 43,9; 9,8; 1"
+        },
+        {
+          "key": "Največji razmik med deležem in zakonom#0",
+          "label": "Največji razmik med deležem in zakonom",
+          "value": "0,0171"
+        },
+        {
+          "key": "Predal 5#0",
+          "label": "Predal 5",
+          "value": "delež 0,229, po zakonu 0,2461, običajno odstopanje ± 0,0136"
+        }
+      ],
+      "notes": [
+        "Kroglic 1000 od 1000. Največji razmik med deležem in zakonom: 0,0171."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kopica predalov: vsi poskusi",
+        "Narisane prve poti kroglic: 10",
+        "Pričakovano po zakonu"
+      ]
+    },
+    {
+      "name": "galton, 100 balls, 10 shown, 8 rows, p 30, seed 43",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10 od 100"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "43"
+        },
+        {
+          "key": "Število kroglic po predalih#0",
+          "label": "Število kroglic po predalih",
+          "value": "1; 1; 2; 3; 2; 1; 0; 0; 0"
+        },
+        {
+          "key": "Pričakovano po predalih#0",
+          "label": "Pričakovano po predalih",
+          "value": "0,6; 2; 3; 2,5; 1,4; 0,5; 0,1; 0; 0"
+        },
+        {
+          "key": "Največji razmik med deležem in zakonom#0",
+          "label": "Največji razmik med deležem in zakonom",
+          "value": "0,0977"
+        },
+        {
+          "key": "Predal 2#0",
+          "label": "Predal 2",
+          "value": "delež 0,2, po zakonu 0,2965, običajno odstopanje ± 0,1444"
+        }
+      ],
+      "notes": [
+        "Kroglic 10 od 100. Največji razmik med deležem in zakonom: 0,0977."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kopica predalov: vsi poskusi",
+        "Narisane prve poti kroglic: 10",
+        "Pričakovano po zakonu"
+      ]
+    },
+    {
+      "name": "galton, second seed 43",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "1000 od 1000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Število kroglic po predalih#0",
+          "label": "Število kroglic po predalih",
+          "value": "0; 12; 38; 118; 218; 229; 207; 125; 42; 11; 0"
+        },
+        {
+          "key": "Pričakovano po predalih#0",
+          "label": "Pričakovano po predalih",
+          "value": "1; 9,8; 43,9; 117,2; 205,1; 246,1; 205,1; 117,2; 43,9; 9,8; 1"
+        },
+        {
+          "key": "Največji razmik med deležem in zakonom#0",
+          "label": "Največji razmik med deležem in zakonom",
+          "value": "0,0171"
+        },
+        {
+          "key": "Predal 5#0",
+          "label": "Predal 5",
+          "value": "delež 0,229, po zakonu 0,2461, običajno odstopanje ± 0,0136"
+        },
+        {
+          "key": "Seme 43: največji razmik med deležem in zakonom#0",
+          "label": "Seme 43: največji razmik med deležem in zakonom",
+          "value": "0,0202"
+        }
+      ],
+      "notes": [
+        "Kroglic 1000 od 1000. Največji razmik med deležem in zakonom: 0,0171."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kopica predalov: vsi poskusi",
+        "Narisane prve poti kroglic: 10",
+        "Pikčasta črta: seme 43",
+        "Polna črta: seme 42",
+        "Pričakovano po zakonu"
+      ]
+    },
+    {
+      "name": "galton, equal seeds",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "1000 od 1000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Število kroglic po predalih#0",
+          "label": "Število kroglic po predalih",
+          "value": "0; 12; 38; 118; 218; 229; 207; 125; 42; 11; 0"
+        },
+        {
+          "key": "Pričakovano po predalih#0",
+          "label": "Pričakovano po predalih",
+          "value": "1; 9,8; 43,9; 117,2; 205,1; 246,1; 205,1; 117,2; 43,9; 9,8; 1"
+        },
+        {
+          "key": "Največji razmik med deležem in zakonom#0",
+          "label": "Največji razmik med deležem in zakonom",
+          "value": "0,0171"
+        },
+        {
+          "key": "Predal 5#0",
+          "label": "Predal 5",
+          "value": "delež 0,229, po zakonu 0,2461, običajno odstopanje ± 0,0136"
+        },
+        {
+          "key": "Seme 42: največji razmik med deležem in zakonom#0",
+          "label": "Seme 42: največji razmik med deležem in zakonom",
+          "value": "0,0171"
+        }
+      ],
+      "notes": [
+        "Kroglic 1000 od 1000. Največji razmik med deležem in zakonom: 0,0171.",
+        "Obe semeni sta enaki, zato se poskusa ujemata."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kopica predalov: vsi poskusi",
+        "Narisane prve poti kroglic: 10",
+        "Pikčasta črta: seme 42",
+        "Polna črta: seme 42",
+        "Pričakovano po zakonu"
+      ]
+    },
+    {
+      "name": "frequency, default",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10000 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Število grbov#0",
+          "label": "Število grbov",
+          "value": "5011 od 10000"
+        },
+        {
+          "key": "Relativna frekvenca grbov#0",
+          "label": "Relativna frekvenca grbov",
+          "value": "0,5011"
+        },
+        {
+          "key": "Pas 95 % za število grbov#0",
+          "label": "Pas 95 % za število grbov",
+          "value": "od 4902 do 5098 (± 98)"
+        },
+        {
+          "key": "Običajno odstopanje deleža#0",
+          "label": "Običajno odstopanje deleža",
+          "value": "± 0,005"
+        }
+      ],
+      "notes": [
+        "Metov 10000 od 10000, grbov 5011, relativna frekvenca 0,5011, grbov več kot pol metov 11."
+      ],
+      "outputs": [],
+      "captions": [
+        "Grbov več kot pol metov",
+        "Isti pas, izražen v grbih",
+        "Navpična os: ± 98 grbov",
+        "Pas 95 %",
+        "Pričakovana vrednost 1/2",
+        "Relativna frekvenca grbov",
+        "Število poskusov (logaritemska os)"
+      ]
+    },
+    {
+      "name": "frequency, 100 tosses, second seed",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "100 od 100"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Število grbov#0",
+          "label": "Število grbov",
+          "value": "45 od 100"
+        },
+        {
+          "key": "Relativna frekvenca grbov#0",
+          "label": "Relativna frekvenca grbov",
+          "value": "0,45"
+        },
+        {
+          "key": "Pas 95 % za število grbov#0",
+          "label": "Pas 95 % za število grbov",
+          "value": "od 40 do 60 (± 10)"
+        },
+        {
+          "key": "Običajno odstopanje deleža#0",
+          "label": "Običajno odstopanje deleža",
+          "value": "± 0,05"
+        },
+        {
+          "key": "Seme 43: število grbov#0",
+          "label": "Seme 43: število grbov",
+          "value": "53 od 100"
+        }
+      ],
+      "notes": [
+        "Metov 100 od 100, grbov 45, relativna frekvenca 0,45, grbov več kot pol metov -5."
+      ],
+      "outputs": [],
+      "captions": [
+        "Grbov več kot pol metov",
+        "Isti pas, izražen v grbih",
+        "Navpična os: ± 10 grbov",
+        "Pas 95 %",
+        "Pikčasta črta: seme 43",
+        "Polna črta: seme 42",
+        "Pričakovana vrednost 1/2",
+        "Relativna frekvenca grbov",
+        "Število poskusov (logaritemska os)"
+      ]
+    },
+    {
+      "name": "area, quarter, 100 points",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "100 od 100"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Točk v krogu#0",
+          "label": "Točk v krogu",
+          "value": "76 od 100"
+        },
+        {
+          "key": "Delež točk v krogu (ocena števila π/4)#0",
+          "label": "Delež točk v krogu (ocena števila π/4)",
+          "value": "0,76"
+        },
+        {
+          "key": "Ocena števila π#0",
+          "label": "Ocena števila π",
+          "value": "3,04"
+        },
+        {
+          "key": "Napaka ocene#0",
+          "label": "Napaka ocene",
+          "value": "-0,1016"
+        },
+        {
+          "key": "Običajno odstopanje ocene#0",
+          "label": "Običajno odstopanje ocene",
+          "value": "± 0,1642"
+        }
+      ],
+      "notes": [
+        "Točk 100 od 100, v krogu 76, ocena števila π 3,04."
+      ],
+      "outputs": [],
+      "captions": [
+        "Delež točk v krogu (ocena števila π/4)",
+        "Majhen križec: točka zunaj kroga",
+        "Narisane prve točke: 100",
+        "Navpična črta: običajno odstopanje ocene",
+        "Prava vrednost π/4",
+        "Velik križec: točka v krogu",
+        "Četrtina kroga"
+      ]
+    },
+    {
+      "name": "area, nothing shown",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "0 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Točk v krogu#0",
+          "label": "Točk v krogu",
+          "value": "0 od 0"
+        },
+        {
+          "key": "Delež točk v krogu (ocena števila π/4)#0",
+          "label": "Delež točk v krogu (ocena števila π/4)",
+          "value": "ni na voljo"
+        },
+        {
+          "key": "Ocena števila π#0",
+          "label": "Ocena števila π",
+          "value": "ni na voljo"
+        },
+        {
+          "key": "Napaka ocene#0",
+          "label": "Napaka ocene",
+          "value": "ni na voljo"
+        },
+        {
+          "key": "Običajno odstopanje ocene#0",
+          "label": "Običajno odstopanje ocene",
+          "value": "ni na voljo"
+        }
+      ],
+      "notes": [
+        "Točk 0 od 10000: opazovanj še ni, zato ocene števila π ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "Delež točk v krogu (ocena števila π/4)",
+        "Majhen križec: točka zunaj kroga",
+        "Narisane prve točke: 0",
+        "Navpična črta: običajno odstopanje ocene",
+        "Prava vrednost π/4",
+        "Velik križec: točka v krogu",
+        "Četrtina kroga"
+      ]
+    },
+    {
+      "name": "area, disc, 10000 points",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10000 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "7"
+        },
+        {
+          "key": "Točk v krogu#0",
+          "label": "Točk v krogu",
+          "value": "7858 od 10000"
+        },
+        {
+          "key": "Delež točk v krogu (ocena števila π/4)#0",
+          "label": "Delež točk v krogu (ocena števila π/4)",
+          "value": "0,7858"
+        },
+        {
+          "key": "Ocena števila π#0",
+          "label": "Ocena števila π",
+          "value": "3,1432"
+        },
+        {
+          "key": "Napaka ocene#0",
+          "label": "Napaka ocene",
+          "value": "0,0016"
+        },
+        {
+          "key": "Običajno odstopanje ocene#0",
+          "label": "Običajno odstopanje ocene",
+          "value": "± 0,0164"
+        }
+      ],
+      "notes": [
+        "Točk 10000 od 10000, v krogu 7858, ocena števila π 3,1432."
+      ],
+      "outputs": [],
+      "captions": [
+        "Cel krog: ista vzorčna četrtina, zrcaljena v štiri četrtine",
+        "Delež točk v krogu (ocena števila π/4)",
+        "Majhen križec: točka zunaj kroga",
+        "Narisane prve točke: 300",
+        "Navpična črta: običajno odstopanje ocene",
+        "Prava vrednost π/4",
+        "Velik križec: točka v krogu"
+      ]
+    },
+    {
+      "name": "walk, default",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "1000 od 1000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Koren povprečja kvadratov položaja#0",
+          "label": "Koren povprečja kvadratov položaja",
+          "value": "10,31, po zakonu 10"
+        },
+        {
+          "key": "Povprečje razdalje od izhodišča#0",
+          "label": "Povprečje razdalje od izhodišča",
+          "value": "8,218, po zakonu 7,9589"
+        },
+        {
+          "key": "Sprehodov, ki se končajo v izhodišču#0",
+          "label": "Sprehodov, ki se končajo v izhodišču",
+          "value": "68, pričakovano 79,6"
+        }
+      ],
+      "notes": [
+        "Sprehodov 1000 od 1000, končanih v izhodišču 68."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kje se sprehodi končajo",
+        "Narisani prvi sprehodi: 10",
+        "Običajna širina sprehodov",
+        "Pričakovano po zakonu"
+      ]
+    },
+    {
+      "name": "walk, 99 steps, 1000 walks",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "1000 od 1000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Koren povprečja kvadratov položaja#0",
+          "label": "Koren povprečja kvadratov položaja",
+          "value": "10,15, po zakonu 9,95"
+        },
+        {
+          "key": "Povprečje razdalje od izhodišča#0",
+          "label": "Povprečje razdalje od izhodišča",
+          "value": "8,19, po zakonu 7,9589"
+        },
+        {
+          "key": "Sprehodov, ki se končajo v izhodišču#0",
+          "label": "Sprehodov, ki se končajo v izhodišču",
+          "value": "0 (pri lihem številu korakov se ne morejo končati v izhodišču)"
+        }
+      ],
+      "notes": [
+        "Sprehodov 1000 od 1000, končanih v izhodišču 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kje se sprehodi končajo",
+        "Narisani prvi sprehodi: 10",
+        "Običajna širina sprehodov",
+        "Pričakovano po zakonu"
+      ]
+    },
+    {
+      "name": "walk, 200 steps, second seed",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "1000 od 1000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Koren povprečja kvadratov položaja#0",
+          "label": "Koren povprečja kvadratov položaja",
+          "value": "13,78, po zakonu 14,14"
+        },
+        {
+          "key": "Povprečje razdalje od izhodišča#0",
+          "label": "Povprečje razdalje od izhodišča",
+          "value": "11,086, po zakonu 11,2697"
+        },
+        {
+          "key": "Sprehodov, ki se končajo v izhodišču#0",
+          "label": "Sprehodov, ki se končajo v izhodišču",
+          "value": "56, pričakovano 56,3"
+        },
+        {
+          "key": "Seme 43: sprehodov, ki se končajo v izhodišču#0",
+          "label": "Seme 43: sprehodov, ki se končajo v izhodišču",
+          "value": "50"
+        }
+      ],
+      "notes": [
+        "Sprehodov 1000 od 1000, končanih v izhodišču 56."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kje se sprehodi končajo",
+        "Narisani prvi sprehodi: 10",
+        "Običajna širina sprehodov",
+        "Pikčasta črta: seme 43",
+        "Polna črta: seme 42",
+        "Pričakovano po zakonu"
+      ]
+    },
+    {
+      "name": "markov, default",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10000 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Delež časa v stanju A#0",
+          "label": "Delež časa v stanju A",
+          "value": "0,6713"
+        },
+        {
+          "key": "Stacionarna porazdelitev (A; B)#0",
+          "label": "Stacionarna porazdelitev (A; B)",
+          "value": "0,6667; 0,3333"
+        },
+        {
+          "key": "Druga lastna vrednost#0",
+          "label": "Druga lastna vrednost",
+          "value": "0,1"
+        },
+        {
+          "key": "Običajno odstopanje deleža (približno)#0",
+          "label": "Običajno odstopanje deleža (približno)",
+          "value": "± 0,0052"
+        },
+        {
+          "key": "Verjetnost stanja A po korakih (točno): k = 10000#0",
+          "label": "Verjetnost stanja A po korakih (točno): k = 10000",
+          "value": "0,66667"
+        }
+      ],
+      "notes": [
+        "Korakov 10000 od 10000, v stanju A 6713, delež 0,6713."
+      ],
+      "outputs": [],
+      "captions": [
+        "(začetek)",
+        "A → A: 7/10",
+        "A → B: 3/10",
+        "B → A: 3/5",
+        "B → B: 2/5",
+        "Delež časa v stanju A",
+        "Stacionarna porazdelitev",
+        "Stanje A",
+        "Stanje B",
+        "Verjetnost stanja A po k korakih, začetek v A",
+        "Število korakov (logaritemska os)"
+      ]
+    },
+    {
+      "name": "markov, start in B, 10000 steps",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10000 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Delež časa v stanju A#0",
+          "label": "Delež časa v stanju A",
+          "value": "0,6712"
+        },
+        {
+          "key": "Stacionarna porazdelitev (A; B)#0",
+          "label": "Stacionarna porazdelitev (A; B)",
+          "value": "0,6667; 0,3333"
+        },
+        {
+          "key": "Druga lastna vrednost#0",
+          "label": "Druga lastna vrednost",
+          "value": "0,1"
+        },
+        {
+          "key": "Običajno odstopanje deleža (približno)#0",
+          "label": "Običajno odstopanje deleža (približno)",
+          "value": "± 0,0052"
+        },
+        {
+          "key": "Verjetnost stanja A po korakih (točno): k = 10000#0",
+          "label": "Verjetnost stanja A po korakih (točno): k = 10000",
+          "value": "0,66667"
+        }
+      ],
+      "notes": [
+        "Korakov 10000 od 10000, v stanju A 6712, delež 0,6712."
+      ],
+      "outputs": [],
+      "captions": [
+        "(začetek)",
+        "A → A: 7/10",
+        "A → B: 3/10",
+        "B → A: 3/5",
+        "B → B: 2/5",
+        "Delež časa v stanju A",
+        "Stacionarna porazdelitev",
+        "Stanje A",
+        "Stanje B",
+        "Verjetnost stanja A po k korakih, začetek v B",
+        "Število korakov (logaritemska os)"
+      ]
+    },
+    {
+      "name": "markov, a = b = 0 (identity)",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10000 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Delež časa v stanju A#0",
+          "label": "Delež časa v stanju A",
+          "value": "1"
+        },
+        {
+          "key": "Stacionarna porazdelitev (A; B)#0",
+          "label": "Stacionarna porazdelitev (A; B)",
+          "value": "ni enolična"
+        },
+        {
+          "key": "Druga lastna vrednost#0",
+          "label": "Druga lastna vrednost",
+          "value": "1"
+        },
+        {
+          "key": "Običajno odstopanje deleža (približno)#0",
+          "label": "Običajno odstopanje deleža (približno)",
+          "value": "—"
+        },
+        {
+          "key": "Verjetnost stanja A po korakih (točno): k = 10000#0",
+          "label": "Verjetnost stanja A po korakih (točno): k = 10000",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Korakov 10000 od 10000, v stanju A 10000, delež 1.",
+        "Veriga ostane v začetnem stanju, zato stacionarna porazdelitev ni enolična."
+      ],
+      "outputs": [],
+      "captions": [
+        "(začetek)",
+        "A → A: 1",
+        "A → B: 0",
+        "B → A: 0",
+        "B → B: 1",
+        "Delež časa v stanju A",
+        "Stacionarna porazdelitev",
+        "Stanje A",
+        "Stanje B",
+        "Verjetnost stanja A po k korakih, začetek v A",
+        "Število korakov (logaritemska os)"
+      ]
+    },
+    {
+      "name": "markov, a = b = 100 (period)",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "5 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Delež časa v stanju A#0",
+          "label": "Delež časa v stanju A",
+          "value": "0,4"
+        },
+        {
+          "key": "Stacionarna porazdelitev (A; B)#0",
+          "label": "Stacionarna porazdelitev (A; B)",
+          "value": "0,5; 0,5"
+        },
+        {
+          "key": "Druga lastna vrednost#0",
+          "label": "Druga lastna vrednost",
+          "value": "-1"
+        },
+        {
+          "key": "Običajno odstopanje deleža (približno)#0",
+          "label": "Običajno odstopanje deleža (približno)",
+          "value": "± 0"
+        },
+        {
+          "key": "Verjetnost stanja A po korakih (točno): k = 5#0",
+          "label": "Verjetnost stanja A po korakih (točno): k = 5",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Korakov 5 od 10000, v stanju A 2, delež 0,4.",
+        "Veriga izmenjuje stanji, zato se delež časa ustali, verjetnost stanja A po k korakih pa ne (perioda 2)."
+      ],
+      "outputs": [],
+      "captions": [
+        "(začetek)",
+        "A → A: 0",
+        "A → B: 1",
+        "B → A: 1",
+        "B → B: 0",
+        "Delež časa v stanju A",
+        "Stacionarna porazdelitev",
+        "Stanje A",
+        "Stanje B",
+        "Verjetnost stanja A po k korakih, začetek v A",
+        "Število korakov (logaritemska os)"
+      ]
+    },
+    {
+      "name": "markov, second seed",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10000 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Delež časa v stanju A#0",
+          "label": "Delež časa v stanju A",
+          "value": "0,5051"
+        },
+        {
+          "key": "Stacionarna porazdelitev (A; B)#0",
+          "label": "Stacionarna porazdelitev (A; B)",
+          "value": "0,5; 0,5"
+        },
+        {
+          "key": "Druga lastna vrednost#0",
+          "label": "Druga lastna vrednost",
+          "value": "0,8"
+        },
+        {
+          "key": "Običajno odstopanje deleža (približno)#0",
+          "label": "Običajno odstopanje deleža (približno)",
+          "value": "± 0,015"
+        },
+        {
+          "key": "Verjetnost stanja A po korakih (točno): k = 10000#0",
+          "label": "Verjetnost stanja A po korakih (točno): k = 10000",
+          "value": "0,5"
+        },
+        {
+          "key": "Seme 43: delež časa v stanju A#0",
+          "label": "Seme 43: delež časa v stanju A",
+          "value": "0,4967"
+        }
+      ],
+      "notes": [
+        "Korakov 10000 od 10000, v stanju A 5051, delež 0,5051."
+      ],
+      "outputs": [],
+      "captions": [
+        "(začetek)",
+        "A → A: 9/10",
+        "A → B: 1/10",
+        "B → A: 1/10",
+        "B → B: 9/10",
+        "Delež časa v stanju A",
+        "Pikčasta črta: seme 43",
+        "Polna črta: seme 42",
+        "Stacionarna porazdelitev",
+        "Stanje A",
+        "Stanje B",
+        "Verjetnost stanja A po k korakih, začetek v A",
+        "Število korakov (logaritemska os)"
+      ]
+    },
+    {
+      "name": "interval, default",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "100 od 100"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Intervalov, ki zgrešijo#0",
+          "label": "Intervalov, ki zgrešijo",
+          "value": "2 od 100"
+        },
+        {
+          "key": "Delež zgrešenih intervalov#0",
+          "label": "Delež zgrešenih intervalov",
+          "value": "2 %"
+        },
+        {
+          "key": "Delež zgrešenih po zakonu#0",
+          "label": "Delež zgrešenih po zakonu",
+          "value": "4,97 %"
+        },
+        {
+          "key": "Verjetnost, da interval pokrije pravo sredino (točno)#0",
+          "label": "Verjetnost, da interval pokrije pravo sredino (točno)",
+          "value": "0,95030"
+        },
+        {
+          "key": "Pričakovano zgrešenih#0",
+          "label": "Pričakovano zgrešenih",
+          "value": "5 ± 2,2"
+        },
+        {
+          "key": "Polovična širina intervala#0",
+          "label": "Polovična širina intervala",
+          "value": "9,4296"
+        }
+      ],
+      "notes": [
+        "Intervalov 100 od 100, zgrešenih 2."
+      ],
+      "outputs": [],
+      "captions": [
+        "Narisani prvi intervali: 100",
+        "Prava sredina",
+        "Ta poskus: zgrešenih je 2 (polna črta)",
+        "Zgrešenih po zakonu (intervalov: 100; prikazano od 0 do 16; merilo: najvišji stolpec)",
+        "Zgreši"
+      ]
+    },
+    {
+      "name": "interval, sample 16, 10000 intervals",
+      "rows": [
+        {
+          "key": "Prikazano#0",
+          "label": "Prikazano",
+          "value": "10000 od 10000"
+        },
+        {
+          "key": "Seme#0",
+          "label": "Seme",
+          "value": "42"
+        },
+        {
+          "key": "Intervalov, ki zgrešijo#0",
+          "label": "Intervalov, ki zgrešijo",
+          "value": "544 od 10000"
+        },
+        {
+          "key": "Delež zgrešenih intervalov#0",
+          "label": "Delež zgrešenih intervalov",
+          "value": "5,44 %"
+        },
+        {
+          "key": "Delež zgrešenih po zakonu#0",
+          "label": "Delež zgrešenih po zakonu",
+          "value": "4,92 %"
+        },
+        {
+          "key": "Verjetnost, da interval pokrije pravo sredino (točno)#0",
+          "label": "Verjetnost, da interval pokrije pravo sredino (točno)",
+          "value": "0,95083"
+        },
+        {
+          "key": "Pričakovano zgrešenih#0",
+          "label": "Pričakovano zgrešenih",
+          "value": "491,7 ± 21,6"
+        },
+        {
+          "key": "Polovična širina intervala#0",
+          "label": "Polovična širina intervala",
+          "value": "14,1444"
+        }
+      ],
+      "notes": [
+        "Intervalov 10000 od 10000, zgrešenih 544."
+      ],
+      "outputs": [],
+      "captions": [
+        "Narisani prvi intervali: 100",
+        "Prava sredina",
+        "Ta poskus: zgrešenih je 544 (polna črta)",
+        "Zgrešenih po zakonu (intervalov: 10000; prikazano od 383 do 600; merilo: najvišji stolpec)",
+        "Zgreši"
+      ]
+    }
+  ]
+}

@@ -2,14 +2,15 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
-import {setLanguage, t} from '../../localization';
+import {chooseOnPuckNow, installBoardShims, puckControl, typePuck} from '../base/realGraphTestHarness';
+import {renderMessage, setLanguage, t} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
-import {DEFAULT_RANDOM_STATE, N_MAX, N_MIN, nextStop, piStandardError, RANDOM_MODES, simulate, serializeRandomState, type RandomMode} from '../../random/randomModel';
+import {DEFAULT_RANDOM_STATE, N_MAX, nextStop, piStandardError, RANDOM_MODES, simulate, serializeRandomState, type RandomMode} from '../../random/randomModel';
 import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {PATHS_DRAWN, POINTS_DRAWN} from './simulationScene';
-import {ladderStep, PLAYBACK_STEP_MS, SimulationGraph} from './SimulationGraph';
+import {PLAYBACK_STEP_MS, SimulationGraph} from './SimulationGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -30,6 +31,21 @@ class ObservedGraph extends SimulationGraph {
     reduced = false;
     protected override animationScheduler() { return this.clock; }
     override reducedMotion() { return this.reduced; }
+    // A test drives the edit paths directly: tag them as the learner's DOM input would be.
+    override editMode(mode: RandomMode) { runAs('learner', () => super.editMode(mode)); }
+    override editSeed(value: number) { return runAs('learner', () => super.editSeed(value)); }
+    override editSeed2(value: number) { return runAs('learner', () => super.editSeed2(value)); }
+    override editOverlay(on: boolean) { runAs('learner', () => super.editOverlay(on)); }
+    override editShape(shape: Parameters<SimulationGraph['editShape']>[0]) { runAs('learner', () => super.editShape(shape)); }
+    override editStopMs(value: number) { return runAs('learner', () => super.editStopMs(value)); }
+    override editTrials(value: number) { return runAs('learner', () => super.editTrials(value)); }
+    override editRows(value: number) { return runAs('learner', () => super.editRows(value)); }
+    override editPercent(value: number) { return runAs('learner', () => super.editPercent(value)); }
+    override editWalkSteps(value: number) { return runAs('learner', () => super.editWalkSteps(value)); }
+    override editChain(field: 'markovA' | 'markovB', value: number) { return runAs('learner', () => super.editChain(field, value)); }
+    override editStart(start: 0 | 1) { runAs('learner', () => super.editStart(start)); }
+    override editSampleSize(value: number) { return runAs('learner', () => super.editSampleSize(value)); }
+    override setState(state: Parameters<SimulationGraph['setState']>[0]) { runAs('learner', () => super.setState(state)); }
     liveBoard() { return this.board; }
     disposeNow() { this.disposeFigureScene(); }
 }
@@ -46,7 +62,30 @@ const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: nam
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const button = (label: string) => screen.getByRole('button', {name: label});
 const press = (label: string) => act(() => { fireEvent.click(button(label)); });
-const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+/** The parameter key of a control by its Orodja label: the control is a puck on the board while its parameter is declared there. */
+const puckLabels = (): [string, string][] => [
+    [t('random_graph_n_galton'), 'random-n'],
+    [t('random_graph_n_frequency'), 'random-n'],
+    [t('random_graph_n_area'), 'random-n'],
+    [t('random_graph_n_walk'), 'random-n'],
+    [t('random_graph_n_markov'), 'random-n'],
+    [t('random_graph_n_interval'), 'random-n'],
+    [t('random_graph_seed_label'), 'random-seed'],
+    [t('random_graph_seed2_label'), 'random-seed2'],
+    [t('random_graph_rows_label'), 'random-rows'],
+    [t('random_graph_p_label'), 'random-p'],
+    [t('random_graph_steps_label'), 'random-steps'],
+    [t('random_graph_a_label'), 'random-a'],
+    [t('random_graph_b_label'), 'random-b'],
+    [t('random_graph_sample_label'), 'random-sample'],
+];
+const puckKeyOf = (label: string): string | undefined => puckLabels().find(([text]) => text === label)?.[1];
+/** Types into the control the learner would use: the puck on the board for a declared parameter. */
+const enter = (label: string, value: string) => {
+    const key = puckKeyOf(label);
+    if (key && document.querySelector(`.puck-strip [data-puck-key="${key}"]`)) typePuck(key, value);
+    else act(() => { enterNumber(field(label), value); });
+};
 const chooseMode = (mode: RandomMode) => act(() => { fireEvent.change(field(t('random_graph_mode_label')), {target: {value: mode}}); });
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 const HELP_ID = 'random-graph-input-help';
@@ -63,7 +102,6 @@ type FieldKey = 'random_graph_seed_label' | 'random_graph_n_galton' | 'random_gr
     | 'random_graph_n_area' | 'random_graph_n_walk' | 'random_graph_steps_label' | 'random_graph_n_markov' | 'random_graph_a_label'
     | 'random_graph_b_label' | 'random_graph_n_interval' | 'random_graph_sample_label';
 /** Seed and trials stay typed fields; the rest are a counter and sliders that show their own range. */
-const TYPED_FIELDS: readonly FieldKey[] = ['random_graph_seed_label', 'random_graph_n_galton', 'random_graph_n_frequency', 'random_graph_n_area', 'random_graph_n_walk', 'random_graph_n_markov', 'random_graph_n_interval'];
 const FIELDS: Readonly<Record<RandomMode, readonly FieldKey[]>> = {
     galton: ['random_graph_seed_label', 'random_graph_n_galton', 'random_graph_rows_label', 'random_graph_p_label'],
     frequency: ['random_graph_seed_label', 'random_graph_n_frequency'],
@@ -169,8 +207,7 @@ describe('invalid input', () => {
         const before = drawing(graph);
         enter(t('random_graph_seed_label'), value);
         expect(graph.state.seed).toBe(42);
-        expect(field(t('random_graph_seed_label')).getAttribute('aria-invalid')).toBe('true');
-        expect(document.querySelector('.number-input-hint')?.textContent?.length).toBeGreaterThan(0);
+        expect(document.querySelector('.puck-strip [data-puck-key="random-seed"] input')?.getAttribute('aria-invalid')).toBe('true');
         expect(drawing(graph)).toEqual(before);
     });
 
@@ -219,38 +256,39 @@ describe('numeric fields, help and keyboard', () => {
         };
         for (const mode of RANDOM_MODES) {
             chooseMode(mode);
-            const help = document.getElementById(HELP_ID)!;
-            expect(help.textContent).toMatch(/^Seme 0 do 999/);
+            // every control of the mode is a puck on the board, the seed once, and no Orodja input is left
             const labels = [...document.querySelectorAll<HTMLInputElement>('input[role="spinbutton"]')].map(input => input.labels?.[0]?.textContent ?? '');
-            for (const key of FIELDS[mode]) expect(labels.some(label => label === t(key) || label.startsWith(`${t(key)}, `)), `${mode} ${key}`).toBe(true);
-            expect(labels.filter(label => label.startsWith(t('random_graph_seed_label'))), mode).toHaveLength(1);
+            expect(labels.filter(label => FIELDS[mode].some(key => label.startsWith(t(key)))), mode).toEqual([]);
+            for (const key of FIELDS[mode]) expect(puckControl(puckKeyOf(t(key))!), `${mode} ${key}`).toBeTruthy();
+            expect(document.querySelectorAll('.puck-strip [data-puck-key="random-seed"]'), mode).toHaveLength(1);
             for (const key of FIELDS[mode]) {
-                const input = field(t(key));
-                if (TYPED_FIELDS.includes(key)) expect(input.getAttribute('aria-describedby') ?? '', key).toContain(HELP_ID);
                 const [typed, read, expected] = entries[key];
                 enter(t(key), typed);
                 expect(read(graph.state), `${mode} ${key}`).toBe(expected);
             }
             expect(graph.state.mode).toBe(mode);
         }
-        expect((screen.getByRole('slider', {name: t('random_graph_sample_label')}) as HTMLInputElement).min).toBe('16');
+        chooseMode('interval');
+        expect(puckControl('random-sample').getAttribute('aria-valuemin')).toBe('16');
         // The Markov start state is a choice, not a number.
         chooseMode('markov');
-        act(() => { fireEvent.change(field(t('random_graph_start_label')), {target: {value: '1'}}); });
+        chooseOnPuckNow('random-start', '1');
         expect(graph.state.markovStart).toBe(1);
     });
 
     test('arrows step the seed by 1 and Shift+arrow by 100, Enter commits; Escape restores', () => {
         const {graph} = mountGraph();
-        const seed = field(t('random_graph_seed_label'));
+        // the seed puck: arrows step by 1; a typed entry is cancelled by Escape
+        const seed = puckControl('random-seed');
         act(() => { fireEvent.keyDown(seed, {key: 'ArrowUp'}); });
         expect(graph.state.seed).toBe(43);
-        act(() => { fireEvent.keyDown(seed, {key: 'ArrowUp', shiftKey: true}); });
-        expect(graph.state.seed).toBe(143);
         act(() => { fireEvent.keyDown(seed, {key: 'ArrowDown'}); });
-        expect(graph.state.seed).toBe(142);
-        act(() => { fireEvent.input(seed, {target: {value: '9'}, inputType: 'insertText'}); fireEvent.keyDown(seed, {key: 'Escape'}); });
-        expect(seed.value).toBe('142');
+        expect(graph.state.seed).toBe(42);
+        act(() => { fireEvent.doubleClick(seed); });
+        const entry = document.querySelector<HTMLInputElement>('.puck-strip [data-puck-key="random-seed"] input')!;
+        act(() => { fireEvent.change(entry, {target: {value: '9'}}); fireEvent.keyDown(entry, {key: 'Escape'}); });
+        expect(graph.state.seed).toBe(42);
+        expect(puckControl('random-seed').getAttribute('aria-valuenow')).toBe('42');
     });
 
     test('editing the count shows the whole run', () => {
@@ -425,11 +463,13 @@ describe('language', () => {
         act(() => { setLanguage('en'); });
         expect(document.querySelector(`[aria-label="${t('random_graph_board_label')}"]`)).not.toBeNull();
         expect(t('random_graph_board_label')).toMatch(/Random experiments/);
-        expect(screen.getByLabelText(t('random_graph_seed_label'))).toBeTruthy();
+        const seedParameter = graph.getDeclaration()!.parameters!.find(parameter => parameter.key === 'random-seed')!;
+        expect(renderMessage(seedParameter.label)).toBe(t('random_graph_seed_label'));
+        expect(puckControl('random-seed')).toBeTruthy();
         expect(captions(graph)[0]).toBe(t('random_graph_cap_heap'));
         expect(captions(graph)).not.toEqual(slCaptions);
         expect(document.querySelector('[data-random-status]')!.textContent).toMatch(/^Balls /);
-        expect(document.getElementById(HELP_ID)!.textContent).toMatch(/^Seed 0 to 999/);
+        expect(renderMessage(seedParameter.help!)).toBe(t('random_graph_seed_help'));
         expect(graph.state).toMatchObject({seed: DEFAULT_RANDOM_STATE.seed});
     });
 });
@@ -450,10 +490,11 @@ describe('overlay, second seed, shape and the time between stops', () => {
             expect(screen.queryAllByLabelText(t('random_graph_seed2_label')).length, mode).toBe(0);
             expect(graph.state.seed2, mode).toBe(77);
             if (!offered) continue;
-            expect(overlaySwitch().getAttribute('aria-describedby') ?? '', mode).toContain(HELP_ID);
+            // every typed control is a puck, so no help paragraph is left for the switch to point at
+            expect(document.getElementById(HELP_ID), mode).toBeNull();
+            expect(overlaySwitch().getAttribute('aria-describedby'), mode).toBeNull();
             turnOverlay();
-            expect(field(t('random_graph_seed2_label')).value, mode).toBe('77');
-            expect(field(t('random_graph_seed2_label')).getAttribute('aria-describedby') ?? '', mode).toContain(HELP_ID);
+            expect(puckControl('random-seed2').getAttribute('aria-valuenow'), mode).toBe('77');
             turnOverlay();
             expect(screen.queryAllByLabelText(t('random_graph_seed2_label')).length, mode).toBe(0);
             expect(graph.state.seed2, mode).toBe(77);
@@ -462,51 +503,51 @@ describe('overlay, second seed, shape and the time between stops', () => {
 
     test('the controls run mode, trials, the mode parameters, then the Seeds group with the seed first', () => {
         const {graph} = mountGraph();
-        const keys = graph.getGraphCommands().map(element => String(element.key));
-        expect(keys.slice(0, 5)).toEqual(['mode', 'n', 'rows', 'p', 'seeds']);
+        const keys = () => graph.getGraphCommands().map(element => String(element.key));
+        const strip = () => graph.getDeclaration()!.parameters!.map(parameter => parameter.key);
+        // Orodja keeps the mode first and the Seeds group with the overlay switch; the run's controls stand on the board in the same order
+        expect(keys()[0]).toBe('mode');
+        expect(strip()).toEqual(['random-n', 'random-rows', 'random-p', 'random-seed']);
         const group = screen.getByRole('group', {name: t('random_graph_seeds_group')});
-        expect(group.contains(field(t('random_graph_seed_label')))).toBe(true);
+        expect(puckControl('random-seed')).toBeTruthy();
         expect(group.contains(overlaySwitch())).toBe(true);
         chooseMode('walk');
-        expect(graph.getGraphCommands().map(element => String(element.key)).slice(0, 4)).toEqual(['mode', 'n', 'steps', 'seeds']);
+        expect(keys()[0]).toBe('mode');
+        expect(strip()).toEqual(['random-n', 'random-steps', 'random-seed']);
     });
 
-    test('the trial buttons step the 1-2-5 ladder; at a fixed seed 1000 to 500 redraws the histogram and the deviation', () => {
+    /** The count puck's own − and + buttons (it steps by 1; typed counts reach the 1-2-5 values). */
+    const nStep = (delta: -1 | 1) => act(() => { fireEvent.click(document.querySelectorAll('.puck-strip [data-puck-key="random-n"] .puck-step')[delta < 0 ? 0 : 1]); });
+
+    test('the trials puck steps by one; at a fixed seed a typed 500 instead of 1000 redraws the histogram and the deviation', () => {
         const {graph} = mountGraph();
         const before = {drawing: drawing(graph), largest: readout('largest'), counts: readout('counts')};
         expect(graph.state.n).toBe(1000);
-        press(t('random_graph_n_previous'));
+        nStep(-1);
+        expect(graph.state.n).toBe(999);
+        nStep(1);
+        expect(graph.state.n).toBe(1000);
+        typePuck('random-n', '500');
         expect(graph.state.n).toBe(500);
         expect(graph.state.seed).toBe(42);
         expect(readout('shown')).toContain('500');
         expect(readout('largest')).not.toBe(before.largest);
         expect(readout('counts')).not.toBe(before.counts);
         expect(drawing(graph)).not.toEqual(before.drawing);
-        press(t('random_graph_n_next'));
+        typePuck('random-n', '1000');
         expect(graph.state.n).toBe(1000);
         expect(drawing(graph)).toEqual(before.drawing);
     });
 
-    test('ladderStep goes to the nearest 1-2-5 neighbour and stops at N_MIN and the mode maximum', () => {
-        expect([ladderStep(1000, -1, N_MIN, 100000), ladderStep(1000, 1, N_MIN, 100000)]).toEqual([500, 2000]);
-        expect([ladderStep(300, 1, N_MIN, 100000), ladderStep(300, -1, N_MIN, 100000)]).toEqual([500, 200]);
-        expect([ladderStep(100, -1, N_MIN, 100000), ladderStep(5, -1, N_MIN, 100000), ladderStep(2, -1, N_MIN, 100000)]).toEqual([50, 2, 1]);
-        expect(ladderStep(N_MIN, -1, N_MIN, 100000)).toBe(N_MIN);
-        expect(ladderStep(1, 1, N_MIN, 100000)).toBe(2);
-        expect(ladderStep(N_MAX.walk, 1, N_MIN, N_MAX.walk)).toBe(N_MAX.walk);
-        expect(ladderStep(700, 1, N_MIN, N_MAX.walk)).toBe(N_MAX.walk);
-        expect(ladderStep(50000, 1, N_MIN, 100000)).toBe(100000);
-    });
-
-    test('the trial buttons stop at the mode maximum and an off-ladder typed count steps to its neighbour', () => {
+    test('the trials puck stops at the mode maximum and a typed count steps by one to its neighbour', () => {
         const {graph} = mountGraph();
         chooseMode('walk');
-        enter(t('random_graph_n_walk'), '700');
-        press(t('random_graph_n_next'));
+        enter(t('random_graph_n_walk'), String(N_MAX.walk));
+        nStep(1);
         expect(graph.state.n).toBe(N_MAX.walk);
         enter(t('random_graph_n_walk'), '300');
-        press(t('random_graph_n_previous'));
-        expect(graph.state.n).toBe(200);
+        nStep(-1);
+        expect(graph.state.n).toBe(299);
     });
 
     test('the switch draws the second seed dotted with its two captions and a readout row; turning it off removes them', () => {
@@ -540,11 +581,9 @@ describe('overlay, second seed, shape and the time between stops', () => {
         const before = drawing(graph);
         for (const bad of ['1000000', '-1', '4,5', 'abc']) {
             enter(t('random_graph_seed2_label'), bad);
-            const input = field(t('random_graph_seed2_label'));
+            const input = document.querySelector('.puck-strip [data-puck-key="random-seed2"] input')!;
             expect(graph.state.seed2, bad).toBe(44);
             expect(input.getAttribute('aria-invalid'), bad).toBe('true');
-            expect(input.getAttribute('aria-describedby') ?? '', bad).toContain(HELP_ID);
-            expect(document.querySelector('.number-input-hint')?.textContent?.length, bad).toBeGreaterThan(0);
             expect(drawing(graph), bad).toEqual(before);
         }
         expect(graph.editSeed2(1000000)).toBe(false);
@@ -570,11 +609,11 @@ describe('overlay, second seed, shape and the time between stops', () => {
         const {graph} = mountGraph();
         chooseMode('area');
         expect(captions(graph)).toContain(t('random_graph_cap_circle'));
-        act(() => { fireEvent.change(field(t('random_graph_shape_label')), {target: {value: 'disc'}}); });
+        chooseOnPuckNow('random-shape', 'disc');
         expect(graph.state.areaShape).toBe('disc');
         expect(captions(graph)).toContain(t('random_graph_cap_circle_whole'));
         expect(captions(graph)).not.toContain(t('random_graph_cap_circle'));
-        act(() => { fireEvent.change(field(t('random_graph_shape_label')), {target: {value: 'quarter'}}); });
+        chooseOnPuckNow('random-shape', 'quarter');
         expect(graph.state.areaShape).toBe('quarter');
         expect(captions(graph)).toContain(t('random_graph_cap_circle'));
     });
@@ -651,7 +690,7 @@ describe('overlay, second seed, shape and the time between stops', () => {
             chooseMode('markov');
             collect();
             chooseMode('area');
-            act(() => { fireEvent.change(field(t('random_graph_shape_label')), {target: {value: 'disc'}}); });
+            chooseOnPuckNow('random-shape', 'disc');
             collect();
             chooseMode('frequency');
             collect();
@@ -742,18 +781,18 @@ describe('review repairs', () => {
     test('the whole circle says it is one sample quarter mirrored into the four quarters', () => {
         const {graph} = mountGraph();
         chooseMode('area');
-        act(() => { fireEvent.change(field(t('random_graph_shape_label')), {target: {value: 'disc'}}); });
+        chooseOnPuckNow('random-shape', 'disc');
         expect(captions(graph).join('|')).toContain('zrcaljena v štiri četrtine');
         act(() => { setLanguage('en'); });
         expect(captions(graph).join('|')).toContain('mirrored into the four quarters');
     });
 
     test('the second run says it has the same parameters, and equal seeds are announced', () => {
-        mountGraph();
+        const {graph} = mountGraph();
         chooseMode('frequency');
         turnOverlay();
-        expect(document.body.textContent).toContain('enake parametre');
-        const seed = field(t('random_graph_seed_label')).value;
+        expect(renderMessage(graph.getDeclaration()!.parameters!.find(parameter => parameter.key === 'random-seed2')!.help!)).toContain('enake parametre');
+        const seed = puckControl('random-seed').getAttribute('aria-valuenow')!;
         const note = () => document.querySelector('[data-random-note]');
         enter(t('random_graph_seed2_label'), '77');
         expect(note()).toBeNull();
@@ -794,12 +833,13 @@ describe('review repairs', () => {
         mountGraph();
         for (const mode of RANDOM_MODES) {
             chooseMode(mode);
-            expect(document.querySelectorAll(`#${HELP_ID}`).length, mode).toBe(1);
+            // the seed and the trials are pucks in every mode, so no Orodja input is left for the help paragraph to describe
+            expect(document.querySelectorAll(`#${HELP_ID}`).length, mode).toBe(0);
+            expect(puckControl('random-n'), mode).toBeTruthy();
         }
         chooseMode('markov');
-        for (const key of ['random_graph_mode_label', 'random_graph_start_label'] as const) {
-            expect(screen.getByText(t(key), {selector: 'label'}), key).toBeTruthy();
-        }
+        expect(screen.getByText(t('random_graph_mode_label'), {selector: 'label'})).toBeTruthy();
+        expect(puckControl('random-start').getAttribute('aria-label')).toBe(t('random_graph_start_label'));
         expect(document.querySelector('[data-playback-reason]')).toBeNull();
         press(t('next_step'));
         expect(document.querySelector('[data-playback-reason="no-more-steps"]')?.textContent).toBe(t('playback_block_no_more_steps'));
@@ -812,11 +852,11 @@ describe('a scene replacement (families-prep F2b registration)', () => {
     test('restoring a checkpoint taken before another mode keeps the stored view instead of refitting', () => {
         const {graph} = mountGraph();
         const capabilities = graph.getLessonCapabilities();
-        act(() => { graph.liveBoard().setBoundingBox([-3, 0.6, 15, -0.6], true); });
+        act(() => { runAs('learner', () => graph.liveBoard().setBoundingBox([-3, 0.6, 15, -0.6], true)); });
         const checkpoint = capabilities.captureState();
         const stored = graph.liveBoard().getBoundingBox();
         act(() => { graph.setState({mode: 'walk'}); });
-        act(() => { capabilities.restoreState(checkpoint); });
+        act(() => { runAs('learner', () => capabilities.restoreState(checkpoint)); });
         expect(graph.state.mode).toBe('galton');
         const rounded = (box: number[]) => box.map(value => Math.round(value * 1e6) / 1e6);
         expect(rounded(graph.liveBoard().getBoundingBox())).toEqual(rounded(stored));
@@ -833,10 +873,10 @@ describe('a scene replacement (families-prep F2b registration)', () => {
         enter(t('random_graph_seed_label'), '11');
         enter(t('random_graph_seed2_label'), '13');
         expect(drawing(graph)).not.toEqual(run);
-        act(() => { capabilities.restoreState(checkpoint); });
+        act(() => { runAs('learner', () => capabilities.restoreState(checkpoint)); });
         expect([graph.state.seed, graph.state.seed2, graph.state.overlay]).toEqual([7, 9, 1]);
-        expect(field(t('random_graph_seed_label')).value).toBe('7');
-        expect(field(t('random_graph_seed2_label')).value).toBe('9');
+        expect(puckControl('random-seed').getAttribute('aria-valuenow')).toBe('7');
+        expect(puckControl('random-seed2').getAttribute('aria-valuenow')).toBe('9');
         expect(drawing(graph)).toEqual(run);
     });
 
@@ -1334,9 +1374,9 @@ describe('area experiment with no observations (M5, MC1-MC3)', () => {
         expect(readout('estimate')).not.toBe(t('random_graph_r_unavailable'));
         act(() => { graph.setState({shown: 1}); });
         const one = capabilities.captureState();
-        act(() => { capabilities.restoreState(empty); });
+        act(() => { runAs('learner', () => capabilities.restoreState(empty)); });
         expectUnavailable(graph);
-        act(() => { capabilities.restoreState(one); });
+        act(() => { runAs('learner', () => capabilities.restoreState(one)); });
         expect(readout('estimate')).not.toBe(t('random_graph_r_unavailable'));
         expect(markerYs(graph).length).toBeGreaterThan(0);
         act(() => { graph.setState({shown: 0}); });

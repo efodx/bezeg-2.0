@@ -9,12 +9,13 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {rs6Lesson} from './randomnessIntervalGuidedLessons';
 import type {GuidedLesson, GuidedLessonStep} from './guidedLessons';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import {SimulationGraph} from '../../graphs/random/SimulationGraph';
 import {setLanguage, t} from '../../localization';
 import {formatNumber, withDecimalSeparator} from '../../analysis/format';
 import {enterNumber} from '../../inputs/testEntry';
+import {puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
 import {intervalCoverage, missCountLaw} from '../../random/exact';
 import {SAMPLE_SIZE_MIN} from '../../random/randomModel';
 import {intervalCoverLimit, runIntervals} from '../../random/runners';
@@ -92,7 +93,7 @@ function mountSimulation() {
 
 /** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
 const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+const type = (label: string, value: string) => typeControl(label, value, (name, text) => act(() => { enterNumber(field(name), text); }));
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const typeN = (value: number) => type(t('random_graph_n_interval'), String(value));
 const typeSeed = (value: number) => type(t('random_graph_seed_label'), String(value));
@@ -148,9 +149,9 @@ const PROMPT_LABELS: Record<string, readonly string[]> = {
     'rs6-one-interval': ['next_step', 'random_graph_cap_miss', 'random_graph_r_misses'],
     'rs6-twenty': ['play', 'next_step', 'random_graph_r_misses', 'random_graph_r_expected_misses', 'random_graph_seed_label'],
     'rs6-hundred': ['play', 'next_step', 'random_graph_r_expected_misses', 'random_graph_cap_miss_law', 'random_graph_cap_miss_run'],
-    'rs6-long': ['random_graph_n_interval', 'random_graph_r_miss_share', 'random_graph_r_exact_miss', 'random_graph_r_expected_misses'],
+    'rs6-long': ['random_name_intervals', 'random_graph_r_miss_share', 'random_graph_r_exact_miss', 'random_graph_r_expected_misses'],
     'rs6-sample-size': ['random_graph_sample_label', 'random_graph_r_half_width', 'random_graph_r_exact_coverage', 'random_graph_r_exact_miss', 'random_graph_r_miss_share'],
-    'rs6-explore': ['random_graph_seed_label', 'random_graph_sample_label', 'random_graph_n_interval', 'random_graph_r_misses', 'random_graph_r_half_width', 'random_graph_r_exact_miss'],
+    'rs6-explore': ['random_graph_seed_label', 'random_graph_sample_label', 'random_name_intervals', 'random_graph_r_misses', 'random_graph_r_half_width', 'random_graph_r_exact_miss'],
 };
 /** The labels the explanations name (readouts and captions of the graph the learner looks at). */
 const EXPLANATION_LABELS: Record<string, readonly string[]> = {
@@ -181,7 +182,7 @@ test('RS6: every control, button and readout label a prompt or explanation names
                 }
             }
             for (const key of ['random_graph_n_interval', 'random_graph_seed_label', 'random_graph_sample_label'] as const) {
-                expect({language, key, present: screen.queryAllByLabelText(new RegExp(`^${t(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)).length > 0}).toEqual({language, key, present: true});
+                expect({language, key, present: puckControl(puckKeyOf(t(key))!) !== null}).toEqual({language, key, present: true});
             }
             for (const key of ['play', 'next_step', 'replay'] as const) expect(screen.getByRole('button', {name: t(key)})).toBeTruthy();
             for (const [id, key] of [['misses', 'random_graph_r_misses'], ['miss-share', 'random_graph_r_miss_share'], ['exact-miss', 'random_graph_r_exact_miss'],
