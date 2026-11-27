@@ -25,7 +25,7 @@
  *
  * The convexity lesson uses the same generic actions (`set-function-parameter` convexity-a/convexity-b/convexity-t,
  * `set-function-choice` convexity-example and `show-function-element` second-derivative). A prediction step hides the second
- * derivative and the learner presses the graph's own Show second derivative after predicting; the revealing steps show it.
+ * derivative and the learner turns on the Second derivative control after predicting; the revealing steps show it.
  *
  * The Taylor lesson uses the same generic actions (`set-function-parameter` taylor-center/taylor-degree/taylor-x, `set-function-choice`
  * taylor-example and `show-function-element` taylor-bound). A prediction step hides the error bound and the learner changes the degree
@@ -61,12 +61,14 @@ import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/gr
 import type {TaylorIds} from '../../graphs/functions/TaylorGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 import type {AccumulationIds} from '../../graphs/functions/AccumulationGraph';
+import type {ConvexityIds} from '../../graphs/functions/ConvexityGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 /** Typed by Taylor's declaration ids: an unknown row or control fails the type check. */
 const taylorFrame = frameDeclarer<TaylorIds>();
 const accumulationFrame = frameDeclarer<AccumulationIds>();
+const convexityFrame = frameDeclarer<ConvexityIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
@@ -1718,10 +1720,10 @@ const convexity: GuidedLesson = {
                 'A function is convex on an interval if on it the graph never lies above a chord joining two of its points, between those two points, and concave if the graph never lies below a chord. The second derivative \\(f^{\\prime\\prime}\\) is the derivative of the derivative \\(f^{\\prime}\\): it tells how the slope of the tangent changes. We look at \\(f(x)=x^2\\) on \\([-1,1.5]\\). The blue solid line is the chord between the points of the graph above \\(a=-1\\) and \\(b=1.5\\), and the orange dashed line is the tangent at \\(t=0.5\\). The second derivative is hidden, so there is no verdict yet.',
             ),
             formulaIds: ['convexity-chord'],
-            frames: [frame('convexity-prerequisites-explanation', 'explanation'), frame('convexity-prerequisites-observation', 'observation')],
+            frames: [frame('convexity-prerequisites-explanation', 'explanation', convexityFrame({highlight: ['chord', 'tangent']})), frame('convexity-prerequisites-observation', 'observation', convexityFrame({highlight: ['verdict'], uses: ['show-second-derivative']}))],
             observationPrompt: text(
-                'Napovej, ali graf na \\([a,b]\\) leži pod ali nad tetivo in nad ali pod tangento; šele nato pritisni Pokaži drugi odvod.',
-                'Predict whether the graph on \\([a,b]\\) lies below or above the chord and above or below the tangent; only then press Show second derivative.',
+                'Napovej, ali graf na \\([a,b]\\) leži pod ali nad tetivo in nad ali pod tangento; šele nato vklopi krmilnik Drugi odvod.',
+                'Predict whether the graph on \\([a,b]\\) lies below or above the chord and above or below the tangent; only then turn on the Second derivative control.',
             ),
             expectedObservations: [text(
                 'Narisani sta tetiva in tangenta, drugi odvod in sklep pa sta skrita.',
@@ -1745,7 +1747,7 @@ const convexity: GuidedLesson = {
                 'The chord passes through the points \\((-1,1)\\) and \\((1.5,\\,2.25)\\), so its slope is \\(\\frac{2.25-1}{2.5}=0.5\\) and its equation is \\(y=0.5x+1.5\\). The difference \\(f(x)-(0.5x+1.5)\\) equals \\(x^2-0.5x-1.5\\), which is \\((x+1)(x-1.5)\\), and it is nonpositive on \\([-1,1.5]\\), so the graph lies on or below the chord. This agrees with the second derivative: \\(f^{\\prime\\prime}(x)=2\\ge0\\), so \\(x^2\\) is convex. The app derives the verdict from the sign of \\(f^{\\prime\\prime}\\) on \\([a,b]\\), not by sampling the graph.',
             ),
             formulaIds: ['convexity-chord', 'convexity-second-derivative'], workedExampleId: 'convexity-chord-example',
-            frames: [frame('convexity-chord-explanation', 'explanation'), frame('convexity-chord-calculation', 'calculation'), frame('convexity-chord-observation', 'observation')],
+            frames: [frame('convexity-chord-explanation', 'explanation', convexityFrame({highlight: ['chord']})), frame('convexity-chord-calculation', 'calculation', convexityFrame({highlight: ['chord']})), frame('convexity-chord-observation', 'observation', convexityFrame({highlight: ['second-derivative-sign', 'verdict']}))],
             observationPrompt: text(
                 'Primerjaj sklep z napovedjo: preberi znak \\(f^{\\prime\\prime}\\) na vrhu grafa in vrstico o legi grafa pod podnapisom.',
                 'Compare the verdict with your prediction: read the sign of \\(f^{\\prime\\prime}\\) at the top of the graph and the line about the position of the graph in the caption.',
@@ -1772,7 +1774,7 @@ const convexity: GuidedLesson = {
                 'The tangent at \\(t=0.5\\) has slope \\(f^{\\prime}(0.5)=1\\) and equation \\(y=x-0.25\\). The difference \\(f(x)-(x-0.25)\\) equals \\(x^2-x+0.25\\), which is \\((x-0.5)^2\\), and it is never negative, so the graph lies on or above the tangent. For a convex function this holds for every tangent whose point of tangency is in \\([a,b]\\). Now move \\(t\\) to the right of \\(b\\), for example to \\(1.8\\): the app no longer claims anything about the tangent, because \\(t\\) is not in \\([a,b]\\), although for \\(x^2\\) the difference \\((x-1.8)^2\\) is still nonnegative. A claim may be made only where the hypothesis allows it.',
             ),
             formulaIds: ['convexity-tangent'], workedExampleId: 'convexity-tangent-example',
-            frames: [frame('convexity-tangent-explanation', 'explanation'), frame('convexity-tangent-calculation', 'calculation'), frame('convexity-tangent-observation', 'observation')],
+            frames: [frame('convexity-tangent-explanation', 'explanation', convexityFrame({highlight: ['tangent']})), frame('convexity-tangent-calculation', 'calculation', convexityFrame({highlight: ['tangent']})), frame('convexity-tangent-observation', 'observation', convexityFrame({highlight: ['tangent-verdict'], uses: ['convexity-t']}))],
             observationPrompt: text(
                 'Premakni \\(t\\) iz \\([a,b]\\) ven in preberi, kaj se zgodi z vrstico o tangenti v odčitkih; nato \\(t\\) vrni v \\([a,b]\\).',
                 'Move \\(t\\) out of \\([a,b]\\) and read what happens to the tangent line in the readouts; then bring \\(t\\) back into \\([a,b]\\).',
@@ -1799,10 +1801,10 @@ const convexity: GuidedLesson = {
                 'We switch the example: \\(f(x)=-x^2\\) on the same interval \\([-1,1.5]\\). Its graph is the mirror image of the previous one in the \\(x\\)-axis, so both comparisons may reverse. The derivative is \\(f^{\\prime}(x)=-2x\\), and the second derivative is a constant here. The second derivative is hidden.',
             ),
             formulaIds: ['convexity-second-derivative'],
-            frames: [frame('convexity-negative-explanation', 'explanation'), frame('convexity-negative-observation', 'observation')],
+            frames: [frame('convexity-negative-explanation', 'explanation', convexityFrame({highlight: ['second-derivative-sign']})), frame('convexity-negative-observation', 'observation', convexityFrame({highlight: ['verdict', 'tangent-verdict'], uses: ['show-second-derivative']}))],
             observationPrompt: text(
-                'Napovej, ali graf zdaj leži nad ali pod tetivo, nad ali pod tangento in kakšen je predznak \\(f^{\\prime\\prime}\\); šele nato pritisni Pokaži drugi odvod.',
-                'Predict whether the graph now lies above or below the chord, above or below the tangent, and what the sign of \\(f^{\\prime\\prime}\\) is; only then press Show second derivative.',
+                'Napovej, ali graf zdaj leži nad ali pod tetivo, nad ali pod tangento in kakšen je predznak \\(f^{\\prime\\prime}\\); šele nato vklopi krmilnik Drugi odvod.',
+                'Predict whether the graph now lies above or below the chord, above or below the tangent, and what the sign of \\(f^{\\prime\\prime}\\) is; only then turn on the Second derivative control.',
             ),
             expectedObservations: [text(
                 'Po pritisku je zgoraj znak \\(-\\), sklep je »konkavna na \\([a,b]\\)«: graf leži na tetivi ali nad njo in na tangenti ali pod njo.',
@@ -1826,10 +1828,10 @@ const convexity: GuidedLesson = {
                 'For \\(-x^2\\) we have \\(f^{\\prime\\prime}=-2\\le0\\), so the function is concave: the chord is \\(y=-0.5x-1.5\\), the difference \\(f(x)-(-0.5x-1.5)\\) equals \\(-(x+1)(x-1.5)\\) and is nonnegative, and the difference with the tangent \\(y=-x+0.25\\) is \\(-(x-0.5)^2\\le0\\). Now \\(f(x)=x^3\\) on \\([-1,1.5]\\): the second derivative \\(f^{\\prime\\prime}(x)=6x\\) is negative to the left of \\(0\\) and positive to the right. The second derivative is hidden.',
             ),
             formulaIds: ['convexity-second-derivative', 'convexity-inflection'],
-            frames: [frame('convexity-cube-explanation', 'explanation'), frame('convexity-cube-observation', 'observation')],
+            frames: [frame('convexity-cube-explanation', 'explanation', convexityFrame({highlight: ['second-derivative-sign', 'inflection']})), frame('convexity-cube-observation', 'observation', convexityFrame({highlight: ['verdict', 'inflection'], uses: ['show-second-derivative', 'convexity-a', 'convexity-b']}))],
             observationPrompt: text(
-                'Napovej, ali lahko za ta interval izrečemo trditev o tetivi; šele nato pritisni Pokaži drugi odvod. Nato postavi \\(a=0\\) in \\(b=2\\), potem \\(a=-2\\) in \\(b=0\\).',
-                'Predict whether a claim about the chord can be made for this interval; only then press Show second derivative. Then set \\(a=0\\) and \\(b=2\\), and afterwards \\(a=-2\\) and \\(b=0\\).',
+                'Napovej, ali lahko za ta interval izrečemo trditev o tetivi; šele nato vklopi krmilnik Drugi odvod. Nato postavi \\(a=0\\) in \\(b=2\\), potem \\(a=-2\\) in \\(b=0\\).',
+                'Predict whether a claim about the chord can be made for this interval; only then turn on the Second derivative control. Then set \\(a=0\\) and \\(b=2\\), and afterwards \\(a=-2\\) and \\(b=0\\).',
             ),
             expectedObservations: [text(
                 'Po pritisku je zgoraj znak \\(-\\) levo in \\(+\\) desno od \\(0\\), prevojna točka je pri \\(x=0\\) in sklep je »brez trditve: \\(f^{\\prime\\prime}\\) spremeni predznak na \\([a,b]\\)«. Na \\([0,2]\\) je funkcija konveksna, na \\([-2,0]\\) konkavna.',
@@ -1853,10 +1855,10 @@ const convexity: GuidedLesson = {
                 'For \\(x^3\\) on \\([-1,1.5]\\) the chord is \\(y=1.75x+0.75\\) and the difference \\(f(x)-(1.75x+0.75)\\) equals \\((x+1)(x+0.5)(x-1.5)\\) and is positive on \\((-1,-0.5)\\) and negative on \\((-0.5,1.5)\\): on one part the graph is above the chord and on another below it, so there is no claim. Now \\(f(x)=x^4\\) on \\([-1,1]\\): the second derivative \\(f^{\\prime\\prime}(x)=12x^2\\) equals \\(0\\) at \\(0\\). The second derivative is hidden.',
             ),
             formulaIds: ['convexity-inflection'],
-            frames: [frame('convexity-quartic-explanation', 'explanation'), frame('convexity-quartic-observation', 'observation')],
+            frames: [frame('convexity-quartic-explanation', 'explanation', convexityFrame({highlight: ['inflection']})), frame('convexity-quartic-observation', 'observation', convexityFrame({highlight: ['verdict', 'inflection'], uses: ['show-second-derivative']}))],
             observationPrompt: text(
-                'Napovej, ali ima \\(x^4\\) v \\(0\\) prevojno točko, čeprav je tam \\(f^{\\prime\\prime}(0)=0\\), in kakšen je sklep za \\([-1,1]\\); šele nato pritisni Pokaži drugi odvod.',
-                'Predict whether \\(x^4\\) has an inflection point at \\(0\\) although \\(f^{\\prime\\prime}(0)=0\\) there, and what the verdict for \\([-1,1]\\) is; only then press Show second derivative.',
+                'Napovej, ali ima \\(x^4\\) v \\(0\\) prevojno točko, čeprav je tam \\(f^{\\prime\\prime}(0)=0\\), in kakšen je sklep za \\([-1,1]\\); šele nato vklopi krmilnik Drugi odvod.',
+                'Predict whether \\(x^4\\) has an inflection point at \\(0\\) although \\(f^{\\prime\\prime}(0)=0\\) there, and what the verdict for \\([-1,1]\\) is; only then turn on the Second derivative control.',
             ),
             expectedObservations: [text(
                 'Po pritisku sta zgoraj znaka \\(+\\) in \\(+\\) z znakom \\(0\\) vmes, prevojne točke ni, sklep je »konveksna na \\([a,b]\\)«.',
@@ -1880,7 +1882,7 @@ const convexity: GuidedLesson = {
                 'The chord between \\(-1\\) and \\(1\\) is \\(y=1\\), and the difference \\(x^4-1=(x^2-1)(x^2+1)\\) is nonpositive on \\([-1,1]\\). The tangent at \\(t=0.5\\) is \\(y=0.5x-0.1875\\), and the difference \\((x-0.5)^2(x^2+x+0.75)\\) is nonnegative because the second factor has a negative discriminant. The second derivative \\(12x^2\\) equals \\(0\\) at \\(0\\) but is never negative: the sign does not change, so \\(x^4\\) is convex and there is no inflection at \\(0\\). A zero of the second derivative is therefore not enough; a change of sign is needed, as for \\(x^3\\). Now explore on your own: change the example, move \\(a\\), \\(b\\) and \\(t\\), hide the second derivative and predict before you show it; find an interval where a claim is possible and one where it is not.',
             ),
             formulaIds: ['convexity-second-derivative', 'convexity-inflection'], workedExampleId: 'convexity-quartic-example',
-            frames: [frame('convexity-free-explanation', 'explanation'), frame('convexity-free-calculation', 'calculation'), frame('convexity-free-observation', 'observation')],
+            frames: [frame('convexity-free-explanation', 'explanation', convexityFrame({highlight: ['verdict']})), frame('convexity-free-calculation', 'calculation', convexityFrame({highlight: ['second-derivative-sign']})), frame('convexity-free-observation', 'observation', convexityFrame({highlight: ['verdict'], uses: ['show-second-derivative']}))],
             observationPrompt: text(
                 'Primerjaj sklep z napovedjo. Nato skrij drugi odvod, izberi drug primer ali interval in napovej, preden ga spet pokažeš.',
                 'Compare the verdict with your prediction. Then hide the second derivative, choose another example or interval, and predict before you show it again.',

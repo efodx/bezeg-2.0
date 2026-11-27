@@ -6,18 +6,18 @@
       "name": "default",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1,5"
         },
         {
-          "key": "Točka dotika tangente t#0",
-          "label": "Točka dotika tangente t",
+          "key": "Točka dotika tangente#0",
+          "label": "Točka dotika tangente",
           "value": "0,5"
         },
         {
@@ -66,18 +66,18 @@
       "name": "convexity-guided/convexity-chord-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1,5"
         },
         {
-          "key": "Točka dotika tangente t#0",
-          "label": "Točka dotika tangente t",
+          "key": "Točka dotika tangente#0",
+          "label": "Točka dotika tangente",
           "value": "0,5"
         },
         {
@@ -129,18 +129,18 @@
       "name": "convexity-guided/convexity-negative-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1,5"
         },
         {
-          "key": "Točka dotika tangente t#0",
-          "label": "Točka dotika tangente t",
+          "key": "Točka dotika tangente#0",
+          "label": "Točka dotika tangente",
           "value": "0,5"
         },
         {
@@ -189,18 +189,18 @@
       "name": "convexity-guided/convexity-cube-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1,5"
         },
         {
-          "key": "Točka dotika tangente t#0",
-          "label": "Točka dotika tangente t",
+          "key": "Točka dotika tangente#0",
+          "label": "Točka dotika tangente",
           "value": "0,5"
         },
         {
@@ -249,18 +249,18 @@
       "name": "convexity-guided/convexity-quartic-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1"
         },
         {
-          "key": "Točka dotika tangente t#0",
-          "label": "Točka dotika tangente t",
+          "key": "Točka dotika tangente#0",
+          "label": "Točka dotika tangente",
           "value": "0,5"
         },
         {
@@ -309,18 +309,18 @@
       "name": "convexity-guided/convexity-free-exploration",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "-1"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "1"
         },
         {
-          "key": "Točka dotika tangente t#0",
-          "label": "Točka dotika tangente t",
+          "key": "Točka dotika tangente#0",
+          "label": "Točka dotika tangente",
           "value": "0,5"
         },
         {

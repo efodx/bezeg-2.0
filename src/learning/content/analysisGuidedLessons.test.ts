@@ -748,9 +748,9 @@ describe('the convexity lesson', () => {
     test('asks for a prediction before every second-derivative reveal, and the scene of a prediction step never reveals', () => {
         for (const id of predictionSteps) {
             expect(cStep(id).observationPrompt.en, id).toMatch(/Predict/);
-            expect(cStep(id).observationPrompt.en, id).toMatch(/Show second derivative/);
+            expect(cStep(id).observationPrompt.en, id).toMatch(/turn on the Second derivative control/);
             expect(cStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
-            expect(cStep(id).observationPrompt.sl, id).toMatch(/Pokaži drugi odvod/);
+            expect(cStep(id).observationPrompt.sl, id).toMatch(/vklopi krmilnik Drugi odvod/);
             const actions = adaptedActions(id);
             expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
             expect(actions).toContainEqual(hide);

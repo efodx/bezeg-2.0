@@ -1,10 +1,13 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, FunctionPanel, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
 import {formatLineEquation, formatNumber, NumberLanguage} from "../../analysis/format";
 import {NonVerticalLine} from "../../analysis/derivative";
 import {
@@ -53,6 +56,13 @@ const LABEL_EDGE_MARGIN_PX = 4;
 const CHORD_DASH = 0;
 const TANGENT_DASH = 3;
 
+/** The ids of the convexity declaration: a, b and t and the second-derivative switch are board pucks; the drawn objects are the legend. */
+export type ConvexityIds = {
+    param: "convexity-a" | "convexity-b" | "convexity-t";
+    row: "a" | "b" | "t" | "chord" | "tangent" | "second-derivative-sign" | "verdict" | "tangent-verdict" | "inflection"; note: never;
+    legend: "function" | "chord" | "tangent" | "inflection"; section: never; action: "show-second-derivative";
+};
+
 type StatusKind = "hidden" | "revealed" | "no-claim" | "tangent-outside" | "zero-without-change";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
@@ -99,6 +109,8 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
     private pointT?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections.convexity;
@@ -186,23 +198,23 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         return formatNumber(value, currentLanguage(), PRECISE);
     }
 
-    private signText(sign: SecondDerivativeSign): string {
-        return t(sign === "nonnegative" ? "convexity_sign_nonnegative" : sign === "nonpositive" ? "convexity_sign_nonpositive" : "convexity_sign_changes");
+    private signText(sign: SecondDerivativeSign): Message {
+        return message(sign === "nonnegative" ? "convexity_sign_nonnegative" : sign === "nonpositive" ? "convexity_sign_nonpositive" : "convexity_sign_changes");
     }
 
-    private verdictText(verdict: ConvexityVerdict): string {
-        return t(verdict.kind === "convex" ? "convexity_verdict_convex" : verdict.kind === "concave" ? "convexity_verdict_concave" : "convexity_verdict_none");
+    private verdictText(verdict: ConvexityVerdict): Message {
+        return message(verdict.kind === "convex" ? "convexity_verdict_convex" : verdict.kind === "concave" ? "convexity_verdict_concave" : "convexity_verdict_none");
     }
 
-    private tangentClaimText(claim: ComparisonClaim): string {
-        if (claim.kind === "none") return t(claim.reason === "sign-changes" ? "convexity_tangent_none_sign" : "convexity_tangent_none_outside");
-        return t(claim.kind === "above" ? "convexity_tangent_above" : "convexity_tangent_below");
+    private tangentClaimText(claim: ComparisonClaim): Message {
+        if (claim.kind === "none") return message(claim.reason === "sign-changes" ? "convexity_tangent_none_sign" : "convexity_tangent_none_outside");
+        return message(claim.kind === "above" ? "convexity_tangent_above" : "convexity_tangent_below");
     }
 
-    private inflectionText(view: View): string {
+    private inflectionText(view: View): Message {
         return view.example.inflectionPoints.length === 0
-            ? t("convexity_inflection_none")
-            : t("convexity_inflection_at", {value0: view.example.inflectionPoints.map(x => this.number(x)).join("; ")});
+            ? message("convexity_inflection_none")
+            : message("convexity_inflection_at", {value0: view.example.inflectionPoints.map(x => this.number(x)).join("; ")});
     }
 
     /** The board's verdict line: hidden until the second derivative is shown. */
@@ -239,14 +251,14 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         dropLine(() => model().b);
         dropLine(() => model().t);
 
-        this.own(board.create("functiongraph", [f], {strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth}));
-        this.own(board.create("segment", [[() => model().a, () => f(model().a)], [() => model().b, () => f(model().b)]], {
+        this.drawn.set("function", this.own(board.create("functiongraph", [f], {strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth})));
+        this.drawn.set("chord", this.own(board.create("segment", [[() => model().a, () => f(model().a)], [() => model().b, () => f(model().b)]], {
             strokeColor: GraphPalette.comparisonCurve, dash: CHORD_DASH, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 1.2),
             highlight: false, fixed: true, withLabel: false,
-        }));
-        this.own(board.create("functiongraph", [(x: number) => lineAt(view().tangent, x)], {
+        })));
+        this.drawn.set("tangent", this.own(board.create("functiongraph", [(x: number) => lineAt(view().tangent, x)], {
             strokeColor: GraphPalette.constructionAccent, dash: TANGENT_DASH, strokeWidth, highlight: false, fixed: true,
-        }));
+        })));
 
         // The points of the graph above a, b and t.
         const valuePoint = (x: () => number, color: string) => this.own(board.create("point", [x, () => f(x())], {
@@ -269,12 +281,12 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
             return Math.max(0, widthPx + LABEL_EDGE_MARGIN_PX - (right - x) * board.unitX);
         };
         for (let slot = 0; slot < MAX_INFLECTIONS; slot++) {
-            this.own(board.create("point", [() => inflection() ?? 0, () => f(inflection() ?? 0)], {
+            this.drawn.set("inflection", this.own(board.create("point", [() => inflection() ?? 0, () => f(inflection() ?? 0)], {
                 ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, visible: () => inflection() !== undefined,
                 size: () => Math.max(5, this.displaySettings.pointSize + 1), fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface,
                 strokeColor: GraphPalette.additionalCurves[2], highlightStrokeColor: GraphPalette.additionalCurves[2],
                 strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth),
-            }));
+            })));
             this.own(board.create("text", [() => (inflection() ?? 0) - inflectionLabelShiftPx() / board.unitX, () => f(inflection() ?? 0), () => {
                 const x = inflection();
                 return x === undefined ? "" : `<div>${escapeHtml(t("convexity_board_inflection", {value0: this.number(x)}))}</div>`;
@@ -353,6 +365,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         this.pointA = undefined;
         this.pointB = undefined;
         this.pointT = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -366,71 +379,129 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
                               options={CONVEXITY_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("convexity_a_label")} value={state.a} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("convexity_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("convexity_b_label")} value={state.b} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("convexity_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
-                <Slider customText={t("convexity_t_label")} value={state.t} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("convexity_t_rejected_hint", range)} onChange={next => this.ignoreOutOfDomain(() => this.setT(next))}/>
+            <PuckOwnedGroup params={["convexity-a", "convexity-b", "convexity-t"]} className="inspector-group">
+                <PuckOwned param="convexity-a"><Slider customText={t("convexity_a_label")} value={state.a} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("convexity_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/></PuckOwned>
+                <PuckOwned param="convexity-b"><Slider customText={t("convexity_b_label")} value={state.b} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("convexity_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/></PuckOwned>
+                <PuckOwned param="convexity-t"><Slider customText={t("convexity_t_label")} value={state.t} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("convexity_t_rejected_hint", range)} onChange={next => this.ignoreOutOfDomain(() => this.setT(next))}/></PuckOwned>
                 <p className="inspector-help">{t("convexity_order_help")}</p>
-            </div>
+            </PuckOwnedGroup>
         </>;
     }
 
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
-        return <>
+        return <PuckOwnedGroup params={["show-second-derivative"]}>
             <div className="convexity-actions" role="group" aria-label={t("convexity_actions_label")}>
                 <RevealButton action="toggle-second-derivative" revealed={state.secondDerivativeVisible} showLabel={t("convexity_show_second_derivative")} hideLabel={t("convexity_hide_second_derivative")}
                               onToggle={() => this.setSecondDerivativeVisible(!this.model.secondDerivativeVisible)}/>
             </div>
             <p className="inspector-help">{t("convexity_second_derivative_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.primaryCurve, label: t("convexity_legend_function"), kind: "line"},
-            {id: "chord", color: GraphPalette.comparisonCurve, label: t("convexity_legend_chord"), kind: "line"},
-            {id: "tangent", color: GraphPalette.constructionAccent, label: t("convexity_legend_tangent"), kind: "dashed-line"},
-            {id: "inflection", color: GraphPalette.additionalCurves[2], label: t("convexity_legend_inflection"), kind: "ring"},
-        ]}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "convexity-a": {read: () => this.model.a, apply: (value: number) => this.setA(value)},
+            "convexity-b": {read: () => this.model.b, apply: (value: number) => this.setB(value)},
+            "convexity-t": {read: () => this.model.t, apply: (value: number) => this.setT(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, view marks) plus a, b and t as board pucks, the Second-derivative switch as a puck and the
+     * legend of the drawn objects. The inflection ring is listed only while it is drawn (second derivative shown, example with an inflection point).
+     */
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const view = this.viewOf(model);
+        const bound = (key: "convexity-a" | "convexity-b" | "convexity-t", label: "convexity_a_name" | "convexity_b_name" | "convexity_t_puck", symbol: string) => ({
+            key, kind: "range" as const, label: message(label), symbol, help: message("convexity_order_help"), placement: "board" as const,
+            min: CONVEXITY_X_MIN, max: CONVEXITY_X_MAX, step: CONVEXITY_X_STEP, maxDecimals: 2,
+        });
+        return {
+            ...this.commonDeclaration(),
+            parameters: [bound("convexity-a", "convexity_a_name", "a"), bound("convexity-b", "convexity_b_name", "b"), bound("convexity-t", "convexity_t_puck", "t")],
+            legend: [
+                {id: "function", label: message("convexity_legend_function"), kind: "line", object: "function"},
+                {id: "chord", label: message("convexity_legend_chord"), kind: "line", object: "chord"},
+                {id: "tangent", label: message("convexity_legend_tangent"), kind: "dashed", object: "tangent"},
+                ...(model.secondDerivativeVisible && view.inflection !== undefined
+                    ? [{id: "inflection" as const, label: message("convexity_legend_inflection"), kind: "ring" as const, object: "inflection"}] : []),
+            ],
+            actions: [
+                {id: "show-second-derivative", label: message("convexity_actions_label"), help: message("convexity_second_derivative_help"), placement: "board", enabled: true,
+                    pressed: model.secondDerivativeVisible, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "show-second-derivative") runAs("learner", () => this.setSecondDerivativeVisible(!this.model.secondDerivativeVisible));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
     }
 
     /** The statuses to state in words (no changing numbers except the fixed zero of f''); each has a stable id. */
-    private statuses(model: ConvexityModel, view: View): { id: StatusKind; text: string }[] {
-        if (!model.secondDerivativeVisible) return [{id: "hidden", text: t("convexity_status_hidden")}];
-        const result: { id: StatusKind; text: string }[] = [{id: "revealed", text: t("convexity_status_revealed")}];
-        if (view.verdict.kind === "none") result.push({id: "no-claim", text: t("convexity_status_no_claim")});
-        else if (view.tangentClaim.kind === "none") result.push({id: "tangent-outside", text: t("convexity_status_tangent_outside")});
+    private statuses(model: ConvexityModel, view: View): { id: StatusKind; text: Message }[] {
+        if (!model.secondDerivativeVisible) return [{id: "hidden", text: message("convexity_status_hidden")}];
+        const result: { id: StatusKind; text: Message }[] = [{id: "revealed", text: message("convexity_status_revealed")}];
+        if (view.verdict.kind === "none") result.push({id: "no-claim", text: message("convexity_status_no_claim")});
+        else if (view.tangentClaim.kind === "none") result.push({id: "tangent-outside", text: message("convexity_status_tangent_outside")});
         if (view.flatZeros.length > 0) {
-            result.push({id: "zero-without-change", text: t("convexity_status_zero_without_change", {value0: view.flatZeros.map(x => this.number(x)).join("; ")})});
+            result.push({id: "zero-without-change", text: message("convexity_status_zero_without_change", {value0: view.flatZeros.map(x => this.number(x)).join("; ")})});
         }
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /** Declared by the base (task 08): the readout rows, the note, the statuses and the drawn curves; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
-        const number = (value: number) => formatNumber(value, language, PRECISE);
-        const hidden = t("convexity_hidden");
+        const line = (text: string) => message("convexity_line_value", {value0: text.replace(/^y = /, "")});
+        const hidden = message("convexity_hidden");
         const shown = model.secondDerivativeVisible;
-        const rows = [
-            {id: "a", label: t("convexity_a_label"), value: number(model.a)},
-            {id: "b", label: t("convexity_b_label"), value: number(model.b)},
-            {id: "t", label: t("convexity_t_label"), value: number(model.t)},
-            {id: "chord", label: t("convexity_readout_chord"), value: formatLineEquation(view.chord, language, PRECISE)},
-            {id: "tangent", label: t("convexity_readout_tangent"), value: formatLineEquation(view.tangent, language, PRECISE)},
-            {id: "second-derivative-sign", label: t("convexity_readout_sign"), value: shown ? this.signText(view.sign) : hidden},
-            {id: "verdict", label: t("convexity_readout_verdict"), value: shown ? this.verdictText(view.verdict) : hidden},
-            {id: "tangent-verdict", label: t("convexity_readout_tangent_verdict"), value: shown ? this.tangentClaimText(view.tangentClaim) : hidden},
-            {id: "inflection", label: t("convexity_readout_inflection"), value: shown ? this.inflectionText(view) : hidden},
-        ];
+        const f = (x: number) => view.example.value(x);
+        const {a, b, t: tangentPoint} = model;
+        return {
+            rows: [
+                {id: "a", name: message("convexity_a_name"), symbol: "a", value: messageNumber(a, PRECISE)},
+                {id: "b", name: message("convexity_b_name"), symbol: "b", value: messageNumber(b, PRECISE)},
+                {id: "t", name: message("convexity_t_name"), symbol: "t", value: messageNumber(tangentPoint, PRECISE)},
+                {id: "chord", name: message("convexity_readout_chord"), value: line(formatLineEquation(view.chord, language, PRECISE))},
+                {id: "tangent", name: message("convexity_readout_tangent"), value: line(formatLineEquation(view.tangent, language, PRECISE))},
+                {id: "second-derivative-sign", name: message("convexity_readout_sign"), value: shown ? this.signText(view.sign) : hidden},
+                {id: "verdict", name: message("convexity_readout_verdict"), value: shown ? this.verdictText(view.verdict) : hidden},
+                {id: "tangent-verdict", name: message("convexity_readout_tangent_verdict"), value: shown ? this.tangentClaimText(view.tangentClaim) : hidden},
+                {id: "inflection", name: message("convexity_readout_inflection"), value: shown ? this.inflectionText(view) : hidden},
+            ],
+            help: message("convexity_note"),
+            status: this.statuses(model, view),
+            plotted: [f, (x: number) => lineAt(view.chord, x), (x: number) => lineAt(view.tangent, x)],
+            must: [
+                ...[a, b, tangentPoint].flatMap(x => [{x, y: 0}, {x, y: f(x)}]),
+                ...(shown && view.inflection !== undefined ? [{x: view.inflection, y: f(view.inflection)}] : []),
+            ],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("convexity_note")}/>
-            <FunctionStatus className="convexity-status" dataAttribute="convexity-status" lines={this.statuses(model, view)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="convexity-status" dataAttribute="convexity-status" lines={(this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 }

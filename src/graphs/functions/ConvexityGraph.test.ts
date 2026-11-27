@@ -5,7 +5,8 @@ import {
     chordLineOf, CONVEXITY_EXAMPLE_IDS, CONVEXITY_EXAMPLES, CONVEXITY_X_MAX, CONVEXITY_X_MIN, convexityExample, secondDerivativePieces, tangentLineAt,
 } from '../../analysis/convexity';
 import {CONVEXITY_EXAMPLE_MODELS} from '../../analysis/convexityModel';
-import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
+import {currentLanguage, onLanguageChange, renderMessage, setLanguage, messageNumber} from '../../localization';
+import type {LegendEntry} from '../base/declare/graphDeclaration';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
 
@@ -104,7 +105,7 @@ const statusTexts = (graph: any, language: 'sl' | 'en' = 'sl') => {
     const previous = currentLanguage();
     setLanguage(language);
     try {
-        return graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text);
+        return graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: never }) => renderMessage(status.text));
     } finally {
         setLanguage(previous);
     }
@@ -683,15 +684,21 @@ test('the caption follows the language and a language change notifies subscriber
 
 test('the legend names the function, the chord, the tangent and the inflection ring in words, with the line patterns', () => {
     const graph = makeGraph();
-    const items = graph.renderLegend().props.items as { id: string; label: string; kind: string }[];
+    expect(graph.renderLegend()).toBeNull(); // the declared legend replaces the panel
+    const entries = (): { id: string; label: string; kind: string }[] => graph.getDeclaration()!.legend!.map((entry: LegendEntry) => ({id: entry.id, label: renderMessage(entry.label), kind: entry.kind}));
+    // the ring is listed only while it is drawn: the second derivative shown on an example with an inflection point
+    expect(entries().map(item => item.id)).toEqual(['function', 'chord', 'tangent']);
+    apply(graph, choice('cube'));
+    apply(graph, reveal(true));
+    const items = entries();
     expect(items.map(item => item.id)).toEqual(['function', 'chord', 'tangent', 'inflection']);
     expect(items[1].label).toMatch(/polna črta/);
     expect(items[2].label).toMatch(/črtkana črta/);
     expect(items[1].kind).toBe('line');
-    expect(items[2].kind).toBe('dashed-line');
+    expect(items[2].kind).toBe('dashed');
     expect(items[3].kind).toBe('ring');
     setLanguage('en');
-    expect(graph.renderLegend().props.items.map((item: any) => item.label)).toEqual([
+    expect(entries().map(item => item.label)).toEqual([
         'Graph of the function f', 'Chord between the graph points above a and b: solid line', 'Tangent at t: dashed line',
         'Inflection point: open ring (after the second derivative is shown)',
     ]);

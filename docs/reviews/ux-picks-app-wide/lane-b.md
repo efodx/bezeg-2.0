@@ -65,12 +65,16 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
   follows the director's framing; 16 "pod grafom" sentences now name the Odčitki card). Sent to A (with dfb8498ad pending pick).
 - Merged board-workspace-2 (incl. ee7a33aa7) into lane-b at `156d36f7c`; A picks only lane commits after it.
 - L50 (8 demos; dispatch `briefs/08-lane-L50.md`, ONE per worker for function graphs (accumulation alone took 175k):
-  accumulation continuation running (puck strip hidden in jsdom; smoke spec case; caption). Then convexity, darboux, extrema, fixed-point + sequence (IterativeFunctionGraph shared with L42/L47: opt-in hook only), mean-value +
+  accepted `43e4628db` accumulation (sent to A). Convexity running. Then darboux, extrema, fixed-point + sequence (IterativeFunctionGraph shared with L42/L47: opt-in hook only), mean-value +
   uniform-convergence. Then L49, L44, L47.
 - (old) Uncommitted in the tree: segment-intersections (converted, graph-check green) and voronoi (converted; golden is a
   notes-only diff to re-record after the fix; VoronoiGraph.host.test Fit case ~536 and hull-robustness "untagged view" writes
   fail, probably from the view fix in progress, which the fix worker now owns). After the fix commit: one worker reruns
   family unit, tsc, lint, build, smoke-lesson for both, then commit them. Then + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
-- L54 closeout (handler): compgeo lesson prose says "pod grafom" / "under the graph" for readouts that are now cards
+- Open, asked of stream A (2026-11-27): `BaseFunctionGraph.caption()` (:643) draws pixel-anchored corner text on ~30
+  function graphs; cards cover it (accumulation 1280x720). Stream A decided (c): captions stay board-drawn in 08
+  (08 task file :40), never change shared caption() in a lane; extending the Taylor removal is on the owner's list in A's
+  state note. Lanes keep corner captions as is (L50, L47).
+- (done) L54 closeout (handler): compgeo lesson prose says "pod grafom" / "under the graph" for readouts that are now cards
   (`compgeoGuidedLessons.ts` ~lines 572, 766, 1133, 1181, 1322, 2802); reword once all L54 demos are in. Take
   inspector-width screenshots of a few converted panels before the final L54 commit.

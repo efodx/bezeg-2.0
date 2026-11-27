@@ -919,6 +919,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'exp hidden', apply: run(g => { g.setFunction('exp'); g.setA(-2); g.setX(1); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/convexity.json', demonstration: 'convexity', states: (() => {
+        type ConvexitySetters = {setA(value: number): void; setB(value: number): void; setT(value: number): void; setExample(value: string): void; setSecondDerivativeVisible(value: boolean): void};
+        const run = (edit: (graph: ConvexitySetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as ConvexitySetters)); };
+        return [
+            {name: 'default (f\'\' hidden)', apply: () => undefined},
+            {name: 'f\'\' shown', apply: run(g => g.setSecondDerivativeVisible(true))},
+            {name: 'cube hidden', apply: run(g => g.setExample('cube'))},
+            {name: 'cube shown (sign changes)', apply: run(g => { g.setExample('cube'); g.setSecondDerivativeVisible(true); })},
+            {name: 'cube [0, 2] shown', apply: run(g => { g.setExample('cube'); g.setSecondDerivativeVisible(true); g.setA(0); g.setB(2); })},
+            {name: 'negSquare shown, t outside', apply: run(g => { g.setExample('negSquare'); g.setSecondDerivativeVisible(true); g.setT(1.8); })},
+            {name: 'quartic shown (flat zero)', apply: run(g => { g.setExample('quartic'); g.setSecondDerivativeVisible(true); })},
+            {name: 'square shown, t outside [a, b]', apply: run(g => { g.setSecondDerivativeVisible(true); g.setT(-1.8); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/linear-function.json', demonstration: 'linear-function', states: (() => {
         type LinearSetters = {setPoint(index: 0 | 1, x: number, y: number): void; setLineParameter(change: {k?: number; n?: number}): void};
         const run = (edit: (graph: LinearSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as LinearSetters)); };
