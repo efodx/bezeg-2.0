@@ -95,9 +95,9 @@ Computed by `docs/reviews/ux-picks-app-wide/inventory/08-partition.cjs` into `08
 | 9 | L22 | unit-circle | graph files + `trigUnitCircleGuidedLessons` | done `a47d30bbf` |
 | 9 | L24 | bspline-deboor | graph files + `bsplineDeBoorGuidedLessons` | done `5b6fd2f20` |
 | 9 | L25 | logistic-map | graph files + `phasePortraitsGuidedLessons` | done (round 9 gate `smoke/08-round1/round9-*`) |
-| 10 | L26 | complex-euler | graph files + `complexEulerGuidedLessons` | not started |
-| 10 | L28 | complex-reciprocal, complex-roots | graph files + `complexMapsChapterLessons` | not started |
-| 10 | L29 | contour-map | graph files + `levelSetsContourGuidedLessons, levelSetsOptimizationGuidedLessons`; owns first `SurfaceCameraPanel` | not started |
+| 10 | L26 | complex-euler | graph files + `complexEulerGuidedLessons` | done `9956d9e64` |
+| 10 | L28 | complex-reciprocal, complex-roots | graph files + `complexMapsChapterLessons` | done `851faa982`, `23db56dc6` |
+| 10 | L29 | contour-map | graph files + `levelSetsContourGuidedLessons, levelSetsOptimizationGuidedLessons`; owns first `SurfaceCameraPanel` | done `1b1326c85` (gate `smoke/08-round1/round10-*`) |
 | 11 | L27 | complex-power | graph files + `complexPowerGuidedLessons` | not started |
 | 11 | L30 | counting-tree, lattice-paths | graph files + `combinatoricsGuidedLessons, combinatoricsRowGuidedLessons` | not started |
 | 11 | L31 | curve-kinematics | graph files + `kinematicsDecompositionGuidedLessons, kinematicsGuidedLessons` | not started |
