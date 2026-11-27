@@ -1,5 +1,6 @@
 import React from "react";
-import {t} from "../../localization";
+import {message, t, type Message} from "../../localization";
+import type {GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
 import {gridToBoard, PointSetModel} from "../../compgeo/pointSetModel";
 import type {GridPoint} from "../../compgeo/grid";
 import type {Chain} from "../../compgeo/sweep/monotoneTriangulation";
@@ -10,12 +11,13 @@ import type {LabelItem, PxBox} from "../legend/boardLabelPlacement";
 import {GraphPalette} from "../styles/GraphPalette";
 import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {matchingExample} from "./ExampleSelect";
-import {MonotonePartitionGraph, MonotonePartitionOverlayId} from "./MonotonePartitionGraph";
+import {MonotonePartitionGraph, type MonotonePartitionIds, MonotonePartitionOverlayId} from "./MonotonePartitionGraph";
+import {monotoneTriangulationNotes, type MonotoneTriangulationNoteId} from "./monotoneTriangulationNotes";
 import {vertexName} from "./monotonePartitionRun";
 import {
     MONOTONE_TRIANGULATION_EXAMPLE_1, MONOTONE_TRIANGULATION_EXAMPLE_2, MONOTONE_TRIANGULATION_EXAMPLE_3, monotoneTriangulationCollection,
 } from "./monotoneTriangulationPresetCollection";
-import {runMonotoneTriangulation, type TriangulationRun} from "./monotoneTriangulationRun";
+import {runMonotoneTriangulation, type TriangulationRun, type TriangulationView} from "./monotoneTriangulationRun";
 import {MonotoneTriangulationControlActions, MonotoneTriangulationControls, MonotoneTriangulationLists, chainText} from "./MonotoneTriangulationControls";
 
 /** Marker shape per chain, so the chain is never carried by colour alone (the text label names it as well). */
@@ -23,6 +25,13 @@ const CHAIN_FACES: Record<Chain, string> = {top: "^", bottom: "v", left: "<", ri
 const CHAIN_COLOURS: Record<Chain, string> = {
     top: GraphPalette.referenceCurve, bottom: GraphPalette.referenceCurve,
     left: GraphPalette.constructionLevels[2], right: GraphPalette.constructionLevels[4],
+};
+/** The ids of this graph's declaration (frames name them): the partition's, the triangulation's own sentences and its legend entries. */
+export type MonotoneTriangulationIds = {
+    param: never; row: never; note: MonotoneTriangulationNoteId;
+    legend: MonotonePartitionIds["legend"] | "triangles" | "stack" | "chains" | "test";
+    section: MonotonePartitionIds["section"];
+    action: MonotonePartitionIds["action"];
 };
 /** A JSXGraph text, for the attributes its typings leave out. */
 const CHAIN_LABEL_FONT = 14;
@@ -281,8 +290,50 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
             id === "example-1" ? MONOTONE_TRIANGULATION_EXAMPLE_1 : id === "example-2" ? MONOTONE_TRIANGULATION_EXAMPLE_2 : MONOTONE_TRIANGULATION_EXAMPLE_3),
     };
 
-    /** Not declared until its own conversion (task 08, a later session); the partition declaration describes the partition readout only. */
-    protected override declaresPartitionWorkspace(): boolean { return false; }
+    // ---- Declaration (task 08): the partition's marks, legend and switches, the triangulation readout as notes ----------------
+
+    protected override overlayMessage(id: MonotonePartitionOverlayId | "grid"): Message {
+        return id === "sweep" ? message("monotonetri_overlay_sweep") : super.overlayMessage(id);
+    }
+
+    protected override pointSetNotes(): readonly ReadoutNote[] {
+        return monotoneTriangulationNotes(this.run(), this.step);
+    }
+
+    /** The triangulation view of the current step, or undefined in the partition phase, before a board, or for a refused polygon. */
+    private triangulationDrawn(): TriangulationView | undefined {
+        const run = this.run();
+        if (!this.hasBoard || run.refusal !== undefined || run.length === 0 || run.pieceAt(this.step) === null) return undefined;
+        return run.triangulationView(this.step);
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const view = this.triangulationDrawn();
+        const diagonals = view ? view.earlierDiagonals.length + view.diagonals.length > 0 : false;
+        switch (id) {
+            case "triangles": return {color: PIECE_FILLS[0], visible: (view?.triangles.length ?? 0) > 0};
+            case "stack": return {color: GraphPalette.selectedControlPointOutline, visible: (view?.stack.length ?? 0) > 0};
+            case "chains": return {color: CHAIN_COLOURS.left, visible: view !== undefined};
+            case "test": return {color: GraphPalette.constructionAccent, visible: view?.test != null};
+            // In the triangulation phase the partition's status edges, finished pieces and type markers are no longer drawn.
+            case "status": case "pieces": case "types": return view ? {color: super.drawnObject(id)?.color ?? GraphPalette.primaryCurve, visible: false} : super.drawnObject(id);
+            case "diagonal": return view ? {color: ACTIVE_CONSTRUCTION_COLOR, visible: diagonals} : super.drawnObject(id);
+            default: return super.drawnObject(id);
+        }
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        const common = super.declaration() as GraphDeclaration<MonotoneTriangulationIds> | undefined;
+        if (!common) return undefined;
+        const legend: LegendEntry<MonotoneTriangulationIds>[] = [
+            ...(common.legend ?? []),
+            {id: "triangles", label: message("monotonetri_legend_triangles"), kind: "area", object: "triangles"},
+            {id: "stack", label: message("monotonetri_legend_stack"), kind: "point", object: "stack"},
+            {id: "chains", label: message("monotonetri_legend_chains"), kind: "point", object: "chains"},
+            {id: "test", label: message("monotonetri_legend_test"), kind: "line", object: "test"},
+        ];
+        return {...common, legend};
+    }
 
     protected override sideLists(): React.ReactNode {
         return <MonotoneTriangulationLists run={this.run()} step={this.step}/>;

@@ -120,9 +120,10 @@ describe('monotone partition declaration', () => {
         expect(() => graph.performAction('nothing')).toThrow();
     });
 
-    test('the triangulation graph that inherits the class stays undeclared', () => {
+    test('the triangulation graph that inherits the class declares its own workspace', () => {
         const graph = new MonotoneTriangulationGraph();
         mountGraph(graph);
-        expect(graph.getDeclaration()).toBeUndefined();
+        expect(graph.getDeclaration()).toBeDefined();
+        expect(graph.getDeclaration()!.legend!.map(entry => entry.id)).toContain('triangles');
     });
 });

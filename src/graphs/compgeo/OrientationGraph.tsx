@@ -2,7 +2,8 @@ import {StatusLive} from "../base/controls/StatusLive";
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, useLanguage, type Message} from "../../localization";
+import {orientationNotes, type OrientationNoteId} from "./orientationNotes";
 import {PointSetModel, gridToBoard} from "../../compgeo/pointSetModel";
 import {ORIENTATION_OVERLAY_IDS, ORIENTATION_POINT_LIMIT, orientationPresetCollection} from "./compgeoPresetCollections";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -37,19 +38,25 @@ export function orientationText(readout: OrientationReadout, translate: typeof t
 }
 
 function OrientationStatus({points, exponent, valuesShown}: {points: PointSetModel["points"]; exponent: number; valuesShown: boolean}) {
-    const translate = useT();
+    useLanguage();
+    const [note] = orientationNotes(points, exponent, valuesShown);
+    const text = renderMessage(note.text);
     if (!valuesShown) return <>
-        <p data-readout-note className="inspector-help pointset-status" data-orientation-readout="" data-orientation-value="">{translate("pointset_values_hidden")}</p>
-        <StatusLive text={translate("pointset_values_hidden")}/>
+        <p data-readout-note data-declared-panel="" className="inspector-help pointset-status" data-orientation-readout="" data-orientation-value="">{text}</p>
+        <StatusLive text={text}/>
     </>;
     const readout = orientationReadout(points);
-    const text = orientationText(readout, translate, exponent);
     return <>
-        <p data-readout-note className="inspector-help pointset-status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
+        <p data-readout-note data-declared-panel="" className="inspector-help pointset-status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
            data-orientation-value={readout.kind === "turn" ? readout.value * 4 ** exponent : ""}>{text}</p>
         <StatusLive text={text}/>
     </>;
 }
+
+/** The ids of this graph's declaration (frames name them): the one readout sentence, the turn overlay, its switches. */
+export type OrientationIds = {
+    param: never; row: never; note: OrientationNoteId; legend: "points" | "turn"; section: never; action: "grid" | OrientationOverlayId;
+};
 
 export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
     private unsubscribeLanguage?: () => void;
@@ -93,6 +100,24 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
         if (id === "values") return t("pointset_overlay_values");
         return id === "turn" ? t("pointset_orientation_overlay_turn") : super.overlayLabel(id);
     }
+
+    // ---- Declaration (task 08): the base's marks, legend and switches, plus the readout sentence as a note ----------------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "grid" | OrientationOverlayId): Message {
+        if (id === "values") return message("pointset_overlay_values");
+        return id === "turn" ? message("pointset_orientation_overlay_turn") : super.overlayMessage(id);
+    }
+
+    /** The turn (the line pq and the shaded triangle) is what the lesson asks to flip while placing r: a board puck. The numbers and the grid stay in Orodja. */
+    protected override overlayIsPuck(id: "grid" | OrientationOverlayId): boolean { return id === "turn"; }
+
+    protected override overlaySwatch(id: "grid" | OrientationOverlayId) {
+        return id === "turn" ? {kind: "area" as const, color: CompgeoRegionPalette.positiveFill} : undefined;
+    }
+
+    protected override pointSetNotes() { return orientationNotes(this.model.points, this.model.gridStepExponent, this.overlayShown("values")); }
 
     protected override drawOverlay(id: "grid" | OrientationOverlayId, model: PointSetModel): JXG.GeometryElement[] {
         if (id === "values") return [];

@@ -360,7 +360,7 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
 
     // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
 
-    /** Whether this class declares its workspace; the triangulation graph (a later session) inherits the class and says no until it is converted. */
+    /** Whether this class declares its workspace (a subclass that has not been converted yet can say no; none does now). */
     protected declaresPartitionWorkspace(): boolean { return true; }
 
     protected override declaresPointSetWorkspace() { return this.declaresPartitionWorkspace(); }
@@ -374,7 +374,7 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         return id === "sweep" ? {kind: "line" as const, color: GraphPalette.constructionAccent} : undefined;
     }
 
-    protected override pointSetNotes(): readonly ReadoutNote<MonotonePartitionIds>[] {
+    protected override pointSetNotes(): readonly ReadoutNote[] {
         return monotonePartitionNotes(this.run(), this.step);
     }
 
@@ -397,7 +397,7 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         }
     }
 
-    protected override declaration(): GraphDeclaration<MonotonePartitionIds> | undefined {
+    protected override declaration(): GraphDeclaration | undefined {
         const common = super.declaration() as GraphDeclaration<MonotonePartitionIds> | undefined;
         if (!common) return undefined;
         const run = this.run();

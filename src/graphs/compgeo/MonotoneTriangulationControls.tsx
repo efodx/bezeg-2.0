@@ -1,11 +1,10 @@
 import React from "react";
-import {useT} from "../../localization";
+import {renderMessage, useT} from "../../localization";
 import type {Chain} from "../../compgeo/sweep/monotoneTriangulation";
-import {
-    MonotonePartitionLists, noteText as partitionNoteText, reasonText, refusalText, type Translate, vertexTypeText,
-} from "./MonotonePartitionControls";
+import {MonotonePartitionLists, type Translate} from "./MonotonePartitionControls";
+import {monotoneTriangulationNotes, type MonotoneTriangulationNoteId} from "./monotoneTriangulationNotes";
 import {vertexName} from "./monotonePartitionRun";
-import type {TriangulationEventInfo, TriangulationRun} from "./monotoneTriangulationRun";
+import type {TriangulationRun} from "./monotoneTriangulationRun";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
@@ -44,31 +43,6 @@ export function chainText(t: Translate, chain: Chain): string {
     }
 }
 
-function testOutcomeText(t: Translate, outcome: "visible" | "blocked"): string {
-    return outcome === "visible" ? t("monotonetri_test_inside") : t("monotonetri_test_outside");
-}
-
-function noteText(t: Translate, event: TriangulationEventInfo, run: TriangulationRun): string {
-    switch (event.note) {
-        case "pop": return t("monotonetri_note_pop", {value0: vertexName(event.vertex ?? 0), value1: chainText(t, event.chain ?? "left")});
-        case "push": return t("monotonetri_note_push", {value0: vertexName(event.vertex ?? 0), value1: event.stackSize ?? 0});
-        case "unstack": return t("monotonetri_note_unstack", {value0: vertexName(event.vertex ?? 0), value1: event.stackSize ?? 0});
-        case "test": {
-            const test = event.test;
-            const a = vertexName(test?.a ?? 0);
-            const b = vertexName(test?.b ?? 0);
-            return test?.outcome === "blocked"
-                ? t("monotonetri_note_blocked", {value0: a, value1: b})
-                : t("monotonetri_note_visible", {value0: a, value1: b});
-        }
-        case "diagonal": {
-            const [a, b] = event.diagonal ?? [0, 0];
-            return t("monotonepartition_note_diagonal", {value0: vertexName(a), value1: vertexName(b)});
-        }
-        case "done": return t("monotonetri_note_done", {value0: run.triangles.length});
-    }
-}
-
 /**
  * Next step / Play / Pause / Reset, the examples and the readouts of the monotone triangulation (spec C4, task 17): step
  * i of N and the phase, the event, then in the partition phase what task 16 shows, in the triangulation phase the piece,
@@ -78,34 +52,24 @@ function noteText(t: Translate, event: TriangulationEventInfo, run: Triangulatio
 export function MonotoneTriangulationControls(props: MonotoneTriangulationControlsProps) {
     const t = useT();
     const {run, step, playing, exampleId, actions, children} = props;
-    const refusal = refusalText(t, run);
+    const notes = monotoneTriangulationNotes(run, step);
+    const text = (id: MonotoneTriangulationNoteId) => {
+        const note = notes.find(candidate => candidate.id === id);
+        return note ? renderMessage(note.text) : undefined;
+    };
+    const refusal = text("refusal");
     const traced = refusal === undefined && run.length > 0;
     const atEnd = step >= run.length - 1;
-    const piece = run.pieceAt(step);
-    const tri = piece === null ? undefined : run.triangulationView(step);
-    const triEvent = piece === null ? undefined : run.triangulationEvent(step);
-    const partitionView = run.view(step);
-    const partitionEvent = run.event(step);
     const stepText = stepCounterText(t, step, run.length);
-    const phaseText = piece === null
-        ? t("monotonetri_phase_partition")
-        : t("monotonetri_phase_triangulation", {value0: piece + 1, value1: run.pieceCount});
-    let noteLine: string | undefined;
-    if (tri && triEvent) noteLine = noteText(t, triEvent, run);
-    else if (partitionEvent) noteLine = partitionNoteText(t, partitionEvent, run, partitionView.type);
-    const pastPartition = step >= run.boundary;
-    const monotoneNote = run.alreadyMonotone && pastPartition ? t("monotonetri_already_monotone") : undefined;
-    const diagonalList = (diagonals: readonly (readonly [number, number])[]) => diagonals.map(([a, b]) => `${vertexName(a)}–${vertexName(b)}`).join(", ");
-    const partitionDiagonals = piece === null ? partitionView.diagonals : undefined;
-    const triDiagonals = tri ? [...tri.earlierDiagonals, ...tri.diagonals] : undefined;
-    const triangleLine = tri
-        ? (tri.done
-            ? t("monotonetri_triangles_total", {value0: run.triangles.length, value1: run.vertices.length})
-            : t("monotonetri_triangles_so_far", {value0: tri.triangles.length}))
-        : undefined;
-    const counts = tri?.done ? run.counts : null;
+    const phaseText = text("phase");
+    const noteLine = text("note");
+    const triangleLine = text("triangles");
     // Silent while Play runs (the region's mute); announces once on Pause or at the end.
     const liveReadout = useStatusReadout(traced ? [stepText, phaseText, noteLine, triangleLine].filter(Boolean).join(". ") : "", true);
+    const sentence = (id: MonotoneTriangulationNoteId, hook: string = id) => {
+        const line = text(id);
+        return line === undefined ? null : <p data-readout-note className="inspector-help" data-monotone-triangulation={hook}>{line}</p>;
+    };
     return <>
         <div className="inspector-group">
             <PlaybackButtons placement="graph" groupLabel={t("monotonetri_controls_label")} nextLabel={t("next_step")} playing={playing}
@@ -120,41 +84,31 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
                 {id: "example-3", text: t("monotonetri_example_3")}]}/>
         </div>
         <div className="inspector-group" data-monotone-triangulation-status="">
+            <div data-declared-panel="">
             {refusal && <p data-readout-note className="inspector-help" role="alert" data-monotone-triangulation="refusal">{refusal}</p>}
             {traced && <>
-                {run.reversed && <p data-readout-note className="inspector-help" data-monotone-triangulation="reversed">{t("monotonepartition_reversed_note")}</p>}
+                {sentence("reversed")}
                 <StepCounter step={step} length={run.length} hooks={{"data-monotone-triangulation": "step", "data-readout-note": ""}}/>
-                <p data-readout-note className="inspector-help" data-monotone-triangulation="phase">{phaseText}</p>
-                {noteLine && <p data-readout-note className="inspector-help" data-monotone-triangulation="note">{noteLine}</p>}
-                {piece === null && partitionView.vertex !== null && partitionView.type !== null && <>
-                    <p data-readout-note className="inspector-help" data-monotone-triangulation="vertex">
-                        {t("monotonepartition_vertex", {value0: vertexName(partitionView.vertex), value1: vertexTypeText(t, partitionView.type)})}</p>
-                    <p data-readout-note className="inspector-help" data-monotone-triangulation="reason">{reasonText(t, partitionView.type)}</p>
-                </>}
-                {partitionDiagonals && <p data-readout-note className="inspector-help" data-monotone-triangulation="diagonals">
-                    {partitionDiagonals.length > 0
-                        ? t("monotonepartition_diagonals", {value0: partitionDiagonals.length, value1: diagonalList(partitionDiagonals)})
-                        : t("monotonepartition_diagonals_none")}</p>}
-                {monotoneNote && <p data-readout-note className="inspector-help" data-monotone-triangulation="already-monotone">{monotoneNote}</p>}
-                {tri && piece !== null && <>
-                    <p data-readout-note className="inspector-help" data-monotone-triangulation="piece">
-                        {t("monotonetri_piece_info", {value0: piece + 1, value1: run.pieceSize(piece), value2: run.pieceSize(piece) - 2})}</p>
-                    {tri.vertex !== null && tri.chain !== null && <p data-readout-note className="inspector-help" data-monotone-triangulation="vertex">
-                        {t("monotonetri_vertex_item", {value0: vertexName(tri.vertex), value1: chainText(t, tri.chain)})}</p>}
-                    {tri.test && <p data-readout-note className="inspector-help" data-monotone-triangulation="test">
-                        {t("monotonetri_test_readout", {value0: vertexName(tri.test.a), value1: vertexName(tri.test.b), value2: testOutcomeText(t, tri.test.outcome)})}</p>}
-                    {triDiagonals && <p data-readout-note className="inspector-help" data-monotone-triangulation="diagonals">
-                        {triDiagonals.length > 0
-                            ? t("monotonepartition_diagonals", {value0: triDiagonals.length, value1: diagonalList(triDiagonals)})
-                            : t("monotonepartition_diagonals_none")}</p>}
-                    {triangleLine && <p data-readout-note className="inspector-help" data-monotone-triangulation="triangles">{triangleLine}</p>}
-                </>}
-                {counts && <div data-monotone-triangulation="comparison" role="group" aria-label={t("monotonetri_comparison_label")}>
-                    <p data-readout-note className="inspector-help" data-monotone-triangulation="comparison-monotone">{t("monotonetri_comparison_monotone", {value0: counts.monotone})}</p>
-                    <p data-readout-note className="inspector-help" data-monotone-triangulation="comparison-ear">{t("monotonetri_comparison_ear", {value0: counts.earClipping})}</p>
-                    <p className="inspector-help" data-monotone-triangulation="comparison-growth">{t("monotonetri_comparison_growth")}</p>
-                    <p className="inspector-help" data-monotone-triangulation="comparison-note">{t("monotonetri_comparison_note")}</p>
+                {sentence("phase")}
+                {sentence("note")}
+                {sentence("vertex")}
+                {sentence("reason")}
+                {sentence("diagonals")}
+                {sentence("already-monotone")}
+                {sentence("piece")}
+                {sentence("chain-vertex", "vertex")}
+                {sentence("test")}
+                {sentence("triangle-diagonals", "diagonals")}
+                {sentence("triangles")}
+                {text("comparison-monotone") && <div data-monotone-triangulation="comparison" role="group" aria-label={t("monotonetri_comparison_label")}>
+                    {sentence("comparison-monotone")}
+                    {sentence("comparison-ear")}
+                    {sentence("comparison-growth")}
+                    {sentence("comparison-note")}
                 </div>}
+            </>}
+            </div>
+            {traced && <>
                 <LiveReadout readout={liveReadout} muted={playing} dataAttribute="monotone-triangulation-live"/>
                 {children && <div data-monotone-triangulation-lists="">{children}</div>}
             </>}

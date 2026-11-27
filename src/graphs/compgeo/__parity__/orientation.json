@@ -1,0 +1,86 @@
+{
+  "graph": "orientation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (left turn)",
+      "rows": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: +8 (levi zavoj)"
+      ],
+      "outputs": [],
+      "captions": [
+        "+8: levi zavoj"
+      ]
+    },
+    {
+      "name": "right turn",
+      "rows": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: -8 (desni zavoj)"
+      ],
+      "outputs": [],
+      "captions": [
+        "-8: desni zavoj"
+      ]
+    },
+    {
+      "name": "collinear",
+      "rows": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: 0 (kolinearne točke)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "values hidden",
+      "rows": [],
+      "notes": [
+        "Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Orientacija potrebuje tri točke. Dodaj še točke; manjka jih: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "no points",
+      "rows": [],
+      "notes": [
+        "Orientacija potrebuje tri točke. Dodaj še točke; manjka jih: 3."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "finer grid",
+      "rows": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: +2 (levi zavoj)"
+      ],
+      "outputs": [],
+      "captions": [
+        "+2: levi zavoj"
+      ]
+    },
+    {
+      "name": "coarser grid",
+      "rows": [],
+      "notes": [
+        "Orientacija treh točk p, q, r: +32 (levi zavoj)"
+      ],
+      "outputs": [],
+      "captions": [
+        "+32: levi zavoj"
+      ]
+    }
+  ]
+}

@@ -128,7 +128,9 @@
         "Diagonale doslej (3): v2-v5, v2-v6, v3-v5",
         "Trikotnikov: 4 = n - 2 pri n = 6.",
         "Monotona metoda (razdelitev in triangulacija): 11 izračunov predikatov.",
-        "Rezanje ušes na istem večkotniku: 21 izračunov predikatov."
+        "Rezanje ušes na istem večkotniku: 21 izračunov predikatov.",
+        "Pri n ogliščih rezanje ušes potrebuje O(n²) izračunov predikatov, cela monotona metoda pa O(n log n); vsak kos zahteva po urejanju O(n).",
+        "Majhna števila to ponazarjajo, ne dokazujejo."
       ],
       "outputs": [],
       "captions": [

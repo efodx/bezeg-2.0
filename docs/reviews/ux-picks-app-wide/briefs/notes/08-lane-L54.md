@@ -108,3 +108,27 @@ Scratch scripts in `.command-logs/` (ed3.py, ed4.py) are mine; delete or ignore.
 ### Observed
 - `just graph-check interval-sweep --route compgeo/interval-sweep` and `... monotone-partition --route compgeo/monotone-partition`: contract, parity, golden, declaration, shared 74 pass (browser skipped). tsc empty; lint of changed files passed.
 - `just unit src/graphs/compgeo src/graphs/base/PlaybackRoutes.test.tsx src/learning/content src/localization src/graphs/base/declare` passed; `just build` passed (warnings present, not inspected); `just smoke-lesson interval-sweep monotone-partition --port 4395 --workers=1` passed. Not verified: inspector-width screenshots, browser probe/fuzz.
+
+## Session 3b: monotone-triangulation and orientation
+
+### monotone-triangulation
+- Parity: marked the two unmarked sentences (`comparison-growth`, `comparison-note`, text unchanged), SAMPLES entry + `__parity__/monotone-triangulation.json` (15 states) recorded before converting.
+- New pure `monotoneTriangulationNotes.ts` (ids refusal/reversed/step/phase/note/vertex/reason/diagonals/already-monotone/piece/chain-vertex/test/triangle-diagonals/triangles/comparison-*), reusing the partition messages. `MonotoneTriangulationControls` renders from it (`data-declared-panel`); the side lists stay in Orodja. The `declaresPartitionWorkspace()` false override is removed from `MonotoneTriangulationGraph`; `MonotonePartitionGraph.declaration()/pointSetNotes()` signatures widened to untyped so the subclass may widen ids (`MonotoneTriangulationIds`).
+- Legend: the partition's entries (status/pieces/types hidden in the triangulation phase through `drawnObject`) plus triangles (area), stack (point), chains (point), test (line); fragment `fragments/monotone-triangulation.ts`. The sweep switch label is the triangulation's own ("Pometalna premica, verigi in sklad"); playback, examples, side lists stay in Orodja (no board UI for non-puck actions).
+- Test: `MonotoneTriangulationGraph.declaration.test.tsx` (14 cases); `MonotonePartitionGraph.declaration.test.tsx` last case now asserts the triangulation graph is declared. Red check: stack legend `visible` `> 0` -> `>= 0`: "AssertionError: expected [ Array(7) ] to deeply equal [ true, false, true, false, …(3) ]", restored.
+- Frames `mtFrame`: piece (piece/chain-vertex), test (test/triangles), diagonal (note/triangle-diagonals), count (piece/triangles), compare (comparison-monotone/ear), explore explanation `uses next-step`, `open tools`; predict not highlighted. No prose rewording.
+- Golden difference, reported not re-recorded: `monotone-triangulation.golden.json` holds no `comparison-growth`/`comparison-note` (recorded before the markers); golden row fails for state "monotone-triangulation-guided/montri-compare": notes golden ends at "Rezanje ušes na istem večkotniku: 21 izračunov predikatov." and now adds "Pri n ogliščih rezanje ušes potrebuje O(n²) ..." and "Majhna števila to ponazarjajo, ne dokazujejo." Other rows equal.
+- Other checks: `graph-check monotone-triangulation`: contract, parity, declaration, shared pass; golden fails as above.
+
+### orientation
+- Parity: the sentence was already marked; SAMPLES entry + `__parity__/orientation.json` (8 states) recorded first. Golden passes.
+- New pure `orientationNotes.ts` (ids turn/missing/hidden; the turn word as a nested message). `OrientationStatus` renders from it (`data-declared-panel`). No fragment (all keys existed).
+- Placement: `turn` ("Zavoj", 5 chars) is a board switch puck (the lesson flips it while placing r); `values` ("Številske vrednosti") and the grid stay in Orodja. Legend: points, turn (area swatch).
+- Test `OrientationGraph.declaration.test.tsx` (10 cases). Red check: `overlayIsPuck` returned `values` instead of `turn`: "AssertionError: expected { id: 'turn', label: { …(2) }, …(4) } to match object { Object (placement, puck, ...) }", restored.
+- Frames `orFrame`: line observation (missing), reveal calculation and observation, flip, area-step, explore (turn); predict explanation `uses turn`, predict not highlighted.
+- Prose reworded (predict step), no pinning test affected:
+  - "Preden prikažeš barvno sled zavoja, napovej" -> "Preden na krmilniku Zavoj prikažeš barvno sled zavoja, napovej"
+  - "Before you reveal the shaded turn, predict" -> "Before you reveal the shaded turn on the Turn control, predict"
+- `graph-check orientation --route compgeo/orientation`: all rows pass (browser skipped).
+- Not verified: inspector-width screenshots, browser probe/fuzz.
+- Observed green: tsc empty; `just unit src/graphs/compgeo src/graphs/base/PlaybackRoutes.test.tsx src/learning/content src/localization src/graphs/base/declare` passed; lint of changed files passed; `just build` passed; `just smoke-lesson monotone-triangulation orientation --port 4395 --workers=1` passed.

@@ -45,7 +45,8 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 - Accepted: `fa98874c4` bezier-hulls, convex-hull (+ delaunay parity/markers); sent to stream A.
 - Accepted: `644dca72b` delaunay, ear-clipping (delaunay golden re-recorded, notes only); sent to stream A.
 - Accepted: `7ff06edc9` fortune, hull-robustness; sent to stream A.
-- In progress: interval-sweep + monotone-partition. Then monotone-triangulation + orientation, point-in-polygon + point-set-triangulation,
+- Accepted: `48f4d392e` interval-sweep, monotone-partition; sent to stream A.
+- In progress: monotone-triangulation + orientation. Then point-in-polygon + point-set-triangulation,
   segment-intersections + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
 - L54 closeout (handler): compgeo lesson prose says "pod grafom" / "under the graph" for readouts that are now cards
   (`compgeoGuidedLessons.ts` ~lines 572, 766, 1133, 1181, 1322, 2802); reword once all L54 demos are in. Take

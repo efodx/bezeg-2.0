@@ -17,6 +17,8 @@ import type {FortuneIds} from '../../graphs/compgeo/FortuneGraph';
 import type {HullRobustnessIds} from '../../graphs/compgeo/HullRobustnessGraph';
 import type {IntervalSweepIds} from '../../graphs/compgeo/IntervalSweepGraph';
 import type {MonotonePartitionIds} from '../../graphs/compgeo/MonotonePartitionGraph';
+import type {OrientationIds} from '../../graphs/compgeo/OrientationGraph';
+import type {MonotoneTriangulationIds} from '../../graphs/compgeo/MonotoneTriangulationGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -29,6 +31,8 @@ const fortFrame = frameDeclarer<FortuneIds>();
 const robFrame = frameDeclarer<HullRobustnessIds>();
 const isFrame = frameDeclarer<IntervalSweepIds>();
 const mpFrame = frameDeclarer<MonotonePartitionIds>();
+const orFrame = frameDeclarer<OrientationIds>();
+const mtFrame = frameDeclarer<MonotoneTriangulationIds>();
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -122,7 +126,7 @@ const orientation: GuidedLesson = {
                 'The points \\(p=(0,0)\\) and \\(q=(4,0)\\) determine the line \\(pq\\), drawn dashed on the graph. A third point \\(r\\) lies on the left of the line, on the right, or on it; the orientation of three points tells which one it is.',
             ),
             formulaIds: ['orientation-determinant'],
-            frames: [frame('orientation-line-explanation', 'explanation'), frame('orientation-line-observation', 'observation')],
+            frames: [frame('orientation-line-explanation', 'explanation'), frame('orientation-line-observation', 'observation', orFrame({highlight: ['missing']}))],
             observationPrompt: text('Premakni \\(q\\) in opazuj, kako se premica \\(pq\\) vrti okoli \\(p\\).', 'Move \\(q\\) and watch the line \\(pq\\) turn around \\(p\\).'),
             expectedObservations: [text('Premica vedno poteka skozi obe točki; tretje točke še ni, zato odčitek še ne pokaže zavoja.', 'The line always passes through both points; there is no third point yet, so the readout shows no turn.')],
             scene: scene('orientation-line', [points(ORIENTATION_P_Q), overlay('turn', true), overlay('values', true)],
@@ -134,11 +138,11 @@ const orientation: GuidedLesson = {
             title: text('Napovej stran točke \\(r\\)', 'Predict the side of \\(r\\)'),
             purpose: text('Pred izračunom napovedati zavoj.', 'Predicting the turn before computing it.'),
             explanation: text(
-                'Dodali smo točko \\(r=(3,2)\\). Preden prikažeš barvno sled zavoja, napovej: ali \\(r\\) leži na levi ali na desni strani premice \\(pq\\), če gledamo od \\(p\\) proti \\(q\\)? Številske vrednosti so v tem koraku skrite.',
-                'We added the point \\(r=(3,2)\\). Before you reveal the shaded turn, predict: is \\(r\\) on the left or on the right of the line \\(pq\\) when looking from \\(p\\) towards \\(q\\)? The numeric values are hidden in this step.',
+                'Dodali smo točko \\(r=(3,2)\\). Preden na krmilniku Zavoj prikažeš barvno sled zavoja, napovej: ali \\(r\\) leži na levi ali na desni strani premice \\(pq\\), če gledamo od \\(p\\) proti \\(q\\)? Številske vrednosti so v tem koraku skrite.',
+                'We added the point \\(r=(3,2)\\). Before you reveal the shaded turn on the Turn control, predict: is \\(r\\) on the left or on the right of the line \\(pq\\) when looking from \\(p\\) towards \\(q\\)? The numeric values are hidden in this step.',
             ),
             formulaIds: [],
-            frames: [frame('orientation-predict-explanation', 'explanation'), frame('orientation-predict-observation', 'observation')],
+            frames: [frame('orientation-predict-explanation', 'explanation', orFrame({uses: ['turn']})), frame('orientation-predict-observation', 'observation')],
             observationPrompt: text('Reci naglas, ali je zavoj \\(p\\to q\\to r\\) levi ali desni.', 'Say aloud whether the turn \\(p\\to q\\to r\\) is left or right.'),
             expectedObservations: [text('Točka \\(r\\) je nad premico, torej na levi strani smeri od \\(p\\) proti \\(q\\); v naslednjem koraku to preverimo.', 'The point \\(r\\) is above the line, so on the left of the direction from \\(p\\) to \\(q\\); the next step checks this.')],
             scene: scene('orientation-predict', [points([...ORIENTATION_P_Q, ORIENTATION_R_LEFT]), overlay('turn', false), overlay('values', false)],
@@ -154,7 +158,7 @@ const orientation: GuidedLesson = {
                 'For \\(p=(0,0)\\), \\(q=(4,0)\\), \\(r=(3,2)\\) we get \\(D=(4-0)(2-0)-(0-0)(3-0)=8\\). The value is positive, so the turn is left; the triangle is shaded and the graph shows \\(+8\\).',
             ),
             formulaIds: ['orientation-determinant'], workedExampleId: 'orientation-example',
-            frames: [frame('orientation-reveal-explanation', 'explanation'), frame('orientation-reveal-calculation', 'calculation'), frame('orientation-reveal-observation', 'observation')],
+            frames: [frame('orientation-reveal-explanation', 'explanation'), frame('orientation-reveal-calculation', 'calculation', orFrame({highlight: ['turn']})), frame('orientation-reveal-observation', 'observation', orFrame({highlight: ['turn']}))],
             observationPrompt: text('Primerjaj izpis na grafu z izračunom \\(D\\).', 'Compare the text on the graph with your computation of \\(D\\).'),
             expectedObservations: [text('Graf pokaže \\(+8\\) in levi zavoj, kar je enako izračunani vrednosti.', 'The graph shows \\(+8\\) and a left turn, equal to the computed value.')],
             scene: scene('orientation-reveal', [points([...ORIENTATION_P_Q, ORIENTATION_R_LEFT]), overlay('turn', true), overlay('values', true)],
@@ -170,7 +174,7 @@ const orientation: GuidedLesson = {
                 'If you move \\(r\\) to \\((3,-2)\\), it is below the line and \\(D=-8\\): a right turn. On the line itself, for example at \\(r=(2,0)\\), we get \\(D=0\\) and the points are collinear. Drag \\(r\\) up and down across the line to see the change.',
             ),
             formulaIds: ['orientation-determinant'],
-            frames: [frame('orientation-flip-explanation', 'explanation'), frame('orientation-flip-observation', 'observation')],
+            frames: [frame('orientation-flip-explanation', 'explanation'), frame('orientation-flip-observation', 'observation', orFrame({highlight: ['turn']}))],
             observationPrompt: text('Povleci \\(r\\) čez premico in opazuj predznak in besedo za zavoj.', 'Drag \\(r\\) across the line and watch the sign and the word for the turn.'),
             expectedObservations: [text('Pod premico je vrednost \\(-8\\) (desni zavoj), na premici \\(0\\) (kolinearne točke), nad njo \\(+8\\) (levi zavoj).', 'Below the line the value is \\(-8\\) (right turn), on the line \\(0\\) (collinear), above it \\(+8\\) (left turn).')],
             scene: scene('orientation-flip', [points([...ORIENTATION_P_Q, ORIENTATION_R_RIGHT]), overlay('turn', true), overlay('values', true)],
@@ -186,7 +190,7 @@ const orientation: GuidedLesson = {
                 'The triangle \\(pqr\\) with \\(r=(3,2)\\) has base \\(4\\) and height \\(2\\), so its area is \\(4\\). Twice the area is \\(8\\), equal to \\(D\\); for a right turn the sign is negative. The same computation repeats for every triangle in the area of a polygon.',
             ),
             formulaIds: ['orientation-area'],
-            frames: [frame('orientation-area-step-explanation', 'explanation'), frame('orientation-area-step-observation', 'observation')],
+            frames: [frame('orientation-area-step-explanation', 'explanation'), frame('orientation-area-step-observation', 'observation', orFrame({highlight: ['turn']}))],
             observationPrompt: text('Preštej kvadratke trikotnika in pomnoži ploščino z \\(2\\).', 'Count the squares of the triangle and multiply the area by \\(2\\).'),
             expectedObservations: [text('Ploščina je \\(4\\), njen dvakratnik \\(8\\) pa je enak izpisani vrednosti \\(+8\\).', 'The area is \\(4\\), and twice it, \\(8\\), equals the displayed value \\(+8\\).')],
             scene: scene('orientation-area-step', [points([...ORIENTATION_P_Q, ORIENTATION_R_LEFT]), overlay('turn', true), overlay('grid', true), overlay('values', true)],
@@ -202,7 +206,7 @@ const orientation: GuidedLesson = {
                 'The point \\(r\\) is now on the line, at \\((2,0)\\), so \\(D=0\\) and the points are collinear. Move all three points (also with the keyboard), find other collinear positions, and check that swapping two points reverses the sign.',
             ),
             formulaIds: ['orientation-determinant', 'orientation-area'],
-            frames: [frame('orientation-explore-explanation', 'explanation'), frame('orientation-explore-observation', 'observation')],
+            frames: [frame('orientation-explore-explanation', 'explanation'), frame('orientation-explore-observation', 'observation', orFrame({highlight: ['turn']}))],
             observationPrompt: text('Poišči tri kolinearne točke, ki niso vse na osi \\(x\\).', 'Find three collinear points that are not all on the \\(x\\)-axis.'),
             expectedObservations: [text('Pri vseh kolinearnih legah izpis pokaže \\(0\\) in besedo kolinearne točke.', 'In every collinear position the readout shows \\(0\\) and the word collinear.')],
             scene: scene('orientation-explore', [points([...ORIENTATION_P_Q, ORIENTATION_R_COLLINEAR]), overlay('turn', true), overlay('values', true)],
@@ -2385,7 +2389,7 @@ const monotoneTriangulation: GuidedLesson = {
                 'The polygon of the previous lesson has the vertices \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\) and \\((4,8)\\). The partition has already added the diagonal \\(v_2\\)–\\(v_5\\) and cut it into two monotone pieces; the trace is at step \\(16\\) of \\(44\\), where the triangulation of the first piece begins. The first piece is \\((0,0),(4,3),(8,5),(4,8)\\) and has \\(4\\) vertices, so it gets \\(2\\) triangles. The vertices of the piece from top to bottom are \\(v_6\\) (top vertex), \\(v_5\\) and \\(v_2\\) (right chain) and \\(v_1\\) (bottom vertex); the left chain is just the edge from \\(v_6\\) to \\(v_1\\). The stack is still empty.',
             ),
             formulaIds: ['monotone-triangle-count'],
-            frames: [frame('montri-piece-explanation', 'explanation'), frame('montri-piece-observation', 'observation')],
+            frames: [frame('montri-piece-explanation', 'explanation'), frame('montri-piece-observation', 'observation', mtFrame({highlight: ['piece', 'chain-vertex']}))],
             observationPrompt: text('V seznamu oglišč kosa preberi oznako verige pri vsakem oglišču in preveri, da je vsako oglišče nižje od prejšnjega.', 'In the list of the piece\'s vertices read the chain label of each vertex and check that every vertex is lower than the one before.'),
             expectedObservations: [text('Seznam je \\(v_6\\) zgornje oglišče, \\(v_5\\) desna veriga, \\(v_2\\) desna veriga, \\(v_1\\) spodnje oglišče; sklad je prazen, trikotnikov doslej \\(0\\).', 'The list is \\(v_6\\) top vertex, \\(v_5\\) right chain, \\(v_2\\) right chain, \\(v_1\\) bottom vertex; the stack is empty, triangles so far \\(0\\).')],
             scene: monotoneScene('montri-piece', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.topVertex)],
@@ -2417,7 +2421,7 @@ const monotoneTriangulation: GuidedLesson = {
                 'The vertex \\(v_2\\) is on the same chain as the top of the stack \\(v_5\\), so \\(v_5\\) leaves the stack (step \\(20\\)) and we test whether \\(v_2\\) can be joined to the next vertex on the stack, \\(v_6\\). Step \\(21\\) of \\(43\\) shows the test: the diagonal \\(v_2\\)–\\(v_6\\) lies inside the piece, because the orientation is positive. If the orientation were zero or negative, the diagonal would leave the piece and the stack would not be reduced further. Now only \\(v_6\\) is on the stack.',
             ),
             formulaIds: ['monotone-triangle-count'],
-            frames: [frame('montri-test-explanation', 'explanation'), frame('montri-test-observation', 'observation')],
+            frames: [frame('montri-test-explanation', 'explanation'), frame('montri-test-observation', 'observation', mtFrame({highlight: ['test', 'triangles']}))],
             observationPrompt: text('Primerjaj napoved s preizkusom in poglej, katero oglišče je zdaj na skladu.', 'Compare your prediction with the test and look at which vertex is on the stack now.'),
             expectedObservations: [text('Preizkus: oglišči \\(v_2\\) in \\(v_6\\), diagonala je znotraj; sklad je \\(v_6\\).', 'The test: vertices \\(v_2\\) and \\(v_6\\), the diagonal is inside; the stack is \\(v_6\\).')],
             scene: monotoneScene('montri-test', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.test)],
@@ -2433,7 +2437,7 @@ const monotoneTriangulation: GuidedLesson = {
                 'Because the test succeeded, \\(v_6\\) leaves the stack and the diagonal \\(v_2\\)–\\(v_6\\) is added (step \\(24\\) of \\(44\\)). Together with the vertices \\(v_5\\) and \\(v_6\\) from the earlier steps, this finishes the first triangle, so the triangles so far are \\(1\\). There are now two diagonals: \\(v_2\\)–\\(v_5\\) from the partition and the new \\(v_2\\)–\\(v_6\\). The stack is empty; the next two steps push \\(v_6\\) and \\(v_2\\) again.',
             ),
             formulaIds: ['monotone-triangle-count'],
-            frames: [frame('montri-diagonal-explanation', 'explanation'), frame('montri-diagonal-observation', 'observation')],
+            frames: [frame('montri-diagonal-explanation', 'explanation'), frame('montri-diagonal-observation', 'observation', mtFrame({highlight: ['note', 'triangle-diagonals']}))],
             observationPrompt: text('Preštej diagonale na grafu in v izpisu in preveri, koliko trikotnikov je zaključenih.', 'Count the diagonals on the graph and in the readout and check how many triangles are finished.'),
             expectedObservations: [text('Diagonali sta \\(2\\): \\(v_2\\)–\\(v_5\\) in \\(v_2\\)–\\(v_6\\); trikotnikov doslej \\(1\\); sklad je prazen.', 'There are \\(2\\) diagonals: \\(v_2\\)–\\(v_5\\) and \\(v_2\\)–\\(v_6\\); triangles so far \\(1\\); the stack is empty.')],
             scene: monotoneScene('montri-diagonal', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.diagonal)],
@@ -2449,7 +2453,7 @@ const monotoneTriangulation: GuidedLesson = {
                 'At step \\(29\\) of \\(44\\) the first piece is finished: the stack is empty and the triangles so far are \\(2\\), which is \\(n-2\\) for \\(n=4\\). The second piece \\((4,3),(8,0),(12,8),(8,5)\\) also has \\(4\\) vertices; after you press Next step the readout says "Piece 2 has 4 vertices and gets 2 triangles". Every piece with \\(n\\) vertices gives \\(n-2\\) triangles, however many tests succeed or fail.',
             ),
             formulaIds: ['monotone-triangle-count'],
-            frames: [frame('montri-count-explanation', 'explanation'), frame('montri-count-observation', 'observation')],
+            frames: [frame('montri-count-explanation', 'explanation'), frame('montri-count-observation', 'observation', mtFrame({highlight: ['piece', 'triangles']}))],
             observationPrompt: text('Preštej trikotnike prvega kosa na grafu in jih primerjaj z \\(n-2\\).', 'Count the triangles of the first piece on the graph and compare them with \\(n-2\\).'),
             expectedObservations: [text('Trikotnikov doslej \\(2\\), diagonali sta \\(2\\), sklad je prazen; kos \\(1\\) ima \\(4\\) oglišča.', 'Triangles so far \\(2\\), there are \\(2\\) diagonals, the stack is empty; piece \\(1\\) has \\(4\\) vertices.')],
             scene: monotoneScene('montri-count', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.pieceDone)],
@@ -2465,7 +2469,7 @@ const monotoneTriangulation: GuidedLesson = {
                 'At step \\(44\\) of \\(44\\) the triangulation is finished: \\(4\\) triangles, which is \\(n-2\\) for \\(n=6\\), and \\(3\\) diagonals \\(v_2\\)–\\(v_5\\), \\(v_2\\)–\\(v_6\\), \\(v_3\\)–\\(v_5\\). The readout compares predicate evaluations: the monotone method (partition and triangulation) needs \\(11\\), ear clipping on the same polygon (see the lesson Ear clipping) needs \\(21\\). Ear clipping grows like \\(O(n^2)\\); one monotone piece takes \\(O(n)\\) after the vertices are sorted, the whole method \\(O(n\\log n)\\). Take care: a count on a small polygon illustrates this, it does not prove it. On the quadrilateral \\((0,0),(4,3),(8,5),(4,8)\\) alone the order is reversed: the monotone method has \\(7\\) and ear clipping \\(3\\). The advantage of the monotone method shows only for large \\(n\\).',
             ),
             formulaIds: ['monotone-triangle-count', 'monotone-growth'], workedExampleId: 'monotone-triangle-count-example',
-            frames: [frame('montri-compare-explanation', 'explanation'), frame('montri-compare-calculation', 'calculation'), frame('montri-compare-observation', 'observation')],
+            frames: [frame('montri-compare-explanation', 'explanation'), frame('montri-compare-calculation', 'calculation'), frame('montri-compare-observation', 'observation', mtFrame({highlight: ['comparison-monotone', 'comparison-ear']}))],
             observationPrompt: text('Preberi obe števili v primerjalni plošči in ju primerjaj z izjavo o rasti.', 'Read both numbers in the comparison panel and compare them with the growth statement.'),
             expectedObservations: [text('Trikotnikov: \\(4=n-2\\) pri \\(n=6\\); diagonale \\(3\\); monotona metoda \\(11\\) izračunov predikatov, rezanje ušes \\(21\\).', 'Triangles: \\(4=n-2\\) with \\(n=6\\); \\(3\\) diagonals; the monotone method \\(11\\) predicate evaluations, ear clipping \\(21\\).')],
             scene: monotoneScene('montri-compare', MONOTONE_EXAMPLE_1, [setTraceStep('end')],
@@ -2481,7 +2485,7 @@ const monotoneTriangulation: GuidedLesson = {
                 'Move the vertices of the polygon \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\), \\((4,8)\\) on the grid and press Next step. A polygon that is not monotone is partitioned into monotone pieces first (the steps up to the end of the partition), and only then is every piece triangulated; a polygon that is already monotone has one piece and no diagonal from the partition. The trace returns to the start after every change. Three consecutive collinear vertices and non-simple polygons are refused with a message.',
             ),
             formulaIds: ['monotone-triangle-count', 'monotone-growth'],
-            frames: [frame('montri-explore-explanation', 'explanation'), frame('montri-explore-observation', 'observation')],
+            frames: [frame('montri-explore-explanation', 'explanation', mtFrame({uses: ['next-step'], open: ['tools']})), frame('montri-explore-observation', 'observation')],
             observationPrompt: text('Premakni eno oglišče in pred koncem napovej, koliko trikotnikov in diagonal bo imela triangulacija.', 'Move one vertex and, before the end, predict how many triangles and diagonals the triangulation will have.'),
             expectedObservations: [text('Pri začetnem večkotniku je sled na koraku \\(1\\) od \\(44\\); ob koncu je \\(4\\) trikotnikov in \\(3\\) diagonale.', 'For the starting polygon the trace is at step \\(1\\) of \\(44\\); at the end there are \\(4\\) triangles and \\(3\\) diagonals.')],
             scene: monotoneScene('montri-explore', MONOTONE_EXAMPLE_1, [],

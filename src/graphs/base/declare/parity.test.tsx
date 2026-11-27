@@ -193,6 +193,27 @@ const SAMPLES: readonly Sample[] = [
             step('bow tie', load(polygon([[0, 0], [4, 4], [4, 0], [0, 4]]))),
         ];
     })()},
+    {file: 'compgeo/__parity__/orientation.json', demonstration: 'orientation', states: (() => {
+        type Orientation = {loadModel(model: unknown): void; setOverlay(id: string, shown: boolean): void};
+        const three = (r: [number, number], exponent = 0, values = true): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Orientation;
+                g.loadModel({mode: 'points', closed: false, gridStepExponent: exponent, points: [[0, 0], [4, 0], r].map(([x, y]) => ({x, y}))});
+                g.setOverlay('values', values);
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default (left turn)', () => {}),
+            step('right turn', three([3, -2])),
+            step('collinear', three([8, 0])),
+            step('values hidden', three([3, 2], 0, false)),
+            step('two points', graph => { runAs('learner', () => { const g = graph as unknown as Orientation; g.setOverlay('values', true); g.loadModel({mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 4, y: 0}]}); }); }),
+            step('no points', graph => { runAs('learner', () => { const g = graph as unknown as Orientation; g.setOverlay('values', true); g.loadModel({mode: 'points', closed: false, gridStepExponent: 0, points: []}); }); }),
+            step('finer grid', three([3, 2], -1)),
+            step('coarser grid', three([3, 2], 1)),
+        ];
+    })()},
     {file: 'compgeo/__parity__/bezier-hulls.json', demonstration: 'bezier-hulls', states: (() => {
         type Pair = [number, number][];
         type Hulls = {applyPointSetAction(action: unknown): void; setOverlay(id: string, shown: boolean): void};
@@ -408,6 +429,39 @@ const SAMPLES: readonly Sample[] = [
             step('example 1, end', run('end')),
             step('example 2, step 4', run(4, example2)),
             step('example 2, end', run('end', example2)),
+            step('clockwise polygon, step 2', run(2, clockwise)),
+            step('self-crossing polygon', run(0, bowtie)),
+            step('two points', run(0, [[0, 0], [3, 1]])),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/monotone-triangulation.json', demonstration: 'monotone-triangulation', states: (() => {
+        type Triangulation = {applyPointSetAction(action: unknown): void; loadModel(model: unknown): void};
+        const polygon = (points: [number, number][]) => ({mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        const example2: [number, number][] = [[4, 0], [10, 2], [8, 5], [12, 9], [7, 7], [5, 12], [3, 7], [0, 9], [2, 4]];
+        const example3: [number, number][] = [[4, 0], [8, 2], [6, 4], [9, 7], [5, 9], [1, 8], [3, 6], [0, 5]];
+        const clockwise: [number, number][] = [[0, 0], [0, 4], [3, 2], [6, 4], [6, 0]];
+        const bowtie: [number, number][] = [[0, 0], [4, 4], [4, 0], [0, 4]];
+        const run = (steps: number | 'end', points?: [number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Triangulation;
+                if (points) g.loadModel(polygon(points));
+                g.applyPointSetAction({kind: 'point-set', operation: 'set-trace-step', step: steps});
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('example 1, step 5 (partition)', run(5)),
+            step('example 1, partition done', run(14)),
+            step('example 1, top vertex', run(15)),
+            step('example 1, predict', run(19)),
+            step('example 1, test', run(21)),
+            step('example 1, diagonal', run(23)),
+            step('example 1, piece done', run(28)),
+            step('example 1, end', run('end')),
+            step('example 2, end', run('end', example2)),
+            step('example 3, step 12', run(12, example3)),
+            step('example 3, end', run('end', example3)),
             step('clockwise polygon, step 2', run(2, clockwise)),
             step('self-crossing polygon', run(0, bowtie)),
             step('two points', run(0, [[0, 0], [3, 1]])),

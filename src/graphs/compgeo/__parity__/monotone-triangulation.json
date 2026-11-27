@@ -1,0 +1,292 @@
+{
+  "graph": "monotone-triangulation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 44",
+        "Faza: razdelitev",
+        "Večkotnik in pometalna premica nad njim. Oglišča bomo obdelali od zgoraj navzdol.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 5 (partition)",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 44",
+        "Faza: razdelitev",
+        "Obdelamo oglišče v5 (zlivno).",
+        "Oglišče v5 je zlivno.",
+        "Obe sosednji oglišči sta nad njim in notranji kot je večji od π.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "example 1, partition done",
+      "rows": [],
+      "notes": [
+        "Korak 15 od 44",
+        "Faza: razdelitev",
+        "Končano: večkotnik je razdeljen na monotone večkotnike (glede na os y), njihovo število je 2.",
+        "Oglišče v3 je končno.",
+        "Obe sosednji oglišči sta nad njim in notranji kot je manjši od π.",
+        "Diagonale doslej (1): v2-v5"
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "v1 končno",
+        "v2 razcepno",
+        "v3 končno",
+        "v4 začetno",
+        "v5 zlivno",
+        "v6 začetno"
+      ]
+    },
+    {
+      "name": "example 1, top vertex",
+      "rows": [],
+      "notes": [
+        "Korak 16 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Obdelamo oglišče v6 (zgornje oglišče).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v6 — zgornje oglišče",
+        "Diagonale doslej (1): v2-v5",
+        "Trikotnikov doslej: 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
+      "name": "example 1, predict",
+      "rows": [],
+      "notes": [
+        "Korak 20 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Obdelamo oglišče v2 (desna veriga).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v2 — desna veriga",
+        "Diagonale doslej (1): v2-v5",
+        "Trikotnikov doslej: 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
+      "name": "example 1, test",
+      "rows": [],
+      "notes": [
+        "Korak 22 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Preizkus oglišča v2 proti oglišču v6: diagonala leži znotraj kosa (orientacija je pozitivna).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v2 — desna veriga",
+        "Trenutni preizkus: oglišči v2 in v6, diagonala je znotraj.",
+        "Diagonale doslej (1): v2-v5",
+        "Trikotnikov doslej: 0."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče",
+        "znotraj"
+      ]
+    },
+    {
+      "name": "example 1, diagonal",
+      "rows": [],
+      "notes": [
+        "Korak 24 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Dodana je diagonala v2-v6.",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v2 — desna veriga",
+        "Diagonale doslej (2): v2-v5, v2-v6",
+        "Trikotnikov doslej: 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
+      "name": "example 1, piece done",
+      "rows": [],
+      "notes": [
+        "Korak 29 od 44",
+        "Faza: triangulacija kosa 1 od 2",
+        "Oglišče v6 zapusti sklad (oglišč na skladu: 0).",
+        "Kos 1: število oglišč 4, število trikotnikov 2.",
+        "v1 — spodnje oglišče",
+        "Diagonale doslej (2): v2-v5, v2-v6",
+        "Trikotnikov doslej: 2."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v5 desna veriga",
+        "v6 zgornje oglišče"
+      ]
+    },
+    {
+      "name": "example 1, end",
+      "rows": [],
+      "notes": [
+        "Korak 44 od 44",
+        "Faza: triangulacija kosa 2 od 2",
+        "Končano: večkotnik je razdeljen na trikotnike, njihovo število je 4.",
+        "Kos 2: število oglišč 4, število trikotnikov 2.",
+        "v3 — spodnje oglišče",
+        "Diagonale doslej (3): v2-v5, v2-v6, v3-v5",
+        "Trikotnikov: 4 = n - 2 pri n = 6.",
+        "Monotona metoda (razdelitev in triangulacija): 11 izračunov predikatov.",
+        "Rezanje ušes na istem večkotniku: 21 izračunov predikatov.",
+        "Pri n ogliščih rezanje ušes potrebuje O(n²) izračunov predikatov, cela monotona metoda pa O(n log n); vsak kos zahteva po urejanju O(n).",
+        "Majhna števila to ponazarjajo, ne dokazujejo."
+      ],
+      "outputs": [],
+      "captions": [
+        "v2 leva veriga",
+        "v3 spodnje oglišče",
+        "v4 zgornje oglišče",
+        "v5 leva veriga"
+      ]
+    },
+    {
+      "name": "example 2, end",
+      "rows": [],
+      "notes": [
+        "Korak 70 od 70",
+        "Faza: triangulacija kosa 3 od 3",
+        "Končano: večkotnik je razdeljen na trikotnike, njihovo število je 7.",
+        "Kos 3: število oglišč 3, število trikotnikov 1.",
+        "v3 — spodnje oglišče",
+        "Diagonale doslej (6): v5-v7, v3-v5, v3-v7, v3-v9, v7-v9, v2-v9",
+        "Trikotnikov: 7 = n - 2 pri n = 9.",
+        "Monotona metoda (razdelitev in triangulacija): 19 izračunov predikatov.",
+        "Rezanje ušes na istem večkotniku: 62 izračunov predikatov.",
+        "Pri n ogliščih rezanje ušes potrebuje O(n²) izračunov predikatov, cela monotona metoda pa O(n log n); vsak kos zahteva po urejanju O(n).",
+        "Majhna števila to ponazarjajo, ne dokazujejo."
+      ],
+      "outputs": [],
+      "captions": [
+        "v3 spodnje oglišče",
+        "v4 zgornje oglišče",
+        "v5 leva veriga"
+      ]
+    },
+    {
+      "name": "example 3, step 12",
+      "rows": [],
+      "notes": [
+        "Korak 13 od 58",
+        "Faza: razdelitev",
+        "Rob e8 vstopi v stanje (robov v stanju: 1).",
+        "Oglišče v8 je navadno.",
+        "Eno sosednje oglišče je nad njim, drugo pod njim.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "v4 navadno",
+        "v5 začetno",
+        "v6 navadno",
+        "v7 navadno",
+        "v8 navadno"
+      ]
+    },
+    {
+      "name": "example 3, end",
+      "rows": [],
+      "notes": [
+        "Korak 58 od 58",
+        "Faza: triangulacija kosa 1 od 1",
+        "Končano: večkotnik je razdeljen na trikotnike, njihovo število je 6.",
+        "Večkotnik je že monoton glede na os y: razdelitev ne doda nobene diagonale in ostane en kos.",
+        "Kos 1: število oglišč 8, število trikotnikov 6.",
+        "v1 — spodnje oglišče",
+        "Diagonale doslej (5): v4-v6, v4-v7, v4-v8, v3-v8, v2-v8",
+        "Trikotnikov: 6 = n - 2 pri n = 8.",
+        "Monotona metoda (razdelitev in triangulacija): 13 izračunov predikatov.",
+        "Rezanje ušes na istem večkotniku: 58 izračunov predikatov.",
+        "Pri n ogliščih rezanje ušes potrebuje O(n²) izračunov predikatov, cela monotona metoda pa O(n log n); vsak kos zahteva po urejanju O(n).",
+        "Majhna števila to ponazarjajo, ne dokazujejo."
+      ],
+      "outputs": [],
+      "captions": [
+        "v1 spodnje oglišče",
+        "v2 desna veriga",
+        "v3 desna veriga",
+        "v4 desna veriga",
+        "v5 zgornje oglišče",
+        "v6 leva veriga",
+        "v7 leva veriga",
+        "v8 leva veriga"
+      ]
+    },
+    {
+      "name": "clockwise polygon, step 2",
+      "rows": [],
+      "notes": [
+        "Večkotnik teče v smeri urnega kazalca; za razdelitev ga obrnemo. Shranjeni večkotnik se ne spremeni.",
+        "Korak 3 od 36",
+        "Faza: razdelitev",
+        "Rob e2 vstopi v stanje (robov v stanju: 1).",
+        "Oglišče v2 je začetno.",
+        "Obe sosednji oglišči sta pod njim in notranji kot je manjši od π.",
+        "Diagonal doslej še ni."
+      ],
+      "outputs": [],
+      "captions": [
+        "v2 začetno"
+      ]
+    },
+    {
+      "name": "self-crossing polygon",
+      "rows": [],
+      "notes": [
+        "Razdelitev je zavrnjena: roba e1 in e3 se sekata ali dotikata. Premakni oglišče, da bo večkotnik enostaven."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Razdelitev je zavrnjena: večkotnik potrebuje vsaj tri oglišča. Dodaj oglišča."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}
