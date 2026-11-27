@@ -8,10 +8,13 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-rec-b.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {CobwebIds} from '../../graphs/recursion/RecursionCobwebGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<CobwebIds>();
 
 interface StepContent {
     readonly id: string;
@@ -23,11 +26,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights (only rows present when the step opens, never a value the step asks to predict) and the board controls it asks the learner to use. */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation', declare)],
 });
 
 /** The stored cobweb fields a scene may set: the map, m = M/20, c = C/10, r = R/10 (5..29), x0 = X/100 and the drawn step (0..60). */
@@ -129,6 +134,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg2-line-diagonal-scene', RG2_DEFAULT,
             'Premica \\(m=0{,}5\\), \\(c=1\\), \\(x_0=0\\), korak \\(0\\): \\(x^*=2\\), naklon \\(0{,}5\\), stopnice.',
             'The line \\(m=0.5\\), \\(c=1\\), \\(x_0=0\\), step \\(0\\): \\(x^*=2\\), slope \\(0.5\\), a staircase.'),
+        declare: f({highlight: ['start', 'fixed']}),
     }),
     step({
         id: 'rg2-play', order: 2,
@@ -144,14 +150,15 @@ const rg2Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg2-play-scene', RG2_DEFAULT,
             'Premica \\(m=0{,}5\\), \\(c=1\\), \\(x_0=0\\), korak \\(0\\); po \\(11\\) korakih \\(x_{11}=1{,}999023\\) (izračunano).',
             'The line \\(m=0.5\\), \\(c=1\\), \\(x_0=0\\), step \\(0\\); after \\(11\\) steps \\(x_{11}=1.999023\\) (computed).'),
+        declare: f({highlight: ['fixed', 'steps']}),
     }),
     step({
         id: 'rg2-negative-slope', order: 3,
         title: text('Naklon pod ničlo', 'A slope below zero'),
         purpose: text('Napovedati, kaj se zgodi, ko je \\(m\\) negativen.', 'Predicting what happens when \\(m\\) is negative.'),
         explanation: text(
-            'Doslej je bil naklon pozitiven. Preizkusimo premico z \\(m=-0{,}8\\), \\(c=9\\) in začetkom \\(x_0=1\\). Z obrazcema iz prejšnjih korakov izračunaj \\(x^*\\) in napovej: na kateri strani \\(x^*\\) pristane \\(x_1\\)? Se mreža še približuje \\(x^*\\)? Je za bližino \\(0{,}001\\) potrebnih manj ali več kot \\(11\\) korakov? Napoved zapiši. Nato v polja Naklon \\(m\\), Prosti člen \\(c\\) in Začetek \\(x_0\\) vpiši \\(-0{,}8\\), \\(9\\) in \\(1\\), preberi Negibna točka \\(x^*\\) in Oblika mreže ter \\(4\\)-krat pritisni Naslednji korak. Nazadnje pritisni Predvajaj, da se mreža nariše do konca.',
-            'So far the slope was positive. Try the line with \\(m=-0.8\\), \\(c=9\\) and the start \\(x_0=1\\). With the formulas of the previous steps compute \\(x^*\\) and predict: on which side of \\(x^*\\) does \\(x_1\\) land? Does the cobweb still approach \\(x^*\\)? Are fewer or more than \\(11\\) steps needed to get within \\(0.001\\)? Write the prediction down. Then type \\(-0.8\\), \\(9\\) and \\(1\\) into the fields Slope \\(m\\), Intercept \\(c\\) and Start \\(x_0\\), read Fixed point \\(x^*\\) and Shape of the cobweb, and press Next step \\(4\\) times. Finally press Play to draw the cobweb to the end.',
+            'Doslej je bil naklon pozitiven. Preizkusimo premico z \\(m=-0{,}8\\), \\(c=9\\) in začetkom \\(x_0=1\\). Z obrazcema iz prejšnjih korakov izračunaj \\(x^*\\) in napovej: na kateri strani \\(x^*\\) pristane \\(x_1\\)? Se mreža še približuje \\(x^*\\)? Je za bližino \\(0{,}001\\) potrebnih manj ali več kot \\(11\\) korakov? Napoved zapiši. Nato na krmilnikih Naklon \\(m\\), Prosti člen \\(c\\) in Začetek \\(x_0\\) nastavi \\(-0{,}8\\), \\(9\\) in \\(1\\), preberi Negibna točka \\(x^*\\) in Oblika mreže ter \\(4\\)-krat pritisni Naslednji korak. Nazadnje pritisni Predvajaj, da se mreža nariše do konca.',
+            'So far the slope was positive. Try the line with \\(m=-0.8\\), \\(c=9\\) and the start \\(x_0=1\\). With the formulas of the previous steps compute \\(x^*\\) and predict: on which side of \\(x^*\\) does \\(x_1\\) land? Does the cobweb still approach \\(x^*\\)? Are fewer or more than \\(11\\) steps needed to get within \\(0.001\\)? Write the prediction down. Then set \\(-0.8\\), \\(9\\) and \\(1\\) on the controls Slope \\(m\\), Intercept \\(c\\) and Start \\(x_0\\), read Fixed point \\(x^*\\) and Shape of the cobweb, and press Next step \\(4\\) times. Finally press Play to draw the cobweb to the end.',
         ),
         formulaIds: ['affine-fixed-point', 'affine-error'],
         observationPrompt: text('Zapiši napoved, nato vpiši vrednosti in primerjaj odčitke Iterat \\(x_1\\) do \\(x_4\\) in Iterat \\(x_{60}\\) z napovedjo.', 'Write down the prediction, then type the values and compare the readouts Iterate \\(x_1\\) to \\(x_4\\) and Iterate \\(x_{60}\\) with it.'),
@@ -159,14 +166,15 @@ const rg2Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg2-negative-slope-scene', RG2_DEFAULT,
             'Premica \\(m=0{,}5\\), \\(c=1\\), \\(x_0=0\\), korak \\(0\\); učenec vpiše \\(m=-0{,}8\\), \\(c=9\\), \\(x_0=1\\).',
             'The line \\(m=0.5\\), \\(c=1\\), \\(x_0=0\\), step \\(0\\); the learner types \\(m=-0.8\\), \\(c=9\\), \\(x_0=1\\).'),
+        declare: f({highlight: ['slope', 'intercept', 'start'], uses: ['cobweb-m', 'cobweb-c', 'cobweb-x']}),
     }),
     step({
         id: 'rg2-repelling', order: 4,
         title: text('Naklon \\(-1{,}2\\)', 'The slope \\(-1.2\\)'),
         purpose: text('Z napako, pomnoženo z \\(m\\), napovedati obnašanje mreže, ko začetek leži blizu \\(x^*\\).', 'Using the error multiplied by \\(m\\) to predict the behaviour of the cobweb when the start is close to \\(x^*\\).'),
         explanation: text(
-            'Zdaj je prikazana premica \\(m=-0{,}8\\), \\(c=9\\), \\(x_0=1\\). Spremenimo jo v \\(m=-1{,}2\\), \\(c=10\\), \\(x_0=4{,}6\\). Izračunaj \\(x^*=\\tfrac{10}{1-(-1{,}2)}\\) kot ulomek in oceni, kako daleč od njega je \\(x_0\\). Napoved: je napaka po vsakem koraku manjša ali večja kot prej, in na kateri strani \\(x^*\\) je \\(x_1\\)? Začetek je blizu \\(x^*\\); kaj naredi mreža po \\(60\\) korakih? Napoved zapiši. Nato vpiši \\(-1{,}2\\), \\(10\\) in \\(4{,}6\\) v polja Naklon \\(m\\), Prosti člen \\(c\\) in Začetek \\(x_0\\), \\(4\\)-krat pritisni Naslednji korak in nazadnje Predvajaj.',
-            'The line \\(m=-0.8\\), \\(c=9\\), \\(x_0=1\\) is shown. Change it to \\(m=-1.2\\), \\(c=10\\), \\(x_0=4.6\\). Compute \\(x^*=\\tfrac{10}{1-(-1.2)}\\) as a fraction and estimate how far \\(x_0\\) is from it. Prediction: is the error after every step smaller or larger than before, and on which side of \\(x^*\\) is \\(x_1\\)? The start is close to \\(x^*\\); what does the cobweb do after \\(60\\) steps? Write the prediction down. Then type \\(-1.2\\), \\(10\\) and \\(4.6\\) into the fields Slope \\(m\\), Intercept \\(c\\) and Start \\(x_0\\), press Next step \\(4\\) times and finally Play.',
+            'Zdaj je prikazana premica \\(m=-0{,}8\\), \\(c=9\\), \\(x_0=1\\). Spremenimo jo v \\(m=-1{,}2\\), \\(c=10\\), \\(x_0=4{,}6\\). Izračunaj \\(x^*=\\tfrac{10}{1-(-1{,}2)}\\) kot ulomek in oceni, kako daleč od njega je \\(x_0\\). Napoved: je napaka po vsakem koraku manjša ali večja kot prej, in na kateri strani \\(x^*\\) je \\(x_1\\)? Začetek je blizu \\(x^*\\); kaj naredi mreža po \\(60\\) korakih? Napoved zapiši. Nato na krmilnikih Naklon \\(m\\), Prosti člen \\(c\\) in Začetek \\(x_0\\) nastavi \\(-1{,}2\\), \\(10\\) in \\(4{,}6\\), \\(4\\)-krat pritisni Naslednji korak in nazadnje Predvajaj.',
+            'The line \\(m=-0.8\\), \\(c=9\\), \\(x_0=1\\) is shown. Change it to \\(m=-1.2\\), \\(c=10\\), \\(x_0=4.6\\). Compute \\(x^*=\\tfrac{10}{1-(-1.2)}\\) as a fraction and estimate how far \\(x_0\\) is from it. Prediction: is the error after every step smaller or larger than before, and on which side of \\(x^*\\) is \\(x_1\\)? The start is close to \\(x^*\\); what does the cobweb do after \\(60\\) steps? Write the prediction down. Then set \\(-1.2\\), \\(10\\) and \\(4.6\\) on the controls Slope \\(m\\), Intercept \\(c\\) and Start \\(x_0\\), press Next step \\(4\\) times and finally Play.',
         ),
         formulaIds: ['affine-error'],
         observationPrompt: text('Zapiši napoved, nato vpiši vrednosti in preberi Negibna točka \\(x^*\\), Iterat \\(x_1\\) do \\(x_4\\) ter na koncu Iterat \\(x_{60}\\).', 'Write down the prediction, then type the values and read Fixed point \\(x^*\\), Iterate \\(x_1\\) to \\(x_4\\) and finally Iterate \\(x_{60}\\).'),
@@ -174,14 +182,15 @@ const rg2Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg2-repelling-scene', RG2_SPIRAL,
             'Premica \\(m=-0{,}8\\), \\(c=9\\), \\(x_0=1\\), korak \\(0\\); učenec vpiše \\(m=-1{,}2\\), \\(c=10\\), \\(x_0=4{,}6\\).',
             'The line \\(m=-0.8\\), \\(c=9\\), \\(x_0=1\\), step \\(0\\); the learner types \\(m=-1.2\\), \\(c=10\\), \\(x_0=4.6\\).'),
+        declare: f({highlight: ['slope', 'intercept', 'start'], uses: ['cobweb-m', 'cobweb-c', 'cobweb-x']}),
     }),
     step({
         id: 'rg2-borderline', order: 5,
         title: text('Naklon \\(-1\\) in \\(1\\)', 'The slopes \\(-1\\) and \\(1\\)'),
         purpose: text('Napovedati, kaj se zgodi na meji \\(\\lvert m\\rvert=1\\).', 'Predicting what happens on the boundary \\(\\lvert m\\rvert=1\\).'),
         explanation: text(
-            'Prikazana je premica \\(m=-1{,}2\\), \\(c=10\\), \\(x_0=4{,}6\\). Spremeni samo naklon, \\(c\\) in \\(x_0\\) ostaneta. Najprej napovej za \\(m=-1\\): koliko je \\(x^*\\), kaj naredijo \\(x_1\\), \\(x_2\\), \\(x_3\\) in kako se napaka spremeni v enem koraku? Napoved zapiši, nato v polje Naklon \\(m\\) vpiši \\(-1\\), preberi stanje in Obliko mreže ter \\(3\\)-krat pritisni Naslednji korak. Nato napovej za \\(m=1\\): ali ima obrazec \\(x^*=\\tfrac{c}{1-m}\\) smisel in kaj dodaja vsak korak? Vpiši \\(1\\) in nato še \\(c=0\\) in preberi stanje. Graf oznako določi iz celoštevilskih parametrov \\(m\\) in \\(c\\), ne iz izračunanih iteratov.',
-            'The line \\(m=-1.2\\), \\(c=10\\), \\(x_0=4.6\\) is shown. Change only the slope; \\(c\\) and \\(x_0\\) stay. First predict for \\(m=-1\\): what is \\(x^*\\), what do \\(x_1\\), \\(x_2\\), \\(x_3\\) do, and how does the error change in one step? Write the prediction down, then type \\(-1\\) into the field Slope \\(m\\), read the status and the Shape of the cobweb and press Next step \\(3\\) times. Then predict for \\(m=1\\): does the formula \\(x^*=\\tfrac{c}{1-m}\\) make sense and what does every step add? Type \\(1\\) and then also \\(c=0\\) and read the status. The graph decides the label from the whole-number parameters \\(m\\) and \\(c\\), not from the computed iterates.',
+            'Prikazana je premica \\(m=-1{,}2\\), \\(c=10\\), \\(x_0=4{,}6\\). Spremeni samo naklon, \\(c\\) in \\(x_0\\) ostaneta. Najprej napovej za \\(m=-1\\): koliko je \\(x^*\\), kaj naredijo \\(x_1\\), \\(x_2\\), \\(x_3\\) in kako se napaka spremeni v enem koraku? Napoved zapiši, nato na krmilniku Naklon \\(m\\) nastavi \\(-1\\), preberi stanje in Obliko mreže ter \\(3\\)-krat pritisni Naslednji korak. Nato napovej za \\(m=1\\): ali ima obrazec \\(x^*=\\tfrac{c}{1-m}\\) smisel in kaj dodaja vsak korak? Vpiši \\(1\\) in nato še \\(c=0\\) in preberi stanje. Graf oznako določi iz celoštevilskih parametrov \\(m\\) in \\(c\\), ne iz izračunanih iteratov.',
+            'The line \\(m=-1.2\\), \\(c=10\\), \\(x_0=4.6\\) is shown. Change only the slope; \\(c\\) and \\(x_0\\) stay. First predict for \\(m=-1\\): what is \\(x^*\\), what do \\(x_1\\), \\(x_2\\), \\(x_3\\) do, and how does the error change in one step? Write the prediction down, then set \\(-1\\) on the control Slope \\(m\\), read the status and the Shape of the cobweb and press Next step \\(3\\) times. Then predict for \\(m=1\\): does the formula \\(x^*=\\tfrac{c}{1-m}\\) make sense and what does every step add? Type \\(1\\) and then also \\(c=0\\) and read the status. The graph decides the label from the whole-number parameters \\(m\\) and \\(c\\), not from the computed iterates.',
         ),
         formulaIds: ['affine-fixed-point', 'affine-error'],
         observationPrompt: text('Zapiši napoved, nato vpiši \\(m=-1\\), nato \\(m=1\\), nato \\(c=0\\) in pri vsakem preberi stanje.', 'Write down the prediction, then type \\(m=-1\\), then \\(m=1\\), then \\(c=0\\) and read the status each time.'),
@@ -189,14 +198,15 @@ const rg2Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg2-borderline-scene', RG2_OUT,
             'Premica \\(m=-1{,}2\\), \\(c=10\\), \\(x_0=4{,}6\\), korak \\(0\\); učenec vpiše \\(m=-1\\), nato \\(m=1\\), nato \\(c=0\\).',
             'The line \\(m=-1.2\\), \\(c=10\\), \\(x_0=4.6\\), step \\(0\\); the learner types \\(m=-1\\), then \\(m=1\\), then \\(c=0\\).'),
+        declare: f({highlight: ['slope', 'intercept'], uses: ['cobweb-m', 'cobweb-c']}),
     }),
     step({
         id: 'rg2-cosine', order: 6,
         title: text('Krivulja namesto premice', 'A curve instead of a line'),
         purpose: text('Napovedati, kako naklon pri negibni točki krivulje nadomesti \\(m\\), in to preveriti na kosinusu.', 'Predicting how the slope at the fixed point of a curve takes the place of \\(m\\), and checking it on the cosine.'),
         explanation: text(
-            'Preslikava ni nujno premica. Za \\(f(x)=\\cos x\\) negibne točke ne moremo izraziti z obrazcem: \\(x^*\\) je rešitev enačbe \\(\\cos x=x\\), graf jo izračuna številsko. Blizu \\(x^*\\) je krivulja skoraj enaka svoji tangenti z naklonom \\(f^{\\prime}(x^*)=-\\sin x^*\\); kar pri premici velja za \\(\\lvert m\\rvert<1\\), velja blizu \\(x^*\\) približno tudi za krivuljo z \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\). To je lokalna trditev in ponazoritev, ne dokaz za vse začetke. Pogled grafa se ne spremeni sam; približaš ga z gumbom Približaj graf. Napoved: se mreža kosinusa približuje \\(x^*\\) in ali ima obliko stopnic ali spirale? Napoved zapiši, nato v seznamu Preslikava izberi Kosinus \\(x\\mapsto\\cos x\\), preberi Negibna točka \\(x^*\\) in Naklon pri negibni točki (izračunano) in \\(8\\)-krat pritisni Naslednji korak.',
-            'The map need not be a line. For \\(f(x)=\\cos x\\) the fixed point cannot be given by a formula: \\(x^*\\) solves the equation \\(\\cos x=x\\), and the graph computes it numerically. Near \\(x^*\\) the curve is almost its tangent line with the slope \\(f^{\\prime}(x^*)=-\\sin x^*\\); what holds for a line with \\(\\lvert m\\rvert<1\\) holds approximately near \\(x^*\\) for a curve with \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\) too. This is a local statement and an illustration, not a proof for all starts. The view of the graph does not change by itself; zoom in with the button Zoom in. Prediction: does the cobweb of the cosine approach \\(x^*\\), and is its shape a staircase or a spiral? Write the prediction down, then choose Cosine \\(x\\mapsto\\cos x\\) in the list Map, read Fixed point \\(x^*\\) and Slope at the fixed point (computed) and press Next step \\(8\\) times.',
+            'Preslikava ni nujno premica. Za \\(f(x)=\\cos x\\) negibne točke ne moremo izraziti z obrazcem: \\(x^*\\) je rešitev enačbe \\(\\cos x=x\\), graf jo izračuna številsko. Blizu \\(x^*\\) je krivulja skoraj enaka svoji tangenti z naklonom \\(f^{\\prime}(x^*)=-\\sin x^*\\); kar pri premici velja za \\(\\lvert m\\rvert<1\\), velja blizu \\(x^*\\) približno tudi za krivuljo z \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\). To je lokalna trditev in ponazoritev, ne dokaz za vse začetke. Pogled grafa se ne spremeni sam; približaš ga z gumbom Približaj graf. Napoved: se mreža kosinusa približuje \\(x^*\\) in ali ima obliko stopnic ali spirale? Napoved zapiši, nato na krmilniku Preslikava izberi Kosinus \\(x\\mapsto\\cos x\\), preberi Negibna točka \\(x^*\\) in Naklon pri negibni točki (izračunano) in \\(8\\)-krat pritisni Naslednji korak.',
+            'The map need not be a line. For \\(f(x)=\\cos x\\) the fixed point cannot be given by a formula: \\(x^*\\) solves the equation \\(\\cos x=x\\), and the graph computes it numerically. Near \\(x^*\\) the curve is almost its tangent line with the slope \\(f^{\\prime}(x^*)=-\\sin x^*\\); what holds for a line with \\(\\lvert m\\rvert<1\\) holds approximately near \\(x^*\\) for a curve with \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\) too. This is a local statement and an illustration, not a proof for all starts. The view of the graph does not change by itself; zoom in with the button Zoom in. Prediction: does the cobweb of the cosine approach \\(x^*\\), and is its shape a staircase or a spiral? Write the prediction down, then choose Cosine \\(x\\mapsto\\cos x\\) on the control Map, read Fixed point \\(x^*\\) and Slope at the fixed point (computed) and press Next step \\(8\\) times.',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato izberi Kosinus, preberi odčitka in primerjaj Iterat \\(x_8\\) z \\(x^*\\); primerjaj velikost naklona z \\(0{,}8\\) iz koraka \\(3\\).', 'Write down the prediction, then choose Cosine, read the two readouts and compare Iterate \\(x_8\\) with \\(x^*\\); compare the size of the slope with \\(0.8\\) from step \\(3\\).'),
@@ -204,6 +214,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg2-cosine-scene', RG2_DEFAULT,
             'Premica \\(m=0{,}5\\), \\(c=1\\), \\(x_0=0\\), korak \\(0\\); učenec izbere kosinus (začetek ostane \\(x_0=0\\)).',
             'The line \\(m=0.5\\), \\(c=1\\), \\(x_0=0\\), step \\(0\\); the learner chooses the cosine (the start stays \\(x_0=0\\)).'),
+        declare: f({highlight: ['map'], uses: ['cobweb-map']}),
     }),
     step({
         id: 'rg2-explore', order: 7,
@@ -219,6 +230,7 @@ const rg2Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg2-explore-scene', RG2_EXPLORE,
             'Premica \\(m=0{,}5\\), \\(c=1\\), \\(x_0=0\\), korak \\(0\\), nevtralno stanje za raziskovanje.',
             'The line \\(m=0.5\\), \\(c=1\\), \\(x_0=0\\), step \\(0\\), a neutral state for exploring.'),
+        declare: f({highlight: ['slope', 'intercept', 'start'], uses: ['cobweb-m', 'cobweb-c', 'cobweb-x', 'cobweb-map']}),
     }),
 ];
 
@@ -245,8 +257,8 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         title: text('Rast, ki se ustavlja', 'Growth that slows down'),
         purpose: text('Napovedati, kje se rast ustavi, ko \\(r\\) raste.', 'Predicting where growth stops when \\(r\\) grows.'),
         explanation: text(
-            'Naj bo \\(x_n\\) delež kapacitete, ki je zapolnjen, in \\(x_{n+1}=r\\,x_n(1-x_n)\\). Faktor \\(r\\) pomeni rast, faktor \\(1-x_n\\) jo zavira, ko se \\(x_n\\) bliža \\(1\\). Krivulja \\(y=r\\,x(1-x)\\) je parabola, diagonala je \\(y=x\\) in mreža se nariše kakor pri premici. Zdaj je \\(r=1{,}2\\) in \\(x_0=0{,}1\\); odčitek Negibna točka \\(x^*\\) kaže, kje se rast ustavi pri tem \\(r\\). Napoved: kje se ustavi pri \\(r=1{,}5\\), višje ali nižje kot pri \\(r=1{,}2\\), in približno kje? Napoved zapiši, nato v polje Parameter \\(r\\) vpiši \\(1{,}5\\) in preberi Negibna točka \\(x^*\\).',
-            'Let \\(x_n\\) be the share of the capacity that is filled and \\(x_{n+1}=r\\,x_n(1-x_n)\\). The factor \\(r\\) is the growth, the factor \\(1-x_n\\) slows it down when \\(x_n\\) approaches \\(1\\). The curve \\(y=r\\,x(1-x)\\) is a parabola, the diagonal is \\(y=x\\), and the cobweb is drawn as for a line. Now \\(r=1.2\\) and \\(x_0=0.1\\); the readout Fixed point \\(x^*\\) shows where growth stops for this \\(r\\). Prediction: where does it stop for \\(r=1.5\\), higher or lower than for \\(r=1.2\\), and roughly where? Write the prediction down, then type \\(1.5\\) into the field Parameter \\(r\\) and read Fixed point \\(x^*\\).',
+            'Naj bo \\(x_n\\) delež kapacitete, ki je zapolnjen, in \\(x_{n+1}=r\\,x_n(1-x_n)\\). Faktor \\(r\\) pomeni rast, faktor \\(1-x_n\\) jo zavira, ko se \\(x_n\\) bliža \\(1\\). Krivulja \\(y=r\\,x(1-x)\\) je parabola, diagonala je \\(y=x\\) in mreža se nariše kakor pri premici. Zdaj je \\(r=1{,}2\\) in \\(x_0=0{,}1\\); odčitek Negibna točka \\(x^*\\) kaže, kje se rast ustavi pri tem \\(r\\). Napoved: kje se ustavi pri \\(r=1{,}5\\), višje ali nižje kot pri \\(r=1{,}2\\), in približno kje? Napoved zapiši, nato na krmilniku Parameter \\(r\\) nastavi \\(1{,}5\\) in preberi Negibna točka \\(x^*\\).',
+            'Let \\(x_n\\) be the share of the capacity that is filled and \\(x_{n+1}=r\\,x_n(1-x_n)\\). The factor \\(r\\) is the growth, the factor \\(1-x_n\\) slows it down when \\(x_n\\) approaches \\(1\\). The curve \\(y=r\\,x(1-x)\\) is a parabola, the diagonal is \\(y=x\\), and the cobweb is drawn as for a line. Now \\(r=1.2\\) and \\(x_0=0.1\\); the readout Fixed point \\(x^*\\) shows where growth stops for this \\(r\\). Prediction: where does it stop for \\(r=1.5\\), higher or lower than for \\(r=1.2\\), and roughly where? Write the prediction down, then set \\(1.5\\) on the control Parameter \\(r\\) and read Fixed point \\(x^*\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato vpiši \\(r=1{,}5\\) in primerjaj odčitek Negibna točka \\(x^*\\) z napovedjo.', 'Write down the prediction, then type \\(r=1.5\\) and compare the readout Fixed point \\(x^*\\) with it.'),
@@ -254,6 +266,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg4-rule-scene', RG4_START,
             'Logistična preslikava \\(r=1{,}2\\), \\(x_0=0{,}1\\), korak \\(0\\): \\(x^*=\\tfrac16\\), približno \\(0{,}166667\\), naklon \\(0{,}8\\); učenec vpiše \\(r=1{,}5\\).',
             'The logistic map \\(r=1.2\\), \\(x_0=0.1\\), step \\(0\\): \\(x^*=\\tfrac16\\), approximately \\(0.166667\\), slope \\(0.8\\); the learner types \\(r=1.5\\).'),
+        declare: f({highlight: ['rate', 'fixed'], uses: ['cobweb-r']}),
     }),
     step({
         id: 'rg4-staircase', order: 2,
@@ -269,14 +282,15 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg4-staircase-scene', RG4_STAIRCASE,
             'Logistična preslikava \\(r=1{,}5\\), \\(x_0=0{,}1\\), korak \\(0\\): \\(x^*=\\tfrac13\\), naklon \\(0{,}5\\), stopnice.',
             'The logistic map \\(r=1.5\\), \\(x_0=0.1\\), step \\(0\\): \\(x^*=\\tfrac13\\), slope \\(0.5\\), a staircase.'),
+        declare: f({highlight: ['rate', 'fixed']}),
     }),
     step({
         id: 'rg4-spiral', order: 3,
         title: text('Večji \\(r\\)', 'A larger \\(r\\)'),
         purpose: text('Z lego negibne točke glede na vrh parabole napovedati obliko mreže.', 'Using the position of the fixed point relative to the vertex of the parabola to predict the shape of the cobweb.'),
         explanation: text(
-            'Parabola \\(y=r\\,x(1-x)\\) ima vrh pri \\(x=\\tfrac12\\); levo od njega narašča, desno pada. Pri \\(r=1{,}5\\) je bila mreža stopnice. Napoved za \\(r=2{,}5\\): ali je \\(x^*\\) levo ali desno od vrha, ali krivulja pri \\(x^*\\) narašča ali pada in kakšna bo oblika mreže? Napoved zapiši, nato v polje Parameter \\(r\\) vpiši \\(2{,}5\\), preberi Negibna točka \\(x^*\\) in Oblika mreže in \\(4\\)-krat pritisni Naslednji korak. Nato pritisni Predvajaj in preberi Iterat \\(x_{11}\\).',
-            'The parabola \\(y=r\\,x(1-x)\\) has its vertex at \\(x=\\tfrac12\\); to the left of it it rises, to the right it falls. For \\(r=1.5\\) the cobweb was a staircase. Prediction for \\(r=2.5\\): is \\(x^*\\) left or right of the vertex, does the curve rise or fall at \\(x^*\\), and what will the shape of the cobweb be? Write the prediction down, then type \\(2.5\\) into the field Parameter \\(r\\), read Fixed point \\(x^*\\) and Shape of the cobweb and press Next step \\(4\\) times. Then press Play and read Iterate \\(x_{11}\\).',
+            'Parabola \\(y=r\\,x(1-x)\\) ima vrh pri \\(x=\\tfrac12\\); levo od njega narašča, desno pada. Pri \\(r=1{,}5\\) je bila mreža stopnice. Napoved za \\(r=2{,}5\\): ali je \\(x^*\\) levo ali desno od vrha, ali krivulja pri \\(x^*\\) narašča ali pada in kakšna bo oblika mreže? Napoved zapiši, nato na krmilniku Parameter \\(r\\) nastavi \\(2{,}5\\), preberi Negibna točka \\(x^*\\) in Oblika mreže in \\(4\\)-krat pritisni Naslednji korak. Nato pritisni Predvajaj in preberi Iterat \\(x_{11}\\).',
+            'The parabola \\(y=r\\,x(1-x)\\) has its vertex at \\(x=\\tfrac12\\); to the left of it it rises, to the right it falls. For \\(r=1.5\\) the cobweb was a staircase. Prediction for \\(r=2.5\\): is \\(x^*\\) left or right of the vertex, does the curve rise or fall at \\(x^*\\), and what will the shape of the cobweb be? Write the prediction down, then set \\(2.5\\) on the control Parameter \\(r\\), read Fixed point \\(x^*\\) and Shape of the cobweb and press Next step \\(4\\) times. Then press Play and read Iterate \\(x_{11}\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato vpiši \\(r=2{,}5\\) in preberi Negibna točka \\(x^*\\), Obliko mreže in Iterat \\(x_1\\) do \\(x_4\\).', 'Write down the prediction, then type \\(r=2.5\\) and read Fixed point \\(x^*\\), Shape of the cobweb and Iterate \\(x_1\\) to \\(x_4\\).'),
@@ -284,14 +298,15 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg4-spiral-scene', RG4_STAIRCASE,
             'Logistična preslikava \\(r=1{,}5\\), \\(x_0=0{,}1\\), korak \\(0\\); učenec vpiše \\(r=2{,}5\\).',
             'The logistic map \\(r=1.5\\), \\(x_0=0.1\\), step \\(0\\); the learner types \\(r=2.5\\).'),
+        declare: f({highlight: ['rate'], uses: ['cobweb-r']}),
     }),
     step({
         id: 'rg4-slow-spiral', order: 4,
         title: text('Mreža pri \\(r=2{,}9\\)', 'The cobweb at \\(r=2.9\\)'),
         purpose: text('Napovedati hitrost približevanja pri večjem \\(r\\) in ločiti limito od zadnjega iterata.', 'Predicting the speed of the approach for a larger \\(r\\) and separating the limit from the last iterate.'),
         explanation: text(
-            'Zdaj je \\(r=2{,}5\\) in spirala je že pri \\(x_{11}\\) skoraj pri \\(x^*\\). Napoved za \\(r=2{,}9\\): ali se mreža še približuje negibni točki, je približevanje hitrejše ali počasnejše kot pri \\(r=2{,}5\\) in ali bo \\(x_{60}\\) enak \\(x^*\\)? Napoved zapiši, nato vpiši \\(2{,}9\\) v polje Parameter \\(r\\), preberi Negibna točka \\(x^*\\) in Naklon pri negibni točki ter pritisni Predvajaj, da se mreža nariše do konca.',
-            'Now \\(r=2.5\\) and the spiral is already close to \\(x^*\\) at \\(x_{11}\\). Prediction for \\(r=2.9\\): does the cobweb still approach the fixed point, is the approach faster or slower than for \\(r=2.5\\), and will \\(x_{60}\\) equal \\(x^*\\)? Write the prediction down, then type \\(2.9\\) into the field Parameter \\(r\\), read Fixed point \\(x^*\\) and Slope at the fixed point and press Play to draw the cobweb to the end.',
+            'Zdaj je \\(r=2{,}5\\) in spirala je že pri \\(x_{11}\\) skoraj pri \\(x^*\\). Napoved za \\(r=2{,}9\\): ali se mreža še približuje negibni točki, je približevanje hitrejše ali počasnejše kot pri \\(r=2{,}5\\) in ali bo \\(x_{60}\\) enak \\(x^*\\)? Napoved zapiši, nato na krmilniku Parameter \\(r\\) nastavi \\(2{,}9\\), preberi Negibna točka \\(x^*\\) in Naklon pri negibni točki ter pritisni Predvajaj, da se mreža nariše do konca.',
+            'Now \\(r=2.5\\) and the spiral is already close to \\(x^*\\) at \\(x_{11}\\). Prediction for \\(r=2.9\\): does the cobweb still approach the fixed point, is the approach faster or slower than for \\(r=2.5\\), and will \\(x_{60}\\) equal \\(x^*\\)? Write the prediction down, then set \\(2.9\\) on the control Parameter \\(r\\), read Fixed point \\(x^*\\) and Slope at the fixed point and press Play to draw the cobweb to the end.',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato vpiši \\(r=2{,}9\\) in primerjaj Iterat \\(x_{11}\\), \\(x_{38}\\) in \\(x_{60}\\) z odčitkom Negibna točka \\(x^*\\).', 'Write down the prediction, then type \\(r=2.9\\) and compare Iterate \\(x_{11}\\), \\(x_{38}\\) and \\(x_{60}\\) with the readout Fixed point \\(x^*\\).'),
@@ -299,14 +314,15 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg4-slow-spiral-scene', RG4_SPIRAL,
             'Logistična preslikava \\(r=2{,}5\\), \\(x_0=0{,}1\\), korak \\(0\\): \\(x^*=\\tfrac35\\), naklon \\(-0{,}5\\); učenec vpiše \\(r=2{,}9\\).',
             'The logistic map \\(r=2.5\\), \\(x_0=0.1\\), step \\(0\\): \\(x^*=\\tfrac35\\), slope \\(-0.5\\); the learner types \\(r=2.9\\).'),
+        declare: f({highlight: ['rate'], uses: ['cobweb-r']}),
     }),
     step({
         id: 'rg4-extinction', order: 5,
         title: text('Majhen \\(r\\)', 'A small \\(r\\)'),
         purpose: text('Napovedati, kaj se zgodi pri \\(r<1\\), in meji \\(r=1\\), kjer naklon ne odloči.', 'Predicting what happens for \\(r<1\\) and on the boundary \\(r=1\\), where the slope does not decide.'),
         explanation: text(
-            'Zdaj je \\(r=2{,}9\\), \\(x_0=0{,}1\\). Napoved za \\(r=0{,}8\\): ali obstaja negibna točka v intervalu med \\(0\\) in \\(1\\), ki ni \\(0\\)? Kam gredo iterati? Napoved zapiši, nato vpiši \\(0{,}8\\) v polje Parameter \\(r\\), preberi stanje, Negibna točka \\(x^*\\) in Naklon pri negibni točki ter pritisni Predvajaj. Nato napovej še za \\(r=1\\): naklon pri \\(0\\) je zdaj \\(1\\); ali iterati dosežejo \\(0\\) po \\(60\\) korakih? Vpiši \\(1\\), pritisni Predvajaj in preberi stanje in Iterat \\(x_{60}\\).',
-            'Now \\(r=2.9\\), \\(x_0=0.1\\). Prediction for \\(r=0.8\\): is there a fixed point in the interval between \\(0\\) and \\(1\\) other than \\(0\\)? Where do the iterates go? Write the prediction down, then type \\(0.8\\) into the field Parameter \\(r\\), read the status, Fixed point \\(x^*\\) and Slope at the fixed point and press Play. Then predict for \\(r=1\\) too: the slope at \\(0\\) is \\(1\\) now; do the iterates reach \\(0\\) after \\(60\\) steps? Type \\(1\\), press Play and read the status and Iterate \\(x_{60}\\).',
+            'Zdaj je \\(r=2{,}9\\), \\(x_0=0{,}1\\). Napoved za \\(r=0{,}8\\): ali obstaja negibna točka v intervalu med \\(0\\) in \\(1\\), ki ni \\(0\\)? Kam gredo iterati? Napoved zapiši, nato na krmilniku Parameter \\(r\\) nastavi \\(0{,}8\\), preberi stanje, Negibna točka \\(x^*\\) in Naklon pri negibni točki ter pritisni Predvajaj. Nato napovej še za \\(r=1\\): naklon pri \\(0\\) je zdaj \\(1\\); ali iterati dosežejo \\(0\\) po \\(60\\) korakih? Vpiši \\(1\\), pritisni Predvajaj in preberi stanje in Iterat \\(x_{60}\\).',
+            'Now \\(r=2.9\\), \\(x_0=0.1\\). Prediction for \\(r=0.8\\): is there a fixed point in the interval between \\(0\\) and \\(1\\) other than \\(0\\)? Where do the iterates go? Write the prediction down, then set \\(0.8\\) on the control Parameter \\(r\\), read the status, Fixed point \\(x^*\\) and Slope at the fixed point and press Play. Then predict for \\(r=1\\) too: the slope at \\(0\\) is \\(1\\) now; do the iterates reach \\(0\\) after \\(60\\) steps? Type \\(1\\), press Play and read the status and Iterate \\(x_{60}\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato vpiši \\(r=0{,}8\\) in nato \\(r=1\\) ter pri obeh preberi stanje, \\(x^*\\) in naklon.', 'Write down the prediction, then type \\(r=0.8\\) and then \\(r=1\\) and read the status, \\(x^*\\) and the slope for both.'),
@@ -314,14 +330,15 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg4-extinction-scene', RG4_SLOW,
             'Logistična preslikava \\(r=2{,}9\\), \\(x_0=0{,}1\\), korak \\(0\\): \\(x^*=\\tfrac{19}{29}\\), naklon \\(-0{,}9\\); učenec vpiše \\(r=0{,}8\\), nato \\(r=1\\).',
             'The logistic map \\(r=2.9\\), \\(x_0=0.1\\), step \\(0\\): \\(x^*=\\tfrac{19}{29}\\), slope \\(-0.9\\); the learner types \\(r=0.8\\), then \\(r=1\\).'),
+        declare: f({highlight: ['rate'], uses: ['cobweb-r']}),
     }),
     step({
         id: 'rg4-slope', order: 6,
         title: text('Naklon v negibni točki', 'The slope at the fixed point'),
         purpose: text('Z odvodom izračunati naklon v negibni točki in ga primerjati z odčitkom.', 'Computing the slope at the fixed point with the derivative and comparing it with the readout.'),
         explanation: text(
-            'Odvod preslikave \\(f(x)=r\\,x(1-x)\\) je \\(f^{\\prime}(x)=r\\,(1-2x)\\), negibna točka je \\(x^*=1-\\tfrac1r\\). Blizu \\(x^*\\) se preslikava obnaša približno kakor premica z \\(m=f^{\\prime}(x^*)\\); to je lokalna ponazoritev, kakor pri kosinusu, in ne dokaz. Napoved: izračunaj \\(f^{\\prime}(x^*)\\) za \\(r=2{,}2\\); ali bo mreža stopnice ali spirala? Napoved zapiši, nato vpiši \\(2{,}2\\) v polje Parameter \\(r\\) in preberi Naklon pri negibni točki. Nato napovej naklon za \\(r=1{,}1\\), vpiši ga in primerjaj velikost obeh naklonov. Pravilo, da se bližnji iterati približujejo \\(x^*\\), če je \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\), je ponazorjeno na primerih, ne dokazano.',
-            'The derivative of the map \\(f(x)=r\\,x(1-x)\\) is \\(f^{\\prime}(x)=r\\,(1-2x)\\), and the fixed point is \\(x^*=1-\\tfrac1r\\). Near \\(x^*\\) the map behaves approximately like a line with \\(m=f^{\\prime}(x^*)\\); this is a local illustration, as for the cosine, and not a proof. Prediction: compute \\(f^{\\prime}(x^*)\\) for \\(r=2.2\\); will the cobweb be a staircase or a spiral? Write the prediction down, then type \\(2.2\\) into the field Parameter \\(r\\) and read Slope at the fixed point. Then predict the slope for \\(r=1.1\\), type it in and compare the sizes of the two slopes. The rule that nearby iterates approach \\(x^*\\) if \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\) is illustrated on examples, not proved.',
+            'Odvod preslikave \\(f(x)=r\\,x(1-x)\\) je \\(f^{\\prime}(x)=r\\,(1-2x)\\), negibna točka je \\(x^*=1-\\tfrac1r\\). Blizu \\(x^*\\) se preslikava obnaša približno kakor premica z \\(m=f^{\\prime}(x^*)\\); to je lokalna ponazoritev, kakor pri kosinusu, in ne dokaz. Napoved: izračunaj \\(f^{\\prime}(x^*)\\) za \\(r=2{,}2\\); ali bo mreža stopnice ali spirala? Napoved zapiši, nato na krmilniku Parameter \\(r\\) nastavi \\(2{,}2\\) in preberi Naklon pri negibni točki. Nato napovej naklon za \\(r=1{,}1\\), vpiši ga in primerjaj velikost obeh naklonov. Pravilo, da se bližnji iterati približujejo \\(x^*\\), če je \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\), je ponazorjeno na primerih, ne dokazano.',
+            'The derivative of the map \\(f(x)=r\\,x(1-x)\\) is \\(f^{\\prime}(x)=r\\,(1-2x)\\), and the fixed point is \\(x^*=1-\\tfrac1r\\). Near \\(x^*\\) the map behaves approximately like a line with \\(m=f^{\\prime}(x^*)\\); this is a local illustration, as for the cosine, and not a proof. Prediction: compute \\(f^{\\prime}(x^*)\\) for \\(r=2.2\\); will the cobweb be a staircase or a spiral? Write the prediction down, then set \\(2.2\\) on the control Parameter \\(r\\) and read Slope at the fixed point. Then predict the slope for \\(r=1.1\\), type it in and compare the sizes of the two slopes. The rule that nearby iterates approach \\(x^*\\) if \\(\\lvert f^{\\prime}(x^*)\\rvert<1\\) is illustrated on examples, not proved.',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved za naklon pri \\(r=2{,}2\\) in \\(r=1{,}1\\), nato ju vpiši in primerjaj z odčitkom Naklon pri negibni točki.', 'Write down the prediction for the slope at \\(r=2.2\\) and \\(r=1.1\\), then type them in and compare with the readout Slope at the fixed point.'),
@@ -329,6 +346,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg4-slope-scene', RG4_STAIRCASE,
             'Logistična preslikava \\(r=1{,}5\\), \\(x_0=0{,}1\\), korak \\(0\\); učenec vpiše \\(r=2{,}2\\), nato \\(r=1{,}1\\).',
             'The logistic map \\(r=1.5\\), \\(x_0=0.1\\), step \\(0\\); the learner types \\(r=2.2\\), then \\(r=1.1\\).'),
+        declare: f({highlight: ['rate'], uses: ['cobweb-r']}),
     }),
     step({
         id: 'rg4-explore', order: 7,
@@ -344,6 +362,7 @@ const rg4Steps: readonly GuidedLessonStep[] = [
         scene: cobwebScene('rg4-explore-scene', RG4_EXPLORE,
             'Logistična preslikava \\(r=1{,}5\\), \\(x_0=0{,}1\\), korak \\(0\\), nevtralno stanje za raziskovanje.',
             'The logistic map \\(r=1.5\\), \\(x_0=0.1\\), step \\(0\\), a neutral state for exploring.'),
+        declare: f({highlight: ['rate', 'start'], uses: ['cobweb-r', 'cobweb-x']}),
     }),
 ];
 

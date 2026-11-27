@@ -1,13 +1,14 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, settle} from '../base/realGraphTestHarness';
-import {setLanguage, t} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {chooseOnPuckNow, installBoardShims, openTools, puckControl, settle, typePuck, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
+import {renderMessage, setLanguage, t} from '../../localization';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {deriveCobweb} from '../../recursion/recursionModel';
-import {CAPTION_CHAR_PX, cobwebPath, mapSamples, VIEW_BOXES, wrapped} from './cobwebScene';
+import {CAPTION_CHAR_PX, cobwebPath, mapSamples} from './cobwebScene';
+import {openingFrame} from './cobwebFocus';
 import {RecursionCobwebGraph, SPEED_DEFAULT} from './RecursionCobwebGraph';
 
 beforeAll(installBoardShims);
@@ -31,6 +32,7 @@ class ObservedGraph extends RecursionCobwebGraph {
     protected override animationScheduler() { return this.clock; }
     override reducedMotion() { return this.reduced; }
     liveBoard() { return this.board; }
+    declared() { return this.declaration().parameters; }
     disposeNow() { this.disposeFigureScene(); }
     rebuildNow() { this.syncReplacedScene(); }
 }
@@ -57,17 +59,17 @@ const shown = (graph: ObservedGraph) => texts(graph).filter(o => o.evalVisProp('
 /** What the scene owns: the three curves, six captions, and three points (fixed point, iterate, start handle). */
 const SCENE_OBJECTS = 3 + 6 + 3;
 
-/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
-const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-recursion-status]')!.textContent!;
 const button = (label: string) => screen.getByRole('button', {name: label});
 const press = (label: string) => act(() => { fireEvent.click(button(label)); });
-const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-const chooseMap = (map: string) => act(() => { fireEvent.change(field(t('recursion_graph_map_label')), {target: {value: map}}); });
+/** The puck of a control (the line, the rate, the start and the map live on the board strip, not in Orodja). */
+const PUCK_OF = () => ({[t('recursion_graph_m_label')]: 'cobweb-m', [t('recursion_graph_c_label')]: 'cobweb-c', [t('recursion_graph_r_label')]: 'cobweb-r', [t('recursion_graph_x_label')]: 'cobweb-x'} as Record<string, string>);
+/** A learner's typed entry on the puck named by the control's label. */
+const enter = async (label: string, value: string) => { const key = PUCK_OF()[label]; await waitForPucks(key); typePuck(key, value); };
+/** A learner's click on the map puck's segment. */
+const chooseMap = async (map: string) => { await waitForPucks('cobweb-map'); chooseOnPuckNow('cobweb-map', map); };
 const slider = () => screen.getByRole('slider', {name: t('recursion_graph_speed_label')}) as HTMLInputElement;
-/** The range input of a slider named `label`. */
-const rangeOf = (label: string) => screen.getByRole('slider', {name: label}) as HTMLInputElement;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 /** The text a field is described by (its help), found through aria-describedby. */
 const described = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean)
@@ -92,7 +94,7 @@ describe('mount and the drawing', () => {
 
     test('three curves (map, diagonal, steps) hold the scene data; the captions name every element a readout names', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({step: 3}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 3}); }); });
         const [map, diagonal, steps] = curves(graph);
         const derived = deriveCobweb(graph.state);
         const samples = mapSamples(derived.map, -10, 10);
@@ -114,31 +116,31 @@ describe('mount and the drawing', () => {
         const {graph} = mountGraph();
         expect(shown(graph)).toHaveLength(5);
         expect(document.querySelector('[data-readout="iterate"] dt')!.textContent).toBe(t('recursion_graph_r_iterate', {value0: '₀'}));
-        act(() => { graph.setState({step: 12}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 12}); }); });
         expect(document.querySelector('[data-readout="iterate"] dt')!.textContent).toBe(t('recursion_graph_r_iterate', {value0: '₁₂'}));
     });
 
-    test('every readout row has a label; the exact-label note is shown for the line and the logistic map, not for the cosine', () => {
+    test('every readout row has a label; the exact-label note is shown for the line and the logistic map, not for the cosine', async () => {
         mountGraph();
         const rows = [...document.querySelectorAll('[data-readout]')].filter(row => row.tagName !== 'P' && row.querySelector('dt'));
         expect(rows.length).toBeGreaterThanOrEqual(7);
         for (const row of rows) expect(row.querySelector('dt')!.textContent!.trim().length, row.getAttribute('data-readout')!).toBeGreaterThan(0);
         expect(document.querySelector('[data-recursion-note]')!.textContent).toBe(t('recursion_graph_note_exact'));
-        chooseMap('cosine');
+        await chooseMap('cosine');
         expect(document.querySelector('[data-recursion-note]')).toBeNull();
     });
 
     test('a fixed point that is a fraction shows the fraction with its decimal value; m = 0 says the first step lands on it', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({M: 6, C: 10}); }); // x -> 0,3x + 1: x* = 10/7
+        act(() => { runAs('learner', () => { graph.setState({M: 6, C: 10}); }); }); // x -> 0,3x + 1: x* = 10/7
         expect(readout('fixed')).toBe(t('recursion_graph_r_fixed_fraction', {value0: '10/7', value1: '1,428571'}));
-        act(() => { graph.setState({M: 0}); });
+        act(() => { runAs('learner', () => { graph.setState({M: 0}); }); });
         expect(readout('shape')).toBe(t('recursion_graph_shape_degenerate'));
     });
 
     test('decimal comma in Slovenian, decimal point in English', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({X: 50}); });
+        act(() => { runAs('learner', () => { graph.setState({X: 50}); }); });
         expect(readout('start')).toBe('0,5');
         act(() => { setLanguage('en'); });
         expect(readout('start')).toBe('0.5');
@@ -155,38 +157,38 @@ describe('the kind of the fixed point is said in words', () => {
         ['no fixed point', {M: 20, C: 10}, () => t('recursion_graph_status_none', {value0: '1'})],
     ] as const)('line, %s', (_name, patch, expected) => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({...patch}); });
+        act(() => { runAs('learner', () => { graph.setState({...patch}); }); });
         expect(status()).toContain(expected());
         noBadText();
     });
 
     test('2-cycle: the shape is a closed square and the iterates alternate; all fixed: no movement; no fixed point: the row says none', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({M: -20, C: 0, X: 100, step: 4}); });
+        act(() => { runAs('learner', () => { graph.setState({M: -20, C: 0, X: 100, step: 4}); }); });
         expect(readout('shape')).toBe(t('recursion_graph_shape_square'));
         expect(readout('iterate')).toBe('1');
-        act(() => { graph.setState({step: 3}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 3}); }); });
         expect(readout('iterate')).toBe('−1');
-        act(() => { graph.setState({M: 20, C: 0}); });
+        act(() => { runAs('learner', () => { graph.setState({M: 20, C: 0}); }); });
         expect(readout('shape')).toBe(t('recursion_graph_shape_still'));
         expect(readout('fixed')).toBe(t('recursion_graph_r_fixed_all'));
         expect(graph.state.step).toBe(3);
-        act(() => { graph.setState({C: 10}); });
+        act(() => { runAs('learner', () => { graph.setState({C: 10}); }); });
         expect(readout('fixed')).toBe(t('recursion_graph_r_fixed_none'));
         expect(shown(graph).some(text => text.includes('x* ='))).toBe(false);
     });
 
-    test('logistic: extinction below r = 1, the slope-one case at r = 1, an attracting point from 1,1 to 2,9; the rate row replaces slope and intercept', () => {
+    test('logistic: extinction below r = 1, the slope-one case at r = 1, an attracting point from 1,1 to 2,9; the rate row replaces slope and intercept', async () => {
         const {graph} = mountGraph();
-        chooseMap('logistic');
+        await chooseMap('logistic');
         expect(readout('slope')).toBeUndefined();
         expect(readout('rate')).toBe('1,5');
         expect(graph.state.X).toBe(10);
-        act(() => { graph.setState({R: 5}); });
+        act(() => { runAs('learner', () => { graph.setState({R: 5}); }); });
         expect(status()).toContain(t('recursion_graph_status_extinction'));
-        act(() => { graph.setState({R: 10}); });
+        act(() => { runAs('learner', () => { graph.setState({R: 10}); }); });
         expect(status()).toContain(t('recursion_graph_status_extinction_one'));
-        act(() => { graph.setState({R: 25}); });
+        act(() => { runAs('learner', () => { graph.setState({R: 25}); }); });
         expect(status()).toContain(t('recursion_graph_status_logistic_attracting', {value0: '0,6', value1: '−0,5'}));
         expect(readout('fixed')).toBe(t('recursion_graph_r_fixed_fraction', {value0: '3/5', value1: '0,6'}));
         expect(readout('decisive')).toBe('−0,5');
@@ -194,19 +196,19 @@ describe('the kind of the fixed point is said in words', () => {
         expect(shown(graph)).toContain(t('recursion_graph_cap_map_logistic', {value0: '2,5'}));
     });
 
-    test('cosine: the fixed point and the slope are computed numbers and the readout says so', () => {
+    test('cosine: the fixed point and the slope are computed numbers and the readout says so', async () => {
         const {graph} = mountGraph();
-        chooseMap('cosine');
+        await chooseMap('cosine');
         expect(readout('fixed')).toBe('0,739085');
         expect(readout('decisive')).toBe(t('recursion_graph_r_decisive_computed', {value0: '−0,673612'}));
         expect(status()).toContain(t('recursion_graph_status_cosine', {value0: '0,739085', value1: '−0,673612'}));
-        act(() => { graph.setState({step: 8}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 8}); }); });
         expect(readout('iterate')).toBe('0,722102');
     });
 
     test('a fixed point outside the window is captioned as outside, its marker hidden, and the number is still read', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({M: 19, C: 100}); }); // m = 0,95, c = 10: x* = 200
+        act(() => { runAs('learner', () => { graph.setState({M: 19, C: 100}); }); }); // m = 0,95, c = 10: x* = 200
         expect(readout('fixed')).toBe('200');
         expect(shown(graph)).toContain(t('recursion_graph_cap_fixed_off', {value0: '200'}));
         expect(shown(graph).some(text => text === t('recursion_graph_cap_fixed', {value0: '200'}))).toBe(false);
@@ -219,17 +221,17 @@ describe('the kind of the fixed point is said in words', () => {
             return text.slice(text.lastIndexOf('#') + 1);
         };
         const {graph} = mountGraph();
-        act(() => { graph.setState({step: 3}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 3}); }); });
         expect(shown(graph).some(text => text.startsWith('x') && text.endsWith(tail('recursion_graph_cap_iterate')))).toBe(true);
         expect(shown(graph).some(text => text.endsWith(tail('recursion_graph_cap_iterate_off')))).toBe(false);
-        act(() => { graph.setState({M: -60, C: 0, X: 1000, step: 60}); });
+        act(() => { runAs('learner', () => { graph.setState({M: -60, C: 0, X: 1000, step: 60}); }); });
         expect(shown(graph).some(text => text.endsWith(tail('recursion_graph_cap_iterate_off')))).toBe(true);
         expect(shown(graph).some(text => text.endsWith(tail('recursion_graph_cap_iterate')))).toBe(false);
     });
 
     test('a huge iterate is read in scientific form, drawn only up to 10^6, and never NaN or Infinity', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({M: -60, C: 0, X: 1000, step: 60}); }); // x -> -3x from 10
+        act(() => { runAs('learner', () => { graph.setState({M: -60, C: 0, X: 1000, step: 60}); }); }); // x -> -3x from 10
         expect(readout('iterate')).toMatch(/e|E|×|·/);
         const steps = curves(graph)[2];
         expect(Math.max(...steps.dataX!.map(Math.abs), ...steps.dataY!.map(Math.abs))).toBeLessThanOrEqual(1e6);
@@ -239,25 +241,40 @@ describe('the kind of the fixed point is said in words', () => {
 });
 
 describe('fields: ranges, help, refusal, the program-changed start', () => {
-    test('m, c, r and the start are sliders whose range and step are theirs; only help that explains stays; the start range follows the map', () => {
+    test('m, c, r and the start are pucks whose range and step are theirs; only help that explains stays; the start range follows the map', async () => {
+        const {graph} = mountGraph();
+        await waitForPucks();
+        const declared = (key: string) => (graph.declared() ?? []).find(parameter => parameter.key === key) as {min: number; max: number; step: number; help?: Parameters<typeof renderMessage>[0]};
+        const shape = (key: string) => { const control = puckControl(key); const parameter = declared(key); return [control.getAttribute('aria-valuemin'), control.getAttribute('aria-valuemax'), String(parameter.step)]; };
+        const help = (key: string) => { const parameter = declared(key); return parameter.help ? renderMessage(parameter.help) : ''; };
+        expect(shape('cobweb-m')).toEqual(['-3', '3', '0.05']);
+        expect(shape('cobweb-c')).toEqual(['-10', '10', '0.1']);
+        expect(shape('cobweb-x')).toEqual(['-10', '10', '0.01']);
+        expect(help('cobweb-m')).not.toContain('večkratnik');
+        expect(help('cobweb-c')).not.toContain('večkratnik');
+        expect(help('cobweb-x')).toBe(t('recursion_graph_x_help'));
+        expect(help('cobweb-map')).toBe(t('recursion_graph_map_help'));
+        await chooseMap('logistic');
+        await waitForPucks('cobweb-r');
+        expect(shape('cobweb-r')).toEqual(['0.5', '2.9', '0.1']);
+        expect(help('cobweb-r')).toBe(t('recursion_graph_r_help'));
+        expect(shape('cobweb-x')).toEqual(['0.01', '0.99', '0.01']);
+        expect(help('cobweb-x')).toBe(t('recursion_graph_x_help_logistic'));
+        await chooseMap('cosine');
+        expect(shape('cobweb-x')).toEqual(['-2', '2', '0.01']);
+        expect(help('cobweb-x')).toBe(t('recursion_graph_x_help'));
+        await waitUntil(() => puckControl('cobweb-m') === null);
+    });
+
+    test('the controls of the pucks are not in Orodja; the playback stays there', async () => {
         mountGraph();
-        const shape = (label: string) => { const input = rangeOf(label); return [input.min, input.max, input.step]; };
-        expect(shape(t('recursion_graph_m_label'))).toEqual(['-3', '3', '0.05']);
-        expect(shape(t('recursion_graph_c_label'))).toEqual(['-10', '10', '0.1']);
-        expect(shape(t('recursion_graph_x_label'))).toEqual(['-10', '10', '0.01']);
-        expect(described(rangeOf(t('recursion_graph_m_label')))).not.toContain('večkratnik');
-        expect(described(rangeOf(t('recursion_graph_c_label')))).not.toContain('večkratnik');
-        expect(described(rangeOf(t('recursion_graph_x_label')))).toContain(t('recursion_graph_x_help'));
-        expect(described(field(t('recursion_graph_map_label')))).toBe(t('recursion_graph_map_help'));
-        chooseMap('logistic');
-        expect(shape(t('recursion_graph_r_label'))).toEqual(['0.5', '2.9', '0.1']);
-        expect(described(rangeOf(t('recursion_graph_r_label')))).toContain(t('recursion_graph_r_help'));
-        expect(shape(t('recursion_graph_x_label'))).toEqual(['0.01', '0.99', '0.01']);
-        expect(described(rangeOf(t('recursion_graph_x_label')))).toContain(t('recursion_graph_x_help_logistic'));
-        chooseMap('cosine');
-        expect(shape(t('recursion_graph_x_label'))).toEqual(['-2', '2', '0.01']);
-        expect(described(rangeOf(t('recursion_graph_x_label')))).toContain(t('recursion_graph_x_help'));
-        expect(screen.queryByRole('slider', {name: t('recursion_graph_m_label')})).toBeNull();
+        await waitForPucks();
+        await openTools();
+        const tools = document.querySelector('#board-card-tools')!;
+        const named = [...tools.querySelectorAll('input, select, [role="slider"], [role="spinbutton"], [role="radio"]')].map(el => el.getAttribute('aria-label') ?? '').join(' | ');
+        for (const label of ['recursion_graph_m_label', 'recursion_graph_c_label', 'recursion_graph_x_label', 'recursion_graph_map_label'] as const) expect(named).not.toContain(t(label));
+        expect(within(tools as HTMLElement).queryByRole('slider', {name: t('recursion_graph_m_label')})).toBeNull();
+        expect(button(t('next_step'))).toBeTruthy();
     });
 
     test('the speed slider shows its range in its help', () => {
@@ -268,68 +285,68 @@ describe('fields: ranges, help, refusal, the program-changed start', () => {
         expect(described(slider())).toContain(t('recursion_graph_speed_help', {value0: '200', value1: '2000', value2: '100'}));
     });
 
-    test('typed values on the grid are taken, values outside the range are refused with the message and never clamped', () => {
+    test('typed values on the grid are taken, values outside the range are refused with the message and never clamped', async () => {
         const {graph} = mountGraph();
-        enter(t('recursion_graph_m_label'), '-1,5');
-        enter(t('recursion_graph_c_label'), '2,5');
-        enter(t('recursion_graph_x_label'), '3,25');
+        await enter(t('recursion_graph_m_label'), '-1,5');
+        await enter(t('recursion_graph_c_label'), '2,5');
+        await enter(t('recursion_graph_x_label'), '3,25');
         expect(graph.state).toMatchObject({M: -30, C: 25, X: 325});
         for (const label of ['recursion_graph_m_label', 'recursion_graph_c_label', 'recursion_graph_x_label'] as const) {
-            enter(t(label), label === 'recursion_graph_m_label' ? '3,05' : label === 'recursion_graph_c_label' ? '11' : '10,5');
-            expect(field(t(label)).getAttribute('aria-invalid'), label).toBe('true');
+            await enter(t(label), label === 'recursion_graph_m_label' ? '3,05' : label === 'recursion_graph_c_label' ? '11' : '10,5');
+            expect(document.querySelector(`.puck-strip [data-puck-key="${PUCK_OF()[t(label)]}"] input`)!.getAttribute('aria-invalid'), label).toBe('true');
         }
         expect(graph.state).toMatchObject({M: -30, C: 25, X: 325});
-        expect(graph.editSlope(3.5)).toBe(false);
-        expect(graph.editIntercept(-10.1)).toBe(false);
-        expect(graph.editStart(NaN)).toBe(false);
-        expect(graph.editStart(10.01)).toBe(false);
+        expect(runAs('learner', () => graph.editSlope(3.5))).toBe(false);
+        expect(runAs('learner', () => graph.editIntercept(-10.1))).toBe(false);
+        expect(runAs('learner', () => graph.editStart(NaN))).toBe(false);
+        expect(runAs('learner', () => graph.editStart(10.01))).toBe(false);
         expect(graph.state).toMatchObject({M: -30, C: 25, X: 325});
-        expect(graph.editSlope(3)).toBe(true);
+        expect(runAs('learner', () => graph.editSlope(3))).toBe(true);
         expect(graph.state.M).toBe(60);
     });
 
-    test('logistic: the start must be strictly between 0 and 1, the parameter from 0,5 to 2,9', () => {
+    test('logistic: the start must be strictly between 0 and 1, the parameter from 0,5 to 2,9', async () => {
         const {graph} = mountGraph();
-        chooseMap('logistic');
-        expect(graph.editStart(0)).toBe(false);
-        expect(graph.editStart(1)).toBe(false);
-        expect(graph.editStart(0.01)).toBe(true);
-        expect(graph.editStart(0.99)).toBe(true);
-        expect(graph.editRate(3)).toBe(false);
-        expect(graph.editRate(0.4)).toBe(false);
-        expect(graph.editRate(2.9)).toBe(true);
+        await chooseMap('logistic');
+        expect(runAs('learner', () => graph.editStart(0))).toBe(false);
+        expect(runAs('learner', () => graph.editStart(1))).toBe(false);
+        expect(runAs('learner', () => graph.editStart(0.01))).toBe(true);
+        expect(runAs('learner', () => graph.editStart(0.99))).toBe(true);
+        expect(runAs('learner', () => graph.editRate(3))).toBe(false);
+        expect(runAs('learner', () => graph.editRate(0.4))).toBe(false);
+        expect(runAs('learner', () => graph.editRate(2.9))).toBe(true);
         expect(graph.state).toMatchObject({R: 29, X: 99});
     });
 
-    test('choosing a map whose range does not hold the start moves the start and says so on screen and in the live status, and only then', () => {
+    test('choosing a map whose range does not hold the start moves the start and says so on screen and in the live status, and only then', async () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({X: 500}); });
-        chooseMap('cosine');
+        act(() => { runAs('learner', () => { graph.setState({X: 500}); }); });
+        await chooseMap('cosine');
         expect(graph.state).toMatchObject({map: 'cosine', X: 0});
         expect(status()).toContain(t('recursion_graph_notice_start', {value0: '0', value1: '−2', value2: '2'}));
-        chooseMap('logistic');
+        await chooseMap('logistic');
         expect(graph.state.X).toBe(10);
         const moved = t('recursion_graph_notice_start', {value0: '0,1', value1: '0,01', value2: '0,99'});
         expect(status()).toContain(moved);
-        act(() => { graph.setState({step: 1}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 1}); }); });
         expect(status()).not.toContain(moved);
-        chooseMap('cosine'); // 0,1 lies in [-2, 2]: nothing is moved
+        await chooseMap('cosine'); // 0,1 lies in [-2, 2]: nothing is moved
         expect(graph.state.X).toBe(10);
         expect(status()).not.toContain(t('recursion_graph_notice_start', {value0: '0,1', value1: '−2', value2: '2'}));
     });
 
-    test('an edit keeps the step count (the picture follows the parameter) and a map change moves the board window', () => {
+    test('an edit keeps the step count (the picture follows the parameter) and a map change moves the board window', async () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({step: 12}); });
-        enter(t('recursion_graph_m_label'), '0,25');
+        act(() => { runAs('learner', () => { graph.setState({step: 12}); }); });
+        await enter(t('recursion_graph_m_label'), '0,25');
         expect(graph.state.step).toBe(12);
-        chooseMap('logistic');
-        expect(graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual([...VIEW_BOXES.logistic]);
+        await chooseMap('logistic');
+        expect(graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(openingFrame("logistic").map(v => Number(v.toFixed(3))));
     });
 });
 
 describe('dragging the start', () => {
-    test('the handle sits on the diagonal at the start; a drag snaps to 1/100 and clamps to the range of the map', () => {
+    test('the handle sits on the diagonal at the start; a drag snaps to 1/100 and clamps to the range of the map', async () => {
         const {graph} = mountGraph();
         const handle = graph.dragHandle()!;
         expect([handle.X(), handle.Y()]).toEqual([0, 0]);
@@ -338,19 +355,19 @@ describe('dragging the start', () => {
         expect([handle.X(), handle.Y()]).toEqual([3.46, 3.46]);
         dragHandleTo(handle, 50, 0);
         expect(graph.state.X).toBe(1000);
-        chooseMap('logistic');
+        await chooseMap('logistic');
         dragHandleTo(graph.dragHandle()!, -4, 0);
         expect(graph.state.X).toBe(1);
         dragHandleTo(graph.dragHandle()!, 7, 0);
         expect(graph.state.X).toBe(99);
     });
 
-    test('the handle follows a typed start; a non-finite position changes nothing; a drag does not rebuild or add listeners', () => {
+    test('the handle follows a typed start; a non-finite position changes nothing; a drag does not rebuild or add listeners', async () => {
         const {graph} = mountGraph();
         const handle = graph.dragHandle()!;
         const owned = graph.ownedObjectCount();
         const listeners = graph.ownedListenerCount();
-        enter(t('recursion_graph_x_label'), '-2,5');
+        await enter(t('recursion_graph_x_label'), '-2,5');
         expect([handle.X(), handle.Y()]).toEqual([-2.5, -2.5]);
         dragHandleTo(handle, 1, 1);
         expect(graph.dragHandle()).toBe(handle);
@@ -438,12 +455,13 @@ describe('playback', () => {
         ['intercept', () => enter(t('recursion_graph_c_label'), '2')],
         ['start', () => enter(t('recursion_graph_x_label'), '1')],
         ['map', () => chooseMap('cosine')],
-    ])('an edit of the %s pauses the playback first and keeps the step', (_name, edit) => {
+    ])('an edit of the %s pauses the playback first and keeps the step', async (_name, edit) => {
         const {graph} = mountGraph();
+        await waitForPucks();
         press(t('play'));
         run(graph, 2);
         expect(graph.isPlaying()).toBe(true);
-        edit();
+        await edit();
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         expect(graph.state.step).toBe(2);
@@ -451,17 +469,17 @@ describe('playback', () => {
 
     test('a step count written from outside (a lesson, a reopened Preset) pauses a playing iteration; Play continues from it', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({step: 30}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 30}); }); });
         expect(graph.isPlaying()).toBe(false);
         press(t('play'));
         run(graph, 1);
         expect(graph.state.step).toBe(31);
-        act(() => { graph.setState({step: 10}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 10}); }); });
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         press(t('next_step'));
         expect(graph.state.step).toBe(11);
-        act(() => { graph.setState({step: 58}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 58}); }); });
         press(t('play'));
         run(graph, 3);
         expect(graph.state.step).toBe(60);
@@ -474,7 +492,7 @@ describe('playback', () => {
         run(graph, 2);
         expect(graph.isPlaying()).toBe(true);
         const step = graph.state.step;
-        act(() => { graph.setState({step: step + 1}); });
+        act(() => { runAs('learner', () => { graph.setState({step: step + 1}); }); });
         expect(graph.isPlaying()).toBe(false);
         expect(graph.state.step).toBe(step + 1);
     });
@@ -482,7 +500,7 @@ describe('playback', () => {
     test('reduced motion: Play shows all 60 steps at once and starts no animation; the speed slider says why it is unavailable', () => {
         const {graph} = mountGraph();
         graph.reduced = true;
-        act(() => { graph.setState({step: 5}); }); // renders again under reduced motion
+        act(() => { runAs('learner', () => { graph.setState({step: 5}); }); }); // renders again under reduced motion
         expect(slider().getAttribute('aria-disabled')).toBe('true');
         expect(document.body.textContent).toContain(t('recursion_graph_speed_reduced', {value0: 60}));
         press(t('play'));
@@ -513,7 +531,7 @@ describe('playback', () => {
         expect(graph.state.step).toBe(2);
         graph.clock.tick(10400); // the new interval of 200 ms applies, not the old 600 ms
         expect(graph.state.step).toBe(3);
-        expect(graph.editSpeed(2000)).toBe(true);
+        expect(runAs('learner', () => graph.editSpeed(2000))).toBe(true);
         expect(graph.speed()).toBe(2000);
     });
 
@@ -542,7 +560,7 @@ describe('the view of a replaced scene', () => {
     test('a rebuild after a disposal keeps the view the board has (a restore brings its own)', () => {
         const {graph} = mountGraph();
         const stored: [number, number, number, number] = [-3, 7, 9, -5];
-        act(() => { graph.liveBoard().setBoundingBox(stored, false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox(stored, false); }); });
         graph.disposeNow();
         act(() => { graph.rebuildNow(); });
         expect(view(graph)).toEqual(stored);
@@ -550,10 +568,12 @@ describe('the view of a replaced scene', () => {
 
     test('a reset shows the exact opening window of the map, not one widened to the canvas', async () => {
         const {graph} = mountGraph();
-        chooseMap('logistic');
-        act(() => { graph.liveBoard().setBoundingBox([-3, 7, 9, -5], false); });
+        await chooseMap('logistic');
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-3, 7, 9, -5], false); }); });
         await settle(() => graph.reset());
-        expect(view(graph)).toEqual([...VIEW_BOXES.affine]);
+        // The view director frames the window into the card-free area, so the live board may differ by a pixel margin; the intent is the exact window.
+        const intent = (graph as unknown as {boardView: {intent(): {box: readonly number[]}}}).boardView.intent().box.map(value => Math.round(value * 1e6) / 1e6);
+        expect(intent).toEqual(openingFrame("affine").map(value => Math.round(value * 1e6) / 1e6));
     });
 });
 
@@ -565,7 +585,7 @@ describe('ownership', () => {
         expect(owned).toBe(SCENE_OBJECTS);
         const base = count() - owned;
         const ids = new Set(probes(graph).map(o => o.id));
-        act(() => { graph.setState({step: 20, M: -10}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 20, M: -10}); }); });
         expect(new Set(probes(graph).map(o => o.id))).toEqual(ids);
         expect(graph.ownedObjectCount()).toBe(owned);
         const listeners = graph.ownedListenerCount();
@@ -597,7 +617,7 @@ describe('ownership', () => {
         // number: no frame, interval or settle timer of this graph (the 500 ms status settle is cancelled by the unmount).
         const before = vi.getTimerCount();
         const reference = mountGraph();
-        act(() => { reference.graph.setState({step: 1}); });
+        press(t('next_step')); // a learner's click: it also leaves the zero-delay timer of the learner-input pulse, as the Play click below does
         reference.view.unmount();
         const plainDelta = vi.getTimerCount() - before;
         const afterPlain = vi.getTimerCount();
@@ -643,7 +663,7 @@ describe('ownership', () => {
         expect(strict.graph.ownedObjectCount()).toBe(0);
         expect(strict.graph.clock.pending()).toBe(false);
         expect(strict.graph.isPlaying()).toBe(false);
-        expect(vi.getTimerCount() - afterStrictPlain - plainLeak).toBe(strictDelta);
+        expect(vi.getTimerCount() - afterStrictPlain - plainLeak - 1).toBe(strictDelta); // minus the learner-input pulse timer of the Play click
     });
 
     test('the derived values are computed once per state object, not at every redraw', () => {
@@ -652,18 +672,19 @@ describe('ownership', () => {
         act(() => { graph.liveBoard().update(); });
         act(() => { graph.liveBoard().update(); });
         expect(graph.derived()).toBe(first);
-        act(() => { graph.setState({step: 1}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 1}); }); });
         expect(graph.derived()).not.toBe(first);
     });
 });
 
 describe('language', () => {
-    test('switching to English renames the board, the labels, the captions and the status', () => {
+    test('switching to English renames the board, the labels, the captions and the status', async () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState({step: 2}); });
+        act(() => { runAs('learner', () => { graph.setState({step: 2}); }); });
         act(() => { setLanguage('en'); });
         expect(document.querySelector(`[aria-label="${t('recursion_graph_board_label')}"]`)).not.toBeNull();
-        expect(rangeOf(t('recursion_graph_m_label'))).toBeTruthy();
+        await waitForPucks('cobweb-m');
+        expect(puckControl('cobweb-m').getAttribute('aria-label')).toContain(t('cobweb_m_name'));
         expect(shown(graph)).toContain(t('recursion_graph_cap_start', {value0: '0'}));
         expect(shown(graph)).toContain(t('recursion_graph_cap_map_affine', {value0: 'y = 0.5·x + 1'}));
         expect(status()).toContain(t('recursion_graph_status_attracting', {value0: '2'}));
@@ -679,9 +700,9 @@ describe('the captions on a narrow board (about 390 px wide)', () => {
     type Box = {text: string; left: number; right: number; bottom: number; top: number};
 
     /** The shown captions as pixel boxes on a board of WIDTH x 360 px; a caption is anchored at its left end, centred on its height. */
-    function boxes(graph: ObservedGraph, map: 'affine' | 'cosine' | 'logistic'): Box[] {
+    function boxes(graph: ObservedGraph): Box[] {
         const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; canvasWidth: number; update(): void};
-        const [xmin, ymax, xmax, ymin] = VIEW_BOXES[map];
+        const [xmin, ymax, xmax, ymin] = graph.getDeclaration()!.followView!;
         board.canvasWidth = WIDTH;
         board.unitX = WIDTH / (xmax - xmin);
         board.unitY = 360 / (ymax - ymin);
@@ -692,19 +713,19 @@ describe('the captions on a narrow board (about 390 px wide)', () => {
             const left = (at.X() - xmin) * board.unitX;
             const y = (ymax - at.Y()) * board.unitY;
             // the legend wraps at the board edge (rows of CAPTION_ROW_PX, centred on its place); the others stay on one row
-            const wrap = /^(Pajkova|Cobweb:)/.test(text) ? wrapped(text, CAPTION_CHAR_PX * text.length, WIDTH - left - 6) : {rows: 1, widest: CHAR * text.length};
+            const wrap = {rows: 1, widest: (/^(Pajkova|Cobweb:)/.test(text) ? CAPTION_CHAR_PX : CHAR) * text.length};
             return {text, left, right: left + wrap.widest, bottom: y + Math.max(7, wrap.rows * 10 - 3), top: y - Math.max(7, wrap.rows * 10 - 3)};
         });
     }
 
     for (const language of ['sl', 'en'] as const) {
         for (const map of ['affine', 'cosine', 'logistic'] as const) {
-            test(`no caption overlaps another, leaves the board or crosses the y axis (${map}, ${language})`, () => {
+            test(`no caption overlaps another, leaves the board or crosses the y axis (${map}, ${language})`, async () => {
                 setLanguage(language);
                 const {graph} = mountGraph();
-                chooseMap(map);
+                await chooseMap(map);
                 press(t('next_step'));
-                const all = boxes(graph, map);
+                const all = boxes(graph);
                 expect(all.length).toBeGreaterThanOrEqual(6);
                 for (const box of all) expect(box.right, box.text).toBeLessThanOrEqual(WIDTH);
                 for (let i = 0; i < all.length; i++) {
@@ -717,19 +738,19 @@ describe('the captions on a narrow board (about 390 px wide)', () => {
                         expect(overlap, `${a.text} / ${b.text}`).toBe(false);
                     }
                 }
-                const [xmin, , xmax] = VIEW_BOXES[map];
+                const [xmin, , xmax] = graph.getDeclaration()!.followView!;
                 const axis = (0 - xmin) * (WIDTH / (xmax - xmin));
                 const mapCaption = all.find(box => box.text.startsWith(language === 'sl' ? 'preslikava' : 'map'))!;
                 expect(mapCaption.left < axis && axis < mapCaption.right, mapCaption.text).toBe(false);
             });
 
-            test(`no caption stands over the numbers of the x axis (${map}, ${language})`, () => {
+            test(`no caption stands over the numbers of the x axis (${map}, ${language})`, async () => {
                 setLanguage(language);
                 const {graph} = mountGraph();
-                chooseMap(map);
+                await chooseMap(map);
                 press(t('next_step'));
-                const all = boxes(graph, map);
-                const [, ymax, , ymin] = VIEW_BOXES[map];
+                const all = boxes(graph);
+                const [, ymax, , ymin] = graph.getDeclaration()!.followView!;
                 const axisY = ymax * (360 / (ymax - ymin));
                 for (const box of all) expect(box.top < axisY + 20 && box.bottom > axisY + 2, box.text).toBe(false);
             });

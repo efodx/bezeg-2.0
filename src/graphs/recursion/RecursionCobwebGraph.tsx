@@ -3,7 +3,12 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {SceneStateUpdate} from "../base/SceneStore";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration, ReadoutRow as DeclaredRow, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber, formatScientific} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
@@ -22,6 +27,7 @@ import {
     C_RANGE, C_SCALE, CobwebDerived, COBWEB_MAPS, CobwebMap, CobwebState, DEFAULT_COBWEB_STATE, deriveCobweb, M_RANGE, M_SCALE, R_RANGE, R_SCALE,
     parseCobwebState, serializeCobwebState, snapDragInteger, startOf, startRange, typedInteger, withMap, X_SCALE,
 } from "../../recursion/recursionModel";
+import {clearOfYAxis, focusFrame, legendInFrame, openingFrame} from "./cobwebFocus";
 import {affineEquation, captionPlace, CaptionScale, cobwebPath, inView, mapSamples, Polyline, subscript, VIEW_BOXES} from "./cobwebScene";
 import {SceneObjects} from "./SceneObjects";
 import type {LessonAction} from "../../learning/model";
@@ -36,6 +42,10 @@ export const SPEED_MAX = 2000;
 export const SPEED_STEP = 100;
 export const SPEED_DEFAULT = 600;
 export const HANDLE_SIZE = 6;
+/** The first steps of the cobweb the view director keeps visible. */
+const VIEW_MARK_STEPS = 6;
+/** The share of the frame width, on each side, that captions keep clear of. */
+const CAPTION_INSET = 0.13;
 
 const dec = (value: number, digits = 6): string => formatNumber(value, currentLanguage(), digits);
 /** A number of the iteration: decimal comma, up to 6 decimals, scientific from a million on (never an overflowing string). */
@@ -47,6 +57,29 @@ const MAP_NAMES: Readonly<Record<CobwebMap, () => string>> = {
     cosine: () => t("recursion_graph_map_cosine"),
     logistic: () => t("recursion_graph_map_logistic"),
 };
+
+const MAP_KEYS = {
+    affine: "recursion_graph_map_affine", cosine: "recursion_graph_map_cosine", logistic: "recursion_graph_map_logistic",
+} as const satisfies Record<CobwebMap, string>;
+const MAP_SHORT_KEYS = {
+    affine: "cobweb_map_affine_short", cosine: "cobweb_map_cosine_short", logistic: "cobweb_map_logistic_short",
+} as const satisfies Record<CobwebMap, string>;
+
+/**
+ * Ids of the declaration (task 08 lane L37). Bound: the map (a choice puck: lesson RG2 asks for the cosine), the slope `m` and the intercept `c` of the line,
+ * the parameter `r` of the logistic map and the start `x0` (RG2 and RG4 ask the learner to set them and watch the cobweb). Declared: the readout rows and the
+ * status and help sentences as notes. The playback (Next step, Play, Reset, the speed) has no arbiter key and stays in Orodja; the board texts stay board-drawn.
+ */
+export type CobwebIds = {
+    param: "cobweb-map" | "cobweb-m" | "cobweb-c" | "cobweb-r" | "cobweb-x";
+    row: "map" | "slope" | "intercept" | "rate" | "start" | "fixed" | "decisive" | "shape" | "steps" | "iterate";
+    note: "status" | "help";
+    legend: never;
+    section: never;
+    action: never;
+};
+type CobwebRow = DeclaredRow<CobwebIds>;
+const formatted = (text: string): FormattedValue => ({kind: "formatted", text});
 
 /** The same fields except the playback position and the step: what a playing iteration may not have changed under it. */
 const sameParameters = (a: CobwebState, b: CobwebState): boolean => a.map === b.map && a.M === b.M && a.C === b.C && a.R === b.R && a.X === b.X;
@@ -69,7 +102,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
     private speedMs = SPEED_DEFAULT;
     private readonly status = new SettledReadout();
     /** A clause for the status text, valid only for the state it was made for: a later state change makes it stale by itself. */
-    private notice?: {readonly state: RecursionCobwebGraphState; readonly text: () => string};
+    private notice?: {readonly state: RecursionCobwebGraphState; readonly text: Message};
 
     override getInitialState(): RecursionCobwebGraphState {
         return {initialized: false, ...DEFAULT_COBWEB_STATE};
@@ -134,7 +167,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
     }
 
     protected override initialView(): [number, number, number, number] {
-        return [...VIEW_BOXES[DEFAULT_COBWEB_STATE.map]];
+        return [...openingFrame(DEFAULT_COBWEB_STATE.map)];
     }
 
     // ---- Derived numbers: a cache keyed by the state object ---------------------------------------------------------------
@@ -227,7 +260,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
     private applyFrame(): void {
         if (this.drawnMap === this.state.map) return;
         this.drawnMap = this.state.map;
-        this.boardView.following(() => this.boardView.setIntent(VIEW_BOXES[this.state.map], {keepAspectRatio: false}));
+        this.boardView.following(() => this.boardView.setIntent(openingFrame(this.state.map), {keepAspectRatio: false}));
     }
 
     private placeHandle(): void {
@@ -247,10 +280,22 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         return curve;
     }
 
+    /**
+     * The part of the focus frame the captions keep to, `[left, top, right, bottom]`: the middle of it, because the cards of a lesson cover the sides of the frame once the
+     * director has fitted it into the free area (at its zoom limit the frame is wider than that area).
+     */
+    private captionFrame(): [number, number, number, number] {
+        const [left, top, right, bottom] = this.focus().frame;
+        const inset = CAPTION_INSET * (right - left);
+        return [left + inset, top, right - inset, bottom];
+    }
+
     /** The board in pixels for caption places, or undefined while it has no size. */
     private captionScale(): CaptionScale | undefined {
         const {unitX, unitY, canvasWidth} = this.board;
-        return unitX > 0 && unitY > 0 && canvasWidth > 0 ? {unitX, unitY, width: canvasWidth} : undefined;
+        // The captions stay inside the frame of the map: when the view director fits the frame into the free area between the cards, the board is wider than the frame.
+        const [xmin, , xmax] = this.captionFrame();
+        return unitX > 0 && unitY > 0 && canvasWidth > 0 ? {unitX, unitY, width: Math.min(canvasWidth, (xmax - xmin) * unitX)} : undefined;
     }
 
     private caption(text: () => string, place: (chars: number) => {x: number; y: number}, visible: () => boolean = () => true): JXG.Text {
@@ -290,18 +335,18 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         this.wireDrag(handle);
         // A caption for every element a readout names: the map, the diagonal, the cobweb steps, the start, the fixed point, the iterate.
         const map = () => this.state.map;
-        this.caption(() => this.mapCaption(), () => captionPlace(map(), "map", 0, 0, this.captionScale()));
-        this.caption(() => t("recursion_graph_cap_diagonal"), () => captionPlace(map(), "diagonal", 0, 0, this.captionScale()));
-        this.caption(() => t("fixed_point_legend_cobweb"), chars => captionPlace(map(), "legend", 0, chars, this.captionScale(), this.derived().map, t("fixed_point_legend_cobweb")));
-        this.caption(() => t("recursion_graph_cap_start", {value0: num(startOf(this.state.X))}), chars => captionPlace(map(), "start", startOf(this.state.X), chars, this.captionScale()));
+        this.caption(() => this.mapCaption(), chars => clearOfYAxis(captionPlace(map(), "map", 0, 0, this.captionScale(), undefined, undefined, this.captionFrame()), chars, this.captionFrame(), this.captionScale()));
+        this.caption(() => t("recursion_graph_cap_diagonal"), chars => clearOfYAxis(captionPlace(map(), "diagonal", 0, 0, this.captionScale(), undefined, undefined, this.captionFrame()), chars, this.captionFrame(), this.captionScale()));
+        this.caption(() => t("fixed_point_legend_cobweb"), chars => legendInFrame(this.captionFrame(), chars, this.captionScale(), this.focus().frame));
+        this.caption(() => t("recursion_graph_cap_start", {value0: num(startOf(this.state.X))}), chars => captionPlace(map(), "start", startOf(this.state.X), chars, this.captionScale(), undefined, undefined, this.captionFrame()));
         this.caption(() => {
             const star = fixed();
             if (star === null) return "";
             return t(inView(map(), star) ? "recursion_graph_cap_fixed" : "recursion_graph_cap_fixed_off", {value0: num(star)});
-        }, chars => captionPlace(map(), "fixed", fixed() ?? NaN, chars, this.captionScale(), this.derived().map), () => fixed() !== null);
+        }, chars => captionPlace(map(), "fixed", fixed() ?? NaN, chars, this.captionScale(), this.derived().map, undefined, this.captionFrame()), () => fixed() !== null);
         this.caption(() => t(inView(map(), iterate() ?? NaN) ? "recursion_graph_cap_iterate" : "recursion_graph_cap_iterate_off",
                 {value0: subscript(this.state.step), value1: num(iterate() ?? NaN)}),
-            chars => captionPlace(map(), "iterate", iterate() ?? NaN, chars, this.captionScale()), () => this.state.step > 0);
+            chars => captionPlace(map(), "iterate", iterate() ?? NaN, chars, this.captionScale(), undefined, undefined, this.captionFrame()), () => this.state.step > 0);
     }
 
     private mapCaption(): string {
@@ -320,7 +365,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
     // ---- Dragging: the handle moves along the diagonal and snaps to the start grid ---------------------------------------------
 
     private wireDrag(point: JXG.Point): void {
-        const onDrag = () => this.dragTo(point);
+        const onDrag = () => runAs("learner", () => this.dragTo(point));
         const board = this.board;
         const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
@@ -428,7 +473,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         this.edit({map: next.map, X: next.X});
         if (next.X !== before.X) {
             const range = startRange(next.map);
-            this.notice = {state: this.state, text: () => t("recursion_graph_notice_start", {
+            this.notice = {state: this.state, text: message("recursion_graph_notice_start", {
                 value0: num(startOf(next.X)), value1: num(startOf(range.min)), value2: num(startOf(range.max))})};
             this.status.report(this.statusText());
         }
@@ -544,74 +589,179 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------
 
-    /** The fixed point as text: the exact fraction with its decimal value when it is not a whole number. */
-    private fixedText(derived: CobwebDerived): string {
-        if (derived.fixedPoint === null) return t(derived.kind === "all-fixed" ? "recursion_graph_r_fixed_all" : "recursion_graph_r_fixed_none");
+    /** The fixed point as a declared value: the exact fraction with its decimal value when it is not a whole number. */
+    private fixedValue(derived: CobwebDerived): Message | FormattedValue {
+        if (derived.fixedPoint === null) return message(derived.kind === "all-fixed" ? "recursion_graph_r_fixed_all" : "recursion_graph_r_fixed_none");
         const exact = derived.fixedExact;
-        if (exact && exact.den !== 1n) return t("recursion_graph_r_fixed_fraction", {value0: `${exact.num}/${exact.den}`, value1: num(derived.fixedPoint)});
-        return num(derived.fixedPoint);
+        if (exact && exact.den !== 1n) return message("recursion_graph_r_fixed_fraction", {value0: `${exact.num}/${exact.den}`, value1: num(derived.fixedPoint)});
+        return formatted(num(derived.fixedPoint));
     }
 
-    private kindText(derived: CobwebDerived): string {
+    private kindMessage(derived: CobwebDerived): Message {
         const star = derived.fixedPoint === null ? "" : num(derived.fixedPoint);
         const slope = derived.slope === null ? "" : num(derived.slope);
         switch (derived.kind) {
             case "attracting":
-                return this.state.map === "logistic" ? t("recursion_graph_status_logistic_attracting", {value0: star, value1: slope})
-                    : t("recursion_graph_status_attracting", {value0: star});
-            case "repelling": return t("recursion_graph_status_repelling", {value0: star});
-            case "two-cycle": return t("recursion_graph_status_two_cycle", {value0: star});
-            case "all-fixed": return t("recursion_graph_status_all_fixed");
-            case "none": return t("recursion_graph_status_none", {value0: num(this.state.C / C_SCALE)});
-            case "extinction": return t("recursion_graph_status_extinction");
-            case "extinction-slope-one": return t("recursion_graph_status_extinction_one");
-            case "local-attracting": return t("recursion_graph_status_cosine", {value0: star, value1: slope});
+                return this.state.map === "logistic" ? message("recursion_graph_status_logistic_attracting", {value0: star, value1: slope})
+                    : message("recursion_graph_status_attracting", {value0: star});
+            case "repelling": return message("recursion_graph_status_repelling", {value0: star});
+            case "two-cycle": return message("recursion_graph_status_two_cycle", {value0: star});
+            case "all-fixed": return message("recursion_graph_status_all_fixed");
+            case "none": return message("recursion_graph_status_none", {value0: num(this.state.C / C_SCALE)});
+            case "extinction": return message("recursion_graph_status_extinction");
+            case "extinction-slope-one": return message("recursion_graph_status_extinction_one");
+            case "local-attracting": return message("recursion_graph_status_cosine", {value0: star, value1: slope});
         }
     }
 
-    private statusText(): string {
+    /** The status sentence: the verdict, where the iteration is and, right after a change of the map, the notice about the start. */
+    statusMessage(): Message {
         const derived = this.derived();
         const {step} = this.state;
-        const where = step === 0 ? t("recursion_graph_status_at_start", {value0: num(derived.x0)})
-            : t("recursion_graph_status_at_step", {value0: step, value1: subscript(step), value2: num(derived.iteration.points[step])});
-        const base = `${this.kindText(derived)} ${where}`;
-        return this.notice && this.notice.state === this.state ? `${base} ${this.notice.text()}` : base;
+        const where = step === 0 ? message("recursion_graph_status_at_start", {value0: num(derived.x0)})
+            : message("recursion_graph_status_at_step", {value0: step, value1: subscript(step), value2: num(derived.iteration.points[step])});
+        const base = message("cobweb_status_join", {value0: this.kindMessage(derived), value1: where});
+        return this.notice && this.notice.state === this.state ? message("cobweb_status_join", {value0: base, value1: this.notice.text}) : base;
     }
 
-    private shapeText(derived: CobwebDerived): string {
-        if (derived.kind === "two-cycle") return t("recursion_graph_shape_square");
-        if (derived.kind === "all-fixed") return t("recursion_graph_shape_still");
+    statusText(): string { return renderMessage(this.statusMessage()); }
+
+    private shapeMessage(derived: CobwebDerived): Message {
+        if (derived.kind === "two-cycle") return message("recursion_graph_shape_square");
+        if (derived.kind === "all-fixed") return message("recursion_graph_shape_still");
         switch (derived.shape) {
-            case "spiral": return t("recursion_graph_shape_spiral");
-            case "degenerate": return t("recursion_graph_shape_degenerate");
-            default: return t("recursion_graph_shape_staircase");
+            case "spiral": return message("recursion_graph_shape_spiral");
+            case "degenerate": return message("recursion_graph_shape_degenerate");
+            default: return message("recursion_graph_shape_staircase");
         }
     }
 
-    private readoutRows(): ReadoutListRow[] {
+    /** The rows of the readout as declared; the panel shows their text. */
+    readoutRows(): CobwebRow[] {
         const state = this.state;
         const derived = this.derived();
-        const rows: ReadoutListRow[] = [{id: "map", label: t("recursion_graph_r_map"), value: MAP_NAMES[state.map]()}];
+        const rows: CobwebRow[] = [{id: "map", name: message("recursion_graph_r_map"), value: message(MAP_KEYS[state.map])}];
         if (state.map === "affine") {
-            rows.push({id: "slope", label: t("recursion_graph_r_slope"), value: num(state.M / M_SCALE)},
-                {id: "intercept", label: t("recursion_graph_r_intercept"), value: num(state.C / C_SCALE)});
+            rows.push({id: "slope", name: message("recursion_graph_r_slope"), value: formatted(num(state.M / M_SCALE))},
+                {id: "intercept", name: message("recursion_graph_r_intercept"), value: formatted(num(state.C / C_SCALE))});
         } else if (state.map === "logistic") {
-            rows.push({id: "rate", label: t("recursion_graph_r_rate"), value: num(state.R / R_SCALE)});
+            rows.push({id: "rate", name: message("recursion_graph_r_rate"), value: formatted(num(state.R / R_SCALE))});
         }
         rows.push(
-            {id: "start", label: t("recursion_graph_r_start"), value: num(derived.x0)},
-            {id: "fixed", label: t("recursion_graph_r_fixed"), value: this.fixedText(derived)},
+            {id: "start", name: message("recursion_graph_r_start"), value: formatted(num(derived.x0))},
+            {id: "fixed", name: message("recursion_graph_r_fixed"), value: this.fixedValue(derived)},
         );
         if (derived.slope !== null) {
-            rows.push({id: "decisive", label: t("recursion_graph_r_decisive"),
-                value: derived.exact ? num(derived.slope) : t("recursion_graph_r_decisive_computed", {value0: num(derived.slope)})});
+            rows.push({id: "decisive", name: message("recursion_graph_r_decisive"),
+                value: derived.exact ? formatted(num(derived.slope)) : message("recursion_graph_r_decisive_computed", {value0: num(derived.slope)})});
         }
         rows.push(
-            {id: "shape", label: t("recursion_graph_r_shape"), value: this.shapeText(derived)},
-            {id: "steps", label: t("recursion_graph_r_steps"), value: t("recursion_graph_r_steps_value", {value0: state.step, value1: ITERATION_MAX_STEPS})},
-            {id: "iterate", label: t("recursion_graph_r_iterate", {value0: subscript(state.step)}), value: num(derived.iteration.points[state.step])},
+            {id: "shape", name: message("recursion_graph_r_shape"), value: this.shapeMessage(derived)},
+            {id: "steps", name: message("recursion_graph_r_steps"), value: message("recursion_graph_r_steps_value", {value0: state.step, value1: ITERATION_MAX_STEPS})},
+            {id: "iterate", name: message("recursion_graph_r_iterate", {value0: subscript(state.step)}), value: formatted(num(derived.iteration.points[state.step]))},
         );
         return rows;
+    }
+
+    /** The text of the declared rows, as the panel lists them. */
+    private listRows(): ReadoutListRow[] {
+        return this.readoutRows().map(({id, name, value}): ReadoutListRow => ({
+            id, label: name ? renderMessage(name) : "", value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration ------------------------------------------------------------------------------------------------------
+
+    private refusal(key: "recursion_graph_m_rejected" | "recursion_graph_c_rejected" | "recursion_graph_r_rejected", range: {min: number; max: number}, scale: number): DomainError {
+        return new DomainError(message(key, {value0: dec(range.min / scale), value1: dec(range.max / scale), value2: dec(1 / scale)}));
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const number = (value: unknown): number => (typeof value === "number" ? value : NaN);
+        return {
+            "cobweb-map": {
+                read: () => this.state.map,
+                apply: (value: unknown) => {
+                    const map = COBWEB_MAPS.find(candidate => candidate === value);
+                    if (!map) throw new DomainError(message("cobweb_map_unknown", {value0: String(value)}));
+                    this.editMap(map);
+                },
+            },
+            "cobweb-m": {read: () => this.state.M / M_SCALE, apply: (value: unknown) => { if (!this.editSlope(number(value))) throw this.refusal("recursion_graph_m_rejected", M_RANGE, M_SCALE); }},
+            "cobweb-c": {read: () => this.state.C / C_SCALE, apply: (value: unknown) => { if (!this.editIntercept(number(value))) throw this.refusal("recursion_graph_c_rejected", C_RANGE, C_SCALE); }},
+            "cobweb-r": {read: () => this.state.R / R_SCALE, apply: (value: unknown) => { if (!this.editRate(number(value))) throw this.refusal("recursion_graph_r_rejected", R_RANGE, R_SCALE); }},
+            "cobweb-x": {
+                read: () => startOf(this.state.X),
+                apply: (value: unknown) => {
+                    if (this.editStart(number(value))) return;
+                    const range = startRange(this.state.map);
+                    const logistic = this.state.map === "logistic";
+                    throw new DomainError(message(logistic ? "recursion_graph_x_rejected_logistic" : "recursion_graph_x_rejected",
+                        {value0: dec(range.min / X_SCALE), value1: dec(range.max / X_SCALE), value2: dec(1 / X_SCALE)}));
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state. Pucks (lessons RG2 and RG4 ask the learner to set the slope `m`, the intercept `c` or the parameter `r` and the start `x0`, and to choose
+     * the cosine, while watching the cobweb): the map, the two parameters of the line or the one of the logistic map, the start. The playback stays in Orodja (no key).
+     */
+    protected override declaration(): GraphDeclaration<CobwebIds> {
+        const state = this.state;
+        const range = (key: CobwebIds["param"], name: Message, symbol: string, min: number, max: number, step: number, bigStep: number, maxDecimals: number, help?: Message):
+            ParameterDeclaration<CobwebIds["param"]> => ({key, kind: "range", label: name, symbol, placement: "board", min, max, step, bigStep, maxDecimals, ...(help ? {help} : {})});
+        const parameters: ParameterDeclaration<CobwebIds["param"]>[] = [{
+            key: "cobweb-map", kind: "choice", label: message("recursion_graph_map_label"), help: message("recursion_graph_map_help"), placement: "board", puck: true,
+            options: COBWEB_MAPS.map(value => ({value, label: message(MAP_KEYS[value]), short: message(MAP_SHORT_KEYS[value])})),
+        }];
+        if (state.map === "affine") {
+            parameters.push(
+                range("cobweb-m", message("cobweb_m_name"), "m", M_RANGE.min / M_SCALE, M_RANGE.max / M_SCALE, 1 / M_SCALE, 1, 2),
+                range("cobweb-c", message("cobweb_c_name"), "c", C_RANGE.min / C_SCALE, C_RANGE.max / C_SCALE, 1 / C_SCALE, 1, 1),
+            );
+        } else if (state.map === "logistic") {
+            parameters.push(range("cobweb-r", message("cobweb_r_name"), "r", R_RANGE.min / R_SCALE, R_RANGE.max / R_SCALE, 1 / R_SCALE, 0.5, 1, message("recursion_graph_r_help")));
+        }
+        const starts = startRange(state.map);
+        parameters.push(range("cobweb-x", message("cobweb_x_name"), "x_0", starts.min / X_SCALE, starts.max / X_SCALE, 1 / X_SCALE, 0.1, 2,
+            message(state.map === "logistic" ? "recursion_graph_x_help_logistic" : "recursion_graph_x_help")));
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("recursion_graph_readout_title"), rows: this.readoutRows()}],
+            notes: [
+                {id: "status", text: this.statusMessage()},
+                ...(state.map !== "cosine" ? [{id: "help" as const, text: message("recursion_graph_note_exact")}] : []),
+            ],
+            marks: this.focus().marks,
+            followView: this.focus().frame,
+        };
+    }
+
+    private focusCache: {key: string; marks: ViewMarks; frame: [number, number, number, number]} | undefined;
+
+    /**
+     * What the view director keeps visible and clear of cards: the start on the diagonal, the map above it, the fixed point and the first iterates of the cobweb (a few,
+     * so the set stays small); the box around them and the origin is the `followView` (`focusFrame`), so the director fits that, not the whole window (20 units), into the area the cards leave free. Points outside the window are left out.
+     * Memoized on the numbers of the state.
+     */
+    private focus(): {marks: ViewMarks; frame: [number, number, number, number]} {
+        const state = this.state;
+        const key = `${state.map}|${state.M}|${state.C}|${state.R}|${state.X}|${state.step}`;
+        if (this.focusCache?.key === key) return this.focusCache;
+        const [left, top, right, bottom] = VIEW_BOXES[state.map];
+        const inside = (x: number, y: number) => Number.isFinite(x) && Number.isFinite(y) && x >= left && x <= right && y >= bottom && y <= top;
+        const derived = this.derived();
+        const must: ViewMark[] = [];
+        const add = (x: number, y: number) => { if (inside(x, y)) must.push({kind: "point", x, y}); };
+        add(derived.x0, derived.x0);
+        const shown = Math.min(state.step, VIEW_MARK_STEPS);
+        for (const step of derived.iteration.steps.slice(0, Math.max(shown, 1))) { add(step.from, step.to); add(step.to, step.to); }
+        if (derived.fixedPoint !== null) add(derived.fixedPoint, derived.fixedPoint);
+        const marks: ViewMarks = {must};
+        const frame = focusFrame(state.map, must.flatMap(mark => (mark.kind === "point" ? [[mark.x, mark.y] as const] : [])));
+        this.focusCache = {key, marks, frame};
+        return this.focusCache;
     }
 
     // ---- Controls -----------------------------------------------------------------------------------------------------------------
@@ -623,33 +773,33 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
         const commands: JSX.Element[] = [
-            <ChoiceSelect key="map" label={t("recursion_graph_map_label")} value={state.map} help={t("recursion_graph_map_help")}
+            <PuckOwned key="map" param="cobweb-map"><ChoiceSelect label={t("recursion_graph_map_label")} value={state.map} help={t("recursion_graph_map_help")}
                           options={COBWEB_MAPS.map(value => ({value, text: MAP_NAMES[value]()}))}
-                          onChange={value => { const map = COBWEB_MAPS.find(candidate => candidate === value); if (map) this.editMap(map); }}/>,
+                          onChange={value => { const map = COBWEB_MAPS.find(candidate => candidate === value); if (map) this.editMap(map); }}/></PuckOwned>,
         ];
         if (state.map === "affine") {
             commands.push(
-                <Slider key="m" customText={t("recursion_graph_m_label")} value={state.M / M_SCALE} step={1 / M_SCALE} bigStep={1} min={M_RANGE.min / M_SCALE}
+                <PuckOwned key="m" param="cobweb-m"><Slider customText={t("recursion_graph_m_label")} value={state.M / M_SCALE} step={1 / M_SCALE} bigStep={1} min={M_RANGE.min / M_SCALE}
                         max={M_RANGE.max / M_SCALE} grid={1 / M_SCALE} decimals={2}
-                        rejectedHint={t("recursion_graph_m_rejected", this.fieldRange(M_RANGE.min, M_RANGE.max, M_SCALE))} onChange={value => this.editSlope(value)}/>,
-                <Slider key="c" customText={t("recursion_graph_c_label")} value={state.C / C_SCALE} step={1 / C_SCALE} bigStep={1} min={C_RANGE.min / C_SCALE}
+                        rejectedHint={t("recursion_graph_m_rejected", this.fieldRange(M_RANGE.min, M_RANGE.max, M_SCALE))} onChange={value => this.editSlope(value)}/></PuckOwned>,
+                <PuckOwned key="c" param="cobweb-c"><Slider customText={t("recursion_graph_c_label")} value={state.C / C_SCALE} step={1 / C_SCALE} bigStep={1} min={C_RANGE.min / C_SCALE}
                         max={C_RANGE.max / C_SCALE} grid={1 / C_SCALE} decimals={1}
-                        rejectedHint={t("recursion_graph_c_rejected", this.fieldRange(C_RANGE.min, C_RANGE.max, C_SCALE))} onChange={value => this.editIntercept(value)}/>,
+                        rejectedHint={t("recursion_graph_c_rejected", this.fieldRange(C_RANGE.min, C_RANGE.max, C_SCALE))} onChange={value => this.editIntercept(value)}/></PuckOwned>,
             );
         } else if (state.map === "logistic") {
             commands.push(
-                <Slider key="r" customText={t("recursion_graph_r_label")} value={state.R / R_SCALE} step={1 / R_SCALE} bigStep={0.5} min={R_RANGE.min / R_SCALE}
+                <PuckOwned key="r" param="cobweb-r"><Slider customText={t("recursion_graph_r_label")} value={state.R / R_SCALE} step={1 / R_SCALE} bigStep={0.5} min={R_RANGE.min / R_SCALE}
                         max={R_RANGE.max / R_SCALE} grid={1 / R_SCALE} decimals={1} help={t("recursion_graph_r_help")}
-                        rejectedHint={t("recursion_graph_r_rejected", this.fieldRange(R_RANGE.min, R_RANGE.max, R_SCALE))} onChange={value => this.editRate(value)}/>,
+                        rejectedHint={t("recursion_graph_r_rejected", this.fieldRange(R_RANGE.min, R_RANGE.max, R_SCALE))} onChange={value => this.editRate(value)}/></PuckOwned>,
             );
         }
         const range = startRange(state.map);
         const logistic = state.map === "logistic";
         const startArgs = this.fieldRange(range.min, range.max, X_SCALE);
         commands.push(
-            <Slider key="x" customText={t("recursion_graph_x_label")} value={startOf(state.X)} step={1 / X_SCALE} bigStep={0.1} min={range.min / X_SCALE}
+            <PuckOwned key="x" param="cobweb-x"><Slider customText={t("recursion_graph_x_label")} value={startOf(state.X)} step={1 / X_SCALE} bigStep={0.1} min={range.min / X_SCALE}
                     max={range.max / X_SCALE} grid={1 / X_SCALE} decimals={2} help={t(logistic ? "recursion_graph_x_help_logistic" : "recursion_graph_x_help")}
-                    rejectedHint={t(logistic ? "recursion_graph_x_rejected_logistic" : "recursion_graph_x_rejected", startArgs)} onChange={value => this.editStart(value)}/>,
+                    rejectedHint={t(logistic ? "recursion_graph_x_rejected_logistic" : "recursion_graph_x_rejected", startArgs)} onChange={value => this.editStart(value)}/></PuckOwned>,
         );
         return commands;
     }
@@ -672,11 +822,11 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: ITERATION_MAX_STEPS})}</p>
             </div>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("recursion_graph_readout_title")}</ReadoutHeading>
-                <p data-recursion-status="">{this.statusText()}</p>
-                <ReadoutList label={t("recursion_graph_readout_title")} rows={this.readoutRows()}/>
-                {this.state.map !== "cosine" && <ReadoutHelp><span data-recursion-note="">{t("recursion_graph_note_exact")}</span></ReadoutHelp>}
+                <p data-recursion-status="" data-readout-note="">{this.statusText()}</p>
+                <ReadoutList label={t("recursion_graph_readout_title")} rows={this.listRows()}/>
+                {this.state.map !== "cosine" && <ReadoutHelp hooks={{"data-readout-note": ""}}><span data-recursion-note="">{t("recursion_graph_note_exact")}</span></ReadoutHelp>}
                 <LiveReadout readout={this.status} muted={playing}/>
             </div>
         </>;

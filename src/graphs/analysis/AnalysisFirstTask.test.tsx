@@ -28,7 +28,7 @@ const routes: Record<string, Route> = {
     'sequence': {lead: labelled(t('sequence_epsilon_label')), later: [labelled(t('sequence_example_label'))]},
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
     'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label')), labelled(t('fixed_point_x0_label'))]},
-    'recursion-cobweb': {lead: button(t('next_step')), later: [labelled(t('recursion_graph_map_label')), labelled(t('recursion_graph_x_label'))]},
+    'recursion-cobweb': {lead: button(t('next_step')), later: []},
     'linear-program': {lead: labelled(t('levelsets_graph_lp_objective_p')), later: [labelled(t('levelsets_graph_lp_count'))]},
 };
 
@@ -79,6 +79,19 @@ describe('bisection endpoints', () => {
             expect(within(strip).queryAllByRole('spinbutton', {name: label}).length + within(strip).queryAllByRole('slider', {name: label}).length).toBeGreaterThan(0);
             expect(within(root).queryAllByLabelText(label)).toEqual([]);
         }
+    });
+});
+
+describe('recursion cobweb setup', () => {
+    // The map and the start are pucks on the board (task 08 lane L37): there once, and not in Edit, where the playback button still leads.
+    test('the map and the start are pucks, Edit holds no second copy', async () => {
+        mountGraph(graphFactories['recursion-cobweb']());
+        await waitForPucks('cobweb-map');
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(strip.querySelector('[data-puck-key="cobweb-map"] [role="radiogroup"]')).not.toBeNull();
+        expect(strip.querySelector('[data-puck-key="cobweb-x"]')).not.toBeNull();
+        for (const label of [t('recursion_graph_map_label'), t('recursion_graph_x_label')]) expect(within(root).queryAllByLabelText(label)).toEqual([]);
     });
 });
 

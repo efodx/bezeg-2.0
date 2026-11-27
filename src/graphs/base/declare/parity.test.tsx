@@ -1124,6 +1124,25 @@ const SAMPLES: readonly Sample[] = [
             {name: 'log, power', apply: run({panel: 'log', logModel: 'power'})},
         ] satisfies ParityState[];
     })()},
+    {file: 'recursion/__parity__/recursion-cobweb.json', demonstration: 'recursion-cobweb', states: (() => {
+        type Cobweb = {setState(state: Record<string, unknown>): void};
+        const fresh = {map: 'affine', M: 10, C: 10, R: 15, X: 0, step: 0};
+        // every state starts from the default state, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Cobweb).setState({...fresh, ...state})); };
+        return [
+            {name: 'line, default', apply: run({})},
+            {name: 'line m -0,8, c 9, x0 1, step 4 (spiral)', apply: run({M: -16, C: 90, X: 100, step: 4})},
+            {name: 'line m -1,2, c 10, x0 4,6, step 4 (repelling)', apply: run({M: -24, C: 100, X: 460, step: 4})},
+            {name: 'line m -1, c 10, x0 4,6, step 3 (2-cycle)', apply: run({M: -20, C: 100, X: 460, step: 3})},
+            {name: 'line m 1, c 10 (no fixed point)', apply: run({M: 20, C: 100, step: 3})},
+            {name: 'line m 1, c 0 (all fixed)', apply: run({M: 20, C: 0, step: 2})},
+            {name: 'cosine, step 8', apply: run({map: 'cosine', step: 8})},
+            {name: 'logistic r 1,5, x0 0,1, step 4', apply: run({map: 'logistic', R: 15, X: 10, step: 4})},
+            {name: 'logistic r 2,5, step 11 (spiral)', apply: run({map: 'logistic', R: 25, X: 10, step: 11})},
+            {name: 'logistic r 0,8, step 11 (extinction)', apply: run({map: 'logistic', R: 8, X: 10, step: 11})},
+            {name: 'logistic r 1, step 60 (slope one)', apply: run({map: 'logistic', R: 10, X: 10, step: 60})},
+        ] satisfies ParityState[];
+    })()},
     {file: 'trig/__parity__/triangle-solver.json', demonstration: 'triangle-solver', states: (() => {
         type Solver = {setState(state: Record<string, unknown>): void};
         const fresh = {mode: 'sides', A: {x: 0, y: 0}, B: {x: 7, y: 0}, C: {x: 2, y: 4}, data: {type: 'sss', a: 5, b: 6, c: 7}};

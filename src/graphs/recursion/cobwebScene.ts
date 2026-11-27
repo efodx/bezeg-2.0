@@ -123,8 +123,9 @@ export function wrapped(text: string | undefined, textPx: number, room: number):
  * characters would run past the right edge of the board, in a fixed place near the bottom (the start lowest, then the fixed point, then
  * the iterate), moved left far enough to fit, so the caption is still on the board.
  */
-export function captionPlace(map: CobwebMap, role: CaptionRole, value = 0, chars = 0, scale?: CaptionScale, curve?: (x: number) => number, text?: string): CaptionPlace {
-    const [xmin, ymax, xmax, ymin] = VIEW_BOXES[map];
+export function captionPlace(map: CobwebMap, role: CaptionRole, value = 0, chars = 0, scale?: CaptionScale, curve?: (x: number) => number, text?: string, frame: readonly [number, number, number, number] = VIEW_BOXES[map]): CaptionPlace {
+    const [xmin, ymax, xmax, ymin] = frame;
+    const inView = (_map: CobwebMap, at: number) => Number.isFinite(at) && at >= xmin && at <= xmax;
     const w = xmax - xmin;
     const h = ymax - ymin;
     const textWidth = chars * CAPTION_CHAR_PX + CAPTION_GAP_PX;

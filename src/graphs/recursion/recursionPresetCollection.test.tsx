@@ -30,7 +30,7 @@ const interest: GrowthState = {...DEFAULT_GROWTH_STATE, panel: 'interest', capit
 describe('recursion-cobweb Preset collection', () => {
     test.each([['the default', DEFAULT_COBWEB_STATE], ['a logistic map after seven steps', logistic]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new RecursionCobwebGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => { source.setState(state); }); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('recursion-cobweb');
         expect(preset.data).toEqual(serializeCobwebState(state));
@@ -105,7 +105,7 @@ describe('a Preset file with a stored view keeps that view', () => {
     });
     test('cobweb: the logistic map is imported with the stored boardState, not the window of the map', () => {
         const source = mountGraph(new ViewedCobweb());
-        act(() => { source.setState(logistic); });
+        act(() => { runAs('learner', () => { source.setState(logistic); }); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedCobweb());
         act(() => { fresh.importPreset(preset); });

@@ -2,11 +2,10 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
 import {RecursionCobwebGraph, SPEED_DEFAULT} from './RecursionCobwebGraph';
 import {GrowthGraph} from './GrowthGraph';
 
@@ -45,10 +44,10 @@ const setMap = (fields: Omit<MapAction, 'kind' | 'operation'>): LessonAction => 
 const setParams = (fields: Omit<ParamsAction, 'kind' | 'operation'>): LessonAction => ({kind: 'recursion', operation: 'set-params', ...fields});
 const setStart = (X: number): LessonAction => ({kind: 'recursion', operation: 'set-start', X});
 const setStep = (step: number): LessonAction => ({kind: 'recursion', operation: 'set-step', step});
-/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
-const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-const chooseMap = (map: string) => act(() => { fireEvent.change(field(t('recursion_graph_map_label')), {target: {value: map}}); });
+const PUCK_OF = () => ({[t('recursion_graph_m_label')]: 'cobweb-m', [t('recursion_graph_c_label')]: 'cobweb-c', [t('recursion_graph_r_label')]: 'cobweb-r', [t('recursion_graph_x_label')]: 'cobweb-x'} as Record<string, string>);
+/** A learner's typed entry on the puck of the control; the strip appears once the board has laid out. */
+const type = async (label: string, value: string) => { const key = PUCK_OF()[label]; await waitForPucks(key); typePuck(key, value); };
+const chooseMap = async (map: string) => { await waitForPucks('cobweb-map'); chooseOnPuckNow('cobweb-map', map); };
 const nextStep = (times: number) => { for (let i = 0; i < times; i++) act(() => { fireEvent.click(screen.getByRole('button', {name: t('next_step')})); }); };
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-recursion-status]')?.textContent;
@@ -57,54 +56,55 @@ const stateOf = (graph: RecursionCobwebGraph) => JSON.parse(JSON.stringify(graph
 const snapshot = (graph: RecursionCobwebGraph) => ({state: stateOf(graph), readouts: readouts(), status: status(), counter: counter()});
 
 /** The state, the readouts, the status and the counter after running `edit` on a fresh graph and then unmounting it. */
-function after(edit: (graph: ObservedGraph) => void) {
+async function after(edit: (graph: ObservedGraph) => void | Promise<void>) {
     const graph = mount();
-    edit(graph);
+    await waitForPucks();
+    await edit(graph);
     const result = snapshot(graph);
     cleanup();
     return result;
 }
 
-test('set-map equals the map chooser, the start falling back as the chooser does', () => {
-    const cosine = after(graph => apply(graph, setMap({map: 'cosine'})));
-    expect(cosine).toEqual(after(() => chooseMap('cosine')));
+test('set-map equals the map chooser, the start falling back as the chooser does', async () => {
+    const cosine = await after(graph => apply(graph, setMap({map: 'cosine'})));
+    expect(cosine).toEqual(await after(() => chooseMap('cosine')));
     expect(cosine.state).toEqual(expect.objectContaining({map: 'cosine'}));
 
-    const logistic = after(graph => apply(graph, setMap({map: 'logistic'})));
-    expect(logistic).toEqual(after(() => chooseMap('logistic')));
+    const logistic = await after(graph => apply(graph, setMap({map: 'logistic'})));
+    expect(logistic).toEqual(await after(() => chooseMap('logistic')));
     expect(logistic.state).toEqual(expect.objectContaining({map: 'logistic', X: 10}));
 
-    const fallback = after(graph => { apply(graph, setStart(460)); apply(graph, setMap({map: 'cosine'})); });
-    expect(fallback).toEqual(after(() => { type(t('recursion_graph_x_label'), '4,6'); chooseMap('cosine'); }));
+    const fallback = await after(graph => { apply(graph, setStart(460)); apply(graph, setMap({map: 'cosine'})); });
+    expect(fallback).toEqual(await after(async () => { await type(t('recursion_graph_x_label'), '4,6'); await chooseMap('cosine'); }));
     expect(fallback.state).toEqual(expect.objectContaining({map: 'cosine', X: 0}));
-    expect(after(graph => apply(graph, setMap({}))).state).toEqual(after(() => undefined).state);
+    expect((await after(graph => apply(graph, setMap({})))).state).toEqual((await after(() => undefined)).state);
 });
 
-test('set-params equals typing m, c and r', () => {
-    const affine = after(graph => apply(graph, setParams({M: -16, C: 90})));
-    expect(affine).toEqual(after(() => {
-        type(t('recursion_graph_m_label'), '-0,8');
-        type(t('recursion_graph_c_label'), '9');
+test('set-params equals typing m, c and r', async () => {
+    const affine = await after(graph => apply(graph, setParams({M: -16, C: 90})));
+    expect(affine).toEqual(await after(async () => {
+        await type(t('recursion_graph_m_label'), '-0,8');
+        await type(t('recursion_graph_c_label'), '9');
     }));
     expect(affine.state).toEqual(expect.objectContaining({M: -16, C: 90}));
 
-    const logistic = after(graph => { apply(graph, setMap({map: 'logistic'})); apply(graph, setParams({R: 29})); });
-    expect(logistic).toEqual(after(() => { chooseMap('logistic'); type(t('recursion_graph_r_label'), '2,9'); }));
+    const logistic = await after(graph => { apply(graph, setMap({map: 'logistic'})); apply(graph, setParams({R: 29})); });
+    expect(logistic).toEqual(await after(async () => { await chooseMap('logistic'); await type(t('recursion_graph_r_label'), '2,9'); }));
     expect(logistic.state).toEqual(expect.objectContaining({map: 'logistic', R: 29}));
 });
 
-test('set-start equals typing x0 and set-step equals the Next step button', () => {
-    const start = after(graph => apply(graph, setStart(-250)));
-    expect(start).toEqual(after(() => type(t('recursion_graph_x_label'), '-2,5')));
+test('set-start equals typing x0 and set-step equals the Next step button', async () => {
+    const start = await after(graph => apply(graph, setStart(-250)));
+    expect(start).toEqual(await after(() => type(t('recursion_graph_x_label'), '-2,5')));
     expect(start.state).toEqual(expect.objectContaining({X: -250}));
 
-    const stepped = after(graph => apply(graph, setStep(4)));
-    expect(stepped).toEqual(after(() => nextStep(4)));
+    const stepped = await after(graph => apply(graph, setStep(4)));
+    expect(stepped).toEqual(await after(() => nextStep(4)));
     expect(stepped.state).toEqual(expect.objectContaining({step: 4}));
-    expect(after(graph => { apply(graph, setStep(11)); apply(graph, setStep(0)); }).state).toEqual(after(() => undefined).state);
+    expect((await after(graph => { apply(graph, setStep(11)); apply(graph, setStep(0)); })).state).toEqual((await after(() => undefined)).state);
 });
 
-test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', () => {
+test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', async () => {
     const graph = mount();
     const free = stateOf(graph);
     act(() => {
@@ -120,12 +120,12 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     expect(stateOf(graph)).not.toEqual(free);
     const here = snapshot(graph);
     cleanup();
-    expect(after(() => {
-        type(t('recursion_graph_m_label'), '-1,2');
-        type(t('recursion_graph_c_label'), '10');
-        type(t('recursion_graph_x_label'), '4,6');
-        chooseMap('cosine');
-        type(t('recursion_graph_x_label'), '0');
+    expect(await after(async () => {
+        await type(t('recursion_graph_m_label'), '-1,2');
+        await type(t('recursion_graph_c_label'), '10');
+        await type(t('recursion_graph_x_label'), '4,6');
+        await chooseMap('cosine');
+        await type(t('recursion_graph_x_label'), '0');
         nextStep(8);
     })).toEqual(here);
 });

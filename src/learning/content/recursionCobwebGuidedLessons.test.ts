@@ -8,9 +8,8 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuck, installBoardShims, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import {RecursionCobwebGraph} from '../../graphs/recursion/RecursionCobwebGraph';
-import {enterNumber} from '../../inputs/testEntry';
 import {setLanguage, t} from '../../localization';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {recursionCobwebLesson, recursionLogisticLesson} from './recursionCobwebGuidedLessons';
@@ -110,9 +109,6 @@ const current = (graph: RecursionCobwebGraph): CobwebState => {
     return {map, M, C, R, X, step};
 };
 
-/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
-const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-
 type Action =
     | {readonly type: 'm' | 'c' | 'r' | 'x'; readonly value: string}
     | {readonly next: number}
@@ -121,15 +117,17 @@ type Action =
 type Rows = Readonly<Record<string, string>>;
 interface Check { readonly act: Action; readonly rows?: Rows; readonly status?: () => string }
 
-const typeInto = (key: 'm' | 'c' | 'r' | 'x', value: string) => {
-    const label = {m: t('recursion_graph_m_label'), c: t('recursion_graph_c_label'), r: t('recursion_graph_r_label'), x: t('recursion_graph_x_label')}[key];
-    act(() => { enterNumber(field(label), value); });
+/** The learner types on the puck of the control; its strip appears once the board has laid out. */
+const typeInto = async (key: 'm' | 'c' | 'r' | 'x', value: string) => {
+    const puck = {m: 'cobweb-m', c: 'cobweb-c', r: 'cobweb-r', x: 'cobweb-x'}[key];
+    await waitForPucks(puck);
+    typePuck(puck, value);
 };
-function perform(graph: RecursionCobwebGraph, action: Action, language: Language) {
-    if ('type' in action) typeInto(action.type, loc(action.value, language));
+async function perform(graph: RecursionCobwebGraph, action: Action, language: Language) {
+    if ('type' in action) await typeInto(action.type, loc(action.value, language));
     else if ('next' in action) for (let i = 0; i < action.next; i++) act(() => { fireEvent.click(screen.getByRole('button', {name: t('next_step')})); });
     else if ('step' in action) act(() => { graph.getLessonCapabilities().apply({kind: 'recursion', operation: 'set-step', step: action.step}); });
-    else act(() => { fireEvent.change(field(t('recursion_graph_map_label')), {target: {value: action.map}}); });
+    else await chooseOnPuck('cobweb-map', action.map);
 }
 const T = (type: 'm' | 'c' | 'r' | 'x', value: string, rows?: Rows, statusText?: () => string): Check => ({act: {type, value}, rows, status: statusText});
 const NEXT = (rows?: Rows): Check => ({act: {next: 1}, rows});
@@ -226,7 +224,7 @@ describe.each(LANGUAGES)('RG2 and RG4 scenes in %s', language => {
         expect(JSON.stringify(m.graph.state)).toBe(m.free);
     });
 
-    test.each(ALL.map(({lesson, plans}) => [lesson.title.en, lesson, plans] as const))('%s: the learner actions the text asks for give the readouts it quotes', (_title, lesson, plans) => {
+    test.each(ALL.map(({lesson, plans}) => [lesson.title.en, lesson, plans] as const))('%s: the learner actions the text asks for give the readouts it quotes', async (_title, lesson, plans) => {
         setLanguage(language);
         const m = mountCobweb();
         for (const plan of plans) {
@@ -234,7 +232,7 @@ describe.each(LANGUAGES)('RG2 and RG4 scenes in %s', language => {
             const opening = JSON.stringify(m.graph.state);
             let first = true;
             for (const check of plan.asks) {
-                perform(m.graph, check.act, language);
+                await perform(m.graph, check.act, language);
                 if (first) expect({id: plan.id, label: plan.label, sameAsOpening: JSON.stringify(m.graph.state) === opening}).toEqual({id: plan.id, label: plan.label, sameAsOpening: false});
                 first = false;
                 if (check.rows) expectRows(plan.id, check.rows, language);
