@@ -43,11 +43,28 @@ const checkOrder = (graph: BaseGraph<BaseGraphState>, first: Label, later: Label
 
 const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label; later: Label[]}> = {
     'lattice-paths': {make: () => new LatticePathGraph(), first: () => t('combinatorics_view_label'),
-        later: [() => 'T, a', () => 'T, b', () => t('combinatorics_lattice_route_label'), () => t('combinatorics_lattice_page_label'), () => t('combinatorics_example_label')]},
+        later: [() => t('combinatorics_lattice_route_label'), () => t('combinatorics_lattice_page_label'), () => t('combinatorics_example_label')]},
     // The view chooser leads in every view; n, k and the two switches of the counting tree are pucks on the strip, so only the example follows it.
     counting: {make: () => new CountingTreeGraph(), first: () => t('combinatorics_view_label'),
         later: [() => t('combinatorics_example_label')]},
 };
+
+describe('lattice-paths: the lesson controls are pucks, not Edit controls', () => {
+    test('a, b and the two switches sit on the puck strip and are absent from the Edit panel; the route, the page and the example stay in Edit', async () => {
+        mountGraph(new LatticePathGraph());
+        await waitForPucks('lattice-a');
+        for (const key of ['lattice-a', 'lattice-b', 'show-counts', 'split']) {
+            expect(document.querySelector(`.puck-strip [data-puck-key="${key}"]`), key).not.toBeNull();
+            expect(document.querySelector(`#inspector-edit [data-puck-key="${key}"]`), key).toBeNull();
+        }
+        const edit = editControls();
+        for (const label of ['combinatorics_lattice_show_counts', 'combinatorics_lattice_split'] as const) {
+            expect(edit.filter(name => name.startsWith(t(label))), label).toEqual([]);
+        }
+        expect(edit.filter(name => name.startsWith('T,')), 'the point row is left out').toEqual([]);
+        expect(edit.some(name => name.startsWith(t('combinatorics_lattice_route_label')))).toBe(true);
+    });
+});
 
 describe('counting: the lesson controls are pucks, not Edit controls', () => {
     test('n, k and the two switches sit on the puck strip and are absent from the Edit panel', async () => {

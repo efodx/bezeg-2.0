@@ -10,11 +10,13 @@
 import type {LessonAction} from '../model';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {CountingTreeIds} from '../../graphs/combinatorics/CountingTreeGraph';
+import type {LatticePathIds} from '../../graphs/combinatorics/LatticePathGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 const f = frameDeclarer<CountingTreeIds>();
+const fl = frameDeclarer<LatticePathIds>();
 
 interface StepContent {
     readonly id: string;
@@ -166,11 +168,12 @@ const cb1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb1-drag', order: 3,
+        declare: fl({uses: ['lattice-a', 'lattice-b'], highlight: ['target', 'count']}),
         title: text('Premikanje cilja', 'Moving the target'),
         purpose: text('Spremljati, kako se število poti spreminja s ciljem.', 'Watching how the number of routes changes with the target.'),
         explanation: text(
-            'Cilj je zdaj \\((5,3)\\). Preden preveriš, ugibaj: ali je poti do njega več kot \\(20\\)? Nato preberi odčitek: poti je \\(56\\), zapisano kot \\(\\binom85=56\\), kar je enako \\(\\binom83\\). Premakni cilj (povleci točko ali vpiši koraka \\(a\\) in \\(b\\)) na \\((6,6)\\): odčitek pokaže \\(924\\) poti, ki so vse še narisane (dvanajst korakov). Opazuj tudi, da število poti raste hitreje kot koraka. Premikanje ponazarja posamezne primere, splošno vrednost daje izrek v naslednjih korakih.',
-            'The target is now \\((5,3)\\). Before you check, guess: are there more than \\(20\\) routes to it? Then read the readout: there are \\(56\\) routes, written as \\(\\binom85=56\\), which equals \\(\\binom83\\). Move the target (drag the point or type the steps \\(a\\) and \\(b\\)) to \\((6,6)\\): the readout shows \\(924\\) routes, all still drawn (twelve steps). Notice also that the number of routes grows faster than the steps. Moving the target illustrates single cases; the general value comes from the theorem in the next steps.',
+            'Cilj je zdaj \\((5,3)\\). Preden preveriš, ugibaj: ali je poti do njega več kot \\(20\\)? Nato preberi odčitek: poti je \\(56\\), zapisano kot \\(\\binom85=56\\), kar je enako \\(\\binom83\\). Premakni cilj (povleci točko ali v krmilnika »Koraki desno« in »Koraki gor« vpiši koraka \\(a\\) in \\(b\\)) na \\((6,6)\\): odčitek pokaže \\(924\\) poti, ki so vse še narisane (dvanajst korakov). Opazuj tudi, da število poti raste hitreje kot koraka. Premikanje ponazarja posamezne primere, splošno vrednost daje izrek v naslednjih korakih.',
+            'The target is now \\((5,3)\\). Before you check, guess: are there more than \\(20\\) routes to it? Then read the readout: there are \\(56\\) routes, written as \\(\\binom85=56\\), which equals \\(\\binom83\\). Move the target (drag the point or type the steps \\(a\\) and \\(b\\) in the controls "Steps right" and "Steps up") to \\((6,6)\\): the readout shows \\(924\\) routes, all still drawn (twelve steps). Notice also that the number of routes grows faster than the steps. Moving the target illustrates single cases; the general value comes from the theorem in the next steps.',
         ),
         formulaIds: ['route-count'],
         observationPrompt: text('Preberi število poti pri \\((5,3)\\), nato pri \\((6,6)\\).', 'Read the number of routes at \\((5,3)\\), then at \\((6,6)\\).'),
@@ -212,11 +215,12 @@ const cb1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb1-cap', order: 6,
+        declare: fl({uses: ['lattice-a', 'lattice-b'], highlight: ['count']}),
         title: text('Ko poti ne narišemo več', 'When the routes are no longer drawn'),
         purpose: text('Brati število poti tudi tam, kjer jih ni mogoče narisati.', 'Reading the number of routes where they cannot be drawn.'),
         explanation: text(
-            'Poti narišemo in naštejemo samo do \\(12\\) korakov; to je zgornja meja, ki jo graf pove v stanju. Cilj je zdaj \\((10,10)\\), torej \\(20\\) korakov, zato graf ne nariše nobene poti in pokaže samo število: \\(184\\,756\\). Napoved, preden preveriš: vsak korak dodan v obeh smereh pomnoži število poti približno s štirimi. Nastavi še \\((20,20)\\), največji cilj, ki ga graf dovoli: odčitek pokaže \\(137\\,846\\,528\\,820\\) poti. Število je še vedno točno, ker izrek velja tudi tam, kjer slike ni.',
-            'The routes are drawn and listed only up to \\(12\\) steps; this is the limit, and the graph says so in its status. The target is now \\((10,10)\\), that is \\(20\\) steps, so the graph draws no routes and shows only the number: \\(184\\,756\\). A prediction before you check: each extra step in both directions multiplies the number of routes by about four. Now set \\((20,20)\\), the largest target the graph allows: the readout shows \\(137\\,846\\,528\\,820\\) routes. The number is still exact, because the theorem holds where there is no picture.',
+            'Poti narišemo in naštejemo samo do \\(12\\) korakov; to je zgornja meja, ki jo graf pove v stanju. Cilj je zdaj \\((10,10)\\), torej \\(20\\) korakov, zato graf ne nariše nobene poti in pokaže samo število: \\(184\\,756\\). Napoved, preden preveriš: vsak korak dodan v obeh smereh pomnoži število poti približno s štirimi. V krmilnikih »Koraki desno« in »Koraki gor« nastavi še \\((20,20)\\), največji cilj, ki ga graf dovoli: odčitek pokaže \\(137\\,846\\,528\\,820\\) poti. Število je še vedno točno, ker izrek velja tudi tam, kjer slike ni.',
+            'The routes are drawn and listed only up to \\(12\\) steps; this is the limit, and the graph says so in its status. The target is now \\((10,10)\\), that is \\(20\\) steps, so the graph draws no routes and shows only the number: \\(184\\,756\\). A prediction before you check: each extra step in both directions multiplies the number of routes by about four. Now set \\((20,20)\\) in the controls "Steps right" and "Steps up", the largest target the graph allows: the readout shows \\(137\\,846\\,528\\,820\\) routes. The number is still exact, because the theorem holds where there is no picture.',
         ),
         formulaIds: ['route-count'],
         observationPrompt: text('Preberi stanje pri \\((10,10)\\) in število poti pri \\((20,20)\\).', 'Read the status at \\((10,10)\\) and the number of routes at \\((20,20)\\).'),
@@ -227,11 +231,12 @@ const cb1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb1-explore', order: 7,
+        declare: fl({uses: ['lattice-a', 'lattice-b', 'show-counts']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Raziskati, kako se število poti odziva na cilj.', 'Exploring how the number of routes responds to the target.'),
         explanation: text(
-            'Spreminjaj koraka \\(a\\) in \\(b\\) od \\(0\\) do \\(20\\) ter vklopi in izklopi oznake števila poti. Če je \\(a\\) ali \\(b\\) enak \\(0\\), je pot ena. Zamenjaj koraka: pri \\((3,5)\\) je poti spet \\(56\\), ker je \\(\\binom83=\\binom85\\). Poišči cilj, pri katerem se poti neha risati. Vse to so primeri, ponazoritve; utemeljitev števila poti je ujemanje poti z izbirami mest iz petega koraka.',
-            'Change the steps \\(a\\) and \\(b\\) from \\(0\\) to \\(20\\) and switch the labels with the numbers of routes on and off. If \\(a\\) or \\(b\\) equals \\(0\\), there is one route. Swap the steps: at \\((3,5)\\) there are \\(56\\) routes again, because \\(\\binom83=\\binom85\\). Find the target where the routes stop being drawn. All of these are examples, illustrations; the justification of the number of routes is the match between routes and choices of places from step 5.',
+            'S krmilnikoma »Koraki desno« in »Koraki gor« spreminjaj koraka \\(a\\) in \\(b\\) od \\(0\\) do \\(20\\), s krmilnikom »Števila v točkah« pa vklopi in izklopi oznake števila poti. Če je \\(a\\) ali \\(b\\) enak \\(0\\), je pot ena. Zamenjaj koraka: pri \\((3,5)\\) je poti spet \\(56\\), ker je \\(\\binom83=\\binom85\\). Poišči cilj, pri katerem se poti neha risati. Vse to so primeri, ponazoritve; utemeljitev števila poti je ujemanje poti z izbirami mest iz petega koraka.',
+            'With the controls "Steps right" and "Steps up" change the steps \\(a\\) and \\(b\\) from \\(0\\) to \\(20\\), and with the control "Counts at points" switch the labels with the numbers of routes on and off. If \\(a\\) or \\(b\\) equals \\(0\\), there is one route. Swap the steps: at \\((3,5)\\) there are \\(56\\) routes again, because \\(\\binom83=\\binom85\\). Find the target where the routes stop being drawn. All of these are examples, illustrations; the justification of the number of routes is the match between routes and choices of places from step 5.',
         ),
         formulaIds: [],
         observationPrompt: text('Poišči cilj z natanko eno potjo in par ciljev z enakim številom poti.', 'Find a target with exactly one route and a pair of targets with the same number of routes.'),
@@ -495,11 +500,12 @@ const cb3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb3-partition', order: 2,
+        declare: fl({uses: ['lattice-a', 'lattice-b'], highlight: ['last-right', 'last-up']}),
         title: text('Skupini in sosednji točki', 'The two groups and the two neighbouring points'),
         purpose: text('Utemeljiti, da skupini razdelita vse poti, in ugotoviti, katere poti ju sestavljajo.', 'Arguing that the two groups split all routes, and finding which routes make them up.'),
         explanation: text(
-            'Stikalo za ločitev poti po zadnjem koraku je vklopljeno: poti z zadnjim korakom D so narisane s polno črto, poti z zadnjim korakom G s črtkano. To je argument, ne le slika. Vsaka pot ima natanko en zadnji korak, zato je v natanko eni skupini: skupini se ne sekata in skupaj obsegata vse poti, zato se njuni števili seštejeta v število vseh poti. Če iz poti odstranimo zadnji korak, dobimo krajšo pot, ki vodi do ene od točk ob cilju, in obratno: vsako pot do take točke podaljšamo z natanko enim korakom. Do katere točke vodijo skrajšane poti skupine D in do katere skupine G? Vpiši ti dve točki v polji \\(a\\) in \\(b\\) in preden preveriš, napovej število poti do vsake od njiju.',
-            'The switch that splits the routes by their last step is on: routes with the last step R are drawn with a solid line, routes with the last step U with a dashed line. This is an argument, not only a picture. Every route has exactly one last step, so it is in exactly one group: the groups do not overlap and together they contain all routes, so their numbers add up to the number of all routes. Removing the last step from a route gives a shorter route to one of the points next to the target, and conversely every route to such a point is extended by exactly one step. To which point do the shortened routes of group R lead, and to which those of group U? Enter these two points in the fields \\(a\\) and \\(b\\) and, before you check, predict the number of routes to each of them.',
+            'Krmilnik »Ločitev poti« je vklopljen in loči poti po zadnjem koraku: poti z zadnjim korakom D so narisane s polno črto, poti z zadnjim korakom G s črtkano. To je argument, ne le slika. Vsaka pot ima natanko en zadnji korak, zato je v natanko eni skupini: skupini se ne sekata in skupaj obsegata vse poti, zato se njuni števili seštejeta v število vseh poti. Če iz poti odstranimo zadnji korak, dobimo krajšo pot, ki vodi do ene od točk ob cilju, in obratno: vsako pot do take točke podaljšamo z natanko enim korakom. Do katere točke vodijo skrajšane poti skupine D in do katere skupine G? Vpiši ti dve točki v krmilnika »Koraki desno« in »Koraki gor« in preden preveriš, napovej število poti do vsake od njiju.',
+            'The control "Split routes" that splits the routes by their last step is on: routes with the last step R are drawn with a solid line, routes with the last step U with a dashed line. This is an argument, not only a picture. Every route has exactly one last step, so it is in exactly one group: the groups do not overlap and together they contain all routes, so their numbers add up to the number of all routes. Removing the last step from a route gives a shorter route to one of the points next to the target, and conversely every route to such a point is extended by exactly one step. To which point do the shortened routes of group R lead, and to which those of group U? Enter these two points in the controls "Steps right" and "Steps up" and, before you check, predict the number of routes to each of them.',
         ),
         formulaIds: [],
         observationPrompt: text('Vpiši \\((3,3)\\), nato \\((4,2)\\) in preberi število poti; primerjaj s skupinama D in G.', 'Enter \\((3,3)\\), then \\((4,2)\\), and read the number of routes; compare with the groups R and U.'),
@@ -510,11 +516,12 @@ const cb3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb3-identity', order: 3,
+        declare: fl({uses: ['lattice-a', 'lattice-b'], highlight: ['entry', 'parents-sum']}),
         title: text('Pascalova identiteta in robovi', 'Pascal\'s identity and the edges'),
         purpose: text('Zapisati razdelitev kot identiteto vnosov trikotnika in videti, kje ne velja.', 'Writing the split as an identity of triangle entries and seeing where it does not apply.'),
         explanation: text(
-            'Cilj \\((a,b)\\) je vnos trikotnika v vrstici \\(a+b\\) na mestu \\(a\\); vrednosti \\(a\\) in \\(b\\) vpišeš v polji, ne klikneš. Razdelitev poti po zadnjem koraku da identiteto \\(\\binom nk=\\binom{n-1}{k-1}+\\binom{n-1}{k}\\) za \\(1\\le k\\le n-1\\). Prikaz je zdaj Pascalov trikotnik: ponazarja, kaj identiteta pove, utemeljitev pa je razdelitev iz prejšnjega koraka. Preden preveriš, napovej, kaj stanje pokaže pri cilju \\((6,0)\\), ki ga vpišeš, in ali tam identiteta velja.',
-            'The target \\((a,b)\\) is the entry of the triangle in row \\(a+b\\) at place \\(a\\); you enter the values \\(a\\) and \\(b\\) in the fields rather than click. The split of the routes by their last step gives the identity \\(\\binom nk=\\binom{n-1}{k-1}+\\binom{n-1}{k}\\) for \\(1\\le k\\le n-1\\). The view is now Pascal\'s triangle: it illustrates what the identity says, while the justification is the split from the previous step. Before you check, predict what the status shows for the target \\((6,0)\\), which you enter, and whether the identity applies there.',
+            'Cilj \\((a,b)\\) je vnos trikotnika v vrstici \\(a+b\\) na mestu \\(a\\); vrednosti \\(a\\) in \\(b\\) vpišeš v krmilnika »Koraki desno« in »Koraki gor«, ne klikneš. Razdelitev poti po zadnjem koraku da identiteto \\(\\binom nk=\\binom{n-1}{k-1}+\\binom{n-1}{k}\\) za \\(1\\le k\\le n-1\\). Prikaz je zdaj Pascalov trikotnik: ponazarja, kaj identiteta pove, utemeljitev pa je razdelitev iz prejšnjega koraka. Preden preveriš, napovej, kaj stanje pokaže pri cilju \\((6,0)\\), ki ga vpišeš, in ali tam identiteta velja.',
+            'The target \\((a,b)\\) is the entry of the triangle in row \\(a+b\\) at place \\(a\\); you enter the values \\(a\\) and \\(b\\) in the controls "Steps right" and "Steps up" rather than click. The split of the routes by their last step gives the identity \\(\\binom nk=\\binom{n-1}{k-1}+\\binom{n-1}{k}\\) for \\(1\\le k\\le n-1\\). The view is now Pascal\'s triangle: it illustrates what the identity says, while the justification is the split from the previous step. Before you check, predict what the status shows for the target \\((6,0)\\), which you enter, and whether the identity applies there.',
         ),
         formulaIds: ['last-step-split'],
         workedExampleId: 'cb3-identity',
@@ -526,11 +533,12 @@ const cb3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb3-rows', order: 4,
+        declare: fl({uses: ['lattice-a', 'lattice-b'], highlight: ['entry', 'parent-left', 'parent-right']}),
         title: text('Vrstico za vrstico', 'Row by row'),
         purpose: text('Zgraditi naslednjo vrstico trikotnika z identiteto in napovedati vnos.', 'Building the next row of the triangle with the identity and predicting an entry.'),
         explanation: text(
-            'Vrstica \\(3\\) je \\(1,3,3,1\\) (poznaš jo iz diagonale na mreži). Po identiteti je vsak notranji vnos naslednje vrstice vsota dveh sosednjih vnosov te vrstice, robna vnosa pa sta \\(1\\). S tem izračunaj vrstico \\(4\\) in iz nje napovej vnos v vrstici \\(5\\) na mestu \\(3\\), to je cilj \\((3,2)\\), skupaj z njegovima staršema. Nato v vrstico »Cilj« vpiši \\(a=3\\) in \\(b=2\\) in preberi odčitke.',
-            'Row \\(3\\) is \\(1,3,3,1\\) (you know it from the diagonal on the grid). By the identity every inner entry of the next row is the sum of two neighbouring entries of that row, and the two edge entries are \\(1\\). Use this to work out row \\(4\\), and from it predict the entry in row \\(5\\) at place \\(3\\), which is the target \\((3,2)\\), together with its two parents. Then enter \\(a=3\\) and \\(b=2\\) in the "Target" row and read the readouts.',
+            'Vrstica \\(3\\) je \\(1,3,3,1\\) (poznaš jo iz diagonale na mreži). Po identiteti je vsak notranji vnos naslednje vrstice vsota dveh sosednjih vnosov te vrstice, robna vnosa pa sta \\(1\\). S tem izračunaj vrstico \\(4\\) in iz nje napovej vnos v vrstici \\(5\\) na mestu \\(3\\), to je cilj \\((3,2)\\), skupaj z njegovima staršema. Nato v krmilnika »Koraki desno« in »Koraki gor« vpiši \\(a=3\\) in \\(b=2\\) in preberi odčitke.',
+            'Row \\(3\\) is \\(1,3,3,1\\) (you know it from the diagonal on the grid). By the identity every inner entry of the next row is the sum of two neighbouring entries of that row, and the two edge entries are \\(1\\). Use this to work out row \\(4\\), and from it predict the entry in row \\(5\\) at place \\(3\\), which is the target \\((3,2)\\), together with its two parents. Then enter \\(a=3\\) and \\(b=2\\) in the controls "Steps right" and "Steps up" and read the readouts.',
         ),
         formulaIds: ['pascal-identity'],
         observationPrompt: text('Vpiši \\(a=3\\), \\(b=2\\) in preberi vnos in starša pri cilju \\((3,2)\\).', 'Enter \\(a=3\\), \\(b=2\\) and read the entry and the parents at the target \\((3,2)\\).'),
@@ -541,6 +549,7 @@ const cb3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb3-symmetry', order: 5,
+        declare: fl({uses: ['lattice-a', 'lattice-b'], highlight: ['entry', 'parent-left', 'parent-right']}),
         title: text('Simetrija vrstice', 'The symmetry of a row'),
         purpose: text('Povezati zrcaljenje poti s simetrijo vrstice trikotnika.', 'Connecting the reflection of routes with the symmetry of a row of the triangle.'),
         explanation: text(
@@ -556,11 +565,12 @@ const cb3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb3-explore', order: 6,
+        declare: fl({uses: ['lattice-a', 'lattice-b', 'split']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Raziskati razdelitev poti in trikotnik na lastnih ciljih.', 'Exploring the split of the routes and the triangle on targets of your own.'),
         explanation: text(
-            'Spreminjaj koraka \\(a\\) in \\(b\\), preklapljaj med potmi in trikotnikom ter vklopi ali izklopi ločitev poti po zadnjem koraku (poti so narisane do \\(12\\) korakov). Poišči cilj, pri katerem sta starša enaka, in cilj, pri katerem se razdeli samo ena skupina poti. Identiteta zahteva \\(1\\le k\\le n-1\\), ker ima vnos na robu trikotnika le enega starša. Vsi ti primeri so ponazoritve; argument je razdelitev po zadnjem koraku iz drugega koraka.',
-            'Change the steps \\(a\\) and \\(b\\), switch between the routes and the triangle, and turn the split of the routes by their last step on or off (routes are drawn up to \\(12\\) steps). Find a target where the two parents are equal and a target where only one group of routes exists. The identity requires \\(1\\le k\\le n-1\\) because an entry on the edge of the triangle has only one parent. All of these are examples, illustrations; the argument is the split by the last step from step 2.',
+            'S krmilnikoma »Koraki desno« in »Koraki gor« spreminjaj koraka \\(a\\) in \\(b\\), preklapljaj med potmi in trikotnikom ter s krmilnikom »Ločitev poti« vklopi ali izklopi ločitev poti po zadnjem koraku (poti so narisane do \\(12\\) korakov). Poišči cilj, pri katerem sta starša enaka, in cilj, pri katerem se razdeli samo ena skupina poti. Identiteta zahteva \\(1\\le k\\le n-1\\), ker ima vnos na robu trikotnika le enega starša. Vsi ti primeri so ponazoritve; argument je razdelitev po zadnjem koraku iz drugega koraka.',
+            'With the controls "Steps right" and "Steps up" change the steps \\(a\\) and \\(b\\), switch between the routes and the triangle, and with the control "Split routes" turn the split of the routes by their last step on or off (routes are drawn up to \\(12\\) steps). Find a target where the two parents are equal and a target where only one group of routes exists. The identity requires \\(1\\le k\\le n-1\\) because an entry on the edge of the triangle has only one parent. All of these are examples, illustrations; the argument is the split by the last step from step 2.',
         ),
         formulaIds: ['pascal-identity'],
         observationPrompt: text('Poišči cilj z enakima staršema in cilj z eno samo skupino poti.', 'Find a target with equal parents and a target with only one group of routes.'),
@@ -616,11 +626,12 @@ const cb4Examples: readonly WorkedExample[] = [
 const cb4Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'cb4-square', order: 1,
+        declare: fl({uses: ['lattice-n'], highlight: ['coefficients']}),
         title: text('Kvadrat dvočlenika', 'The square of a binomial'),
         purpose: text('Razviti \\((a+b)^2\\) po faktorjih in napovedati, koliko členov je enakih.', 'Expanding \\((a+b)^2\\) factor by factor and predicting how many terms are equal.'),
         explanation: text(
-            '\\((a+b)^2=(a+b)(a+b)\\). Pri množenju iz prvega faktorja vzamemo \\(a\\) ali \\(b\\) in iz drugega faktorja prav tako, nato zmnožimo izbrani črki. Napovej, koliko je vseh takih produktov in koliko izmed njih je enakih \\(ab\\), če vrstni red črk ne šteje. Nato v polje »Potenca n« vpiši \\(2\\) in preberi koeficiente ter tabelo nizov.',
-            '\\((a+b)^2=(a+b)(a+b)\\). When multiplying we take \\(a\\) or \\(b\\) from the first factor and also from the second, then multiply the chosen letters. Predict how many such products there are and how many of them equal \\(ab\\) if the order of the letters does not matter. Then enter \\(2\\) in the field "Power n" and read the coefficients and the table of strings.',
+            '\\((a+b)^2=(a+b)(a+b)\\). Pri množenju iz prvega faktorja vzamemo \\(a\\) ali \\(b\\) in iz drugega faktorja prav tako, nato zmnožimo izbrani črki. Napovej, koliko je vseh takih produktov in koliko izmed njih je enakih \\(ab\\), če vrstni red črk ne šteje. Nato v krmilnik »Potenca« vpiši \\(2\\) in preberi koeficiente ter tabelo nizov.',
+            '\\((a+b)^2=(a+b)(a+b)\\). When multiplying we take \\(a\\) or \\(b\\) from the first factor and also from the second, then multiply the chosen letters. Predict how many such products there are and how many of them equal \\(ab\\) if the order of the letters does not matter. Then enter \\(2\\) in the control "Power" and read the coefficients and the table of strings.',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato vpiši \\(n=2\\) in preberi koeficiente ter tabelo nizov.', 'Write down your prediction, then enter \\(n=2\\) and read the coefficients and the table of strings.'),
@@ -631,11 +642,12 @@ const cb4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb4-strings', order: 2,
+        declare: fl({uses: ['lattice-n'], highlight: ['coefficient-sum']}),
         title: text('Člen je niz črk', 'A term is a string of letters'),
         purpose: text('Videti, da vsak produkt izbir ustreza nizu dolžine \\(n\\), in napovedati število nizov.', 'Seeing that every product of choices is a string of length \\(n\\), and predicting the number of strings.'),
         explanation: text(
-            'Pri \\((a+b)^n\\) izberemo iz vsakega izmed \\(n\\) faktorjev \\(a\\) ali \\(b\\); izbire v vrstnem redu faktorjev tvorijo niz črk dolžine \\(n\\), na primer \\(aba\\) za \\(n=3\\). Različne izbire so različni nizi. Tabela prikazuje nize za izbrani \\(n\\) (pri \\(n\\) do \\(5\\)). Napovej, koliko je vseh nizov dolžine \\(3\\) iz črk \\(a\\) in \\(b\\). Nato v polje »Potenca n« vpiši \\(3\\) in preštej nize v tabeli.',
-            'In \\((a+b)^n\\) we choose \\(a\\) or \\(b\\) from each of the \\(n\\) factors; the choices in the order of the factors form a string of letters of length \\(n\\), for example \\(aba\\) for \\(n=3\\). Different choices are different strings. The table shows the strings for the chosen \\(n\\) (it exists for \\(n\\) up to \\(5\\)). Predict how many strings of length \\(3\\) in the letters \\(a\\) and \\(b\\) there are. Then enter \\(3\\) in the field "Power n" and count the strings in the table.',
+            'Pri \\((a+b)^n\\) izberemo iz vsakega izmed \\(n\\) faktorjev \\(a\\) ali \\(b\\); izbire v vrstnem redu faktorjev tvorijo niz črk dolžine \\(n\\), na primer \\(aba\\) za \\(n=3\\). Različne izbire so različni nizi. Tabela prikazuje nize za izbrani \\(n\\) (pri \\(n\\) do \\(5\\)). Napovej, koliko je vseh nizov dolžine \\(3\\) iz črk \\(a\\) in \\(b\\). Nato v krmilnik »Potenca« vpiši \\(3\\) in preštej nize v tabeli.',
+            'In \\((a+b)^n\\) we choose \\(a\\) or \\(b\\) from each of the \\(n\\) factors; the choices in the order of the factors form a string of letters of length \\(n\\), for example \\(aba\\) for \\(n=3\\). Different choices are different strings. The table shows the strings for the chosen \\(n\\) (it exists for \\(n\\) up to \\(5\\)). Predict how many strings of length \\(3\\) in the letters \\(a\\) and \\(b\\) there are. Then enter \\(3\\) in the control "Power" and count the strings in the table.',
         ),
         formulaIds: [],
         observationPrompt: text('Vpiši \\(n=3\\), preštej nize v tabeli in preberi vsoto koeficientov.', 'Enter \\(n=3\\), count the strings in the table and read the sum of the coefficients.'),
@@ -646,11 +658,12 @@ const cb4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb4-collect', order: 3,
+        declare: fl({uses: ['lattice-n'], highlight: ['coefficients']}),
         title: text('Združevanje enakih členov', 'Collecting equal terms'),
         purpose: text('Utemeljiti, da je koeficient število izbir faktorjev, in ga napovedati.', 'Arguing that the coefficient is a number of choices of factors, and predicting it.'),
         explanation: text(
-            'Člen s \\(k\\) črkami \\(b\\) in \\(n-k\\) črkami \\(a\\) je enak \\(a^{n-k}b^k\\), ne glede na vrstni red črk. Niz s \\(k\\) črkami \\(b\\) nastane natanko takrat, ko izberemo \\(k\\) izmed \\(n\\) faktorjev, v katerih vzamemo \\(b\\); zato je enakih členov toliko kot teh izbir, in to je splošni korak za vsak \\(n\\), ne le za tabelo. Tabela združuje nize po številu črk \\(b\\). Napovej, z binomskim simbolom, koliko nizov z natanko dvema črkama \\(b\\) je pri \\(n=3\\). Nato v polje »Potenca n« vpiši \\(3\\) in preštej nize v vsaki skupini tabele.',
-            'A term with \\(k\\) letters \\(b\\) and \\(n-k\\) letters \\(a\\) equals \\(a^{n-k}b^k\\), whatever the order of the letters. A string with \\(k\\) letters \\(b\\) arises exactly when we choose \\(k\\) of the \\(n\\) factors in which we take \\(b\\); so there are as many equal terms as such choices, and this is the general step for every \\(n\\), not only for the table. The table groups the strings by the number of letters \\(b\\). Predict, using a binomial coefficient, how many strings with exactly two letters \\(b\\) there are for \\(n=3\\). Then enter \\(3\\) in the field "Power n" and count the strings in each group of the table.',
+            'Člen s \\(k\\) črkami \\(b\\) in \\(n-k\\) črkami \\(a\\) je enak \\(a^{n-k}b^k\\), ne glede na vrstni red črk. Niz s \\(k\\) črkami \\(b\\) nastane natanko takrat, ko izberemo \\(k\\) izmed \\(n\\) faktorjev, v katerih vzamemo \\(b\\); zato je enakih členov toliko kot teh izbir, in to je splošni korak za vsak \\(n\\), ne le za tabelo. Tabela združuje nize po številu črk \\(b\\). Napovej, z binomskim simbolom, koliko nizov z natanko dvema črkama \\(b\\) je pri \\(n=3\\). Nato v krmilnik »Potenca« vpiši \\(3\\) in preštej nize v vsaki skupini tabele.',
+            'A term with \\(k\\) letters \\(b\\) and \\(n-k\\) letters \\(a\\) equals \\(a^{n-k}b^k\\), whatever the order of the letters. A string with \\(k\\) letters \\(b\\) arises exactly when we choose \\(k\\) of the \\(n\\) factors in which we take \\(b\\); so there are as many equal terms as such choices, and this is the general step for every \\(n\\), not only for the table. The table groups the strings by the number of letters \\(b\\). Predict, using a binomial coefficient, how many strings with exactly two letters \\(b\\) there are for \\(n=3\\). Then enter \\(3\\) in the control "Power" and count the strings in each group of the table.',
         ),
         formulaIds: [],
         observationPrompt: text('Vpiši \\(n=3\\), preštej nize v vsaki skupini po številu črk \\(b\\) in preberi koeficiente.', 'Enter \\(n=3\\), count the strings in each group by the number of letters \\(b\\), and read the coefficients.'),
@@ -661,11 +674,12 @@ const cb4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb4-four', order: 4,
+        declare: fl({uses: ['lattice-n'], highlight: ['coefficients']}),
         title: text('Nizi za \\(n=4\\)', 'Strings for \\(n=4\\)'),
         purpose: text('Uporabiti splošni korak na \\((a+b)^4\\) in primerjati z tabelo.', 'Applying the general step to \\((a+b)^4\\) and comparing with the table.'),
         explanation: text(
-            'Isti korak velja za \\(n=4\\): niz dolžine \\(4\\) ima \\(k\\) črk \\(b\\) natanko takrat, ko izberemo \\(k\\) izmed štirih faktorjev. Napovej, koliko je vseh nizov in koliko jih ima natanko dve črki \\(b\\). Nato v polje »Potenca n« vpiši \\(4\\) in poglej tabelo. Tabela za \\(n=4\\) je en primer in ponazarja korak, dokaz pa je izbira faktorjev iz prejšnjega koraka.',
-            'The same step holds for \\(n=4\\): a string of length \\(4\\) has \\(k\\) letters \\(b\\) exactly when we choose \\(k\\) of the four factors. Predict how many strings there are in all and how many of them have exactly two letters \\(b\\). Then enter \\(4\\) in the field "Power n" and look at the table. The table for \\(n=4\\) is one instance and illustrates the step, while the proof is the choice of factors from the previous step.',
+            'Isti korak velja za \\(n=4\\): niz dolžine \\(4\\) ima \\(k\\) črk \\(b\\) natanko takrat, ko izberemo \\(k\\) izmed štirih faktorjev. Napovej, koliko je vseh nizov in koliko jih ima natanko dve črki \\(b\\). Nato v krmilnik »Potenca« vpiši \\(4\\) in poglej tabelo. Tabela za \\(n=4\\) je en primer in ponazarja korak, dokaz pa je izbira faktorjev iz prejšnjega koraka.',
+            'The same step holds for \\(n=4\\): a string of length \\(4\\) has \\(k\\) letters \\(b\\) exactly when we choose \\(k\\) of the four factors. Predict how many strings there are in all and how many of them have exactly two letters \\(b\\). Then enter \\(4\\) in the control "Power" and look at the table. The table for \\(n=4\\) is one instance and illustrates the step, while the proof is the choice of factors from the previous step.',
         ),
         formulaIds: ['binomial-theorem'],
         observationPrompt: text('Vpiši \\(n=4\\), preštej nize v tabeli in preberi koeficiente.', 'Enter \\(n=4\\), count the strings in the table and read the coefficients.'),
@@ -676,11 +690,12 @@ const cb4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb4-weight', order: 5,
+        declare: fl({uses: ['lattice-c'], highlight: ['coefficients']}),
         title: text('Teža \\(c^k\\)', 'The weight \\(c^k\\)'),
         purpose: text('Pri \\((x+c)^5\\) pomnožiti število nizov s težo \\(c^k\\) in napovedati koeficient.', 'For \\((x+c)^5\\) multiplying the number of strings by the weight \\(c^k\\) and predicting a coefficient.'),
         explanation: text(
-            'Zdaj je \\(a=x\\) in \\(b=c\\): vsaka črka \\(b\\) prinese faktor \\(c\\), zato je koeficient pri \\(x^{n-k}\\) enak \\(\\binom nk c^k\\). Pri \\(n=5\\), \\(c=1\\) so koeficienti enaki številom nizov. Nastavi \\(c=2\\). Preden prebereš koeficiente, napovej koeficient pri \\(x^4\\). Računski zgled za \\(x^3\\) je spodaj.',
-            'Now \\(a=x\\) and \\(b=c\\): each letter \\(b\\) brings a factor \\(c\\), so the coefficient of \\(x^{n-k}\\) is \\(\\binom nk c^k\\). For \\(n=5\\), \\(c=1\\) the coefficients equal the numbers of strings. Set \\(c=2\\). Before you read the coefficients, predict the coefficient of \\(x^4\\). A worked example for \\(x^3\\) is below.',
+            'Zdaj je \\(a=x\\) in \\(b=c\\): vsaka črka \\(b\\) prinese faktor \\(c\\), zato je koeficient pri \\(x^{n-k}\\) enak \\(\\binom nk c^k\\). Pri \\(n=5\\), \\(c=1\\) so koeficienti enaki številom nizov. V krmilniku »Število« nastavi \\(c=2\\). Preden prebereš koeficiente, napovej koeficient pri \\(x^4\\). Računski zgled za \\(x^3\\) je spodaj.',
+            'Now \\(a=x\\) and \\(b=c\\): each letter \\(b\\) brings a factor \\(c\\), so the coefficient of \\(x^{n-k}\\) is \\(\\binom nk c^k\\). For \\(n=5\\), \\(c=1\\) the coefficients equal the numbers of strings. Set \\(c=2\\) in the control "Number". Before you read the coefficients, predict the coefficient of \\(x^4\\). A worked example for \\(x^3\\) is below.',
         ),
         formulaIds: ['shifted-power'],
         workedExampleId: 'cb4-coefficient',
@@ -692,11 +707,12 @@ const cb4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb4-sum', order: 6,
+        declare: fl({uses: ['lattice-n'], highlight: ['coefficient-sum', 'coefficients']}),
         title: text('Vsota koeficientov', 'The sum of the coefficients'),
         purpose: text('Povezati vsoto koeficientov z vrednostjo polinoma pri \\(x=1\\).', 'Connecting the sum of the coefficients with the value of the polynomial at \\(x=1\\).'),
         explanation: text(
-            'Vsota koeficientov polinoma je njegova vrednost pri \\(x=1\\). Napovej vrednost vsote koeficientov za \\((x+2)^5\\). Nato v polje »Potenca n« vpiši \\(5\\), \\(c=2\\) ostane, preberi odčitek vsote in jo primerjaj z vsoto koeficientov, ki jih kaže odčitek. Račun za en \\(n\\) in \\(c\\) je ponazoritev; za vsak \\(n\\) in \\(c\\) velja izrek, ki zagotavlja, da se obe strani ujemata.',
-            'The sum of the coefficients of a polynomial is its value at \\(x=1\\). Predict the value of the sum of the coefficients for \\((x+2)^5\\). Then enter \\(5\\) in the field "Power n" (\\(c=2\\) stays), read the readout of the sum and compare it with the sum of the coefficients that the readout shows. A computation for one \\(n\\) and \\(c\\) is an illustration; for every \\(n\\) and \\(c\\) the theorem guarantees that the two sides agree.',
+            'Vsota koeficientov polinoma je njegova vrednost pri \\(x=1\\). Napovej vrednost vsote koeficientov za \\((x+2)^5\\). Nato v krmilnik »Potenca« vpiši \\(5\\), \\(c=2\\) ostane, preberi odčitek vsote in jo primerjaj z vsoto koeficientov, ki jih kaže odčitek. Račun za en \\(n\\) in \\(c\\) je ponazoritev; za vsak \\(n\\) in \\(c\\) velja izrek, ki zagotavlja, da se obe strani ujemata.',
+            'The sum of the coefficients of a polynomial is its value at \\(x=1\\). Predict the value of the sum of the coefficients for \\((x+2)^5\\). Then enter \\(5\\) in the control "Power" (\\(c=2\\) stays), read the readout of the sum and compare it with the sum of the coefficients that the readout shows. A computation for one \\(n\\) and \\(c\\) is an illustration; for every \\(n\\) and \\(c\\) the theorem guarantees that the two sides agree.',
         ),
         formulaIds: [],
         observationPrompt: text('Vpiši \\(n=5\\), preberi vsoto koeficientov pri \\(x=1\\) in jo primerjaj s sešteti koeficienti.', 'Enter \\(n=5\\), read the sum of the coefficients at \\(x=1\\) and compare it with the added coefficients.'),
@@ -707,11 +723,12 @@ const cb4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb4-explore', order: 7,
+        declare: fl({uses: ['lattice-n', 'lattice-c']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Raziskati koeficiente za poljuben \\(n\\) in \\(c\\).', 'Exploring the coefficients for any \\(n\\) and \\(c\\).'),
         explanation: text(
-            'Spreminjaj potenco \\(n\\) od \\(0\\) do \\(12\\) in število \\(c\\) od \\(-9\\) do \\(9\\). Poišči \\(c\\), pri katerem je vsota koeficientov \\(0\\) (za \\(n\\ge1\\)), in opazuj predznake koeficientov pri negativnem \\(c\\). Tabela nizov obstaja samo do \\(n=5\\); koeficienti pri večjih \\(n\\) so še vedno natančna cela števila. Vsi ti primeri so ponazoritve; argument je izbira faktorjev iz tretjega koraka.',
-            'Change the power \\(n\\) from \\(0\\) to \\(12\\) and the number \\(c\\) from \\(-9\\) to \\(9\\). Find \\(c\\) for which the sum of the coefficients is \\(0\\) (for \\(n\\ge1\\)), and watch the signs of the coefficients for negative \\(c\\). The table of strings exists only up to \\(n=5\\); the coefficients for larger \\(n\\) are still exact integers. All of these are examples, illustrations; the argument is the choice of factors from step 3.',
+            'S krmilnikoma »Potenca« in »Število« spreminjaj potenco \\(n\\) od \\(0\\) do \\(12\\) in število \\(c\\) od \\(-9\\) do \\(9\\). Poišči \\(c\\), pri katerem je vsota koeficientov \\(0\\) (za \\(n\\ge1\\)), in opazuj predznake koeficientov pri negativnem \\(c\\). Tabela nizov obstaja samo do \\(n=5\\); koeficienti pri večjih \\(n\\) so še vedno natančna cela števila. Vsi ti primeri so ponazoritve; argument je izbira faktorjev iz tretjega koraka.',
+            'With the controls "Power" and "Number" change the power \\(n\\) from \\(0\\) to \\(12\\) and the number \\(c\\) from \\(-9\\) to \\(9\\). Find \\(c\\) for which the sum of the coefficients is \\(0\\) (for \\(n\\ge1\\)), and watch the signs of the coefficients for negative \\(c\\). The table of strings exists only up to \\(n=5\\); the coefficients for larger \\(n\\) are still exact integers. All of these are examples, illustrations; the argument is the choice of factors from step 3.',
         ),
         formulaIds: [],
         observationPrompt: text('Poišči \\(c\\) z vsoto koeficientov \\(0\\) in najmanjši \\(n\\), pri katerem tabele nizov ni več.', 'Find \\(c\\) with the sum of the coefficients \\(0\\) and the smallest \\(n\\) at which the table of strings is gone.'),

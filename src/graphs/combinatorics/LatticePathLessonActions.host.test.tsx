@@ -2,7 +2,7 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
@@ -29,24 +29,25 @@ const setDisplay = (view: 'paths' | 'triangle', showCounts: boolean, split?: boo
 const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
-const click = (label: string) => act(() => { fireEvent.click(field(label)); });
+const flip = (key: 'show-counts' | 'split') => act(() => { fireEvent.click(puckControl(key)); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-combinatorics-status]')?.textContent;
 const stateOf = (graph: LatticePathGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
 
 /** The state, the readouts and the status line after running `edit` on a fresh graph and then unmounting it. */
-function after(edit: (graph: LatticePathGraph) => void) {
+async function after(edit: (graph: LatticePathGraph) => void | Promise<void>) {
     const graph = mount();
-    edit(graph);
+    await waitForPucks('lattice-a');
+    await edit(graph);
     const result = {state: stateOf(graph), readouts: readouts(), status: status()};
     cleanup();
     return result;
 }
 
-test('set-target reaches the state, readouts and status of typing a and b into the fields', () => {
+test('set-target reaches the state, readouts and status of typing a and b into the pucks', async () => {
     for (const [a, b] of [[2, 2], [6, 6], [0, 7], [20, 20], [3, 5]] as const) {
-        const viaAction = after(graph => apply(graph, setTarget(a, b)));
-        const viaControl = after(() => { type('T, a', String(a)); type('T, b', String(b)); });
+        const viaAction = await after(graph => apply(graph, setTarget(a, b)));
+        const viaControl = await after(() => { typePuck('lattice-a', String(a)); typePuck('lattice-b', String(b)); });
         expect({a, b, ...viaAction}).toEqual({a, b, ...viaControl});
         expect(viaAction.state).toEqual(expect.objectContaining({a, b, route: 0}));
     }
@@ -61,27 +62,28 @@ test('set-target restarts the route at the first one, like a moved target', () =
     expect(graph.state.route).toBe(0);
 });
 
-test('set-lattice-display reaches the state, readouts and status of the Vsebina select and the count-label switch', () => {
-    const viaAction = after(graph => { apply(graph, setTarget(5, 3)); apply(graph, setDisplay('paths', true)); apply(graph, setDisplay('triangle', true)); });
-    const viaControl = after(() => {
-        type('T, a', '5'); type('T, b', '3');
-        click(t('combinatorics_lattice_show_counts'));
+test('set-lattice-display reaches the state, readouts and status of the Vsebina select and the count-label switch', async () => {
+    const viaAction = await after(graph => { apply(graph, setTarget(5, 3)); apply(graph, setDisplay('paths', true)); apply(graph, setDisplay('triangle', true)); });
+    const viaControl = await after(() => {
+        typePuck('lattice-a', '5'); typePuck('lattice-b', '3');
+        flip('show-counts');
         choose(t('combinatorics_view_label'), 'triangle');
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state).toEqual(expect.objectContaining({view: 'triangle', showCounts: true, a: 5, b: 3}));
-    const paths = after(graph => { apply(graph, setDisplay('triangle', false)); apply(graph, setDisplay('paths', false)); });
-    expect(paths).toEqual(after(() => undefined));
+    const paths = await after(graph => { apply(graph, setDisplay('triangle', false)); apply(graph, setDisplay('paths', false)); });
+    expect(paths).toEqual(await after(() => undefined));
 });
 
 const setExpansion = (n: number, c: number): LessonAction => ({kind: 'combinatorics', operation: 'set-expansion', n, c});
 
-test('set-expansion reaches the state, readouts and status of the Vsebina select and the fields n and c', () => {
+test('set-expansion reaches the state, readouts and status of the Vsebina select and the pucks n and c', async () => {
     for (const [n, c] of [[4, 1], [5, 2], [5, -3], [0, 0], [12, 9], [7, -9]] as const) {
-        const viaAction = after(graph => apply(graph, setExpansion(n, c)));
-        const viaControl = after(() => {
+        const viaAction = await after(graph => apply(graph, setExpansion(n, c)));
+        const viaControl = await after(async () => {
             choose(t('combinatorics_view_label'), 'expansion');
-            type(t('combinatorics_lattice_n_label'), String(n)); type(t('combinatorics_lattice_c_label'), String(c));
+            await waitForPucks('lattice-n'); await waitForPucks('lattice-c');
+            typePuck('lattice-n', String(n)); typePuck('lattice-c', String(c));
         });
         expect({n, c, ...viaAction}).toEqual({n, c, ...viaControl});
         expect(viaAction.state).toEqual(expect.objectContaining({view: 'expansion', n, c}));
@@ -96,11 +98,11 @@ test('set-expansion leaves the target, route and switches alone', () => {
     expect(graph.state).toEqual(expect.objectContaining({a: 4, b: 3, route: 0, showCounts: true, split: true, view: 'expansion', n: 5, c: 2}));
 });
 
-test('set-lattice-display with split reaches the state, readouts and status of the switch; without split the switch is unchanged', () => {
-    const viaAction = after(graph => { apply(graph, setTarget(4, 3)); apply(graph, setDisplay('paths', false, true)); });
-    const viaControl = after(() => {
-        type('T, a', '4'); type('T, b', '3');
-        click(t('combinatorics_lattice_split'));
+test('set-lattice-display with split reaches the state, readouts and status of the switch; without split the switch is unchanged', async () => {
+    const viaAction = await after(graph => { apply(graph, setTarget(4, 3)); apply(graph, setDisplay('paths', false, true)); });
+    const viaControl = await after(() => {
+        typePuck('lattice-a', '4'); typePuck('lattice-b', '3');
+        flip('split');
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state).toEqual(expect.objectContaining({split: true, view: 'paths'}));

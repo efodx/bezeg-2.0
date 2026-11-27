@@ -3,7 +3,8 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
@@ -55,8 +56,9 @@ const status = () => document.querySelector('[data-combinatorics-status]')!.text
 const lattice = (key: 'a' | 'b' | 'route' | 'n' | 'c') => key === 'a' || key === 'b' ? `T, ${key}` : t(`combinatorics_lattice_${key}_label`);
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
 const chooseView = (view: 'paths' | 'triangle' | 'expansion') => choose(t('combinatorics_view_label'), view);
-const set = (graph: ObservedGraph, patch: Parameters<ObservedGraph['setState']>[0]) => act(() => { graph.setState(patch); });
+const set = (graph: ObservedGraph, patch: Parameters<ObservedGraph['setState']>[0]) => act(() => runAs('learner', () => { graph.setState(patch); }));
 const pressKey = (label: string, key: string) => act(() => { fireEvent.keyDown(field(label), {key}); });
+const pressPuck = (key: string, press: string) => act(() => { fireEvent.keyDown(puckControl(key), {key: press}); });
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 const D = t('combinatorics_step_right');
 const G = t('combinatorics_step_up');
@@ -96,7 +98,10 @@ describe('paths view', () => {
         set(graph, {split: true});
         const [, all, right, up] = curves(graph);
         expect([all.shown, right.shown, up.shown]).toEqual([false, true, true]);
-        expect(shownCaptions(graph)).toContain(t('combinatorics_lattice_cap_split', {value0: D, value1: G}));
+        // The legend is two clause lines (broken after the semicolon), one caption each.
+        const legend = t('combinatorics_lattice_cap_split', {value0: D, value1: G}).split('; ');
+        expect(legend.length).toBe(2);
+        expect(shownCaptions(graph)).toEqual(expect.arrayContaining([legend[0] + ';', legend[1]]));
     });
 
     test('(6, 6): 924 routes, 49 count labels that each add the cell to the left and the cell below', () => {
@@ -161,7 +166,8 @@ describe('paths view', () => {
         expect(status()).toContain(t('combinatorics_lattice_over_cap', {value0: '12', value1: '13'}));
         expect(graph.cells()).toEqual([]);
         expect(shownCaptions(graph).filter(text => /^\d+$/.test(digits(text)))).toEqual([]);
-        expect(shownCaptions(graph)).toContain(t('combinatorics_lattice_over_cap', {value0: '12', value1: '13'}));
+        // The board shows the short line; the full sentence is the status note (asserted above).
+        expect(shownCaptions(graph)).toContain(t('lattice_cap_over', {value0: '12'}));
         expect(curves(graph)[1].polylines).toBe(0);
         expect(curves(graph)[4].polylines).toBe(0);
         expect(document.querySelector('[data-combinatorics-routes]')).toBeNull();
@@ -186,11 +192,12 @@ describe('paths view', () => {
         expect(readout('count')).toBe('137,846,528,820');
     });
 
-    test('a changed target resets the selected route to the first', () => {
+    test('a changed target resets the selected route to the first', async () => {
         const {graph} = mountGraph();
+        await waitForPucks('lattice-a');
         enterNumber(field(lattice('route')), '17');
         expect(graph.state.route).toBe(16);
-        enterNumber(field(lattice('a')), '4');
+        typePuck('lattice-a', '4');
         expect(graph.state.a).toBe(4);
         expect(graph.state.route).toBe(0);
         expect(readout('count')).toBe('35');
@@ -372,16 +379,17 @@ describe('target, keyboard and touch', () => {
         expect(graph.targetHandle()).toBe(handle);
     });
 
-    test('typing a number in a, b, the route, n and c snaps; text, out-of-range and fractional values are refused', () => {
+    test('typing a number in a, b (count pucks), the route (Orodja), n and c (pucks); text, out-of-range and fractional values are refused', async () => {
         const {graph} = mountGraph();
-        enterNumber(field(lattice('a')), '7');
+        await waitForPucks('lattice-a');
+        typePuck('lattice-a', '7');
         expect(graph.state.a).toBe(7);
-        enterNumber(field(lattice('b')), 'tri');
+        typePuck('lattice-b', 'tri');
         expect(graph.state.b).toBe(3);
         const targets = graph as unknown as {editTarget(a: number, b: number): boolean};
-        expectTypedRefusals((label, text) => enterNumber(field(label), text), [
-            {field: lattice('a'), read: () => graph.state.a, min: 0, max: 20, whole: true, edit: value => targets.editTarget(value, graph.state.b)},
-            {field: lattice('b'), read: () => graph.state.b, min: 0, max: 20, whole: true, edit: value => targets.editTarget(graph.state.a, value)},
+        expectTypedRefusals((key, text) => typePuck(key, text), [
+            {field: 'lattice-a', read: () => graph.state.a, min: 0, max: 20, whole: true, edit: value => runAs('learner', () => targets.editTarget(value, graph.state.b))},
+            {field: 'lattice-b', read: () => graph.state.b, min: 0, max: 20, whole: true, edit: value => runAs('learner', () => targets.editTarget(graph.state.a, value))},
         ]);
         enterNumber(field(lattice('route')), '0');
         expect(graph.state.route).toBe(0);
@@ -390,63 +398,72 @@ describe('target, keyboard and touch', () => {
         enterNumber(field(lattice('route')), '120');
         expect(graph.state.route).toBe(119);
         chooseView('expansion');
-        enterNumber(field(lattice('n')), '4');
-        enterNumber(field(lattice('c')), '-3');
+        await waitForPucks('lattice-n');
+        await waitForPucks('lattice-c');
+        typePuck('lattice-n', '4');
+        typePuck('lattice-c', '-3');
         expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
-        // Refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's.
+        // Refused by the puck, not clamped; the ranges are this graph's.
         const edits = graph as unknown as {editTarget(a: number, b: number): boolean; editExpansion(field: 'n' | 'c', value: number): boolean};
-        expectTypedRefusals((label, text) => enterNumber(field(label), text), [
-            {field: lattice('n'), read: () => graph.state.n, min: 0, max: 12, whole: true, edit: value => edits.editExpansion('n', value)},
-            {field: lattice('c'), read: () => graph.state.c, min: -9, max: 9, whole: true, edit: value => edits.editExpansion('c', value)},
+        expectTypedRefusals((key, text) => typePuck(key, text), [
+            {field: 'lattice-n', read: () => graph.state.n, min: 0, max: 12, whole: true, edit: value => runAs('learner', () => edits.editExpansion('n', value))},
+            {field: 'lattice-c', read: () => graph.state.c, min: -9, max: 9, whole: true, edit: value => runAs('learner', () => edits.editExpansion('c', value))},
         ]);
         expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
-        expect(edits.editTarget(8, graph.state.b)).toBe(true);
+        expect(runAs('learner', () => edits.editTarget(8, graph.state.b))).toBe(true);
         expect(graph.state.a).toBe(8);
     });
 
-    test('arrow keys step by 1, Page keys by 5 (the route by 10, n and c by 3)', () => {
+    test('arrow keys step the count pucks by 1, the route (Orodja) by 1 and Page keys by 10, the c puck by 3', async () => {
         const {graph} = mountGraph();
-        pressKey(lattice('a'), 'ArrowUp');
+        await waitForPucks('lattice-a');
+        pressPuck('lattice-a', 'ArrowUp');
         expect(graph.state.a).toBe(6);
-        pressKey(lattice('b'), 'ArrowDown');
+        pressPuck('lattice-b', 'ArrowDown');
         expect(graph.state.b).toBe(2);
         pressKey(lattice('route'), 'ArrowUp');
         expect(graph.state.route).toBe(1);
         pressKey(lattice('route'), 'PageUp');
         expect(graph.state.route).toBe(11);
-        pressKey(lattice('a'), 'PageUp');
+        for (let i = 0; i < 5; i++) pressPuck('lattice-a', 'ArrowUp'); // the count puck has no Page step: five presses are the old +5
         expect(graph.state.a).toBe(11);
         chooseView('expansion');
-        pressKey(lattice('n'), 'PageUp');
+        await waitForPucks('lattice-n');
+        await waitForPucks('lattice-c');
+        for (let i = 0; i < 3; i++) pressPuck('lattice-n', 'ArrowUp');
         expect(graph.state.n).toBe(8);
-        pressKey(lattice('c'), 'PageDown');
+        pressPuck('lattice-c', 'PageDown');
         expect(graph.state.c).toBe(-1);
     });
 
 });
 
 describe('controls', () => {
-    test('the target is one point row, the route and c are sliders, n a counter: the control shows the range, no shared help repeats it', () => {
+    test('a and b are count pucks (the point row is left out of Orodja), the route is a slider; n is a count puck and c a range puck with its range', async () => {
         mountGraph();
+        await waitForPucks('lattice-a');
         expect(document.getElementById('combinatorics-lattice-input-help')).toBeNull();
-        expect(screen.getByRole('group', {name: 'T'})).toBeTruthy();
-        for (const label of [lattice('a'), lattice('b')]) expect(field(label)).toBeTruthy();
+        expect(screen.queryByRole('group', {name: 'T'})).toBeNull();
+        for (const key of ['lattice-a', 'lattice-b']) expect(puckControl(key).getAttribute('role')).toBe('spinbutton');
         expect(screen.getByRole('slider', {name: lattice('route')})).toBeTruthy();
         chooseView('triangle');
-        for (const label of [lattice('a'), lattice('b')]) expect(field(label)).toBeTruthy();
+        await waitForPucks('lattice-a');
+        for (const key of ['lattice-a', 'lattice-b']) expect(puckControl(key)).toBeTruthy();
         chooseView('expansion');
-        expect(screen.getByRole('group', {name: lattice('n')})).toBeTruthy();
-        const c = screen.getByRole('slider', {name: lattice('c')}) as HTMLInputElement;
-        expect([c.min, c.max]).toEqual(['-9', '9']);
+        await waitForPucks('lattice-c');
+        expect(puckControl('lattice-n').getAttribute('role')).toBe('spinbutton');
+        const c = puckControl('lattice-c');
+        expect([c.getAttribute('aria-valuemin'), c.getAttribute('aria-valuemax')]).toEqual(['-9', '9']);
     });
 
-    test('the page setter names the page of the list; examples are chosen by a select with a custom entry', () => {
+    test('the page setter names the page of the list; examples are chosen by a select with a custom entry', async () => {
         const {graph} = mountGraph();
+        await waitForPucks('lattice-a');
         expect(document.body.textContent).toContain('Poti na strani 1 od 6');
         expect(field(t('combinatorics_example_label')).value).toBe('5,3');
         choose(t('combinatorics_example_label'), '6,6');
         expect([graph.state.a, graph.state.b]).toEqual([6, 6]);
-        enterNumber(field(lattice('a')), '9');
+        typePuck('lattice-a', '9');
         expect(field(t('combinatorics_example_label')).value).toBe('custom');
         chooseView('expansion');
         choose(t('combinatorics_example_label'), '4,1');
@@ -462,30 +479,36 @@ describe('ownership', () => {
         const owned = graph.ownedObjectCount();
         const base = board.objectsList.length - owned;
         expect(base).toBeGreaterThanOrEqual(0);
+        // The axis creates its tick labels on the board, not in the scene, as the target a:4, b:2 enlarges the box: six more
+        // than at mount. (The six group captions of the split legend and the over-cap line exist from the first build.)
+        const tickLabels = () => (board.objectsList as unknown as Array<{elType: string; id: string}>).filter(object => object.elType === 'label' && object.id.includes('_ticks_')).length;
+        const ticksAtMount = tickLabels();
+        const axis = () => tickLabels() - ticksAtMount;
         const handle = graph.targetHandle()!;
         expect(graph.ownedListenerCount()).toBe(1);
         expect(handlerCounts(handle)).toEqual([1, 1, 1]);
         set(graph, {a: 4, b: 2, showCounts: true, split: true});
-        expect(board.objectsList.length).toBe(base + owned);
+        expect(axis()).toBe(6);
+        expect(board.objectsList.length).toBe(base + axis() + owned);
         chooseView('triangle');
         expect(graph.ownedListenerCount()).toBe(0);
         expect(handlerCounts(handle)).toEqual([0, 0, 0]);
-        expect(board.objectsList.length).toBe(base + graph.ownedObjectCount());
+        expect(board.objectsList.length).toBe(base + axis() + graph.ownedObjectCount());
         chooseView('expansion');
-        expect(board.objectsList.length).toBe(base + graph.ownedObjectCount());
+        expect(board.objectsList.length).toBe(base + axis() + graph.ownedObjectCount());
         chooseView('paths');
         expect(graph.ownedObjectCount()).toBe(owned);
-        expect(board.objectsList.length).toBe(base + owned);
+        expect(board.objectsList.length).toBe(base + axis() + owned);
 
         const live = graph.targetHandle()!;
         graph.disposeNow();
         expect(graph.ownedObjectCount()).toBe(0);
         expect(graph.ownedListenerCount()).toBe(0);
         expect(handlerCounts(live)).toEqual([0, 0, 0]);
-        expect(board.objectsList.length).toBe(base);
+        expect(board.objectsList.length).toBe(base + axis());
         graph.initialize(); // a rebuild builds the same scene again
         expect(graph.ownedObjectCount()).toBe(owned);
-        expect(board.objectsList.length).toBe(base + owned);
+        expect(board.objectsList.length).toBe(base + axis() + owned);
 
         view.unmount();
         expect(graph.ownedObjectCount()).toBe(0);
@@ -530,19 +553,20 @@ describe('language', () => {
 describe('review repairs', () => {
     const NOTICE = 'Pot in stran sta ponastavljeni na 1.';
 
-    test('changing a or b while a later route is chosen says that the route and the page were reset to 1', () => {
+    test('changing a or b while a later route is chosen says that the route and the page were reset to 1', async () => {
         const {graph} = mountGraph();
+        await waitForPucks('lattice-a');
         set(graph, {route: 5});
         expect(status()).not.toContain(NOTICE);
-        enterNumber(field(lattice('a')), '6');
+        typePuck('lattice-a', '6');
         expect([graph.state.a, graph.state.route]).toEqual([6, 0]);
         expect(status()).toContain(NOTICE);
-        enterNumber(field(lattice('b')), '4'); // the route is already the first: nothing was reset
+        typePuck('lattice-b', '4'); // the route is already the first: nothing was reset
         expect(graph.state.b).toBe(4);
         expect(status()).not.toContain(NOTICE);
         act(() => { setLanguage('en'); });
         set(graph, {route: 3});
-        enterNumber(field(lattice('b')), '5');
+        typePuck('lattice-b', '5');
         expect(status()).toContain('The route and the page were reset to 1.');
     });
 
@@ -596,7 +620,7 @@ describe('the opening view frames the grid', () => {
     test('a typed larger grid refits, the largest grid fits, and returning to another view restores the fixed box', () => {
         const {graph} = mountGraph();
         const small = boxOf(graph);
-        act(() => { graph.setState({a: 20, b: 20}); });
+        act(() => { runAs('learner', () => { graph.setState({a: 20, b: 20}); }); });
         const [left, top, right, bottom] = boxOf(graph);
         expect(boxOf(graph)).not.toEqual(small);
         expect(left).toBeLessThanOrEqual(0);
@@ -612,7 +636,7 @@ describe('the opening view frames the grid', () => {
     test('restoring a checkpoint taken in another view keeps the stored view instead of refitting', () => {
         const {graph} = mountGraph();
         const capabilities = graph.getLessonCapabilities();
-        act(() => { graph.liveBoard().setBoundingBox([-4, 9, 12, -3], true); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-4, 9, 12, -3], true); }); });
         const checkpoint = capabilities.captureState();
         const stored = boxOf(graph);
         chooseView('triangle');
@@ -670,7 +694,7 @@ describe('expansion board texts', () => {
         (right, _height, n, c) => {
             const {graph} = mountGraph();
             chooseView('expansion');
-            act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, right, -2.2], true); });
+            act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-1.5, 24.5, right, -2.2], true); }); });
             set(graph, {n, c});
             const {bars, labels, strokeWidth, ux} = collect(graph);
             expect(ux * 1.5 - strokeWidth).toBeGreaterThanOrEqual(4);
@@ -701,7 +725,7 @@ describe('expansion captions', () => {
     test.each([[600, 400], [360, 295], [420, 320]])('a %d x %d px board: no caption line overlaps another caption, a bar or the board edge', (boardWidth, boardHeight) => withElementSize(boardWidth, boardHeight, () => {
         const {graph} = mountGraph();
         chooseView('expansion');
-        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); }); });
         set(graph, {n: 1, c: 1});
         const board = graph.liveBoard();
         const [left, top] = board.getBoundingBox();
@@ -746,7 +770,7 @@ describe('expansion power labels and caption stack', () => {
     test.each(SIZES)('a %d x %d px board: every power is written at n = 1 and each sits just under the baseline', (w, h) => withElementSize(w, h, () => {
         const {graph} = mountGraph();
         chooseView('expansion');
-        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); }); });
         for (const n of [1, 2, 3]) {
             set(graph, {n, c: 1});
             const board = graph.liveBoard();
@@ -763,7 +787,7 @@ describe('expansion power labels and caption stack', () => {
     test('the 420 x 260 px card board: both powers of n = 1 are written (the boxes fit the 12.5 px pitch)', () => withElementSize(420, 260, () => {
         const {graph} = mountGraph();
         chooseView('expansion');
-        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 48.5, 0.3], false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 48.5, 0.3], false); }); });
         set(graph, {n: 1, c: 1});
         expect(texts(graph).filter(t => POWER.test(t.text)).map(t => t.text).sort()).toEqual(['x¹', 'x⁰']);
     }));
@@ -771,7 +795,7 @@ describe('expansion power labels and caption stack', () => {
     test.each(SIZES)('a %d x %d px board: the caption stack stands right of the y axis', (w, h) => withElementSize(w, h, () => {
         const {graph} = mountGraph();
         chooseView('expansion');
-        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); });
+        act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); }); });
         set(graph, {n: 6, c: 1});
         const board = graph.liveBoard();
         const axisPx = (0 - board.getBoundingBox()[0]) * board.unitX;

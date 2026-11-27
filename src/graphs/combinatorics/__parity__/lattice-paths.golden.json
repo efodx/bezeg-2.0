@@ -41,7 +41,9 @@
           "value": "35 + 21 = 56"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Število poti do (5; 3): 56."
+      ],
       "outputs": [],
       "captions": [
         "cilj (5; 3)",
@@ -88,7 +90,9 @@
           "value": "3 + 3 = 6"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Število poti do (2; 2): 6."
+      ],
       "outputs": [],
       "captions": [
         "cilj (2; 2)",
@@ -97,73 +101,46 @@
       ]
     },
     {
-      "name": "lattice-paths-cb1/cb1-counts",
+      "name": "lattice-paths-cb1/cb1-cap",
       "rows": [
         {
           "key": "Cilj#0",
           "label": "Cilj",
-          "value": "(5; 3)"
+          "value": "(10; 10)"
         },
         {
           "key": "Število poti#0",
           "label": "Število poti",
-          "value": "56"
+          "value": "184 756"
         },
         {
           "key": "Binomski simbol#0",
           "label": "Binomski simbol",
-          "value": "(8 nad 5) = 56"
-        },
-        {
-          "key": "Izbrana pot#0",
-          "label": "Izbrana pot",
-          "value": "GGGDDDDD (pot 1 od 56)"
+          "value": "(20 nad 10) = 184 756"
         },
         {
           "key": "Poti z zadnjim korakom D#0",
           "label": "Poti z zadnjim korakom D",
-          "value": "35"
+          "value": "92 378"
         },
         {
           "key": "Poti z zadnjim korakom G#0",
           "label": "Poti z zadnjim korakom G",
-          "value": "21"
+          "value": "92 378"
         },
         {
           "key": "Vsota poti po zadnjem koraku#0",
           "label": "Vsota poti po zadnjem koraku",
-          "value": "35 + 21 = 56"
+          "value": "92 378 + 92 378 = 184 756"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Število poti do (10; 10): 184 756. Poti so narisane samo do 12 korakov; ta cilj jih zahteva 20, zato je prikazano samo število poti."
+      ],
       "outputs": [],
       "captions": [
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "10",
-        "10",
-        "15",
-        "2",
-        "20",
-        "21",
-        "3",
-        "3",
-        "35",
-        "4",
-        "4",
-        "5",
-        "56",
-        "6",
-        "6",
-        "cilj (5; 3)",
-        "izbrana pot: GGGDDDDD",
+        "cilj (10; 10)",
+        "poti niso narisane: več kot 12 korakov",
         "začetek (0; 0)"
       ]
     },
@@ -206,13 +183,16 @@
           "value": "20 + 15 = 35"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Število poti do (4; 3): 35."
+      ],
       "outputs": [],
       "captions": [
         "cilj (4; 3)",
         "izbrana pot: GGGDDDD",
-        "polna črta: zadnji korak D; črtkana črta: zadnji korak G",
-        "začetek (0; 0)"
+        "polna črta: zadnji korak D;",
+        "začetek (0; 0)",
+        "črtkana črta: zadnji korak G"
       ]
     },
     {
@@ -249,7 +229,9 @@
           "value": "128 = 2⁷"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vrstica 7, mesto 4: 35 = 20 + 15."
+      ],
       "outputs": [],
       "captions": [
         "1",
@@ -380,138 +362,9 @@
           "value": "8 = 2³"
         }
       ],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "10",
-        "10",
-        "10",
-        "10",
-        "11",
-        "11",
-        "12",
-        "12",
-        "120",
-        "120",
-        "126",
-        "126",
-        "15",
-        "15",
-        "165",
-        "165",
-        "2",
-        "20",
-        "21",
-        "21",
-        "210",
-        "210",
-        "220",
-        "220",
-        "252",
-        "28",
-        "28",
-        "3",
-        "3",
-        "330",
-        "330",
-        "35",
-        "35",
-        "36",
-        "36",
-        "4",
-        "4",
-        "45",
-        "45",
-        "462",
-        "462",
-        "495",
-        "495",
-        "5",
-        "5",
-        "55",
-        "55",
-        "56",
-        "56",
-        "6",
-        "6",
-        "6",
-        "66",
-        "66",
-        "7",
-        "7",
-        "70",
-        "792",
-        "792",
-        "8",
-        "8",
-        "84",
-        "84",
-        "9",
-        "9",
-        "924",
-        "poln okvir: vnos; črtkan okvir: starša"
-      ]
-    },
-    {
-      "name": "lattice-paths-cb3/cb3-symmetry",
-      "rows": [
-        {
-          "key": "Vnos trikotnika#0",
-          "label": "Vnos trikotnika",
-          "value": "(5 nad 3) = 10"
-        },
-        {
-          "key": "Vrstica in mesto#0",
-          "label": "Vrstica in mesto",
-          "value": "vrstica 5, mesto 3"
-        },
-        {
-          "key": "Levi starš#0",
-          "label": "Levi starš",
-          "value": "6"
-        },
-        {
-          "key": "Desni starš#0",
-          "label": "Desni starš",
-          "value": "4"
-        },
-        {
-          "key": "Vsota staršev#0",
-          "label": "Vsota staršev",
-          "value": "10"
-        },
-        {
-          "key": "Vsota vrstice#0",
-          "label": "Vsota vrstice",
-          "value": "32 = 2⁵"
-        }
+      "notes": [
+        "Vrstica 3, mesto 2: 3 = 2 + 1."
       ],
-      "notes": [],
       "outputs": [],
       "captions": [
         "1",
@@ -627,7 +480,9 @@
           "value": "2¹ = 2"
         }
       ],
-      "notes": [],
+      "notes": [
+        "(x + 1)¹: koeficienti 1; 1; vsota pri x = 1 je 2."
+      ],
       "outputs": [],
       "captions": [
         "(x + 1)¹",
@@ -658,56 +513,84 @@
           "value": "2² = 4"
         }
       ],
-      "notes": [],
+      "notes": [
+        "(x + 1)²: koeficienti 1; 2; 1; vsota pri x = 1 je 4."
+      ],
       "outputs": [],
       "captions": [
         "(x + 1)²",
         "1",
         "1",
         "2",
-        "merilo: največji |koeficient|)",
-        "stolpec: koeficient pri potenci x (negativni pod črto;",
         "x²",
         "x¹",
         "x⁰"
       ]
     },
     {
-      "name": "lattice-paths-cb4/cb4-weight",
+      "name": "lattice-paths-cb4/cb4-collect",
       "rows": [
         {
           "key": "Binomski izrek#0",
           "label": "Binomski izrek",
-          "value": "(x + 1)⁵"
+          "value": "(x + 1)¹"
         },
         {
           "key": "Koeficienti (od najvišje potence x do x⁰)#0",
           "label": "Koeficienti (od najvišje potence x do x⁰)",
-          "value": "1; 5; 10; 10; 5; 1"
+          "value": "1; 1"
         },
         {
           "key": "Vsota koeficientov (x = 1)#0",
           "label": "Vsota koeficientov (x = 1)",
-          "value": "2⁵ = 32"
+          "value": "2¹ = 2"
         }
       ],
-      "notes": [],
+      "notes": [
+        "(x + 1)¹: koeficienti 1; 1; vsota pri x = 1 je 2."
+      ],
       "outputs": [],
       "captions": [
-        "(x + 1)⁵",
+        "(x + 1)¹",
         "1",
         "1",
-        "10",
-        "5",
-        "5",
-        "merilo: največji |koeficient|)",
-        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x¹",
+        "x⁰"
+      ]
+    },
+    {
+      "name": "lattice-paths-cb4/cb4-four",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x + 1)³"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; 3; 3; 1"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "2³ = 8"
+        }
+      ],
+      "notes": [
+        "(x + 1)³: koeficienti 1; 3; 3; 1; vsota pri x = 1 je 8."
+      ],
+      "outputs": [],
+      "captions": [
+        "(x + 1)³",
+        "1",
+        "1",
+        "3",
+        "3",
         "x²",
         "x³",
         "x¹",
-        "x⁰",
-        "x⁴",
-        "x⁵"
+        "x⁰"
       ]
     },
     {
@@ -729,17 +612,16 @@
           "value": "3⁴ = 81"
         }
       ],
-      "notes": [],
+      "notes": [
+        "(x + 2)⁴: koeficienti 1; 8; 24; 32; 16; vsota pri x = 1 je 81."
+      ],
       "outputs": [],
       "captions": [
         "(x + 2)⁴",
         "1",
         "16",
         "24",
-        "32",
         "8",
-        "merilo: največji |koeficient|)",
-        "stolpec: koeficient pri potenci x (negativni pod črto;",
         "x²",
         "x³",
         "x¹",
@@ -766,7 +648,9 @@
           "value": "3⁶ = 729"
         }
       ],
-      "notes": [],
+      "notes": [
+        "(x + 2)⁶: koeficienti 1; 12; 60; 160; 240; 192; 64; vsota pri x = 1 je 729."
+      ],
       "outputs": [],
       "captions": [
         "(x + 2)⁶",
@@ -776,8 +660,6 @@
         "192",
         "60",
         "64",
-        "merilo: največji |koeficient|)",
-        "stolpec: koeficient pri potenci x (negativni pod črto;",
         "x²",
         "x³",
         "x¹",

@@ -1,0 +1,703 @@
+{
+  "graph": "lattice-paths",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default, target (5, 3)",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(5; 3)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "56"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(8 nad 5) = 56"
+        },
+        {
+          "key": "Izbrana pot#0",
+          "label": "Izbrana pot",
+          "value": "GGGDDDDD (pot 1 od 56)"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "35"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "21"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "35 + 21 = 56"
+        }
+      ],
+      "notes": [
+        "Število poti do (5; 3): 56."
+      ],
+      "outputs": [],
+      "captions": [
+        "cilj (5; 3)",
+        "izbrana pot: GGGDDDDD",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "target (2, 2), route 4",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(2; 2)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "6"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(4 nad 2) = 6"
+        },
+        {
+          "key": "Izbrana pot#0",
+          "label": "Izbrana pot",
+          "value": "DGGD (pot 4 od 6)"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "3"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "3"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "3 + 3 = 6"
+        }
+      ],
+      "notes": [
+        "Število poti do (2; 2): 6."
+      ],
+      "outputs": [],
+      "captions": [
+        "cilj (2; 2)",
+        "izbrana pot: DGGD",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "target (4, 3), split",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(4; 3)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "35"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(7 nad 4) = 35"
+        },
+        {
+          "key": "Izbrana pot#0",
+          "label": "Izbrana pot",
+          "value": "GGGDDDD (pot 1 od 35)"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "20"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "15"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "20 + 15 = 35"
+        }
+      ],
+      "notes": [
+        "Število poti do (4; 3): 35."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "15",
+        "2",
+        "20",
+        "3",
+        "3",
+        "35",
+        "4",
+        "4",
+        "5",
+        "6",
+        "cilj (4; 3)",
+        "izbrana pot: GGGDDDD",
+        "polna črta: zadnji korak D; črtkana črta: zadnji korak G",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "target (10, 10), over the cap",
+      "rows": [
+        {
+          "key": "Cilj#0",
+          "label": "Cilj",
+          "value": "(10; 10)"
+        },
+        {
+          "key": "Število poti#0",
+          "label": "Število poti",
+          "value": "184 756"
+        },
+        {
+          "key": "Binomski simbol#0",
+          "label": "Binomski simbol",
+          "value": "(20 nad 10) = 184 756"
+        },
+        {
+          "key": "Poti z zadnjim korakom D#0",
+          "label": "Poti z zadnjim korakom D",
+          "value": "92 378"
+        },
+        {
+          "key": "Poti z zadnjim korakom G#0",
+          "label": "Poti z zadnjim korakom G",
+          "value": "92 378"
+        },
+        {
+          "key": "Vsota poti po zadnjem koraku#0",
+          "label": "Vsota poti po zadnjem koraku",
+          "value": "92 378 + 92 378 = 184 756"
+        }
+      ],
+      "notes": [
+        "Število poti do (10; 10): 184 756. Poti so narisane samo do 12 korakov; ta cilj jih zahteva 20, zato je prikazano samo število poti."
+      ],
+      "outputs": [],
+      "captions": [
+        "Poti so narisane samo do 12 korakov; ta cilj jih zahteva 20, zato je prikazano samo število poti.",
+        "cilj (10; 10)",
+        "začetek (0; 0)"
+      ]
+    },
+    {
+      "name": "triangle, row 8, place 5",
+      "rows": [
+        {
+          "key": "Vnos trikotnika#0",
+          "label": "Vnos trikotnika",
+          "value": "(8 nad 5) = 56"
+        },
+        {
+          "key": "Vrstica in mesto#0",
+          "label": "Vrstica in mesto",
+          "value": "vrstica 8, mesto 5"
+        },
+        {
+          "key": "Levi starš#0",
+          "label": "Levi starš",
+          "value": "35"
+        },
+        {
+          "key": "Desni starš#0",
+          "label": "Desni starš",
+          "value": "21"
+        },
+        {
+          "key": "Vsota staršev#0",
+          "label": "Vsota staršev",
+          "value": "56"
+        },
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "256 = 2⁸"
+        }
+      ],
+      "notes": [
+        "Vrstica 8, mesto 5: 56 = 35 + 21."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "10",
+        "11",
+        "11",
+        "12",
+        "12",
+        "120",
+        "120",
+        "126",
+        "126",
+        "15",
+        "15",
+        "165",
+        "165",
+        "2",
+        "20",
+        "21",
+        "21",
+        "210",
+        "210",
+        "220",
+        "220",
+        "252",
+        "28",
+        "28",
+        "3",
+        "3",
+        "330",
+        "330",
+        "35",
+        "35",
+        "36",
+        "36",
+        "4",
+        "4",
+        "45",
+        "45",
+        "462",
+        "462",
+        "495",
+        "495",
+        "5",
+        "5",
+        "55",
+        "55",
+        "56",
+        "56",
+        "6",
+        "6",
+        "6",
+        "66",
+        "66",
+        "7",
+        "7",
+        "70",
+        "792",
+        "792",
+        "8",
+        "8",
+        "84",
+        "84",
+        "9",
+        "9",
+        "924",
+        "poln okvir: vnos; črtkan okvir: starša"
+      ]
+    },
+    {
+      "name": "triangle edge, row 5, place 5",
+      "rows": [
+        {
+          "key": "Vnos trikotnika#0",
+          "label": "Vnos trikotnika",
+          "value": "(5 nad 5) = 1"
+        },
+        {
+          "key": "Vrstica in mesto#0",
+          "label": "Vrstica in mesto",
+          "value": "vrstica 5, mesto 5"
+        },
+        {
+          "key": "Levi starš#0",
+          "label": "Levi starš",
+          "value": "1"
+        },
+        {
+          "key": "Desni starš#0",
+          "label": "Desni starš",
+          "value": "-"
+        },
+        {
+          "key": "Vsota staršev#0",
+          "label": "Vsota staršev",
+          "value": "1"
+        },
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "32 = 2⁵"
+        }
+      ],
+      "notes": [
+        "Vrstica 5, mesto 5: 1 (rob trikotnika)."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "10",
+        "11",
+        "11",
+        "12",
+        "12",
+        "120",
+        "120",
+        "126",
+        "126",
+        "15",
+        "15",
+        "165",
+        "165",
+        "2",
+        "20",
+        "21",
+        "21",
+        "210",
+        "210",
+        "220",
+        "220",
+        "252",
+        "28",
+        "28",
+        "3",
+        "3",
+        "330",
+        "330",
+        "35",
+        "35",
+        "36",
+        "36",
+        "4",
+        "4",
+        "45",
+        "45",
+        "462",
+        "462",
+        "495",
+        "495",
+        "5",
+        "5",
+        "55",
+        "55",
+        "56",
+        "56",
+        "6",
+        "6",
+        "6",
+        "66",
+        "66",
+        "7",
+        "7",
+        "70",
+        "792",
+        "792",
+        "8",
+        "8",
+        "84",
+        "84",
+        "9",
+        "9",
+        "924",
+        "poln okvir: vnos; črtkan okvir: starša"
+      ]
+    },
+    {
+      "name": "triangle, row beyond the drawn rows",
+      "rows": [
+        {
+          "key": "Vnos trikotnika#0",
+          "label": "Vnos trikotnika",
+          "value": "(20 nad 10) = 184 756"
+        },
+        {
+          "key": "Vrstica in mesto#0",
+          "label": "Vrstica in mesto",
+          "value": "vrstica 20, mesto 10"
+        },
+        {
+          "key": "Levi starš#0",
+          "label": "Levi starš",
+          "value": "92 378"
+        },
+        {
+          "key": "Desni starš#0",
+          "label": "Desni starš",
+          "value": "92 378"
+        },
+        {
+          "key": "Vsota staršev#0",
+          "label": "Vsota staršev",
+          "value": "184 756"
+        },
+        {
+          "key": "Vsota vrstice#0",
+          "label": "Vsota vrstice",
+          "value": "1 048 576 = 2²⁰"
+        }
+      ],
+      "notes": [
+        "Vrstica 20 je izven prikaza (prikazane so vrstice do 12); vnos je 184 756."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "10",
+        "10",
+        "10",
+        "10",
+        "11",
+        "11",
+        "12",
+        "12",
+        "120",
+        "120",
+        "126",
+        "126",
+        "15",
+        "15",
+        "165",
+        "165",
+        "2",
+        "20",
+        "21",
+        "21",
+        "210",
+        "210",
+        "220",
+        "220",
+        "252",
+        "28",
+        "28",
+        "3",
+        "3",
+        "330",
+        "330",
+        "35",
+        "35",
+        "36",
+        "36",
+        "4",
+        "4",
+        "45",
+        "45",
+        "462",
+        "462",
+        "495",
+        "495",
+        "5",
+        "5",
+        "55",
+        "55",
+        "56",
+        "56",
+        "6",
+        "6",
+        "6",
+        "66",
+        "66",
+        "7",
+        "7",
+        "70",
+        "792",
+        "792",
+        "8",
+        "8",
+        "84",
+        "84",
+        "9",
+        "9",
+        "924",
+        "Vnos (vrstica 20) je izven prikaza.",
+        "poln okvir: vnos; črtkan okvir: starša"
+      ]
+    },
+    {
+      "name": "expansion (x + 2)^5",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x + 2)⁵"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; 10; 40; 80; 80; 32"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "3⁵ = 243"
+        }
+      ],
+      "notes": [
+        "(x + 2)⁵: koeficienti 1; 10; 40; 80; 80; 32; vsota pri x = 1 je 243."
+      ],
+      "outputs": [],
+      "captions": [
+        "(x + 2)⁵",
+        "1",
+        "10",
+        "32",
+        "40",
+        "80",
+        "merilo: največji |koeficient|)",
+        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x²",
+        "x³",
+        "x¹",
+        "x⁰",
+        "x⁴",
+        "x⁵"
+      ]
+    },
+    {
+      "name": "expansion (x - 3)^7, strings off",
+      "rows": [
+        {
+          "key": "Binomski izrek#0",
+          "label": "Binomski izrek",
+          "value": "(x - 3)⁷"
+        },
+        {
+          "key": "Koeficienti (od najvišje potence x do x⁰)#0",
+          "label": "Koeficienti (od najvišje potence x do x⁰)",
+          "value": "1; -21; 189; -945; 2 835; -5 103; 5 103; -2 187"
+        },
+        {
+          "key": "Vsota koeficientov (x = 1)#0",
+          "label": "Vsota koeficientov (x = 1)",
+          "value": "(-2)⁷ = -128"
+        }
+      ],
+      "notes": [
+        "(x - 3)⁷: koeficienti 1; -21; 189; -945; 2 835; -5 103; 5 103; -2 187; vsota pri x = 1 je -128."
+      ],
+      "outputs": [],
+      "captions": [
+        "(x - 3)⁷",
+        "-2 187",
+        "-21",
+        "-5 103",
+        "-945",
+        "1",
+        "189",
+        "2 835",
+        "5 103",
+        "merilo: največji |koeficient|)",
+        "stolpec: koeficient pri potenci x (negativni pod črto;",
+        "x²",
+        "x³",
+        "x¹",
+        "x⁰",
+        "x⁴",
+        "x⁵",
+        "x⁶",
+        "x⁷"
+      ]
+    }
+  ]
+}

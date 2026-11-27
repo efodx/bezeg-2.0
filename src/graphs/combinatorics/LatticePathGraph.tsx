@@ -1,7 +1,12 @@
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
-import {onLanguageChange, t} from "../../localization";
+import {message, messageNumber, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import type {ActionDeclaration, GraphDeclaration, ParameterDeclaration, ReadoutRow} from "../base/declare/graphDeclaration";
+import {DomainError} from "../functions/BaseFunctionGraph";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
 import {PointListInput} from "../../inputs/PointListInput";
@@ -12,7 +17,7 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphSession} from "../base/GraphSession";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {fitBoundingBox} from "../base/fitBoundingBox";
+import {FIT_MARGIN_PX, fitBoundingBox} from "../base/fitBoundingBox";
 import {GraphPalette} from "../styles/GraphPalette";
 import {binomial} from "../../combinatorics/binomial";
 import {ENUMERATION_CAP} from "../../combinatorics/latticePaths";
@@ -26,24 +31,53 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {latticePathsPresetCollection} from "./combinatoricsPresetCollection";
 import {
-    addPolyline, binomialText, binomText, boxPoints, countText, emptyPoly, HANDLE_MOUSE_RADIUS, HANDLE_TOUCH_RADIUS, listText, Poly, pointText,
+    addPolyline, binomialText, boxPoints, countText, emptyPoly, HANDLE_MOUSE_RADIUS, HANDLE_TOUCH_RADIUS, listText, Poly, pointText,
     routeLetters, SceneObjects, smallText, stepRightText, stepUpText, superscript,
 } from "./combinatoricsText";
 
 export {HANDLE_MOUSE_RADIUS, HANDLE_TOUCH_RADIUS, HIT_SLACK} from "./combinatoricsText";
 
+/**
+ * The ids the declaration, the frames and the actions use. `a` and `b` (the steps right and up, which the lessons ask the learner to type or drag) are count pucks in the
+ * paths and triangle views, `n` and `c` range pucks in the expansion view, the two display switches of the paths view are switch pucks; the view, the example, the
+ * route and the page stay in Orodja without a key. `legend` and `section` are never used: the board captions name what is drawn.
+ */
+export type LatticePathIds = {
+    param: "lattice-a" | "lattice-b" | "lattice-n" | "lattice-c";
+    row: "target" | "count" | "formula" | "route" | "last-right" | "last-up" | "last-sum" | "entry" | "position" | "parent-left" | "parent-right" | "parents-sum"
+        | "row-sum" | "binomial" | "coefficients" | "coefficient-sum";
+    note: "status";
+    legend: never;
+    section: never;
+    action: "show-counts" | "split";
+};
+type LatticeRow = ReadoutRow<LatticePathIds>;
+
 /** The scene state: the stored lattice fields. */
 export interface LatticePathGraphState extends BaseGraphState, LatticeState {}
 
 /** The fixed view box: the grid is 0..20, the triangle and the bars sit inside it, and the captions are above and below. */
+/** Bottoms of the frames that stop short of VIEW_BOX's: the expansion (power labels under the bars' base, or the negative bars and their labels) and the triangle (its last row). */
+const EXPANSION_BOTTOM = 8.4;
+const EXPANSION_NEGATIVE_BOTTOM = 1.6;
+const TRIANGLE_BOTTOM = 0.9;
 export const VIEW_BOX: [number, number, number, number] = [-1.5, 24.5, 21.5, -2.2];
 /**
- * The box the paths view frames for the target (a, b): the grid with the start label below and the three captions above
- * (they sit at b + 1.4, b + 2.4 and b + 3.4); at least 9 wide so the captions fit beside a small grid.
+ * The box the paths view frames for the target (a, b): the grid with the start label below and the four caption rows above
+ * (they sit at b + 1.4 ... b + 4.4, in user coordinates, so the marks cover them); at least 9 wide so the captions fit beside a small grid.
  */
-export const pathsBox = (a: number, b: number): [number, number, number, number] => [-1.5, b + 4.2, Math.max(a + 1.5, 9), -2.2];
-/** The three caption lines above the grid sit this far above the target's row. */
-const CAPTION_ABOVE = [3.4, 2.4, 1.4] as const;
+export const pathsBox = (a: number, b: number): [number, number, number, number] => [-1.5, b + 5.2, Math.max(a + 1.5, 9), -2.2];
+/**
+ * The caption rows above the grid, counted from the one next to it (row 0 sits 1.4 above the target's row): the target is row 3, the selected route row 2, and
+ * the split legend or the over-cap message (broken into clauses, one line each, so no line is wider than the box) fill rows 0 up from the bottom.
+ */
+const CAPTION_ROW_BASE = 1.4;
+const CAPTION_GROUP_LINES = 3;
+/** A caption broken after each `;` or `,` into lines (at most CAPTION_GROUP_LINES: the rest joins the last line). */
+const clauseLines = (text: string): string[] => {
+    const lines = text.split(/(?<=[;,]) /);
+    return lines.length > CAPTION_GROUP_LINES ? [...lines.slice(0, CAPTION_GROUP_LINES - 1), lines.slice(CAPTION_GROUP_LINES - 1).join(" ")] : lines;
+};
 /** The captions start right of the y axis, whose tick labels lie to its left. */
 const CAPTION_X = 0.3;
 /** Keyboard steps of the numeric fields (arrow keys and Page keys). */
@@ -137,7 +171,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     private routeCache?: {key: string; data: RouteData};
     private readonly status = new SettledReadout();
     /** A clause for the status text, valid only for the state it was made for: a later state change makes it stale by itself. */
-    private notice?: {readonly state: LatticePathGraphState; readonly text: () => string};
+    private notice?: {readonly state: LatticePathGraphState; readonly text: Message};
 
     override getInitialState(): LatticePathGraphState {
         return {initialized: false, ...DEFAULT_LATTICE_STATE};
@@ -183,7 +217,18 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
 
     /** The key of the frame the board shows: the grid size in the paths view, one fixed box in the other views. */
     private frameKey(): string {
-        return this.state.view === "paths" ? `${this.state.a},${this.state.b}` : "fixed";
+        if (this.state.view === "paths") return `${this.state.a},${this.state.b}`;
+        return this.state.view === "expansion" ? `expansion,${this.state.c < 0}` : "fixed";
+    }
+
+    /**
+     * The frame of the present view in user coordinates: the content's real extent (not the empty rows around it), so the view director fits
+     * the content into the card-free area. Expansion: the caption stack above the bars down to the power labels, or to the negative bars' labels.
+     */
+    private frameBox(): [number, number, number, number] {
+        if (this.state.view === "paths") return pathsBox(this.state.a, this.state.b);
+        if (this.state.view === "expansion") return [VIEW_BOX[0], VIEW_BOX[1], VIEW_BOX[2], this.state.c < 0 ? EXPANSION_NEGATIVE_BOTTOM : EXPANSION_BOTTOM];
+        return [VIEW_BOX[0], VIEW_BOX[1], VIEW_BOX[2], TRIANGLE_BOTTOM];
     }
 
     /**
@@ -199,9 +244,15 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         }
         this.framedKey = key;
         const {width, height} = JXG.getDimensions(this.board.container, document);
-        const box = this.state.view === "paths" ? pathsBox(this.state.a, this.state.b) : VIEW_BOX;
+        const box = this.frameBox();
         const fitted = fitBoundingBox([[box[0], box[1]], [box[2], box[3]]], parseFloat(String(width)), parseFloat(String(height)));
-        if (fitted) this.boardView.setIntent(fitted, {keepAspectRatio: true});
+        if (!fitted) return;
+        // The intent is the frame plus the fit's margin, NOT the canvas-sized box `fitBoundingBox` returns: the view director maps the intent
+        // (when a step wrote it after the declared `followView` was seen) into the card-free area, and a canvas-sized box has to shrink to
+        // 1/2.2 there, which left the bars tiny. `keepAspectRatio` lets the board widen the tight box to its own aspect when it shows it.
+        const scale = parseFloat(String(width)) / (fitted[2] - fitted[0]);
+        const margin = Math.min(FIT_MARGIN_PX, 0.1 * Math.min(parseFloat(String(width)), parseFloat(String(height)))) / scale;
+        this.boardView.setIntent([box[0] - margin, box[1] + margin, box[2] + margin, box[3] - margin], {keepAspectRatio: true});
     }
 
     /** The drag ended: a target dragged out of the box (or its captions out of it) refits once; a target inside leaves the view alone. */
@@ -420,18 +471,24 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         this.wireDrag(handle);
         // Captions: the target and the start, the selected route, the split legend and the cap message.
         // The captions sit above the target's row, so a framed small grid keeps them near it.
-        const above = (line: number) => () => this.state.b + CAPTION_ABOVE[line];
-        this.caption(() => t("combinatorics_lattice_cap_target", {value0: pointText(this.state.a, this.state.b)}), CAPTION_X, above(0), GraphPalette.controlPoint);
+        const row = (index: number) => () => this.state.b + CAPTION_ROW_BASE + index;
+        this.caption(() => t("combinatorics_lattice_cap_target", {value0: pointText(this.state.a, this.state.b)}), CAPTION_X, row(3), GraphPalette.controlPoint);
         this.caption(() => t("combinatorics_lattice_cap_start", {value0: pointText(0, 0)}), 0.3, -0.9, GraphPalette.label);
-        this.caption(() => t("combinatorics_lattice_cap_route", {value0: routeLetters(this.selectedRoute()?.letters ?? "")}), CAPTION_X, above(1),
+        this.caption(() => t("combinatorics_lattice_cap_route", {value0: routeLetters(this.selectedRoute()?.letters ?? "")}), CAPTION_X, row(2),
             GraphPalette.constructionAccent, () => this.selectedRoute() !== undefined);
-        this.caption(() => t("combinatorics_lattice_cap_split", {value0: stepRightText(), value1: stepUpText()}), CAPTION_X, above(2), GraphPalette.label,
-            () => split() && enumerable());
-        this.caption(() => this.capMessage(), CAPTION_X, above(2), GraphPalette.warningText, () => !enumerable(), {fontSize: 14});
+        // The split legend and the over-cap message: one text per clause, the last line on row 0, so the group grows upward from the grid and stays inside the box.
+        const group = (lines: () => string[], color: string, fontSize: number) => {
+            for (let line = 0; line < CAPTION_GROUP_LINES; line++) {
+                this.caption(() => lines()[line] ?? "", CAPTION_X, () => this.state.b + CAPTION_ROW_BASE + (lines().length - 1 - line), color, () => line < lines().length, {fontSize});
+            }
+        };
+        group(() => split() && enumerable() ? clauseLines(t("combinatorics_lattice_cap_split", {value0: stepRightText(), value1: stepUpText()})) : [], GraphPalette.label, 15);
+        // The full over-cap sentence is the status note (and the reason of the count switch); the board carries a one-line form of it.
+        group(() => enumerable() ? [] : [t("lattice_cap_over", {value0: smallText(ENUMERATION_CAP)})], GraphPalette.warningText, 14);
     }
 
     private capMessage(): string {
-        return t("combinatorics_lattice_over_cap", {value0: smallText(ENUMERATION_CAP), value1: smallText(this.state.a + this.state.b)});
+        return renderMessage(this.capText());
     }
 
     private buildTriangle(): void {
@@ -517,28 +574,30 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     /** Whether the screen box (px from the board's top left corner, y down) meets the expansion's caption stack. */
     private covered(x0: number, y0: number, x1: number, y1: number): boolean {
         if (!this.hasBoard || this.state.view !== "expansion") return false;
-        const bottomPx = (this.board.getBoundingBox()[1] - this.captionStack().bottomY) * this.pxUnits().uy;
-        return y0 < bottomPx && y1 > 0 && x0 < this.board.canvasWidth && x1 > this.captionLeftPx();
+        const {ux, uy} = this.pxUnits();
+        const [left, top] = this.board.getBoundingBox();
+        const topPx = (top - VIEW_BOX[1]) * uy;
+        const bottomPx = (top - this.captionStack().bottomY) * uy;
+        return y0 < bottomPx && y1 > topPx && x0 < (VIEW_BOX[2] - left) * ux && x1 > (this.captionLeft() - left) * ux;
     }
 
-    /** The stack starts right of the y axis (a little right of x = 0) or, when the axis is off the board, at the margin. */
-    private captionLeftPx(): number {
-        const axisPx = (0 - this.board.getBoundingBox()[0]) * this.pxUnits().ux;
-        return Math.max(CAPTION_MARGIN_PX, axisPx + AXIS_GAP_PX);
-    }
-
+    /**
+     * The stack is anchored in the view box (user coordinates, so the marks cover it and the view director keeps it clear of the cards): it starts right of the
+     * y axis (a little right of x = 0) and ends at the box's right edge.
+     */
     private captionLeft(): number {
-        return this.board.getBoundingBox()[0] + this.captionLeftPx() / this.pxUnits().ux;
+        return Math.max(VIEW_BOX[0] + CAPTION_MARGIN_PX / this.pxUnits().ux, AXIS_GAP_PX / this.pxUnits().ux);
     }
 
-    /** The y of caption row `row` (0 is the topmost): rows are CAPTION_ROW_PX apart from the top edge, in pixels at any board size. */
+    /** The y of caption row `row` (0 is the topmost): rows are CAPTION_ROW_PX apart from the box's top edge, in pixels at any board size. */
     private captionRowY(row: number): number {
-        return this.board.getBoundingBox()[1] - (CAPTION_MARGIN_PX + (CAPTION_FONT_PX * 1.25) / 2 + row * CAPTION_ROW_PX) / this.pxUnits().uy;
+        return VIEW_BOX[1] - (CAPTION_MARGIN_PX + (CAPTION_FONT_PX * 1.25) / 2 + row * CAPTION_ROW_PX) / this.pxUnits().uy;
     }
 
-    /** The expansion caption wrapped to the board's width (at most CAPTION_LINES lines) and the y under which the stack, title included, ends. */
+    /** The expansion caption wrapped to the box's width (at most CAPTION_LINES lines) and the y under which the stack, title included, ends. */
     private captionStack(): {lines: string[]; bottomY: number} {
-        const chars = Math.max(12, Math.min(CAPTION_LINE_CHARS, Math.floor((this.board.canvasWidth - this.captionLeftPx() - CAPTION_MARGIN_PX) / (CAPTION_FONT_PX * CAPTION_CHAR_EM))));
+        const widthPx = (VIEW_BOX[2] - this.captionLeft()) * this.pxUnits().ux - CAPTION_MARGIN_PX;
+        const chars = Math.max(12, Math.min(CAPTION_LINE_CHARS, Math.floor(widthPx / (CAPTION_FONT_PX * CAPTION_CHAR_EM))));
         const lines: string[] = [];
         // Whole clauses (broken after "; ") are one line each; only a clause that is too long for the board wraps word by word.
         for (const clause of t("combinatorics_lattice_cap_expansion").split(/(?<=;) /)) {
@@ -551,9 +610,11 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             if (line !== undefined) lines.push(line);
         }
         if (lines.length > CAPTION_LINES) lines.splice(CAPTION_LINES - 1, lines.length, lines.slice(CAPTION_LINES - 1).join(" "));
-        const rows = lines.length + 1;
-        const bottomPx = CAPTION_MARGIN_PX + (rows - 1) * CAPTION_ROW_PX + CAPTION_FONT_PX * 1.25;
-        return {lines, bottomY: this.board.getBoundingBox()[1] - bottomPx / this.pxUnits().uy};
+        const stackBottomY = (count: number) => VIEW_BOX[1] - (CAPTION_MARGIN_PX + count * CAPTION_ROW_PX + CAPTION_FONT_PX * 1.25) / this.pxUnits().uy;
+        // On a board scaled down so far that the legend would leave no room for the label of the tallest bar (the view director gives a framed box little room beside the
+        // cards), only the title stays: the readout rows state what the legend says.
+        if (stackBottomY(lines.length) < BAR_BASE + BAR_HEIGHT + (BAR_FONT_PX + BAR_LABEL_GAP_PX) / this.pxUnits().uy) lines.length = 0;
+        return {lines, bottomY: stackBottomY(lines.length)};
     }
 
     /** Bar heights are coefficients over the largest absolute coefficient: drawing only, the labels carry the exact digits. */
@@ -653,8 +714,9 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     // ---- Dragging: one snapping path for the target ---------------------------------------------------------------------
 
     private wireDrag(point: JXG.Point): void {
-        const onDrag = () => { this.dragging = true; this.dragTo(point); };
-        const onUp = () => { if (this.dragging) this.endDrag(); };
+        // A JSXGraph handler is outside the DOM tagging: the drag is the learner's write.
+        const onDrag = () => { this.dragging = true; runAs("learner", () => this.dragTo(point)); };
+        const onUp = () => { if (this.dragging) runAs("learner", () => this.endDrag()); };
         const board = this.board;
         const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
@@ -680,7 +742,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         const next = withTarget(before, a, b);
         if (next === before) return;
         this.setState({a: next.a, b: next.b, route: next.route});
-        if (before.route !== 0) this.notice = {state: this.state, text: () => t("combinatorics_lattice_notice_reset")};
+        if (before.route !== 0) this.notice = {state: this.state, text: message("combinatorics_lattice_notice_reset")};
     }
 
     /**
@@ -790,89 +852,203 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         return listText(this.expansion().coefficients.map(countText));
     }
 
-    statusText(): string {
-        const base = this.baseStatusText();
-        return this.notice && this.notice.state === this.state ? `${base} ${this.notice.text()}` : base;
+    /** The status as a message, with the clause of the last target move that restarted the route while that state is current. */
+    statusMessage(): Message {
+        const base = this.baseStatusMessage();
+        return this.notice && this.notice.state === this.state ? message("lattice_status_join", {value0: base, value1: this.notice.text}) : base;
     }
 
-    private baseStatusText(): string {
+    /** The status as text in the current language. */
+    statusText(): string {
+        return renderMessage(this.statusMessage());
+    }
+
+    private capText(): Message {
+        return message("combinatorics_lattice_over_cap", {value0: smallText(ENUMERATION_CAP), value1: smallText(this.state.a + this.state.b)});
+    }
+
+    private binomMessage(n: number, k: number): Message {
+        return message("combinatorics_binom_format", {value0: smallText(n), value1: smallText(k)});
+    }
+
+    /** `(x + c)^n` as a message: the letter x comes from the catalog. */
+    private binomialMessage(n: number, c: number): Message {
+        return message("lattice_binomial_value", {value0: c < 0 ? "−" : "+", value1: smallText(Math.abs(c)), value2: superscript(n)});
+    }
+
+    private baseStatusMessage(): Message {
         const {a, b, n, c} = this.state;
         switch (this.state.view) {
             case "paths": {
                 const lattice = this.lattice();
-                const text = t("combinatorics_lattice_status_paths", {value0: countText(lattice.count), value1: pointText(a, b)});
-                return lattice.enumerable ? text : `${text} ${this.capMessage()}`;
+                const text = message("combinatorics_lattice_status_paths", {value0: countText(lattice.count), value1: pointText(a, b)});
+                return lattice.enumerable ? text : message("lattice_status_join", {value0: text, value1: this.capText()});
             }
             case "triangle": {
                 const v = this.triangle();
                 const row = smallText(v.n);
                 const place = smallText(v.k);
                 if (!v.inView) {
-                    return t("combinatorics_lattice_status_triangle_off", {value0: row, value1: smallText(TRIANGLE_ROW_LIMIT), value2: countText(v.entry)});
+                    return message("combinatorics_lattice_status_triangle_off", {value0: row, value1: smallText(TRIANGLE_ROW_LIMIT), value2: countText(v.entry)});
                 }
                 if (v.left === undefined || v.right === undefined) {
-                    return t("combinatorics_lattice_status_triangle_edge", {value0: row, value1: place, value2: countText(v.entry)});
+                    return message("combinatorics_lattice_status_triangle_edge", {value0: row, value1: place, value2: countText(v.entry)});
                 }
-                return t("combinatorics_lattice_status_triangle", {
+                return message("combinatorics_lattice_status_triangle", {
                     value0: row, value1: place, value2: countText(v.entry), value3: countText(v.left), value4: countText(v.right),
                 });
             }
             case "expansion":
-                return t("combinatorics_lattice_status_expansion", {
-                    value0: binomialText(n, c), value1: this.coefficientsText(), value2: countText(this.expansion().sum),
+                return message("combinatorics_lattice_status_expansion", {
+                    value0: this.binomialMessage(n, c), value1: this.coefficientsText(), value2: countText(this.expansion().sum),
                 });
         }
     }
 
-    private readoutRows(): ReadoutListRow[] {
+    private formatted(text: string): {readonly kind: "formatted"; readonly text: string} {
+        return {kind: "formatted", text};
+    }
+
+    /** The rows of the readout as declared values: the declaration's rows and what the panel lists. */
+    private rowSpecs(): LatticeRow[] {
         const {a, b, n, c} = this.state;
         switch (this.state.view) {
             case "paths": {
                 const lattice = this.lattice();
-                const rows: ReadoutListRow[] = [
-                    {id: "target", label: t("combinatorics_lattice_readout_target"), value: pointText(a, b)},
-                    {id: "count", label: t("combinatorics_lattice_readout_count"), value: countText(lattice.count)},
-                    {id: "formula", label: t("combinatorics_lattice_readout_formula"), value: `${binomText(a + b, a)} = ${countText(binomial(a + b, a))}`},
+                const rows: LatticeRow[] = [
+                    {id: "target", name: message("combinatorics_lattice_readout_target"), value: this.formatted(pointText(a, b))},
+                    {id: "count", name: message("combinatorics_lattice_readout_count"), value: this.formatted(countText(lattice.count))},
+                    {id: "formula", name: message("combinatorics_lattice_readout_formula"),
+                     value: message("lattice_formula_value", {value0: this.binomMessage(a + b, a), value1: countText(binomial(a + b, a))})},
                 ];
                 const route = this.selectedRoute();
                 if (route) {
-                    rows.push({id: "route", label: t("combinatorics_lattice_readout_route"), value: t("combinatorics_lattice_readout_route_value", {
+                    rows.push({id: "route", name: message("combinatorics_lattice_readout_route"), value: message("combinatorics_lattice_readout_route_value", {
                         value0: routeLetters(route.letters), value1: smallText(this.state.route + 1), value2: countText(lattice.count)})});
                 }
                 rows.push(
-                    {id: "last-right", label: t("combinatorics_lattice_readout_last", {value0: stepRightText()}), value: countText(lattice.lastR)},
-                    {id: "last-up", label: t("combinatorics_lattice_readout_last", {value0: stepUpText()}), value: countText(lattice.lastU)},
-                    {id: "last-sum", label: t("combinatorics_lattice_readout_last_sum"),
-                     value: `${countText(lattice.lastR)} + ${countText(lattice.lastU)} = ${countText(lattice.lastR + lattice.lastU)}`},
+                    {id: "last-right", name: message("combinatorics_lattice_readout_last", {value0: stepRightText()}), value: this.formatted(countText(lattice.lastR))},
+                    {id: "last-up", name: message("combinatorics_lattice_readout_last", {value0: stepUpText()}), value: this.formatted(countText(lattice.lastU))},
+                    {id: "last-sum", name: message("combinatorics_lattice_readout_last_sum"),
+                     value: this.formatted(`${countText(lattice.lastR)} + ${countText(lattice.lastU)} = ${countText(lattice.lastR + lattice.lastU)}`)},
                 );
                 return rows;
             }
             case "triangle": {
                 const v = this.triangle();
-                const none = "–";
-                const rows: ReadoutListRow[] = [
-                    {id: "entry", label: t("combinatorics_lattice_readout_entry"), value: `${binomText(v.n, v.k)} = ${countText(v.entry)}`},
-                    {id: "position", label: t("combinatorics_lattice_readout_position"),
-                     value: t("combinatorics_lattice_readout_position_value", {value0: smallText(v.n), value1: smallText(v.k)})},
-                    {id: "parent-left", label: t("combinatorics_lattice_readout_parent_left"), value: v.left === undefined ? none : countText(v.left)},
-                    {id: "parent-right", label: t("combinatorics_lattice_readout_parent_right"), value: v.right === undefined ? none : countText(v.right)},
-                    {id: "parents-sum", label: t("combinatorics_lattice_readout_parents_sum"),
-                     value: v.left === undefined && v.right === undefined ? none : countText((v.left ?? 0n) + (v.right ?? 0n))},
-                    {id: "row-sum", label: t("combinatorics_lattice_readout_row_sum"), value: `${countText(v.rowSum)} = 2${superscript(v.n)}`},
+                const none = this.formatted("–");
+                return [
+                    {id: "entry", name: message("combinatorics_lattice_readout_entry"),
+                     value: message("lattice_formula_value", {value0: this.binomMessage(v.n, v.k), value1: countText(v.entry)})},
+                    {id: "position", name: message("combinatorics_lattice_readout_position"),
+                     value: message("combinatorics_lattice_readout_position_value", {value0: smallText(v.n), value1: smallText(v.k)})},
+                    {id: "parent-left", name: message("combinatorics_lattice_readout_parent_left"), value: v.left === undefined ? none : this.formatted(countText(v.left))},
+                    {id: "parent-right", name: message("combinatorics_lattice_readout_parent_right"), value: v.right === undefined ? none : this.formatted(countText(v.right))},
+                    {id: "parents-sum", name: message("combinatorics_lattice_readout_parents_sum"),
+                     value: v.left === undefined && v.right === undefined ? none : this.formatted(countText((v.left ?? 0n) + (v.right ?? 0n)))},
+                    {id: "row-sum", name: message("combinatorics_lattice_readout_row_sum"), value: this.formatted(`${countText(v.rowSum)} = 2${superscript(v.n)}`)},
                 ];
-                return rows;
             }
             case "expansion": {
                 const expansion = this.expansion();
                 const base = 1 + c;
                 const baseText = base < 0 ? `(${smallText(base)})` : smallText(base);
                 return [
-                    {id: "binomial", label: t("combinatorics_lattice_readout_expansion"), value: binomialText(n, c)},
-                    {id: "coefficients", label: t("combinatorics_lattice_readout_coefficients"), value: this.coefficientsText()},
-                    {id: "coefficient-sum", label: t("combinatorics_lattice_readout_coefficient_sum"),
-                     value: `${baseText}${superscript(n)} = ${countText(expansion.sum)}`},
+                    {id: "binomial", name: message("combinatorics_lattice_readout_expansion"), value: this.binomialMessage(n, c)},
+                    {id: "coefficients", name: message("combinatorics_lattice_readout_coefficients"), value: this.formatted(this.coefficientsText())},
+                    {id: "coefficient-sum", name: message("combinatorics_lattice_readout_coefficient_sum"),
+                     value: this.formatted(`${baseText}${superscript(n)} = ${countText(expansion.sum)}`)},
                 ];
             }
+        }
+    }
+
+    /** The panel's text of the rows. */
+    private readoutRows(): ReadoutListRow[] {
+        return this.rowSpecs().map(({id, name, value}): ReadoutListRow => ({
+            id, label: name ? renderMessage(name) : id, value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
+    // ---- Declaration ----------------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064). Keys `lattice-a` and `lattice-b` (the steps right and up of the target, the typed setters of the two counts; a value that is not
+     * whole or outside the range is refused with the control's own message, never rounded or clamped), `lattice-n` and `lattice-c` (the power and the number of the
+     * expansion). The view, the example, the route and the page have no key: they stay in Orodja.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const refuse = (range: {min: number; max: number}): never => {
+            throw new DomainError(message("lattice_value_rejected", {value0: messageNumber(range.min, 0), value1: messageNumber(range.max, 0)}));
+        };
+        return {
+            "lattice-a": {
+                read: () => this.state.a,
+                apply: (value: unknown) => { if (typeof value !== "number" || !this.editTarget(value, this.state.b)) refuse(TARGET_RANGE); },
+            },
+            "lattice-b": {
+                read: () => this.state.b,
+                apply: (value: unknown) => { if (typeof value !== "number" || !this.editTarget(this.state.a, value)) refuse(TARGET_RANGE); },
+            },
+            "lattice-n": {
+                read: () => this.state.n,
+                apply: (value: unknown) => { if (typeof value !== "number" || !this.editExpansion("n", value)) refuse(EXPANSION_N_RANGE); },
+            },
+            "lattice-c": {
+                read: () => this.state.c,
+                apply: (value: unknown) => { if (typeof value !== "number" || !this.editExpansion("c", value)) refuse(EXPANSION_C_RANGE); },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state. Pucks (lessons CB1, CB3 and CB4 ask the learner to set the target steps `a` and `b` or the power `n` and the number `c` while
+     * reading the count, and to flip the count labels and the split of the routes to compare): the target steps in the paths and the triangle view, the power and
+     * the number in the expansion view, the two switches of the paths view while the routes are drawn. The view, the example, the route and the page are setup and
+     * stay in Orodja (the target stays draggable on the board). The status sentence is the note, the rows are the readouts; the board captions stay on the board.
+     */
+    protected override declaration(): GraphDeclaration<LatticePathIds> {
+        const {view} = this.state;
+        const parameters: ParameterDeclaration<LatticePathIds["param"]>[] = [];
+        const actions: ActionDeclaration<LatticePathIds>[] = [];
+        if (view === "expansion") {
+            parameters.push(
+                {key: "lattice-n", kind: "count", label: message("lattice_n_name"), symbol: "n", placement: "board", min: EXPANSION_N_RANGE.min, max: EXPANSION_N_RANGE.max,
+                 help: message("lattice_n_help")},
+                {key: "lattice-c", kind: "range", label: message("lattice_c_name"), symbol: "c", placement: "board", min: EXPANSION_C_RANGE.min, max: EXPANSION_C_RANGE.max,
+                 step: STEP, bigStep: EXPANSION_BIG_STEP, maxDecimals: 0, help: message("lattice_c_help")},
+            );
+        } else {
+            parameters.push(
+                {key: "lattice-a", kind: "count", label: message("lattice_a_name"), symbol: "a", placement: "board", min: TARGET_RANGE.min, max: TARGET_RANGE.max,
+                 help: message("lattice_a_help")},
+                {key: "lattice-b", kind: "count", label: message("lattice_b_name"), symbol: "b", placement: "board", min: TARGET_RANGE.min, max: TARGET_RANGE.max,
+                 help: message("lattice_b_help")},
+            );
+        }
+        if (view === "paths" && this.lattice().enumerable) {
+            actions.push(
+                {id: "show-counts", label: message("lattice_counts_name"), placement: "board", enabled: true, pressed: this.state.showCounts, puck: true},
+                {id: "split", label: message("lattice_split_name"), placement: "board", enabled: true, pressed: this.state.split, puck: true},
+            );
+        }
+        const box = this.frameBox();
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("combinatorics_readout_title"), rows: this.rowSpecs()}],
+            notes: [{id: "status", text: this.statusMessage()}],
+            actions,
+            // The marks are the whole frame of the view: the grid with the captions above it, the triangle with its caption or the bars with the captions (all drawn inside it).
+            marks: {must: [{kind: "box", left: box[0], top: box[1], right: box[2], bottom: box[3]}]},
+            followView: box,
+        };
+    }
+
+    override performAction(id: string): void {
+        switch (id) {
+            case "show-counts": runAs("learner", () => this.setState({showCounts: !this.state.showCounts})); return;
+            case "split": runAs("learner", () => this.setState({split: !this.state.split})); return;
+            default: throw new Error("Unknown action");
         }
     }
 
@@ -897,9 +1073,11 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     private targetInputs(): JSX.Element[] {
         const {a, b} = this.state;
         return [
-            <PointListInput key="target" title={t("combinatorics_lattice_target_title")} points={[[a, b]]} pointLabel={() => "T"} axisLabels={["a", "b"]}
+            <PuckOwnedGroup key="target" params={["lattice-a", "lattice-b"]}>
+            <PointListInput title={t("combinatorics_lattice_target_title")} points={[[a, b]]} pointLabel={() => "T"} axisLabels={["a", "b"]}
                             min={TARGET_RANGE.min} max={TARGET_RANGE.max} step={STEP} bigStep={TARGET_BIG_STEP} grid={1} decimals={0} integer
-                            onCommit={(_index, [nextA, nextB]) => this.editTarget(nextA, nextB) ? undefined : t("combinatorics_lattice_target_rejected")}/>,
+                            onCommit={(_index, [nextA, nextB]) => this.editTarget(nextA, nextB) ? undefined : t("combinatorics_lattice_target_rejected")}/>
+            </PuckOwnedGroup>,
         ];
     }
 
@@ -926,11 +1104,15 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         const commands: JSX.Element[] = [];
         if (view === "expansion") {
             commands.push(
-                <CountSetter key="n" label={t("combinatorics_lattice_n_label")} n={state.n} min={EXPANSION_N_RANGE.min} max={EXPANSION_N_RANGE.max}
-                             bigStep={EXPANSION_BIG_STEP} onPlus={() => this.editExpansion("n", state.n + 1)}
-                             onMinus={() => this.editExpansion("n", state.n - 1)} onSet={value => this.editExpansion("n", value)}/>,
-                <Slider key="c" customText={t("combinatorics_lattice_c_label")} value={state.c} step={STEP} bigStep={EXPANSION_BIG_STEP}
-                        min={EXPANSION_C_RANGE.min} max={EXPANSION_C_RANGE.max} grid={1} onChange={value => this.editExpansion("c", value)}/>,
+                <PuckOwned key="n" param="lattice-n">
+                    <CountSetter label={t("combinatorics_lattice_n_label")} n={state.n} min={EXPANSION_N_RANGE.min} max={EXPANSION_N_RANGE.max}
+                                 bigStep={EXPANSION_BIG_STEP} onPlus={() => this.editExpansion("n", state.n + 1)}
+                                 onMinus={() => this.editExpansion("n", state.n - 1)} onSet={value => this.editExpansion("n", value)}/>
+                </PuckOwned>,
+                <PuckOwned key="c" param="lattice-c">
+                    <Slider customText={t("combinatorics_lattice_c_label")} value={state.c} step={STEP} bigStep={EXPANSION_BIG_STEP}
+                            min={EXPANSION_C_RANGE.min} max={EXPANSION_C_RANGE.max} grid={1} onChange={value => this.editExpansion("c", value)}/>
+                </PuckOwned>,
             );
         } else {
             commands.push(...this.targetInputs());
@@ -948,8 +1130,12 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             }
             const reason = lattice.enumerable ? undefined : this.capMessage();
             commands.push(
-                <BooleanField key="counts" variant="switch" label={t("combinatorics_lattice_show_counts")} checked={state.showCounts} unavailableReason={reason} onChange={checked => this.setState({showCounts: checked})}/>,
-                <BooleanField key="split" variant="switch" label={t("combinatorics_lattice_split")} checked={state.split} unavailableReason={reason} onChange={checked => this.setState({split: checked})}/>,
+                <PuckOwned key="counts" param="show-counts">
+                    <BooleanField variant="switch" label={t("combinatorics_lattice_show_counts")} checked={state.showCounts} unavailableReason={reason} onChange={checked => this.setState({showCounts: checked})}/>
+                </PuckOwned>,
+                <PuckOwned key="split" param="split">
+                    <BooleanField variant="switch" label={t("combinatorics_lattice_split")} checked={state.split} unavailableReason={reason} onChange={checked => this.setState({split: checked})}/>
+                </PuckOwned>,
             );
         }
         return [selectors[0], ...commands, selectors[1]];
@@ -997,9 +1183,9 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     protected override workspaceEdit(): React.ReactNode {
         return <>
             {this.getGraphCommandsArea()}
-            <div className="inspector-group">
+            <div className="inspector-group" data-declared-panel="">
                 <ReadoutHeading>{t("combinatorics_readout_title")}</ReadoutHeading>
-                <p data-combinatorics-status="">{this.statusText()}</p>
+                <p data-combinatorics-status="" data-readout-note="">{this.statusText()}</p>
                 <ReadoutList label={t("combinatorics_readout_title")} rows={this.readoutRows()}/>
                 <LiveReadout readout={this.status}/>
             </div>

@@ -1213,6 +1213,23 @@ const SAMPLES: readonly Sample[] = [
             {name: 'row 10, k 5, weight 0,25', apply: run({view: 'row', n: 10, k: 5, t: 25})},
         ] satisfies ParityState[];
     })()},
+    {file: 'combinatorics/__parity__/lattice-paths.json', demonstration: 'lattice-paths', states: (() => {
+        type Lattice = {setState(state: Record<string, unknown>): void};
+        const fresh = {view: 'paths', a: 5, b: 3, route: 0, showCounts: false, split: false, n: 5, c: 2};
+        // every state starts from the default state, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Lattice).setState({...fresh, ...state})); };
+        return [
+            {name: 'default, target (5, 3)', apply: run({})},
+            {name: 'target (2, 2), route 4', apply: run({a: 2, b: 2, route: 3})},
+            {name: 'target (4, 3), split', apply: run({a: 4, b: 3, split: true, showCounts: true})},
+            {name: 'target (10, 10), over the cap', apply: run({a: 10, b: 10})},
+            {name: 'triangle, row 8, place 5', apply: run({view: 'triangle'})},
+            {name: 'triangle edge, row 5, place 5', apply: run({view: 'triangle', a: 5, b: 0})},
+            {name: 'triangle, row beyond the drawn rows', apply: run({view: 'triangle', a: 10, b: 10})},
+            {name: 'expansion (x + 2)^5', apply: run({view: 'expansion'})},
+            {name: 'expansion (x - 3)^7, strings off', apply: run({view: 'expansion', n: 7, c: -3})},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root =path.resolve(__dirname, '../..');
