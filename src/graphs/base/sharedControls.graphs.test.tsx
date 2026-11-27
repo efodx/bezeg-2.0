@@ -6,7 +6,7 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {enterNumber} from '../../inputs/testEntry';
 import {t} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
+import {installBoardShims, mountGraph, openTools, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
 import {createGraph} from './createTestGraph';
 import type {DemonstrationId} from '../../demonstrations';
 import {countSetterBehaviour, numericFieldBehaviour, pointCollectionBehaviour, pointListBehaviour, sliderBehaviour} from '../../inputs/sharedControlBehaviour';
@@ -22,6 +22,17 @@ type PlainKey = 'prob_density_a_label' | 'prob_density_b_label' | 'series_a_labe
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
+
+/** Opens the Orodja card on its Uredi panel: the card remembers the panel and folds again on a host Reset. */
+async function openEditTools(): Promise<void> {
+    for (let pass = 0; pass < 2; pass++) {
+        await openTools();
+        const tab = document.querySelector<HTMLElement>('#board-card-tools .tools-head-button[aria-controls="inspector-edit"]');
+        if (tab && tab.getAttribute('aria-pressed') !== 'true') act(() => { fireEvent.click(tab); });
+        // The board lays its cards out after the first paint and remounts their bodies: let that settle before a control is used.
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 200)); });
+    }
+}
 
 /** Mounts the graph and waits until the control with this label is on screen (the language is already set). */
 async function mountWith(id: DemonstrationId, labelKey: PlainKey, fieldLabel = false) {
@@ -74,7 +85,7 @@ numeric('prob-density', 'prob_density_a_label', {min: -DENSITY_BOUND_LIMIT, max:
 numeric('prob-density', 'prob_density_b_label', {min: -DENSITY_BOUND_LIMIT, max: DENSITY_BOUND_LIMIT, step: DENSITY_DRAG_STEP, valid: 2.5, outOfRange: DENSITY_BOUND_LIMIT + 1});
 
 slider('geometric-series', 'series_a_label', {min: SERIES_A_MIN, max: SERIES_A_MAX, step: 0.1, valid: 2, outOfRange: SERIES_A_MAX + 1});
-slider('interp-lagrange', 'interp_slider_position', {min: 0, max: 1, step: 0.01, valid: 0.5, outOfRange: 2});
+// Interpolation's position s is a board puck now (no Orodja slider remains): bounds and refusals are covered in InterpolationGraph.declaration.test.tsx.
 // Accumulation a, and convexity a/b/t and Darboux a/b/n, are board pucks now: no Orodja slider remains. Bounds, rejection and puck drag are covered in AccumulationGraph.test.ts and AccumulationGraph.host.test.tsx.
 
 count('bspline-deboor', 'bsd_point_count', {min: 3, max: 12});
@@ -86,6 +97,7 @@ for (const id of ['interp-lagrange'] as const) pointCollectionBehaviour(`${id} i
     section: 'edit', min: INTERPOLATION_POINTS_MIN, max: INTERPOLATION_POINTS_MAX,
     mount: async () => {
         const {graph} = await mountWith(id, 'interp_point_count');
+        await openEditTools();
         const group = () => screen.getByText(t('interp_point_count')).closest('.point-collection') as HTMLElement;
         const button = (key: PlainKey) => () => group().querySelector(`button[aria-label="${t(key)}"]`) as HTMLElement;
         const plus = button('increase_count'), minus = button('decrease_count');
@@ -98,9 +110,13 @@ pointListBehaviour('interp-lagrange point list', {
     section: 'edit', min: -INTERPOLATION_COORDINATE_LIMIT, max: INTERPOLATION_COORDINATE_LIMIT, step: 1, valid: 7, outOfRange: INTERPOLATION_COORDINATE_LIMIT + 1,
     mount: async () => {
         const {graph} = await mountWith('interp-lagrange', 'interp_point_count');
+        await openEditTools();
         const name = () => t('interp_point_name', {value0: 1});
         const field = () => screen.getByRole('spinbutton', {name: `${name()}, x`});
-        return {get field() { return field(); }, read: () => Number(field().getAttribute('aria-valuenow')), reset: () => settle(() => graph.reset()),
+        await waitUntil(() => screen.queryByRole('spinbutton', {name: `${name()}, x`}) !== null);
+        // A host Reset folds the Orodja card again: open it before the next read.
+        const reset = async () => { await settle(() => graph.reset()); await openEditTools(); };
+        return {get field() { return field(); }, read: () => Number(field().getAttribute('aria-valuenow')), reset,
             rows: () => document.querySelectorAll('.point-list-row').length};
     },
 });

@@ -1,6 +1,4 @@
-import type {Board, GeometryElement, Point, Text} from "jsxgraph";
-import {currentLanguage, onLanguageChange, t} from "../../../localization";
-import {formatNumber} from "../../../analysis/format";
+import type {Board, GeometryElement, Point} from "jsxgraph";
 import {Point2} from "../../../analysis/interpolation";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {chainBezier, chainPoint, ChainInput, HermiteChain, hermiteChain} from "./hermiteModel";
@@ -14,26 +12,18 @@ interface SceneSettings {
     input: () => ChainInput;
     showTangents: () => boolean;
     showBezier: () => boolean;
-    fontSize: () => number;
     /** A drag of data point i to (x, y); returns whether the model accepted it. The scene redraws from the state either way. */
     onMove: (index: number, x: number, y: number) => boolean;
     /** A drag of the tip of tangent arrow i to (x, y); refused (false) outside Hermite mode. */
     onTangent: (index: number, x: number, y: number) => boolean;
 }
 
-/** The status line of the board: the curve type, and the tension in Catmull-Rom mode. */
-export function statusLine(input: ChainInput, language = currentLanguage()): string {
-    return input.mode === 'hermite'
-        ? t("hermite_board_hermite")
-        : t("hermite_board_catmull", {value0: formatNumber(input.tension, language, 3)});
-}
-
 /**
  * The owned elements of the Hermite and Catmull-Rom scene: the curve (one functional curve over the global parameter),
- * one control polygon and two control points per segment (the Bezier overlay), the draggable data points, the tangent
- * arrows with their tip handles and the status text. A scene is built for one point count; adding or removing a point (or
- * importing a Preset) builds a new one. {@link dispose} removes every element (the drag listeners go with their points)
- * and releases the language subscription.
+ * one control polygon and two control points per segment (the Bezier overlay), the draggable data points and the tangent
+ * arrows with their tip handles. The curve type and the tension are the puck strip's, not board text. A scene is built for
+ * one point count; adding or removing a point (or importing a Preset) builds a new one. {@link dispose} removes every element
+ * (the drag listeners go with their points).
  */
 export class HermiteScene {
     private readonly board: Board;
@@ -41,7 +31,8 @@ export class HermiteScene {
     private elements: GeometryElement[] = [];
     private dataPoints: Point[] = [];
     private tips: Point[] = [];
-    private stopLanguageUpdates?: () => void;
+    /** The elements a legend entry names, by id (`drawnElement`). */
+    private readonly named = new Map<string, GeometryElement>();
     private disposed = false;
     private cacheKey?: unknown[];
     private cacheValue?: HermiteChain;
@@ -68,6 +59,11 @@ export class HermiteScene {
     /** The draggable tip handle of each tangent arrow. */
     tipElements(): readonly Point[] {
         return this.tips;
+    }
+
+    /** The drawn element a legend entry names: `points` (the first data point), `curve`, `tangents` (the first arrow) or `bezier` (the first control point). */
+    drawnElement(id: string): GeometryElement | undefined {
+        return id === 'points' ? this.dataPoints[0] : this.named.get(id);
     }
 
     get pointCount(): number {
@@ -113,7 +109,7 @@ export class HermiteScene {
         const segments = this.count - 1;
         const bezierVisible = () => this.settings.showBezier();
 
-        // Layers, lowest first: control polygons, curve, control points, arrows, tips, data points, status text.
+        // Layers, lowest first: control polygons, curve, control points, arrows, tips, data points.
         for (let i = 0; i < segments; i++) {
             const polygon = this.create<GeometryElement & {dataX: number[]; dataY: number[]; updateDataArray: () => void}>('curve', [[], []],
                 {...quiet, strokeColor: GraphPalette.controlPolygon, strokeWidth: 2, dash: 2, visible: bezierVisible});
@@ -126,8 +122,8 @@ export class HermiteScene {
             };
         }
 
-        this.create('curve', [(u: number) => this.curveAt(u)[0], (u: number) => this.curveAt(u)[1], 0, () => this.lastParameter()],
-            {...quiet, strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5});
+        this.named.set('curve', this.create('curve', [(u: number) => this.curveAt(u)[0], (u: number) => this.curveAt(u)[1], 0, () => this.lastParameter()],
+            {...quiet, strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5}));
 
         for (let i = 0; i < segments; i++) {
             for (const k of [1, 2] as const) {
@@ -135,10 +131,11 @@ export class HermiteScene {
                     const chain = this.chain();
                     return chain ? chainBezier(chain)[i]?.[k][axis] ?? NaN : NaN;
                 };
-                this.create<Point>('point', [at(0), at(1)], {
+                const control = this.create<Point>('point', [at(0), at(1)], {
                     ...quiet, name: '', size: 3, face: '[]', strokeColor: GraphPalette.comparisonCurve, fillColor: GraphPalette.comparisonCurve,
                     visible: bezierVisible,
                 });
+                if (!this.named.has('bezier')) this.named.set('bezier', control);
             }
         }
 
@@ -174,22 +171,10 @@ export class HermiteScene {
                 this.sync();
             });
             this.tips.push(tip);
-            this.create('arrow', [this.dataPoints[i], tip], {
+            const arrow = this.create('arrow', [this.dataPoints[i], tip], {
                 ...quiet, strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, lastArrow: {size: 5}, visible: () => this.settings.showTangents(),
             });
-        });
-
-        const box = () => this.board.getBoundingBox();
-        this.create<Text>('text', [
-            () => box()[0] + 0.02 * (box()[2] - box()[0]),
-            () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => statusLine(this.settings.input()),
-        ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
-            strokeColor: GraphPalette.label});
-
-        // Board text is recomputed only on board update, which a language change does not trigger.
-        this.stopLanguageUpdates = onLanguageChange(() => {
-            if (!this.disposed && this.board.renderer) this.board.update();
+            if (!this.named.has('tangents')) this.named.set('tangents', arrow);
         });
     }
 
@@ -221,8 +206,7 @@ export class HermiteScene {
         this.disposed = true;
         // A removed point never fires "out": do not leave the board showing its hover cursor.
         if (this.board.containerObj?.style.cursor === 'pointer') this.board.containerObj.style.cursor = 'default';
-        this.stopLanguageUpdates?.();
-        this.stopLanguageUpdates = undefined;
+        this.named.clear();
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();
         this.elements = [];
         this.dataPoints = [];

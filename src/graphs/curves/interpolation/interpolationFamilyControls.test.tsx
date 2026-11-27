@@ -35,11 +35,11 @@ test('Lagrange interpolation: a refused move shows its reason alone in the refus
 
 test('Hermite: a refused move goes to the refusal channel and the next accepted edit clears it', async () => {
     const graph = await mount('interp-hermite');
-    act(() => graph.setParameterRule('chord'));
+    act(() => runAs('learner', () => graph.setParameterRule('chord')));
     act(() => { runAs('learner', () => graph.movePoint(1, graph.state.points[0][0], graph.state.points[0][1])); });
     expect(notice()).not.toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
-    act(() => graph.setShowBezier(!graph.state.showBezier));
+    act(() => runAs('learner', () => graph.setShowBezier(!graph.state.showBezier)));
     expect(notice()).toBeNull();
 });
 

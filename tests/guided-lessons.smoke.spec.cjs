@@ -2274,7 +2274,8 @@ const interpolationLagrange = {
 };
 
 // Interpolation I3: the board has only a status line (no tangent or point readout), so the probe is the mode text per step 1..6: Hermite for steps 1-2, Catmull-Rom with tension 1 for steps 3-6.
-const HERMITE_READOUTS = [/Hermiteova krivulja z izbranimi tangentami|Hermite curve with chosen tangents/, /Hermiteova krivulja z izbranimi tangentami|Hermite curve with chosen tangents/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/];
+// Hermite status per lesson step 1..6: the mode puck (steps 1-2 Hermite with no tension puck, steps 3-6 Catmull-Rom with the tension puck at 1) since task 08 lane L43; the board caption is gone.
+const HERMITE_MODES = ["hermite", "hermite", "catmull-rom", "catmull-rom", "catmull-rom", "catmull-rom"];
 const interpolationHermite = {
     id: 'interp-hermite',
     path: `${BASE}/interpolation/hermite`,
@@ -2282,7 +2283,9 @@ const interpolationHermite = {
     steps: 6,
     minFrames: 14, // 2 frames per step, 3 on steps 2 and 3 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, HERMITE_READOUTS[step - 1]).first(), `hermite status at ${label}`).toBeVisible();
+        const mode = HERMITE_MODES[step - 1];
+        await expect(page.locator(`.puck-strip [data-puck-key="hermite-mode"] [role="radio"][data-value="${mode}"][aria-checked="true"]`), `hermite mode puck at ${label}`).toHaveCount(1);
+        await expect(page.locator('.puck-strip [data-puck-key="hermite-tension"]'), `hermite tension puck at ${label}`).toHaveCount(mode === 'hermite' ? 0 : 1);
     },
 };
 

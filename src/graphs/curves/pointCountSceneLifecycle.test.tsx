@@ -11,6 +11,7 @@ import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
 import {appStorage} from '../../storage/appStorage';
 import {installBoardShims, mountGraph, type MountedGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
 import {internals} from '../base/realGraphScenes';
+import {runAs} from '../base/writes/writeSource';
 import {setLanguage} from '../../localization';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {InterpolationGraph} from './interpolation/InterpolationGraph';
@@ -167,12 +168,12 @@ describe.each(SUBJECTS)('$name owned scene lifecycle', subject => {
     });
     afterEach(() => { mounted.view.unmount(); });
 
-    const importStructural = () => act(() => internals(graph).importPresetData(subject.structural(defaultData)));
+    const importStructural = () => act(() => runAs('learner', () => internals(graph).importPresetData(subject.structural(defaultData))));
     const figureOf = (data: Data) => [{...defaultPreset, id: 'figure', data: data as never}];
 
     const entries: Record<string, (checkpoint: ReturnType<ReturnType<GraphLike['getLessonCapabilities']>['captureState']>) => Promise<void>> = {
         'reset': async () => { await settle(() => graph.reset()); },
-        'Preset import': async () => { act(() => internals(graph).importPresetData(defaultData)); },
+        'Preset import': async () => { act(() => runAs('learner', () => internals(graph).importPresetData(defaultData))); },
         'checkpoint restore': async checkpoint => { act(() => graph.getLessonCapabilities().restoreState(checkpoint)); },
         'figure entry-and-return': async () => { await settle(() => internals(graph).exportPresetFigures(figureOf(defaultData))); },
     };
@@ -224,7 +225,7 @@ describe.each(SUBJECTS)('$name owned scene lifecycle', subject => {
         const before = sceneOf(graph);
         const watch = watchReleases(subject);
         const data = subject.sameShape(defaultData);
-        act(() => internals(graph).importPresetData(data));
+        act(() => runAs('learner', () => internals(graph).importPresetData(data)));
         expect(sceneOf(graph)).toBe(before);
         expect(watch.released).toHaveLength(0);
         before.pointElements().forEach((point, i) => expect([point.X(), point.Y()]).toEqual(data.points[i]));
@@ -235,7 +236,7 @@ describe.each(SUBJECTS)('$name owned scene lifecycle', subject => {
 
     test('a checkpoint restore of the same count draws the checkpoint without stacking elements', () => {
         const checkpoint = graph.getLessonCapabilities().captureState();
-        act(() => internals(graph).importPresetData(subject.sameShape(defaultData)));
+        act(() => runAs('learner', () => internals(graph).importPresetData(subject.sameShape(defaultData))));
         act(() => graph.getLessonCapabilities().restoreState(checkpoint));
         expect(labelledPoints(graph)).toBe(defaultData.points.length);
         sceneOf(graph).pointElements().forEach((point, i) => expect([point.X(), point.Y()]).toEqual(defaultData.points[i]));
@@ -297,7 +298,7 @@ describe.each(SUBJECTS)('$name owned scene lifecycle', subject => {
     test('after a replacement a released scene\'s drag handler is inert (it neither throws nor writes the state)', () => {
         importStructural();
         const old = [...sceneOf(graph).pointElements()];
-        act(() => internals(graph).importPresetData(defaultData));
+        act(() => runAs('learner', () => internals(graph).importPresetData(defaultData)));
         const before = JSON.stringify(graph.state);
         expect(() => dragTo(old[1], 5, 7)).not.toThrow();
         expect(JSON.stringify(graph.state)).toBe(before);
@@ -318,7 +319,7 @@ describe('Subdivision playback and a replaced scene', () => {
     afterEach(() => { mounted.view.unmount(); });
 
     test.each([
-        ['a count-changing import', () => act(() => internals(asGraph()).importPresetData({...exported(asGraph()), points: [[0, 0], [1, 2], [3, 0]]}))],
+        ['a count-changing import', () => act(() => runAs('learner', () => internals(asGraph()).importPresetData({...exported(asGraph()), points: [[0, 0], [1, 2], [3, 0]]})))],
         ['a checkpoint restore', () => act(() => graph.getLessonCapabilities().restoreState(checkpoint!))],
         ['an unmount', () => mounted.view.unmount()],
     ])('late frames after %s change nothing and touch no released scene', (_name, replace) => {

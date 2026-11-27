@@ -1,0 +1,42 @@
+{
+  "graph": "interp-hermite",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "4"
+      ],
+      "captions": []
+    },
+    {
+      "name": "fifth point",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "5"
+      ],
+      "captions": []
+    },
+    {
+      "name": "three points",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "3"
+      ],
+      "captions": []
+    },
+    {
+      "name": "six points",
+      "rows": [],
+      "notes": [],
+      "outputs": [
+        "5"
+      ],
+      "captions": []
+    }
+  ]
+}

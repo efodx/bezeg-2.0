@@ -5,6 +5,7 @@ import type {LessonAction} from '../model';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
 import type {DemonstrationId} from '../../demonstrations';
+import {runAs} from '../../graphs/base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -30,7 +31,7 @@ function sceneBoxes(demonstrationId: DemonstrationId, stepSceneId: string, nomin
             if (action.kind === 'interpolation' || action.kind === 'hermite' ? action.operation === 'add-point' : false) boxes.push([...board.getBoundingBox()]);
             if (action.kind === 'prepared-scene') {
                 // The nominal fitted box of part 3b; keepaspect off so that the canvas shape of the test cannot widen it.
-                board.setBoundingBox(nominal, false);
+                runAs('learner', () => board.setBoundingBox(nominal, false));
                 boxes.splice(0, boxes.length, [...board.getBoundingBox()]);
             }
         }

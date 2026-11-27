@@ -5174,8 +5174,6 @@ export const en: Record<keyof typeof sl, string> = {
     "hermite_tangent_list": "Tangent components",
     "hermite_tangent_name": "Tangent {value0}",
     "hermite_end_note": "The end tangents are one-sided: at the first and last point only the neighbouring point determines the tangent.",
-    "hermite_board_catmull": "Catmull-Rom spline, tension {value0}",
-    "hermite_board_hermite": "Hermite curve with chosen tangents",
     "subdiv_points_range": "The number of polygon points must be from {value0} to {value1}",
     "subdiv_coordinate_invalid": "polygon point coordinates must be numbers between −{value0} and {value0}",
     "subdiv_closed_needs_three": "A closed polygon needs at least 3 points.",

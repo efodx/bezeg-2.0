@@ -12,13 +12,13 @@ import {formatNumber, formatSignificant} from '../../analysis/format';
 import {setLanguage} from '../../localization';
 import type {HermiteGraph} from '../../graphs/curves/hermite/HermiteGraph';
 import {chainBezier, chainPoint, DEFAULT_HERMITE_PRESET, hermiteChain} from '../../graphs/curves/hermite/hermiteModel';
-import {statusLine} from '../../graphs/curves/hermite/HermiteScene';
 import {catmullRomSegments, catmullRomTangents, hermiteDerivative, hermitePoint} from '../../analysis/hermite';
 import type {RungeInterpolationGraph} from '../../graphs/functions/RungeInterpolationGraph';
 import {rungeData} from '../../analysis/rungeInterpolationModel';
 import type {LeastSquaresGraph} from '../../graphs/functions/LeastSquaresGraph';
 import {DEFAULT_LEAST_SQUARES_MODEL, leastSquaresView, normalEquations} from '../../analysis/leastSquaresModel';
 import type {LeastSquaresView} from '../../analysis/leastSquaresModel';
+import {runAs} from '../../graphs/base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -309,22 +309,21 @@ test('moving one point changes at most four Catmull-Rom segments, and the lesson
 test('each hermite scene sets the mode, tension, overlays and points its text describes, in one synchronous sequence', () => {
     const h = mountHermite();
     try {
-        const expected: ReadonlyArray<readonly [string, 'hermite' | 'catmull-rom', boolean, number, string]> = [
-            // [step, mode, Bezier overlay, point count, status line]
-            ['hermite-predict-segment', 'hermite', false, 4, 'Hermiteova krivulja z izbranimi tangentami'],
-            ['hermite-handle', 'hermite', true, 4, 'Hermiteova krivulja z izbranimi tangentami'],
-            ['hermite-catmull-rom', 'catmull-rom', false, 4, 'Catmull-Romov zlepek, napetost 1'],
-            ['hermite-locality', 'catmull-rom', false, 6, 'Catmull-Romov zlepek, napetost 1'],
-            ['hermite-c1-only', 'catmull-rom', true, 4, 'Catmull-Romov zlepek, napetost 1'],
-            ['hermite-explore', 'catmull-rom', false, 4, 'Catmull-Romov zlepek, napetost 1'],
+        const expected: ReadonlyArray<readonly [string, 'hermite' | 'catmull-rom', boolean, number]> = [
+            // [step, mode, Bezier overlay, point count]
+            ['hermite-predict-segment', 'hermite', false, 4],
+            ['hermite-handle', 'hermite', true, 4],
+            ['hermite-catmull-rom', 'catmull-rom', false, 4],
+            ['hermite-locality', 'catmull-rom', false, 6],
+            ['hermite-c1-only', 'catmull-rom', true, 4],
+            ['hermite-explore', 'catmull-rom', false, 4],
         ];
-        for (const [stepId, mode, bezier, count, status] of expected) {
+        for (const [stepId, mode, bezier, count] of expected) {
             h.scene(hermiteStepOf(stepId));
             const state = h.graph.state;
             expect([state.mode, state.showBezier, state.showTangents, state.parameterRule, state.tension], stepId).toEqual([mode, bezier, true, 'uniform', 1]);
             expect(state.points.length, stepId).toBe(count);
             expect(state.tangents.length, stepId).toBe(count);
-            expect(statusLine(state, 'sl'), stepId).toBe(status);
         }
         // Hermite mode starts from the Catmull-Rom tangents, so step 1 shows the quoted arrows.
         h.scene(hermiteStepOf('hermite-predict-segment'));
@@ -332,7 +331,7 @@ test('each hermite scene sets the mode, tension, overlays and points its text de
         // Reset after a modified step returns to the default: step 4 (six points) then the default scene, without a restore.
         h.run(hermiteStepOf('hermite-locality'));
         expect(h.graph.state.points).toHaveLength(6);
-        act(() => { h.graph.movePoint(2, 3, 4.5); h.graph.setTension(1.5); });
+        act(() => { h.graph.movePoint(2, 3, 4.5); runAs('learner', () => h.graph.setTension(1.5)); });
         act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
         expect(h.graph.state.points).toEqual(POINTS);
         expect([h.graph.state.mode, h.graph.state.tension, h.graph.state.showBezier]).toEqual(['catmull-rom', 1, false]);
@@ -344,7 +343,7 @@ test('each hermite scene sets the mode, tension, overlays and points its text de
         expect([h.graph.state.mode, h.graph.state.showBezier]).toEqual(['catmull-rom', true]);
         // A lesson checkpoint taken in a modified state keeps it.
         h.run(hermiteStepOf('hermite-locality'));
-        act(() => { h.graph.setTension(0.5); });
+        act(() => { runAs('learner', () => h.graph.setTension(0.5)); });
         const checkpoint = h.capabilities.captureState();
         act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
         expect(h.graph.state.points).toEqual(POINTS);

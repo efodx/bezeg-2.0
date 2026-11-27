@@ -11,12 +11,16 @@ import {PointListInput} from "../../../inputs/PointListInput";
 import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import {catmullRomTangents} from "../../../analysis/hermite";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from "../../../analysis/interpolation";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
-    catmullRomStored, DEFAULT_HERMITE_PRESET, firstCoincidentPair, HERMITE_COORDINATE_LIMIT, HERMITE_TANGENT_LIMIT, HERMITE_TENSION_MAX,
-    HERMITE_TENSION_MIN, HERMITE_TENSION_STEP, hermiteRejection, HermiteMode, HermitePresetData, hermiteViewBox, isHermiteMode, isParameterRule,
+    catmullRomStored, chainPoint, DEFAULT_HERMITE_PRESET, firstCoincidentPair, HERMITE_COORDINATE_LIMIT, HERMITE_TANGENT_LIMIT, HERMITE_TENSION_MAX,
+    HERMITE_TENSION_MIN, HERMITE_TENSION_STEP, hermiteChain, hermiteRejection, HermiteMode, HermitePresetData, hermiteViewBox, isHermiteMode, isParameterRule,
     ParameterRule,
 } from "./hermiteModel";
 import {hermitePresetCollection} from "./hermitePresetCollection";
@@ -34,6 +38,22 @@ export interface HermiteGraphState extends BaseGraphState {
     /** Why the last drag was refused (the state keeps the previous, valid data); empty when the last edit was accepted. */
     notice: '' | 'coincident';
 }
+
+/**
+ * The ids this graph declares: the curve type, the parameter rule and the tension as board pucks (the lesson steps ask to compare the
+ * rules and to change the tension and the type), a legend of what the board draws and the two display switches (tangents, Bezier
+ * control points), which stay in Orodja. The points and their tangents are the editor's (Orodja) and the board's.
+ */
+export type HermiteIds = {
+    param: 'hermite-mode' | 'hermite-rule' | 'hermite-tension';
+    row: never;
+    note: never;
+    legend: 'points' | 'curve' | 'tangents' | 'bezier';
+    section: never;
+    action: 'tangents' | 'bezier';
+};
+
+const VIEW_MARK_SAMPLES = 40;
 
 const clamp = (value: number, limit: number) => Math.min(limit, Math.max(-limit, value));
 const copyRows = (rows: readonly (readonly [number, number])[]) => rows.map(r => [r[0], r[1]] as const);
@@ -109,9 +129,8 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
                 input: () => this.state,
                 showTangents: () => this.state.showTangents,
                 showBezier: () => this.state.showBezier,
-                fontSize: () => this.displaySettings.fontSize,
-                onMove: (index, x, y) => this.movePoint(index, x, y),
-                onTangent: (index, x, y) => this.moveTangent(index, x, y),
+                onMove: (index, x, y) => runAs('learner', () => this.movePoint(index, x, y)),
+                onTangent: (index, x, y) => runAs('learner', () => this.moveTangent(index, x, y)),
             })),
             sync: scene => {
                 if (scene.pointCount !== this.state.points.length) return false;
@@ -321,6 +340,123 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         });
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the curve type, the parameter rule and the tension, through the setters the panel controls call. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'hermite-mode': {
+                read: () => this.state.mode,
+                apply: (value: unknown) => {
+                    if (!isHermiteMode(value)) throw new DomainError(message('interp_hermite_mode_invalid'));
+                    this.setMode(value);
+                },
+            },
+            'hermite-rule': {
+                read: () => this.state.parameterRule,
+                apply: (value: unknown) => {
+                    if (!isParameterRule(value)) throw new DomainError(message('interp_rule_invalid'));
+                    this.setParameterRule(value);
+                },
+            },
+            'hermite-tension': {
+                read: () => this.state.tension,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < HERMITE_TENSION_MIN || value > HERMITE_TENSION_MAX) {
+                        throw new DomainError(message('interp_hermite_tension_invalid'));
+                    }
+                    if (this.state.mode !== 'catmull-rom') throw new DomainError(message('interp_hermite_tension_hermite'));
+                    this.setTension(value);
+                },
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state: the type, the rule and (in Catmull-Rom mode only) the tension on the board, the legend of what is drawn
+     * now, the two display switches (Orodja, tab Prikaz) and the marks the view keeps visible.
+     */
+    protected override declaration(): GraphDeclaration<HermiteIds> {
+        const {mode, showTangents, showBezier} = this.state;
+        const hermite = mode === 'hermite';
+        const parameters: ParameterDeclaration<HermiteIds['param']>[] = [
+            {key: 'hermite-mode', kind: 'choice', label: message('hermite_mode'), placement: 'board', puck: true, options: [
+                {value: 'catmull-rom', label: message('hermite_mode_catmull'), short: message('interp_hermite_mode_catmull_short')},
+                {value: 'hermite', label: message('hermite_mode_hermite'), short: message('interp_hermite_mode_hermite_short')},
+            ]},
+            {key: 'hermite-rule', kind: 'choice', label: message('interp_parameter_rule'), placement: 'board', puck: true, options: [
+                {value: 'uniform', label: message('interp_rule_uniform'), short: message('interp_rule_uniform_short')},
+                {value: 'chord', label: message('interp_rule_chord'), short: message('interp_rule_chord_short')},
+            ]},
+            // The tension has no meaning in Hermite mode: the puck is left out there and Orodja keeps the control with its reason.
+            ...(hermite ? [] : [{key: 'hermite-tension' as const, kind: 'range' as const, label: message('hermite_tension'), help: message('hermite_tension_help'),
+                placement: 'board' as const, min: HERMITE_TENSION_MIN, max: HERMITE_TENSION_MAX, step: HERMITE_TENSION_STEP, maxDecimals: 2}]),
+        ];
+        const legend: LegendEntry<HermiteIds>[] = [
+            {id: 'points', label: message('interp_legend_points'), kind: 'point', object: 'points'},
+            {id: 'curve', label: message(hermite ? 'hermite_mode_hermite' : 'hermite_mode_catmull'), kind: 'line', object: 'curve'},
+            ...(showTangents ? [{id: 'tangents' as const, label: message('interp_hermite_legend_tangents'), kind: 'line' as const, object: 'tangents'}] : []),
+            ...(showBezier ? [{id: 'bezier' as const, label: message('interp_hermite_legend_bezier'), kind: 'point' as const, object: 'bezier'}] : []),
+        ];
+        const display = {placement: 'tools' as const, tab: 'display' as const, enabled: true};
+        const actions: ActionDeclaration<HermiteIds>[] = [
+            {id: 'tangents', label: message('hermite_show_tangents'), pressed: showTangents, ...display},
+            {id: 'bezier', label: message('hermite_show_bezier'), pressed: showBezier, ...display},
+        ];
+        return {parameters, legend, actions, marks: this.viewMarks()};
+    }
+
+    private viewMarksCache: {inputs: readonly unknown[]; marks: ViewMarks} | undefined;
+
+    /**
+     * What the view director keeps visible: the data points and, when shown, the tangent tips (must), samples of the curve (nice). Computed
+     * from the state alone and memoized on its inputs.
+     */
+    private viewMarks(): ViewMarks {
+        const {points, mode, tangents, parameterRule, tension, showTangents} = this.state;
+        const inputs = [points, mode, tangents, parameterRule, tension, showTangents];
+        if (this.viewMarksCache && inputs.every((value, i) => value === this.viewMarksCache!.inputs[i])) return this.viewMarksCache.marks;
+        const finite = (p: readonly number[]) => Number.isFinite(p[0]) && Number.isFinite(p[1]);
+        const must: ViewMark[] = points.filter(finite).map(([x, y]): ViewMark => ({kind: 'point', x, y}));
+        const nice: ViewMark[] = [];
+        if (!hermiteRejection({points, mode, tangents, parameterRule, tension, showTangents, showBezier: false})) {
+            try {
+                const chain = hermiteChain({points, mode, tangents, parameterRule, tension});
+                if (showTangents) {
+                    chain.tangents.forEach((m, i) => { if (finite(m)) nice.push({kind: 'point', x: points[i][0] + m[0], y: points[i][1] + m[1]}); });
+                }
+                const last = chain.parameters[chain.parameters.length - 1];
+                const samples: (readonly [number, number])[] = [];
+                for (let i = 0; i < VIEW_MARK_SAMPLES; i++) {
+                    const sample = chainPoint(chain, last * i / (VIEW_MARK_SAMPLES - 1));
+                    if (finite(sample)) samples.push([sample[0], sample[1]]);
+                }
+                if (samples.length > 1) nice.push({kind: 'polyline', points: samples});
+            } catch (error) {
+                if (!(error instanceof RangeError)) throw error;
+            }
+        }
+        const marks: ViewMarks = {must, nice};
+        this.viewMarksCache = {inputs, marks};
+        return marks;
+    }
+
+    /** The element a legend entry's `object` names, as the board holds it now. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const element = this.scene?.drawnElement(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const filled = id === 'points' || id === 'bezier';
+        return {color: String(drawn.evalVisProp(filled ? 'fillcolor' : 'strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
+    override performAction(id: string): void {
+        if (id === 'tangents') runAs('learner', () => this.setShowTangents(!this.state.showTangents));
+        else if (id === 'bezier') runAs('learner', () => this.setShowBezier(!this.state.showBezier));
+        else throw new Error('Unknown action');
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
@@ -328,13 +464,13 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         const {points, mode, tangents, parameterRule, tension, showTangents, showBezier} = this.state;
         const hermite = mode === 'hermite';
         return super.getGraphCommands().concat(
-            <div key="mode"><ChoiceSelect label={t("hermite_mode")} value={mode}
+            <PuckOwned key="mode" param="hermite-mode"><div><ChoiceSelect label={t("hermite_mode")} value={mode}
                                           options={[{value: 'catmull-rom', text: t("hermite_mode_catmull")}, {value: 'hermite', text: t("hermite_mode_hermite")}]}
                                           help={t("hermite_mode_help")}
-                                          onChange={value => { if (isHermiteMode(value)) this.setMode(value); }}/></div>,
-            <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
+                                          onChange={value => { if (isHermiteMode(value)) this.setMode(value); }}/></div></PuckOwned>,
+            <PuckOwned key="rule" param="hermite-rule"><div><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
-                                          onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
+                                          onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div></PuckOwned>,
             <div key="count"><PointCollection label={t("interp_point_count")} count={points.length} min={INTERPOLATION_POINTS_MIN}
                                                  max={INTERPOLATION_POINTS_MAX} onAdd={() => { const refusal = this.addPoint(); return refusal && renderMessage(refusal); }}
                                                  removal={{kind: "last", onRemove: () => this.removePoint()}}/></div>,
@@ -345,9 +481,9 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
                                                                pointLabel={i => t("hermite_tangent_name", {value0: i + 1})}
                                                                min={-HERMITE_TANGENT_LIMIT} max={HERMITE_TANGENT_LIMIT}
                                                                onCommit={(index, value) => this.editTangent(index, value)}/></div>] : []),
-            <div key="tension"><Slider min={HERMITE_TENSION_MIN} max={HERMITE_TENSION_MAX} step={HERMITE_TENSION_STEP} value={tension}
+            <PuckOwned key="tension" param="hermite-tension"><div><Slider min={HERMITE_TENSION_MIN} max={HERMITE_TENSION_MAX} step={HERMITE_TENSION_STEP} value={tension}
                                        customText={t("hermite_tension")} help={hermite ? undefined : t("hermite_tension_help")}
-                                       unavailableReason={hermite ? t("hermite_tension_disabled") : undefined} onChange={value => this.setTension(value)}/></div>,
+                                       unavailableReason={hermite ? t("hermite_tension_disabled") : undefined} onChange={value => this.setTension(value)}/></div></PuckOwned>,
             <div key="tangent-switch"><OnOffSwitch checked={showTangents} label={t("hermite_show_tangents")} onChange={checked => this.setShowTangents(checked)}/></div>,
             <div key="bezier"><OnOffSwitch checked={showBezier} label={t("hermite_show_bezier")} onChange={checked => this.setShowBezier(checked)}/></div>,
             ...(hermite ? [] : [<div key="end-note" className="inspector-help">{t("hermite_end_note")}</div>]),

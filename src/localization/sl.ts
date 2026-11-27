@@ -5173,8 +5173,6 @@ export const sl = {
     "hermite_tangent_list": "Komponente tangent",
     "hermite_tangent_name": "Tangenta {value0}",
     "hermite_end_note": "Tangenti v krajiščih sta enostranski: v prvi in zadnji točki ju določa samo sosednja točka.",
-    "hermite_board_catmull": "Catmull-Romov zlepek, napetost {value0}",
-    "hermite_board_hermite": "Hermiteova krivulja z izbranimi tangentami",
     "subdiv_points_range": "Število točk poligona mora biti od {value0} do {value1}",
     "subdiv_coordinate_invalid": "koordinate točk poligona morajo biti števila med −{value0} in {value0}",
     "subdiv_closed_needs_three": "Sklenjen poligon potrebuje vsaj 3 točke.",

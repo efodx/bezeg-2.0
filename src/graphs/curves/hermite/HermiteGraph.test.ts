@@ -188,14 +188,14 @@ describe('HermiteGraph state', () => {
 });
 
 describe('scene ownership', () => {
-    test('repeated imports neither stack elements nor listeners; removal releases both', () => {
+    test('repeated imports neither stack elements nor listeners (the scene holds no language subscription since the status text left the board); removal releases the elements', () => {
         const before = liveSubscriptions.count;
         const graph = makeGraph();
         const total = graph.board.objectsList.length;
-        expect(liveSubscriptions.count).toBe(before + 1);
+        expect(liveSubscriptions.count).toBe(before);
         for (let i = 0; i < 5; i++) graph.importPresetData(graph.exportPresetData());
         expect(graph.board.objectsList.length).toBe(total);
-        expect(liveSubscriptions.count).toBe(before + 1);
+        expect(liveSubscriptions.count).toBe(before);
         graph.sceneSlot.release();
         expect(graph.board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);
@@ -221,7 +221,7 @@ describe('scene ownership', () => {
         });
         const before = liveSubscriptions.count;
         expect(() => new HermiteScene({board, input: () => ({...valid, mode: 'catmull-rom'}), showTangents: () => true, showBezier: () => false,
-            fontSize: () => 16, onMove: () => true, onTangent: () => true})).toThrow('board failure');
+            onMove: () => true, onTangent: () => true})).toThrow('board failure');
         expect(board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);
     });

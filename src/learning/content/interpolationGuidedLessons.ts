@@ -13,10 +13,12 @@ import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {InterpolationIds} from '../../graphs/curves/interpolation/InterpolationGraph';
+import type {HermiteIds} from '../../graphs/curves/hermite/HermiteGraph';
 import {leastSquaresLesson} from './interpolationLeastSquaresLesson';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const lagrangeFrame = frameDeclarer<InterpolationIds>();
+const hermiteFrame = frameDeclarer<HermiteIds>();
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 /** A scene from the default four points: the parameter rule, the overlays, the shared position s, then optionally a fifth point. */
@@ -380,7 +382,8 @@ const hermiteLesson: GuidedLesson = {
                 'The four points are back at their starting place. Move the points, change the tension, which multiplies all Catmull-Rom tangents (at \\(0\\) the curve runs along the segments between the points), and switch the uniform parameters to chord-length parameters. In Hermite mode a rule switch rescales the local tangents \\(h_i m_i\\) and therefore changes the shape of the curve. For some arrangements of the points uniform parameters can cause overshoot or a loop; try to find one.',
             ),
             formulaIds: ['catmull-rom-tangent', 'hermite-bezier'],
-            frames: [frame('hermite-explore-explanation', 'explanation'), frame('hermite-explore-observation', 'observation')],
+            frames: [frame('hermite-explore-explanation', 'explanation', hermiteFrame({uses: ['hermite-tension', 'hermite-rule', 'hermite-mode']})),
+                frame('hermite-explore-observation', 'observation', hermiteFrame({uses: ['hermite-tension', 'hermite-rule', 'hermite-mode']}))],
             observationPrompt: text('Poišči razporeditev točk, pri kateri enakomerni parametri dajo prenihaj, in preveri, ali parametri po tetivah to omilijo. Če je ne najdeš, vpiši točke \\((0,0)\\), \\((8,0)\\), \\((9,0)\\), \\((9,8)\\), začni pri zadnji: pri enakomernih parametrih ima kratki srednji odsek zanko, po dolžini tetiv pa je nima.', 'Find an arrangement of the points where uniform parameters overshoot, and check whether chord-length parameters tame it. If you cannot find one, type the points \\((0,0)\\), \\((8,0)\\), \\((9,0)\\), \\((9,8)\\), starting from the last: with uniform parameters the short middle segment has a loop, with chord length it has none.'),
             expectedObservations: [text('Napetost spremeni dolžino tangent, pravilo parametrov pa čas, v katerem krivulja preteče odseke; oboje vpliva na obliko.', 'The tension changes the length of the tangents and the parameter rule the time the curve spends on each segment; both affect the shape.')],
             scene: hermiteScene('hermite-explore-start', 'catmull-rom', {tangents: true, bezier: false}, 0,

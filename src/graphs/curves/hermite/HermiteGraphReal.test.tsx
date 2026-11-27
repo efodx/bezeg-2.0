@@ -8,6 +8,9 @@ import {hermitePresetCollection} from './hermitePresetCollection';
 import {hermiteToBezier} from '../../../analysis/hermite';
 import {setLanguage} from '../../../localization';
 import type {Preset} from '../../base/presets/Presets';
+import {runAs} from '../../base/writes/writeSource';
+
+const learner = <T,>(work: () => T): T => runAs('learner', work);
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -55,7 +58,6 @@ const parts = (graph: ObservedHermiteGraph) => {
         controls: owned.slice(n, n + 2 * (n - 1)) as any[],
         tips: graph.sceneOf().tipElements() as any[],
         arrows: owned.filter(e => e.elType === 'arrow') as any[],
-        text: owned[owned.length - 1] as any,
     };
 };
 
@@ -85,7 +87,7 @@ describe('HermiteGraph on a real board', () => {
     test.each(['uniform', 'chord'] as const)('Hermite mode (%s): the drawn curve has the value and the global derivative m_i at every point', rule => {
         const {graph, view} = mount();
         const data = hermiteData({parameterRule: rule});
-        graph.importPresetData(data);
+        learner(() => graph.importPresetData(data));
         const {curve} = parts(graph);
         const t = [0];
         for (let i = 1; i < 4; i++) {
@@ -111,7 +113,7 @@ describe('HermiteGraph on a real board', () => {
         const {graph, view, board} = mount();
         for (const rule of ['uniform', 'chord'] as const) {
             const data = hermiteData({parameterRule: rule});
-            graph.importPresetData(data);
+            learner(() => graph.importPresetData(data));
             board.update();
             const {curve, polygons, controls} = parts(graph);
             const chain = graph.sceneOf().chain()!;
@@ -176,7 +178,7 @@ describe('HermiteGraph on a real board', () => {
     test('locality: moving point 2 of a seven-point Catmull-Rom chain changes segments 0..3 only; segments 4 and 5 are untouched', () => {
         const {graph, view} = mount();
         const points = [[0, 0], [1, 2], [2, 0.5], [3.5, 3], [4, 0], [5.5, 2], [7, 0]] as [number, number][];
-        graph.importPresetData({...DEFAULT_HERMITE_PRESET, points, tangents: points.map(() => [0, 0] as const)});
+        learner(() => graph.importPresetData({...DEFAULT_HERMITE_PRESET, points, tangents: points.map(() => [0, 0] as const)}));
         act(() => graph.flushStateChanges());
         const {curve} = parts(graph);
         const sample = () => Array.from({length: 6}, (_, s) => Array.from({length: 21}, (_, k) => at(curve, s + k / 20)));
@@ -216,7 +218,7 @@ describe('HermiteGraph on a real board', () => {
         expect(typeof graph.editPoint(1, [1, 5000])).toBe('string');
         expect(graph.state).toBe(before);
         // Chord parameters 0, 1000, 1000 + 1e-300 round to a repeat; uniform parameters do not.
-        graph.importPresetData({...DEFAULT_HERMITE_PRESET, points: [[0, 0], [1000, 0], [1000, 1e-300]], tangents: [[0, 0], [0, 0], [0, 0]]});
+        learner(() => graph.importPresetData({...DEFAULT_HERMITE_PRESET, points: [[0, 0], [1000, 0], [1000, 1e-300]], tangents: [[0, 0], [0, 0], [0, 0]]}));
         graph.setParameterRule('chord');
         expect(graph.state.parameterRule).toBe('uniform');
         expect(graph.state.notice).toBe('coincident');
@@ -253,17 +255,17 @@ describe('HermiteGraph on a real board', () => {
 
     test('switching to Hermite mode copies the tension-scaled Catmull-Rom tangents and the curve does not jump; back leaves them stored', () => {
         const {graph, view} = mount();
-        act(() => graph.setTension(0.5));
+        act(() => learner(() => graph.setTension(0.5)));
         const {curve} = parts(graph);
         const samples = Array.from({length: 31}, (_, k) => at(curve, k / 10));
-        act(() => graph.setMode('hermite'));
+        act(() => learner(() => graph.setMode('hermite')));
         expect(graph.state.tangents).toEqual([[0.5, 1], [0.75, 0.75], [0.75, -0.5], [0.5, -1.5]]);
         samples.forEach((p, k) => {
             expect(Math.abs(curve.X(k / 10) - p[0])).toBeLessThanOrEqual(1e-12);
             expect(Math.abs(curve.Y(k / 10) - p[1])).toBeLessThanOrEqual(1e-12);
         });
         act(() => { graph.moveTangent(1, 4, 2); });
-        act(() => graph.setMode('catmull-rom'));
+        act(() => learner(() => graph.setMode('catmull-rom')));
         expect(graph.state.tangents[1]).toEqual([3, 0]);
         // Catmull-Rom mode ignores the stored tangents: the arrow is the derived one again.
         expect([parts(graph).tips[1].X(), parts(graph).tips[1].Y()]).toEqual([1.75, 2.75]);
@@ -278,7 +280,7 @@ describe('HermiteGraph on a real board', () => {
         expect(graph.state.tangents[1]).toEqual([1.5, 1.5]);
         expect([tip1.X(), tip1.Y()]).toEqual([2.5, 3.5]);
         expect(tip1.visProp.fixed).toBe(true);
-        act(() => graph.setMode('hermite'));
+        act(() => learner(() => graph.setMode('hermite')));
         expect(tip1.visProp.fixed).toBe(false);
         tip1.moveTo([4, 4]);
         act(() => drag(tip1));
@@ -293,17 +295,17 @@ describe('HermiteGraph on a real board', () => {
         view.unmount();
     });
 
-    test('the tension slider is enabled for Catmull-Rom, disabled in Hermite mode where setTension is ignored; tangent fields appear only there', () => {
+    test('the tension is a puck in Catmull-Rom mode (no Orodja slider) and a disabled Orodja slider in Hermite mode, where setTension is ignored; tangent fields appear only there', () => {
         const {graph, view} = mount();
         const slider = () => screen.getAllByRole('slider').find(s => (s as HTMLInputElement).max === '2') as HTMLInputElement;
-        expect(slider()).not.toHaveAttribute('aria-disabled');
+        expect(graph.getDeclaration()!.parameters?.map(p => p.key)).toContain('hermite-tension');
         expect(screen.queryByText('Komponente tangent')).toBeNull();
         expect(screen.getByText(/enostranski/)).toBeInTheDocument();
-        act(() => graph.setTension(0.3));
+        act(() => learner(() => graph.setTension(0.3)));
         expect(graph.state.tension).toBe(0.3);
-        act(() => graph.setMode('hermite'));
+        act(() => learner(() => graph.setMode('hermite')));
         expect(slider()).toHaveAttribute('aria-disabled', 'true');
-        act(() => graph.setTension(1.2));
+        act(() => learner(() => graph.setTension(1.2)));
         expect(graph.state.tension).toBe(0.3);
         expect(screen.getByText('Komponente tangent')).toBeInTheDocument();
         expect(screen.queryByText(/enostranski/)).toBeNull();
@@ -313,7 +315,7 @@ describe('HermiteGraph on a real board', () => {
 
     test('a typed tangent changes the arrow and the curve; an out-of-range one is refused', () => {
         const {graph, view} = mount();
-        act(() => graph.setMode('hermite'));
+        act(() => learner(() => graph.setMode('hermite')));
         act(() => { expect(graph.editTangent(1, [0, 4])).toBeUndefined(); });
         expect(graph.state.tangents[1]).toEqual([0, 4]);
         expect([parts(graph).tips[1].X(), parts(graph).tips[1].Y()]).toEqual([1, 6]);
@@ -338,29 +340,26 @@ describe('HermiteGraph on a real board', () => {
         view.unmount();
     });
 
-    test('the board status text follows a live language switch', () => {
+    test('the board draws no status text: the curve type and the tension are the pucks', () => {
         const {graph, view} = mount();
-        const text = parts(graph).text;
-        expect(text.plaintext).toBe('Catmull-Romov zlepek, napetost 1');
+        expect(graph.ownedElements().filter((e: any) => e.elType === 'text')).toEqual([]);
         act(() => setLanguage('en'));
-        expect(text.plaintext).toBe('Catmull-Rom spline, tension 1');
-        act(() => graph.setMode('hermite'));
-        expect(text.plaintext).toBe('Hermite curve with chosen tangents');
+        act(() => learner(() => graph.setMode('hermite')));
+        expect(graph.ownedElements().filter((e: any) => e.elType === 'text')).toEqual([]);
         act(() => setLanguage('sl'));
-        expect(text.plaintext).toBe('Hermiteova krivulja z izbranimi tangentami');
         view.unmount();
     });
 
     test('a Preset round trip through the collection restores the same data', () => {
         const {graph, view} = mount();
         const input = hermiteData({parameterRule: 'chord', tension: 0.4, showTangents: false});
-        graph.importPresetData(input);
+        learner(() => graph.importPresetData(input));
         const exported = graph.exportPresetData();
         expect(exported).toEqual(input);
         const checked = hermitePresetCollection.check(JSON.parse(JSON.stringify(exported)));
         expect('data' in checked && checked.data).toEqual(exported);
-        graph.importPresetData(DEFAULT_HERMITE_PRESET);
-        graph.importPresetData((checked as {data: HermitePresetData}).data);
+        learner(() => graph.importPresetData(DEFAULT_HERMITE_PRESET));
+        learner(() => graph.importPresetData((checked as {data: HermitePresetData}).data));
         expect(graph.exportPresetData()).toEqual(exported);
         view.unmount();
     });
@@ -401,7 +400,7 @@ describe('HermiteGraph on a real board', () => {
 
     test('restoring a checkpoint taken with four points after adding a fifth leaves four points, four tips and the old tangents', () => {
         const {graph, view} = mount();
-        act(() => graph.setMode('hermite'));
+        act(() => learner(() => graph.setMode('hermite')));
         const capabilities = graph.getLessonCapabilities();
         const checkpoint = capabilities.captureState();
         act(() => { graph.addPoint(); graph.moveTangent(0, 5, 5); });
@@ -420,7 +419,7 @@ describe('HermiteGraph on a real board', () => {
         const {graph, view, board} = mount();
         const old = graph.ownedElements();
         const data = hermiteData();
-        graph.figure({name: 'f', data} as unknown as Preset);
+        learner(() => graph.figure({name: 'f', data} as unknown as Preset));
         expect(old.some(element => board.objectsList.includes(element))).toBe(false);
         expect(graph.state.mode).toBe('hermite');
         expect(graph.ownedOnBoard()).toBe(graph.ownedElements().length);
@@ -430,9 +429,9 @@ describe('HermiteGraph on a real board', () => {
 
     test('reset returns to the default scene', async () => {
         const {graph, view} = mount();
-        act(() => graph.importPresetData(hermiteData({points: [[0, 0], [2, 5], [7, -1]], tangents: [[1, 1], [1, 1], [1, 1]]})));
+        act(() => learner(() => graph.importPresetData(hermiteData({points: [[0, 0], [2, 5], [7, -1]], tangents: [[1, 1], [1, 1], [1, 1]]}))));
         // `await act(async () => graph.reset())` never settles under jsdom, so poll for the reloaded scene.
-        act(() => { void graph.reset(); });
+        act(() => { void learner(() => graph.reset()); });
         await waitFor(() => expect(graph.state.points.length).toBe(4));
         expect(graph.exportPresetData()).toEqual(DEFAULT_HERMITE_PRESET);
         expect(graph.sceneOf().tipElements().length).toBe(4);

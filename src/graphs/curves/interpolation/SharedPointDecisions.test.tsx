@@ -161,7 +161,7 @@ describe('Hermite view: the tangent tip is framed', () => {
         act(() => { runAs('learner', () => graph.addPoint()); });
         act(() => { runAs('learner', () => graph.addPoint()); });
         const tight: [number, number, number, number] = [-1.95, 5.45, 6.95, -4.95];
-        act(() => graph.setBox(tight));
+        act(() => { runAs('learner', () => graph.setBox(tight)); });
         act(() => { runAs('learner', () => graph.editPoint(1, [1.2, 2])); });
         expect(graph.box()[2]).toBeCloseTo(tight[2], 6);
         act(() => { runAs('learner', () => graph.editPoint(5, [6.5, 0])); });
@@ -175,7 +175,7 @@ describe('Hermite view: the tangent tip is framed', () => {
         // Tight box around the default points; the added point (6, 0) sits inside it but its tip (7, 0) does not.
         const tight: [number, number, number, number] = [-1.95, 5.45, 6.95, -4.95];
         act(() => { runAs('learner', () => graph.addPoint()); });
-        act(() => graph.setBox(tight));
+        act(() => { runAs('learner', () => graph.setBox(tight)); });
         act(() => { runAs('learner', () => graph.addPoint()); });
         expect(graph.state.points[5]).toEqual([6, 0]);
         // The refit frames the tip (7, 0) with a margin; an unmoved view would end at 6.95.

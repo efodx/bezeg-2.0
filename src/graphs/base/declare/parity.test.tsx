@@ -83,6 +83,10 @@ const interpLagrangeAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the only read-off is the point count of the "Število točk" count setter, a setup control that stays in Orodja and shows its own value; the two weight sentences are declared notes and the board no longer repeats them'},
 ];
 
+const interpHermiteAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the only read-off is the point count of the "Število točk" count setter, a setup control that stays in Orodja and shows its own value; the board status line (curve type, tension) is dropped because the mode and tension pucks show the same values'},
+];
+
 const arcAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its details (it carries no readout marker, so the recording holds none), and the mover line "t = .., s(t) = .." is declared as a note while the old panel drew it only as a board caption, which the recording holds as a caption'},
 ];
@@ -924,6 +928,17 @@ const SAMPLES: readonly Sample[] = [
             {name: 'fifth point', apply: run(g => g.addPoint())},
             {name: 'three points, uniform', apply: run(g => { g.removePoint(); g.removePoint(); g.setParameterRule('uniform'); })},
             {name: 'Bezier hidden, s 1', apply: run(g => { g.setShowBezier(false); g.setPosition(1); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/hermite/__parity__/interp-hermite.json', demonstration: 'interp-hermite', accepted: interpHermiteAccepted, states: (() => {
+        type Hermite = {setMode(mode: string): void; setTension(value: number): void; setParameterRule(rule: string): void;
+            addPoint(): void; removePoint(): void; movePoint(index: number, x: number, y: number): boolean};
+        const run = (edit: (graph: Hermite) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Hermite)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'fifth point', apply: run(g => g.addPoint())},
+            {name: 'three points', apply: run(g => { g.removePoint(); g.removePoint(); })},
+            {name: 'six points', apply: run(g => { g.addPoint(); g.addPoint(); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/arc-length.json', demonstration: 'arc-length', states: (() => {
