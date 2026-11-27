@@ -44,7 +44,7 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     transformations: {first: () => t('function_transformation_c_label'), later: [() => t('function_transformation_a_label'), () => t('function_transformation_b_label'), () => t('function_transformation_base_label')]},
     'rational-functions': {first: () => t('rational_function_numerator'), later: [() => t('rational_function_k_label'), () => t('rational_function_probe_label'), () => t('rational_function_example_label')]},
     'geometric-series': {first: () => t('series_q_label'), later: [() => t('series_a_label'), () => t('series_tolerance_label'), () => t('series_example_label')]},
-    conics: {first: () => t('conic_phi_label'), later: [() => t('conic_epsilon_label'), () => t('conic_ell_label'), () => t('conic_example_label')]},
+    conics: {first: () => t('conic_phi_label'), later: [() => t('conic_ell_label'), () => t('conic_example_label')]},
     waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label')]},
     'function-inverse': {first: () => t('function_inverse_x0_label'), later: [() => 'action:toggle-inverse', () => 'action:toggle-tangent', () => t('function_inverse_restriction_label')]},
     'polynomial-zeros': {first: () => t('zero_list_position_label', {value0: 1}), later: [() => t('zero_list_multiplicity_label', {value0: 1}), () => 'action:add-zero', () => t('polynomial_zeros_example_label'), () => t('polynomial_zeros_k_label'), () => 'action:toggle-derivative']},
@@ -110,6 +110,12 @@ describe.each(Object.keys(routes))('%s', key => {
             for (const label of labels) expect(names.some(name => name.startsWith(label)), names.join(' | ')).toBe(false);
             expect(names.some(name => name.startsWith(t(key === 'derivative' ? 'derivative_function_label' : 'integral_function_label'))), names.join(' | ')).toBe(true);
             return;
+        }
+        if (key === 'conics') {
+            // the eccentricity is a board puck: on the strip, not in Edit; the angle still leads Edit
+            await waitForPucks('conic-epsilon');
+            expect(puckOrder(), puckOrder().join(' | ')).toContain('conic-epsilon');
+            expect(editControls().some(name => name.startsWith(t('conic_epsilon_label')))).toBe(false);
         }
         if (key === 'waves') {
             // the amplitudes, phases and frequency and the phasor switch are board pucks leading the strip; play, pause and the mode stay in Edit

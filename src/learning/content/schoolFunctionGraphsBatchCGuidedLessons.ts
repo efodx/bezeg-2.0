@@ -8,9 +8,12 @@
  */
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ConicIds} from '../../graphs/functions/ConicFocalGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const conicFrame = frameDeclarer<ConicIds>();
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 interface StepContent {
     readonly id: string;
@@ -23,14 +26,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** The frame declarations of the step, one per frame kind it builds. */
+    readonly declare?: {readonly explanation?: FrameDeclaration; readonly calculation?: FrameDeclaration; readonly observation?: FrameDeclaration};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-explanation`, 'explanation', declare?.explanation),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare?.calculation)] : []),
+        frame(`${content.id}-observation`, 'observation', declare?.observation),
     ],
 });
 
@@ -356,6 +361,7 @@ const conicLesson: GuidedLesson = {
     steps: [
         step({
             id: 'conic-ellipse-sum', order: 1,
+            declare: {explanation: conicFrame({open: ['readouts'], highlight: ['pf', 'pf2', 'sum']}), observation: conicFrame({open: ['readouts'], highlight: ['sum']})},
             title: text('Vsota razdalj do gorišč na elipsi', 'The sum of the focal distances on an ellipse'),
             purpose: text('Za točko na elipsi izmeriti obe razdalji do gorišč in videti, da je njuna vsota stalna.', 'Measuring both focal distances for a point on an ellipse and seeing that their sum is constant.'),
             explanation: text(
@@ -371,6 +377,11 @@ const conicLesson: GuidedLesson = {
         }),
         step({
             id: 'conic-ratio-reveal', order: 2,
+            declare: {
+                explanation: conicFrame({open: ['readouts'], highlight: ['pf', 'pd']}),
+                calculation: conicFrame({open: ['readouts'], highlight: ['pf', 'pd', 'ratio']}),
+                observation: conicFrame({open: ['readouts']}),
+            },
             title: text('Napovej razmerje do vodnice', 'Predict the ratio to the directrix'),
             purpose: text('Napovedati razmerje \\(|PF|/|Pd|\\) in ga primerjati z \\(\\varepsilon=\\tfrac ca\\).', 'Predicting the ratio \\(|PF|/|Pd|\\) and comparing it with \\(\\varepsilon=\\tfrac ca\\).'),
             explanation: text(
@@ -387,14 +398,18 @@ const conicLesson: GuidedLesson = {
         }),
         step({
             id: 'conic-parabola', order: 3,
+            declare: {
+                explanation: conicFrame({open: ['readouts'], highlight: ['kind', 'ratio'], uses: ['conic-epsilon']}),
+                observation: conicFrame({open: ['readouts'], uses: ['conic-epsilon']}),
+            },
             title: text('Drsenje \\(\\varepsilon\\) skozi \\(1\\): parabola', 'Sliding \\(\\varepsilon\\) through \\(1\\): the parabola'),
             purpose: text('Videti, da natanko \\(\\varepsilon=1\\) da parabolo, v kateri je \\(P\\) enako daleč od gorišča in vodnice.', 'Seeing that exactly \\(\\varepsilon=1\\) gives the parabola, in which \\(P\\) is equally far from the focus and the directrix.'),
             explanation: text(
-                'Parabola \\(y^2=4x\\) ima gorišče \\((1,0)\\) in vodnico \\(x=-1\\). V točki \\(P=(1,2)\\) je \\(|PF|=2\\) in \\(|Pd|=2\\), razmerje je \\(1=\\varepsilon\\). Drsnik za \\(\\varepsilon\\) doseže natanko \\(1\\): pod \\(1\\) je krivulja elipsa, nad \\(1\\) hiperbola, parabola pa je meja, pri kateri se elipsa odpre in drugega gorišča ni več.',
+                'Parabola \\(y^2=4x\\) ima gorišče \\((1,0)\\) in vodnico \\(x=-1\\). V točki \\(P=(1,2)\\) je \\(|PF|=2\\) in \\(|Pd|=2\\), razmerje je \\(1=\\varepsilon\\). Krmilnik Ekscentričnost \\(\\varepsilon\\) doseže natanko \\(1\\): pod \\(1\\) je krivulja elipsa, nad \\(1\\) hiperbola, parabola pa je meja, pri kateri se elipsa odpre in drugega gorišča ni več.',
                 'The parabola \\(y^2=4x\\) has the focus \\((1,0)\\) and the directrix \\(x=-1\\). At \\(P=(1,2)\\) we have \\(|PF|=2\\) and \\(|Pd|=2\\), and the ratio is \\(1=\\varepsilon\\). The slider for \\(\\varepsilon\\) reaches exactly \\(1\\): below \\(1\\) the curve is an ellipse, above \\(1\\) a hyperbola, and the parabola is the border where the ellipse opens up and the second focus is gone.',
             ),
             formulaIds: ['conic-definition'],
-            observationPrompt: text('Z drsnikom pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.', 'Move \\(\\varepsilon\\) across \\(1\\) with the slider and watch what happens to the second focus and to the branches of the curve.'),
+            observationPrompt: text('S krmilnikom Ekscentričnost pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.', 'Move \\(\\varepsilon\\) across \\(1\\) with the Eccentricity control and watch what happens to the second focus and to the branches of the curve.'),
             expectedObservations: [text('Pod \\(1\\) je krivulja sklenjena in ima dve gorišči, pri \\(1\\) drugega gorišča ni, nad \\(1\\) sta dve veji.', 'Below \\(1\\) the curve is closed with two foci, at \\(1\\) there is no second focus, and above \\(1\\) there are two branches.')],
             scene: conicScene('conic-parabola-scene', 'parabola', undefined,
                 'Parabola \\(\\varepsilon=1\\) s točko \\(P=(1,2)\\): \\(|PF|=2\\), \\(|Pd|=2\\).',
@@ -402,6 +417,11 @@ const conicLesson: GuidedLesson = {
         }),
         step({
             id: 'conic-hyperbola', order: 4,
+            declare: {
+                explanation: conicFrame({open: ['readouts'], highlight: ['pf', 'pf2', 'difference']}),
+                calculation: conicFrame({open: ['readouts'], highlight: ['pf', 'pf2', 'difference']}),
+                observation: conicFrame({open: ['readouts'], highlight: ['difference']}),
+            },
             title: text('Hiperbola: razlika razdalj do gorišč', 'The hyperbola: the difference of the focal distances'),
             purpose: text('Pri \\(\\varepsilon>1\\) videti, da je razlika razdalj do gorišč stalna.', 'Seeing that for \\(\\varepsilon>1\\) the difference of the focal distances is constant.'),
             explanation: text(
@@ -418,6 +438,7 @@ const conicLesson: GuidedLesson = {
         }),
         step({
             id: 'conic-circle', order: 5,
+            declare: {explanation: conicFrame({open: ['readouts'], highlight: ['pd', 'ratio']}), observation: conicFrame({open: ['readouts']})},
             title: text('Krožnica kot \\(\\varepsilon=0\\)', 'The circle as \\(\\varepsilon=0\\)'),
             purpose: text('Razumeti krožnico kot mejni primer brez vodnice.', 'Understanding the circle as the limiting case without a directrix.'),
             explanation: text(
@@ -433,6 +454,11 @@ const conicLesson: GuidedLesson = {
         }),
         step({
             id: 'conic-bridge', order: 6,
+            declare: {
+                explanation: conicFrame({open: ['readouts'], highlight: ['weight', 'deviation']}),
+                calculation: conicFrame({open: ['readouts'], highlight: ['weight', 'deviation']}),
+                observation: conicFrame({open: ['readouts']}),
+            },
             title: text('Most do Bézierja: četrtina elipse', 'The Bézier bridge: a quarter ellipse'),
             purpose: text('Videti, da racionalni kvadratni Bézierjev lok z utežjo \\(\\tfrac{\\sqrt2}2\\) leži na elipsi.', 'Seeing that a rational quadratic Bézier arc with the weight \\(\\tfrac{\\sqrt2}2\\) lies on the ellipse.'),
             explanation: text(
@@ -449,11 +475,15 @@ const conicLesson: GuidedLesson = {
         }),
         step({
             id: 'conic-weight', order: 7,
+            declare: {
+                explanation: conicFrame({open: ['readouts', 'tools'], highlight: ['weight-kind', 'deviation'], uses: ['conic-weight', 'matched-weight', 'conic-epsilon']}),
+                observation: conicFrame({open: ['readouts', 'tools'], uses: ['conic-weight', 'matched-weight']}),
+            },
             title: text('Srednja utež odloči o vrsti', 'The middle weight decides the kind'),
             purpose: text('Povezati srednjo utež z vrsto stožnice in prosto raziskovati.', 'Connecting the middle weight with the kind of conic, and exploring freely.'),
             explanation: text(
-                'Pri krajnih utežeh \\(1\\) da \\(w_1<1\\) elipso, \\(w_1=1\\) parabolo in \\(w_1>1\\) hiperbolo. Zdaj je \\(w_1=1\\): lok je del parabole in zato ni več na elipsi, odstopanje pa je jasno večje od \\(0\\). Premakni drsnik pod \\(1\\) (elipsa) in nad \\(1\\) (hiperbola) ter pritisni Prilegajoča se utež, da se lok vrne na stožnico. Nato prosto spreminjaj \\(\\varepsilon\\), \\(\\ell\\) in \\(\\varphi\\): vrsta po uteži se vedno ujema z vrsto stožnice.',
-                'With end weights \\(1\\), \\(w_1<1\\) gives an ellipse, \\(w_1=1\\) a parabola and \\(w_1>1\\) a hyperbola. Now \\(w_1=1\\): the arc is a piece of a parabola and therefore no longer on the ellipse, and the deviation is clearly above \\(0\\). Move the slider below \\(1\\) (ellipse) and above \\(1\\) (hyperbola), and press Matched weight to bring the arc back onto the conic. Then change \\(\\varepsilon\\), \\(\\ell\\) and \\(\\varphi\\) freely: the kind by weight always matches the kind of the conic.',
+                'Pri krajnih utežeh \\(1\\) da \\(w_1<1\\) elipso, \\(w_1=1\\) parabolo in \\(w_1>1\\) hiperbolo. Zdaj je \\(w_1=1\\): lok je del parabole in zato ni več na elipsi, odstopanje pa je jasno večje od \\(0\\). Premakni krmilnik Srednja utež pod \\(1\\) (elipsa) in nad \\(1\\) (hiperbola) ter pritisni Nastavi prilegajočo utež, da se lok vrne na stožnico. Nato prosto spreminjaj \\(\\varepsilon\\), \\(\\ell\\) in \\(\\varphi\\): vrsta po uteži se vedno ujema z vrsto stožnice.',
+                'With end weights \\(1\\), \\(w_1<1\\) gives an ellipse, \\(w_1=1\\) a parabola and \\(w_1>1\\) a hyperbola. Now \\(w_1=1\\): the arc is a piece of a parabola and therefore no longer on the ellipse, and the deviation is clearly above \\(0\\). Move the Middle weight control below \\(1\\) (ellipse) and above \\(1\\) (hyperbola), and press Set the matching weight to bring the arc back onto the conic. Then change \\(\\varepsilon\\), \\(\\ell\\) and \\(\\varphi\\) freely: the kind by weight always matches the kind of the conic.',
             ),
             formulaIds: ['conic-rational-bezier'],
             observationPrompt: text('Premakni \\(w_1\\) pod \\(1\\) in nad \\(1\\) in preberi vrsto po uteži; nato pritisni Nastavi prilegajočo utež.', 'Move \\(w_1\\) below \\(1\\) and above \\(1\\) and read the kind by weight; then press Set the matching weight.'),

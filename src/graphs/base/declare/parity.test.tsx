@@ -1062,6 +1062,20 @@ const SAMPLES: readonly Sample[] = [
             {name: '|x|, n = 30 equispaced', apply: run(g => { g.setFunction('abs'); g.setDegree(30); g.setNodeRule('equispaced'); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/conic-focal.json', demonstration: 'conic-focal', states: (() => {
+        type Conic = {setExample(value: string): void; setEpsilon(value: number): void; setEll(value: number): void; setPhi(value: number): void; setWeight(value: number | null): void; setBridge(value: boolean): void};
+        const run = (edit: (graph: Conic) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Conic)); };
+        return [
+            {name: 'default (ellipse, bridge off)', apply: () => undefined},
+            {name: 'parabola example', apply: run(g => g.setExample('parabola'))},
+            {name: 'hyperbola example', apply: run(g => g.setExample('hyperbola'))},
+            {name: 'circle example', apply: run(g => g.setExample('circle'))},
+            {name: 'ellipse with the bridge, matched weight', apply: run(g => { g.setExample('bridge'); })},
+            {name: 'bridge with weight 1', apply: run(g => { g.setExample('ellipse'); g.setBridge(true); g.setWeight(1); })},
+            {name: 'hyperbola with the bridge, weight 2', apply: run(g => { g.setExample('hyperbola'); g.setBridge(true); g.setWeight(2); })},
+            {name: 'custom values: epsilon 0.5, ell 2, phi 1', apply: run(g => { g.setExample('ellipse'); g.setEpsilon(0.5); g.setEll(2); g.setPhi(1); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/arc-length.json', demonstration: 'arc-length', states: (() => {
         type ArcSetters = {setBound(which: 'a' | 'b', value: number): void; setCount(value: number): void};
         const run = (edit: (graph: ArcSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as ArcSetters)); };

@@ -7,6 +7,7 @@ import {renderMessage, setLanguage} from '../../localization';
 import {functionPresetCollections} from './functionPresetCollections';
 import {CONIC_EXAMPLE_MODELS, conicFocalView} from '../../analysis/conicFocalModel';
 import {GraphPalette} from '../styles/GraphPalette';
+import {runAs} from '../base/writes/writeSource';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -41,11 +42,11 @@ class ObservedConicGraph extends ConicFocalGraph {
     boardObjects() { return this.board.objectsList.length; }
     boardSegments() { return (this.board.objectsList as unknown as StyledSegment[]).filter(object => object.elType === 'segment'); }
     boardLines() { return (this.board.objectsList as unknown as StyledSegment[]).filter(object => object.elType === 'line'); }
-    editEpsilon(value: number) { this.setEpsilon(value); }
-    editEll(value: number) { this.setEll(value); }
-    editPhi(value: number) { this.setPhi(value); }
-    editWeight(value: number | null) { this.setWeight(value); }
-    editBridge(value: boolean) { this.setBridge(value); }
+    editEpsilon(value: number) { runAs("learner", () => this.setEpsilon(value)); }
+    editEll(value: number) { runAs("learner", () => this.setEll(value)); }
+    editPhi(value: number) { runAs("learner", () => this.setPhi(value)); }
+    editWeight(value: number | null) { runAs("learner", () => this.setWeight(value)); }
+    editBridge(value: boolean) { runAs("learner", () => this.setBridge(value)); }
     boardP(): BoardPoint {
         return (this.board.objectsList as unknown as BoardPoint[]).find(object => object.elType === 'point' && object.name === '$$P$$') as BoardPoint;
     }
@@ -141,17 +142,19 @@ test('dragging P and the numeric angle keep the ratio equal to the eccentricity'
     expect(() => graph.editPhi(Number.NaN)).toThrow();
 });
 
-test('the epsilon slider steps land on exactly 1 and exactly 0, with the kind and the circle readout', () => {
+test('the eccentricity puck steps land on exactly 1 and exactly 0, with the kind and the circle readout', () => {
     const {graph} = mountGraph();
-    const slider = () => screen.getByLabelText('Numerična ekscentričnost ε');
+    const write = (value: number) => act(() => { graph.parameters!.write('conic-epsilon', value, 'learner'); });
+    // the eccentricity is a board puck now: the Orodja slider is gone while the puck exists, the arbiter write is the puck's
+    expect(screen.queryByLabelText('Numerična ekscentričnost ε')).toBeNull();
     for (let i = 0; i <= 50; i++) {
-        act(() => { fireEvent.change(slider(), {target: {value: String(i * 0.05)}}); });
+        write(i * 0.05);
         if (i === 20) {
             expect(graph.modelNow().epsilon).toBe(1);
             expect(readout('kind')).toBe('parabola');
         }
     }
-    act(() => { fireEvent.change(slider(), {target: {value: '0'}}); });
+    write(0);
     expect(graph.modelNow().epsilon).toBe(0);
     expect(readout('kind')).toBe('krožnica');
     expect(readout('ratio')).toBe('nedoločeno (krožnica nima vodnice)');
@@ -276,7 +279,7 @@ describe('Preset collection', () => {
         const {graph} = mountGraph();
         const hyperbola = collection.check({...CONIC_EXAMPLE_MODELS.hyperbola});
         expect('rejection' in hyperbola).toBe(false);
-        act(() => { graph.importPresetData({...CONIC_EXAMPLE_MODELS.hyperbola}); });
+        act(() => { runAs('learner', () => graph.importPresetData({...CONIC_EXAMPLE_MODELS.hyperbola})); });
         expect(readout('kind')).toBe('hiperbola');
         expect('rejection' in collection.check({...valid, epsilon: 9})).toBe(true);
         expect(readout('kind')).toBe('hiperbola');

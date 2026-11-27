@@ -1,14 +1,18 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import type {ViewBox} from "../base/writes/viewAdapter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {FunctionStatus} from "./FunctionStatus";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {ConicKind} from "../../analysis/conic";
 import {
@@ -21,17 +25,36 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
 /** The picture holds the focus, both foci of the examples and the conic around them; the units are equal on both axes. */
-/** The top 10 units stay free for the opaque top-right caption, so P, the foci and the directrix of the examples lie below it. */
+/** The starting window; the view director fits the box around the key points (`conicFrame`), not this whole window, between the cards. */
 export const CONIC_VIEW_BOX: BoundingBox = [-14, 20, 14, -10];
+/** The padded box around key points, at least this many units each way so a circle or a lone focus keeps a sensible scale; it stays inside the starting window. */
+const FRAME_MIN_SPAN = 10;
+function conicFrame(points: readonly (readonly [number, number])[]): ViewBox {
+    const [wLeft, wTop, wRight, wBottom] = CONIC_VIEW_BOX;
+    if (points.length === 0) return [wLeft, wTop, wRight, wBottom];
+    let left = Infinity, right = -Infinity, top = -Infinity, bottom = Infinity;
+    for (const [x, y] of points) { left = Math.min(left, x); right = Math.max(right, x); top = Math.max(top, y); bottom = Math.min(bottom, y); }
+    const padX = Math.max(1, (right - left) * 0.12), padY = Math.max(1, (top - bottom) * 0.12);
+    left -= padX; right += padX; top += padY; bottom -= padY;
+    const growX = Math.max(0, FRAME_MIN_SPAN - (right - left)) / 2, growY = Math.max(0, FRAME_MIN_SPAN - (top - bottom)) / 2;
+    return [Math.max(wLeft, left - growX), Math.min(wTop, top + growY), Math.min(wRight, right + growX), Math.max(wBottom, bottom - growY)];
+}
 const DIRECTRIX_DASH = 3;
 const BRIDGE_DASH = 4;
 
-const kindText = (kind: ConicKind): string => {
+/** The ids of the conic declaration: the eccentricity and (with the arc shown) the middle weight are pucks; the matched weight is an Orodja action. */
+export type ConicIds = {
+    param: "conic-epsilon" | "conic-weight";
+    row: "kind" | "pf" | "pd" | "ratio" | "pf2" | "sum" | "difference" | "weight" | "matched-weight" | "weight-kind" | "deviation"; note: "definition";
+    legend: "conic" | "directrix" | "pf" | "pd" | "bridge" | "focus"; section: never; action: "matched-weight";
+};
+
+const kindMessage = (kind: ConicKind): Message => {
     switch (kind) {
-        case "circle": return t("conic_kind_circle");
-        case "ellipse": return t("conic_kind_ellipse");
-        case "parabola": return t("conic_kind_parabola");
-        case "hyperbola": return t("conic_kind_hyperbola");
+        case "circle": return message("conic_kind_circle");
+        case "ellipse": return message("conic_kind_ellipse");
+        case "parabola": return message("conic_kind_parabola");
+        case "hyperbola": return message("conic_kind_hyperbola");
     }
 };
 
@@ -57,6 +80,10 @@ const exampleText = (id: ConicExampleId): string => {
  */
 export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
     private pointP?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
+    /** The view marks of the conic and its foci; they do not depend on P, so dragging P does not move the view. */
+    private marksMemo?: { key: string; marks: ViewMarks; frame: ViewBox };
 
     override presetCollection() {
         return functionPresetCollections["conic-focal"];
@@ -107,20 +134,18 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
 
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
 
-    private number(value: number, decimals = 4): string {
-        return formatNumber(value, currentLanguage(), decimals);
-    }
-
-    private statuses(view: ConicFocalView): { id: string; text: string }[] {
-        const result: { id: string; text: string }[] = [];
-        if (view.kind === "circle") result.push({id: "circle", text: t("conic_status_circle")});
-        else if (view.kind === "ellipse") result.push({id: "ellipse", text: t("conic_status_ellipse", {value0: this.number(view.focalSum ?? 0)})});
-        else if (view.kind === "parabola") result.push({id: "parabola", text: t("conic_status_parabola")});
-        else result.push({id: "hyperbola", text: t("conic_status_hyperbola", {value0: this.number(view.focalDifference ?? 0)})});
+    private statuses(view: ConicFocalView): { id: string; text: Message }[] {
+        const result: { id: string; text: Message }[] = [];
+        if (view.kind === "circle") result.push({id: "circle", text: message("conic_status_circle")});
+        else if (view.kind === "ellipse") result.push({id: "ellipse", text: message("conic_status_ellipse", {value0: messageNumber(view.focalSum ?? 0, 4)})});
+        else if (view.kind === "parabola") result.push({id: "parabola", text: message("conic_status_parabola")});
+        else result.push({id: "hyperbola", text: message("conic_status_hyperbola", {value0: messageNumber(view.focalDifference ?? 0, 4)})});
         if (view.bridge) {
             result.push({
                 id: "bridge",
-                text: t("conic_status_bridge", {value0: this.number(view.bridge.weights[1]), value1: kindText(view.bridge.weightKind), value2: kindText(view.kind === "circle" ? "ellipse" : view.kind)}),
+                text: message("conic_status_bridge", {
+                    value0: messageNumber(view.bridge.weights[1], 4), value1: kindMessage(view.bridge.weightKind), value2: kindMessage(view.kind === "circle" ? "ellipse" : view.kind),
+                }),
             });
         }
         return result;
@@ -135,35 +160,35 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
 
     protected override onSceneRemoved(): void {
         this.pointP = undefined;
+        this.drawn.clear();
     }
 
     protected createScene(): void {
         const board = this.board;
-        const model = () => this.model;
         const view = () => this.viewOf(this.model);
         const strokeWidth = this.displayStrokeWidth;
         const thin = this.displayThinWidth(0.6);
         // The directrix is context but must stay at least as strong as the axes; the two defining distances are content, half as wide again as the conic.
         const directrixWidth = this.displayThinWidth(0.8);
         const distanceWidth = () => strokeWidth() * 1.5;
-        const compact = () => this.boardWidth() < COMPACT_BOARD_WIDTH;
         const hasDirectrix = () => view().conic.directrix !== undefined;
         const hasSecondFocus = () => view().secondFocus !== null;
         const bridgeVisible = () => view().bridge !== null;
 
         // Layers, lowest first: the directrix, the conic (one curve per branch), the Bezier arc, the distance segments, the points.
         const directrix = () => view().conic.directrix ?? {nx: 1, ny: 0, d: 0};
-        this.own(board.create("line", [
+        this.drawn.set("directrix", this.own(board.create("line", [
             [() => directrix().nx * directrix().d, () => directrix().ny * directrix().d],
             [() => directrix().nx * directrix().d - directrix().ny, () => directrix().ny * directrix().d + directrix().nx],
         ], {
             strokeColor: GraphPalette.referenceCurve, dash: DIRECTRIX_DASH, strokeWidth: directrixWidth, highlight: false, fixed: true, withLabel: false,
             visible: hasDirectrix,
-        }));
+        })));
         [0, 1].forEach(index => {
             const branch = this.own(board.create("curve", [[], []], {
                 strokeColor: GraphPalette.primaryCurve, strokeWidth, highlight: false, fixed: true, visible: () => view().branches.length > index,
             })) as unknown as FillCurve;
+            if (index === 0) this.drawn.set("conic", branch as unknown as JXG.GeometryElement);
             branch.updateDataArray = () => {
                 const points = view().branches[index] ?? [];
                 branch.dataX = points.map(point => point.x);
@@ -174,6 +199,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
             strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => strokeWidth() * 1.6, dash: BRIDGE_DASH, highlight: false, fixed: true,
             visible: bridgeVisible,
         })) as unknown as FillCurve;
+        this.drawn.set("bridge", bridge as unknown as JXG.GeometryElement);
         bridge.updateDataArray = () => {
             const samples = view().bridge?.samples ?? [];
             bridge.dataX = samples.map(point => point.x);
@@ -189,8 +215,8 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         const second = (): [number, number] => [view().secondFocus?.x ?? 0, view().secondFocus?.y ?? 0];
         const pointP = (): [number, number] => [view().p.x, view().p.y];
         const foot = (): [number, number] => [view().foot?.x ?? 0, view().foot?.y ?? 0];
-        segment(pointP, focus, GraphPalette.comparisonCurve, undefined, () => true, distanceWidth);
-        segment(pointP, foot, GraphPalette.emphasis, undefined, hasDirectrix, distanceWidth);
+        this.drawn.set("pf", segment(pointP, focus, GraphPalette.comparisonCurve, undefined, () => true, distanceWidth));
+        this.drawn.set("pd", segment(pointP, foot, GraphPalette.emphasis, undefined, hasDirectrix, distanceWidth));
         segment(pointP, second, GraphPalette.referenceCurve, 2, hasSecondFocus);
 
         const fixedPoint = (name: string, at: () => [number, number], color: string, visible: () => boolean) =>
@@ -198,7 +224,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
                 ...this.styles.point.fixed, name, highlight: false, label: this.pointLabel("above-right", 1, visible), fillColor: color,
                 highlightFillColor: color, visible,
             }));
-        fixedPoint("$$F$$", focus, GraphPalette.constructionAccent, () => true);
+        this.drawn.set("focus", fixedPoint("$$F$$", focus, GraphPalette.constructionAccent, () => true) as JXG.GeometryElement);
         fixedPoint("$$F_2$$", second, GraphPalette.constructionAccent, hasSecondFocus);
 
         // P is dragged along the conic: the drag keeps the direction from F (or its opposite), the model stores the polar angle, and
@@ -207,37 +233,13 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
             ...this.styles.point.default, name: "$$P$$", label: this.pointLabel("above-right", 1.6),
         })) as JXG.Point;
         bindMovablePointCursor(point, board);
-        point.on("drag", () => {
+        point.on("drag", () => runAs("learner", () => {
             const phi = conicPhiNear(view().conic, {x: point.X(), y: point.Y()});
             const accepted = this.ignoreOutOfDomain(() => this.setPhi(phi, {syncScene: false}));
             if (!accepted) this.syncSceneToModel();
             else point.moveTo([view().p.x, view().p.y]);
-        });
+        }));
         this.pointP = point;
-
-        this.caption("top-right", [
-            {text: () => t("conic_board_title"), scale: 1.2, math: true},
-            {text: () => t("conic_board_parameters", {value0: this.number(model().epsilon), value1: this.number(model().ell), value2: kindText(view().kind)})},
-            {
-                text: () => {
-                    const now = view();
-                    return now.ratio === null || now.pd === null
-                        ? t("conic_board_ratio_undefined", {value0: this.number(now.pf)})
-                        : t("conic_board_ratio", {value0: this.number(now.pf), value1: this.number(now.pd), value2: this.number(now.ratio)});
-                },
-                color: () => view().ratio === null ? GraphPalette.warningText : GraphPalette.label,
-            },
-            {text: () => t("conic_board_sum", {value0: this.number(view().focalSum ?? 0)}), visible: () => view().focalSum !== null},
-            {text: () => t("conic_board_difference", {value0: this.number(view().focalDifference ?? 0)}), visible: () => view().focalDifference !== null},
-            {
-                text: () => {
-                    const arc = view().bridge;
-                    return arc ? t("conic_board_bridge", {value0: this.number(arc.weights[1]), value1: formatSignificant(arc.deviation, currentLanguage())}) : "";
-                },
-                visible: bridgeVisible,
-            },
-            {text: () => t("conic_status_circle"), color: GraphPalette.warningText, minBoardWidth: COMPACT_BOARD_WIDTH, visible: () => !compact() && view().kind === "circle"},
-        ]);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -257,9 +259,9 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
                 <Slider customText={t("conic_phi_label")} min={CONIC_PHI_MIN} max={CONIC_PHI_MAX} step={0.01} value={state.phi} decimals={2}
                         rejectedHint={t("conic_phi_rejected_hint", rangeHint(CONIC_PHI_MIN, CONIC_PHI_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setPhi(next))}/>
-                <Slider customText={t("conic_epsilon_label")} min={CONIC_EPSILON_MIN} max={CONIC_EPSILON_MAX} step={0.05} value={state.epsilon}
+                <PuckOwned param="conic-epsilon"><Slider customText={t("conic_epsilon_label")} min={CONIC_EPSILON_MIN} max={CONIC_EPSILON_MAX} step={0.05} value={state.epsilon}
                         rejectedHint={t("conic_epsilon_rejected_hint", rangeHint(CONIC_EPSILON_MIN, CONIC_EPSILON_MAX))}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
+                        onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/></PuckOwned>
                 <Slider customText={t("conic_ell_label")} min={CONIC_ELL_MIN} max={CONIC_ELL_MAX} step={0.1} value={state.ell}
                         rejectedHint={t("conic_ell_rejected_hint", rangeHint(CONIC_ELL_MIN, CONIC_ELL_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setEll(next))}/>
@@ -268,9 +270,9 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
             <div className="inspector-group">
                 <OnOffSwitch checked={state.bridge} label={t("conic_bridge_label")} onChange={next => this.ignoreOutOfDomain(() => this.setBridge(next))}/>
                 <p className="inspector-help">{t("conic_bridge_help")}</p>
-                <Slider customText={t("conic_weight_label")} min={CONIC_WEIGHT_MIN} max={CONIC_WEIGHT_MAX} step={0.01} value={weightShown} unavailableReason={state.bridge ? undefined : t("conic_weight_needs_bridge")}
+                <PuckOwned param="conic-weight"><Slider customText={t("conic_weight_label")} min={CONIC_WEIGHT_MIN} max={CONIC_WEIGHT_MAX} step={0.01} value={weightShown} unavailableReason={state.bridge ? undefined : t("conic_weight_needs_bridge")}
                         rejectedHint={t("conic_weight_rejected_hint", rangeHint(CONIC_WEIGHT_MIN, CONIC_WEIGHT_MAX))}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setWeight(next))}/>
+                        onChange={next => this.ignoreOutOfDomain(() => this.setWeight(next))}/></PuckOwned>
                 <div className={CONTROL_ROW_FILL}>
                     <UnavailableButton data-action="matched-weight" reason={matchedReason}
                                        onBlockedPress={reason => { if (state.bridge) this.refusals.refuse(reason, true); }}
@@ -286,39 +288,131 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         </>;
     }
 
+    /** The legend is declared: the graph's own legend panel renders nothing. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "conic", color: GraphPalette.primaryCurve, label: t("conic_legend_conic"), kind: "line"},
-            {id: "directrix", color: GraphPalette.referenceCurve, label: t("conic_legend_directrix"), kind: "dashed-line"},
-            {id: "pf", color: GraphPalette.comparisonCurve, label: t("conic_legend_pf"), kind: "line"},
-            {id: "pd", color: GraphPalette.emphasis, label: t("conic_legend_pd"), kind: "line"},
-            {id: "bridge", color: GraphPalette.comparisonCurve, label: t("conic_legend_bridge"), kind: "dashed-line"},
-            {id: "focus", color: GraphPalette.constructionAccent, label: t("conic_legend_focus"), kind: "dot"},
-        ]}/>;
+        return null;
+    }
+
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the setters validate and refuse with a `DomainError`; a weight read before one is set is the matched one. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "conic-epsilon": {read: () => this.model.epsilon, apply: (value: number) => this.setEpsilon(value)},
+            "conic-weight": {read: () => this.model.weight ?? this.viewOf(this.model).bridge?.matchedWeight ?? 1, apply: (value: number) => this.setWeight(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, status) plus the eccentricity (step "Sliding epsilon through 1": a puck) and, while the Bezier arc is
+     * shown, the middle weight (step "The middle weight decides the kind": a puck), the matched-weight button (Orodja) and the legend of the
+     * drawn objects. The semi-latus rectum, the angle of P (P is dragged on the board), the example choice (five options) and the arc switch
+     * (every scene sets it) stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const view = this.viewOf(model);
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "conic-epsilon", kind: "range", label: message("conic_epsilon_name"), symbol: "\\varepsilon", help: message("conic_epsilon_help"), placement: "board",
+                    min: CONIC_EPSILON_MIN, max: CONIC_EPSILON_MAX, step: 0.05, maxDecimals: 2},
+                ...(view.bridge === null ? [] : [{key: "conic-weight" as const, kind: "range" as const, label: message("conic_weight_name"), symbol: "w_1",
+                    help: message("conic_weight_help"), placement: "board" as const, min: CONIC_WEIGHT_MIN, max: CONIC_WEIGHT_MAX, step: 0.01, maxDecimals: 2}]),
+            ],
+            legend: [
+                {id: "conic", label: message("conic_legend_conic"), kind: "line", object: "conic"},
+                {id: "directrix", label: message("conic_legend_directrix"), kind: "dashed", object: "directrix"},
+                {id: "pf", label: message("conic_legend_pf"), kind: "line", object: "pf"},
+                {id: "pd", label: message("conic_legend_pd"), kind: "line", object: "pd"},
+                {id: "bridge", label: message("conic_legend_bridge"), kind: "dashed", object: "bridge"},
+                {id: "focus", label: message("conic_legend_focus"), kind: "point", object: "focus"},
+            ],
+            actions: [{id: "matched-weight", label: message("conic_weight_set_matching"), placement: "tools", tab: "edit", enabled: model.bridge && model.weight !== null}],
+            marks: this.conicMarks(model, view),
+            followView: this.conicFollowFrame(model, view),
+        };
+    }
+
+    /** The matched-weight button of the inspector, as the learner presses it. */
+    override performAction(id: string): void {
+        if (id !== "matched-weight") throw new Error("Unknown action");
+        runAs("learner", () => this.ignoreOutOfDomain(() => this.setWeight(null)));
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(id === "focus" ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /**
+     * What the view keeps in sight: the foci, the Bezier arc's control points and the conic's branches inside the starting view. P and the
+     * distance segments are not marks (P lies on the conic and a drag would move the view); the marks depend on the conic, not on P.
+     */
+    private conicMarks(model: ConicFocalModel, view: ConicFocalView): ViewMarks {
+        const key = [model.focusX, model.direction, model.ell, model.epsilon, model.bridge].join(",");
+        if (this.marksMemo?.key === key) return this.marksMemo.marks;
+        const [left, top, right, bottom] = CONIC_VIEW_BOX;
+        const must: ViewMark[] = [{kind: "point", x: view.conic.focus.x, y: view.conic.focus.y}];
+        if (view.secondFocus) must.push({kind: "point", x: view.secondFocus.x, y: view.secondFocus.y});
+        for (const control of view.bridge?.points ?? []) must.push({kind: "point", x: control.x, y: control.y});
+        const nice: ViewMark[] = [];
+        for (const branch of view.branches) {
+            const points = branch.filter(({x, y}) => x >= left && x <= right && y >= bottom && y <= top).map(({x, y}) => [x, y] as [number, number]);
+            if (points.length > 1) nice.push({kind: "polyline", points});
+        }
+        // The directrix is an infinite line: keep its foot below the focus in sight, so the segment |Pd| ends on screen.
+        const directrix = view.conic.directrix;
+        if (directrix) {
+            const {x, y} = view.conic.focus, gap = directrix.d - (directrix.nx * x + directrix.ny * y);
+            nice.push({kind: "point", x: x + gap * directrix.nx, y: y + gap * directrix.ny});
+        }
+        const marks: ViewMarks = {must, nice};
+        const pointsOf = (list: ViewMark[]) => list.flatMap(mark => (mark.kind === "point" ? [[mark.x, mark.y] as [number, number]] : mark.kind === "polyline" ? mark.points : []));
+        const frame = conicFrame([...pointsOf(must), ...pointsOf(nice)]);
+        this.marksMemo = {key, marks, frame};
+        return marks;
+    }
+
+    /** The box around the foci, control points and the conic inside the starting view: what the director fits between the cards (the whole 28 by 30 unit window leaves a small conic). */
+    private conicFollowFrame(model: ConicFocalModel, view: ConicFocalView): ViewBox {
+        this.conicMarks(model, view);
+        return this.marksMemo!.frame;
+    }
+
+    /** The readout rows, the definition note and the status lines, as declared data; the inspector's readout is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
+        const view = this.viewOf(this.model);
+        const number = (value: number) => messageNumber(value, 4);
+        return {
+            rows: [
+                {id: "kind", name: message("conic_readout_kind"), value: kindMessage(view.kind)},
+                {id: "pf", name: message("conic_readout_pf"), value: number(view.pf)},
+                {id: "pd", name: message("conic_readout_pd"), value: view.pd === null ? message("conic_not_applicable") : number(view.pd)},
+                {id: "ratio", name: message("conic_readout_ratio"), value: view.ratio === null ? message("conic_ratio_undefined") : number(view.ratio)},
+                ...(view.pf2 === null ? [] : [{id: "pf2" as const, name: message("conic_readout_pf2"), value: number(view.pf2)}]),
+                ...(view.focalSum === null ? [] : [{id: "sum" as const, name: message("conic_readout_sum"), value: number(view.focalSum)}]),
+                ...(view.focalDifference === null ? [] : [{id: "difference" as const, name: message("conic_readout_difference"), value: number(view.focalDifference)}]),
+                ...(view.bridge === null ? [] : [
+                    {id: "weight" as const, name: message("conic_readout_weight"), value: number(view.bridge.weights[1])},
+                    {id: "matched-weight" as const, name: message("conic_readout_matched"), value: number(view.bridge.matchedWeight)},
+                    {id: "weight-kind" as const, name: message("conic_readout_weight_kind"), value: kindMessage(view.bridge.weightKind)},
+                    {id: "deviation" as const, name: message("conic_readout_deviation"), value: {kind: "formatted" as const, text: formatSignificant(view.bridge.deviation, currentLanguage())}},
+                ]),
+            ],
+            notes: [{id: "definition", text: message("conic_note")}],
+            status: this.statuses(view),
+        };
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.model;
-        const view = this.viewOf(model);
-        const language = currentLanguage();
-        const rows = [
-            {id: "kind", label: t("conic_readout_kind"), value: kindText(view.kind)},
-            {id: "pf", label: t("conic_readout_pf"), value: this.number(view.pf)},
-            {id: "pd", label: t("conic_readout_pd"), value: view.pd === null ? t("conic_not_applicable") : this.number(view.pd)},
-            {id: "ratio", label: t("conic_readout_ratio"), value: view.ratio === null ? t("conic_ratio_undefined") : this.number(view.ratio)},
-            ...(view.pf2 === null ? [] : [{id: "pf2", label: t("conic_readout_pf2"), value: this.number(view.pf2)}]),
-            ...(view.focalSum === null ? [] : [{id: "sum", label: t("conic_readout_sum"), value: this.number(view.focalSum)}]),
-            ...(view.focalDifference === null ? [] : [{id: "difference", label: t("conic_readout_difference"), value: this.number(view.focalDifference)}]),
-            ...(view.bridge === null ? [] : [
-                {id: "weight", label: t("conic_readout_weight"), value: this.number(view.bridge.weights[1])},
-                {id: "matched-weight", label: t("conic_readout_matched"), value: this.number(view.bridge.matchedWeight)},
-                {id: "weight-kind", label: t("conic_readout_weight_kind"), value: kindText(view.bridge.weightKind)},
-                {id: "deviation", label: t("conic_readout_deviation"), value: formatSignificant(view.bridge.deviation, language)},
-            ]),
-        ];
+        const lines = (this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}));
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("conic_note")}/>
-            <FunctionStatus className="demo-status" dataAttribute="conic-status" lines={this.statuses(view)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="demo-status" dataAttribute="conic-status" lines={lines}/>
         </>;
     }
 }
