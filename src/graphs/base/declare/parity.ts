@@ -8,7 +8,7 @@ import {act} from '@testing-library/react';
 import JXG from 'jsxgraph';
 import type BaseGraph from '../BaseGraph';
 import type {BaseGraphState} from '../BaseGraph';
-import {mountGraph} from '../realGraphTestHarness';
+import {failMathJaxLoads, mountGraph} from '../realGraphTestHarness';
 import {formatNumber} from '../../../analysis/format';
 import {isMessageNumber, renderMessage, setLanguage, type Message, type MessageNumber} from '../../../localization';
 import type {FormattedValue, GraphDeclaration} from './graphDeclaration';
@@ -86,6 +86,8 @@ export async function recordParity(id: string, graph: BaseGraph<BaseGraphState>,
     return (await recordParityWithDeclarations(id, graph, states)).recording;
 }
 
+const STABLE_FRAMES = 2;
+
 /** As {@link recordParity}, and the graph's `getDeclaration()` after each state (`undefined` for an undeclared graph). */
 export async function recordParityWithDeclarations(id: string, graph: BaseGraph<BaseGraphState>, states: readonly ParityState[]):
     Promise<{recording: ParityRecording; declarations: (GraphDeclaration | undefined)[]}> {
@@ -97,6 +99,9 @@ export async function recordParityWithDeclarations(id: string, graph: BaseGraph<
         matches: query.includes('prefers-reduced-motion: reduce'), media: query, onchange: null,
         addEventListener: () => undefined, removeEventListener: () => undefined, addListener: () => undefined, removeListener: () => undefined, dispatchEvent: () => false,
     })) as unknown as typeof window.matchMedia;
+    // The cards lay out, and the director fits, only once MathJax has loaded or failed; in jsdom that was its 15 s timeout, at a moment
+    // unrelated to the states. Failing it at once lays the cards out on mount, so every state is recorded fitted.
+    const stopFailingMathJax = failMathJaxLoads();
     const frame = () => act(async () => { await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); });
     const mounted = mountGraph(graph);
     const recorded: RecordedState[] = [];
@@ -107,14 +112,24 @@ export async function recordParityWithDeclarations(id: string, graph: BaseGraph<
         for (const state of states) {
             await act(async () => { await state.apply(graph); });
             await act(async () => { await new Promise(resolve => setTimeout(resolve, 1)); });
-            await frame();
-            await frame();
+            // The view director fits on a frame it requests after the state (cards measured again, a fit retargeted): wait until the
+            // panel, the captions and the shown view are unchanged for two consecutive frames.
+            const board = (graph as unknown as {board?: JXG.Board}).board;
+            const snapshot = () => JSON.stringify([readPanel(mounted.view.container, graph, state.name), board?.getBoundingBox()]);
+            let previous = snapshot();
+            for (let stable = 0, frames = 0; stable < STABLE_FRAMES && frames < 120; frames++) {
+                await frame();
+                const current = snapshot();
+                stable = current === previous ? stable + 1 : 0;
+                previous = current;
+            }
             recorded.push(readPanel(mounted.view.container, graph, state.name));
             declarations.push(graph.getDeclaration());
         }
     } finally {
         mounted.view.unmount();
         window.matchMedia = matchMedia;
+        stopFailingMathJax();
     }
     return {recording: {graph: id, language: 'sl', states: recorded}, declarations};
 }

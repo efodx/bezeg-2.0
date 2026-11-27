@@ -199,7 +199,9 @@
         "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
       ],
       "outputs": [],
-      "captions": []
+      "captions": [
+        "N = 11"
+      ]
     },
     {
       "name": "sequence-guided/sequence-small-epsilon-step",
@@ -532,7 +534,9 @@
         "Člen na robu pasu, kjer je |aₙ - L| = ε, je izven pasu: v definiciji je neenakost stroga. Certifikat izhaja iz obrazca zaporedja in velja za vsak n ≥ N, tudi za člene, ki jih ne vidiš; končno okno prikazanih členov konvergence ne dokaže."
       ],
       "outputs": [],
-      "captions": []
+      "captions": [
+        "N = 11"
+      ]
     }
   ]
 }

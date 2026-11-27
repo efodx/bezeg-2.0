@@ -46,6 +46,20 @@ export function installBoardShims(): void {
         addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
 }
 
+/**
+ * jsdom never loads an external script and never reports it failed either, so a MathJax request ends only at its 15 s timeout,
+ * and the board cards, which wait for MathJax before they measure, lay out (and the view director fits) at a wall-clock moment
+ * unrelated to the test. This fails every MathJax script as it is added (and one already pending), as offline: the cards measure
+ * at once and formulas stay source text, as they do now. Returns the function that stops it.
+ */
+export function failMathJaxLoads(): () => void {
+    const fail = (node: Node) => { if (node instanceof HTMLScriptElement && node.id === 'MathJax-script') node.dispatchEvent(new Event('error')); };
+    document.querySelectorAll('script').forEach(fail);
+    const observer = new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(fail)));
+    observer.observe(document.head, {childList: true});
+    return () => observer.disconnect();
+}
+
 /** Turns the view director's auto-fit off for a file's tests (call at file level); it fits on a frame, so a scene comparison would see one graph fitted and the other not. */
 export function disableAutofit(): void {
     let before = true;
