@@ -1,7 +1,6 @@
 import {act} from '@testing-library/react';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import C1SplineGraph from './C1SplineGraph';
-import C2SplineGraph from './C2SplineGraph';
 import CnSplineGraph from './CnSplineGraph';
 import G1SplineGraph from './G1SplineGraph';
 import {installBoardShims, mountGraph, openTools, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from '../../base/realGraphTestHarness';
@@ -132,7 +131,7 @@ describe('spline-c1 declares through BaseSplineCurveGraph', () => {
         view.unmount();
     });
 
-    test.each([['spline-cn', CnSplineGraph], ['spline-c2', C2SplineGraph], ['spline-g1', G1SplineGraph]])('%s stays undeclared until it is converted', (_id, Graph) => {
+    test.each([['spline-cn', CnSplineGraph], ['spline-g1', G1SplineGraph]])('%s stays undeclared until it is converted', (_id, Graph) => {
         const graph = new Graph();
         const {view} = mountGraph(graph);
         expect(graph.getDeclaration()).toBeUndefined();

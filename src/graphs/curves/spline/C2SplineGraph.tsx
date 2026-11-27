@@ -25,6 +25,9 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
         return c2SplineDefaultPreset();
     }
 
+    /** Task 08: the second converted spline graph (legend, control polygon and hull pucks, view marks, followView). */
+    protected override declaresSplineWorkspace(): boolean { return true; }
+
 
 }
 

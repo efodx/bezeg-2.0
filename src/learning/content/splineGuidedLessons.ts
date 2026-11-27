@@ -489,7 +489,7 @@ const splineC2: GuidedLesson = {
             ),
             formulaIds: ['c2-thirds'],
             frames: [frame('c2-pieces-explanation', 'explanation'), frame('c2-pieces-observation', 'observation')],
-            observationPrompt: text('Preštej odseke in izpeljane točke; skrij jih s stikalom Skrij fiksne točke.', 'Count the pieces and the derived points; hide them with the Hide fixed points switch.'),
+            observationPrompt: text('Preštej odseke in izpeljane točke, nato jih skrij: v kartici Orodja vklopi Skrij fiksne točke.', 'Count the pieces and the derived points, then hide them: in the Tools card switch on Hide fixed points.'),
             expectedObservations: [text('Odsekov je \\(3\\), izpeljanih točk \\(6\\), prostih točk \\(6\\).', 'There are \\(3\\) pieces, \\(6\\) derived points and \\(6\\) free points.')],
             scene: {
                 id: 'c2-default-labelled', basedOn: 'lesson-fixture',
